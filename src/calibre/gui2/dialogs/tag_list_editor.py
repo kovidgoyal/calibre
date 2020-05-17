@@ -5,16 +5,18 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
                       QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
-                      pyqtSignal)
+                      pyqtSignal, QAction, QFrame, QLabel, QTimer)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
-from calibre.utils.icu import sort_key
+from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key, contains, primary_contains
 from polyglot.builtins import unicode_type
 
+QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 class NameTableWidgetItem(QTableWidgetItem):
 
@@ -137,6 +139,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         # Put the category name into the title bar
         t = self.windowTitle()
+        self.category_name = cat_name
         self.setWindowTitle(t + ' (' + cat_name + ')')
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -161,16 +164,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.get_book_ids = get_book_ids
         self.text_before_editing = ''
 
-        # Set up the column headings
-        self.down_arrow_icon = QIcon(I('arrow-down.png'))
-        self.up_arrow_icon = QIcon(I('arrow-up.png'))
-        self.blank_icon = QIcon(I('blank.png'))
-
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.table.horizontalHeader()
-        hh.setSectionsClickable(True)
-        hh.sectionClicked.connect(self.header_clicked)
         hh.sectionResized.connect(self.table_column_resized)
+        hh.setSectionsClickable(True)
+        hh.sectionClicked.connect(self.do_sort)
+        hh.setSortIndicatorShown(True)
+
+        self.last_sorted_by = 'name'
         self.name_order = 0
         self.count_order = 1
         self.was_order = 1
@@ -180,12 +181,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.edit_delegate.editing_started.connect(self.start_editing)
         self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
-        # Add the data
-        select_item = self.fill_in_table(None, tag_to_match)
-
-        # Scroll to the selected item if there is one
-        if select_item is not None:
-            self.table.setCurrentItem(select_item)
+        if prefs['use_primary_find_in_search']:
+            self.string_contains = primary_contains
+        else:
+            self.string_contains = contains
 
         self.delete_button.clicked.connect(self.delete_tags)
         self.rename_button.clicked.connect(self.rename_tag)
@@ -198,8 +197,36 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.buttonBox.accepted.connect(self.accepted)
 
         self.search_box.initialize('tag_list_search_box_' + cat_name)
-        self.search_button.clicked.connect(self.all_matching_clicked)
+        le = self.search_box.lineEdit()
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.clear_search)
+        le.returnPressed.connect(self.do_search)
+        self.search_box.textChanged.connect(self.search_text_changed)
+        self.search_button.clicked.connect(self.do_search)
         self.search_button.setDefault(True)
+        l = QLabel(self.table)
+        self.not_found_label = l
+        l.setFrameStyle(QFrame.StyledPanel)
+        l.setAutoFillBackground(True)
+        l.setText(_('No matches found'))
+        l.setAlignment(Qt.AlignVCenter)
+        l.resize(l.sizeHint())
+        l.move(10, 0)
+        l.setVisible(False)
+        self.not_found_label_timer = QTimer()
+        self.not_found_label_timer.setSingleShot(True)
+        self.not_found_label_timer.timeout.connect(
+                self.not_found_label_timer_event, type=Qt.QueuedConnection)
+
+
+        self.filter_box.initialize('tag_list_filter_box_' + cat_name)
+        le = self.filter_box.lineEdit()
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.clear_filter)
+        le.returnPressed.connect(self.do_filter)
+        self.filter_button.clicked.connect(self.do_filter)
 
         self.apply_vl_checkbox.clicked.connect(self.vl_box_changed)
 
@@ -213,17 +240,46 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:
             pass
+        # Add the data
+        self.search_item_row = -1
+        self.fill_in_table(None, tag_to_match)
 
     def vl_box_changed(self):
+        self.search_item_row = -1
         self.fill_in_table(None, None)
+
+    def do_search(self):
+        self.not_found_label.setVisible(False)
+        find_text = icu_lower(unicode_type(self.search_box.currentText()))
+        if not find_text:
+            return
+        for _ in range(0, self.table.rowCount()):
+            r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
+            if self.string_contains(find_text,
+                        self.all_tags[self.ordered_tags[r]]['cur_name']):
+                self.table.setCurrentItem(self.table.item(r, 0))
+                self.table.setFocus(True)
+                return
+        # Nothing found. Pop up the little dialog for 1.5 seconds
+        self.not_found_label.setVisible(True)
+        self.not_found_label_timer.start(1500)
+
+    def search_text_changed(self):
+        self.search_item_row = -1
+
+    def clear_search(self):
+        self.search_item_row = -1
+        self.search_box.setText('')
 
     def fill_in_table(self, tags, tag_to_match):
         data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
         self.all_tags = {}
+        filter_text = icu_lower(unicode_type(self.filter_box.text()))
         for k,v,count in data:
-            self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
-                                'is_deleted': k in self.to_delete}
-            self.original_names[k] = v
+            if not filter_text or self.string_contains(filter_text, icu_lower(v)):
+                self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
+                                   'is_deleted': k in self.to_delete}
+                self.original_names[k] = v
         self.edit_delegate.set_completion_data(self.original_names.values())
 
         self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
@@ -234,18 +290,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.table.blockSignals(True)
         self.table.clear()
         self.table.setColumnCount(3)
-        self.name_col = QTableWidgetItem(_('Tag'))
+        self.name_col = QTableWidgetItem(self.category_name)
         self.table.setHorizontalHeaderItem(0, self.name_col)
-        self.name_col.setIcon(self.up_arrow_icon)
         self.count_col = QTableWidgetItem(_('Count'))
         self.table.setHorizontalHeaderItem(1, self.count_col)
-        self.count_col.setIcon(self.blank_icon)
         self.was_col = QTableWidgetItem(_('Was'))
         self.table.setHorizontalHeaderItem(2, self.was_col)
-        self.count_col.setIcon(self.blank_icon)
 
         self.table.setRowCount(len(tags))
-
         for row,tag in enumerate(tags):
             item = NameTableWidgetItem()
             item.set_is_deleted(self.all_tags[tag]['is_deleted'])
@@ -260,7 +312,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             self.table.setItem(row, 0, item)
             if tag == tag_to_match:
                 select_item = item
-
             item = CountTableWidgetItem(self.all_tags[tag]['count'])
             # only the name column can be selected
             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
@@ -271,27 +322,31 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             if _id in self.to_rename or _id in self.to_delete:
                 item.setData(Qt.DisplayRole, tag)
             self.table.setItem(row, 2, item)
-        self.table.blockSignals(False)
-        return select_item
 
-    def all_matching_clicked(self):
-        for i in range(0, self.table.rowCount()):
-            item = self.table.item(i, 0)
-            tag = item.initial_text()
-            self.all_tags[tag]['cur_name'] = item.text()
-            self.all_tags[tag]['is_deleted'] = item.is_deleted
-        search_for = icu_lower(unicode_type(self.search_box.text()))
-        if len(search_for) == 0:
-            self.fill_in_table(None, None)
-        result = []
-        for k in self.ordered_tags:
-            tag = self.all_tags[k]
-            if (
-                search_for in icu_lower(unicode_type(tag['cur_name'])) or
-                search_for in icu_lower(unicode_type(self.original_names.get(tag['key'], '')))
-            ):
-                result.append(k)
-        self.fill_in_table(result, None)
+        if self.last_sorted_by == 'name':
+            self.table.sortByColumn(0, self.name_order)
+        elif self.last_sorted_by == 'count':
+            self.table.sortByColumn(1, self.count_order)
+        else:
+            self.table.sortByColumn(2, self.was_order)
+
+        if select_item is not None:
+            self.table.setCurrentItem(select_item)
+            self.start_find_pos = select_item.row()
+        else:
+            self.table.setCurrentCell(0, 0)
+            self.start_find_pos = -1
+        self.table.blockSignals(False)
+
+    def not_found_label_timer_event(self):
+        self.not_found_label.setVisible(False)
+
+    def clear_filter(self):
+        self.filter_box.setText('')
+        self.fill_in_table(None, None)
+
+    def do_filter(self):
+        self.fill_in_table(None, None)
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
@@ -445,37 +500,23 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if row >= 0:
             self.table.scrollToItem(self.table.item(row, 0))
 
-    def header_clicked(self, idx):
-        if idx == 0:
-            self.do_sort_by_name()
-        elif idx == 1:
-            self.do_sort_by_count()
-        else:
-            self.do_sort_by_was()
+    def do_sort(self, section):
+        (self.do_sort_by_name, self.do_sort_by_count, self.do_sort_by_was)[section]()
 
     def do_sort_by_name(self):
-        self.name_order = 1 if self.name_order == 0 else 0
+        self.name_order = 1 - self.name_order
+        self.last_sorted_by = 'name'
         self.table.sortByColumn(0, self.name_order)
-        self.name_col.setIcon(self.down_arrow_icon if self.name_order
-                                                    else self.up_arrow_icon)
-        self.count_col.setIcon(self.blank_icon)
-        self.was_col.setIcon(self.blank_icon)
 
     def do_sort_by_count(self):
-        self.count_order = 1 if self.count_order == 0 else 0
+        self.count_order = 1 - self.count_order
+        self.last_sorted_by = 'count'
         self.table.sortByColumn(1, self.count_order)
-        self.count_col.setIcon(self.down_arrow_icon if self.count_order
-                                                    else self.up_arrow_icon)
-        self.name_col.setIcon(self.blank_icon)
-        self.was_col.setIcon(self.blank_icon)
 
     def do_sort_by_was(self):
-        self.was_order = 1 if self.was_order == 0 else 0
+        self.was_order = 1 - self.was_order
+        self.last_sorted_by = 'count'
         self.table.sortByColumn(2, self.was_order)
-        self.was_col.setIcon(self.down_arrow_icon if self.was_order
-                                                    else self.up_arrow_icon)
-        self.name_col.setIcon(self.blank_icon)
-        self.count_col.setIcon(self.blank_icon)
 
     def accepted(self):
         self.save_geometry()
