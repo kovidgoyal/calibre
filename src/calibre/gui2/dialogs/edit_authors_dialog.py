@@ -73,9 +73,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         # Set up the heading for sorting
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.down_arrow_icon = QIcon(I('arrow-down.png'))
-        self.up_arrow_icon = QIcon(I('arrow-up.png'))
-        self.blank_icon = QIcon(I('blank.png'))
 
         self.find_aut_func = find_aut_func
         self.table.resizeColumnsToContents()
@@ -90,9 +87,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.table.horizontalHeader()
-        hh.setSectionsClickable(True)
-        hh.sectionClicked.connect(self.header_clicked)
         hh.sectionResized.connect(self.table_column_resized)
+        hh.setSectionsClickable(True)
+        hh.sectionClicked.connect(self.do_sort)
+        hh.setSortIndicatorShown(True)
 
         # set up the search box
         self.find_box.initialize('manage_authors_search')
@@ -133,9 +131,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                                           'link': v['link']}
 
         self.edited_icon = QIcon(I('modified.png'))
-        self.down_arrow_icon = QIcon(I('arrow-down.png'))
-        self.up_arrow_icon = QIcon(I('arrow-up.png'))
-        self.blank_icon = QIcon(I('blank.png'))
         self.last_sorted_by = 'sort'
         self.author_order = 1
         self.author_sort_order = 0
@@ -151,12 +146,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.blockSignals(True)
         self.table.clear()
         self.table.setColumnCount(3)
-        self.auth_col = QTableWidgetItem(_('Author'))
-        self.table.setHorizontalHeaderItem(0, self.auth_col)
-        self.aus_col = QTableWidgetItem(_('Author sort'))
-        self.table.setHorizontalHeaderItem(1, self.aus_col)
-        self.aul_col = QTableWidgetItem(_('Link'))
-        self.table.setHorizontalHeaderItem(2, self.aul_col)
 
         self.table.setRowCount(len(auts_to_show))
         select_item = None
@@ -183,7 +172,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 2, link_item)
 
             if id_to_select and id_to_select in (id_, name):
-                print('id', id_to_select)
                 if select_sort:
                     select_item = sort_item
                 elif select_link:
@@ -193,6 +181,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             row += 1
 
         self.table.setItemDelegate(EditColumnDelegate(self.completion_data))
+        self.table.setHorizontalHeaderLabels([_('Author'), _('Author sort'), _('Link')])
 
         if self.last_sorted_by == 'sort':
             self.author_sort_order = 1 if self.author_sort_order == 0 else 0
@@ -346,40 +335,23 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.not_found_label.setVisible(True)
         self.not_found_label_timer.start(1500)
 
-    def header_clicked(self, idx):
-        if idx == 0:
-            self.do_sort_by_author()
-        elif idx == 1:
-            self.do_sort_by_author_sort()
-        else:
-            self.do_sort_by_link()
+    def do_sort(self, section):
+        (self.do_sort_by_author, self.do_sort_by_author_sort, self.do_sort_by_link)[section]()
 
     def do_sort_by_author(self):
         self.last_sorted_by = 'author'
-        self.author_order = 1 if self.author_order == 0 else 0
+        self.author_order = 1 - self.author_order
         self.table.sortByColumn(0, self.author_order)
-        self.auth_col.setIcon(self.down_arrow_icon if self.author_order
-                                                    else self.up_arrow_icon)
-        self.aus_col.setIcon(self.blank_icon)
-        self.aul_col.setIcon(self.blank_icon)
 
     def do_sort_by_author_sort(self):
         self.last_sorted_by = 'sort'
-        self.author_sort_order = 1 if self.author_sort_order == 0 else 0
+        self.author_sort_order = 1 - self.author_sort_order
         self.table.sortByColumn(1, self.author_sort_order)
-        self.aus_col.setIcon(self.down_arrow_icon if self.author_sort_order
-                                                    else self.up_arrow_icon)
-        self.auth_col.setIcon(self.blank_icon)
-        self.aul_col.setIcon(self.blank_icon)
 
     def do_sort_by_link(self):
         self.last_sorted_by = 'link'
-        self.link_order = 1 if self.link_order == 0 else 0
+        self.link_order = 1 - self.link_order
         self.table.sortByColumn(2, self.link_order)
-        self.aul_col.setIcon(self.down_arrow_icon if self.link_order
-                                                    else self.up_arrow_icon)
-        self.auth_col.setIcon(self.blank_icon)
-        self.aus_col.setIcon(self.blank_icon)
 
     def accepted(self):
         self.save_state()
