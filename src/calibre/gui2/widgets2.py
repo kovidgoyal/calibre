@@ -7,10 +7,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import weakref
 
 from PyQt5.Qt import (
-    QAbstractListModel, QApplication, QCheckBox, QColor, QColorDialog, QComboBox,
-    QDialog, QDialogButtonBox, QFont, QFontInfo, QIcon, QKeySequence, QLabel,
-    QLayout, QModelIndex, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea,
-    QSize, QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
+    QApplication, QCheckBox, QColor, QColorDialog, QComboBox, QDialog,
+    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel,
+    QLayout, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
+    QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
     QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal
 )
 
@@ -20,6 +20,7 @@ from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
 from polyglot.builtins import unicode_type
+from polyglot.functools import lru_cache
 
 
 class HistoryMixin(object):
@@ -199,25 +200,6 @@ class Dialog(QDialog):
         raise NotImplementedError('You must implement this method in Dialog subclasses')
 
 
-class RatingModel(QAbstractListModel):
-
-    def __init__(self, parent=None, is_half_star=False):
-        QAbstractListModel.__init__(self, parent)
-        self.is_half_star = is_half_star
-        self.rating_font = QFont(rating_font())
-        self.null_text = _('Not rated')
-
-    def rowCount(self, parent=QModelIndex()):
-        return 11 if self.is_half_star else 6
-
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            val = index.row() * (1 if self.is_half_star else 2)
-            return rating_to_stars(val, self.is_half_star) or self.null_text
-        if role == Qt.FontRole:
-            return QApplication.instance().font() if index.row() == 0 else self.rating_font
-
-
 class UndoCommand(QUndoCommand):
 
     def __init__(self, widget, val):
@@ -235,17 +217,34 @@ class UndoCommand(QUndoCommand):
             w.setCurrentIndex(self.redo_val)
 
 
+@lru_cache(maxsize=16)
+def stars(num, is_half_star=False):
+    return rating_to_stars(num, is_half_star)
+
+
+class RatingItemDelegate(QStyledItemDelegate):
+
+    def initStyleOption(self, option, index):
+        QStyledItemDelegate.initStyleOption(self, option, index)
+        option.font = QApplication.instance().font() if index.row() <= 0 else self.parent().rating_font
+        option.fontMetrics = QFontMetrics(option.font)
+
+
 class RatingEditor(QComboBox):
 
     def __init__(self, parent=None, is_half_star=False):
         QComboBox.__init__(self, parent)
+        self.addItem(_('Not rated'))
+        if is_half_star:
+            [self.addItem(stars(x, True)) for x in range(1, 11)]
+        else:
+            [self.addItem(stars(x)) for x in (2, 4, 6, 8, 10)]
+        self.rating_font = QFont(rating_font())
         self.undo_stack = QUndoStack(self)
         self.undo, self.redo = self.undo_stack.undo, self.undo_stack.redo
         self.allow_undo = False
         self.is_half_star = is_half_star
-        self._model = RatingModel(is_half_star=is_half_star, parent=self)
-        self.setModel(self._model)
-        self.delegate = QStyledItemDelegate(self)
+        self.delegate = RatingItemDelegate(self)
         self.view().setItemDelegate(self.delegate)
         self.view().setStyleSheet('QListView { background: palette(window) }\nQListView::item { padding: 6px }')
         self.setMaxVisibleItems(self.count())
@@ -253,18 +252,17 @@ class RatingEditor(QComboBox):
 
     @property
     def null_text(self):
-        return self._model.null_text
+        return self.itemText(0)
 
     @null_text.setter
     def null_text(self, val):
-        self._model.null_text = val
-        self._model.dataChanged.emit(self._model.index(0, 0), self._model.index(0, 0))
+        self.setItemtext(0, val)
 
     def update_font(self):
         if self.currentIndex() == 0:
             self.setFont(QApplication.instance().font())
         else:
-            self.setFont(self._model.rating_font)
+            self.setFont(self.rating_font)
 
     def clear_to_undefined(self):
         self.setCurrentIndex(0)
@@ -532,6 +530,6 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     app.load_builtin_fonts()
-    w = FlowLayout.test()
+    w = RatingEditor.test()
     w.show()
     app.exec_()
