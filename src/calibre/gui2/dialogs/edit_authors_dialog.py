@@ -7,13 +7,16 @@ __license__   = 'GPL v3'
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
-                  QByteArray, QItemDelegate)
+                  QByteArray, QItemDelegate, QAction)
 
 from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
-from calibre.utils.icu import sort_key
+from calibre.utils.config import prefs
+from calibre.utils.icu import sort_key, primary_contains, contains
 from polyglot.builtins import unicode_type
+
+QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 
 class tableItem(QTableWidgetItem):
@@ -92,23 +95,33 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         hh.sectionClicked.connect(self.do_sort)
         hh.setSortIndicatorShown(True)
 
-        # set up the search box
+        # set up the search & filter boxes
         self.find_box.initialize('manage_authors_search')
-        self.find_box.lineEdit().returnPressed.connect(self.do_find)
+        le = self.find_box.lineEdit()
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.clear_find)
+        le.returnPressed.connect(self.do_find)
         self.find_box.editTextChanged.connect(self.find_text_changed)
         self.find_button.clicked.connect(self.do_find)
         self.find_button.setDefault(True)
 
-        l = QLabel(self.table)
-        self.not_found_label = l
+        self.filter_box.initialize('manage_authors_filter')
+        le = self.filter_box.lineEdit()
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.clear_filter)
+        self.filter_box.lineEdit().returnPressed.connect(self.do_filter)
+        self.filter_button.clicked.connect(self.do_filter)
+
+        self.not_found_label = l = QLabel(self.table)
         l.setFrameStyle(QFrame.StyledPanel)
         l.setAutoFillBackground(True)
         l.setText(_('No matches found'))
         l.setAlignment(Qt.AlignVCenter)
         l.resize(l.sizeHint())
-        l.move(10,20)
+        l.move(10, 2)
         l.setVisible(False)
-        self.not_found_label.move(40, 40)
         self.not_found_label_timer = QTimer()
         self.not_found_label_timer.setSingleShot(True)
         self.not_found_label_timer.timeout.connect(
@@ -131,6 +144,11 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                                           'link': v['link']}
 
         self.edited_icon = QIcon(I('modified.png'))
+        if prefs['use_primary_find_in_search']:
+            self.string_contains = primary_contains
+        else:
+            self.string_contains = contains
+
         self.last_sorted_by = 'sort'
         self.author_order = 1
         self.author_sort_order = 0
@@ -140,9 +158,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def use_vl_changed(self, x):
         self.show_table(None, None, None)
 
+    def clear_filter(self):
+        self.filter_box.setText('')
+        self.show_table(None, None, None)
+
+    def do_filter(self):
+        self.show_table(None, None, None)
+
     def show_table(self, id_to_select, select_sort, select_link):
-        auts_to_show = [t[0] for t in
-            self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked())]
+        filter_text = icu_lower(unicode_type(self.filter_box.text()))
+        auts_to_show = []
+        for t in self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked()):
+            if self.string_contains(filter_text, icu_lower(t[1])):
+                auts_to_show.append(t[0])
         self.table.blockSignals(True)
         self.table.clear()
         self.table.setColumnCount(3)
@@ -184,13 +212,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.setHorizontalHeaderLabels([_('Author'), _('Author sort'), _('Link')])
 
         if self.last_sorted_by == 'sort':
-            self.author_sort_order = 1 if self.author_sort_order == 0 else 0
+            self.author_sort_order = 1 - self.author_sort_order
             self.do_sort_by_author_sort()
         elif self.last_sorted_by == 'author':
-            self.author_order = 1 if self.author_order == 0 else 0
+            self.author_order = 1 - self.author_order
             self.do_sort_by_author()
         else:
-            self.link_order = 1 if self.link_order == 0 else 0
+            self.link_order = 1 - self.link_order
             self.do_sort_by_link()
 
         # Position on the desired item
@@ -308,6 +336,11 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def not_found_label_timer_event(self):
         self.not_found_label.setVisible(False)
 
+    def clear_find(self):
+        self.find_box.setText('')
+        self.start_find_pos = -1
+        self.do_find()
+
     def find_text_changed(self):
         self.start_find_pos = -1
 
@@ -319,11 +352,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.buttonBox.button(QDialogButtonBox.Ok).setAutoDefault(False)
         self.buttonBox.button(QDialogButtonBox.Cancel).setDefault(False)
         self.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
-        st = icu_lower(unicode_type(self.find_box.currentText()))
 
-        for i in range(0, self.table.rowCount()*2):
+        st = icu_lower(unicode_type(self.find_box.currentText()))
+        if not st:
+            return
+        for _ in range(0, self.table.rowCount()*2):
             self.start_find_pos = (self.start_find_pos + 1) % (self.table.rowCount()*2)
-            r = (self.start_find_pos//2)%self.table.rowCount()
+            r = (self.start_find_pos//2) % self.table.rowCount()
             c = self.start_find_pos % 2
             item = self.table.item(r, c)
             text = icu_lower(unicode_type(item.text()))
@@ -405,8 +440,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             item  = self.table.item(row, col)
             item.setIcon(self.edited_icon)
             if col == 1:
-                self.authors[id_]['sort'] = item.text()
+                self.authors[id_]['sort'] = unicode_type(item.text())
             else:
-                self.authors[id_]['link'] = item.text()
+                self.authors[id_]['link'] = unicode_type(item.text())
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)
