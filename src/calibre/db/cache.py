@@ -163,7 +163,7 @@ class Cache(object):
     @write_api
     def ensure_has_search_category(self, fail_on_existing=True):
         if len(self._search_api.saved_searches.names()) > 0:
-            self.field_metadata.add_search_category(label='search', name=_('Searches'), fail_on_existing=fail_on_existing)
+            self.field_metadata.add_search_category(label='search', name=_('Saved searches'), fail_on_existing=fail_on_existing)
 
     def _initialize_dynamic_categories(self):
         # Reconstruct the user categories, putting them into field_metadata
