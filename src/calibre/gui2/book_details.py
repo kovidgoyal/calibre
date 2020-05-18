@@ -772,7 +772,7 @@ class BookDetails(QWidget):  # {{{
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, image_extensions() + BOOK_EXTENSIONS, allow_all_extensions=True) or \
+        if dnd_has_extension(md, image_extensions() + BOOK_EXTENSIONS, allow_all_extensions=True, allow_remote=True) or \
                 dnd_has_image(md):
             event.acceptProposedAction()
 

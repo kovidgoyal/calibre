@@ -145,25 +145,37 @@ def data_as_string(f, md):
     return raw
 
 
+remote_protocols = {'http', 'https', 'ftp'}
+
+
 def urls_from_md(md):
     ans = list(md.urls())
     if md.hasText():
         # Chromium returns the url as text/plain on drag and drop of image
         text = md.text()
-        if text and text.lstrip().partition(':')[0] in {'http', 'https', 'ftp'}:
+        if text and text.lstrip().partition(':')[0] in remote_protocols:
             u = QUrl(text.strip())
             if u.isValid():
                 ans.append(u)
     return ans
 
 
-def path_from_qurl(qurl):
-    return qurl.toLocalFile()
+def path_from_qurl(qurl, allow_remote=False):
+    lf = qurl.toLocalFile()
+    if lf:
+        return lf
+    if not allow_remote:
+        return ''
+    if qurl.scheme() in remote_protocols:
+        path = qurl.path()
+        if path and '.' in path:
+            return path.rpartition('.')[-1]
+    return ''
 
 
 def remote_urls_from_qurl(qurls, allowed_exts):
     for qurl in qurls:
-        if qurl.scheme() in {'http', 'https', 'ftp'} and posixpath.splitext(
+        if qurl.scheme() in remote_protocols and posixpath.splitext(
                 qurl.path())[1][1:].lower() in allowed_exts:
             yield bytes(qurl.toEncoded()).decode('utf-8'), posixpath.basename(qurl.path())
 
@@ -172,7 +184,7 @@ def extension(path):
     return path.rpartition('.')[-1].lower()
 
 
-def dnd_has_extension(md, extensions, allow_all_extensions=False):
+def dnd_has_extension(md, extensions, allow_all_extensions=False, allow_remote=False):
     if DEBUG:
         prints('\nDebugging DND event')
         for f in md.formats():
@@ -183,7 +195,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False):
     if has_firefox_ext(md, extensions):
         return True
     urls = urls_from_md(md)
-    paths = [path_from_qurl(u) for u in urls]
+    paths = [path_from_qurl(u, allow_remote=allow_remote) for u in urls]
     exts = frozenset(filter(None, (extension(u) for u in paths if u)))
     if DEBUG:
         repr_urls = [bytes(u.toEncoded()).decode('utf-8') for u in urls]
