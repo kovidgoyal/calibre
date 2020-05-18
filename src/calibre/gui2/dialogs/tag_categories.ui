@@ -43,6 +43,12 @@
          <property name="editable">
           <bool>false</bool>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
         </widget>
        </item>
        <item row="1" column="0">
@@ -63,6 +69,12 @@
          <property name="toolTip">
           <string>Select the content kind of the new category</string>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
         </widget>
        </item>
        <item row="2" column="0">
@@ -82,6 +94,12 @@
         <widget class="QLineEdit" name="item_filter_box">
          <property name="toolTip">
           <string>Enter text to filter the available items. Case and accents are ignored.</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
          </property>
         </widget>
        </item>
