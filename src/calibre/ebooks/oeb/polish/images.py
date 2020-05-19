@@ -81,11 +81,12 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
     seen = set()
     num_to_process = 0
     for name in sorted(images):
-        path = os.path.normcase(os.path.abspath(container.get_file_path_for_processing(name)))
-        if path not in seen:
+        path = os.path.abspath(container.get_file_path_for_processing(name))
+        path_key = os.path.normcase(path)
+        if path_key not in seen:
             num_to_process += 1
             queue.put((name, path, container.mime_map[name]))
-            seen.add(path)
+            seen.add(path_key)
 
     def pc(name):
         keep_going = progress_callback(len(results), num_to_process, name)
