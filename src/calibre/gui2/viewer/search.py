@@ -388,6 +388,8 @@ class Results(QListWidget):  # {{{
         i = QListWidgetItem(' ', self)
         i.setData(Qt.UserRole, result)
         i.setIcon(self.blank_icon)
+        if getattr(result, 'file_name'):
+            i.setData(Qt.ToolTipRole, _('In internal file: {}').format(result.file_name))
         return self.count()
 
     def item_activated(self):
