@@ -29,10 +29,25 @@ class TagEditor(QDialog, Ui_TagEditor):
                 self.is_names = fm['display'].get('is_names', False)
                 if self.is_names:
                     self.sep = '&'
-                self.setWindowTitle(_('Edit %s') % fm['name'])
+                self.setWindowTitle(self.windowTitle() + ': ' + fm['name'])
             except Exception:
                 pass
             key = db.field_metadata.key_to_label(key)
+        else:
+            self.setWindowTitle(self.windowTitle() + ': ' + db.field_metadata['tags']['name'])
+
+        if self.sep == '&':
+            self.add_tag_input.setToolTip('<p>' +
+                        _('If the item you want is not in the available list, '
+                          'you can add it here. Accepts an ampersand-separated '
+                          'list of items. The item(s) will be applied to '
+                          'the book.') + '</p>')
+        else:
+            self.add_tag_input.setToolTip('<p>' +
+                        _('If the item you want is not in the available list, '
+                          'you can add it here. Accepts a comma-separated '
+                          'list of items. The item(s) will be applied to '
+                          'the book.') + '</p>')
         self.key = key
         self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
