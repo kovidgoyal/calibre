@@ -348,7 +348,7 @@ class Main(MainWindow):
         self.action_new_file = treg('document-new.png', _('&New file (images/fonts/HTML/etc.)'), self.boss.add_file,
                                    'new-file', (), _('Create a new file in the current book'))
         self.action_import_files = treg('document-import.png', _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
-        self.action_open_book = treg('document_open.png', _('&Open book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
+        self.action_open_book = treg('document_open.png', _('&Open book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a book'))
         self.action_open_book_folder = treg('mimetypes/dir.png', _('Open &folder (unzipped EPUB) as book'), partial(self.boss.open_book, open_folder=True),
                                             'open-folder-as-book', (), _('Open a folder (unzipped EPUB) as a book'))
         self.action_edit_next_file = treg('arrow-down.png', _('Edit &next file'), partial(self.boss.edit_next_file, backwards=False),

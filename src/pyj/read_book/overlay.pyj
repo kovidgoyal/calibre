@@ -252,7 +252,7 @@ class MainOverlay:  # {{{
         forward_action = ac(_('Forward'), None, self.forward, 'arrow-right')
         if runtime.is_standalone_viewer:
             reload_actions = E.ul(
-                ac(_('Open book'), _('Open a new book'), self.overlay.open_book, 'book'),
+                ac(_('Open book'), _('Open a book'), self.overlay.open_book, 'book'),
                 reload_action
             )
             nav_actions = E.ul(back_action, forward_action)
@@ -506,7 +506,7 @@ class OpenBook: # {{{
                             ui_operations.quit()
                     ,
                     class_='simple-link'),
-                E.h2(_('Open a new book'), style='margin-left: 1rem'),
+                E.h2(_('Open a book'), style='margin-left: 1rem'),
             ))
         create_open_book(container, self.overlay.view?.book)
 # }}}
