@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'How To Geek'
     language = 'en'
-    __author__ = 'TonytheBookworm'
+    __author__ = 'TonytheBookworm, PatStapleton (update 2020-05-20)'
     description = 'Daily Computer Tips and Tricks'
     publisher = 'Howtogeek'
     category = 'PC,tips,tricks'
@@ -22,11 +22,11 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     remove_tags = [
         dict(name='a', attrs={'target': ['_blank']}),
         dict(name='table', attrs={'id': ['articleTable']}),
-        dict(name='div',   attrs={'class': ['feedflare', 'article-share-widgets', 'related-articles', 'comments']}),
+        dict(name='div',   attrs={'class': ['feedflare', 'article-share-widgets', 'related-articles', 'comments', 'nextup']}),
     ]
 
     feeds = [
-        ('Tips', 'http://feeds.howtogeek.com/howtogeek')
+        ('How-to Geek', 'https://www.howtogeek.com/feed/')
 
     ]
 
