@@ -516,12 +516,18 @@ class Results(QTreeWidget):  # {{{
             section_id = toc_nodes[-1].get('id')
             if section_id is None:
                 section_id = -1
-        section_key = section_id, section_title
+        section_key = section_id
         section = self.section_map.get(section_key)
         if section is None:
             section = QTreeWidgetItem([section_title], 1)
             section.setFlags(Qt.ItemIsEnabled)
             section.setFont(0, self.section_font)
+            lines = []
+            for i, node in enumerate(toc_nodes):
+                lines.append('\xa0\xa0' * i + '➤ ' + (node.get('title') or _('Unknown')))
+            tt = ngettext('Table of Contents section:', 'Table of Contents sections:', len(lines))
+            tt += '\n' + '\n'.join(lines)
+            section.setToolTip(0, tt)
             self.section_map[section_key] = section
             self.addTopLevelItem(section)
             section.setExpanded(True)
