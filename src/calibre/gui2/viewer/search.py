@@ -10,9 +10,9 @@ from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
-    QStaticText, QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QStaticText, QStyle,
+    QStyledItemDelegate, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
@@ -457,6 +457,8 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         result = index.data(Qt.UserRole)
+        if not isinstance(result, SearchResult):
+            return
         painter.save()
         p = option.palette
         c = p.HighlightedText if option.state & QStyle.State_Selected else p.Text
@@ -479,80 +481,111 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 
-class Results(QListWidget):  # {{{
+class Results(QTreeWidget):  # {{{
 
     show_search_result = pyqtSignal(object)
     current_result_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
-        QListWidget.__init__(self, parent)
+        QTreeWidget.__init__(self, parent)
+        self.setHeaderHidden(True)
         self.setFocusPolicy(Qt.NoFocus)
         self.delegate = ResultsDelegate(self)
         self.setItemDelegate(self.delegate)
         self.itemClicked.connect(self.item_activated)
         self.blank_icon = QIcon(I('blank.png'))
+        self.not_found_icon = QIcon(I('dialog_warning.png'))
         self.currentItemChanged.connect(self.current_item_changed)
+        self.section_font = QFont(self.font())
+        self.section_font.setItalic(True)
+        self.section_map = {}
+        self.search_results = []
+        self.item_map = {}
 
-    def current_item_changed(self, item):
-        self.current_result_changed.emit(item.data(Qt.UserRole))
+    def current_item_changed(self, current, previous):
+        r = current.data(0, Qt.UserRole)
+        if isinstance(r, SearchResult):
+            self.current_result_changed.emit(r)
 
     def add_result(self, result):
-        item = QListWidgetItem(' ', self)
-        item.setData(Qt.UserRole, result)
-        item.setIcon(self.blank_icon)
-        if getattr(result, 'file_name'):
-            toc_nodes = result.toc_nodes
-            if toc_nodes:
-                lines = []
-                for i, node in enumerate(toc_nodes):
-                    lines.append(('\xa0\xa0' * i) + (node.get('title') or _('Unknown')))
-                tt = _('In section:') + '\n' + '\n'.join(lines)
-            else:
-                tt = _('In internal file: {}').format(result.file_name)
-            item.setData(Qt.ToolTipRole, tt)
-        return self.count()
+        section_title = _('Unknown')
+        section_id = -1
+        toc_nodes = getattr(result, 'toc_nodes', ()) or ()
+        if toc_nodes:
+            section_title = toc_nodes[-1].get('title') or _('Unknown')
+            section_id = toc_nodes[-1].get('id')
+            if section_id is None:
+                section_id = -1
+        section_key = section_id, section_title
+        section = self.section_map.get(section_key)
+        if section is None:
+            section = QTreeWidgetItem([section_title], 1)
+            section.setFlags(Qt.ItemIsEnabled)
+            section.setFont(0, self.section_font)
+            self.section_map[section_key] = section
+            self.addTopLevelItem(section)
+            section.setExpanded(True)
+        item = QTreeWidgetItem(section, [' '], 2)
+        item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemNeverHasChildren)
+        item.setData(0, Qt.UserRole, result)
+        item.setData(0, Qt.UserRole + 1, len(self.search_results))
+        item.setIcon(0, self.blank_icon)
+        self.item_map[len(self.search_results)] = item
+        self.search_results.append(result)
+        return self.number_of_results
 
     def item_activated(self):
         i = self.currentItem()
         if i:
-            sr = i.data(Qt.UserRole)
-            if not sr.is_hidden:
-                self.show_search_result.emit(sr)
+            sr = i.data(0, Qt.UserRole)
+            if isinstance(sr, SearchResult):
+                if not sr.is_hidden:
+                    self.show_search_result.emit(sr)
 
     def find_next(self, previous):
-        if self.count() < 1:
+        if self.number_of_results < 1:
             return
-        i = self.currentRow()
+        item = self.currentItem()
+        if item is None:
+            return
+        i = int(item.data(0, Qt.UserRole + 1))
         i += -1 if previous else 1
-        i %= self.count()
-        self.setCurrentRow(i)
+        i %= self.number_of_results
+        self.setCurrentItem(self.item_map[i])
         self.item_activated()
 
     def search_result_not_found(self, sr):
-        for i in range(self.count()):
-            item = self.item(i)
-            r = item.data(Qt.UserRole)
+        for i in range(self.number_of_results):
+            item = self.item_map[i]
+            r = item.data(0, Qt.UserRole)
             if r.is_result(sr):
                 r.is_hidden = True
-                item.setIcon(QIcon(I('dialog_warning.png')))
+                item.setIcon(self.not_found_icon)
                 break
 
     @property
     def current_result_is_hidden(self):
         item = self.currentItem()
-        if item and item.data(Qt.UserRole) and item.data(Qt.UserRole).is_hidden:
-            return True
+        if item is not None:
+            sr = item.data(0, Qt.UserRole)
+            if isinstance(sr, SearchResult) and sr.is_hidden:
+                return True
         return False
 
     @property
     def number_of_results(self):
-        return self.count()
+        return len(self.search_results)
 
     def clear_all_results(self):
+        self.section_map = {}
+        self.item_map = {}
+        self.search_results = []
         self.clear()
 
     def select_first_result(self):
-        self.setCurrentRow(0)
+        if self.number_of_results:
+            item = self.item_map[0]
+            self.setCurrentItem(item)
 # }}}
 
 
