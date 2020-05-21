@@ -199,7 +199,7 @@ del create_defs
 # }}}
 
 UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
-
+QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 ALL_COLUMNS = ['title', 'ondevice', 'authors', 'size', 'timestamp', 'rating', 'publisher',
         'tags', 'series', 'pubdate']
 

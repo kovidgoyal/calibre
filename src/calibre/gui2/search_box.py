@@ -15,14 +15,12 @@ from PyQt5.Qt import (
     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
     QIcon, QMenu, QApplication, QKeyEvent)
 
-from calibre.gui2 import config, error_dialog, question_dialog, gprefs
+from calibre.gui2 import config, error_dialog, question_dialog, gprefs, QT_HIDDEN_CLEAR_ACTION
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import native_string_type, unicode_type, string_or_bytes, map, range
-
-QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 
 class AsYouType(unicode_type):

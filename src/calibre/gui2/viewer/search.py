@@ -10,13 +10,13 @@ from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QStaticText, QStyle,
-    QStyledItemDelegate, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal
+    QAction, QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QStaticText,
+    QStyle, QStyledItemDelegate, Qt, QToolButton, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
-from calibre.gui2 import warning_dialog
+from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION, warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
@@ -333,6 +333,7 @@ class SearchBox(HistoryComboBox):
 class SearchInput(QWidget):  # {{{
 
     do_search = pyqtSignal(object)
+    cleared = pyqtSignal()
 
     def __init__(self, parent=None, panel_name='search'):
         QWidget.__init__(self, parent)
@@ -350,6 +351,9 @@ class SearchInput(QWidget):  # {{{
         sb.history_saved.connect(self.history_saved)
         sb.lineEdit().setPlaceholderText(_('Search'))
         sb.lineEdit().setClearButtonEnabled(True)
+        ac = sb.lineEdit().findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.cleared)
         sb.lineEdit().returnPressed.connect(self.find_next)
         h.addWidget(sb)
 
@@ -503,9 +507,10 @@ class Results(QTreeWidget):  # {{{
         self.item_map = {}
 
     def current_item_changed(self, current, previous):
-        r = current.data(0, Qt.UserRole)
-        if isinstance(r, SearchResult):
-            self.current_result_changed.emit(r)
+        if current is not None:
+            r = current.data(0, Qt.UserRole)
+            if isinstance(r, SearchResult):
+                self.current_result_changed.emit(r)
 
     def add_result(self, result):
         section_title = _('Unknown')
@@ -614,6 +619,7 @@ class SearchPanel(QWidget):  # {{{
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
         self.results = r = Results(self)
+        si.cleared.connect(r.clear_all_results)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.QueuedConnection)
         r.current_result_changed.connect(self.update_hidden_message)
         l.addWidget(r, 100)
