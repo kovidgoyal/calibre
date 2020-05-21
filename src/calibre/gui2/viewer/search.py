@@ -5,14 +5,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-from collections import Counter
+from collections import Counter, OrderedDict
 from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget,
-    QListWidgetItem, QStaticText, QStyle, QStyledItemDelegate, Qt, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal
+    QCheckBox, QComboBox, QHBoxLayout, QIcon, QLabel, QListWidget, QListWidgetItem,
+    QStaticText, QStyle, QStyledItemDelegate, Qt, QToolButton, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
@@ -20,7 +20,7 @@ from calibre.gui2 import warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
 from calibre.gui2.widgets2 import HistoryComboBox
-from polyglot.builtins import iteritems, unicode_type, map
+from polyglot.builtins import iteritems, map, unicode_type
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
 
@@ -125,9 +125,13 @@ class SearchFinished(object):
 
 class SearchResult(object):
 
-    __slots__ = ('search_query', 'before', 'text', 'after', 'q', 'spine_idx', 'index', 'file_name', '_static_text', 'is_hidden')
+    __slots__ = (
+        'search_query', 'before', 'text', 'after', 'q', 'spine_idx',
+        'index', 'file_name', '_static_text', 'is_hidden', 'offset',
+        'toc_nodes'
+    )
 
-    def __init__(self, search_query, before, text, after, q, name, spine_idx, index):
+    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset):
         self.search_query = search_query
         self.q = q
         self.before, self.text, self.after = before, text, after
@@ -135,6 +139,13 @@ class SearchResult(object):
         self.file_name = name
         self._static_text = None
         self.is_hidden = False
+        self.offset = offset
+        try:
+            self.toc_nodes = toc_nodes_for_search_result(self)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            self.toc_nodes = ()
 
     @property
     def static_text(self):
@@ -179,32 +190,128 @@ def searchable_text_for_name(name):
         if child.get('n') == 'body':
             stack.append(child)
     ignore_text = {'script', 'style', 'title'}
+    text_pos = 0
+    anchor_offset_map = OrderedDict()
     while stack:
         node = stack.pop()
         if isinstance(node, unicode_type):
             ans.append(node)
+            text_pos += len(node)
             continue
         g = node.get
         name = g('n')
         text = g('x')
         tail = g('l')
         children = g('c')
+        attributes = g('a')
+        if attributes:
+            for x in attributes:
+                if x[0] == 'id':
+                    aid = x[1]
+                    if aid not in anchor_offset_map:
+                        anchor_offset_map[aid] = text_pos
         if name and text and name not in ignore_text:
             ans.append(text)
+            text_pos += len(text)
         if tail:
             stack.append(tail)
         if children:
             stack.extend(reversed(children))
-    return ''.join(ans)
+    return ''.join(ans), anchor_offset_map
+
+
+@lru_cache(maxsize=2)
+def get_toc_data():
+    manifest = get_manifest() or {}
+    spine = manifest.get('spine') or []
+    spine_toc_map = {name: [] for name in spine}
+
+    def process_node(node):
+        items = spine_toc_map.get(node['dest'])
+        if items is not None:
+            items.append(node)
+        children = node.get('children')
+        if children:
+            for child in children:
+                process_node(child)
+
+    toc = manifest.get('toc')
+    if toc:
+        process_node(toc)
+    return {
+        'spine': tuple(spine), 'spine_toc_map': spine_toc_map,
+        'spine_idx_map': {name: idx for idx, name in enumerate(spine)}
+    }
+
+
+class ToCOffsetMap(object):
+
+    def __init__(self, toc_nodes=(), offset_map=None, previous_toc_node=None):
+        self.toc_nodes = toc_nodes
+        self.offset_map = offset_map or {}
+        self.previous_toc_node = previous_toc_node
+
+    def toc_nodes_for_offset(self, offset):
+        found = False
+        for node in self.toc_nodes:
+            q = self.offset_map.get(node.get('id'))
+            if q is not None:
+                if q > offset:
+                    break
+                yield node
+                found = True
+        if not found and self.previous_toc_node is not None:
+            yield self.previous_toc_node
+
+
+@lru_cache(maxsize=None)
+def toc_offset_map_for_name(name):
+    anchor_map = searchable_text_for_name(name)[1]
+    toc_data = get_toc_data()
+    try:
+        idx = toc_data['spine_idx_map'][name]
+        toc_nodes = toc_data['spine_toc_map'][name]
+    except Exception:
+        idx = -1
+    if idx < 0:
+        return ToCOffsetMap()
+    offset_map = {}
+    for node in toc_nodes:
+        node_id = node.get('id')
+        if node_id is not None:
+            aid = node.get('frag')
+            offset = anchor_map.get(aid, 0)
+            offset_map[node_id] = offset
+    prev_toc_node = None
+    for spine_name in reversed(toc_data['spine'][:idx]):
+        try:
+            ptn = toc_data['spine_toc_map'][spine_name]
+        except Exception:
+            continue
+        if ptn:
+            prev_toc_node = ptn[-1]
+            break
+    return ToCOffsetMap(toc_nodes, offset_map, prev_toc_node)
+
+
+def toc_nodes_for_search_result(sr):
+    sidx = sr.spine_idx
+    toc_data = get_toc_data()
+    try:
+        name = toc_data['spine'][sidx]
+    except Exception:
+        return ()
+    tmap = toc_offset_map_for_name(name)
+    return tuple(tmap.toc_nodes_for_offset(sr.offset))
 
 
 def search_in_name(name, search_query, ctx_size=50):
-    raw = searchable_text_for_name(name)
+    raw = searchable_text_for_name(name)[0]
     for match in search_query.regex.finditer(raw):
         start, end = match.span()
         before = raw[max(0, start-ctx_size):start]
         after = raw[end:end+ctx_size]
-        yield before, match.group(), after
+        yield before, match.group(), after, start
 
 
 class SearchBox(HistoryComboBox):
@@ -385,11 +492,19 @@ class Results(QListWidget):  # {{{
         self.blank_icon = QIcon(I('blank.png'))
 
     def add_result(self, result):
-        i = QListWidgetItem(' ', self)
-        i.setData(Qt.UserRole, result)
-        i.setIcon(self.blank_icon)
+        item = QListWidgetItem(' ', self)
+        item.setData(Qt.UserRole, result)
+        item.setIcon(self.blank_icon)
         if getattr(result, 'file_name'):
-            i.setData(Qt.ToolTipRole, _('In internal file: {}').format(result.file_name))
+            toc_nodes = result.toc_nodes
+            if toc_nodes:
+                lines = []
+                for i, node in enumerate(toc_nodes):
+                    lines.append(('\xa0\xa0' * i) + (node.get('title') or _('Unknown')))
+                tt = _('In section:') + '\n' + '\n'.join(lines)
+            else:
+                tt = _('In internal file: {}').format(result.file_name)
+            item.setData(Qt.ToolTipRole, tt)
         return self.count()
 
     def item_activated(self):
@@ -501,9 +616,9 @@ class SearchPanel(QWidget):  # {{{
                 spine_idx = idx_map[name]
                 try:
                     for i, result in enumerate(search_in_name(name, search_query)):
-                        before, text, after = result
+                        before, text, after, offset = result
                         q = (before or '')[-5:] + text + (after or '')[:5]
-                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, spine_idx, counter[q]))
+                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, spine_idx, counter[q], offset))
                         counter[q] += 1
                 except Exception:
                     import traceback
@@ -532,6 +647,8 @@ class SearchPanel(QWidget):  # {{{
         self.current_search = None
         self.last_hidden_text_warning = None
         searchable_text_for_name.cache_clear()
+        toc_offset_map_for_name.cache_clear()
+        get_toc_data.cache_clear()
         self.spinner.stop()
         self.results.clear()
 
