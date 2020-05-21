@@ -640,6 +640,7 @@ class SearchPanel(QWidget):  # {{{
     search_requested = pyqtSignal(object)
     results_found = pyqtSignal(object)
     show_search_result = pyqtSignal(object)
+    hide_search_panel = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -767,4 +768,11 @@ class SearchPanel(QWidget):  # {{{
     def show_no_results_found(self):
         msg = _('No matches were found for:')
         warning_dialog(self, _('No matches found'), msg + '  <b>{}</b>'.format(self.current_search.text), show=True)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Escape:
+            self.hide_search_panel.emit()
+            ev.accept()
+            return
+        return QWidget.keyPressEvent(self, ev)
 # }}}

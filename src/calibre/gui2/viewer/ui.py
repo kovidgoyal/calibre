@@ -139,6 +139,7 @@ class EbookViewer(MainWindow):
 
         self.search_widget = w = SearchPanel(self)
         w.search_requested.connect(self.start_search)
+        w.hide_search_panel.connect(self.search_dock.close)
         self.search_dock.setWidget(w)
         self.search_dock.visibilityChanged.connect(self.search_widget.visibility_changed)
 
