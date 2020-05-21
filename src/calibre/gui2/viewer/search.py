@@ -5,12 +5,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
+import re
 from collections import Counter, OrderedDict
 from threading import Thread
 
 import regex
 from PyQt5.Qt import (
-    QAction, QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, QStaticText,
+    QAction, QCheckBox, QComboBox, QFont, QFontMetrics, QHBoxLayout, QIcon, QLabel,
     QStyle, QStyledItemDelegate, Qt, QToolButton, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget, pyqtSignal
 )
@@ -127,8 +128,7 @@ class SearchResult(object):
 
     __slots__ = (
         'search_query', 'before', 'text', 'after', 'q', 'spine_idx',
-        'index', 'file_name', '_static_text', 'is_hidden', 'offset',
-        'toc_nodes'
+        'index', 'file_name', 'is_hidden', 'offset', 'toc_nodes'
     )
 
     def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset):
@@ -137,7 +137,6 @@ class SearchResult(object):
         self.before, self.text, self.after = before, text, after
         self.spine_idx, self.index = spine_idx, index
         self.file_name = name
-        self._static_text = None
         self.is_hidden = False
         self.offset = offset
         try:
@@ -146,24 +145,6 @@ class SearchResult(object):
             import traceback
             traceback.print_exc()
             self.toc_nodes = ()
-
-    @property
-    def static_text(self):
-        if self._static_text is None:
-            before_words = self.before.split()
-            before = ' '.join(before_words[-3:])
-            before_extra = len(before) - 15
-            if before_extra > 0:
-                before = before[before_extra:]
-            before = '…' + before
-            before_space = '' if self.before.rstrip() == self.before else ' '
-            after_words = self.after.split()
-            after = ' '.join(after_words[:3])[:15] + '…'
-            after_space = '' if self.after.lstrip() == self.after else ' '
-            self._static_text = st = QStaticText('<p>{}{}<b>{}</b>{}{}'.format(before, before_space, self.text, after_space, after))
-            st.setTextFormat(Qt.RichText)
-            st.setTextWidth(10000)
-        return self._static_text
 
     @property
     def for_js(self):
@@ -464,24 +445,76 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
         if not isinstance(result, SearchResult):
             return
         painter.save()
-        p = option.palette
-        c = p.HighlightedText if option.state & QStyle.State_Selected else p.Text
-        group = (p.Active if option.state & QStyle.State_Active else p.Inactive)
-        c = p.color(group, c)
-        painter.setClipRect(option.rect)
-        painter.setPen(c)
-        height = result.static_text.size().height()
-        tl = option.rect.topLeft()
-        x, y = tl.x(), tl.y()
-        y += (option.rect.height() - height) // 2
-        if result.is_hidden:
-            x += option.decorationSize.width() + 4
         try:
-            painter.drawStaticText(x, y, result.static_text)
+            p = option.palette
+            c = p.HighlightedText if option.state & QStyle.State_Selected else p.Text
+            group = (p.Active if option.state & QStyle.State_Active else p.Inactive)
+            c = p.color(group, c)
+            painter.setPen(c)
+            font = option.font
+            emphasis_font = QFont(font)
+            emphasis_font.setBold(True)
+            flags = Qt.AlignTop | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
+            rect = option.rect.adjusted(option.decorationSize.width() + 4 if result.is_hidden else 0, 0, 0, 0)
+            painter.setClipRect(rect)
+            before = re.sub(r'\s+', ' ', result.before)
+            before_width = 0
+            if before:
+                before_width = painter.boundingRect(rect, flags, before).width()
+            after = re.sub(r'\s+', ' ', result.after.rstrip())
+            after_width = 0
+            if after:
+                after_width = painter.boundingRect(rect, flags, after).width()
+            ellipsis_width = painter.boundingRect(rect, flags, '...').width()
+            painter.setFont(emphasis_font)
+            text = re.sub(r'\s+', ' ', result.text)
+            match_width = painter.boundingRect(rect, flags, text).width()
+            if match_width >= rect.width() - 3 * ellipsis_width:
+                efm = QFontMetrics(emphasis_font)
+                text = efm.elidedText(text, Qt.ElideRight, rect.width())
+                painter.drawText(rect, flags, text)
+            else:
+                self.draw_match(
+                    painter, flags, before, text, after, rect, before_width, match_width, after_width, ellipsis_width, emphasis_font, font)
         except Exception:
             import traceback
             traceback.print_exc()
         painter.restore()
+
+    def draw_match(self, painter, flags, before, text, after, rect, before_width, match_width, after_width, ellipsis_width, emphasis_font, normal_font):
+        extra_width = int(rect.width() - match_width)
+        if before_width < after_width:
+            left_width = min(extra_width // 2, before_width)
+            right_width = extra_width - left_width
+        else:
+            right_width = min(extra_width // 2, after_width)
+            left_width = min(before_width, extra_width - right_width)
+        x = rect.left()
+        nfm = QFontMetrics(normal_font)
+        if before_width and left_width:
+            r = rect.adjusted(0, 0, 0, 0)
+            r.setRight(x + left_width)
+            painter.setFont(normal_font)
+            ebefore = nfm.elidedText(before, Qt.ElideLeft, left_width)
+            if ebefore == before:
+                ebefore = '…' + before[1:]
+            r.setLeft(x)
+            x += painter.drawText(r, flags, ebefore).width()
+        painter.setFont(emphasis_font)
+        r = rect.adjusted(0, 0, 0, 0)
+        r.setLeft(x)
+        painter.drawText(r, flags, text).width()
+        x += match_width
+        if after_width and right_width:
+            painter.setFont(normal_font)
+            r = rect.adjusted(0, 0, 0, 0)
+            r.setLeft(x)
+            eafter = nfm.elidedText(after, Qt.ElideRight, right_width)
+            if eafter == after:
+                eafter = after[:-1] + '…'
+            painter.setFont(normal_font)
+            painter.drawText(r, flags, eafter)
+
 # }}}
 
 
@@ -571,7 +604,7 @@ class Results(QTreeWidget):  # {{{
             r = item.data(0, Qt.UserRole)
             if r.is_result(sr):
                 r.is_hidden = True
-                item.setIcon(self.not_found_icon)
+                item.setIcon(0, self.not_found_icon)
                 break
 
     @property
