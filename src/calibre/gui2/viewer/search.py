@@ -482,6 +482,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 class Results(QListWidget):  # {{{
 
     show_search_result = pyqtSignal(object)
+    current_result_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
@@ -490,6 +491,10 @@ class Results(QListWidget):  # {{{
         self.setItemDelegate(self.delegate)
         self.itemClicked.connect(self.item_activated)
         self.blank_icon = QIcon(I('blank.png'))
+        self.currentItemChanged.connect(self.current_item_changed)
+
+    def current_item_changed(self, item):
+        self.current_result_changed.emit(item.data(Qt.UserRole))
 
     def add_result(self, result):
         item = QListWidgetItem(' ', self)
@@ -538,6 +543,16 @@ class Results(QListWidget):  # {{{
         if item and item.data(Qt.UserRole) and item.data(Qt.UserRole).is_hidden:
             return True
         return False
+
+    @property
+    def number_of_results(self):
+        return self.count()
+
+    def clear_all_results(self):
+        self.clear()
+
+    def select_first_result(self):
+        self.setCurrentRow(0)
 # }}}
 
 
@@ -561,7 +576,7 @@ class SearchPanel(QWidget):  # {{{
         l.addWidget(si)
         self.results = r = Results(self)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.QueuedConnection)
-        r.currentRowChanged.connect(self.update_hidden_message)
+        r.current_result_changed.connect(self.update_hidden_message)
         l.addWidget(r, 100)
         self.spinner = s = BusySpinner(self)
         s.setVisible(False)
@@ -586,7 +601,7 @@ class SearchPanel(QWidget):  # {{{
             self.searcher = Thread(name='Searcher', target=self.run_searches)
             self.searcher.daemon = True
             self.searcher.start()
-        self.results.clear()
+        self.results.clear_all_results()
         self.hidden_message.setVisible(False)
         self.spinner.start()
         self.current_search = search_query
@@ -630,12 +645,12 @@ class SearchPanel(QWidget):  # {{{
             return
         if isinstance(result, SearchFinished):
             self.spinner.stop()
-            if not self.results.count():
+            if not self.results.number_of_results:
                 self.show_no_results_found()
             return
         if self.results.add_result(result) == 1:
             # first result
-            self.results.setCurrentRow(0)
+            self.results.select_first_result()
             self.results.item_activated()
         self.update_hidden_message()
 
@@ -650,7 +665,7 @@ class SearchPanel(QWidget):  # {{{
         toc_offset_map_for_name.cache_clear()
         get_toc_data.cache_clear()
         self.spinner.stop()
-        self.results.clear()
+        self.results.clear_all_results()
 
     def shutdown(self):
         self.search_tasks.put(None)
