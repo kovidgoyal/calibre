@@ -27,7 +27,7 @@ DEFAULT_TEMPLATES = {
 
     'css':
 '''\
-@charset utf-8;
+@charset "utf-8";
 /* Styles for {TITLE} */
 %CURSOR%
 ''',
