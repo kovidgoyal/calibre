@@ -544,6 +544,8 @@ class Results(QTreeWidget):  # {{{
             r = current.data(0, Qt.UserRole)
             if isinstance(r, SearchResult):
                 self.current_result_changed.emit(r)
+        else:
+            self.current_result_changed.emit(None)
 
     def add_result(self, result):
         section_title = _('Unknown')
