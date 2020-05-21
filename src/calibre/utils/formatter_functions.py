@@ -1707,7 +1707,13 @@ def compile_user_template_functions(funcs):
             cls = compile_user_function(*func)
             compiled_funcs[cls.name] = cls
         except:
-            traceback.print_exc()
+            try:
+                func_name = func[0]
+            except:
+                func_name = 'Unknown'
+            print('**** Compilation errors in user template function "%s" ****' % func_name)
+            traceback.print_exc(limit=0)
+            print('**** End compilation errors in %s "****"' % func_name)
     return compiled_funcs
 
 
