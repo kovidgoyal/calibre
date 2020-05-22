@@ -155,3 +155,7 @@ class DIVA(CYBOOK):
     FORMATS     = ['epub', 'html', 'fb2', 'txt', 'pdf']
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True
+
+    @classmethod
+    def can_handle(cls, device_info, debug=False):
+        return True
