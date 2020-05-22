@@ -23,6 +23,14 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import Option, Source, fixauthors, fixcase
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.random_ua import accept_header_for_ua
+from calibre.ebooks.oeb.base import urlquote
+
+
+def iri_quote_plus(url):
+    ans = urlquote(url)
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8')
+    return ans.replace('%20', '+')
 
 
 def user_agent_is_ok(ua):
@@ -895,7 +903,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 12)
+    version = (1, 2, 13)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1109,9 +1117,9 @@ class Amazon(Source):
     def create_query(self, log, title=None, authors=None, identifiers={},  # {{{
                      domain=None, for_amazon=True):
         try:
-            from urllib.parse import urlencode
+            from urllib.parse import urlencode, unquote_plus
         except ImportError:
-            from urllib import urlencode
+            from urllib import urlencode, unquote_plus
         if domain is None:
             domain = self.domain
 
@@ -1165,8 +1173,8 @@ class Amazon(Source):
         if not for_amazon:
             return terms, domain
 
-        # magic parameter to enable Japanese Shift_JIS encoding.
         if domain == 'jp':
+            # magic parameter to enable Japanese Shift_JIS encoding.
             q['__mk_ja_JP'] = 'カタカナ'
         if domain == 'nl':
             q['__mk_nl_NL'] = 'ÅMÅŽÕÑ'
@@ -1176,17 +1184,19 @@ class Amazon(Source):
                 q['field-keywords'] += ' ' + q.pop(f, '')
             q['field-keywords'] = q['field-keywords'].strip()
 
-        if domain == 'jp':
-            encode_to = 'Shift_JIS'
-        elif domain == 'nl' or domain == 'cn':
-            encode_to = 'utf-8'
-        else:
-            encode_to = 'latin1'
+        encode_to = 'Shift_JIS' if domain == 'jp' else 'utf-8'
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
-                                                                   'ignore')) for x, y in
-                          q.items()])
+                                                                'ignore')) for x, y in q.items()])
+        url_query = urlencode(encoded_q)
+        if encode_to == 'utf-8':
+            # amazon's servers want IRIs with unicode characters not percent esaped
+            parts = []
+            for x in url_query.split(b'&' if isinstance(url_query, bytes) else '&'):
+                k, v = x.split(b'=' if isinstance(x, bytes) else '=', 1)
+                parts.append('{}={}'.format(iri_quote_plus(unquote_plus(k)), iri_quote_plus(unquote_plus(v))))
+            url_query = '&'.join(parts)
         url = 'https://www.amazon.%s/s/?' % self.get_website_domain(
-            domain) + urlencode(encoded_q)
+            domain) + url_query
         return url, domain
 
     # }}}
@@ -1581,6 +1591,15 @@ def manual_tests(domain, **kw):  # {{{
     # }}}
 
     all_tests['de'] = [  # {{{
+        (  # umlaut in title/authors
+            {'title': 'Flüsternde Wälder',
+             'authors': ['Nicola Förg']},
+            [title_test('Flüsternde Wälder'),
+             authors_test(['Nicola Förg'])
+             ]
+        ),
+
+
         (
             {'identifiers': {'isbn': '9783453314979'}},
             [title_test('Die letzten Wächter: Roman',
