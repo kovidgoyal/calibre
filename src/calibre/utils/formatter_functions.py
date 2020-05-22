@@ -15,7 +15,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback, numbers
 from math import trunc
 
-from calibre import human_readable
+from calibre import human_readable, prints
 from calibre.constants import DEBUG
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config import tweaks
@@ -1706,8 +1706,14 @@ def compile_user_template_functions(funcs):
 
             cls = compile_user_function(*func)
             compiled_funcs[cls.name] = cls
-        except:
-            traceback.print_exc()
+        except Exception:
+            try:
+                func_name = func[0]
+            except Exception:
+                func_name = 'Unknown'
+            prints('**** Compilation errors in user template function "%s" ****' % func_name)
+            traceback.print_exc(limit=0)
+            prints('**** End compilation errors in %s "****"' % func_name)
     return compiled_funcs
 
 
