@@ -475,6 +475,27 @@ problem for *some* calibre users.
   * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
 
 
+Covers for books I send to my e-ink Kindle show up momentarily and then are replaced by a generic cover?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This happens because of an Amazon bug. They try to download a cover for the
+book from their servers and when that fails, they replace the existing cover
+that calibre created with a generic cover. For details see `here
+<https://www.mobileread.com/forums/showthread.php?t=329945>`_. As of version
+4.17, calibre has a workaround, where if you connect the Kindle to calibre
+after the covers have been destroyed by Amazon, calibre will restore them
+automatically. So in order to see the covers on your Kindle, you have to:
+
+  1) Send the book to the Kindle with calibre
+  2) Disconnect the Kindle and wait for Amazon to destroy the cover
+  3) Reconnect the Kindle to calibre
+
+Note that this workaround only works for books sent with calibre 4.17 or later.
+Alternately, simply keep your Kindle in airplane mode, you don't really want
+Amazon knowing every book you read anyway. I encourage you to contact Amazon
+customer support and complain loudly about this bug. Maybe Amazon will listen.
+
+
 I transferred some books to my Kindle using calibre and they did not show up?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

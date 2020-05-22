@@ -40,6 +40,20 @@ file metadata.
 '''
 
 
+def get_files_in(path):
+    if hasattr(os, 'scandir'):
+        for dir_entry in os.scandir(path):
+            if dir_entry.is_file(follow_symlinks=False):
+                yield dir_entry.name, dir_entry.stat(follow_symlinks=False)
+    else:
+        import stat
+        for x in os.listdir(path):
+            xp = os.path.join(path, x)
+            s = os.lstat(xp)
+            if stat.S_ISREG(s.st_mode):
+                yield x, s
+
+
 class KINDLE(USBMS):
 
     name           = 'Kindle Device Interface'
@@ -435,8 +449,14 @@ class KINDLE2(KINDLE):
                 if h in path_map:
                     book.device_collections = list(sorted(path_map[h]))
 
-    # Detect if the product family needs .apnx files uploaded to sidecar folder
     def post_open_callback(self):
+        try:
+            self.sync_cover_thumbnails()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+        # Detect if the product family needs .apnx files uploaded to sidecar folder
         product_id = self.device_being_opened[1]
         self.sidecar_apnx = False
         if product_id > 0x3:
@@ -460,11 +480,14 @@ class KINDLE2(KINDLE):
         # Upload the apnx file
         self.upload_apnx(path, filename, metadata, filepath)
 
+    def amazon_system_thumbnails_dir(self):
+        return os.path.join(self._main_prefix, 'system', 'thumbnails')
+
     def thumbpath_from_filepath(self, filepath):
         from calibre.ebooks.metadata.kfx import (CONTAINER_MAGIC, read_book_key_kfx)
         from calibre.ebooks.mobi.reader.headers import MetadataHeader
         from calibre.utils.logging import default_log
-        thumb_dir = os.path.join(self._main_prefix, 'system', 'thumbnails')
+        thumb_dir = self.amazon_system_thumbnails_dir()
         if not os.path.exists(thumb_dir):
             return
         with lopen(filepath, 'rb') as f:
@@ -484,6 +507,10 @@ class KINDLE2(KINDLE):
                 'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
                     uuid=uuid, cdetype=cdetype))
 
+    def amazon_cover_bug_cache_dir(self):
+        # see https://www.mobileread.com/forums/showthread.php?t=329945
+        return os.path.join(self._main_prefix, 'amazon-cover-bug')
+
     def upload_kindle_thumbnail(self, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if not coverdata or not coverdata[2]:
@@ -494,16 +521,55 @@ class KINDLE2(KINDLE):
             with lopen(tp, 'wb') as f:
                 f.write(coverdata[2])
                 fsync(f)
+            cache_dir = self.amazon_cover_bug_cache_dir()
+            try:
+                os.mkdir(cache_dir)
+            except EnvironmentError:
+                pass
+            with lopen(os.path.join(cache_dir, os.path.basename(tp)), 'wb') as f:
+                f.write(coverdata[2])
+                fsync(f)
+
+    def sync_cover_thumbnails(self):
+        import shutil
+        # See https://www.mobileread.com/forums/showthread.php?t=329945
+        # for why this is needed
+        if DEBUG:
+            prints('Syncing cover thumbnails to workaround amazon cover bug')
+        dest_dir = self.amazon_system_thumbnails_dir()
+        src_dir = self.amazon_cover_bug_cache_dir()
+        if not os.path.exists(dest_dir) or not os.path.exists(src_dir):
+            return
+        count = 0
+        for name, src_stat_result in get_files_in(src_dir):
+            dest_path = os.path.join(dest_dir, name)
+            try:
+                dest_stat_result = os.lstat(dest_path)
+            except EnvironmentError:
+                needs_sync = True
+            else:
+                needs_sync = src_stat_result.st_size != dest_stat_result.st_size
+            if needs_sync:
+                count += 1
+                if DEBUG:
+                    prints('Restoring cover thumbnail:', name)
+                with lopen(os.path.join(src_dir, name), 'rb') as src, lopen(dest_path, 'wb') as dest:
+                    shutil.copyfileobj(src, dest)
+                    fsync(dest)
+        if DEBUG:
+            prints('Restored {} cover thumbnails that were destroyed by Amazon'.format(count))
 
     def delete_single_book(self, path):
         try:
-            tp = self.thumbpath_from_filepath(path)
-            if tp:
-                try:
-                    os.remove(tp)
-                except EnvironmentError as err:
-                    if err.errno != errno.ENOENT:
-                        prints(u'Failed to delete thumbnail for {!r} at {!r} with error: {}'.format(path, tp, err))
+            tp1 = self.thumbpath_from_filepath(path)
+            if tp1:
+                tp2 = os.path.join(self.amazon_cover_bug_cache_dir(), os.path.basename(tp1))
+                for tp in (tp1, tp2):
+                    try:
+                        os.remove(tp)
+                    except EnvironmentError as err:
+                        if err.errno != errno.ENOENT:
+                            prints('Failed to delete thumbnail for {!r} at {!r} with error: {}'.format(path, tp, err))
         except Exception:
             import traceback
             traceback.print_exc()
