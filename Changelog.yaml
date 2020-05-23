@@ -38,7 +38,7 @@
     - title: "Manage tags/authors/etc dialogs: Allow searching and filtering the list of items."
       tickets: [1879134]
 
-    - title: "Book details panel contenxt menu: Add an action to open the Book details window."
+    - title: "Book details panel context menu: Add an action to open the Book details window."
       tickets: [1878768]
 
     - title: "Viewer: Add Next and Previous buttons in the bookmarks panel."
@@ -517,7 +517,7 @@
     - title: "Viewer: Fix flick scrolling in flow mode jumping to next chapter."
       tickets: [1856398]
 
-    - title: "Windows: Possible fix for some Windows appearing off screen on multi-monitor setups"
+    - title: "Windows: Possible fix for some windows appearing off screen on multi-monitor setups"
       tickets: [1857651]
 
     - title: "macOS: Fix PDF Output not working when running ebook-convert via symlink on the command line."
@@ -2424,7 +2424,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Book polishing: Do not scan book for font usage when subsetting if no embedded fonts are available."
       tickets: [1737400]
 
-    - title: "Content server: Open links in the comments section from the book details page in new Windows."
+    - title: "Content server: Open links in the comments section from the book details page in new windows."
       tickets: [1737644]
 
     - title: "Choose English as the user interface language when a locale related environment variable is set to the C locale"
