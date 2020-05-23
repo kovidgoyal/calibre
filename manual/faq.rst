@@ -480,7 +480,7 @@ Covers for books I send to my e-ink Kindle show up momentarily and then are repl
 
 This happens because of an Amazon bug. They try to download a cover for the
 book from their servers and when that fails, they replace the existing cover
-that calibre created with a generic cover. For details see `here
+that calibre created with a generic cover. For details see `this forum thread
 <https://www.mobileread.com/forums/showthread.php?t=329945>`_. As of version
 4.17, calibre has a workaround, where if you connect the Kindle to calibre
 after the covers have been destroyed by Amazon, calibre will restore them
