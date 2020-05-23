@@ -240,7 +240,7 @@ class TagBrowserMixin(object):  # {{{
             result = None
         return result
 
-    def do_tags_list_edit(self, tag, category):
+    def do_tags_list_edit(self, tag, category, is_first_letter=False):
         '''
         Open the 'manage_X' dialog where X == category. If tag is not None, the
         dialog will position the editor on that item.
@@ -255,7 +255,7 @@ class TagBrowserMixin(object):  # {{{
         d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag,
                           get_book_ids=partial(self.get_book_ids, db=db, category=category),
-                          sorter=key)
+                          sorter=key, ttm_is_first_letter=is_first_letter)
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
@@ -356,14 +356,16 @@ class TagBrowserMixin(object):  # {{{
         self.library_view.select_rows(ids)
         # refreshing the tags view happens at the emit()/call() site
 
-    def do_author_sort_edit(self, parent, id_, select_sort=True, select_link=False):
+    def do_author_sort_edit(self, parent, id_, select_sort=True,
+                            select_link=False, is_first_letter=False):
         '''
         Open the manage authors dialog
         '''
 
         db = self.library_view.model().db
         editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
-                                   partial(self.get_book_ids, db=db, category='authors'))
+                                   partial(self.get_book_ids, db=db, category='authors'),
+                                   is_first_letter)
         if editor.exec_() == editor.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting

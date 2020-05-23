@@ -145,10 +145,10 @@ class TagsView(QTreeView):  # {{{
     del_item_from_user_cat  = pyqtSignal(object, object, object)
     add_item_to_user_cat    = pyqtSignal(object, object, object)
     add_subcategory         = pyqtSignal(object)
-    tags_list_edit          = pyqtSignal(object, object)
+    tags_list_edit          = pyqtSignal(object, object, object)
     saved_search_edit       = pyqtSignal(object)
     rebuild_saved_searches  = pyqtSignal()
-    author_sort_edit        = pyqtSignal(object, object, object, object)
+    author_sort_edit        = pyqtSignal(object, object, object, object, object)
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
@@ -390,7 +390,7 @@ class TagsView(QTreeView):  # {{{
 
     def context_menu_handler(self, action=None, category=None,
                              key=None, index=None, search_state=None,
-                             use_vl=None):
+                             use_vl=None, is_first_letter=False):
         if not action:
             return
         try:
@@ -447,7 +447,7 @@ class TagsView(QTreeView):  # {{{
                 self.tag_item_delete.emit(key, index.id, index.original_name, None)
                 return
             if action == 'open_editor':
-                self.tags_list_edit.emit(category, key)
+                self.tags_list_edit.emit(category, key, is_first_letter)
                 return
             if action == 'manage_categories':
                 self.edit_user_category.emit(category)
@@ -492,11 +492,14 @@ class TagsView(QTreeView):  # {{{
             if action == 'manage_searches':
                 self.saved_search_edit.emit(category)
                 return
+            if action == 'edit_authors':
+                self.author_sort_edit.emit(self, index, False, False, is_first_letter)
+                return
             if action == 'edit_author_sort':
-                self.author_sort_edit.emit(self, index, True, False)
+                self.author_sort_edit.emit(self, index, True, False, is_first_letter)
                 return
             if action == 'edit_author_link':
-                self.author_sort_edit.emit(self, index, False, True)
+                self.author_sort_edit.emit(self, index, False, True, False)
                 return
 
             reset_filter_categories = True
@@ -557,9 +560,9 @@ class TagsView(QTreeView):  # {{{
         if index.isValid():
             item = index.data(Qt.UserRole)
             tag = None
+            tag_item = item
 
             if item.type == TagTreeItem.TAG:
-                tag_item = item
                 tag = item.tag
                 while item.type != TagTreeItem.CATEGORY:
                     item = item.parent
@@ -726,13 +729,29 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or (
                         self.db.field_metadata[key]['is_custom'] and self.db.field_metadata[key]['datatype'] != 'composite'):
-                    self.context_menu.addAction(_('Manage %s')%category,
+                    if tag_item.type == TagTreeItem.CATEGORY and tag_item.temporary:
+                        self.context_menu.addAction(_('Manage %s')%category,
+                            partial(self.context_menu_handler, action='open_editor',
+                                    category=tag_item.name,
+                                    key=key, is_first_letter=True))
+                    else:
+                        self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
                                     category=tag.original_name if tag else None,
                                     key=key))
                 elif key == 'authors':
-                    self.context_menu.addAction(_('Manage %s')%category,
-                            partial(self.context_menu_handler, action='edit_author_sort'))
+                    if tag_item.type == TagTreeItem.CATEGORY:
+                        if tag_item.temporary:
+                            self.context_menu.addAction(_('Manage %s')%category,
+                                partial(self.context_menu_handler, action='edit_authors',
+                                        index=tag_item.name, is_first_letter=True))
+                        else:
+                            self.context_menu.addAction(_('Manage %s')%category,
+                                partial(self.context_menu_handler, action='edit_authors'))
+                    else:
+                        self.context_menu.addAction(_('Manage %s')%category,
+                            partial(self.context_menu_handler, action='edit_authors',
+                                    index=tag.id))
                 elif key == 'search':
                     self.context_menu.addAction(_('Manage Saved searches'),
                         partial(self.context_menu_handler, action='manage_searches',

@@ -13,7 +13,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key, contains, primary_contains
+from calibre.utils.icu import sort_key, contains, primary_contains, primary_startswith
 from polyglot.builtins import unicode_type
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
@@ -132,7 +132,8 @@ class EditColumnDelegate(QItemDelegate):
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter):
+    def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
+                 ttm_is_first_letter=False):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -243,11 +244,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             pass
         # Add the data
         self.search_item_row = -1
-        self.fill_in_table(None, tag_to_match)
+        self.fill_in_table(None, tag_to_match, ttm_is_first_letter)
 
     def vl_box_changed(self):
         self.search_item_row = -1
-        self.fill_in_table(None, None)
+        self.fill_in_table(None, None, False)
 
     def do_search(self):
         self.not_found_label.setVisible(False)
@@ -272,7 +273,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.search_item_row = -1
         self.search_box.setText('')
 
-    def fill_in_table(self, tags, tag_to_match):
+    def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
         self.all_tags = {}
         filter_text = icu_lower(unicode_type(self.filter_box.text()))
@@ -311,8 +312,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 item.setText(tag)
             item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
             self.table.setItem(row, 0, item)
-            if tag == tag_to_match:
-                select_item = item
+            if select_item is None:
+                if ttm_is_first_letter:
+                    if primary_startswith(tag, tag_to_match):
+                        select_item = item
+                elif tag == tag_to_match:
+                    select_item = item
             item = CountTableWidgetItem(self.all_tags[tag]['count'])
             # only the name column can be selected
             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
@@ -344,10 +349,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def clear_filter(self):
         self.filter_box.setText('')
-        self.fill_in_table(None, None)
+        self.fill_in_table(None, None, False)
 
     def do_filter(self):
-        self.fill_in_table(None, None)
+        self.fill_in_table(None, None, False)
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
