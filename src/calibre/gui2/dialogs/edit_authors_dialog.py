@@ -13,7 +13,8 @@ from calibre.ebooks.metadata import author_to_author_sort, string_to_authors
 from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key, primary_contains, contains
+from calibre.utils.config_base import tweaks
+from calibre.utils.icu import sort_key, primary_contains, contains, primary_startswith
 from polyglot.builtins import unicode_type
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
@@ -50,7 +51,8 @@ class EditColumnDelegate(QItemDelegate):
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
-    def __init__(self, parent, db, id_to_select, select_sort, select_link, find_aut_func):
+    def __init__(self, parent, db, id_to_select, select_sort, select_link,
+                 find_aut_func, is_first_letter=False):
         QDialog.__init__(self, parent)
         Ui_EditAuthorsDialog.__init__(self)
         self.setupUi(self)
@@ -153,19 +155,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.author_order = 1
         self.author_sort_order = 0
         self.link_order = 1
-        self.show_table(id_to_select, select_sort, select_link)
+        self.show_table(id_to_select, select_sort, select_link, is_first_letter)
 
     def use_vl_changed(self, x):
-        self.show_table(None, None, None)
+        self.show_table(None, None, None, False)
 
     def clear_filter(self):
         self.filter_box.setText('')
-        self.show_table(None, None, None)
+        self.show_table(None, None, None, False)
 
     def do_filter(self):
-        self.show_table(None, None, None)
+        self.show_table(None, None, None, False)
 
-    def show_table(self, id_to_select, select_sort, select_link):
+    def show_table(self, id_to_select, select_sort, select_link, is_first_letter):
         filter_text = icu_lower(unicode_type(self.filter_box.text()))
         auts_to_show = []
         for t in self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked()):
@@ -176,7 +178,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.setColumnCount(3)
 
         self.table.setRowCount(len(auts_to_show))
-        select_item = None
         row = 0
         for id_, v in self.authors.items():
             if id_ not in auts_to_show:
@@ -198,14 +199,6 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.table.setItem(row, 0, name_item)
             self.table.setItem(row, 1, sort_item)
             self.table.setItem(row, 2, link_item)
-
-            if id_to_select and id_to_select in (id_, name):
-                if select_sort:
-                    select_item = sort_item
-                elif select_link:
-                    select_item = link_item
-                else:
-                    select_item = name_item
             row += 1
 
         self.table.setItemDelegate(EditColumnDelegate(self.completion_data))
@@ -222,10 +215,28 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.do_sort_by_link()
 
         # Position on the desired item
-        if select_item is not None:
-            self.table.setCurrentItem(select_item)
-            self.table.editItem(select_item)
-            self.start_find_pos = select_item.row() * 2 + select_item.column()
+        if id_to_select:
+            select_item = None
+            use_as = tweaks['categories_use_field_for_author_name']
+            for row in range(0, len(auts_to_show)):
+                name_item = self.table.item(row, 1) if use_as else self.table.item(row, 0)
+                if is_first_letter:
+                    if primary_startswith(name_item.text(), id_to_select):
+                        select_item = self.table.item(row, 1)
+                        break
+                elif id_to_select == self.table.item(row, 0).data(Qt.UserRole):
+                    if select_sort:
+                        select_item = self.table.item(row, 1)
+                    elif select_link:
+                        select_item = self.table.item(row, 2)
+                    else:
+                        select_item = name_item
+                    break
+            if select_item:
+                self.table.setCurrentItem(select_item)
+                if select_sort or select_link:
+                    self.table.editItem(select_item)
+                self.start_find_pos = select_item.row() * 2 + select_item.column()
         else:
             self.table.setCurrentCell(0, 0)
             self.start_find_pos = -1
