@@ -20,6 +20,56 @@
 #   new recipes:
 #     - title:
 
+- version: 4.17.0
+  date: 2020-05-23
+
+  new features:
+    - title: "Add a workaround for Amazon destroying cover thumbnails on e-ink Kindles."
+      description: "For books sent with this release of calibre, reconnecting the Kindle to calibre after the cover has been destroyed will restore it automatically"
+
+    - title: "Viewer: Group search results by section"
+
+    - title: "Viewer: When the search results panel is expanded, show more context"
+
+    - title: "Tag browser: Add options in Preferences->Look & feel->Tag browser to hide empty categories and also to have the Find in the Tag browser show all matches instead of jumping from match to match."
+
+    - title: "Tag browser: The Find function for searching for items in the Tag browser can now do exact matching by using = as a prefix."
+
+    - title: "Manage tags/authors/etc dialogs: Allow searching and filtering the list of items."
+      tickets: [1879134]
+
+    - title: "Book details panel contenxt menu: Add an action to open the Book details window."
+      tickets: [1878768]
+
+    - title: "Viewer: Add Next and Previous buttons in the bookmarks panel."
+      tickets: [1878691]
+
+    - title: "Conversion: Change the default white-space CSS for <pre> tags to pre-wrap as this suits ebooks better"
+
+  bug fixes:
+    - title: "Edit Book: Fix default CSS template not quoting the charset, causing Check book to complain about the CSS."
+      tickets: [1879618]
+
+    - title: "Fix a regression in the previous release that broke the losslessly compress images tool when the image filenames had upper case characters on Windows."
+      tickets: [1879313]
+
+    - title: "Fix a regression that broke drag and drop of images from browsers to the book details panel on some platforms."
+      tickets: [1879120]
+
+    - title: "FB2 metadata: Fix setting dates before 1900 failing"
+
+    - title: "Fix Bookeen Diva HD not being detected."
+      tickets: [1877965]
+
+  improved recipes:
+    - How To Geek
+    - Tagespost by Pat Stapleton
+    - ABC News
+
+  new recipes:
+    - title: Independent Australia
+      author: Pat Stapelton
+
 - version: 4.16.0
   date: 2020-05-15
 
@@ -49,10 +99,10 @@
     - title: "FB2 metadata: Add support for setting publisher and publish year"
 
   bug fixes:
-    - title: "Edit book: Fix compress images losslessly failing for a few images on windows when there are a lot of images in the book."
+    - title: "Edit book: Fix compress images losslessly failing for a few images on Windows when there are a lot of images in the book."
       tickets: [1877066]
 
-    - title: "Fix a regression in 4.13 that broke the user category editor for all custom columns."
+    - title: "Fix a regression in 4.13 that broke the User category editor for all custom columns."
       tickets: [1877101]
 
     - title: "Viewer: Fix font size changes not applying to monospaced fonts."
@@ -467,7 +517,7 @@
     - title: "Viewer: Fix flick scrolling in flow mode jumping to next chapter."
       tickets: [1856398]
 
-    - title: "Windows: Possible fix for some windows appearing off screen on multi-monitor setups"
+    - title: "Windows: Possible fix for some Windows appearing off screen on multi-monitor setups"
       tickets: [1857651]
 
     - title: "macOS: Fix PDF Output not working when running ebook-convert via symlink on the command line."
@@ -806,7 +856,7 @@
 
     - title: "Viewer: Dont flash the home page before loading a book if a book has been specified"
 
-    - title: "Viewer: Fix ctrl+m shortcut not working on windows"
+    - title: "Viewer: Fix ctrl+m shortcut not working on Windows"
 
     - title: "Content server: Fix regression that caused series name in book details view not not be blue to indicate it is clickable"
 
@@ -878,7 +928,7 @@
 
     - title: "Comments editor: Workaround for Qt converting ids into anchors"
 
-    - title: "Possible workaround for some windows machines where the viewer is getting access denied errors while renaming a directory"
+    - title: "Possible workaround for some Windows machines where the viewer is getting access denied errors while renaming a directory"
 
     - title: "Viewer: When there is empty text for an header footer section render it as blank instead of moving the remaining sections to the left"
 
@@ -1025,7 +1075,7 @@
     - title: "Fix a regression that broke the per_lang_title_sort_articles tweak."
       tickets: [1834329]
 
-    - title: "Sending email: Fix an error on some windows machines with non-ASCII hostnames"
+    - title: "Sending email: Fix an error on some Windows machines with non-ASCII hostnames"
 
     - title: "EPUB Output: When generating EPUB 3 preserve the old style meta tag to identify the cover as Google Play Books does not recognize EPUB 3 cover markup."
       tickets: [1832660]
@@ -1246,7 +1296,7 @@
 
     - title: "Tag browser: Category editor: Add a checkbox to restrict the entries shown to only those present in the current Virtual library"
 
-    - title: "Allow adding files to selected book records from the clipboard. To use copy a file from windows explorer, right click the Add books button and choose: Add files to selected book records from clipboard"
+    - title: "Allow adding files to selected book records from the clipboard. To use copy a file from Windows Explorer, right click the Add books button and choose: Add files to selected book records from clipboard"
       tickets: [1815419]
 
     - title: "Tag browser: When right clicking on a Saved search add a menu option to search using the raw search expression."
@@ -2193,7 +2243,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Fix re-ordering of columns causing split book splitter state not being restored on restart"
 
-    - title: "Fix errors when using strftime with unicode strings on non-utf-8 windows systems."
+    - title: "Fix errors when using strftime with unicode strings on non-UTF-8 Windows systems."
       tickets: [1749219]
 
     - title: "Split book view: Fix vertical scroll position of the two views getting out of sync after doing some searches."
@@ -2374,7 +2424,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Book polishing: Do not scan book for font usage when subsetting if no embedded fonts are available."
       tickets: [1737400]
 
-    - title: "Content server: Open links in the comments section from the book details page in new windows."
+    - title: "Content server: Open links in the comments section from the book details page in new Windows."
       tickets: [1737644]
 
     - title: "Choose English as the user interface language when a locale related environment variable is set to the C locale"
@@ -2599,7 +2649,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "If the --start-in-tray option is specified, create a tray icon even if the configuration option to enable tray icons is off."
 
   bug fixes:
-    - title: "Possible fix for issue with pinning calibre to taskbar on windows. Note that as an unfortunate side-effect, you will have to unpin and re-pin calibre to the taskbar after updating."
+    - title: "Possible fix for issue with pinning calibre to taskbar on Windows. Note that as an unfortunate side-effect, you will have to unpin and re-pin calibre to the taskbar after updating."
 
     - title: "DOCX Output: Fix text immediately after a hidden tag not being included."
       tickets: [1717403]
@@ -2720,7 +2770,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
   bug fixes:
     - title: "Hopefully fix an issue with the book list jumping around when using the mouse on some computers"
 
-    - title: "E-book viewer: Change the default fonts on windows to the Liberation font family. This matches the other platforms and avoids rendering issues with Times New Roman."
+    - title: "E-book viewer: Change the default fonts on Windows to the Liberation font family. This matches the other platforms and avoids rendering issues with Times New Roman."
       tickets: [1706491]
 
     - title: "DOCX Output: Convert images placed by themselves inside block tags as block images rather than inline images."
@@ -2887,7 +2937,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Viewer: Fix incorrect display of pages in paged mode for books that override the box-sizing CSS property on the <body> element."
       tickets: [1700109]
 
-    - title: "Server: Fix timeout errors when using SSL (particularly common when running the server on windows)"
+    - title: "Server: Fix timeout errors when using SSL (particularly common when running the server on Windows)"
 
     - title: "Linux: Fix slow mouse wheel scrolling in Cover grid because of Qt bug"
 
@@ -2900,7 +2950,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
 
     - title: "Server: Disallow client initiated SSL renegotiation"
 
-    - title: "Windows: Try to prevent windows from showing the annoying 'no disk in drive' error messages at calibre startup if one of the calibre libraries is on a removable disk that is missing from the system"
+    - title: "Windows: Try to prevent Windows from showing the annoying 'no disk in drive' error messages at calibre startup if one of the calibre libraries is on a removable disk that is missing from the system"
       tickets: [1701399]
 
   improved recipes:
