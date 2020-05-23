@@ -140,7 +140,7 @@ calibre's plugin loading system defines a couple of built-in functions that allo
     **get_resources(name_or_list_of_names)**
         This function should be called with a list of paths to files inside the ZIP file. For example to access the file icon.png in
         the directory images in the ZIP file, you would use: ``images/icon.png``. Always use a forward slash as the path separator,
-        even on windows. When you pass in a single name, the function will return the raw bytes of that file or None if the name
+        even on Windows. When you pass in a single name, the function will return the raw bytes of that file or None if the name
         was not found in the ZIP file. If you pass in more than one name then it returns a dict mapping the names to bytes.
         If a name is not found, it will not be present in the returned dict.
 

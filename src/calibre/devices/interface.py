@@ -273,7 +273,7 @@ class DevicePlugin(Plugin):
         :param connected_device: The device that we are trying to open. It is
             a tuple of (vendor id, product id, bcd, manufacturer name, product
             name, device serial number). However, some devices have no serial
-            number and on windows only the first three fields are present, the
+            number and on Windows only the first three fields are present, the
             rest are None.
 
         :param library_uuid: The UUID of the current calibre library. Can be
