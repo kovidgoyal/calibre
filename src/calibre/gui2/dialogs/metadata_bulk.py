@@ -681,7 +681,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                  'search text. The text is replaced by the specified replacement '
                  'text everywhere it is found in the specified field. After '
                  'replacement is finished, the text can be changed to '
-                 'upper-case, lower-case, or title-case. If the case-sensitive '
+                 'upper-case, lower-case, or title-case. If the Case-sensitive '
                  'check box is checked, the search text must match exactly. If '
                  'it is unchecked, the search text will match both upper- and '
                  'lower-case letters'
