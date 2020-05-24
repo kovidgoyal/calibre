@@ -21,12 +21,13 @@ QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 class NameTableWidgetItem(QTableWidgetItem):
 
-    def __init__(self):
+    def __init__(self, sort_key):
         QTableWidgetItem.__init__(self)
         self.initial_value = ''
         self.current_value = ''
         self.is_deleted = False
         self.is_placeholder = False
+        self.sort_key = sort_key
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -79,10 +80,12 @@ class NameTableWidgetItem(QTableWidgetItem):
             self.setText(self.text_before_placeholder)
 
     def __ge__(self, other):
-        return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
+        return (self.sort_key(unicode_type(self.text())) >=
+                    self.sort_key(unicode_type(other.text())))
 
     def __lt__(self, other):
-        return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
+        return (self.sort_key(unicode_type(self.text())) <
+                    self.sort_key(unicode_type(other.text())))
 
 
 class CountTableWidgetItem(QTableWidgetItem):
@@ -204,7 +207,6 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
         if ac is not None:
             ac.triggered.connect(self.clear_search)
-        le.returnPressed.connect(self.do_search)
         self.search_box.textChanged.connect(self.search_text_changed)
         self.search_button.clicked.connect(self.do_search)
         self.search_button.setDefault(True)
@@ -258,7 +260,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for _ in range(0, self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
             if self.string_contains(find_text,
-                        self.all_tags[self.ordered_tags[r]]['cur_name']):
+                        self.table.item(r, 0).text()):
                 self.table.setCurrentItem(self.table.item(r, 0))
                 self.table.setFocus(True)
                 return
@@ -301,7 +303,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.table.setRowCount(len(tags))
         for row,tag in enumerate(tags):
-            item = NameTableWidgetItem()
+            item = NameTableWidgetItem(self.sorter)
             item.set_is_deleted(self.all_tags[tag]['is_deleted'])
             _id = self.all_tags[tag]['key']
             item.setData(Qt.UserRole, _id)
