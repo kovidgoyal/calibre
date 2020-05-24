@@ -73,14 +73,14 @@
           not be forgotten.&lt;/p&gt;</string>
        </property>
        <property name="text">
-        <string>Only show authors in the current &amp;virtual library</string>
+        <string>Only show authors in the current &amp;Virtual library</string>
        </property>
       </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel">
        <property name="text">
-        <string>Filter &amp;By:</string>
+        <string>Filter &amp;by:</string>
        </property>
        <property name="buddy">
         <cstring>filter_box</cstring>
