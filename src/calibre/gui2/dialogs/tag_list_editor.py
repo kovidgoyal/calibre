@@ -260,7 +260,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         for _ in range(0, self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
             if self.string_contains(find_text,
-                        self.all_tags[self.ordered_tags[r]]['cur_name']):
+                        self.table.item(r, 0).text()):
                 self.table.setCurrentItem(self.table.item(r, 0))
                 self.table.setFocus(True)
                 return
