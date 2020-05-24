@@ -608,6 +608,8 @@ class BBCNews(BasicNewsRecipe):
     # blank / missing / empty articles which have an index title and then no
     # body.
     def print_version(self, url):
+        if url.startswith("https://www.bbc.co.uk/news/world-51235105"):
+            self.abort_article("This article contains a gigantic coronavirus table")
 
         # Handle sports page urls type 01:
         if (url.find("go/rss/-/sport1/") != -1):
