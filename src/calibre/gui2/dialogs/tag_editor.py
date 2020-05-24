@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import Qt, QDialog, QAbstractItemView, QApplication
 
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
@@ -117,6 +118,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         items = self.available_tags.selectedItems() if item is None else [item]
         if not items:
             error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
+            return
+        if not confirm(
+            _('Deleting tags is done immediately and there is no undo.'),
+            'tag_editor_delete'):
             return
         pos = self.available_tags.verticalScrollBar().value()
         for item in items:
