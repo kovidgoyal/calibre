@@ -410,22 +410,29 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def do_recalc_author_sort(self):
         self.table.cellChanged.disconnect()
         for row in range(0,self.table.rowCount()):
-            item = self.table.item(row, 0)
-            aut  = unicode_type(item.text()).strip()
-            c = self.table.item(row, 1)
+            item_aut = self.table.item(row, 0)
+            id_ = int(item_aut.data(Qt.UserRole))
+            aut  = unicode_type(item_aut.text()).strip()
+            item_aus = self.table.item(row, 1)
             # Sometimes trailing commas are left by changing between copy algs
-            c.setText(author_to_author_sort(aut).rstrip(','))
+            aus = unicode_type(author_to_author_sort(aut)).rstrip(',')
+            if aus != self.original_authors[id_]['sort']:
+                item_aus.setIcon(self.edited_icon)
+            item_aus.setText(aus)
+            self.authors[id_]['sort'] = aus
         self.table.setFocus(Qt.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
 
     def do_auth_sort_to_author(self):
         self.table.cellChanged.disconnect()
         for row in range(0,self.table.rowCount()):
-            item = self.table.item(row, 1)
-            aus  = unicode_type(item.text()).strip()
-            c = self.table.item(row, 0)
-            # Sometimes trailing commas are left by changing between copy algs
-            c.setText(aus)
+            aus  = unicode_type(self.table.item(row, 1).text()).strip()
+            item_aut = self.table.item(row, 0)
+            id_ = int(item_aut.data(Qt.UserRole))
+            if aus != self.original_authors[id_]['name']:
+                item_aut.setIcon(self.edited_icon)
+            item_aut.setText(aus)
+            self.authors[id_]['name'] = aus
         self.table.setFocus(Qt.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
 
