@@ -1114,6 +1114,7 @@ class Editor(QWidget):  # {{{
         for x in ('bold', 'italic', 'underline', 'strikethrough'):
             ac = getattr(self.editor, 'action_'+x)
             self.toolbar3.addAction(ac)
+            self.addAction(ac)
         self.toolbar3.addSeparator()
 
         for x in ('left', 'center', 'right', 'justified'):
