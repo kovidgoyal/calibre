@@ -18,12 +18,12 @@ from threading import Thread
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG, cache_dir
 from calibre.devices.errors import (OpenFailed, OpenFeedback, ControlError, TimeoutError,
-                                    InitialConnectionError, PacketError)
+                                    InitialConnectionError, PacketError, UserFeedback)
 from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.utils import build_template_regexp
+from calibre.devices.utils import build_template_regexp, sanity_check
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -252,6 +252,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_LIBRARY_INFO'       : 19,
         'DELETE_BOOK'            : 13,
         'DISPLAY_MESSAGE'        : 17,
+        'ERROR'                  : 20,
         'FREE_SPACE'             : 5,
         'GET_BOOK_FILE_SEGMENT'  : 14,
         'GET_BOOK_METADATA'      : 15,
@@ -702,8 +703,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                'canSupportLpathChanges': True},
                           print_debug_info=False,
                           wait_for_response=self.can_send_ok_to_sendbook)
-
         if self.can_send_ok_to_sendbook:
+            if opcode == 'ERROR':
+                raise UserFeedback(msg='Sending book %s to device failed' % lpath,
+                                   details=result.get('message', ''),
+                                   level=UserFeedback.ERROR)
+                return
             lpath = result.get('lpath', lpath)
             book_metadata.lpath = lpath
         self._set_known_metadata(book_metadata)
@@ -1464,7 +1469,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug(names)
         else:
             self._debug()
-
+        sanity_check(on_card='', files = files, card_prefixes=[],
+                     free_space=self.free_space())
         paths = []
         names = iter(names)
         metadata = iter(metadata)
