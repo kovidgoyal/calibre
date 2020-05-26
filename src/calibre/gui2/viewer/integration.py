@@ -20,5 +20,5 @@ def get_book_library_details(absolute_path_to_ebook):
     dbpath = os.path.join(library_dir, 'metadata.db')
     dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH') or dbpath
     if not os.path.exists(dbpath):
-        return None
+        return
     return {'dbpath': dbpath, 'book_id': book_id, 'fmt': absolute_path_to_ebook.rpartition('.')[-1].upper()}

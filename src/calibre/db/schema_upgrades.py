@@ -696,3 +696,67 @@ CREATE TRIGGER fkc_lrp_update
         END;
 
         ''')
+
+    def upgrade_version_23(self):
+        ''' Create the annotations table '''
+        self.db.execute('''
+DROP TABLE IF EXISTS annotations_dirtied;
+CREATE TABLE annotations_dirtied(id INTEGER PRIMARY KEY,
+                             book INTEGER NOT NULL,
+                             UNIQUE(book));
+DROP TABLE IF EXISTS annotations;
+CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
+    book INTEGER NOT NULL,
+    format TEXT NOT NULL COLLATE NOCASE,
+    user_type TEXT NOT NULL,
+    user TEXT NOT NULL,
+    timestamp REAL NOT NULL,
+    annot_id TEXT NOT NULL,
+    annot_type TEXT NOT NULL,
+    annot_data TEXT NOT NULL,
+    searchable_text TEXT NOT NULL,
+    UNIQUE(book, user_type, user, format, annot_id)
+);
+
+DROP INDEX IF EXISTS annot_idx;
+CREATE INDEX annot_idx ON annotations (book);
+
+DROP TRIGGER IF EXISTS books_delete_trg;
+CREATE TRIGGER books_delete_trg
+    AFTER DELETE ON books
+    BEGIN
+        DELETE FROM books_authors_link WHERE book=OLD.id;
+        DELETE FROM books_publishers_link WHERE book=OLD.id;
+        DELETE FROM books_ratings_link WHERE book=OLD.id;
+        DELETE FROM books_series_link WHERE book=OLD.id;
+        DELETE FROM books_tags_link WHERE book=OLD.id;
+        DELETE FROM books_languages_link WHERE book=OLD.id;
+        DELETE FROM data WHERE book=OLD.id;
+        DELETE FROM last_read_positions WHERE book=OLD.id;
+        DELETE FROM annotations WHERE book=OLD.id;
+        DELETE FROM comments WHERE book=OLD.id;
+        DELETE FROM conversion_options WHERE book=OLD.id;
+        DELETE FROM books_plugin_data WHERE book=OLD.id;
+        DELETE FROM identifiers WHERE book=OLD.id;
+END;
+
+DROP TRIGGER IF EXISTS fkc_annot_insert;
+DROP TRIGGER IF EXISTS fkc_annot_update;
+CREATE TRIGGER fkc_annot_insert
+        BEFORE INSERT ON annotations
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+CREATE TRIGGER fkc_annot_update
+        BEFORE UPDATE OF book ON annotations
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+
+        ''')
