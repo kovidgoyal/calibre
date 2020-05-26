@@ -203,6 +203,7 @@ class EbookViewer(MainWindow):
         for k, v in iteritems(smap):
             rmap[v].append(k)
         self.actions_toolbar.set_tooltips(rmap)
+        self.highlights_widget.set_tooltips(rmap)
 
     def resizeEvent(self, ev):
         self.loading_overlay.resize(self.size())
