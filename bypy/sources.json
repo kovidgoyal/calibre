@@ -603,8 +603,8 @@
     {
         "name": "mechanize",
         "unix": {
-            "filename": "mechanize-0.4.3.tar.gz",
-            "hash": "sha256:d7d7068be5e1b3069575c98c870aaa96dd26603fe8c8697b470e2f65259fddbf",
+            "filename": "mechanize-0.4.5.tar.gz",
+            "hash": "sha256:6355c11141f6d4b54a17fc2106944806b5db2711e60b120d15d83db438c333fd",
             "urls": ["pypi"]
         }
     },
