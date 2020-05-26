@@ -48,7 +48,7 @@ from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.monotonic import monotonic
 from calibre.utils.serialize import json_loads
-from polyglot.builtins import as_bytes, iteritems, itervalues
+from polyglot.builtins import as_bytes, iteritems, itervalues, as_unicode
 
 annotations_dir = os.path.join(viewer_config_dir, 'annots')
 
@@ -468,7 +468,7 @@ class EbookViewer(MainWindow):
         self.web_view.clear_caches()
         if not ok:
             self.setWindowTitle(self.base_window_title)
-            tb = data['tb'].strip()
+            tb = as_unicode(data['tb'].strip(), errors='replace')
             tb = re.split(r'^calibre\.gui2\.viewer\.convert_book\.ConversionFailure:\s*', tb, maxsplit=1, flags=re.M)[-1]
             last_line = tuple(tb.strip().splitlines())[-1]
             if last_line.startswith('calibre.ebooks.DRMError'):
