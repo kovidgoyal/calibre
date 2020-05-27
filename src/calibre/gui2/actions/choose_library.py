@@ -204,7 +204,7 @@ class BackupStatus(QDialog):  # {{{
 class ChooseLibraryAction(InterfaceAction):
 
     name = 'Choose Library'
-    action_spec = (_('Choose Library'), 'lt.png',
+    action_spec = (_('Choose library'), 'lt.png',
             _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
