@@ -28,7 +28,7 @@ from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
-from polyglot.builtins import filter, iteritems, itervalues, unicode_type, as_bytes
+from polyglot.builtins import filter, iteritems, itervalues, unicode_type
 
 # Cleanup Qt markup {{{
 
@@ -764,12 +764,13 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     with lopen(path, 'rb') as f:
                         data = f.read()
                 except EnvironmentError:
-                    return QByteArray(bytearray.fromhex(
-                                  '89504e470d0a1a0a0000000d49484452'
-                                  '000000010000000108060000001f15c4'
-                                  '890000000a49444154789c6300010000'
-                                  '0500010d0a2db40000000049454e44ae'
-                                  '426082'))
+                    if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
+                        return QByteArray(bytearray.fromhex(
+                                    '89504e470d0a1a0a0000000d49484452'
+                                    '000000010000000108060000001f15c4'
+                                    '890000000a49444154789c6300010000'
+                                    '0500010d0a2db40000000049454e44ae'
+                                    '426082'))
                 else:
                     return QByteArray(data)
 
