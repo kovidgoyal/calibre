@@ -57,7 +57,7 @@ The reason this worked so well, with so little effort is that the blog provides 
 bbc.co.uk
 ~~~~~~~~~~~~~~
 
-Lets try the following two feeds from *The BBC*:
+Let's try the following two feeds from *The BBC*:
 
     #. News Front Page: https://newsrss.bbc.co.uk/rss/newsonline_world_edition/front_page/rss.xml
     #. Science/Nature: https://newsrss.bbc.co.uk/rss/newsonline_world_edition/science/nature/rss.xml
