@@ -180,7 +180,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
     ]
 
     def build_index(self):
-        url = "https://meine.zeit.de/anmelden?url=https%3A//premium.zeit.de/node/125"
+        url = "https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit"
         browser = self.get_browser()
 
         # new login process
@@ -189,11 +189,11 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         browser.form['email'] = self.username
         browser.form['pass'] = self.password
         browser.submit()
-        # change into abo section - not needed between late 2016 and May 2017
-        browser.open(url)
-        abolink = browser.find_link(text_regex=re.compile(
-            '.*E-Paper.*'))  # used to be '.*Abo-Bereich.*'
-        browser.follow_link(abolink)
+        # change into abo section - not needed between late 2016 and May 2017, and again starting from March 2020
+        # browser.open(url)
+        # abolink = browser.find_link(text_regex=re.compile(
+        #    '.*E-Paper.*'))  # used to be '.*Abo-Bereich.*'
+        # browser.follow_link(abolink)
         # find page for latest issue
         latestlink = browser.find_link(text_regex=re.compile(
             '.*ZUR AKTUELLEN AUSGABE.*'))
@@ -246,7 +246,7 @@ class ZeitEPUBAbo(BasicNewsRecipe):
         self.log.warning('Downloading cover')
         try:
             self.log.warning('Trying PDF-based cover')
-            url = "https://meine.zeit.de/anmelden?url=https%3A//premium.zeit.de/node/125"
+            url = "https://meine.zeit.de/anmelden?url=https%3A//epaper.zeit.de/abo/diezeit"
             browser = self.get_browser()
 
             # new login process
