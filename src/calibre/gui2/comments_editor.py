@@ -764,7 +764,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     with lopen(path, 'rb') as f:
                         data = f.read()
                 except EnvironmentError:
-                return QByteArray(bytearray.fromhex(
+                    return QByteArray(bytearray.fromhex(
                                   '89504e470d0a1a0a0000000d49484452'
                                   '000000010000000108060000001f15c4'
                                   '890000000a49444154789c6300010000'
