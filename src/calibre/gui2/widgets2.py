@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel,
     QLayout, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
     QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
-    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal
+    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal, QByteArray
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -482,6 +482,18 @@ class HTMLDisplay(QTextBrowser):
                 return
         self.anchor_clicked.emit(qurl)
 
+    def loadResource(self, rtype, qurl):
+        if qurl.isLocalFile():
+            path = qurl.toLocalFile()
+            try:
+                with lopen(path, 'rb') as f:
+                    data = f.read()
+            except EnvironmentError:
+                return QByteArray(I('blank-1x1.png', data=True))
+            else:
+                return QByteArray(data)
+        else:
+            QTextBrowser.loadResource(self, rtype, qurl)
 
 class ScrollingTabWidget(QTabWidget):
 

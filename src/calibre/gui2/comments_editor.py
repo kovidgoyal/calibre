@@ -28,7 +28,7 @@ from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
-from polyglot.builtins import filter, iteritems, itervalues, unicode_type
+from polyglot.builtins import filter, iteritems, itervalues, unicode_type, as_bytes
 
 # Cleanup Qt markup {{{
 
@@ -764,7 +764,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                     with lopen(path, 'rb') as f:
                         data = f.read()
                 except EnvironmentError:
-                    pass
+                    return QByteArray(I('blank-1x1.png', data=True))
                 else:
                     return QByteArray(data)
 
