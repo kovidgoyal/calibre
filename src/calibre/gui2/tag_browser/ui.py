@@ -291,6 +291,9 @@ class TagBrowserMixin(object):  # {{{
         if n:
             n = '%s:\n   %s\n%s:\n   %s'%(_('Item'), orig_name, _('Children'), n)
         if n:
+            # Use a new "see this again" name to force the dialog to appear at
+            # least once, thus announcing the new feature.
+            skip_dialog_name = 'tag_item_delete_hierarchical'
             if restrict_to_book_ids:
                 msg = _('%s and its children will be deleted from books '
                         'in the Virtual library. Are you sure?')%orig_name
@@ -298,20 +301,21 @@ class TagBrowserMixin(object):  # {{{
                 msg = _('%s and its children will be deleted from all books. '
                         'Are you sure?')%orig_name
         else:
+            skip_dialog_name='tag_item_delete',
             if restrict_to_book_ids:
                 msg = _('%s will be deleted from books in the Virtual library. Are you sure?')%orig_name
             else:
                 msg = _('%s will be deleted from all books. Are you sure?')%orig_name
-
         if not question_dialog(self.tags_view,
                     title=_('Delete item'),
                     msg='<p>'+ msg,
                     det_msg=n,
-                    # Change the skip name because functionality has greatly changed
-                    skip_dialog_name='tag_item_delete_hierarchical',
+                    skip_dialog_name=skip_dialog_name,
                     skip_dialog_msg=_('Show this confirmation again')):
             return
-        ids_to_remove = [item_id]
+        ids_to_remove = []
+        if item_id is not None:
+            ids_to_remove.append(item_id)
         for child in children:
             if child.tag.is_editable:
                 ids_to_remove.append(child.tag.id)

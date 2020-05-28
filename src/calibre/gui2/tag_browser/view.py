@@ -172,7 +172,6 @@ class TagsView(QTreeView):  # {{{
         self.setDragEnabled(True)
         self.setDragDropMode(self.DragDrop)
         self.setDropIndicatorShown(True)
-        self.in_drag_drop = False
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False
         self.search_icon = QIcon(I('search.png'))
@@ -333,7 +332,7 @@ class TagsView(QTreeView):  # {{{
             self.unsetCursor()
         if not event.buttons() & Qt.LeftButton:
             return
-        if self.in_drag_drop or not dex.isValid():
+        if not dex.isValid():
             QTreeView.mouseMoveEvent(self, event)
             return
         # don't start drag/drop until the mouse has moved a bit.
@@ -341,12 +340,7 @@ class TagsView(QTreeView):  # {{{
                                     QApplication.startDragDistance()):
             QTreeView.mouseMoveEvent(self, event)
             return
-        # Must deal with odd case where the node being dragged is 'virtual',
-        # created to form a hierarchy. We can't really drag this node, but in
-        # addition we can't allow drag recognition to notice going over some
-        # other node and grabbing that one. So we set in_drag_drop to prevent
-        # this from happening, turning it off when the user lifts the button.
-        self.in_drag_drop = True
+
         if not self._model.flags(dex) & Qt.ItemIsDragEnabled:
             QTreeView.mouseMoveEvent(self, event)
             return
@@ -366,12 +360,6 @@ class TagsView(QTreeView):  # {{{
             drag.exec_(Qt.CopyAction|Qt.MoveAction, Qt.CopyAction)
         else:
             drag.exec_(Qt.CopyAction)
-
-    def mouseReleaseEvent(self, event):
-        # Swallow everything except leftButton so context menus work correctly
-        if event.button() == Qt.LeftButton or self.in_drag_drop:
-            QTreeView.mouseReleaseEvent(self, event)
-            self.in_drag_drop = False
 
     def mouseDoubleClickEvent(self, event):
         # swallow these to avoid toggling and editing at the same time
@@ -458,15 +446,17 @@ class TagsView(QTreeView):  # {{{
                 return
             if action == 'delete_item_in_vl':
                 tag = index.tag
+                id_ = tag.id if tag.is_editable else None
                 children = index.child_tags()
-                self.tag_item_delete.emit(key, tag.id, tag.original_name,
+                self.tag_item_delete.emit(key, id_, tag.original_name,
                                           self.model().get_book_ids_to_use(),
                                           children)
                 return
             if action == 'delete_item_no_vl':
                 tag = index.tag
+                id_ = tag.id if tag.is_editable else None
                 children = index.child_tags()
-                self.tag_item_delete.emit(key, tag.id, tag.original_name,
+                self.tag_item_delete.emit(key, id_, tag.original_name,
                                           None, children)
                 return
             if action == 'open_editor':
@@ -618,7 +608,6 @@ class TagsView(QTreeView):  # {{{
                                                 _('Rename %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='edit_item_no_vl',
                                         index=index, category=key))
-                    if tag.is_editable:
                         if key in ('tags', 'series', 'publisher') or \
                                 self._model.db.field_metadata.is_custom_field(key):
                             if self.model().get_in_vl():
@@ -631,6 +620,7 @@ class TagsView(QTreeView):  # {{{
                                                     _('Delete %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='delete_item_no_vl',
                                     key=key, index=tag_item))
+                    if tag.is_editable:
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
@@ -869,39 +859,54 @@ class TagsView(QTreeView):  # {{{
             return
 
         if src_is_tb:
-            src = json_loads(bytes(event.mimeData().data('application/calibre+from_tag_browser')))
-            if len(src) == 1:
-                src_item = self._model.get_node(self._model.index_for_path(src[0][5]))
-                if (src_item.type == TagTreeItem.TAG and
-                        src_item.tag.category == item.tag.category and
-                        not item.temporary and
-                        self._model.is_key_a_hierarchical_category(src_item.tag.category)):
-                    event.setDropAction(Qt.MoveAction)
-                    self.setDropIndicatorShown(True)
-                    return
+            src_json = json_loads(bytes(event.mimeData().data('application/calibre+from_tag_browser')))
+            if len(src_json) > 1:
+                # Should never have multiple mimedata from the tag browser
+                return
+        if src_is_tb:
+            src_md = src_json[0]
+            src_item = self._model.get_node(self._model.index_for_path(src_md[5]))
+            # Check if this is an intra-hierarchical-category drag/drop
+            if (src_item.type == TagTreeItem.TAG and
+                    src_item.tag.category == item.tag.category and
+                    not item.temporary and
+                    self._model.is_key_a_hierarchical_category(src_item.tag.category)):
+                event.setDropAction(Qt.MoveAction)
+                self.setDropIndicatorShown(True)
+                return
+        # We aren't dropping an item on its own category. Check if the dest is
+        # not a user category and can be dropped on. This covers drops from the
+        # booklist. It is OK to drop onto virtual nodes
         if item.type == TagTreeItem.TAG and self._model.flags(index) & Qt.ItemIsDropEnabled:
             event.setDropAction(Qt.CopyAction)
             self.setDropIndicatorShown(not src_is_tb)
             return
+        # Now see if we are on a user category and the source can be dropped there
         if item.type == TagTreeItem.CATEGORY and not item.is_gst:
             fm_dest = self.db.metadata_for_field(item.category_key)
             if fm_dest['kind'] == 'user':
                 if src_is_tb:
+                    # src_md and src_item are initialized above
                     if event.dropAction() == Qt.MoveAction:
-                        # src is initialized above
-                        for s in src:
-                            if s[0] == TagTreeItem.TAG and \
-                                    (not s[1].startswith('@') or s[2]):
-                                return
-                    self.setDropIndicatorShown(True)
+                        # can move only from user categories
+                        if (src_md[0] == TagTreeItem.TAG and
+                                 (not src_md[1].startswith('@') or src_md[2])):
+                            return
+                    # can't copy virtual nodes into a user category
+                    if src_item.tag.is_editable:
+                        self.setDropIndicatorShown(True)
                     return
                 md = event.mimeData()
+                # Check for drag to user category from the book list. Can handle
+                # only non-multiple columns, except for some unknown reason authors
                 if hasattr(md, 'column_name'):
                     fm_src = self.db.metadata_for_field(md.column_name)
                     if md.column_name in ['authors', 'publisher', 'series'] or \
-                            (fm_src['is_custom'] and (
-                             (fm_src['datatype'] in ['series', 'text', 'enumeration'] and not fm_src['is_multiple']) or (
-                                 fm_src['datatype'] == 'composite' and fm_src['display'].get('make_category', False)))):
+                            (fm_src['is_custom'] and
+                             ((fm_src['datatype'] in ['series', 'text', 'enumeration'] and
+                                 not fm_src['is_multiple']) or
+                              (fm_src['datatype'] == 'composite' and
+                                  fm_src['display'].get('make_category', False)))):
                         self.setDropIndicatorShown(True)
 
     def clear(self):
