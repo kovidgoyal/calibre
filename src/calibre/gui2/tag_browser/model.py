@@ -59,6 +59,8 @@ class TagTreeItem(object):  # {{{
         self.blank = QIcon()
         self.is_gst = False
         self.boxed = False
+        self.temporary = False
+        self.can_be_edited = False
         self.icon_state_map = list(icon_map)
         if self.parent is not None:
             self.parent.append(self)
@@ -113,9 +115,9 @@ class TagTreeItem(object):  # {{{
         if self.type == self.ROOT:
             return 'ROOT'
         if self.type == self.CATEGORY:
-            return 'CATEGORY(category_key={!r}, name={!r}, num_children={!r})'.format(
-                self.category_key, self.name, len(self.children))
-        return 'TAG(name=%r)'%self.tag.name
+            return 'CATEGORY(category_key={!r}, name={!r}, num_children={!r}, temp={!r})'.format(
+                self.category_key, self.name, len(self.children), self.temporary)
+        return 'TAG(name={!r}), temp={!r})'.format(self.tag.name, self.temporary)
 
     def row(self):
         if self.parent is not None:
@@ -390,6 +392,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         del node  # Clear reference to node in the current frame
         self.node_map.clear()
         self.category_nodes = []
+        self.hierarchical_categories = {}
         self.root_item = self.create_node(icon_map=self.icon_state_map)
         self._rebuild_node_tree(state_map=state_map)
 
@@ -538,10 +541,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             top_level_component = 'z' + data[key][0].original_name
 
             last_idx = -collapse
-            category_is_hierarchical = not (
-                key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
-                key not in self.db.prefs.get('categories_using_hierarchy', []) or
-                config['sort_tags_by'] != 'name')
+            category_is_hierarchical = self.is_key_a_hierarchical_category(key)
 
             for idx,tag in enumerate(data[key]):
                 components = None
@@ -573,7 +573,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                                 d['first'] = ct2
                             else:
                                 d = {'first': tag}
+                                # Some nodes like formats and identifiers don't
+                                # have sort set. Fix that so the template will work
+                                if d['first'].sort is None:
+                                    d['first'].sort = tag.name
                                 d['last'] = data[key][last]
+                                if d['last'].sort is None:
+                                    d['last'].sort = data[key][last].name
 
                             name = eval_formatter.safe_format(collapse_template,
                                                         d, '##TAG_VIEW##', None)
@@ -716,6 +722,22 @@ class TagsModel(QAbstractItemModel):  # {{{
             p = p.parent
         return p.tag.category.startswith('@')
 
+    def is_key_a_hierarchical_category(self, key):
+        result = self.hierarchical_categories.get(key)
+        if result is None:
+            result = not (
+                    key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
+                    key not in self.db.prefs.get('categories_using_hierarchy', []) or
+                    config['sort_tags_by'] != 'name')
+            self.hierarchical_categories[key] = result
+        return result
+
+    def is_index_on_a_hierarchical_category(self, index):
+        if not index.isValid():
+            return False
+        p = self.get_node(index)
+        return self.is_key_a_hierarchical_category(p.tag.category)
+
     # Drag'n Drop {{{
     def mimeTypes(self):
         return ["application/calibre+from_library",
@@ -760,15 +782,46 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not parent.isValid():
             return False
         dest = self.get_node(parent)
-        if dest.type != TagTreeItem.CATEGORY:
-            return False
         if not md.hasFormat('application/calibre+from_tag_browser'):
             return False
         data = bytes(md.data('application/calibre+from_tag_browser'))
         src = json_loads(data)
-        for s in src:
+        if len(src) == 1:
+            # Check to see if this is a hierarchical rename
+            s = src[0]
+            # This check works for both hierarchical and user categories.
+            # We can drag only tag items.
             if s[0] != TagTreeItem.TAG:
                 return False
+            src_index = self.index_for_path(s[5])
+            if src_index == parent:
+                # dropped on itself
+                return False
+            src_item = self.get_node(src_index)
+            dest_item = parent.data(Qt.UserRole)
+            # Here we do the real work. If src is a tag, src == dest, and src
+            # is hierarchical then we can do a rename.
+            if (src_item.type == TagTreeItem.TAG and
+                    src_item.tag.category == dest_item.tag.category and
+                    self.is_key_a_hierarchical_category(src_item.tag.category)):
+                key = s[1]
+                # work out the part of the source name to use in the rename
+                # It isn't necessarily a simple name but might be the remaining
+                # levels of the hierarchy
+                part = src_item.tag.original_name.rpartition('.')
+                src_simple_name = part[2]
+                # work out the new prefix, the destination node name
+                if dest.type == TagTreeItem.TAG:
+                    new_name = dest_item.tag.original_name + '.' + src_simple_name
+                else:
+                    new_name = src_simple_name
+                # In d&d renames always use the vl. This might be controversial.
+                src_item.use_vl = True
+                self.rename_item(src_item, key, new_name)
+                return True
+        # Should be working with a user category
+        if dest.type != TagTreeItem.CATEGORY:
+            return False
         return self.move_or_copy_item_to_user_category(src, dest, action)
 
     def move_or_copy_item_to_user_category(self, src, dest, action):
@@ -1134,7 +1187,6 @@ class TagsModel(QAbstractItemModel):  # {{{
             return True
 
         key = item.tag.category
-        name = item.tag.original_name
         # make certain we know about the item's category
         if key not in self.db.field_metadata:
             return False
@@ -1153,18 +1205,45 @@ class TagsModel(QAbstractItemModel):  # {{{
             item.tag.name = val
             self.search_item_renamed.emit()  # Does a refresh
         else:
-            self.use_position_based_index_on_next_recount = True
-            restrict_to_book_ids=self.get_book_ids_to_use() if item.use_vl else None
-            self.db.new_api.rename_items(key, {item.tag.id: val},
-                                         restrict_to_book_ids=restrict_to_book_ids)
-            self.tag_item_renamed.emit()
-            item.tag.name = val
-            item.tag.state = TAG_SEARCH_STATES['clear']
-            self.use_position_based_index_on_next_recount = True
-            if not restrict_to_book_ids:
-                self.rename_item_in_all_user_categories(name, key, val)
-            self.refresh_required.emit()
+            self.rename_item(item, key, val)
         return True
+
+    def rename_item(self, item, key, to_what):
+        def do_one_item(lookup_key, an_item, original_name, new_name, restrict_to_books):
+            self.use_position_based_index_on_next_recount = True
+            self.db.new_api.rename_items(lookup_key, {an_item.tag.id: new_name},
+                                         restrict_to_book_ids=restrict_to_books)
+            self.tag_item_renamed.emit()
+            an_item.tag.name = new_name
+            an_item.tag.state = TAG_SEARCH_STATES['clear']
+            self.use_position_based_index_on_next_recount = True
+            if not restrict_to_books:
+                self.rename_item_in_all_user_categories(original_name,
+                                                        lookup_key, new_name)
+
+        children = item.all_children()
+        restrict_to_book_ids=self.get_book_ids_to_use() if item.use_vl else None
+        if item.tag.is_editable and len(children) == 0:
+            # Leaf node, just do it.
+            do_one_item(key, item, item.tag.original_name, to_what, restrict_to_book_ids)
+        else:
+            # Middle node of a hierarchy
+            search_name = item.tag.original_name
+            # Clear any search icons on the original tag
+            if item.parent.type == TagTreeItem.TAG:
+                item.parent.tag.state = TAG_SEARCH_STATES['clear']
+            # It might also be a leaf
+            if item.tag.is_editable:
+                do_one_item(key, item, item.tag.original_name, to_what, restrict_to_book_ids)
+            # Now do the children
+            for child_item in children:
+                from calibre.utils.icu import startswith
+                if (child_item.tag.is_editable and
+                        startswith(child_item.tag.original_name, search_name)):
+                    new_name = to_what + child_item.tag.original_name[len(search_name):]
+                    do_one_item(key, child_item, child_item.tag.original_name,
+                                new_name, restrict_to_book_ids)
+        self.refresh_required.emit()
 
     def rename_item_in_all_user_categories(self, item_name, item_category, new_name):
         '''
@@ -1217,7 +1296,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if index.isValid():
             node = self.data(index, Qt.UserRole)
             if node.type == TagTreeItem.TAG:
-                if node.tag.is_editable:
+                if node.tag.is_editable or node.tag.is_hierarchical:
                     ans |= Qt.ItemIsDragEnabled
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \

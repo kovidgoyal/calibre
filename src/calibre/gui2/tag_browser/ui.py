@@ -278,21 +278,46 @@ class TagBrowserMixin(object):  # {{{
                 self.do_tag_item_renamed()
                 self.tags_view.recount()
 
-    def do_tag_item_delete(self, category, item_id, orig_name, restrict_to_book_ids=None):
+    def do_tag_item_delete(self, category, item_id, orig_name,
+                           restrict_to_book_ids=None, children=[]):
         '''
         Delete an item from some category.
         '''
-        if restrict_to_book_ids:
-            msg = _('%s will be deleted from books in the Virtual library. Are you sure?')%orig_name
+        tag_names = []
+        for child in children:
+            if child.tag.is_editable:
+                tag_names.append(child.tag.original_name)
+        n = '\n   '.join(tag_names)
+        if n:
+            n = '%s:\n   %s\n%s:\n   %s'%(_('Item'), orig_name, _('Children'), n)
+        if n:
+            if restrict_to_book_ids:
+                msg = _('%s and its children will be deleted from books '
+                        'in the Virtual library. Are you sure?')%orig_name
+            else:
+                msg = _('%s and its children will be deleted from all books. '
+                        'Are you sure?')%orig_name
         else:
-            msg = _('%s will be deleted from all books. Are you sure?')%orig_name
+            if restrict_to_book_ids:
+                msg = _('%s will be deleted from books in the Virtual library. Are you sure?')%orig_name
+            else:
+                msg = _('%s will be deleted from all books. Are you sure?')%orig_name
+
         if not question_dialog(self.tags_view,
                     title=_('Delete item'),
                     msg='<p>'+ msg,
-                    skip_dialog_name='tag_item_delete',
+                    det_msg=n,
+                    # Change the skip name because functionality has greatly changed
+                    skip_dialog_name='tag_item_delete_hierarchical',
                     skip_dialog_msg=_('Show this confirmation again')):
             return
-        self.current_db.new_api.remove_items(category, (item_id,), restrict_to_book_ids=restrict_to_book_ids)
+        ids_to_remove = [item_id]
+        for child in children:
+            if child.tag.is_editable:
+                ids_to_remove.append(child.tag.id)
+
+        self.current_db.new_api.remove_items(category, ids_to_remove,
+                                             restrict_to_book_ids=restrict_to_book_ids)
         if restrict_to_book_ids is None:
             m = self.tags_view.model()
             m.delete_item_from_all_user_categories(orig_name, category)
