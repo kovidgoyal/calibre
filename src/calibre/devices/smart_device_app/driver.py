@@ -1469,7 +1469,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug(names)
         else:
             self._debug()
-        sanity_check(on_card='', files = files, card_prefixes=[],
+        sanity_check(on_card='', files=files, card_prefixes=[],
                      free_space=self.free_space())
         paths = []
         names = iter(names)

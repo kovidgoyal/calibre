@@ -13,7 +13,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.config import prefs
-from calibre.utils.icu import sort_key, contains, primary_contains, primary_startswith
+from calibre.utils.icu import contains, primary_contains, primary_startswith
 from polyglot.builtins import unicode_type
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
