@@ -1456,6 +1456,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def eject(self):
         self._debug()
+        self._call_client('NOOP', {'ejecting': True})
         self._close_device_socket()
 
     @synchronous('sync_lock')
