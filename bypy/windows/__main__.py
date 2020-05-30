@@ -444,9 +444,12 @@ def build_portable(env):
 
 
 def sign_files(env, files):
+    with open(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\cert-cred')) as f:
+        pw = f.read().strip()
+    CODESIGN_CERT = os.path.abspath(os.path.expandvars(r'${HOMEDRIVE}${HOMEPATH}\code-signing\authenticode.pfx'))
     args = [SIGNTOOL, 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
             'calibre - E-book management', '/du',
-            'https://calibre-ebook.com', '/tr']
+            'https://calibre-ebook.com', '/f', CODESIGN_CERT, '/p', pw, '/tr']
 
     def runcmd(cmd):
         for timeserver in ('http://sha256timestamp.ws.symantec.com/sha256/timestamp', 'http://timestamp.comodoca.com/rfc3161',):
@@ -454,7 +457,7 @@ def sign_files(env, files):
                 subprocess.check_call(cmd + [timeserver] + list(files))
                 break
             except subprocess.CalledProcessError:
-                print ('Signing failed, retrying with different timestamp server')
+                print('Signing failed, retrying with different timestamp server')
         else:
             raise SystemExit('Signing failed')
 

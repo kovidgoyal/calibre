@@ -18,13 +18,13 @@ from uuid import uuid4
 
 from bypy.utils import current_dir, run_shell, timeit
 
-CODESIGN_CREDS = os.path.expanduser('~/cert-cred')
-CODESIGN_CERT = os.path.expanduser('~/maccert.p12')
+CODESIGN_CREDS = os.path.expanduser('~/code-signing/cert-cred')
+CODESIGN_CERT = os.path.expanduser('~/code-signing/maccert.p12')
 # The apple id file contains the apple id and an app specific password which
 # can be generated from appleid.apple.com
 # Note that apple accounts require two-factor authentication which is currntly
 # setup on ox and via SMS on my phone
-APPLE_ID = os.path.expanduser('~/aid')
+APPLE_ID = os.path.expanduser('~/code-signing/apple-notarization-creds')
 path_to_entitlements = os.path.expanduser('~/calibre-entitlements.plist')
 
 
