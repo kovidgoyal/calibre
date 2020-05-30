@@ -562,7 +562,7 @@ class TagsView(QTreeView):  # {{{
                 n = tag.name
                 if len(n) > 45:
                     n = n[:45] + '...'
-                ans = "'" + n + "'"
+                ans = n
             elif tag.is_hierarchical and not tag.is_editable:
                 ans = tag.original_name
             if ans:
