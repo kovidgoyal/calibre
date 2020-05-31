@@ -163,7 +163,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
     return mi_to_html(
         mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
         rating_font=rating_font(), default_author_link=default_author_link(),
-        comments_heading_pos=gprefs['book_details_comments_heading_pos']
+        comments_heading_pos=gprefs['book_details_comments_heading_pos'], for_qt=True
     )
 
 # }}}

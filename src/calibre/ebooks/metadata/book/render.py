@@ -90,7 +90,8 @@ def author_search_href(which, title=None, author=None):
 def mi_to_html(
         mi,
         field_list=None, default_author_link=None, use_roman_numbers=True,
-        rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide'
+        rating_font='Liberation Serif', rtl=False, comments_heading_pos='hide',
+        for_qt=False,
     ):
     if field_list is None:
         field_list = get_field_list(mi)
@@ -324,8 +325,9 @@ def mi_to_html(
     ans = [u'<tr id="%s" class="%s">%s</tr>'%(fieldl.replace('#', '_'),
         classname(fieldl), html) for fieldl, html in ans]
     # print '\n'.join(ans)
-    direction = 'rtl' if rtl else 'ltr'
-    margin = 'left' if rtl else 'right'
-    return u'<style>table.fields td { vertical-align:top}</style>' + \
-           u'<table class="fields" style="direction: %s; margin-%s:auto">%s</table>'%(
-               direction, margin, u'\n'.join(ans)), comment_fields
+    rans = u'<style>table.fields td { vertical-align:top}</style><table class="fields" '
+    if not for_qt:
+        direction = 'rtl' if rtl else 'ltr'
+        margin = 'left' if rtl else 'right'
+        rans += 'style="direction: {}; margin-{}: auto" '.format(direction, margin)
+    return '{}>{}</table>'.format(rans, '\n'.join(ans)), comment_fields
