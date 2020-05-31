@@ -325,9 +325,11 @@ def mi_to_html(
     ans = [u'<tr id="%s" class="%s">%s</tr>'%(fieldl.replace('#', '_'),
         classname(fieldl), html) for fieldl, html in ans]
     # print '\n'.join(ans)
-    rans = u'<style>table.fields td { vertical-align:top}</style><table class="fields" '
+    direction = 'rtl' if rtl else 'ltr'
+    rans = u'<style>table.fields td { vertical-align:top}</style><table class="fields" style="direction: %s; ' % direction
     if not for_qt:
-        direction = 'rtl' if rtl else 'ltr'
+        # This causes wasted space at the edge of the table in Qt's rich text
+        # engine, see https://bugs.launchpad.net/calibre/+bug/1881488
         margin = 'left' if rtl else 'right'
-        rans += 'style="direction: {}; margin-{}: auto" '.format(direction, margin)
-    return '{}>{}</table>'.format(rans, '\n'.join(ans)), comment_fields
+        rans += 'margin-{}: auto; '.format(margin)
+    return '{}">{}</table>'.format(rans, '\n'.join(ans)), comment_fields
