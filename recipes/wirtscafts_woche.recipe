@@ -32,7 +32,7 @@ class WirtschaftsWocheOnline(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     timefmt = ' [%a, %d %b %Y]'
-    language = 'de_DE'
+    language = 'de'
     encoding = 'UTF-8'
     cover_source = 'https://kaufhaus.handelsblatt.com/downloads/wirtschaftswoche-emagazin-p1952.html'
     masthead_url = 'http://www.wiwo.de/images/wiwo_logo/5748610/1-formatOriginal.png'
