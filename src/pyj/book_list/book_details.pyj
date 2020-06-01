@@ -456,7 +456,7 @@ def render_book(container_id, book_id):
     render_book.title = metadata.title
     set_title(c, metadata.title)
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
-    alt = _('{} by {}\nClick to read').format(metadata.title, authors)
+    alt = _('{} by {}\n\nClick to read').format(metadata.title, authors)
     bsrgb = get_color_as_rgba('button-start')
 
     def prev_next_button(is_prev):
