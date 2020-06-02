@@ -125,7 +125,7 @@ def create_listener():
                 os.remove(addr)
             except Exception:
                 pass
-    return Listener(address=viewer_socket_address())
+    return Listener(address=addr)
 
 
 def ensure_single_instance(args, open_at):
