@@ -34,7 +34,7 @@ from book_list.router import back, home, push_state, update_window_title
 from book_list.search import (
     init as init_search_panel, set_apply_search, tb_config_panel_handler
 )
-from book_list.top_bar import add_button, create_top_bar
+from book_list.top_bar import add_button, create_top_bar, set_title_tooltip
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from dom import add_extra_css, build_rule, clear, ensure_id, set_css
 from modals import error_dialog
@@ -319,6 +319,8 @@ def check_for_books_loaded():
         )
         return
     create_books_list(container)
+    if library_data.search_result and jstype(library_data.search_result.num_books_without_search) is 'number':
+        set_title_tooltip(this, _('Total number of books: {}').format(library_data.search_result.num_books_without_search))
 
 
 def init(container_id):

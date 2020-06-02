@@ -82,6 +82,13 @@ def set_title(container, text):
     for bar in bars:
         bar.firstChild.firstChild.nextSibling.textContent = text
 
+
+def set_title_tooltip(container, text):
+    bars = get_bars(container)
+    for bar in bars:
+        bar.firstChild.firstChild.nextSibling.title = text
+
+
 def create_top_bar(container, **kw):
     create_markup(container)
     set_left_data(container, **kw)

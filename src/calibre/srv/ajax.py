@@ -539,8 +539,10 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order, vl=''):
     ids = db.multisort(fields=multisort, ids_to_sort=ids)
     total_num = len(ids)
     ids = ids[offset:offset+num]
+    num_books = db.number_of_books_in_virtual_library(vl) if query else total_num
     ans = {
         'total_num': total_num, 'sort_order':sort_order,
+        'num_books_without_search': num_books,
         'offset':offset, 'num':len(ids), 'sort':sort,
         'base_url':ctx.url_for(search, library_id=db.server_library_id),
         'query': query,
