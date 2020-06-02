@@ -12,13 +12,13 @@ from PyQt5.Qt import QIcon, QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
 
 from calibre import as_unicode, prints
-from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
+from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux, iswindows
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
 from calibre.gui2.viewer.ui import EbookViewer, is_float
+from calibre.gui2.viewer.web_view import get_session_pref, vprefs
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import RC, viewer_socket_address
-from calibre.gui2.viewer.web_view import vprefs, get_session_pref
 
 singleinstance_name = 'calibre_viewer'
 
@@ -111,10 +111,20 @@ def listen(listener, msg_from_anotherinstance):
 
 
 def create_listener():
+    addr = viewer_socket_address()
     if islinux:
         from calibre.utils.ipc.server import LinuxListener as Listener
     else:
         from multiprocessing.connection import Listener
+        if not iswindows:
+            # On macOS (and BSDs, I am guessing), following a crash, the
+            # listener socket file sticks around and needs to be explicitly
+            # removed. It is safe to do this since we are already guaranteed to
+            # be the owner of the socket by singleinstance()
+            try:
+                os.remove(addr)
+            except Exception:
+                pass
     return Listener(address=viewer_socket_address())
 
 
