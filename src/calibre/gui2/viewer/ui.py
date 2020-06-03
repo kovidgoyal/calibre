@@ -140,6 +140,7 @@ class EbookViewer(MainWindow):
         self.search_widget = w = SearchPanel(self)
         w.search_requested.connect(self.start_search)
         w.hide_search_panel.connect(self.search_dock.close)
+        w.count_changed.connect(self.search_results_count_changed)
         self.search_dock.setWidget(w)
         self.search_dock.visibilityChanged.connect(self.search_widget.visibility_changed)
 
@@ -293,6 +294,17 @@ class EbookViewer(MainWindow):
 
     def show_search(self):
         self.web_view.get_current_cfi(self.show_search_with_current_selection)
+
+    def search_results_count_changed(self, num=-1):
+        if num < 0:
+            tt = _('Search')
+        elif num == 0:
+            tt = _('Search [no matches]')
+        elif num == 1:
+            tt = _('Search [one match]')
+        else:
+            tt = _('Search [{} matches]').format(num)
+        self.search_dock.setWindowTitle(tt)
 
     def show_search_with_current_selection(self, pos_data):
         self.search_dock.setVisible(True)

@@ -522,6 +522,7 @@ class Results(QTreeWidget):  # {{{
 
     show_search_result = pyqtSignal(object)
     current_result_changed = pyqtSignal(object)
+    count_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
@@ -578,7 +579,9 @@ class Results(QTreeWidget):  # {{{
         item.setIcon(0, self.blank_icon)
         self.item_map[len(self.search_results)] = item
         self.search_results.append(result)
-        return self.number_of_results
+        n = self.number_of_results
+        self.count_changed.emit(n)
+        return n
 
     def item_activated(self):
         i = self.currentItem()
@@ -627,6 +630,7 @@ class Results(QTreeWidget):  # {{{
         self.item_map = {}
         self.search_results = []
         self.clear()
+        self.count_changed.emit(-1)
 
     def select_first_result(self):
         if self.number_of_results:
@@ -640,6 +644,7 @@ class SearchPanel(QWidget):  # {{{
     search_requested = pyqtSignal(object)
     results_found = pyqtSignal(object)
     show_search_result = pyqtSignal(object)
+    count_changed = pyqtSignal(object)
     hide_search_panel = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -655,6 +660,7 @@ class SearchPanel(QWidget):  # {{{
         si.do_search.connect(self.search_requested)
         l.addWidget(si)
         self.results = r = Results(self)
+        r.count_changed.connect(self.count_changed)
         si.cleared.connect(r.clear_all_results)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.QueuedConnection)
         r.current_result_changed.connect(self.update_hidden_message)
