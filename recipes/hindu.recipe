@@ -39,8 +39,7 @@ class TheHindu(BasicNewsRecipe):
         div = soup.find('section', attrs={'id': 'section_'})
         if div is None:
             return ans
-        ul = div.find('ul', attrs={'class': 'archive-list'})
-        if ul is not None:
+        for ul in div.findAll('ul', attrs={'class': 'archive-list'}):
             for x in ul.findAll(['a']):
                 title = self.tag_to_string(x)
                 url = x.get('href', False)
