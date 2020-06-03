@@ -465,9 +465,6 @@ problem for *some* calibre users.
 
   * Connect the Kobo directly to your computer, not via USB Hub
   * Try a different USB cable and a different USB port on your computer
-  * Try a different computer, in particular the Kobo does not work well with
-    some Windows XP machines. If you are on Windows XP, try a computer with a
-    newer version of Windows.
   * Log out of the Kobo and log in again, this causes it to rebuild the
     database, fixing corrupted database errors.
   * Try upgrading the firmware on your Kobo Touch to the latest
