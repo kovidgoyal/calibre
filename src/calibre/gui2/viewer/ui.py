@@ -141,6 +141,7 @@ class EbookViewer(MainWindow):
         w.search_requested.connect(self.start_search)
         w.hide_search_panel.connect(self.search_dock.close)
         w.count_changed.connect(self.search_results_count_changed)
+        w.goto_cfi.connect(self.goto_cfi)
         self.search_dock.setWidget(w)
         self.search_dock.visibilityChanged.connect(self.search_widget.visibility_changed)
 
@@ -315,6 +316,7 @@ class EbookViewer(MainWindow):
     def start_search(self, search_query):
         name = self.web_view.current_content_file
         if name:
+            self.web_view.get_current_cfi(self.search_widget.set_anchor_cfi)
             self.search_widget.start_search(search_query, name)
             self.web_view.setFocus(Qt.OtherFocusReason)
 
@@ -350,8 +352,11 @@ class EbookViewer(MainWindow):
         # annotations will be saved in book file on exit
         self.save_annotations(in_book_file=False)
 
-    def bookmark_activated(self, cfi):
+    def goto_cfi(self, cfi):
         self.web_view.goto_cfi(cfi)
+
+    def bookmark_activated(self, cfi):
+        self.goto_cfi(cfi)
 
     def view_image(self, name):
         path = get_path_for_name(name)

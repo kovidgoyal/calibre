@@ -315,6 +315,7 @@ class SearchInput(QWidget):  # {{{
 
     do_search = pyqtSignal(object)
     cleared = pyqtSignal()
+    go_back = pyqtSignal()
 
     def __init__(self, parent=None, panel_name='search'):
         QWidget.__init__(self, parent)
@@ -375,6 +376,12 @@ class SearchInput(QWidget):  # {{{
         cs.setChecked(bool(vprefs.get('viewer-{}-case-sensitive'.format(self.panel_name), False)))
         cs.stateChanged.connect(self.save_search_type)
         h.addWidget(cs)
+
+        self.return_button = rb = QToolButton(self)
+        rb.setIcon(QIcon(I('back.png')))
+        rb.setToolTip(_('Go back to where you were before searching'))
+        rb.clicked.connect(self.go_back)
+        h.addWidget(rb)
 
     def history_saved(self, new_text, history):
         if new_text:
@@ -646,11 +653,13 @@ class SearchPanel(QWidget):  # {{{
     show_search_result = pyqtSignal(object)
     count_changed = pyqtSignal(object)
     hide_search_panel = pyqtSignal()
+    goto_cfi = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.last_hidden_text_warning = None
         self.current_search = None
+        self.anchor_cfi = None
         self.l = l = QVBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.search_input = si = SearchInput(self)
@@ -659,6 +668,7 @@ class SearchPanel(QWidget):  # {{{
         self.results_found.connect(self.on_result_found, type=Qt.QueuedConnection)
         si.do_search.connect(self.search_requested)
         si.cleared.connect(self.search_cleared)
+        si.go_back.connect(self.go_back)
         l.addWidget(si)
         self.results = r = Results(self)
         r.count_changed.connect(self.count_changed)
@@ -673,6 +683,10 @@ class SearchPanel(QWidget):  # {{{
         la.setWordWrap(True)
         la.setVisible(False)
         l.addWidget(la)
+
+    def go_back(self):
+        if self.anchor_cfi:
+            self.goto_cfi.emit(self.anchor_cfi)
 
     def update_hidden_message(self):
         self.hidden_message.setVisible(self.results.current_result_is_hidden)
@@ -698,6 +712,9 @@ class SearchPanel(QWidget):  # {{{
         self.current_search = search_query
         self.last_hidden_text_warning = None
         self.search_tasks.put((search_query, current_name))
+
+    def set_anchor_cfi(self, pos_data):
+        self.anchor_cfi = pos_data['cfi']
 
     def run_searches(self):
         while True:
