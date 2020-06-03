@@ -658,10 +658,10 @@ class SearchPanel(QWidget):  # {{{
         self.search_tasks = Queue()
         self.results_found.connect(self.on_result_found, type=Qt.QueuedConnection)
         si.do_search.connect(self.search_requested)
+        si.cleared.connect(self.search_cleared)
         l.addWidget(si)
         self.results = r = Results(self)
         r.count_changed.connect(self.count_changed)
-        si.cleared.connect(r.clear_all_results)
         r.show_search_result.connect(self.do_show_search_result, type=Qt.QueuedConnection)
         r.current_result_changed.connect(self.update_hidden_message)
         l.addWidget(r, 100)
@@ -679,6 +679,10 @@ class SearchPanel(QWidget):  # {{{
 
     def focus_input(self, text=None):
         self.search_input.focus_input(text)
+
+    def search_cleared(self):
+        self.results.clear_all_results()
+        self.current_search = None
 
     def start_search(self, search_query, current_name):
         if self.current_search is not None and search_query == self.current_search:
