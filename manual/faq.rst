@@ -492,6 +492,11 @@ Alternately, simply keep your Kindle in airplane mode, you don't really want
 Amazon knowing every book you read anyway. I encourage you to contact Amazon
 customer support and complain loudly about this bug. Maybe Amazon will listen.
 
+.. note::
+
+   If the workaround is not working for you make sure you Kindle firmware
+   is at least version 5.12.5, released in April 2020.
+
 
 I transferred some books to my Kindle using calibre and they did not show up?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
