@@ -300,11 +300,11 @@ class EbookViewer(MainWindow):
         if num < 0:
             tt = _('Search')
         elif num == 0:
-            tt = _('Search [no matches]')
+            tt = _('Search :: no matches')
         elif num == 1:
-            tt = _('Search [one match]')
+            tt = _('Search :: one match')
         else:
-            tt = _('Search [{} matches]').format(num)
+            tt = _('Search :: {} matches').format(num)
         self.search_dock.setWindowTitle(tt)
 
     def show_search_with_current_selection(self, pos_data):
