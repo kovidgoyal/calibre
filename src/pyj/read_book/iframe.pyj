@@ -22,10 +22,11 @@ from read_book.extract import get_elements
 from read_book.find import reset_find_caches, select_search_result
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
-    ensure_selection_visible, flow_onwheel, flow_to_scroll_fraction,
-    handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
-    layout as flow_layout, scroll_by_page as flow_scroll_by_page,
-    scroll_to_extend_annotation as flow_annotation_scroll
+    cancel_drag_scroll, ensure_selection_visible, flow_onwheel,
+    flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
+    handle_shortcut as flow_handle_shortcut, layout as flow_layout,
+    scroll_by_page as flow_scroll_by_page,
+    scroll_to_extend_annotation as flow_annotation_scroll, start_drag_scroll
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -143,6 +144,7 @@ class IframeBoss:
         self.length_before = None
 
     def on_overlay_visibility_changed(self, data):
+        cancel_drag_scroll()
         if data.visible:
             self.forward_keypresses = True
             if self.auto_scroll_action:
@@ -166,6 +168,8 @@ class IframeBoss:
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel, {'passive': False})
         window.addEventListener('keydown', self.onkeydown, {'passive': False})
+        window.addEventListener('mousemove', self.onmousemove, {'passive': True})
+        window.addEventListener('mouseup', self.onmouseup, {'passive': True})
         document.documentElement.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
         document.addEventListener('selectionchange', self.onselectionchange)
         self.color_scheme = data.color_scheme
@@ -201,6 +205,7 @@ class IframeBoss:
             (console.error or console.log)('There was an error in the JavaScript from within the book')
 
     def display(self, data):
+        cancel_drag_scroll()
         self.length_before = None
         self.content_ready = False
         clear_annot_id_uuid_map()
@@ -534,6 +539,22 @@ class IframeBoss:
                 self.send_message('handle_shortcut', name='increase_font_size' if evt.deltaY < 0 else 'decrease_font_size')
             else:
                 self.handle_wheel(evt)
+
+    def onmousemove(self, evt):
+        if evt.buttons is not 1:
+            return
+        if 0 <= evt.clientY <= window.innerHeight or current_layout_mode() is not 'flow':
+            cancel_drag_scroll()
+            return
+        sel = window.getSelection()
+        if not sel:
+            cancel_drag_scroll()
+            return
+        delta = evt.clientY if evt.clientY < 0 else (evt.clientY - window.innerHeight)
+        start_drag_scroll(delta)
+
+    def onmouseup(self, evt):
+        cancel_drag_scroll()
 
     def onkeydown(self, evt):
         if current_layout_mode() is not 'flow' and evt.key is 'Tab':

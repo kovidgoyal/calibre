@@ -22,6 +22,8 @@ def update_settings(settings):
     opts.lines_per_sec_smooth = settings.lines_per_sec_smooth
     opts.margin_left = max(0, settings.margin_left)
     opts.margin_right = max(0, settings.margin_right)
+    opts.margin_top = max(0, settings.margin_top)
+    opts.margin_bottom = max(0, settings.margin_bottom)
     opts.override_book_colors = settings.override_book_colors
     opts.paged_wheel_scrolls_by_screen = v'!!settings.paged_wheel_scrolls_by_screen'
     opts.paged_taps_scroll_by_screen = v'!!settings.paged_taps_scroll_by_screen'

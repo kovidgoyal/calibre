@@ -254,6 +254,7 @@ class ScrollAnimator:
         return self.is_running() and (self.auto or self.auto_timer is not None)
 
     def start(self, direction, auto):
+        cancel_drag_scroll()
         if self.wait:
             return
 
@@ -274,6 +275,9 @@ class ScrollAnimator:
 
     def smooth_scroll(self, ts):
         duration = self.end_time - self.start_time
+        if duration <= 0:
+            self.animation_id = None
+            return
         progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
         scroll_target = self.start_offset
         scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth) / 1000
@@ -374,6 +378,7 @@ class FlickAnimator:
         self.animation_id = None
 
     def start(self, gesture):
+        cancel_drag_scroll()
         self.vertical = gesture.axis is 'vertical'
         now = window.performance.now()
         points = times = None
@@ -410,6 +415,70 @@ class FlickAnimator:
             self.animation_id = None
 
 flick_animator = FlickAnimator()
+
+
+class DragScroller:
+
+    DURATION = 100 # milliseconds
+
+    def __init__(self):
+        self.animation_id = None
+        self.direction = 1
+        self.speed_factor = 1
+        self.start_time = self.end_time = 0
+        self.start_offset = 0
+
+    def is_running(self):
+        return self.animation_id is not None
+
+    def smooth_scroll(self, ts):
+        duration = self.end_time - self.start_time
+        if duration <= 0:
+            self.animation_id = None
+            self.start(self.direction, self.speed_factor)
+            return
+        progress = max(0, min(1, (ts - self.start_time) / duration)) # max/min to account for jitter
+        scroll_target = self.start_offset
+        scroll_target += Math.trunc(self.direction * progress * duration * line_height() * opts.lines_per_sec_smooth * self.speed_factor) / 1000
+        window.scrollTo(0, scroll_target)
+
+        if progress < 1:
+            self.animation_id = window.requestAnimationFrame(self.smooth_scroll)
+        else:
+            self.animation_id = None
+            self.start(self.direction, self.speed_factor)
+
+    def start(self, direction, speed_factor):
+        now = window.performance.now()
+        self.end_time = now + self.DURATION
+        if not self.is_running() or direction is not self.direction or speed_factor is not self.speed_factor:
+            self.stop()
+            self.direction = direction
+            self.speed_factor = speed_factor
+            self.start_time = now
+            self.start_offset = window.pageYOffset
+            self.animation_id = window.requestAnimationFrame(self.smooth_scroll)
+
+    def stop(self):
+        if self.animation_id is not None:
+            window.cancelAnimationFrame(self.animation_id)
+            self.animation_id = None
+
+
+drag_scroller = DragScroller()
+
+
+def cancel_drag_scroll():
+    drag_scroller.stop()
+
+
+def start_drag_scroll(delta):
+    limit = opts.margin_top if delta < 0 else opts.margin_bottom
+    direction = 1 if delta >= 0 else -1
+    speed_factor = min(abs(delta), limit) / limit
+    speed_factor *= (2 - speed_factor)  # QuadOut Easing curve
+    drag_scroller.start(direction, 2 * speed_factor)
+
 
 def handle_gesture(gesture):
     flick_animator.stop()

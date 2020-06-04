@@ -840,6 +840,8 @@ class View:
         return {
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
             'margin_right': 0 if name is self.book.manifest.title_page_name else sd.get('margin_right'),
+            'margin_top': 0 if name is self.book.manifest.title_page_name else sd.get('margin_top'),
+            'margin_bottom': 0 if name is self.book.manifest.title_page_name else sd.get('margin_bottom'),
             'read_mode': sd.get('read_mode'),
             'columns_per_screen': sd.get('columns_per_screen'),
             'color_scheme': cs,
