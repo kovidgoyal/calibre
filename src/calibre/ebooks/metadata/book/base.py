@@ -15,7 +15,7 @@ from calibre.ebooks.metadata.book import (SC_COPYABLE_FIELDS,
         TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIELDS)
 from calibre.library.field_metadata import FieldMetadata
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, unicode_type, filter, map
+from polyglot.builtins import iteritems, unicode_type, filter, map, string_or_bytes
 
 # Special sets used to optimize the performance of getting and setting
 # attributes on Metadata objects
@@ -544,6 +544,8 @@ class Metadata(object):
                     meta = other.get_user_metadata(x, make_copy=True)
                     if meta is not None:
                         self_tags = self.get(x, [])
+                        if isinstance(self_tags, string_or_bytes):
+                            self_tags = []
                         self.set_user_metadata(x, meta)  # get... did the deepcopy
                         other_tags = other.get(x, [])
                         if meta['datatype'] == 'text' and meta['is_multiple']:
