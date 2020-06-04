@@ -58,3 +58,4 @@ class TagMapAction(InterfaceAction):
             if changed_tag_map:
                 db.set_field('tags', changed_tag_map)
                 self.gui.library_view.model().refresh_ids(tuple(changed_tag_map), current_row=self.gui.library_view.currentIndex().row())
+                self.gui.tags_view.recount()
