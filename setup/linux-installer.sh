@@ -363,7 +363,7 @@ def do_download(dest):
             reporter(f.tell(), 1, size)
     rq.close()
     if os.path.getsize(dest) < size:
-        print ('Download failed, try again later')
+        print('Download failed, try again later')
         raise SystemExit(1)
     prints('Downloaded %s bytes'%os.path.getsize(dest))
 
@@ -395,7 +395,7 @@ def download_tarball():
     except IOError as e:
         if e.errno != errno.EACCES:
             raise
-        print ('The installer cache directory has incorrect permissions.'
+        print('The installer cache directory has incorrect permissions.'
                 ' Delete %s and try again.'%cache)
         raise SystemExit(1)
     do_download(dest)
@@ -403,7 +403,7 @@ def download_tarball():
     raw = check_signature(dest, signature)
     if raw is None:
         os.remove(dest)
-        print ('The downloaded files\' signature does not match. '
+        print('The downloaded files\' signature does not match. '
                 'Try the download again later.')
         raise SystemExit(1)
     return raw
@@ -694,7 +694,7 @@ def extract_tarball(raw, destdir):
 
 def get_tarball_info(version):
     global dl_url, signature, calibre_version
-    print ('Downloading tarball signature securely...')
+    print('Downloading tarball signature securely...')
     if version:
         signature = get_https_resource_securely(
                 'https://code.calibre-ebook.com/signatures/calibre-' + version + '-' + ('x86_64' if is64bit else 'i686') + '.txz.sha512')
@@ -795,7 +795,7 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None, ignore_
     if not ignore_umask and not isolated:
         check_umask()
     machine = os.uname()[4]
-    if machine and machine.lower().startswith('arm'):
+    if machine and machine.lower().startswith('arm') or machine.lower().startswith('aarch'):
         raise SystemExit(
             'You are running on an ARM system. The calibre binaries are only'
             ' available for x86 systems. You will have to compile from'
