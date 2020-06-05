@@ -7,7 +7,8 @@ import plistlib
 from glob import glob
 
 from bypy.macos_sign import (
-    codesign, create_entitlements_file, make_certificate_useable, notarize_app, run
+    codesign, create_entitlements_file, make_certificate_useable, notarize_app,
+    verify_signature
 )
 from bypy.utils import current_dir
 
@@ -95,10 +96,7 @@ def do_sign_app(appdir):
 
     # Now sign the main app
     codesign(appdir)
-    # Verify the signature
-    run('codesign', '-vvv', '--deep', '--strict', appdir)
-    run('spctl', '--verbose=4', '--assess', '--type', 'execute', appdir)
-
+    verify_signature(appdir)
     return 0
 
 
