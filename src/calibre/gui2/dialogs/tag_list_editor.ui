@@ -151,7 +151,7 @@
      <item>
       <widget class="QToolButton" name="rename_button">
        <property name="toolTip">
-        <string>Rename the item in every book where it is used.</string>
+        <string>Rename the item in every book where it is used</string>
        </property>
        <property name="text">
         <string>...</string>
