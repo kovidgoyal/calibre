@@ -7,6 +7,12 @@ __copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Minutes(BasicNewsRecipe):
 
     title = '20 minutes'
@@ -25,10 +31,10 @@ class Minutes(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(attrs={'class': lambda x: x and 'lt-content' in x.split()}),
+        classes('lt-endor-body'),
     ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and 'content-related' in x.split()}),
+        classes('content-related sharebar'),
     ]
     remove_tags_after = dict(id='ob_holder')
 
