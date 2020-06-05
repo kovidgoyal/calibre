@@ -256,7 +256,7 @@ class Economist(BasicNewsRecipe):
             self.log('Got cover:', self.cover_url)
 
         feeds = []
-        for section in soup.findAll('div', **classes('layout-weekly-edition-section')):
+        for section in soup.findAll(**classes('layout-weekly-edition-section')):
             h2 = section.find('h2')
             secname = self.tag_to_string(h2)
             self.log(secname)
