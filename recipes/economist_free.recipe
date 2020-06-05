@@ -6,7 +6,6 @@ try:
 except ImportError:
     from cookielib import Cookie
 import json
-from collections import OrderedDict
 
 from html5_parser import parse
 from lxml import etree
@@ -250,76 +249,29 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_parse_index(self, soup):
-        img = soup.find(attrs={'srcset': True, 'class': lambda x: x and 'print-edition__cover-widget__image' in x.split()})
-        if img is not None:
-            for part in img['srcset'].split():
-                if part.startswith('/'):
-                    part = part.replace('200-width', '640-width')
-                    self.cover_url = 'https://www.economist.com' + part
-                    self.log('Got cover:', self.cover_url)
-                    break
+        div = soup.find(attrs={'class': 'weekly-edition-header__image'})
+        if div is not None:
+            img = div.find('img', srcset=True)
+            self.cover_url = img['srcset'].split(',')[-1].split()[0]
+            self.log('Got cover:', self.cover_url)
 
-        sections = soup.findAll('div', attrs={'class': 'list__title'})
-        if sections:
-            feeds = []
-            for section in sections:
-                articles = []
-                secname = self.tag_to_string(section)
-                self.log(secname)
-                for a in section.findNextSiblings('a', href=True):
-                    spans = a.findAll('span')
-                    if len(spans) == 2:
-                        title = u'{}: {}'.format(*map(self.tag_to_string, spans))
-                    else:
-                        title = self.tag_to_string(a)
-                    articles.append({'title': title, 'url': process_url(a['href'])})
-                    self.log(' ', title, articles[-1]['url'])
-                if articles:
-                    feeds.append((secname, articles))
-            return feeds
-        return self.economist_parse_old_index(soup)
-
-    def economist_parse_old_index(self, soup):
-        feeds = OrderedDict()
-        for section in soup.findAll(attrs={'class': lambda x: x and 'section' in x}):
-            h4 = section.find('h4')
-            if h4 is None:
-                continue
-            section_title = self.tag_to_string(h4).strip()
-            if not section_title:
-                continue
-            self.log('Found section: %s' % section_title)
+        feeds = []
+        for section in soup.findAll('div', **classes('layout-weekly-edition-section')):
+            h2 = section.find('h2')
+            secname = self.tag_to_string(h2)
+            self.log(secname)
             articles = []
-            subsection = ''
-            for node in section.findAll(attrs={'class': 'article'}):
-                subsec = node.findPreviousSibling('h5')
-                if subsec is not None:
-                    subsection = self.tag_to_string(subsec)
-                prefix = (subsection + ': ') if subsection else ''
-                a = node.find('a', href=True)
-                if a is not None:
-                    url = a['href']
-                    if url.startswith('/'):
-                        url = 'https://www.economist.com' + url
-                    url += '/print'
+            for a in section.findAll('a', href=True, **classes('headline-link weekly-edition-wtw__link')):
+                spans = a.findAll('span')
+                if len(spans) == 2:
+                    title = u'{}: {}'.format(*map(self.tag_to_string, spans))
+                else:
                     title = self.tag_to_string(a)
-                    if title:
-                        title = prefix + title
-                        self.log('\tFound article:', title)
-                        articles.append({
-                            'title': title,
-                            'url': url,
-                            'description': '',
-                            'date': ''
-                        })
-
+                articles.append({'title': title, 'url': process_url(a['href'])})
+                self.log(' ', title, articles[-1]['url'])
             if articles:
-                if section_title not in feeds:
-                    feeds[section_title] = []
-                feeds[section_title] += articles
-
-        ans = [(key, val) for key, val in feeds.items()]
-        return ans
+                feeds.append((secname, articles))
+        return feeds
 
     def eco_find_image_tables(self, soup):
         for x in soup.findAll('table', align=['right', 'center']):
