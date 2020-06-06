@@ -58,6 +58,8 @@ def get_border_nodes(toc, id_map):
                     after = node
                 return True
     )
+    if not before and prev is not None:
+        before = prev
     return before, after
 
 
