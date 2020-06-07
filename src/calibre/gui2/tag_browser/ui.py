@@ -301,7 +301,7 @@ class TagBrowserMixin(object):  # {{{
                 msg = _('%s and its children will be deleted from all books. '
                         'Are you sure?')%orig_name
         else:
-            skip_dialog_name='tag_item_delete',
+            skip_dialog_name='tag_item_delete'
             if restrict_to_book_ids:
                 msg = _('%s will be deleted from books in the Virtual library. Are you sure?')%orig_name
             else:
