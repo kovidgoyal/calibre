@@ -5,6 +5,8 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
+from functools import partial
+
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
                   QByteArray, QItemDelegate, QAction)
@@ -22,11 +24,22 @@ QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 class tableItem(QTableWidgetItem):
 
+    def __init__(self, txt):
+        QTableWidgetItem.__init__(self, txt)
+        self.sort_key = sort_key(unicode_type(txt))
+
+    def setText(self, txt):
+        self.sort_key = sort_key(unicode_type(txt))
+        QTableWidgetItem.setText(self, txt)
+
+    def set_sort_key(self):
+        self.sort_key = sort_key(unicode_type(self.text()))
+
     def __ge__(self, other):
-        return sort_key(unicode_type(self.text())) >= sort_key(unicode_type(other.text()))
+        return self.sort_key >= other.sort_key
 
     def __lt__(self, other):
-        return sort_key(unicode_type(self.text())) < sort_key(unicode_type(other.text()))
+        return self.sort_key < other.sort_key
 
 
 class EditColumnDelegate(QItemDelegate):
@@ -146,6 +159,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                                           'link': v['link']}
 
         self.edited_icon = QIcon(I('modified.png'))
+        self.empty_icon = QIcon()
         if prefs['use_primary_find_in_search']:
             self.string_contains = primary_contains
         else:
@@ -168,11 +182,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.show_table(None, None, None, False)
 
     def show_table(self, id_to_select, select_sort, select_link, is_first_letter):
+        auts_to_show = {t[0] for t in
+                   self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked())}
         filter_text = icu_lower(unicode_type(self.filter_box.text()))
-        auts_to_show = []
-        for t in self.find_aut_func(use_virtual_library=self.apply_vl_checkbox.isChecked()):
-            if self.string_contains(filter_text, icu_lower(t[1])):
-                auts_to_show.append(t[0])
+        if filter_text:
+            auts_to_show = {id_ for id_ in auts_to_show
+                if self.string_contains(filter_text, icu_lower(self.authors[id_]['name']))}
+
         self.table.blockSignals(True)
         self.table.clear()
         self.table.setColumnCount(3)
@@ -183,22 +199,20 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             if id_ not in auts_to_show:
                 continue
             name, sort, link = (v['name'], v['sort'], v['link'])
-            orig = self.original_authors[id_]
             name = name.replace('|', ',')
 
             name_item = tableItem(name)
             name_item.setData(Qt.UserRole, id_)
-            if name != orig['name']:
-                name_item.setIcon(self.edited_icon)
             sort_item = tableItem(sort)
-            if sort != orig['sort']:
-                sort_item.setIcon(self.edited_icon)
             link_item = tableItem(link)
-            if link != orig['link']:
-                link_item.setIcon(self.edited_icon)
+
             self.table.setItem(row, 0, name_item)
             self.table.setItem(row, 1, sort_item)
             self.table.setItem(row, 2, link_item)
+
+            self.set_icon(name_item, id_)
+            self.set_icon(sort_item, id_)
+            self.set_icon(link_item, id_)
             row += 1
 
         self.table.setItemDelegate(EditColumnDelegate(self.completion_data))
@@ -219,9 +233,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             select_item = None
             use_as = tweaks['categories_use_field_for_author_name']
             for row in range(0, len(auts_to_show)):
-                name_item = self.table.item(row, 1) if use_as else self.table.item(row, 0)
                 if is_first_letter:
-                    if primary_startswith(name_item.text(), id_to_select):
+                    item_txt = unicode_type(self.table.item(row, 1).text() if use_as
+                                                else self.table.item(row, 0).text())
+                    if primary_startswith(item_txt, id_to_select):
                         select_item = self.table.item(row, 1)
                         break
                 elif id_to_select == self.table.item(row, 0).data(Qt.UserRole):
@@ -230,7 +245,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                     elif select_link:
                         select_item = self.table.item(row, 2)
                     else:
-                        select_item = name_item
+                        select_item = (self.table.item(row, 1) if use_as
+                                        else self.table.item(row, 0))
                     break
             if select_item:
                 self.table.setCurrentItem(select_item)
@@ -269,6 +285,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                 self.table.setColumnWidth(c, w)
         self.save_state()
 
+    def get_column_name(self, column):
+        return ['name', 'sort', 'link'][column]
+
     def show_context_menu(self, point):
         self.context_item = self.table.itemAt(point)
         case_menu = QMenu(_('Change case'))
@@ -285,12 +304,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         action_capitalize.triggered.connect(self.capitalize)
 
         m = self.au_context_menu = QMenu()
+        idx = self.table.indexAt(point)
+        id_ = int(self.table.item(idx.row(), 0).data(Qt.UserRole))
+        sub = self.get_column_name(idx.column())
+        if self.context_item.text() != self.original_authors[id_][sub]:
+            ca = m.addAction(_('Undo'))
+            ca.triggered.connect(partial(self.undo_cell,
+                                         old_value=self.original_authors[id_][sub]))
+            m.addSeparator()
         ca = m.addAction(_('Copy'))
         ca.triggered.connect(self.copy_to_clipboard)
         ca = m.addAction(_('Paste'))
         ca.triggered.connect(self.paste_from_clipboard)
         m.addSeparator()
-
         if self.context_item is not None and self.context_item.column() == 0:
             ca = m.addAction(_('Copy to author sort'))
             ca.triggered.connect(self.copy_au_to_aus)
@@ -303,6 +329,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         m.addSeparator()
         m.addMenu(case_menu)
         m.exec_(self.table.mapToGlobal(point))
+
+    def undo_cell(self, old_value):
+        self.context_item.setText(old_value)
 
     def search_in_book_list(self):
         from calibre.gui2.ui import get_gui
@@ -416,10 +445,9 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             item_aus = self.table.item(row, 1)
             # Sometimes trailing commas are left by changing between copy algs
             aus = unicode_type(author_to_author_sort(aut)).rstrip(',')
-            if aus != self.original_authors[id_]['sort']:
-                item_aus.setIcon(self.edited_icon)
             item_aus.setText(aus)
             self.authors[id_]['sort'] = aus
+            self.set_icon(item_aus, id_)
         self.table.setFocus(Qt.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
 
@@ -429,18 +457,23 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             aus  = unicode_type(self.table.item(row, 1).text()).strip()
             item_aut = self.table.item(row, 0)
             id_ = int(item_aut.data(Qt.UserRole))
-            if aus != self.original_authors[id_]['name']:
-                item_aut.setIcon(self.edited_icon)
             item_aut.setText(aus)
             self.authors[id_]['name'] = aus
+            self.set_icon(item_aut, id_)
         self.table.setFocus(Qt.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
+
+    def set_icon(self, item, id_):
+        col_name = self.get_column_name(item.column())
+        if unicode_type(item.text()) != self.original_authors[id_][col_name]:
+            item.setIcon(self.edited_icon)
+        else:
+            item.setIcon(self.empty_icon)
 
     def cell_changed(self, row, col):
         id_ = int(self.table.item(row, 0).data(Qt.UserRole))
         if col == 0:
             item = self.table.item(row, 0)
-            item.setIcon(self.edited_icon)
             aut  = unicode_type(item.text()).strip()
             aut_list = string_to_authors(aut)
             if len(aut_list) != 1:
@@ -448,18 +481,18 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                         _('You cannot change an author to multiple authors.')).exec_()
                 aut = ' % '.join(aut_list)
                 self.table.item(row, 0).setText(aut)
+            item.set_sort_key()
             self.authors[id_]['name'] = aut
+            self.set_icon(item, id_)
             c = self.table.item(row, 1)
             txt = author_to_author_sort(aut)
-            c.setText(txt)
             self.authors[id_]['sort'] = txt
+            c.setText(txt) # This triggers another cellChanged event
             item = c
         else:
             item  = self.table.item(row, col)
-            item.setIcon(self.edited_icon)
-            if col == 1:
-                self.authors[id_]['sort'] = unicode_type(item.text())
-            else:
-                self.authors[id_]['link'] = unicode_type(item.text())
+            item.set_sort_key()
+            self.set_icon(item, id_)
+            self.authors[id_][self.get_column_name(col)] = unicode_type(item.text())
         self.table.setCurrentItem(item)
         self.table.scrollToItem(item)
