@@ -541,7 +541,7 @@ class SonyReaderT3Output(SonyReaderOutput):
 
 class GenericEink(SonyReaderOutput):
 
-    name = 'Generic e-ink'
+    name = _('Generic e-ink')
     short_name = 'generic_eink'
     description = _('Suitable for use with any e-ink device')
     epub_periodical_format = None
@@ -549,7 +549,7 @@ class GenericEink(SonyReaderOutput):
 
 class GenericEinkLarge(GenericEink):
 
-    name = 'Generic e-ink large'
+    name = _('Generic e-ink large')
     short_name = 'generic_eink_large'
     description = _('Suitable for use with any large screen e-ink device')
 
@@ -559,7 +559,7 @@ class GenericEinkLarge(GenericEink):
 
 class GenericEinkHD(GenericEink):
 
-    name = 'Generic e-ink HD'
+    name = _('Generic e-ink HD')
     short_name = 'generic_eink_hd'
     description = _('Suitable for use with any modern high resolution e-ink device')
 
