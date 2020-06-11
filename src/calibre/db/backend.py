@@ -1756,6 +1756,16 @@ class DB(object):
         else:
             self.execute('DELETE FROM books_plugin_data WHERE name=?', (name,))
 
+    def dirtied_books(self):
+        for (book_id,) in self.execute('SELECT book FROM metadata_dirtied'):
+            yield book_id
+
+    def dirty_books(self, book_ids):
+        self.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', ((x,) for x in book_ids))
+
+    def mark_book_as_clean(self, book_id):
+        self.execute('DELETE FROM metadata_dirtied WHERE book=?', (book_id,))
+
     def get_ids_for_custom_book_data(self, name):
         return frozenset(r[0] for r in self.execute('SELECT book FROM books_plugin_data WHERE name=?', (name,)))
 

@@ -212,8 +212,7 @@ class Cache(object):
 
     @write_api
     def initialize_dynamic(self):
-        self.dirtied_cache = {x:i for i, (x,) in enumerate(
-            self.backend.execute('SELECT book FROM metadata_dirtied'))}
+        self.dirtied_cache = {x:i for i, x in enumerate(self.backend.dirtied_books())}
         if self.dirtied_cache:
             self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
         self._initialize_dynamic_categories()
@@ -1086,17 +1085,15 @@ class Cache(object):
             self.dirtied_sequence = max(itervalues(already_dirtied)) + 1
         self.dirtied_cache.update(already_dirtied)
         if new_dirtied:
-            self.backend.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)',
-                                    ((x,) for x in new_dirtied))
+            self.backend.dirty_books(new_dirtied)
             new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
             self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
             self.dirtied_cache.update(new_dirtied)
 
     @write_api
     def commit_dirty_cache(self):
-        book_ids = [(x,) for x in self.dirtied_cache]
-        if book_ids:
-            self.backend.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', book_ids)
+        if self.dirtied_cache:
+            self.backend.dirty_books(self.dirtied_cache)
 
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
@@ -1195,8 +1192,7 @@ class Cache(object):
         # The last step is clearing the indicator
         dc_sequence = self.dirtied_cache.get(book_id, None)
         if dc_sequence is None or sequence is None or dc_sequence == sequence:
-            self.backend.execute('DELETE FROM metadata_dirtied WHERE book=?',
-                    (book_id,))
+            self.backend.mark_book_as_clean(book_id)
             self.dirtied_cache.pop(book_id, None)
 
     @write_api
