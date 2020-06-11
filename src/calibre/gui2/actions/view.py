@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time
+import os, time, json
 from functools import partial
 
 from PyQt5.Qt import Qt, QAction, pyqtSignal
@@ -19,7 +19,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, as_bytes
 
 
 class HistoryAction(QAction):
@@ -99,13 +99,21 @@ class ViewAction(InterfaceAction):
         id_ = self.gui.library_view.model().id(row)
         self.view_format_by_id(id_, format)
 
+    def calibre_book_data(self, book_id, fmt):
+        db = self.gui.current_db.new_api
+        annotations_map = db.annotations_map_for_book(book_id, fmt)
+        return {
+            'book_id': book_id, 'uuid': db.field_for('uuid', book_id), 'fmt': fmt.upper(),
+            'annotations_map': annotations_map,
+        }
+
     def view_format_by_id(self, id_, format):
         db = self.gui.current_db
         fmt_path = db.format_abspath(id_, format,
                 index_is_id=True)
         if fmt_path:
             title = db.title(id_, index_is_id=True)
-            self._view_file(fmt_path)
+            self._view_file(fmt_path, calibre_book_data=self.calibre_book_data(id_, format))
             self.update_history([(id_, title)])
 
     def book_downloaded_for_viewing(self, job):
@@ -114,15 +122,20 @@ class ViewAction(InterfaceAction):
             return
         self._view_file(job.result)
 
-    def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True):
+    def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True, calibre_book_data=None):
         self.gui.setCursor(Qt.BusyCursor)
         try:
             if internal:
                 args = [viewer]
                 if isosx and 'ebook' in viewer:
                     args.append('--raise-window')
+
                 if name is not None:
                     args.append(name)
+                    if calibre_book_data is not None:
+                        with PersistentTemporaryFile('.json') as ptf:
+                            ptf.write(as_bytes(json.dumps(calibre_book_data)))
+                            args.append('--internal-book-data=' + ptf.name)
                 self.gui.job_manager.launch_gui_app(viewer,
                         kwargs=dict(args=args))
             else:
@@ -149,12 +162,12 @@ class ViewAction(InterfaceAction):
         finally:
             self.gui.unsetCursor()
 
-    def _view_file(self, name):
+    def _view_file(self, name, calibre_book_data=None):
         ext = os.path.splitext(name)[1].upper().replace('.',
                 '').replace('ORIGINAL_', '')
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
         internal = self.force_internal_viewer or ext in config['internally_viewed_formats']
-        self._launch_viewer(name, viewer, internal)
+        self._launch_viewer(name, viewer, internal, calibre_book_data=calibre_book_data)
 
     def view_specific_format(self, triggered):
         rows = list(self.gui.library_view.selectionModel().selectedRows())

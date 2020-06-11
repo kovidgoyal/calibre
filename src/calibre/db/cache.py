@@ -2279,6 +2279,13 @@ class Cache(object):
         if progress is not None:
             progress(_('Completed'), total, total)
 
+    @read_api
+    def annotations_map_for_book(self, book_id, fmt, user_type='local', user='viewer'):
+        ans = {}
+        for annot in self.backend.annotations_for_book(book_id, fmt, user_type, user):
+            ans.setdefault(annot['type'], []).append(annot)
+        return ans
+
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB
