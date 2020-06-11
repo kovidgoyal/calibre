@@ -283,6 +283,41 @@ def AumSortedConcatenate():
 # }}}
 
 
+# Annotations {{{
+def annotations_for_book(cursor, book_id, fmt, user_type='local', user='viewer'):
+    for (data,) in cursor.execute(
+        'SELECT annot_data FROM annotations WHERE book=? AND format=? AND user_type=? AND user=?',
+        (book_id, fmt.upper(), user_type, user)
+    ):
+        try:
+            yield json.loads(data)
+        except Exception:
+            pass
+
+
+def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='local', user='viewer'):
+    data = []
+    fmt = fmt.upper()
+    for annot, timestamp_in_secs in annots_list:
+        atype = annot['type']
+        if atype == 'bookmark':
+            aid = text = annot['title']
+        elif atype == 'highlight':
+            aid = annot['uuid']
+            text = annot.get('highlighed_text') or ''
+            notes = annot.get('notes') or ''
+            if notes:
+                text += '0x1f\n\n' + notes
+        else:
+            continue
+        data.append((book_id, fmt, user_type, user, timestamp_in_secs, aid, atype, json.dumps(annot), text))
+    cursor.executemany(
+        'INSERT OR REPLACE INTO annotations (book, format, user_type, user, timestamp, annot_id, annot_type, annot_data, searchable_text)'
+        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', data)
+    cursor.execute('INSERT OR IGNORE INTO annotations_dirtied (book) VALUES (?)', (book_id,))
+# }}}
+
+
 class Connection(apsw.Connection):  # {{{
 
     BUSY_TIMEOUT = 10000  # milliseconds
@@ -1723,6 +1758,10 @@ class DB(object):
 
     def get_ids_for_custom_book_data(self, name):
         return frozenset(r[0] for r in self.execute('SELECT book FROM books_plugin_data WHERE name=?', (name,)))
+
+    def annotations_for_book(self, book_id, fmt, user_type, user):
+        for x in annotations_for_book(self.conn, book_id, fmt, user_type, user):
+            yield x
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
