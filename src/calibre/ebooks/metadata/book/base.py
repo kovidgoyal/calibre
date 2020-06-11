@@ -25,7 +25,10 @@ SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
-    return ('%.'+unicode_type(precision)+'f'+ 'MB') % (size/(1024*1024),)
+    ans = size/(1024*1024)
+    if ans < 0.1:
+        return '<0.1MB'
+    return ('%.'+unicode_type(precision)+'f'+ 'MB') % ans
 
 
 NULL_VALUES = {
