@@ -715,7 +715,7 @@ CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
     annot_type TEXT NOT NULL,
     annot_data TEXT NOT NULL,
     searchable_text TEXT NOT NULL,
-    UNIQUE(book, user_type, user, format, annot_id)
+    UNIQUE(book, user_type, user, format, annot_type, annot_id)
 );
 
 DROP INDEX IF EXISTS annot_idx;

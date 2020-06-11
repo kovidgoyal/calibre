@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import json
 import os
 import sys
 from threading import Thread
@@ -195,6 +196,23 @@ def main(args=sys.argv):
     scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
     QWebEngineUrlScheme.registerScheme(scheme)
     override = 'calibre-ebook-viewer' if islinux else None
+    processed_args = []
+    internal_book_data = None
+    for arg in args:
+        if arg.startswith('--internal-book-data='):
+            internal_book_data = arg.split('=', 1)[1]
+            continue
+        processed_args.append(arg)
+    if internal_book_data:
+        try:
+            with lopen(internal_book_data, 'rb') as f:
+                internal_book_data = json.load(f)
+        finally:
+            try:
+                os.remove(internal_book_data)
+            except EnvironmentError:
+                pass
+    args = processed_args
     app = Application(args, override_program_name=override, windows_app_uid=VIEWER_APP_UID)
 
     parser = option_parser()
@@ -219,7 +237,9 @@ def main(args=sys.argv):
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
     migrate_previous_viewer_prefs()
-    main = EbookViewer(open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload)
+    main = EbookViewer(
+        open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,
+        calibre_book_data=internal_book_data)
     main.set_exception_handler()
     if len(args) > 1:
         acc.events.append(os.path.abspath(args[-1]))
