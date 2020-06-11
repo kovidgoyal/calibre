@@ -23,11 +23,14 @@ def add_properties(item, *props):
 
 
 def fix_font_mime_types(container):
+    changed = False
     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @media-type]'):
         mt = item.get('media-type') or ''
         if mt.lower() in OEB_FONTS:
             name = container.href_to_name(item.get('href'), container.opf_name)
             item.set('media-type', container.guess_type(name))
+            changed = True
+    return changed
 
 
 def collect_properties(container):
@@ -125,7 +128,8 @@ def epub_2_to_3(container, report, previous_nav=None):
         guide.getparent().remove(guide)
     create_nav(container, toc, landmarks, previous_nav)
     container.opf.set('version', '3.0')
-    fix_font_mime_types(container)
+    if fix_font_mime_types(container):
+        container.refresh_mime_map()
     container.dirty(container.opf_name)
 
 
