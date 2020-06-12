@@ -1774,6 +1774,13 @@ class DB(object):
         for x in annotations_for_book(self.conn, book_id, fmt, user_type, user):
             yield x
 
+    def all_annotations_for_book(self, book_id):
+        for (fmt, user_type, user, data) in self.execute('SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):
+            try:
+                yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': json.loads(data)}
+            except Exception:
+                pass
+
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
         try:
             with self.conn:  # Disable autocommit mode, for performance
