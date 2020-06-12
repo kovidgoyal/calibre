@@ -1191,6 +1191,7 @@ class Cache(object):
                     # no harm done. This way no need to call dirtied when
                     # cover is set/removed
                     mi.cover = 'cover.jpg'
+                    mi.all_annotations = self._all_annotations_for_book(book_id)
             except:
                 # This almost certainly means that the book has been deleted while
                 # the backup operation sat in the queue.
@@ -2126,7 +2127,7 @@ class Cache(object):
         self.backend.close()
 
     @write_api
-    def restore_book(self, book_id, mi, last_modified, path, formats):
+    def restore_book(self, book_id, mi, last_modified, path, formats, annotations=()):
         ''' Restore the book entry in the database for a book that already exists on the filesystem '''
         cover = mi.cover
         mi.cover = None
@@ -2136,6 +2137,8 @@ class Cache(object):
         if cover and os.path.exists(cover):
             self._set_field('cover', {book_id:1})
         self.backend.restore_book(book_id, path, formats)
+        if annotations:
+            self._restore_annotations(book_id, annotations)
 
     @read_api
     def virtual_libraries_for_books(self, book_ids):
@@ -2293,6 +2296,23 @@ class Cache(object):
         for annot in self.backend.annotations_for_book(book_id, fmt, user_type, user):
             ans.setdefault(annot['type'], []).append(annot)
         return ans
+
+    @read_api
+    def all_annotations_for_book(self, book_id):
+        return tuple(self.backend.all_annotations_for_book(book_id))
+
+    @write_api
+    def restore_annotations(self, book_id, annotations):
+        from calibre.utils.iso8601 import parse_iso8601
+        from calibre.utils.date import EPOCH
+        umap = defaultdict(list)
+        for adata in annotations:
+            key = adata['user_type'], adata['user'], adata['format']
+            a = adata['annotation']
+            ts = (parse_iso8601(a['timestamp']) - EPOCH).total_seconds()
+            umap[key].append((a, ts))
+        for (user_type, user, fmt), annots_list in iteritems(umap):
+            self._set_annotations_for_book(book_id, fmt, annots_list, user_type=user_type, user=user)
 
     @write_api
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):

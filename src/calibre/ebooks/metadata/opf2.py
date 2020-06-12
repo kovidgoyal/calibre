@@ -503,6 +503,18 @@ def serialize_user_metadata(metadata_elem, all_user_metadata, tail='\n'+(' '*8))
         metadata_elem.append(meta)
 
 
+def serialize_annotations(metadata_elem, annotations, tail='\n'+(' '*8)):
+    for item in annotations:
+        data = json.dumps(item, ensure_ascii=False)
+        if isinstance(data, bytes):
+            data = data.decode('utf-8')
+        meta = metadata_elem.makeelement('meta')
+        meta.set('name', 'calibre:annotation')
+        meta.set('content', data)
+        meta.tail = tail
+        metadata_elem.append(meta)
+
+
 def dump_dict(cats):
     if not cats:
         cats = {}
@@ -646,6 +658,13 @@ class OPF(object):  # {{{
         ans.set_identifiers(self.get_identifiers())
 
         return ans
+
+    def read_annotations(self):
+        for elem in self.root.xpath('//*[name() = "meta" and @name = "calibre:annotation" and @content]'):
+            try:
+                yield json.loads(elem.get('content'))
+            except Exception:
+                pass
 
     def write_user_metadata(self):
         elems = self.root.xpath('//*[name() = "meta" and starts-with(@name,'
@@ -1664,6 +1683,9 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
         meta('user_categories', dump_dict(mi.user_categories))
 
     serialize_user_metadata(metadata, mi.get_all_user_metadata(False))
+    all_annotations = getattr(mi, 'all_annotations', None)
+    if all_annotations:
+        serialize_annotations(metadata, all_annotations)
 
     metadata[-1].tail = '\n' +(' '*4)
 

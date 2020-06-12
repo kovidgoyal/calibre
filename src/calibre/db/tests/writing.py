@@ -763,15 +763,22 @@ class WritingTest(BaseTest):
 
     def test_annotations(self):  # {{{
         'Test handling of annotations'
+        from calibre.utils.date import utcnow, EPOCH
         cl = self.cloned_library
         cache = self.init_cache(cl)
         # First empty dirtied
         cache.dump_metadata()
         self.assertFalse(cache.dirtied_cache)
+
+        def a(**kw):
+            ts = utcnow()
+            kw['timestamp'] = utcnow().isoformat()
+            return kw, (ts - EPOCH).total_seconds()
+
         annot_list = [
-                ({'type': 'bookmark', 'title': 'bookmark1', 'seq': 1}, 1.1),
-                ({'type': 'highlight', 'highlighted_text': 'text1', 'uuid': '1', 'seq': 2}, 0.3),
-                ({'type': 'highlight', 'highlighted_text': 'text2', 'notes': 'notes2', 'uuid': '2', 'seq': 3}, 3),
+            a(type='bookmark', title='bookmark1', seq=1),
+            a(type='highlight', highlighted_text='text1', uuid='1', seq=2),
+            a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2'),
         ]
 
         def map_as_list(amap):
@@ -800,4 +807,13 @@ class WritingTest(BaseTest):
         cache.set_annotations_for_book(1, 'moo', annot_list)
         amap = cache.annotations_map_for_book(1, 'moo')
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
+        cache.check_dirtied_annotations()
+        cache.dump_metadata()
+        from calibre.ebooks.metadata.opf2 import OPF
+        raw = cache.read_backup(1)
+        opf = OPF(BytesIO(raw))
+        cache.restore_annotations(1, list(opf.read_annotations()))
+        amap = cache.annotations_map_for_book(1, 'moo')
+        self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
+
     # }}}
