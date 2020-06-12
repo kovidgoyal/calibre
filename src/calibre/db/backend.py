@@ -1795,11 +1795,12 @@ class DB(object):
                 save_annotations_for_book(self.conn.cursor(), book_id, fmt, annots_list, user_type, user)
 
     def dirty_books_with_dirtied_annotations(self):
-        self.execute('''
-            INSERT or IGNORE INTO metadata_dirtied(book) SELECT book FROM annotations_dirtied;
-            DELETE FROM annotations_dirtied;
-        ''')
-        return self.conn.changes() > 0
+        with self.conn:
+            self.execute('INSERT or IGNORE INTO metadata_dirtied(book) SELECT book FROM annotations_dirtied;')
+            changed = self.conn.changes() > 0
+            if changed:
+                self.execute('DELETE FROM annotations_dirtied')
+        return changed
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
