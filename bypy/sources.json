@@ -99,8 +99,8 @@
     {
         "name": "sqlite",
         "unix": {
-            "filename": "sqlite-autoconf-3310100.tar.gz",
-            "hash": "sha1:0c30f5b22152a8166aa3bebb0f4bc1f3e9cc508b",
+            "filename": "sqlite-autoconf-3320200.tar.gz",
+            "hash": "sha1:429e3f2d0b16a95ad1025a97b2a328d0b4037575",
             "urls": ["https://www.sqlite.org/2020/{filename}"]
         }
     },
@@ -703,9 +703,9 @@
         "name": "apsw",
         "python": 2,
         "unix": {
-            "filename": "apsw-3.30.1-r1.zip",
-            "hash": "sha256:b7be3dca5f95b88ff2285dbfb61e7449c8cb4214d3d18172ffdb163360c7aa2f",
-            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.30.1-r1/{filename}"]
+            "filename": "apsw-3.32.2-r1.zip",
+            "hash": "sha256:38b7e35193a7943992853f9b819cb6d9b7766ae30dd1fdc069da98cfff9f200c",
+            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.32.2-r1/{filename}"]
         }
     },
 
