@@ -311,10 +311,11 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
         else:
             continue
         data.append((book_id, fmt, user_type, user, timestamp_in_secs, aid, atype, json.dumps(annot), text))
+    cursor.execute('INSERT OR IGNORE INTO annotations_dirtied (book) VALUES (?)', (book_id,))
+    cursor.execute('DELETE FROM annotations WHERE book=? AND format=? AND user_type=? AND user=?', (book_id, fmt, user_type, user))
     cursor.executemany(
         'INSERT OR REPLACE INTO annotations (book, format, user_type, user, timestamp, annot_id, annot_type, annot_data, searchable_text)'
         ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', data)
-    cursor.execute('INSERT OR IGNORE INTO annotations_dirtied (book) VALUES (?)', (book_id,))
 # }}}
 
 
@@ -1772,6 +1773,26 @@ class DB(object):
     def annotations_for_book(self, book_id, fmt, user_type, user):
         for x in annotations_for_book(self.conn, book_id, fmt, user_type, user):
             yield x
+
+    def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+        try:
+            with self.conn:  # Disable autocommit mode, for performance
+                save_annotations_for_book(self.conn.cursor(), book_id, fmt, annots_list, user_type, user)
+        except apsw.IOError:
+            # This can happen if the computer was suspended see for example:
+            # https://bugs.launchpad.net/bugs/1286522. Try to reopen the db
+            if not self.conn.getautocommit():
+                raise  # We are in a transaction, re-opening the db will fail anyway
+            self.reopen(force=True)
+            with self.conn:  # Disable autocommit mode, for performance
+                save_annotations_for_book(self.conn.cursor(), book_id, fmt, annots_list, user_type, user)
+
+    def dirty_books_with_dirtied_annotations(self):
+        self.execute('''
+            INSERT or IGNORE INTO metadata_dirtied(book) SELECT book FROM annotations_dirtied;
+            DELETE FROM annotations_dirtied;
+        ''')
+        return self.conn.changes() > 0
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
