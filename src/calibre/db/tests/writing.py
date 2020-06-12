@@ -760,3 +760,44 @@ class WritingTest(BaseTest):
         prefs['test mutable'] = {k:k for k in reversed(range(10))}
         self.assertEqual(len(changes), 3, 'The database was written to despite there being no change in value')
     # }}}
+
+    def test_annotations(self):  # {{{
+        'Test handling of annotations'
+        cl = self.cloned_library
+        cache = self.init_cache(cl)
+        # First empty dirtied
+        cache.dump_metadata()
+        self.assertFalse(cache.dirtied_cache)
+        annot_list = [
+                ({'type': 'bookmark', 'title': 'bookmark1', 'seq': 1}, 1.1),
+                ({'type': 'highlight', 'highlighted_text': 'text1', 'uuid': '1', 'seq': 2}, 0.3),
+                ({'type': 'highlight', 'highlighted_text': 'text2', 'notes': 'notes2', 'uuid': '2', 'seq': 3}, 3),
+        ]
+
+        def map_as_list(amap):
+            ans = []
+            for items in amap.values():
+                ans.extend(items)
+            ans.sort(key=lambda x:x['seq'])
+            return ans
+
+        cache.set_annotations_for_book(1, 'moo', annot_list)
+        amap = cache.annotations_map_for_book(1, 'moo')
+        self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
+        self.assertFalse(cache.dirtied_cache)
+        cache.check_dirtied_annotations()
+        self.assertEqual(set(cache.dirtied_cache), {1})
+        cache.dump_metadata()
+        cache.check_dirtied_annotations()
+        self.assertFalse(cache.dirtied_cache)
+
+        annot_list[0][0]['title'] = 'changed title'
+        cache.set_annotations_for_book(1, 'moo', annot_list)
+        amap = cache.annotations_map_for_book(1, 'moo')
+        self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
+
+        del annot_list[1]
+        cache.set_annotations_for_book(1, 'moo', annot_list)
+        amap = cache.annotations_map_for_book(1, 'moo')
+        self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
+    # }}}
