@@ -31,6 +31,7 @@ class MetadataBackup(Thread):
         self.stop_running = Event()
         self.interval = interval
         self.scheduling_interval = scheduling_interval
+        self.check_dirtied_annotations = 0
 
     @property
     def db(self):
@@ -55,6 +56,13 @@ class MetadataBackup(Thread):
                 break
 
     def do_one(self):
+        self.check_dirtied_annotations += 1
+        if self.check_dirtied_annotations > 2:
+            self.check_dirtied_annotations = 0
+            try:
+                self.db.check_dirtied_annotations()
+            except Exception:
+                traceback.print_exc()
         try:
             book_id = self.db.get_a_dirtied_book()
             if book_id is None:
@@ -117,4 +125,3 @@ class MetadataBackup(Thread):
     def break_cycles(self):
         # Legacy compatibility
         pass
-

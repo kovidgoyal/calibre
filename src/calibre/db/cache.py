@@ -212,6 +212,7 @@ class Cache(object):
 
     @write_api
     def initialize_dynamic(self):
+        self.backend.dirty_books_with_dirtied_annotations()
         self.dirtied_cache = {x:i for i, x in enumerate(self.backend.dirtied_books())}
         if self.dirtied_cache:
             self.dirtied_sequence = max(itervalues(self.dirtied_cache))+1
@@ -1094,6 +1095,17 @@ class Cache(object):
     def commit_dirty_cache(self):
         if self.dirtied_cache:
             self.backend.dirty_books(self.dirtied_cache)
+
+    @write_api
+    def check_dirtied_annotations(self):
+        if not self.backend.dirty_books_with_dirtied_annotations():
+            return
+        book_ids = set(self.backend.dirtied_books())
+        new_dirtied = book_ids - set(self.dirtied_cache)
+        if new_dirtied:
+            new_dirtied = {book_id:self.dirtied_sequence+i for i, book_id in enumerate(new_dirtied)}
+            self.dirtied_sequence = max(itervalues(new_dirtied)) + 1
+            self.dirtied_cache.update(new_dirtied)
 
     @write_api
     def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
@@ -2281,6 +2293,10 @@ class Cache(object):
         for annot in self.backend.annotations_for_book(book_id, fmt, user_type, user):
             ans.setdefault(annot['type'], []).append(annot)
         return ans
+
+    @write_api
+    def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+        self.backend.set_annotations_for_book(book_id, fmt, annots_list, user_type, user)
 
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):
