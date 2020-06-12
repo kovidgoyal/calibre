@@ -190,7 +190,9 @@ class Restore(Thread):
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
         names   = [os.path.splitext(x)[0] for x in formats]
         opf = os.path.join(dirpath, 'metadata.opf')
-        mi = OPF(opf, basedir=dirpath).to_book_metadata()
+        parsed_opf = OPF(opf, basedir=dirpath)
+        mi = parsed_opf.to_book_metadata()
+        annotations = tuple(parsed_opf.read_annotations())
         timestamp = os.path.getmtime(opf)
         path = os.path.relpath(dirpath, self.src_library_path).replace(os.sep,
                 '/')
@@ -203,6 +205,7 @@ class Restore(Thread):
                 'id': book_id,
                 'dirpath': dirpath,
                 'path': path,
+                'annotations': annotations
             })
         else:
             self.mismatched_dirs.append(dirpath)
@@ -254,7 +257,7 @@ class Restore(Thread):
 
         for i, book in enumerate(self.books):
             try:
-                db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'])
+                db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
                 self.successes += 1
             except:
                 self.failed_restores.append((book, traceback.format_exc()))
