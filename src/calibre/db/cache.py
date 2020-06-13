@@ -2301,6 +2301,22 @@ class Cache(object):
     def all_annotations_for_book(self, book_id):
         return tuple(self.backend.all_annotations_for_book(book_id))
 
+    @read_api
+    def search_annotations(
+        self,
+        fts_engine_query,
+        use_stemming=True,
+        highlight_start=None,
+        highlight_end=None,
+        annotation_type=None,
+        restrict_to_book_ids=None,
+        restrict_to_user=None,
+    ):
+        return tuple(self.backend.search_annotations(
+            fts_engine_query, use_stemming, highlight_start, highlight_end,
+            annotation_type, restrict_to_book_ids, restrict_to_user
+        ))
+
     @write_api
     def restore_annotations(self, book_id, annotations):
         from calibre.utils.iso8601 import parse_iso8601

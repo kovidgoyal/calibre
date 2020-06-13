@@ -776,9 +776,9 @@ class WritingTest(BaseTest):
             return kw, (ts - EPOCH).total_seconds()
 
         annot_list = [
-            a(type='bookmark', title='bookmark1', seq=1),
+            a(type='bookmark', title='bookmark1 changed', seq=1),
             a(type='highlight', highlighted_text='text1', uuid='1', seq=2),
-            a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2'),
+            a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed'),
         ]
 
         def map_as_list(amap):
@@ -797,6 +797,16 @@ class WritingTest(BaseTest):
         cache.dump_metadata()
         cache.check_dirtied_annotations()
         self.assertFalse(cache.dirtied_cache)
+
+        # Test searching
+        results = cache.search_annotations('"changed"')
+        self.assertEqual([1, 3], [x['id'] for x in results])
+        results = cache.search_annotations('"changed"', annotation_type='bookmark')
+        self.assertEqual([1], [x['id'] for x in results])
+        results = cache.search_annotations('"Change"')
+        self.assertEqual([1, 3], [x['id'] for x in results])
+        results = cache.search_annotations('"change"', use_stemming=False)
+        self.assertEqual([], [x['id'] for x in results])
 
         annot_list[0][0]['title'] = 'changed title'
         cache.set_annotations_for_book(1, 'moo', annot_list)
