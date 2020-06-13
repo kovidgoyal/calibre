@@ -2308,13 +2308,14 @@ class Cache(object):
         use_stemming=True,
         highlight_start=None,
         highlight_end=None,
+        snippet_size=None,
         annotation_type=None,
         restrict_to_book_ids=None,
         restrict_to_user=None,
     ):
         return tuple(self.backend.search_annotations(
             fts_engine_query, use_stemming, highlight_start, highlight_end,
-            annotation_type, restrict_to_book_ids, restrict_to_user
+            snippet_size, annotation_type, restrict_to_book_ids, restrict_to_user
         ))
 
     @write_api
