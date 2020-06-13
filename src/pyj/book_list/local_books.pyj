@@ -229,7 +229,7 @@ def init(container_id):
     container.appendChild(recent)
     recent.appendChild(E.div(
         style='margin: 1rem 1rem',
-        _('Loading downloaded books from storage, please wait...')
+        _('Loading downloaded books from local storage, please wait...')
     ))
     conditional_timeout(recent_container_id, 5, show_recent)
 

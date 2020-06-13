@@ -545,7 +545,7 @@ class Source(Plugin):
     def identify(self, log, result_queue, abort, title=None, authors=None,
             identifiers={}, timeout=30):
         '''
-        Identify a book by its title/author/isbn/etc.
+        Identify a book by its Title/Author/ISBN/etc.
 
         If identifiers(s) are specified and no match is found and this metadata
         source does not store all related identifiers (for example, all ISBNs
@@ -563,7 +563,7 @@ class Source(Plugin):
         This integer will be used by :meth:`compare_identify_results`. If the
         order is unimportant, set it to zero for every result.
 
-        Make sure that any cover/isbn mapping information is cached before the
+        Make sure that any cover/ISBN mapping information is cached before the
         Metadata object is put into result_queue.
 
         :param log: A log object, use it to output debugging information/errors
