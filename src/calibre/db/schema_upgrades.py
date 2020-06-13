@@ -714,12 +714,43 @@ CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
     annot_id TEXT NOT NULL,
     annot_type TEXT NOT NULL,
     annot_data TEXT NOT NULL,
-    searchable_text TEXT NOT NULL,
+    searchable_text TEXT NOT NULL DEFAULT "",
     UNIQUE(book, user_type, user, format, annot_type, annot_id)
 );
 
 DROP INDEX IF EXISTS annot_idx;
 CREATE INDEX annot_idx ON annotations (book);
+
+DROP TABLE IF EXISTS annotations_fts;
+DROP TABLE IF EXISTS annotations_fts_stemmed;
+CREATE VIRTUAL TABLE annotations_fts USING fts5(searchable_text,
+    content = 'annotations', content_rowid = 'id', tokenize = 'unicode61 remove_diacritics 2');
+CREATE VIRTUAL TABLE annotations_fts_stemmed USING fts5(searchable_text,
+    content = 'annotations', content_rowid = 'id', tokenize = 'porter unicode61 remove_diacritics 2');
+
+DROP TRIGGER IF EXISTS annotations_fts_insert_trg;
+CREATE TRIGGER annotations_fts_insert_trg AFTER INSERT ON annotations
+BEGIN
+    INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+END;
+
+DROP TRIGGER IF EXISTS annotations_fts_delete_trg;
+CREATE TRIGGER annotations_fts_delete_trg AFTER DELETE ON annotations
+BEGIN
+    INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+END;
+
+DROP TRIGGER IF EXISTS annotations_fts_update_trg;
+CREATE TRIGGER annotations_fts_update_trg AFTER UPDATE ON annotations
+BEGIN
+    INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+END;
+
 
 DROP TRIGGER IF EXISTS books_delete_trg;
 CREATE TRIGGER books_delete_trg
