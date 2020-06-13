@@ -1775,12 +1775,20 @@ class DB(object):
             yield x
 
     def search_annotations(self,
-        fts_engine_query, use_stemming, highlight_start, highlight_end, annotation_type,
+        fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, annotation_type,
         restrict_to_book_ids, restrict_to_user
     ):
         fts_table = 'annotations_fts_stemmed' if use_stemming else 'annotations_fts'
-        query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data FROM {0} '
-        query = query.format('annotations')
+        text = 'annotations.searchable_text'
+        if highlight_start is not None and highlight_end is not None:
+            if snippet_size is not None:
+                text = 'snippet({fts_table}, 0, "{highlight_start}", "{highlight_end}", "…", {snippet_size})'.format(
+                        fts_table=fts_table, highlight_start=highlight_start, highlight_end=highlight_end,
+                        snippet_size=max(1, min(snippet_size, 64)))
+            else:
+                text = 'highlight({}, 0, "{}", "{}")'.format(fts_table, highlight_start, highlight_end)
+        query = 'SELECT {0}.id, {0}.book, {0}.format, {0}.user_type, {0}.user, {0}.annot_data, {1} FROM {0} '
+        query = query.format('annotations', text)
         query += ' JOIN {fts_table} ON annotations.id = {fts_table}.rowid'.format(fts_table=fts_table)
         query += ' WHERE {fts_table} MATCH ?'.format(fts_table=fts_table)
         data = [fts_engine_query]
@@ -1790,8 +1798,16 @@ class DB(object):
         if annotation_type:
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
-        for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(query, tuple(data)):
-            yield {'id': rowid, 'book_id': book_id, 'format': fmt, 'user_type': user_type, 'user': user, 'annotation': annot_data}
+        for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
+            yield {
+                'id': rowid,
+                'book_id': book_id,
+                'format': fmt,
+                'user_type': user_type,
+                'user': user,
+                'text': text,
+                'annotation': annot_data
+            }
 
     def all_annotations_for_book(self, book_id):
         for (fmt, user_type, user, data) in self.execute('SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):

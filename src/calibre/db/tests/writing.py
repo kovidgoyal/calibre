@@ -778,7 +778,7 @@ class WritingTest(BaseTest):
         annot_list = [
             a(type='bookmark', title='bookmark1 changed', seq=1),
             a(type='highlight', highlighted_text='text1', uuid='1', seq=2),
-            a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed'),
+            a(type='highlight', highlighted_text='text2', uuid='2', seq=3, notes='notes2 some word changed again'),
         ]
 
         def map_as_list(amap):
@@ -806,7 +806,11 @@ class WritingTest(BaseTest):
         results = cache.search_annotations('"Change"')
         self.assertEqual([1, 3], [x['id'] for x in results])
         results = cache.search_annotations('"change"', use_stemming=False)
-        self.assertEqual([], [x['id'] for x in results])
+        self.assertFalse(results)
+        results = cache.search_annotations('"bookmark1"', highlight_start='[', highlight_end=']')
+        self.assertEqual(results[0]['text'], '[bookmark1] changed')
+        results = cache.search_annotations('"word"', highlight_start='[', highlight_end=']', snippet_size=3)
+        self.assertEqual(results[0]['text'], '…some [word] changed…')
 
         annot_list[0][0]['title'] = 'changed title'
         cache.set_annotations_for_book(1, 'moo', annot_list)
