@@ -524,6 +524,9 @@ class ScrollingTabWidget(QTabWidget):
                 return i
         return -1
 
+    def currentWidget(self):
+        return QTabWidget.currentWidget(self).widget()
+
     def addTab(self, page, *args):
         return QTabWidget.addTab(self, self.wrap_widget(page), *args)
 
