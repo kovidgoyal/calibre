@@ -166,23 +166,23 @@
     {
         "name": "python",
         "unix": {
-            "filename": "Python-3.8.0.tar.xz",
-            "hash": "sha256:b356244e13fb5491da890b35b13b2118c3122977c2cd825e3eb6e7d462030d84",
-            "urls": ["https://www.python.org/ftp/python/3.8.0/{filename}"]
+            "filename": "Python-3.8.3.tar.xz",
+            "hash": "md5:3000cf50aaa413052aef82fd2122ca78",
+            "urls": ["https://www.python.org/ftp/python/3.8.3/{filename}"]
         }
     },
 
     {
         "name": "icu",
         "unix": {
-            "filename": "icu4c-64_2-src.tgz",
-            "hash": "sha256:627d5d8478e6d96fc8c90fed4851239079a561a6a8b9e48b0892f24e82d31d6c",
-            "urls": ["http://download.icu-project.org/files/icu4c/64.2/{filename}"]
+            "filename": "icu4c-67_1-src.tgz",
+            "hash": "sha256:94a80cd6f251a53bd2a997f6f1b5ac6653fe791dfab66e1eb0227740fb86d5dc",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-67-1/{filename}"]
         },
         "windows": {
-            "filename": "icu4c-64_2-src.zip",
-            "hash": "sha256:c8df046a9944003dae744197648e0fa6c745478b7d7b4e2b05f6a390868b5752",
-            "urls": ["http://download.icu-project.org/files/icu4c/64.2/{filename}"]
+            "filename": "icu4c-67_1-src.zip",
+            "hash": "sha256:b45ad9292490781d04daf08d13a41554b7b46223462baff2bbd1e479aaac2968",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-67-1/{filename}"]
         }
 
     },
