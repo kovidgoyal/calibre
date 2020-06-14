@@ -822,8 +822,12 @@ def field_from_string(field, raw, field_metadata):
     elif dt == 'rating':
         val = float(raw) * 2
     elif dt == 'datetime':
-        from calibre.utils.date import parse_only_date
-        val = parse_only_date(raw)
+        from calibre.utils.iso8601 import parse_iso8601
+        try:
+            val = parse_iso8601(raw, require_aware=True)
+        except Exception:
+            from calibre.utils.date import parse_only_date
+            val = parse_only_date(raw)
     elif dt == 'bool':
         if raw.lower() in {'true', 'yes', 'y'}:
             val = True
