@@ -509,6 +509,13 @@ class ScrollingTabWidget(QTabWidget):
 
     def wrap_widget(self, page):
         sw = QScrollArea(self)
+        pl = page.layout()
+        if pl is not None:
+            cm = pl.contentsMargins()
+            # For some reasons designer insists on setting zero margins for
+            # widgets added to a tab widget, which looks horrible.
+            if (cm.left(), cm.top(), cm.right(), cm.bottom()) == (0, 0, 0, 0):
+                pl.setContentsMargins(9, 9, 9, 9)
         name = 'STW{}'.format(abs(id(self)))
         sw.setObjectName(name)
         sw.setWidget(page)

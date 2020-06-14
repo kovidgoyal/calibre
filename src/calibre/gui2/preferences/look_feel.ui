@@ -300,7 +300,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="cover_grid_tab">
+     <widget class="QTabWidget" name="cover_grid_tab">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
         <normaloff>:/images/grid.png</normaloff>:/images/grid.png</iconset>
@@ -308,9 +308,6 @@
       <attribute name="title">
        <string>Cover &amp;grid</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QTabWidget" name="tabWidget_2">
          <property name="tabPosition">
           <enum>QTabWidget::West</enum>
          </property>
@@ -714,9 +711,6 @@ A value of zero means calculate automatically.</string>
            </item>
           </layout>
          </widget>
-        </widget>
-       </item>
-      </layout>
      </widget>
      <widget class="QWidget" name="book_details_tab">
       <attribute name="icon">
