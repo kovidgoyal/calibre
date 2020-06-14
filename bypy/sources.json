@@ -303,9 +303,9 @@
         "name": "libusb",
         "os": "macos, linux",
         "unix": {
-            "filename": "libusb-1.0.22.tar.bz2",
-            "hash": "sha256:75aeb9d59a4fdb800d329a545c2e6799f732362193b465ea198f2aa275518157",
-            "urls": ["https://downloads.sourceforge.net/libusb/{filename}"]
+            "filename": "libusb-1.0.23.tar.bz2",
+            "hash": "sha256:db11c06e958a82dac52cf3c65cb4dd2c3f339c8a988665110e0d24d19312ad8d",
+            "urls": ["https://github.com/libusb/libusb/releases/download/v1.0.23/{filename}"]
         }
     },
 
@@ -313,8 +313,8 @@
         "name": "libmtp",
         "os": "macos, linux",
         "unix": {
-            "filename": "libmtp-1.1.16.tar.gz",
-            "hash": "sha256:5b68f9dd1ed38de558de687f40e255a39e4d5e32ef3de601f0ac19dd5682bba0",
+            "filename": "libmtp-1.1.17.tar.gz",
+            "hash": "sha256:f8a34cf52d9f9b9cb8c7f26b12da347d4af7eb904c13189602e4c6b62d1a79dc",
             "urls": ["https://downloads.sourceforge.net/libmtp/{filename}"]
         }
     },
