@@ -197,19 +197,19 @@ def main(args=sys.argv):
     QWebEngineUrlScheme.registerScheme(scheme)
     override = 'calibre-ebook-viewer' if islinux else None
     processed_args = []
-    internal_book_data = None
+    internal_book_data = internal_book_data_path = None
     for arg in args:
         if arg.startswith('--internal-book-data='):
-            internal_book_data = arg.split('=', 1)[1]
+            internal_book_data_path = arg.split('=', 1)[1]
             continue
         processed_args.append(arg)
-    if internal_book_data:
+    if internal_book_data_path:
         try:
-            with lopen(internal_book_data, 'rb') as f:
+            with lopen(internal_book_data_path, 'rb') as f:
                 internal_book_data = json.load(f)
         finally:
             try:
-                os.remove(internal_book_data)
+                os.remove(internal_book_data_path)
             except EnvironmentError:
                 pass
     args = processed_args
