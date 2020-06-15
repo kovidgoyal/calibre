@@ -37,6 +37,8 @@ class ResultsList(QListWidget):
 
     def set_results(self, results):
         self.clear()
+        for result in results:
+            print(result)
 
 
 class BrowsePanel(QWidget):
@@ -120,6 +122,10 @@ class AnnotationsBrowser(Dialog):
         Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser-1', parent=parent)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
 
+    def keyPressEvent(self, ev):
+        if ev.key() not in (Qt.Key_Enter, Qt.Key_Return):
+            return Dialog.keyPressEvent(self, ev)
+
     def setup_ui(self):
         l = QVBoxLayout(self)
 
@@ -136,10 +142,19 @@ class AnnotationsBrowser(Dialog):
         self.bb.setStandardButtons(self.bb.Close)
         l.addWidget(self.bb)
 
+    def show_dialog(self):
+        self.browse_panel.search_box.setFocus(Qt.OtherFocusReason)
+        if self.parent() is None:
+            self.exec_()
+        else:
+            self.show()
+
 
 if __name__ == '__main__':
     from calibre.library import db
     app = Application([])
     current_db.ans = db(os.path.expanduser('~/test library'))
-    AnnotationsBrowser().exec_()
+    br = AnnotationsBrowser()
+    br.show_dialog()
+    del br
     del app
