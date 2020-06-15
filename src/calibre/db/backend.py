@@ -42,14 +42,15 @@ from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         CompositeTable, UUIDTable, RatingTable)
 # }}}
 
-'''
-Differences in semantics from pysqlite:
 
-    1. execute/executemany operate in autocommit mode
-    2. There is no fetchone() method on cursor objects, instead use next(cursor)
-    3. There is no executescript
+class FTSQueryError(ValueError):
 
-'''
+    def __init__(self, query, sql_statement, apsw_error):
+        ValueError.__init__(self, 'Failed to parse search query: {} with error: {}'.format(query, apsw_error))
+        self.query = query
+        self.sql_statement = sql_statement
+
+
 CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'))
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
@@ -1798,16 +1799,19 @@ class DB(object):
         if annotation_type:
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
-        for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
-            yield {
-                'id': rowid,
-                'book_id': book_id,
-                'format': fmt,
-                'user_type': user_type,
-                'user': user,
-                'text': text,
-                'annotation': annot_data
-            }
+        try:
+            for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
+                yield {
+                    'id': rowid,
+                    'book_id': book_id,
+                    'format': fmt,
+                    'user_type': user_type,
+                    'user': user,
+                    'text': text,
+                    'annotation': annot_data
+                }
+        except apsw.SQLError as e:
+            raise FTSQueryError(fts_engine_query, query, e)
 
     def all_annotations_for_book(self, book_id):
         for (fmt, user_type, user, data) in self.execute('SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):
