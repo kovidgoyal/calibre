@@ -90,7 +90,7 @@ class EbookViewer(MainWindow):
         MainWindow.__init__(self, None)
         self.annotations_saver = None
         self.calibre_book_data_for_first_book = calibre_book_data
-        self.shutting_down = self.close_forced = False
+        self.shutting_down = self.close_forced = self.shutdown_done = False
         self.force_reload = force_reload
         connect_lambda(self.book_preparation_started, self, lambda self: self.loading_overlay(_(
             'Preparing book for first read, please wait')), type=Qt.QueuedConnection)
@@ -569,9 +569,9 @@ class EbookViewer(MainWindow):
         if calibre_book_data is None:
             bld = self.current_book_data['book_library_details']
             if bld is not None:
-                amap = load_annotations_map_from_library(bld)
-                if amap:
-                    for annot_type, annots in iteritems(self.calibre_book_data_for_first_book['annotations_map']):
+                lib_amap = load_annotations_map_from_library(bld)
+                if lib_amap:
+                    for annot_type, annots in iteritems(lib_amap):
                         merge_annotations(annots, amap)
         else:
             for annot_type, annots in iteritems(calibre_book_data['annotations_map']):
@@ -652,14 +652,14 @@ class EbookViewer(MainWindow):
         self.force_close()
 
     def closeEvent(self, ev):
+        if self.shutdown_done:
+            return
         if self.current_book_data and self.web_view.view_is_ready and not self.close_forced:
             ev.ignore()
             if not self.shutting_down:
                 self.shutting_down = True
                 QTimer.singleShot(2000, self.force_close)
                 self.web_view.prepare_for_close()
-            return
-        if self.shutting_down:
             return
         self.shutting_down = True
         self.search_widget.shutdown()
@@ -673,5 +673,6 @@ class EbookViewer(MainWindow):
             import traceback
             traceback.print_exc()
         clean_running_workers()
+        self.shutdown_done = True
         return MainWindow.closeEvent(self, ev)
     # }}}
