@@ -305,7 +305,7 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
             aid = text = annot['title']
         elif atype == 'highlight':
             aid = annot['uuid']
-            text = annot.get('highlighed_text') or ''
+            text = annot.get('highlighted_text') or ''
             notes = annot.get('notes') or ''
             if notes:
                 text += '\n0x1f\n' + notes
