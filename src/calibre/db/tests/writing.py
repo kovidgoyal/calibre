@@ -14,6 +14,7 @@ from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest, IMG
+from calibre.db.backend import FTSQueryError
 from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
@@ -811,6 +812,7 @@ class WritingTest(BaseTest):
         self.assertEqual(results[0]['text'], '[bookmark1] changed')
         results = cache.search_annotations('"word"', highlight_start='[', highlight_end=']', snippet_size=3)
         self.assertEqual(results[0]['text'], '…some [word] changed…')
+        self.assertRaises(FTSQueryError, cache.search_annotations, 'AND OR')
 
         annot_list[0][0]['title'] = 'changed title'
         cache.set_annotations_for_book(1, 'moo', annot_list)
