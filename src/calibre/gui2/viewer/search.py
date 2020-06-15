@@ -296,6 +296,15 @@ def search_in_name(name, search_query, ctx_size=50):
 class SearchBox(HistoryComboBox):
 
     history_saved = pyqtSignal(object, object)
+    cleared = pyqtSignal()
+
+    def __init__(self, parent=None):
+        HistoryComboBox.__init__(self, parent)
+        self.lineEdit().setPlaceholderText(_('Search'))
+        self.lineEdit().setClearButtonEnabled(True)
+        ac = self.lineEdit().findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.cleared)
 
     def save_history(self):
         ret = HistoryComboBox.save_history(self)
@@ -329,11 +338,7 @@ class SearchInput(QWidget):  # {{{
         sb.initialize('viewer-{}-panel-expression'.format(panel_name))
         sb.item_selected.connect(self.saved_search_selected)
         sb.history_saved.connect(self.history_saved)
-        sb.lineEdit().setPlaceholderText(_('Search'))
-        sb.lineEdit().setClearButtonEnabled(True)
-        ac = sb.lineEdit().findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
-        if ac is not None:
-            ac.triggered.connect(self.cleared)
+        sb.cleared.connect(self.cleared)
         sb.lineEdit().returnPressed.connect(self.find_next)
         h.addWidget(sb)
 
