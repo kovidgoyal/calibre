@@ -1799,6 +1799,7 @@ class DB(object):
         if annotation_type:
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
+        query += ' ORDER BY {}.rank '.format(fts_table)
         try:
             for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
                 yield {
