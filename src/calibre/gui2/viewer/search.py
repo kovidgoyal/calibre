@@ -449,10 +449,16 @@ class SearchInput(QWidget):  # {{{
 
 class ResultsDelegate(QStyledItemDelegate):  # {{{
 
+    def result_data(self, result):
+        if not isinstance(result, SearchResult):
+            return None, None, None, None
+        return result.is_hidden, result.before, result.text, result.text
+
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         result = index.data(Qt.UserRole)
-        if not isinstance(result, SearchResult):
+        is_hidden, result_before, result_text, result_after = self.result_data(result)
+        if result_text is None:
             return
         painter.save()
         try:
@@ -465,19 +471,19 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             emphasis_font = QFont(font)
             emphasis_font.setBold(True)
             flags = Qt.AlignTop | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
-            rect = option.rect.adjusted(option.decorationSize.width() + 4 if result.is_hidden else 0, 0, 0, 0)
+            rect = option.rect.adjusted(option.decorationSize.width() + 4 if is_hidden else 0, 0, 0, 0)
             painter.setClipRect(rect)
-            before = re.sub(r'\s+', ' ', result.before)
+            before = re.sub(r'\s+', ' ', result_before)
             before_width = 0
             if before:
                 before_width = painter.boundingRect(rect, flags, before).width()
-            after = re.sub(r'\s+', ' ', result.after.rstrip())
+            after = re.sub(r'\s+', ' ', result_after.rstrip())
             after_width = 0
             if after:
                 after_width = painter.boundingRect(rect, flags, after).width()
             ellipsis_width = painter.boundingRect(rect, flags, '...').width()
             painter.setFont(emphasis_font)
-            text = re.sub(r'\s+', ' ', result.text)
+            text = re.sub(r'\s+', ' ', result_text)
             match_width = painter.boundingRect(rect, flags, text).width()
             if match_width >= rect.width() - 3 * ellipsis_width:
                 efm = QFontMetrics(emphasis_font)
