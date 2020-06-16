@@ -7,12 +7,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 from PyQt5.Qt import (
-    QApplication, QCursor, QHBoxLayout, QIcon, QListWidget, QSize, QSplitter, Qt,
-    QToolButton, QVBoxLayout, QWidget
+    QApplication, QCursor, QFont, QHBoxLayout, QIcon, QSize, QSplitter, Qt,
+    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
 )
 
 from calibre.gui2 import Application
-from calibre.gui2.viewer.search import SearchBox
+from calibre.gui2.viewer.search import SearchBox, ResultsDelegate
 from calibre.gui2.widgets2 import Dialog
 
 
@@ -30,15 +30,52 @@ class BusyCursor(object):
         QApplication.restoreOverrideCursor()
 
 
-class ResultsList(QListWidget):
+class AnnotsResultsDelegate(ResultsDelegate):
+
+    def result_data(self, result):
+        if not isinstance(result, dict):
+            return None, None, None, None
+        full_text = result['text'].replace('0x1f', ' ')
+        parts = full_text.split('0x1d', 2)
+        before = after = ''
+        if len(parts) == 3:
+            before, text, after = parts
+        elif len(parts) == 2:
+            before, text = parts
+        else:
+            text = parts[0]
+        return False, before, text, after
+
+
+class ResultsList(QTreeWidget):
 
     def __init__(self, parent):
-        QListWidget.__init__(self, parent)
+        QTreeWidget.__init__(self, parent)
+        self.setHeaderHidden(True)
+        self.delegate = AnnotsResultsDelegate(self)
+        self.setItemDelegate(self.delegate)
+        self.section_font = QFont(self.font())
+        self.section_font.setItalic(True)
 
     def set_results(self, results):
         self.clear()
+        book_id_map = {}
+        db = current_db()
         for result in results:
-            print(result)
+            book_id = result['book_id']
+            if book_id not in book_id_map:
+                book_id_map[book_id] = {'title': db.field_for('title', book_id), 'matches': []}
+            book_id_map[book_id]['matches'].append(result)
+        for book_id, entry in book_id_map.items():
+            section = QTreeWidgetItem([entry['title']], 1)
+            section.setFlags(Qt.ItemIsEnabled)
+            section.setFont(0, self.section_font)
+            self.addTopLevelItem(section)
+            section.setExpanded(True)
+            for result in entry['matches']:
+                item = QTreeWidgetItem(section, [' '], 2)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemNeverHasChildren)
+                item.setData(0, Qt.UserRole, result)
 
 
 class BrowsePanel(QWidget):
@@ -97,8 +134,9 @@ class BrowsePanel(QWidget):
             return
         with BusyCursor():
             db = current_db()
-            results = db.search_annotations(**q)
+            results = db.search_annotations(highlight_start='0x1d', highlight_end='0x1d', snippet_size=64, **q)
             self.results_list.set_results(results)
+            self.current_query = q
 
     def show_next(self):
         self.do_find()
