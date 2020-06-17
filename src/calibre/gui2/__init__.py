@@ -192,6 +192,9 @@ def create_defs():
     defs['wrap_toolbar_text'] = False
     defs['dnd_merge'] = True
     defs['booklist_grid'] = False
+    defs['browse_annots_restrict_to_user'] = None
+    defs['browse_annots_restrict_to_type'] = None
+    defs['browse_annots_use_stemmer'] = True
 
 
 create_defs()
