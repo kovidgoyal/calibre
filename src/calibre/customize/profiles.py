@@ -452,7 +452,7 @@ class iPad3Output(iPadOutput):
 
 
 class TabletOutput(iPadOutput):
-    name = 'Tablet'
+    name = _('Tablet')
     short_name = 'tablet'
     description = _('Intended for generic tablet devices, does no resizing of images')
 
