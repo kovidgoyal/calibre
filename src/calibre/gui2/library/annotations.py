@@ -7,12 +7,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 
 from PyQt5.Qt import (
-    QApplication, QCursor, QFont, QHBoxLayout, QIcon, QSize, QSplitter, Qt,
-    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
+    QApplication, QComboBox, QCursor, QFont, QHBoxLayout, QIcon, QLabel, QSize,
+    QSplitter, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
 )
 
 from calibre.gui2 import Application
-from calibre.gui2.viewer.search import SearchBox, ResultsDelegate
+from calibre.gui2.viewer.search import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
 
@@ -36,10 +36,11 @@ class AnnotsResultsDelegate(ResultsDelegate):
         if not isinstance(result, dict):
             return None, None, None, None
         full_text = result['text'].replace('0x1f', ' ')
-        parts = full_text.split('0x1d', 2)
+        parts = full_text.split('\x1d')
         before = after = ''
-        if len(parts) == 3:
-            before, text, after = parts
+        if len(parts) > 2:
+            before, text = parts[:2]
+            after = ' '.join(parts[2:]).replace('\x1d', '')
         elif len(parts) == 2:
             before, text = parts
         else:
@@ -91,6 +92,7 @@ class BrowsePanel(QWidget):
         sb.initialize('library-annotations-browser-search-box')
         sb.cleared.connect(self.cleared)
         sb.lineEdit().returnPressed.connect(self.show_next)
+        sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
         h.addWidget(sb)
 
         self.next_button = nb = QToolButton(self)
@@ -107,8 +109,55 @@ class BrowsePanel(QWidget):
         nb.clicked.connect(self.show_previous)
         nb.setToolTip(_('Find previous match'))
 
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(QLabel(_('Restrict to') + ' '))
+        la = QLabel(_('Types:'))
+        h.addWidget(la)
+        self.types_box = tb = QComboBox(self)
+        tb.currentIndexChanged.connect(self.effective_query_changed)
+        la.setBuddy(tb)
+        h.addWidget(tb)
+        la = QLabel(_('User:'))
+        h.addWidget(la)
+        self.user_box = ub = QComboBox(self)
+        ub.currentIndexChanged.connect(self.effective_query_changed)
+        la.setBuddy(ub)
+        h.addWidget(ub)
+        h.addStretch(10)
+
         self.results_list = rl = ResultsList(self)
         l.addWidget(rl)
+
+    def re_initialize(self):
+        db = current_db()
+        self.search_box.setFocus(Qt.OtherFocusReason)
+        tb = self.types_box
+        before = tb.currentData()
+        tb.blockSignals(True)
+        tb.clear()
+        tb.addItem(' ', ' ')
+        for atype in db.all_annotation_types():
+            name = {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
+            tb.addItem(name, atype)
+        if before:
+            row = tb.findData(before)
+            if row > -1:
+                tb.setCurrentIndex(row)
+        tb.blockSignals(False)
+        tb = self.user_box
+        before = tb.currentData()
+        tb.blockSignals(True)
+        tb.clear()
+        tb.addItem(' ', ' ')
+        for user_type, user in db.all_annotation_users():
+            q = '{}: {}'.format(user_type, user)
+            tb.addItem(q, '{}:{}'.format(user_type, user))
+        if before:
+            row = tb.findData(before)
+            if row > -1:
+                tb.setCurrentIndex(row)
+        tb.blockSignals(False)
 
     def sizeHint(self):
         return QSize(450, 600)
@@ -118,12 +167,22 @@ class BrowsePanel(QWidget):
         text = self.search_box.lineEdit().text().strip()
         if not text:
             return None
+        atype = self.types_box.currentData()
+        if not atype or not atype.strip():
+            atype = None
+        user = self.user_box.currentData()
+        restrict_to_user = None
+        if user and ':' in user:
+            restrict_to_user = user.split(':', 1)
         return {
             'fts_engine_query': text,
+            'annotation_type': atype,
+            'restrict_to_user': restrict_to_user
         }
 
     def cleared(self):
         self.current_query = None
+        self.results_list.clear()
 
     def do_find(self, backwards=False):
         q = self.effective_query
@@ -134,9 +193,12 @@ class BrowsePanel(QWidget):
             return
         with BusyCursor():
             db = current_db()
-            results = db.search_annotations(highlight_start='0x1d', highlight_end='0x1d', snippet_size=64, **q)
+            results = db.search_annotations(highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q)
             self.results_list.set_results(results)
             self.current_query = q
+
+    def effective_query_changed(self):
+        self.do_find()
 
     def show_next(self):
         self.do_find()
@@ -181,7 +243,7 @@ class AnnotationsBrowser(Dialog):
         l.addWidget(self.bb)
 
     def show_dialog(self):
-        self.browse_panel.search_box.setFocus(Qt.OtherFocusReason)
+        self.browse_panel.re_initialize()
         if self.parent() is None:
             self.exec_()
         else:
