@@ -398,7 +398,6 @@ class TagBrowserMixin(object):  # {{{
             for t in get_authors_func(use_virtual_library=False):
                 if t[1] == id_:
                     id_ = t[0]
-                    select_sort = True
                     break
         editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
                                    get_authors_func, is_first_letter)
