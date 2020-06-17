@@ -231,13 +231,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         # Position on the desired item
         if id_to_select:
             select_item = None
-            use_as = tweaks['categories_use_field_for_author_name']
+            use_as = tweaks['categories_use_field_for_author_name'] == 'author_sort'
             for row in range(0, len(auts_to_show)):
                 if is_first_letter:
                     item_txt = unicode_type(self.table.item(row, 1).text() if use_as
                                                 else self.table.item(row, 0).text())
                     if primary_startswith(item_txt, id_to_select):
-                        select_item = self.table.item(row, 1)
+                        select_item = self.table.item(row, 1 if use_as else 0)
                         break
                 elif id_to_select == self.table.item(row, 0).data(Qt.UserRole):
                     if select_sort:
