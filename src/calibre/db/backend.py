@@ -300,7 +300,7 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
     data = []
     fmt = fmt.upper()
     for annot, timestamp_in_secs in annots_list:
-        atype = annot['type']
+        atype = annot['type'].lower()
         if atype == 'bookmark':
             aid = text = annot['title']
         elif atype == 'highlight':
@@ -1820,6 +1820,13 @@ class DB(object):
                 yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': json.loads(data)}
             except Exception:
                 pass
+
+    def all_annotation_users(self):
+        return self.execute('SELECT DISTINCT user_type, user FROM annotations')
+
+    def all_annotation_types(self):
+        for x in self.execute('SELECT DISTINCT annot_type FROM annotations'):
+            yield x[0]
 
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
         try:
