@@ -701,7 +701,8 @@ class LayoutMixin(object):  # {{{
     def manage_category_triggerred(self, field, value):
         if field and value:
             if field == 'authors':
-                self.do_author_sort_edit(self, value, select_sort=False, select_link=False)
+                self.do_author_sort_edit(self, value, select_sort=False,
+                                         select_link=False, lookup_author=True)
             elif field:
                 self.do_tags_list_edit(value, field)
 

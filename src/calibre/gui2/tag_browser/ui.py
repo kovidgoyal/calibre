@@ -386,15 +386,22 @@ class TagBrowserMixin(object):  # {{{
         # refreshing the tags view happens at the emit()/call() site
 
     def do_author_sort_edit(self, parent, id_, select_sort=True,
-                            select_link=False, is_first_letter=False):
+                            select_link=False, is_first_letter=False,
+                            lookup_author=False):
         '''
         Open the manage authors dialog
         '''
 
         db = self.library_view.model().db
+        get_authors_func = partial(self.get_book_ids, db=db, category='authors')
+        if lookup_author:
+            for t in get_authors_func(use_virtual_library=False):
+                if t[1] == id_:
+                    id_ = t[0]
+                    select_sort = True
+                    break
         editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
-                                   partial(self.get_book_ids, db=db, category='authors'),
-                                   is_first_letter)
+                                   get_authors_func, is_first_letter)
         if editor.exec_() == editor.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting
