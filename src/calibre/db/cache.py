@@ -2302,6 +2302,14 @@ class Cache(object):
         return tuple(self.backend.all_annotations_for_book(book_id))
 
     @read_api
+    def all_annotation_users(self):
+        return tuple(self.backend.all_annotation_users())
+
+    @read_api
+    def all_annotation_types(self):
+        return tuple(self.backend.all_annotation_types())
+
+    @read_api
     def search_annotations(
         self,
         fts_engine_query,
