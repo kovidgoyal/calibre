@@ -5,13 +5,15 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+from textwrap import fill
 
 from PyQt5.Qt import (
-    QApplication, QComboBox, QCursor, QFont, QHBoxLayout, QIcon, QLabel, QSize,
-    QSplitter, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
+    QApplication, QCheckBox, QComboBox, QCursor, QFont, QHBoxLayout, QIcon, QLabel,
+    QSize, QSplitter, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 
-from calibre.gui2 import Application
+from calibre.gui2 import Application, gprefs
 from calibre.gui2.viewer.search import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
@@ -31,6 +33,8 @@ class BusyCursor(object):
 
 
 class AnnotsResultsDelegate(ResultsDelegate):
+
+    add_ellipsis = False
 
     def result_data(self, result):
         if not isinstance(result, dict):
@@ -79,10 +83,78 @@ class ResultsList(QTreeWidget):
                 item.setData(0, Qt.UserRole, result)
 
 
+class Restrictions(QWidget):
+
+    restrictions_changed = pyqtSignal()
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
+        h.addWidget(QLabel(_('Restrict to') + ': '))
+        la = QLabel(_('Types:'))
+        h.addWidget(la)
+        self.types_box = tb = QComboBox(self)
+        tb.la = la
+        tb.currentIndexChanged.connect(self.restrictions_changed)
+        connect_lambda(tb.currentIndexChanged, tb, lambda tb: gprefs.set('browse_annots_restrict_to_type', tb.currentData()))
+        la.setBuddy(tb)
+        tb.setToolTip(_('Show only annotations of the specified type'))
+        h.addWidget(tb)
+        la = QLabel(_('User:'))
+        h.addWidget(la)
+        self.user_box = ub = QComboBox(self)
+        ub.la = la
+        ub.currentIndexChanged.connect(self.restrictions_changed)
+        connect_lambda(ub.currentIndexChanged, ub, lambda ub: gprefs.set('browse_annots_restrict_to_user', ub.currentData()))
+        la.setBuddy(ub)
+        ub.setToolTip(_('Show only annotations created by the specified user'))
+        h.addWidget(ub)
+        h.addStretch(10)
+
+    def re_initialize(self, db):
+        tb = self.types_box
+        before = tb.currentData()
+        if not before:
+            before = gprefs['browse_annots_restrict_to_type']
+        tb.blockSignals(True)
+        tb.clear()
+        tb.addItem(' ', ' ')
+        for atype in db.all_annotation_types():
+            name = {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
+            tb.addItem(name, atype)
+        if before:
+            row = tb.findData(before)
+            if row > -1:
+                tb.setCurrentIndex(row)
+        tb.blockSignals(False)
+        tb_is_visible = tb.count() > 2
+        tb.setVisible(tb_is_visible), tb.la.setVisible(tb_is_visible)
+        tb = self.user_box
+        before = tb.currentData()
+        if not before:
+            before = gprefs['browse_annots_restrict_to_user']
+        tb.blockSignals(True)
+        tb.clear()
+        tb.addItem(' ', ' ')
+        for user_type, user in db.all_annotation_users():
+            q = '{}: {}'.format(user_type, user)
+            tb.addItem(q, '{}:{}'.format(user_type, user))
+        if before:
+            row = tb.findData(before)
+            if row > -1:
+                tb.setCurrentIndex(row)
+        tb.blockSignals(False)
+        ub_is_visible = tb.count() > 2
+        tb.setVisible(ub_is_visible), tb.la.setVisible(ub_is_visible)
+        self.setVisible(tb_is_visible or ub_is_visible)
+
+
 class BrowsePanel(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.use_stemmer = parent.use_stemmer
         self.current_query = None
         l = QVBoxLayout(self)
 
@@ -109,22 +181,10 @@ class BrowsePanel(QWidget):
         nb.clicked.connect(self.show_previous)
         nb.setToolTip(_('Find previous match'))
 
-        h = QHBoxLayout()
-        l.addLayout(h)
-        h.addWidget(QLabel(_('Restrict to') + ' '))
-        la = QLabel(_('Types:'))
-        h.addWidget(la)
-        self.types_box = tb = QComboBox(self)
-        tb.currentIndexChanged.connect(self.effective_query_changed)
-        la.setBuddy(tb)
-        h.addWidget(tb)
-        la = QLabel(_('User:'))
-        h.addWidget(la)
-        self.user_box = ub = QComboBox(self)
-        ub.currentIndexChanged.connect(self.effective_query_changed)
-        la.setBuddy(ub)
-        h.addWidget(ub)
-        h.addStretch(10)
+        self.restrictions = rs = Restrictions(self)
+        rs.restrictions_changed.connect(self.effective_query_changed)
+        self.use_stemmer.stateChanged.connect(self.effective_query_changed)
+        l.addWidget(rs)
 
         self.results_list = rl = ResultsList(self)
         l.addWidget(rl)
@@ -132,32 +192,7 @@ class BrowsePanel(QWidget):
     def re_initialize(self):
         db = current_db()
         self.search_box.setFocus(Qt.OtherFocusReason)
-        tb = self.types_box
-        before = tb.currentData()
-        tb.blockSignals(True)
-        tb.clear()
-        tb.addItem(' ', ' ')
-        for atype in db.all_annotation_types():
-            name = {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
-            tb.addItem(name, atype)
-        if before:
-            row = tb.findData(before)
-            if row > -1:
-                tb.setCurrentIndex(row)
-        tb.blockSignals(False)
-        tb = self.user_box
-        before = tb.currentData()
-        tb.blockSignals(True)
-        tb.clear()
-        tb.addItem(' ', ' ')
-        for user_type, user in db.all_annotation_users():
-            q = '{}: {}'.format(user_type, user)
-            tb.addItem(q, '{}:{}'.format(user_type, user))
-        if before:
-            row = tb.findData(before)
-            if row > -1:
-                tb.setCurrentIndex(row)
-        tb.blockSignals(False)
+        self.restrictions.re_initialize(db)
 
     def sizeHint(self):
         return QSize(450, 600)
@@ -167,17 +202,18 @@ class BrowsePanel(QWidget):
         text = self.search_box.lineEdit().text().strip()
         if not text:
             return None
-        atype = self.types_box.currentData()
+        atype = self.restrictions.types_box.currentData()
         if not atype or not atype.strip():
             atype = None
-        user = self.user_box.currentData()
+        user = self.restrictions.user_box.currentData()
         restrict_to_user = None
         if user and ':' in user:
             restrict_to_user = user.split(':', 1)
         return {
             'fts_engine_query': text,
             'annotation_type': atype,
-            'restrict_to_user': restrict_to_user
+            'restrict_to_user': restrict_to_user,
+            'use_stemming': bool(self.use_stemmer.isChecked()),
         }
 
     def cleared(self):
@@ -227,6 +263,13 @@ class AnnotationsBrowser(Dialog):
             return Dialog.keyPressEvent(self, ev)
 
     def setup_ui(self):
+        self.use_stemmer = us = QCheckBox(_('Match on related English words'))
+        us.setChecked(gprefs['browse_annots_use_stemmer'])
+        us.setToolTip(fill(_(
+            'With this option searching for words will also match on any related English words. For'
+            ' example: correction matches correcting and corrected as well')))
+        us.stateChanged.connect(lambda state: gprefs.set('browse_annots_use_stemmer', state != Qt.Unchecked))
+
         l = QVBoxLayout(self)
 
         self.splitter = s = QSplitter(self)
@@ -239,8 +282,9 @@ class AnnotationsBrowser(Dialog):
         self.details_panel = dp = DetailsPanel(self)
         s.addWidget(dp)
 
-        self.bb.setStandardButtons(self.bb.Close)
-        l.addWidget(self.bb)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
 
     def show_dialog(self):
         self.browse_panel.re_initialize()

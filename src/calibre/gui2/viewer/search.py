@@ -449,6 +449,8 @@ class SearchInput(QWidget):  # {{{
 
 class ResultsDelegate(QStyledItemDelegate):  # {{{
 
+    add_ellipsis = True
+
     def result_data(self, result):
         if not isinstance(result, SearchResult):
             return None, None, None, None
@@ -512,7 +514,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             r.setRight(x + left_width)
             painter.setFont(normal_font)
             ebefore = nfm.elidedText(before, Qt.ElideLeft, left_width)
-            if ebefore == before:
+            if self.add_ellipsis and ebefore == before:
                 ebefore = '…' + before[1:]
             r.setLeft(x)
             x += painter.drawText(r, flags, ebefore).width()
@@ -526,7 +528,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             r = rect.adjusted(0, 0, 0, 0)
             r.setLeft(x)
             eafter = nfm.elidedText(after, Qt.ElideRight, right_width)
-            if eafter == after:
+            if self.add_ellipsis and eafter == after:
                 eafter = after[:-1] + '…'
             painter.setFont(normal_font)
             painter.drawText(r, flags, eafter)
