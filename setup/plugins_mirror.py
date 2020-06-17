@@ -183,27 +183,41 @@ def convert_node(fields, x, names={}, import_data=None):
     elif name == 'BinOp':
         if x.right.__class__.__name__ == 'Str':
             return x.right.s.decode('utf-8') if isinstance(x.right.s, bytes) else x.right.s
+    elif name == 'Attribute':
+        return conv(getattr(conv(x.value), x.attr))
     raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
 
 
 Alias = namedtuple('Alias', 'name asname')
 
 
+class Module(object):
+    pass
+
+
 def get_import_data(name, mod, zf, names):
     mod = mod.split('.')
     if mod[0] == 'calibre_plugins':
         mod = mod[2:]
+    is_module_import = not mod
+    if is_module_import:
+        mod = [name]
     mod = '/'.join(mod) + '.py'
     if mod in names:
         raw = zf.open(names[mod]).read()
         module = ast.parse(raw, filename='__init__.py')
         top_level_assigments = [x for x in ast.iter_child_nodes(module) if x.__class__.__name__ == 'Assign']
+        module = Module()
         for node in top_level_assigments:
             targets = {getattr(t, 'id', None) for t in node.targets}
             targets.discard(None)
             for x in targets:
-                if x == name:
+                if is_module_import:
+                    setattr(module, x, node.value)
+                elif x == name:
                     return convert_node({x}, node.value)
+        if is_module_import:
+            return module
         raise ValueError('Failed to find name: %r in module: %r' % (name, mod))
     else:
         raise ValueError('Failed to find module: %r' % mod)
