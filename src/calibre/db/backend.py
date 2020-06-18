@@ -308,7 +308,7 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
             text = annot.get('highlighted_text') or ''
             notes = annot.get('notes') or ''
             if notes:
-                text += '\n0x1f\n' + notes
+                text += '\n\x1f\n' + notes
         else:
             continue
         data.append((book_id, fmt, user_type, user, timestamp_in_secs, aid, atype, json.dumps(annot), text))
@@ -1800,8 +1800,13 @@ class DB(object):
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
         query += ' ORDER BY {}.rank '.format(fts_table)
+        ls = json.loads
         try:
             for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
+                try:
+                    parsed_annot = ls(annot_data)
+                except Exception:
+                    continue
                 yield {
                     'id': rowid,
                     'book_id': book_id,
@@ -1809,7 +1814,7 @@ class DB(object):
                     'user_type': user_type,
                     'user': user,
                     'text': text,
-                    'annotation': annot_data
+                    'annotation': parsed_annot,
                 }
         except apsw.SQLError as e:
             raise FTSQueryError(fts_engine_query, query, e)
