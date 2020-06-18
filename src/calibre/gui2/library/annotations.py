@@ -9,11 +9,13 @@ from textwrap import fill
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QFont, QHBoxLayout, QIcon, QLabel,
-    QSize, QSplitter, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal
+    QPalette, QSize, QSplitter, Qt, QTextBrowser, QToolButton, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre.gui2 import Application, gprefs
+from calibre import prepare_string_for_xml
+from calibre.ebooks.metadata import fmt_sidx, authors_to_string
+from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.viewer.search import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
@@ -21,6 +23,12 @@ from calibre.gui2.widgets2 import Dialog
 def current_db():
     from calibre.gui2.ui import get_gui
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
+
+
+def annotation_title(atype, singular=False):
+    if singular:
+        return {'bookmark': _('Bookmark'), 'highlight': _('Highlight')}.get(atype, atype)
+    return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
 
 
 class BusyCursor(object):
@@ -54,6 +62,8 @@ class AnnotsResultsDelegate(ResultsDelegate):
 
 class ResultsList(QTreeWidget):
 
+    current_result_changed = pyqtSignal(object)
+
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
@@ -61,9 +71,14 @@ class ResultsList(QTreeWidget):
         self.setItemDelegate(self.delegate)
         self.section_font = QFont(self.font())
         self.section_font.setItalic(True)
+        self.currentItemChanged.connect(self.current_item_changed)
+        self.number_of_results = 0
+        self.item_map = []
 
     def set_results(self, results):
         self.clear()
+        self.number_of_results = 0
+        self.item_map = []
         book_id_map = {}
         db = current_db()
         for result in results:
@@ -79,8 +94,40 @@ class ResultsList(QTreeWidget):
             section.setExpanded(True)
             for result in entry['matches']:
                 item = QTreeWidgetItem(section, [' '], 2)
+                self.item_map.append(item)
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemNeverHasChildren)
                 item.setData(0, Qt.UserRole, result)
+                item.setData(0, Qt.UserRole + 1, self.number_of_results)
+                self.number_of_results += 1
+        if self.item_map:
+            self.setCurrentItem(self.item_map[0])
+
+    def current_item_changed(self, current, previous):
+        if current is not None:
+            r = current.data(0, Qt.UserRole)
+            if isinstance(r, dict):
+                self.current_result_changed.emit(r)
+        else:
+            self.current_result_changed.emit(None)
+
+    def show_next(self, backwards=False):
+        item = self.currentItem()
+        if item is None:
+            return
+        i = int(item.data(0, Qt.UserRole + 1))
+        i += -1 if backwards else 1
+        i %= self.number_of_results
+        self.setCurrentItem(self.item_map[i])
+
+    def keyPressEvent(self, ev):
+        key = ev.key()
+        if key == Qt.Key_Down:
+            self.show_next()
+            return
+        if key == Qt.Key_Up:
+            self.show_next(backwards=True)
+            return
+        return QTreeWidget.keyPressEvent(self, ev)
 
 
 class Restrictions(QWidget):
@@ -121,8 +168,7 @@ class Restrictions(QWidget):
         tb.clear()
         tb.addItem(' ', ' ')
         for atype in db.all_annotation_types():
-            name = {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
-            tb.addItem(name, atype)
+            tb.addItem(annotation_title(atype), atype)
         if before:
             row = tb.findData(before)
             if row > -1:
@@ -151,6 +197,8 @@ class Restrictions(QWidget):
 
 
 class BrowsePanel(QWidget):
+
+    current_result_changed = pyqtSignal(object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -187,6 +235,7 @@ class BrowsePanel(QWidget):
         l.addWidget(rs)
 
         self.results_list = rl = ResultsList(self)
+        rl.current_result_changed.connect(self.current_result_changed)
         l.addWidget(rl)
 
     def re_initialize(self):
@@ -243,13 +292,74 @@ class BrowsePanel(QWidget):
         self.do_find(backwards=True)
 
 
+class Details(QTextBrowser):
+
+    def __init__(self, parent):
+        QTextBrowser.__init__(self, parent)
+        self.setFrameShape(self.NoFrame)
+        self.setOpenLinks(False)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        palette = self.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.setPalette(palette)
+        self.setAcceptDrops(False)
+
+
 class DetailsPanel(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        self.current_result = None
+        l = QVBoxLayout(self)
+        self.text_browser = tb = Details(self)
+        l.addWidget(tb)
 
     def sizeHint(self):
         return QSize(450, 600)
+
+    def show_result(self, result_or_none):
+        self.current_result = r = result_or_none
+        if r is None:
+            self.text_browser.setVisible(False)
+            return
+        self.text_browser.setVisible(True)
+        db = current_db()
+        book_id = r['book_id']
+        title, authors = db.field_for('title', book_id), db.field_for('authors', book_id)
+        authors = authors_to_string(authors)
+        series, sidx = db.field_for('series', book_id), db.field_for('series_index', book_id)
+        series_text = ''
+        if series:
+            use_roman_numbers = config['use_roman_numerals_for_series_number']
+            series_text = '{0} of {1}'.format(fmt_sidx(sidx, use_roman=use_roman_numbers), series)
+        annot = r['annotation']
+        atype = annotation_title(annot['type'], singular=True)
+        book_format = r['format']
+        annot_text = ''
+        a = prepare_string_for_xml
+
+        for part in r['text'].split('\n\x1f\n'):
+            segments = []
+            for bit in part.split('\x1d'):
+                segments.append(a(bit) + ('</b>' if len(segments) % 2 else '<b>'))
+            stext = ''.join(segments)
+            if stext.endswith('<b>'):
+                stext = stext[:-3]
+            annot_text += '<div style="text-align:left">' + stext + '</div><div>&nbsp;</div>'
+
+        text = '''
+        <h2 style="text-align: center">{title} [{book_format}]</h2>
+        <div style="text-align: center">{authors}</div>
+        <div style="text-align: center">{series}</div>
+        <div>&nbsp;</div>
+        <div>&nbsp;</div>
+        <h2 style="text-align: left">{atype}</h2>
+        {text}
+        '''.format(
+            title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
+            atype=a(atype), text=annot_text
+        )
+        self.text_browser.setHtml(text)
 
 
 class AnnotationsBrowser(Dialog):
@@ -281,6 +391,7 @@ class AnnotationsBrowser(Dialog):
 
         self.details_panel = dp = DetailsPanel(self)
         s.addWidget(dp)
+        bp.current_result_changed.connect(dp.show_result)
 
         h = QHBoxLayout()
         l.addLayout(h)
