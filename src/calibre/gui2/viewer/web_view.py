@@ -35,6 +35,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from polyglot.builtins import as_bytes, hasenv, iteritems, unicode_type
+from polyglot.functools import lru_cache
 
 try:
     from PyQt5 import sip
@@ -116,11 +117,35 @@ def send_reply(rq, mime_type, data):
     rq.reply(mime_type.encode('ascii'), buf)
 
 
+@lru_cache(maxsize=2)
+def get_mathjax_dir():
+    return P('mathjax', allow_user_override=False)
+
+
+def handle_mathjax_request(rq, name):
+    mathjax_dir = get_mathjax_dir()
+    path = os.path.abspath(os.path.join(mathjax_dir, '..', name))
+    if path.startswith(mathjax_dir):
+        mt = guess_type(name)
+        try:
+            with lopen(path, 'rb') as f:
+                raw = f.read()
+        except EnvironmentError as err:
+            prints("Failed to get mathjax file: {} with error: {}".format(name, err), file=sys.stderr)
+            rq.fail(rq.RequestFailed)
+            return
+        if name.endswith('/startup.js'):
+            raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
+        send_reply(rq, mt, raw)
+    else:
+        prints("Failed to get mathjax file: {} outside mathjax directory".format(name), file=sys.stderr)
+        rq.fail(rq.RequestFailed)
+
+
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def __init__(self, parent=None):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
-        self.mathjax_dir = P('mathjax', allow_user_override=False)
         self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
 
     def requestStarted(self, rq):
@@ -168,18 +193,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             else:
                 rq.fail(rq.UrlNotFound)
         elif name.startswith('mathjax/'):
-            path = os.path.abspath(os.path.join(self.mathjax_dir, '..', name))
-            if path.startswith(self.mathjax_dir):
-                mt = guess_type(name)
-                try:
-                    with lopen(path, 'rb') as f:
-                        raw = f.read()
-                except EnvironmentError as err:
-                    prints("Failed to get mathjax file: {} with error: {}".format(name, err))
-                    return self.fail_request(rq, rq.RequestFailed)
-                if name.endswith('/startup.js'):
-                    raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
-                send_reply(rq, mt, raw)
+            handle_mathjax_request(rq, name)
         elif not name:
             send_reply(rq, 'text/html', viewer_html())
         else:
