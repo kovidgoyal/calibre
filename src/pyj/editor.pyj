@@ -9,6 +9,10 @@ from live_css import get_matched_css, get_sourceline_address
 from qt import from_python, to_python
 
 
+FAKE_HOST = '__FAKE_HOST__'
+FAKE_PROTOCOL = '__FAKE_PROTOCOL__'
+
+
 def is_hidden(elem):
     while elem:
         if (elem.style and (elem.style.visibility is 'hidden' or elem.style.display is 'none')):
@@ -168,6 +172,22 @@ def live_css(editor_name, sourceline, tags):
         to_python.live_css_data(ans)
 
 
+def check_for_maths():
+    if document.body.getElementsByTagNameNS('http://www.w3.org/1998/Math/MathML', 'math').length > 0:
+        return True
+    for s in document.scripts:
+        if s.type is 'text/x-mathjax-config':
+            return True
+    return False
+
+
+def load_mathjax():
+    script = E.script(type='text/javascript')
+    script.async = True
+    script.src = f'{FAKE_PROTOCOL}://{FAKE_HOST}/calibre_internal-mathjax/startup.js'
+    document.head.appendChild(script)
+
+
 document.body.addEventListener('click', onclick, True)
 document.documentElement.appendChild(E.style(
     type='text/css',
@@ -175,3 +195,5 @@ document.documentElement.appendChild(E.style(
 ))
 
 fix_fullscreen_svg_images()
+if check_for_maths():
+    load_mathjax()

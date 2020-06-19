@@ -387,7 +387,10 @@ def compile_editor():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'editor.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname).replace('__SPECIAL_TITLE__', special_title, 1)
+        js = compile_fast(f.read(), fname).replace(
+            '__SPECIAL_TITLE__', special_title, 1).replace(
+            '__FAKE_PROTOCOL__', FAKE_PROTOCOL, 1).replace(
+            '__FAKE_HOST__', FAKE_HOST, 1)
     base = os.path.join(base, 'resources')
     atomic_write(base, 'editor.js', js)
 

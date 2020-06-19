@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
-from calibre.gui2.viewer.web_view import send_reply
+from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
@@ -176,6 +176,9 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             return
         name = url.path()[1:]
         try:
+            if name.startswith('calibre_internal-mathjax/'):
+                handle_mathjax_request(rq, name.partition('-')[-1])
+                return
             c = current_container()
             if not c.has_name(name):
                 rq.fail(rq.UrlNotFound)
