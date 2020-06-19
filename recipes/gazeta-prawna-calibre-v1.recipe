@@ -7,8 +7,9 @@ __author__ = u'Tomasz Jozwiak'
 gazetaprawna.pl
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from datetime import date
+
 
 class gazetaprawna(BasicNewsRecipe):
     version = 2
@@ -27,7 +28,7 @@ class gazetaprawna(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     use_embedded_content = False
     oldest_article = 1
- 
+
     extra_css = '''
         .psavBigImgTitle {font-size:50%;}
         .psavImgContent {font-size:50%;}
@@ -67,8 +68,8 @@ class gazetaprawna(BasicNewsRecipe):
         parsed_feeds = BasicNewsRecipe.parse_feeds(self)
         for n, feed in enumerate(parsed_feeds):
             for a, article in enumerate(feed):
-                article.text_summary = re.sub(u'<\!\[CDATA\[', "", article.text_summary)
-                article.text_summary = re.sub(u'\]\]', "", article.text_summary)
+                article.text_summary = re.sub(r'<\!\[CDATA\[', "", article.text_summary)
+                article.text_summary = re.sub(r'\]\]', "", article.text_summary)
                 article.summary = article.text_summary
 
         return parsed_feeds
@@ -78,7 +79,7 @@ class gazetaprawna(BasicNewsRecipe):
             for img_tag in Img.findAll(name='img', attrs={'data-src': True}):
                 img_tag['src'] = img_tag['data-src']
                 del img_tag['data-src']
-                #print(Img.prettify())
+                # print(Img.prettify())
 
         for span in soup.findAll(name='span'):
             if len(self.tag_to_string(span)) > 1:
