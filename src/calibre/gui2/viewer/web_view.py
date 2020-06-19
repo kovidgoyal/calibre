@@ -178,34 +178,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                     prints("Failed to get mathjax file: {} with error: {}".format(name, err))
                     return self.fail_request(rq, rq.RequestFailed)
                 if name.endswith('/startup.js'):
-                    raw = b'''
-                    window.MathJax = {};
-                    window.MathJax.options = {
-                        renderActions: {
-                            // disable the mathjax context menu
-                            addMenu: [0, '', ''],
-                        },
-                    };
-                    window.MathJax.loader = {
-                        load: ['input/tex-full', 'input/asciimath', 'input/mml', 'output/chtml'],
-                    };
-                    window.MathJax.startup = {
-                        ready: () => {
-                            MathJax.startup.defaultReady();
-                            MathJax.startup.promise.then(() => {
-                                document.documentElement.dispatchEvent(new CustomEvent("calibre-mathjax-typeset-done"));
-                            });
-                        },
-                    };
-                    for (const s of document.scripts) {
-                        if (s.type === "text/x-mathjax-config") {
-                            es = document.createElement('script');
-                            es.text = s.text;
-                            document.head.appendChild(es);
-                            document.head.removeChild(es);
-                        }
-                    }
-                    ''' + raw
+                    raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
                 send_reply(rq, mt, raw)
         elif not name:
             send_reply(rq, 'text/html', viewer_html())
