@@ -20,6 +20,33 @@
 #   new recipes:
 #     - title:
 
+- version: 4.19.0
+  date: 2020-06-19
+
+  new features:
+    - title: "Manage authors dialog: Improve performance in very large libraries"
+
+  bug fixes:
+    - title: "Book details panel: Fix a regression that caused right clicking on an author name to manage it not opening with that name selected."
+      tickets: [1883768]
+
+    - title: "calibredb set_metadata: When converting a string into a datetime if the string is a full ISO 8601 date with timezone do not adjust the date to make it timezone neutral."
+      tickets: [1883433]
+
+    - title: "Edit book: Fix Check book spuriously reporting incorrect mime type warnings for fonts after upgrading a book from EPUB 2 to EPUB 3."
+      tickets: [1882436]
+
+    - title: "Book details panel: Dont show sizes less than 0.01MB as zero."
+      tickets: [1882469]
+
+    - title: "Viewer: Fix jump to previous section not working when viewer is on last section"
+
+  improved recipes:
+    - Journal of Accountancy
+    - Bangkok Post
+    - "20 minutes"
+
+
 - version: 4.18.0
   date: 2020-06-05
 
