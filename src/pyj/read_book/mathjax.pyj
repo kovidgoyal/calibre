@@ -16,75 +16,20 @@ def get_url(mathjax_files, name):
     return ans
 
 
-def monkeypatch(mathjax_files):
-    StyleString = window.MathJax.Ajax.StyleString.bind(window.MathJax.Ajax)
-
-    def style_string(styles):
-        # replace the URLs in the generated stylesheet
-        return StyleString(styles).replace(/url\('?(.*?)'?\)/g, def (match, url):
-            if not url.endsWith('.woff'):
-                return match
-            url = get_url(mathjax_files, url)
-            ans = f"url('{url}')"
-            return ans
-        )
-
-    orig = window.MathJax.Ajax.fileURL.bind(window.MathJax.Ajax)
-    def file_url(file):
-        ans = orig(file)
-        name = ans.lstrip('/')
-        if name.startswith('../fonts'):
-            name = name[3:]
-        if name.rpartition('/')[-1] in 'otf eot woff':
-            return name
-        ans = get_url(mathjax_files, name)
-        if ans is name and not name.startswith('blob:'):
-            if ans.endswith('.eot') or ans.endswith('.otf'):
-                return ''
-            print('WARNING: Failed to resolve MathJax file:', name)
-        return ans
-    window.MathJax.Ajax.fileURL = file_url
-    window.MathJax.Ajax.StyleString = style_string
-    window.MathJax.Ajax.fileRev = def(file):
-        return ''
-
-def postprocess(link_uid, proceed):
+def postprocess(link_uid):
     for a in document.getElementsByTagName('a'):
         href = a.getAttribute('href')
         if href.startswith('#'):
             a.setAttribute('href', 'javascript: void(0)')
             a.setAttribute('data-' + link_uid, JSON.stringify({'frag':href[1:]}))
-    proceed()
 
-def init_mathjax(mathjax_files, link_uid, proceed):
-    monkeypatch(mathjax_files)
-    window.MathJax.Hub.Register.StartupHook("End", postprocess.bind(this, link_uid, proceed))
 
 def apply_mathjax(mathjax_files, link_uid, proceed):
-    window.MathJax = m = v'{}'
-    m.positionToHash = False
-    m.showMathMenu = False
-    m.showMathMenuMSIE = False
-    m.extensions = "tex2jax.js asciimath2jax.js mml2jax.js".split(' ')
-    m.jax = "input/TeX input/MathML input/AsciiMath output/CommonHTML".split(' ')
-    m.TeX = v'{}'
-    m.TeX.extensions = "AMSmath.js AMSsymbols.js noErrors.js noUndefined.js".split(' ')
-    m.CommonHTML = v'{ linebreaks: { automatic: true} }'
+    document.documentElement.addEventListener("calibre-mathjax-typeset-done", def(ev):
+        postprocess(link_uid)
+        proceed()
+    )
     script = E.script(type='text/javascript')
+    script.async = True
+    script.src = f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/mathjax/startup.js'
     document.head.appendChild(script)
-    if runtime.is_standalone_viewer:
-        script.onload = def():
-            ev = new CustomEvent("calibre-mathjax-init", {
-                'detail': {
-                    'MathJax': m,
-                    'link_uid': link_uid,
-                    'mathjax_files': mathjax_files,
-                }
-            })
-            document.documentElement.dispatchEvent(ev)
-        document.documentElement.addEventListener("calibre-mathjax-init-done", def(ev):
-            proceed()
-        )
-    else:
-        m.AuthorInit = init_mathjax.bind(this, mathjax_files, link_uid, proceed)
-    script.src = get_url(mathjax_files, 'MathJax.js')

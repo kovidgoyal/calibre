@@ -7,7 +7,6 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, json
-from io import BytesIO
 from hashlib import sha1
 
 
@@ -19,9 +18,8 @@ class MathJax(ReVendor):
     description = 'Create the MathJax bundle'
     NAME = 'mathjax'
     TAR_NAME = 'MathJax'
-    VERSION = '2.7.6'
+    VERSION = '3.0.5'
     DOWNLOAD_URL = 'https://github.com/mathjax/MathJax/archive/%s.tar.gz' % VERSION
-    FONT_FAMILY = 'TeX'
 
     def add_file_pre(self, name, raw):
         self.h.update(raw)
@@ -46,14 +44,10 @@ class MathJax(ReVendor):
         with self.temp_dir(suffix='-calibre-mathjax-build') as tdir:
             src = opts.path_to_mathjax or self.download_vendor_release(tdir, opts.mathjax_url)
             self.info('Adding MathJax...')
-            unpacked = 'unpacked' if self.e(self.j(src, 'unpacked')) else ''
-            self.add_file(self.j(src, unpacked, 'MathJax.js'), 'MathJax.js')
+            for x in 'core loader startup input/tex-full input/asciimath input/mml input/mml/entities output/chtml'.split():
+                self.add_file(self.j(src, 'es5', x + '.js'), x + '.js')
             self.add_tree(
-                self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'),
-                'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY,
-                lambda x: not x.endswith('.woff'))
-            for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
-                self.add_tree(self.j(src, unpacked, *d.split('/')), d)
+                self.j(src, 'es5', 'output', 'chtml'), 'output/chtml')
             etag = self.h.hexdigest()
             with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
                 f.write(json.dumps({'etag': etag, 'files': self.mathjax_files, 'version': self.VERSION}, indent=2).encode('utf-8'))

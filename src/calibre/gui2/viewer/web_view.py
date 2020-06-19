@@ -121,7 +121,6 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
     def __init__(self, parent=None):
         QWebEngineUrlSchemeHandler.__init__(self, parent)
         self.mathjax_dir = P('mathjax', allow_user_override=False)
-        self.mathjax_manifest = None
         self.allowed_hosts = (FAKE_HOST, SANDBOX_HOST)
 
     def requestStarted(self, rq):
@@ -132,7 +131,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
             return self.fail_request(rq)
         name = url.path()[1:]
-        if host == SANDBOX_HOST and not name.startswith('book/'):
+        if host == SANDBOX_HOST and name.partition('/')[0] not in ('book', 'mathjax'):
             return self.fail_request(rq)
         if name.startswith('book/'):
             name = name.partition('/')[2]
@@ -169,14 +168,6 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             else:
                 rq.fail(rq.UrlNotFound)
         elif name.startswith('mathjax/'):
-            from calibre.gui2.viewer.mathjax import monkeypatch_mathjax
-            if name == 'mathjax/manifest.json':
-                if self.mathjax_manifest is None:
-                    import json
-                    from calibre.srv.books import get_mathjax_manifest
-                    self.mathjax_manifest = as_bytes(json.dumps(get_mathjax_manifest()['files']))
-                send_reply(rq, 'application/json', self.mathjax_manifest)
-                return
             path = os.path.abspath(os.path.join(self.mathjax_dir, '..', name))
             if path.startswith(self.mathjax_dir):
                 mt = guess_type(name)
@@ -186,10 +177,35 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 except EnvironmentError as err:
                     prints("Failed to get mathjax file: {} with error: {}".format(name, err))
                     return self.fail_request(rq, rq.RequestFailed)
-                if 'MathJax.js' in name:
-                    # raw = open(os.path.expanduser('~/work/mathjax/unpacked/MathJax.js')).read()
-                    raw = monkeypatch_mathjax(raw.decode('utf-8')).encode('utf-8')
-
+                if name.endswith('/startup.js'):
+                    raw = b'''
+                    window.MathJax = {};
+                    window.MathJax.options = {
+                        renderActions: {
+                            // disable the mathjax context menu
+                            addMenu: [0, '', ''],
+                        },
+                    };
+                    window.MathJax.loader = {
+                        load: ['input/tex-full', 'input/asciimath', 'input/mml', 'output/chtml'],
+                    };
+                    window.MathJax.startup = {
+                        ready: () => {
+                            MathJax.startup.defaultReady();
+                            MathJax.startup.promise.then(() => {
+                                document.documentElement.dispatchEvent(new CustomEvent("calibre-mathjax-typeset-done"));
+                            });
+                        },
+                    };
+                    for (const s of document.scripts) {
+                        if (s.type === "text/x-mathjax-config") {
+                            es = document.createElement('script');
+                            es.text = s.text;
+                            document.head.appendChild(es);
+                            document.head.removeChild(es);
+                        }
+                    }
+                    ''' + raw
                 send_reply(rq, mt, raw)
         elif not name:
             send_reply(rq, 'text/html', viewer_html())
