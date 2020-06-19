@@ -24,12 +24,69 @@ def postprocess(link_uid):
             a.setAttribute('data-' + link_uid, JSON.stringify({'frag':href[1:]}))
 
 
-def apply_mathjax(mathjax_files, link_uid, proceed):
-    document.documentElement.addEventListener("calibre-mathjax-typeset-done", def(ev):
-        postprocess(link_uid)
-        proceed()
-    )
+def load_mathjax(src):
     script = E.script(type='text/javascript')
     script.async = True
-    script.src = f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/mathjax/startup.js'
+    script.src = src
     document.head.appendChild(script)
+
+
+def apply_mathjax(mathjax_files, link_uid, proceed):
+    if runtime.is_standalone_viewer:
+        document.documentElement.addEventListener("calibre-mathjax-typeset-done", def(ev):
+            postprocess(link_uid)
+            proceed()
+        )
+        load_mathjax(f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/mathjax/startup.js')
+        return
+    window.MathJax = v'{}'
+    window.MathJax.startup = {
+        'ready': def ():
+            window.MathJax.startup.defaultReady()
+            # monkeypatch the method responsible for mapping font URLs
+            # to use our blob URLs, see https://github.com/mathjax/MathJax/issues/2458
+            window.MathJax.startup.output.font.addFontURLs = def (styles, fonts, url):
+                base = url.partition('/')[2]
+                for name in fonts:
+                    clone = v'{}'
+                    font = fonts[name]
+                    for key in Object.keys(font):
+                        clone[key] = font[key]
+                    font_name = clone.src.partition('/')[2].partition('"')[0]
+                    full_name = base + '/' + font_name
+                    src = get_url(mathjax_files, full_name)
+                    clone.src = clone.src.replace(/".+?"/, f'"{src}"')
+                    styles[name] = clone
+            window.MathJax.startup.promise.then(def():
+                postprocess(link_uid)
+                proceed()
+            )
+        ,
+    }
+
+    # also do any changes in pdf-mathjax-loader.js for the standalone
+    # viewer/editor/pdf outpu
+    window.MathJax.loader = {
+        'load': v"['input/tex-full', 'input/asciimath', 'input/mml', 'output/chtml']",
+        'require': def (url):
+            return new Promise(def (resolve, reject):
+                name = url.partition('/')[2]
+                script = document.createElement('script')
+                script.charset = 'UTF-8'
+                script.onload = def ():
+                    resolve(url)
+                script.onerror = def ():
+                    reject(url)
+                script.src = get_url(mathjax_files, name)
+                document.head.appendChild(script)
+            )
+        ,
+    }
+
+    for s in document.scripts:
+        if s.type is 'text/x-mathjax-config':
+            es = document.createElement('script')
+            es.text = s.text
+            document.head.appendChild(es)
+            document.head.removeChild(es)
+    load_mathjax(get_url(mathjax_files, 'startup.js'))

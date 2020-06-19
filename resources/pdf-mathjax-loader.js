@@ -15,6 +15,7 @@
         if (for_pdf_renderer) document.title = "mathjax-load-complete";
         else document.documentElement.dispatchEvent(new CustomEvent("calibre-mathjax-typeset-done"));
     }
+    // also do any changes in mathjax.pyj for the in-browser reader
     window.MathJax = {};
     window.MathJax.options = {
         renderActions: {
