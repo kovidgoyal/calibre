@@ -487,7 +487,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             c = self.table.item(row, 1)
             txt = author_to_author_sort(aut)
             self.authors[id_]['sort'] = txt
-            c.setText(txt) # This triggers another cellChanged event
+            c.setText(txt)  # This triggers another cellChanged event
             item = c
         else:
             item  = self.table.item(row, col)
