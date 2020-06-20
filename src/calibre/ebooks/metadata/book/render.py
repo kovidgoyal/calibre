@@ -242,7 +242,7 @@ def mi_to_html(
             if not mi.languages:
                 continue
             names = filter(None, map(calibre_langcode_to_name, mi.languages))
-            names = ['<a href="%s" title="%s">%s</a>' % (search_action('languages', n), _(
+            names = ['<a href="%s" title="%s">%s</a>' % (search_action_with_data('languages', n, book_id), _(
                 'Search calibre for books with the language: {}').format(n), n) for n in names]
             ans.append((field, row % (name, u', '.join(names))))
         elif field == 'publisher':
