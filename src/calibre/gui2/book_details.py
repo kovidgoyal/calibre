@@ -98,6 +98,7 @@ def init_manage_action(ac, field, value):
     ac.current_fmt = field, value
     return ac
 
+
 def init_find_in_tag_browser(menu, ac, field, value):
     from calibre.gui2.ui import get_gui
     hidden_cats = get_gui().tags_view.model().hidden_categories
@@ -106,6 +107,7 @@ def init_find_in_tag_browser(menu, ac, field, value):
         ac.setText(_('Find %s in Tag browser') % value)
         ac.current_fmt = field, value
         menu.addAction(ac)
+
 
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
     func = render_data_func or render_data
@@ -291,6 +293,7 @@ def add_item_specific_entries(menu, data, book_info):
             ac.setText(_('Remove %s from this book') % value)
             menu.addAction(ac)
     return search_internet_added
+
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     url = view.anchorAt(ev.pos())
