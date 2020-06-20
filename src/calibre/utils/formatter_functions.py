@@ -1634,6 +1634,28 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
             return 'yes'
         return ""
 
+class BuiltinRatingToStars(BuiltinFormatterFunction):
+    name = 'rating_to_stars'
+    arg_count = 2
+    category = 'Formatting values'
+    __doc__ = doc = _('rating_to_stars(value, use_half_stars) '
+                      '-- Returns the rating as string of star characters. '
+                      'The value is a number between 0 and 5. Set use_half_stars '
+                      'to 1 if you want half star characters for custom ratings '
+                      'columns that support non-integer ratings, for example 2.5.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, value, use_half_stars):
+        if not value:
+            return ''
+        err_msg = _('The rating must be a number between 0 and 5')
+        try:
+            v = float(value) * 2
+        except:
+            raise ValueError(err_msg)
+        if v < 0 or v > 10:
+            raise ValueError(err_msg)
+        from calibre.ebooks.metadata import rating_to_stars
+        return rating_to_stars(v, use_half_stars == '1')
 
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
@@ -1650,7 +1672,7 @@ _formatter_builtins = [
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
     BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
-    BuiltinOr(), BuiltinPrint(), BuiltinRawField(), BuiltinRawList(),
+    BuiltinOr(), BuiltinPrint(), BuiltinRatingToStars(), BuiltinRawField(), BuiltinRawList(),
     BuiltinRe(), BuiltinReGroup(), BuiltinSelect(), BuiltinSeriesSort(),
     BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
