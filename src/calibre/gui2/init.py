@@ -677,6 +677,7 @@ class LayoutMixin(object):  # {{{
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
         self.book_details.manage_category.connect(self.manage_category_triggerred)
+        self.book_details.find_in_tag_browser.connect(self.find_in_tag_browser_triggered)
         self.book_details.edit_identifiers.connect(self.edit_identifiers_triggerred)
         self.book_details.compare_specific_format.connect(self.compare_format)
 
@@ -705,6 +706,13 @@ class LayoutMixin(object):  # {{{
                                          select_link=False, lookup_author=True)
             elif field:
                 self.do_tags_list_edit(value, field)
+
+    def find_in_tag_browser_triggered(self, field, value):
+        if field and value:
+            tb = self.stack.tb_widget
+            tb.set_focus_to_find_box()
+            tb.item_search.lineEdit().setText(field + ':=' + value)
+            tb.do_find()
 
     def toggle_grid_view(self, show):
         self.library_view.alternate_views.show_view('grid' if show else None)

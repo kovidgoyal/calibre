@@ -31,7 +31,7 @@ from calibre.gui2.dnd import (
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.config import tweaks
 from calibre.utils.img import blend_image, image_from_x
-from calibre.utils.localization import is_rtl
+from calibre.utils.localization import is_rtl, langnames_to_langcodes
 from calibre.utils.serialize import json_loads
 from polyglot.binary import from_hex_bytes
 from polyglot.builtins import unicode_type
@@ -98,6 +98,14 @@ def init_manage_action(ac, field, value):
     ac.current_fmt = field, value
     return ac
 
+def init_find_in_tag_browser(menu, ac, field, value):
+    from calibre.gui2.ui import get_gui
+    hidden_cats = get_gui().tags_view.model().hidden_categories
+    if field not in hidden_cats:
+        ac.setIcon(QIcon(I('search.png')))
+        ac.setText(_('Find %s in Tag browser') % value)
+        ac.current_fmt = field, value
+        menu.addAction(ac)
 
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
     func = render_data_func or render_data
@@ -230,6 +238,7 @@ def add_format_entries(menu, data, book_info):
 
 def add_item_specific_entries(menu, data, book_info):
     search_internet_added = False
+    find_action = book_info.find_in_tag_browser_action
     dt = data['type']
     if dt == 'format':
         add_format_entries(menu, data, book_info)
@@ -241,6 +250,7 @@ def add_item_specific_entries(menu, data, book_info):
             ac.setText(_('&Copy author link'))
             menu.addAction(ac)
         menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
+        init_find_in_tag_browser(menu, find_action, 'authors', author)
         if hasattr(book_info, 'search_internet'):
             menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
             menu.addMenu(sia)
@@ -267,16 +277,20 @@ def add_item_specific_entries(menu, data, book_info):
                 ac.current_url = value
                 ac.setText(_('&Copy identifier'))
                 menu.addAction(ac)
-                menu.addAction(book_info.edit_identifiers_action)
                 remove_value = data['id_type']
+                init_find_in_tag_browser(menu, find_action, field, remove_value)
+                menu.addAction(book_info.edit_identifiers_action)
             elif field in ('tags', 'series', 'publisher') or is_category(field):
+                init_find_in_tag_browser(menu, find_action, field, value)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
+            elif field == 'languages':
+                remove_value = langnames_to_langcodes((value,)).get(value, 'Unknown')
+                init_find_in_tag_browser(menu, find_action, field, value)
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
             ac.setText(_('Remove %s from this book') % value)
             menu.addAction(ac)
     return search_internet_added
-
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     url = view.anchorAt(ev.pos())
@@ -553,6 +567,7 @@ class BookInfo(HTMLDisplay):
     open_fmt_with = pyqtSignal(int, object, object)
     edit_book = pyqtSignal(int, object)
     edit_identifiers = pyqtSignal()
+    find_in_tag_browser = pyqtSignal(object, object)
 
     def __init__(self, vertical, parent=None):
         HTMLDisplay.__init__(self, parent)
@@ -563,6 +578,7 @@ class BookInfo(HTMLDisplay):
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
             ('compare_format', 'diff.png'),
             ('set_cover_format', 'default_cover.png'),
+            ('find_in_tag_browser', 'search.png')
         ]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None
@@ -614,6 +630,10 @@ class BookInfo(HTMLDisplay):
 
     def copy_link_triggerred(self):
         self.context_action_triggered('copy_link')
+
+    def find_in_tag_browser_triggerred(self):
+        if self.find_in_tag_browser_action.current_fmt:
+            self.find_in_tag_browser.emit(*self.find_in_tag_browser_action.current_fmt)
 
     def manage_action_triggered(self):
         if self.manage_action.current_fmt:
@@ -767,6 +787,7 @@ class BookDetails(QWidget):  # {{{
     edit_identifiers = pyqtSignal()
     open_fmt_with = pyqtSignal(int, object, object)
     edit_book = pyqtSignal(int, object)
+    find_in_tag_browser = pyqtSignal(object, object)
 
     # Drag 'n drop {{{
 
@@ -844,6 +865,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.compare_format.connect(self.compare_specific_format)
         self.book_info.copy_link.connect(self.copy_link)
         self.book_info.manage_category.connect(self.manage_category)
+        self.book_info.find_in_tag_browser.connect(self.find_in_tag_browser)
         self.book_info.edit_identifiers.connect(self.edit_identifiers)
         self.setCursor(Qt.PointingHandCursor)
 
