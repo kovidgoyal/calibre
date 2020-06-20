@@ -1634,6 +1634,7 @@ class BuiltinCheckYesNo(BuiltinFormatterFunction):
             return 'yes'
         return ""
 
+
 class BuiltinRatingToStars(BuiltinFormatterFunction):
     name = 'rating_to_stars'
     arg_count = 2
@@ -1656,6 +1657,7 @@ class BuiltinRatingToStars(BuiltinFormatterFunction):
             raise ValueError(err_msg)
         from calibre.ebooks.metadata import rating_to_stars
         return rating_to_stars(v, use_half_stars == '1')
+
 
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
