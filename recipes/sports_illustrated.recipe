@@ -7,6 +7,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def absolutize(href):
+    if href.startswith('/'):
+        href = 'https://www.si.com' + href
+    return href
+
+
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={
@@ -25,11 +31,11 @@ class SI(BasicNewsRecipe):
     remove_attributes = ['style']
 
     keep_only_tags = [
-        classes('headline article-content'),
+        classes('m-detail-header m-detail--body'),
     ]
     remove_tags = [
-        classes('media-video OUTBRAIN'),
-        dict(name='meta'),
+        classes('media-video OUTBRAIN m-in-content-ad-row'),
+        dict(name=['button', 'meta', 'source']),
     ]
 
     def get_browser(self, *args, **kwargs):
@@ -42,20 +48,24 @@ class SI(BasicNewsRecipe):
             tag.name = 'img'
             del tag.contents[:]
             tag['src'] = tag['data-src']
+            tag['height'] = tag['width'] = ''
         return soup
 
-    feeds = [
-            ('Top stories', 'https://www.si.com/rss/si_topstories.rss'),
-            ('NFL', 'https://www.si.com/rss/si_nfl.rss'),
-            ('College Football', 'https://www.si.com/rss/si_ncaaf.rss'),
-            ('MLB', 'https://www.si.com/rss/si_mlb.rss'),
-            ('NBA', 'https://www.si.com/rss/si_nba.rss'),
-            ('College basketball', 'https://www.si.com/rss/si_ncaab.rss'),
-            ('NHL', 'https://www.si.com/rss/si_hockey.rss'),
-            ('Soccer', 'https://www.si.com/rss/si_soccer.rss'),
-            ('Tennis', 'https://www.si.com/rss/si_tennis.rss'),
-            ('Fantasy', 'https://www.si.com/rss/si_fantasy.rss'),
-            ('MMA', 'https://www.si.com/rss/si_mma.rss'),
-            ('Swim Daily', 'https://www.si.com/rss/si_swim_daily.rss'),
-            ('Writers', 'https://www.si.com/rss/si_writers.rss'),
-    ]
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.si.com/')
+        # from calibre.utils.ipython import ipython
+        # ipython({'soup': soup})
+        cats = {}
+        for ps in soup.findAll('phoenix-super-link'):
+            h2 = ps.find('h2')
+            title = self.tag_to_string(h2)
+            label = ps.find(attrs={'phx-track-id': 'Label'})
+            category = self.tag_to_string(label) if label is not None else 'Features'
+            url = absolutize(ps['href'])
+            arts = cats.setdefault(category, [])
+            arts.append({'title': title, 'url': url})
+            self.log('Found article', title)
+        ans = []
+        for key in sorted(cats, key=lambda x: x.lower()):
+            ans.append((key, cats[key]))
+        return ans
