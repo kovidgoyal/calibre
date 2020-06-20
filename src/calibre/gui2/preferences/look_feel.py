@@ -127,7 +127,7 @@ class IdLinksRuleEdit(Dialog):
         self.l = l = QFormLayout(self)
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         l.addRow(QLabel(_(
-            'The key of the identifier, for example, in isbn:XXX, the key is ISBN')))
+            'The key of the identifier, for example, in isbn:XXX, the key is "isbn"')))
         self.key = k = QLineEdit(self)
         l.addRow(_('&Key:'), k)
         l.addRow(QLabel(_(
