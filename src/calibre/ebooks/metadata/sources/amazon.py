@@ -421,7 +421,7 @@ class Worker(Thread):  # Get details {{{
             self.cover_url = self.parse_cover(root, raw)
         except:
             self.log.exception('Error parsing cover for url: %r' % self.url)
-        if self.cover_url_processor is not None and self.cover_url.startswith('/'):
+        if self.cover_url_processor is not None and self.cover_url and self.cover_url.startswith('/'):
             self.cover_url = self.cover_url_processor(self.cover_url)
         mi.has_cover = bool(self.cover_url)
 
@@ -908,7 +908,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 13)
+    version = (1, 2, 14)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
