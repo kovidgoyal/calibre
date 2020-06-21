@@ -505,6 +505,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
         self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.pubdate_cw = CalendarWidget(self.pubdate)
+        self.pubdate_cw.setVerticalHeaderFormat(self.pubdate_cw.NoVerticalHeader)
         self.pubdate.setCalendarWidget(self.pubdate_cw)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format == 'iso':
@@ -517,6 +518,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.adddate.setDateTime(QDateTime.currentDateTime())
         self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.adddate_cw = CalendarWidget(self.adddate)
+        self.adddate_cw.setVerticalHeaderFormat(self.adddate_cw.NoVerticalHeader)
         self.adddate.setCalendarWidget(self.adddate_cw)
         adddate_format = tweaks['gui_timestamp_display_format']
         if adddate_format == 'iso':
