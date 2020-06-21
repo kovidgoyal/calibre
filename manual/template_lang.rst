@@ -84,7 +84,7 @@ If you want only the first two letters of the data, use::
 
    {author_sort:.2} - Only the first two letter of the author sort name
 
-The calibre template language comes from Python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/2/library/string.html#format-string-syntax>`_.
+The calibre template language comes from Python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/library/string.html#format-string-syntax>`_.
 
 Advanced features
 ------------------

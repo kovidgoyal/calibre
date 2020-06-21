@@ -166,7 +166,7 @@ calibre is the directory that contains the src and resources sub-directories.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``C:\Users\kovid\work\calibre\src``. `Here is a short
-guide <https://docs.python.org/2/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
+guide <https://docs.python.org/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
 variables on Windows.
 
 Once you have set the environment variable, open a new command prompt and check that it was correctly set by using
@@ -333,7 +333,7 @@ the debugging session::
     calibre-debug -c "from calibre.rpdb import cli; cli()"
 
 You can read about how to use the Python debugger in the `Python stdlib docs
-for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands>`_.
+for the pdb module <https://docs.python.org/library/pdb.html#debugger-commands>`_.
 
 .. note::
     By default, the remote debugger will try to connect on port 4444. You can

@@ -303,7 +303,7 @@ class XMLConfig(dict):
     Similar to :class:`DynamicConfig`, except that it uses an XML storage
     backend instead of a pickle file.
 
-    See `https://docs.python.org/dev/library/plistlib.html`_ for the supported
+    See `https://docs.python.org/library/plistlib.html`_ for the supported
     data types.
     '''
 
