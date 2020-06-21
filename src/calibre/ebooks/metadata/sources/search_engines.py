@@ -20,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 3)
+current_version = (1, 0, 4)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -241,7 +241,7 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
             continue
         title = tostring(a)
         try:
-            c = div.xpath('descendant::div[@role="menu"]//a[@class="fl"]')[0]
+            c = div.xpath('descendant::*[@role="menu"]//a[@class="fl"]')[0]
         except IndexError:
             log('Ignoring {!r} as it has no cached page'.format(title))
             continue
