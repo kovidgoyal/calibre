@@ -108,33 +108,38 @@ class CheckLibrary(object):
 
             # Look for titles in the author directories
             found_titles = False
-            for title_dir in os.listdir(auth_path):
-                if self.ignore_name(title_dir):
-                    continue
-                title_path = os.path.join(auth_path, title_dir)
-                db_path = os.path.join(auth_dir, title_dir)
-                m = self.db_id_regexp.search(title_dir)
-                # Second check: title must have an ID and must be a directory
-                if m is None or not os.path.isdir(title_path):
-                    self.invalid_titles.append((auth_dir, db_path, 0))
-                    continue
-
-                id_ = m.group(1)
-                # Third check: the id_ must be in the DB and the paths must match
-                if self.is_case_sensitive:
-                    if int(id_) not in self.all_ids or \
-                            db_path not in self.all_dbpaths:
-                        self.extra_titles.append((title_dir, db_path, 0))
+            try:
+                for title_dir in os.listdir(auth_path):
+                    if self.ignore_name(title_dir):
                         continue
-                else:
-                    if int(id_) not in self.all_ids or \
-                            db_path.lower() not in self.all_lc_dbpaths:
-                        self.extra_titles.append((title_dir, db_path, 0))
+                    title_path = os.path.join(auth_path, title_dir)
+                    db_path = os.path.join(auth_dir, title_dir)
+                    m = self.db_id_regexp.search(title_dir)
+                    # Second check: title must have an ID and must be a directory
+                    if m is None or not os.path.isdir(title_path):
+                        self.invalid_titles.append((auth_dir, db_path, 0))
                         continue
 
-                # Record the book to check its formats
-                self.book_dirs.append((db_path, title_dir, id_))
-                found_titles = True
+                    id_ = m.group(1)
+                    # Third check: the id_ must be in the DB and the paths must match
+                    if self.is_case_sensitive:
+                        if int(id_) not in self.all_ids or \
+                                db_path not in self.all_dbpaths:
+                            self.extra_titles.append((title_dir, db_path, 0))
+                            continue
+                    else:
+                        if int(id_) not in self.all_ids or \
+                                db_path.lower() not in self.all_lc_dbpaths:
+                            self.extra_titles.append((title_dir, db_path, 0))
+                            continue
+
+                    # Record the book to check its formats
+                    self.book_dirs.append((db_path, title_dir, id_))
+                    found_titles = True
+            except:
+                traceback.print_exc()
+                # Sort-of check: exception processing directory
+                self.failed_folders.append((auth_dir, traceback.format_exc(), []))
 
             # Fourth check: author directories that contain no titles
             if not found_titles:
