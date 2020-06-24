@@ -450,7 +450,10 @@ class ManufacturerModel(QAbstractListModel):
 
     def data(self, index, role):
         if role == Qt.DisplayRole:
-            return (self.manufacturers[index.row()])
+            ans = self.manufacturers[index.row()]
+            if ans == Device.manufacturer:
+                ans = _('Generic')
+            return ans
         if role == Qt.UserRole:
             return self.manufacturers[index.row()]
         return None
