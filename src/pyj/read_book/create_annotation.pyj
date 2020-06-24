@@ -271,6 +271,9 @@ class CreateAnnotation:
         return document.getElementById(self.middle_id)
 
     def add_notes(self):
+        current_notes = self.current_notes
+        if not current_notes and self.editing_annot_uuid:
+            current_notes = self.annotations_manager.notes_for_highlight(self.editing_annot_uuid)
         self.show_middle(self.apply_notes)
         container = self.middle
         clear(container)
@@ -283,7 +286,7 @@ class CreateAnnotation:
 
             E.h3(_('Add notes for this highlight')),
             E.textarea(
-                self.current_notes or '',
+                current_notes or '',
                 rows='10', spellcheck='true', style='resize: none; width: 80vw; max-width: 80em; margin: 1ex',
                 onkeydown=def(ev):
                     ev.stopPropagation()
