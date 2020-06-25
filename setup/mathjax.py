@@ -43,11 +43,13 @@ class MathJax(ReVendor):
         os.mkdir(self.vendored_dir)
         with self.temp_dir(suffix='-calibre-mathjax-build') as tdir:
             src = opts.path_to_mathjax or self.download_vendor_release(tdir, opts.mathjax_url)
+            if os.path.isdir(os.path.join(src, 'es5')):
+                src = os.path.join(src, 'es5')
             self.info('Adding MathJax...')
             for x in 'core loader startup input/tex-full input/asciimath input/mml input/mml/entities output/chtml'.split():
-                self.add_file(self.j(src, 'es5', x + '.js'), x + '.js')
+                self.add_file(self.j(src, x + '.js'), x + '.js')
             self.add_tree(
-                self.j(src, 'es5', 'output', 'chtml'), 'output/chtml')
+                self.j(src, 'output', 'chtml'), 'output/chtml')
             etag = self.h.hexdigest()
             with open(self.j(self.RESOURCES, 'mathjax', 'manifest.json'), 'wb') as f:
                 f.write(json.dumps({'etag': etag, 'files': self.mathjax_files, 'version': self.VERSION}, indent=2).encode('utf-8'))
