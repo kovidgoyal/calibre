@@ -18,7 +18,7 @@ from math import ceil
 from multiprocessing.connection import Listener, arbitrary_address
 from threading import RLock, Thread
 
-from calibre import detect_ncpus as cpu_count
+from calibre import detect_ncpus as cpu_count, force_unicode
 from calibre.constants import DEBUG, islinux, iswindows, ispy3
 from calibre.ptempfile import base_dir
 from calibre.utils.ipc import eintr_retry_call
@@ -228,7 +228,7 @@ class Server(Thread):
               }
         cw = self.do_launch(env, gui, redirect_output, rfile, job_name=job_name)
         if isinstance(cw, string_or_bytes):
-            raise CriticalError('Failed to launch worker process:\n'+cw)
+            raise CriticalError('Failed to launch worker process:\n'+force_unicode(cw))
         if DEBUG:
             print('Worker Launch took:', time.time() - start)
         return cw

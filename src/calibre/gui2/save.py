@@ -158,7 +158,7 @@ class Saver(QObject):
             except Failure as err:
                 error_dialog(self.pd, _('Critical failure'), _(
                     'Could not save books to disk, click "Show details" for more information'),
-                    det_msg=unicode_type(err.failure_message) + '\n' + unicode_type(err.details), show=True)
+                    det_msg=force_unicode(err.failure_message) + '\n' + force_unicode(err.details), show=True)
                 self.pd.canceled = True
         self.do_one_signal.emit()
 
