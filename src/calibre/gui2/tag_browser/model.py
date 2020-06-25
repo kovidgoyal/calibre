@@ -215,7 +215,7 @@ class TagTreeItem(object):  # {{{
                     tt.append(_('Books in this category are unrated'))
                 if self.type == self.TAG and self.tag.category == 'search':
                     tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
-                if self.type == self.TAG:
+                if self.type == self.TAG and self.tag.category != 'search':
                     tt.append(_('Number of books: %s') % self.item_count)
                 return '\n'.join(tt)
             return None
