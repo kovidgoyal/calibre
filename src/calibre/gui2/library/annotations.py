@@ -16,7 +16,7 @@ from PyQt5.Qt import (
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import Application, config, gprefs
-from calibre.gui2.viewer.search import ResultsDelegate, SearchBox
+from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
 
@@ -437,6 +437,7 @@ class AnnotationsBrowser(Dialog):
             self.exec_()
         else:
             self.show()
+            self.raise_()
 
 
 if __name__ == '__main__':
