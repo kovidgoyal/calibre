@@ -76,7 +76,9 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
         text = index.data(Qt.DisplayRole)
         hover = option.state & style.State_MouseOver
-        if hover or gprefs['tag_browser_show_counts']:
+        is_search = (True if item.type == TagTreeItem.TAG and
+                            item.tag.category == 'search' else False)
+        if not is_search and (hover or gprefs['tag_browser_show_counts']):
             count = unicode_type(index.data(COUNT_ROLE))
             width = painter.fontMetrics().boundingRect(count).width()
             r = QRect(tr)
