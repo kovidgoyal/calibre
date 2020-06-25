@@ -26,7 +26,6 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.gui2.metadata.basic_widgets import CalendarWidget
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
@@ -503,10 +502,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
-        self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
-        self.pubdate_cw = CalendarWidget(self.pubdate)
-        self.pubdate_cw.setVerticalHeaderFormat(self.pubdate_cw.NoVerticalHeader)
-        self.pubdate.setCalendarWidget(self.pubdate_cw)
         pubdate_format = tweaks['gui_pubdate_display_format']
         if pubdate_format == 'iso':
             pubdate_format = internal_iso_format_string()
@@ -516,10 +511,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
         self.pubdate.dateTimeChanged.connect(self.do_apply_pubdate)
         self.adddate.setDateTime(QDateTime.currentDateTime())
-        self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
-        self.adddate_cw = CalendarWidget(self.adddate)
-        self.adddate_cw.setVerticalHeaderFormat(self.adddate_cw.NoVerticalHeader)
-        self.adddate.setCalendarWidget(self.adddate_cw)
         adddate_format = tweaks['gui_timestamp_display_format']
         if adddate_format == 'iso':
             adddate_format = internal_iso_format_string()

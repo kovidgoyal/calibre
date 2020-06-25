@@ -17,7 +17,7 @@ from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor
+from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor, DateTimeEdit as DateTimeEditBase
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined, internal_iso_format_string
 
@@ -112,43 +112,15 @@ class UpdateEditorGeometry(object):
         editor.setGeometry(initial_geometry)
 
 
-class DateTimeEdit(QDateTimeEdit):  # {{{
+class DateTimeEdit(DateTimeEditBase):  # {{{
 
     def __init__(self, parent, format_):
-        QDateTimeEdit.__init__(self, parent)
+        DateTimeEditBase.__init__(self, parent)
         self.setFrame(False)
-        self.setMinimumDateTime(UNDEFINED_QDATETIME)
-        self.setSpecialValueText(_('Undefined'))
-        self.setCalendarPopup(True)
         if format_ == 'iso':
             format_ = internal_iso_format_string()
         self.setDisplayFormat(format_)
 
-    def contextMenuEvent(self, ev):
-        m = QMenu(self)
-        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
-                    self.clear_date)
-        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
-                    self.today_date)
-        m.addSeparator()
-        populate_standard_spinbox_context_menu(self, m)
-        m.popup(ev.globalPos())
-
-    def today_date(self):
-        self.setDateTime(QDateTime.currentDateTime())
-
-    def clear_date(self):
-        self.setDateTime(UNDEFINED_QDATETIME)
-
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Minus:
-            ev.accept()
-            self.clear_date()
-        elif ev.key() == Qt.Key_Equal:
-            self.today_date()
-            ev.accept()
-        else:
-            return QDateTimeEdit.keyPressEvent(self, ev)
 # }}}
 
 # Number Editor  {{{

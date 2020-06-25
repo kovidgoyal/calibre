@@ -10,20 +10,20 @@ import textwrap, re, os, shutil, weakref
 from datetime import date, datetime
 
 from PyQt5.Qt import (
-    Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
+    Qt, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
     QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
     QPixmap, QDialog, QMenu, QLineEdit, QSizePolicy, QKeySequence,
-    QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime, QUndoCommand,
+    QDialogButtonBox, QAction, QDateTime, QUndoCommand,
     QUndoStack, QVBoxLayout, QPlainTextEdit, QUrl)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog, RatingEditor
+from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog, RatingEditor, DateTimeEdit
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (
     title_sort, string_to_authors, check_isbn, authors_to_sort_string)
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider, UNDEFINED_QDATETIME,
+from calibre.gui2 import (file_icon_provider,
         choose_files, error_dialog, choose_images, gprefs)
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import (
@@ -1797,14 +1797,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 # DateEdit {{{
 
 
-class CalendarWidget(QCalendarWidget):
-
-    def showEvent(self, ev):
-        if self.selectedDate().year() == UNDEFINED_DATE.year:
-            self.setSelectedDate(QDate.currentDate())
-
-
-class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
+class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
 
     TOOLTIP = ''
     LABEL = _('&Date:')
@@ -1824,12 +1817,6 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
         elif fmt == 'iso':
             fmt = internal_iso_format_string()
         self.setDisplayFormat(fmt)
-        self.setCalendarPopup(True)
-        self.cw = CalendarWidget(self)
-        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
-        self.setCalendarWidget(self.cw)
-        self.setMinimumDateTime(UNDEFINED_QDATETIME)
-        self.setSpecialValueText(_('Undefined'))
         if create_clear_button:
             self.clear_button = QToolButton(parent)
             self.clear_button.setIcon(QIcon(I('trash.png')))
@@ -1867,13 +1854,7 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
         return o != c
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Minus:
-            ev.accept()
-            self.setDateTime(self.minimumDateTime())
-        elif ev.key() == Qt.Key_Equal:
-            ev.accept()
-            self.setDateTime(QDateTime.currentDateTime())
-        elif ev.key() == Qt.Key_Up and is_date_undefined(self.current_val):
+        if ev.key() == Qt.Key_Up and is_date_undefined(self.current_val):
             self.setDateTime(QDateTime.currentDateTime())
         elif ev.key() == Qt.Key_Tab and is_date_undefined(self.current_val):
             ev.ignore()

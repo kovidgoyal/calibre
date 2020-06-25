@@ -9,10 +9,10 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
+from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, QUrl,
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
-        QPushButton, QMessageBox, QToolButton, Qt, QPlainTextEdit)
+        QPushButton, QMessageBox, QToolButton, QPlainTextEdit)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
 from calibre.gui2.complete2 import EditWithComplete
@@ -23,7 +23,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
-from calibre.gui2.widgets2 import RatingEditor
+from calibre.gui2.widgets2 import RatingEditor, DateTimeEdit as DateTimeEditBase
 from polyglot.builtins import unicode_type
 
 
@@ -275,15 +275,15 @@ class Rating(Base):
         self.signals_to_disconnect.append(self.widgets[1].currentTextChanged)
 
 
-class DateTimeEdit(QDateTimeEdit):
+class DateTimeEdit(DateTimeEditBase):
 
     def focusInEvent(self, x):
         self.setSpecialValueText('')
-        QDateTimeEdit.focusInEvent(self, x)
+        DateTimeEditBase.focusInEvent(self, x)
 
     def focusOutEvent(self, x):
         self.setSpecialValueText(_('Undefined'))
-        QDateTimeEdit.focusOutEvent(self, x)
+        DateTimeEditBase.focusOutEvent(self, x)
 
     def set_to_today(self):
         self.setDateTime(now())
@@ -291,16 +291,6 @@ class DateTimeEdit(QDateTimeEdit):
     def set_to_clear(self):
         self.setDateTime(now())
         self.setDateTime(UNDEFINED_QDATETIME)
-
-    def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Minus:
-            ev.accept()
-            self.setDateTime(self.minimumDateTime())
-        elif ev.key() == Qt.Key_Equal:
-            ev.accept()
-            self.setDateTime(QDateTime.currentDateTime())
-        else:
-            return QDateTimeEdit.keyPressEvent(self, ev)
 
 
 class DateTime(Base):

@@ -7,18 +7,20 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import weakref
 
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QColor, QColorDialog, QComboBox, QDialog,
-    QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel,
-    QLayout, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
+    QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
+    QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
+    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QLineEdit, QMenu,
+    QMimeData, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
     QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
-    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal, QByteArray
+    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal, pyqtSlot
 )
 
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, rating_font
+from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
 from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
 from calibre.utils.config_base import tweaks
+from calibre.utils.date import UNDEFINED_DATE
 from polyglot.builtins import unicode_type
 from polyglot.functools import lru_cache
 
@@ -553,6 +555,93 @@ def to_plain_text(self):
     # QTextCursor pads the return value of selectedText with null bytes if
     # non BMP characters such as 0x1f431 are present.
     return ans.rstrip('\0')
+
+
+class LineEditForDateTimeEdit(QLineEdit):
+
+    date_time_pasted = pyqtSignal(object)
+    date_time_copied = pyqtSignal(object)
+    MIME_TYPE = 'application/x-calibre-datetime-value'
+
+    @pyqtSlot()
+    def copy(self):
+        self.date_time_copied.emit(self.selectedText())
+
+    @pyqtSlot()
+    def paste(self):
+        md = QApplication.instance().clipboard().mimeData()
+        if md.hasFormat(self.MIME_TYPE):
+            self.date_time_pasted.emit(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.ISODate))
+        else:
+            QLineEdit.paste(self)
+
+
+class CalendarWidget(QCalendarWidget):
+
+    def showEvent(self, ev):
+        if self.selectedDate().year() == UNDEFINED_DATE.year:
+            self.setSelectedDate(QDate.currentDate())
+
+
+class DateTimeEdit(QDateTimeEdit):
+
+    def __init__(self, parent=None):
+        QDateTimeEdit.__init__(self, parent)
+        le = LineEditForDateTimeEdit(self)
+        self.setLineEdit(le)
+        le.date_time_pasted.connect(self.date_time_pasted, type=Qt.QueuedConnection)
+        le.date_time_copied.connect(self.date_time_copied, type=Qt.QueuedConnection)
+        self.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.setCalendarPopup(True)
+        self.cw = CalendarWidget(self)
+        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
+        self.setCalendarWidget(self.cw)
+        self.setSpecialValueText(_('Undefined'))
+
+    def date_time_copied(self, text):
+        md = QMimeData()
+        md.setText(text or self.dateTime().toString())
+        md.setData(LineEditForDateTimeEdit.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
+        QApplication.instance().clipboard().setMimeData(md)
+
+    def date_time_pasted(self, qt_dt):
+        self.setDateTime(qt_dt)
+
+    def create_context_menu(self):
+        m = QMenu(self)
+        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
+                    self.clear_date)
+        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+                    self.today_date)
+        m.addSeparator()
+        populate_standard_spinbox_context_menu(self, m)
+        return m
+
+    def contextMenuEvent(self, ev):
+        m = self.create_context_menu()
+        m.popup(ev.globalPos())
+
+    def today_date(self):
+        self.setDateTime(QDateTime.currentDateTime())
+
+    def clear_date(self):
+        self.setDateTime(UNDEFINED_QDATETIME)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Minus:
+            ev.accept()
+            self.clear_date()
+        elif ev.key() == Qt.Key_Equal:
+            self.today_date()
+            ev.accept()
+        elif ev.matches(QKeySequence.Copy):
+            self.lineEdit().copy()
+            ev.accept()
+        elif ev.matches(QKeySequence.Paste):
+            self.lineEdit().paste()
+            ev.accept()
+        else:
+            return QDateTimeEdit.keyPressEvent(self, ev)
 
 
 if __name__ == '__main__':

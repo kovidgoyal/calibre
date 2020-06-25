@@ -401,7 +401,7 @@ from the value in the box</string>
         <item row="10" column="2">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QDateTimeEdit" name="pubdate">
+           <widget class="DateTimeEdit" name="pubdate">
             <property name="displayFormat">
              <string>MMM yyyy</string>
             </property>
@@ -445,7 +445,7 @@ from the value in the box</string>
         <item row="9" column="2">
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QDateTimeEdit" name="adddate">
+           <widget class="DateTimeEdit" name="adddate">
             <property name="displayFormat">
              <string>d MMM yyyy</string>
             </property>
@@ -726,8 +726,8 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>935</width>
-         <height>639</height>
+         <width>777</width>
+         <height>388</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="vargrid">
@@ -1205,8 +1205,8 @@ not multiple and the destination field is multiple</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>917</width>
-             <height>319</height>
+             <width>203</width>
+             <height>70</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="testgrid">
@@ -1327,6 +1327,11 @@ is completed. This can be slow on large libraries.</string>
   <customwidget>
    <class>RatingEditor</class>
    <extends>QComboBox</extends>
+   <header>calibre/gui2/widgets2.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DateTimeEdit</class>
+   <extends>QDateTimeEdit</extends>
    <header>calibre/gui2/widgets2.h</header>
   </customwidget>
  </customwidgets>
