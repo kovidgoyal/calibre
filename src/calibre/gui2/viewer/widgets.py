@@ -21,7 +21,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
     def result_data(self, result):
         if not hasattr(result, 'is_hidden'):
             return None, None, None, None
-        return result.is_hidden, result.before, result.text, result.text
+        return result.is_hidden, result.before, result.text, result.after
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
