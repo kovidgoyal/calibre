@@ -53,19 +53,29 @@ def dictionary_name_for_locale(loc):
             return lmap[k]
 
 
+@lru_cache(maxsize=2)
+def expected_hash():
+    return P('hyphenation/sha1sum', data=True, allow_user_override=False)
+
+
 def extract_dicts(cache_path):
+    dict_tarball = P('hyphenation/dictionaries.tar.xz', allow_user_override=False)
     with TemporaryDirectory(dir=cache_path) as tdir:
         try:
             from calibre_lzma.xz import decompress
         except ImportError:
-            tf = tarfile.open(P('hyphenation/dictionaries.tar.xz'))
+            tf = tarfile.open(dict_tarball)
         else:
             buf = BytesIO()
-            decompress(P('hyphenation/dictionaries.tar.xz', data=True), outfile=buf)
+            with lopen(dict_tarball, 'rb') as f:
+                data = f.read()
+            decompress(data, outfile=buf)
             buf.seek(0)
             tf = tarfile.TarFile(fileobj=buf)
         with tf:
             tf.extractall(tdir)
+        with open(os.path.join(tdir, 'sha1sum'), 'wb') as f:
+            f.write(expected_hash())
         dest = os.path.join(cache_path, 'f')
         with TemporaryDirectory(dir=cache_path) as trash:
             try:
@@ -80,12 +90,12 @@ def extract_dicts(cache_path):
 def is_cache_up_to_date(cache_path):
     if getattr(is_cache_up_to_date, 'updated', False):
         return True
-    hsh = P('hyphenation/sha1sum', data=True, allow_user_override=False)
     try:
         with open(os.path.join(cache_path, 'f', 'sha1sum'), 'rb') as f:
-            if f.read() == hsh:
-                is_cache_up_to_date.updated = True
-                return True
+            actual_hash = f.read()
+        if actual_hash == expected_hash():
+            is_cache_up_to_date.updated = True
+            return True
     except EnvironmentError:
         pass
     return False
