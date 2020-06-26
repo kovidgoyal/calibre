@@ -107,13 +107,13 @@ class ViewAction(InterfaceAction):
             'annotations_map': annotations_map,
         }
 
-    def view_format_by_id(self, id_, format):
+    def view_format_by_id(self, id_, format, open_at=None):
         db = self.gui.current_db
         fmt_path = db.format_abspath(id_, format,
                 index_is_id=True)
         if fmt_path:
             title = db.title(id_, index_is_id=True)
-            self._view_file(fmt_path, calibre_book_data=self.calibre_book_data(id_, format))
+            self._view_file(fmt_path, calibre_book_data=self.calibre_book_data(id_, format), open_at=open_at)
             self.update_history([(id_, title)])
 
     def book_downloaded_for_viewing(self, job):
@@ -122,7 +122,7 @@ class ViewAction(InterfaceAction):
             return
         self._view_file(job.result)
 
-    def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True, calibre_book_data=None):
+    def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True, calibre_book_data=None, open_at=None):
         self.gui.setCursor(Qt.BusyCursor)
         try:
             if internal:
@@ -132,6 +132,8 @@ class ViewAction(InterfaceAction):
 
                 if name is not None:
                     args.append(name)
+                    if open_at is not None:
+                        args.append('--open-at=' + open_at)
                     if calibre_book_data is not None:
                         with PersistentTemporaryFile('.json') as ptf:
                             ptf.write(as_bytes(json.dumps(calibre_book_data)))
@@ -162,12 +164,12 @@ class ViewAction(InterfaceAction):
         finally:
             self.gui.unsetCursor()
 
-    def _view_file(self, name, calibre_book_data=None):
+    def _view_file(self, name, calibre_book_data=None, open_at=None):
         ext = os.path.splitext(name)[1].upper().replace('.',
                 '').replace('ORIGINAL_', '')
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
-        internal = self.force_internal_viewer or ext in config['internally_viewed_formats']
-        self._launch_viewer(name, viewer, internal, calibre_book_data=calibre_book_data)
+        internal = self.force_internal_viewer or ext in config['internally_viewed_formats'] or open_at is not None
+        self._launch_viewer(name, viewer, internal, calibre_book_data=calibre_book_data, open_at=open_at)
 
     def view_specific_format(self, triggered):
         rows = list(self.gui.library_view.selectionModel().selectedRows())

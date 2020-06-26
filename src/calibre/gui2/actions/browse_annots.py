@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from PyQt5.Qt import Qt
 
 from calibre.gui2.actions import InterfaceAction
 
@@ -25,7 +26,19 @@ class BrowseAnnotationsAction(InterfaceAction):
         if self._browser is None:
             from calibre.gui2.library.annotations import AnnotationsBrowser
             self._browser = AnnotationsBrowser(self.gui)
+            self._browser.show_book.connect(self.open_book, type=Qt.QueuedConnection)
+            self._browser.open_annotation.connect(self.open_annotation, type=Qt.QueuedConnection)
         return self._browser
 
     def show_browser(self):
         self.browser.show_dialog()
+
+    def library_changed(self, db):
+        if self._browser is not None:
+            self._browser.reinitialize()
+
+    def open_book(self, book_id, fmt):
+        self.gui.library_view.select_rows({book_id})
+
+    def open_annotation(self, book_id, fmt, cfi):
+        self.gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=cfi)

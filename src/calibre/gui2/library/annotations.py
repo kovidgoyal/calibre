@@ -63,7 +63,7 @@ class AnnotsResultsDelegate(ResultsDelegate):
 class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
-    open_annotation = pyqtSignal(object)
+    open_annotation = pyqtSignal(object, object, object)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -80,7 +80,7 @@ class ResultsList(QTreeWidget):
     def item_activated(self, item):
         r = item.data(0, Qt.UserRole)
         if isinstance(r, dict):
-            self.open_annotation.emit(r['annotation'])
+            self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
 
     def set_results(self, results):
         self.clear()
@@ -206,7 +206,7 @@ class Restrictions(QWidget):
 class BrowsePanel(QWidget):
 
     current_result_changed = pyqtSignal(object)
-    open_annotation = pyqtSignal(object)
+    open_annotation = pyqtSignal(object, object, object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -251,6 +251,7 @@ class BrowsePanel(QWidget):
         db = current_db()
         self.search_box.setFocus(Qt.OtherFocusReason)
         self.restrictions.re_initialize(db)
+        self.cleared()
 
     def sizeHint(self):
         return QSize(450, 600)
@@ -316,7 +317,8 @@ class Details(QTextBrowser):
 
 class DetailsPanel(QWidget):
 
-    open_annotation = pyqtSignal(object)
+    open_annotation = pyqtSignal(object, object, object)
+    show_book = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -324,14 +326,29 @@ class DetailsPanel(QWidget):
         l = QVBoxLayout(self)
         self.text_browser = tb = Details(self)
         l.addWidget(tb)
+
+        h = QHBoxLayout()
+        l.addLayout(h)
         self.open_button = ob = QPushButton(QIcon(I('viewer.png')), _('Open in viewer'), self)
+        ob.setToolTip(_('Open the book at this annotation in the calibre viewer'))
         ob.clicked.connect(self.open_result)
-        l.addWidget(ob)
+        h.addWidget(ob)
+
+        self.library_button = lb = QPushButton(QIcon(I('lt.png')), _('Show in calibre'), self)
+        lb.setToolTip(_('Show this book in the main calibre book list'))
+        lb.clicked.connect(self.show_in_library)
+        h.addWidget(lb)
+
         self.show_result(None)
 
     def open_result(self):
         if self.current_result is not None:
-            self.open_annotation.emit(self.current_result['annotation'])
+            r = self.current_result
+            self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
+
+    def show_in_library(self):
+        if self.current_result is not None:
+            self.show_book.emit(self.current_result['book_id'], self.current_result['format'])
 
     def sizeHint(self):
         return QSize(450, 600)
@@ -341,9 +358,11 @@ class DetailsPanel(QWidget):
         if r is None:
             self.text_browser.setVisible(False)
             self.open_button.setVisible(False)
+            self.library_button.setVisible(False)
             return
         self.text_browser.setVisible(True)
         self.open_button.setVisible(True)
+        self.library_button.setVisible(True)
         db = current_db()
         book_id = r['book_id']
         title, authors = db.field_for('title', book_id), db.field_for('authors', book_id)
@@ -385,20 +404,21 @@ class DetailsPanel(QWidget):
 
 class AnnotationsBrowser(Dialog):
 
-    open_annotation = pyqtSignal(object)
+    open_annotation = pyqtSignal(object, object, object)
+    show_book = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser-1', parent=parent)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
 
-    def do_open_annotation(self, annot):
+    def do_open_annotation(self, book_id, fmt, annot):
         atype = annot['type']
         if atype == 'bookmark':
             if annot['pos_type'] == 'epubcfi':
-                self.open_annotation.emit(annot['pos'])
+                self.open_annotation.emit(book_id, fmt, annot['pos'])
         elif atype == 'highlight':
             x = 2 * (annot['spine_index'] + 1)
-            self.open_annotation.emit('epubcfi(/{}{})'.format(x, annot['start_cfi']))
+            self.open_annotation.emit(book_id, fmt, 'epubcfi(/{}{})'.format(x, annot['start_cfi']))
 
     def keyPressEvent(self, ev):
         if ev.key() not in (Qt.Key_Enter, Qt.Key_Return):
@@ -425,6 +445,7 @@ class AnnotationsBrowser(Dialog):
         self.details_panel = dp = DetailsPanel(self)
         s.addWidget(dp)
         dp.open_annotation.connect(self.do_open_annotation)
+        dp.show_book.connect(self.show_book)
         bp.current_result_changed.connect(dp.show_result)
 
         h = QHBoxLayout()
@@ -432,12 +453,14 @@ class AnnotationsBrowser(Dialog):
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
 
     def show_dialog(self):
-        self.browse_panel.re_initialize()
         if self.parent() is None:
             self.exec_()
         else:
             self.show()
             self.raise_()
+
+    def reinitialize(self):
+        self.browse_panel.re_initialize()
 
 
 if __name__ == '__main__':
@@ -445,6 +468,7 @@ if __name__ == '__main__':
     app = Application([])
     current_db.ans = db(os.path.expanduser('~/test library'))
     br = AnnotationsBrowser()
+    br.reinitialize()
     br.show_dialog()
     del br
     del app
