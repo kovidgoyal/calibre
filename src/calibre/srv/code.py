@@ -4,7 +4,6 @@
 
 
 import hashlib
-import os
 import random
 import shutil
 import sys
@@ -13,6 +12,7 @@ from json import load as load_json_file, loads as json_loads
 from threading import Lock
 
 from calibre import as_unicode
+from calibre.constants import in_develop_mode
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
@@ -31,7 +31,7 @@ from calibre.utils.localization import (
 )
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import iteritems, itervalues, hasenv
+from polyglot.builtins import iteritems, itervalues
 
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
@@ -39,9 +39,9 @@ POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 @endpoint('', auth_required=False)
 def index(ctx, rd):
     ans_file = lopen(P('content-server/index-generated.html'), 'rb')
-    if not hasenv('CALIBRE_ENABLE_DEVELOP_MODE'):
+    if not in_develop_mode:
         return ans_file
-    return ans_file.read().replace(b'__IN_DEVELOP_MODE__', os.environ['CALIBRE_ENABLE_DEVELOP_MODE'].encode('ascii'))
+    return ans_file.read().replace(b'__IN_DEVELOP_MODE__', b'1')
 
 
 @endpoint('/robots.txt', auth_required=False)
