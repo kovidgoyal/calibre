@@ -410,6 +410,7 @@ class AnnotationsBrowser(Dialog):
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser-1', parent=parent)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setWindowIcon(QIcon(I('highlight.png')))
 
     def do_open_annotation(self, book_id, fmt, annot):
         atype = annot['type']
