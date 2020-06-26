@@ -311,10 +311,18 @@ class MainOverlay:  # {{{
         if full_screen_actions.length:
             actions_div.appendChild(E.ul(*full_screen_actions))
 
+        highlight_action = ac(_('Highlight'), _('Highlight text in the book'),
+                def(): self.overlay.hide(), self.overlay.view.initiate_create_annotation();, 'highlight')
+
         if runtime.is_standalone_viewer:
             actions_div.appendChild(E.ul(
                 ac(_('Lookup/search word'), _('Lookup or search for the currently selected word'),
                    def(): self.overlay.hide(), ui_operations.toggle_lookup();, 'library')
+                ,
+                highlight_action,
+                ac(_('Browse highlights'), _('Browse all highlights'),
+                   def(): self.overlay.hide(), ui_operations.toggle_highlights();, 'image')
+                ,
             ))
             copy_actions = E.ul()
             if self.overlay.view.currently_showing.selected_text:
@@ -343,6 +351,8 @@ class MainOverlay:  # {{{
                 ac(_('Quit'), _('Close the viewer'),
                    def(): self.overlay.hide(), ui_operations.quit();, 'remove'),
             ))
+        else:
+            actions_div.appendChild(E.ul(highlight_action))
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 

@@ -433,7 +433,7 @@ class View:
         elif data.name is 'toggle_highlights':
             ui_operations.toggle_highlights()
         elif data.name is 'create_annotation':
-            self.iframe_wrapper.send_message('create_annotation')
+            self.initiate_create_annotation()
         elif data.name is 'new_bookmark':
             ui_operations.new_bookmark()
         elif data.name is 'toggle_inspector':
@@ -1192,6 +1192,9 @@ class View:
             self.iframe_wrapper.send_message('show_search_result', search_result=sr)
         else:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
+
+    def initiate_create_annotation(self):
+        self.iframe_wrapper.send_message('create_annotation')
 
     def highlight_action(self, uuid, which):
         if self.create_annotation.is_visible:
