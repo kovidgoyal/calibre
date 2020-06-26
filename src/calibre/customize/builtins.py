@@ -1101,7 +1101,9 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary, ActionBrowseAnnotations]
+        ActionVirtualLibrary]
+if os.environ.get('CALIBRE_ENABLE_DEVELOP_MODE') == '1':
+    plugins.append(ActionBrowseAnnotations)
 
 # }}}
 
