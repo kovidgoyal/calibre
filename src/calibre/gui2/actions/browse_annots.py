@@ -12,7 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 class BrowseAnnotationsAction(InterfaceAction):
 
     name = 'Browse Annotations'
-    action_spec = (_('Browse annotations'), 'polish.png',
+    action_spec = (_('Browse annotations'), 'highlight.png',
                    _('Browse highlights and bookmarks from all books in the library'), _('B'))
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
