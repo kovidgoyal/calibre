@@ -12,7 +12,7 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
-from calibre.constants import isosx
+from calibre.constants import in_develop_mode, isosx
 from calibre.gui2 import elided_text
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.viewer.web_view import get_session_pref, set_book_path, vprefs
@@ -38,7 +38,7 @@ class Actions(object):
 
 def all_actions():
     if not hasattr(all_actions, 'ans'):
-        all_actions.ans = Actions({
+        amap = {
             'color_scheme': Action('format-fill-color.png', _('Switch color scheme')),
             'back': Action('back.png', _('Back')),
             'forward': Action('forward.png', _('Forward')),
@@ -63,15 +63,26 @@ def all_actions():
             'print': Action('print.png', _('Print book'), 'print'),
             'preferences': Action('config.png', _('Preferences'), 'preferences'),
             'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
-        })
+        }
+        if in_develop_mode:
+            amap['highlight'] = Action('highlight.png', _('Highlight text in the book'), 'create_annotation')
+            amap['toggle_highlights'] = Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights')
+        all_actions.ans = Actions(amap)
     return all_actions.ans
 
 
-DEFAULT_ACTIONS = (
+if in_develop_mode:
+    DEFAULT_ACTIONS = (
         'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-        None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'reference', 'chrome', None, 'mode', 'print', 'preferences',
-        'metadata', 'inspector'
-)
+        None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'highlight', 'chrome', None,
+        'mode', 'print', 'preferences', 'metadata', 'inspector'
+    )
+else:
+    DEFAULT_ACTIONS = (
+        'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
+        None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'reference', 'chrome', None,
+        'mode', 'print', 'preferences', 'metadata', 'inspector'
+    )
 
 
 def current_actions():
@@ -166,6 +177,9 @@ class ActionsToolBar(ToolBar):
         a.setCheckable(True)
         self.reference_action = a = shortcut_action('reference')
         a.setCheckable(True)
+        self.highlight_action = a = shortcut_action('highlight')
+        self.toggle_highlights_action = self.highlights_action = a = shortcut_action('toggle_highlights')
+        a.setCheckable(True)
         self.lookup_action = a = shortcut_action('lookup')
         a.setCheckable(True)
         self.inspector_action = a = shortcut_action('inspector')
@@ -222,7 +236,7 @@ class ActionsToolBar(ToolBar):
         self.reference_action.setChecked(enabled)
 
     def update_dock_actions(self, visibility_map):
-        for k in ('toc', 'bookmarks', 'lookup', 'inspector'):
+        for k in ('toc', 'bookmarks', 'lookup', 'inspector', 'highlights'):
             ac = getattr(self, '{}_action'.format(k))
             ac.setChecked(visibility_map[k])
 
