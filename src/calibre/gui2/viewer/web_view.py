@@ -19,8 +19,8 @@ from PyQt5.QtWebEngineWidgets import (
 
 from calibre import as_unicode, prints
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, config_dir, is_running_from_develop,
-    isosx, iswindows
+    FAKE_HOST, FAKE_PROTOCOL, __version__, config_dir, in_develop_mode,
+    is_running_from_develop, isosx, iswindows
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -33,7 +33,7 @@ from calibre.srv.code import get_translations_data
 from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import as_bytes, hasenv, iteritems, unicode_type
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 from polyglot.functools import lru_cache
 
 try:
@@ -229,8 +229,8 @@ def create_profile():
         js = P('viewer.js', data=True, allow_user_override=False)
         translations_json = get_translations_data() or b'null'
         js = js.replace(b'__TRANSLATIONS_DATA__', translations_json, 1)
-        if hasenv('CALIBRE_ENABLE_DEVELOP_MODE'):
-            js = js.replace(b'__IN_DEVELOP_MODE__', os.environ['CALIBRE_ENABLE_DEVELOP_MODE'].encode('ascii'))
+        if in_develop_mode:
+            js = js.replace(b'__IN_DEVELOP_MODE__', b'1')
         insert_scripts(ans, create_script('viewer.js', js))
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)

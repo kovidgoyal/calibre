@@ -279,6 +279,7 @@ else:
 dv = getenv('CALIBRE_DEVELOP_FROM')
 is_running_from_develop = bool(getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path)
 del dv
+in_develop_mode = getenv('CALIBRE_ENABLE_DEVELOP_MODE') == '1'
 
 
 def get_version():
