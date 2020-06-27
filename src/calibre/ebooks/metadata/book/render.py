@@ -294,7 +294,7 @@ def mi_to_html(
                     all_vals = sorted(all_vals, key=sort_key)
                 links = ['<a href="%s" title="%s">%s</a>' % (
                     search_action_with_data(st, x, book_id, field), _('Click to see books with {0}: {1}').format(
-                        metadata['name'], a(x)), p(x))
+                        metadata['name'] or field, a(x)), p(x))
                          for x in all_vals]
                 val = metadata['is_multiple']['list_to_ui'].join(links)
             elif metadata['datatype'] == 'text' or metadata['datatype'] == 'enumeration':
@@ -305,7 +305,7 @@ def mi_to_html(
                     st = field
                 val = '<a href="%s" title="%s">%s</a>' % (
                     search_action_with_data(st, val, book_id, field), a(
-                        _('Click to see books with {0}: {1}').format(metadata['name'], val)), p(val))
+                        _('Click to see books with {0}: {1}').format(metadata['name'] or field, val)), p(val))
 
             ans.append((field, row % (name, val)))
 
