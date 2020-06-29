@@ -442,12 +442,17 @@ def cfi_sort_key(cfi): # {{{
     return ans
 
 
-def sort_cfis(array_of_cfis):
-    key_map = {cfi: cfi_sort_key(cfi) for cfi in array_of_cfis}
+def create_cfi_cmp(key_map):
+    if not key_map:
+        key_map = {}
 
-    Array.prototype.sort.call(array_of_cfis, def(a, b):
-        a = key_map[a]
-        b = key_map[b]
+    def cfi_cmp(a_cfi, b_cfi):
+        a = key_map[a_cfi]
+        if not a:
+            a = key_map[a_cfi] = cfi_sort_key(a_cfi)
+        b = key_map[b_cfi]
+        if not b:
+            b = key_map[b_cfi] = cfi_sort_key(b_cfi)
         for i in range(min(a.steps.length, b.steps.length)):
             diff = a.steps[i] - b.steps[i]
             if diff is not 0:
@@ -468,8 +473,14 @@ def sort_cfis(array_of_cfis):
             return a.text_offset - b.text_offset
 
         return 0
-    )
 
+    return cfi_cmp
+
+
+
+def sort_cfis(array_of_cfis):
+    key_map = {cfi: cfi_sort_key(cfi) for cfi in array_of_cfis}
+    Array.prototype.sort.call(array_of_cfis, create_cfi_cmp(key_map))
 # }}}
 
 def at(x, y, doc):  # {{{
