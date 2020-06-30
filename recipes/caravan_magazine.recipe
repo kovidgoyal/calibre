@@ -15,6 +15,7 @@ class CaravanMagazine(BasicNewsRecipe):
     description = 'An Indian Journal of politics and culture'
     language = 'en_IN'
     timefmt = ' [%b, %Y]'
+    encoding = 'utf-8'
 
     no_stylesheets = True
 
@@ -48,7 +49,7 @@ class CaravanMagazine(BasicNewsRecipe):
                 if pre is not None:
                     pre.extract()
                 a = details.find('a')
-                url = base_url + a['href']
+                url = base_url + a['href'].lstrip('/')
                 title = self.tag_to_string(a)
                 desc = self.tag_to_string(details.find('div'))
                 self.log('\t', title, url)
