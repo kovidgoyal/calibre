@@ -113,3 +113,21 @@ for attr in FUNCTIONS:
     if not scroll_viewport['paged_' + attr]:
         scroll_viewport['paged_' + attr] = scroll_viewport[attr]
 viewport_mode_changer(scroll_viewport.set_mode)
+
+
+def line_height(reset):
+    if reset:
+        line_height.ans = None
+        return
+    if not line_height.ans:
+        ds = window.getComputedStyle(document.body)
+        try:
+            # will fail if line-height = "normal"
+            lh = float(ds.lineHeight)
+        except:
+            try:
+                lh = 1.2 * float(ds.fontSize)
+            except:
+                lh = 15
+        line_height.ans = max(5, lh)
+    return line_height.ans

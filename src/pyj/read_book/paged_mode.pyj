@@ -14,7 +14,7 @@ from read_book.cfi import (
 )
 from read_book.globals import current_spine_item, get_boss
 from read_book.settings import opts
-from read_book.viewport import scroll_viewport
+from read_book.viewport import scroll_viewport, line_height
 from utils import (
     document_height, document_width, get_elem_data, set_elem_data,
     viewport_to_document
@@ -170,6 +170,7 @@ def current_page_width():
 
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
+    line_height(True)
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
     cps = calc_columns_per_screen()
@@ -292,6 +293,7 @@ def scroll_to_column(number, notify=False, duration=1000):
     limit = scroll_viewport.paged_content_width() - screen_width
     pos = min(pos, limit)
     scroll_to_offset(pos)
+
 
 def scroll_to_xpos(xpos, notify=False, duration=1000):
     nonlocal last_scrolled_to_column
@@ -537,9 +539,43 @@ def is_return():
     return fsd and fsd.cols_per_screen is cols_per_screen and fsd.spine_index is csi.index and fsd.spine_name is csi.name
 
 
-def onwheel(evt):
-    if evt.deltaY:
+class HandleWheel:
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.last_event_mode = 'page'
+        self.last_event_at = -10000
+        self.last_event_backwards = False
+        self.accumlated_scroll = 0
+
+    def onwheel(self, evt):
+        if not evt.deltaY:
+            return
         backward = evt.deltaY < 0
+        WheelEvent = window.WheelEvent
+        if evt.deltaMode is WheelEvent.DOM_DELTA_PAGE:
+            self.do_scroll(backward)
+        else:
+            self.add_event(backward, Math.abs(evt.deltaY), 'line' if evt.deltaMode is WheelEvent.DOM_DELTA_LINE else 'pixel')
+
+    def add_event(self, backward, deltaY, mode):
+        now = window.performance.now()
+        if now - self.last_event_at > 1000 or self.last_event_backwards is not backward or self.last_event_mode is not mode:
+            self.accumlated_scroll = 0
+        self.last_event_mode = mode
+        self.last_event_at = now
+        self.last_event_backwards = backward
+        lh = line_height()
+        if mode is 'line':
+            deltaY *= lh
+        self.accumlated_scroll += deltaY
+        if self.accumlated_scroll > 5 * lh:
+            self.do_scroll(backward)
+
+    def do_scroll(self, backward):
+        self.reset()
         if opts.paged_wheel_scrolls_by_screen:
             x = previous_screen_location() if backward else next_screen_location()
         else:
@@ -548,6 +584,11 @@ def onwheel(evt):
             next_spine_item(backward)
         else:
             scroll_to_xpos(x)
+
+
+wheel_handler = HandleWheel()
+onwheel = wheel_handler.onwheel.bind(wheel_handler)
+
 
 def scroll_by_page(backward, by_screen):
     if by_screen:

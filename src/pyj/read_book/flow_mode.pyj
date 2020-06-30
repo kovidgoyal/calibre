@@ -5,23 +5,8 @@ from __python__ import bound_methods, hash_literals
 from dom import set_css
 from read_book.globals import current_spine_item, get_boss
 from read_book.settings import opts
-from read_book.viewport import scroll_viewport
+from read_book.viewport import line_height, scroll_viewport
 from utils import document_height, viewport_to_document
-
-
-def line_height():
-    if not line_height.ans:
-        ds = window.getComputedStyle(document.body)
-        try:
-            # will fail if line-height = "normal"
-            lh = float(ds.lineHeight)
-        except:
-            try:
-                lh = 1.2 * float(ds.fontSize)
-            except:
-                lh = 15
-        line_height.ans = max(5, lh)
-    return line_height.ans
 
 
 def flow_to_scroll_fraction(frac, on_initial_load):
@@ -209,7 +194,7 @@ def handle_shortcut(sc_name, evt):
 
 
 def layout(is_single_page):
-    line_height.ans = None
+    line_height(True)
     set_css(document.body, margin='0', border_width='0', padding='0')
 
 
