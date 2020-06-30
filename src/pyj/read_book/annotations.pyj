@@ -1,0 +1,93 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.cfi import create_cfi_cmp, cfi_sort_key
+
+
+no_cfi = '/99999999'
+
+
+def bookmark_get_cfi(b):
+    if b.pos_type is 'epubcfi':
+        return b.pos[8:-1]
+
+
+def highlight_get_cfi(hl):
+    cfi = hl.start_cfi
+    if cfi:
+        return cfi[8:-1]
+
+
+def sort_annot_list(annots, get_cfi_func):
+    key_map = {no_cfi: cfi_sort_key(no_cfi)}
+    for annot in annots:
+        cfi = get_cfi_func(annot)
+        if cfi and not key_map[cfi]:
+            key_map[cfi] = cfi_sort_key(cfi)
+    cfi_cmp = create_cfi_cmp(key_map)
+    annots.sort(def (a, b):
+        acfi = get_cfi_func(a) or no_cfi
+        bcfi = get_cfi_func(b) or no_cfi
+        return cfi_cmp(acfi, bcfi)
+    )
+
+
+def annots_descending_cmp(a, b):
+    return -1 if a.timestamp > b.timestamp else (1 if a.timestamp < b.timestamp else 0)
+
+
+def merge_annots_with_identical_field(annots_a, annots_b, field, cfi_getter_func):
+    title_groups = {}
+    changed = False
+    all_annots = annots_a.concat(annots_b)
+    for a in all_annots:
+        q = title_groups[a[field]]
+        if not q:
+            q = title_groups[a[field]] = v'[]'
+        q.push(a)
+    for tg in Object.values(title_groups):
+        tg.sort(annots_descending_cmp)
+    seen = {}
+    ans = v'[]'
+    for a in all_annots:
+        title = a[field]
+        if not seen[title]:
+            seen[title] = True
+            candidates = title_groups[title]
+            if not changed and candidates.length > 1 and candidates[0].timestamp is not candidates[1].timestamp:
+                changed = True
+            ans.push(title_groups[title][0])
+    if ans.length is not annots_a.length or ans.length is not annots_b.length:
+        changed = True
+    if changed:
+        sort_annot_list(ans, cfi_getter_func)
+    return changed, ans
+
+
+field_map = {'bookmark': 'title', 'highlight': 'uuid'}
+getter_map = {'bookmark': bookmark_get_cfi, 'highlight': highlight_get_cfi}
+
+
+def merge_annot_lists(a, b, field):
+    key_field = field_map[field]
+    return merge_annots_with_identical_field(a, b, key_field, getter_map[field])
+
+
+def merge_annotation_maps(a, b):
+    updated = False
+    ans = {}
+    for field in field_map:
+        a_items = a[field] or v'[]'
+        b_items = b[field] or v'[]'
+        if not a_items.length:
+            ans[field] = b_items
+            continue
+        if not b_items.length:
+            ans[field] = a_items
+            continue
+        changed, ans[field] = merge_annot_lists(a_items, b_items, field)
+        if changed:
+            updated = True
+
+    return updated, ans

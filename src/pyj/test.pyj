@@ -8,6 +8,7 @@ import initialize  # noqa: unused-import
 import test_date  # noqa: unused-import
 import test_utils  # noqa: unused-import
 import read_book.test_cfi  # noqa: unused-import
+import test_annotations  # noqa: unused-import
 
 from testing import registered_tests, reset_dom
 

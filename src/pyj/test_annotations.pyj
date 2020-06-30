@@ -1,0 +1,35 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.annotations import merge_annot_lists
+from testing import assert_equal, test, assert_true
+
+
+def bm(title, bmid, year=20, first_cfi_number=1):
+    return {
+        'title': title, 'id': bmid, 'timestamp': str.format('20{}-06-29T03:21:48.895323+00:00', year),
+        'pos_type': 'epubcfi', 'pos': str.format('epubcfi(/{}/4/8)', first_cfi_number)
+    }
+
+
+def hl(uuid, hlid, year=20, first_cfi_number=1):
+    return {
+        'uuid': uuid, 'id': hlid, 'timestamp': str.format('20{}-06-29T03:21:48.895323+00:00', year),
+        'start_cfi': str.format('epubcfi(/{}/4/8)', first_cfi_number)
+    }
+
+
+@test
+def merging_annotations():
+    for atype in 'bookmark highlight'.split(' '):
+        f = bm if atype == 'bookmark' else hl
+        a = [f('one', 1, 20, 2), f('two', 2, 20, 4), f('a', 3, 20, 16),]
+        b = [f('one', 10, 30, 2), f('two', 20, 10, 4), f('b', 30, 20, 8),]
+        changed, c = merge_annot_lists(a, b, atype)
+        assert_true(changed)
+
+        def get_id(x):
+            return x.id
+
+        assert_equal(list(map(get_id, c)), [10, 2, 30, 3])
