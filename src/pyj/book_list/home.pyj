@@ -62,20 +62,30 @@ def sync_data_received(library_id, lrmap, load_type, xhr, ev):
         print('Failed to get book sync data')
         return
     data = JSON.parse(xhr.responseText)
-    for key in data:
+    last_read_data = data.last_read_positions
+
+    db = get_db()
+    for key in last_read_data:
+        new_vals = data[key]
+        entry = {'last_read': None, 'last_read_position': None, 'annotations_map': None}
         prev_last_read = lrmap[key]
-        if not prev_last_read:
-            continue
-        last_read_positions = data[key]
-        new_last_read = get_last_read_position(last_read_positions, prev_last_read)
-        if not new_last_read:
-            continue
-        last_read = new Date(new_last_read.epoch * 1000)
-        cfi = new_last_read.cfi
-        if cfi:
-            db = get_db()
+        if prev_last_read:
+            last_read_positions = new_vals.last_read_positions
+            new_last_read = get_last_read_position(last_read_positions, prev_last_read)
+            if new_last_read:
+                last_read = new Date(new_last_read.epoch * 1000)
+                cfi = new_last_read.cfi
+                if cfi:
+                    entry.last_read = last_read
+                    entry.last_read_position = cfi
+        new_amap = new_vals.annotations_map or {}
+        is_empty = True
+        v'for(var ikey in new_amap) { is_empty = false; break; }'
+        if !is_empty:
+            entry.annotations_map = new_amap
+        if entry.last_read_position or entry.annotations_map:
             book_id, fmt = key.partition(':')[::2]
-            db.update_last_read_data_from_key(library_id, int(book_id), fmt, last_read, cfi)
+            db.update_annotations_data_from_key(library_id, int(book_id), fmt, entry)
 
 
 def start_sync(to_sync):

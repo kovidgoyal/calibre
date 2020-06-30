@@ -7,7 +7,7 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax
+from ajax import ajax, ajax_send
 from book_list.constants import read_book_container_id
 from book_list.library_data import current_library_id, library_data
 from book_list.router import home, push_state, read_book_mode, update_window_title
@@ -73,6 +73,7 @@ class ReadUI:
         ui_operations.focus_iframe = self.focus_iframe.bind(self)
         ui_operations.toggle_toc = self.toggle_toc.bind(self)
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
+        ui_operations.highlights_changed = self.highlights_changed.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -191,6 +192,14 @@ class ReadUI:
 
     def update_color_scheme(self):
         self.view.update_color_scheme()
+
+    def highlights_changed(self, highlights):
+        amap = {'highlight': highlights}
+        library_id = self.base_url_data.library_id
+        book_id = self.base_url_data.book_id
+        fmt = self.base_url_data.fmt
+        self.db.update_annotations_data_from_key(library_id, book_id, fmt, amap)
+        ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, def (): pass;)
 
     @property
     def url_data(self):
