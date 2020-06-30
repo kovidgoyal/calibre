@@ -75,6 +75,8 @@ def merge_annot_lists(a, b, field):
 
 
 def merge_annotation_maps(a, b):
+    # If you make changes to this algorithm also update the
+    # implementation in calibre.db.annotations
     updated = False
     ans = {}
     for field in field_map:

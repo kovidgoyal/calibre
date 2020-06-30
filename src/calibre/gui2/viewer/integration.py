@@ -41,7 +41,9 @@ def load_annotations_map_from_library(book_library_details):
 
 def save_annotations_list_to_library(book_library_details, alist):
     import apsw
-    from calibre.db.backend import save_annotations_for_book, Connection
+    from calibre.db.backend import save_annotations_for_book, Connection, annotations_for_book
+    from calibre.gui2.viewer.annotations import annotations_as_copied_list
+    from calibre.db.annotations import merge_annotations
     dbpath = book_library_details['dbpath']
     try:
         conn = apsw.Connection(dbpath, flags=apsw.SQLITE_OPEN_READWRITE)
@@ -49,7 +51,13 @@ def save_annotations_list_to_library(book_library_details, alist):
         return
     try:
         conn.setbusytimeout(Connection.BUSY_TIMEOUT)
+        amap = {}
         with conn:
-            save_annotations_for_book(conn.cursor(), book_library_details['book_id'], book_library_details['fmt'], alist)
+            cursor = conn.cursor()
+            for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt']):
+                amap.setdefault(annot['type'], []).append(annot)
+            merge_annotations((x[0] for x in alist), amap)
+            alist = tuple(annotations_as_copied_list(amap))
+            save_annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], alist)
     finally:
         conn.close()
