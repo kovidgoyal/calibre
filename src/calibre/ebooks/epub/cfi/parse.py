@@ -191,7 +191,7 @@ def cfi_sort_key(cfi, only_path=True):
         return (), (0, (0, 0), 0)
     if not pcfi:
         import sys
-        print('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
+        print('Failed to parse CFI: %r' % cfi, file=sys.stderr)
         return (), (0, (0, 0), 0)
     steps = get_steps(pcfi)
     step_nums = tuple(s.get('num', 0) for s in steps)
