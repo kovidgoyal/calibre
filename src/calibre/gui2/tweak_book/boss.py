@@ -70,7 +70,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
 from polyglot.builtins import (
-    iteritems, itervalues, map, string_or_bytes, unicode_type
+    as_bytes, iteritems, itervalues, map, string_or_bytes, unicode_type
 )
 from polyglot.urllib import urlparse
 
@@ -1403,9 +1403,9 @@ class Boss(QObject):
         }
         md.setUrls(list(map(QUrl.fromLocalFile, list(url_map.values()))))
         import json
-        md.setData(FILE_COPY_MIME, json.dumps({
+        md.setData(FILE_COPY_MIME, as_bytes(json.dumps({
             name: (url_map[name], container.mime_map.get(name)) for name in names
-        }))
+        })))
         QApplication.instance().clipboard().setMimeData(md)
 
     @in_thread_job
@@ -1413,6 +1413,7 @@ class Boss(QObject):
         md = QApplication.instance().clipboard().mimeData()
         if md.hasUrls() and md.hasFormat(FILE_COPY_MIME):
             import json
+            self.commit_all_editors_to_container()
             name_map = json.loads(bytes(md.data(FILE_COPY_MIME)))
             container = current_container()
             for name, (path, mt) in iteritems(name_map):
