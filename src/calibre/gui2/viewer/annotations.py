@@ -4,117 +4,32 @@
 
 
 import os
-from collections import defaultdict
 from io import BytesIO
-from itertools import chain
 from operator import itemgetter
 from threading import Thread
 
-from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+from calibre.db.annotations import merge_annot_lists
 from calibre.gui2.viewer.convert_book import update_book
 from calibre.gui2.viewer.integration import save_annotations_list_to_library
 from calibre.gui2.viewer.web_view import viewer_config_dir
-from calibre.srv.render_book import (
-    EPUB_FILE_TYPE_MAGIC, parse_annotation, parse_annotations as _parse_annotations
-)
+from calibre.srv.render_book import EPUB_FILE_TYPE_MAGIC
 from calibre.utils.date import EPOCH
-from calibre.utils.serialize import json_dumps
+from calibre.utils.iso8601 import parse_iso8601
+from calibre.utils.serialize import json_dumps, json_loads
 from calibre.utils.zipfile import safe_replace
 from polyglot.binary import as_base64_bytes
-from polyglot.builtins import iteritems, itervalues
+from polyglot.builtins import iteritems
 from polyglot.queue import Queue
 
 annotations_dir = os.path.join(viewer_config_dir, 'annots')
-no_cfi_sort_key = cfi_sort_key('/99999999')
-
-
-def parse_annotations(raw):
-    return list(_parse_annotations(raw))
-
-
-def bookmark_sort_key(b):
-    if b.get('pos_type') == 'epubcfi':
-        return cfi_sort_key(b['pos'], only_path=False)
-    return no_cfi_sort_key
-
-
-def highlight_sort_key(hl):
-    cfi = hl.get('start_cfi')
-    if cfi:
-        return cfi_sort_key(cfi, only_path=False)
-    return no_cfi_sort_key
-
-
-def sort_annot_list_by_position_in_book(annots, annot_type):
-    annots.sort(key={'bookmark': bookmark_sort_key, 'highlight': highlight_sort_key}[annot_type])
-
-
-def merge_annots_with_identical_field(a, b, field='title'):
-    title_groups = defaultdict(list)
-    for x in chain(a, b):
-        title_groups[x[field]].append(x)
-    for tg in itervalues(title_groups):
-        tg.sort(key=itemgetter('timestamp'), reverse=True)
-    seen = set()
-    changed = False
-    ans = []
-    for x in chain(a, b):
-        title = x[field]
-        if title not in seen:
-            seen.add(title)
-            grp = title_groups[title]
-            if len(grp) > 1 and grp[0]['timestamp'] != grp[1]['timestamp']:
-                changed = True
-            ans.append(grp[0])
-    if len(ans) != len(a) or len(ans) != len(b):
-        changed = True
-    return changed, ans
-
-
-def merge_annot_lists(a, b, annot_type):
-    if not a:
-        return list(b)
-    if not b:
-        return list(a)
-    if annot_type == 'last-read':
-        ans = a + b
-        ans.sort(key=itemgetter('timestamp'), reverse=True)
-        return ans
-    merge_field = {'bookmark': 'title', 'highlight': 'uuid'}.get(annot_type)
-    if merge_field is None:
-        return a + b
-    changed, c = merge_annots_with_identical_field(a, b, merge_field)
-    if changed:
-        sort_annot_list_by_position_in_book(c, annot_type)
-    return c
-
-
-def merge_annotations(annots, annots_map):
-    amap = {}
-    for annot in annots:
-        annot = parse_annotation(annot)
-        atype = annot.pop('type')
-        amap.setdefault(atype, []).append(annot)
-    lr = annots_map['last-read']
-    if lr:
-        lr.sort(key=itemgetter('timestamp'), reverse=True)
-    for annot_type, field in {'bookmark': 'title', 'highlight': 'uuid'}.items():
-        a = annots_map.get(annot_type)
-        if a and len(a) > 1:
-            annots_map[annot_type] = list(merge_annots_with_identical_field(a, field=field))
-
-
-def serialize_annotation(annot):
-    annot = annot.copy()
-    annot['timestamp'] = annot['timestamp'].isoformat()
-    return annot
+parse_annotations = json_loads
 
 
 def annotations_as_copied_list(annots_map):
     for atype, annots in iteritems(annots_map):
         for annot in annots:
-            ts = (annot['timestamp'] - EPOCH).total_seconds()
-            annot = serialize_annotation(annot)
+            ts = (parse_iso8601(annot['timestamp'], assume_utc=True) - EPOCH).total_seconds()
+            annot = annot.copy()
             annot['type'] = atype
             yield annot, ts
 
