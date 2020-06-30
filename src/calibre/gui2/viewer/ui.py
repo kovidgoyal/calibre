@@ -19,13 +19,13 @@ from PyQt5.Qt import (
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.customize.ui import available_input_formats
+from calibre.db.annotations import merge_annotations
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.viewer.annotations import (
-    AnnotationsSaveWorker, annotations_dir, merge_annotations, parse_annotations,
-    serialize_annotation
+    AnnotationsSaveWorker, annotations_dir, parse_annotations
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
 from calibre.gui2.viewer.convert_book import clean_running_workers, prepare_book
@@ -44,7 +44,6 @@ from calibre.gui2.viewer.web_view import (
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
-from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.monotonic import monotonic
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import as_bytes, as_unicode, iteritems, itervalues
@@ -531,10 +530,7 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
         highlights = self.current_book_data['annotations_map']['highlight']
         self.highlights_widget.load(highlights)
-        self.web_view.start_book_load(
-            initial_position=initial_position,
-            highlights=list(map(serialize_annotation, highlights))
-        )
+        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights)
 
     def load_book_data(self, calibre_book_data=None):
         self.current_book_data['book_library_details'] = get_book_library_details(self.current_book_data['pathtoebook'])
@@ -599,7 +595,7 @@ class EbookViewer(MainWindow):
         if not self.current_book_data:
             return
         self.current_book_data['annotations_map']['last-read'] = [{
-            'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow()}]
+            'pos': cfi, 'pos_type': 'epubcfi', 'timestamp': utcnow().isoformat()}]
         self.save_pos_timer.start()
     # }}}
 
@@ -615,8 +611,6 @@ class EbookViewer(MainWindow):
     def highlights_changed(self, highlights):
         if not self.current_book_data:
             return
-        for h in highlights:
-            h['timestamp'] = parse_iso8601(h['timestamp'], assume_utc=True)
         amap = self.current_book_data['annotations_map']
         amap['highlight'] = highlights
         self.highlights_widget.refresh(highlights)
