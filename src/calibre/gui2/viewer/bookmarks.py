@@ -11,9 +11,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import choose_files, choose_save_file
-from calibre.gui2.viewer.annotations import serialize_annotation
 from calibre.gui2.viewer.shortcuts import get_shortcut_for
-from calibre.srv.render_book import parse_annotation
 from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import sort_key
 from polyglot.builtins import range, unicode_type
@@ -231,8 +229,7 @@ class BookmarkManager(QWidget):
             self, 'export-viewer-bookmarks', _('Export bookmarks'),
             filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, initial_filename='bookmarks.calibre-bookmarks')
         if filename:
-            entries = [serialize_annotation(a) for a in self.get_bookmarks()]
-            data = json.dumps({'type': 'bookmarks', 'entries': entries}, indent=True)
+            data = json.dumps({'type': 'bookmarks', 'entries': self.get_bookmarks()}, indent=True)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
             with lopen(filename, 'wb') as fileobj:
@@ -273,9 +270,8 @@ class BookmarkManager(QWidget):
                 return
             bookmarks = self.get_bookmarks()
             for bm in imported['entries']:
-                q = parse_annotation(bm)
-                if q not in bookmarks:
-                    bookmarks.append(q)
+                if bm not in bookmarks:
+                    bookmarks.append(bm)
             self.set_bookmarks(bookmarks)
             self.edited.emit(self.get_bookmarks())
 

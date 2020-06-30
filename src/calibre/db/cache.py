@@ -17,6 +17,7 @@ from calibre import isbytestring, as_unicode
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
+from calibre.db.annotations import merge_annotations
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, DowngradeLockError, SafeReadLock
 from calibre.db.errors import NoSuchFormat, NoSuchBook
@@ -2342,6 +2343,15 @@ class Cache(object):
     @write_api
     def set_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
         self.backend.set_annotations_for_book(book_id, fmt, annots_list, user_type, user)
+
+    @write_api
+    def merge_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+        amap = self._annotations_map_for_book(book_id, fmt, user_type=user_type, user=user)
+        merge_annotations(annots_list, amap)
+        alist = []
+        for val in itervalues(amap):
+            alist.extend(val)
+        self._set_annotations_for_book(book_id, fmt, alist, user_type=user_type, user=user)
 
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):

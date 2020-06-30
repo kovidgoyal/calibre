@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from book_list.router import is_reading_book
 from modals import error_dialog
+from read_book.annotations import merge_annotation_maps
 from session import get_interface_data
 from utils import username_key
 
@@ -59,6 +60,7 @@ def new_book(key, metadata):
         'recent_date': new Date(),
         'last_read': {},
         'last_read_position': {},
+        'annotations_map': {},
     }
 
 
@@ -188,6 +190,8 @@ class DB:
         book_id = int(book_id)
         key = v'[library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
+            if result and not result.annotations_map:
+                result.annotations_map = {}
             proceed(result or new_book(key, metadata))
         )
 
@@ -208,13 +212,16 @@ class DB:
                 if newest_epoch is None or pos.epoch > newest_epoch:
                     newest_epoch = pos.epoch
                     newest_pos = pos.cfi
+            unkey = username_key(get_interface_data().username)
             if newest_pos:
-                unkey = username_key(get_interface_data().username)
                 book.last_read[unkey] = new Date(newest_epoch * 1000)
                 book.last_read_position[unkey] = newest_pos
+            if manifest.annotations_map:
+                book.annotations_map[unkey] = manifest.annotations_map
 
-        v'delete manifest["metadata"]'
-        v'delete manifest["last_read_positions"]'
+        v'delete manifest.metadata'
+        v'delete manifest.last_read_positions'
+        v'delete manifest.annotations_map'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
     def store_file(self, book, name, xhr, proceed, is_cover):
@@ -290,13 +297,29 @@ class DB:
         book.last_read[unkey] = book.recent_date = now
         self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
 
-    def update_last_read_data_from_key(self, library_id, book_id, fmt, last_read, last_read_position):
+    def update_annotations_data_from_key(self, library_id, book_id, fmt, new_data):
         unkey = username_key(get_interface_data().username)
         self.get_book(library_id, book_id, fmt, None, def(book):
             if book.metadata:  # book exists
-                book.last_read[unkey] = book.recent_date = last_read
-                book.last_read_position[unkey] = last_read_position
-                self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+                changed = False
+                if new_data.last_read_position:
+                    book.last_read[unkey] = book.recent_date = new_data.last_read
+                    book.last_read_position[unkey] = new_data.last_read_position
+                    changed = True
+                if not book.annotations_map:
+                    book.annotations_map = v'{}'
+                if new_data.annotations_map:
+                    existing = book.annotations_map[unkey]
+                    if not existing:
+                        changed = True
+                        book.annotations_map[unkey] = new_data.annotations_map
+                    else:
+                        updated, merged = merge_annotation_maps(existing, new_data.annotations_map)
+                        if updated:
+                            changed = True
+                            book.annotations_map[unkey] = merged
+                if changed:
+                    self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
         )
 
     def get_file(self, book, name, proceed):

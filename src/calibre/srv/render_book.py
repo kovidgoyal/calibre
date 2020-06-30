@@ -41,7 +41,6 @@ from calibre.srv.opts import grouper
 from calibre.utils.date import EPOCH
 from calibre.utils.filenames import rmtree
 from calibre.utils.ipc.simple_worker import start_pipe_worker
-from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.logging import default_log
 from calibre.utils.serialize import (
     json_dumps, json_loads, msgpack_dumps, msgpack_loads
@@ -783,25 +782,13 @@ def serialize_datetimes(d):
 EPUB_FILE_TYPE_MAGIC = b'encoding=json+base64:\n'
 
 
-def parse_annotation(annot):
-    ts = annot['timestamp']
-    if hasattr(ts, 'rstrip'):
-        annot['timestamp'] = parse_iso8601(ts, assume_utc=True)
-    return annot
-
-
-def parse_annotations(raw):
-    for annot in json_loads(raw):
-        yield parse_annotation(annot)
-
-
 def get_stored_annotations(container, bookmark_data):
     raw = bookmark_data or b''
     if not raw:
         return
     if raw.startswith(EPUB_FILE_TYPE_MAGIC):
         raw = raw[len(EPUB_FILE_TYPE_MAGIC):].replace(b'\n', b'')
-        for annot in parse_annotations(from_base64_bytes(raw)):
+        for annot in json_loads(from_base64_bytes(raw)):
             yield annot
         return
 

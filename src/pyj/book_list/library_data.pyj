@@ -284,7 +284,7 @@ thumbnail_cache = ThumbnailCache()
 
 
 def sync_library_books(library_id, to_sync, callback):
-    url = f'book-get-last-read-position/{library_id}/'
+    url = f'book-get-annotations/{library_id}/'
     which = v'[]'
     lrmap = {}
     for key, last_read in to_sync:
