@@ -989,6 +989,16 @@ class View:
             process_node(toc)
         return found
 
+    def sync_data_received(self, reading_pos_cfi, annotations_map):
+        if annotations_map:
+            ui_operations.annotations_synced(annotations_map)
+            if annotations_map.highlight:
+                if self.annotations_manager.merge_highlights(annotations_map.highlight):
+                    hl = self.annotations_manager.highlights_for_currently_showing()
+                    self.iframe_wrapper.send_message('replace_highlights', highlights=hl)
+        if reading_pos_cfi:
+            self.goto_cfi(reading_pos_cfi)
+
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
         idx = spine.indexOf(self.currently_showing.name)

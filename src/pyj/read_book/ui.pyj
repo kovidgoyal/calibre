@@ -74,6 +74,7 @@ class ReadUI:
         ui_operations.toggle_toc = self.toggle_toc.bind(self)
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.highlights_changed = self.highlights_changed.bind(self)
+        ui_operations.annotations_synced = self.annotations_synced.bind(self)
 
     def on_resize(self):
         self.view.on_resize()
@@ -200,6 +201,12 @@ class ReadUI:
         fmt = self.base_url_data.fmt
         self.db.update_annotations_data_from_key(library_id, book_id, fmt, amap)
         ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, def (): pass;)
+
+    def annotations_synced(self, amap):
+        library_id = self.base_url_data.library_id
+        book_id = self.base_url_data.book_id
+        fmt = self.base_url_data.fmt
+        self.db.update_annotations_data_from_key(library_id, book_id, fmt, amap)
 
     @property
     def url_data(self):
