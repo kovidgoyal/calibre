@@ -53,6 +53,11 @@ def unwrap_crw(crw):
         unwrap(node)
 
 
+def unwrap_all_crw():
+    for node in document.querySelectorAll('span[data-calibre-range-wrapper]'):
+        unwrap(node)
+
+
 def select_crw(crw):
     nodes = document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]')
     r = document.createRange()

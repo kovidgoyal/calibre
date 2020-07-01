@@ -10,6 +10,7 @@ from book_list.globals import get_session_data
 from book_list.theme import cached_color_to_rgba, get_color
 from dom import clear, ensure_id, svgicon, unique_id
 from modals import error_dialog, question_dialog
+from read_book.annotations import merge_annotation_maps
 from read_book.globals import ui_operations
 from read_book.shortcuts import shortcut_for_key_event
 
@@ -23,6 +24,17 @@ class AnnotationsManager:
     def set_highlights(self, highlights):
         highlights = highlights or v'[]'
         self.highlights = {h.uuid: h for h in highlights}
+
+    def merge_highlights(self, highlights):
+        highlights = highlights or v'[]'
+        updated = False
+        if highlights.length:
+            base = {'highlight': Object.values(self.highlights)}
+            newvals = {'highlight': highlights}
+            updated, ans = merge_annotation_maps(base, newvals)
+            if updated:
+                self.set_highlights(ans)
+        return updated
 
     def remove_highlight(self, uuid):
         h = self.highlights[uuid]
