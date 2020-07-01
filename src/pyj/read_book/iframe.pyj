@@ -12,8 +12,8 @@ from select import (
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import (
-    reset_highlight_counter, select_crw, set_selection_to_highlight, unwrap_crw,
-    wrap_text_in_range
+    reset_highlight_counter, select_crw, set_selection_to_highlight, unwrap_all_crw,
+    unwrap_crw, wrap_text_in_range
 )
 from read_book.cfi import (
     cfi_for_selection, range_from_cfi, scroll_to as scroll_to_cfi
@@ -138,6 +138,7 @@ class IframeBoss:
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
             'copy_selection': self.copy_selection,
+            'replace_highlights': self.replace_highlights,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
@@ -770,6 +771,7 @@ class IframeBoss:
 
     def apply_highlights_on_load(self, highlights):
         clear_annot_id_uuid_map()
+        reset_highlight_counter()
         strcmp = v'new Intl.Collator().compare'
         highlights.sort(def (a, b): return strcmp(a.timestamp, b.timestamp);)
         for h in highlights:
@@ -783,6 +785,11 @@ class IframeBoss:
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
                     v'delete annot_id_uuid_map[crw]'
+
+    def replace_highlights(self, data):
+        highlights = data.highlights
+        unwrap_all_crw()
+        self.apply_highlights_on_load(highlights or v'[]')
 
     def add_highlight_listeners(self, wrapper):
         wrapper.addEventListener('dblclick', self.highlight_wrapper_dblclicked)
