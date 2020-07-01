@@ -131,8 +131,8 @@ class SyncBook:  # {{{
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
             E.div(style='margin:1ex 1em; max-width: 80vw',
-                E.h2(_('Syncing to last read position')),
-                E.p(_('Downloading last read data from server, please wait...')),
+                E.h2(_('Syncing last read position and annotations')),
+                E.p(_('Downloading data from server, please wait...')),
                 E.div(style='display:flex; justify-content:flex-end',
                     create_button(_('Cancel'), action=self.cancel),
                 )
@@ -154,25 +154,28 @@ class SyncBook:  # {{{
             if xhr.responseText is 'login required for sync':
                 error_dialog(_('Failed to fetch sync data'), _('You must setup user accounts and login to use the sync functionality'))
             else:
-                error_dialog(_('Failed to fetch sync data'), _('Failed to download last read data from server, click "Show details" for more information.'), xhr.error_html)
+                error_dialog(_('Failed to fetch sync data'), _('Failed to download sync data from server, click "Show details" for more information.'), xhr.error_html)
             return
         data = JSON.parse(xhr.responseText)
         book = self.overlay.view.book
         dev = get_device_uuid()
         epoch = 0
         ans = None
+        new_annotations_map = None
         for key in data:
             book_id, fmt = key.partition(':')[::2]
             if book_id is str(book.key[1]) and fmt.upper() is book.key[2].upper():
-                last_read_positions = data[key]
+                new_vals = data[key]
+                last_read_positions = new_vals.last_read_positions
+                new_annotations_map = new_vals.annotations_map
                 for d in last_read_positions:
                     if d.device is not dev and d.epoch > epoch:
                         epoch = d.epoch
                         ans = d
-        if ans is not None:
-            cfi = ans.cfi
-            if cfi:
-                self.overlay.view.goto_cfi(cfi)
+                break
+        cfi = ans?.cfi
+        if new_annotations_map or cfi:
+            self.overlay.view.sync_data_received(cfi, new_annotations_map)
 
 
 # }}}

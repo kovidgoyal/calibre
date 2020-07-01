@@ -62,10 +62,9 @@ def sync_data_received(library_id, lrmap, load_type, xhr, ev):
         print('Failed to get book sync data')
         return
     data = JSON.parse(xhr.responseText)
-    last_read_data = data.last_read_positions
 
     db = get_db()
-    for key in last_read_data:
+    for key in data:
         new_vals = data[key]
         entry = {'last_read': None, 'last_read_position': None, 'annotations_map': None}
         prev_last_read = lrmap[key]
