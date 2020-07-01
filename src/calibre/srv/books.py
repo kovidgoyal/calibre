@@ -152,7 +152,7 @@ def book_manifest(ctx, rd, book_id, fmt):
                 ans['metadata'] = book_as_json(db, book_id)
                 user = rd.username or None
                 ans['last_read_positions'] = db.get_last_read_positions(book_id, fmt, user) if user else []
-                ans['annotations_map'] = db.annotations_map_for_book(book_id, fmt, user_type='web', user=user) if user else {}
+                ans['annotations_map'] = db.annotations_map_for_book(book_id, fmt, user_type='web', user=user or '*')
                 return ans
             except EnvironmentError as e:
                 if e.errno != errno.ENOENT:
@@ -234,9 +234,7 @@ def get_annotations(ctx, rd, library_id, which):
     book_id1-fmt1_book_id2-fmt2,...
     '''
     db = get_db(ctx, rd, library_id)
-    user = rd.username or None
-    if not user:
-        raise HTTPNotFound('login required for sync')
+    user = rd.username or '*'
     ans = {}
     allowed_book_ids = ctx.allowed_book_ids(rd, db)
     for item in which.split('_'):
@@ -258,9 +256,7 @@ def get_annotations(ctx, rd, library_id, which):
 @endpoint('/book-update-annotations/{library_id}/{book_id}/{+fmt}', types={'book_id': int}, methods=('POST',))
 def update_annotations(ctx, rd, library_id, book_id, fmt):
     db = get_db(ctx, rd, library_id)
-    user = rd.username or None
-    if not user:
-        raise HTTPNotFound('login required for sync')
+    user = rd.username or '*'
     if not ctx.has_id(rd, db, book_id):
         raise BookNotFound(book_id, db)
     try:
