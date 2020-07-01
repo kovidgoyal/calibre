@@ -339,7 +339,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'to be able to send to the device. For example, you might have '
               'audio books in your library with the extension "m4b" that you '
               'want to listen to on your device. Don\'t worry about the "extra '
-              'enabled extensions" warning.')
+              'enabled extensions" warning.'),
+        _('Ignore device free space') + ':::<p>' +
+        _("Check this box to ignore the amount of free space reported by your "
+          "devices. This might be needed if you store books on an SD card and "
+          "the device doesn't have much free main memory.") + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False, '',
@@ -350,7 +354,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '',
                 True,   '75',
                 True,   '',
-                ''
+                '',     False,
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -364,6 +368,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_COMPRESSION_QUALITY     = 13
     OPT_USE_METADATA_CACHE      = 14
     OPT_EXTRA_EXTENSIONS        = 16
+    OPT_IGNORE_FREESPACE        = 17
     OPTNAME_TO_NUMBER_MAP = {
         'password': OPT_PASSWORD,
         'autostart': OPT_AUTOSTART,
@@ -1271,6 +1276,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug()
         opcode, result = self._call_client('FREE_SPACE', {})
         if opcode == 'OK':
+            self._debug('free space:', result['free_space_on_device'])
             return (result['free_space_on_device'], 0, 0)
         # protocol error if we get here
         return (0, 0, 0)
@@ -1470,8 +1476,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug(names)
         else:
             self._debug()
-        sanity_check(on_card='', files=files, card_prefixes=[],
-                     free_space=self.free_space())
+        if not self.settings().extra_customization[self.OPT_IGNORE_FREESPACE]:
+            sanity_check(on_card='', files=files, card_prefixes=[],
+                         free_space=self.free_space())
         paths = []
         names = iter(names)
         metadata = iter(metadata)
