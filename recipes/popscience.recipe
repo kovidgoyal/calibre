@@ -18,8 +18,6 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     description = 'Popular Science'
     publisher = 'Popular Science'
     max_articles_per_feed = 100
-    no_stylesheets = True
-    remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
 
     def parse_index(self):
@@ -33,7 +31,7 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
             author = item.find('dc:creator', {'dc': 'http://purl.org/dc/elements/1.1/'}).text
             section = item.find('category').text
             content = item.find('content:encoded', {'content': 'http://purl.org/rss/1.0/modules/content/'}).text
-            content = '<h1>{title}</h1><h3>{desc}</h3><p>{author}</p><div>{content}</div>'.format(
+            content = '<html><body><h1>{title}</h1><h3>{desc}</h3><p>{author}</p><div>{content}</div></body></html>'.format(
                 title=title, author=author, desc=desc, content=content)
             desc += ' by ' + author
             with PersistentTemporaryFile('popsci.html') as pt:
