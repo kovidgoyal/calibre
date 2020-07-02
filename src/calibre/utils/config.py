@@ -363,29 +363,25 @@ class XMLConfig(dict):
         self.update(d)
 
     def __getitem__(self, key):
-        from polyglot.plistlib import Data
+        from polyglot.plistlib import unwrap_bytes
         try:
             ans = dict.__getitem__(self, key)
-            if isinstance(ans, Data):
-                ans = ans.data
-            return ans
+            return unwrap_bytes(ans)
         except KeyError:
             return self.defaults.get(key, None)
 
     def get(self, key, default=None):
-        from polyglot.plistlib import Data
+        from polyglot.plistlib import unwrap_bytes
         try:
             ans = dict.__getitem__(self, key)
-            if isinstance(ans, Data):
-                ans = ans.data
-            return ans
+            return unwrap_bytes(ans)
         except KeyError:
             return self.defaults.get(key, default)
 
     def __setitem__(self, key, val):
-        from polyglot.plistlib import Data
+        from polyglot.plistlib import wrap_bytes
         if isinstance(val, bytes):
-            val = Data(val)
+            val = wrap_bytes(val)
         dict.__setitem__(self, key, val)
         self.commit()
 
