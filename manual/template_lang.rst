@@ -150,6 +150,7 @@ The functions available are listed below. Note that the definitive documentation
         {tags:sublist(-1,0,\,)} returns "C"
         {tags:sublist(0,-1,\,)} returns "A, B"
 
+    * ``swap_around_articles(separator)`` -- returns the val with articles moved to the end. The value can be a list, in which case each member of the list is processed. If the value is a list then you must provide the list value separator. If no separator is provided then the value is treated as being a single value, not a list.
     * ``swap_around_comma()`` -- given a field with a value of the form ``B, A``, return ``A B``. This is most useful for converting names in LN, FN format to FN LN. If there is no comma, the function returns val unchanged.
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not empty, otherwise return `text if empty`.
