@@ -1659,6 +1659,32 @@ class BuiltinRatingToStars(BuiltinFormatterFunction):
         return rating_to_stars(v, use_half_stars == '1')
 
 
+class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
+    name = 'swap_around_articles'
+    arg_count = 2
+    category = 'String manipulation'
+    __doc__ = doc = _('swap_around_articles(val, separator) '
+                      '-- returns the val with articles moved to the end. '
+                      'The value can be a list, in which case each member '
+                      'of the list is processed. If the value is a list then '
+                      'you must provide the list value separator. If no '
+                      'separator is provided then the value is treated as '
+                      'being a single value, not a list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, val, separator):
+        if not val:
+            return ''
+        if not separator:
+            return title_sort(val).replace(',', ';')
+        result = []
+        try:
+            for v in [x.strip() for x in val.split(separator)]:
+                result.append(title_sort(v).replace(',', ';'))
+        except:
+            traceback.print_exc()
+        return separator.join(sorted(result, key=sort_key))
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
@@ -1678,8 +1704,9 @@ _formatter_builtins = [
     BuiltinRe(), BuiltinReGroup(), BuiltinSelect(), BuiltinSeriesSort(),
     BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
-    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundComma(),
-    BuiltinSwitch(), BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
+    BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
+    BuiltinSwapAroundComma(), BuiltinSwitch(),
+    BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinTransliterate(), BuiltinUppercase(),
     BuiltinUserCategories(), BuiltinVirtualLibraries()
 ]
