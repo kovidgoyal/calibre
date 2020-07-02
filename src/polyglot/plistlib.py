@@ -7,6 +7,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from polyglot.builtins import is_py3
 
 if is_py3:
-    from plistlib import loads, dumps, Data  # noqa
+    from plistlib import loads, dumps  # noqa
 else:
-    from plistlib import readPlistFromString as loads, writePlistToString as dumps, Data  # noqa
+    from plistlib import readPlistFromString as loads, writePlistToString as dumps  # noqa
