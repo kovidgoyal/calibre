@@ -19,7 +19,7 @@ def get_url(mathjax_files, name):
 def postprocess(link_uid):
     for a in document.getElementsByTagName('a'):
         href = a.getAttribute('href')
-        if href.startswith('#'):
+        if href and href.startswith('#'):
             a.setAttribute('href', 'javascript: void(0)')
             a.setAttribute('data-' + link_uid, JSON.stringify({'frag':href[1:]}))
 
