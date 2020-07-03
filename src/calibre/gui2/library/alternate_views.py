@@ -12,10 +12,10 @@ from textwrap import wrap
 
 from PyQt5.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QTimer, QPalette, QColor, QItemSelection, QPixmap, QApplication,
+    QTimer, QColor, QItemSelection, QPixmap, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
+    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, qRed, qGreen,
     qBlue, QItemSelectionModel, QIcon, QFont, QTableView, QTreeView)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
@@ -794,23 +794,26 @@ class GridView(QListView):
 
     def set_color(self):
         r, g, b = gprefs['cover_grid_color']
-        pal = QPalette()
-        col = QColor(r, g, b)
-        pal.setColor(pal.Base, col)
         tex = gprefs['cover_grid_texture']
+        pal = self.palette()
+        pal.setColor(pal.Base, QColor(r, g, b))
+        self.setPalette(pal)
+        ss = ''
         if tex:
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(tex)
             if path:
+                path = os.path.abspath(path).replace(os.sep, '/')
+                ss += 'background-image: url({});'.format(path)
+                ss += 'background-attachment: fixed;'
                 pm = QPixmap(path)
                 if not pm.isNull():
                     val = pm.scaled(1, 1).toImage().pixel(0, 0)
                     r, g, b = qRed(val), qGreen(val), qBlue(val)
-                    pal.setBrush(pal.Base, QBrush(pm))
-        dark = (r + g + b)/3.0 < 128
-        pal.setColor(pal.Text, QColor(Qt.white if dark else Qt.black))
-        self.setPalette(pal)
-        self.delegate.highlight_color = pal.color(pal.Text)
+        dark = max(r, g, b) < 115
+        ss += 'color: {};'.format('white' if dark else 'black')
+        self.delegate.highlight_color = QColor(Qt.white if dark else Qt.black)
+        self.setStyleSheet('QListView {{ {} }}'.format(ss))
 
     def refresh_settings(self):
         size_changed = (
