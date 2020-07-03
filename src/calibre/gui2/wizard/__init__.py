@@ -36,7 +36,7 @@ class Device(object):
 
     output_profile = 'generic_eink'
     output_format = 'EPUB'
-    name = 'Generic e-ink device'
+    name = _('Generic e-ink device')
     manufacturer = 'Generic'
     id = 'default'
     supports_color = False
@@ -192,7 +192,7 @@ class BooqCervantes(Booq):
 
 
 class BOOX(Device):
-    name = 'BOOX MAX, N96, i86, C67ML, M96, etc.'
+    name = _('BOOX MAX, N96, i86, C67ML, M96, etc.')
     manufacturer = 'Onyx'
     output_profile = 'generic_eink_hd'
     output_format = 'EPUB'
