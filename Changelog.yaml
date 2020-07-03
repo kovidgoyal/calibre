@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title:
 
+- version: 4.20.0
+  date: 2020-07-03
+
+  new features:
+    - title: "Edit book: Preview: Support displaying mathematics"
+
+    - title: "Kobo driver: Add support for the latest firmware version"
+
+    - title: "Allow copy/pasting dates from columns having different date display formats."
+      tickets: [1885004]
+
+    - title: "Book details panel: When right clicking on tags/authors/etc. allow finding them in the Tag browser easily."
+      tickets: [1884343]
+
+    - title: "Allow selecting individual items to delete in the Check library dialog."
+      tickets: [1884402]
+
+    - title: "Add an option to the wireless device driver to ignore device free space when sending books."
+
+  bug fixes:
+    - title: "Viewer: Fix turning pages in paged mode with a high precision touchpad to generate scroll events too fast"
+
+    - title: "Edit book: Fix pasting files from another editor instance causing unsaved changes in open editors to be lost."
+      tickets: [1885455]
+
+    - title: "Tag browser: Do not show counts for searches as they are always zero"
+
+    - title: "Check library: Do not abort if there are folders in the library that calibre does not have permission to access."
+      tickets: [1884544]
+
+    - title: "Amazon metadata download: Fix download of ratings not working from amazon.co.jp"
+      tickets: [1884400]
+
+  improved recipes:
+    - Popular Science
+    - Caravan Magazine
+    - Sports Illustrated
+    - Gazetta Prawna
+
+  new recipes:
+    - title: The Print
+      author: Kovid Goyal
+
+
 - version: 4.19.0
   date: 2020-06-19
 
