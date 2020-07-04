@@ -177,6 +177,10 @@ class CreateCustomColumn(QDialog):
             self.comments_type.setCurrentIndex(idx)
         elif ct == 'rating':
             self.allow_half_stars.setChecked(bool(c['display'].get('allow_half_stars', False)))
+
+        if ct not in ['composite', '*composite']:
+            self.default_value.setText(c['display'].get('default_value', ''))
+
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -390,6 +394,15 @@ class CreateCustomColumn(QDialog):
         l.addWidget(cch)
         add_row(None, l)
 
+        # Default value
+        self.default_value = dv = QLineEdit(self)
+        dv.setToolTip('<p>' + _('Default value when a new book is added to the '
+            'library. For Date columns enter the word "now" or the date as '
+            'yyyy-mm-dd. For Yes/No columns enter "Yes" or "No". For Text with '
+            'a fixed set of values enter one of the permitted values. For '
+            'Rating columns enter a number between 0 and 5.') + '</p>')
+        self.default_value_label = add_row(_('Default value'), dv)
+
         self.resize(self.sizeHint())
     # }}}
 
@@ -456,6 +469,8 @@ class CreateCustomColumn(QDialog):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
         for x in ('box', 'default_label', 'label', 'colors', 'colors_label'):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
+        for x in ('value_label', 'value'):
+            getattr(self, 'default_'+x).setVisible(col_type not in ['composite', '*composite'])
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
         is_comments = col_type == 'comments'
@@ -566,6 +581,10 @@ class CreateCustomColumn(QDialog):
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()
+
+        if col_type != 'composite':
+            display_dict['default_value'] = unicode_type(self.default_value.text())
+
         display_dict['description'] = self.description_box.text().strip()
 
         if not self.editing_col:

@@ -92,6 +92,29 @@ def _add_newbook_tag(mi):
                     mi.tags.append(tag)
 
 
+def _add_default_custom_column_values(mi, fm):
+    cols = fm.custom_field_metadata(include_composites=False)
+    for cc,col in iteritems(cols):
+        dv = col['display'].get('default_value', '')
+        try:
+            if dv:
+                if not mi.get_user_metadata(cc, make_copy=False):
+                    mi.set_user_metadata(cc, col)
+                dt = col['datatype']
+                if dt == 'bool':
+                    dv = {_('yes'): 'true', _('no'): 'false'}.get(icu_lower(dv), '')
+                elif dt == 'datetime' and icu_lower(dv) == _('now'):
+                    dv = nowf()
+                elif dt == 'rating':
+                    try:
+                        dv = int(dv) * 2
+                    except:
+                        dv = None
+                mi.set(cc, dv)
+        except:
+            pass
+
+
 dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
 
 
@@ -1571,6 +1594,7 @@ class Cache(object):
             mi.tags = list(mi.tags)
         if apply_import_tags:
             _add_newbook_tag(mi)
+            _add_default_custom_column_values(mi, self.field_metadata)
         if not add_duplicates and self._has_book(mi):
             return
         series_index = (self._get_next_series_num_for(mi.series) if mi.series_index is None else mi.series_index)
