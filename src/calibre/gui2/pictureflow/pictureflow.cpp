@@ -435,6 +435,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
   target = 0;
   fade = 256;
   subtitleFont = QFont();
+  subtitleFont.setHintingPreference(QFont::PreferNoHinting);
 
   triggerTimer.setSingleShot(true);
   triggerTimer.setInterval(0);
@@ -767,6 +768,11 @@ void PictureFlowPrivate::render()
       r = renderSlide(centerSlide);
   int c1 = r.left();
   int c2 = r.right();
+  QFont font = QFont();
+  font.setBold(true);
+  font.setPixelSize(fontSize);
+  font.setHintingPreference(QFont::PreferNoHinting);
+
 
   if(step == 0)
   {
@@ -788,10 +794,6 @@ void PictureFlowPrivate::render()
 
     QPainter painter;
     painter.begin(&buffer);
-
-    QFont font = QFont();
-    font.setBold(true);
-    font.setPixelSize(fontSize);
     painter.setFont(font);
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
@@ -835,14 +837,8 @@ void PictureFlowPrivate::render()
         c2 = rs.right();
     }
 
-
-
     QPainter painter;
     painter.begin(&buffer);
-
-    QFont font = QFont();
-    font.setBold(true);
-    font.setPixelSize(fontSize);
     painter.setFont(font);
 
     int leftTextIndex = (step>0) ? centerIndex : centerIndex-1;
@@ -1253,6 +1249,7 @@ void PictureFlow::setPreserveAspectRatio(bool preserve)
 void PictureFlow::setSubtitleFont(QFont font)
 {
   d->subtitleFont = font;
+  d->subtitleFont.setHintingPreference(QFont::PreferNoHinting);
 }
 
 QFont PictureFlow::subtitleFont() const
