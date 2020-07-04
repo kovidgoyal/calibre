@@ -548,30 +548,27 @@ class HandleWheel:
         self.last_event_mode = 'page'
         self.last_event_at = -10000
         self.last_event_backwards = False
-        self.accumlated_scroll = 0
+        self.accumulated_scroll = 0
 
     def onwheel(self, evt):
         if not evt.deltaY:
             return
         backward = evt.deltaY < 0
-        WheelEvent = window.WheelEvent
-        if evt.deltaMode is WheelEvent.DOM_DELTA_PAGE:
-            self.do_scroll(backward)
+        if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
+            self.add_pixel_scroll(backward, Math.abs(evt.deltaY))
         else:
-            self.add_event(backward, Math.abs(evt.deltaY), 'line' if evt.deltaMode is WheelEvent.DOM_DELTA_LINE else 'pixel')
+            self.do_scroll(backward)
 
-    def add_event(self, backward, deltaY, mode):
+    def add_pixel_scroll(self, backward, deltaY):
         now = window.performance.now()
-        if now - self.last_event_at > 1000 or self.last_event_backwards is not backward or self.last_event_mode is not mode:
-            self.accumlated_scroll = 0
-        self.last_event_mode = mode
+        if now - self.last_event_at > 1000 or self.last_event_backwards is not backward or self.last_event_mode is not 'pixel':
+            self.accumulated_scroll = 0
+        self.last_event_mode = 'pixel'
         self.last_event_at = now
         self.last_event_backwards = backward
+        self.accumulated_scroll += deltaY
         lh = line_height()
-        if mode is 'line':
-            deltaY *= lh
-        self.accumlated_scroll += deltaY
-        if self.accumlated_scroll > 5 * lh:
+        if self.accumulated_scroll > 5 * lh:
             self.do_scroll(backward)
 
     def do_scroll(self, backward):
