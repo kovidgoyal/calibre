@@ -396,11 +396,12 @@ class CreateCustomColumn(QDialog):
 
         # Default value
         self.default_value = dv = QLineEdit(self)
-        dv.setToolTip('<p>' + _('Default value when a new book is added to the '
-            'library. For Date columns enter the word "now" or the date as '
-            'yyyy-mm-dd. For Yes/No columns enter "Yes" or "No". For Text with '
-            'a fixed set of values enter one of the permitted values. For '
-            'Rating columns enter a number between 0 and 5.') + '</p>')
+        dv.setToolTip('<p>' + (_('Default value when a new book is added to the '
+            'library. For Date columns enter the word "Now" or "%s", or the '
+            'date as yyyy-mm-dd. For Yes/No columns enter "Yes" or "%s", or '
+            '"No" or "%s". For Text with a fixed set of values enter one of '
+            'the permitted values. For Rating columns enter a number between '
+            '0 and 5.') % ('now', 'yes', 'no')) + '</p>')
         self.default_value_label = add_row(_('Default value'), dv)
 
         self.resize(self.sizeHint())

@@ -102,8 +102,9 @@ def _add_default_custom_column_values(mi, fm):
                     mi.set_user_metadata(cc, col)
                 dt = col['datatype']
                 if dt == 'bool':
-                    dv = {_('yes'): 'true', _('no'): 'false'}.get(icu_lower(dv), '')
-                elif dt == 'datetime' and icu_lower(dv) == _('now'):
+                    dv = {_('yes'): 'true', 'yes': 'true',
+                          _('no'): 'false', 'no': 'false'}.get(icu_lower(dv), '')
+                elif dt == 'datetime' and (icu_lower(dv) in [_('now'), 'now']):
                     dv = nowf()
                 elif dt == 'rating':
                     try:
@@ -112,7 +113,7 @@ def _add_default_custom_column_values(mi, fm):
                         dv = None
                 mi.set(cc, dv)
         except:
-            pass
+            traceback.print_exc()
 
 
 dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
