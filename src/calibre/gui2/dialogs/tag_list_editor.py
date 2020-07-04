@@ -341,11 +341,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         if select_item is not None:
             self.table.setCurrentItem(select_item)
+            self.table.setFocus(True)
             self.start_find_pos = select_item.row()
         else:
             self.table.setCurrentCell(0, 0)
+            self.search_box.setFocus()
             self.start_find_pos = -1
-        self.table.setFocus(True)
         self.table.blockSignals(False)
 
     def not_found_label_timer_event(self):
