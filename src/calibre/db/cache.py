@@ -101,16 +101,8 @@ def _add_default_custom_column_values(mi, fm):
                 if not mi.get_user_metadata(cc, make_copy=False):
                     mi.set_user_metadata(cc, col)
                 dt = col['datatype']
-                if dt == 'bool':
-                    dv = {_('yes'): 'true', 'yes': 'true',
-                          _('no'): 'false', 'no': 'false'}.get(icu_lower(dv), '')
-                elif dt == 'datetime' and (icu_lower(dv) in [_('now'), 'now']):
+                if dt == 'datetime' and icu_lower(dv) == 'now':
                     dv = nowf()
-                elif dt == 'rating':
-                    try:
-                        dv = int(dv) * 2
-                    except:
-                        dv = None
                 mi.set(cc, dv)
         except:
             traceback.print_exc()
