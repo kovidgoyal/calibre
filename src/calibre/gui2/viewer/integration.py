@@ -21,6 +21,10 @@ def get_book_library_details(absolute_path_to_ebook):
     return {'dbpath': dbpath, 'book_id': book_id, 'fmt': absolute_path_to_ebook.rpartition('.')[-1].upper()}
 
 
+def database_has_annotations_support(cursor):
+    return next(cursor.execute('pragma user_version;'))[0] > 23
+
+
 def load_annotations_map_from_library(book_library_details):
     import apsw
     from calibre.db.backend import annotations_for_book, Connection
@@ -32,7 +36,10 @@ def load_annotations_map_from_library(book_library_details):
         return ans
     try:
         conn.setbusytimeout(Connection.BUSY_TIMEOUT)
-        for annot in annotations_for_book(conn.cursor(), book_library_details['book_id'], book_library_details['fmt']):
+        cursor = conn.cursor()
+        if not database_has_annotations_support(cursor):
+            return ans
+        for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt']):
             ans.setdefault(annot['type'], []).append(annot)
     finally:
         conn.close()
@@ -51,6 +58,8 @@ def save_annotations_list_to_library(book_library_details, alist):
         return
     try:
         conn.setbusytimeout(Connection.BUSY_TIMEOUT)
+        if not database_has_annotations_support(conn.cursor()):
+            return
         amap = {}
         with conn:
             cursor = conn.cursor()
