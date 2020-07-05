@@ -176,6 +176,7 @@ class ComicInput(InputFormatPlugin):
             comics_ = [['Comic', os.path.abspath(stream.name)]]
         stream.close()
         comics = []
+        num_pages_per_comic = []
         for i, x in enumerate(comics_):
             title, fname = x
             cdir = 'comic_%d'%(i+1) if len(comics_) > 1 else '.'
@@ -185,8 +186,9 @@ class ComicInput(InputFormatPlugin):
             pages = self.get_pages(fname, cdir)
             if not pages:
                 continue
+            num_pages_per_comic.append(len(pages))
             if self.for_viewer:
-                comics.append((title, pages, [self.create_viewer_wrapper(pages)]))
+                comics.append((title, pages, [self.create_viewer_wrapper(pages, cdir)]))
             else:
                 wrappers = self.create_wrappers(pages)
                 comics.append((title, pages, wrappers))
@@ -220,25 +222,41 @@ class ComicInput(InputFormatPlugin):
             self._images.extend(comic[1])
         opf.create_spine(spine)
         if self.for_viewer and cover_href:
+            if os.path.isabs(cover_href):
+                cover_href = os.path.relpath(cover_href).replace(os.sep, '/')
             opf.guide.set_cover(cover_href)
         toc = TOC()
         if len(comics) == 1:
             wrappers = comics[0][2]
-            for i, x in enumerate(wrappers):
-                toc.add_item(href(x), None, _('Page')+' %d'%(i+1),
-                        play_order=i)
+            if self.for_viewer:
+                wrapper_page_href = href(wrappers[0])
+                for i in range(num_pages_per_comic[0]):
+                    toc.add_item('{}#page_{}'.format(wrapper_page_href, i+1), None,
+                        _('Page')+' %d'%(i+1), play_order=i)
+
+            else:
+                for i, x in enumerate(wrappers):
+                    toc.add_item(href(x), None, _('Page')+' %d'%(i+1),
+                            play_order=i)
         else:
             po = 0
-            for comic in comics:
+            for num_pages, comic in zip(num_pages_per_comic, comics):
                 po += 1
                 wrappers = comic[2]
                 stoc = toc.add_item(href(wrappers[0]),
                         None, comic[0], play_order=po)
                 if not opts.dont_add_comic_pages_to_toc:
-                    for i, x in enumerate(wrappers):
-                        stoc.add_item(href(x), None,
-                                _('Page')+' %d'%(i+1), play_order=po)
-                        po += 1
+                    if self.for_viewer:
+                        wrapper_page_href = href(wrappers[0])
+                        for i in range(num_pages):
+                            stoc.add_item('{}#page_{}'.format(wrapper_page_href, i+1), None,
+                                    _('Page')+' %d'%(i+1), play_order=po)
+                            po += 1
+                    else:
+                        for i, x in enumerate(wrappers):
+                            stoc.add_item(href(x), None,
+                                    _('Page')+' %d'%(i+1), play_order=po)
+                            po += 1
         opf.set_toc(toc)
         with open('metadata.opf', 'wb') as m, open('toc.ncx', 'wb') as n:
             opf.render(m, n, 'toc.ncx')
@@ -274,13 +292,13 @@ class ComicInput(InputFormatPlugin):
             wrappers.append(page)
         return wrappers
 
-    def create_viewer_wrapper(self, pages):
+    def create_viewer_wrapper(self, pages, cdir):
         from calibre.ebooks.oeb.base import XHTML_NS
 
-        def page(src):
-            return '<img src="{}"></img>'.format(os.path.basename(src))
+        def page(pnum, src):
+            return '<img id="page_{}" src="{}"></img>'.format(pnum + 1, os.path.basename(src))
 
-        pages = '\n'.join(map(page, pages))
+        pages = '\n'.join(page(i, src) for i, src in enumerate(pages))
         base = os.path.dirname(pages[0])
         wrapper = '''
         <html xmlns="%s">
@@ -304,7 +322,7 @@ class ComicInput(InputFormatPlugin):
             </body>
         </html>
         ''' % (XHTML_NS, pages)
-        path = os.path.join(base, 'wrapper.xhtml')
+        path = os.path.join(base, cdir, 'wrapper.xhtml')
         with open(path, 'wb') as f:
             f.write(wrapper.encode('utf-8'))
         return path
