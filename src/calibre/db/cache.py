@@ -2346,11 +2346,15 @@ class Cache(object):
 
     @write_api
     def merge_annotations_for_book(self, book_id, fmt, annots_list, user_type='local', user='viewer'):
+        from calibre.utils.iso8601 import parse_iso8601
+        from calibre.utils.date import EPOCH
         amap = self._annotations_map_for_book(book_id, fmt, user_type=user_type, user=user)
         merge_annotations(annots_list, amap)
         alist = []
         for val in itervalues(amap):
-            alist.extend(val)
+            for annot in val:
+                ts = (parse_iso8601(annot['timestamp']) - EPOCH).total_seconds()
+                alist.append((annot, ts))
         self._set_annotations_for_book(book_id, fmt, alist, user_type=user_type, user=user)
 
 
