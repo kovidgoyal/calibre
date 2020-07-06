@@ -19,7 +19,6 @@ def setup_pyreadline():
     config = '''
 #Bind keys for exit (keys only work on empty lines
 #disable_readline(True)		#Disable pyreadline completely.
-from __future__ import print_function, unicode_literals, absolute_import
 debug_output("off")             #"on" saves log info to./pyreadline_debug_log.txt
                                 #"on_nologfile" only enables print warning messages
 bind_exit_key("Control-d")
@@ -183,7 +182,6 @@ def simple_repl(user_ns={}):
     user_ns['help'] = Helper()
     from code import InteractiveConsole
     console = InteractiveConsole(user_ns)
-    console.runsource('from __future__ import (unicode_literals, division, absolute_import, print_function)')
     console.interact(BANNER + 'Use exit to quit')
 
 
