@@ -1945,7 +1945,6 @@ if __name__ == '__main__':
     try:
         subprocess.check_call(['python', '-c', textwrap.dedent(
         '''
-        from __future__ import print_function
         import time, sys, init_calibre
         st = time.time()
         import calibre.customize.builtins
