@@ -35,7 +35,7 @@ def points_for_word(w):
     w = w.lower()
     ans = points_for_word.cache.get(w)
     if ans is None:
-        ans = plugins['unicode_names'][0].codepoints_for_word(w.encode('utf-8')) | html_entities().get(w, set())
+        ans = plugins['unicode_names'][0].codepoints_for_word(w) | html_entities().get(w, set())
         points_for_word.cache[w] = ans
     return ans
 
