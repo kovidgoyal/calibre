@@ -54,7 +54,7 @@ class BusySpinner(QWidget):  # {{{
 quote_map= {'"':'"“”', "'": "'‘’"}
 qpat = regex.compile(r'''(['"])''')
 spat = regex.compile(r'(\s+)')
-invisible_chars = '(?:[\u00ad\u200d]{0,1})'
+invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
 
 
 def text_to_regex(text):
