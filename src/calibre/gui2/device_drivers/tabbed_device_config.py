@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals,  # division, absolute_import,
-                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -278,7 +276,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
-                    row_func = lambda x, y: ((x/2) * 2) + y
+                    row_func = lambda x, y: ((x//2) * 2) + y
                     col_func = lambda x: x%2
                 else:
                     row_func = lambda x, y: x*2 + y
