@@ -76,6 +76,17 @@
       </spacer>
      </item>
      <item>
+      <widget class="QCheckBox" name="apply_vls">
+       <property name="text">
+        <string>&amp;Apply virtual libraries</string>
+       </property>
+       <property name="toolTip">
+        <string>&lt;p&gt;Select to make Quickview show only books in the current
+        virtual library&lt;/p&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="lock_qv">
        <property name="text">
         <string>&amp;Lock Quickview contents</string>
