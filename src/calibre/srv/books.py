@@ -268,6 +268,7 @@ def update_annotations(ctx, rd, library_id, book_id, fmt):
         if val:
             alist.extend(val)
     db.merge_annotations_for_book(book_id, fmt, alist, user_type='web', user=user)
+    return b''
 
 
 mathjax_lock = Lock()
