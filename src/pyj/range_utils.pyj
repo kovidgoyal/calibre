@@ -113,6 +113,7 @@ def wrap_text_in_range(style, r, process_wrapper):
     wrapper_elem = document.createElement('span')
     wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
     if style:
+        style = style.rstrip()
         if !style.endsWith(';'):
             style += ';'
         style = str.replace(style, ';', ' !important;')
