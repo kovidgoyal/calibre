@@ -174,6 +174,10 @@ class Quickview(QDialog, Ui_Quickview):
         self.last_search = None
         self.no_valid_items = False
 
+        self.apply_vls.setCheckState(Qt.Checked if gprefs['qv_respects_vls']
+                                        else Qt.Unchecked)
+        self.apply_vls.stateChanged.connect(self.vl_box_changed)
+
         self.fm = self.db.field_metadata
 
         self.items.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -428,6 +432,10 @@ class Quickview(QDialog, Ui_Quickview):
         self.fill_in_books_box(unicode_type(txt))
         self.set_search_text(self.current_key + ':"=' + txt.replace('"', '\\"') + '"')
 
+    def vl_box_changed(self):
+        gprefs['qv_respects_vls'] = self.apply_vls.isChecked()
+        self._refresh(self.current_book_id, self.current_key)
+
     def refresh(self, idx):
         '''
         Given a cell in the library view, display the information. This method
@@ -534,7 +542,7 @@ class Quickview(QDialog, Ui_Quickview):
         else:
             sv = selected_item
         sv = self.current_key + ':"=' + sv.replace('"', r'\"') + '"'
-        if gprefs['qv_respects_vls']:
+        if self.apply_vls.isChecked():
             books = self.db.search(sv, return_matches=True, sort_results=False)
         else:
             books = self.db.new_api.search(sv)
@@ -588,8 +596,8 @@ class Quickview(QDialog, Ui_Quickview):
                         a = TableItem(v, timestampfromdt(d))
                     elif self.fm[col]['datatype'] in ('float', 'int'):
                         v = mi.format_field(col)[1]
-                        sv = mi.get(col)
-                        a = TableItem(v, sv)
+                        sort_val = mi.get(col)
+                        a = TableItem(v, sort_val)
                     else:
                         v = mi.format_field(col)[1]
                         a = TableItem(v, v)
