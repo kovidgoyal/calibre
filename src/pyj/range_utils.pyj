@@ -113,6 +113,9 @@ def wrap_text_in_range(style, r, process_wrapper):
     wrapper_elem = document.createElement('span')
     wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
     if style:
+        if !style.endsWith(';'):
+            style += ';'
+        style = str.replace(style, ';', ' !important;')
         wrapper_elem.setAttribute('style', style)
 
     intersecting_wrappers = {}
