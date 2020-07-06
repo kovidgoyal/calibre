@@ -26,7 +26,7 @@ from calibre.db.tables import VirtualTable
 from calibre.db.write import get_series_values, uniq
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
 from calibre.ebooks import check_ebook_format
-from calibre.ebooks.metadata import string_to_authors, author_to_author_sort, authors_to_sort_string
+from calibre.ebooks.metadata import string_to_authors, author_to_author_sort
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ptempfile import (base_dir, PersistentTemporaryFile,
@@ -1365,7 +1365,7 @@ class Cache(object):
 
                 val = mi.get('author_sort', None)
                 if authors_changed and (not val or mi.is_null('author_sort')):
-                    val = authors_to_sort_string(mi.authors)
+                    val = self._author_sort_from_authors(mi.authors)
                 if authors_changed or (force_changes and val is not None) or not mi.is_null('author_sort'):
                     protected_set_field('author_sort', val)
 
@@ -1600,7 +1600,7 @@ class Cache(object):
                 series_index = 1.0
         if not mi.authors:
             mi.authors = (_('Unknown'),)
-        aus = mi.author_sort if mi.author_sort else self._author_sort_from_authors(mi.authors)
+        aus = mi.author_sort if not mi.is_null('author_sort') else self._author_sort_from_authors(mi.authors)
         mi.title = mi.title or _('Unknown')
         if isbytestring(aus):
             aus = aus.decode(preferred_encoding, 'replace')

@@ -442,6 +442,11 @@ class WritingTest(BaseTest):
         mi = Metadata('empty', ['a1', 'a2'])
         cache.set_metadata(1, mi)
         self.assertEqual('a1 & a2', cache.field_for('author_sort', 1))
+        cache.set_sort_for_authors({cache.get_item_id('authors', 'a1'): 'xy'})
+        self.assertEqual('xy & a2', cache.field_for('author_sort', 1))
+        mi = Metadata('empty', ['a1'])
+        cache.set_metadata(1, mi)
+        self.assertEqual('xy', cache.field_for('author_sort', 1))
 
     # }}}
 
