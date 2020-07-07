@@ -816,7 +816,7 @@ A value of zero means calculate automatically.</string>
          <item>
           <widget class="QCheckBox" name="opt_bd_show_cover">
            <property name="text">
-            <string>Show &amp;cover in the Book details panel</string>
+            <string>Show &amp;cover</string>
            </property>
           </widget>
          </item>
@@ -1147,14 +1147,14 @@ see the counts by hovering your mouse over any item.</string>
        <item row="7" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
-          <string>When showing the Cover browser in a separate window, show it &amp;fullscreen</string>
+          <string>When showing in a separate window, show it &amp;fullscreen</string>
          </property>
         </widget>
        </item>
        <item row="0" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_separate_cover_flow">
          <property name="text">
-          <string>Show Cover &amp;browser in a separate window (needs restart)</string>
+          <string>Show in a &amp;separate window (needs restart)</string>
          </property>
         </widget>
        </item>
@@ -1165,14 +1165,14 @@ see the counts by hovering your mouse over any item.</string>
 them to all have the same width and height</string>
          </property>
          <property name="text">
-          <string>Preserve &amp;aspect ratio of covers displayed in the Cover browser</string>
+          <string>Preserve &amp;aspect ratio of covers</string>
          </property>
         </widget>
        </item>
        <item row="2" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cover_browser_reflections">
          <property name="text">
-          <string>Show &amp;reflections in the Cover browser</string>
+          <string>Show &amp;reflections</string>
          </property>
         </widget>
        </item>
@@ -1223,7 +1223,7 @@ current Virtual library. If unchecked, Quickview ignores Virtual libraries. If
 unchecked then only row changes are taken into account.</string>
            </property>
            <property name="text">
-            <string>&amp;Apply Virtual libraries in Quickview panel</string>
+            <string>&amp;Apply Virtual libraries</string>
            </property>
           </widget>
          </item>
