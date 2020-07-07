@@ -575,9 +575,12 @@ class Convert(object):
             self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
         else:
             text = html_tag.text
+            is_list_item = tagname == 'li'
+            if text and is_list_item and not text.strip():
+                text = ''  # whitespace only, ignore
             if text:
                 block.add_text(text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link, lang=self.current_lang)
-            elif tagname == 'li' and len(html_tag) and barename(html_tag[0].tag) in ('ul', 'ol') and len(html_tag[0]):
+            elif is_list_item and len(html_tag) and barename(html_tag[0].tag) in ('ul', 'ol') and len(html_tag[0]):
                 block.force_not_empty = True
 
     def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
