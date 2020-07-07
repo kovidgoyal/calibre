@@ -438,6 +438,7 @@ class Preview(QWidget):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
+        self.current_sync_retry_count = 0
         self.view = WebView(self)
         self.view._page.bridge.request_sync.connect(self.request_sync)
         self.view._page.bridge.request_split.connect(self.request_split)
@@ -533,20 +534,24 @@ class Preview(QWidget):
         if self.current_name:
             self.split_requested.emit(self.current_name, loc, totals)
 
+    @property
+    def bridge_ready(self):
+        return self.view._page.bridge.ready
+
     def sync_to_editor(self, name, sourceline_address):
         self.current_sync_request = (name, sourceline_address)
+        self.current_sync_retry_count = 0
         QTimer.singleShot(100, self._sync_to_editor)
 
     def _sync_to_editor(self):
-        if not actions['sync-preview-to-editor'].isChecked():
+        if not actions['sync-preview-to-editor'].isChecked() or self.current_sync_retry_count >= 3000 or self.current_sync_request is None:
             return
-        try:
-            if self.refresh_timer.isActive() or self.current_sync_request[0] != self.current_name:
-                return QTimer.singleShot(100, self._sync_to_editor)
-        except TypeError:
-            return  # Happens if current_sync_request is None
+        if self.refresh_timer.isActive() or not self.bridge_ready or self.current_sync_request[0] != self.current_name:
+            self.current_sync_retry_count += 1
+            return QTimer.singleShot(100, self._sync_to_editor)
         sourceline_address = self.current_sync_request[1]
         self.current_sync_request = None
+        self.current_sync_retry_count = 0
         self.view._page.go_to_sourceline_address(sourceline_address)
 
     def report_worker_launch_error(self):

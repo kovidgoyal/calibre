@@ -201,6 +201,10 @@ class SyntaxHighlighter(object):
         finally:
             self.ignore_requests = False
 
+    @property
+    def is_working(self):
+        return bool(self.requests)
+
     def parse_single_block(self, block):
         ud, is_new_ud = self.get_user_data(block)
         orig_state = ud.state

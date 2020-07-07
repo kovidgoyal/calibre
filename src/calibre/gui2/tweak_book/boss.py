@@ -12,7 +12,7 @@ from functools import partial, wraps
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
-    QInputDialog, QLabel, QMimeData, QObject, QSize, Qt, QUrl, QVBoxLayout,
+    QInputDialog, QLabel, QMimeData, QObject, QSize, Qt, QTimer, QUrl, QVBoxLayout,
     pyqtSignal
 )
 
@@ -1497,7 +1497,11 @@ class Boss(QObject):
         if ed is not None:
             name = editor_name(ed)
             if name is not None and getattr(ed, 'syntax', None) == 'html':
-                self.gui.preview.sync_to_editor(name, ed.current_tag())
+                ct = ed.current_tag()
+                self.gui.preview.sync_to_editor(name, ct)
+                hl = getattr(ed, 'highlighter', None)
+                if hl is not None and hl.is_working:
+                    QTimer.singleShot(75, self.sync_preview_to_editor)
 
     def show_partial_cfi_in_editor(self, name, cfi):
         editor = self.edit_file(name, 'html')

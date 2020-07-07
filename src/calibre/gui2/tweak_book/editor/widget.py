@@ -183,6 +183,10 @@ class Editor(QMainWindow):
         return self.editor.current_tag(for_position_sync=for_position_sync)
 
     @property
+    def highlighter(self):
+        return self.editor.highlighter
+
+    @property
     def number_of_lines(self):
         return self.editor.blockCount()
 
