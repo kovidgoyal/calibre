@@ -19,49 +19,35 @@ class E1843(BasicNewsRecipe):
     language = 'en_GB'
     no_stylesheets = True
     remove_javascript = True
-    oldest_article = 365
     encoding = 'utf-8'
 
-    # feeds = [
-    #     'https://www.1843magazine.com/rss/content',
-    # ]
-
     keep_only_tags = [
-        dict(name='h1', attrs={'class': lambda x: x and 'title' in x.split()}),
-        classes('field-name-field-rubric-summary article-header__overlay-main-image meta-info__author article__body'),
+        dict(id='content')
+    ]
+    remove_tags = [
+        classes('advert ad ds-share-list article__wordmark related-articles newsletter-signup')
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.1843magazine.com')
-        a = soup.find(text='Print edition').parent
-        soup = self.index_to_soup(a['href'])
-        h1 = soup.find(**classes('cover-image__main'))
-        self.timefmt = ' [%s]' % self.tag_to_string(h1)
-        img = soup.find(**classes('cover-image__image')).find('img')
-        self.cover_url = img['src']
-
+        soup = self.index_to_soup('https://economist.com/1843/')
         ans = []
-        current_section = articles = None
 
-        for div in soup.findAll(**classes('field-name-field-header node-article')):
-            if 'field-header' in ''.join(div['class']):
-                if current_section and articles:
-                    ans.append((current_section, articles))
-                current_section = self.tag_to_string(div)
-                self.log(current_section)
-                articles = []
-            else:
-                a = div.find('a', href=True)
-                title = self.tag_to_string(a)
-                url = a['href']
-                self.log('\t', title, ' at ', url)
-                desc = ''
-                r = div.find(**classes('article-rubric'))
-                if r is not None:
-                    desc = self.tag_to_string(r)
-                articles.append(
-                    {'title': title, 'url': url, 'description': desc})
+        for a in soup.findAll(**classes('headline-link')):
+            url = a['href']
+            if url.startswith('/'):
+                url = 'https://economist.com' + url
+            title = self.tag_to_string(a)
+            self.log(title, ' at ', url)
+            desc = ''
+            d = a.parent.findNextSibling(itemprop='description')
+            if d is not None:
+                desc = self.tag_to_string(d)
+            ans.append({'title': title, 'url': url, 'description': desc})
+        return [('Articles', ans)]
 
-        if current_section and articles:
-            ans.append((current_section, articles))
-        return ans
+    def postprocess_html(self, soup, *a):
+        main = soup.find(id='content')
+        header = soup.find(**classes('article__header'))
+        header.extract()
+        main.insert(0, header)
+        return soup
