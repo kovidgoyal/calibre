@@ -177,6 +177,7 @@ def map_to_iframe_coords(point):
 
 
 BAR_SIZE = 32
+DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 
 
 def create_bar():
@@ -194,6 +195,8 @@ class CreateAnnotation:
     def __init__(self, view):
         self.view = view
         self.active_touch = None
+        self.drag_scroll_timer = None
+        self.last_drag_scroll_at = -100000
         self.editing_annot_uuid = None
         self.current_notes = ''
         self.annotations_manager = self.view.annotations_manager
@@ -227,7 +230,7 @@ class CreateAnnotation:
         tb = create_bar()
         container.appendChild(tb)
         button(tb, 'close', _('Cancel creation of highlight'), self.hide)
-        button(tb, 'chevron-up', _('Scroll up'), self.scroll_up)
+        button(tb, 'chevron-up', _('Scroll up'), self.button_scroll.bind(None, True))
         tb.appendChild(E.span(style=f'height: {tb.style.height}'))
         button(tb.lastChild, 'trash', _('Remove this highlight'), self.delete_highlight)
         tb.lastChild.appendChild(E.span('\xa0\xa0\xa0'))
@@ -243,7 +246,7 @@ class CreateAnnotation:
         bb = create_bar()
         container.appendChild(bb)
         button(bb, 'fg', _('Change highlight color'), self.choose_color)
-        button(bb, 'chevron-down', _('Scroll down'), self.scroll_down)
+        button(bb, 'chevron-down', _('Scroll down'), self.button_scroll)
         button(bb, 'pencil', _('Add a note'), self.add_notes)
 
         sd = get_session_data()
@@ -271,12 +274,6 @@ class CreateAnnotation:
 
     def copy_to_clipboard(self):
         self.view.iframe_wrapper.send_message('copy_selection')
-
-    def scroll_up(self):
-        self.send_message('scroll', backwards=True)
-
-    def scroll_down(self):
-        self.send_message('scroll', backwards=False)
 
     @property
     def middle(self):
@@ -455,12 +452,16 @@ class CreateAnnotation:
         if sc_name is 'show_chrome':
             self.hide()
         elif sc_name in ('up', 'down', 'pageup', 'pagedown'):
-            self.send_message('scroll', backwards=bool('up' in sc_name))
+            backwards = 'up' in sc_name
+            if 'page' in sc_name or not self.in_flow_mode:
+                self.paged_scroll(backwards)
+            else:
+                self.send_drag_scroll_message(backwards, 'left' if backwards else 'right', False)
         elif sc_name in ('left', 'right'):
             if self.in_flow_mode:
                 self.send_message('perp-scroll', backwards=bool(sc_name is 'left'))
             else:
-                self.send_message('scroll', backwards=bool(sc_name is 'left'))
+                self.paged_scroll(sc_name is 'left')
 
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -495,9 +496,46 @@ class CreateAnnotation:
             self.start_handle_drag(touch, ev.currentTarget.id)
             break
 
+    def button_scroll(self, backwards):
+        if self.in_flow_mode:
+            self.send_drag_scroll_message(backwards, 'left' if backwards else 'right', False)
+        else:
+            self.paged_scroll(backwards)
+
+    def paged_scroll(self, backwards):
+        self.send_message('paged-scroll', backwards=backwards)
+
+    def run_drag_scroll(self, mouse_y, top, bottom):
+        backwards = mouse_y <= top
+        self.do_one_drag_scroll(backwards, top - mouse_y if backwards else mouse_y - bottom)
+
+    def do_one_drag_scroll(self, backwards, distance_from_boundary):
+        window.clearTimeout(self.drag_scroll_timer)
+        self.drag_scroll_timer = None
+        if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
+            return
+        interval = 100 if self.in_flow_mode else 1200
+        self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
+        now = window.performance.now()
+        if now - self.last_drag_scroll_at > interval:
+            self.send_drag_scroll_message(backwards, 'left' if self.state is DRAGGING_LEFT else 'right', True)
+            self.last_drag_scroll_at = now
+
+    def send_drag_scroll_message(self, backwards, handle, extend_selection):
+        self.send_message(
+            'drag-scroll', backwards=backwards, handle=handle, extents=self.current_handle_position,
+            extend_selection=extend_selection)
+
+    def end_drag_scroll(self):
+        if self.drag_scroll_timer is not None:
+            window.clearTimeout(self.drag_scroll_timer)
+            self.drag_scroll_timer = None
+            self.last_drag_scroll_at = -10000
+
     def mouseup_on_container(self, ev):
         if self.state in (DRAGGING_RIGHT, DRAGGING_LEFT):
             self.state = WAITING_FOR_DRAG
+            self.end_drag_scroll()
             ev.preventDefault(), ev.stopPropagation()
 
     def touchend_on_container(self, ev):
@@ -507,6 +545,7 @@ class CreateAnnotation:
                 if touch.identifier is self.active_touch:
                     self.active_touch = None
                     self.state = WAITING_FOR_DRAG
+                    self.end_drag_scroll()
                     return
 
     def handle_moved(self, ev):
@@ -518,6 +557,16 @@ class CreateAnnotation:
         pos.start = map_to_iframe_coords(pos.start)
         pos.end = map_to_iframe_coords(pos.end)
         self.send_message('set-selection', extents=pos)
+        c = self.container
+        rect = c.getBoundingClientRect()
+        t = document.getElementById('book-top-margin').offsetHeight
+        top = rect.top + max(t, DRAG_SCROLL_ZONE_MIN_HEIGHT)
+        t = document.getElementById('book-bottom-margin').offsetHeight
+        bottom = rect.bottom - max(t, DRAG_SCROLL_ZONE_MIN_HEIGHT)
+        if ev.clientY < top or ev.clientY > bottom:
+            self.run_drag_scroll(ev.clientY, top, bottom)
+        else:
+            self.end_drag_scroll()
 
     def mousemove_on_container(self, ev):
         if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
@@ -626,17 +675,10 @@ class CreateAnnotation:
                 self.editing_annot_uuid = msg.existing or None
                 if self.editing_annot_uuid:
                     self.current_notes = self.annotations_manager.notes_for_highlight(self.editing_annot_uuid) or ''
+        elif msg.type is 'scrolled':
+            self.place_handles_after_scroll(msg.extents, msg.handle, msg.extended)
         elif msg.type is 'update-handles':
             self.place_handles(msg.extents)
-            if msg.from_scroll and not msg.selection_extended:
-                middle = map_from_iframe_coords({
-                    'x': msg.page_rect.left + msg.page_rect.width // 2,
-                    'y': msg.page_rect.top + msg.page_rect.height // 2
-                })
-                handle = self.left_handle if msg.backwards else self.right_handle
-                handle.style.display = 'block'
-                handle.style.left = f'{middle.x}px'
-                handle.style.top = f'{middle.y}px'
         elif msg.type is 'highlight-applied':
             if not msg.ok:
                 return error_dialog(
@@ -653,29 +695,41 @@ class CreateAnnotation:
         self.left_handle.style.display = 'none'
         self.right_handle.style.display = 'none'
 
+    def place_single_handle(self, handle, data):
+        map_from_iframe_coords(data)
+        s = handle.style
+        s.display = 'block' if data.onscreen else 'none'
+        height = data.height * 3
+        width = data.height * 2
+        s.width = f'{width}px'
+        s.height = f'{height}px'
+        bottom = data.y + data.height
+        top = bottom - height
+        s.top = f'{top}px'
+        if handle.id is self.left_handle_id:
+            s.left = (data.x - width) + 'px'
+        else:
+            s.left = data.x + 'px'
+
     def place_handles(self, extents):
-        lh, rh = self.left_handle, self.right_handle
-
-        def do_it(handle, data):
-            map_from_iframe_coords(data)
-            s = handle.style
-            s.display = 'block' if data.onscreen else 'none'
-            height = data.height * 3
-            width = data.height * 2
-            s.width = f'{width}px'
-            s.height = f'{height}px'
-            bottom = data.y + data.height
-            top = bottom - height
-            s.top = f'{top}px'
-            return s, width
-
-        style, width = do_it(lh, extents.start)
-        style.left = (extents.start.x - width) + 'px'
-        style, width = do_it(rh, extents.end)
-        style.left = extents.end.x + 'px'
+        self.place_single_handle(self.left_handle, extents.start)
+        self.place_single_handle(self.right_handle, extents.end)
         self.state = WAITING_FOR_DRAG
         self.left_line_height = extents.start.height
         self.right_line_height = extents.end.height
+
+    def place_handles_after_scroll(self, extents, handle, extended):
+        if extended:
+            if handle is 'right':
+                h = self.left_handle
+                data = extents.start
+            else:
+                h = self.right_handle
+                data = extents.end
+            self.place_single_handle(h, data)
+        else:
+            self.place_single_handle(self.left_handle, extents.start)
+            self.place_single_handle(self.right_handle, extents.end)
 
 
 class ViewAnnotation:

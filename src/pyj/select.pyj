@@ -98,53 +98,32 @@ def selection_extents_at_point(x, y, in_flow_mode):
     return ans
 
 
-def extend_selection_after_scroll(backwards, in_flow_mode, page_rect):
-    page_rect.top = page_rect.left = 0
-    page_rect.bottom = window.innerHeight
-    page_rect.right = page_rect.width
-    if not in_flow_mode and not backwards:
-        page_rect.right = window.innerWidth
-        page_rect.left = window.innerWidth - page_rect.width
-    page_rect.width = page_rect.right - page_rect.left
-    page_rect.height = page_rect.bottom - page_rect.top
+def range_at_limit(invert_x, invert_y):
+    step = 10
+    for y in range(0, window.innerHeight + step, step):
+        if invert_y:
+            y = max(0, window.innerHeight - y)
+        for x in range(0, window.innerWidth + step, step):
+            if invert_x:
+                x = max(0, window.innerWidth - x)
+            r = range_from_point(x, y)
+            if r:
+                return r
 
+
+def extend_selection_to_limit(left, top):
     sel = window.getSelection()
-    if not sel.rangeCount:
+    if not sel or not sel.rangeCount or sel.isCollapsed:
         return False
-    if in_flow_mode:
-        page_rect.width = window.innerWidth
+    new_limit = range_at_limit(not left, not top)
+    if not new_limit:
+        return False
     r = sel.getRangeAt(0)
-    q = r.cloneRange()
-    q.collapse(backwards)
-    rects = q.getClientRects()
-    if not rects.length:
-        return False
-    rect = rects[0]
-
-    in_page_already = rect.left >= page_rect.left and rect.top >= page_rect.top and rect.bottom <= page_rect.bottom and rect.right <= page_rect.right
-    if in_page_already:
-        return True
-    dx = page_rect.width // 10
-    dy = page_rect.height // 10
-    middle_x = page_rect.left + page_rect.width // 2
-    for yi in range(1, 10):
-        if backwards:
-            y = page_rect.bottom - dy * yi
-        else:
-            y = page_rect.top + dy * yi
-        for xi in range(4):
-            xvals = v'[-1, 1]' if xi else v'[1]'
-            for xw in xvals:
-                x = middle_x + xw * dx
-                p = range_from_point(x, y)
-                if p:
-                    if backwards:
-                        r.setStart(p.startContainer, p.startOffset)
-                    else:
-                        r.setEnd(p.startContainer, p.startOffset)
-                    return True
-    # could not find any content on page
-    return False
+    if left:
+        r.setStart(new_limit.startContainer, new_limit.startOffset)
+    else:
+        r.setEnd(new_limit.startContainer, new_limit.startOffset)
+    return True
 
 
 def set_selections_extents_to(extents):
