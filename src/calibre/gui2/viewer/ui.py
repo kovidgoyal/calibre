@@ -45,7 +45,6 @@ from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
 from calibre.utils.monotonic import monotonic
-from calibre.utils.serialize import json_loads
 from polyglot.builtins import as_bytes, as_unicode, iteritems, itervalues
 
 
@@ -556,7 +555,7 @@ class EbookViewer(MainWindow):
         if os.path.exists(path):
             with open(path, 'rb') as f:
                 raw = f.read()
-            merge_annotations(json_loads(raw), amap)
+            merge_annotations(parse_annotations(raw), amap)
         path = os.path.join(annotations_dir, self.current_book_data['annotations_path_key'])
         if os.path.exists(path):
             with open(path, 'rb') as f:
