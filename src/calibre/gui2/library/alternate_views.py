@@ -565,9 +565,9 @@ class CoverDelegate(QStyledItemDelegate):
                 dpr = cdata.devicePixelRatio()
                 cw, ch = int(cdata.width() / dpr), int(cdata.height() / dpr)
                 dx = max(0, int((rect.width() - cw)/2.0))
-                dy = max(0, rect.height() - ch)
+                dy = max(0, int((rect.height() - ch)/2.0))
                 right_adjust = dx
-                rect.adjust(dx, dy, -dx, 0)
+                rect.adjust(dx, dy, -dx, -dy)
                 painter.drawPixmap(rect, cdata)
                 if self.title_height != 0:
                     self.paint_title(painter, trect, db, book_id)
