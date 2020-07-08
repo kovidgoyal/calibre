@@ -53,6 +53,9 @@ def merge_annots_with_identical_field(a, b, field='title'):
     return changed, ans
 
 
+merge_field_map = {'bookmark': 'title', 'highlight': 'uuid'}
+
+
 def merge_annot_lists(a, b, annot_type):
     if not a:
         return list(b)
@@ -62,7 +65,7 @@ def merge_annot_lists(a, b, annot_type):
         ans = a + b
         ans.sort(key=itemgetter('timestamp'), reverse=True)
         return ans
-    merge_field = {'bookmark': 'title', 'highlight': 'uuid'}.get(annot_type)
+    merge_field = merge_field_map.get(annot_type)
     if merge_field is None:
         return a + b
     changed, c = merge_annots_with_identical_field(a, b, merge_field)
@@ -77,10 +80,17 @@ def merge_annotations(annots, annots_map):
     amap = defaultdict(list)
     for annot in annots:
         amap[annot['type']].append(annot)
-    lr = annots_map.get('last-read')
+
+    lr = amap.get('last-read')
     if lr:
-        lr.sort(key=itemgetter('timestamp'), reverse=True)
-    for annot_type, field in {'bookmark': 'title', 'highlight': 'uuid'}.items():
+        existing = annots_map.get('last-read')
+        if existing:
+            lr = existing + lr
+        if lr:
+            lr.sort(key=itemgetter('timestamp'), reverse=True)
+            annots_map['last-read'] = [lr[0]]
+
+    for annot_type, field in merge_field_map.items():
         a = annots_map.get(annot_type)
         b = amap[annot_type]
         if not b:
