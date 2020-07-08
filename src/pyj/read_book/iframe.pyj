@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 import traceback
 from gettext import gettext as _
 from select import (
-    extend_selection_after_scroll, selection_extents, selection_extents_at_point,
+    extend_selection_to_limit, selection_extents, selection_extents_at_point,
     set_selections_extents_to, word_at_point
 )
 
@@ -38,11 +38,11 @@ from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
     auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
-    current_cfi, current_page_width, get_columns_per_screen_data,
-    handle_gesture as paged_handle_gesture, handle_shortcut as paged_handle_shortcut,
-    jump_to_cfi as paged_jump_to_cfi, layout as paged_layout,
-    onwheel as paged_onwheel, prepare_for_resize as paged_prepare_for_resize,
-    progress_frac, reset_paged_mode_globals, resize_done as paged_resize_done,
+    current_cfi, get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
+    handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
+    layout as paged_layout, onwheel as paged_onwheel,
+    prepare_for_resize as paged_prepare_for_resize, progress_frac,
+    reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_extend_annotation as paged_annotation_scroll,
     scroll_to_fraction as paged_scroll_to_fraction, snap_to_selection,
@@ -707,13 +707,21 @@ class IframeBoss:
                 extents = selection_extents(in_flow_mode)
             self.send_message(
                 'annotations', type='position-handles', extents=extents, existing=annot_id_uuid_map[annot_id])
-        elif data.type is 'scroll':
+        elif data.type is 'drag-scroll':
             if self.scroll_to_extend_annotation(data.backwards):
-                page_rect = {'width': current_page_width()}
-                extended = extend_selection_after_scroll(data.backwards, in_flow_mode, page_rect)
+                if data.extend_selection:
+                    extend_selection_to_limit(data.handle is 'left', data.backwards)
+                extents = selection_extents(in_flow_mode)
                 self.send_message(
-                    'annotations', type='update-handles', extents=selection_extents(in_flow_mode),
-                    backwards=data.backwards, from_scroll=True, selection_extended=extended, page_rect=page_rect
+                    'annotations', type='scrolled',
+                    backwards=data.backwards, handle=data.handle, extents=extents, extended=data.extend_selection
+                )
+        elif data.type is 'paged-scroll':
+            if self.scroll_to_extend_annotation(data.backwards, False, True):
+                extents = selection_extents(in_flow_mode)
+                self.send_message(
+                    'annotations', type='scrolled', backwards=data.backwards, handle=None,
+                    extents=extents, extended=False
                 )
         elif data.type is 'perp-scroll':
             if in_flow_mode and flow_annotation_scroll(data.backwards, True):
