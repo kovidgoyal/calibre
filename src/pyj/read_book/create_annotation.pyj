@@ -514,7 +514,8 @@ class CreateAnnotation:
         self.drag_scroll_timer = None
         if self.state not in (DRAGGING_RIGHT, DRAGGING_LEFT):
             return
-        interval = 100 if self.in_flow_mode else 1200
+        sd = get_session_data()
+        interval = 1000/sd.get('lines_per_sec_smooth') if self.in_flow_mode else 1200
         self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
         now = window.performance.now()
         if now - self.last_drag_scroll_at > interval:
