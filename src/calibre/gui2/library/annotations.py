@@ -9,7 +9,7 @@ from textwrap import fill
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QFont, QHBoxLayout, QIcon, QLabel,
-    QPalette, QPushButton, QSize, QSplitter, Qt, QTextBrowser, QToolButton,
+    QPalette, QPushButton, QSize, QSplitter, Qt, QTextBrowser, QTimer, QToolButton,
     QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
@@ -43,16 +43,17 @@ class BusyCursor(object):
 class AnnotsResultsDelegate(ResultsDelegate):
 
     add_ellipsis = False
+    emphasize_text = True
 
     def result_data(self, result):
         if not isinstance(result, dict):
             return None, None, None, None
-        full_text = result['text'].replace('0x1f', ' ')
-        parts = full_text.split('\x1d')
+        full_text = result['text'].replace('\x1f', ' ')
+        parts = full_text.split('\x1d', 2)
         before = after = ''
         if len(parts) > 2:
             before, text = parts[:2]
-            after = ' '.join(parts[2:]).replace('\x1d', '')
+            after = parts[2].replace('\x1d', '')
         elif len(parts) == 2:
             before, text = parts
         else:
@@ -82,8 +83,9 @@ class ResultsList(QTreeWidget):
         if isinstance(r, dict):
             self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
 
-    def set_results(self, results):
+    def set_results(self, results, emphasize_text):
         self.clear()
+        self.delegate.emphasize_text = emphasize_text
         self.number_of_results = 0
         self.item_map = []
         book_id_map = {}
@@ -191,8 +193,12 @@ class Restrictions(QWidget):
         tb.clear()
         tb.addItem(' ', ' ')
         for user_type, user in db.all_annotation_users():
-            q = '{}: {}'.format(user_type, user)
-            tb.addItem(q, '{}:{}'.format(user_type, user))
+            q = display_name = '{}: {}'.format(user_type, user)
+            if q == 'web: *':
+                display_name = _('Anonymous content server users')
+            elif q == 'local: viewer':
+                display_name = _('Local viewer users')
+            tb.addItem(display_name, '{}:{}'.format(user_type, user))
         if before:
             row = tb.findData(before)
             if row > -1:
@@ -218,7 +224,7 @@ class BrowsePanel(QWidget):
         l.addLayout(h)
         self.search_box = sb = SearchBox(self)
         sb.initialize('library-annotations-browser-search-box')
-        sb.cleared.connect(self.cleared)
+        sb.cleared.connect(self.cleared, type=Qt.QueuedConnection)
         sb.lineEdit().returnPressed.connect(self.show_next)
         sb.lineEdit().setPlaceholderText(_('Enter words to search for'))
         h.addWidget(sb)
@@ -251,45 +257,46 @@ class BrowsePanel(QWidget):
         db = current_db()
         self.search_box.setFocus(Qt.OtherFocusReason)
         self.restrictions.re_initialize(db)
-        self.cleared()
+        self.current_query = None
+        self.results_list.clear()
 
     def sizeHint(self):
         return QSize(450, 600)
 
     @property
+    def restrict_to_user(self):
+        user = self.restrictions.user_box.currentData()
+        if user and ':' in user:
+            return user.split(':', 1)
+
+    @property
     def effective_query(self):
         text = self.search_box.lineEdit().text().strip()
-        if not text:
-            return None
         atype = self.restrictions.types_box.currentData()
-        if not atype or not atype.strip():
-            atype = None
-        user = self.restrictions.user_box.currentData()
-        restrict_to_user = None
-        if user and ':' in user:
-            restrict_to_user = user.split(':', 1)
         return {
             'fts_engine_query': text,
-            'annotation_type': atype,
-            'restrict_to_user': restrict_to_user,
+            'annotation_type': (atype or '').strip(),
+            'restrict_to_user': self.restrict_to_user,
             'use_stemming': bool(self.use_stemmer.isChecked()),
         }
 
     def cleared(self):
         self.current_query = None
-        self.results_list.clear()
+        self.effective_query_changed()
 
     def do_find(self, backwards=False):
         q = self.effective_query
-        if not q:
-            return
         if q == self.current_query:
             self.results_list.show_next(backwards)
             return
         with BusyCursor():
             db = current_db()
-            results = db.search_annotations(highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q)
-            self.results_list.set_results(results)
+            if not q['fts_engine_query']:
+                results = db.all_annotations(restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'])
+            else:
+                results = db.search_annotations(highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q)
+
+            self.results_list.set_results(results, bool(q['fts_engine_query']))
             self.current_query = q
 
     def effective_query_changed(self):
@@ -454,6 +461,8 @@ class AnnotationsBrowser(Dialog):
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
 
     def show_dialog(self):
+        if self.browse_panel.current_query is None:
+            QTimer.singleShot(80, self.browse_panel.effective_query_changed)
         if self.parent() is None:
             self.exec_()
         else:

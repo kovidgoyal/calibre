@@ -2311,6 +2311,10 @@ class Cache(object):
         return tuple(self.backend.all_annotation_types())
 
     @read_api
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None):
+        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type))
+
+    @read_api
     def search_annotations(
         self,
         fts_engine_query,
