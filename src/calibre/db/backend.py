@@ -1820,11 +1820,48 @@ class DB(object):
             raise FTSQueryError(fts_engine_query, query, e)
 
     def all_annotations_for_book(self, book_id):
-        for (fmt, user_type, user, data) in self.execute('SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):
+        for (fmt, user_type, user, data) in self.execute('SELECT id, book, format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):
+
             try:
                 yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': json.loads(data)}
             except Exception:
                 pass
+
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None):
+        ls = json.loads
+        q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'
+        data = []
+        if restrict_to_user or annotation_type:
+            q += ' WHERE '
+        if restrict_to_user is not None:
+            data.extend(restrict_to_user)
+            q += ' user_type = ? AND user = ?'
+        if annotation_type:
+            data.append(annotation_type)
+            q += ' annot_type = ? '
+        q += ' ORDER BY timestamp'
+        if limit is not None:
+            q += ' LIMIT %d' % limit
+        for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
+            try:
+                annot = ls(annot_data)
+                atype = annot['type']
+            except Exception:
+                continue
+            text = ''
+            if atype == 'bookmark':
+                text = annot['title']
+            elif atype == 'highlight':
+                text = annot.get('highlighted_text') or ''
+            yield {
+                'id': rowid,
+                'book_id': book_id,
+                'format': fmt,
+                'user_type': user_type,
+                'user': user,
+                'text': text,
+                'annotation': annot,
+            }
 
     def all_annotation_users(self):
         return self.execute('SELECT DISTINCT user_type, user FROM annotations')
