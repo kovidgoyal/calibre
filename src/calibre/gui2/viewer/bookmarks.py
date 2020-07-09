@@ -151,8 +151,13 @@ class BookmarkManager(QWidget):
             i.setData(Qt.UserRole, self.bm_to_item(bm))
             i.setFlags(i.flags() | Qt.ItemIsEditable)
             self.bookmarks_list.addItem(i)
-        if self.bookmarks_list.count() > 0:
-            self.bookmarks_list.setCurrentItem(self.bookmarks_list.item(0), QItemSelectionModel.ClearAndSelect)
+            if bm.get('removed'):
+                i.setHidden(True)
+        for i in range(self.bookmarks_list.count()):
+            item = self.bookmarks_list.item(i)
+            if not item.isHidden():
+                self.bookmarks_list.setCurrentItem(item, QItemSelectionModel.ClearAndSelect)
+                break
 
     def set_current_bookmark(self, bm):
         for i, q in enumerate(self):
@@ -167,6 +172,14 @@ class BookmarkManager(QWidget):
             yield self.item_to_bm(self.bookmarks_list.item(i))
 
     def uniqify_bookmark_title(self, base):
+        remove = []
+        for i in range(self.bookmarks_list.count()):
+            item = self.bookmarks_list.item(i)
+            bm = item.data(Qt.UserRole)
+            if bm.get('removed') and bm['title'] == base:
+                remove.append(i)
+        for i in reversed(remove):
+            self.bookmarks_list.takeItem(i)
         all_titles = {bm['title'] for bm in self.get_bookmarks()}
         c = 0
         q = base
@@ -180,16 +193,23 @@ class BookmarkManager(QWidget):
         title = unicode_type(item.data(Qt.DisplayRole)) or _('Unknown')
         title = self.uniqify_bookmark_title(title)
         item.setData(Qt.DisplayRole, title)
-        bm = self.item_to_bm(item)
+        bm = item.data(Qt.UserRole)
         bm['title'] = title
-        item.setData(Qt.UserRole, self.bm_to_item(bm))
+        bm['timestamp'] = utcnow().isoformat()
+        item.setData(Qt.UserRole, bm)
         self.bookmarks_list.blockSignals(False)
         self.edited.emit(self.get_bookmarks())
 
     def delete_bookmark(self):
-        row = self.bookmarks_list.currentRow()
-        if row > -1:
-            self.bookmarks_list.takeItem(row)
+        item = self.bookmarks_list.currentItem()
+        if item is not None:
+            bm = item.data(Qt.UserRole)
+            bm['removed'] = True
+            bm['timestamp'] = utcnow().isoformat()
+            self.bookmarks_list.blockSignals(True)
+            item.setData(Qt.UserRole, bm)
+            self.bookmarks_list.blockSignals(False)
+            item.setHidden(True)
             self.edited.emit(self.get_bookmarks())
 
     def edit_bookmark(self):
@@ -229,7 +249,8 @@ class BookmarkManager(QWidget):
             self, 'export-viewer-bookmarks', _('Export bookmarks'),
             filters=[(_('Saved bookmarks'), ['calibre-bookmarks'])], all_files=False, initial_filename='bookmarks.calibre-bookmarks')
         if filename:
-            data = json.dumps({'type': 'bookmarks', 'entries': self.get_bookmarks()}, indent=True)
+            bm = [x for x in self.get_bookmarks() if not x.get('removed')]
+            data = json.dumps({'type': 'bookmarks', 'entries': bm}, indent=True)
             if not isinstance(data, bytes):
                 data = data.encode('utf-8')
             with lopen(filename, 'wb') as fileobj:
@@ -259,7 +280,7 @@ class BookmarkManager(QWidget):
                 if bm['title'] == 'calibre_current_page_bookmark':
                     continue
                 epubcfi = 'epubcfi(/{}/{})'.format((bm['spine'] + 1) * 2, bm['pos'].lstrip('/'))
-                q = {'pos_type': 'epubcfi', 'pos': epubcfi, 'timestamp': EPOCH, 'title': bm['title']}
+                q = {'pos_type': 'epubcfi', 'pos': epubcfi, 'timestamp': EPOCH.isoformat(), 'title': bm['title']}
                 if q not in bookmarks:
                     bookmarks.append(q)
             self.set_bookmarks(bookmarks)
@@ -301,7 +322,7 @@ class BookmarkManager(QWidget):
             'title': title,
             'pos_type': 'epubcfi',
             'pos': pos_data['cfi'],
-            'timestamp': utcnow()
+            'timestamp': utcnow().isoformat(),
         }
         bookmarks = self.get_bookmarks()
         bookmarks.append(bm)
