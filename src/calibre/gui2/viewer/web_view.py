@@ -49,6 +49,7 @@ vprefs.defaults['local_storage'] = {}
 vprefs.defaults['main_window_state'] = None
 vprefs.defaults['main_window_geometry'] = None
 vprefs.defaults['old_prefs_migrated'] = False
+vprefs.defaults['bookmarks_sort'] = 'title'
 
 
 # Override network access to load data from the book {{{
