@@ -17,6 +17,7 @@ from calibre.gui2.widgets2 import HistoryComboBox
 class ResultsDelegate(QStyledItemDelegate):  # {{{
 
     add_ellipsis = True
+    emphasize_text = True
 
     def result_data(self, result):
         if not hasattr(result, 'is_hidden'):
@@ -37,8 +38,11 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             c = p.color(group, c)
             painter.setPen(c)
             font = option.font
-            emphasis_font = QFont(font)
-            emphasis_font.setBold(True)
+            if self.emphasize_text:
+                emphasis_font = QFont(font)
+                emphasis_font.setBold(True)
+            else:
+                emphasis_font = font
             flags = Qt.AlignTop | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
             rect = option.rect.adjusted(option.decorationSize.width() + 4 if is_hidden else 0, 0, 0, 0)
             painter.setClipRect(rect)
