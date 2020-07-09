@@ -141,6 +141,7 @@ class BookmarkManager(QWidget):
         return self.sort_by.currentData()
 
     def sort_by_changed(self):
+        vprefs['bookmarks_sort'] = self.current_sort_by
         self.set_bookmarks(self.get_bookmarks())
 
     def set_bookmarks(self, bookmarks=()):
