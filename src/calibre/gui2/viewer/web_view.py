@@ -19,18 +19,18 @@ from PyQt5.QtWebEngineWidgets import (
 
 from calibre import as_unicode, prints
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __version__, config_dir, in_develop_mode,
-    is_running_from_develop, isosx, iswindows
+    FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop,
+    isosx, iswindows
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, error_dialog, safe_open_url
+from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.webengine import (
     Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
     secure_webengine, to_js
 )
 from calibre.srv.code import get_translations_data
-from calibre.utils.config import JSONConfig
 from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from polyglot.builtins import as_bytes, iteritems, unicode_type
@@ -42,17 +42,9 @@ except ImportError:
     import sip
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
-vprefs = JSONConfig('viewer-webengine')
-viewer_config_dir = os.path.join(config_dir, 'viewer')
-vprefs.defaults['session_data'] = {}
-vprefs.defaults['local_storage'] = {}
-vprefs.defaults['main_window_state'] = None
-vprefs.defaults['main_window_geometry'] = None
-vprefs.defaults['old_prefs_migrated'] = False
-vprefs.defaults['bookmarks_sort'] = 'title'
-
 
 # Override network access to load data from the book {{{
+
 
 def set_book_path(path, pathtoebook):
     set_book_path.pathtoebook = pathtoebook
