@@ -198,9 +198,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
             return None
         if index.internalId() == 0:
             if role == Qt.DisplayRole:
-                category = self.categories[index.row()]
-                return (_("%(plugin_type)s %(plugins)s")%
-                        dict(plugin_type=category, plugins=_('plugins')))
+                return self.categories[index.row()]
         else:
             plugin = self.index_to_plugin(index)
             disabled = is_disabled(plugin)
