@@ -14,8 +14,9 @@ from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
 from calibre.constants import in_develop_mode, isosx
 from calibre.gui2 import elided_text
+from calibre.gui2.viewer.config import get_session_pref
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
-from calibre.gui2.viewer.web_view import get_session_pref, set_book_path, vprefs
+from calibre.gui2.viewer.web_view import set_book_path, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import iteritems

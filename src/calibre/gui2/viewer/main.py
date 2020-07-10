@@ -15,7 +15,7 @@ from calibre import as_unicode, prints
 from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux, iswindows
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
 from calibre.gui2.viewer.ui import EbookViewer, is_float
-from calibre.gui2.viewer.web_view import get_session_pref, vprefs
+from calibre.gui2.viewer.config import get_session_pref, vprefs
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.ipc import RC, viewer_socket_address

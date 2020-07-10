@@ -28,6 +28,7 @@ from calibre.gui2.viewer.annotations import (
     AnnotationsSaveWorker, annotations_dir, parse_annotations
 )
 from calibre.gui2.viewer.bookmarks import BookmarkManager
+from calibre.gui2.viewer.config import get_session_pref, vprefs
 from calibre.gui2.viewer.convert_book import clean_running_workers, prepare_book
 from calibre.gui2.viewer.highlights import HighlightsPanel
 from calibre.gui2.viewer.integration import (
@@ -38,9 +39,7 @@ from calibre.gui2.viewer.overlay import LoadingOverlay
 from calibre.gui2.viewer.search import SearchPanel
 from calibre.gui2.viewer.toc import TOC, TOCSearch, TOCView
 from calibre.gui2.viewer.toolbars import ActionsToolBar
-from calibre.gui2.viewer.web_view import (
-    WebView, get_path_for_name, get_session_pref, set_book_path, vprefs
-)
+from calibre.gui2.viewer.web_view import WebView, get_path_for_name, set_book_path
 from calibre.utils.date import utcnow
 from calibre.utils.img import image_from_path
 from calibre.utils.ipc.simple_worker import WorkerError
