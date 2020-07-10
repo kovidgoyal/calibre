@@ -18,6 +18,16 @@ from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.iso8601 import parse_iso8601
+
+
+def friendly_username(user_type, user):
+    key = user_type, user
+    if key == ('web', '*'):
+        return _('Anonymous Content server user')
+    if key == ('local', 'viewer'):
+        return _('Local viewer user')
+    return user
 
 
 def current_db():
@@ -193,11 +203,7 @@ class Restrictions(QWidget):
         tb.clear()
         tb.addItem(' ', ' ')
         for user_type, user in db.all_annotation_users():
-            q = display_name = '{}: {}'.format(user_type, user)
-            if q == 'web: *':
-                display_name = _('Anonymous content server users')
-            elif q == 'local: viewer':
-                display_name = _('Local viewer users')
+            display_name = friendly_username(user_type, user)
             tb.addItem(display_name, '{}:{}'.format(user_type, user))
         if before:
             row = tb.findData(before)
@@ -394,17 +400,21 @@ class DetailsPanel(QWidget):
                 stext = stext[:-3]
             annot_text += '<div style="text-align:left">' + stext + '</div><div>&nbsp;</div>'
 
+        date = parse_iso8601(annot['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
         text = '''
         <h2 style="text-align: center">{title} [{book_format}]</h2>
         <div style="text-align: center">{authors}</div>
         <div style="text-align: center">{series}</div>
         <div>&nbsp;</div>
         <div>&nbsp;</div>
+        <div>{dt}: {date}</div>
+        <div>{ut}: {user}</div>
         <h2 style="text-align: left">{atype}</h2>
         {text}
         '''.format(
             title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
-            atype=a(atype), text=annot_text
+            atype=a(atype), text=annot_text, dt=_('Date'), date=date, ut=_('User'),
+            user=friendly_username(r['user_type'], r['user'])
         )
         self.text_browser.setHtml(text)
 
