@@ -55,7 +55,7 @@ def save_annots_to_epub(path, serialized_annots):
         safe_replace(zf, 'META-INF/calibre_bookmarks.txt', BytesIO(serialized_annots), add_missing=True)
 
 
-def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file):
+def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user):
     annots = annot_list_as_bytes(annotations_list)
     with open(os.path.join(annotations_dir, annotations_path_key), 'wb') as f:
         f.write(annots)
@@ -64,7 +64,7 @@ def save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, i
         save_annots_to_epub(pathtoebook, annots)
         update_book(pathtoebook, before_stat, {'calibre-book-annotations.json': annots})
     if bld:
-        save_annotations_list_to_library(bld, annotations_list)
+        save_annotations_list_to_library(bld, annotations_list, sync_annots_user)
 
 
 class AnnotationsSaveWorker(Thread):
@@ -89,13 +89,14 @@ class AnnotationsSaveWorker(Thread):
             bld = x['book_library_details']
             pathtoebook = x['pathtoebook']
             in_book_file = x['in_book_file']
+            sync_annots_user = x['sync_annots_user']
             try:
-                save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file)
+                save_annotations(annotations_list, annotations_path_key, bld, pathtoebook, in_book_file, sync_annots_user)
             except Exception:
                 import traceback
                 traceback.print_exc()
 
-    def save_annotations(self, current_book_data, in_book_file=True):
+    def save_annotations(self, current_book_data, in_book_file=True, sync_annots_user=''):
         alist = tuple(annotations_as_copied_list(current_book_data['annotations_map']))
         ebp = current_book_data['pathtoebook']
         can_save_in_book_file = ebp.lower().endswith('.epub')
@@ -104,7 +105,8 @@ class AnnotationsSaveWorker(Thread):
             'annotations_path_key': current_book_data['annotations_path_key'],
             'book_library_details': current_book_data['book_library_details'],
             'pathtoebook': current_book_data['pathtoebook'],
-            'in_book_file': in_book_file and can_save_in_book_file
+            'in_book_file': in_book_file and can_save_in_book_file,
+            'sync_annots_user': sync_annots_user,
         })
 
 
