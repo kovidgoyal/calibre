@@ -564,6 +564,11 @@ class EbookViewer(MainWindow):
             bld = self.current_book_data['book_library_details']
             if bld is not None:
                 lib_amap = load_annotations_map_from_library(bld)
+                sau = get_session_pref('sync_annots_user', default='')
+                if sau:
+                    other_amap = load_annotations_map_from_library(bld, user_type='web', user=sau)
+                    if other_amap:
+                        merge_annotations(other_amap, lib_amap)
                 if lib_amap:
                     for annot_type, annots in iteritems(lib_amap):
                         merge_annotations(annots, amap)
@@ -604,7 +609,11 @@ class EbookViewer(MainWindow):
         if self.annotations_saver is None:
             self.annotations_saver = AnnotationsSaveWorker()
             self.annotations_saver.start()
-        self.annotations_saver.save_annotations(self.current_book_data, in_book_file and get_session_pref('save_annotations_in_ebook', default=True))
+        self.annotations_saver.save_annotations(
+            self.current_book_data,
+            in_book_file and get_session_pref('save_annotations_in_ebook', default=True),
+            get_session_pref('sync_annots_user', default='')
+        )
 
     def highlights_changed(self, highlights):
         if not self.current_book_data:

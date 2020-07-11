@@ -25,7 +25,7 @@ def database_has_annotations_support(cursor):
     return next(cursor.execute('pragma user_version;'))[0] > 23
 
 
-def load_annotations_map_from_library(book_library_details):
+def load_annotations_map_from_library(book_library_details, user_type='local', user='viewer'):
     import apsw
     from calibre.db.backend import annotations_for_book, Connection
     ans = {}
@@ -39,14 +39,17 @@ def load_annotations_map_from_library(book_library_details):
         cursor = conn.cursor()
         if not database_has_annotations_support(cursor):
             return ans
-        for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt']):
+        for annot in annotations_for_book(
+            cursor, book_library_details['book_id'], book_library_details['fmt'],
+            user_type=user_type, user=user
+        ):
             ans.setdefault(annot['type'], []).append(annot)
     finally:
         conn.close()
     return ans
 
 
-def save_annotations_list_to_library(book_library_details, alist):
+def save_annotations_list_to_library(book_library_details, alist, sync_annots_user=''):
     import apsw
     from calibre.db.backend import save_annotations_for_book, Connection, annotations_for_book
     from calibre.gui2.viewer.annotations import annotations_as_copied_list
@@ -66,7 +69,15 @@ def save_annotations_list_to_library(book_library_details, alist):
             for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt']):
                 amap.setdefault(annot['type'], []).append(annot)
             merge_annotations((x[0] for x in alist), amap)
+            if sync_annots_user:
+                other_amap = {}
+                for annot in annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], user_type='web', user=sync_annots_user):
+                    other_amap.setdefault(annot['type'], []).append(annot)
+                merge_annotations(amap, other_amap)
             alist = tuple(annotations_as_copied_list(amap))
             save_annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], alist)
+            if sync_annots_user:
+                alist = tuple(annotations_as_copied_list(other_amap))
+                save_annotations_for_book(cursor, book_library_details['book_id'], book_library_details['fmt'], alist, user_type='web', user=sync_annots_user)
     finally:
         conn.close()
