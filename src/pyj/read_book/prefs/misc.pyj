@@ -19,6 +19,7 @@ DEFAULTS = {
     'show_actions_toolbar': False,
     'show_actions_toolbar_in_fullscreen': False,
     'save_annotations_in_ebook': True,
+    'sync_annots_user': '',
     'singleinstance': False,
 }
 
@@ -26,7 +27,11 @@ DEFAULTS = {
 def restore_defaults():
     container = get_container()
     for q in Object.keys(DEFAULTS):
-        container.querySelector(f'[name={q}]').checked = DEFAULTS[q]
+        control = container.querySelector(f'[name={q}]')
+        if jstype(DEFAULTS[q]) is 'boolean':
+            control.checked = DEFAULTS[q]
+        else:
+            control.value = DEFAULTS[q]
     container.querySelector(f'[name=hide_tooltips]').checked = defaults.hide_tooltips
 
 
@@ -46,6 +51,16 @@ def create_misc_panel(container, apply_func, cancel_func):
         ans.checked = settings[name] if jstype(settings[name]) is 'boolean' else DEFAULTS[name]
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
+    sai = E.input(name='sync_annots_user', title=_(
+        'The username of a Content server user that you want all annotations synced with.'
+        ' Use the special value * to sync with anonymous users'
+    ))
+    sai.value = settings.sync_annots_user if jstype(settings.sync_annots_user) is 'string' else DEFAULTS.sync_annots_user
+    sync_annots = E.div(
+        style='margin-top: 1ex; margin-left: 3px',
+        E.label(_('Sync bookmarks/highlights with Content server user:') + '\xa0', sai)
+    )
+
     container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
     container.append(cb('show_actions_toolbar', _('Show a toolbar with the most useful actions')))
     container.lastChild.append(E.span('\xa0'))
@@ -54,6 +69,7 @@ def create_misc_panel(container, apply_func, cancel_func):
     container.append(cb('show_actions_toolbar_in_fullscreen', _('Keep the toolbar in full screen mode (needs restart)')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
+    container.append(sync_annots)
     container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
     container.append(cb('hide_tooltips', _('Hide mouse-over tooltips in the book text')))
 
@@ -68,7 +84,11 @@ def commit_misc(onchange):
     container = get_container()
     vals = {}
     for q in Object.keys(DEFAULTS):
-        val = container.querySelector(f'[name={q}]').checked
+        control = container.querySelector(f'[name={q}]')
+        if jstype(DEFAULTS[q]) is 'boolean':
+            val = control.checked
+        else:
+            val = control.value.strip()
         if val is not DEFAULTS[q]:
             vals[q] = val
     sd.set('standalone_misc_settings', vals)
