@@ -100,8 +100,16 @@ class ViewAction(InterfaceAction):
         self.view_format_by_id(id_, format)
 
     def calibre_book_data(self, book_id, fmt):
+        from calibre.gui2.viewer.config import vprefs, get_session_pref
+        from calibre.db.annotations import merge_annotations
+        vprefs.refresh()
+        sync_annots_user = get_session_pref('sync_annots_user', default='')
         db = self.gui.current_db.new_api
         annotations_map = db.annotations_map_for_book(book_id, fmt)
+        if sync_annots_user:
+            other_annotations_map = db.annotations_map_for_book(book_id, fmt, user_type='web', user=sync_annots_user)
+            if other_annotations_map:
+                merge_annotations(other_annotations_map, annotations_map, merge_last_read=False)
         return {
             'book_id': book_id, 'uuid': db.field_for('uuid', book_id), 'fmt': fmt.upper(),
             'annotations_map': annotations_map,

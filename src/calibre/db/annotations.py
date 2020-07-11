@@ -74,25 +74,29 @@ def merge_annot_lists(a, b, annot_type):
     return c
 
 
-def merge_annotations(annots, annots_map):
+def merge_annotations(annots, annots_map, merge_last_read=True):
     # If you make changes to this algorithm also update the
     # implementation in read_book.annotations
-    amap = defaultdict(list)
-    for annot in annots:
-        amap[annot['type']].append(annot)
+    if isinstance(annots, dict):
+        amap = annots
+    else:
+        amap = defaultdict(list)
+        for annot in annots:
+            amap[annot['type']].append(annot)
 
-    lr = amap.get('last-read')
-    if lr:
-        existing = annots_map.get('last-read')
-        if existing:
-            lr = existing + lr
+    if merge_last_read:
+        lr = amap.get('last-read')
         if lr:
-            lr.sort(key=itemgetter('timestamp'), reverse=True)
-            annots_map['last-read'] = [lr[0]]
+            existing = annots_map.get('last-read')
+            if existing:
+                lr = existing + lr
+            if lr:
+                lr.sort(key=itemgetter('timestamp'), reverse=True)
+                annots_map['last-read'] = [lr[0]]
 
     for annot_type, field in merge_field_map.items():
         a = annots_map.get(annot_type)
-        b = amap[annot_type]
+        b = amap.get(annot_type)
         if not b:
             continue
         changed, annots_map[annot_type] = merge_annots_with_identical_field(a or [], b, field=field)
