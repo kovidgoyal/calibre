@@ -33,7 +33,7 @@ class AnnotationsManager:
             newvals = {'highlight': highlights}
             updated, ans = merge_annotation_maps(base, newvals)
             if updated:
-                self.set_highlights(ans)
+                self.set_highlights(ans.highlight)
         return updated
 
     def remove_highlight(self, uuid):
@@ -110,8 +110,7 @@ class AnnotationsManager:
     def highlights_for_currently_showing(self):
         name = self.view.currently_showing.name
         ans = v'[]'
-        for uuid in Object.keys(self.highlights):
-            h = self.highlights[uuid]
+        for h in Object.values(self.highlights):
             if h.spine_name is name and not h.removed and h.start_cfi:
                 ans.push(h)
         return ans
