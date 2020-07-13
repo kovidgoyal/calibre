@@ -8,9 +8,9 @@ import os
 from textwrap import fill
 
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QComboBox, QCursor, QFont, QHBoxLayout, QIcon, QLabel,
-    QPalette, QPushButton, QSize, QSplitter, Qt, QTextBrowser, QTimer, QToolButton,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QHBoxLayout,
+    QIcon, QLabel, QPalette, QPushButton, QSize, QSplitter, Qt, QTextBrowser, QTimer,
+    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import prepare_string_for_xml
@@ -18,7 +18,6 @@ from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import Application, config, gprefs
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.iso8601 import parse_iso8601
 
 
 def friendly_username(user_type, user):
@@ -393,15 +392,15 @@ class DetailsPanel(QWidget):
 
         paras = []
         if annot['type'] == 'bookmark':
-            paras.append(annot['title'])
+            paras.append(a(annot['title']))
         elif annot['type'] == 'highlight':
-            paras.append(annot['highlighted_text'])
-            paras.append(annot.get('notes') or '')
+            paras.append(a(annot['highlighted_text']))
+            paras.append(a(annot.get('notes') or ''))
 
         for para in paras:
             annot_text += '<div style="text-align:left">' + para + '</div><div>&nbsp;</div>'
 
-        date = parse_iso8601(annot['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+        date = QDateTime.fromString(annot['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
         text = '''
         <h2 style="text-align: center">{title} [{book_format}]</h2>
         <div style="text-align: center">{authors}</div>
@@ -414,8 +413,8 @@ class DetailsPanel(QWidget):
         {text}
         '''.format(
             title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
-            atype=a(atype), text=annot_text, dt=_('Date'), date=date, ut=_('User'),
-            user=friendly_username(r['user_type'], r['user'])
+            atype=a(atype), text=annot_text, dt=_('Date'), date=a(date), ut=a(_('User')),
+            user=a(friendly_username(r['user_type'], r['user']))
         )
         self.text_browser.setHtml(text)
 
