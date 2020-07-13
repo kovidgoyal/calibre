@@ -60,6 +60,18 @@ class AnnotationsManager:
         if h:
             return h.notes
 
+    def set_notes_for_highlight(self, uuid, notes):
+        h = self.highlights[uuid]
+        if h:
+            if notes:
+                h.notes = notes
+            else:
+                v'delete h.notes'
+            if ui_operations.highlights_changed:
+                ui_operations.highlights_changed(Object.values(self.highlights))
+            return True
+        return False
+
     def style_for_highlight(self, uuid):
         h = self.highlights[uuid]
         if h:
@@ -810,6 +822,10 @@ class ViewAnnotation:
     def hide(self):
         self.container.style.display = 'none'
         self.showing_uuid = None
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
 
     def edit_current(self):
         if self.showing_uuid:

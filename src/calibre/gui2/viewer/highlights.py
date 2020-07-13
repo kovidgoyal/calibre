@@ -6,13 +6,16 @@ from itertools import chain
 
 from PyQt5.Qt import (
     QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QPushButton, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal
+    QListWidgetItem, QPushButton, Qt, QTextEdit, QToolButton, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
 from calibre.constants import plugins
 from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2.library.annotations import Details
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
+from calibre.gui2.widgets2 import Dialog
 from polyglot.builtins import range
 
 
@@ -83,10 +86,63 @@ class Highlights(QListWidget):
             return i.data(Qt.UserRole)
 
 
+class NotesEditDialog(Dialog):
+
+    def __init__(self, notes, parent=None):
+        self.initial_notes = notes
+        Dialog.__init__(self, name='edit-notes-highlight', title=_('Edit notes'), parent=parent)
+
+    def setup_ui(self):
+        l = QVBoxLayout(self)
+        self.qte = qte = QTextEdit(self)
+        qte.setMinimumHeight(400)
+        qte.setMinimumWidth(600)
+        if self.initial_notes:
+            qte.setPlainText(self.initial_notes)
+        l.addWidget(qte)
+        l.addWidget(self.bb)
+
+    @property
+    def notes(self):
+        return self.qte.toPlainText().rstrip()
+
+
+class NotesDisplay(QWidget):
+
+    notes_edited = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent)
+        h = QHBoxLayout(self)
+        h.setContentsMargins(0, 0, 0, 0)
+        self.browser = nd = Details(self)
+        h.addWidget(nd)
+        self.edit_button = eb = QToolButton(self)
+        eb.setIcon(QIcon(I('modified.png')))
+        eb.setToolTip(_('Edit the notes for this highlight'))
+        h.addWidget(eb)
+        eb.clicked.connect(self.edit_notes)
+
+    def show_notes(self, text=''):
+        text = (text or '').strip()
+        self.setVisible(bool(text))
+        self.browser.setPlainText(text)
+        h = self.browser.document().size().height() + 8
+        self.browser.setMaximumHeight(h)
+        self.setMaximumHeight(max(self.edit_button.sizeHint().height() + 4, h))
+
+    def edit_notes(self):
+        current_text = self.browser.toPlainText()
+        d = NotesEditDialog(current_text, self)
+        if d.exec_() == d.Accepted and d.notes != current_text:
+            self.notes_edited.emit(d.notes)
+
+
 class HighlightsPanel(QWidget):
 
     jump_to_cfi = pyqtSignal(object)
     request_highlight_action = pyqtSignal(object, object)
+    web_action = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -123,9 +179,16 @@ class HighlightsPanel(QWidget):
         self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlight'), self.remove_highlight)
         h.addWidget(self.add_button), h.addWidget(self.edit_button), h.addWidget(self.remove_button)
 
-        self.notes_display = nd = QTextBrowser(self)
+        self.notes_display = nd = NotesDisplay(self)
+        nd.notes_edited.connect(self.notes_edited)
         l.addWidget(nd)
         nd.setVisible(False)
+
+    def notes_edited(self, text):
+        h = self.highlights.current_highlight
+        if h is not None:
+            h['notes'] = text
+            self.web_action.emit('set-notes-in-highlight', h)
 
     def set_tooltips(self, rmap):
         a = rmap.get('create_annotation')
@@ -153,13 +216,9 @@ class HighlightsPanel(QWidget):
     def current_highlight_changed(self, highlight):
         nd = self.notes_display
         if highlight is None or not highlight.get('notes'):
-            nd.setVisible(False)
-            nd.setPlainText('')
+            nd.show_notes()
         else:
-            nd.setVisible(True)
-            nd.setPlainText(highlight['notes'])
-            h = nd.document().size().height()
-            nd.setMaximumHeight(h + 8)
+            nd.show_notes(highlight['notes'])
 
     def no_selected_highlight(self):
         error_dialog(self, _('No selected highlight'), _(
