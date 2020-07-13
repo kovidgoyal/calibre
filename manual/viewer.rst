@@ -66,6 +66,30 @@ pressing the :guilabel:`Table of Contents` button.  This will bring up a list
 of sections in the book. You can click on any of them to jump to that portion
 of the book.
 
+
+Highlighting text
+^^^^^^^^^^^^^^^^^^^^^^
+
+You can highlight text by opening the viewer controls and selecting
+:guilabel:`Highlight`. Click on a word and it will be selected with selection
+handles on either side that you can drag to further refine the selection. Drag
+the handles to the top or bottom margins to scroll while selecting.  You can
+add notes to a highlight by clicking the little pencil icon in the bottom right
+corner and you can change the highlight color via the paintbrush in the
+bottom left corner.
+
+Once you are done, you can click the tick mark to save the
+highlight.
+
+To view the notes associated with any highlight simpy double-click or long
+tap it. You can also use the :guilabel:`Browse highlights` button in the viewer
+controls to show a separate panel with a list of all highlights.
+
+You can browse *all highlights* in your entire calibre library by going to
+:guilabel:`Preferences->Toolbars` in calibre and adding the :guilabel:`Browse
+annotations` tool to the toolbar.
+
+
 Navigating by location
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
