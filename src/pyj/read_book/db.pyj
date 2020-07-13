@@ -206,18 +206,18 @@ class DB:
         book.book_hash = manifest.book_hash.hash
         book.stored_files = {}
         book.is_complete = False
-        if get_interface_data().username:
-            newest_epoch = newest_pos = None
-            for pos in manifest.last_read_positions:
-                if newest_epoch is None or pos.epoch > newest_epoch:
-                    newest_epoch = pos.epoch
-                    newest_pos = pos.cfi
-            unkey = username_key(get_interface_data().username)
-            if newest_pos:
-                book.last_read[unkey] = new Date(newest_epoch * 1000)
-                book.last_read_position[unkey] = newest_pos
-            if manifest.annotations_map:
-                book.annotations_map[unkey] = manifest.annotations_map
+        newest_epoch = newest_pos = None
+        for pos in manifest.last_read_positions:
+            if newest_epoch is None or pos.epoch > newest_epoch:
+                newest_epoch = pos.epoch
+                newest_pos = pos.cfi
+        username = get_interface_data().username
+        unkey = username_key(username)
+        if newest_pos and username:
+            book.last_read[unkey] = new Date(newest_epoch * 1000)
+            book.last_read_position[unkey] = newest_pos
+        if manifest.annotations_map:
+            book.annotations_map[unkey] = manifest.annotations_map
 
         v'delete manifest.metadata'
         v'delete manifest.last_read_positions'
