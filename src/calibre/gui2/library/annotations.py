@@ -297,9 +297,15 @@ class BrowsePanel(QWidget):
         with BusyCursor():
             db = current_db()
             if not q['fts_engine_query']:
-                results = db.all_annotations(restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'])
+                results = db.all_annotations(
+                    restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'],
+                    ignore_removed=True
+                )
             else:
-                results = db.search_annotations(highlight_start='\x1d', highlight_end='\x1d', snippet_size=64, **q)
+                results = db.search_annotations(
+                    highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
+                    ignore_removed=True, **q
+                )
 
             self.results_list.set_results(results, bool(q['fts_engine_query']))
             self.current_query = q
