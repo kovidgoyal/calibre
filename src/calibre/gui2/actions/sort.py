@@ -32,9 +32,7 @@ class SortByAction(InterfaceAction):
     action_type = 'current'
     popup_type = QToolButton.InstantPopup
     action_add_menu = True
-    dont_add_to = frozenset([
-        'toolbar-device', 'context-menu-device', 'menubar', 'menubar-device',
-        'context-menu-cover-browser'])
+    dont_add_to = frozenset(('context-menu-cover-browser', ))
 
     def genesis(self):
         self.sorted_icon = QIcon(I('ok.png'))
