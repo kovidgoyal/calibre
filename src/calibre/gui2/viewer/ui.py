@@ -193,6 +193,7 @@ class EbookViewer(MainWindow):
         self.actions_toolbar.update_visibility()
         self.dock_visibility_changed()
         self.highlights_widget.request_highlight_action.connect(self.web_view.highlight_action)
+        self.highlights_widget.web_action.connect(self.web_view.generic_action)
         if continue_reading:
             self.continue_reading()
 
