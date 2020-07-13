@@ -391,14 +391,15 @@ class DetailsPanel(QWidget):
         annot_text = ''
         a = prepare_string_for_xml
 
-        for part in r['text'].split('\n\x1f\n'):
-            segments = []
-            for bit in part.split('\x1d'):
-                segments.append(a(bit) + ('</b>' if len(segments) % 2 else '<b>'))
-            stext = ''.join(segments)
-            if stext.endswith('<b>'):
-                stext = stext[:-3]
-            annot_text += '<div style="text-align:left">' + stext + '</div><div>&nbsp;</div>'
+        paras = []
+        if annot['type'] == 'bookmark':
+            paras.append(annot['title'])
+        elif annot['type'] == 'highlight':
+            paras.append(annot['highlighted_text'])
+            paras.append(annot.get('notes') or '')
+
+        for para in paras:
+            annot_text += '<div style="text-align:left">' + para + '</div><div>&nbsp;</div>'
 
         date = parse_iso8601(annot['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
         text = '''
