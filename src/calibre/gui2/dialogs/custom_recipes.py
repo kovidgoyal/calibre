@@ -569,7 +569,7 @@ class CustomRecipes(Dialog):
         la = lambda *args:self.list_actions.append(args)
         la('plus.png', _('&New recipe'), _('Create a new recipe from scratch'), self.add_recipe)
         la('news.png', _('Customize &builtin recipe'), _('Customize a builtin news download source'), self.customize_recipe)
-        la('document_open.png', _('Load recipe from &file'), _('Load a recipe from a &file'), self.load_recipe)
+        la('document_open.png', _('Load recipe from &file'), _('Load a recipe from a file'), self.load_recipe)
         la('mimetypes/dir.png', _('&Show recipe files'), _('Show the folder containing all recipe files'), self.show_recipe_files)
         la('mimetypes/opml.png', _('Import &OPML'), _(
             "Import a collection of RSS feeds in OPML format\n"
