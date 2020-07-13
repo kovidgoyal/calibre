@@ -2311,8 +2311,8 @@ class Cache(object):
         return tuple(self.backend.all_annotation_types())
 
     @read_api
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None):
-        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type))
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False):
+        return tuple(self.backend.all_annotations(restrict_to_user, limit, annotation_type, ignore_removed))
 
     @read_api
     def search_annotations(
@@ -2325,10 +2325,12 @@ class Cache(object):
         annotation_type=None,
         restrict_to_book_ids=None,
         restrict_to_user=None,
+        ignore_removed=False
     ):
         return tuple(self.backend.search_annotations(
             fts_engine_query, use_stemming, highlight_start, highlight_end,
-            snippet_size, annotation_type, restrict_to_book_ids, restrict_to_user
+            snippet_size, annotation_type, restrict_to_book_ids, restrict_to_user,
+            ignore_removed
         ))
 
     @write_api
