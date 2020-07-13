@@ -1777,7 +1777,7 @@ class DB(object):
 
     def search_annotations(self,
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, annotation_type,
-        restrict_to_book_ids, restrict_to_user
+        restrict_to_book_ids, restrict_to_user, ignore_removed=False
     ):
         fts_table = 'annotations_fts_stemmed' if use_stemming else 'annotations_fts'
         text = 'annotations.searchable_text'
@@ -1807,6 +1807,8 @@ class DB(object):
                     parsed_annot = ls(annot_data)
                 except Exception:
                     continue
+                if ignore_removed and parsed_annot.get('removed'):
+                    continue
                 yield {
                     'id': rowid,
                     'book_id': book_id,
@@ -1819,15 +1821,18 @@ class DB(object):
         except apsw.SQLError as e:
             raise FTSQueryError(fts_engine_query, query, e)
 
-    def all_annotations_for_book(self, book_id):
-        for (fmt, user_type, user, data) in self.execute('SELECT id, book, format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)):
-
+    def all_annotations_for_book(self, book_id, ignore_removed=False):
+        for (fmt, user_type, user, data) in self.execute(
+            'SELECT id, book, format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)
+        ):
             try:
-                yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': json.loads(data)}
+                annot = json.loads(data)
             except Exception:
                 pass
+            if not ignore_removed or not annot.get('removed'):
+                yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': annot}
 
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None):
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False):
         ls = json.loads
         q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'
         data = []
@@ -1840,13 +1845,14 @@ class DB(object):
             data.append(annotation_type)
             q += ' annot_type = ? '
         q += ' ORDER BY timestamp'
-        if limit is not None:
-            q += ' LIMIT %d' % limit
+        count = 0
         for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
             try:
                 annot = ls(annot_data)
                 atype = annot['type']
             except Exception:
+                continue
+            if ignore_removed and annot.get('removed'):
                 continue
             text = ''
             if atype == 'bookmark':
@@ -1862,6 +1868,9 @@ class DB(object):
                 'text': text,
                 'annotation': annot,
             }
+            count += 1
+            if limit is not None and count >= limit:
+                break
 
     def all_annotation_users(self):
         return self.execute('SELECT DISTINCT user_type, user FROM annotations')
