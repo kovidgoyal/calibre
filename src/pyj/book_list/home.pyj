@@ -113,7 +113,7 @@ def show_recent_stage2(books):
     to_sync = v'[]'
     username = get_interface_data().username
     for book in books:
-        if username and to_sync.length < 10:
+        if to_sync.length < 10:
             lr = book.last_read[username_key(username)] or new Date(0)  # noqa: unused-local
             to_sync.push(v'[book.key, lr]')
         authors = book.metadata.authors.join(' & ') if book.metadata.authors else _('Unknown')
@@ -128,8 +128,7 @@ def show_recent_stage2(books):
         ))
         if book.cover_name:
             db.get_file(book, book.cover_name, show_cover.bind(img_id))
-    if username:
-        start_sync(to_sync)
+    start_sync(to_sync)
     container.appendChild(E.div(style='margin: 1rem 1rem',
         create_button(
             _('Browse all downloaded books…'),
