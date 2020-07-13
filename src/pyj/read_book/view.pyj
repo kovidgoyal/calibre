@@ -999,6 +999,11 @@ class View:
         if reading_pos_cfi:
             self.goto_cfi(reading_pos_cfi)
 
+    def set_notes_for_highlight(self, uuid, notes):
+        if self.annotations_manager.set_notes_for_highlight(uuid, notes):
+            if self.view_annotation.is_visible and self.view_annotation.showing_uuid is uuid:
+                self.view_annotation.show(uuid)
+
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
         idx = spine.indexOf(self.currently_showing.name)
