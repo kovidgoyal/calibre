@@ -198,6 +198,12 @@ def highlight_action(uuid, which):
 
 
 @from_python
+def generic_action(which, data):
+    if which is 'set-notes-in-highlight':
+        view.set_notes_for_highlight(data.uuid, data.notes or '')
+
+
+@from_python
 def show_home_page():
     view.overlay.open_book(False)
 
