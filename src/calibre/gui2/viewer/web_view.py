@@ -686,6 +686,7 @@ class WebView(RestartingWebEngineView):
 
     def highlight_action(self, uuid, which):
         self.execute_when_ready('highlight_action', uuid, which)
+        self.setFocus(Qt.OtherFocusReason)
 
     def contextMenuEvent(self, ev):
         ev.accept()
