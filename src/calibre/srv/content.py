@@ -229,7 +229,6 @@ def static(ctx, rd, what):
     except EnvironmentError:
         raise HTTPNotFound()
 
-kepub
 @endpoint('/favicon.png', auth_required=False, cache_control=24)
 def favicon(ctx, rd):
     return share_open(I('lt.png'), 'rb')
