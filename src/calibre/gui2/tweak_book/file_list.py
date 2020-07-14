@@ -792,9 +792,9 @@ class FileList(QTreeWidget, OpenWithHandler):
     def dropEvent(self, event):
         with self:
             text = self.categories['text']
-            pre_drop_order = {text.child(i):i for i in range(text.childCount())}
+            pre_drop_order = {text.child(i).data(0, NAME_ROLE):i for i in range(text.childCount())}
             super(FileList, self).dropEvent(event)
-            current_order = {text.child(i):i for i in range(text.childCount())}
+            current_order = {text.child(i).data(0, NAME_ROLE):i for i in range(text.childCount())}
             if current_order != pre_drop_order:
                 order = []
                 for child in (text.child(i) for i in range(text.childCount())):
