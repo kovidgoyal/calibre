@@ -12,7 +12,7 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
-from calibre.constants import in_develop_mode, isosx
+from calibre.constants import isosx
 from calibre.gui2 import elided_text
 from calibre.gui2.viewer.config import get_session_pref
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
@@ -64,26 +64,18 @@ def all_actions():
             'print': Action('print.png', _('Print book'), 'print'),
             'preferences': Action('config.png', _('Preferences'), 'preferences'),
             'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
+            'highlight': Action('highlight.png', _('Highlight text in the book'), 'create_annotation'),
+            'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
         }
-        if in_develop_mode:
-            amap['highlight'] = Action('highlight.png', _('Highlight text in the book'), 'create_annotation')
-            amap['toggle_highlights'] = Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights')
         all_actions.ans = Actions(amap)
     return all_actions.ans
 
 
-if in_develop_mode:
-    DEFAULT_ACTIONS = (
-        'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-        None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'highlight', 'chrome', None,
-        'mode', 'print', 'preferences', 'metadata', 'inspector'
-    )
-else:
-    DEFAULT_ACTIONS = (
-        'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-        None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'reference', 'chrome', None,
-        'mode', 'print', 'preferences', 'metadata', 'inspector'
-    )
+DEFAULT_ACTIONS = (
+    'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
+    None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'highlight', 'chrome', None,
+    'mode', 'print', 'preferences', 'metadata', 'inspector'
+)
 
 
 def current_actions():
