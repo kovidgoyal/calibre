@@ -160,8 +160,6 @@ def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     au = authors_to_string(mi.authors or [_('Unknown')])
     title = mi.title or _('Unknown')
     ext = (fmt or '').lower()
-    if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
-        ext = 'kepub.epub'
     fname = '%s - %s_%s.%s' % (title[:30], au[:30], book_id, ext)
     if as_encoded_unicode:
         # See https://tools.ietf.org/html/rfc6266
@@ -169,6 +167,9 @@ def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
         fname = unicode_type(quote(fname))
     else:
         fname = ascii_filename(fname).replace('"', '_')
+    if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
+        fname = fname.replace('!', '_')
+        fname += '.epub'
     return fname
 
 
