@@ -8,7 +8,7 @@ import os, glob, re
 from calibre import guess_type
 from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
-from calibre.constants import numeric_version, in_develop_mode
+from calibre.constants import numeric_version
 from calibre.ebooks.metadata.archive import ArchiveExtract, KPFExtract, get_comic_metadata
 from calibre.ebooks.html.to_zip import HTML2ZIP
 
@@ -1101,9 +1101,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary]
-if in_develop_mode:
-    plugins.append(ActionBrowseAnnotations)
+        ActionVirtualLibrary, ActionBrowseAnnotations]
 
 # }}}
 
