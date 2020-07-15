@@ -1844,7 +1844,7 @@ class DB(object):
         if annotation_type:
             data.append(annotation_type)
             q += ' annot_type = ? '
-        q += ' ORDER BY timestamp'
+        q += ' ORDER BY timestamp DESC '
         count = 0
         for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
             try:
