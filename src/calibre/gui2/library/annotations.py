@@ -395,15 +395,29 @@ class DetailsPanel(QWidget):
         a = prepare_string_for_xml
 
         paras = []
+
+        def p(text, tag='p'):
+            paras.append('<{0}>{1}</{0}>'.format(tag, a(text)))
+
         if annot['type'] == 'bookmark':
-            paras.append(a(annot['title']))
+            p(annot['title'])
         elif annot['type'] == 'highlight':
-            paras.append(a(annot['highlighted_text']))
-            paras.append(a(annot.get('notes') or ''))
+            p(annot['highlighted_text'])
+            notes = annot.get('notes')
+            if notes:
+                p(_('Notes'), 'h4')
+                current_lines = []
+                for line in notes.splitlines():
+                    if line:
+                        current_lines.append(line)
+                    else:
+                        if current_lines:
+                            p('\n'.join(current_lines))
+                            current_lines = []
+                if current_lines:
+                    p('\n'.join(current_lines))
 
-        for para in paras:
-            annot_text += '<div style="text-align:left">' + para + '</div><div>&nbsp;</div>'
-
+        annot_text += '\n'.join(paras)
         date = QDateTime.fromString(annot['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
         text = '''
         <h2 style="text-align: center">{title} [{book_format}]</h2>
