@@ -1379,6 +1379,7 @@ class KOBOTOUCH(KOBO):
     min_fwversion_epub_location     = (4, 17, 13651)  # ePub reading location without full contentid.
     min_fwversion_dropbox           = (4, 18, 13737)  # The Forma only at this point.
     min_fwversion_serieslist        = (4, 20, 14601)  # Series list needs the SeriesID to be set.
+    min_nia_fwversion               = (4, 22, 15202)
 
     has_kepubs = True
 
@@ -1410,13 +1411,15 @@ class KOBOTOUCH(KOBO):
     GLO_HD_PRODUCT_ID   = [0x4223]
     LIBRA_H2O_PRODUCT_ID = [0x4232]
     MINI_PRODUCT_ID     = [0x4183]
+    NIA_PRODUCT_ID      = [0x4230]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
                           AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + AURA_H2O_EDITION2_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
-                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID
+                          AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID + \
+                          NIA_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401]
 
@@ -3359,6 +3362,9 @@ class KOBOTOUCH(KOBO):
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
 
+    def isNia(self):
+        return self.detected_device.idProduct in self.NIA_PRODUCT_ID
+
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
 
@@ -3390,6 +3396,8 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isMini():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
+        elif self.isNia()():
+            _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
@@ -3428,6 +3436,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Libra H2O'
         elif self.isMini():
             device_name = 'Kobo Mini'
+        elif self.isNia():
+            device_name = 'Kobo Nia'
         elif self.isTouch():
             device_name = 'Kobo Touch'
         elif self.isTouch2():
