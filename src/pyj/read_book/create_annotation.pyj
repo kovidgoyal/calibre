@@ -669,8 +669,10 @@ class CreateAnnotation:
 
     def handle_message(self, msg):
         if msg.type is 'create-annotation':
-            self.editing_annot_uuid = None
+            self.editing_annot_uuid = msg.existing or None
             self.current_notes = ''
+            if self.editing_annot_uuid:
+                self.current_notes = self.annotations_manager.notes_for_highlight(self.editing_annot_uuid) or ''
             if not self.is_visible:
                 self.view.hide_overlays()
             self.state = WAITING_FOR_CLICK
@@ -679,7 +681,6 @@ class CreateAnnotation:
             if msg.extents and msg.extents.start.x is not None:
                 self.place_handles(msg.extents)
             self.in_flow_mode = msg.in_flow_mode
-            self.editing_annot_uuid = msg.existing or None
             self.send_message('set-highlight-style', style=self.current_highlight_style)
         elif msg.type is 'position-handles':
             if self.state is WAITING_FOR_CLICK:
