@@ -240,15 +240,15 @@ class CreateAnnotation:
 
         tb = create_bar()
         container.appendChild(tb)
-        button(tb, 'close', _('Cancel creation of highlight'), self.hide)
-        button(tb, 'chevron-up', _('Scroll up'), self.button_scroll.bind(None, True))
+        button(tb, 'close', _('Cancel creation of highlight') + ' [Esc]', self.hide)
+        button(tb, 'chevron-up', _('Scroll up') + ' [Up]', self.button_scroll.bind(None, True))
         tb.appendChild(E.span(style=f'height: {tb.style.height}'))
         button(tb.lastChild, 'trash', _('Remove this highlight'), self.delete_highlight)
         tb.lastChild.appendChild(E.span('\xa0\xa0\xa0'))
         if ui_operations.copy_selection:
             button(tb.lastChild, 'copy', _('Copy to clipboard'), self.copy_to_clipboard)
             tb.lastChild.appendChild(E.span('\xa0\xa0\xa0'))
-        button(tb.lastChild, 'check', _('Finish creation of highlight'), self.accept)
+        button(tb.lastChild, 'check', _('Finish creation of highlight') + ' [Enter]', self.accept)
 
         middle = E.div(id=unique_id('middle'), style='display: none; text-align: center; z-index: 90000')
         self.middle_id = middle.id
@@ -257,8 +257,8 @@ class CreateAnnotation:
         bb = create_bar()
         container.appendChild(bb)
         button(bb, 'fg', _('Change highlight color'), self.choose_color)
-        button(bb, 'chevron-down', _('Scroll down'), self.button_scroll)
-        button(bb, 'pencil', _('Add a note'), self.add_notes)
+        button(bb, 'chevron-down', _('Scroll down') + ' [Down]', self.button_scroll)
+        button(bb, 'pencil', _('Add a note') + ' [n]', self.add_notes)
 
         sd = get_session_data()
         style = sd.get('highlight_style') or default_highlight_style()
@@ -337,7 +337,7 @@ class CreateAnnotation:
                     svgicon('check', f'{BAR_SIZE}px', f'{BAR_SIZE}px'),
                     href='javascript:void',
                     class_='simple-link',
-                    title=_('Done adding notes'),
+                    title=_('Done adding notes') + ' [Esc]',
                     onclick=def(ev):
                         ev.preventDefault(), ev.stopPropagation()
                         self.hide_middle()
@@ -459,6 +459,8 @@ class CreateAnnotation:
         ev.stopPropagation(), ev.preventDefault()
         if ev.key is 'Enter':
             return self.accept()
+        if ev.key is 'n' or ev.key is 'N':
+            return self.add_notes()
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if sc_name is 'show_chrome':
             self.hide()
