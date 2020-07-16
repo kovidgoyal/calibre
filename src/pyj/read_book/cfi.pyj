@@ -566,31 +566,35 @@ def point(cfi, doc):  # {{{
         else:
             try_list = [{'start':0, 'end':0, 'a':0.5}, {'start':-1, 'end':0, 'a':0}, {'start':0, 'end':1, 'a':1}]
         a = None
-        rects = None
         node_len = node.nodeValue.length if node.nodeValue else 0
         offset = r.offset
-        for v'var i = 0; i < 2; i++':
-            # Try reducing the offset by 1 if we get no match as if it refers to the position after the
-            # last character we wont get a match with getClientRects
-            offset = r.offset - i
-            if offset < 0:
-                offset = 0
-            k = 0
-            while (not rects or not rects.length) and k < try_list.length:
-                t = try_list[k]
-                k += 1
-                start_offset = offset + t.start
-                end_offset = offset + t.end
-                a = t.a
-                if start_offset < 0 or end_offset >= node_len:
-                    continue
-                range_.setStart(node, start_offset)
-                range_.setEnd(node, end_offset)
-                rects = range_.getClientRects()
+        if not offset:
+            range_.setStart(node, 0)
+            range_.setEnd(node, 0)
+        else:
+            rects = v'[]'
+            for v'var i = 0; i < 2; i++':
+                # Try reducing the offset by 1 if we get no match as if it refers to the position after the
+                # last character we wont get a match with getClientRects
+                offset = r.offset - i
+                if offset < 0:
+                    offset = 0
+                k = 0
+                while not rects?.length and k < try_list.length:
+                    t = try_list[k]
+                    k += 1
+                    start_offset = offset + t.start
+                    end_offset = offset + t.end
+                    a = t.a
+                    if start_offset < 0 or end_offset >= node_len:
+                        continue
+                    range_.setStart(node, start_offset)
+                    range_.setEnd(node, end_offset)
+                    rects = range_.getClientRects()
 
-        if not rects or not rects.length:
-            print(str.format("Could not find caret position: rects: {} offset: {}", rects, r.offset))
-            return None
+            if not rects?.length:
+                print(str.format("Could not find caret position for {} : rects: {} offset: {}", cfi, rects, r.offset))
+                return None
 
     else:
         x, y = r.x, r.y
