@@ -3396,7 +3396,7 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isMini():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
-        elif self.isNia()():
+        elif self.isNia():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
