@@ -13,7 +13,7 @@ def dark_palette():
     p = QPalette()
     dark_color = QColor(45,45,45)
     disabled_color = QColor(127,127,127)
-    text_color = QColor('#eee')
+    text_color = QColor('#ddd')
     p.setColor(p.Window, dark_color)
     p.setColor(p.WindowText, text_color)
     p.setColor(p.Base, QColor(18,18,18))
