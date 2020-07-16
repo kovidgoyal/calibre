@@ -128,6 +128,14 @@ class TestHTTP(BaseTest):
 
     def test_http_basic(self):  # {{{
         'Test basic HTTP protocol conformance'
+        try:
+            self.do_http_basic()
+        except Exception:
+            # this test is a little flaky on the windows CI machine.
+            time.sleep(1)
+            self.do_http_basic()
+
+    def do_http_basic(self):
         from calibre.srv.errors import HTTPNotFound, HTTPRedirect
         body = 'Requested resource not found'
 
