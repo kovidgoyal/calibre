@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title:
 
+- version: 4.21.0
+  date: 2020-07-16
+
+  new features:
+    - title: "Kobo driver: Add support for the new Kobo Nia"
+
+    - title: "Cover grid: Vertically center covers that are smaller than the available space."
+      tickets: [1886731]
+
+    - title: "Quickview panel: Add a checkbox to easily toggle if virtual libraries are respected."
+      tickets: [1886347]
+
+    - title: "When creating custom columns allow specifying a default value to be applied to new books for that column"
+      tickets: [1886079]
+
+  bug fixes:
+    - title: "Edit book: Fix initial sync of preview panel to cursor position sometimes not working when a new HTML file is opened for editing"
+
+    - title: "Fix changed author sort name not being used when adding another book by the author to the library."
+      tickets: [1886492]
+
+    - title: "Cover browser: improve rendering of text with heavily hinted fonts."
+      tickets: [1886239]
+
+    - title: "Viewer: Fix CBC comic files not being viewed correctly. Note that you have to reload the book via the viewer controls to apply the fix."
+      tickets: [1886307]
+
+    - title: "Viewer: Fix Table of Contents not correct for comics."
+
+    - title: "Viewer: Ignore the zero width non-joiner character in searches"
+
+    - title: "Viewer: Fix a regression in the previous release that broke reading of books with mathematics and also <a> tags without href attributes."
+      tickets: [1886192]
+
+    - title: "Cover grid: When using a background image do not scroll it with the covers."
+      tickets: [1886139]
+
+  improved recipes:
+    - "1843 magazine"
+    - Caravan Magazine
+
+
 - version: 4.20.0
   date: 2020-07-03
 
