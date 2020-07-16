@@ -386,6 +386,16 @@ def set_global_state(backend):
         backend.library_id, (), precompiled_user_functions=backend.get_user_template_functions())
 
 
+def rmtree_with_retry(path, sleep_time=1):
+    try:
+        shutil.rmtree(path)
+    except EnvironmentError as e:
+        if e.errno == errno.ENOENT and not os.path.exists(path):
+            return
+        time.sleep(sleep_time)  # In case something has temporarily locked a file
+        shutil.rmtree(path)
+
+
 class DB(object):
 
     PATH_LIMIT = 40 if iswindows else 100
@@ -1216,15 +1226,7 @@ class DB(object):
 
     def rmtree(self, path):
         if self.is_deletable(path):
-            try:
-                shutil.rmtree(path)
-            except EnvironmentError as e:
-                if e.errno == errno.ENOENT and not os.path.exists(path):
-                    return
-                import traceback
-                traceback.print_exc()
-                time.sleep(1)  # In case something has temporarily locked a file
-                shutil.rmtree(path)
+            rmtree_with_retry(path)
 
     def construct_path_name(self, book_id, title, author):
         '''
@@ -1980,7 +1982,7 @@ class DB(object):
         self._conn = None
         for loc in old_dirs:
             try:
-                shutil.rmtree(loc)
+                rmtree_with_retry(loc)
             except EnvironmentError as e:
                 if os.path.exists(loc):
                     prints('Failed to delete:', loc, 'with error:', as_unicode(e))
