@@ -8,7 +8,7 @@ from calibre.constants import dark_link_color
 
 dark_link_color = QColor(dark_link_color)
 dark_color = QColor(45,45,45)
-dark_text_color = QColor('#eee')
+dark_text_color = QColor('#ddd')
 
 
 def dark_palette():
