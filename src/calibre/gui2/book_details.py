@@ -186,6 +186,7 @@ def add_format_entries(menu, data, book_info):
     from calibre.gui2.ui import get_gui
     book_id = int(data['book_id'])
     fmt = data['fmt']
+    init_find_in_tag_browser(menu, book_info.find_in_tag_browser_action, 'formats', fmt)
     db = get_gui().current_db.new_api
     ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
     nfmt = ofmt[len('ORIGINAL_'):]
