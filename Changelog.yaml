@@ -29,7 +29,7 @@
     - title: "Cover grid: Vertically center covers that are smaller than the available space."
       tickets: [1886731]
 
-    - title: "Quickview panel: Add a checkbox to easily toggle if virtual libraries are respected."
+    - title: "Quickview panel: Add a checkbox to easily toggle if Virtual libraries are respected."
       tickets: [1886347]
 
     - title: "When creating custom columns allow specifying a default value to be applied to new books for that column"

@@ -78,11 +78,11 @@
      <item>
       <widget class="QCheckBox" name="apply_vls">
        <property name="text">
-        <string>&amp;Apply virtual libraries</string>
+        <string>&amp;Apply Virtual libraries</string>
        </property>
        <property name="toolTip">
         <string>&lt;p&gt;Select to make Quickview show only books in the current
-        virtual library&lt;/p&gt;</string>
+        Virtual library&lt;/p&gt;</string>
        </property>
       </widget>
      </item>

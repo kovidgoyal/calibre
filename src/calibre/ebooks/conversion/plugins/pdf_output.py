@@ -54,7 +54,7 @@ class PDFOutput(OutputFormatPlugin):
             recommended_value=False,
             help=_('Preserve the aspect ratio of the cover, instead'
                 ' of stretching it to fill the full first page of the'
-                ' generated pdf.')),
+                ' generated PDF.')),
         OptionRecommendation(name='pdf_serif_family',
             recommended_value='Times', help=_(
                 'The font family used to render serif fonts. Will work only if the font is available system-wide.')),

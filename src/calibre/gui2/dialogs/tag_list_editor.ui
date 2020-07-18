@@ -141,7 +141,7 @@
      <item>
       <widget class="QToolButton" name="delete_button">
        <property name="toolTip">
-        <string>Delete item from database. This will unapply the item from all books and then remove it from the database.</string>
+        <string>Delete selected items from the database. This will unapply the items from all books and then remove them from the database.</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -177,7 +177,7 @@
      <item>
       <widget class="QToolButton" name="rename_button">
        <property name="toolTip">
-        <string>Rename the item in every book where it is used</string>
+        <string>Rename the items in every book where they are used</string>
        </property>
        <property name="text">
         <string>...</string>

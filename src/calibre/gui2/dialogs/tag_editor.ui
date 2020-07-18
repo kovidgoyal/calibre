@@ -124,7 +124,7 @@
        <item>
         <widget class="QToolButton" name="delete_button">
          <property name="toolTip">
-          <string>Delete the item from database. This will unapply the item from all books and then remove it from the database.</string>
+          <string>Delete the selected items from database. This will unapply the items from all books and then remove them from the database.</string>
          </property>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
