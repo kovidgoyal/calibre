@@ -601,7 +601,7 @@ class DevicePage(QWizardPage, DeviceUI):
 
     def initializePage(self):
         self.label.setText(_('Choose your e-book device. If your device is'
-            ' not in the list, choose a "%s" device.')%Device.manufacturer)
+            ' not in the list, choose a "Generic" device.'))
         self.man_model = ManufacturerModel()
         self.manufacturer_view.setModel(self.man_model)
         previous = dynamic.get('welcome_wizard_device', False)
