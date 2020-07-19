@@ -229,8 +229,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             self.do_sort_by_link()
 
         # Position on the desired item
+        select_item = None
         if id_to_select:
-            select_item = None
             use_as = tweaks['categories_use_field_for_author_name'] == 'author_sort'
             for row in range(0, len(auts_to_show)):
                 if is_first_letter:
@@ -248,13 +248,15 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                         select_item = (self.table.item(row, 1) if use_as
                                         else self.table.item(row, 0))
                     break
-            if select_item:
-                self.table.setCurrentItem(select_item)
-                if select_sort or select_link:
-                    self.table.editItem(select_item)
-                self.start_find_pos = select_item.row() * 2 + select_item.column()
+        if select_item:
+            self.table.setCurrentItem(select_item)
+            self.table.setFocus(True)
+            if select_sort or select_link:
+                self.table.editItem(select_item)
+            self.start_find_pos = select_item.row() * 2 + select_item.column()
         else:
             self.table.setCurrentCell(0, 0)
+            self.find_box.setFocus()
             self.start_find_pos = -1
         self.table.blockSignals(False)
 
