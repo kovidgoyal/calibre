@@ -94,6 +94,15 @@ def create_font_size_panel(container, close):
                 set_quick_size(ev)
         ))
 
+    def set_size(ev):
+        newval = ev.currentTarget.value
+        try:
+            q = int(newval)
+        except:
+            return
+        if MIN_FONT_SIZE <= q <= MAX_FONT_SIZE:
+            set_quick_size(ev)
+
     container.appendChild(E.div(
         style='display: flex; margin-top: 1rem',
         E.input(
@@ -102,7 +111,7 @@ def create_font_size_panel(container, close):
         ),
 
         E.span('\xa0', E.input(
-            value=f'{cfs}', type='text', oninput=set_quick_size, type='number', min=MIN_FONT_SIZE, max=MAX_FONT_SIZE,
+            value=f'{cfs}', oninput=set_size, type='number', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '',
             step='1', style='width: 3em',
         ), '\xa0px')
     ))
