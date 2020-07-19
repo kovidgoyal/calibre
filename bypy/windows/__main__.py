@@ -313,14 +313,16 @@ def extract_pyd_modules(env, site_packages_dir):
 
 def embed_resources(env, module, desc=None, extra_data=None, product_description=None):
     icon_base = j(env.src_root, 'icons')
-    icon_map = {'calibre': 'library', 'ebook-viewer': 'viewer', 'ebook-edit': 'ebook-edit',
-                'lrfviewer': 'viewer', 'calibre-portable': 'library'}
+    icon_map = {
+        'calibre': 'library', 'ebook-viewer': 'viewer', 'ebook-edit': 'ebook-edit',
+        'lrfviewer': 'viewer',
+    }
     file_type = 'DLL' if module.endswith('.dll') else 'APP'
     with open(env.rc_template, 'rb') as f:
         template = f.read().decode('utf-8')
     bname = b(module)
     internal_name = os.path.splitext(bname)[0]
-    icon = icon_map.get(internal_name, 'command-prompt')
+    icon = icon_map.get(internal_name.replace('-portable', ''), 'command-prompt')
     if internal_name.startswith('calibre-portable-'):
         icon = 'install'
     icon = j(icon_base, icon + '.ico')
@@ -415,20 +417,25 @@ def build_portable(env):
     obj = j(env.obj_dir, b(src) + '.obj')
     cflags = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE /DUNICODE'.split()
 
-    printf('Compiling', obj)
-    cmd = [CL] + cflags + ['/Fo' + obj, '/Tc' + src]
-    run_compiler(env, *cmd)
-
-    exe = j(base, 'calibre-portable.exe')
-    printf('Linking', exe)
-    cmd = [LINK] + [
-        '/INCREMENTAL:NO', '/MACHINE:' + machine,
-        '/LIBPATH:' + env.obj_dir, '/SUBSYSTEM:WINDOWS',
-        '/RELEASE',
-        '/ENTRY:wWinMainCRTStartup',
-        '/OUT:' + exe, embed_resources(env, exe, desc='Calibre Portable', product_description='Calibre Portable'),
-        obj, 'User32.lib']
-    run(*cmd)
+    for exe_name in ('calibre.exe', 'ebook-viewer.exe', 'ebook-edit.exe'):
+        exe = j(base, exe_name.replace('.exe', '-portable.exe'))
+        printf('Compiling', exe)
+        cmd = [CL] + cflags + ['/DEXE_NAME="%s"' % exe_name, '/Fo' + obj, '/Tc' + src]
+        run_compiler(env, *cmd)
+        printf('Linking', exe)
+        desc = {
+            'calibre.exe': 'Calibre Portable',
+            'ebook-viewer.exe': 'Calibre Portable Viewer',
+            'ebook-edit.exe': 'Calibre Portable Editor'
+        }[exe_name]
+        cmd = [LINK] + [
+            '/INCREMENTAL:NO', '/MACHINE:' + machine,
+            '/LIBPATH:' + env.obj_dir, '/SUBSYSTEM:WINDOWS',
+            '/RELEASE',
+            '/ENTRY:wWinMainCRTStartup',
+            '/OUT:' + exe, embed_resources(env, exe, desc=desc, product_description=desc),
+            obj, 'User32.lib']
+        run(*cmd)
 
     printf('Creating portable installer')
     shutil.copytree(env.base, j(base, 'Calibre'))
