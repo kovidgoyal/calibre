@@ -70,6 +70,17 @@ def create_scrolling_panel(container, apply_func, cancel_func):
         'paged_margin_clicks_scroll_by_screen', _('Clicking on the margins scrolls by screen fulls instead of pages')))
     container.appendChild(cb(
         'paged_taps_scroll_by_screen', _('Tapping scrolls by screen fulls instead of pages')))
+    container.appendChild(
+        E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:auto min-content;grid-gap:1ex; max-width: 30em',
+            *spinner(
+                'paged_pixel_scroll_threshold',
+    _('Pixel scroll threshold:'),
+                title=_('When using a touchpad or mouse wheel that produces scroll events in pixels, set the number of pixels before a page turn is triggered'),
+                step=5,
+                min=0,
+                max=1000
+            ),
+    ))
 
     container.appendChild(E.hr())
     container.appendChild(E.div(style='margin-top:1ex', _('Control how smooth scrolling works in flow mode')))

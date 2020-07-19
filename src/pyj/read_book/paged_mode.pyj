@@ -567,8 +567,7 @@ class HandleWheel:
         self.last_event_at = now
         self.last_event_backwards = backward
         self.accumulated_scroll += deltaY
-        lh = line_height()
-        if self.accumulated_scroll > 5 * lh:
+        if self.accumulated_scroll > opts.paged_pixel_scroll_threshold:
             self.do_scroll(backward)
 
     def do_scroll(self, backward):
