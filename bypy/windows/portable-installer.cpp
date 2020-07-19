@@ -407,6 +407,16 @@ static BOOL move_program() {
         show_last_error(L"Failed to move calibre-portable.exe, make sure calibre is not running");
         return false;
     }
+    if (MoveFileEx(L"Calibre Portable\\ebook-viewer-portable.exe",
+                L"..\\ebook-viewer-portable.exe", MOVEFILE_REPLACE_EXISTING) == 0) {
+        show_last_error(L"Failed to move ebook-viewer-portable.exe, make sure calibre is not running");
+        return false;
+    }
+    if (MoveFileEx(L"Calibre Portable\\ebook-edit-portable.exe",
+                L"..\\ebook-edit-portable.exe", MOVEFILE_REPLACE_EXISTING) == 0) {
+        show_last_error(L"Failed to move ebook-edit-portable.exe, make sure calibre is not running");
+        return false;
+    }
 
     if (directory_exists(L"..\\Calibre")) {
         if (!rmtree(L"..\\Calibre")) {
