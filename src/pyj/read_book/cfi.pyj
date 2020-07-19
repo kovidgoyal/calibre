@@ -331,8 +331,11 @@ def decode(cfi, doc):
                 node = q
                 cfi = cfi.substr(r[0].length)
             else:
-                error = "No matching child found for CFI: " + cfi
-                break
+                if target:
+                    error = "No matching child found for CFI: " + cfi
+                    break
+                else:
+                    cfi = cfi.substr(r[0].length)
         else if cfi[0] is '!': # Indirection
             if node.contentDocument:
                 node = node.contentDocument

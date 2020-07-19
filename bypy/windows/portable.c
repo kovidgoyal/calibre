@@ -148,7 +148,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     exe = (LPTSTR)calloc(BUFSIZE, sizeof(TCHAR));
 
     _sntprintf_s(config_dir, BUFSIZE, _TRUNCATE, _T("%sCalibre Settings"), app_dir);
-    _sntprintf_s(exe, BUFSIZE, _TRUNCATE, _T("%sCalibre\\calibre.exe"), app_dir);
+    _sntprintf_s(exe, BUFSIZE, _TRUNCATE, _T("%sCalibre\\%s"), app_dir, _T(EXE_NAME));
 
     launch_calibre(exe, config_dir);
 
