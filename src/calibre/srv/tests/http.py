@@ -132,7 +132,7 @@ class TestHTTP(BaseTest):
             self.do_http_basic()
         except Exception:
             # this test is a little flaky on the windows CI machine.
-            time.sleep(1)
+            time.sleep(3)
             self.do_http_basic()
 
     def do_http_basic(self):
