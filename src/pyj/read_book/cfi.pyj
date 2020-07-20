@@ -790,7 +790,7 @@ def cfi_for_selection(r):  # {{{
 
     return {
         'start': encode(r.startContainer.ownerDocument, *pos(r.startContainer, r.startOffset)),
-        'end': encode(r.endContainer.ownerDocument, *(r.endContainer, r.endOffset)),
+        'end': encode(r.endContainer.ownerDocument, *pos(r.endContainer, r.endOffset)),
     }
 
 # }}}
