@@ -372,8 +372,6 @@ class CreateAnnotation:
         current_style = self.current_highlight_style
         container.appendChild(c)
         found_current = False
-        self.save_handle_state()
-        self.handle_state = self.left_handle.display, self.right_hand
 
         def add(bg):
             ic = svgicon('swatch', BAR_SIZE, BAR_SIZE)
@@ -397,8 +395,6 @@ class CreateAnnotation:
 
     def change_color(self, new_color):
         self.hide_middle()
-        c = self.middle
-        c.style.display = 'none'
         current_style = self.current_highlight_style
         if not new_color or current_style['background-color'].lower() is new_color.lower():
             return
@@ -423,7 +419,7 @@ class CreateAnnotation:
 
     def show_middle(self, pre_close_callback):
         self.pre_middle_close_callback = pre_close_callback
-        self.save_handle_state()
+        self.temporarily_hide_handles()
         self.middle.style.display = 'block'
 
     def hide_middle(self):
@@ -432,16 +428,17 @@ class CreateAnnotation:
             if self.pre_middle_close_callback:
                 if not self.pre_middle_close_callback():
                     return
-            self.restore_handle_state()
+            self.unhide_handles()
             m.style.display = 'none'
             self.container.focus()
 
-    def save_handle_state(self):
+    def temporarily_hide_handles(self):
         for h in (self.left_handle, self.right_handle):
-            h.dataset.savedState = h.style.display
-            h.style.display = 'none'
+            if h.style.display is not 'none':
+                h.dataset.savedState = h.style.display
+                h.style.display = 'none'
 
-    def restore_handle_state(self):
+    def unhide_handles(self):
         for h in (self.left_handle, self.right_handle):
             h.style.display = h.dataset.savedState
 
