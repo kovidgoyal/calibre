@@ -95,3 +95,6 @@ def cfi_with_range_wrappers():
     p.appendChild(E.span('abc', data_calibre_range_wrapper='7'))
     with_wrapper = encode(document, p.firstChild.firstChild, 0)
     assert_equal(without_wrapper, with_wrapper)
+    p.appendChild(document.createTextNode('def'))
+    after_wrapper = encode(document, p.lastChild, 1)
+    assert_equal(after_wrapper, f'{path_to_p}/1:4')
