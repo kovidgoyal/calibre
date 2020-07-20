@@ -294,7 +294,7 @@ Or, for Apache::
         ServerName myserver.example.com
         AllowEncodedSlashes On
         ProxyPreserveHost On
-        ProxyPass "/"  "http://localhost:8080"
+        ProxyPass "/"  "http://localhost:8080/"
     </VirtualHost>
 
 
