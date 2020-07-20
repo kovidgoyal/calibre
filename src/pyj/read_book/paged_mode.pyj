@@ -746,3 +746,45 @@ def auto_scroll_action(action):
             ' scrolling'), is_non_critical=True
         )
     return False
+
+
+class DragScroller:
+
+    INTERVAL = 500
+
+    def __init__(self):
+        self.backward = False
+        self.timer_id = None
+
+    def is_running(self):
+        return self.timer_id is not None
+
+    def start(self, backward):
+        if not self.is_running() or backward is not self.backward:
+            self.stop()
+            self.backward = backward
+            self.timer_id = window.setTimeout(self.do_one_page_turn.bind(self), self.INTERVAL)
+
+    def do_one_page_turn(self):
+        pos = previous_col_location() if self.backward else next_col_location()
+        if pos >= 0:
+            scroll_to_xpos(pos)
+            self.timer_id = window.setTimeout(self.do_one_page_turn.bind(self), self.INTERVAL * 2)
+        else:
+            self.stop()
+
+    def stop(self):
+        if self.timer_id is not None:
+            window.clearTimeout(self.timer_id)
+            self.timer_id = None
+
+
+drag_scroller = DragScroller()
+
+
+def cancel_drag_scroll():
+    drag_scroller.stop()
+
+
+def start_drag_scroll(delta):
+    drag_scroller.start(delta < 0)
