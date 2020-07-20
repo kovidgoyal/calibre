@@ -43,7 +43,7 @@ def apply_font_size():
 def default_selection_colors():
     if opts.is_dark_theme:
         return dark_link_color, '#111'
-    return '#3297FD', '#ddd'
+    return '#3297FD', '#fff'
 
 
 def make_selection_background_opaque(selbg):
