@@ -149,6 +149,8 @@ def text_length_in_range_wrapper(node):
 
 
 def adjust_node_for_text_offset(node):
+    if node.parentNode and node.parentNode.dataset.calibreRangeWrapper:
+        node = node.parentNode
     offset = 0
     adjusted = False
     while True:
@@ -161,6 +163,10 @@ def adjust_node_for_text_offset(node):
             offset += text_length_in_range_wrapper(p)
         node = p
         adjusted = True
+    if adjusted and node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
+        if not node.firstChild or node.firstChild.nodeType is not Node.TEXT_NODE:
+            node.insertBefore(document.createTextNode(''), node.firstChild or None)
+        node = node.firstChild
     return node, offset, adjusted
 
 
@@ -221,10 +227,7 @@ def encode(doc, node, offset, tail):
             node = node.firstChild
     if is_text_node(node):
         offset = offset or 0
-        adjust_node = node
-        if node.parentNode and node.parentNode.dataset.calibreRangeWrapper:
-            adjust_node = node.parentNode
-        adjusted_node, additional_offset, adjusted = adjust_node_for_text_offset(adjust_node)
+        adjusted_node, additional_offset, adjusted = adjust_node_for_text_offset(node)
         if adjusted:
             node = adjusted_node
             offset += additional_offset
