@@ -730,8 +730,7 @@ class IframeBoss:
             set_selection_style(data.style)
         elif data.type is 'edit-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
-            if crw_:
-                select_crw(crw_)
+            if crw_ and select_crw(crw_):
                 self.ensure_selection_visible()
                 self.initiate_creation_of_annotation(data.uuid)
         elif data.type is 'remove-highlight':
