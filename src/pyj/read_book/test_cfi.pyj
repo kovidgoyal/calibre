@@ -85,3 +85,13 @@ def cfi_with_range_wrappers():
     p.appendChild(document.createTextNode('def'))
     assert_equal(decode(f'{path_to_p}/1:2'), {'node': p.firstChild, 'offset': 2})
     assert_equal(decode(f'{path_to_p}/3:2'), {'node': p.lastChild, 'offset': 2})
+
+    document.body.appendChild(E.p('abc'))
+    p = document.body.lastChild
+    path_to_p = encode(document, p)
+    without_wrapper = encode(document, p.firstChild, 0)
+    assert_equal(without_wrapper, f'{path_to_p}/1:0')
+    p.removeChild(p.firstChild)
+    p.appendChild(E.span('abc', data_calibre_range_wrapper='7'))
+    with_wrapper = encode(document, p.firstChild.firstChild, 0)
+    assert_equal(without_wrapper, with_wrapper)
