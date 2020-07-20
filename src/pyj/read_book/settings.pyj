@@ -46,6 +46,13 @@ def default_selection_colors():
     return '#3297FD', '#ddd'
 
 
+def make_selection_background_opaque(selbg):
+    # see https://stackoverflow.com/questions/7224445/css3-selection-behaves-differently-in-ff-chrome
+    if selbg and selbg.startsWith('#') and len(selbg) is 7:
+        selbg += 'fe'
+    return selbg
+
+
 styles_id = 'calibre-color-scheme-style-overrides'
 
 
@@ -78,6 +85,7 @@ def apply_colors():
         text += f'\nhtml > body :link, html > body :link * {{ color: {c} !important }} html > body :visited, html > body :visited * {{ color: {c} !important }}'
 
     selbg, selfg = default_selection_colors()
+    selbg = make_selection_background_opaque(selbg)
     text += f'\n::selection {{ background-color: {selbg}; color: {selfg} }}'
     text += f'\n::selection:window-inactive {{ background-color: {selbg}; color: {selfg} }}'
 
@@ -92,6 +100,8 @@ def set_selection_style(style):
     if not sheet:
         return
     css_text = ''
+    if style.selbg:
+        style.selbg = make_selection_background_opaque(style.selbg)
     for prop in Object.keys(style):
         css_text += f'{prop}: {style[prop]}; '
     for rule in sheet.sheet.cssRules:
