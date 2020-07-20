@@ -150,6 +150,7 @@ def text_length_in_range_wrapper(node):
 
 def adjust_node_for_text_offset(node):
     offset = 0
+    adjusted = False
     while True:
         p = node.previousSibling
         if not p or p.nodeType > Node.COMMENT_NODE:
@@ -159,7 +160,8 @@ def adjust_node_for_text_offset(node):
         elif p.nodeType is Node.ELEMENT_NODE and p.dataset.calibreRangeWrapper:
             offset += text_length_in_range_wrapper(p)
         node = p
-    return node, offset
+        adjusted = True
+    return node, offset, adjusted
 
 
 def unwrapped_nodes(range_wrapper):
@@ -219,10 +221,13 @@ def encode(doc, node, offset, tail):
             node = node.firstChild
     if is_text_node(node):
         offset = offset or 0
+        adjust_node = node
         if node.parentNode and node.parentNode.dataset.calibreRangeWrapper:
-            node = node.parentNode
-        node, additional_offset = adjust_node_for_text_offset(node)
-        offset += additional_offset
+            adjust_node = node.parentNode
+        adjusted_node, additional_offset, adjusted = adjust_node_for_text_offset(adjust_node)
+        if adjusted:
+            node = adjusted_node
+            offset += additional_offset
         cfi = ":" + offset + cfi
     elif node.nodeType is not Node.ELEMENT_NODE: # Not handled
         print(f"Offsets for nodes of type {node.nodeType} are not handled")
@@ -254,7 +259,6 @@ def encode(doc, node, offset, tail):
 
     return cfi
 # }}}
-
 
 # def decode(cfi, doc):  {{{
 
