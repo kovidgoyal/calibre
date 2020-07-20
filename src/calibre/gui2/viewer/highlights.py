@@ -11,6 +11,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.constants import plugins
+from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.library.annotations import Details
 from calibre.gui2.viewer.search import SearchInput
@@ -39,12 +40,21 @@ class Highlights(QListWidget):
     def load(self, highlights):
         self.clear()
         self.uuid_map = {}
-        for h in highlights or ():
+        highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
+        for h in self.sorted_highlights(highlights):
             txt = h.get('highlighted_text')
-            if not h.get('removed') and txt:
-                i = QListWidgetItem(txt, self)
-                i.setData(Qt.UserRole, h)
-                self.uuid_map[h['uuid']] = self.count() - 1
+            i = QListWidgetItem(txt, self)
+            i.setData(Qt.UserRole, h)
+            self.uuid_map[h['uuid']] = self.count() - 1
+
+    def sorted_highlights(self, highlights):
+        defval = 999999999999999, cfi_sort_key('/99999999')
+
+        def cfi_key(h):
+            cfi = h.get('start_cfi')
+            return (h.get('spine_index') or defval[0], cfi_sort_key(cfi)) if cfi else defval
+
+        return sorted(highlights, key=cfi_key)
 
     def refresh(self, highlights):
         h = self.current_highlight
