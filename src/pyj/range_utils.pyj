@@ -60,12 +60,17 @@ def unwrap_all_crw():
 
 def select_crw(crw):
     nodes = document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]')
-    r = document.createRange()
-    r.setStart(nodes[0].firstChild, 0)
-    r.setEnd(nodes[-1].lastChild, nodes[-1].lastChild.nodeValue.length)
-    sel = window.getSelection()
-    sel.removeAllRanges()
-    sel.addRange(r)
+    if nodes and nodes.length:
+        r = document.createRange()
+        r.setStart(nodes[0].firstChild, 0)
+        r.setEnd(nodes[-1].lastChild, nodes[-1].lastChild.nodeValue.length)
+        sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(r)
+        return True
+    else:
+        print(f'range-wrapper: {crw} does not exist')
+    return False
 
 
 def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper):
