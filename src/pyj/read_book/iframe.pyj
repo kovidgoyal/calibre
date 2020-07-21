@@ -507,7 +507,7 @@ class IframeBoss:
             'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
         sel = window.getSelection()
         if sel and not sel.isCollapsed:
-            self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow'))
+            self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow', True))
 
     def onresize(self):
         self.send_message('request_size')
@@ -528,7 +528,7 @@ class IframeBoss:
             text = sel.toString()
         self.send_message(
             'selectionchange', text=text, empty=v'!!collapsed',
-            selection_extents=selection_extents(current_layout_mode() is 'flow'))
+            selection_extents=selection_extents(current_layout_mode() is 'flow', True))
 
     def onresize_stage2(self):
         if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:

@@ -1,0 +1,81 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.theme import get_color
+
+
+class SelectionBar:
+
+    def __init__(self, view):
+        self.view = view
+        c = self.container
+        bar = E.div(
+            style='position: absolute; left: 0; top: 0; height: 3ex; border: solid 1px currentColor; border-radius: 5px; overflow: hidden;'
+            'pointer-events: auto; min-width: 50px; padding: 5px; background-color: {}'.format(get_color("window-background"))
+        )
+        c.appendChild(bar)
+
+    @property
+    def container(self):
+        return document.getElementById('book-selection-bar-overlay')
+
+    @property
+    def bar(self):
+        return self.container.firstChild
+
+    def hide(self):
+        self.container.style.display = 'none'
+
+    def show(self):
+        self.container.style.display = 'block'
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def update_position(self):
+        cs = self.view.currently_showing
+        if not cs.has_selection:
+            return self.hide()
+
+        margins = {
+            'top': document.getElementById('book-top-margin').offsetHeight,
+            'bottom': document.getElementById('book-bottom-margin').offsetHeight,
+            'left': document.getElementById('book-left-margin').offsetWidth,
+            'right': document.getElementById('book-right-margin').offsetWidth,
+        }
+
+        def map_boundary(x):
+            return {'x': x.x + margins.left, 'y': x.y + margins.top, 'height': x.height, 'onscreen': x.onscreen}
+
+        start = map_boundary(cs.selection_start)
+        end = map_boundary(cs.selection_end)
+        if not start.onscreen and not end.onscreen:
+            return self.hide()
+
+        self.show()
+        end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
+        container = self.container
+        bar = self.bar
+
+        # vertical position
+        bar_height = bar.offsetHeight
+        buffer = 2
+        if end_after_start:
+            has_space_below = end.y + end.height < container.offsetHeight - bar_height - buffer
+            put_below = has_space_below
+        else:
+            has_space_above = end.y + bar_height - buffer > 0
+            put_below = not has_space_above
+        top = (end.y + end.height + buffer) if put_below else (end.y - bar_height - buffer)
+        top = max(buffer, min(top, container.offsetHeight - bar_height - buffer))
+        bar.style.top = top + 'px'
+
+        # horizontal position
+        bar_width = bar.offsetWidth
+        left = end.x - bar_width // 2
+        left = max(buffer, min(left, container.offsetWidth - bar_width - buffer))
+        bar.style.left = left + 'px'
