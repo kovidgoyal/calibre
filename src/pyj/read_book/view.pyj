@@ -261,6 +261,7 @@ class View:
             'request_size': self.on_request_size,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'selectionchange': self.on_selection_change,
+            'update_selection_position': self.update_selection_position,
             'columns_per_screen_changed': self.on_columns_per_screen_changed,
             'show_chrome': self.show_chrome,
             'show_footnote': self.on_show_footnote,
@@ -513,8 +514,15 @@ class View:
 
     def on_selection_change(self, data):
         self.currently_showing.selected_text = data.text
+        self.currently_showing.has_selection = not data.empty
+        self.currently_showing.selection_start = data.selection_extents.start
+        self.currently_showing.selection_end = data.selection_extents.end
         if ui_operations.selection_changed:
-            ui_operations.selection_changed(data.text)
+            ui_operations.selection_changed(self.currently_showing.selected_text)
+
+    def update_selection_position(self, data):
+        self.currently_showing.selection_start = data.selection_extents.start
+        self.currently_showing.selection_end = data.selection_extents.end
 
     def on_columns_per_screen_changed(self, data):
         sd = get_session_data()
