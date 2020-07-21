@@ -95,9 +95,9 @@ def _add_newbook_tag(mi):
 def _add_default_custom_column_values(mi, fm):
     cols = fm.custom_field_metadata(include_composites=False)
     for cc,col in iteritems(cols):
-        dv = col['display'].get('default_value', '')
+        dv = col['display'].get('default_value', None)
         try:
-            if dv:
+            if dv is not None:
                 if not mi.get_user_metadata(cc, make_copy=False):
                     mi.set_user_metadata(cc, col)
                 dt = col['datatype']
