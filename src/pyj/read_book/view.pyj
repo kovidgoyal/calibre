@@ -32,6 +32,7 @@ from read_book.prefs.scrolling import (
 from read_book.resources import load_resources
 from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay, find_in_spine
+from read_book.selection_bar import SelectionBar
 from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
@@ -222,6 +223,7 @@ class View:
                         ),
                         right_margin,
                         self.book_scrollbar.create(),
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none; pointer-events: none', id='book-selection-bar-overlay'),  # selection bar overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
@@ -292,6 +294,7 @@ class View:
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
+        self.selection_bar = SelectionBar(self)
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {}
@@ -519,10 +522,12 @@ class View:
         self.currently_showing.selection_end = data.selection_extents.end
         if ui_operations.selection_changed:
             ui_operations.selection_changed(self.currently_showing.selected_text)
+        self.selection_bar.update_position()
 
     def update_selection_position(self, data):
         self.currently_showing.selection_start = data.selection_extents.start
         self.currently_showing.selection_end = data.selection_extents.end
+        self.selection_bar.update_position()
 
     def on_columns_per_screen_changed(self, data):
         sd = get_session_data()
@@ -1168,6 +1173,7 @@ class View:
         )
 
     def on_content_loaded(self, data):
+        self.selection_bar.hide()
         self.processing_spine_item_display = False
         self.currently_showing.loading = False
         self.hide_loading()
