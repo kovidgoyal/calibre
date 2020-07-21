@@ -73,12 +73,20 @@ def range_extents(start, end, in_flow_mode):
 
 
 
-def selection_extents(in_flow_mode):
+def selection_extents(in_flow_mode, end_must_be_focus):
     sel = window.getSelection()
     if not sel or not sel.rangeCount or sel.isCollapsed:
         return range_extents()
-    start = sel.getRangeAt(0)
-    end = sel.getRangeAt(sel.rangeCount - 1)
+    if end_must_be_focus:
+        start = document.createRange()
+        start.setStart(sel.anchorNode, sel.anchorOffset)
+        start.setEnd(sel.anchorNode, sel.anchorOffset)
+        end = document.createRange()
+        end.setStart(sel.focusNode, sel.focusOffset)
+        end.setEnd(sel.focusNode, sel.focusOffset)
+    else:
+        start = sel.getRangeAt(0)
+        end = sel.getRangeAt(sel.rangeCount - 1)
     return range_extents(start, end, in_flow_mode)
 
 
