@@ -36,7 +36,7 @@ class TheAtlantic(BasicNewsRecipe):
         dict(id='rubric'),
         dict(itemprop=['headline', 'image']),
         classes(
-            'article-header c-article-meta lead-img article-cover-extra article-body article-magazine article-cover-content'
+            'c-article-header__hed article-header c-article-meta lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
         dict(itemprop='articleBody'),
     ]
