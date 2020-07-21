@@ -420,6 +420,10 @@ class View:
             self.iframe_wrapper.send_message('overlay_visibility_changed', visible=visible)
         if ui_operations.overlay_visibility_changed:
             ui_operations.overlay_visibility_changed(visible)
+        if visible:
+            self.selection_bar.hide()
+        else:
+            self.selection_bar.update_position()
 
     def on_handle_shortcut(self, data):
         if data.name is 'back':

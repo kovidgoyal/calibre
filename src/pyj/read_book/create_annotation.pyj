@@ -639,12 +639,14 @@ class CreateAnnotation:
         c = self.container
         c.style.display = 'flex'
         c.focus()
+        self.view.selection_bar.hide()
 
     def hide(self):
         if self.is_visible:
             self.container.style.display = 'none'
             self.view.focus_iframe()
             self.send_message('set-highlight-style', style=None)
+            self.view.selection_bar.update_position()
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
