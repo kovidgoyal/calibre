@@ -33,6 +33,7 @@ class SelectionBar:
             bar.appendChild(cb('copy', _('Copy to clipboard'), self.copy_to_clipboard))
         if ui_operations.toggle_lookup:
             bar.appendChild(cb('library', _('Lookup/search selected word'), self.lookup))
+        bar.appendChild(cb('highlight', _('Highlight selection'), self.create_highlight))
         bar.appendChild(cb('close', _('Clear the selection'), self.clear_selection))
 
     @property
@@ -62,6 +63,9 @@ class SelectionBar:
 
     def clear_selection(self):
         self.view.on_handle_shortcut({'name': 'clear_selection'})
+
+    def create_highlight(self):
+        self.view.initiate_create_annotation(True)
 
     def update_position(self):
         cs = self.view.currently_showing
