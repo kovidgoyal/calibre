@@ -129,6 +129,10 @@ class Rule(object):  # {{{
         return "check_yes_no('%s', %s)"%(col, test)
 
     def number_condition(self, col, action, val):
+        if action == 'is set':
+            return "test(field('%s'), '1', '')"%col
+        if action == 'is not set':
+            return "test(field('%s'), '', '1')"%col
         lt, eq, gt = {
                 'eq': ('', '1', ''),
                 'lt': ('1', '', ''),
