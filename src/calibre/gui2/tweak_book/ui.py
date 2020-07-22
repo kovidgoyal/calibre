@@ -776,8 +776,12 @@ class Main(MainWindow):
         return super(Main, self).resizeEvent(ev)
 
     def update_window_title(self):
-        fname = os.path.basename(current_container().path_to_ebook)
-        self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(current_container().book_type.upper(), fname, self.APP_NAME))
+        cc = current_container()
+        if cc is not None:
+            fname = os.path.basename(cc.path_to_ebook)
+            self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(cc.book_type_for_display, fname, self.APP_NAME))
+        else:
+            self.setWindowTitle(self.APP_NAME)
 
     def closeEvent(self, e):
         if self.boss.quit():

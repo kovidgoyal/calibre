@@ -456,6 +456,7 @@ class Boss(QObject):
         c = current_container()
         if c.opf_name in editors and not editors[c.opf_name].is_synced_to_container:
             self.commit_editor_to_container(c.opf_name)
+            self.gui.update_window_title()
 
     def reorder_spine(self, items):
         self.add_savepoint(_('Before: Re-order text'))
@@ -603,6 +604,7 @@ class Boss(QObject):
                 raise
             if changed:
                 self.apply_container_update_to_gui()
+                self.gui.update_window_title()
         if not changed:
             self.rewind_savepoint()
         show_report(changed, self.current_metadata.title, report, parent or self.gui, self.show_current_diff)

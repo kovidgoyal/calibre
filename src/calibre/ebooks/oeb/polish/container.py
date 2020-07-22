@@ -253,6 +253,10 @@ class Container(ContainerBase):  # {{{
     SUPPORTS_TITLEPAGES = True
     SUPPORTS_FILENAMES = True
 
+    @property
+    def book_type_for_display(self):
+        return self.book_type.upper()
+
     def __init__(self, rootpath, opfpath, log, clone_data=None):
         ContainerBase.__init__(self, log)
         self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
@@ -1117,6 +1121,26 @@ def walk_dir(basedir):
 class EpubContainer(Container):
 
     book_type = 'epub'
+
+    @property
+    def book_type_for_display(self):
+        ans = self.book_type.upper()
+        try:
+            v = self.opf_version_parsed
+        except Exception:
+            pass
+        else:
+            try:
+                if v.major == 2:
+                    ans += ' 2'
+                else:
+                    if not v.minor:
+                        ans += ' {}'.format(v.major)
+                    else:
+                        ans += ' {}.{}'.format(v.major, v.minor)
+            except Exception:
+                pass
+        return ans
 
     META_INF = {
             'container.xml': True,
