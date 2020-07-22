@@ -490,6 +490,8 @@ class View:
         elif data.name is 'previous':
             self.iframe_wrapper.send_message(
                 'next_screen', backwards=True, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+        elif data.name is 'clear_selection':
+            self.iframe_wrapper.send_message('clear_selection')
         elif data.name is 'print':
             ui_operations.print_book()
         elif data.name is 'preferences':

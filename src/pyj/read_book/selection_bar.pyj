@@ -3,8 +3,11 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.theme import get_color
+from dom import svgicon
+from read_book.globals import ui_operations
 
 
 class SelectionBar:
@@ -13,10 +16,24 @@ class SelectionBar:
         self.view = view
         c = self.container
         bar = E.div(
-            style='position: absolute; left: 0; top: 0; height: 3ex; border: solid 1px currentColor; border-radius: 5px; overflow: hidden;'
-            'pointer-events: auto; min-width: 50px; padding: 5px; background-color: {}'.format(get_color("window-background"))
+            style='position: absolute; height: 4ex; border: solid 1px currentColor; border-radius: 5px; overflow: hidden;'
+            'display: flex; align-items: center; pointer-events: auto; padding: 5px; left: 0; top: 0;'
+            'background-color: {}'.format(get_color("window-background"))
         )
         c.appendChild(bar)
+
+        def cb(icon, tooltip, callback):
+            ans = svgicon(icon, '3ex', '3ex', tooltip)
+            ans.addEventListener('click', callback)
+            ans.classList.add('simple-link')
+            ans.style.marginLeft = ans.style.marginRight = '0.5rem'
+            return ans
+
+        if ui_operations.copy_selection:
+            bar.appendChild(cb('copy', _('Copy to clipboard'), self.copy_to_clipboard))
+        if ui_operations.toggle_lookup:
+            bar.appendChild(cb('library', _('Lookup/search selected word'), self.lookup))
+        bar.appendChild(cb('close', _('Clear the selection'), self.clear_selection))
 
     @property
     def container(self):
@@ -35,6 +52,16 @@ class SelectionBar:
     @property
     def is_visible(self):
         return self.container.style.display is not 'none'
+
+    def copy_to_clipboard(self):
+        if self.view.currently_showing.selected_text and ui_operations.copy_selection:
+            ui_operations.copy_selection(self.view.currently_showing.selected_text)
+
+    def lookup(self):
+        ui_operations.toggle_lookup(True)
+
+    def clear_selection(self):
+        self.view.on_handle_shortcut({'name': 'clear_selection'})
 
     def update_position(self):
         cs = self.view.currently_showing
