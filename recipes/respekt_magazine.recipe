@@ -9,7 +9,7 @@ __copyright__   = 'tomashnyk@gmail.com'
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup,Tag
-#This imports the version bundled with Calibre
+# This imports the version bundled with Calibre
 import lxml
 from lxml.builder import E
 respekt_url = 'http://www.respekt.cz'
@@ -28,7 +28,7 @@ class respektRecipe(BasicNewsRecipe):
     dict(name='a',attrs={'class':['quote','authorship-face']}), \
     dict(name='span',attrs={'class':'embed'}), \
     dict(name='svg'), \
-    dict(name='script')] 
+    dict(name='script')]
 
     extra_css = 'p {text-align:justify;margin-top:0;margin-bottom:0} \
                  ul {color:black} \
@@ -41,15 +41,15 @@ class respektRecipe(BasicNewsRecipe):
                  .box-content {background-color:lightgray;margin-left:12%;margin-right:12%;margin-top:0;margin-bottom:12%;} \
                  p.indent_first_line {text-indent:30px;} \
                  a {text-decoration:none;color:black;}'
-    
+
     needs_subscription = True
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://www.respekt.cz/')
+            br.open('https://www.respekt.cz/uzivatel/prihlaseni')
             for form in br.forms():
-                if form.attrs.get('id') == 'frm-authBox-loginForm':
+                if form.attrs.get('id') == 'frm-loginForm':
                     br.form = form
                     break
             for c in form.controls:
@@ -60,7 +60,7 @@ class respektRecipe(BasicNewsRecipe):
                         c.value = self.password
             br.submit()
         return br
-    
+
     # So that remove_tags_before works for this section
     def preprocess_raw_html(self, raw_html, url):
         root = lxml.html.fromstring(raw_html)
@@ -95,7 +95,7 @@ class respektRecipe(BasicNewsRecipe):
                 url = respekt_url + article.xpath("@href")[0]
                 articles.append({'title':title,'url':url})
                 article = article.getnext()
-            ans.append((section_name,articles))    
+            ans.append((section_name,articles))
         highlights = zip(root2.xpath("//a[@class='issuedetail-highlighted-item']"),root2.xpath("//div[@class='issuedetail-highlighted-title']"))
         highlights.reverse()
         sections = [i[0] for i in ans]
@@ -128,7 +128,7 @@ class respektRecipe(BasicNewsRecipe):
     def preprocess_html(self,soup):
         raw = u''.join(unicode(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
-        #Fix Letem světem
+        # Fix Letem světem
         if "Letem sv" in root.xpath("//title")[0].text:
             p = root.xpath("//p")
             for par in p[:]:
@@ -147,7 +147,7 @@ class respektRecipe(BasicNewsRecipe):
         # Insert text length
         text = root.xpath("//div[@id='postcontent']")[0]
         article_length = u" • " + str(len(text.text_content().split(' '))) + ' slov'
-        try: 
+        try:
             aut = root.xpath("//div[@class='authorship-names']")[0]
             if aut.getchildren() and aut.getchildren()[0].tag == 'a':
                 t = aut.getchildren()[0]
@@ -155,7 +155,7 @@ class respektRecipe(BasicNewsRecipe):
                 # Remove link
                 e = E.span(t.text)
                 t.getparent().replace(t,e)
-            else: 
+            else:
                 t = root.xpath("//span[@class='post-author-name']")[0]
                 t.text = ('Autor: ' + t.text + ' ')
             root.xpath("//div[@class='authorship-names']")[0].append(E.span(article_length))
@@ -178,7 +178,7 @@ class respektRecipe(BasicNewsRecipe):
             if hasattr(prev,'tag') and not (prev.tag in ['h2','h3']):
                 par.attrib['class']="indent_first_line"
         # Fix subtitle for Téma
-        try: 
+        try:
             o = root.xpath("//p[@class='post-perex']")[0]
             e = E.h2({"class":"post-subtitle"})
             e.text = o.text
@@ -186,4 +186,3 @@ class respektRecipe(BasicNewsRecipe):
         except:
             pass
         return(BeautifulSoup(lxml.etree.tostring(root,encoding=unicode)))
-
