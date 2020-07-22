@@ -343,6 +343,8 @@ class CreateAnnotation:
 
         sd = get_session_data()
         style = sd.get('highlight_style') or default_highlight_style()
+        if not style['background-color'] or not style['color']:
+            style = default_highlight_style()
         self.current_highlight_style = style
 
         lh = selection_handle(False, style)
@@ -613,6 +615,7 @@ class CreateAnnotation:
         c = self.container
         c.style.display = 'flex'
         c.focus()
+        self.update_handle_colors()
         self.view.selection_bar.hide()
 
     def hide(self):
