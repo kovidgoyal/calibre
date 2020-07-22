@@ -206,12 +206,11 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     def get_browser(self):
 
         def select_form(form):
-            return form.attrs.get('id', None) == 'user-login'
+            return form.attrs.get('id', None) == 'fa-user-login-form'
 
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open(
-                'https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
+            br.open('https://www.foreignaffairs.com/user/login')
             br.select_form(predicate=select_form)
             br.form['name'] = self.username
             br.form['pass'] = self.password
