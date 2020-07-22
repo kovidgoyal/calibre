@@ -62,6 +62,7 @@ defaults = {
     'user_stylesheet': '',
     'word_actions': v'[]',
     'highlight_style': None,
+    'custom_highlight_colors': {},
 }
 
 is_local_setting = {
