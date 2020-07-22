@@ -704,9 +704,9 @@ class IframeBoss:
             end_reference_mode()
 
     def create_annotation(self, data):
-        self.initiate_creation_of_annotation()
+        self.initiate_creation_of_annotation(None, data.start_in_notes_edit)
 
-    def initiate_creation_of_annotation(self, existing):
+    def initiate_creation_of_annotation(self, existing, start_in_notes_edit):
         self.auto_scroll_action('stop')
         in_flow_mode = current_layout_mode() is 'flow'
         self.send_message(
@@ -715,6 +715,7 @@ class IframeBoss:
             in_flow_mode=in_flow_mode,
             extents=selection_extents(in_flow_mode),
             existing=existing or None,
+            start_in_notes_edit=v'!!start_in_notes_edit',
         )
 
     def annotations_msg_received(self, data):
