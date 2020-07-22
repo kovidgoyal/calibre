@@ -135,7 +135,7 @@ DRAGGING_RIGHT = 4
 
 dark_fg = '#111'
 light_fg = '#eee'
-highlight_colors = {
+builtin_highlight_colors = {
     '#fce2ae': dark_fg,
     '#b6ffea': dark_fg,
     '#ffb3b3': dark_fg,
@@ -153,7 +153,7 @@ default_highlight_color = '#fce2ae'
 def default_highlight_style():
     return {
         'background-color': default_highlight_color,
-        'color': highlight_colors[default_highlight_color]
+        'color': builtin_highlight_colors[default_highlight_color]
     }
 
 
@@ -192,11 +192,96 @@ DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 
 
 def create_bar():
+    style = f'min-height: 1px; min-width: 1px; max-height: {BAR_SIZE}px; height: {BAR_SIZE}px'
     ans = E.div(
         id=unique_id('annot-bar'),
         style=f'height: {BAR_SIZE}px; max-height: {BAR_SIZE}px; width: 100vw; display: flex; justify-content: space-between;',
+        E.div(style=style), E.div(style=style), E.div(style=style),
     )
     return ans
+
+
+class EditNotesAndColors:
+
+    def __init__(self, container, hide_middle, current_notes, current_style):
+        c = E.div(
+            style=f'background: {get_color("window-background")}; margin: auto; padding: 1rem',
+            id=unique_id(),
+            E.h3(_('Add notes for this highlight')),
+            E.textarea(
+                current_notes or '',
+                rows='10', spellcheck='true', style='resize: none; width: 80vw; max-width: 80em; margin: 1ex',
+                onkeydown=def(ev):
+                    ev.stopPropagation()
+                    if ev.key is 'Escape':
+                        hide_middle()
+                ,
+            ),
+            E.h3(_('Choose the color for this highlight'), style='margin-top: 2ex'),
+            E.div(
+                class_='color-block',
+                style=f'display: flex; flex-wrap: wrap; max-width: calc({BAR_SIZE}px * 8); margin: auto',
+            ),
+
+        )
+        self.container_id = c.id
+        seen_colors = {}
+
+        def add_color(bg):
+            if seen_colors[bg]:
+                return
+            seen_colors[bg] = True
+            ic = svgicon('swatch', BAR_SIZE, BAR_SIZE)
+            ic.classList.add('simple-link')
+            is_current = bg.lower() is current_style['background-color'].lower()
+            sqbg = get_color('window-background2') if is_current else 'unset'
+            ic.querySelector('use').style.fill = bg
+            if is_current:
+                ic.classList.add('current-swatch')
+            item = E.div(
+                ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
+                onclick=self.change_color
+            )
+            item.dataset.bg = bg
+            c.getElementsByClassName('color-block')[0].appendChild(item)
+
+        custom_highlight_colors = get_session_data().get('custom_highlight_colors')
+        for bg in custom_highlight_colors:
+            add_color(bg)
+        for bg in builtin_highlight_colors:
+            add_color(bg)
+        if not c.querySelector('.current-swatch'):
+            add_color(current_style['background-color'])
+
+        container.appendChild(c)
+        c.querySelector('textarea').focus()
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    def change_color(self, evt):
+        item = evt.currentTarget
+        for child in item.parentNode.childNodes:
+            child.style.backgroundColor = 'unset'
+            child.classList.remove('current-swatch')
+        item.style.backgroundColor = get_color('window-background2')
+        item.classList.add('current-swatch')
+
+    @property
+    def current_notes(self):
+        self.container.querySelector('textarea').value or ''
+
+    @property
+    def current_style(self):
+        bg = self.container.getElementsByClassName('current-swatch')[0].dataset.bg
+        custom_highlight_colors = get_session_data().get('custom_highlight_colors')
+        fg = custom_highlight_colors[bg] or builtin_highlight_colors[bg]
+        if not fg:
+            rgba = cached_color_to_rgba(bg)
+            is_dark = max(rgba[0], rgba[1], rgba[2]) < 115
+            fg = light_fg if is_dark else dark_fg
+        return {'background-color': bg, 'color': fg}
 
 
 class CreateAnnotation:
@@ -219,18 +304,18 @@ class CreateAnnotation:
         container.style.justifyContent = 'space-between'
         self.position_in_handle = {'x': 0, 'y': 0}
 
-        def button(bar, icon, tt, action):
+        def button(name, bar, icon, tt, action):
             cb = svgicon(icon, bar.style.height, bar.style.height, tt)
-            document.createElement
             cb.setAttribute('title', tt)
-            cb.classList.add('annot-button')
-            cb.classList.add(f'annot-button-{icon}')
             cb.style.backgroundColor = get_color('window-background')
             cb.style.boxSizing = 'border-box'
             cb.style.padding = '2px'
             cb.style.border = 'solid 2px currentColor'
             cb.style.borderRadius = '4px'
+            cb.style.marginLeft = '0.5rem'
+            cb.style.marginRight = '0.5rem'
             cb.classList.add('simple-link')
+            cb.classList.add(f'button-{name}')
             cb.addEventListener('click', def(ev):
                 ev.preventDefault(), ev.stopPropagation()
                 action()
@@ -240,15 +325,11 @@ class CreateAnnotation:
 
         tb = create_bar()
         container.appendChild(tb)
-        button(tb, 'close', _('Cancel creation of highlight') + ' [Esc]', self.hide)
-        button(tb, 'chevron-up', _('Scroll up') + ' [Up]', self.button_scroll.bind(None, True))
-        tb.appendChild(E.span(style=f'height: {tb.style.height}'))
-        button(tb.lastChild, 'trash', _('Remove this highlight'), self.delete_highlight)
-        tb.lastChild.appendChild(E.span('\xa0\xa0\xa0'))
+        button('close', tb.firstChild, 'close', _('Cancel creation of highlight') + ' [Esc]', self.hide)
+        button('up', tb.firstChild.nextSibling, 'chevron-up', _('Scroll up') + ' [Up]', self.button_scroll.bind(None, True))
         if ui_operations.copy_selection:
-            button(tb.lastChild, 'copy', _('Copy to clipboard'), self.copy_to_clipboard)
-            tb.lastChild.appendChild(E.span('\xa0\xa0\xa0'))
-        button(tb.lastChild, 'check', _('Finish creation of highlight') + ' [Enter]', self.accept)
+            button('copy', tb.lastChild, 'copy', _('Copy to clipboard'), self.copy_to_clipboard)
+        button('finish', tb.lastChild, 'check', _('Finish creation of highlight') + ' [Enter]', self.accept)
 
         middle = E.div(id=unique_id('middle'), style='display: none; text-align: center; z-index: 90000')
         self.middle_id = middle.id
@@ -256,9 +337,9 @@ class CreateAnnotation:
 
         bb = create_bar()
         container.appendChild(bb)
-        button(bb, 'fg', _('Change highlight color'), self.choose_color)
-        button(bb, 'chevron-down', _('Scroll down') + ' [Down]', self.button_scroll)
-        button(bb, 'pencil', _('Add a note') + ' [n]', self.add_notes)
+        button('remove', bb.firstChild, 'trash', _('Remove this highlight'), self.delete_highlight)
+        button('down', bb.firstChild.nextSibling, 'chevron-down', _('Scroll down') + ' [Down]', self.button_scroll)
+        button('edit', bb.lastChild, 'pencil', _('Edit notes and change highlight color') + ' [e]', self.edit_notes_and_colors)
 
         sd = get_session_data()
         style = sd.get('highlight_style') or default_highlight_style()
@@ -290,128 +371,30 @@ class CreateAnnotation:
     def middle(self):
         return document.getElementById(self.middle_id)
 
-    def add_notes(self):
+    def edit_notes_and_colors(self):
+        if self.editor:
+            return
         current_notes = self.current_notes
         if not current_notes and self.editing_annot_uuid:
             current_notes = self.annotations_manager.notes_for_highlight(self.editing_annot_uuid)
-        self.show_middle(self.apply_notes)
+        current_style = self.current_highlight_style
+        self.show_middle(self.editing_done)
         container = self.middle
         clear(container)
-        c = E.div(
-            style=f'background: {get_color("window-background")}; margin: auto; padding: 1rem',
-            onclick=def(ev):
-                ev.stopPropagation(), ev.preventDefault()
-                self.hide_middle()
-            ,
+        self.editor = EditNotesAndColors(container, self.hide_middle, current_notes, current_style)
 
-            E.h3(_('Add notes for this highlight')),
-            E.textarea(
-                current_notes or '',
-                rows='10', spellcheck='true', style='resize: none; width: 80vw; max-width: 80em; margin: 1ex',
-                onkeydown=def(ev):
-                    ev.stopPropagation()
-                    if ev.key is 'Escape':
-                        self.hide_middle()
-                ,
-                onclick=def(ev):
-                    ev.stopPropagation()
-            ),
-            E.div(
-                style='display: flex; justify-content: space-between; margin-top: 1ex; align-items: center',
-                E.a(
-                    svgicon('eraser', f'{BAR_SIZE}px', f'{BAR_SIZE}px'),
-                    href='javascript:void',
-                    class_='simple-link',
-                    title=_('Clear'),
-                    onclick=def(ev):
-                        ev.preventDefault(), ev.stopPropagation()
-                        ta = self.middle.querySelector('textarea')
-                        ta.value = ''
-                        ta.focus()
-                ),
-                E.div(
-                    _('To view the notes for a highlight, long-tap or double click on it.'),
-                    style='font-size-smaller; margin-left: 1rem; margin-right: 1rem'
-                ),
-                E.a(
-                    svgicon('check', f'{BAR_SIZE}px', f'{BAR_SIZE}px'),
-                    href='javascript:void',
-                    class_='simple-link',
-                    title=_('Done adding notes') + ' [Esc]',
-                    onclick=def(ev):
-                        ev.preventDefault(), ev.stopPropagation()
-                        self.hide_middle()
-                ),
-            ),
-        )
-        container.appendChild(c)
-        c.querySelector('textarea').focus()
-
-    def apply_notes(self):
-        self.current_notes = self.middle.querySelector('textarea').value or ''
-        return True
-
-    def choose_color(self):
-        self.show_middle()
-        container = self.middle
-        clear(container)
-        c = E.div(
-            E.h3(_('Choose highlight color')),
-            E.div(
-                style=f'display: flex; flex-wrap: wrap; max-width: calc({BAR_SIZE}px * 6); margin: auto',
-                onclick=def(ev):
-                    ev.stopPropagation(), ev.preventDefault()
-            ),
-            onclick=def(ev):
-                ev.stopPropagation(), ev.preventDefault()
-                self.hide_middle()
-            ,
-            style=f'background: {get_color("window-background")}; margin: auto; padding: 1rem',
-
-        )
-        current_style = self.current_highlight_style
-        container.appendChild(c)
-        found_current = False
-
-        def add(bg):
-            ic = svgicon('swatch', BAR_SIZE, BAR_SIZE)
-            ic.classList.add('simple-link')
-            is_current = bg.lower() is current_style['background-color'].lower()
-            sqbg = get_color('window-background2') if is_current else 'unset'
-            ic.querySelector('use').style.fill = bg
-            item = E.div(
-                ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
-                onclick=self.change_color.bind(None, bg)
-            )
-            c.lastChild.appendChild(item)
-            return is_current
-
-
-        for bg in highlight_colors:
-            if add(bg):
-                found_current = True
-        if not found_current:
-            add(current_style['background-color'])
-
-    def change_color(self, new_color):
-        self.hide_middle()
-        current_style = self.current_highlight_style
-        if not new_color or current_style['background-color'].lower() is new_color.lower():
-            return
-        fg = highlight_colors[new_color]
-        if not fg:
-            rgba = cached_color_to_rgba(new_color)
-            is_dark = max(rgba[0], rgba[1], rgba[2]) < 115
-            fg = light_fg if is_dark else dark_fg
-        self.current_highlight_style = {'background-color': new_color, 'color': fg}
-        self.send_message('set-highlight-style', style=self.current_highlight_style)
-        sd = get_session_data()
-        sd.set('highlight_style', self.current_highlight_style)
-        self.update_handle_colors()
+    def editing_done(self):
+        self.current_notes = self.editor.current_notes
+        new_highlight_style = self.editor.current_style
+        if self.current_highlight_style['background-color'] is not new_highlight_style['background_color']:
+            self.current_highlight_style = new_highlight_style
+            self.send_message('set-highlight-style', style=self.current_highlight_style)
+            get_session_data().set('highlight_style', self.current_highlight_style)
+            self.update_handle_colors()
 
     def update_handle_colors(self):
         fill = self.current_highlight_style['background-color']
-        stroke = self.current_highlight_style['color']
+        stroke = self.view.current_color_scheme.foreground
         for handle in (self.left_handle, self.right_handle):
             use = handle.querySelector('use')
             use.style.stroke = stroke
@@ -456,8 +439,8 @@ class CreateAnnotation:
         ev.stopPropagation(), ev.preventDefault()
         if ev.key is 'Enter':
             return self.accept()
-        if ev.key is 'n' or ev.key is 'N':
-            return self.add_notes()
+        if ev.key is 'e' or ev.key is 'E':
+            return self.edit_notes_and_colors()
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if sc_name is 'show_chrome':
             self.hide()
@@ -625,15 +608,6 @@ class CreateAnnotation:
             }
         }
 
-    @property
-    def current_highlight_style(self):
-        return JSON.parse(self.container.querySelector('.annot-button-fg').dataset.style)
-
-    @current_highlight_style.setter
-    def current_highlight_style(self, val):
-        b = self.container.querySelector('.annot-button-fg')
-        b.dataset.style = JSON.stringify(val)
-
     def show(self):
         self.middle.style.display = 'none'
         c = self.container
@@ -684,7 +658,7 @@ class CreateAnnotation:
             self.in_flow_mode = msg.in_flow_mode
             self.send_message('set-highlight-style', style=self.current_highlight_style)
             if msg.start_in_notes_edit:
-                self.add_notes()
+                self.edit_notes_and_colors()
         elif msg.type is 'position-handles':
             if self.state is WAITING_FOR_CLICK:
                 self.place_handles(msg.extents)
