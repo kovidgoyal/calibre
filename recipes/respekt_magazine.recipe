@@ -52,9 +52,9 @@ class respektRecipe(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://www.respekt.cz/')
+            br.open('https://www.respekt.cz/uzivatel/prihlaseni')
             for form in br.forms():
-                if form.attrs.get('id') == 'frm-authBox-loginForm':
+                if form.attrs.get('id') == 'frm-loginForm':
                     br.form = form
                     break
             for c in form.controls:
