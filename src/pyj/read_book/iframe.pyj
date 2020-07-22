@@ -146,6 +146,7 @@ class IframeBoss:
             'annotations': self.annotations_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
+            'clear_selection': def(): window.getSelection().removeAllRanges();,
         }
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
