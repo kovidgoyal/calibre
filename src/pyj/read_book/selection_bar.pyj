@@ -48,6 +48,8 @@ class SelectionBar:
         self.container.style.display = 'none'
 
     def show(self):
+        if self.view.create_annotation.is_visible:
+            return
         self.container.style.display = 'block'
 
     @property
