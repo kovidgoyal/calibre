@@ -61,7 +61,9 @@ class ConditionEditor(QWidget):  # {{{
             'int' : (
                 (_('is equal to'), 'eq'),
                 (_('is less than'), 'lt'),
-                (_('is greater than'), 'gt')
+                (_('is greater than'), 'gt'),
+                (_('is set'), 'is set'),
+                (_('is not set'), 'is not set')
             ),
             'datetime' : (
                 (_('is equal to'), 'eq'),
