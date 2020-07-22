@@ -1141,6 +1141,7 @@ class Boss(QObject):
 
     def save_book(self):
         ' Save the book. Saving is performed in the background '
+        self.gui.update_window_title()
         c = current_container()
         for name, ed in iteritems(editors):
             if ed.is_modified or not ed.is_synced_to_container:
@@ -1171,6 +1172,7 @@ class Boss(QObject):
         self.save_manager.schedule(tdir, container)
 
     def save_copy(self):
+        self.gui.update_window_title()
         c = current_container()
         if c.is_dir:
             return error_dialog(self.gui, _('Cannot save a copy'), _(
