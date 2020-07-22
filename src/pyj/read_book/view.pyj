@@ -1235,14 +1235,14 @@ class View:
         else:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
 
-    def initiate_create_annotation(self):
-        self.iframe_wrapper.send_message('create_annotation')
+    def initiate_create_annotation(self, start_in_notes_edit):
+        self.iframe_wrapper.send_message('create_annotation', start_in_notes_edit=v'!!start_in_notes_edit')
 
     def highlight_action(self, uuid, which):
         if self.create_annotation.is_visible:
             return
         if which is 'create':
-            self.iframe_wrapper.send_message('create_annotation')
+            self.initiate_create_annotation(False)
             return
         spine = self.book.manifest.spine
         spine_index = self.annotations_manager.spine_index_for_highlight(uuid, spine)

@@ -683,6 +683,8 @@ class CreateAnnotation:
                 self.place_handles(msg.extents)
             self.in_flow_mode = msg.in_flow_mode
             self.send_message('set-highlight-style', style=self.current_highlight_style)
+            if msg.start_in_notes_edit:
+                self.add_notes()
         elif msg.type is 'position-handles':
             if self.state is WAITING_FOR_CLICK:
                 self.place_handles(msg.extents)
@@ -746,7 +748,7 @@ class CreateAnnotation:
             self.place_single_handle(self.right_handle, extents.end)
 
 
-class ViewAnnotation:
+class ViewAnnotation:  # {{{
 
     container_id = 'view-annotation-overlay'
 
@@ -833,3 +835,4 @@ class ViewAnnotation:
         if self.showing_uuid:
             self.view.create_annotation.edit_highlight(self.showing_uuid)
         self.hide()
+# }}}
