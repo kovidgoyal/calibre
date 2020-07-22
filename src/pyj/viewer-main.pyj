@@ -346,8 +346,8 @@ if window is window.top:
         to_python.reset_interface()
     ui_operations.quit = def():
         to_python.quit()
-    ui_operations.toggle_lookup = def():
-        to_python.toggle_lookup()
+    ui_operations.toggle_lookup = def(force_show):
+        to_python.toggle_lookup(v'!!force_show')
     ui_operations.selection_changed = def(selected_text):
         to_python.selection_changed(selected_text)
     ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):

@@ -94,7 +94,7 @@ class Prefs:
         ci(_('Keyboard shortcuts'), 'keyboard', _('Customize the keyboard shortcuts'))
         if runtime.is_standalone_viewer:
             ci(_('Fonts'), 'fonts', _('Font choices'))
-            ci(_('Miscellaneous'), 'misc', _('Window size, last read position, etc.'))
+            ci(_('Miscellaneous'), 'misc', _('Window size, last read position, toolbar, etc.'))
         build_list(c, items)
 
     def display_fonts(self, container):
