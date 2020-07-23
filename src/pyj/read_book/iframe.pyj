@@ -136,7 +136,6 @@ class IframeBoss:
             'scroll_to_frac': self.on_scroll_to_frac,
             'scroll_to_ref': self.on_scroll_to_ref,
             'set_reference_mode': self.set_reference_mode,
-            'create_annotation': self.create_annotation,
             'toggle_autoscroll': self.toggle_autoscroll,
             'wheel_from_margin': self.wheel_from_margin,
             'window_size': self.received_window_size,
@@ -703,9 +702,6 @@ class IframeBoss:
         else:
             end_reference_mode()
 
-    def create_annotation(self, data):
-        self.initiate_creation_of_annotation(None, data.start_in_notes_edit)
-
     def initiate_creation_of_annotation(self, existing, start_in_notes_edit):
         self.auto_scroll_action('stop')
         in_flow_mode = current_layout_mode() is 'flow'
@@ -720,7 +716,9 @@ class IframeBoss:
 
     def annotations_msg_received(self, data):
         in_flow_mode = current_layout_mode() is 'flow'
-        if data.type is 'set-selection':
+        if data.type is 'create':
+            self.initiate_creation_of_annotation(None, data.start_in_notes_edit)
+        elif data.type is 'set-selection':
             set_selections_extents_to(data.extents)
         elif data.type is 'position-handles-at-point':
             extents = selection_extents_at_point(data.x, data.y, in_flow_mode)

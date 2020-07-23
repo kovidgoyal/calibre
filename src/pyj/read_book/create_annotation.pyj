@@ -13,6 +13,7 @@ from modals import error_dialog, question_dialog
 from read_book.annotations import merge_annotation_maps
 from read_book.globals import ui_operations
 from read_book.shortcuts import shortcut_for_key_event
+from widgets import create_button
 
 
 class AnnotationsManager:
@@ -203,7 +204,21 @@ def create_bar():
 
 class EditNotesAndColors:
 
-    def __init__(self, container, hide_middle, current_notes, current_style):
+    def __init__(self, container, hide_middle, accept, current_notes, current_style):
+        def separator():
+            return E.hr(style='max-width: 80em; width: 80vw; border-top: solid 1px; margin: auto; margin-top: 2ex; margin-bottom: 2ex')
+
+        def finish():
+            hide_middle()
+            accept()
+
+        def handle_keypress(ev):
+            ev.stopPropagation()
+            if ev.key is 'Escape':
+                hide_middle()
+            elif ev.key is 'Enter' and ev.ctrlKey:
+                finish()
+
         c = E.div(
             style=f'background: {get_color("window-background")}; margin: auto; padding: 1rem',
             id=unique_id(),
@@ -211,17 +226,28 @@ class EditNotesAndColors:
             E.textarea(
                 current_notes or '',
                 rows='10', spellcheck='true', style='resize: none; width: 80vw; max-width: 80em; margin: 1ex',
-                onkeydown=def(ev):
-                    ev.stopPropagation()
-                    if ev.key is 'Escape':
-                        hide_middle()
-                ,
+                onkeydown=handle_keypress,
             ),
-            E.h3(_('Choose the color for this highlight'), style='margin-top: 2ex'),
+            E.div(
+                style='margin: 1ex; font-size: smaller',
+                _('Double click or long tap on a highlight to see its notes')
+            ),
+
+            separator(),
+
+            E.h3(_('Choose the color for this highlight'), style='margin-bottom: 2ex'),
             E.div(
                 class_='color-block',
                 style=f'display: flex; flex-wrap: wrap; max-width: calc({BAR_SIZE}px * 8); margin: auto',
             ),
+
+            separator(),
+
+            E.div(
+                style='max-width: 80em; width: 80vw; margin: auto; display: flex; justify-content: space-between',
+                create_button(_('Adjust selection'), 'arrows-h', hide_middle, _('Accept changes and then adjust the selected text') + ' [Esc]'),
+                create_button(_('Finish'), 'check', finish, _('Finish editing highlight') + ' [Ctrl+Enter]', True),
+            )
 
         )
         self.container_id = c.id
@@ -270,7 +296,7 @@ class EditNotesAndColors:
 
     @property
     def current_notes(self):
-        self.container.querySelector('textarea').value or ''
+        self.container.getElementsByTagName('textarea')[0].value or ''
 
     @property
     def current_style(self):
@@ -383,7 +409,7 @@ class CreateAnnotation:
         self.show_middle(self.editing_done)
         container = self.middle
         clear(container)
-        self.editor = EditNotesAndColors(container, self.hide_middle, current_notes, current_style)
+        self.editor = EditNotesAndColors(container, self.hide_middle, self.accept, current_notes, current_style)
 
     def editing_done(self):
         self.current_notes = self.editor.current_notes
@@ -393,6 +419,7 @@ class CreateAnnotation:
             self.send_message('set-highlight-style', style=self.current_highlight_style)
             get_session_data().set('highlight_style', self.current_highlight_style)
             self.update_handle_colors()
+        return True
 
     def update_handle_colors(self):
         fill = self.current_highlight_style['background-color']
@@ -627,6 +654,9 @@ class CreateAnnotation:
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
+
+    def initiate_create_annotation(self, start_in_notes_edit):
+        self.send_message('create', start_in_notes_edit=v'!!start_in_notes_edit')
 
     def edit_highlight(self, uuid):
         self.send_message('edit-highlight', uuid=uuid)
