@@ -46,8 +46,8 @@ def word_at_point(x, y):
 
 def empty_range_extents():
     return {
-        'start': {'x': 0, 'y': 0, 'height': 0, 'onscreen': False},
-        'end':   {'x': 0, 'y': 0, 'height': 0, 'onscreen': False}
+        'start': {'x': 0, 'y': 0, 'height': 0, 'onscreen': False, 'is_empty': True},
+        'end':   {'x': 0, 'y': 0, 'height': 0, 'onscreen': False, 'is_empty': True}
     }
 
 
@@ -78,6 +78,8 @@ def range_extents(start, end, in_flow_mode):
 
     for_boundary(start, ans.start)
     for_boundary(end, ans.end)
+    ans.start.is_empty = ans.start.height > 0
+    ans.end.is_empty = ans.end.height > 0
     return ans
 
 
@@ -112,6 +114,7 @@ def selection_extents_at_point(x, y, in_flow_mode):
     ans.start.x = x
     ans.end.x = x + ans.start.height * 3
     ans.start.onscreen = ans.end.onscreen = True
+    ans.start.is_empty = ans.end.is_empty = False
     return ans
 
 
