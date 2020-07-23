@@ -705,6 +705,10 @@ class IframeBoss:
     def initiate_creation_of_annotation(self, existing, start_in_notes_edit):
         self.auto_scroll_action('stop')
         in_flow_mode = current_layout_mode() is 'flow'
+        if not existing:
+            annot_id = set_selection_to_highlight()
+            if annot_id:
+                existing = annot_id_uuid_map[annot_id]
         self.send_message(
             'annotations',
             type='create-annotation',
