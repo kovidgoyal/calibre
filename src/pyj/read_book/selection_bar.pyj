@@ -82,12 +82,12 @@ class SelectionBar:
         }
 
         def map_boundary(x):
-            return {'x': x.x + margins.left, 'y': x.y + margins.top, 'height': x.height, 'onscreen': x.onscreen}
+            return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
+        if not cs.selection_start.onscreen and not cs.selection_end.onscreen:
+            return self.hide()
         start = map_boundary(cs.selection_start)
         end = map_boundary(cs.selection_end)
-        if not start.onscreen and not end.onscreen:
-            return self.hide()
 
         self.show()
         end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
