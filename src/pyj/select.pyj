@@ -44,11 +44,15 @@ def word_at_point(x, y):
             return r
 
 
-def range_extents(start, end, in_flow_mode):
-    ans = {
-        'start': {'x': None, 'y': None, 'height': None, 'onscreen': False},
-        'end':   {'x': None, 'y': None, 'height': None, 'onscreen': False}
+def empty_range_extents():
+    return {
+        'start': {'x': 0, 'y': 0, 'height': 0, 'onscreen': False},
+        'end':   {'x': 0, 'y': 0, 'height': 0, 'onscreen': False}
     }
+
+
+def range_extents(start, end, in_flow_mode):
+    ans = empty_range_extents()
     if not start or not end:
         return ans
     start = start.cloneRange()
@@ -57,13 +61,18 @@ def range_extents(start, end, in_flow_mode):
     end.collapse(False)
 
     def for_boundary(r, ans):
-        rects = r.getClientRects()
-        if not rects.length:
-            return
-        rect = rects[0]
+        rect = r.getBoundingClientRect()
+        if rect.height is 0:
+            if r.startContainer?.nodeType is Node.ELEMENT_NODE:
+                node = r.startContainer
+                if r.startOffset and node.childNodes.length > r.startOffset:
+                    node = node.childNodes[r.startOffset]
+                if node.getBoundingClientRect:
+                    erect = node.getBoundingClientRect()
+                    rect = {'left': erect.left, 'top': erect.top, 'height': 2}
         ans.x = Math.round(rect.left)
         ans.y = Math.round(rect.top)
-        ans.height = rect.bottom - rect.top
+        ans.height = rect.height
         if rect.right <= window.innerWidth and rect.bottom <= window.innerHeight and rect.left >= 0 and rect.top >= 0:
             ans.onscreen = True
 
@@ -76,7 +85,7 @@ def range_extents(start, end, in_flow_mode):
 def selection_extents(in_flow_mode, end_must_be_focus):
     sel = window.getSelection()
     if not sel or not sel.rangeCount or sel.isCollapsed:
-        return range_extents()
+        return empty_range_extents()
     if end_must_be_focus:
         start = document.createRange()
         start.setStart(sel.anchorNode, sel.anchorOffset)
@@ -97,7 +106,7 @@ def selection_extents_at_point(x, y, in_flow_mode):
         sel.removeAllRanges()
         sel.addRange(r)
         return selection_extents(r, r)
-    ans = range_extents()
+    ans = empty_range_extents()
     ans.start.y = ans.end.y = y
     ans.start.height = ans.end.height = parseInt(window.getComputedStyle(document.body).fontSize) + 4
     ans.start.x = x
