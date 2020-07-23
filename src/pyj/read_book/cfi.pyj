@@ -394,6 +394,8 @@ def decode(cfi, doc):
     # Find the text node that contains the offset
     if offset is not None:
         orig_offset = offset
+        if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
+            node = node.parentNode
         node, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, point.forward, node)
         if not ok:
             error = "Offset out of range: " + orig_offset
