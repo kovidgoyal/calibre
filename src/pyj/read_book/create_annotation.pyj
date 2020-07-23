@@ -15,6 +15,10 @@ from read_book.globals import ui_operations
 from read_book.shortcuts import shortcut_for_key_event
 from widgets import create_button
 
+# TODO:
+# Get rid of view annotations and show notes in selection bar if available
+# Allow adding/removing custom highlight colors
+
 
 class AnnotationsManager:
 
@@ -221,6 +225,7 @@ class EditNotesAndColors:
 
         c = E.div(
             style=f'background: {get_color("window-background")}; margin: auto; padding: 1rem',
+            onclick=def(ev): ev.stopPropagation();,
             id=unique_id(),
             E.h3(_('Add notes for this highlight')),
             E.textarea(
@@ -262,12 +267,12 @@ class EditNotesAndColors:
             is_current = bg.lower() is current_style['background-color'].lower()
             sqbg = get_color('window-background2') if is_current else 'unset'
             ic.querySelector('use').style.fill = bg
-            if is_current:
-                ic.classList.add('current-swatch')
             item = E.div(
                 ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
                 onclick=self.change_color
             )
+            if is_current:
+                item.classList.add('current-swatch')
             item.dataset.bg = bg
             c.getElementsByClassName('color-block')[0].appendChild(item)
 
@@ -280,23 +285,29 @@ class EditNotesAndColors:
             add_color(current_style['background-color'])
 
         container.appendChild(c)
-        c.querySelector('textarea').focus()
+        self.notes_edit.focus()
 
     @property
     def container(self):
         return document.getElementById(self.container_id)
 
+    @property
+    def notes_edit(self):
+        return self.container.getElementsByTagName('textarea')[0]
+
     def change_color(self, evt):
+        evt.stopPropagation()
         item = evt.currentTarget
         for child in item.parentNode.childNodes:
             child.style.backgroundColor = 'unset'
             child.classList.remove('current-swatch')
         item.style.backgroundColor = get_color('window-background2')
         item.classList.add('current-swatch')
+        self.notes_edit.focus()
 
     @property
     def current_notes(self):
-        self.container.getElementsByTagName('textarea')[0].value or ''
+        return self.notes_edit.value or ''
 
     @property
     def current_style(self):
@@ -414,6 +425,7 @@ class CreateAnnotation:
     def editing_done(self):
         self.current_notes = self.editor.current_notes
         new_highlight_style = self.editor.current_style
+        self.editor = None
         if self.current_highlight_style['background-color'] is not new_highlight_style['background_color']:
             self.current_highlight_style = new_highlight_style
             self.send_message('set-highlight-style', style=self.current_highlight_style)
@@ -681,6 +693,10 @@ class CreateAnnotation:
             self.current_notes = ''
             if self.editing_annot_uuid:
                 self.current_notes = self.annotations_manager.notes_for_highlight(self.editing_annot_uuid) or ''
+                hs = self.annotations_manager.style_for_highlight(self.editing_annot_uuid)
+                if hs:
+                    self.current_highlight_style = hs
+                    get_session_data().set('highlight_style', self.current_highlight_style)
             if not self.is_visible:
                 self.view.hide_overlays()
             self.state = WAITING_FOR_CLICK
