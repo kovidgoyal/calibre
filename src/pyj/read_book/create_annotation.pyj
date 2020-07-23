@@ -452,6 +452,7 @@ class CreateAnnotation:
             if self.pre_middle_close_callback:
                 if not self.pre_middle_close_callback():
                     return
+                self.pre_middle_close_callback = None
             self.unhide_handles()
             m.style.display = 'none'
             self.container.focus()
