@@ -55,12 +55,10 @@ def cfi_roundtripping():
 
 @test
 def cfi_with_range_wrappers():
-    document.body.appendChild(E.p('abc'))
+    document.body.appendChild(E.p('abc', E.span('def', data_calibre_range_wrapper='1'), '123'))
     p = document.body.firstChild
     path_to_p = encode(document, p)
-    p.appendChild(E.span('def', data_calibre_range_wrapper='1'))
-    rw1 = p.lastChild
-    p.appendChild(document.createTextNode('123'))
+    rw1 = p.querySelector('span')
     assert_equal(encode(document, p.firstChild, 1), f'{path_to_p}/1:1')
     assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
     assert_equal(encode(document, rw1), f'{path_to_p}/1:3')
@@ -98,3 +96,13 @@ def cfi_with_range_wrappers():
     p.appendChild(document.createTextNode('def'))
     after_wrapper = encode(document, p.lastChild, 1)
     assert_equal(after_wrapper, f'{path_to_p}/1:4')
+
+    document.body.appendChild(
+        E.p(E.span('abc', data_calibre_range_wrapper='8'), 'def', E.span('123', data_calibre_range_wrapper='9'), '456'))
+    p = document.body.lastChild
+    path_to_p = encode(document, p)
+    rw = p.querySelectorAll('span')[-1]
+    assert_equal(decode(f'{path_to_p}/1:0'), {'node': p.firstChild.firstChild, 'offset': 0})
+    assert_equal(decode(f'{path_to_p}/1:5'), {'node': p.firstChild.nextSibling, 'offset': 2})
+    assert_equal(decode(f'{path_to_p}/1:7'), {'node': rw.firstChild, 'offset': 1})
+    assert_equal(decode(f'{path_to_p}/1:11'), {'node': rw.nextSibling, 'offset': 2})
