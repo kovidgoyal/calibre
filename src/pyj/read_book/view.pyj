@@ -1236,7 +1236,7 @@ class View:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
 
     def initiate_create_annotation(self, start_in_notes_edit):
-        self.iframe_wrapper.send_message('create_annotation', start_in_notes_edit=v'!!start_in_notes_edit')
+        self.create_annotation.initiate_create_annotation(start_in_notes_edit)
 
     def highlight_action(self, uuid, which):
         if self.create_annotation.is_visible:
