@@ -75,8 +75,8 @@ class SelectionBar:
         return self.container.style.display is not 'none'
 
     def copy_to_clipboard(self):
-        if self.view.currently_showing.selected_text and ui_operations.copy_selection:
-            ui_operations.copy_selection(self.view.currently_showing.selected_text)
+        if self.view.currently_showing.selection.text and ui_operations.copy_selection:
+            ui_operations.copy_selection(self.view.currently_showing.selection.text)
 
     def lookup(self):
         ui_operations.toggle_lookup(True)
@@ -120,11 +120,11 @@ class SelectionBar:
     def update_position(self):
         container = self.container
         clear(container)
-        cs = self.view.currently_showing
-        if not cs.has_selection:
+        cs = self.view.currently_showing.selection
+        if cs.empty:
             return self.hide()
 
-        if not cs.selection_start.onscreen and not cs.selection_end.onscreen:
+        if not cs.start.onscreen and not cs.end.onscreen:
             return self.hide()
 
         margins = {
@@ -137,9 +137,9 @@ class SelectionBar:
         def map_boundary(x):
             return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
-        bar = self.build_bar(self.view.annotations_manager.notes_for_highlight(cs.selection_annot_id))
-        start = map_boundary(cs.selection_start)
-        end = map_boundary(cs.selection_end)
+        bar = self.build_bar(self.view.annotations_manager.notes_for_highlight(cs.annot_id))
+        start = map_boundary(cs.start)
+        end = map_boundary(cs.end)
         self.show()
         end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
 

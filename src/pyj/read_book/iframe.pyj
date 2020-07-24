@@ -77,9 +77,13 @@ def layout_style():
     return 'scrolling' if current_layout_mode() is 'flow' else 'paginated'
 
 
+drag_mouse_position = {'x': None, 'y': None}
+
+
 def cancel_drag_scroll():
     cancel_drag_scroll_flow()
     cancel_drag_scroll_paged()
+    drag_mouse_position.x = drag_mouse_position.y = None
 
 
 class EPUBReadingSystem:
@@ -459,17 +463,16 @@ class IframeBoss:
 
     def get_current_cfi(self, data):
         cfi = current_cfi()
-        selected_text = window.getSelection().toString()
         if cfi:
             index = current_spine_item().index
             if index > -1:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 self.send_message(
                     'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(),
-                    file_progress_frac=progress_frac(), request_id=data.request_id, selected_text=selected_text)
+                    file_progress_frac=progress_frac(), request_id=data.request_id)
                 return
         self.send_message(
-            'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, selected_text=selected_text, request_id=data.request_id)
+            'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, request_id=data.request_id)
 
     def update_cfi(self):
         cfi = current_cfi()
@@ -481,10 +484,9 @@ class IframeBoss:
                 fpf = progress_frac()
                 if cfi is not self.last_cfi:
                     self.last_cfi = cfi
-                    selected_text = window.getSelection().toString()
                     self.send_message(
                         'update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
-                        progress_frac=pf, file_progress_frac=fpf, selected_text=selected_text)
+                        progress_frac=pf, file_progress_frac=fpf)
                     self.replace_history_on_next_cfi_update = True
                 else:
                     self.send_message(
@@ -529,6 +531,7 @@ class IframeBoss:
             annot_id = highlight_associated_with_selection(sel, annot_id_uuid_map)
         self.send_message(
             'selectionchange', text=text, empty=v'!!collapsed', annot_id=annot_id,
+            drag_mouse_position=drag_mouse_position,
             selection_extents=selection_extents(current_layout_mode() is 'flow', True))
 
     def onresize_stage2(self):
@@ -565,6 +568,8 @@ class IframeBoss:
     def onmousemove(self, evt):
         if evt.buttons is not 1:
             return
+        drag_mouse_position.x = evt.clientX
+        drag_mouse_position.y = evt.clientY
         if 0 <= evt.clientY <= window.innerHeight:
             cancel_drag_scroll()
             return
