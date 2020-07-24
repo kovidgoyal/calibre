@@ -83,7 +83,6 @@ drag_mouse_position = {'x': None, 'y': None}
 def cancel_drag_scroll():
     cancel_drag_scroll_flow()
     cancel_drag_scroll_paged()
-    drag_mouse_position.x = drag_mouse_position.y = None
 
 
 class EPUBReadingSystem:
@@ -218,6 +217,7 @@ class IframeBoss:
 
     def display(self, data):
         cancel_drag_scroll()
+        drag_mouse_position.x = drag_mouse_position.y = None
         self.length_before = None
         self.content_ready = False
         clear_annot_id_uuid_map()
@@ -582,6 +582,7 @@ class IframeBoss:
 
     def onmouseup(self, evt):
         cancel_drag_scroll()
+        drag_mouse_position.x = drag_mouse_position.y = None
 
     def onkeydown(self, evt):
         if current_layout_mode() is not 'flow' and evt.key is 'Tab':

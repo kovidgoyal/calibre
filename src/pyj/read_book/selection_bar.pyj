@@ -121,7 +121,7 @@ class SelectionBar:
         container = self.container
         clear(container)
         cs = self.view.currently_showing.selection
-        if cs.empty:
+        if not cs or cs.empty:
             return self.hide()
 
         if not cs.start.onscreen and not cs.end.onscreen:
@@ -161,5 +161,8 @@ class SelectionBar:
         bar_width = bar.offsetWidth
         left = end.x - bar_width // 2
         # - 10 ensures we dont cover scroll bar
+        if cs.drag_mouse_position.x?:
+            mouse = map_boundary(cs.drag_mouse_position)
+            left = mouse.x - bar_width // 2
         left = max(buffer, min(left, container.offsetWidth - bar_width - buffer - 10))
         bar.style.left = left + 'px'

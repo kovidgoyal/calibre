@@ -294,7 +294,7 @@ class View:
         self.selection_bar = SelectionBar(self)
         self.processing_spine_item_display = False
         self.pending_load = None
-        self.currently_showing = {}
+        self.currently_showing = {'selection': {'empty': True}}
         self.book_scrollbar.apply_visibility()
         self.annotations_manager = AnnotationsManager(self)
         self.create_annotation = CreateAnnotation(self)
@@ -894,7 +894,7 @@ class View:
         idx = spine.indexOf(name)
         self.currently_showing = {
             'name':name, 'settings':self.iframe_settings(name), 'initial_position':initial_position,
-            'loading':True, 'spine_index': idx
+            'loading':True, 'spine_index': idx, 'selection': {'empty': True},
         }
         self.show_loading()
         set_current_spine_item(name)
