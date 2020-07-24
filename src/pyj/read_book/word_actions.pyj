@@ -9,12 +9,13 @@ from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from dom import clear, ensure_id
 from modals import error_dialog
+from read_book.globals import ui_operations
 from widgets import create_button
 
 
 def lookup(close_panel_func, url):
     close_panel_func()
-    window.open(url, '_blank')
+    ui_operations.open_url(url)
 
 
 def toggle_custom_container(container_id, visible):
