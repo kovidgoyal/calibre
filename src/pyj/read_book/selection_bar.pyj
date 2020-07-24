@@ -46,6 +46,7 @@ class SelectionBar:
             bar.appendChild(cb('copy', _('Copy to clipboard'), self.copy_to_clipboard))
         bar.appendChild(cb('library', _('Lookup/search selected word'), self.lookup))
         bar.appendChild(cb('highlight', _('Highlight selection'), self.create_highlight))
+        bar.appendChild(cb('search', _('Search for selection on the net'), self.internet_search))
         bar.appendChild(cb('close', _('Clear the selection'), self.clear_selection))
         self.show_notes(bar_container, notes)
         return bar_container
@@ -82,6 +83,13 @@ class SelectionBar:
             ui_operations.toggle_lookup(True)
         else:
             self.view.overlay.show_word_actions(self.view.currently_showing.selection.text)
+
+    def internet_search(self):
+        text = self.view.currently_showing.selection.text
+        if text:
+            q = encodeURIComponent(text)
+            url = f'https://google.com/search?q={q}'
+            ui_operations.open_url(url)
 
     def clear_selection(self):
         self.view.on_handle_shortcut({'name': 'clear_selection'})
