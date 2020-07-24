@@ -84,8 +84,8 @@ def range_extents(start, end, in_flow_mode):
 
     for_boundary(start, ans.start)
     for_boundary(end, ans.end)
-    ans.start.is_empty = ans.start.height > 0
-    ans.end.is_empty = ans.end.height > 0
+    ans.start.is_empty = ans.start.height <= 0
+    ans.end.is_empty = ans.end.height <= 0
     return ans
 
 
