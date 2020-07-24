@@ -12,8 +12,8 @@ from select import (
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import (
-    reset_highlight_counter, select_crw, set_selection_to_highlight, unwrap_all_crw,
-    unwrap_crw, wrap_text_in_range
+    highlight_associated_with_selection, reset_highlight_counter, select_crw,
+    set_selection_to_highlight, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
 from read_book.cfi import (
     cfi_for_selection, range_from_cfi, scroll_to as scroll_to_cfi
@@ -292,14 +292,13 @@ class IframeBoss:
             self.send_message('view_image', calibre_src=elements.img)
             return
         if elements.highlight:
-            self.activate_annotation(elements.highlight)
+            select_crw(elements.crw)
             return
         r = word_at_point(gesture.viewport_x, gesture.viewport_y)
         if r:
             s = document.getSelection()
             s.removeAllRanges()
             s.addRange(r)
-            self.send_message('lookup_word', word=str(r))
 
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
@@ -523,11 +522,13 @@ class IframeBoss:
             return
         sel = window.getSelection()
         text = ''
+        annot_id = None
         collapsed = not sel or sel.isCollapsed
         if not collapsed:
             text = sel.toString()
+            annot_id = highlight_associated_with_selection(sel, annot_id_uuid_map)
         self.send_message(
-            'selectionchange', text=text, empty=v'!!collapsed',
+            'selectionchange', text=text, empty=v'!!collapsed', annot_id=annot_id,
             selection_extents=selection_extents(current_layout_mode() is 'flow', True))
 
     def onresize_stage2(self):
@@ -825,15 +826,11 @@ class IframeBoss:
     def add_highlight_listeners(self, wrapper):
         wrapper.addEventListener('dblclick', self.highlight_wrapper_dblclicked)
 
-    def activate_annotation(self, uuid):
-        if uuid:
-            self.send_message('annotations', type='annotation-activated', uuid=uuid)
-            window.getSelection().removeAllRanges()
-
     def highlight_wrapper_dblclicked(self, ev):
         crw = ev.currentTarget.dataset.calibreRangeWrapper
-        ev.preventDefault(), ev.stopPropagation()
-        self.activate_annotation(annot_id_uuid_map[crw])
+        if crw:
+            ev.preventDefault(), ev.stopPropagation()
+            select_crw(crw)
 
     def copy_selection(self):
         text = window.getSelection().toString()
