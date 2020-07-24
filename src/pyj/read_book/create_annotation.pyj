@@ -18,7 +18,6 @@ from widgets import create_button
 
 # TODO:
 # Custom colors for highlights
-# Google lookup for selections
 # Export all annots as plain text/JSON
 # Fix selection bar remaining open after removing highlight
 
