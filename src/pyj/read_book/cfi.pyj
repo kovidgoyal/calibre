@@ -793,7 +793,7 @@ def cfi_for_selection(r):  # {{{
         nt = container.nodeType
         if nt is Node.TEXT_NODE or nt is Node.CDATA_SECTION_NODE or nt is Node.COMMENT_NODE:
             return container, offset
-        if nt is Node.ELEMENT_NODE:
+        if nt is Node.ELEMENT_NODE and offset and container.childNodes.length > offset:
             return container.childNodes[offset], 0
         return container, offset
 
