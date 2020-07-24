@@ -106,7 +106,7 @@ def font_dirs():
         paths = {os.path.normcase(r'C:\Windows\Fonts')}
         for which in (winutil.CSIDL_FONTS, winutil.CSIDL_LOCAL_APPDATA, winutil.CSIDL_APPDATA):
             try:
-                path = winutil.special_folder_path(winutil.CSIDL_FONTS)
+                path = winutil.special_folder_path(which)
             except ValueError:
                 continue
             if which != winutil.CSIDL_FONTS:
