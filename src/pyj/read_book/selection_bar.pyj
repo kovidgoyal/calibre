@@ -25,7 +25,7 @@ class SelectionBar:
 
             E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
 
-            E.hr(style='border-top: solid 1px; margin: 0; padding: 0'),
+            E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
 
             E.div(
                 style='display: none; padding: 5px;',
