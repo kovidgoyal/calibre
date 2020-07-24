@@ -69,7 +69,7 @@ def range_extents(start, end, in_flow_mode):
                     node = node.childNodes[r.startOffset]
                 if node.getBoundingClientRect:
                     erect = node.getBoundingClientRect()
-                    rect = {'left': erect.left, 'top': erect.top, 'height': 2}
+                    rect = {'left': erect.left, 'top': erect.top, 'right': erect.right, 'bottom': erect.bottom, 'width': erect.width, 'height': 2}
         ans.x = Math.round(rect.left)
         ans.y = Math.round(rect.top)
         ans.height = rect.height
