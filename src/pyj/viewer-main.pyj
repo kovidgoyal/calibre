@@ -175,6 +175,7 @@ def create_view(prefs, local_storage, field_metadata, ui_data):
     library_data.field_metadata = field_metadata
     document.documentElement.style.fontFamily = f'"{ui_data.ui_font_family}", sans-serif'
     document.documentElement.style.fontSize = ui_data.ui_font_sz
+    runtime.QT_VERSION = ui_data.QT_VERSION
     if view is None:
         create_session_data(prefs, local_storage)
         view = View(document.getElementById('view'))
