@@ -20,7 +20,6 @@ from widgets import create_button
 # Custom colors for highlights
 # Google lookup for selections
 # Export all annots as plain text/JSON
-# Remove lookup and create highlight buttons from chrome
 # Fix selection bar remaining open after removing highlight
 
 
