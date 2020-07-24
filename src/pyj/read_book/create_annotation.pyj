@@ -448,10 +448,11 @@ class CreateAnnotation:
 
     def show_middle(self, pre_close_callback):
         self.pre_middle_close_callback = pre_close_callback
-        self.temporarily_hide_handles()
-        self.middle.style.display = 'block'
+        for h in (self.left_handle, self.right_handle):
+            h.style.visibility = 'hidden'
         for button in self.container.querySelectorAll('.adjust-button'):
             button.style.visibility = 'hidden'
+        self.middle.style.display = 'block'
 
     def hide_middle(self):
         m = self.middle
@@ -460,21 +461,12 @@ class CreateAnnotation:
                 if not self.pre_middle_close_callback():
                     return
                 self.pre_middle_close_callback = None
-            self.unhide_handles()
             for button in self.container.querySelectorAll('.adjust-button'):
                 button.style.visibility = 'unset'
+            for h in (self.left_handle, self.right_handle):
+                h.style.visibility = 'unset'
             m.style.display = 'none'
             self.container.focus()
-
-    def temporarily_hide_handles(self):
-        for h in (self.left_handle, self.right_handle):
-            if h.style.display is not 'none':
-                h.dataset.savedState = h.style.display
-                h.style.display = 'none'
-
-    def unhide_handles(self):
-        for h in (self.left_handle, self.right_handle):
-            h.style.display = h.dataset.savedState
 
     def accept(self):
         s = self.current_highlight_style
