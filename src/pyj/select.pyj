@@ -63,13 +63,19 @@ def range_extents(start, end, in_flow_mode):
     def for_boundary(r, ans):
         rect = r.getBoundingClientRect()
         if rect.height is 0:
+            # this tends to happen when moving the mouse downwards
+            # at the boundary between paragraphs
             if r.startContainer?.nodeType is Node.ELEMENT_NODE:
                 node = r.startContainer
                 if r.startOffset and node.childNodes.length > r.startOffset:
                     node = node.childNodes[r.startOffset]
-                if node.getBoundingClientRect:
-                    erect = node.getBoundingClientRect()
-                    rect = {'left': erect.left, 'top': erect.top, 'right': erect.right, 'bottom': erect.bottom, 'width': erect.width, 'height': 2}
+                # we cant use getBoundingClientRect as the node might be split
+                # among multiple columns
+                if node.getClientRects:
+                    rects = node.getClientRects()
+                    if rects.length:
+                        erect = rects[0]
+                        rect = {'left': erect.left, 'top': erect.top, 'right': erect.left + 2, 'bottom': erect.top + 2, 'width': 2, 'height': 2}
         ans.x = Math.round(rect.left)
         ans.y = Math.round(rect.top)
         ans.height = rect.height
