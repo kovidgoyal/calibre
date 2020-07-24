@@ -5,7 +5,6 @@ from __python__ import hash_literals
 import traceback
 from elementmaker import E
 from gettext import gettext as _
-from select import word_at_point
 
 from dom import set_css
 from read_book.cfi import (
@@ -667,13 +666,6 @@ def handle_gesture(gesture):
         scroll_by_page(True, opts.paged_taps_scroll_by_screen)
     elif gesture.type is 'next-page':
         scroll_by_page(False, opts.paged_taps_scroll_by_screen)
-    elif gesture.type is 'long-tap':
-        r = word_at_point(gesture.viewport_x, gesture.viewport_y)
-        if r:
-            s = document.getSelection()
-            s.removeAllRanges()
-            s.addRange(r)
-            get_boss().send_message('lookup_word', word=str(r))
 
 
 anchor_funcs = {

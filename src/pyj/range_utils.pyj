@@ -150,3 +150,29 @@ def set_selection_to_highlight():
     if crw:
         select_crw(crw)
     return crw or None
+
+
+def highlight_associated_with_selection(sel, annot_id_uuid_map):
+    # Return the annotation id for a highlight that contains the focus or
+    # anchor of the selection
+
+    def get_annot_id_for(node, offset):
+        if not node:
+            return
+        if node.nodeType is Node.ELEMENT_NODE:
+            if node.dataset.calibreRangeWrapper:
+                return annot_id_uuid_map[node.dataset.calibreRangeWrapper]
+            if offset is 0:
+                if node.firstChild?.nodeType is Node.ELEMENT_NODE and node.firstChild.dataset.calibreRangeWrapper:
+                    return annot_id_uuid_map[node.firstChild.dataset.calibreRangeWrapper]
+            elif offset < node.childNodes.length:
+                node = node.childNodes[offset]
+                return get_annot_id_for(node, 0)
+        elif node.nodeType is Node.TEXT_NODE:
+            if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
+                return annot_id_uuid_map[node.parentNode.dataset.calibreRangeWrapper]
+
+    annot_id = get_annot_id_for(sel.focusNode, sel.focusOffset)
+    if not annot_id:
+        annot_id = get_annot_id_for(sel.anchorNode, sel.anchorOffset)
+    return annot_id
