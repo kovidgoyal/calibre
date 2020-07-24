@@ -345,6 +345,8 @@ if window is window.top:
         sd.set('footer', defaults.footer)
         view.update_header_footer()
         to_python.reset_interface()
+    ui_operations.open_url = def(url):
+        to_python.open_url(url)
     ui_operations.quit = def():
         to_python.quit()
     ui_operations.toggle_lookup = def(force_show):

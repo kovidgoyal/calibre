@@ -268,6 +268,7 @@ class ViewerBridge(Bridge):
     scrollbar_context_menu = from_js(object, object, object)
     close_prep_finished = from_js(object)
     highlights_changed = from_js(object)
+    open_url = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -511,6 +512,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
+        self.bridge.open_url.connect(safe_open_url)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)

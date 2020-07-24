@@ -75,6 +75,8 @@ class ReadUI:
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.highlights_changed = self.highlights_changed.bind(self)
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
+        ui_operations.open_url = def(url):
+            window.open(url, '_blank')
 
     def on_resize(self):
         self.view.on_resize()
