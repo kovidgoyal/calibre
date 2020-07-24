@@ -15,9 +15,13 @@ from read_book.globals import ui_operations
 from read_book.shortcuts import shortcut_for_key_event
 from widgets import create_button
 
+
 # TODO:
-# Get rid of view annotations and show notes in selection bar if available
-# Allow adding/removing custom highlight colors
+# Custom colors for highlights
+# Google lookup for selections
+# Export all annots as plain text/JSON
+# Remove lookup and create highlight buttons from chrome
+# position bar at mouse x during drag
 
 
 class AnnotationsManager:
@@ -61,7 +65,7 @@ class AnnotationsManager:
                 ui_operations.highlights_changed(Object.values(self.highlights))
 
     def notes_for_highlight(self, uuid):
-        h = self.highlights[uuid]
+        h = self.highlights[uuid] if uuid else None
         if h:
             return h.notes
 
@@ -726,8 +730,6 @@ class CreateAnnotation:
                     _('Failed to apply highlighting, try adjusting extent of highlight')
                 )
             self.annotations_manager.add_highlight(msg, self.current_highlight_style, self.current_notes)
-        elif msg.type is 'annotation-activated':
-            self.view.view_annotation.show(msg.uuid)
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
@@ -770,93 +772,3 @@ class CreateAnnotation:
         else:
             self.place_single_handle(self.left_handle, extents.start)
             self.place_single_handle(self.right_handle, extents.end)
-
-
-class ViewAnnotation:  # {{{
-
-    container_id = 'view-annotation-overlay'
-
-    def __init__(self, view):
-        self.view = view
-        self.annotations_manager = view.annotations_manager
-        c = self.container
-        self.showing_uuid = None
-        c.style.flexDirection = 'column'
-        c.style.justifyContent = 'flex-end'
-        c.appendChild(E.div(
-            style='pointer-events: auto; padding: 1ex 1rem; box-sizing: border-box; border-top: solid 2px currentColor; overflow: hidden',
-            onclick=def(ev):
-                ev.preventDefault(), ev.stopPropagation()
-            ,
-            E.div(
-                style='display: flex; justify-content: space-between; align-items: flex-start',
-                E.a(
-                    svgicon('close', f'{BAR_SIZE}px', f'{BAR_SIZE}px'),
-                    class_='simple-link', href='javascript: void', title=_('Close'),
-                    onclick=def(ev):
-                        self.hide()
-                ),
-                E.div(
-                    style='margin-left: 2rem; margin-right: 2rem; max-height: 20vh; overflow-y: auto; overflow-x: hidden; box-sizing: border-box; padding-top: 1ex',
-                    class_='highlight-notes-viewer'
-                ),
-                E.a(
-                    svgicon('pencil', f'{BAR_SIZE}px', f'{BAR_SIZE}px'),
-                    class_='simple-link', href='javascript: void', title=_('Edit this highlight'),
-                    onclick=def(ev):
-                        self.edit_current()
-                ),
-            )
-        ))
-
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
-
-    def show(self, uuid):
-        c = self.container
-        c.style.display = 'flex'
-        self.showing_uuid = uuid
-        s = self.annotations_manager.style_for_highlight(uuid) or default_highlight_style()
-        c = c.firstChild
-        c.style.color = s.color
-        c.style.backgroundColor = s['background-color']
-        text = self.annotations_manager.notes_for_highlight(uuid) or ''
-        self.display_text(text)
-
-    def display_text(self, text):
-        text = text or _('This highlight has no added notes')
-        text = text.strip()
-        div = self.container.querySelector('.highlight-notes-viewer')
-        clear(div)
-        current_block = ''
-
-        def add_para():
-            nonlocal current_block
-            div.appendChild(E.p(current_block))
-            if div.childNodes.length > 1:
-                div.lastChild.style.marginTop = '2ex'
-            current_block = ''
-
-        for line in text.splitlines():
-            if not line or not line.strip():
-                if current_block:
-                    add_para()
-                    continue
-            current_block += line + '\n'
-        if current_block:
-            add_para()
-
-    def hide(self):
-        self.container.style.display = 'none'
-        self.showing_uuid = None
-
-    @property
-    def is_visible(self):
-        return self.container.style.display is not 'none'
-
-    def edit_current(self):
-        if self.showing_uuid:
-            self.view.create_annotation.edit_highlight(self.showing_uuid)
-        self.hide()
-# }}}
