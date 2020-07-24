@@ -13,9 +13,7 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
-from read_book.create_annotation import (
-    AnnotationsManager, CreateAnnotation, ViewAnnotation
-)
+from read_book.create_annotation import AnnotationsManager, CreateAnnotation
 from read_book.globals import (
     current_book, runtime, set_current_spine_item, ui_operations
 )
@@ -229,7 +227,6 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none; overflow: hidden', id=CreateAnnotation.container_id, tabindex='0'),  # create annotation overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; pointer-events:none; display:none; z-index: 4000', id=ViewAnnotation.container_id),  # view annotation overlay
                     )
                 ),
                 E.div(
@@ -301,7 +298,6 @@ class View:
         self.book_scrollbar.apply_visibility()
         self.annotations_manager = AnnotationsManager(self)
         self.create_annotation = CreateAnnotation(self)
-        self.view_annotation = ViewAnnotation(self)
 
     @property
     def iframe(self):
@@ -526,6 +522,7 @@ class View:
         self.currently_showing.has_selection = not data.empty
         self.currently_showing.selection_start = data.selection_extents.start
         self.currently_showing.selection_end = data.selection_extents.end
+        self.currently_showing.selection_annot_id = data.annot_id
         if ui_operations.selection_changed:
             ui_operations.selection_changed(self.currently_showing.selected_text)
         self.selection_bar.update_position()
@@ -610,7 +607,6 @@ class View:
         self.content_popup_overlay.hide()
         self.reference_mode_overlay.style.display = 'none'
         self.create_annotation.hide()
-        self.view_annotation.hide()
         self.focus_iframe()
 
     def focus_iframe(self):
@@ -1020,8 +1016,7 @@ class View:
 
     def set_notes_for_highlight(self, uuid, notes):
         if self.annotations_manager.set_notes_for_highlight(uuid, notes):
-            if self.view_annotation.is_visible and self.view_annotation.showing_uuid is uuid:
-                self.view_annotation.show(uuid)
+            self.selection_bar.update_position()
 
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
