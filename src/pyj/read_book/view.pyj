@@ -250,7 +250,6 @@ class View:
             'handle_keypress': self.on_handle_keypress,
             'handle_shortcut': self.on_handle_shortcut,
             'human_scroll': self.on_human_scroll,
-            'lookup_word': self.on_lookup_word,
             'next_section': self.on_next_section,
             'next_spine_item': self.on_next_spine_item,
             'print': self.on_print,
@@ -315,12 +314,6 @@ class View:
     def toggle_scrollbar(self):
         sd = get_session_data()
         self.set_scrollbar_visibility(not sd.get('book_scrollbar'))
-
-    def on_lookup_word(self, data):
-        if runtime.is_standalone_viewer:
-            ui_operations.selection_changed(data.word)
-            return
-        self.overlay.show_word_actions(data.word)
 
     def on_annotations_message(self, data):
         self.create_annotation.handle_message(data)
