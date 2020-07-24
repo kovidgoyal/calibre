@@ -21,7 +21,6 @@ from widgets import create_button
 # Google lookup for selections
 # Export all annots as plain text/JSON
 # Remove lookup and create highlight buttons from chrome
-# position bar at mouse x during drag
 
 
 class AnnotationsManager:
