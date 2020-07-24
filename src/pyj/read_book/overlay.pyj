@@ -328,10 +328,6 @@ class MainOverlay:  # {{{
                     def(): self.overlay.hide(), ui_operations.toggle_highlights();, 'image')
             )
             copy_actions = E.ul()
-            if self.overlay.view.currently_showing.selected_text:
-                copy_actions.appendChild(ac(_('Copy selection'), _('Copy the current selection'), def():
-                    self.overlay.hide(), ui_operations.copy_selection()
-                , 'copy'))
             if self.elements.link:
                 copy_actions.appendChild(ac(_('Copy link'), _('Copy the current link'), def():
                     self.overlay.hide(), ui_operations.copy_selection(self.elements.link)
