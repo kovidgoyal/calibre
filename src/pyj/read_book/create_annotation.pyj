@@ -17,7 +17,6 @@ from widgets import create_button
 
 
 # TODO:
-# Custom colors for highlights
 # Export all annots as plain text/JSON
 
 
@@ -210,6 +209,7 @@ def create_bar():
 class EditNotesAndColors:
 
     def __init__(self, container, hide_middle, accept, current_notes, current_style):
+        self.initial_style = current_style
         def separator():
             return E.hr(style='max-width: 80em; width: 80vw; border-top: solid 1px; margin: auto; margin-top: 2ex; margin-bottom: 2ex')
 
@@ -246,6 +246,15 @@ class EditNotesAndColors:
                 class_='color-block',
                 style=f'display: flex; flex-wrap: wrap; max-width: calc({BAR_SIZE}px * 8); margin: auto',
             ),
+            E.div(
+                style='max-width: 80em; width: 80vw; margin: auto; margin-top: 2ex; display: flex; justify-content: space-between; align-items: center',
+                E.div(
+                    E.label(_('New color:'), ' ', E.input(type='color', onchange=self.add_custom_color))
+                ),
+                E.div(
+                    E.a(_('Remove color'), class_='simple-link remove-custom-color', onclick=self.remove_custom_color),
+                ),
+            ),
 
             separator(),
 
@@ -257,36 +266,70 @@ class EditNotesAndColors:
 
         )
         self.container_id = c.id
-        seen_colors = {}
-
-        def add_color(bg):
-            if seen_colors[bg]:
-                return
-            seen_colors[bg] = True
-            ic = svgicon('swatch', BAR_SIZE, BAR_SIZE)
-            ic.classList.add('simple-link')
-            is_current = bg.lower() is current_style['background-color'].lower()
-            sqbg = get_color('window-background2') if is_current else 'unset'
-            ic.querySelector('use').style.fill = bg
-            item = E.div(
-                ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
-                onclick=self.change_color
-            )
-            if is_current:
-                item.classList.add('current-swatch')
-            item.dataset.bg = bg
-            c.getElementsByClassName('color-block')[0].appendChild(item)
-
+        container.appendChild(c)
+        self.seen_colors = {}
         custom_highlight_colors = get_session_data().get('custom_highlight_colors')
         for bg in custom_highlight_colors:
-            add_color(bg)
+            self.add_color(bg).classList.add('custom-color')
         for bg in builtin_highlight_colors:
-            add_color(bg)
+            self.add_color(bg)
         if not c.querySelector('.current-swatch'):
-            add_color(current_style['background-color'])
+            self.add_color(self.initial_style['background-color'])
 
-        container.appendChild(c)
+        self.set_visibility_of_remove_button()
         self.notes_edit.focus()
+
+    def set_visibility_of_remove_button(self):
+        c = self.container
+        item = c.querySelector('.current-swatch.custom-color')
+        visibility = 'unset' if item else 'hidden'
+        c.querySelector('.remove-custom-color').style.visibility = visibility
+
+    def add_color(self, bg, at_start):
+        if self.seen_colors[bg]:
+            return
+        self.seen_colors[bg] = True
+        ic = svgicon('swatch', BAR_SIZE, BAR_SIZE)
+        ic.classList.add('simple-link')
+        is_current = bg.lower() is self.initial_style['background-color'].lower()
+        sqbg = get_color('window-background2') if is_current else 'unset'
+        ic.querySelector('use').style.fill = bg
+        item = E.div(
+            ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
+            onclick=self.change_color
+        )
+        if is_current:
+            item.classList.add('current-swatch')
+        item.dataset.bg = bg
+        parent = self.container.getElementsByClassName('color-block')[0]
+        if at_start:
+            parent.insertBefore(item, parent.firstChild)
+        else:
+            parent.appendChild(item)
+        return item
+
+    def add_custom_color(self):
+        bg = self.container.querySelector('input[type=color]').value
+        item = self.add_color(bg, True)
+        item.classList.add('custom-color')
+        self.make_swatch_current(item)
+        sd = get_session_data()
+        custom_highlight_colors = sd.get('custom_highlight_colors')
+        custom_highlight_colors.unshift(bg)
+        sd.set('custom_highlight_colors', custom_highlight_colors)
+
+    def remove_custom_color(self):
+        item = self.container.getElementsByClassName('current-swatch')[0]
+        bg = item.dataset.bg
+        p = item.parentNode
+        p.removeChild(item)
+        self.make_swatch_current(p.firstChild)
+        sd = get_session_data()
+        custom_highlight_colors = sd.get('custom_highlight_colors')
+        idx = custom_highlight_colors.indexOf(bg)
+        if idx > -1:
+            custom_highlight_colors.splice(idx, 1)
+            sd.set('custom_highlight_colors', custom_highlight_colors)
 
     @property
     def container(self):
@@ -298,13 +341,16 @@ class EditNotesAndColors:
 
     def change_color(self, evt):
         evt.stopPropagation()
-        item = evt.currentTarget
+        self.make_swatch_current(evt.currentTarget)
+
+    def make_swatch_current(self, item):
         for child in item.parentNode.childNodes:
             child.style.backgroundColor = 'unset'
             child.classList.remove('current-swatch')
         item.style.backgroundColor = get_color('window-background2')
         item.classList.add('current-swatch')
         self.notes_edit.focus()
+        self.set_visibility_of_remove_button()
 
     @property
     def current_notes(self):
@@ -313,8 +359,7 @@ class EditNotesAndColors:
     @property
     def current_style(self):
         bg = self.container.getElementsByClassName('current-swatch')[0].dataset.bg
-        custom_highlight_colors = get_session_data().get('custom_highlight_colors')
-        fg = custom_highlight_colors[bg] or builtin_highlight_colors[bg]
+        fg = builtin_highlight_colors[bg]
         if not fg:
             rgba = cached_color_to_rgba(bg)
             is_dark = max(rgba[0], rgba[1], rgba[2]) < 115
