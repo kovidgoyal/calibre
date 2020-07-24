@@ -471,8 +471,8 @@ class View:
         elif data.name is 'reload_book':
             ui_operations.reload_book()
         elif data.name is 'search_for_selection':
-            if self.currently_showing.selected_text:
-                self.search_overlay.set_text(self.currently_showing.selected_text)
+            if self.currently_showing.selection.text:
+                self.search_overlay.set_text(self.currently_showing.selection.text)
                 self.search_overlay.find_next()
         elif data.name is 'next_section':
             self.on_next_section({'forward': True})
@@ -518,18 +518,19 @@ class View:
             self.iframe_wrapper.send_message('handle_navigation_shortcut', name=data.name)
 
     def on_selection_change(self, data):
-        self.currently_showing.selected_text = data.text
-        self.currently_showing.has_selection = not data.empty
-        self.currently_showing.selection_start = data.selection_extents.start
-        self.currently_showing.selection_end = data.selection_extents.end
-        self.currently_showing.selection_annot_id = data.annot_id
+        self.currently_showing.selection = {
+            'text': data.text, 'empty': data.empty, 'start': data.selection_extents.start,
+            'end': data.selection_extents.end, 'annot_id': data.annot_id,
+            'drag_mouse_position': data.drag_mouse_position
+        }
         if ui_operations.selection_changed:
-            ui_operations.selection_changed(self.currently_showing.selected_text)
+            ui_operations.selection_changed(self.currently_showing.selection.text)
         self.selection_bar.update_position()
 
     def update_selection_position(self, data):
-        self.currently_showing.selection_start = data.selection_extents.start
-        self.currently_showing.selection_end = data.selection_extents.end
+        sel = self.currently_showing.selection
+        sel.start = data.selection_extents.start
+        sel.end = data.selection_extents.end
         self.selection_bar.update_position()
 
     def on_columns_per_screen_changed(self, data):
@@ -1045,7 +1046,6 @@ class View:
 
     def update_cfi_data(self, data):
         self.currently_showing.bookpos = data.cfi
-        self.currently_showing.selected_text = data.selected_text
         username = get_interface_data().username
         unkey = username_key(username)
         if not self.book.last_read_position:
@@ -1064,7 +1064,6 @@ class View:
                 'cfi': data.cfi,
                 'progress_frac': data.progress_frac,
                 'file_progress_frac': data.file_progress_frac,
-                'selected_text': data.selected_text,
             })
             v'delete self.report_cfi_callbacks[data.request_id]'
 
