@@ -6,21 +6,34 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.theme import get_color
-from dom import svgicon
-from read_book.globals import ui_operations
+from dom import clear, svgicon
+from read_book.globals import runtime, ui_operations
 
 
 class SelectionBar:
 
     def __init__(self, view):
         self.view = view
+
+    def build_bar(self, notes):
         c = self.container
-        bar = E.div(
-            style='position: absolute; height: 4ex; border: solid 1px currentColor; border-radius: 5px; overflow: hidden;'
-            'display: flex; align-items: center; pointer-events: auto; padding: 5px; left: 0; top: 0;'
-            'background-color: {}'.format(get_color("window-background"))
+        max_width = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
+        bar_container = E.div(
+            style='position: absolute; border: solid 1px currentColor; border-radius: 5px;'
+            'left: 0; top: 0; pointer-events: auto; display: flex; flex-direction: column;'
+            'background-color: {}; max-width: {}'.format(get_color("window-background"), max_width),
+
+            E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
+
+            E.hr(style='border-top: solid 1px; margin: 0; padding: 0'),
+
+            E.div(
+                style='display: none; padding: 5px;',
+                E.div(),
+            ),
         )
-        c.appendChild(bar)
+        bar = bar_container.firstChild
+        c.appendChild(bar_container)
 
         def cb(icon, tooltip, callback):
             ans = svgicon(icon, '3ex', '3ex', tooltip)
@@ -35,6 +48,12 @@ class SelectionBar:
             bar.appendChild(cb('library', _('Lookup/search selected word'), self.lookup))
         bar.appendChild(cb('highlight', _('Highlight selection'), self.create_highlight))
         bar.appendChild(cb('close', _('Clear the selection'), self.clear_selection))
+        self.show_notes(bar_container, notes)
+        return bar_container
+
+    @property
+    def supports_css_min_max(self):
+        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
 
     @property
     def container(self):
@@ -48,9 +67,8 @@ class SelectionBar:
         self.container.style.display = 'none'
 
     def show(self):
-        if self.view.create_annotation.is_visible:
-            return
-        self.container.style.display = 'block'
+        if not self.view.create_annotation.is_visible:
+            self.container.style.display = 'block'
 
     @property
     def is_visible(self):
@@ -69,9 +87,44 @@ class SelectionBar:
     def create_highlight(self):
         self.view.initiate_create_annotation(True)
 
+    def show_notes(self, bar, notes):
+        notes = (notes or "").strip()
+        if not notes:
+            return
+        notes_container = bar.lastChild
+        c = notes_container.lastChild
+        notes_container.style.display = notes_container.previousSibling.style.display = 'block'
+        c.style.overflow = 'auto'
+        if self.supports_css_min_max:
+            c.style.maxHeight = 'min(20ex, 40vh)'
+        else:
+            c.style.maxHeight = '20ex'
+        current_block = ''
+
+        def add_para():
+            nonlocal current_block
+            c.appendChild(E.p(current_block))
+            if c.childNodes.length > 1:
+                c.lastChild.style.marginTop = '2ex'
+            current_block = ''
+
+        for line in notes.splitlines():
+            if not line or not line.strip():
+                if current_block:
+                    add_para()
+                    continue
+            current_block += line + '\n'
+        if current_block:
+            add_para()
+
     def update_position(self):
+        container = self.container
+        clear(container)
         cs = self.view.currently_showing
         if not cs.has_selection:
+            return self.hide()
+
+        if not cs.selection_start.onscreen and not cs.selection_end.onscreen:
             return self.hide()
 
         margins = {
@@ -84,15 +137,11 @@ class SelectionBar:
         def map_boundary(x):
             return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
-        if not cs.selection_start.onscreen and not cs.selection_end.onscreen:
-            return self.hide()
+        bar = self.build_bar(self.view.annotations_manager.notes_for_highlight(cs.selection_annot_id))
         start = map_boundary(cs.selection_start)
         end = map_boundary(cs.selection_end)
-
         self.show()
         end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
-        container = self.container
-        bar = self.bar
 
         # vertical position
         bar_height = bar.offsetHeight
@@ -106,9 +155,11 @@ class SelectionBar:
         top = (end.y + end.height + buffer) if put_below else (end.y - bar_height - buffer)
         top = max(buffer, min(top, container.offsetHeight - bar_height - buffer))
         bar.style.top = top + 'px'
+        bar.style.flexDirection = 'column' if put_below else 'column-reverse'
 
         # horizontal position
         bar_width = bar.offsetWidth
         left = end.x - bar_width // 2
-        left = max(buffer, min(left, container.offsetWidth - bar_width - buffer))
+        # - 10 ensures we dont cover scroll bar
+        left = max(buffer, min(left, container.offsetWidth - bar_width - buffer - 10))
         bar.style.left = left + 'px'
