@@ -81,6 +81,7 @@ runtime = {
     'is_standalone_viewer': False,
     'viewer_in_full_screen': False,
     'in_develop_mode': IN_DEVELOP_MODE is '1',
+    'QT_VERSION': 0,
 }
 
 
