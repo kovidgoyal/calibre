@@ -772,7 +772,7 @@ class View:
                 cfi =  '/' + rest
         return name, cfi
 
-    def display_book(self, book, initial_position):
+    def display_book(self, book, initial_position, is_redisplay):
         self.hide_overlays()
         self.iframe.focus()
         is_current_book = self.book and self.book.key == book.key
@@ -786,15 +786,16 @@ class View:
         unkey = username_key(get_interface_data().username)
         self.book = current_book.book = book
         hl = None
-        if runtime.is_standalone_viewer:
-            hl = book.highlights
-            v'delete book.highlights'
-        else:
-            if unkey and book.annotations_map[unkey]:
-                hl = book.annotations_map[unkey].highlight
-        self.annotations_manager.set_highlights(hl or v'[]')
-        if runtime.is_standalone_viewer:
-            add_book_to_recently_viewed(book)
+        if not is_redisplay:
+            if runtime.is_standalone_viewer:
+                hl = book.highlights
+                v'delete book.highlights'
+            else:
+                if unkey and book.annotations_map[unkey]:
+                    hl = book.annotations_map[unkey].highlight
+            self.annotations_manager.set_highlights(hl or v'[]')
+            if runtime.is_standalone_viewer:
+                add_book_to_recently_viewed(book)
         if ui_operations.update_last_read_time:
             ui_operations.update_last_read_time(book)
         pos = {'replace_history':True}
@@ -842,7 +843,7 @@ class View:
         if ui_operations.export_shortcut_map:
             ui_operations.export_shortcut_map(self.keyboard_shortcut_map)
         self.book_scrollbar.apply_visibility()
-        self.display_book(self.book)
+        self.display_book(self.book, None, True)
 
     def iframe_settings(self, name):
         sd = get_session_data()
