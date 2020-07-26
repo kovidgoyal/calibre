@@ -323,9 +323,9 @@ class IframeBoss:
     def on_next_screen(self, data):
         backwards = data.backwards
         if current_layout_mode() is 'flow':
-            flow_scroll_by_page(-1 if backwards else 1)
+            flow_scroll_by_page(-1 if backwards else 1, data.flip_if_rtl_page_progression)
         else:
-            paged_scroll_by_page(backwards, data.all_pages_on_screen)
+            paged_scroll_by_page(backwards, data.all_pages_on_screen, data.flip_if_rtl_page_progression)
 
 
     def change_font_size(self, data):

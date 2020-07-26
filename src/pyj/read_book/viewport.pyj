@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals reset_transforms'.split(' ')
+FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms'.split(' ')
 
 from read_book.globals import get_boss, viewport_mode_changer
 from utils import is_ios
@@ -12,13 +12,28 @@ class ScrollViewport:
     def __init__(self):
         self.set_mode('flow')
         self.window_width_from_parent = self.window_height_from_parent = None
+        # In RTL mode, we hide the fact that we are scrolling to the left by negating the
+        # current X position and the requested X scroll position, which fools the reader
+        # code into thinking that it's always scrolling in positive X.
+        self.rtl = False
 
     def set_mode(self, mode):
         prefix = ('flow' if mode is 'flow' else 'paged') + '_'
         for attr in FUNCTIONS:
             self[attr] = self[prefix + attr]
 
+    def initialize_on_layout(self):
+        self.rtl = False
+        body_style = window.getComputedStyle(document.body)
+        if body_style.direction is "rtl":
+            self.rtl = True
+
+    def ltr(self):
+        return not self.rtl
+
     def flow_x(self):
+        if self.rtl:
+            return -window.pageXOffset
         return window.pageXOffset
 
     def flow_y(self):
@@ -28,7 +43,10 @@ class ScrollViewport:
         return 0
 
     def flow_scroll_to(self, x, y):
-        window.scrollTo(x, y)
+        if self.rtl:
+            window.scrollTo(-x,y)
+        else:
+            window.scrollTo(x, y)
 
     def flow_scroll_into_view(self, elem):
         elem.scrollIntoView()
@@ -36,7 +54,7 @@ class ScrollViewport:
     def flow_reset_globals(self):
         pass
 
-    def flow_reset_transforms(self):
+    def flow___reset_transforms(self):
         pass
 
     def paged_content_width(self):
@@ -52,6 +70,29 @@ class ScrollViewport:
     def height(self):
         return window.innerHeight
 
+    # Assure that the viewport position returned is corrected for the RTL
+    # mode of ScrollViewport.
+    def viewport_to_document(self, x, y, doc):
+        self.__reset_transforms()
+
+        # Convert x, y from the viewport (window) co-ordinate system to the
+        # document (body) co-ordinate system
+        doc = doc or window.document
+        topdoc = window.document
+        while doc is not topdoc:
+            # We are in a frame
+            frame = doc.defaultView.frameElement
+            rect = frame.getBoundingClientRect()
+            x += rect.left
+            y += rect.top
+            doc = frame.ownerDocument
+        win = doc.defaultView
+        wx, wy = win.pageXOffset, win.pageYOffset
+        x += wx
+        y += wy
+        if self.rtl:
+            return -x, y
+        return x, y
 
 class IOSScrollViewport(ScrollViewport):
 
@@ -82,7 +123,8 @@ class IOSScrollViewport(ScrollViewport):
         ans = parseInt(raw)
         if isNaN(ans):
             return 0
-        ans *= -1
+        if not self.rtl:
+            ans *= -1
         return ans
 
     def paged_scroll_into_view(self, elem):
@@ -98,11 +140,11 @@ class IOSScrollViewport(ScrollViewport):
         # left -= window_width() // 2
         self._scroll_implementation(max(0, left))
 
-    def paged_reset_transforms(self):
+    def paged___reset_transforms(self):
         document.documentElement.style.transform = 'none'
 
     def paged_reset_globals(self):
-        self.paged_reset_transforms()
+        self.__reset_transforms()
 
 
 if is_ios:

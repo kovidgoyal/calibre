@@ -57,21 +57,6 @@ def window_scroll_pos(w):  # {{{
     return w.pageXOffset, w.pageYOffset
 # }}}
 
-def viewport_to_document(x, y, doc):  # {{{
-    doc = doc or window.document
-    while doc is not window.document:
-        # we are in a frame
-        frame = doc.defaultView.frameElement
-        rect = frame.getBoundingClientRect()
-        x += rect.left
-        y += rect.top
-        doc = frame.ownerDocument
-    wx, wy = window_scroll_pos(doc.defaultView)
-    x += wx
-    y += wy
-    return x, y
-# }}}
-
 # Convert point to character offset {{{
 def range_has_point(range_, x, y):
     rects = range_.getClientRects()
@@ -634,7 +619,6 @@ def scroll_to(cfi, callback, doc):  # {{{
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
         scroll_viewport.scroll_into_view(span)
-        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
         fn = def():
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
@@ -677,17 +661,18 @@ def scroll_to(cfi, callback, doc):  # {{{
 
             x = (point_.a*rect.left + (1-point_.a)*rect.right)
             y = (rect.top + rect.bottom)/2
-            x, y = viewport_to_document(x, y, ndoc)
+            x, y = scroll_viewport.viewport_to_document(x, y, ndoc)
             if callback:
                 callback(x, y)
     else:
         node = point_.node
         scroll_viewport.scroll_into_view(node)
-        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
         fn = def():
             r = node.getBoundingClientRect()
-            x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
+            # Start of element is right side in RTL, so be sure to get that side in RTL mode
+            x, y = scroll_viewport.viewport_to_document(
+                r.left if scroll_viewport.ltr() else r.right, r.top, node.ownerDocument)
             if jstype(point_.x) is 'number' and node.offsetWidth:
                 x += (point_.x*node.offsetWidth)/100
             if jstype(point_.y) is 'number' and node.offsetHeight:
@@ -725,17 +710,19 @@ def at_point(ox, oy):  # {{{
 
             x = (p.a*rect.left + (1-p.a)*rect.right)
             y = (rect.top + rect.bottom)/2
-            x, y = viewport_to_document(x, y, r.startContainer.ownerDocument)
+            x, y = scroll_viewport.viewport_to_document(x, y, r.startContainer.ownerDocument)
         else:
             node = p.node
             r = node.getBoundingClientRect()
-            x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
+            # Start of element is right side in RTL, so be sure to get that side in RTL mode
+            x, y = scroll_viewport.viewport_to_document(
+                r.left if scroll_viewport.ltr() else r.right, r.top, node.ownerDocument)
             if jstype(p.x) is 'number' and node.offsetWidth:
                 x += (p.x*node.offsetWidth)/100
             if jstype(p.y) is 'number' and node.offsetHeight:
                 y += (p.y*node.offsetHeight)/100
 
-        if dist(viewport_to_document(ox, oy), v'[x, y]') > 50:
+        if dist(scroll_viewport.viewport_to_document(ox, oy), v'[x, y]') > 50:
             cfi = None
 
     return cfi
