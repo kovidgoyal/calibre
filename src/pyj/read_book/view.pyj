@@ -15,7 +15,7 @@ from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
 from read_book.create_annotation import AnnotationsManager, CreateAnnotation
 from read_book.globals import (
-    current_book, runtime, set_current_spine_item, ui_operations
+    current_book, runtime, set_current_spine_item, ui_operations, rtl_page_progression
 )
 from read_book.goto import get_next_section
 from read_book.open_book import add_book_to_recently_viewed
@@ -107,6 +107,19 @@ def show_controls_help():
     def msg(txt):
         return set_css(E.div(txt), padding='1ex 1em', text_align='center', margin='auto')
 
+    left_msg = msg(_('Tap to turn back'))
+    left_width = '25vw'
+    right_msg = msg(_('Tap to turn page'))
+    right_width = '75vw'
+    if rtl_page_progression():
+        left_msg, right_msg = right_msg, left_msg
+        left_width, right_width = right_width, left_width
+
+    # Clear it out if this is not the first time it's created.
+    # Needed to correctly show it again in a different page progression direction.
+    if container.firstChild:
+        container.removeChild(container.firstChild)
+
     container.appendChild(E.div(
         style=f'overflow: hidden; width: 100vw; height: 100vh; text-align: center; font-size: 1.3rem; font-weight: bold; background: {get_color("window-background")};' +
                 'display:flex; flex-direction: column; align-items: stretch',
@@ -117,12 +130,12 @@ def show_controls_help():
         E.div(
             style="display: flex; align-items: stretch; flex-grow: 10",
             E.div(
-                msg(_('Tap to turn back')),
-                style='width: 25vw; display:flex; align-items: center; border-right: solid 2px currentColor',
+                left_msg,
+                style=f'width: {left_width}; display:flex; align-items: center; border-right: solid 2px currentColor',
             ),
             E.div(
-                msg(_('Tap to turn page')),
-                style='width: 75vw; display:flex; align-items: center',
+                right_msg,
+                style=f'width: {right_width}; display:flex; align-items: center',
             )
         )
     ))
@@ -321,7 +334,10 @@ class View:
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
-            self.iframe_wrapper.send_message('next_screen', backwards=True, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=True,
+                flip_if_rtl_page_progression=True,
+                all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
         elif event.button is 2:
             event.preventDefault(), event.stopPropagation()
             window.setTimeout(self.show_chrome, 0)
@@ -331,7 +347,10 @@ class View:
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
             sd = get_session_data()
-            self.iframe_wrapper.send_message('next_screen', backwards=False, all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=False,
+                flip_if_rtl_page_progression=True,
+                all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
         elif event.button is 2:
             event.preventDefault(), event.stopPropagation()
             window.setTimeout(self.show_chrome, 0)
@@ -474,10 +493,14 @@ class View:
             self.overlay.open_book()
         elif data.name is 'next':
             self.iframe_wrapper.send_message(
-                'next_screen', backwards=False, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+                'next_screen', backwards=False,
+                flip_if_rtl_page_progression=False,
+                all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
         elif data.name is 'previous':
             self.iframe_wrapper.send_message(
-                'next_screen', backwards=True, all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
+                'next_screen', backwards=True,
+                flip_if_rtl_page_progression=False,
+                all_pages_on_screen=get_session_data().get('paged_margin_clicks_scroll_by_screen'))
         elif data.name is 'clear_selection':
             self.iframe_wrapper.send_message('clear_selection')
         elif data.name is 'print':
@@ -826,10 +849,10 @@ class View:
         else:
             self.show_name(name, initial_position=pos)
         sd = get_session_data()
-        c = sd.get('controls_help_shown_count', 0)
+        c = sd.get('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), 0)
         if c < 2:
             show_controls_help()
-            sd.set('controls_help_shown_count', c + 1)
+            sd.set('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), c + 1)
 
     def preferences_changed(self):
         ui_operations.update_url_state(True)
