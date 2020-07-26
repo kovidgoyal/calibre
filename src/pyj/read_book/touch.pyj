@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from read_book.globals import get_boss, ui_operations
+from read_book.globals import get_boss, ui_operations, ltr_page_progression
 from read_book.viewport import scroll_viewport
 
 HOLD_THRESHOLD = 750  # milliseconds
@@ -248,10 +248,21 @@ class BookTouchHandler(TouchHandler):
                     if gesture.viewport_y < min(100, scroll_viewport.height() / 4):
                         gesture.type = 'show-chrome'
                     else:
-                        if gesture.viewport_x < min(100, scroll_viewport.width() / 4):
-                            gesture.type = 'prev-page'
+                        # Calibre's default, books that go left to right.
+                        if ltr_page_progression():
+                            if gesture.viewport_x < min(100, scroll_viewport.width() / 4):
+                                gesture.type = 'prev-page'
+                            else:
+                                gesture.type = 'next-page'
+                        # We swap the sizes in RTL mode, so that going to the next page is always the bigger touch region.
                         else:
-                            gesture.type = 'next-page'
+                            # The "going back" area should not be more than 100 units big,
+                            # even if 1/4 of the scroll viewport is more than 100 units.
+                            # Checking against the larger of the width minus the 100 units and 3/4 of the width will accomplish that.
+                            if gesture.viewport_x > max(scroll_viewport.width() - 100, scroll_viewport.width() * (3/4)):
+                                gesture.type = 'prev-page'
+                            else:
+                                gesture.type = 'next-page'
         if gesture.type is 'pinch':
             if gesture.active:
                 return

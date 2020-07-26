@@ -11,12 +11,11 @@ from read_book.cfi import (
     at_current as cfi_at_current, at_point as cfi_at_point,
     scroll_to as cfi_scroll_to
 )
-from read_book.globals import current_spine_item, get_boss
+from read_book.globals import current_spine_item, get_boss, rtl_page_progression
 from read_book.settings import opts
 from read_book.viewport import scroll_viewport, line_height
 from utils import (
-    document_height, document_width, get_elem_data, set_elem_data,
-    viewport_to_document
+    document_height, document_width, get_elem_data, set_elem_data
 )
 
 
@@ -40,14 +39,9 @@ def has_start_text(elem):
     return False
 
 def handle_rtl_body(body_style):
-    # Make the body and root nodes have direction ltr so that column layout
-    # works as expected
     if body_style.direction is "rtl":
-        for node in document.body.childNodes:
-            if node.nodeType is Node.ELEMENT_NODE and window.getComputedStyle(node).direction is "rtl":
-                node.style.setProperty("direction", "rtl")
-        document.body.style.direction = "ltr"
-        document.documentElement.style.direction = 'ltr'
+        # If this in not set, Chrome scrolling breaks for some RTL and vertical content.
+        document.documentElement.style.overflow = 'visible'
 
 def create_page_div(elem):
     div = E('blank-page-div', ' \n    ')
@@ -97,7 +91,7 @@ def fit_images():
         if data is None:
             data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
             set_elem_data(img, 'img-data', data)
-        left = viewport_to_document(br.left, 0, img.ownerDocument)[0]
+        left = scroll_viewport.viewport_to_document(br.left, 0, img.ownerDocument)[0]
         col = column_at(left) * col_and_gap
         rleft = left - col
         width  = br.right - br.left
@@ -170,6 +164,7 @@ def current_page_width():
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
     line_height(True)
+    scroll_viewport.initialize_on_layout()
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
     cps = calc_columns_per_screen()
@@ -420,7 +415,6 @@ def jump_to_anchor(name):
 
 def scroll_to_elem(elem):
     scroll_viewport.scroll_into_view(elem)
-    scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
     if in_paged_mode():
         # Ensure we are scrolled to the column containing elem
@@ -435,25 +429,29 @@ def scroll_to_elem(elem):
             # elem.scrollIntoView(). However, in some cases it gives
             # inaccurate results, so we prefer the bounding client rect,
             # when possible.
-            left = elem.scrollLeft
+            # Columns start on the right side in RTL mode, so get that instead here...
+            pos = elem.scrollLeft if scroll_viewport.ltr() else elem.scrollRight
         else:
-            left = br.left
-        scroll_to_xpos(viewport_to_document(
-            left+2, elem.scrollTop, elem.ownerDocument)[0])
+            # and here.
+            pos = br.left if scroll_viewport.ltr() else br.right
+        scroll_to_xpos(scroll_viewport.viewport_to_document(
+            pos+2, elem.scrollTop, elem.ownerDocument)[0])
 
 def snap_to_selection():
     # Ensure that the viewport is positioned at the start of the column
     # containing the start of the current selection
     if in_paged_mode():
-        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
         sel = window.getSelection()
         r = sel.getRangeAt(0).getBoundingClientRect()
         node = sel.anchorNode
-        left = viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
+        # In RTL mode, the "start" of selection is on the right side.
+        pos = scroll_viewport.viewport_to_document(
+            r.left if scroll_viewport.ltr() else r.right,
+            r.top, doc=node.ownerDocument)[0]
 
         # Ensure we are scrolled to the column containing the start of the
         # selection
-        scroll_to_xpos(left+5)
+        scroll_to_xpos(pos+5)
 
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
@@ -585,7 +583,10 @@ wheel_handler = HandleWheel()
 onwheel = wheel_handler.onwheel.bind(wheel_handler)
 
 
-def scroll_by_page(backward, by_screen):
+def scroll_by_page(backward, by_screen, flip_if_rtl_page_progression):
+    if (flip_if_rtl_page_progression and rtl_page_progression()):
+        backward = not backward
+
     if by_screen:
         pos = previous_screen_location() if backward else next_screen_location()
         pages = cols_per_screen
@@ -615,10 +616,10 @@ def scroll_to_extend_annotation(backward):
 
 def handle_shortcut(sc_name, evt):
     if sc_name is 'up':
-        scroll_by_page(True, True)
+        scroll_by_page(backward=True, by_screen=True, flip_if_rtl_page_progression=False)
         return True
     if sc_name is 'down':
-        scroll_by_page(False, True)
+        scroll_by_page(backward=False, by_screen=True, flip_if_rtl_page_progression=False)
         return True
     if sc_name is 'start_of_file':
         get_boss().report_human_scroll()
@@ -629,10 +630,10 @@ def handle_shortcut(sc_name, evt):
         scroll_to_offset(document_width())
         return True
     if sc_name is 'left':
-        scroll_by_page(True, False)
+        scroll_by_page(backward=True, by_screen=False, flip_if_rtl_page_progression=True)
         return True
     if sc_name is 'right':
-        scroll_by_page(False, False)
+        scroll_by_page(backward=False, by_screen=False, flip_if_rtl_page_progression=True)
         return True
     if sc_name is 'start_of_book':
         get_boss().report_human_scroll()
@@ -643,10 +644,10 @@ def handle_shortcut(sc_name, evt):
         get_boss().send_message('goto_doc_boundary', start=False)
         return True
     if sc_name is 'pageup':
-        scroll_by_page(True, True)
+        scroll_by_page(backward=True, by_screen=True, flip_if_rtl_page_progression=False)
         return True
     if sc_name is 'pagedown':
-        scroll_by_page(False, True)
+        scroll_by_page(backward=False, by_screen=True, flip_if_rtl_page_progression=False)
         return True
     if sc_name is 'toggle_autoscroll':
         auto_scroll_action('toggle')
@@ -661,11 +662,13 @@ def handle_gesture(gesture):
                 get_boss().send_message('next_section', forward=gesture.direction is 'up')
         else:
             if not gesture.active or gesture.is_held:
-                scroll_by_page(gesture.direction is 'right', True)
+                scroll_by_page(gesture.direction is 'right', True, flip_if_rtl_page_progression=True)
+    # Gesture progression direction is determined in the gesture code;
+    # don't set flip_if_rtl_page_progression=True here.
     elif gesture.type is 'prev-page':
-        scroll_by_page(True, opts.paged_taps_scroll_by_screen)
+        scroll_by_page(True, opts.paged_taps_scroll_by_screen, flip_if_rtl_page_progression=False)
     elif gesture.type is 'next-page':
-        scroll_by_page(False, opts.paged_taps_scroll_by_screen)
+        scroll_by_page(False, opts.paged_taps_scroll_by_screen, flip_if_rtl_page_progression=False)
 
 
 anchor_funcs = {
@@ -673,7 +676,10 @@ anchor_funcs = {
         if not elem:
             return 0
         br = elem.getBoundingClientRect()
-        x = viewport_to_document(br.left, br.top, elem.ownerDocument)[0]
+        # In RTL mode, the start of something is on the right side.
+        x = scroll_viewport.viewport_to_document(
+            br.left if scroll_viewport.ltr() else br.right,
+            br.top, elem.ownerDocument)[0]
         return column_at(x)
     ,
     'visibility': def visibility(pos):
