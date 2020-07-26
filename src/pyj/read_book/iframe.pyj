@@ -783,10 +783,8 @@ class IframeBoss:
             annot_id, intersecting_wrappers = wrap_text_in_range(data.style, None, self.add_highlight_listeners)
             removed_highlights = v'[]'
             if annot_id is not None:
-                intersecting_uuids = [annot_id_uuid_map[x] for x in intersecting_wrappers]
-                if data.existing and intersecting_uuids.indexOf(data.existing) > -1:
-                    idx = intersecting_uuids.indexOf(data.existing)
-                    intersecting_wrappers.splice(idx, 1)
+                intersecting_uuids = {annot_id_uuid_map[x]:True for x in intersecting_wrappers}
+                if data.existing and intersecting_uuids[data.existing]:
                     data.uuid = data.existing
                 elif intersecting_wrappers.length is 1 and annot_id_uuid_map[intersecting_wrappers[0]]:
                     data.uuid = annot_id_uuid_map[intersecting_wrappers[0]]
@@ -794,7 +792,7 @@ class IframeBoss:
                 removed_highlights = {}
                 for crw in intersecting_wrappers:
                     unwrap_crw(crw)
-                    if annot_id_uuid_map[crw]:
+                    if annot_id_uuid_map[crw] and annot_id_uuid_map[crw] is not data.uuid:
                         removed_highlights[annot_id_uuid_map[crw]] = True
                         v'delete annot_id_uuid_map[crw]'
                 removed_highlights = Object.keys(removed_highlights)
