@@ -21,6 +21,14 @@ def current_book():
     return current_book.book
 current_book.book = None
 
+def rtl_page_progression():
+    # Other options are "ltr" and "default." For Calibre, "default" is LTR.
+    return current_book().manifest.page_progression_direction == 'rtl'
+
+def ltr_page_progression():
+    # Only RTL and LTR are supported, so it must be LTR if not RTL.
+    return not rtl_page_progression()
+
 uid = 'calibre-' + hexlify(random_bytes(12))
 
 def viewport_mode_changer(val):

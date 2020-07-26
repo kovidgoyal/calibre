@@ -3,10 +3,10 @@
 from __python__ import bound_methods, hash_literals
 
 from dom import set_css
-from read_book.globals import current_spine_item, get_boss
+from read_book.globals import current_spine_item, get_boss, rtl_page_progression, ltr_page_progression
 from read_book.settings import opts
 from read_book.viewport import line_height, scroll_viewport
-from utils import document_height, viewport_to_document
+from utils import document_height
 
 
 def flow_to_scroll_fraction(frac, on_initial_load):
@@ -57,7 +57,7 @@ last_change_spine_item_request = {}
 
 def _check_for_scroll_end(func, obj, args, report):
     before = window.pageYOffset
-    func.apply(obj, args)
+    should_flip_progression_direction = func.apply(obj, args)
 
     now = window.performance.now()
     scroll_animator.sync(now)
@@ -68,7 +68,10 @@ def _check_for_scroll_end(func, obj, args, report):
             return False
         last_change_spine_item_request.name = csi.name
         last_change_spine_item_request.at = now
-        get_boss().send_message('next_spine_item', previous=args[0] < 0)
+        go_to_previous_page = args[0] < 0
+        if (should_flip_progression_direction):
+            go_to_previous_page = not go_to_previous_page
+        get_boss().send_message('next_spine_item', previous=go_to_previous_page)
         return False
     if report:
         report_human_scroll(window.pageYOffset - before)
@@ -88,7 +91,9 @@ def check_for_scroll_end_and_report(func):
 @check_for_scroll_end_and_report
 def scroll_by(y):
     window.scrollBy(0, y)
-
+    # This indicates to check_for_scroll_end_and_report that it should not
+    # flip the page progression direction.
+    return False
 
 def flow_onwheel(evt):
     dx = dy = 0
@@ -114,14 +119,18 @@ def flow_onwheel(evt):
 
 @check_for_scroll_end
 def goto_boundary(dir):
-    scroll_viewport.scroll_to(window.pageXOffset, 0 if dir is DIRECTION.Up else document_height())
+    scroll_viewport.scroll_to(scroll_viewport.x(), 0 if dir is DIRECTION.Up else document_height())
     get_boss().report_human_scroll()
 
 
 @check_for_scroll_end_and_report
-def scroll_by_page(direction):
+def scroll_by_page(direction, flip_if_rtl_page_progression):
     h = scroll_viewport.height() - 10
     window.scrollBy(0, h * direction)
+
+    # Let check_for_scroll_end_and_report know whether or not it should flip
+    # the progression direction.
+    return flip_if_rtl_page_progression and rtl_page_progression()
 
 def scroll_to_extend_annotation(backward, horizontal, by_page):
     direction = -1 if backward else 1
@@ -168,10 +177,10 @@ def handle_shortcut(sc_name, evt):
         goto_boundary(DIRECTION.Down)
         return True
     if sc_name is 'left':
-        window.scrollBy(-15, 0)
+        window.scrollBy(-15 if ltr_page_progression() else 15, 0)
         return True
     if sc_name is 'right':
-        window.scrollBy(15, 0)
+        window.scrollBy(15 if ltr_page_progression() else -15, 0)
         return True
     if sc_name is 'start_of_book':
         get_boss().send_message('goto_doc_boundary', start=True)
@@ -180,10 +189,10 @@ def handle_shortcut(sc_name, evt):
         get_boss().send_message('goto_doc_boundary', start=False)
         return True
     if sc_name is 'pageup':
-        scroll_by_page(-1)
+        scroll_by_page(-1, flip_if_rtl_page_progression=False)
         return True
     if sc_name is 'pagedown':
-        scroll_by_page(1)
+        scroll_by_page(1, flip_if_rtl_page_progression=False)
         return True
     if sc_name is 'toggle_autoscroll':
         toggle_autoscroll()
@@ -480,9 +489,9 @@ def handle_gesture(gesture):
         if not gesture.active and not gesture.is_held:
             flick_animator.start(gesture)
     elif gesture.type is 'prev-page':
-        scroll_by_page(-1)
+        scroll_by_page(-1, flip_if_rtl_page_progression=False)
     elif gesture.type is 'next-page':
-        scroll_by_page(1)
+        scroll_by_page(1, flip_if_rtl_page_progression=False)
 
 
 anchor_funcs = {
@@ -490,7 +499,11 @@ anchor_funcs = {
         if not elem:
             return 0, 0
         br = elem.getBoundingClientRect()
-        x, y = viewport_to_document(br.left, br.top, elem.ownerDocument)
+        # Elements start on the right side in RTL mode,
+        # so be sure to return that side if in RTL.
+        x, y = scroll_viewport.viewport_to_document(
+            br.left if scroll_viewport.ltr() else br.right,
+            br.top, elem.ownerDocument)
         return y, x
     ,
     'visibility': def visibility(pos):
