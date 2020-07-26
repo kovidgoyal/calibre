@@ -88,6 +88,13 @@ def apply_colors():
     selbg = make_selection_background_opaque(selbg)
     text += f'\n::selection {{ background-color: {selbg}; color: {selfg} }}'
     text += f'\n::selection:window-inactive {{ background-color: {selbg}; color: {selfg} }}'
+    # In Chrome when content overflows in RTL and vertical layouts on the left side,
+    # it is not displayed properly when scrolling unless overflow:visible is set,
+    # but this causes scrollbars to appear.
+    # Force disable scrollbars in Chrome, Safari, and Firefox to address this side effect.
+    text += '\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none }'
+    text += '\nhtml { scrollbar-width: none; }'
+    text += '\nbody { scrollbar-width: none; }'
 
     ss.textContent = text
 

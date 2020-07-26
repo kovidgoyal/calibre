@@ -639,6 +639,12 @@ def process_exploded_book(
     spineq = frozenset(spine)
     landmarks = [l for l in get_landmarks(container) if l['dest'] in spineq]
 
+    page_progression_direction = None
+    try:
+        page_progression_direction = container.opf_xpath('//opf:spine/@page-progression-direction')[0]
+    except IndexError:
+        pass
+
     book_render_data = {
         'version': RENDER_VERSION,
         'toc':toc,
@@ -655,6 +661,7 @@ def process_exploded_book(
         'toc_anchor_map': toc_anchor_map(toc),
         'landmarks': landmarks,
         'link_to_map': {},
+        'page_progression_direction': page_progression_direction,
     }
 
     names = sorted(
