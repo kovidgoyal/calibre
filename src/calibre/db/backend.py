@@ -1838,14 +1838,15 @@ class DB(object):
         ls = json.loads
         q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'
         data = []
-        if restrict_to_user or annotation_type:
-            q += ' WHERE '
+        restrict_clauses = []
         if restrict_to_user is not None:
             data.extend(restrict_to_user)
-            q += ' user_type = ? AND user = ?'
+            restrict_clauses.append(' user_type = ? AND user = ?')
         if annotation_type:
             data.append(annotation_type)
-            q += ' annot_type = ? '
+            restrict_clauses.append(' annot_type = ? ')
+        if restrict_clauses:
+            q += ' WHERE ' + ' AND '.join(restrict_clauses)
         q += ' ORDER BY timestamp DESC '
         count = 0
         for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
