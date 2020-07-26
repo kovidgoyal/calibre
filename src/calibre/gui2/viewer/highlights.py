@@ -116,6 +116,9 @@ class Highlights(QListWidget):
         highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
         for h in self.sorted_highlights(highlights):
             txt = h.get('highlighted_text')
+            txt = txt.replace('\n', ' ')
+            if len(txt) > 100:
+                txt = txt[:100] + '…'
             i = QListWidgetItem(txt, self)
             i.setData(Qt.UserRole, h)
             self.uuid_map[h['uuid']] = self.count() - 1
