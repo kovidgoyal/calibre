@@ -1057,16 +1057,49 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
             ans.append(current)
         return ans
 
+    def page_counts_map(iterator):
+        pagenums = []
+        for level, child in iterator:
+            pdf_loc = getattr(child, 'pdf_loc', None)
+            if pdf_loc is not None and pdf_loc.pagenum > 0:
+                pagenums.append(pdf_loc.pagenum)
+        stack = []
+        for i, pagenum in enumerate(pagenums):
+            next_page_num = pagenums[i + 1] if i + 1 < len(pagenums) else (pdf_doc.page_count() + 1)
+            stack.append((pagenum, next_page_num - pagenum))
+        totals = []
+        section_nums = []
+        stack_len = len(stack)
+        stack_pos = 0
+        current, page_for_current, counter = 0, -1, 0
+        for page in range(1, pdf_doc.page_count() + 1):
+            while stack_pos < stack_len:
+                pagenum, pages = stack[stack_pos]
+                if pagenum != page:
+                    break
+                if pagenum != page_for_current:
+                    current = pages
+                    page_for_current = pagenum
+                    counter = 0
+                stack_pos += 1
+            counter += 1
+            totals.append(current)
+            section_nums.append(counter)
+        return totals, section_nums
+
     if toc is None:
         page_toc_map = stack_to_map(())
         toplevel_toc_map = stack_to_map(())
+        toplevel_pagenum_map, toplevel_pages_map = page_counts_map(())
     else:
         page_toc_map = stack_to_map(create_toc_stack(toc.iterdescendants(level=0)))
 
         def tc():
             for x in toc:
                 yield 0, x
+
         toplevel_toc_map = stack_to_map(create_toc_stack(tc()))
+        toplevel_pagenum_map, toplevel_pages_map = page_counts_map(tc())
 
     def create_container(page_num, margins):
         style = {
@@ -1090,6 +1123,9 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
         return ans
 
     def format_template(template, page_num, height):
+        template = template.replace('_TOP_LEVEL_SECTION_PAGES_', unicode_type(toplevel_pagenum_map[page_num - 1]))
+        template = template.replace('_TOP_LEVEL_SECTION_PAGENUM_', unicode_type(toplevel_pages_map[page_num - 1]))
+        template = template.replace('_TOTAL_PAGES_', unicode_type(pages_in_doc))
         template = template.replace('_PAGENUM_', unicode_type(page_number_display_map[page_num]))
         template = template.replace('_TITLE_', prepare_string_for_xml(pdf_metadata.title, True))
         template = template.replace('_AUTHOR_', prepare_string_for_xml(pdf_metadata.author, True))
@@ -1110,7 +1146,9 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
                 child.set('style', style + '; display: none')
         return ans
 
-    for page_num in range(1, pdf_doc.page_count() + 1):
+    pages_in_doc = pdf_doc.page_count()
+
+    for page_num in range(1, pages_in_doc + 1):
         margins = page_margins_map[page_num - 1]
         div = create_container(page_num, margins)
         body.append(div)

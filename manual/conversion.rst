@@ -880,6 +880,17 @@ of 1::
         <script>document.currentScript.parentNode.querySelector("div").innerHTML = "" + (_PAGENUM_ + 3)</script>
     </footer>
 
+
+In addition there are some more variables you can use in the headers and
+footers, documented below:
+
+  * ``_TOTAL_PAGES_`` - total number of pages in the PDF file, useful for
+    implementing a progress counter, for example.
+  * ``_TOP_LEVEL_SECTION_PAGES_`` - total number of pages in the current top
+    level section
+  * ``_TOP_LEVEL_SECTION_PAGENUM_`` - the page number of the current page
+    within the current top level section
+
 .. note:: When adding headers and footers make sure you set the page top and
     bottom margins to large enough values, under the :guilabel:`PDF Output`
     section of the conversion dialog.
