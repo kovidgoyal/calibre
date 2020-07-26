@@ -2,22 +2,93 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+import codecs
+import json
 from itertools import chain
 
 from PyQt5.Qt import (
-    QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QPushButton, Qt, QTextEdit, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    QApplication, QComboBox, QDateTime, QFormLayout, QHBoxLayout, QIcon,
+    QItemSelectionModel, QKeySequence, QLabel, QListWidget, QListWidgetItem,
+    QPushButton, Qt, QTextEdit, QToolButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import plugins
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
-from calibre.gui2 import error_dialog, question_dialog
+from calibre.gui2 import choose_save_file, error_dialog, question_dialog
 from calibre.gui2.library.annotations import Details
+from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.widgets2 import Dialog
 from polyglot.builtins import range
+
+
+class Export(Dialog):
+
+    def __init__(self, highlights, parent=None):
+        self.highlights = highlights
+        super().__init__('export-highlights', _('Export {} highlights').format(len(highlights)), parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        self.export_format = ef = QComboBox(self)
+        ef.addItem(_('Plain text'), 'txt')
+        ef.addItem(_('calibre highlights'), 'calibre_highlights')
+        idx = ef.findData(vprefs['highlight_export_format'])
+        if idx > -1:
+            ef.setCurrentIndex(idx)
+        ef.currentIndexChanged.connect(self.save_format_pref)
+        l.addRow(_('Format to export in:'), ef)
+        l.addRow(self.bb)
+        self.bb.clear()
+        self.bb.addButton(self.bb.Cancel)
+        b = self.bb.addButton(_('Copy to clipboard'), self.bb.ActionRole)
+        b.clicked.connect(self.copy_to_clipboard)
+        b.setIcon(QIcon(I('edit-copy.png')))
+        b = self.bb.addButton(_('Save to file'), self.bb.ActionRole)
+        b.clicked.connect(self.save_to_file)
+        b.setIcon(QIcon(I('save.png')))
+
+    def save_format_pref(self):
+        vprefs['highlight_export_format'] = self.export_format.currentData()
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setText(self.exported_data)
+        self.accept()
+
+    def save_to_file(self):
+        filters = [(self.export_format.currentText(), self.export_format.currentData())]
+        path = choose_save_file(
+            self, 'highlights-export-save', _('File for exports'), filters=filters,
+            initial_filename=_('highlights') + '.' + filters[0][1])
+        if path:
+            data = self.exported_data.encode('utf-8')
+            with open(path, 'wb') as f:
+                f.write(codecs.BOM_UTF8)
+                f.write(data)
+            self.accept()
+
+    @property
+    def exported_data(self):
+        if self.export_format.currentData() == 'calibre_highlights':
+            return json.dumps({
+                'version': 1,
+                'type': 'calibre_highlights',
+                'highlights': self.highlights
+            }, ensure_ascii=False, sort_keys=True, indent=2)
+        lines = []
+        for hl in self.highlights:
+            lines.append(hl['highlighted_text'])
+            date = QDateTime.fromString(hl['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
+            lines.append(date)
+            notes = hl.get('notes')
+            if notes:
+                lines.append('')
+                lines.append(notes)
+            lines.append('')
+            lines.append('───')
+            lines.append('')
+        return '\n'.join(lines)
 
 
 class Highlights(QListWidget):
@@ -96,6 +167,12 @@ class Highlights(QListWidget):
         i = self.currentItem()
         if i is not None:
             return i.data(Qt.UserRole)
+
+    @property
+    def all_highlights(self):
+        for i in range(self.count()):
+            item = self.item(i)
+            yield item.data(Qt.UserRole)
 
     def keyPressEvent(self, ev):
         if ev.matches(QKeySequence.Delete):
@@ -204,6 +281,9 @@ class HighlightsPanel(QWidget):
         self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlight'), self.remove_highlight)
         h.addWidget(self.add_button), h.addWidget(self.edit_button), h.addWidget(self.remove_button)
 
+        self.export_button = button('save.png', _('Export'), _('Export all highlights'), self.export)
+        l.addWidget(self.export_button)
+
         self.notes_display = nd = NotesDisplay(self)
         nd.notes_edited.connect(self.notes_edited)
         l.addWidget(nd)
@@ -266,3 +346,9 @@ class HighlightsPanel(QWidget):
 
     def add_highlight(self):
         self.request_highlight_action.emit(None, 'create')
+
+    def export(self):
+        hl = list(self.highlights.all_highlights)
+        if not hl:
+            return error_dialog(_('No highlights'), _('This book has no highlights to export'), show=True)
+        Export(hl, self).exec_()
