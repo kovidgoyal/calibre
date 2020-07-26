@@ -24,6 +24,8 @@ class Highlights(QListWidget):
 
     jump_to_highlight = pyqtSignal(object)
     current_highlight_changed = pyqtSignal(object)
+    delete_requested = pyqtSignal()
+    edit_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
@@ -94,6 +96,17 @@ class Highlights(QListWidget):
         i = self.currentItem()
         if i is not None:
             return i.data(Qt.UserRole)
+
+    def keyPressEvent(self, ev):
+        if ev.matches(QKeySequence.Delete):
+            self.delete_requested.emit()
+            ev.accept()
+            return
+        if ev.key() == Qt.Key_F2:
+            self.edit_requested.emit()
+            ev.accept()
+            return
+        return super().keyPressEvent(ev)
 
 
 class NotesEditDialog(Dialog):
@@ -170,6 +183,8 @@ class HighlightsPanel(QWidget):
         self.highlights = h = Highlights(self)
         l.addWidget(h)
         h.jump_to_highlight.connect(self.jump_to_highlight)
+        h.delete_requested.connect(self.remove_highlight)
+        h.edit_requested.connect(self.edit_highlight)
         h.current_highlight_changed.connect(self.current_highlight_changed)
         self.load = h.load
         self.refresh = h.refresh
