@@ -16,11 +16,7 @@ from read_book.shortcuts import shortcut_for_key_event
 from widgets import create_button
 
 
-# TODO:
-# Export all annots as plain text/JSON
-
-
-class AnnotationsManager:
+class AnnotationsManager:  # {{{
 
     def __init__(self, view):
         self.view = view
@@ -131,6 +127,7 @@ class AnnotationsManager:
             if h.spine_name is name and not h.removed and h.start_cfi:
                 ans.push(h)
         return ans
+# }}}
 
 
 WAITING_FOR_CLICK = 1
@@ -365,9 +362,10 @@ class EditNotesAndColors:
             is_dark = max(rgba[0], rgba[1], rgba[2]) < 115
             fg = light_fg if is_dark else dark_fg
         return {'background-color': bg, 'color': fg}
+# }}}
 
 
-class CreateAnnotation:
+class CreateAnnotation:  # {{{
 
     container_id = 'create-annotation-overlay'
 
@@ -810,4 +808,6 @@ class CreateAnnotation:
             self.place_single_handle(h, data)
         else:
             self.place_single_handle(self.left_handle, extents.start)
-            self.place_single_handle(self.right_handle, extents.end)
+        text = self.annotations_manager.notes_for_highlight(uuid) or ''
+
+            self.view.create_annotation.edit_highlight(self.showing_uuid)

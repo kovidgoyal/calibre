@@ -327,7 +327,6 @@ class View:
     def toggle_scrollbar(self):
         sd = get_session_data()
         self.set_scrollbar_visibility(not sd.get('book_scrollbar'))
-
     def on_annotations_message(self, data):
         self.create_annotation.handle_message(data)
 

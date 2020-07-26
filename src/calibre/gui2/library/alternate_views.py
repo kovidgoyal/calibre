@@ -811,8 +811,9 @@ class GridView(QListView):
                     val = pm.scaled(1, 1).toImage().pixel(0, 0)
                     r, g, b = qRed(val), qGreen(val), qBlue(val)
         dark = max(r, g, b) < 115
-        ss += 'color: {};'.format('white' if dark else 'black')
-        self.delegate.highlight_color = QColor(Qt.white if dark else Qt.black)
+        col = '#eee' if dark else '#111'
+        ss += 'color: {};'.format(col)
+        self.delegate.highlight_color = QColor(col)
         self.setStyleSheet('QListView {{ {} }}'.format(ss))
 
     def refresh_settings(self):

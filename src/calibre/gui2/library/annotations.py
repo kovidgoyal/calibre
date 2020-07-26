@@ -494,6 +494,7 @@ class AnnotationsBrowser(Dialog):
         if self.parent() is None:
             self.exec_()
         else:
+            self.reinitialize()
             self.show()
             self.raise_()
 

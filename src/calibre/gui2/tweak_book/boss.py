@@ -1276,7 +1276,7 @@ class Boss(QObject):
             if not syntax:
                 return error_dialog(
                     self.gui, _('Unsupported file format'),
-                    _('Editing files of type %s is not supported' % mt), show=True)
+                    _('Editing files of type %s is not supported') % mt, show=True)
             editor = self.edit_file(name, syntax)
         if anchor and editor is not None:
             if editor.go_to_anchor(anchor):
@@ -1603,7 +1603,7 @@ class Boss(QObject):
         if not syntax:
             return error_dialog(
                 self.gui, _('Unsupported file format'),
-                _('Editing files of type %s is not supported' % mime), show=True)
+                _('Editing files of type %s is not supported') % mime, show=True)
         return self.edit_file(name, syntax)
 
     def edit_next_file(self, backwards=False):
