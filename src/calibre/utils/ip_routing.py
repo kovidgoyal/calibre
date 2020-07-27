@@ -30,7 +30,7 @@ if iswindows:
 
     def get_default_route_src_address_external():
         # Use -6 for IPv6 addresses
-        raw = subprocess.check_output('route -4 print 0.0.0.0'.split(), creationflags=0x08).decode('utf-8', 'replace')
+        raw = subprocess.check_output('route -4 print 0.0.0.0'.split(), creationflags=subprocess.DETACHED_PROCESS).decode('utf-8', 'replace')
         in_table = False
         default_gateway = get_address_of_default_gateway()
         for line in raw.splitlines():
