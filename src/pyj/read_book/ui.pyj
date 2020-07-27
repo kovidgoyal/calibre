@@ -77,6 +77,10 @@ class ReadUI:
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
+        ui_operations.copy_selection = def(text):
+            window.navigator.clipboard.writeText(text or '').then(def (): pass;, def():
+                error_dialog(_('Could not copy to clipboard'), _('No permission to write to clipboard'))
+            )
 
     def on_resize(self):
         self.view.on_resize()

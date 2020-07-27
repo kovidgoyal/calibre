@@ -42,8 +42,7 @@ class SelectionBar:
             ans.style.marginLeft = ans.style.marginRight = '0.5rem'
             return ans
 
-        if ui_operations.copy_selection:
-            bar.appendChild(cb('copy', _('Copy to clipboard'), self.copy_to_clipboard))
+        bar.appendChild(cb('copy', _('Copy to clipboard'), self.copy_to_clipboard))
         bar.appendChild(cb('library', _('Lookup/search selected word'), self.lookup))
         bar.appendChild(cb('highlight', _('Highlight selection'), self.create_highlight))
         bar.appendChild(cb('search', _('Search for selection on the net'), self.internet_search))
@@ -75,7 +74,7 @@ class SelectionBar:
         return self.container.style.display is not 'none'
 
     def copy_to_clipboard(self):
-        if self.view.currently_showing.selection.text and ui_operations.copy_selection:
+        if self.view.currently_showing.selection.text:
             ui_operations.copy_selection(self.view.currently_showing.selection.text)
 
     def lookup(self):
