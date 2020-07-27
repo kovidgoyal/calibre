@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon
 from read_book.globals import runtime, ui_operations
@@ -66,7 +67,8 @@ class SelectionBar:
         self.container.style.display = 'none'
 
     def show(self):
-        if not self.view.create_annotation.is_visible:
+        sd = get_session_data()
+        if not self.view.create_annotation.is_visible and sd.get('show_selection_bar'):
             self.container.style.display = 'block'
 
     @property
