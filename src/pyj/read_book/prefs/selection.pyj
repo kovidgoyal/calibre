@@ -40,8 +40,15 @@ def create_selection_panel(container, apply_func, cancel_func):
             ans.checked = True
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
+    def url(name, text, title):
+        ans = E.input(type='url', name=name, value=sd.get(name), size='50', title=title or '')
+        return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
+
     container.appendChild(cb(
         'show_selection_bar', _('Show a popup bar with common actions next to selected text')))
+    container.appendChild(url(
+        'net_search_url', _('URL to query when searching the internet'),
+    _('The {q} in the URL is replaced by the selected text')))
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 

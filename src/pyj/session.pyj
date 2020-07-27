@@ -65,6 +65,7 @@ defaults = {
     'highlight_style': None,
     'custom_highlight_colors': v'[]',
     'show_selection_bar': True,
+    'net_search_url': 'https://google.com/search?q={q}',
 }
 
 is_local_setting = {
