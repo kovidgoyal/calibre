@@ -23,13 +23,13 @@ class ScrollViewport:
         for attr in FUNCTIONS:
             self[attr] = self[prefix + attr]
 
-    def initialize_on_layout(self):
-        self.rtl = False
-        self.ltr = True
-        body_style = window.getComputedStyle(document.body)
+    def initialize_on_layout(self, body_style):
         if body_style.direction is "rtl":
             self.rtl = True
             self.ltr = False
+        else:
+            self.rtl = False
+            self.ltr = True
 
     def flow_x(self):
         if self.rtl:
