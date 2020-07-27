@@ -502,7 +502,7 @@ anchor_funcs = {
         # Elements start on the right side in RTL mode,
         # so be sure to return that side if in RTL.
         x, y = scroll_viewport.viewport_to_document(
-            br.left if scroll_viewport.ltr() else br.right,
+            br.left if scroll_viewport.ltr else br.right,
             br.top, elem.ownerDocument)
         return y, x
     ,

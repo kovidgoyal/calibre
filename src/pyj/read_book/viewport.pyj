@@ -16,6 +16,7 @@ class ScrollViewport:
         # current X position and the requested X scroll position, which fools the reader
         # code into thinking that it's always scrolling in positive X.
         self.rtl = False
+        self.ltr = True
 
     def set_mode(self, mode):
         prefix = ('flow' if mode is 'flow' else 'paged') + '_'
@@ -24,12 +25,11 @@ class ScrollViewport:
 
     def initialize_on_layout(self):
         self.rtl = False
+        self.ltr = True
         body_style = window.getComputedStyle(document.body)
         if body_style.direction is "rtl":
             self.rtl = True
-
-    def ltr(self):
-        return not self.rtl
+            self.ltr = False
 
     def flow_x(self):
         if self.rtl:

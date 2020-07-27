@@ -430,10 +430,10 @@ def scroll_to_elem(elem):
             # inaccurate results, so we prefer the bounding client rect,
             # when possible.
             # Columns start on the right side in RTL mode, so get that instead here...
-            pos = elem.scrollLeft if scroll_viewport.ltr() else elem.scrollRight
+            pos = elem.scrollLeft if scroll_viewport.ltr else elem.scrollRight
         else:
             # and here.
-            pos = br.left if scroll_viewport.ltr() else br.right
+            pos = br.left if scroll_viewport.ltr else br.right
         scroll_to_xpos(scroll_viewport.viewport_to_document(
             pos+2, elem.scrollTop, elem.ownerDocument)[0])
 
@@ -446,7 +446,7 @@ def snap_to_selection():
         node = sel.anchorNode
         # In RTL mode, the "start" of selection is on the right side.
         pos = scroll_viewport.viewport_to_document(
-            r.left if scroll_viewport.ltr() else r.right,
+            r.left if scroll_viewport.ltr else r.right,
             r.top, doc=node.ownerDocument)[0]
 
         # Ensure we are scrolled to the column containing the start of the
@@ -663,7 +663,7 @@ def handle_gesture(gesture):
         else:
             if not gesture.active or gesture.is_held:
                 scroll_by_page(gesture.direction is 'right', True, flip_if_rtl_page_progression=True)
-    # Gesture progression direction is determined in the gesture code;
+    # Gesture progression direction is determined in the gesture code,
     # don't set flip_if_rtl_page_progression=True here.
     elif gesture.type is 'prev-page':
         scroll_by_page(True, opts.paged_taps_scroll_by_screen, flip_if_rtl_page_progression=False)
@@ -678,7 +678,7 @@ anchor_funcs = {
         br = elem.getBoundingClientRect()
         # In RTL mode, the start of something is on the right side.
         x = scroll_viewport.viewport_to_document(
-            br.left if scroll_viewport.ltr() else br.right,
+            br.left if scroll_viewport.ltr else br.right,
             br.top, elem.ownerDocument)[0]
         return column_at(x)
     ,
