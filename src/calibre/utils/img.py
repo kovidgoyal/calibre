@@ -58,7 +58,7 @@ def load_jxr_data(data):
         with lopen(os.path.join(tdir, 'input.jxr'), 'wb') as f:
             f.write(data)
         cmd = [get_exe_path('JxrDecApp'), '-i', 'input.jxr', '-o', 'output.tif']
-        creationflags = 0x08 if iswindows else 0
+        creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
         subprocess.Popen(cmd, cwd=tdir, stdout=lopen(os.devnull, 'wb'), stderr=subprocess.STDOUT, creationflags=creationflags).wait()
         i = QImage()
         if not i.load(os.path.join(tdir, 'output.tif')):
@@ -544,7 +544,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             repl(True, iname), repl(False, oname)
         stdin = subprocess.PIPE if as_filter else None
         stderr = subprocess.PIPE if as_filter else subprocess.STDOUT
-        creationflags = 0x08 if iswindows else 0
+        creationflags = subprocess.DETACHED_PROCESS if iswindows else 0
         p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr, stdin=stdin, creationflags=creationflags)
         stderr = p.stderr if as_filter else p.stdout
         if as_filter:
@@ -644,7 +644,9 @@ def test():  # {{{
     despeckle_image(img)
     remove_borders_from_image(img)
     image_to_data(img, fmt='GIF')
-    raw = subprocess.Popen([get_exe_path('JxrDecApp'), '-h'], creationflags=0x08 if iswindows else 0, stdout=subprocess.PIPE).stdout.read()
+    raw = subprocess.Popen([get_exe_path('JxrDecApp'), '-h'],
+                           creationflags=subprocess.DETACHED_PROCESS if iswindows else 0,
+                           stdout=subprocess.PIPE).stdout.read()
     if b'JPEG XR Decoder Utility' not in raw:
         raise SystemExit('Failed to run JxrDecApp')
 # }}}
