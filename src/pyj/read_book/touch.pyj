@@ -248,7 +248,7 @@ class BookTouchHandler(TouchHandler):
                     if gesture.viewport_y < min(100, scroll_viewport.height() / 4):
                         gesture.type = 'show-chrome'
                     else:
-                        # Calibre's default, books that go left to right.
+                        # default, books that go left to right.
                         if ltr_page_progression():
                             if gesture.viewport_x < min(100, scroll_viewport.width() / 4):
                                 gesture.type = 'prev-page'

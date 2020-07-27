@@ -121,6 +121,7 @@ def flow_onwheel(evt):
 def goto_boundary(dir):
     scroll_viewport.scroll_to(scroll_viewport.x(), 0 if dir is DIRECTION.Up else document_height())
     get_boss().report_human_scroll()
+    return False
 
 
 @check_for_scroll_end_and_report
@@ -131,6 +132,7 @@ def scroll_by_page(direction, flip_if_rtl_page_progression):
     # Let check_for_scroll_end_and_report know whether or not it should flip
     # the progression direction.
     return flip_if_rtl_page_progression and rtl_page_progression()
+
 
 def scroll_to_extend_annotation(backward, horizontal, by_page):
     direction = -1 if backward else 1
