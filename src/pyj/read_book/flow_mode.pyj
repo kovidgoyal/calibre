@@ -207,6 +207,8 @@ def handle_shortcut(sc_name, evt):
 def layout(is_single_page):
     line_height(True)
     set_css(document.body, margin='0', border_width='0', padding='0')
+    # flow mode does not care about RTL vs LTR
+    scroll_viewport.initialize_on_layout({'direction': 'ltr'})
 
 
 def auto_scroll_resume():
