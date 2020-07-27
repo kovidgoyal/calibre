@@ -64,6 +64,7 @@ defaults = {
     'word_actions': v'[]',
     'highlight_style': None,
     'custom_highlight_colors': v'[]',
+    'show_selection_bar': True,
 }
 
 is_local_setting = {
