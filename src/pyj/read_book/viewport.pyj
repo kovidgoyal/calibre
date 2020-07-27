@@ -141,7 +141,9 @@ class IOSScrollViewport(ScrollViewport):
         self._scroll_implementation(max(0, left))
 
     def paged___reset_transforms(self):
-        document.documentElement.style.transform = 'none'
+        s = document.documentElement.style
+        if s.transform is not 'none':
+            s.transform = 'none'
 
     def paged_reset_globals(self):
         self.__reset_transforms()
