@@ -38,7 +38,10 @@ class SelectionBar:
 
         def cb(icon, tooltip, callback):
             ans = svgicon(icon, '3ex', '3ex', tooltip)
-            ans.addEventListener('click', callback)
+            ans.addEventListener('click', def(ev):
+                callback(ev)
+                self.view.focus_iframe()
+            )
             ans.classList.add('simple-link')
             ans.style.marginLeft = ans.style.marginRight = '0.5rem'
             return ans
