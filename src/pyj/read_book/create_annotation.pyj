@@ -409,8 +409,7 @@ class CreateAnnotation:  # {{{
         container.appendChild(tb)
         button('close', tb.firstChild, 'close', _('Cancel creation of highlight') + ' [Esc]', self.hide)
         button('up', tb.firstChild.nextSibling, 'chevron-up', _('Scroll up') + ' [Up]', self.button_scroll.bind(None, True))
-        if ui_operations.copy_selection:
-            button('copy', tb.lastChild, 'copy', _('Copy to clipboard'), self.copy_to_clipboard)
+        button('copy', tb.lastChild, 'copy', _('Copy to clipboard'), self.copy_to_clipboard)
         button('finish', tb.lastChild, 'check', _('Finish creation of highlight') + ' [Enter]', self.accept)
 
         middle = E.div(id=unique_id('middle'), style='display: none; text-align: center; z-index: 90000')
@@ -449,7 +448,7 @@ class CreateAnnotation:  # {{{
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
 
     def copy_to_clipboard(self):
-        self.view.iframe_wrapper.send_message('copy_selection')
+        ui_operations.copy_selection(self.view.currently_showing.selection.text or '')
 
     @property
     def middle(self):

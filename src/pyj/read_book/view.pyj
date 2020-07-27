@@ -272,8 +272,7 @@ class View:
             ,
             'annotations': self.on_annotations_message,
             'copy_text_to_clipboard': def(data):
-                if ui_operations.copy_selection:
-                    ui_operations.copy_selection(data.text)
+                ui_operations.copy_selection(data.text)
             ,
             'view_image': def(data):
                 if ui_operations.view_image:
