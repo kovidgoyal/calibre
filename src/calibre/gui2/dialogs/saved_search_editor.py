@@ -43,7 +43,7 @@ class AddSavedSearch(Dialog):
 
         self.la = la = QLabel(self.label or _(
             'You can create a <i>Saved search</i>, for frequently used searches here.'
-            ' The search will be visible under <i>Searches</i> in the Tag browser,'
+            ' The search will be visible under <i>Saved searches</i> in the Tag browser,'
             ' using the name that you specify here.'))
         la.setWordWrap(True)
         l.addRow(la)

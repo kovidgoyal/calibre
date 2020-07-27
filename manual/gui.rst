@@ -448,7 +448,9 @@ Saving searches
 
 calibre allows you to save a frequently used search under a special name and then reuse that search with a single click. To do this, create your search either by typing it in the Search bar or using the Tag browser. Then type the name you would like to give to the search in the Saved Searches box next to the Search bar. Click the plus icon next to the saved searches box to save the search.
 
-Now you can access your saved search in the Tag browser under "Searches". A single click will allow you to reuse any arbitrarily complex search easily, without needing to re-create it.
+Now you can access your saved search in the Tag browser under :guilabel:`Saved
+searches`. A single click will allow you to reuse any arbitrarily complex
+search easily, without needing to re-create it.
 
 Virtual libraries
 -------------------
