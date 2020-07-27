@@ -1,0 +1,68 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import unique_id
+from read_book.prefs.utils import create_button_box
+from session import defaults
+
+CONTAINER = unique_id('selection-settings')
+
+
+def restore_defaults():
+    container = get_container()
+    for control in container.querySelectorAll('input[name]'):
+        val = defaults[control.getAttribute('name')]
+        if control.type is 'checkbox':
+            control.checked = val
+        elif control.type is 'number':
+            control.valueAsNumber = val
+        else:
+            control.value = val
+
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def create_selection_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    sd = get_session_data()
+
+    def cb(name, text):
+        ans = E.input(type='checkbox', name=name)
+        if sd.get(name):
+            ans.checked = True
+        return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
+
+    container.appendChild(cb(
+        'show_selection_bar', _('Show a popup bar with common actions next to selected text')))
+
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+
+develop = create_selection_panel
+
+
+def commit_selection(onchange):
+    sd = get_session_data()
+    container = get_container()
+    changed = False
+    for control in container.querySelectorAll('input[name]'):
+        name = control.getAttribute('name')
+        if control.type is 'checkbox':
+            val = control.checked
+        elif control.type is 'number':
+            val = control.valueAsNumber
+        else:
+            val = control.value
+        if val is not sd.get(name) and control.validity.valid:
+            sd.set(name, val)
+            changed = True
+    if changed:
+        onchange()

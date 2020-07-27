@@ -12,6 +12,7 @@ from read_book.prefs.colors import commit_colors, create_colors_panel
 from read_book.prefs.fonts import commit_fonts, create_fonts_panel
 from read_book.prefs.head_foot import commit_head_foot, create_head_foot_panel
 from read_book.prefs.keyboard import commit_keyboard, create_keyboard_panel
+from read_book.prefs.selection import commit_selection, create_selection_panel
 from read_book.prefs.scrolling import commit_scrolling, create_scrolling_panel
 from read_book.prefs.layout import commit_layout, create_layout_panel
 from read_book.prefs.misc import commit_misc, create_misc_panel
@@ -91,6 +92,7 @@ class Prefs:
         ci(_('Styles'), 'user_stylesheet', _('Style rules for text and background image'))
         ci(_('Headers and footers'), 'head_foot', _('Customize the headers and footers'))
         ci(_('Scrolling behavior'), 'scrolling', _('Control how the viewer scrolls'))
+        ci(_('Selection behavior'), 'selection', _('Control how the viewer selects text'))
         ci(_('Keyboard shortcuts'), 'keyboard', _('Customize the keyboard shortcuts'))
         if runtime.is_standalone_viewer:
             ci(_('Fonts'), 'fonts', _('Font choices'))
@@ -144,6 +146,12 @@ class Prefs:
 
     def close_scrolling(self):
         commit_scrolling(self.onchange, self.container)
+
+    def display_selection(self, container):
+        self.create_panel(container, 'selection', create_selection_panel)
+
+    def close_selection(self):
+        commit_selection(self.onchange, self.container)
 
 
 def create_prefs_panel(container, close_func, on_change):
