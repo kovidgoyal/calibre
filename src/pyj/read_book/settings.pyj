@@ -92,9 +92,9 @@ def apply_colors():
     # it is not displayed properly when scrolling unless overflow:visible is set,
     # but this causes scrollbars to appear.
     # Force disable scrollbars in Chrome, Safari, and Firefox to address this side effect.
-    text += '\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none }'
-    text += '\nhtml { scrollbar-width: none; }'
-    text += '\nbody { scrollbar-width: none; }'
+    text += '\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'
+    # for firefox: https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width
+    text += '\nhtml, body { scrollbar-width: none !important }'
 
     ss.textContent = text
 

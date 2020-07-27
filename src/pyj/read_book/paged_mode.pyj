@@ -584,7 +584,7 @@ onwheel = wheel_handler.onwheel.bind(wheel_handler)
 
 
 def scroll_by_page(backward, by_screen, flip_if_rtl_page_progression):
-    if (flip_if_rtl_page_progression and rtl_page_progression()):
+    if flip_if_rtl_page_progression and rtl_page_progression():
         backward = not backward
 
     if by_screen:
