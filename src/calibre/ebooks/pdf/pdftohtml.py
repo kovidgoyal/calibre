@@ -22,7 +22,7 @@ PDFTOHTML = 'pdftohtml'
 
 def popen(cmd, **kw):
     if iswindows:
-        kw['creationflags'] = 0x08
+        kw['creationflags'] = subprocess.DETACHED_PROCESS
     return subprocess.Popen(cmd, **kw)
 
 
