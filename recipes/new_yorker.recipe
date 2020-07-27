@@ -72,8 +72,9 @@ class NewYorker(BasicNewsRecipe):
         soup = self.index_to_soup(
             'https://www.newyorker.com/magazine?intcid=magazine')
         # soup = self.index_to_soup('file:///t/raw.html')
-        cover_img = soup.find(
-            attrs={'class': lambda x: x and 'MagazineCover__cover___' in x})
+        cover_soup = self.index_to_soup('https://www.newyorker.com/archive')
+        cover_img = cover_soup.find(
+            attrs={'class': lambda x: x and 'MagazineSection__cover___' in x})
         if cover_img is not None:
             cover_img = cover_img.find('img')
             if cover_img is not None:
