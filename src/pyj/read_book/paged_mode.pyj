@@ -164,8 +164,8 @@ def current_page_width():
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen, number_of_cols
     line_height(True)
-    scroll_viewport.initialize_on_layout()
     body_style = window.getComputedStyle(document.body)
+    scroll_viewport.initialize_on_layout(body_style)
     first_layout = not _in_paged_mode
     cps = calc_columns_per_screen()
     if first_layout:
