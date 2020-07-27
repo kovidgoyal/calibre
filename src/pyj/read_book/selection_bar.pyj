@@ -89,7 +89,7 @@ class SelectionBar:
         text = self.view.currently_showing.selection.text
         if text:
             q = encodeURIComponent(text)
-            url = f'https://google.com/search?q={q}'
+            url = get_session_data().get('net_search_url').format(q=q)
             ui_operations.open_url(url)
 
     def clear_selection(self):
