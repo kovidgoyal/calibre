@@ -1931,7 +1931,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 while i < 100:  # try 9090 then up to 99 random port numbers
                     i += 1
                     port = self._attach_to_port(self.listen_socket,
-                                    9090 if i == 1 else random.randint(8192, 32000))
+                                    9090 if i == 1 else random.randint(8192, 65525))
                     if port != 0:
                         break
                 if port == 0:

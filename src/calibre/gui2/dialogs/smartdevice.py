@@ -57,7 +57,7 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         self.fixed_port.setToolTip('<p>' +
             _('Try 9090. If calibre says that it fails to connect '
               'to the port, try another number. You can use any number between '
-              '8,000 and 32,000.') + '</p>')
+              '8,000 and 65,535.') + '</p>')
 
         self.ip_addresses.setToolTip('<p>' +
             _('These are the IP addresses for this computer. If you decide to have your device connect to '
@@ -116,12 +116,12 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
             port = int(port)
         except:
             error_dialog(self, _('Invalid port number'),
-                _('The port must be a number between 8000 and 32000.'), show=True)
+                _('The port must be a number between 8000 and 65535.'), show=True)
             return
 
-        if port < 8000 or port > 32000:
+        if port < 8000 or port > 65535:
             error_dialog(self, _('Invalid port number'),
-                _('The port must be a number between 8000 and 32000.'), show=True)
+                _('The port must be a number between 8000 and 65535.'), show=True)
             return
 
         self.device_manager.set_option('smartdevice', 'password',
