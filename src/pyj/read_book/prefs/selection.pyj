@@ -6,11 +6,23 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
-from dom import unique_id
+from dom import clear, svgicon, unique_id
 from read_book.prefs.utils import create_button_box
+from read_book.selection_bar import all_actions
 from session import defaults
 
 CONTAINER = unique_id('selection-settings')
+
+
+def set_actions(use_defaults):
+    c = get_container()
+    adef = all_actions()
+    actions = defaults.selection_bar_actions if use_defaults else get_session_data().get('selection_bar_actions')
+    current = [x for x in actions if adef[x]]
+    c.querySelector('.current-actions').dataset.actions = JSON.stringify(current)
+    available_actions = [x for x in adef if current.indexOf(x) is -1]
+    c.querySelector('.available-actions').dataset.actions = JSON.stringify(available_actions)
+    update_action_tables()
 
 
 def restore_defaults():
@@ -23,10 +35,78 @@ def restore_defaults():
             control.valueAsNumber = val
         else:
             control.value = val
+    set_actions(True)
 
 
 def get_container():
     return document.getElementById(CONTAINER)
+
+
+def transfer(name, frm, to_):
+    c = get_container().querySelector('.' + frm)
+    actions = JSON.parse(c.dataset.actions)
+    idx = actions.indexOf(name)
+    actions.splice(idx, 1)
+    c.dataset.actions = JSON.stringify(actions)
+    c = get_container().querySelector('.' + to_)
+    actions = JSON.parse(c.dataset.actions)
+    if to_ is 'current-actions':
+        actions.unshift(name)
+    else:
+        actions.push(name)
+    c.dataset.actions = JSON.stringify(actions)
+    update_action_tables()
+
+
+def add_action(name):
+    transfer(name, 'available-actions', 'current-actions')
+
+
+def remove_action(name):
+    transfer(name, 'current-actions', 'available-actions')
+
+
+def move_action(name, up):
+    c = get_container().querySelector('.current-actions')
+    actions = JSON.parse(c.dataset.actions)
+    idx = actions.indexOf(name)
+    delta = -1 if up else 1
+    new_idx = (idx + delta + len(actions)) % len(actions)
+    a, b = actions[idx], actions[new_idx]
+    actions[new_idx], actions[idx] = a, b
+    c.dataset.actions = JSON.stringify(actions)
+    update_action_tables()
+
+
+def build_action_table(container, is_current):
+    clear(container)
+    adef = all_actions()
+    table = E.table(style='margin-left: 2rem')
+    container.appendChild(table)
+    for action_name in JSON.parse(container.dataset.actions):
+        ac = adef[action_name]
+        if is_current:
+            buttons = E.td(
+                E.span(_('Remove'), class_='simple-link', onclick=remove_action.bind(None, action_name)),
+                E.span('\xa0', style='min-width: 2rem; display: inline-block'),
+                E.span(_('Up'), class_='simple-link', onclick=move_action.bind(None, action_name, True)),
+                E.span('\xa0', style='min-width: 2rem; display: inline-block'),
+                E.span(_('Down'), class_='simple-link', onclick=move_action.bind(None, action_name, False)),
+            )
+        else:
+            buttons = E.td(
+                E.span(_('Add'), class_='simple-link', onclick=add_action.bind(None, action_name)),
+            )
+        buttons.style.paddingLeft = '2rem'
+        table.appendChild(E.tr(E.td(style='padding: 1ex', svgicon(ac.icon)), E.td(ac.text), buttons))
+
+
+def update_action_tables():
+    c = get_container()
+    current = c.querySelector('.current-actions')
+    build_action_table(current, True)
+    current = c.querySelector('.available-actions')
+    build_action_table(current, False)
 
 
 def create_selection_panel(container, apply_func, cancel_func):
@@ -54,6 +134,13 @@ def create_selection_panel(container, apply_func, cancel_func):
         style='margin-top: 2ex; border-top: solid 1px; padding-top: 1ex;',
         _('Customize which actions are shown in the selection popup bar')
     ))
+    container.appendChild(E.div(style='padding: 1ex; border-bottom: solid 1px; margin-bottom: 1ex',
+        E.h3(_('Current actions')),
+        E.div(class_='current-actions'),
+        E.h3(_('Available actions')),
+        E.div(class_='available-actions')
+    ))
+    set_actions()
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 
@@ -76,5 +163,9 @@ def commit_selection(onchange):
         if val is not sd.get(name) and control.validity.valid:
             sd.set(name, val)
             changed = True
+    actions = JSON.parse(container.querySelector('.current-actions').dataset.actions)
+    if list(actions) != list(sd.get('selection_bar_actions')):
+        changed = True
+        sd.set('selection_bar_actions', actions)
     if changed:
         onchange()
