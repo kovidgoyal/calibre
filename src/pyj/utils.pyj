@@ -13,6 +13,12 @@ if !is_ios and window.navigator.platform is 'MacIntel' and window.navigator.maxT
     is_ios = True
 
 
+def default_context_menu_should_be_allowed(evt):
+    if evt.target and evt.target.tagName and evt.target.tagName.toLowerCase() in ('input', 'textarea'):
+        return True
+    return False
+
+
 def debounce(func, wait, immediate=False):
     # Returns a function, that, as long as it continues to be invoked, will not
     # be triggered. The function will be called after it stops being called for

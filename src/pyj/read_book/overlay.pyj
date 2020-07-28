@@ -21,7 +21,8 @@ from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
 from session import get_device_uuid
 from utils import (
-    full_screen_element, full_screen_supported, is_ios, safe_set_inner_html
+    default_context_menu_should_be_allowed, full_screen_element,
+    full_screen_supported, is_ios, safe_set_inner_html
 )
 from widgets import create_button, create_spinner
 
@@ -537,7 +538,7 @@ class Overlay:
         self.panels = []
 
     def oncontextmenu(self, evt):
-        if evt.target and evt.target.tagName and evt.target.tagName.toLowerCase() in ('input', 'textarea'):
+        if default_context_menu_should_be_allowed(evt):
             return
         evt.preventDefault()
         self.handling_context_menu_event = evt
