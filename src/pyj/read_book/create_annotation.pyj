@@ -540,7 +540,10 @@ class CreateAnnotation:  # {{{
 
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
-        self.hide_middle()
+        if self.middle.style.display is not 'none':
+            self.hide_middle()
+            self.accept()
+            return
         if self.state is WAITING_FOR_CLICK:
             pt = map_to_iframe_coords({'x': ev.clientX, 'y': ev.clientY})
             self.send_message('position-handles-at-point', x=pt.x, y=pt.y)
