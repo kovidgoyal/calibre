@@ -171,7 +171,7 @@ class SelectionBar:
         container = self.container
         clear(container)
         cs = self.view.currently_showing.selection
-        if not cs or cs.empty:
+        if not cs or cs.empty or jstype(cs.drag_mouse_position.x) is 'number':
             return self.hide()
 
         if not cs.start.onscreen and not cs.end.onscreen:

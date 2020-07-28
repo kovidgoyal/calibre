@@ -583,6 +583,8 @@ class IframeBoss:
     def onmouseup(self, evt):
         cancel_drag_scroll()
         drag_mouse_position.x = drag_mouse_position.y = None
+        # ensure selection bar is updated
+        self.onselectionchange()
 
     def onkeydown(self, evt):
         if current_layout_mode() is not 'flow' and evt.key is 'Tab':
