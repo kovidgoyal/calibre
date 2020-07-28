@@ -2,12 +2,15 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Eli Schwartz <eschwartz@archlinux.org>
 
-import os, shutil
-from io import BytesIO
+import os
+import shutil
 import tarfile
-
+import time
+from io import BytesIO
 
 from setup import Command, download_securely
+
+is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 class ReVendor(Command):
@@ -25,7 +28,14 @@ class ReVendor(Command):
 
     def download_vendor_release(self, tdir, url):
         self.info('Downloading %s:' % self.TAR_NAME, url)
-        raw = download_securely(url)
+        try:
+            raw = download_securely(url)
+        except Exception:
+            if not is_ci:
+                raise
+            self.info('Download failed, sleeping and retrying...')
+            time.sleep(2)
+            raw = download_securely(url)
         with tarfile.open(fileobj=BytesIO(raw)) as tf:
             tf.extractall(tdir)
             if len(os.listdir(tdir)) == 1:
