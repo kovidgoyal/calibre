@@ -517,6 +517,15 @@ class CreateAnnotation:  # {{{
         )
         self.hide()
 
+    def quick_create(self):
+        s = self.current_highlight_style
+        style = ''
+        for k in Object.keys(self.current_highlight_style):
+            style += f'{k}: {s[k]}; '
+        self.send_message(
+            'apply-highlight', style=style, uuid=short_uuid()
+        )
+
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
         if ev.key is 'Enter':
