@@ -19,7 +19,9 @@ def all_actions():
         all_actions.ans = {
             'copy': a('copy', _('Copy to clipboard'), 'copy_to_clipboard'),
             'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
-            'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
+            'quick_highlight': a('highlight', _('Quick highlight in current style'), 'quick_highlight'),
+            'highlight': a('highlight', _('Highlight selection in notes mode'), 'create_highlight'),
+            'selection': a('arrows-h', _('Highlight adjusting selection'), 'adjust_selection'),
             'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('eraser', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
@@ -118,6 +120,17 @@ class SelectionBar:
 
     def create_highlight(self):
         self.view.initiate_create_annotation(True)
+
+    def adjust_selection(self):
+        self.view.initiate_create_annotation(False)
+
+    def quick_highlight(self):
+        cs = self.view.currently_showing.selection
+        if cs.text:
+            if cs.annot_id:
+                self.view.initiate_create_annotation(True)
+            else:
+                self.view.create_annotation.quick_create()
 
     def remove_highlight(self):
         annot_id = self.view.currently_showing.selection.annot_id
