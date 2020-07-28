@@ -339,9 +339,9 @@ def add_html_context(app, pagename, templatename, context, *args):
 
 
 def guilabel_role(typ, rawtext, text, *args, **kwargs):
-    from sphinx.roles import menusel_role
+    from sphinx.roles import GUILabel
     text = text.replace(u'->', u'\N{THIN SPACE}\N{RIGHTWARDS ARROW}\N{THIN SPACE}')
-    return menusel_role(typ, rawtext, text, *args, **kwargs)
+    return GUILabel()(typ, rawtext, text, *args, **kwargs)
 
 
 def setup_man_pages(app):
