@@ -11,6 +11,21 @@ from dom import clear, svgicon
 from read_book.globals import runtime, ui_operations
 
 
+def all_actions():
+    def a(icon, text, func):
+        return {'icon': icon, 'text': text, 'function_name': func}
+
+    if not all_actions.ans:
+        all_actions.ans = {
+            'copy': a('copy', _('Copy to clipboard'), 'copy_to_clipboard'),
+            'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
+            'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
+            'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
+            'clear': a('close', _('Clear selection'), 'clear_selection'),
+        }
+    return all_actions.ans
+
+
 class SelectionBar:
 
     def __init__(self, view):
@@ -46,11 +61,12 @@ class SelectionBar:
             ans.style.marginLeft = ans.style.marginRight = '0.5rem'
             return ans
 
-        bar.appendChild(cb('copy', _('Copy to clipboard'), self.copy_to_clipboard))
-        bar.appendChild(cb('library', _('Lookup/search selected word'), self.lookup))
-        bar.appendChild(cb('highlight', _('Highlight selection'), self.create_highlight))
-        bar.appendChild(cb('search', _('Search for selection on the net'), self.internet_search))
-        bar.appendChild(cb('close', _('Clear the selection'), self.clear_selection))
+        actions = all_actions()
+        sd = get_session_data()
+        for acname in sd.get('selection_bar_actions'):
+            ac = actions[acname]
+            if ac:
+                bar.appendChild(cb(ac.icon, ac.text, self[ac.function_name]))
         self.show_notes(bar_container, notes)
         return bar_container
 
