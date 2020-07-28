@@ -12,8 +12,8 @@ from read_book.globals import runtime, ui_operations
 
 
 def all_actions():
-    def a(icon, text, func):
-        return {'icon': icon, 'text': text, 'function_name': func}
+    def a(icon, text, func, needs_highlight):
+        return {'icon': icon, 'text': text, 'function_name': func, 'needs_highlight': v'!!needs_highlight'}
 
     if not all_actions.ans:
         all_actions.ans = {
@@ -21,6 +21,7 @@ def all_actions():
             'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
             'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
             'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
+            'remove_highlight': a('eraser', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
         }
     return all_actions.ans
@@ -31,7 +32,8 @@ class SelectionBar:
     def __init__(self, view):
         self.view = view
 
-    def build_bar(self, notes):
+    def build_bar(self, annot_id):
+        notes = self.view.annotations_manager.notes_for_highlight(annot_id)
         c = self.container
         max_width = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
         bar_container = E.div(
@@ -65,7 +67,7 @@ class SelectionBar:
         sd = get_session_data()
         for acname in sd.get('selection_bar_actions'):
             ac = actions[acname]
-            if ac:
+            if ac and (not ac.needs_highlight or v'!!annot_id'):
                 bar.appendChild(cb(ac.icon, ac.text, self[ac.function_name]))
         self.show_notes(bar_container, notes)
         return bar_container
@@ -117,6 +119,11 @@ class SelectionBar:
     def create_highlight(self):
         self.view.initiate_create_annotation(True)
 
+    def remove_highlight(self):
+        annot_id = self.view.currently_showing.selection.annot_id
+        if annot_id:
+            self.view.create_annotation.remove_highlight(annot_id)
+
     def show_notes(self, bar, notes):
         notes = (notes or "").strip()
         if not notes:
@@ -167,7 +174,7 @@ class SelectionBar:
         def map_boundary(x):
             return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
-        bar = self.build_bar(self.view.annotations_manager.notes_for_highlight(cs.annot_id))
+        bar = self.build_bar(cs.annot_id)
         start = map_boundary(cs.start)
         end = map_boundary(cs.end)
         self.show()
