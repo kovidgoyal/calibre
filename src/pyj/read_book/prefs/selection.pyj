@@ -41,7 +41,7 @@ def create_selection_panel(container, apply_func, cancel_func):
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
     def url(name, text, title):
-        ans = E.input(type='url', name=name, value=sd.get(name), size='50', title=title or '')
+        ans = E.input(type='url', name=name, value=sd.get(name), size='50', title=title or '', style='margin-top: 1ex')
         return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
 
     container.appendChild(cb(
@@ -49,6 +49,11 @@ def create_selection_panel(container, apply_func, cancel_func):
     container.appendChild(url(
         'net_search_url', _('URL to query when searching the internet'),
     _('The {q} in the URL is replaced by the selected text')))
+
+    container.appendChild(E.div(
+        style='margin-top: 2ex; border-top: solid 1px; padding-top: 1ex;',
+        _('Customize which actions are shown in the selection popup bar')
+    ))
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 
