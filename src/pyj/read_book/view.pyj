@@ -15,7 +15,8 @@ from modals import error_dialog, warning_dialog
 from read_book.content_popup import ContentPopupOverlay
 from read_book.create_annotation import AnnotationsManager, CreateAnnotation
 from read_book.globals import (
-    current_book, runtime, set_current_spine_item, ui_operations, rtl_page_progression
+    current_book, rtl_page_progression, runtime, set_current_spine_item,
+    ui_operations
 )
 from read_book.goto import get_next_section
 from read_book.open_book import add_book_to_recently_viewed
@@ -37,7 +38,8 @@ from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from session import get_device_uuid, get_interface_data
 from utils import (
-    html_escape, is_ios, parse_url_params, safe_set_inner_html, username_key
+    default_context_menu_should_be_allowed, html_escape, is_ios, parse_url_params,
+    safe_set_inner_html, username_key
 )
 from viewer.constants import READER_BACKGROUND_URL
 
@@ -221,7 +223,8 @@ class View:
         container.appendChild(
             E.div(style='max-height: 100vh; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                 oncontextmenu=def (ev):
-                    ev.preventDefault()
+                    if not default_context_menu_should_be_allowed(ev):
+                        ev.preventDefault()
                 ,
 
                 E.div(style='max-height: 100vh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
