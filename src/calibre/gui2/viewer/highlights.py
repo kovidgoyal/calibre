@@ -100,6 +100,7 @@ class Highlights(QListWidget):
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
+        self.setSelectionMode(self.ExtendedSelection)
         self.setSpacing(2)
         pi = plugins['progress_indicator'][0]
         pi.set_no_activate_on_click(self)
@@ -175,6 +176,11 @@ class Highlights(QListWidget):
     def all_highlights(self):
         for i in range(self.count()):
             item = self.item(i)
+            yield item.data(Qt.UserRole)
+
+    @property
+    def selected_highlights(self):
+        for item in self.selectedItems():
             yield item.data(Qt.UserRole)
 
     def keyPressEvent(self, ev):
@@ -281,7 +287,7 @@ class HighlightsPanel(QWidget):
 
         self.add_button = button('plus.png', _('Add'), _('Create a new highlight'), self.add_highlight)
         self.edit_button = button('edit_input.png', _('Edit'), _('Edit the selected highlight'), self.edit_highlight)
-        self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlight'), self.remove_highlight)
+        self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlights'), self.remove_highlight)
         h.addWidget(self.add_button), h.addWidget(self.edit_button), h.addWidget(self.remove_button)
 
         self.export_button = button('save.png', _('Export'), _('Export all highlights'), self.export)
@@ -339,13 +345,16 @@ class HighlightsPanel(QWidget):
         self.request_highlight_action.emit(h['uuid'], 'edit')
 
     def remove_highlight(self):
-        h = self.highlights.current_highlight
-        if h is None:
+        highlights = tuple(self.highlights.selected_highlights)
+        if not highlights:
             return self.no_selected_highlight()
-        if question_dialog(self, _('Are you sure?'), _(
-            'Are you sure you want to delete this highlight permanently?')
+        if question_dialog(self, _('Are you sure?'), ngettext(
+            'Are you sure you want to delete this highlight permanently?',
+            'Are you sure you want to delete all {} highlights permanently?',
+            len(highlights)).format(len(highlights))
         ):
-            self.request_highlight_action.emit(h['uuid'], 'delete')
+            for h in highlights:
+                self.request_highlight_action.emit(h['uuid'], 'delete')
 
     def add_highlight(self):
         self.request_highlight_action.emit(None, 'create')
