@@ -19,8 +19,6 @@ from polyglot.builtins import itervalues, unicode_type
 class Tool(object):
 
     '''
-    .. module:: calibre.gui2.tweak_book.plugin.Tool
-
     The base class for individual tools in an Edit Book plugin. Useful members include:
 
         * ``self.plugin``: A reference to the :class:`calibre.customize.Plugin` object to which this tool belongs.
