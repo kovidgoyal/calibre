@@ -269,8 +269,8 @@ def create_profile():
                         document.body.style.color = dark_fg;
                     }
                 }
-                apply_css();
                 apply_dark_mode();
+                document.addEventListener("DOMContentLoaded", apply_css);
                 document.addEventListener("DOMContentLoaded", apply_dark_mode);
             } })();
             ''' % (
