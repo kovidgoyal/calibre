@@ -11,8 +11,8 @@ from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QByteArray, QHBoxLayout, QIcon, QMenu, QSize, QTimer, QToolBar,
-    QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize, QSizePolicy,
+    QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -467,6 +467,8 @@ class Preview(QWidget):
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
+        self.stack = QStackedLayout(l)
+        self.stack.setStackingMode(self.stack.StackAll)
         self.current_sync_retry_count = 0
         self.view = WebView(self)
         self.view._page.bridge.request_sync.connect(self.request_sync)
@@ -478,7 +480,14 @@ class Preview(QWidget):
         self.view.render_process_restarted.connect(self.render_process_restarted)
         self.pending_go_to_anchor = None
         self.inspector = self.view.inspector
-        l.addWidget(self.view)
+        self.stack.addWidget(self.view)
+        self.cover = c = QLabel(_('Loading preview, please wait...'))
+        c.setWordWrap(True)
+        c.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        c.setStyleSheet('QLabel { background-color: palette(window); }')
+        c.setAlignment(Qt.AlignCenter)
+        self.stack.addWidget(self.cover)
+        self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
         self.bar = QToolBar(self)
         l.addWidget(self.bar)
 
@@ -681,12 +690,13 @@ class Preview(QWidget):
         actions['split-in-preview'].setChecked(False)
 
     def load_started(self):
-        pass
+        self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
 
     def on_bridge_ready(self):
-        pass
+        self.stack.setCurrentIndex(self.stack.indexOf(self.view))
 
     def load_finished(self, ok):
+        self.stack.setCurrentIndex(self.stack.indexOf(self.view))
         if self.pending_go_to_anchor:
             self.view._page.go_to_anchor(self.pending_go_to_anchor)
             self.pending_go_to_anchor = None
