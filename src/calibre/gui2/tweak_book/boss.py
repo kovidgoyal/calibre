@@ -1493,19 +1493,29 @@ class Boss(QObject):
         finally:
             self.ignore_preview_to_editor_sync = False
 
-    def sync_preview_to_editor(self):
-        ' Sync the position of the preview panel to the current cursor position in the current editor '
+    def do_sync_preview_to_editor(self, wait_for_highlight_to_finish=False):
         if self.ignore_preview_to_editor_sync:
             return
         ed = self.gui.central.current_editor
         if ed is not None:
             name = editor_name(ed)
             if name is not None and getattr(ed, 'syntax', None) == 'html':
+                hl = getattr(ed, 'highlighter', None)
+                if wait_for_highlight_to_finish:
+                    if getattr(hl, 'is_working', False):
+                        QTimer.singleShot(75, self.sync_preview_to_editor_on_highlight_finish)
+                        return
                 ct = ed.current_tag()
                 self.gui.preview.sync_to_editor(name, ct)
-                hl = getattr(ed, 'highlighter', None)
                 if hl is not None and hl.is_working:
-                    QTimer.singleShot(75, self.sync_preview_to_editor)
+                    QTimer.singleShot(75, self.sync_preview_to_editor_on_highlight_finish)
+
+    def sync_preview_to_editor(self):
+        ' Sync the position of the preview panel to the current cursor position in the current editor '
+        self.do_sync_preview_to_editor()
+
+    def sync_preview_to_editor_on_highlight_finish(self):
+        self.do_sync_preview_to_editor(wait_for_highlight_to_finish=True)
 
     def show_partial_cfi_in_editor(self, name, cfi):
         editor = self.edit_file(name, 'html')
