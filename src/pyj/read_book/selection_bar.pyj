@@ -10,22 +10,45 @@ from book_list.theme import get_color
 from dom import clear, svgicon
 from read_book.globals import runtime, ui_operations
 
+ICON_SIZE = '3ex'
+
+
+def quick_highlight_icon(name, tooltip, hcolor):
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('style', f'fill: currentColor; height: 2ex; width: 2ex; vertical-align: text-top; margin: 0')
+    u = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+    svg.appendChild(u)
+    svg.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + name)
+    ans = E.div(
+        style=f'width: {ICON_SIZE}; height: {ICON_SIZE}; display: flex; flex-direction: column',
+        title=tooltip or '',
+        svg,
+        E.div(style=f'width: {ICON_SIZE}; height: 1ex; background-color: {hcolor}; color: {hcolor}; margin: 0', '.')
+    )
+    return ans
+
 
 def all_actions():
     def a(icon, text, func, needs_highlight):
-        return {'icon': icon, 'text': text, 'function_name': func, 'needs_highlight': v'!!needs_highlight'}
+        return {
+            'icon': icon, 'text': text, 'function_name': func, 'needs_highlight': v'!!needs_highlight',
+            'icon_function': def (hcolor):
+                return svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+    }
 
     if not all_actions.ans:
         all_actions.ans = {
             'copy': a('copy', _('Copy to clipboard'), 'copy_to_clipboard'),
             'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
-            'quick_highlight': a('highlight', _('Quick highlight in current style'), 'quick_highlight'),
+            'quick_highlight': a('highlight', _('Quick highlight in current color'), 'quick_highlight'),
             'highlight': a('highlight', _('Highlight selection in notes mode'), 'create_highlight'),
             'selection': a('arrows-h', _('Highlight adjusting selection'), 'adjust_selection'),
             'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
         }
+        qh = all_actions.ans.quick_highlight
+        qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
     return all_actions.ans
 
 
@@ -54,9 +77,10 @@ class SelectionBar:
         )
         bar = bar_container.firstChild
         c.appendChild(bar_container)
+        bg = self.view.create_annotation.current_highlight_style['background-color']
 
-        def cb(icon, tooltip, callback):
-            ans = svgicon(icon, '3ex', '3ex', tooltip)
+        def cb(ac, callback):
+            ans = ac.icon_function(bg)
             ans.addEventListener('click', def(ev):
                 callback(ev)
                 self.view.focus_iframe()
@@ -70,7 +94,7 @@ class SelectionBar:
         for acname in sd.get('selection_bar_actions'):
             ac = actions[acname]
             if ac and (not ac.needs_highlight or v'!!annot_id'):
-                bar.appendChild(cb(ac.icon, ac.text, self[ac.function_name]))
+                bar.appendChild(cb(ac, self[ac.function_name]))
         self.show_notes(bar_container, notes)
         return bar_container
 
