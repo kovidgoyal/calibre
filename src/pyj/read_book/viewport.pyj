@@ -79,14 +79,14 @@ class ScrollViewport:
         # document (body) co-ordinate system
         doc = doc or window.document
         topdoc = window.document
-        while doc is not topdoc:
+        while doc is not topdoc and doc.defaultView:
             # We are in a frame
             frame = doc.defaultView.frameElement
             rect = frame.getBoundingClientRect()
             x += rect.left
             y += rect.top
             doc = frame.ownerDocument
-        win = doc.defaultView
+        win = doc.defaultView or window
         wx, wy = win.pageXOffset, win.pageYOffset
         x += wx
         y += wy
