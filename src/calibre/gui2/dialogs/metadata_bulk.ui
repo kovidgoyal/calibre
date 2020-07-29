@@ -19,16 +19,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
-    <widget class="QLabel" name="box_title">
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QTabWidget" name="central_widget">
      <property name="currentIndex">
       <number>0</number>
@@ -49,7 +39,7 @@
          <x>0</x>
          <y>0</y>
          <width>935</width>
-         <height>639</height>
+         <height>660</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -705,8 +695,8 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>935</width>
-         <height>639</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
       </widget>
@@ -726,7 +716,7 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>777</width>
+         <width>804</width>
          <height>388</height>
         </rect>
        </property>

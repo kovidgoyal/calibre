@@ -482,9 +482,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.ids = [self.db.id(r) for r in rows]
         self.first_title = self.db.title(self.ids[0], index_is_id=True)
         self.cover_clone.setToolTip(unicode_type(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
-        self.box_title.setText('<p>' +
-                _('Editing meta information for <b>%d books</b>') %
-                len(rows))
+        self.setWindowTitle(ngettext(
+            'Editing metadata for one book',
+            'Editing metadata for {} books', len(rows)).format(len(rows)))
         self.write_series = False
         self.changed = False
         self.refresh_books = refresh_books
