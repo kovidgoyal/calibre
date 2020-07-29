@@ -23,7 +23,7 @@ def all_actions():
             'highlight': a('highlight', _('Highlight selection in notes mode'), 'create_highlight'),
             'selection': a('arrows-h', _('Highlight adjusting selection'), 'adjust_selection'),
             'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
-            'remove_highlight': a('eraser', _('Remove this highlight'), 'remove_highlight', True),
+            'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
         }
     return all_actions.ans
