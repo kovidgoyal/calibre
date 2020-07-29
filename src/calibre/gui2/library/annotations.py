@@ -304,7 +304,6 @@ class BrowsePanel(QWidget):
                     highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
                     ignore_removed=True, **q
                 )
-
             self.results_list.set_results(results, bool(q['fts_engine_query']))
             self.current_query = q
 
@@ -489,14 +488,13 @@ class AnnotationsBrowser(Dialog):
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
 
     def show_dialog(self):
-        if self.browse_panel.current_query is None:
-            QTimer.singleShot(80, self.browse_panel.effective_query_changed)
         if self.parent() is None:
             self.exec_()
         else:
             self.reinitialize()
             self.show()
             self.raise_()
+            QTimer.singleShot(80, self.browse_panel.effective_query_changed)
 
     def reinitialize(self):
         self.browse_panel.re_initialize()
