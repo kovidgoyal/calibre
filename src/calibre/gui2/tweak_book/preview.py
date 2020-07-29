@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import json
 import textwrap
 import time
 from collections import defaultdict
@@ -24,7 +25,8 @@ from calibre.constants import (
 )
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.gui2 import NO_URL_FORMATTING, error_dialog, open_url
+from calibre.gui2 import NO_URL_FORMATTING, error_dialog, is_dark_theme, open_url
+from calibre.gui2.palette import dark_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
 from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
@@ -243,10 +245,37 @@ def create_profile():
             compile_editor()
         js = P('editor.js', data=True, allow_user_override=False)
         cparser = P('csscolorparser.js', data=True, allow_user_override=False)
+        dark_mode_css = P('dark_mode.css', data=True, allow_user_override=False).decode('utf-8')
 
         insert_scripts(ans,
             create_script('csscolorparser.js', cparser),
             create_script('editor.js', js),
+            create_script('dark-mode.js', '''
+            (function() {if (%s) {
+                var dark_bg = "%s", dark_fg = "%s", css = %s;
+                function apply_css() {
+                    var style = document.createElement('style');
+                    style.textContent = css;
+                    document.documentElement.appendChild(style);
+                }
+
+                function apply_dark_mode(event) {
+                    if (document.documentElement) {
+                        document.documentElement.style.backgroundColor = dark_bg;
+                        document.documentElement.style.color = dark_fg;
+                    }
+                    if (document.body) {
+                        document.body.style.backgroundColor = dark_bg;
+                        document.body.style.color = dark_fg;
+                    }
+                }
+                apply_css();
+                apply_dark_mode();
+                document.addEventListener("DOMContentLoaded", apply_dark_mode);
+            } })();
+            ''' % (
+            'true' if is_dark_theme() else 'false', dark_color.name(), dark_text_color.name(), json.dumps(dark_mode_css)),
+            injection_point=QWebEngineScript.DocumentCreation)
         )
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
@@ -443,7 +472,9 @@ class Preview(QWidget):
         self.view._page.bridge.request_sync.connect(self.request_sync)
         self.view._page.bridge.request_split.connect(self.request_split)
         self.view._page.bridge.live_css_data.connect(self.live_css_data)
+        self.view._page.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.view._page.loadFinished.connect(self.load_finished)
+        self.view._page.loadStarted.connect(self.load_started)
         self.view.render_process_restarted.connect(self.render_process_restarted)
         self.pending_go_to_anchor = None
         self.inspector = self.view.inspector
@@ -648,6 +679,12 @@ class Preview(QWidget):
 
     def stop_split(self):
         actions['split-in-preview'].setChecked(False)
+
+    def load_started(self):
+        pass
+
+    def on_bridge_ready(self):
+        pass
 
     def load_finished(self, ok):
         if self.pending_go_to_anchor:
