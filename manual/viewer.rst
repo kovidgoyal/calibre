@@ -116,6 +116,12 @@ You can browse *all highlights* in your entire calibre library by going to
 :guilabel:`Preferences->Toolbars` in calibre and adding the :guilabel:`Browse
 annotations` tool to the toolbar.
 
+Finally, if you use the calibre Content server's in browser viewer, you can
+have the viewer sync its annotations with the browser viewer by going to
+:guilabel:`Preferences->Miscellaneous` in the viewer preferences and entering
+the username of the Content server viewer to sync with. Use the special value
+``*`` to sync with anonymous users.
+
 
 Customizing the look and feel of your reading experience
 ------------------------------------------------------------
