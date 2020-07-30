@@ -49,6 +49,8 @@ def change_font_size_by(frac):
     sd = get_session_data()
     sz = sd.get('base_font_size')
     amt = sz * frac
+    if abs(amt) < 1:
+        amt = -1 if amt < 0 else 1
     nsz = int(sz + amt)
     nsz = max(MIN_FONT_SIZE, min(nsz, MAX_FONT_SIZE))
     change_font_size(nsz)
