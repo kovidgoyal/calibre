@@ -453,7 +453,7 @@ class Styles(object):
         ef = self.fonts.embed_fonts(dest_dir, docx)
 
         s = '''\
-            body { font-family: %s; font-size: %s; color: %s }
+            body { font-family: %s; font-size: %s; %s }
 
             /* In word all paragraphs have zero margins unless explicitly specified in a style */
             p, h1, h2, h3, h4, h5, h6, div { margin: 0; padding: 0 }
@@ -496,7 +496,10 @@ class Styles(object):
                sub { vertical-align: bottom }
                '''
 
-        prefix = textwrap.dedent(s) % (self.body_font_family, self.body_font_size, self.body_color)
+        body_color = ''
+        if self.body_color.lower() not in ('currentcolor', 'inherit'):
+            body_color = 'color: {};'.format(self.body_color)
+        prefix = textwrap.dedent(s) % (self.body_font_family, self.body_font_size, body_color)
         if ef:
             prefix = ef + '\n' + prefix
 
