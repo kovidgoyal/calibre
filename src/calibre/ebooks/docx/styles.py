@@ -333,7 +333,7 @@ class Styles(object):
     def cascade(self, layers):
         self.body_font_family = 'serif'
         self.body_font_size = '10pt'
-        self.body_color = 'black'
+        self.body_color = 'currentColor'
 
         def promote_property(char_styles, block_style, prop):
             vals = {getattr(s, prop) for s in char_styles}
@@ -359,10 +359,12 @@ class Styles(object):
                     # The default text decoration is 'none'
                     s.text_decoration = inherit
 
-        def promote_most_common(block_styles, prop, default):
+        def promote_most_common(block_styles, prop, default, inherit_means=None):
             c = Counter()
             for s in block_styles:
                 val = getattr(s, prop)
+                if val is inherit and inherit_means is not None:
+                    val = inherit_means
                 if val is not inherit:
                     c[val] += 1
             val = None
@@ -370,6 +372,8 @@ class Styles(object):
                 val = c.most_common(1)[0][0]
                 for s in block_styles:
                     oval = getattr(s, prop)
+                    if oval is inherit and inherit_means is not None:
+                        oval = inherit_means
                     if oval is inherit:
                         if default != val:
                             setattr(s, prop, default)
@@ -387,7 +391,7 @@ class Styles(object):
         if fs is not None:
             self.body_font_size = '%.3gpt' % fs
 
-        color = promote_most_common(block_styles, 'color', self.body_color)
+        color = promote_most_common(block_styles, 'color', self.body_color, inherit_means='currentColor')
         if color is not None:
             self.body_color = color
 

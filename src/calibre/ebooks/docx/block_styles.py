@@ -46,7 +46,7 @@ def binary_property(parent, name, XPath, get):
     return True if val in {'on', '1', 'true'} else False
 
 
-def simple_color(col, auto='black'):
+def simple_color(col, auto='currentColor'):
     if not col or col == 'auto' or len(col) != 6:
         return auto
     return '#'+col
