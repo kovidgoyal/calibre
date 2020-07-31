@@ -23,9 +23,9 @@ jobs:
               run:
                   python setup/unix-ci.py install
 
-            - name: Install transifex client
+            - name: Install translations dependencies
               run:
-                python -m pip install transifex-client
+                python -m pip install -U transifex-client sphinx
 
             - name: Bootstrap calibre
               run: python setup/unix-ci.py bootstrap
