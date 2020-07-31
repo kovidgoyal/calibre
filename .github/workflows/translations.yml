@@ -30,5 +30,6 @@ jobs:
             - name: Update translations
               env:
                 tx: ${{ secrets.tx }}
+                CI: "true"
               run:
                   python setup/unix-ci.py pot

@@ -214,7 +214,8 @@ class POT(Command):  # {{{
     def run(self, opts):
         require_git_master()
         self.get_iso639_strings()
-        self.get_website_strings()
+        if not is_ci:
+            self.get_website_strings()
         self.get_content_server_strings()
         self.get_user_manual_docs()
         files = self.source_files()
