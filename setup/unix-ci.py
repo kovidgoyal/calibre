@@ -115,11 +115,24 @@ def main():
         install_env()
         run_python('setup.py bootstrap --ephemeral')
 
+    elif action == 'pot':
+        install_env()
+        transifexrc = '''\
+[https://www.transifex.com]
+api_hostname = https://api.transifex.com
+hostname = https://www.transifex.com
+password = PASSWORD
+username = api
+'''.replace('PASSWORD', os.environ['tx'])
+        with open(os.path.expanduser('~/.transifexrc'), 'w') as f:
+            f.write(transifexrc)
+        run_python('setup.py pot')
+
     elif action == 'test':
         os.environ['CI'] = 'true'
         if ismacos:
-            os.environ['SSL_CERT_FILE'
-                       ] = os.path.abspath('resources/mozilla-ca-certs.pem')
+            os.environ['SSL_CERT_FILE'] = os.path.abspath(
+                'resources/mozilla-ca-certs.pem')
 
         install_env()
         run_python('setup.py test')
