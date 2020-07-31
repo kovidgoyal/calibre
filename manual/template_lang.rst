@@ -249,6 +249,7 @@ The following functions are available in addition to those described in single-f
             check_yes_no("#bool", 1, 0, 1)
 
       returns "yes" if the yes/no field ``"#bool"`` is either undefined (neither True nor False) or True. More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.  This function is usually used by the ``test()`` or ``is_empty()`` functions.
+    * ``ceiling(x)`` -- returns the smallest integer greater than or equal to x. Throws an exception if x is not a number.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``current_library_name()`` -- return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
     * ``current_library_path()`` -- return the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_path()'}``.
@@ -256,6 +257,26 @@ The following functions are available in addition to those described in single-f
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
     * ``field(name)`` -- returns the metadata field named by ``name``.
+    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
+      prefix, and suffix to a value in the same way as done in a template like
+      ``{series_index:05.2f| - |- }``. This function is provided to ease
+      conversion of complex single-function- or template-program-mode templates
+      to :ref:`general program mode <general_mode>` (see below) to take
+      advantage of GPM template compilation. For example, the following program
+      produces the same output as the above template::
+
+            program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
+
+
+      Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
+
+            program:
+                strcat(
+                    re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
+                    finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
+                    field('title')
+                )
+
     * ``first_matching_cmp(val, cmp1, result1, cmp2, r2, ..., else_result)`` -- compares ``val < cmpN`` in sequence, returning resultN for the first comparison that succeeds. Returns else_result if no comparison succeeds. Example::
 
             first_matching_cmp(10,5,"small",10,"middle",15,"large","giant")
@@ -264,7 +285,7 @@ The following functions are available in addition to those described in single-f
       returns "large". The same example with a first value of 16 returns "giant".
 
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
-
+    * ``floor(x)`` -- returns the largest integer less than or equal to x. Throws an exception if x is not a number.
     * ``format_date(val, format_string)`` -- format the value, which must be a date
       field, using the format_string, returning a string. The formatting codes
       are::
@@ -291,30 +312,10 @@ The following functions are available in addition to those described in single-f
 
 
       You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain ``MMMM``. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using template program mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
-
-    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
-      prefix, and suffix to a value in the same way as done in a template like
-      ``{series_index:05.2f| - |- }``. This function is provided to ease
-      conversion of complex single-function- or template-program-mode templates
-      to :ref:`general program mode <general_mode>` (see below) to take
-      advantage of GPM template compilation. For example, the following program
-      produces the same output as the above template::
-
-            program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
-
-
-      Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
-
-            program:
-                strcat(
-                    re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
-                    finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
-                    field('title')
-                )
-
     * ``formats_modtimes(format_string)`` -- return a comma-separated list of colon-separated items representing modification times for the formats of a book. The format_string parameter specifies how the date is to be formatted. See the `format_date()` function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_paths()`` -- return a comma-separated list of colon-separated items representing full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_sizes()`` -- return a comma-separated list of colon-separated items representing sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
+    * ``fractional_part(x)`` -- returns the value after the decimal point. For example, fractional_part(3.14) returns 0.14. Throws an exception if x is not a number.
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string
     * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty.
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from `list1` any item found in `list2`, using a case-insensitive comparison. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
@@ -324,6 +325,7 @@ The following functions are available in addition to those described in single-f
     * ``list_re_group(src_list, separator, include_re, search_re, template_for_group_1, for_group_2, ...)`` -- Like list_re except replacements are not optional. It uses re_group(item, search_re, template ...) when doing the replacements.
     * ``list_sort(list, direction, separator)`` -- return list sorted using a case-insensitive sort. If `direction` is zero, the list is sorted ascending, otherwise descending. The list items are separated by separator, as are the items in the returned list.
     * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in list1 and list2, removing duplicate items using a case-insensitive comparison. If items differ in case, the one in list1 is used. The items in list1 and list2 are separated by separator, as are the items in the returned list.
+    * ``mod(x)`` -- returns the remainder of x / y, where x, y, and the result are integers. Throws an exception if either x or y is not a number.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
     * ``ondevice()`` -- return the string "Yes" if ondevice is set, otherwise return the empty string
     * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
@@ -334,6 +336,7 @@ The following functions are available in addition to those described in single-f
 
         {series:'re_group($, "(\S* )(.*)", "[[$:uppercase()]]", "[[$]]")'}
 
+    * ``round(x)`` -- returns the nearest integer to x. Throws an exception if x is not a number.
     * ``series_sort()`` -- returns the series sort value.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
     * ``strcat_max(max, string1, prefix2, string2, ...)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to string1. `Prefix, string` pairs are added to the end of the value as long as the resulting string length is less than `max`. String1 is returned even if string1 is longer than max. You can pass as many `prefix, string` pairs as you wish.

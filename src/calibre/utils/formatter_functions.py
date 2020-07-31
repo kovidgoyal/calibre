@@ -13,7 +13,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback, numbers
-from math import trunc
+from math import trunc, floor, ceil, modf
 
 from calibre import human_readable, prints
 from calibre.constants import DEBUG
@@ -284,6 +284,71 @@ class BuiltinDivide(BuiltinFormatterFunction):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         return unicode_type(x / y)
+
+
+class BuiltinCeiling(BuiltinFormatterFunction):
+    name = 'ceiling'
+    arg_count = 1
+    category = 'Arithmetic'
+    __doc__ = doc = _('ceiling(x) -- returns the smallest integer greater '
+                      'than or equal to x. Throws an exception if x is '
+                      'not a number.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, x):
+        x = float(x if x and x != 'None' else 0)
+        return unicode_type(int(ceil(x)))
+
+
+class BuiltinFloor(BuiltinFormatterFunction):
+    name = 'floor'
+    arg_count = 1
+    category = 'Arithmetic'
+    __doc__ = doc = _('floor(x) -- returns the largest integer less '
+                      'than or equal to x. Throws an exception if x is '
+                      'not a number.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, x):
+        x = float(x if x and x != 'None' else 0)
+        return unicode_type(int(floor(x)))
+
+
+class BuiltinRound(BuiltinFormatterFunction):
+    name = 'round'
+    arg_count = 1
+    category = 'Arithmetic'
+    __doc__ = doc = _('round(x) -- returns the nearest integer to x. '
+                      'Throws an exception if x is not a number.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, x):
+        x = float(x if x and x != 'None' else 0)
+        return unicode_type(int(round(x)))
+
+
+class BuiltinMod(BuiltinFormatterFunction):
+    name = 'mod'
+    arg_count = 2
+    category = 'Arithmetic'
+    __doc__ = doc = _('mod(x) -- returns the remainder of x / y, where x, y, '
+                      'and the result are integers. Throws an exception if '
+                      'either x or y is not a number.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, x, y):
+        x = float(x if x and x != 'None' else 0)
+        y = float(y if y and y != 'None' else 0)
+        return unicode_type(int(x % y))
+
+
+class BuiltinFractionalPart(BuiltinFormatterFunction):
+    name = 'fractional_part'
+    arg_count = 1
+    category = 'Arithmetic'
+    __doc__ = doc = _('fractional_part(x) -- returns the value after the decimal '
+                      'point.  For example, fractional_part(3.14) returns 0.14. '
+                      'Throws an exception if x is not a number.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, x):
+        x = float(x if x and x != 'None' else 0)
+        return unicode_type(modf(x)[0])
 
 
 class BuiltinTemplate(BuiltinFormatterFunction):
@@ -1688,20 +1753,21 @@ class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
-    BuiltinCapitalize(), BuiltinCheckYesNo(), BuiltinCmp(), BuiltinContains(),
+    BuiltinCapitalize(), BuiltinCheckYesNo(), BuiltinCeiling(),
+    BuiltinCmp(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
-    BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(),
+    BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
-    BuiltinFormatsPaths(), BuiltinFormatsSizes(),
+    BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
-    BuiltinLowercase(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
+    BuiltinLowercase(), BuiltinMod(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
     BuiltinOr(), BuiltinPrint(), BuiltinRatingToStars(), BuiltinRawField(), BuiltinRawList(),
-    BuiltinRe(), BuiltinReGroup(), BuiltinSelect(), BuiltinSeriesSort(),
+    BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(), BuiltinSeriesSort(),
     BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
