@@ -47,3 +47,4 @@ div.document { margin-top: 0px; }
 div.related { background-color: #39322b; color: white; font-family: sans-serif; padding: 0.5ex 0; }
 div.related a { text-decoration: none; color: white; }
 div.related a:hover { text-decoration: none; color: red; }
+a.toc-backref { text-decoration: none; }
