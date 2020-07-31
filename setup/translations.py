@@ -113,6 +113,10 @@ class POT(Command):  # {{{
                 ans.append('')
         pot = self.pot_header() + '\n\n' + '\n'.join(ans)
         dest = self.j(self.TRANSLATIONS, 'iso_639', 'iso_639_3.pot')
+        try:
+            os.makedirs(os.path.dirname(dest))
+        except OSError:
+            pass
         with open(dest, 'wb') as f:
             f.write(pot.encode('utf-8'))
         self.upload_pot(resource='iso639')
