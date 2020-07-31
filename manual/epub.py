@@ -77,6 +77,13 @@ class EPUBHelpBuilder(EpubBuilder):
         cover_id = rmap['_static/' + self.config.epub_cover[0]]
         for item in container.opf_xpath('//opf:item[@id="{}"]'.format(cover_id)):
             item.set('properties', 'cover-image')
+        for item in container.opf_xpath('//opf:item[@href="epub-cover.xhtml"]'):
+            item.set('properties', 'svg calibre:title-page')
+        for item in container.opf_xpath('//opf:package'):
+            prefix = item.get('prefix') or ''
+            if prefix:
+                prefix += ' '
+            item.set('prefix', prefix + 'calibre: https://calibre-ebook.com')
 
         # Remove any <meta cover> tag as it is not needed in epub 3
         for meta in container.opf_xpath('//opf:meta[@name="cover"]'):
