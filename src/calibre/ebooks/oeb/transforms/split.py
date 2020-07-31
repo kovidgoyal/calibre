@@ -297,7 +297,7 @@ class FlowSplitter(object):
             return False
         txt = re.sub(r'\s+|\xa0', '',
                 etree.tostring(body, method='text', encoding='unicode'))
-        if len(txt) > 1:
+        if len(txt):
             return False
         for img in root.xpath('//h:img', namespaces=NAMESPACES):
             if img.get('style', '') != 'display:none':
