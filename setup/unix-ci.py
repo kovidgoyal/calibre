@@ -126,6 +126,7 @@ username = api
 '''.replace('PASSWORD', os.environ['tx'])
         with open(os.path.expanduser('~/.transifexrc'), 'w') as f:
             f.write(transifexrc)
+        run('git clone --depth=1 https://github.com/kovidgoyal/calibre-translations.git translations')
         run_python('setup.py pot')
 
     elif action == 'test':
