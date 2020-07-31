@@ -922,6 +922,7 @@ class Highlighter(QSyntaxHighlighter):
 
                     if ch == '>':
                         state = State_Text
+                        self.setFormat(pos-1, 1, self.colors['tag'])
                         break
 
                     if not ch.isspace():
@@ -959,11 +960,13 @@ class Highlighter(QSyntaxHighlighter):
                     # handle opening single quote
                     if ch == "'":
                         state = State_SingleQuote
+                        self.setFormat(pos - 1, 1, self.colors['attrval'])
                         break
 
                     # handle opening double quote
                     if ch == '"':
                         state = State_DoubleQuote
+                        self.setFormat(pos - 1, 1, self.colors['attrval'])
                         break
 
                     if not ch.isspace():
