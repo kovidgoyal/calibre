@@ -137,7 +137,7 @@ class POT(Command):  # {{{
     def get_user_manual_docs(self):
         self.info('Generating translation templates for user_manual')
         base = tempfile.mkdtemp()
-        subprocess.check_call(['calibre-debug', self.j(self.d(self.SRC), 'manual', 'build.py'), 'gettext', base])
+        subprocess.check_call([sys.executable, self.j(self.d(self.SRC), 'manual', 'build.py'), 'gettext', base])
         tbase = self.j(self.TRANSLATIONS, 'manual')
         for x in os.listdir(base):
             if not x.endswith('.pot'):
