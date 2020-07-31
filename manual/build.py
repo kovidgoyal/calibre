@@ -40,7 +40,6 @@ def sphinx_build(language, base, builder='html', bdir='html', t=None, quiet=True
 
 def build_manual(language, base):
     sb = partial(sphinx_build, language, base)
-    skip_pdf = language == 'tr' or 'zh' in language
     onlinedir = sb(t='online')
     epubdir = sb('myepub', 'epub')
     latexdir = sb('mylatex', 'latex')
@@ -52,22 +51,20 @@ def build_manual(language, base):
         p.stdin.close()
         return p.wait()
     try:
-        if not skip_pdf:
-            for i in range(3):
-                run_cmd(['pdflatex', '-interaction=nonstopmode', 'calibre.tex'])
-            run_cmd(['makeindex', '-s', 'python.ist', 'calibre.idx'])
-            for i in range(2):
-                run_cmd(['pdflatex', '-interaction=nonstopmode', 'calibre.tex'])
-            if not os.path.exists('calibre.pdf'):
-                print('Failed to build pdf file, see calibre.log in the latex directory', file=sys.stderr)
-                raise SystemExit(1)
+        for i in range(3):
+            run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
+        run_cmd(['makeindex', '-s', 'python.ist', 'calibre.idx'])
+        for i in range(2):
+            run_cmd(['xelatex', '-interaction=nonstopmode', 'calibre.tex'])
+        if not os.path.exists('calibre.pdf'):
+            print('Failed to build pdf file, see calibre.log in the latex directory', file=sys.stderr)
+            raise SystemExit(1)
     finally:
         os.chdir(pwd)
     epub_dest = j(onlinedir, 'calibre.epub')
     pdf_dest = j(onlinedir, 'calibre.pdf')
     shutil.copyfile(j(epubdir, 'calibre.epub'), epub_dest)
-    if not skip_pdf:
-        shutil.copyfile(j(latexdir, 'calibre.pdf'), pdf_dest)
+    shutil.copyfile(j(latexdir, 'calibre.pdf'), pdf_dest)
     epub_to_azw3(epub_dest)
 
 
