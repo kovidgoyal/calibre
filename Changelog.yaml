@@ -20,6 +20,43 @@
 #   new recipes:
 #     - title:
 
+- version: 4.22.0
+  date: 2020-07-31
+
+  new features:
+    - title: "Edit book: In dark mode, make the preview panel also dark."
+      tickets: [1888071]
+
+    - title: "PDF Output: Headers/footers: Allow displaying the current page number and total number of pages in the top level section/chapter."
+      tickets: [1889000]
+
+    - title: "Edit book: Show EPUB version in window title"
+
+    - title: "Allow testing if a number column is set or not set in coloring/icon/emblem rules."
+      tickets: [1888456]
+
+    - title: "Viewer: Add a setting to control how many pixels a scroll wheel should generate before triggering a page turn"
+
+  bug fixes:
+    - title: "Edit book: Fix a regression in the previous release that caused poor performance when editing large files."
+      tickets: [1889047]
+
+    - title: "DOCX Input: Leave undefined text colors in the input document as undefined"
+      tickets: [1888897]
+
+    - title: "Viewer: Fix using a very small font step size not working."
+      tickets: [1888609]
+
+    - title: "Font scanner: Also scan the new win 10 local font paths"
+      tickets: [1888798]
+
+    - title: "Viewer: Fix typing values in font size adjust control not working"
+
+  improved recipes:
+    - Respekt
+    - The Atlantic
+
+
 - version: 4.21.0
   date: 2020-07-16
 
