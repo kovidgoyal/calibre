@@ -22,7 +22,7 @@ from PyQt5.Qt import (
 
 from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs
+from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme
 from calibre.gui2.book_details import css
 from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
@@ -840,10 +840,16 @@ class Highlighter(QSyntaxHighlighter):
         self.colors = {}
         self.colors['doctype']        = QColor(192, 192, 192)
         self.colors['entity']         = QColor(128, 128, 128)
-        self.colors['tag']            = QColor(136,  18, 128)
         self.colors['comment']        = QColor(35, 110,  37)
-        self.colors['attrname']       = QColor(153,  69,   0)
-        self.colors['attrval']        = QColor(36,  36, 170)
+        if is_dark_theme():
+            from calibre.gui2.palette import dark_link_color
+            self.colors['tag']            = QColor(186,  78, 188)
+            self.colors['attrname']       = QColor(193,  119, 60)
+            self.colors['attrval']        = dark_link_color
+        else:
+            self.colors['tag']            = QColor(136,  18, 128)
+            self.colors['attrname']       = QColor(153,  69,   0)
+            self.colors['attrval']        = QColor(36,  36, 170)
 
     def highlightBlock(self, text):
         state = self.previousBlockState()
