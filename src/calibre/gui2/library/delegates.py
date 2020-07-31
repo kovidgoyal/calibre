@@ -322,6 +322,14 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 # }}}
 
 
+class SeriesDelegate(TextDelegate):  # {{{
+
+    def initStyleOption(self, option, index):
+        TextDelegate.initStyleOption(self, option, index)
+        option.textElideMode = Qt.ElideMiddle
+# }}}
+
+
 class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent, sep, items_func_name, space_before_sep=False):
@@ -479,6 +487,14 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         if not isinstance(editor, EditWithComplete):
             val = val.strip()
         model.setData(index, val, Qt.EditRole)
+# }}}
+
+
+class CcSeriesDelegate(CcTextDelegate):  # {{{
+
+    def initStyleOption(self, option, index):
+        CcTextDelegate.initStyleOption(self, option, index)
+        option.textElideMode = Qt.ElideMiddle
 # }}}
 
 

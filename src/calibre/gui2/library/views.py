@@ -19,7 +19,7 @@ from calibre.constants import islinux
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, CcLongTextDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
-    CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
+    CcEnumDelegate, CcNumberDelegate, LanguagesDelegate, SeriesDelegate, CcSeriesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
 from calibre.gui2.pin_columns import PinTableView
 from calibre.gui2.library.alternate_views import AlternateViews, setup_dnd_interface, handle_enter_press
@@ -267,10 +267,11 @@ class BooksView(QTableView):  # {{{
         self.tags_delegate = CompleteDelegate(self, ',', 'all_tag_names')
         self.authors_delegate = CompleteDelegate(self, '&', 'all_author_names', True)
         self.cc_names_delegate = CompleteDelegate(self, '&', 'all_custom', True)
-        self.series_delegate = TextDelegate(self)
+        self.series_delegate = SeriesDelegate(self)
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
         self.cc_text_delegate = CcTextDelegate(self)
+        self.cc_series_delegate = CcSeriesDelegate(self)
         self.cc_longtext_delegate = CcLongTextDelegate(self)
         self.cc_enum_delegate = CcEnumDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
@@ -924,7 +925,7 @@ class BooksView(QTableView):  # {{{
                     else:
                         set_item_delegate(colhead, self.cc_text_delegate)
                 elif cc['datatype'] == 'series':
-                    set_item_delegate(colhead, self.cc_text_delegate)
+                    set_item_delegate(colhead, self.cc_series_delegate)
                 elif cc['datatype'] in ('int', 'float'):
                     set_item_delegate(colhead, self.cc_number_delegate)
                 elif cc['datatype'] == 'bool':
