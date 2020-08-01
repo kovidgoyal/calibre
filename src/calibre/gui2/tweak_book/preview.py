@@ -26,7 +26,7 @@ from calibre.constants import (
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.gui2 import NO_URL_FORMATTING, error_dialog, is_dark_theme, open_url
-from calibre.gui2.palette import dark_color, dark_text_color
+from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
 from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
@@ -251,30 +251,35 @@ def create_profile():
             create_script('csscolorparser.js', cparser),
             create_script('editor.js', js),
             create_script('dark-mode.js', '''
-            (function() {if (%s) {
-                var dark_bg = "%s", dark_fg = "%s", css = %s;
+            (function() {
+                var settings = JSON.parse(navigator.userAgent.split('|')[1]);
+                var dark_css = CSS;
+
+                function apply_body_colors(event) {
+                    if (document.documentElement) {
+                        if (settings.bg) document.documentElement.style.backgroundColor = settings.bg;
+                        if (settings.fg) document.documentElement.style.color = settings.fg;
+                    }
+                    if (document.body) {
+                        if (settings.bg) document.body.style.backgroundColor = settings.bg;
+                        if (settings.fg) document.body.style.color = settings.fg;
+                    }
+                }
+
                 function apply_css() {
+                    var css = '';
+                    if (settings.link) css += 'html > body :link, html > body :link * { color: ' + settings.link + ' !important; }';
+                    if (settings.is_dark_theme) { css += dark_css; }
                     var style = document.createElement('style');
                     style.textContent = css;
                     document.documentElement.appendChild(style);
+                    apply_body_colors();
                 }
 
-                function apply_dark_mode(event) {
-                    if (document.documentElement) {
-                        document.documentElement.style.backgroundColor = dark_bg;
-                        document.documentElement.style.color = dark_fg;
-                    }
-                    if (document.body) {
-                        document.body.style.backgroundColor = dark_bg;
-                        document.body.style.color = dark_fg;
-                    }
-                }
-                apply_dark_mode();
+                apply_body_colors();
                 document.addEventListener("DOMContentLoaded", apply_css);
-                document.addEventListener("DOMContentLoaded", apply_dark_mode);
-            } })();
-            ''' % (
-            'true' if is_dark_theme() else 'false', dark_color.name(), dark_text_color.name(), json.dumps(dark_mode_css)),
+            })();
+            '''.replace('CSS', json.dumps(dark_mode_css), 1),
             injection_point=QWebEngineScript.DocumentCreation)
         )
         url_handler = UrlSchemeHandler(ans)
@@ -392,10 +397,37 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
     def sizeHint(self):
         return self._size_hint
 
+    def update_settings(self):
+        dark = is_dark_theme()
+
+        def get_color(name, dark_val):
+            ans = tprefs[name]
+            if ans == 'auto' and dark:
+                ans = dark_val.name()
+            if ans in ('auto', 'unset'):
+                return None
+            return ans
+
+        settings = {
+            'is_dark_theme': dark,
+            'bg': get_color('preview_background', dark_color),
+            'fg': get_color('preview_foreground', dark_text_color),
+            'link': get_color('preview_link_color', dark_link_color),
+        }
+        p = self._page.profile()
+        ua = p.httpUserAgent().split('|')[0] + '|' + json.dumps(settings)
+        p.setHttpUserAgent(ua)
+
     def refresh(self):
+        self.update_settings()
         self.pageAction(QWebEnginePage.ReloadAndBypassCache).trigger()
 
+    def set_url(self, qurl):
+        self.update_settings()
+        RestartingWebEngineView.setUrl(self, qurl)
+
     def clear(self):
+        self.update_settings()
         self.setHtml(_(
             '''
             <h3>Live preview</h3>
@@ -612,7 +644,7 @@ class Preview(QWidget):
             self.current_name = name
             self.report_worker_launch_error()
             parse_worker.add_request(name)
-            self.view.setUrl(self.name_to_qurl())
+            self.view.set_url(self.name_to_qurl())
             return True
 
     def refresh(self):
@@ -627,7 +659,7 @@ class Preview(QWidget):
             self.refresh_starting.emit()
             if current_url != self.view.url():
                 # The container was changed
-                self.view.setUrl(current_url)
+                self.view.set_url(current_url)
             else:
                 self.view.refresh()
             self.refreshed.emit()

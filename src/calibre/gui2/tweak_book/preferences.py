@@ -19,7 +19,7 @@ from PyQt5.Qt import (
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
-    QToolButton, QVBoxLayout, QSpacerItem, QTimer)
+    QToolButton, QVBoxLayout, QSpacerItem, QTimer, QRadioButton)
 
 from calibre import prepare_string_for_xml
 from calibre.utils.localization import get_lang
@@ -30,6 +30,7 @@ from calibre.gui2.tweak_book.editor.themes import default_theme, all_theme_names
 from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.widgets2 import ColorButton
 
 
 class BasicSettings(QWidget):  # {{{
@@ -154,7 +155,7 @@ class BasicSettings(QWidget):  # {{{
 # }}}
 
 
-class EditorSettings(BasicSettings):
+class EditorSettings(BasicSettings):  # {{{
 
     def __init__(self, parent=None):
         BasicSettings.__init__(self, parent)
@@ -269,9 +270,10 @@ class EditorSettings(BasicSettings):
         s.setter(s.widget, current_val)
         if d.theme_name:
             s.setter(s.widget, d.theme_name)
+# }}}
 
 
-class IntegrationSettings(BasicSettings):
+class IntegrationSettings(BasicSettings):  # {{{
 
     def __init__(self, parent=None):
         BasicSettings.__init__(self, parent)
@@ -293,9 +295,10 @@ class IntegrationSettings(BasicSettings):
         order.setToolTip(_('When auto-selecting the format to edit for a book with'
                            ' multiple formats, this is the preference order.'))
         l.addRow(_('Preferred format order (drag and drop to change)'), order)
+# }}}
 
 
-class MainWindowSettings(BasicSettings):
+class MainWindowSettings(BasicSettings):  # {{{
 
     def __init__(self, parent=None):
         BasicSettings.__init__(self, parent)
@@ -334,9 +337,10 @@ class MainWindowSettings(BasicSettings):
             ' multiple files with the same file name.'
         ))
         l.addRow(nd)
+# }}}
 
 
-class PreviewSettings(BasicSettings):
+class PreviewSettings(BasicSettings):  # {{{
 
     def __init__(self, parent=None):
         BasicSettings.__init__(self, parent)
@@ -377,6 +381,51 @@ class PreviewSettings(BasicSettings):
         w = self('preview_minimum_font_size')
         w.setMinimum(4), w.setMaximum(100), w.setSuffix(' px')
         l.addRow(_('Mi&nimum font size:'), w)
+        l.addRow(_('Background color:'), self.color_override('preview_background'))
+        l.addRow(_('Foreground color:'), self.color_override('preview_foreground'))
+        l.addRow(_('Link color:'), self.color_override('preview_link_color'))
+
+    def color_override(self, name):
+        w = QWidget(self)
+        l = QHBoxLayout(w)
+
+        def b(name, text, tt):
+            ans = QRadioButton(text, w)
+            l.addWidget(ans)
+            ans.setToolTip(tt)
+            setattr(w, name, ans)
+            ans.setObjectName(name)
+            return ans
+
+        b('unset', _('No change'), _('Use the colors from the book styles, defaulting to black-on-white'))
+        b('auto', _('Theme based'), _('When using a dark theme force dark colors, otherwise same as "No change"'))
+        b('manual', _('Custom'), _('Choose a custom color'))
+
+        c = w.color_button = ColorButton(parent=w)
+        l.addWidget(c)
+        connect_lambda(c.clicked, w, lambda w: w.manual.setChecked(True))
+
+        def getter(w):
+            if w.unset.isChecked():
+                return 'unset'
+            if w.auto.isChecked():
+                return 'auto'
+            return w.color_button.color or 'auto'
+
+        def setter(w, val):
+            val = val or 'auto'
+            if val == 'unset':
+                w.unset.setChecked(True)
+            elif val == 'auto':
+                w.auto.setChecked(True)
+            else:
+                w.manual.setChecked(True)
+                w.color_button.color = val
+        self(name, widget=w, getter=getter, setter=setter)
+        l.setContentsMargins(0, 0, 0, 0)
+        return w
+# }}}
+
 
 # ToolbarSettings  {{{
 

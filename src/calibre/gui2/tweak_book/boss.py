@@ -207,6 +207,7 @@ class Boss(QObject):
             setup_css_parser_serialization()
             self.gui.apply_settings()
             self.refresh_file_list()
+            self.gui.preview.start_refresh_timer()
         if ret == p.Accepted or p.dictionaries_changed:
             for ed in itervalues(editors):
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
