@@ -666,6 +666,8 @@ class CreateCustomColumn(QDialog):
         else:
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading
+            # Remove any previous default value
+            self.parent.custcols[self.orig_column_name]['display'].pop('default_value', None)
             self.parent.custcols[self.orig_column_name]['display'].update(display_dict)
             self.parent.custcols[self.orig_column_name]['*edited'] = True
             self.parent.custcols[self.orig_column_name]['*must_restart'] = True
