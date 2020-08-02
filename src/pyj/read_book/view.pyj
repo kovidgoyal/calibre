@@ -12,8 +12,9 @@ from book_list.theme import cached_color_to_rgba, get_color
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
+from read_book.annotations import AnnotationsManager
 from read_book.content_popup import ContentPopupOverlay
-from read_book.create_annotation import AnnotationsManager, CreateAnnotation
+from read_book.create_annotation import CreateAnnotation
 from read_book.globals import (
     current_book, rtl_page_progression, runtime, set_current_spine_item,
     ui_operations
