@@ -1,0 +1,55 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+builtin_colors_light = {
+    'yellow': '#ffeb6b',
+    'green': '#c0ed72',
+    'blue': '#add8ff',
+    'red': '#ffb0ca',
+    'purple': '#d9b2ff',
+}
+
+builtin_colors_dark = {
+    'yellow': '#c18d18',
+    'green': '#306f50',
+    'blue': '#265589',
+    'red': '#a23e5a',
+    'purple': '#505088',
+}
+
+
+def builtin_color(which, is_dark):
+    return (builtin_colors_dark[which] if is_dark else builtin_colors_light[which]) or builtin_colors_light.yellow
+
+
+def default_color(is_dark):
+    return builtin_color('yellow', is_dark)
+
+
+class HighlightStyle:
+
+    def __init__(self, style):
+        self.style = style or {'type': 'builtin', 'kind': 'color', 'which': 'yellow'}
+
+    def highlight_shade(self, is_dark):
+        s = self.style
+        if s.type is 'builtin':
+            if s.kind is 'color':
+                return builtin_color(s.which, is_dark)
+            return default_color(is_dark)
+        return s['background-color'] or default_color(is_dark)
+
+    def as_css(self, is_dark, foreground):
+        s = self.style
+        if s.type is 'builtin':
+            if s.kind is 'color':
+                ans = 'background-color: ' + builtin_color(s.which, is_dark) + ';'
+                if foreground:
+                    ans += 'color: ' + foreground + ';'
+                return ans
+        ans = 'background-color: ' + (s['background-color'] or default_color(is_dark)) + ';'
+        fg = s.color or foreground
+        if fg:
+            ans += 'color: ' + fg + ';'
+        return ans

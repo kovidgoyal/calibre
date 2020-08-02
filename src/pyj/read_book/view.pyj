@@ -722,8 +722,7 @@ class View:
         ui_operations.show_error(title, data.msg, data.details)
 
     def apply_color_scheme(self):
-        ans = resolve_color_scheme()
-        self.current_color_scheme = ans
+        self.current_color_scheme = ans = resolve_color_scheme()
         for which in 'left top right bottom'.split(' '):
             m = document.getElementById('book-{}-margin'.format(which))
             s = m.style
@@ -758,6 +757,8 @@ class View:
         # so we dont want the body background color to bleed through
         iframe.parentNode.style.backgroundColor = ans.background
         iframe.parentNode.parentNode.style.backgroundColor = ans.background
+        rgba = cached_color_to_rgba(ans.background)
+        ans.is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
         return ans
 
     def on_resize(self):
@@ -876,7 +877,6 @@ class View:
         cs = self.apply_color_scheme()
         fade = int(sd.get('background_image_fade'))
         rgba = cached_color_to_rgba(cs.background)
-        is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
         if self.iframe.style.backgroundImage is not 'none' and fade > 0:
             bg_image_fade = f'rgba({rgba[0]}, {rgba[1]}, {rgba[2]}, {fade/100})'
         return {
@@ -888,7 +888,7 @@ class View:
             'columns_per_screen': sd.get('columns_per_screen'),
             'color_scheme': cs,
             'override_book_colors': sd.get('override_book_colors'),
-            'is_dark_theme': is_dark_theme,
+            'is_dark_theme': cs.is_dark_theme,
             'bg_image_fade': bg_image_fade,
             'base_font_size': sd.get('base_font_size'),
             'user_stylesheet': sd.get('user_stylesheet'),
