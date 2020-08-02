@@ -316,17 +316,12 @@ class MainOverlay:  # {{{
             actions_div.appendChild(E.ul(*full_screen_actions))
 
         no_selection_bar = not sd.get('show_selection_bar')
-        if no_selection_bar:
-            highlight_action = ac(_('Highlight'), _('Highlight text in the book'),
-                    def(): self.overlay.hide(), self.overlay.view.initiate_create_annotation();, 'highlight')
-
         if runtime.is_standalone_viewer:
             if no_selection_bar:
                 actions_div.appendChild(E.ul(
                     ac(_('Lookup/search word'), _('Lookup or search for the currently selected word'),
                     def(): self.overlay.hide(), ui_operations.toggle_lookup(True);, 'library')
                 ))
-                actions_div.lastChild.appendChild(highlight_action)
             actions_div.lastChild.appendChild(
                 ac(_('Browse highlights'), _('Browse all highlights'),
                     def(): self.overlay.hide(), ui_operations.toggle_highlights();, 'image')
@@ -355,8 +350,7 @@ class MainOverlay:  # {{{
                    def(): self.overlay.hide(), ui_operations.quit();, 'remove'),
             ))
         else:
-            if no_selection_bar:
-                actions_div.appendChild(E.ul(highlight_action))
+            pass
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 

@@ -285,13 +285,10 @@ class HighlightsPanel(QWidget):
             b.clicked.connect(target)
             return b
 
-        self.add_button = button('plus.png', _('Add'), _('Create a new highlight'), self.add_highlight)
         self.edit_button = button('edit_input.png', _('Edit'), _('Edit the selected highlight'), self.edit_highlight)
         self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlights'), self.remove_highlight)
-        h.addWidget(self.add_button), h.addWidget(self.edit_button), h.addWidget(self.remove_button)
-
         self.export_button = button('save.png', _('Export'), _('Export all highlights'), self.export)
-        l.addWidget(self.export_button)
+        h.addWidget(self.edit_button), h.addWidget(self.remove_button), h.addWidget(self.export_button)
 
         self.notes_display = nd = NotesDisplay(self)
         nd.notes_edited.connect(self.notes_edited)
@@ -355,9 +352,6 @@ class HighlightsPanel(QWidget):
         ):
             for h in highlights:
                 self.request_highlight_action.emit(h['uuid'], 'delete')
-
-    def add_highlight(self):
-        self.request_highlight_action.emit(None, 'create')
 
     def export(self):
         hl = list(self.highlights.all_highlights)

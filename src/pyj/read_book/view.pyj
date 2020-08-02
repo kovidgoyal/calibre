@@ -14,7 +14,6 @@ from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.annotations import AnnotationsManager
 from read_book.content_popup import ContentPopupOverlay
-from read_book.create_annotation import CreateAnnotation
 from read_book.globals import (
     current_book, rtl_page_progression, runtime, set_current_spine_item,
     ui_operations
@@ -243,7 +242,6 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none; overflow: hidden', id=CreateAnnotation.container_id, tabindex='0'),  # create annotation overlay
                     )
                 ),
                 E.div(
@@ -312,7 +310,6 @@ class View:
         self.currently_showing = {'selection': {'empty': True}}
         self.book_scrollbar.apply_visibility()
         self.annotations_manager = AnnotationsManager(self)
-        self.create_annotation = CreateAnnotation(self)
 
     @property
     def iframe(self):
@@ -332,7 +329,7 @@ class View:
         self.set_scrollbar_visibility(not sd.get('book_scrollbar'))
 
     def on_annotations_message(self, data):
-        self.create_annotation.handle_message(data)
+        self.selection_bar.handle_message(data)
 
     def left_margin_clicked(self, event):
         if event.button is 0:
@@ -451,8 +448,6 @@ class View:
             ui_operations.toggle_bookmarks()
         elif data.name is 'toggle_highlights':
             ui_operations.toggle_highlights()
-        elif data.name is 'create_annotation':
-            self.initiate_create_annotation()
         elif data.name is 'new_bookmark':
             ui_operations.new_bookmark()
         elif data.name is 'toggle_inspector':
@@ -626,7 +621,6 @@ class View:
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
         self.reference_mode_overlay.style.display = 'none'
-        self.create_annotation.hide()
         self.focus_iframe()
 
     def focus_iframe(self):
@@ -1249,26 +1243,18 @@ class View:
         else:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
 
-    def initiate_create_annotation(self, start_in_notes_edit):
-        self.create_annotation.initiate_create_annotation(start_in_notes_edit)
-
     def highlight_action(self, uuid, which):
-        if self.create_annotation.is_visible:
-            return
-        if which is 'create':
-            self.initiate_create_annotation(False)
-            return
         spine = self.book.manifest.spine
         spine_index = self.annotations_manager.spine_index_for_highlight(uuid, spine)
         if spine_index < 0 or spine_index >= spine.length:
             return
         if which is 'edit':
             if self.currently_showing.spine_index is spine_index:
-                self.create_annotation.edit_highlight(uuid)
+                self.selection_bar.edit_highlight(uuid)
             else:
                 self.show_name(spine[spine_index], initial_position={'type':'edit_annotation', 'uuid': uuid, 'replace_history':True})
         elif which is 'delete':
-            self.create_annotation.remove_highlight(uuid)
+            self.selection_bar.remove_highlight_with_id(uuid)
         elif which is 'goto':
             cfi = self.annotations_manager.cfi_for_highlight(uuid, spine_index)
             if cfi:
