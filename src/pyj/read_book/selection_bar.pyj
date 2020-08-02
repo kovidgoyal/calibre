@@ -7,11 +7,36 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
-from dom import clear, svgicon
+from dom import clear, svgicon, unique_id
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import HighlightStyle
 
 ICON_SIZE = '3ex'
+DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
+
+# Utils {{{
+
+def get_margins():
+    return {
+        'top': document.getElementById('book-top-margin').offsetHeight,
+        'left': document.getElementById('book-left-margin').offsetWidth,
+    }
+
+
+def map_to_iframe_coords(point, margins):
+    point.x -= margins.left
+    point.y -= margins.top
+    return point
+
+
+def near_element(elem, x, y):
+    r = elem.getBoundingClientRect()
+    extend_by = 15
+    left = r.left - extend_by
+    top = r.top - extend_by
+    right = r.right + extend_by
+    bottom = r.bottom + extend_by
+    return left <= x <= right and top <= y <= bottom
 
 
 def position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, available_width, available_height, buffer):
@@ -142,23 +167,32 @@ def all_actions():
     return all_actions.ans
 
 
-def selection_handle(is_left, bg, fg):
+def selection_handle(is_left):
     ans = svgicon('selection-handle')
-    use = ans.querySelector('use')
-    use.style.stroke = fg
-    use.style.fill = bg
     s = ans.style
     if not is_left:
         s.transform = 'scaleX(-1)'
     s.position = 'absolute'
     s.boxSizing = 'border-box'
     s.touchAction = 'none'
-    s.pointerEvents = 'auto'
     return ans
+
+
+def set_handle_color(handle, bg, fg):
+    use = handle.querySelector('use')
+    use.style.stroke = fg
+    use.style.fill = bg
 
 
 def elements_overlap(a, b):
     return a.left < b.right and b.left < a.right and a.top < b.bottom and b.top < a.bottom
+
+
+HIDDEN = 0
+WAITING = 1
+DRAGGING = 2
+EDITING = 3
+# }}}
 
 
 class SelectionBar:
@@ -166,16 +200,58 @@ class SelectionBar:
     def __init__(self, view):
         self.view = view
         self.current_highlight_style = HighlightStyle(get_session_data().get('highlight_style'))
+        self.state = HIDDEN
+        self.left_handle_id = unique_id('handle')
+        self.right_handle_id = unique_id('handle')
+        self.bar_id = unique_id('bar')
+        self.editor_id = unique_id('editor')
+        container = self.container
+        container.style.overflow = 'hidden'
+        container.addEventListener('click', self.container_clicked, {'passive': False})
+        container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
+        container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
+        container.addEventListener('touchmove', self.touchmove_on_container, {'passive': False})
+        container.addEventListener('touchend', self.touchend_on_container, {'passive': False})
+        container.addEventListener('touchcancel', self.touchend_on_container, {'passive': False})
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})  # TODO: Implement this
+
+        self.dragging_handle = None
+        self.position_in_handle = {'x': 0, 'y': 0}
+        self.active_touch = None
+        self.drag_scroll_timer = None
+        self.last_drag_scroll_at = -100000
+        self.left_line_height = self.right_line_height = 0
+
+        left_handle = selection_handle(True)
+        left_handle.id = self.left_handle_id
+        right_handle = selection_handle(False)
+        right_handle.id = self.right_handle_id
+        for h in (left_handle, right_handle):
+            h.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
+            h.addEventListener('touchstart', self.touchstart_on_handle, {'passive': False})
+            container.appendChild(h)
+        container.appendChild(E.div(
+            id=self.bar_id,
+            style='position: absolute; border: solid 1px currentColor; border-radius: 5px;'
+            'left: 0; top: 0; display: flex; flex-direction: column;'
+        ))
+        container.appendChild(E.div(id=self.editor_id))
+
+    # bar and handles markup {{{
+
+    def set_handle_colors(self):
+        handle_fill = get_color('window-background')
+        fg = self.view.current_color_scheme.foreground
+        for h in (self.left_handle, self.right_handle):
+            set_handle_color(h, handle_fill, fg)
 
     def build_bar(self, annot_id):
         notes = self.view.annotations_manager.notes_for_highlight(annot_id)
-        c = self.container
-        max_width = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
-        bar_container = E.div(
-            style='position: absolute; border: solid 1px currentColor; border-radius: 5px;'
-            'left: 0; top: 0; pointer-events: auto; display: flex; flex-direction: column;'
-            'background-color: {}; max-width: {}'.format(get_color("window-background"), max_width),
-
+        bar_container = self.bar
+        clear(bar_container)
+        bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
+        bar_container.style.backgroundColor = get_color("window-background")
+        for x in [
             E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
 
             E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
@@ -183,20 +259,16 @@ class SelectionBar:
             E.div(
                 style='display: none; padding: 5px;',
                 E.div(),
-            ),
-        )
+            )
+        ]:
+            bar_container.appendChild(x)
         bar = bar_container.firstChild
-        handle_fill = get_color('window-background')
-        left_handle = selection_handle(True, handle_fill, self.view.current_color_scheme.foreground)
-        right_handle = selection_handle(False, handle_fill, self.view.current_color_scheme.foreground)
-        c.appendChild(left_handle)
-        c.appendChild(right_handle)
-        c.appendChild(bar_container)
         hs = self.current_highlight_style.highlight_shade
 
         def cb(ac, callback):
             ans = ac.icon_function(hs)
             ans.addEventListener('click', def(ev):
+                ev.stopPropagation(), ev.preventDefault()
                 callback(ev)
                 self.view.focus_iframe()
             )
@@ -211,70 +283,7 @@ class SelectionBar:
             if ac and (not ac.needs_highlight or v'!!annot_id'):
                 bar.appendChild(cb(ac, self[ac.function_name]))
         self.show_notes(bar_container, notes)
-        return bar_container, left_handle, right_handle
-
-    @property
-    def supports_css_min_max(self):
-        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
-
-    @property
-    def container(self):
-        return document.getElementById('book-selection-bar-overlay')
-
-    @property
-    def bar(self):
-        return self.container.firstChild
-
-    def hide(self):
-        self.container.style.display = 'none'
-
-    def show(self):
-        sd = get_session_data()
-        if not self.view.create_annotation.is_visible and sd.get('show_selection_bar'):
-            self.container.style.display = 'block'
-
-    @property
-    def is_visible(self):
-        return self.container.style.display is not 'none'
-
-    def copy_to_clipboard(self):
-        if self.view.currently_showing.selection.text:
-            ui_operations.copy_selection(self.view.currently_showing.selection.text)
-
-    def lookup(self):
-        if ui_operations.toggle_lookup:
-            ui_operations.toggle_lookup(True)
-        else:
-            self.view.overlay.show_word_actions(self.view.currently_showing.selection.text)
-
-    def internet_search(self):
-        text = self.view.currently_showing.selection.text
-        if text:
-            q = encodeURIComponent(text)
-            url = get_session_data().get('net_search_url').format(q=q)
-            ui_operations.open_url(url)
-
-    def clear_selection(self):
-        self.view.on_handle_shortcut({'name': 'clear_selection'})
-
-    def create_highlight(self):
-        self.view.initiate_create_annotation(True)
-
-    def adjust_selection(self):
-        self.view.initiate_create_annotation(False)
-
-    def quick_highlight(self):
-        cs = self.view.currently_showing.selection
-        if cs.text:
-            if cs.annot_id:
-                self.view.initiate_create_annotation(True)
-            else:
-                self.view.create_annotation.quick_create()
-
-    def remove_highlight(self):
-        annot_id = self.view.currently_showing.selection.annot_id
-        if annot_id:
-            self.view.create_annotation.remove_highlight(annot_id)
+        return bar_container
 
     def show_notes(self, bar, notes):
         notes = (notes or "").strip()
@@ -305,11 +314,193 @@ class SelectionBar:
             current_block += line + '\n'
         if current_block:
             add_para()
+    # }}}
+
+    # accessors {{{
+    @property
+    def supports_css_min_max(self):
+        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
+
+    @property
+    def container(self):
+        return document.getElementById('book-selection-bar-overlay')
+
+    @property
+    def bar(self):
+        return document.getElementById(self.bar_id)
+
+    @property
+    def left_handle(self):
+        return document.getElementById(self.left_handle_id)
+
+    @property
+    def right_handle(self):
+        return document.getElementById(self.right_handle_id)
+
+    @property
+    def editor(self):
+        return document.getElementById(self.editor_id)
+
+    @property
+    def current_handle_position(self):
+        lh, rh = self.left_handle, self.right_handle
+        lbr, rbr = lh.getBoundingClientRect(), rh.getBoundingClientRect()
+        return {
+            'start': {
+                'onscreen': lh.style.display is not 'none',
+                'x': Math.round(lbr.right), 'y': Math.round(lbr.bottom - self.left_line_height // 2)
+            },
+            'end': {
+                'onscreen': rh.style.display is not 'none',
+                'x': Math.round(rbr.left), 'y': Math.round(rbr.bottom - self.right_line_height // 2)
+            }
+        }
+
+    # }}}
+
+    # event handlers {{{
+    def mousedown_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING:
+            self.start_handle_drag(ev, ev.currentTarget)
+
+    def touchstart_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING:
+            for touch in ev.changedTouches:
+                self.active_touch = touch.identifier
+                self.start_handle_drag(touch, ev.currentTarget)
+                break
+
+    def start_handle_drag(self, ev, handle):
+        self.state = DRAGGING
+        self.dragging_handle = handle.id
+        r = handle.getBoundingClientRect()
+        self.position_in_handle.x = Math.round(ev.clientX - r.left)
+        self.position_in_handle.y = Math.round(ev.clientY - r.top)
+
+    def container_clicked(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is EDITING:
+            return  # TODO: accept edit and apply highlight
+        if self.state is WAITING:
+            for x in (self.bar, self.left_handle, self.right_handle):
+                if near_element(x, ev.clientX, ev.clientY):
+                    return
+        self.clear_selection()
+
+    def mousemove_on_container(self, ev):
+        if self.state is not DRAGGING:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        self.handle_moved(ev)
+
+    def touchmove_on_container(self, ev):
+        if self.state is not DRAGGING:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        for touch in ev.changedTouches:
+            if touch.identifier is self.active_touch:
+                self.handle_moved(touch)
+                return
+
+    def handle_moved(self, ev):
+        handle = document.getElementById(self.dragging_handle)
+        s = handle.style
+        s.left = (ev.clientX - self.position_in_handle.x) + 'px'
+        s.top = (ev.clientY - self.position_in_handle.y) + 'px'
+        margins = get_margins()
+        pos = self.current_handle_position
+        pos.start = map_to_iframe_coords(pos.start, margins)
+        pos.end = map_to_iframe_coords(pos.end, margins)
+        self.send_message('set-selection', extents=pos)
+        c = self.container
+        rect = c.getBoundingClientRect()
+        t = document.getElementById('book-top-margin').offsetHeight
+        top = rect.top + max(t, DRAG_SCROLL_ZONE_MIN_HEIGHT)
+        t = document.getElementById('book-bottom-margin').offsetHeight
+        bottom = rect.bottom - max(t, DRAG_SCROLL_ZONE_MIN_HEIGHT)
+        if ev.clientY < top or ev.clientY > bottom:
+            self.run_drag_scroll(ev.clientY, top, bottom)
+        else:
+            self.end_drag_scroll()
+
+    def end_handle_drag(self):
+        self.end_drag_scroll()
+        self.dragging_handle = None
+        self.state = WAITING
+        self.update_position()
+
+    def mouseup_on_container(self, ev):
+        if self.state is DRAGGING:
+            ev.preventDefault(), ev.stopPropagation()
+            self.end_handle_drag()
+
+    def touchend_on_container(self, ev):
+        if self.state is DRAGGING:
+            ev.preventDefault(), ev.stopPropagation()
+            for touch in ev.changedTouches:
+                if touch.identifier is self.active_touch:
+                    self.active_touch = None
+                    self.end_handle_drag()
+                    return
+    # }}}
+
+    # drag scroll {{{
+    def run_drag_scroll(self, mouse_y, top, bottom):
+        backwards = mouse_y <= top
+        self.do_one_drag_scroll(backwards, top - mouse_y if backwards else mouse_y - bottom)
+
+    def do_one_drag_scroll(self, backwards, distance_from_boundary):
+        window.clearTimeout(self.drag_scroll_timer)
+        self.drag_scroll_timer = None
+        if self.state is not DRAGGING:
+            return
+        sd = get_session_data()
+        interval = 1000/sd.get('lines_per_sec_smooth') if self.in_flow_mode else 1200
+        self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
+        now = window.performance.now()
+        if now - self.last_drag_scroll_at > interval:
+            self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.left_handle_id else 'right', True)
+            self.last_drag_scroll_at = now
+
+    def send_drag_scroll_message(self, backwards, handle, extend_selection):
+        self.send_message(
+            'drag-scroll', backwards=backwards, handle=handle, extents=self.current_handle_position,
+            extend_selection=extend_selection)
+
+    def end_drag_scroll(self):
+        if self.drag_scroll_timer is not None:
+            window.clearTimeout(self.drag_scroll_timer)
+            self.drag_scroll_timer = None
+            self.last_drag_scroll_at = -10000
+
+    # }}}
+
+    # show and hide {{{
+    def hide(self):
+        self.state = HIDDEN
+        self.container.style.display = 'none'
+
+    def show(self):
+        sd = get_session_data()
+        if self.state is HIDDEN:
+            if sd.get('show_selection_bar'):
+                self.container.style.display = 'block'
+                self.state = WAITING
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
 
     def update_position(self):
         container = self.container
-        clear(container)
-        container.style.overflow = 'hidden'
+        self.bar.style.display = 'none'
+        self.set_handle_colors()
+        if self.state is DRAGGING:
+            return
+        self.left_handle.style.display = 'none'
+        self.right_handle.style.display = 'none'
 
         cs = self.view.currently_showing.selection
         if not cs or cs.empty or jstype(cs.drag_mouse_position.x) is 'number':
@@ -318,20 +509,18 @@ class SelectionBar:
         if not cs.start.onscreen and not cs.end.onscreen:
             return self.hide()
 
-        margins = {
-            'top': document.getElementById('book-top-margin').offsetHeight,
-            'bottom': document.getElementById('book-bottom-margin').offsetHeight,
-            'left': document.getElementById('book-left-margin').offsetWidth,
-            'right': document.getElementById('book-right-margin').offsetWidth,
-        }
+        margins = get_margins()
 
         def map_boundary(x):
             return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
-        bar, left_handle, right_handle = self.build_bar(cs.annot_id)
+        self.show()
+        if self.state is EDITING:
+            return self.show_editor()  # TODO: Implement this
+        self.bar.style.display = self.left_handle.style.display = self.right_handle.style.display = 'block'
         start = map_boundary(cs.start)
         end = map_boundary(cs.end)
-        self.show()
+        bar = self.build_bar(cs.annot_id)
         end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
         bar_height = bar.offsetHeight
         bar_width = bar.offsetWidth
@@ -341,6 +530,7 @@ class SelectionBar:
             # - 10 ensures we dont cover scroll bar
             'left': buffer, 'right': container.offsetWidth - bar_width - buffer - 10
         }
+        left_handle, right_handle = self.left_handle, self.right_handle
         self.position_handles(left_handle, right_handle, start, end, end_after_start)
 
         def place_vertically(pos, put_below):
@@ -392,10 +582,63 @@ class SelectionBar:
             s.top = f'{top}px'
             if is_left:
                 s.left = (boundary.x - width) + 'px'
+                self.left_line_height = boundary.height
             else:
                 s.left = boundary.x + 'px'
+                self.right_line_height = boundary.height
 
         if not end_after_start:
             start, end = end, start
         place_single_handle(left_handle, start, True)
         place_single_handle(right_handle, end, False)
+
+    # }}}
+
+    # Actions  {{{
+    def copy_to_clipboard(self):
+        if self.view.currently_showing.selection.text:
+            ui_operations.copy_selection(self.view.currently_showing.selection.text)
+
+    def lookup(self):
+        if ui_operations.toggle_lookup:
+            ui_operations.toggle_lookup(True)
+        else:
+            self.view.overlay.show_word_actions(self.view.currently_showing.selection.text)
+
+    def internet_search(self):
+        text = self.view.currently_showing.selection.text
+        if text:
+            q = encodeURIComponent(text)
+            url = get_session_data().get('net_search_url').format(q=q)
+            ui_operations.open_url(url)
+
+    def clear_selection(self):
+        self.view.on_handle_shortcut({'name': 'clear_selection'})
+        self.hide()
+
+    def create_highlight(self):
+        self.view.initiate_create_annotation(True)
+
+    def adjust_selection(self):
+        self.view.initiate_create_annotation(False)
+
+    def quick_highlight(self):
+        cs = self.view.currently_showing.selection
+        if cs.text:
+            if cs.annot_id:
+                self.view.initiate_create_annotation(True)
+            else:
+                self.view.create_annotation.quick_create()
+
+    def remove_highlight(self):
+        annot_id = self.view.currently_showing.selection.annot_id
+        if annot_id:
+            self.view.create_annotation.remove_highlight(annot_id)
+    # }}}
+
+    # Interact with iframe {{{
+
+    def send_message(self, type, **kw):
+        self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
+
+    # }}}
