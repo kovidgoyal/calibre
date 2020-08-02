@@ -9,8 +9,98 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon
 from read_book.globals import runtime, ui_operations
+from read_book.highlights import HighlightStyle
 
 ICON_SIZE = '3ex'
+
+
+def position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, available_width, available_height, buffer):
+    # adjust position to minimize overlap with handles
+
+    def bar_rect(left, top):
+        return {'left': left, 'top': top, 'right': left + bar_width, 'bottom': top + bar_height}
+
+    def overlaps_a_handle(left, top):
+        b = bar_rect(left, top)
+        if elements_overlap(lh, b):
+            return lh
+        if elements_overlap(rh, b):
+            return rh
+
+    if not overlaps_a_handle(left, top):
+        return
+
+    if Math.abs(lh.top - rh.top) < lh.height + buffer:
+        # handles close vertically, place either above or below
+        bottom = max(lh.bottom, rh.bottom)
+        has_space_below = bottom + bar_height < available_height - buffer
+        if has_space_below:
+            return {'top': bottom, 'put_below': True}
+        return {'top': min(lh.top, rh.top), 'put_below': False}
+
+    b = bar_rect(left, top)
+    if lh.left > rh.left:
+        lh, rh = rh, lh
+    left_overlaps = elements_overlap(lh, b)
+    right_overlaps = elements_overlap(rh, b)
+    if not left_overlaps or not right_overlaps:
+        # overlapping a single handle, see if we can move horizontally
+        h = lh if left_overlaps else rh
+        d1 = d2 = 2 * available_width
+        q1 = h.left - bar_width - 1
+        if q1 > -buffer and not overlaps_a_handle(q1, top):
+            d1 = abs(left - q1)
+        q2 = h.right + 1
+        if q2 + bar_width < available_width + buffer and not overlaps_a_handle(q2, top):
+            d2 = abs(left - q2)
+        d = min(d1, d2)
+        if d < available_width:
+            return {'left': q1 if d is d1 else q2}
+
+    # try to place either to left of both handles, between both handles, to
+    # the right of both
+    d1 = d2 = d3 = 2 * available_width
+    q1 = lh.left - bar_width - 1
+    if q1 > -buffer and not overlaps_a_handle(q1, top):
+        d1 = abs(left - q1)
+    q2 = lh.right + 1
+    if q2 + bar_width < rh.left + buffer and not overlaps_a_handle(q2, top):
+        d2 = abs(left - q2)
+    q3 = rh.right + 1
+    if q3 + bar_width < available_width + buffer and not overlaps_a_handle(q3, top):
+        d3 = abs(left - q3)
+    d = min(d1, d2, d3)
+    if d < available_width:
+        return {'left': q1 if d is d1 else (q2 if d is d2 else q3)}
+
+    # look above both vertically, between both and below both
+    th, bh = v'[lh, rh]' if lh.top <= rh.top else v'[rh, lh]'
+    d1 = d2 = d3 = 2 * available_height
+    q1 = th.top - bar_height - 1
+    if q1 > -buffer and not overlaps_a_handle(left, q1):
+        d1 = abs(top - q1)
+    q2 = th.bottom + 1
+    if q2 + bar_height < bh.top + buffer and not overlaps_a_handle(left, q2):
+        d2 = abs(top - q2)
+    q3 = bh.bottom + 1
+    if q3 + bar_height < available_height + buffer and not overlaps_a_handle(left, q3):
+        d3 = abs(top - q3)
+    d = min(d1, d2, d3)
+    if d < available_height:
+        return {'top': (q1 + bar_height) if d is d1 else (q2 if d is d2 else q3), 'put_below': d is not d1}
+
+    # look in the four corners
+    if not overlaps_a_handle(buffer, buffer):
+        return {'left': buffer, 'top': buffer + bar_height, 'put_below': False}
+    if not overlaps_a_handle(available_width - bar_width, buffer):
+        return {'left': available_width - bar_width, 'top': buffer + bar_height, 'put_below': False}
+    if not overlaps_a_handle(buffer, available_height - bar_height):
+        return {'left': buffer, 'top': available_height - bar_height, 'put_below': True}
+    if not overlaps_a_handle(available_width - bar_width, available_height - bar_height):
+        return {'left': available_width - bar_width, 'top': available_height - bar_height, 'put_below': True}
+
+    # give up should be relatively rare
+
 
 
 def quick_highlight_icon(name, tooltip, hcolor):
@@ -52,10 +142,30 @@ def all_actions():
     return all_actions.ans
 
 
+def selection_handle(is_left, bg, fg):
+    ans = svgicon('selection-handle')
+    use = ans.querySelector('use')
+    use.style.stroke = fg
+    use.style.fill = bg
+    s = ans.style
+    if not is_left:
+        s.transform = 'scaleX(-1)'
+    s.position = 'absolute'
+    s.boxSizing = 'border-box'
+    s.touchAction = 'none'
+    s.pointerEvents = 'auto'
+    return ans
+
+
+def elements_overlap(a, b):
+    return a.left < b.right and b.left < a.right and a.top < b.bottom and b.top < a.bottom
+
+
 class SelectionBar:
 
     def __init__(self, view):
         self.view = view
+        self.current_highlight_style = HighlightStyle(get_session_data().get('highlight_style'))
 
     def build_bar(self, annot_id):
         notes = self.view.annotations_manager.notes_for_highlight(annot_id)
@@ -76,11 +186,16 @@ class SelectionBar:
             ),
         )
         bar = bar_container.firstChild
+        handle_fill = get_color('window-background')
+        left_handle = selection_handle(True, handle_fill, self.view.current_color_scheme.foreground)
+        right_handle = selection_handle(False, handle_fill, self.view.current_color_scheme.foreground)
+        c.appendChild(left_handle)
+        c.appendChild(right_handle)
         c.appendChild(bar_container)
-        bg = self.view.create_annotation.current_highlight_style['background-color']
+        hs = self.current_highlight_style.highlight_shade
 
         def cb(ac, callback):
-            ans = ac.icon_function(bg)
+            ans = ac.icon_function(hs)
             ans.addEventListener('click', def(ev):
                 callback(ev)
                 self.view.focus_iframe()
@@ -96,7 +211,7 @@ class SelectionBar:
             if ac and (not ac.needs_highlight or v'!!annot_id'):
                 bar.appendChild(cb(ac, self[ac.function_name]))
         self.show_notes(bar_container, notes)
-        return bar_container
+        return bar_container, left_handle, right_handle
 
     @property
     def supports_css_min_max(self):
@@ -194,6 +309,8 @@ class SelectionBar:
     def update_position(self):
         container = self.container
         clear(container)
+        container.style.overflow = 'hidden'
+
         cs = self.view.currently_showing.selection
         if not cs or cs.empty or jstype(cs.drag_mouse_position.x) is 'number':
             return self.hide()
@@ -211,32 +328,74 @@ class SelectionBar:
         def map_boundary(x):
             return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
-        bar = self.build_bar(cs.annot_id)
+        bar, left_handle, right_handle = self.build_bar(cs.annot_id)
         start = map_boundary(cs.start)
         end = map_boundary(cs.end)
         self.show()
         end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
+        bar_height = bar.offsetHeight
+        bar_width = bar.offsetWidth
+        buffer = 2
+        limits = {
+            'top': buffer, 'bottom': container.offsetHeight - bar_height - buffer,
+            # - 10 ensures we dont cover scroll bar
+            'left': buffer, 'right': container.offsetWidth - bar_width - buffer - 10
+        }
+        self.position_handles(left_handle, right_handle, start, end, end_after_start)
+
+        def place_vertically(pos, put_below):
+            if put_below:
+                top = pos
+                bar.style.flexDirection = 'column'
+            else:
+                top = pos - bar_height - buffer
+                bar.style.flexDirection = 'column-reverse'
+            bar.style.top = top + 'px'
+            return top
 
         # vertical position
-        bar_height = bar.offsetHeight
-        buffer = 2
         if end_after_start:
             has_space_below = end.y + end.height < container.offsetHeight - bar_height - buffer
             put_below = has_space_below
         else:
             has_space_above = end.y + bar_height - buffer > 0
             put_below = not has_space_above
-        top = (end.y + end.height + buffer) if put_below else (end.y - bar_height - buffer)
-        top = max(buffer, min(top, container.offsetHeight - bar_height - buffer))
-        bar.style.top = top + 'px'
-        bar.style.flexDirection = 'column' if put_below else 'column-reverse'
+        top = place_vertically(end.y + end.height if put_below else end.y, put_below)
 
         # horizontal position
-        bar_width = bar.offsetWidth
         left = end.x - bar_width // 2
-        # - 10 ensures we dont cover scroll bar
         if cs.drag_mouse_position.x?:
             mouse = map_boundary(cs.drag_mouse_position)
             left = mouse.x - bar_width // 2
-        left = max(buffer, min(left, container.offsetWidth - bar_width - buffer - 10))
+        left = max(limits.left, min(left, limits.right))
         bar.style.left = left + 'px'
+        lh, rh = left_handle.getBoundingClientRect(), right_handle.getBoundingClientRect()
+        changed = position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, container.offsetWidth - 10, container.offsetHeight, buffer)
+        if changed:
+            if changed.top?:
+                place_vertically(changed.top, changed.put_below)
+            if changed.left?:
+                bar.style.left = changed.left + 'px'
+
+
+    def position_handles(self, left_handle, right_handle, start, end, end_after_start):
+
+        def place_single_handle(handle, boundary, is_left):
+            s = handle.style
+            s.display = 'block' if boundary.onscreen else 'none'
+            height = boundary.height * 3
+            width = boundary.height * 2
+            s.width = f'{width}px'
+            s.height = f'{height}px'
+            bottom = boundary.y + boundary.height
+            top = bottom - height
+            s.top = f'{top}px'
+            if is_left:
+                s.left = (boundary.x - width) + 'px'
+            else:
+                s.left = boundary.x + 'px'
+
+        if not end_after_start:
+            start, end = end, start
+        place_single_handle(left_handle, start, True)
+        place_single_handle(right_handle, end, False)
