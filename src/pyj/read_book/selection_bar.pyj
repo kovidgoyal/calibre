@@ -156,7 +156,7 @@ def all_actions():
             'copy': a('copy', _('Copy to clipboard'), 'copy_to_clipboard'),
             'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
             'quick_highlight': a('highlight', _('Quick highlight in current color'), 'quick_highlight'),
-            'highlight': a('highlight', _('Highlight selection in notes mode'), 'create_highlight'),
+            'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
             'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
@@ -617,25 +617,35 @@ class SelectionBar:
         self.hide()
 
     def create_highlight(self):
-        self.view.initiate_create_annotation(True)
+        pass  # TODO: Implement this
 
     def quick_highlight(self):
         cs = self.view.currently_showing.selection
         if cs.text:
+            # TODO: Implement this
             if cs.annot_id:
-                self.view.initiate_create_annotation(True)
+                pass
             else:
-                self.view.create_annotation.quick_create()
+                pass
 
     def remove_highlight(self):
         annot_id = self.view.currently_showing.selection.annot_id
         if annot_id:
-            self.view.create_annotation.remove_highlight(annot_id)
+            self.remove_highlight_with_id(annot_id)
+
+    def remove_highlight_with_id(self, annot_id):
+        pass  # TODO: Implement this
+
+    def edit_highlight(self, annot_id):
+        pass  # TODO: Implement this
     # }}}
 
     # Interact with iframe {{{
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
+
+    def handle_message(self, data):
+        pass  # TODO: Implement this
 
     # }}}
