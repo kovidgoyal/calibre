@@ -157,7 +157,6 @@ def all_actions():
             'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
             'quick_highlight': a('highlight', _('Quick highlight in current color'), 'quick_highlight'),
             'highlight': a('highlight', _('Highlight selection in notes mode'), 'create_highlight'),
-            'selection': a('arrows-h', _('Highlight adjusting selection'), 'adjust_selection'),
             'search_net': a('search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
@@ -496,6 +495,7 @@ class SelectionBar:
     def update_position(self):
         container = self.container
         self.bar.style.display = 'none'
+        self.editor.style.display = 'none'
         self.set_handle_colors()
         if self.state is DRAGGING:
             return
@@ -618,9 +618,6 @@ class SelectionBar:
 
     def create_highlight(self):
         self.view.initiate_create_annotation(True)
-
-    def adjust_selection(self):
-        self.view.initiate_create_annotation(False)
 
     def quick_highlight(self):
         cs = self.view.currently_showing.selection
