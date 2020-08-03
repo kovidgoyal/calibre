@@ -500,16 +500,19 @@ class SelectionBar:
 
     def update_position(self):
         container = self.container
+        cs = self.view.currently_showing.selection
         self.bar.style.display = 'none'
-        self.editor.style.display = 'none'
         self.set_handle_colors()
         if self.state is DRAGGING:
             self.show()
             return
+        if self.state is EDITING:
+            self.show()
+            return
         self.left_handle.style.display = 'none'
         self.right_handle.style.display = 'none'
+        self.editor.style.display = 'none'
 
-        cs = self.view.currently_showing.selection
         if not cs or cs.empty or jstype(cs.drag_mouse_position.x) is 'number':
             return self.hide()
 
@@ -522,8 +525,6 @@ class SelectionBar:
             return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
 
         self.show()
-        if self.state is EDITING:
-            return
         self.bar.style.display = self.left_handle.style.display = self.right_handle.style.display = 'block'
         start = map_boundary(cs.start)
         end = map_boundary(cs.end)
