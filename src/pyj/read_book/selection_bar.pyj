@@ -22,6 +22,15 @@ def get_margins():
     }
 
 
+def map_boundaries(cs):
+    margins = get_margins()
+
+    def map_boundary(x):
+        return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
+
+    return map_boundary(cs.start), map_boundary(cs.end)
+
+
 def map_to_iframe_coords(point, margins):
     point.x -= margins.left
     point.y -= margins.top
@@ -235,11 +244,8 @@ class SelectionBar:
             'left: 0; top: 0; display: flex; flex-direction: column;'
         ))
 
-        editor_div = E.div(id=self.editor_id, style='pointer-events: auto')
-        container.appendChild(E.div(
-            editor_div,
-        style='width: 100%; height: 100%; position: absolute; display: flex;'
-        'align-items: center; justify-content: center; pointer-events: none'))
+        editor_div = E.div(id=self.editor_id, style='position: absolute')
+        container.appendChild(editor_div)
         editor_div.addEventListener('click', self.editor_container_clicked, {'passive': False})
 
     # bar and handles markup {{{
@@ -508,6 +514,7 @@ class SelectionBar:
             return
         if self.state is EDITING:
             self.show()
+            self.place_editor()
             return
         self.left_handle.style.display = 'none'
         self.right_handle.style.display = 'none'
@@ -519,15 +526,9 @@ class SelectionBar:
         if not cs.start.onscreen and not cs.end.onscreen:
             return self.hide()
 
-        margins = get_margins()
-
-        def map_boundary(x):
-            return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
-
         self.show()
         self.bar.style.display = self.left_handle.style.display = self.right_handle.style.display = 'block'
-        start = map_boundary(cs.start)
-        end = map_boundary(cs.end)
+        start, end = map_boundaries(cs)
         bar = self.build_bar(cs.annot_id)
         end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
         bar_height = bar.offsetHeight
@@ -562,9 +563,6 @@ class SelectionBar:
 
         # horizontal position
         left = end.x - bar_width // 2
-        if cs.drag_mouse_position.x?:
-            mouse = map_boundary(cs.drag_mouse_position)
-            left = mouse.x - bar_width // 2
         left = max(limits.left, min(left, limits.right))
         bar.style.left = left + 'px'
         lh, rh = left_handle.getBoundingClientRect(), right_handle.getBoundingClientRect()
@@ -611,6 +609,39 @@ class SelectionBar:
         self.state = EDITING
         self.current_editor = EditNotesAndColors(
             container, self.view.current_color_scheme.is_dark_theme, notes, highlight_style, self.hide_editor)
+        self.place_editor()
+
+    def place_editor(self):
+        if self.current_editor is None:
+            return
+        ed = self.editor
+        cs = self.view.currently_showing.selection
+        start, end = map_boundaries(cs)
+        if not start.onscreen and not end.onscreen:
+            return
+        width, height = ed.offsetWidth, ed.offsetHeight
+        if not start.onscreen:
+            start = end
+        if not end.onscreen:
+            end = start
+        top, bottom = v'[start, end]' if start.y <= end.y else v'[end, start]'
+        container = self.container
+        space_above, space_below = top.y, container.offsetHeight - (bottom.y + bottom.height)
+        if height <= min(space_above, space_below):
+            put_above = space_above < space_below
+        else:
+            put_above = space_above > space_below
+        if put_above:
+            y = max(0, top.y - height)
+        else:
+            y = bottom.y + bottom.height
+            if y + height > container.offsetHeight:
+                y = container.offsetHeight - height
+        x = max(0, end.x - width // 2)
+        if x + width > container.offsetWidth:
+            x = container.offsetWidth - width
+        ed.style.left = x + 'px'
+        ed.style.top = y + 'px'
 
     def hide_editor(self, apply):
         pass  # TODO: Implement this
