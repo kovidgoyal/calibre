@@ -694,7 +694,3 @@ class WebView(RestartingWebEngineView):
 
     def generic_action(self, which, data):
         self.execute_when_ready('generic_action', which, data)
-
-    def contextMenuEvent(self, ev):
-        ev.accept()
-        self.trigger_shortcut('show_chrome')
