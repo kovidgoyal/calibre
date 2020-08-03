@@ -2,6 +2,15 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from book_list.theme import get_color
+from dom import unique_id
+from widgets import create_button
+
+ICON_SIZE = '3ex'
 builtin_colors_light = {
     'yellow': '#ffeb6b',
     'green': '#c0ed72',
@@ -27,29 +36,237 @@ def default_color(is_dark):
     return builtin_color('yellow', is_dark)
 
 
+def all_builtin_styles():
+    ans = v'[]'
+    for col in builtin_colors_light:
+        ans.push({'type': 'builtin', 'kind': 'color', 'which': col})
+    return ans
+
+
+def custom_color_theme(bg):
+    return {'type': 'custom', 'kind': 'color', 'which': bg}
+
+
 class HighlightStyle:
 
     def __init__(self, style):
+        if jstype(style) is 'string':
+            style = JSON.parse(style)
         self.style = style or {'type': 'builtin', 'kind': 'color', 'which': 'yellow'}
+        self.key = f'type:{style.type} kind:{style.kind} which: {style.which} bg: {style["background-color"]}'
+
+    def make_swatch(self, container, is_dark):
+        s = container.style
+        s.width = s.height = s.minimumWidth = s.minimumHeight = ICON_SIZE
+        bg = None
+        if s.type is 'builtin':
+            if s.kind is 'color':
+                bg = builtin_color(s.which, is_dark)
+        if bg is None and s['background-color']:
+            bg = s['background-color']
+        if bg:
+            s.backgroundColor = bg
+            s.borderRadius = '4px'
 
     def highlight_shade(self, is_dark):
         s = self.style
         if s.type is 'builtin':
             if s.kind is 'color':
                 return builtin_color(s.which, is_dark)
-            return default_color(is_dark)
         return s['background-color'] or default_color(is_dark)
 
-    def as_css(self, is_dark, foreground):
-        s = self.style
+    def serialized(self):
+        return JSON.stringify(self.style)
+
+
+def highlight_style_as_css(s, is_dark, foreground):
+
+    def styler(node):
+        node = node.style
         if s.type is 'builtin':
             if s.kind is 'color':
-                ans = 'background-color: ' + builtin_color(s.which, is_dark) + ';'
+                node.backgroundColor = builtin_color(s.which, is_dark)
                 if foreground:
-                    ans += 'color: ' + foreground + ';'
-                return ans
-        ans = 'background-color: ' + (s['background-color'] or default_color(is_dark)) + ';'
+                    node.color = foreground
+                return
+        node.backgroundColor = s['background-color'] or default_color(is_dark)
         fg = s.color or foreground
         if fg:
-            ans += 'color: ' + fg + ';'
-        return ans
+            node.color = fg
+
+    return styler
+
+
+def custom_styles_equal(a, b):
+    seen = {}
+    for k in a:
+        seen[k] = True
+        if a[k] is not b[k]:
+            return False
+    for k in b:
+        if not seen[k]:
+            if a[k] is not b[k]:
+                return False
+    return True
+
+
+class EditNotesAndColors:  # {{{
+
+    def __init__(self, container, is_dark_theme, current_notes, current_style, close_editor):
+        self.initial_style = current_style
+        self.is_dark_theme = is_dark_theme
+
+        def separator():
+            return E.hr(style='max-width: 80em; width: 80vw; border-top: solid 1px; margin: auto; margin-top: 2ex; margin-bottom: 2ex')
+
+        def finish():
+            close_editor(True)
+
+        def abort():
+            close_editor(False)
+
+        def handle_keypress(ev):
+            ev.stopPropagation()
+            if ev.key is 'Escape':
+                abort()
+            elif ev.key is 'Enter' and ev.ctrlKey:
+                finish()
+
+        c = E.div(
+            style=f'background: {get_color("window-background")}; margin: auto; padding: 1rem',
+            onclick=def(ev): ev.stopPropagation();,
+            id=unique_id(),
+            E.h3(_('Add notes for this highlight')),
+            E.textarea(
+                current_notes or '',
+                rows='10', spellcheck='true', style='resize: none; width: 80vw; max-width: 80em; margin: 1ex',
+                onkeydown=handle_keypress,
+            ),
+            E.div(
+                style='margin: 1ex; font-size: smaller',
+                _('Double click or long tap on a highlight to see its notes')
+            ),
+
+            separator(),
+
+            E.h3(_('Choose the color for this highlight'), style='margin-bottom: 2ex'),
+            E.div(
+                class_='color-block',
+                style=f'display: flex; flex-wrap: wrap; max-width: calc({ICON_SIZE} * 8); margin: auto',
+            ),
+            E.div(
+                style='max-width: 80em; width: 80vw; margin: auto; margin-top: 2ex; display: flex; justify-content: space-between; align-items: center',
+                E.div(
+                    E.label(_('New color:'), ' ', E.input(type='color', onchange=self.add_custom_color))
+                ),
+                E.div(
+                    E.a(_('Remove color'), class_='simple-link remove-custom-color', onclick=self.remove_custom_color),
+                ),
+            ),
+
+            separator(),
+
+            E.div(
+                style='max-width: 80em; width: 80vw; margin: auto; display: flex; justify-content: space-between',
+                create_button(_('Cancel'), 'close', abort, _('Abort') + ' [Esc]'),
+                create_button(_('Finish'), 'check', finish, _('Finish editing highlight') + ' [Ctrl+Enter]', True),
+            )
+
+        )
+        self.container_id = c.id
+        container.appendChild(c)
+        self.seen_colors = {}
+        custom_highlight_styles = get_session_data().get('custom_highlight_styles')
+        for raw in custom_highlight_styles:
+            self.add_color(HighlightStyle(raw)).classList.add('custom-style')
+        for raw in all_builtin_styles():
+            self.add_color(HighlightStyle(raw))
+        if not c.querySelector('.current-swatch'):
+            self.add_color(self.initial_style)
+
+        self.set_visibility_of_remove_button()
+        self.notes_edit.focus()
+
+    def set_visibility_of_remove_button(self):
+        c = self.container
+        item = c.querySelector('.current-swatch.custom-style')
+        visibility = 'unset' if item else 'hidden'
+        c.querySelector('.remove-custom-color').style.visibility = visibility
+
+    def add_color(self, hs, at_start):
+        if self.seen_colors[hs.key]:
+            return
+        self.seen_colors[hs.key] = True
+        ic = E.div()
+        hs.make_swatch(ic, self.is_dark_theme)
+        ic.classList.add('simple-link')
+        is_current = hs.key is self.initial_style.key
+        sqbg = get_color('window-background2') if is_current else 'unset'
+        item = E.div(
+            ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
+            onclick=self.change_color
+        )
+        if is_current:
+            item.classList.add('current-swatch')
+        item.dataset.style = hs.serialized()
+        parent = self.container.getElementsByClassName('color-block')[0]
+        if at_start:
+            parent.insertBefore(item, parent.firstChild)
+        else:
+            parent.appendChild(item)
+        return item
+
+    def add_custom_color(self):
+        bg = self.container.querySelector('input[type=color]').value
+        cct = custom_color_theme(bg)
+        item = self.add_color(HighlightStyle(cct), True)
+        item.classList.add('custom-style')
+        self.make_swatch_current(item)
+        sd = get_session_data()
+        custom_highlight_styles = sd.get('custom_highlight_styles')
+        custom_highlight_styles.unshift(cct)
+        sd.set('custom_highlight_styles', custom_highlight_styles)
+
+    def remove_custom_color(self):
+        item = self.container.getElementsByClassName('current-swatch')[0]
+        cct = JSON.parse(item.dataset.style)
+        p = item.parentNode
+        p.removeChild(item)
+        self.make_swatch_current(p.firstChild)
+        sd = get_session_data()
+        custom_highlight_styles = sd.get('custom_highlight_styles')
+        ans = v'[]'
+        for x in custom_highlight_styles:
+            if not custom_styles_equal(x, cct):
+                ans.push(x)
+        sd.set('custom_highlight_styles', ans)
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def notes_edit(self):
+        return self.container.getElementsByTagName('textarea')[0]
+
+    def change_color(self, evt):
+        evt.stopPropagation()
+        self.make_swatch_current(evt.currentTarget)
+
+    def make_swatch_current(self, item):
+        for child in item.parentNode.childNodes:
+            child.style.backgroundColor = 'unset'
+            child.classList.remove('current-swatch')
+        item.style.backgroundColor = get_color('window-background2')
+        item.classList.add('current-swatch')
+        self.notes_edit.focus()
+        self.set_visibility_of_remove_button()
+
+    @property
+    def current_notes(self):
+        return self.notes_edit.value or ''
+
+    @property
+    def current_style(self):
+        return HighlightStyle(self.container.getElementsByClassName('current-swatch')[0].dataset.style)
+# }}}

@@ -35,6 +35,7 @@ from read_book.globals import (
     current_spine_item, runtime, set_boss, set_current_spine_item, set_layout_mode,
     set_toc_anchor_map
 )
+from read_book.highlights import highlight_style_as_css
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
@@ -782,7 +783,8 @@ class IframeBoss:
             if not sel.rangeCount:
                 return
             bounds = cfi_for_selection()
-            annot_id, intersecting_wrappers = wrap_text_in_range(data.style, None, self.add_highlight_listeners)
+            style = highlight_style_as_css(data.style, opts.is_dark_theme, opts.color_scheme.foreground)
+            annot_id, intersecting_wrappers = wrap_text_in_range(style, None, self.add_highlight_listeners)
             removed_highlights = v'[]'
             if annot_id is not None:
                 intersecting_uuids = {annot_id_uuid_map[x]:True for x in intersecting_wrappers}
@@ -821,7 +823,7 @@ class IframeBoss:
             r = range_from_cfi(h.start_cfi, h.end_cfi)
             if not r:
                 continue
-            style = f'color: {h.style.color}; background-color: {h.style["background-color"]}'
+            style = highlight_style_as_css(h.style, opts.is_dark_theme, opts.color_scheme.foreground)
             annot_id, intersecting_wrappers = wrap_text_in_range(style, r, self.add_highlight_listeners)
             if annot_id is not None:
                 annot_id_uuid_map[annot_id] = h.uuid
