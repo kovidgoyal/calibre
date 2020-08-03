@@ -9,9 +9,8 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
 from read_book.globals import runtime, ui_operations
-from read_book.highlights import HighlightStyle
+from read_book.highlights import ICON_SIZE, EditNotesAndColors, HighlightStyle
 
-ICON_SIZE = '3ex'
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 
 # Utils {{{
@@ -220,6 +219,7 @@ class SelectionBar:
         self.drag_scroll_timer = None
         self.last_drag_scroll_at = -100000
         self.left_line_height = self.right_line_height = 0
+        self.current_editor = None
 
         left_handle = selection_handle(True)
         left_handle.id = self.left_handle_id
@@ -235,6 +235,7 @@ class SelectionBar:
             'left: 0; top: 0; display: flex; flex-direction: column;'
         ))
         container.appendChild(E.div(id=self.editor_id))
+        container.lastChild.addEventListener('click', self.editor_container_clicked, {'passive': False})
 
     # bar and handles markup {{{
 
@@ -262,7 +263,7 @@ class SelectionBar:
         ]:
             bar_container.appendChild(x)
         bar = bar_container.firstChild
-        hs = self.current_highlight_style.highlight_shade
+        hs = self.current_highlight_style.highlight_shade(self.view.current_color_scheme.is_dark_theme)
 
         def cb(ac, callback):
             ans = ac.icon_function(hs)
@@ -381,7 +382,7 @@ class SelectionBar:
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
         if self.state is EDITING:
-            return  # TODO: accept edit and apply highlight
+            self.hide_editor(True)
         if self.state is WAITING:
             for x in (self.bar, self.left_handle, self.right_handle):
                 if near_element(x, ev.clientX, ev.clientY):
@@ -498,6 +499,7 @@ class SelectionBar:
         self.editor.style.display = 'none'
         self.set_handle_colors()
         if self.state is DRAGGING:
+            self.show()
             return
         self.left_handle.style.display = 'none'
         self.right_handle.style.display = 'none'
@@ -516,7 +518,7 @@ class SelectionBar:
 
         self.show()
         if self.state is EDITING:
-            return self.show_editor()  # TODO: Implement this
+            return
         self.bar.style.display = self.left_handle.style.display = self.right_handle.style.display = 'block'
         start = map_boundary(cs.start)
         end = map_boundary(cs.end)
@@ -591,7 +593,24 @@ class SelectionBar:
             start, end = end, start
         place_single_handle(left_handle, start, True)
         place_single_handle(right_handle, end, False)
+    # }}}
 
+    # Editor {{{
+    def show_editor(self, highlight_style, notes):
+        for x in (self.bar, self.left_handle, self.right_handle):
+            x.style.display = 'none'
+        container = self.editor
+        clear(container)
+        container.style.display = 'block'
+        self.state = EDITING
+        self.current_editor = EditNotesAndColors(
+            container, self.view.current_color_scheme.is_dark_theme, notes, highlight_style, self.hide_editor)
+
+    def hide_editor(self, apply):
+        pass  # TODO: Implement this
+
+    def editor_container_clicked(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
     # }}}
 
     # Actions  {{{
@@ -617,7 +636,17 @@ class SelectionBar:
         self.hide()
 
     def create_highlight(self):
-        pass  # TODO: Implement this
+        cs = self.view.currently_showing.selection
+        hs = self.current_highlight_style
+        notes = ''
+        if cs.annot_id:
+            am = self.view.annotations_manager
+            q = am.style_for_highlight(cs.annot_id)
+            if q:
+                hs = HighlightStyle(q)
+            notes = am.notes_for_highlight(cs.annot_id) or notes
+            self.show()
+        self.show_editor(hs, notes)
 
     def quick_highlight(self):
         cs = self.view.currently_showing.selection
