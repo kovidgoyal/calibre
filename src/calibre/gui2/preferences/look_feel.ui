@@ -277,7 +277,7 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;b&gt;Automatic&lt;/b&gt;: Adjust the user interface if a high resolution monitor is detected. Will respect Qt environment variables controlling high DPI behavior. So if you use the environment variable QT_AUTO_SCREEN_SCALE_FACTOR then it will be used instead of this setting.&lt;/li&gt;
 
-&lt;li&gt;&lt;b&gt;On&lt;/b&gt;: Same as &quot;Automatic&quot;, but ignores Qt environment variables controlling high dpi behavior.&lt;/li&gt;
+&lt;li&gt;&lt;b&gt;On&lt;/b&gt;: Same as &quot;Automatic&quot;, but ignores Qt environment variables controlling high DPI behavior.&lt;/li&gt;
 
 &lt;li&gt;&lt;b&gt;Off&lt;/b&gt;: Do not adjust the user interface, regardless of Qt environment variables.&lt;/li&gt;
 &lt;/ul&gt;</string>
