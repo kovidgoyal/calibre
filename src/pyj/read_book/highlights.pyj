@@ -117,9 +117,10 @@ def custom_styles_equal(a, b):
 
 class EditNotesAndColors:  # {{{
 
-    def __init__(self, container, is_dark_theme, current_notes, current_style, close_editor):
+    def __init__(self, container, is_dark_theme, current_notes, current_style, annot_id, close_editor):
         self.initial_style = current_style
         self.is_dark_theme = is_dark_theme
+        self.annot_id = annot_id
 
         def finish():
             close_editor(True)
@@ -159,7 +160,10 @@ class EditNotesAndColors:  # {{{
                     E.span('\xa0'),
                     remove_button
                 ),
-                create_button(_('Finish'), 'check', finish, _('Finish editing highlight') + ' [Ctrl+Enter]', True),
+                create_button(
+                    _('Apply') if self.annot_id else _('Create'),
+                    'check', finish,
+                    (_('Finish editing highlight') if self.annot_id else _('Create highlight')) + ' [Ctrl+Enter]', True),
             )
 
         )

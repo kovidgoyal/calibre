@@ -607,8 +607,9 @@ class SelectionBar:
         clear(container)
         container.style.display = 'block'
         self.state = EDITING
+        cs = self.view.currently_showing.selection
         self.current_editor = EditNotesAndColors(
-            container, self.view.current_color_scheme.is_dark_theme, notes, highlight_style, self.hide_editor)
+            container, self.view.current_color_scheme.is_dark_theme, notes, highlight_style, cs.annot_id, self.hide_editor)
         self.place_editor()
 
     def place_editor(self):
