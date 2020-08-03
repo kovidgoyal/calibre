@@ -644,8 +644,12 @@ class SelectionBar:
         ed.style.left = x + 'px'
         ed.style.top = y + 'px'
 
-    def hide_editor(self, apply):
-        pass  # TODO: Implement this
+    def hide_editor(self, apply_changes):
+        if not apply_changes:
+            self.state = WAITING
+            self.update_position()
+            return
+        # TODO: Implement this
 
     def editor_container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
