@@ -28,6 +28,26 @@ def text_nodes_in_range(r):
     return ans
 
 
+def first_annot_in_range(r, annot_id_uuid_map):
+    parent = r.commonAncestorContainer
+    doc = parent.ownerDocument or document
+    iterator = doc.createNodeIterator(parent)
+    in_range = False
+    while True:
+        node = iterator.nextNode()
+        if not node:
+            break
+        if not in_range and node.isSameNode(r.startContainer):
+            in_range = True
+        if in_range:
+            if node.dataset and node.dataset.calibreRangeWrapper:
+                annot_id = annot_id_uuid_map[node.dataset.calibreRangeWrapper]
+                if annot_id:
+                    return annot_id
+            if node.isSameNode(r.endContainer):
+                break
+
+
 def remove(node):
     if node.parentNode:
         node.parentNode.removeChild(node)
@@ -174,12 +194,8 @@ def highlight_associated_with_selection(sel, annot_id_uuid_map):
         if annot_id:
             return annot_id
 
-        all_wrappers = document.querySelectorAll('span[data-calibre-range-wrapper]')
         for v'var i = 0; i < sel.rangeCount; i++':
             r = sel.getRangeAt(i)
-            for v'var x = 0; x < all_wrappers.length; x++':
-                wrapper = all_wrappers[x]
-                if r.intersectsNode(wrapper):
-                    annot_id = annot_id_uuid_map[wrapper.dataset.calibreRangeWrapper]
-                    if annot_id:
-                        return annot_id
+            annot_id = first_annot_in_range(r, annot_id_uuid_map)
+            if annot_id:
+                return annot_id
