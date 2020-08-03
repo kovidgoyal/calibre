@@ -121,9 +121,6 @@ class EditNotesAndColors:  # {{{
         self.initial_style = current_style
         self.is_dark_theme = is_dark_theme
 
-        def separator():
-            return E.hr(style='width: 100%; border-top: solid 1px; margin: auto; margin-top: 2ex; margin-bottom: 2ex')
-
         def finish():
             close_editor(True)
 
@@ -137,50 +134,38 @@ class EditNotesAndColors:  # {{{
             elif ev.key is 'Enter' and ev.ctrlKey:
                 finish()
 
+        remove_button = create_button(_('Remove style'), 'trash', self.remove_custom_color, _('Remove this custom highlight style'))
+        remove_button.classList.add('remove-custom-color')
+
         c = E.div(
-            style=f'background: {get_color("window-background")}; margin: auto; text-align: center; padding: 2rem;',
+            style=f'background: {get_color("window-background")}; margin: auto; text-align: center; padding: 1ex;',
             onclick=def(ev): ev.stopPropagation();,
             id=unique_id(),
-            E.h3(_('Add notes for this highlight')),
             E.textarea(
                 current_notes or '',
-                rows='10', spellcheck='true', style='resize: none; width: 90%; margin: 1ex',
+                placeholder=_('Add notes for this highlight. Double click or long tap on a highlight to read its notes.'),
+                rows='10', spellcheck='true', style='resize: none; width: 90%;',
                 onkeydown=handle_keypress,
             ),
-            E.div(
-                style='margin: 1ex; font-size: smaller',
-                _('Double click or long tap on a highlight to see its notes')
-            ),
 
-            separator(),
-
-            E.h3(_('Choose the color for this highlight'), style='margin-bottom: 2ex'),
             E.div(
                 class_='color-block',
-                style=f'display: flex; flex-wrap: wrap; max-width: calc({ICON_SIZE} * 10); margin: auto',
+                style=f'display: flex; flex-wrap: wrap; width: 100%; justify-content: center',
             ),
             E.div(
-                style='width: 100%; margin: auto; margin-top: 2ex; display: flex; justify-content: space-between; align-items: center',
+                style='width: 100%; display: flex; justify-content: space-between',
                 E.div(
-                    E.label(_('New color:'), ' ', E.input(type='color', onchange=self.add_custom_color))
+                    create_button(_('Cancel'), 'close', abort, _('Abort') + ' [Esc]'),
+                    E.span('\xa0'),
+                    remove_button
                 ),
-                E.div(
-                    E.a(_('Remove color'), class_='simple-link remove-custom-color', onclick=self.remove_custom_color),
-                ),
-            ),
-
-            separator(),
-
-            E.div(
-                style='width: 100%; margin: auto; display: flex; justify-content: space-between',
-                create_button(_('Cancel'), 'close', abort, _('Abort') + ' [Esc]'),
                 create_button(_('Finish'), 'check', finish, _('Finish editing highlight') + ' [Ctrl+Enter]', True),
             )
 
         )
         self.container_id = c.id
         container.appendChild(c)
-        container.style.maxWidth = '50rem'
+        container.style.maxWidth = '40rem'
         container.style.width = '90%'
         self.seen_colors = {}
         custom_highlight_styles = get_session_data().get('custom_highlight_styles')
@@ -189,10 +174,10 @@ class EditNotesAndColors:  # {{{
         for raw in all_builtin_styles():
             self.add_color(HighlightStyle(raw))
         if not c.querySelector('.current-swatch'):
-            self.add_color(self.initial_style)
+            self.add_color(self.initial_style, True)
 
         self.set_visibility_of_remove_button()
-        self.notes_edit.focus()
+        window.setTimeout(self.notes_edit.focus.bind(self.notes_edit), 0)
 
     def set_visibility_of_remove_button(self):
         c = self.container
