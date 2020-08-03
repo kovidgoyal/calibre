@@ -234,8 +234,13 @@ class SelectionBar:
             style='position: absolute; border: solid 1px currentColor; border-radius: 5px;'
             'left: 0; top: 0; display: flex; flex-direction: column;'
         ))
-        container.appendChild(E.div(id=self.editor_id))
-        container.lastChild.addEventListener('click', self.editor_container_clicked, {'passive': False})
+
+        editor_div = E.div(id=self.editor_id, style='pointer-events: auto')
+        container.appendChild(E.div(
+            editor_div,
+        style='width: 100%; height: 100%; position: absolute; display: flex;'
+        'align-items: center; justify-content: center; pointer-events: none'))
+        editor_div.addEventListener('click', self.editor_container_clicked, {'passive': False})
 
     # bar and handles markup {{{
 
