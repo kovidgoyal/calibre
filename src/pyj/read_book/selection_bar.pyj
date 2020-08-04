@@ -4,10 +4,12 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 from gettext import gettext as _
+from uuid import short_uuid
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
+from modals import error_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import ICON_SIZE, EditNotesAndColors, HighlightStyle
 
@@ -207,6 +209,7 @@ class SelectionBar:
     def __init__(self, view):
         self.view = view
         self.current_highlight_style = HighlightStyle(get_session_data().get('highlight_style'))
+        self.current_notes = ''
         self.state = HIDDEN
         self.left_handle_id = unique_id('handle')
         self.right_handle_id = unique_id('handle')
@@ -257,7 +260,7 @@ class SelectionBar:
             set_handle_color(h, handle_fill, fg)
 
     def build_bar(self, annot_id):
-        notes = self.view.annotations_manager.notes_for_highlight(annot_id)
+        notes = self.annotations_manager.notes_for_highlight(annot_id)
         bar_container = self.bar
         clear(bar_container)
         bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
@@ -351,6 +354,10 @@ class SelectionBar:
     @property
     def editor(self):
         return document.getElementById(self.editor_id)
+
+    @property
+    def annotations_manager(self):
+        return self.view.annotations_manager
 
     @property
     def current_handle_position(self):
@@ -649,7 +656,16 @@ class SelectionBar:
             self.state = WAITING
             self.update_position()
             return
-        # TODO: Implement this
+        ed = self.current_editor
+        self.current_editor = None
+        self.current_highlight_style = ed.current_style
+        self.current_notes = ed.current_notes
+        self.send_message(
+            'apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), existing=ed.annot_id
+        )
+        self.state = WAITING
+        self.update_position()
+        get_session_data().set('highlight_style', self.current_highlight_style.style)
 
     def editor_container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -682,7 +698,7 @@ class SelectionBar:
         hs = self.current_highlight_style
         notes = ''
         if cs.annot_id:
-            am = self.view.annotations_manager
+            am = self.annotations_manager
             q = am.style_for_highlight(cs.annot_id)
             if q:
                 hs = HighlightStyle(q)
@@ -705,7 +721,8 @@ class SelectionBar:
             self.remove_highlight_with_id(annot_id)
 
     def remove_highlight_with_id(self, annot_id):
-        pass  # TODO: Implement this
+        self.send_message('remove-highlight', uuid=annot_id)
+        self.annotations_manager.delete_highlight(annot_id)
 
     def edit_highlight(self, annot_id):
         pass  # TODO: Implement this
@@ -716,7 +733,17 @@ class SelectionBar:
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
 
-    def handle_message(self, data):
-        pass  # TODO: Implement this
+    def handle_message(self, msg):
+        if msg.type is 'highlight-applied':
+            notes = self.current_notes
+            self.current_notes = ''
+            if not msg.ok:
+                return error_dialog(
+                    _('Highlighting failed'),
+                    _('Failed to apply highlighting, try adjusting extent of highlight')
+                )
+            self.annotations_manager.add_highlight(msg, self.current_highlight_style.style, notes)
+        else:
+            print('Ignoring annotations message with unknown type:', msg.type)
 
     # }}}
