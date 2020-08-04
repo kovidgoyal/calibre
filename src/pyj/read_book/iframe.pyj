@@ -4,16 +4,13 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from gettext import gettext as _
-from select import (
-    extend_selection_to_limit, selection_extents, selection_extents_at_point,
-    set_selections_extents_to, word_at_point
-)
+from select import selection_extents, set_selections_extents_to, word_at_point
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import (
     highlight_associated_with_selection, reset_highlight_counter, select_crw,
-    set_selection_to_highlight, unwrap_all_crw, unwrap_crw, wrap_text_in_range
+    unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
 from read_book.cfi import (
     cfi_for_selection, range_from_cfi, scroll_to as scroll_to_cfi
@@ -711,37 +708,12 @@ class IframeBoss:
             end_reference_mode()
 
     def annotations_msg_received(self, data):
-        in_flow_mode = current_layout_mode() is 'flow'
         if data.type is 'set-selection':
             set_selections_extents_to(data.extents)
-        elif data.type is 'position-handles-at-point':
-            extents = selection_extents_at_point(data.x, data.y, in_flow_mode)
-            annot_id = set_selection_to_highlight()
-            if annot_id:
-                extents = selection_extents(in_flow_mode)
-            self.send_message(
-                'annotations', type='position-handles', extents=extents, existing=annot_id_uuid_map[annot_id])
-        elif data.type is 'drag-scroll':
-            if self.scroll_to_extend_annotation(data.backwards):
-                if data.extend_selection:
-                    extend_selection_to_limit(data.handle is 'left', data.backwards)
-                extents = selection_extents(in_flow_mode)
-                self.send_message(
-                    'annotations', type='scrolled',
-                    backwards=data.backwards, handle=data.handle, extents=extents, extended=data.extend_selection
-                )
-        elif data.type is 'paged-scroll':
-            if self.scroll_to_extend_annotation(data.backwards, False, True):
-                extents = selection_extents(in_flow_mode)
-                self.send_message(
-                    'annotations', type='scrolled', backwards=data.backwards, handle=None,
-                    extents=extents, extended=False
-                )
-        elif data.type is 'perp-scroll':
-            if in_flow_mode and flow_annotation_scroll(data.backwards, True):
-                self.send_message('annotations', type='update-handles', extents=selection_extents(in_flow_mode))
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
+        elif data.type is 'trigger-shortcut':
+            self.on_handle_navigation_shortcut(data)
         elif data.type is 'edit-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_ and select_crw(crw_):

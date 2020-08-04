@@ -12,6 +12,7 @@ from dom import clear, svgicon, unique_id
 from modals import error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import ICON_SIZE, EditNotesAndColors, HighlightStyle
+from read_book.shortcuts import shortcut_for_key_event
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 
@@ -223,7 +224,8 @@ class SelectionBar:
         container.addEventListener('touchmove', self.touchmove_on_container, {'passive': False})
         container.addEventListener('touchend', self.touchend_on_container, {'passive': False})
         container.addEventListener('touchcancel', self.touchend_on_container, {'passive': False})
-        container.addEventListener('keydown', self.on_keydown, {'passive': False})  # TODO: Implement this
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})
+        container.setAttribute('tabindex', '0')
 
         self.dragging_handle = None
         self.position_in_handle = {'x': 0, 'y': 0}
@@ -462,6 +464,17 @@ class SelectionBar:
                     self.active_touch = None
                     self.end_handle_drag()
                     return
+
+    def on_keydown(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if ev.key is 'Escape':
+            self.clear_selection()
+            return
+        sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if sc_name is 'show_chrome':
+            self.clear_selection()
+        elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
+            self.send_message('trigger-shortcut', name=sc_name)
     # }}}
 
     # drag scroll {{{
@@ -499,6 +512,7 @@ class SelectionBar:
     def hide(self):
         self.state = HIDDEN
         self.container.style.display = 'none'
+        self.view.focus_iframe()
 
     def show(self):
         sd = get_session_data()
@@ -506,6 +520,7 @@ class SelectionBar:
             if sd.get('show_selection_bar'):
                 self.container.style.display = 'block'
                 self.state = WAITING
+                self.container.focus()
 
     @property
     def is_visible(self):
