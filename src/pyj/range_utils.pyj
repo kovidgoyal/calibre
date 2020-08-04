@@ -153,21 +153,6 @@ def reset_highlight_counter():
     wrapper_counter = 0
 
 
-def set_selection_to_highlight():
-    sel = window.getSelection()
-    if not sel or not sel.rangeCount:
-        return
-    r = sel.getRangeAt(0)
-    crw = None
-    for node in text_nodes_in_range(r):
-        crw = node.parentNode.dataset.calibreRangeWrapper
-        if crw:
-            break
-    if crw:
-        select_crw(crw)
-    return crw or None
-
-
 def get_annot_id_for(node, offset, annot_id_uuid_map):
 
     if not node:
