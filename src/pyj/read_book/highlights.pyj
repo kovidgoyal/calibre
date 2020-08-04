@@ -56,7 +56,7 @@ class HighlightStyle:
         if jstype(style) is 'string':
             style = JSON.parse(style)
         self.style = style or {'type': 'builtin', 'kind': 'color', 'which': 'yellow'}
-        self.key = f'type:{style.type} kind:{style.kind} which: {style.which} bg: {style["background-color"]}'
+        self.key = f'type:{self.style.type} kind:{self.style.kind} which: {self.style.which} bg: {self.style["background-color"]}'
 
     def make_swatch(self, container, is_dark):
         style = container.style
@@ -264,5 +264,6 @@ class EditNotesAndColors:  # {{{
 
     @property
     def current_style(self):
-        return HighlightStyle(self.container.getElementsByClassName('current-swatch')[0].dataset.style)
+        style = self.container.getElementsByClassName('current-swatch')[0].dataset.style
+        return HighlightStyle(JSON.parse(style))
 # }}}
