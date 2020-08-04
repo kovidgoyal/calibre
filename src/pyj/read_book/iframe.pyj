@@ -600,8 +600,6 @@ class IframeBoss:
             if sc_name:
                 if self.handle_navigation_shortcut(sc_name, evt):
                     evt.preventDefault()
-                elif sc_name is 'create_annotation':
-                    self.initiate_creation_of_annotation()
                 else:
                     self.send_message('handle_shortcut', name=sc_name)
 
@@ -712,27 +710,9 @@ class IframeBoss:
         else:
             end_reference_mode()
 
-    def initiate_creation_of_annotation(self, existing, start_in_notes_edit):
-        self.auto_scroll_action('stop')
-        in_flow_mode = current_layout_mode() is 'flow'
-        if not existing:
-            annot_id = set_selection_to_highlight()
-            if annot_id:
-                existing = annot_id_uuid_map[annot_id]
-        self.send_message(
-            'annotations',
-            type='create-annotation',
-            in_flow_mode=in_flow_mode,
-            extents=selection_extents(in_flow_mode),
-            existing=existing or None,
-            start_in_notes_edit=v'!!start_in_notes_edit',
-        )
-
     def annotations_msg_received(self, data):
         in_flow_mode = current_layout_mode() is 'flow'
-        if data.type is 'create':
-            self.initiate_creation_of_annotation(None, data.start_in_notes_edit)
-        elif data.type is 'set-selection':
+        if data.type is 'set-selection':
             set_selections_extents_to(data.extents)
         elif data.type is 'position-handles-at-point':
             extents = selection_extents_at_point(data.x, data.y, in_flow_mode)
@@ -766,7 +746,9 @@ class IframeBoss:
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_ and select_crw(crw_):
                 self.ensure_selection_visible()
-                self.initiate_creation_of_annotation(data.uuid)
+                window.setTimeout(def():
+                    self.send_message('annotations', type='edit-highlight')
+                , 50)
         elif data.type is 'remove-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_:
