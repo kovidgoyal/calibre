@@ -743,7 +743,7 @@ class SelectionBar:
                     _('Failed to apply highlighting, try adjusting extent of highlight')
                 )
             self.annotations_manager.add_highlight(msg, self.current_highlight_style.style, notes)
-        if msg.type is 'edit-highlight':
+        elif msg.type is 'edit-highlight':
             if self.state is WAITING:
                 self.create_highlight()
         else:

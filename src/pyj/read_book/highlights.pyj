@@ -137,6 +137,13 @@ class EditNotesAndColors:  # {{{
 
         remove_button = create_button(_('Remove style'), 'trash', self.remove_custom_color, _('Remove this custom highlight style'))
         remove_button.classList.add('remove-custom-color')
+        apply_button = create_button(
+            _('Apply') if self.annot_id else _('Create'),
+            'check', finish,
+            (_('Finish editing highlight') if self.annot_id else _('Create highlight')) + ' [Ctrl+Enter]',
+            True
+        )
+        apply_button.style.marginLeft = apply_button.style.marginTop = 'auto'
 
         c = E.div(
             style=f'background: {get_color("window-background")}; margin: auto; text-align: center; padding: 1ex;',
@@ -154,18 +161,11 @@ class EditNotesAndColors:  # {{{
                 style=f'display: flex; flex-wrap: wrap; width: 100%; justify-content: center',
             ),
             E.div(
-                style='width: 100%; display: flex; justify-content: space-between',
-                E.div(
-                    create_button(_('Cancel'), 'close', abort, _('Abort') + ' [Esc]'),
-                    E.span('\xa0'),
-                    remove_button
-                ),
-                create_button(
-                    _('Apply') if self.annot_id else _('Create'),
-                    'check', finish,
-                    (_('Finish editing highlight') if self.annot_id else _('Create highlight')) + ' [Ctrl+Enter]', True),
-            )
-
+                style='width: 100%; display: flex; flex-wrap: wrap',
+                create_button(_('Cancel'), 'close', abort, _('Abort') + ' [Esc]'),
+                E.span('\xa0'),
+                remove_button, apply_button
+            ),
         )
         self.container_id = c.id
         container.appendChild(c)
@@ -186,8 +186,7 @@ class EditNotesAndColors:  # {{{
     def set_visibility_of_remove_button(self):
         c = self.container
         item = c.querySelector('.current-swatch.custom-style')
-        visibility = 'unset' if item else 'hidden'
-        c.querySelector('.remove-custom-color').style.visibility = visibility
+        c.querySelector('.remove-custom-color').style.display = 'block' if item else 'none'
 
     def add_color(self, hs, at_start):
         if self.seen_colors[hs.key]:
