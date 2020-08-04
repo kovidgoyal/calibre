@@ -107,23 +107,6 @@ def selection_extents(in_flow_mode, end_must_be_focus):
     return range_extents(start, end, in_flow_mode)
 
 
-def selection_extents_at_point(x, y, in_flow_mode):
-    r = word_at_point(x, y)
-    if r:
-        sel = window.getSelection()
-        sel.removeAllRanges()
-        sel.addRange(r)
-        return selection_extents(r, r)
-    ans = empty_range_extents()
-    ans.start.y = ans.end.y = y
-    ans.start.height = ans.end.height = parseInt(window.getComputedStyle(document.body).fontSize) + 4
-    ans.start.x = x
-    ans.end.x = x + ans.start.height * 3
-    ans.start.onscreen = ans.end.onscreen = True
-    ans.start.is_empty = ans.end.is_empty = False
-    return ans
-
-
 def range_at_limit(invert_x, invert_y):
     step = 10
     for y in range(0, window.innerHeight + step, step):
@@ -135,21 +118,6 @@ def range_at_limit(invert_x, invert_y):
             r = range_from_point(x, y)
             if r:
                 return r
-
-
-def extend_selection_to_limit(left, top):
-    sel = window.getSelection()
-    if not sel or not sel.rangeCount or sel.isCollapsed:
-        return False
-    new_limit = range_at_limit(not left, not top)
-    if not new_limit:
-        return False
-    r = sel.getRangeAt(0)
-    if left:
-        r.setStart(new_limit.startContainer, new_limit.startOffset)
-    else:
-        r.setEnd(new_limit.startContainer, new_limit.startOffset)
-    return True
 
 
 def set_selections_extents_to(extents):
