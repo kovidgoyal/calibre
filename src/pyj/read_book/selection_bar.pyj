@@ -725,7 +725,7 @@ class SelectionBar:
         self.annotations_manager.delete_highlight(annot_id)
 
     def edit_highlight(self, annot_id):
-        pass  # TODO: Implement this
+        self.send_message('edit-highlight', uuid=annot_id)
     # }}}
 
     # Interact with iframe {{{
@@ -743,6 +743,9 @@ class SelectionBar:
                     _('Failed to apply highlighting, try adjusting extent of highlight')
                 )
             self.annotations_manager.add_highlight(msg, self.current_highlight_style.style, notes)
+        if msg.type is 'edit-highlight':
+            if self.state is WAITING:
+                self.create_highlight()
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
