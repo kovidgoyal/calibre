@@ -31,6 +31,12 @@ builtin_colors_dark = {
 }
 
 
+builtin_decorations_light = builtin_decorations_dark = {
+    'wavy': {'text-decoration-style': 'wavy', 'text-decoration-color': 'red', 'text-decoration-line': 'underline'},
+    'strikeout': {'text-decoration-line': 'line-through', 'text-decoration-color': 'red'},
+}
+
+
 def builtin_color(which, is_dark):
     return (builtin_colors_dark[which] if is_dark else builtin_colors_light[which]) or builtin_colors_light.yellow
 
@@ -43,7 +49,11 @@ def all_builtin_styles():
     ans = v'[]'
     for col in builtin_colors_light:
         ans.push({'type': 'builtin', 'kind': 'color', 'which': col})
+    for which in builtin_decorations_light:
+        ans.push({'type': 'builtin', 'kind': 'decoration', 'which': which})
     return ans
+
+all_style_keys = v"'type kind which background-color text-decoration-line text-decoration-color text-decoration-style'.split(' ')"
 
 
 def custom_color_theme(bg):
@@ -56,12 +66,36 @@ class HighlightStyle:
         if jstype(style) is 'string':
             style = JSON.parse(style)
         self.style = style or {'type': 'builtin', 'kind': 'color', 'which': 'yellow'}
-        self.key = f'type:{self.style.type} kind:{self.style.kind} which: {self.style.which} bg: {self.style["background-color"]}'
+        self.key = [f'{k}:{self.style[k]}' for k in all_style_keys].join(';')
 
     def make_swatch(self, container, is_dark):
         style = container.style
-        style.width = style.height = style.minimumWidth = style.minimumHeight = ICON_SIZE
+        style.width = style.height = style.minimumWidth = style.minimumHeight = style.maximumWidth = style.maximumHeight = ICON_SIZE
         s = self.style
+        br = ICON_SIZE_VAL / 4
+
+        if s.kind is 'decoration':
+            tdl = tds = tdc = None
+            if s.type is 'builtin':
+                q = builtin_decorations_dark[s.which] if is_dark else builtin_decorations_dark[s.which]
+                tdl = q['text-decoration-line'] or None
+                tds = q['text-decoration-style'] or None
+                tdc = q['text-decoration-color'] or None
+            container.textContent = 'ab'
+            style.paddingLeft = style.paddingRight = style.paddingTop = style.paddingBottom = '0.25ex'
+            style.borderStyle = 'solid'
+            style.borderWidth = '1px'
+            style.borderRadius = f'{br}{ICON_SIZE_UNIT}'
+            style.fontSize = 'smaller'
+            style.fontWeight = 'bold'
+            if tdl:
+                style.textDecorationLine = tdl
+            if tds:
+                style.textDecorationStyle = tds
+            if tdc:
+                style.textDecorationColor = tdc
+            return
+
         bg = None
         if s.type is 'builtin':
             if s.kind is 'color':
@@ -70,11 +104,15 @@ class HighlightStyle:
             bg = s['background-color']
         if bg:
             style.backgroundColor = bg
-            br = ICON_SIZE_VAL / 4
             style.borderRadius = f'{br}{ICON_SIZE_UNIT}'
 
     def highlight_shade(self, is_dark):
         s = self.style
+        if s.kind is 'decoration':
+            if s.type is 'builtin':
+                defs = builtin_decorations_dark[s.which] if is_dark else builtin_decorations_light[s.which]
+                return defs['text-decoration-color'] or 'red'
+            return 'red'
         if s.type is 'builtin':
             if s.kind is 'color':
                 return builtin_color(s.which, is_dark)
@@ -88,6 +126,19 @@ def highlight_style_as_css(s, is_dark, foreground):
 
     def styler(node):
         node = node.style
+        if s.kind is 'decoration':
+            if s.type is 'builtin':
+                keys = builtin_decorations_dark[s.which] if is_dark else builtin_decorations_light[s.which]
+            else:
+                keys = s
+            if keys['text-decoration-line']:
+                node.textDecorationLine = keys['text-decoration-line']
+            if keys['text-decoration-color']:
+                node.textDecorationColor = keys['text-decoration-color']
+            if keys['text-decoration-style']:
+                node.textDecorationStyle = keys['text-decoration-style']
+            return
+
         if s.type is 'builtin':
             if s.kind is 'color':
                 node.backgroundColor = builtin_color(s.which, is_dark)
@@ -198,7 +249,7 @@ class EditNotesAndColors:  # {{{
         is_current = hs.key is self.initial_style.key
         sqbg = get_color('window-background2') if is_current else 'unset'
         item = E.div(
-            ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px',
+            ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px; border-radius: {ICON_SIZE_VAL/4}{ICON_SIZE_UNIT}',
             onclick=self.change_color
         )
         if is_current:
