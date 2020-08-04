@@ -125,30 +125,28 @@ class HighlightStyle:
 def highlight_style_as_css(s, is_dark, foreground):
 
     def styler(node):
-        node = node.style
+        def set(name, val):
+            if val:
+                node.style.setProperty(name, val, 'important')
+
         if s.kind is 'decoration':
             if s.type is 'builtin':
                 keys = builtin_decorations_dark[s.which] if is_dark else builtin_decorations_light[s.which]
             else:
                 keys = s
-            if keys['text-decoration-line']:
-                node.textDecorationLine = keys['text-decoration-line']
-            if keys['text-decoration-color']:
-                node.textDecorationColor = keys['text-decoration-color']
-            if keys['text-decoration-style']:
-                node.textDecorationStyle = keys['text-decoration-style']
+            set('text-decoration-line', keys['text-decoration-line'])
+            set('text-decoration-color', keys['text-decoration-color'])
+            set('text-decoration-style',  keys['text-decoration-style'])
             return
 
+        bg = fg = None
         if s.type is 'builtin':
             if s.kind is 'color':
-                node.backgroundColor = builtin_color(s.which, is_dark)
+                bg = builtin_color(s.which, is_dark)
                 if foreground:
-                    node.color = foreground
-                return
-        node.backgroundColor = s['background-color'] or default_color(is_dark)
-        fg = s.color or foreground
-        if fg:
-            node.color = fg
+                    fg = foreground
+        set('background-color', bg or s['background-color'] or default_color(is_dark))
+        set('color', fg or s.color or foreground)
 
     return styler
 
