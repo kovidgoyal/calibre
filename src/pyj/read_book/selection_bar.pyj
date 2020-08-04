@@ -9,7 +9,7 @@ from uuid import short_uuid
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
-from modals import error_dialog
+from modals import error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import ICON_SIZE, EditNotesAndColors, HighlightStyle
 
@@ -709,16 +709,22 @@ class SelectionBar:
     def quick_highlight(self):
         cs = self.view.currently_showing.selection
         if cs.text:
-            # TODO: Implement this
             if cs.annot_id:
-                pass
+                self.create_highlight()
             else:
-                pass
+                self.current_notes = ''
+                self.send_message('apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid())
+                self.state = WAITING
+                self.update_position()
 
     def remove_highlight(self):
         annot_id = self.view.currently_showing.selection.annot_id
         if annot_id:
-            self.remove_highlight_with_id(annot_id)
+            question_dialog(_('Are you sure?'), _('Are you sure you want to delete this highlight permanently?'),
+                def (yes):
+                    if yes:
+                        self.remove_highlight_with_id(annot_id)
+            )
 
     def remove_highlight_with_id(self, annot_id):
         self.send_message('remove-highlight', uuid=annot_id)
