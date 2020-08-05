@@ -436,6 +436,19 @@ class Metadata(object):
             _data = object.__getattribute__(self, '_data')
             _data['user_metadata'][field] = m
 
+    def remove_stale_user_metadata(self, other_mi):
+        '''
+        Remove user metadata keys (custom column keys) if they
+        don't exist in 'other_mi', which must be a metadata object
+        '''
+        me = self.get_all_user_metadata(make_copy=False)
+        other = set(other_mi.custom_field_keys())
+        new = {}
+        for k,v in me.items():
+            if k in other:
+                new[k] = v
+        self.set_all_user_metadata(new)
+
     def template_to_attribute(self, other, ops):
         '''
         Takes a list [(src,dest), (src,dest)], evaluates the template in the
