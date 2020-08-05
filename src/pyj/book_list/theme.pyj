@@ -50,9 +50,16 @@ DEFAULT_FONTS = {
     'main': 'sans-serif'
 }
 
+def css_for_variables():
+    ans = v'[]'
+    for k in DEFAULT_COLORS:
+        val = DEFAULT_COLORS[k]
+        ans.push(f'--calibre-color-{k}: {val};')
+    return ':root { ' + ans.join('\n') + '}'
+
 
 def get_color(name):
-    return DEFAULT_COLORS[name]
+    return f'var(--calibre-color-{name})'
 
 
 def color_to_rgba(color):

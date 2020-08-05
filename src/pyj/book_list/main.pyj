@@ -14,7 +14,7 @@ from utils import safe_set_inner_html
 
 from book_list.constants import book_list_container_id, read_book_container_id, INIT_ENDPOINT
 from book_list.library_data import fetch_init_data, update_library_data, url_books_query
-from book_list.theme import get_color, get_font_family
+from book_list.theme import get_color, get_font_family, css_for_variables
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
 from book_list.globals import get_db, set_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler
@@ -66,7 +66,7 @@ def init_ui():
     translations = get_translations()
     install(translations)
     remove_initial_progress_bar()
-    document.head.appendChild(E.style(get_widget_css()))
+    document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     document.body.appendChild(E.div())
     document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
