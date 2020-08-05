@@ -1834,6 +1834,31 @@ class DB(object):
             if not ignore_removed or not annot.get('removed'):
                 yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': annot}
 
+    def delete_annotations(self, annot_ids):
+        from calibre.utils.date import utcnow
+        replacements = []
+        removals = []
+        for annot_id in annot_ids:
+            for (raw_annot_data, annot_type) in self.execute(
+                'SELECT annot_data, annot_type FROM annotations WHERE id=?', (annot_id,)
+            ):
+                try:
+                    annot_data = json.loads(raw_annot_data)
+                except Exception:
+                    removals.append((annot_id,))
+                    continue
+                new_annot = {'removed': True, 'timestamp': utcnow().isoformat(), 'type': annot_type}
+                uuid = annot_data.get('uuid')
+                if uuid is not None:
+                    new_annot['uuid'] = uuid
+                else:
+                    new_annot['title'] = annot_data['title']
+                replacements.append((json.dumps(new_annot), annot_id))
+        if replacements:
+            self.executemany('UPDATE annotations SET annot_data=?, searchable_text="" WHERE id=?', replacements)
+        if removals:
+            self.executemany('DELETE FROM annotations WHERE id=?', removals)
+
     def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False):
         ls = json.loads
         q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'

@@ -2334,6 +2334,10 @@ class Cache(object):
         ))
 
     @write_api
+    def delete_annotations(self, annot_ids):
+        self.backend.delete_annotations(annot_ids)
+
+    @write_api
     def restore_annotations(self, book_id, annotations):
         from calibre.utils.iso8601 import parse_iso8601
         from calibre.utils.date import EPOCH
