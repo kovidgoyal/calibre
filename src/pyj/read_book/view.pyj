@@ -8,7 +8,7 @@ from gettext import gettext as _
 import read_book.iframe  # noqa
 from ajax import ajax_send
 from book_list.globals import get_session_data
-from book_list.theme import cached_color_to_rgba, get_color
+from book_list.theme import cached_color_to_rgba, get_color, set_ui_colors
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
@@ -295,9 +295,10 @@ class View:
             ,
         }
         entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
+        self.current_color_scheme = resolve_color_scheme()
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
-        self.current_color_scheme = resolve_color_scheme()
+            set_ui_colors(self.current_color_scheme.is_dark_theme)
         self.iframe_wrapper = IframeWrapper(
             handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'),
             f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__index__')
@@ -718,6 +719,8 @@ class View:
 
     def apply_color_scheme(self):
         self.current_color_scheme = ans = resolve_color_scheme()
+        if runtime.is_standalone_viewer:
+            set_ui_colors(self.current_color_scheme.is_dark_theme)
         for which in 'left top right bottom'.split(' '):
             m = document.getElementById('book-{}-margin'.format(which))
             s = m.style
