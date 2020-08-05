@@ -670,6 +670,7 @@ class SelectionBar:
         if not apply_changes:
             self.state = WAITING
             self.update_position()
+            self.container.focus()
             return
         ed = self.current_editor
         self.current_editor = None
@@ -681,6 +682,7 @@ class SelectionBar:
         self.state = WAITING
         self.update_position()
         get_session_data().set('highlight_style', self.current_highlight_style.style)
+        self.container.focus()
 
     def editor_container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
