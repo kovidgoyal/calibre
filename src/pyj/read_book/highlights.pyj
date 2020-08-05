@@ -154,6 +154,8 @@ def highlight_style_as_css(s, is_dark, foreground):
             bg = builtin_color(s.which, is_dark)
         elif s.type is 'custom':
             bg = s.dark if is_dark else s.light
+        elif s.color:
+            fg = s.color
         set('background-color', bg or s['background-color'] or default_color(is_dark))
         set('color', fg or s.color or foreground)
 
