@@ -6,6 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from book_list.theme import cached_color_to_rgba
 from dom import (
     add_extra_css, build_rule, clear, set_css, set_radio_group_value, svgicon,
     unique_id
@@ -54,6 +55,8 @@ def resolve_color_scheme(current_color_scheme):
         for sn in default_color_schemes:
             ans = default_color_schemes[sn]
             break
+    rgba = cached_color_to_rgba(ans.background)
+    ans.is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
     return ans
 
 def change_current_color(ev):

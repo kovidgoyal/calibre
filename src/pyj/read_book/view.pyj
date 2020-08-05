@@ -752,8 +752,6 @@ class View:
         # so we dont want the body background color to bleed through
         iframe.parentNode.style.backgroundColor = ans.background
         iframe.parentNode.parentNode.style.backgroundColor = ans.background
-        rgba = cached_color_to_rgba(ans.background)
-        ans.is_dark_theme = max(rgba[0], rgba[1], rgba[2]) < 115
         return ans
 
     def on_resize(self):
