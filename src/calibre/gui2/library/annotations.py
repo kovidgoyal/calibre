@@ -13,7 +13,7 @@ from PyQt5.Qt import (
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import Application, config, gprefs
+from calibre.gui2 import Application, config, error_dialog, gprefs, question_dialog
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
@@ -76,6 +76,7 @@ class ResultsList(QTreeWidget):
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
+        self.setSelectionMode(self.ExtendedSelection)
         self.delegate = AnnotsResultsDelegate(self)
         self.setItemDelegate(self.delegate)
         self.section_font = QFont(self.font())
@@ -144,6 +145,11 @@ class ResultsList(QTreeWidget):
             self.show_next(backwards=True)
             return
         return QTreeWidget.keyPressEvent(self, ev)
+
+    @property
+    def selected_annot_ids(self):
+        for item in self.selectedItems():
+            yield item.data(0, Qt.UserRole)['id']
 
 
 class Restrictions(QWidget):
@@ -310,11 +316,19 @@ class BrowsePanel(QWidget):
     def effective_query_changed(self):
         self.do_find()
 
+    def refresh(self):
+        self.current_query = None
+        self.do_find()
+
     def show_next(self):
         self.do_find()
 
     def show_previous(self):
         self.do_find(backwards=True)
+
+    @property
+    def selected_annot_ids(self):
+        return self.results_list.selected_annot_ids
 
 
 class Details(QTextBrowser):
@@ -486,9 +500,28 @@ class AnnotationsBrowser(Dialog):
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
+        self.delete_button = b = self.bb.addButton(_('Delete selected'), self.bb.ActionRole)
+        b.setToolTip(_('Delete the selected annotations'))
+        b.setIcon(QIcon(I('trash.png')))
+        b.clicked.connect(self.delete_selected)
+
+    def delete_selected(self):
+        ids = frozenset(self.browse_panel.selected_annot_ids)
+        if not ids:
+            return error_dialog(self, _('No selected annotations'), _(
+                'No annotations have been selected'), show=True)
+        if question_dialog(self, _('Are you sure?'), ngettext(
+            'Are you sure you want to <b>permanently</b> delete this annotation?',
+            'Are you sure you want to <b>permanently</b> delete these {} annotations?',
+            len(ids)).format(len(ids))
+        ):
+            db = current_db()
+            db.delete_annotations(ids)
+            self.browse_panel.refresh()
 
     def show_dialog(self):
         if self.parent() is None:
+            self.browse_panel.effective_query_changed()
             self.exec_()
         else:
             self.reinitialize()
