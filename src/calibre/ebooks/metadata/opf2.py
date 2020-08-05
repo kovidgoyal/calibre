@@ -1312,6 +1312,7 @@ class OPF(object):  # {{{
         if apply_null or langs:
             self.languages = langs or []
         temp = self.to_book_metadata()
+        temp.remove_stale_user_metadata(mi)
         temp.smart_update(mi, replace_metadata=replace_metadata)
         if not replace_metadata and callable(getattr(temp, 'custom_field_keys', None)):
             # We have to replace non-null fields regardless of the value of

@@ -1066,6 +1066,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
         set_application_id(root, prefixes, refines, mi.application_id)
     if mi.uuid:
         set_uuid(root, prefixes, refines, mi.uuid)
+    current_mi.remove_stale_user_metadata(mi)
     new_user_metadata, current_user_metadata = mi.get_all_user_metadata(True), current_mi.get_all_user_metadata(True)
     missing = object()
     for key in tuple(new_user_metadata):
