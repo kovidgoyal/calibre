@@ -329,8 +329,8 @@ if window is window.top:
         to_python.toggle_inspector()
     ui_operations.content_file_changed = def(name):
         to_python.content_file_changed(name)
-    ui_operations.show_search = def():
-        to_python.show_search()
+    ui_operations.show_search = def(text):
+        to_python.show_search(text)
     ui_operations.find_next = def(previous):
         to_python.find_next(previous)
     ui_operations.reset_interface = def():

@@ -655,10 +655,13 @@ class View:
 
     def show_search(self):
         self.hide_overlays()
+        text = self.currently_showing.selection.text
         if runtime.is_standalone_viewer:
-            ui_operations.show_search()
+            ui_operations.show_search(text or '')
         else:
-            self.search_overlay.show()
+            if text:
+                self.search_overlay.set_text(text)
+            self.search_overlay.show(text)
 
     def show_content_popup(self):
         self.hide_overlays()

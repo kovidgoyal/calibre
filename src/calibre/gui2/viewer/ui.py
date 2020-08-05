@@ -290,8 +290,11 @@ class EbookViewer(MainWindow):
     def toggle_toc(self):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())
 
-    def show_search(self):
-        self.web_view.get_current_cfi(self.show_search_with_current_selection)
+    def show_search(self, text):
+        self.search_dock.setVisible(True)
+        self.search_dock.activateWindow()
+        self.search_dock.raise_()
+        self.search_widget.focus_input(text)
 
     def search_results_count_changed(self, num=-1):
         if num < 0:
@@ -303,12 +306,6 @@ class EbookViewer(MainWindow):
         else:
             tt = _('Search :: {} matches').format(num)
         self.search_dock.setWindowTitle(tt)
-
-    def show_search_with_current_selection(self, pos_data):
-        self.search_dock.setVisible(True)
-        self.search_dock.activateWindow()
-        self.search_dock.raise_()
-        self.search_widget.focus_input(pos_data.get('selected_text'))
 
     def start_search(self, search_query):
         name = self.web_view.current_content_file
