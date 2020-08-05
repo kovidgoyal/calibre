@@ -860,6 +860,10 @@ class View:
 
     def redisplay_book(self):
         # redisplay_book() is called when settings are changed
+        if not self.book:
+            if runtime.is_standalone_viewer:
+                self.overlay.open_book()
+            return
         sd = get_session_data()
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         if ui_operations.export_shortcut_map:
@@ -1060,16 +1064,17 @@ class View:
         self.iframe_wrapper.send_message('get_current_cfi', request_id=request_id)
 
     def update_cfi_data(self, data):
-        self.currently_showing.bookpos = data.cfi
         username = get_interface_data().username
-        unkey = username_key(username)
-        if not self.book.last_read_position:
-            self.book.last_read_position = {}
-        self.book.last_read_position[unkey] = data.cfi
-        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
-        self.update_header_footer()
-        if ui_operations.update_last_read_time:
-            ui_operations.update_last_read_time(self.book)
+        if self.book:
+            self.currently_showing.bookpos = data.cfi
+            unkey = username_key(username)
+            if not self.book.last_read_position:
+                self.book.last_read_position = {}
+            self.book.last_read_position[unkey] = data.cfi
+            self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+            self.update_header_footer()
+            if ui_operations.update_last_read_time:
+                ui_operations.update_last_read_time(self.book)
         return username
 
     def on_report_cfi(self, data):
