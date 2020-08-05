@@ -471,6 +471,9 @@ class SelectionBar:
         if ev.key is 'Escape':
             self.clear_selection()
             return
+        if ev.key and ev.key.toLowerCase() is 'c' and ev.ctrlKey:
+            self.copy_to_clipboard()
+            return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if sc_name is 'show_chrome':
             self.clear_selection()
