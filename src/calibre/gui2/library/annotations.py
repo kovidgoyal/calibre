@@ -348,6 +348,7 @@ class DetailsPanel(QWidget):
 
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
+    delete_annotation = pyqtSignal(object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -368,12 +369,24 @@ class DetailsPanel(QWidget):
         lb.clicked.connect(self.show_in_library)
         h.addWidget(lb)
 
+        h = QHBoxLayout()
+        l.addLayout(h)
+        self.delete_button = ob = QPushButton(QIcon(I('trash.png')), _('Delete'), self)
+        ob.setToolTip(_('Delete this annotation'))
+        ob.clicked.connect(self.delete_result)
+        h.addWidget(ob)
+
         self.show_result(None)
 
     def open_result(self):
         if self.current_result is not None:
             r = self.current_result
             self.open_annotation.emit(r['book_id'], r['format'], r['annotation'])
+
+    def delete_result(self):
+        if self.current_result is not None:
+            r = self.current_result
+            self.delete_annotation.emit(r['id'])
 
     def show_in_library(self):
         if self.current_result is not None:
@@ -495,6 +508,7 @@ class AnnotationsBrowser(Dialog):
         s.addWidget(dp)
         dp.open_annotation.connect(self.do_open_annotation)
         dp.show_book.connect(self.show_book)
+        dp.delete_annotation.connect(self.delete_annotation)
         bp.current_result_changed.connect(dp.show_result)
 
         h = QHBoxLayout()
@@ -510,6 +524,8 @@ class AnnotationsBrowser(Dialog):
         if not ids:
             return error_dialog(self, _('No selected annotations'), _(
                 'No annotations have been selected'), show=True)
+
+    def delete_annotations(self, ids):
         if question_dialog(self, _('Are you sure?'), ngettext(
             'Are you sure you want to <b>permanently</b> delete this annotation?',
             'Are you sure you want to <b>permanently</b> delete these {} annotations?',
@@ -518,6 +534,9 @@ class AnnotationsBrowser(Dialog):
             db = current_db()
             db.delete_annotations(ids)
             self.browse_panel.refresh()
+
+    def delete_annotation(self, annot_id):
+        self.delete_annotations(frozenset({annot_id}))
 
     def show_dialog(self):
         if self.parent() is None:
