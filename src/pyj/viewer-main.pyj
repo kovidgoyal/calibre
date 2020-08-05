@@ -10,7 +10,7 @@ import initialize  # noqa: unused-import
 from ajax import ajax, workaround_qt_bug
 from book_list.globals import get_session_data, set_session_data
 from book_list.library_data import library_data
-from book_list.theme import get_color
+from book_list.theme import get_color, css_for_variables
 from dom import get_widget_css, set_css
 from modals import create_modal_container
 from qt import from_python, to_python
@@ -399,7 +399,7 @@ if window is window.top:
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
     create_modal_container()
-    document.head.appendChild(E.style(get_widget_css()))
+    document.head.appendChild(E.style(css_for_variables() + '\n\n' + get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
     setTimeout(def():
             window.onpopstate = on_pop_state
