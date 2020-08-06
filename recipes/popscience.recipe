@@ -33,7 +33,8 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
             content = item.find('content:encoded', {'content': 'http://purl.org/rss/1.0/modules/content/'}).text
             content = '<html><body><h1>{title}</h1><h3>{desc}</h3><p>{author}</p><div>{content}</div></body></html>'.format(
                 title=title, author=author, desc=desc, content=content)
-            desc += ' by ' + author
+            if author:
+                desc += ' by ' + author
             with PersistentTemporaryFile('popsci.html') as pt:
                 pt.write(content.encode('utf-8'))
             ans[section].append({
