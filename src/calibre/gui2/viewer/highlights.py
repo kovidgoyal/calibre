@@ -15,7 +15,7 @@ from PyQt5.Qt import (
 from calibre.constants import plugins
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from calibre.gui2 import choose_save_file, error_dialog, question_dialog
-from calibre.gui2.library.annotations import Details
+from calibre.gui2.library.annotations import Details, render_notes
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
@@ -226,6 +226,7 @@ class NotesDisplay(QWidget):
         h.setContentsMargins(0, 0, 0, 0)
         self.browser = nd = Details(self)
         h.addWidget(nd)
+        self.current_notes = ''
         self.edit_button = eb = QToolButton(self)
         eb.setIcon(QIcon(I('modified.png')))
         eb.setToolTip(_('Edit the notes for this highlight'))
@@ -235,13 +236,14 @@ class NotesDisplay(QWidget):
     def show_notes(self, text=''):
         text = (text or '').strip()
         self.setVisible(bool(text))
-        self.browser.setPlainText(text)
+        self.current_notes = text
+        self.browser.setHtml('\n'.join(render_notes(text)))
         h = self.browser.document().size().height() + 8
         self.browser.setMaximumHeight(h)
         self.setMaximumHeight(max(self.edit_button.sizeHint().height() + 4, h))
 
     def edit_notes(self):
-        current_text = self.browser.toPlainText()
+        current_text = self.current_notes
         d = NotesEditDialog(current_text, self)
         if d.exec_() == d.Accepted and d.notes != current_text:
             self.notes_edited.emit(d.notes)
