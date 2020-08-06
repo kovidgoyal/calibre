@@ -19,6 +19,7 @@ from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
+from calibre.db.annotations import annot_db_data
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
@@ -27,7 +28,7 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils import pickle_binary_string, unpickle_binary_string
 from calibre.utils.icu import sort_key
 from calibre.utils.config import to_json, from_json, prefs, tweaks
-from calibre.utils.date import utcfromtimestamp, parse_date
+from calibre.utils.date import utcfromtimestamp, parse_date, utcnow, EPOCH
 from calibre.utils.filenames import (
     is_case_sensitive, samefile, hardlink_file, ascii_filename,
     WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty,
@@ -301,15 +302,8 @@ def save_annotations_for_book(cursor, book_id, fmt, annots_list, user_type='loca
     fmt = fmt.upper()
     for annot, timestamp_in_secs in annots_list:
         atype = annot['type'].lower()
-        if atype == 'bookmark':
-            aid = text = annot['title']
-        elif atype == 'highlight':
-            aid = annot['uuid']
-            text = annot.get('highlighted_text') or ''
-            notes = annot.get('notes') or ''
-            if notes:
-                text += '\n\x1f\n' + notes
-        else:
+        aid, text = annot_db_data(annot)
+        if aid is None:
             continue
         data.append((book_id, fmt, user_type, user, timestamp_in_secs, aid, atype, json.dumps(annot), text))
     cursor.execute('INSERT OR IGNORE INTO annotations_dirtied (book) VALUES (?)', (book_id,))
@@ -1835,9 +1829,11 @@ class DB(object):
                 yield {'format': fmt, 'user_type': user_type, 'user': user, 'annotation': annot}
 
     def delete_annotations(self, annot_ids):
-        from calibre.utils.date import utcnow
         replacements = []
         removals = []
+        now = utcnow()
+        ts = now.isoformat()
+        timestamp = (now - EPOCH).total_seconds()
         for annot_id in annot_ids:
             for (raw_annot_data, annot_type) in self.execute(
                 'SELECT annot_data, annot_type FROM annotations WHERE id=?', (annot_id,)
@@ -1847,17 +1843,31 @@ class DB(object):
                 except Exception:
                     removals.append((annot_id,))
                     continue
-                new_annot = {'removed': True, 'timestamp': utcnow().isoformat(), 'type': annot_type}
+                now = utcnow()
+                new_annot = {'removed': True, 'timestamp': ts, 'type': annot_type}
                 uuid = annot_data.get('uuid')
                 if uuid is not None:
                     new_annot['uuid'] = uuid
                 else:
                     new_annot['title'] = annot_data['title']
-                replacements.append((json.dumps(new_annot), annot_id))
+                replacements.append((json.dumps(new_annot), timestamp, annot_id))
         if replacements:
-            self.executemany('UPDATE annotations SET annot_data=?, searchable_text="" WHERE id=?', replacements)
+            self.executemany('UPDATE annotations SET annot_data=?, timestamp=?, searchable_text="" WHERE id=?', replacements)
         if removals:
             self.executemany('DELETE FROM annotations WHERE id=?', removals)
+
+    def update_annotations(self, annot_id_map):
+        now = utcnow()
+        ts = now.isoformat()
+        timestamp = (now - EPOCH).total_seconds()
+        with self.conn:
+            for annot_id, annot in annot_id_map.items():
+                atype = annot['type']
+                aid, text = annot_db_data(annot)
+                if aid is not None:
+                    annot['timestamp'] = ts
+                    self.execute('UPDATE annotations SET annot_data=?, timestamp=?, annot_type=?, searchable_text=?, annot_id=? WHERE id=?',
+                        (json.dumps(annot), timestamp, atype, text, aid, annot_id))
 
     def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False):
         ls = json.loads

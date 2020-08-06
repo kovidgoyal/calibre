@@ -7,8 +7,9 @@ from textwrap import fill
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QHBoxLayout,
-    QIcon, QLabel, QPalette, QPushButton, QSize, QSplitter, Qt, QTextBrowser, QTimer,
-    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QIcon, QInputDialog, QLabel, QPalette, QPushButton, QSize, QSplitter, Qt,
+    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 
 from calibre import prepare_string_for_xml
@@ -348,6 +349,7 @@ class DetailsPanel(QWidget):
 
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
+    edit_annotation = pyqtSignal(object, object)
     delete_annotation = pyqtSignal(object)
 
     def __init__(self, parent):
@@ -371,6 +373,10 @@ class DetailsPanel(QWidget):
 
         h = QHBoxLayout()
         l.addLayout(h)
+        self.edit_button = ob = QPushButton(QIcon(I('edit_input.png')), _('Edit'), self)
+        ob.setToolTip(_('Edit the notes if any for this highlight'))
+        ob.clicked.connect(self.edit_result)
+        h.addWidget(ob)
         self.delete_button = ob = QPushButton(QIcon(I('trash.png')), _('Delete'), self)
         ob.setToolTip(_('Delete this annotation'))
         ob.clicked.connect(self.delete_result)
@@ -388,6 +394,11 @@ class DetailsPanel(QWidget):
             r = self.current_result
             self.delete_annotation.emit(r['id'])
 
+    def edit_result(self):
+        if self.current_result is not None:
+            r = self.current_result
+            self.edit_annotation.emit(r['id'], r['annotation'])
+
     def show_in_library(self):
         if self.current_result is not None:
             self.show_book.emit(self.current_result['book_id'], self.current_result['format'])
@@ -395,16 +406,24 @@ class DetailsPanel(QWidget):
     def sizeHint(self):
         return QSize(450, 600)
 
+    def set_controls_visibility(self, visible):
+        self.text_browser.setVisible(visible)
+        self.open_button.setVisible(visible)
+        self.library_button.setVisible(visible)
+        self.delete_button.setVisible(visible)
+        self.edit_button.setVisible(visible)
+
+    def update_notes(self, annot):
+        if self.current_result:
+            self.current_result['annotation'] = annot
+            self.show_result(self.current_result)
+
     def show_result(self, result_or_none):
         self.current_result = r = result_or_none
         if r is None:
-            self.text_browser.setVisible(False)
-            self.open_button.setVisible(False)
-            self.library_button.setVisible(False)
+            self.set_controls_visibility(False)
             return
-        self.text_browser.setVisible(True)
-        self.open_button.setVisible(True)
-        self.library_button.setVisible(True)
+        self.set_controls_visibility(True)
         db = current_db()
         book_id = r['book_id']
         title, authors = db.field_for('title', book_id), db.field_for('authors', book_id)
@@ -427,7 +446,9 @@ class DetailsPanel(QWidget):
 
         if annot['type'] == 'bookmark':
             p(annot['title'])
+            self.edit_button.setEnabled(False)
         elif annot['type'] == 'highlight':
+            self.edit_button.setEnabled(True)
             p(annot['highlighted_text'])
             notes = annot.get('notes')
             if notes:
@@ -509,6 +530,7 @@ class AnnotationsBrowser(Dialog):
         dp.open_annotation.connect(self.do_open_annotation)
         dp.show_book.connect(self.show_book)
         dp.delete_annotation.connect(self.delete_annotation)
+        dp.edit_annotation.connect(self.edit_annotation)
         bp.current_result_changed.connect(dp.show_result)
 
         h = QHBoxLayout()
@@ -537,6 +559,21 @@ class AnnotationsBrowser(Dialog):
 
     def delete_annotation(self, annot_id):
         self.delete_annotations(frozenset({annot_id}))
+
+    def edit_annotation(self, annot_id, annot):
+        if annot.get('type') != 'highlight':
+            return error_dialog(self, _('Cannot edit'), _(
+                'Editing is only supported for the notes associated with highlights'), show=True)
+        notes = annot.get('notes')
+        notes, ok = QInputDialog.getMultiLineText(self, _('Edit notes for highlight'), '', notes)
+        if ok:
+            if notes and notes.strip():
+                annot['notes'] = notes.strip()
+            else:
+                annot.pop('notes', None)
+            db = current_db()
+            db.update_annotations({annot_id: annot})
+            self.details_panel.update_notes(annot)
 
     def show_dialog(self):
         if self.parent() is None:
