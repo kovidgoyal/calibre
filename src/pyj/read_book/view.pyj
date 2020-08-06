@@ -536,7 +536,8 @@ class View:
         self.currently_showing.selection = {
             'text': data.text, 'empty': data.empty, 'start': data.selection_extents.start,
             'end': data.selection_extents.end, 'annot_id': data.annot_id,
-            'drag_mouse_position': data.drag_mouse_position
+            'drag_mouse_position': data.drag_mouse_position,
+            'selection_change_caused_by_search': data.selection_change_caused_by_search
         }
         if ui_operations.selection_changed:
             ui_operations.selection_changed(self.currently_showing.selection.text)

@@ -112,6 +112,7 @@ class IframeBoss:
     def __init__(self):
         window.navigator.epubReadingSystem = EPUBReadingSystem()
         self.last_cfi = None
+        self.last_search_at = -1001
         self.reference_mode_enabled = False
         self.replace_history_on_next_cfi_update = True
         self.blob_url_map = {}
@@ -528,9 +529,10 @@ class IframeBoss:
         if not collapsed:
             text = sel.toString()
             annot_id = highlight_associated_with_selection(sel, annot_id_uuid_map)
+        by_search = window.performance.now() - self.last_search_at < 1000
         self.send_message(
             'selectionchange', text=text, empty=v'!!collapsed', annot_id=annot_id,
-            drag_mouse_position=drag_mouse_position,
+            drag_mouse_position=drag_mouse_position, selection_change_caused_by_search=by_search,
             selection_extents=selection_extents(current_layout_mode() is 'flow', True))
 
     def onresize_stage2(self):
@@ -680,6 +682,7 @@ class IframeBoss:
             self.scroll_to_ref(refnum)
 
     def find(self, data, from_load):
+        self.last_search_at = window.performance.now()
         if data.searched_in_spine:
             window.getSelection().removeAllRanges()
         if window.find(data.text, False, data.backwards, from_load and data.backwards):
@@ -693,6 +696,7 @@ class IframeBoss:
                 self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
     def show_search_result(self, data, from_load):
+        self.last_search_at = window.performance.now()
         if select_search_result(data.search_result):
             self.ensure_selection_visible()
         else:
