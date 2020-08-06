@@ -19,6 +19,19 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
 
+def render_notes(notes, tag='p'):
+    current_lines = []
+    for line in notes.splitlines():
+        if line:
+            current_lines.append(line)
+        else:
+            if current_lines:
+                yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
+                current_lines = []
+    if current_lines:
+        yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
+
+
 def friendly_username(user_type, user):
     key = user_type, user
     if key == ('web', '*'):
@@ -459,16 +472,7 @@ class DetailsPanel(QWidget):
             notes = annot.get('notes')
             if notes:
                 p(_('Notes'), 'h4')
-                current_lines = []
-                for line in notes.splitlines():
-                    if line:
-                        current_lines.append(line)
-                    else:
-                        if current_lines:
-                            p('\n'.join(current_lines))
-                            current_lines = []
-                if current_lines:
-                    p('\n'.join(current_lines))
+                paras.extend(render_notes(notes))
 
         annot_text += '\n'.join(paras)
         date = QDateTime.fromString(annot['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
