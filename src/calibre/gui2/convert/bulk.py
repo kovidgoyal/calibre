@@ -27,10 +27,14 @@ from polyglot.builtins import unicode_type, native_string_type
 class BulkConfig(Config):
 
     def __init__(self, parent, db, preferred_output_format=None,
-            has_saved_settings=True):
+            has_saved_settings=True, book_ids=()):
         QDialog.__init__(self, parent)
         self.widgets = []
         self.setupUi()
+        try:
+            self.num_of_books = len(book_ids)
+        except Exception:
+            self.num_of_books = 1
 
         self.setup_output_formats(db, preferred_output_format)
         self.db = db
@@ -82,7 +86,9 @@ class BulkConfig(Config):
             return cls(self, self.plumber.get_option_by_name,
                 self.plumber.get_option_help, self.db)
 
-        self.setWindowTitle(_('Bulk convert'))
+        self.setWindowTitle(
+            ngettext(_('Bulk convert one book'), _('Bulk convert {} books'), self.num_of_books).format(self.num_of_books)
+        )
         lf = widget_factory(LookAndFeelWidget)
         hw = widget_factory(HeuristicsWidget)
         sr = widget_factory(SearchAndReplaceWidget)
