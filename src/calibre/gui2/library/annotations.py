@@ -318,8 +318,14 @@ class BrowsePanel(QWidget):
         self.do_find()
 
     def refresh(self):
+        vbar = self.results_list.verticalScrollBar()
+        if vbar:
+            vpos = vbar.value()
         self.current_query = None
         self.do_find()
+        vbar = self.results_list.verticalScrollBar()
+        if vbar:
+            vbar.setValue(vpos)
 
     def show_next(self):
         self.do_find()
