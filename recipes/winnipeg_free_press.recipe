@@ -1,6 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class WinnipegFreePress(BasicNewsRecipe):
     title = u'Winnipeg Free Press'
     __author__ = 'buyo'
@@ -8,12 +14,14 @@ class WinnipegFreePress(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 15
     category = 'News, Winnipeg, Canada'
-    cover_url = 'http://media.winnipegfreepress.com/designimages/winnipegfreepress_WFP.gif'
     no_stylesheets = True
     encoding = 'UTF-8'
     remove_javascript = True
     use_embedded_content = False
     language = 'en_CA'
+    extra_css = '''
+    .factbox { border: solid 2px; padding: 1rem }
+    '''
 
     feeds = [(u'Breaking News', u'http://www.winnipegfreepress.com/rss?path=/breakingnews'),
              (u'Local News', u'http://www.winnipegfreepress.com/rss?path=/local'),
@@ -28,6 +36,6 @@ class WinnipegFreePress(BasicNewsRecipe):
              ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'id': 'article_header'}),
-        dict(name='div', attrs={'class': 'article'}),
+        classes('article-title topphoto storycontent')
     ]
+    remove_tags = [dict(name='button')]
