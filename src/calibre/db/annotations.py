@@ -98,3 +98,17 @@ def merge_annotations(annots, annots_map, merge_last_read=True):
         if not b:
             continue
         changed, annots_map[annot_type] = merge_annots_with_identical_field(a or [], b, field=field)
+
+
+def annot_db_data(annot):
+    aid = text = None
+    atype = annot['type'].lower()
+    if atype == 'bookmark':
+        aid = text = annot['title']
+    elif atype == 'highlight':
+        aid = annot['uuid']
+        text = annot.get('highlighted_text') or ''
+        notes = annot.get('notes') or ''
+        if notes:
+            text += '\n\x1f\n' + notes
+    return aid, text
