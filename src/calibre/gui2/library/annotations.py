@@ -7,7 +7,7 @@ from textwrap import fill
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QHBoxLayout,
-    QIcon, QInputDialog, QLabel, QPalette, QPushButton, QSize, QSplitter, Qt,
+    QIcon, QLabel, QPalette, QPlainTextEdit, QPushButton, QSize, QSplitter, Qt,
     QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QWidget, pyqtSignal
 )
@@ -484,13 +484,34 @@ class DetailsPanel(QWidget):
         self.text_browser.setHtml(text)
 
 
+class EditNotes(Dialog):
+
+    def __init__(self, notes, parent=None):
+        self.initial_notes = notes
+        Dialog.__init__(self, _('Edit notes for highlight'), 'library-annotations-browser-edit-notes', parent=parent)
+
+    def setup_ui(self):
+        self.notes_edit = QPlainTextEdit(self)
+        if self.initial_notes:
+            self.notes_edit.setPlainText(self.initial_notes)
+        self.notes_edit.setMinimumWidth(400)
+        self.notes_edit.setMinimumHeight(300)
+        l = QVBoxLayout(self)
+        l.addWidget(self.notes_edit)
+        l.addWidget(self.bb)
+
+    @property
+    def notes(self):
+        return self.notes_edit.toPlainText()
+
+
 class AnnotationsBrowser(Dialog):
 
     open_annotation = pyqtSignal(object, object, object)
     show_book = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser-1', parent=parent)
+        Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser', parent=parent)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
         self.setWindowIcon(QIcon(I('highlight.png')))
 
@@ -565,8 +586,9 @@ class AnnotationsBrowser(Dialog):
             return error_dialog(self, _('Cannot edit'), _(
                 'Editing is only supported for the notes associated with highlights'), show=True)
         notes = annot.get('notes')
-        notes, ok = QInputDialog.getMultiLineText(self, _('Edit notes for highlight'), '', notes)
-        if ok:
+        d = EditNotes(notes, self)
+        if d.exec_() == d.Accepted:
+            notes = d.notes
             if notes and notes.strip():
                 annot['notes'] = notes.strip()
             else:
