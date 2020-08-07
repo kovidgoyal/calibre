@@ -609,8 +609,6 @@ class BooksView(QTableView):  # {{{
         w = gprefs.get('ondevice_column_width', 0)
         if w > 0:
             self.setColumnWidth(col, w)
-#         else:
-#             self.resizeColumnToContents(col)
         if self.is_library_view:
             self.pin_view.column_header.setSectionHidden(col, True)
 
