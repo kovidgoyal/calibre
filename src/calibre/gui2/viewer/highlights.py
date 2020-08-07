@@ -358,5 +358,5 @@ class HighlightsPanel(QWidget):
     def export(self):
         hl = list(self.highlights.all_highlights)
         if not hl:
-            return error_dialog(_('No highlights'), _('This book has no highlights to export'), show=True)
+            return error_dialog(self, _('No highlights'), _('This book has no highlights to export'), show=True)
         Export(hl, self).exec_()
