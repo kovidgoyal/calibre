@@ -70,6 +70,8 @@ def set_ui_colors(is_dark_theme):
     for k in DEFAULT_COLORS:
         val = DEFAULT_COLORS[k][attr]
         s.setProperty('--calibre-color-' + k, val)
+    get_color_as_rgba.cache = {}
+    cached_color_to_rgba.cache = {}
 
 
 def css_for_variables():
@@ -92,6 +94,8 @@ def color_to_rgba(color):
     cvs = document.createElement('canvas')
     cvs.height = 1
     cvs.width = 1
+    if color.startsWith('var('):
+        color = window.getComputedStyle(document.documentElement).getPropertyValue(color[4:-1])
     ctx = cvs.getContext('2d')
     ctx.fillStyle = color
     ctx.fillRect(0, 0, 1, 1)
