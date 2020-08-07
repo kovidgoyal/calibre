@@ -74,9 +74,13 @@ def set_ui_colors(is_dark_theme):
     cached_color_to_rgba.cache = {}
 
 
+def browser_in_dark_mode():
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+
+
 def css_for_variables():
     input_css = 'input, textarea { color: var(--calibre-color-input-foreground); background-color: var(--calibre-color-input-background); }'
-    is_dark_theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+    is_dark_theme = browser_in_dark_mode()
     attr = 'dark' if is_dark_theme else 'light'
     ans = v'[]'
     for k in DEFAULT_COLORS:

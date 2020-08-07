@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.theme import css_for_variables, get_color
+from book_list.theme import browser_in_dark_mode, css_for_variables, get_color
 from dom import build_rule, clear, set_css, svgicon
 from session import get_interface_data
 from utils import fmt_sidx, safe_set_inner_html, sandboxed_html
@@ -66,7 +66,7 @@ def on_img_load(img, load_type):
 
 
 def sandbox_css():
-    is_dark_theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+    is_dark_theme = browser_in_dark_mode()
     if not sandbox_css.ans or sandbox_css.is_dark_theme is not is_dark_theme:
         sandbox_css.ans = css_for_variables() + '\n\n'
         sandbox_css.ans += 'html {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
