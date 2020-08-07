@@ -16,7 +16,7 @@ from book_list.library_data import (
     set_book_metadata
 )
 from book_list.router import back, home, open_book, report_a_load_failure
-from book_list.theme import get_color, get_font_size
+from book_list.theme import get_color, get_color_as_rgba, get_font_size
 from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
@@ -134,7 +134,8 @@ def add_stars_to(stars, val, allow_half_stars):
 window.addEventListener('resize', debounce(adjust_all_iframes, 250))
 
 def adjusting_sandboxed_html(html, extra_css):
-    css =  'html, body {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
+    color = get_color_as_rgba('window-foreground')
+    css =  f'html, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
     if extra_css:
         css += '\n\n' + extra_css
     # allow-same-origin is needed for resizing and allow-popups is needed for
