@@ -481,6 +481,8 @@ class SelectionBar:
             self.send_message('trigger-shortcut', name=sc_name)
         elif sc_name is 'start_search':
             self.book_search()
+        elif sc_name is 'toggle_highlights':
+            self.view.on_handle_shortcut({'name': sc_name})
     # }}}
 
     # drag scroll {{{
