@@ -169,7 +169,7 @@ def all_actions():
             'quick_highlight': a('highlight', _('Quick highlight in current color'), 'quick_highlight'),
             'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
             'search': a('search', _('Search for selection in the book'), 'book_search'),
-            'search_net': a('binoculars', _('Search for selection on the net'), 'internet_search'),
+            'search_net': a('global-search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
         }
