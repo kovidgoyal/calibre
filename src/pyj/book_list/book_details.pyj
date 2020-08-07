@@ -16,7 +16,7 @@ from book_list.library_data import (
     set_book_metadata
 )
 from book_list.router import back, home, open_book, report_a_load_failure
-from book_list.theme import get_color, get_color_as_rgba, get_font_size
+from book_list.theme import get_color, get_font_size
 from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
@@ -457,18 +457,20 @@ def render_book(container_id, book_id):
     set_title(c, metadata.title)
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
     alt = _('{} by {}\n\nClick to read').format(metadata.title, authors)
-    bsrgb = get_color_as_rgba('button-start')
+    border_radius = 20
+    button_style = f'cursor: pointer; border-radius: {border_radius//5}px;'
+    button_style += 'color: #ccc; background-color:rgba(0, 0, 0, 0.75);'
+    button_style += 'display: flex; justify-content: center; align-items: center; padding: 2px;'
 
     def prev_next_button(is_prev):
         return E.div(
-            style=f'cursor: pointer; border-radius: {border_radius//5}px; background-color:rgba({bsrgb[0]}, {bsrgb[1]}, {bsrgb[2]}, 0.75);',
+            style=button_style,
             title=_('Previous book') if is_prev else _('Next book'),
             class_='next-book-button',
             svgicon('chevron-left' if is_prev else 'chevron-right'),
             onclick=next_book.bind(None, book_id, (-1 if is_prev else 1))
         )
 
-    border_radius = 20
     imgdiv = E.div(style='position: relative',
         E.img(
             alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
