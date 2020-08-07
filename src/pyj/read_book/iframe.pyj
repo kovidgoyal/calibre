@@ -551,6 +551,11 @@ class IframeBoss:
             paged_resize_done()
         self.update_cfi()
         self.update_toc_position()
+        sel = window.getSelection()
+        if sel and not sel.isCollapsed:
+            # update_selection_position has probably already been called by
+            # no_latency_onscroll but make sure
+            self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow', True))
 
     def received_window_size(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
