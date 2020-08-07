@@ -60,11 +60,11 @@ class LATimes(BasicNewsRecipe):
     cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
-        classes('ArticlePage-breadcrumbs ArticlePage-headline ArticlePage-mainContent'),
+        classes('headline page-lead-media authors published-date page-article-container'),
     ]
 
     remove_tags= [
-        classes('ArticlePage-actions Enhancement hidden-tablet hidden-mobile hidden-desktop pb-f-ads-dfp')
+        classes('google-dfp-ad-wrapper enhancement')
     ]
 
     def parse_index(self):
