@@ -416,7 +416,11 @@ class BooksView(QTableView):  # {{{
                     current_col = self.column_map.index(column)
                     index = self.model().index(current_row, current_col)
                     qv.change_quickview_column(index)
-
+        elif action == 'remember_ondevice_width':
+            gprefs.set('ondevice_column_width', self.columnWidth(idx))
+        elif action == 'reset_ondevice_width':
+            gprefs.set('ondevice_column_width', 0)
+            self.resizeColumnToContents(idx)
         self.save_state()
 
     def create_context_menu(self, col, name, view):
@@ -470,6 +474,11 @@ class BooksView(QTableView):  # {{{
             for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))
         ans.addSeparator()
+        if col == 'ondevice':
+            ans.addAction(_('Remember On Device column width'),
+                partial(handler, action='remember_ondevice_width'))
+            ans.addAction(_('Reset On Device column width to default'),
+                partial(handler, action='reset_ondevice_width'))
         ans.addAction(_('Shrink column if it is too wide to fit'),
                 partial(self.resize_column_to_fit, view, col))
         ans.addAction(_('Resize column to fit contents'),
@@ -597,6 +606,11 @@ class BooksView(QTableView):  # {{{
     def set_ondevice_column_visibility(self):
         col = self._model.column_map.index('ondevice')
         self.column_header.setSectionHidden(col, not self._model.device_connected)
+        w = gprefs.get('ondevice_column_width', 0)
+        if w > 0:
+            self.setColumnWidth(col, w)
+#         else:
+#             self.resizeColumnToContents(col)
         if self.is_library_view:
             self.pin_view.column_header.setSectionHidden(col, True)
 
