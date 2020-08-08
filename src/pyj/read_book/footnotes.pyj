@@ -5,7 +5,9 @@ from __python__ import bound_methods, hash_literals
 from dom import clear
 from iframe_comm import IframeClient
 from read_book.resources import finalize_resources, unserialize_html
-from read_book.settings import apply_settings, update_settings
+from read_book.settings import (
+    apply_settings, set_color_scheme_class, update_settings
+)
 
 block_names = dict.fromkeys(v"['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']", True).as_object()
 block_display_styles = dict.fromkeys(v"['block', 'list-item', 'table-cell', 'table']", True).as_object()
@@ -241,6 +243,7 @@ class PopupIframeBoss:
             window.setTimeout(self.content_loaded, 2)
             return
         document.body.classList.add('calibre-footnote-container')
+        set_color_scheme_class()
         apply_settings()
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
 
