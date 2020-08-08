@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.theme import get_color
+from book_list.theme import get_color, get_color_as_rgba
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
 from iframe_comm import IframeClient, IframeWrapper
 from modals import create_custom_dialog
@@ -319,6 +319,7 @@ class CommentsEditorBoss:
             console.log(error_object)
 
     def set_html(self, data):
+        document.body.style.color = data.color
         document.body.lastChild.innerHTML = data.html
 
     def get_html(self, data):
@@ -390,7 +391,8 @@ class Editor:
         if not self.ready:
             self.pending_set_html = html
             return
-        self.iframe_wrapper.send_message('set_html', html=html)
+        rgba = get_color_as_rgba('window-foreground')
+        self.iframe_wrapper.send_message('set_html', html=html, color=f'rgba({rgba[0]},{rgba[1]},{rgba[2]},{rgba[3]})')
 
     def get_html(self, proceed):
         self.get_html_callbacks.push(proceed)
