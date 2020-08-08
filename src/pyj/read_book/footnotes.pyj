@@ -242,9 +242,12 @@ class PopupIframeBoss:
         if not self.comm.encrypted_communications:
             window.setTimeout(self.content_loaded, 2)
             return
+        # this is the loading styles used to suppress scrollbars during load
+        # added in unserialize_html
+        document.head.removeChild(document.head.firstChild)
         document.body.classList.add('calibre-footnote-container')
         set_color_scheme_class()
-        apply_settings()
+        apply_settings(True)
         self.comm.send_message('content_loaded', height=document.documentElement.scrollHeight + 25)
 
 
