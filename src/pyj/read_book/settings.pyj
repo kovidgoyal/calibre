@@ -100,7 +100,7 @@ def apply_colors(is_content_popup):
         # show a dot after highlights that have notes
         text += '''\n\n
         .crw-has-dot::after {
-            content: "\xa0";\
+            content: "";\
             vertical-align: text-top;\
             background-color: currentColor !important;\
             text-decoration: none !important;\
