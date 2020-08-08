@@ -686,7 +686,8 @@ class SelectionBar:
         self.current_highlight_style = ed.current_style
         self.current_notes = ed.current_notes
         self.send_message(
-            'apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), existing=ed.annot_id
+            'apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), existing=ed.annot_id,
+            has_notes=v'!!self.current_notes'
         )
         self.state = WAITING
         self.update_position()
@@ -743,7 +744,7 @@ class SelectionBar:
                 self.create_highlight()
             else:
                 self.current_notes = ''
-                self.send_message('apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid())
+                self.send_message('apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), has_notes=False)
                 self.state = WAITING
                 self.update_position()
 

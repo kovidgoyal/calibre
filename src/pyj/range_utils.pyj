@@ -126,7 +126,7 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
 wrapper_counter = 0
 
 
-def wrap_text_in_range(styler, r, process_wrapper):
+def wrap_text_in_range(styler, r, class_to_add, process_wrapper):
     if not r:
         sel = window.getSelection()
         if not sel or not sel.rangeCount:
@@ -136,6 +136,8 @@ def wrap_text_in_range(styler, r, process_wrapper):
         return None, v'[]'
 
     wrapper_elem = document.createElement('span')
+    if class_to_add:
+        wrapper_elem.classList.add(class_to_add)
     wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
     if styler:
         styler(wrapper_elem)

@@ -748,7 +748,8 @@ class IframeBoss:
                 return
             bounds = cfi_for_selection()
             style = highlight_style_as_css(data.style, opts.is_dark_theme, opts.color_scheme.foreground)
-            annot_id, intersecting_wrappers = wrap_text_in_range(style, None, self.add_highlight_listeners)
+            cls = 'crw-has-dot' if data.has_notes else None
+            annot_id, intersecting_wrappers = wrap_text_in_range(style, None, cls, self.add_highlight_listeners)
             removed_highlights = v'[]'
             if annot_id is not None:
                 intersecting_uuids = {annot_id_uuid_map[x]:True for x in intersecting_wrappers}
@@ -788,7 +789,8 @@ class IframeBoss:
             if not r:
                 continue
             style = highlight_style_as_css(h.style, opts.is_dark_theme, opts.color_scheme.foreground)
-            annot_id, intersecting_wrappers = wrap_text_in_range(style, r, self.add_highlight_listeners)
+            cls = 'crw-has-dot' if h.notes else None
+            annot_id, intersecting_wrappers = wrap_text_in_range(style, r, cls, self.add_highlight_listeners)
             if annot_id is not None:
                 annot_id_uuid_map[annot_id] = h.uuid
                 for crw in intersecting_wrappers:

@@ -97,6 +97,20 @@ def apply_colors(is_content_popup):
         # for firefox: https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width
         text += '\nhtml, body { scrollbar-width: none !important }'
 
+        # show a dot after highlights that have notes
+        text += '''\n\n
+        .crw-has-dot::after {
+            content: "\xa0";\
+            vertical-align: text-top;\
+            background-color: currentColor !important;\
+            text-decoration: none !important;\
+            display: inline-block;\
+            height: 0.7ex;\
+            width: 0.7ex;\
+            border-radius: 50%;\
+        }
+        '''
+
     ss.textContent = text
 
 
