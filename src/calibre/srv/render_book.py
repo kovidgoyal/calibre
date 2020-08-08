@@ -136,11 +136,15 @@ absolute_font_sizes = {
     'medium': '1rem',
     'large': '1.125rem', 'x-large': '1.5rem', 'xx-large': '2rem', 'xxx-large': '2.55rem'
 }
+nonstandard_writing_mode_property_names = ('-webkit-writing-mode', '-epub-writing-mode')
 
 
 def transform_declaration(decl):
     decl = StyleDeclaration(decl)
     changed = False
+    nonstandard_writing_mode_props = {}
+    standard_writing_mode_props = {}
+    
     for prop, parent_prop in tuple(decl):
         if prop.name in page_break_properties:
             changed = True
@@ -162,6 +166,18 @@ def transform_declaration(decl):
                 changed = True
                 l = convert_fontsize(l, unit)
                 decl.change_property(prop, parent_prop, unicode_type(l) + 'rem')
+        elif prop.name in nonstandard_writing_mode_property_names:
+            nonstandard_writing_mode_props[prop.value] = prop.priority
+        elif prop.name == 'writing-mode':
+            standard_writing_mode_props[prop.value] = True
+
+    # Add standard writing-mode properties if they don't exist so that
+    # all of the browsers supported by the viewer work in vertical modes
+    for value, priority in nonstandard_writing_mode_props.items():
+        if value not in standard_writing_mode_props:
+            decl.set_property('writing-mode', value, priority)
+            changed = True
+
     return changed
 
 
