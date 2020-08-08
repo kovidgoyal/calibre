@@ -7,14 +7,16 @@ from textwrap import fill
 
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QHBoxLayout,
-    QIcon, QLabel, QPalette, QPlainTextEdit, QPushButton, QSize, QSplitter, Qt,
+    QIcon, QLabel, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
     QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QWidget, pyqtSignal
 )
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import Application, config, error_dialog, gprefs, question_dialog
+from calibre.gui2 import (
+    Application, config, error_dialog, gprefs, question_dialog
+)
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
@@ -236,7 +238,6 @@ class BrowsePanel(QWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
-    selection_changed = pyqtSignal()
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -273,14 +274,9 @@ class BrowsePanel(QWidget):
         l.addWidget(rs)
 
         self.results_list = rl = ResultsList(self)
-        rl.itemSelectionChanged.connect(self.selection_changed)
         rl.current_result_changed.connect(self.current_result_changed)
         rl.open_annotation.connect(self.open_annotation)
         l.addWidget(rl)
-
-    @property
-    def num_of_selected_items(self):
-        return len(self.results_list.selectionModel().selectedIndexes())
 
     def re_initialize(self):
         db = current_db()
@@ -382,32 +378,12 @@ class DetailsPanel(QWidget):
         self.current_result = None
         l = QVBoxLayout(self)
         self.text_browser = tb = Details(self)
+        tb.anchorClicked.connect(self.link_clicked)
         l.addWidget(tb)
-
-        h = QHBoxLayout()
-        l.addLayout(h)
-        self.open_button = ob = QPushButton(QIcon(I('viewer.png')), _('Open in viewer'), self)
-        ob.setToolTip(_('Open the book at this annotation in the calibre viewer'))
-        ob.clicked.connect(self.open_result)
-        h.addWidget(ob)
-
-        self.library_button = lb = QPushButton(QIcon(I('lt.png')), _('Show in calibre'), self)
-        lb.setToolTip(_('Show this book in the main calibre book list'))
-        lb.clicked.connect(self.show_in_library)
-        h.addWidget(lb)
-
-        h = QHBoxLayout()
-        l.addLayout(h)
-        self.edit_button = ob = QPushButton(QIcon(I('edit_input.png')), _('Edit'), self)
-        ob.setToolTip(_('Edit the notes if any for this highlight'))
-        ob.clicked.connect(self.edit_result)
-        h.addWidget(ob)
-        self.delete_button = ob = QPushButton(QIcon(I('trash.png')), _('Delete'), self)
-        ob.setToolTip(_('Delete this annotation'))
-        ob.clicked.connect(self.delete_result)
-        h.addWidget(ob)
-
         self.show_result(None)
+
+    def link_clicked(self, qurl):
+        getattr(self, qurl.host())()
 
     def open_result(self):
         if self.current_result is not None:
@@ -433,10 +409,6 @@ class DetailsPanel(QWidget):
 
     def set_controls_visibility(self, visible):
         self.text_browser.setVisible(visible)
-        self.open_button.setVisible(visible)
-        self.library_button.setVisible(visible)
-        self.delete_button.setVisible(visible)
-        self.edit_button.setVisible(visible)
 
     def update_notes(self, annot):
         if self.current_result:
@@ -471,18 +443,22 @@ class DetailsPanel(QWidget):
 
         if annot['type'] == 'bookmark':
             p(annot['title'])
-            self.edit_button.setEnabled(False)
         elif annot['type'] == 'highlight':
-            self.edit_button.setEnabled(True)
             p(annot['highlighted_text'])
             notes = annot.get('notes')
             if notes:
-                p(_('Notes'), 'h4')
+                paras.append('<h4>{} (<a title="{}" href="calibre://edit_result">{}</a>)</h4>'.format(
+                    _('Notes'), _('Edit the notes of this highlight'), _('Edit')))
                 paras.extend(render_notes(notes))
+            else:
+                paras.append('<p><a title="{}" href="calibre://edit_result">{}</a></p>'.format(
+                    _('Add notes to this highlight'), _('Add notes')))
 
         annot_text += '\n'.join(paras)
         date = QDateTime.fromString(annot['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
+
         text = '''
+        <style>a {{ text-decoration: none }}</style>
         <h2 style="text-align: center">{title} [{book_format}]</h2>
         <div style="text-align: center">{authors}</div>
         <div style="text-align: center">{series}</div>
@@ -490,12 +466,20 @@ class DetailsPanel(QWidget):
         <div>&nbsp;</div>
         <div>{dt}: {date}</div>
         <div>{ut}: {user}</div>
+        <div>
+            <a href="calibre://open_result" title="{ovtt}" style="margin-right: 20px">{ov}</a>
+            <span>\xa0\xa0\xa0</span>
+            <a title="{sictt}" href="calibre://show_in_library">{sic}</a>
+        </div>
         <h2 style="text-align: left">{atype}</h2>
         {text}
         '''.format(
             title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
             atype=a(atype), text=annot_text, dt=_('Date'), date=a(date), ut=a(_('User')),
-            user=a(friendly_username(r['user_type'], r['user']))
+            user=a(friendly_username(r['user_type'], r['user'])),
+            ov=a(_('Open in viewer')), sic=a(_('Show in calibre')),
+            ovtt=a(_('Open the book at this annotation in the calibre viewer')),
+            sictt=(_('Show this book in the main calibre book list')),
         )
         self.text_browser.setHtml(text)
 
@@ -560,7 +544,6 @@ class AnnotationsBrowser(Dialog):
 
         self.browse_panel = bp = BrowsePanel(self)
         bp.open_annotation.connect(self.do_open_annotation)
-        bp.selection_changed.connect(self.selection_changed)
         s.addWidget(bp)
 
         self.details_panel = dp = DetailsPanel(self)
@@ -578,10 +561,6 @@ class AnnotationsBrowser(Dialog):
         b.setToolTip(_('Delete the selected annotations'))
         b.setIcon(QIcon(I('trash.png')))
         b.clicked.connect(self.delete_selected)
-        self.selection_changed()
-
-    def selection_changed(self):
-        self.delete_button.setVisible(self.browse_panel.num_of_selected_items > 1)
 
     def delete_selected(self):
         ids = frozenset(self.browse_panel.selected_annot_ids)
