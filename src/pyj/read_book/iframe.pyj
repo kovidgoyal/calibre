@@ -24,7 +24,8 @@ from read_book.flow_mode import (
     handle_shortcut as flow_handle_shortcut, layout as flow_layout,
     scroll_by_page as flow_scroll_by_page,
     scroll_to_extend_annotation as flow_annotation_scroll,
-    start_drag_scroll as start_drag_scroll_flow
+    start_drag_scroll as start_drag_scroll_flow,
+    jump_to_cfi as flow_jump_to_cfi
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (
@@ -237,7 +238,7 @@ class IframeBoss:
             self.handle_navigation_shortcut = flow_handle_shortcut
             self._handle_gesture = flow_handle_gesture
             self.to_scroll_fraction = flow_to_scroll_fraction
-            self.jump_to_cfi = scroll_to_cfi
+            self.jump_to_cfi = flow_jump_to_cfi
             self.anchor_funcs = flow_anchor_funcs
             self.auto_scroll_action = flow_auto_scroll_action
             self.scroll_to_extend_annotation = flow_annotation_scroll
@@ -361,7 +362,7 @@ class IframeBoss:
             if self.last_cfi:
                 cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
                 if cfi:
-                    paged_jump_to_cfi('/' + cfi)
+                    self.jump_to_cfi('/' + cfi)
             self.update_cfi()
             self.update_toc_position()
 
@@ -442,7 +443,6 @@ class IframeBoss:
                 si = spine[i]
                 if si:
                     self.length_before += files[si]?.length or 0
-        self.onscroll()
         self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
         self.last_cfi = None
         self.auto_scroll_action('resume')
@@ -547,7 +547,7 @@ class IframeBoss:
         if self.last_cfi:
             cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
             if cfi:
-                paged_jump_to_cfi('/' + cfi)
+                self.jump_to_cfi('/' + cfi)
         if current_layout_mode() is not 'flow':
             paged_resize_done()
         self.update_cfi()
