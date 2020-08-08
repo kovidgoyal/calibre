@@ -288,7 +288,7 @@ class HighlightsPanel(QWidget):
             return b
 
         self.edit_button = button('edit_input.png', _('Edit'), _('Edit the selected highlight'), self.edit_highlight)
-        self.remove_button = button('trash.png', _('Remove'), _('Remove the selected highlights'), self.remove_highlight)
+        self.remove_button = button('trash.png', _('Delete'), _('Delete the selected highlights'), self.remove_highlight)
         self.export_button = button('save.png', _('Export'), _('Export all highlights'), self.export)
         h.addWidget(self.edit_button), h.addWidget(self.remove_button), h.addWidget(self.export_button)
 
