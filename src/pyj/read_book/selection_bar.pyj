@@ -405,6 +405,10 @@ class SelectionBar:
         if self.state is EDITING:
             self.hide_editor(True)
         if self.state is WAITING:
+            now = window.performance.now()
+            if self.last_double_click_at and now - self.last_double_click_at < 500:
+                self.send_message('extend-to-paragraph')
+                return
             for x in (self.bar, self.left_handle, self.right_handle):
                 if near_element(x, ev.clientX, ev.clientY):
                     return
@@ -783,6 +787,8 @@ class SelectionBar:
         elif msg.type is 'edit-highlight':
             if self.state is WAITING:
                 self.create_highlight()
+        elif msg.type is 'double-click':
+            self.last_double_click_at = window.performance.now()
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 
