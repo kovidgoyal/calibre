@@ -196,6 +196,7 @@ class EbookViewer(MainWindow):
         self.highlights_widget.web_action.connect(self.web_view.generic_action)
         if continue_reading:
             self.continue_reading()
+        self.setup_mouse_auto_hide()
 
     def shortcuts_changed(self, smap):
         rmap = defaultdict(list)
@@ -674,4 +675,27 @@ class EbookViewer(MainWindow):
         clean_running_workers()
         self.shutdown_done = True
         return MainWindow.closeEvent(self, ev)
+    # }}}
+
+    # Auto-hide mouse cursor  {{{
+    def setup_mouse_auto_hide(self):
+        QApplication.instance().installEventFilter(self)
+        self.cursor_hidden = False
+        self.hide_cursor_timer = t = QTimer(self)
+        t.setSingleShot(True), t.setInterval(3000)
+        t.timeout.connect(self.hide_cursor)
+        t.start()
+
+    def eventFilter(self, obj, ev):
+        if ev.type() == ev.MouseMove:
+            if self.cursor_hidden:
+                self.cursor_hidden = False
+                QApplication.instance().restoreOverrideCursor()
+            self.hide_cursor_timer.start()
+        return False
+
+    def hide_cursor(self):
+        if get_session_pref('auto_hide_mouse', True):
+            self.cursor_hidden = True
+            QApplication.instance().setOverrideCursor(Qt.BlankCursor)
     # }}}
