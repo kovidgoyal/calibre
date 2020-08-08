@@ -11,6 +11,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import TemporaryFile
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class ESPN(BasicNewsRecipe):
 
     title = 'ESPN'
@@ -22,57 +28,34 @@ class ESPN(BasicNewsRecipe):
     use_embedded_content = False
     remove_javascript = True
     needs_subscription = 'optional'
-    encoding = 'ISO-8859-1'
 
-    remove_tags_before = dict(name='font', attrs={'class': 'date'})
-    center_navbar = False
-    remove_tags = [
-        dict(name='font', attrs={'class': 'footer'}), dict(
-            name='hr', noshade='noshade'),
-        dict(name='img', src='/winnercomm/horseracing/DRF.jpg')
+    keep_only_tags = [
+        classes('article-header article-body'),
     ]
-
-    extra_css = '''
-                body{font-family:Verdana,Arial,Helvetica,sans-serif; font-size:x-small; font-weight:normal;}
-                .subhead{color:#666666;font-family:Verdana,sans-serif; font-size:x-small; font-weight:bold;}
-                .clearfix{font-family:Verdana,sans-serif; font-size:xx-small; }
-                .date{ font-family:Verdana,Arial,Helvetica,sans-serif ; font-size:xx-small;color:#7A7A7A;}
-                .byline{ font-family:Verdana,Arial,Helvetica,sans-serif ; font-size:xx-small;color:#666666;}
-                .headline{font-family:Verdana,Arial,Helvetica,sans-serif ; font-size:large; font-weight:bold;}
-                '''
+    remove_tags = [
+        classes('ad-slot article-social'),
+    ]
 
     feeds = [
-        ('Top Headlines', 'http://sports.espn.go.com/espn/rss/news'),
-        'http://sports.espn.go.com/espn/rss/nfl/news',
-        'http://sports.espn.go.com/espn/rss/nba/news',
-        'http://sports.espn.go.com/espn/rss/mlb/news',
-        'http://sports.espn.go.com/espn/rss/nhl/news',
-        'http://sports.espn.go.com/espn/rss/golf/news',
-        'http://sports.espn.go.com/espn/rss/rpm/news',
-        'http://sports.espn.go.com/espn/rss/tennis/news',
-        'http://sports.espn.go.com/espn/rss/boxing/news',
-        'http://soccernet.espn.go.com/rss/news',
-        'http://sports.espn.go.com/espn/rss/ncb/news',
-        'http://sports.espn.go.com/espn/rss/ncf/news',
-        'http://sports.espn.go.com/espn/rss/ncaa/news',
-        'http://sports.espn.go.com/espn/rss/outdoors/news',
+        ('Top Headlines', 'https://www.espn.com/espn/rss/news'),
+        'https://www.espn.com/espn/rss/nfl/news',
+        'https://www.espn.com/espn/rss/nba/news',
+        'https://www.espn.com/espn/rss/mlb/news',
+        'https://www.espn.com/espn/rss/nhl/news',
+        'https://www.espn.com/espn/rss/golf/news',
+        'https://www.espn.com/espn/rss/rpm/news',
+        'https://www.espn.com/espn/rss/tennis/news',
+        'https://www.espn.com/espn/rss/boxing/news',
+        'https://www.espn.com/espn/rss/soccer/news',
+        # 'http://soccernet.espn.go.com/rss/news',
+        'https://www.espn.com/espn/rss/ncb/news',
+        'https://www.espn.com/espn/rss/ncf/news',
+        'https://www.espn.com/espn/rss/ncaa/news',
+        # 'https://www.espn.com/espn/rss/outdoors/news',
         # 'http://sports.espn.go.com/espn/rss/bassmaster/news',
-        'http://sports.espn.go.com/espn/rss/oly/news',
-        'http://sports.espn.go.com/espn/rss/horse/news'
+        'https://www.espn.com/espn/rss/oly/news',
+        'https://www.espn.com/espn/rss/horse/news'
     ]
-
-    def preprocess_html(self, soup):
-        for div in soup.findAll('div', style=True):
-            if 'px' in div['style']:
-                div['style'] = ''
-
-        return soup
-
-    def postprocess_html(self, soup, first_fetch):
-        for div in soup.findAll('div', style=True):
-            div['style'] = div['style'].replace('center', 'left')
-
-        return soup
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -96,26 +79,3 @@ class ESPN(BasicNewsRecipe):
             br.open('http://espn.go.com').read()
             br.set_handle_refresh(True)
         return br
-
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-
-    def print_version(self, url):
-        if 'eticket' in url:
-            return url.partition('&')[0].replace('story?', 'print?')
-        match = re.search(r'story\?(id=\d+)', url)
-
-        if match and 'soccernet' not in url and 'bassmaster' not in url:
-            return 'http://sports.espn.go.com/espn/print?' + match.group(1) + '&type=story'
-        else:
-            if 'soccernet' in url:
-                match = re.search(r'/id/(\d+)/', url)
-                if match:
-                    return \
-                        'http://soccernet.espn.go.com/print?id=%s&type=story' % match.group(
-                            1)
-            # else:
-            #    if 'bassmaster' in url:
-            #        return url
-
-        return None
