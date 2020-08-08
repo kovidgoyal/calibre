@@ -149,7 +149,7 @@ def quick_highlight_icon(name, tooltip, hcolor):
         style=f'width: {ICON_SIZE}; height: {ICON_SIZE}; display: flex; flex-direction: column',
         title=tooltip or '',
         svg,
-        E.div(style=f'width: {ICON_SIZE}; height: 1ex; background-color: {hcolor}; color: {hcolor}; margin: 0', '.')
+        E.div(style=f'width: {ICON_SIZE}; height: 1ex; background-color: {hcolor}; color: {hcolor}; margin: 0')
     )
     return ans
 
@@ -166,7 +166,7 @@ def all_actions():
         all_actions.ans = {
             'copy': a('copy', _('Copy to clipboard'), 'copy_to_clipboard'),
             'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
-            'quick_highlight': a('highlight', _('Quick highlight in current color'), 'quick_highlight'),
+            'quick_highlight': a('highlight', _('Quick highlight in current style'), 'quick_highlight'),
             'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
             'search': a('search', _('Search for selection in the book'), 'book_search'),
             'search_net': a('global-search', _('Search for selection on the net'), 'internet_search'),
