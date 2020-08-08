@@ -577,6 +577,7 @@ class AnnotationsBrowser(Dialog):
         if not ids:
             return error_dialog(self, _('No selected annotations'), _(
                 'No annotations have been selected'), show=True)
+        self.delete_annotations(ids)
 
     def delete_annotations(self, ids):
         if question_dialog(self, _('Are you sure?'), ngettext(
