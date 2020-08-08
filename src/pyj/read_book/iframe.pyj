@@ -534,7 +534,7 @@ class IframeBoss:
         self.send_message(
             'selectionchange', text=text, empty=v'!!collapsed', annot_id=annot_id,
             drag_mouse_position=drag_mouse_position, selection_change_caused_by_search=by_search,
-            selection_extents=selection_extents(current_layout_mode() is 'flow', True))
+            selection_extents=selection_extents(current_layout_mode() is 'flow'))
 
     def onresize_stage2(self):
         if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:
@@ -556,7 +556,7 @@ class IframeBoss:
         if sel and not sel.isCollapsed:
             # update_selection_position has probably already been called by
             # no_latency_onscroll but make sure
-            self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow', True))
+            self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow'))
 
     def received_window_size(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
