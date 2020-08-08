@@ -180,6 +180,7 @@ class IframeBoss:
         window.addEventListener('keydown', self.onkeydown, {'passive': False})
         window.addEventListener('mousemove', self.onmousemove, {'passive': True})
         window.addEventListener('mouseup', self.onmouseup, {'passive': True})
+        window.addEventListener('dblclick', self.ondoubleclick, {'passive': True})
         document.documentElement.addEventListener('contextmenu', self.oncontextmenu, {'passive': False})
         document.addEventListener('selectionchange', self.onselectionchange)
         self.color_scheme = data.color_scheme
@@ -592,6 +593,9 @@ class IframeBoss:
         # ensure selection bar is updated
         self.onselectionchange()
 
+    def ondoubleclick(self, evt):
+        self.send_message('annotations', type='double-click')
+
     def onkeydown(self, evt):
         if current_layout_mode() is not 'flow' and evt.key is 'Tab':
             # Prevent the TAB key from shifting focus as it causes partial scrolling
@@ -724,6 +728,12 @@ class IframeBoss:
             set_selection_style(data.style)
         elif data.type is 'trigger-shortcut':
             self.on_handle_navigation_shortcut(data)
+        elif data.type is 'extend-to-paragraph':
+            sel = window.getSelection()
+            sel.modify('extend', 'forward', 'paragraphboundary')
+            end_node, end_offset = sel.focusNode, sel.focusOffset
+            sel.modify('extend', 'backward', 'paragraphboundary')
+            sel.setBaseAndExtent(sel.focusNode, sel.focusOffset, end_node, end_offset)
         elif data.type is 'edit-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_ and select_crw(crw_):
