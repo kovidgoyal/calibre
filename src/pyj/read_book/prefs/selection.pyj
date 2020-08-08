@@ -98,7 +98,11 @@ def build_action_table(container, is_current):
                 E.span(_('Add'), class_='simple-link', onclick=add_action.bind(None, action_name)),
             )
         buttons.style.paddingLeft = '2rem'
-        table.appendChild(E.tr(E.td(style='padding: 1ex', svgicon(ac.icon)), E.td(ac.text), buttons))
+        if ac.icon_function:
+            icon = ac.icon_function('#add8ff')
+        else:
+            icon = svgicon(ac.icon)
+        table.appendChild(E.tr(E.td(style='padding: 1ex', icon), E.td(ac.text), buttons))
 
 
 def update_action_tables():
