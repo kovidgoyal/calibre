@@ -236,6 +236,7 @@ class BrowsePanel(QWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    selection_changed = pyqtSignal()
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -272,9 +273,14 @@ class BrowsePanel(QWidget):
         l.addWidget(rs)
 
         self.results_list = rl = ResultsList(self)
+        rl.itemSelectionChanged.connect(self.selection_changed)
         rl.current_result_changed.connect(self.current_result_changed)
         rl.open_annotation.connect(self.open_annotation)
         l.addWidget(rl)
+
+    @property
+    def num_of_selected_items(self):
+        return len(self.results_list.selectionModel().selectedIndexes())
 
     def re_initialize(self):
         db = current_db()
@@ -554,6 +560,7 @@ class AnnotationsBrowser(Dialog):
 
         self.browse_panel = bp = BrowsePanel(self)
         bp.open_annotation.connect(self.do_open_annotation)
+        bp.selection_changed.connect(self.selection_changed)
         s.addWidget(bp)
 
         self.details_panel = dp = DetailsPanel(self)
@@ -567,10 +574,14 @@ class AnnotationsBrowser(Dialog):
         h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(us), h.addStretch(10), h.addWidget(self.bb)
-        self.delete_button = b = self.bb.addButton(_('Delete selected'), self.bb.ActionRole)
+        self.delete_button = b = self.bb.addButton(_('Delete all selected'), self.bb.ActionRole)
         b.setToolTip(_('Delete the selected annotations'))
         b.setIcon(QIcon(I('trash.png')))
         b.clicked.connect(self.delete_selected)
+        self.selection_changed()
+
+    def selection_changed(self):
+        self.delete_button.setVisible(self.browse_panel.num_of_selected_items > 1)
 
     def delete_selected(self):
         ids = frozenset(self.browse_panel.selected_annot_ids)
