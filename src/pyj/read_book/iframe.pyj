@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from gettext import gettext as _
-from select import selection_extents, set_selections_extents_to, word_at_point
+from select import selection_extents, move_end_of_selection, word_at_point
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
@@ -722,8 +722,8 @@ class IframeBoss:
             end_reference_mode()
 
     def annotations_msg_received(self, data):
-        if data.type is 'set-selection':
-            set_selections_extents_to(data.extents)
+        if data.type is 'move-end-of-selection':
+            move_end_of_selection(data.pos, data.start)
         elif data.type is 'set-highlight-style':
             set_selection_style(data.style)
         elif data.type is 'trigger-shortcut':
@@ -734,6 +734,8 @@ class IframeBoss:
             end_node, end_offset = sel.focusNode, sel.focusOffset
             sel.modify('extend', 'backward', 'paragraphboundary')
             sel.setBaseAndExtent(sel.focusNode, sel.focusOffset, end_node, end_offset)
+        elif data.type is 'drag-scroll':
+            self.scroll_to_extend_annotation(data.backwards)
         elif data.type is 'edit-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_ and select_crw(crw_):

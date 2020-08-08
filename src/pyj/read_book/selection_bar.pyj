@@ -418,7 +418,7 @@ class SelectionBar:
         if self.state is not DRAGGING:
             return
         ev.stopPropagation(), ev.preventDefault()
-        self.handle_moved(ev)
+        self.move_handle(ev)
 
     def touchmove_on_container(self, ev):
         if self.state is not DRAGGING:
@@ -426,19 +426,23 @@ class SelectionBar:
         ev.stopPropagation(), ev.preventDefault()
         for touch in ev.changedTouches:
             if touch.identifier is self.active_touch:
-                self.handle_moved(touch)
+                self.move_handle(touch)
                 return
 
-    def handle_moved(self, ev):
+    def move_handle(self, ev):
         handle = document.getElementById(self.dragging_handle)
         s = handle.style
         s.left = (ev.clientX - self.position_in_handle.x) + 'px'
         s.top = (ev.clientY - self.position_in_handle.y) + 'px'
         margins = get_margins()
         pos = self.current_handle_position
-        pos.start = map_to_iframe_coords(pos.start, margins)
-        pos.end = map_to_iframe_coords(pos.end, margins)
-        self.send_message('set-selection', extents=pos)
+        if self.dragging_handle is self.left_handle_id:
+            start = True
+            position = map_to_iframe_coords(pos.start, margins)
+        else:
+            start = False
+            position = map_to_iframe_coords(pos.end, margins)
+        self.send_message('move-end-of-selection', start=start, pos=position)
         c = self.container
         rect = c.getBoundingClientRect()
         t = document.getElementById('book-top-margin').offsetHeight

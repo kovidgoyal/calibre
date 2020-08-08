@@ -114,28 +114,14 @@ def range_at_limit(invert_x, invert_y):
                 return r
 
 
-def set_selections_extents_to(extents):
-    if extents.start.onscreen and extents.end.onscreen:
-        start = range_from_point(extents.start.x, extents.start.y)
-        if start:
-            end = range_from_point(extents.end.x, extents.end.y)
-            if end:
-                r = document.createRange()
-                r.setStart(start.startContainer, start.startOffset)
-                r.setEnd(end.startContainer, end.startOffset)
-                sel = window.getSelection()
-                sel.removeAllRanges()
-                sel.addRange(r)
-        return
+def move_end_of_selection(pos, start):
     sel = window.getSelection()
     if not sel.rangeCount:
         return
-    r = sel.getRangeAt(0)
-    if extents.start.onscreen:
-        start = range_from_point(extents.start.x, extents.start.y)
+    newr = range_from_point(pos.x, pos.y)
+    if newr:
+        r = sel.getRangeAt(0)
         if start:
-            r.setStart(start.startContainer, start.startOffset)
-    if extents.end.onscreen:
-        end = range_from_point(extents.end.x, extents.end.y)
-        if end:
-            r.setEnd(end.startContainer, end.startOffset)
+            r.setStart(newr.startContainer, newr.startOffset)
+        else:
+            r.setEnd(newr.endContainer, newr.endOffset)
