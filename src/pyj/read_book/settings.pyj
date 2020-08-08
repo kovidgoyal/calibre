@@ -56,7 +56,7 @@ def make_selection_background_opaque(selbg):
 styles_id = 'calibre-color-scheme-style-overrides'
 
 
-def apply_colors():
+def apply_colors(is_content_popup):
     for elem in (document.documentElement, document.body):
         elem.style.color = opts.color_scheme.foreground
         # set background color to transparent so that the users background
@@ -88,13 +88,14 @@ def apply_colors():
     selbg = make_selection_background_opaque(selbg)
     text += f'\n::selection {{ background-color: {selbg}; color: {selfg} }}'
     text += f'\n::selection:window-inactive {{ background-color: {selbg}; color: {selfg} }}'
-    # In Chrome when content overflows in RTL and vertical layouts on the left side,
-    # it is not displayed properly when scrolling unless overflow:visible is set,
-    # but this causes scrollbars to appear.
-    # Force disable scrollbars in Chrome, Safari, and Firefox to address this side effect.
-    text += '\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'
-    # for firefox: https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width
-    text += '\nhtml, body { scrollbar-width: none !important }'
+    if not is_content_popup:
+        # In Chrome when content overflows in RTL and vertical layouts on the left side,
+        # it is not displayed properly when scrolling unless overflow:visible is set,
+        # but this causes scrollbars to appear.
+        # Force disable scrollbars in Chrome, Safari, and Firefox to address this side effect.
+        text += '\nhtml::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }'
+        # for firefox: https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width
+        text += '\nhtml, body { scrollbar-width: none !important }'
 
     ss.textContent = text
 
@@ -136,7 +137,7 @@ def apply_stylesheet():
     style.textContent = opts.user_stylesheet
 
 
-def apply_settings():
+def apply_settings(is_content_popup):
     apply_font_size()
-    apply_colors()
+    apply_colors(is_content_popup)
     apply_stylesheet()
