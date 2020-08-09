@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import re
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+country = 'us'
+country_defs = {
+    'us': ('www.reuters.com', {
+        'Business': 'finance',
+        'Markets': 'finance/markets',
+        'World': 'news/world',
+        'Politics': 'politics',
+        'Tech': 'news/technology',
+        'Wealth': 'finance/wealth',
+    })
+}
+
+
+class Reuters(BasicNewsRecipe):
+    title = 'Reuters'
+    description = 'News from all over'
+    __author__ = 'Kovid Goyal'
+    language = 'en'
+
+    keep_only_tags = [
+        classes('ArticleHeader_content-container StandardArticleBody_body')
+    ]
+    remove_tags = [
+        classes('Image_expand-button RelatedCoverage_related-coverage-module'),
+        dict(name='link'),
+    ]
+
+    def parse_index(self):
+        base, sections = country_defs[country]
+        ans = []
+
+        for section_title in sorted(sections):
+            slug = sections[section_title]
+            self.log(section_title)
+            articles = list(self.parse_reuters_section(base, slug))
+            if articles:
+                ans.append((section_title, articles))
+            if self.test and len(ans) >= self.test[0]:
+                break
+        return ans
+
+    def parse_reuters_section(self, base, slug):
+        url = 'https://' + base + '/' + slug
+        soup = self.index_to_soup(url)
+        for div in soup.findAll(**classes('news-headline-list')):
+            h3 = div.find(**classes('story-title'))
+            a = h3.parent
+            title = self.tag_to_string(h3)
+            url = 'https://{}{}'.format(base, a['href'])
+            self.log('\t', title, url)
+            yield {'title': title, 'url': url}
+
+    def preprocess_html(self, soup):
+        url_pat = re.compile(r'url\((.+?)\)')
+        for div in soup.findAll(style=True, **classes('LazyImage_image')):
+            m = url_pat.search(div['style'])
+            if m is None:
+                self.warn('Failed to find lazy image url in:', div['style'])
+                continue
+            url = m.group(1)
+            if url.startswith('//'):
+                url = 'https:' + url
+            url = url.replace('&w=20', '')
+            img = div.findPreviousSibling('img')
+            img['src'] = url
+            img['data-modified'] = url
+        return soup
