@@ -14,7 +14,8 @@ from PyQt5.Qt import (
 
 from calibre.constants import plugins
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
-from calibre.gui2 import choose_save_file, error_dialog, question_dialog
+from calibre.gui2 import choose_save_file, error_dialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.library.annotations import Details, render_notes
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
@@ -347,10 +348,12 @@ class HighlightsPanel(QWidget):
         highlights = tuple(self.highlights.selected_highlights)
         if not highlights:
             return self.no_selected_highlight()
-        if question_dialog(self, _('Are you sure?'), ngettext(
+        if confirm(
+            ngettext(
             'Are you sure you want to delete this highlight permanently?',
             'Are you sure you want to delete all {} highlights permanently?',
-            len(highlights)).format(len(highlights))
+            len(highlights)).format(len(highlights)),
+            'delete-highlight-from-viewer', parent=self, config_set=vprefs
         ):
             for h in highlights:
                 self.request_highlight_action.emit(h['uuid'], 'delete')
