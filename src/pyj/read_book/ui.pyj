@@ -78,6 +78,10 @@ class ReadUI:
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text):
+            if not window.navigator.clipboard:
+                return error_dialog(_('No clipboard access'), _(
+                    'Your browser requires you to access the Content server over an HTTPS connection'
+                    ' to be able to copy to clipboard.'))
             window.navigator.clipboard.writeText(text or '').then(def (): pass;, def():
                 error_dialog(_('Could not copy to clipboard'), _('No permission to write to clipboard'))
             )
