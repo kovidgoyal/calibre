@@ -456,9 +456,10 @@ class SelectionBar:
 
     def end_handle_drag(self):
         self.end_drag_scroll()
+        handle = self.dragging_handle
         self.dragging_handle = None
         self.state = WAITING
-        self.update_position()
+        self.update_position(handle)
 
     def mouseup_on_container(self, ev):
         if self.state is DRAGGING:
@@ -542,7 +543,7 @@ class SelectionBar:
     def is_visible(self):
         return self.container.style.display is not 'none'
 
-    def update_position(self):
+    def update_position(self, dragged_handle):
         container = self.container
         cs = self.view.currently_showing.selection
         self.bar.style.display = 'none'
@@ -568,7 +569,6 @@ class SelectionBar:
         self.bar.style.display = self.left_handle.style.display = self.right_handle.style.display = 'block'
         start, end = map_boundaries(cs)
         bar = self.build_bar(cs.annot_id)
-        end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
         bar_height = bar.offsetHeight
         bar_width = bar.offsetWidth
         buffer = 2
@@ -578,7 +578,7 @@ class SelectionBar:
             'left': buffer, 'right': container.offsetWidth - bar_width - buffer - 10
         }
         left_handle, right_handle = self.left_handle, self.right_handle
-        self.position_handles(left_handle, right_handle, start, end, end_after_start)
+        self.position_handles(left_handle, right_handle, start, end)
 
         def place_vertically(pos, put_below):
             if put_below:
@@ -590,6 +590,14 @@ class SelectionBar:
             bar.style.top = top + 'px'
             return top
 
+        # We try to place the bar near the last dragged handle so it shows up
+        # close to current mouse position. We assume it is the "end" handle.
+        if dragged_handle and dragged_handle is not self.right_handle_id:
+            start, end = end, start
+        if not end.onscreen and start.onscreen:
+            start, end = end, start
+
+        end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
         # vertical position
         if end_after_start:
             has_space_below = end.y + end.height < container.offsetHeight - bar_height - buffer
@@ -612,7 +620,7 @@ class SelectionBar:
                 bar.style.left = changed.left + 'px'
 
 
-    def position_handles(self, left_handle, right_handle, start, end, end_after_start):
+    def position_handles(self, left_handle, right_handle, start, end):
 
         def place_single_handle(handle, boundary, is_left):
             s = handle.style
@@ -631,8 +639,6 @@ class SelectionBar:
                 s.left = boundary.x + 'px'
                 self.right_line_height = boundary.height
 
-        if not end_after_start:
-            start, end = end, start
         handle_height = max(start.height, end.height)
         place_single_handle(left_handle, start, True)
         place_single_handle(right_handle, end, False)
