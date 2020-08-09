@@ -550,8 +550,12 @@ class SelectionBar:
         self.set_handle_colors()
         if self.state is DRAGGING:
             self.show()
+            # needed for drag scrolling
+            self.position_undragged_handle()
             return
         if self.state is EDITING:
+            self.left_handle.style.display = 'none'
+            self.right_handle.style.display = 'none'
             self.show()
             self.place_editor()
             return
@@ -619,29 +623,41 @@ class SelectionBar:
             if changed.left?:
                 bar.style.left = changed.left + 'px'
 
+    def place_single_handle(self, handle_height, handle, boundary, is_left):
+        s = handle.style
+        s.display = 'block' if boundary.onscreen else 'none'
+        height = handle_height * 3
+        width = handle_height * 2
+        s.width = f'{width}px'
+        s.height = f'{height}px'
+        bottom = boundary.y + boundary.height
+        top = bottom - height
+        s.top = f'{top}px'
+        if is_left:
+            s.left = (boundary.x - width) + 'px'
+            self.left_line_height = boundary.height
+        else:
+            s.left = boundary.x + 'px'
+            self.right_line_height = boundary.height
 
     def position_handles(self, left_handle, right_handle, start, end):
-
-        def place_single_handle(handle, boundary, is_left):
-            s = handle.style
-            s.display = 'block' if boundary.onscreen else 'none'
-            height = handle_height * 3
-            width = handle_height * 2
-            s.width = f'{width}px'
-            s.height = f'{height}px'
-            bottom = boundary.y + boundary.height
-            top = bottom - height
-            s.top = f'{top}px'
-            if is_left:
-                s.left = (boundary.x - width) + 'px'
-                self.left_line_height = boundary.height
-            else:
-                s.left = boundary.x + 'px'
-                self.right_line_height = boundary.height
-
         handle_height = max(start.height, end.height)
-        place_single_handle(left_handle, start, True)
-        place_single_handle(right_handle, end, False)
+        self.place_single_handle(handle_height, left_handle, start, True)
+        self.place_single_handle(handle_height, right_handle, end, False)
+
+    def position_undragged_handle(self):
+        cs = self.view.currently_showing.selection
+        start, end = map_boundaries(cs)
+        handle_height = max(start.height, end.height)
+        if self.dragging_handle is self.left_handle_id:
+            handle = self.right_handle
+            boundary = end
+            is_left = False
+        else:
+            handle = self.left_handle
+            boundary = start
+            is_left = True
+        self.place_single_handle(handle_height, handle, boundary, is_left)
     # }}}
 
     # Editor {{{
