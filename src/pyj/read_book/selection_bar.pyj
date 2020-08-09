@@ -232,7 +232,7 @@ class SelectionBar:
         self.position_in_handle = {'x': 0, 'y': 0}
         self.active_touch = None
         self.drag_scroll_timer = None
-        self.last_drag_scroll_at = -100000
+        self.last_drag_scroll_at = None
         self.left_line_height = self.right_line_height = 0
         self.current_editor = None
 
@@ -505,10 +505,16 @@ class SelectionBar:
         if self.state is not DRAGGING:
             return
         sd = get_session_data()
-        interval = 1000/sd.get('lines_per_sec_smooth') if self.in_flow_mode else 1200
+        in_flow_mode = sd.get('read_mode') is 'flow'
+        interval = 1000/sd.get('lines_per_sec_smooth') if in_flow_mode else 1200
         self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
         now = window.performance.now()
-        if now - self.last_drag_scroll_at > interval:
+        if self.last_drag_scroll_at is None:
+            # dont jump a page immediately in paged mode
+            if in_flow_mode:
+                self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.left_handle_id else 'right', True)
+            self.last_drag_scroll_at = now
+        elif now - self.last_drag_scroll_at > interval:
             self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.left_handle_id else 'right', True)
             self.last_drag_scroll_at = now
 
@@ -521,7 +527,7 @@ class SelectionBar:
         if self.drag_scroll_timer is not None:
             window.clearTimeout(self.drag_scroll_timer)
             self.drag_scroll_timer = None
-            self.last_drag_scroll_at = -10000
+            self.last_drag_scroll_at = None
 
     # }}}
 
