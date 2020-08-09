@@ -284,7 +284,6 @@ def node_for_text_offset(nodes, offset, first_node):
                 continue
         if is_text_node(node):
             l = node.nodeValue.length
-            # By CFI spec, offset may be equal to node length.
             if offset <= l:
                 return node, offset, True
             last_text_node = node
@@ -601,11 +600,12 @@ def decode_with_range(cfi, doc):  # {{{
 
             range_.setStart(node, offset)
             range_.setEnd(node, offset + 1)
-            rects = range_.getClientRects()
+            rect = range_.getBoundingClientRect()
 
-            if not rects?.length:
+            if not rect:
                 print(str.format("Could not find caret position for {} (offset: {})", cfi, decoded.offset))
                 range_ = None
+
 
     # Augment decoded with range, if found
     decoded.range = range_
@@ -615,55 +615,68 @@ def decode_with_range(cfi, doc):  # {{{
 
 # }}}
 
-def decoded_with_range_to_document_position(decoded):
+# It's only valid to call this if you have a decoded CFI with a range included.
+# Call decoded_to_document_position if you're not sure.
+def decoded_range_to_document_position(decoded):
+    # Character offset
+    # Get the bounding rect of the range, in (real) viewport space
+    rect = decoded.range.getBoundingClientRect()
+
+    # Now, get the viewport-space position (vs_pos) we want to scroll to
+    # This is a little complicated.
+    # The box we are using is a character's bounding box.
+    # First, the inline direction.
+    # We want to use the beginning of the box per the ePub CFI spec,
+    # which states character offset CFIs refer to the beginning of the
+    # character, which would be in the inline direction.
+    inline_vs_pos = scroll_viewport.rect_inline_start(rect)
+    #  Unless the flag is set to use the end of the range:
+    #  (because ranges indices may not exceed the range,
+    #   but CFI offets are allowed to be one past the end.)
+    if decoded.use_range_end_pos:
+        inline_vs_pos = scroll_viewport.rect_inline_end(rect)
+
+    # Next, the block direction.
+    # If the CFI specifies a side bias, we should respect that.
+    # Otherwise, we want to use the block start.
+    if decoded.forward:
+        block_vs_pos = scroll_viewport.rect_block_end(rect)
+    else:
+        block_vs_pos = scroll_viewport.rect_block_start(rect)
+
+    # Now, we need to convert these to document X and Y coordinates.
+    return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, decoded.node.ownerDocument)
+
+# This will work on a decoded CFI that refers to a node or node with spacial offset.
+# It will ignore any ranges, so call decoded_to_document_position unless you're sure the decoded CFI has no range.
+def decoded_node_or_spacial_offset_to_document_position(decoded):
     node = decoded.node
-    if decoded.range is not None:
-        # Character offset
-        # Get the bounding rect of the range, in (real) viewport space
-        rect = decoded.range.getBoundingClientRect()
-
-        # Now, get the viewport-space position (vs_pos) we want to scroll to
-        # This is a little complicated.
-        # The box we are using is a character's bounding box.
-        # First, the inline direction.
-        # We want to use the beginning of the box per the ePub CFI spec,
-        # which states character offset CFIs refer to the beginning of the
-        # character, which would be in the inline direction.
-        inline_vs_pos = scroll_viewport.rect_inline_start(rect)
-        #  Unless the flag is set to use the end of the range:
-        #  (because ranges indices may not exceed the range,
-        #   but CFI offets are allowed to be one past the end.)
-        if decoded.use_range_end_pos:
-            inline_vs_pos = scroll_viewport.rect_inline_end(rect)
-
-        # Next, the block direction.
-        # If the CFI specifies a side bias, we should respect that.
-        # Otherwise, we want to use the block start.
+    rect = node.getBoundingClientRect()
+    percentx, percenty = decoded.x, decoded.y
+    # If we have a spacial offset, base the CFI position on the offset into the object
+    if jstype(percentx) is 'number' and node.offsetWidth and jstype(percenty) is 'number' and node.offsetHeight:
+        viewx = rect.left + (percentx*node.offsetWidth)/100
+        viewy = rect.top + (percenty*node.offsetHeight)/100
+        doc_left, doc_top = scroll_viewport.viewport_to_document(viewx, viewy, node.ownerDocument)
+        return doc_left, doc_top
+    # Otherwise, base it on the inline and block start and end, along with side bias:
+    else:
         if decoded.forward:
             block_vs_pos = scroll_viewport.rect_block_end(rect)
         else:
             block_vs_pos = scroll_viewport.rect_block_start(rect)
 
-        # Now, we need to convert these to document X and Y coordinates.
+        inline_vs_pos = scroll_viewport.rect_inline_start(rect)
         return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, node.ownerDocument)
-    else if node is not None and node.getBoundingClientRect:
-        rect = node.getBoundingClientRect()
-        percentx, percenty = decoded.x, decoded.y
-        # If we have a spacial offset, base the CFI position on the offset into the object
-        if jstype(percentx) is 'number' and node.offsetWidth and jstype(percenty) is 'number' and node.offsetHeight:
-            viewx = rect.left + (percentx*node.offsetWidth)/100
-            viewy = rect.top + (percenty*node.offsetHeight)/100
-            doc_left, doc_top = scroll_viewport.viewport_to_document(viewx, viewy, node.ownerDocument)
-            return doc_left, doc_top
-        # Otherwise, base it on the inline and block start and end, along with side bias:
-        else:
-            if decoded.forward:
-                block_vs_pos = scroll_viewport.rect_block_end(rect)
-            else:
-                block_vs_pos = scroll_viewport.rect_block_start(rect)
 
-            inline_vs_pos = scroll_viewport.rect_inline_start(rect)
-            return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, node.ownerDocument)
+# This will take a decoded CFI and return a document position.
+#
+def decoded_to_document_position(decoded):
+    node = decoded.node
+    if decoded.range is not None:
+        return decoded_range_to_document_position(decoded)
+    else if node is not None and node.getBoundingClientRect:
+        return decoded_node_or_spacial_offset_to_document_position(decoded)
     # No range, so we can't use that, and no node, so any spacial offset is meaningless
     else:
         return None, None
@@ -674,24 +687,94 @@ def scroll_to(cfi, callback, doc):  # {{{
         print("No information found for cfi: " + cfi)
         return
     if jstype(decoded.time) is 'number':
-        set_current_time(decoded.node, point_.time)
+        set_current_time(decoded.node, decoded.time)
 
-    doc_x, doc_y = decoded_with_range_to_document_position(decoded)
+    if decoded.range is not None:
+        # Character offset
+        r = decoded.range
+        so, eo = r.startOffset, r.endOffset
+        node = r.startContainer
+        ndoc = node.ownerDocument
+        span = ndoc.createElement('span')
+        span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
+        r.surroundContents(span)
+        scroll_viewport.scroll_into_view(span)
+        fn = def():
+            # Remove the span and get the new position now that scrolling
+            # has (hopefully) completed
+            #
+            # In WebKit, the boundingrect of the span is wrong in some
+            # situations, whereas in IE resetting the range causes it to
+            # loose bounding info. So we use the range's rects unless they
+            # are absent, in which case we use the span's rect
+            #
+            rect = span.getBoundingClientRect()
 
-    # Abort if CFI position is invalid
-    if doc_x is None or doc_y is None:
-        return
+            # Remove the span we inserted
+            p = span.parentNode
+            for node in span.childNodes:
+                span.removeChild(node)
+                p.insertBefore(node, span)
+            p.removeChild(span)
+            p.normalize()
 
-    # Since this position will be used for the upper-left of the viewport,
-    # in RTL mode, we need to offset it by the viewport width so the
-    # position will be on the right side of the viewport,
-    # from where we start reading.
-    # (Note that adding moves left in RTL mode because of the viewport X
-    #  coordinate reversal in RTL mode.)
-    if scroll_viewport.rtl:
-        doc_x += scroll_viewport.width()
-    if callback:
-        callback(doc_x, doc_y)
+            # Reset the range to what it was before the span was added
+            offset = so
+            while offset > -1:
+                try:
+                    decoded.range.setStart(p, offset)
+                    break
+                except:
+                    offset -= 1
+
+            offset = eo
+            while offset > -1:
+                try:
+                    decoded.range.setEnd(p, offset)
+                    break
+                except:
+                    offset -= 1
+
+            doc_x, doc_y = decoded_range_to_document_position(decoded)
+
+            # Abort if CFI position is invalid
+            if doc_x is None or doc_y is None:
+                return
+
+            # Since this position will be used for the upper-left of the viewport,
+            # in RTL mode, we need to offset it by the viewport width so the
+            # position will be on the right side of the viewport,
+            # from where we start reading.
+            # (Note that adding moves left in RTL mode because of the viewport X
+            #  coordinate reversal in RTL mode.)
+            if scroll_viewport.rtl:
+                doc_x += scroll_viewport.width()
+
+            if callback:
+                callback(doc_x, doc_y)
+    else:
+        node = decoded.node
+        scroll_viewport.scroll_into_view(node)
+
+        fn = def():
+            doc_x, doc_y = decoded_node_or_spacial_offset_to_document_position(decoded)
+
+            # Abort if CFI position is invalid
+            if doc_x is None or doc_y is None:
+                return
+
+            # Since this position will be used for the upper-left of the viewport,
+            # in RTL mode, we need to offset it by the viewport width so the
+            # position will be on the right side of the viewport,
+            # from where we start reading.
+            # (Note that adding moves left in RTL mode because of the viewport X
+            #  coordinate reversal in RTL mode.)
+            if scroll_viewport.rtl:
+                doc_x += scroll_viewport.width()
+            if callback:
+                callback(doc_x, doc_y)
+
+    setTimeout(fn, 10)
 # }}}
 
 def at_point(ox, oy):  # {{{
@@ -712,7 +795,7 @@ def at_point(ox, oy):  # {{{
         return None
 
     if cfi:
-        cfix, cfiy = decoded_with_range_to_document_position(decoded)
+        cfix, cfiy = decoded_to_document_position(decoded)
         if cfix is None or cfiy is None or dist(scroll_viewport.viewport_to_document(ox, oy), v'[cfix, cfiy]') > 50:
             cfi = None
 
