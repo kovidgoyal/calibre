@@ -7,6 +7,7 @@ from read_book.viewport import scroll_viewport
 
 HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 8  # pixels
+SWIPE_THRESHOLD = 64  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 10  # pixels
 LONG_TAP_THRESHOLD = 500  # milliseconds
@@ -49,7 +50,8 @@ def interpret_single_gesture(touch, gesture_id):
         return ans
     delta_x = abs(touch.viewport_x[-1] - touch.viewport_x[0])
     delta_y = abs(touch.viewport_y[-1] - touch.viewport_y[0])
-    if max(delta_y, delta_x) > TAP_THRESHOLD and min(delta_x, delta_y)/max(delta_y, delta_x) < 0.35:
+    max_disp = max(delta_y, delta_x)
+    if max_disp > SWIPE_THRESHOLD and min(delta_x, delta_y)/max_disp < 0.35:
         ans.type = 'swipe'
         ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
         ans.points = pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
@@ -63,6 +65,7 @@ def interpret_single_gesture(touch, gesture_id):
             ans.velocity = touch.x_velocity
         return ans
     return ans
+
 
 def interpret_double_gesture(touch1, touch2, gesture_id):
     ans = {'active':touch1.active or touch2.active, 'is_held':touch1.is_held or touch2.is_held, 'id':gesture_id}
