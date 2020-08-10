@@ -8,7 +8,7 @@ from gettext import gettext as _
 from book_list.item_list import build_list, create_item
 from dom import ensure_id, set_css
 from modals import error_dialog
-from read_book.globals import current_book, ui_operations
+from read_book.globals import current_book, runtime, ui_operations
 from read_book.prefs.head_foot import format_pos
 from read_book.toc import get_border_nodes, get_toc_maps
 from widgets import create_button
@@ -33,6 +33,10 @@ def create_goto_list(onclick, current_position_data):
     items.push(create_item(_('Metadata'), subtitle=_('Details about this book'), action=onclick.bind(None, def(view):
         view.overlay.show_metadata()
     )))
+    if not runtime.is_standalone_viewer:
+        items.push(create_item(_('Book page in library'), subtitle=_('The page for this book in the calibre library'), action=onclick.bind(None, def(view):
+            view.open_book_page()
+        )))
     items.push(create_item(_('Location'), subtitle=location_text, action=onclick.bind(None, def(view): view.overlay.show_ask_for_location();)))
     for l in landmarks:
         items.push(create_item(l.title, action=onclick.bind(None, l.dest, l.frag)))
