@@ -4,12 +4,16 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 from gettext import gettext as _
+from uuid import short_uuid
 
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
-from book_list.library_data import sync_library_books
+from book_list.library_data import (
+    current_library_id, set_book_metadata, sync_library_books
+)
 from book_list.router import home
 from book_list.theme import get_color
+from book_list.ui import query_as_href
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
 from read_book.globals import runtime, ui_operations
@@ -665,10 +669,44 @@ class Overlay:
 
     def show_metadata(self):
         self.hide_current_panel()
+        from_read_book = short_uuid()
 
-        def show_metadata_overlay(mi, pathtoebook, overlay, container):
-            container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
+        def show_metadata_overlay(mi, pathtoebook, lname, book_id, overlay, container):
+            container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em', id=from_read_book))
             table = E.table(class_='metadata')
+
+            def handle_message(msg):
+                data = msg.data
+                if data.from_read_book is not from_read_book:
+                    return
+                if data.type is 'edit_metadata_opened':
+                    if document.getElementById(from_read_book) and self.panels.length and self.panels[-1].from_read_book is from_read_book:
+                        self.hide_current_panel()
+                    return
+                if data.type is 'edit_metadata_closed':
+                    ui_operations.stop_waiting_for_messages_from(this)
+                    return
+                if data.type is 'update_cached_book_metadata' and data.metadata:
+                    if current_library_id() is data.library_id:
+                        mi = data.metadata
+                        book_id = int(data.book_id)
+                        set_book_metadata(book_id, mi)
+                        book = self.view.book
+                        if book and book.key[0] is data.library_id and book.key[1] is book_id:
+                            ui_operations.update_metadata(book, mi)
+
+            if not runtime.is_standalone_viewer and lname:
+
+                container.lastChild.appendChild(E.div(
+                    style='text-align: right',
+                    E.a(_('Edit metadata of book in library'), class_='blue-link', onclick=def():
+                        w = window.open(query_as_href({
+                            'from_read_book': from_read_book, 'library_id': lname, 'book_id': book_id + ''}, 'edit_metadata')
+                        , '_blank'
+                        )
+                        ui_operations.wait_for_messages_from(w, handle_message.bind(w))
+                    )
+                ))
             container.lastChild.appendChild(table)
             render_metadata(mi, table, None, f'html {{ font-size: {document.documentElement.style.fontSize} }}')
             for a in table.querySelectorAll('a[href]'):
@@ -680,7 +718,13 @@ class Overlay:
                     style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px',
                     _('Path: {}').format(pathtoebook)))
 
-        self.panels.push(SimpleOverlay(self, show_metadata_overlay.bind(None, self.view.book.metadata, self.view.book.manifest.pathtoebook), self.view.book.metadata.title))
+        book = self.view.book
+        key = book.key or v'[null, 0]'
+        lname, book_id = key
+        book_id = int(book_id or 0)
+        panel = SimpleOverlay(self, show_metadata_overlay.bind(None, book.metadata, book.manifest.pathtoebook, lname, book_id), self.view.book.metadata.title)
+        panel.from_read_book = from_read_book
+        self.panels.push(panel)
         self.show_current_panel()
 
     def show_ask_for_location(self):
