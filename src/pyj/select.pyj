@@ -3,17 +3,13 @@
 from __python__ import bound_methods, hash_literals
 
 
-def range_from_point(x, y):
-    r = None
+def caret_position_from_point(x, y):
     if document.caretPositionFromPoint:
-        p = document.caretPositionFromPoint(x, y)
-        if p:
-            r = document.createRange()
-            r.setStart(p.offsetNode, p.offset)
-            r.collapse(True)
-    elif document.caretRangeFromPoint:
-        r = document.caretRangeFromPoint(x, y)
-    return r
+        return document.caretPositionFromPoint(x, y)
+    r = document.caretRangeFromPoint(x, y)
+    if r:
+        return {'offsetNode': r.startContainer, 'offset': r.startOffset}
+    return None
 
 
 def word_boundary_regex():
@@ -35,12 +31,13 @@ def expand_offset_to_word(string, offset):
 
 
 def word_at_point(x, y):
-    r = range_from_point(x, y)
-    if r and r.startContainer.nodeType is 3:
-        word_info = expand_offset_to_word(r.startContainer.data, r.startOffset)
+    p = caret_position_from_point(x, y)
+    if p and p.offsetNode?.nodeType is Node.TEXT_NODE:
+        word_info = expand_offset_to_word(p.offsetNode.data, p.offset)
         if word_info.word:
-            r.setStart(r.startContainer, word_info.start)
-            r.setEnd(r.startContainer, word_info.end)
+            r = document.createRange()
+            r.setStart(p.offsetNode, word_info.start)
+            r.setEnd(p.offsetNode, word_info.end)
             return r
 
 
@@ -105,10 +102,10 @@ def move_end_of_selection(pos, start):
     sel = window.getSelection()
     if not sel.rangeCount:
         return
-    newr = range_from_point(pos.x, pos.y)
-    if newr:
+    p = caret_position_from_point(pos.x, pos.y)
+    if p:
         r = sel.getRangeAt(0)
         if start:
-            r.setStart(newr.startContainer, newr.startOffset)
+            r.setStart(p.offsetNode, p.offset)
         else:
-            r.setEnd(newr.endContainer, newr.endOffset)
+            r.setEnd(p.offsetNode, p.offset)
