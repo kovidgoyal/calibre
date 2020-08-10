@@ -13,7 +13,7 @@ from book_list.library_data import (
 )
 from book_list.router import home
 from book_list.theme import get_color
-from book_list.ui import query_as_href
+from book_list.ui import query_as_href, show_panel
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from modals import error_dialog
 from read_book.globals import runtime, ui_operations
@@ -255,18 +255,16 @@ class MainOverlay:  # {{{
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
         delete_action = ac(_('Delete'), _('Delete this book from local storage'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
-        home_action = ac(_('Home'), _('Return to the home page'), def(): home();, 'home')
         back_action = ac(_('Back'), None, self.back, 'arrow-left')
         forward_action = ac(_('Forward'), None, self.forward, 'arrow-right')
+        nav_actions = E.ul(back_action, forward_action)
         if runtime.is_standalone_viewer:
             reload_actions = E.ul(
                 ac(_('Open book'), _('Open a book'), self.overlay.open_book, 'book'),
                 reload_action
             )
-            nav_actions = E.ul(back_action, forward_action)
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
-            nav_actions = E.ul(home_action, back_action, forward_action)
 
         bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
         toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'toc'))
@@ -294,6 +292,10 @@ class MainOverlay:  # {{{
 
             class_=MAIN_OVERLAY_ACTIONS_CLASS
         )
+        if not runtime.is_standalone_viewer:
+            home_action = ac(_('Home'), _('Return to the home page'), def(): home();, 'home')
+            library_action = ac(_('Library'), _('Return to the library page'), self.overlay.show_library, 'library')
+            actions_div.insertBefore(E.ul(home_action, library_action), actions_div.firstChild)
         full_screen_actions = []
         if runtime.is_standalone_viewer:
             text = _('Exit full screen') if runtime.viewer_in_full_screen else _('Enter full screen')
@@ -741,6 +743,11 @@ class Overlay:
         self.hide_current_panel()
         self.panels.push(PrefsOverlay(self))
         self.show_current_panel()
+
+    def show_library(self):
+        self.hide_current_panel()
+        book = self.view.book
+        show_panel('book_list', {'library_id': book.key[0], 'book_id': book.key[1] + ''}, replace=False)
 
     def show_font_size_chooser(self):
         self.hide_current_panel()
