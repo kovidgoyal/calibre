@@ -3,13 +3,14 @@
 from __python__ import bound_methods, hash_literals
 
 
-def caret_position_from_point(x, y):
-    if document.caretPositionFromPoint:
-        return document.caretPositionFromPoint(x, y)
-    r = document.caretRangeFromPoint(x, y)
-    if r:
-        return {'offsetNode': r.startContainer, 'offset': r.startOffset}
-    return None
+if document.caretPositionFromPoint:
+    caret_position_from_point = document.caretPositionFromPoint.bind(document)
+else:
+    caret_position_from_point = def(x, y):
+        r = document.caretRangeFromPoint(x, y)
+        if r:
+            return {'offsetNode': r.startContainer, 'offset': r.startOffset}
+        return None
 
 
 def word_boundary_regex():
