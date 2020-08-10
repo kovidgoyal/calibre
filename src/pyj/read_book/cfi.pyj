@@ -54,9 +54,11 @@ def get_current_time(target): # {{{
 
 # Convert point to character offset {{{
 def range_has_point(range_, x, y):
-    rect = range_.getBoundingClientRect()
-    if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom):
-        return True
+    rects = range_.getClientRects()
+    for v'var i = 0; i < rects.length; i++':
+        rect = rects[i]
+        if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom):
+            return True
     return False
 
 def offset_in_text_node(node, range_, x, y):
@@ -693,8 +695,19 @@ def scroll_to(cfi, callback, doc):  # {{{
         # Character offset
         r = decoded.range
         so, eo = r.startOffset, r.endOffset
-        node = r.startContainer
-        ndoc = node.ownerDocument
+        original_node = r.startContainer
+
+        # Save the node index and its parent so we can get the node back
+        # after removing the span and normalizing the parent.
+        node_parent = original_node.parentNode
+        original_node_index = 0
+        for child_node in node_parent.childNodes:
+            if child_node is original_node:
+                break
+            else:
+                ++original_node_index
+
+        ndoc = original_node.ownerDocument
         span = ndoc.createElement('span')
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
@@ -702,15 +715,6 @@ def scroll_to(cfi, callback, doc):  # {{{
         fn = def():
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
-            #
-            # In WebKit, the boundingrect of the span is wrong in some
-            # situations, whereas in IE resetting the range causes it to
-            # loose bounding info. So we use the range's rects unless they
-            # are absent, in which case we use the span's rect
-            #
-            rect = span.getBoundingClientRect()
-
-            # Remove the span we inserted
             p = span.parentNode
             for node in span.childNodes:
                 span.removeChild(node)
@@ -722,7 +726,7 @@ def scroll_to(cfi, callback, doc):  # {{{
             offset = so
             while offset > -1:
                 try:
-                    decoded.range.setStart(p, offset)
+                    decoded.range.setStart(node_parent.childNodes[original_node_index], offset)
                     break
                 except:
                     offset -= 1
@@ -730,7 +734,7 @@ def scroll_to(cfi, callback, doc):  # {{{
             offset = eo
             while offset > -1:
                 try:
-                    decoded.range.setEnd(p, offset)
+                    decoded.range.setEnd(node_parent.childNodes[original_node_index], offset)
                     break
                 except:
                     offset -= 1
