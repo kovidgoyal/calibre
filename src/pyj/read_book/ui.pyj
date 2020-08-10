@@ -53,7 +53,9 @@ class ReadUI:
             id=self.display_id, style='display:none',
         ))
         self.view = View(container.lastChild)
+        self.windows_to_listen_for_messages_from = []
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
+        window.addEventListener('message', self.message_from_other_window.bind(self))
         self.db = get_db(self.db_initialized.bind(self), self.show_error.bind(self))
         ui_operations.get_file = self.db.get_file
         ui_operations.get_mathjax_files = self.db.get_mathjax_files
@@ -75,6 +77,9 @@ class ReadUI:
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.highlights_changed = self.highlights_changed.bind(self)
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
+        ui_operations.wait_for_messages_from = self.wait_for_messages_from.bind(self)
+        ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
+        ui_operations.update_metadata = self.update_metadata.bind(self)
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text):
@@ -534,3 +539,21 @@ class ReadUI:
 
     def update_url_state(self, replace):
         push_state(self.url_data, replace=replace, mode=read_book_mode)
+
+    def update_metadata(self, book, metadata):
+        self.db.update_metadata(book, metadata)
+
+    def wait_for_messages_from(self, w, callback):
+        self.windows_to_listen_for_messages_from.push(v'[w, callback]')
+
+    def stop_waiting_for_messages_from(self, w):
+        self.windows_to_listen_for_messages_from = [x for x in self.windows_to_listen_for_messages_from if x[0] is not w]
+
+    def message_from_other_window(self, msg):
+        if not self.windows_to_listen_for_messages_from.length:
+            return
+        old = self.windows_to_listen_for_messages_from
+        for x in old:
+            w, callback = x
+            if w is msg.source:
+                callback(msg)
