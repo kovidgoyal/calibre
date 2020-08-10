@@ -101,19 +101,6 @@ def selection_extents(in_flow_mode):
     return range_extents(sel.getRangeAt(0), in_flow_mode)
 
 
-def range_at_limit(invert_x, invert_y):
-    step = 10
-    for y in range(0, window.innerHeight + step, step):
-        if invert_y:
-            y = max(0, window.innerHeight - y)
-        for x in range(0, window.innerWidth + step, step):
-            if invert_x:
-                x = max(0, window.innerWidth - x)
-            r = range_from_point(x, y)
-            if r:
-                return r
-
-
 def move_end_of_selection(pos, start):
     sel = window.getSelection()
     if not sel.rangeCount:
