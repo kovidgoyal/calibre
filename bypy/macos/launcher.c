@@ -19,7 +19,7 @@ main(int argc, char * const *argv) {
     if (path == NULL) fatal("failed to get realpath for executable path with error: %s", strerror(errno));
     // We re-exec using an absolute path because the Qt WebEngine sandbox does not work
     // when running via symlink
-    if (!IS_GUI && strcmp(PROGRAM, "calibre-parallel") != 0 && strcmp(argv[0], path) != 0) {
+    if (!IS_GUI && wcscmp(PROGRAM, L"calibre-parallel") != 0 && strcmp(argv[0], path) != 0) {
         char* new_argv[1024] = {0};
         new_argv[0] = path;
         for (int i = 1; i < argc && i < arraysz(new_argv) - 1; i++) new_argv[i] = argv[i];
