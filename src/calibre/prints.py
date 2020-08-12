@@ -18,6 +18,8 @@ def is_binary(stream):
 def prints(*a, **kw):
     ' Print either unicode or bytes to either binary or text mode streams '
     stream = kw.get('file', sys.stdout)
+    if stream is None:
+        return
     sep, end = kw.get('sep'), kw.get('end')
     if sep is None:
         sep = ' '
