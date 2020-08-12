@@ -57,6 +57,9 @@ class Parser(object):
     def parse_epubcfi(self, raw):
         ' Parse a full epubcfi of the form epubcfi(path [ , path , path ]) '
         null = {}, {}, {}, raw
+        if not raw:
+            return null
+
         if not raw.startswith('epubcfi('):
             return null
         raw = raw[len('epubcfi('):]
