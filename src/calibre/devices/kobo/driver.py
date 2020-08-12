@@ -1362,7 +1362,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 22, 15190)
+    max_supported_fwversion         = (4, 23, 15439)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1684,9 +1684,12 @@ class KOBOTOUCH(KOBO):
                 elif accessibility == 4:        # Pre 2.x.x firmware
                     playlist_map[lpath].append('Recommendation')
                     allow_shelves = False
+                elif accessibility == 8:        # From 4.22 but waa probably there earlier.
+                    playlist_map[lpath].append('Kobo Plus')
+                    allow_shelves = True
                 elif accessibility == 9:        # From 4.0 on Aura One
                     playlist_map[lpath].append('OverDrive')
-                    allow_shelves = False
+                    allow_shelves = True
 
                 kobo_collections = playlist_map[lpath][:]
 
@@ -1898,7 +1901,7 @@ class KOBOTOUCH(KOBO):
                          expiry="" if self.show_archived_books else "and IsDownloaded in ('true', 1)",
                          previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else "",
                          recomendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else "",
-                         downloaded_accessibility="1,2,9" if self.supports_overdrive() else "1,2"
+                         downloaded_accessibility="1,2,8,9" if self.supports_overdrive() else "1,2"
                          )
             elif self.supports_series():
                 where_clause = (" WHERE BookID IS NULL "
