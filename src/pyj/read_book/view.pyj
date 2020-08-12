@@ -541,7 +541,7 @@ class View:
             'selection_change_caused_by_search': data.selection_change_caused_by_search
         }
         if ui_operations.selection_changed:
-            ui_operations.selection_changed(self.currently_showing.selection.text)
+            ui_operations.selection_changed(self.currently_showing.selection.text, self.currently_showing.selection.annot_id)
         self.selection_bar.update_position()
 
     def update_selection_position(self, data):

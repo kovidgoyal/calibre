@@ -351,8 +351,8 @@ if window is window.top:
         to_python.quit()
     ui_operations.toggle_lookup = def(force_show):
         to_python.toggle_lookup(v'!!force_show')
-    ui_operations.selection_changed = def(selected_text):
-        to_python.selection_changed(selected_text)
+    ui_operations.selection_changed = def(selected_text, annot_id):
+        to_python.selection_changed(selected_text, annot_id or None)
     ui_operations.update_current_toc_nodes = def(current_node_id, top_level_node_id):
         to_python.update_current_toc_nodes(current_node_id, top_level_node_id)
     ui_operations.toggle_full_screen = def():

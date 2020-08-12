@@ -337,6 +337,6 @@ class Lookup(QWidget):
         self.view.load(QUrl(url))
         self.current_query = query
 
-    def selected_text_changed(self, text):
+    def selected_text_changed(self, text, annot_id):
         self.selected_text = text or ''
         self.debounce_timer.start()

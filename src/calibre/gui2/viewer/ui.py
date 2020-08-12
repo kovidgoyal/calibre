@@ -175,6 +175,7 @@ class EbookViewer(MainWindow):
         self.web_view.toggle_full_screen.connect(self.toggle_full_screen)
         self.web_view.ask_for_open.connect(self.ask_for_open, type=Qt.QueuedConnection)
         self.web_view.selection_changed.connect(self.lookup_widget.selected_text_changed, type=Qt.QueuedConnection)
+        self.web_view.selection_changed.connect(self.highlights_widget.selected_text_changed, type=Qt.QueuedConnection)
         self.web_view.view_image.connect(self.view_image, type=Qt.QueuedConnection)
         self.web_view.copy_image.connect(self.copy_image, type=Qt.QueuedConnection)
         self.web_view.show_loading_message.connect(self.show_loading_message)

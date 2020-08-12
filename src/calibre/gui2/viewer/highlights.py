@@ -161,6 +161,15 @@ class Highlights(QListWidget):
                 return True
         return False
 
+    def find_annot_id(self, annot_id):
+        for i in range(self.count()):
+            item = self.item(i)
+            h = item.data(Qt.UserRole)
+            if h.get('uuid') == annot_id:
+                self.set_current_row(i)
+                return True
+        return False
+
     def set_current_row(self, row):
         self.setCurrentRow(row, QItemSelectionModel.ClearAndSelect)
 
@@ -363,3 +372,7 @@ class HighlightsPanel(QWidget):
         if not hl:
             return error_dialog(self, _('No highlights'), _('This book has no highlights to export'), show=True)
         Export(hl, self).exec_()
+
+    def selected_text_changed(self, text, annot_id):
+        if annot_id:
+            self.highlights.find_annot_id(annot_id)
