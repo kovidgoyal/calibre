@@ -21,7 +21,7 @@ from __python__ import hash_literals
 #    scroll_to(cfi): which scrolls the browser to a point corresponding to the
 #                    given cfi, and returns the x and y co-ordinates of the point.
 
-from read_book.viewport import scroll_viewport
+from read_book.viewport import scroll_viewport, rem_size
 
 # CFI escaping {{{
 escape_pat = /[\[\],^();~@!-]/g
@@ -50,11 +50,6 @@ def fstr(d):  # {{{
 
 def get_current_time(target): # {{{
     return fstr(target.currentTime or 0)
-# }}}
-
-def window_scroll_pos(w):  # {{{
-    w = w or window
-    return w.pageXOffset, w.pageYOffset
 # }}}
 
 # Convert point to character offset {{{
@@ -102,7 +97,7 @@ def find_offset_for_point(x, y, node, cdoc):
 
     # The point must be after the last bit of text/in the padding/border, we dont know
     # how to get a good point in this case
-    raise ValueError(str.format("Point ({}, {}) is in the padding/border of the node, so cannot calculate offset", x, y))
+    return None, None
 
 # }}}
 
@@ -279,7 +274,7 @@ def node_for_path_step(parent, target, assertion):
     return node_at_index(parent.childNodes, target, 0, not is_element)[0]
 
 
-def node_for_text_offset(nodes, offset, forward, first_node):
+def node_for_text_offset(nodes, offset, first_node):
     last_text_node = None
     seen_first = False
     for i in range(nodes.length):
@@ -291,17 +286,30 @@ def node_for_text_offset(nodes, offset, forward, first_node):
                 continue
         if is_text_node(node):
             l = node.nodeValue.length
-            if offset < l or (not forward and offset is l):
+            if offset <= l:
                 return node, offset, True
             last_text_node = node
             offset -= l
         elif node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:
-            qn, offset, ok = node_for_text_offset(unwrapped_nodes(node), offset, forward)
+            qn, offset, ok = node_for_text_offset(unwrapped_nodes(node), offset)
             if ok:
                 return qn, offset, True
     return last_text_node, offset, False
 
-
+# Based on a CFI string, returns a decoded CFI, with members:
+#
+#  node: The node to which the CFI refers.
+#  time: If the CFI refers to a video or sound, this is the time within such to which it refers.
+#  x, y: If the CFI defines a spacial offset (technically only valid for images and videos),
+#        these are the X and Y percentages from the top-left of the image or video.
+#        Note that Calibre has a fallback to set CFIs with spacial offset on the HTML document,
+#        and interprets them as a position within the Calibre-rendered document.
+#  forward: This is set to True if the CFI had a side bias of 'a' (meaning 'after').
+#  offset: When the CFI refers to a text node, this is the offset (zero-based index) of the character
+#          the CFI refers to. The position is defined as being before the specified character,
+#          i.e. an offset of 0 is before the first character and an offset equal to number of characters
+#          in the text is after the last character.
+#  error: If there was a problem decoding the CFI, this is set to a string describing the error.
 def decode(cfi, doc):
     doc = doc or window.document
     simple_node_regex = ///
@@ -341,7 +349,7 @@ def decode(cfi, doc):
         print(error)
         return None
 
-    point = {}
+    decoded = {}
     error = None
     offset = None
 
@@ -354,14 +362,14 @@ def decode(cfi, doc):
     r = cfi.match(/^~(-?\d+(\.\d+)?)/)
     if r:
         # Temporal offset
-        point.time = r[1] - 0 # Coerce to number
+        decoded.time = r[1] - 0 # Coerce to number
         cfi = cfi.substr(r[0].length)
 
     r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)
     if r:
         # Spatial offset
-        point.x = r[1] - 0 # Coerce to number
-        point.y = r[3] - 0 # Coerce to number
+        decoded.x = r[1] - 0 # Coerce to number
+        decoded.y = r[3] - 0 # Coerce to number
         cfi = cfi.substr(r[0].length)
 
     r = cfi.match(/^\[([^\]]+)\]/)
@@ -372,7 +380,7 @@ def decode(cfi, doc):
         if r:
             if r.index > 0 and assertion[r.index - 1] is not '^':
                 assertion = assertion.substr(0, r.index)
-                point.forward = (r[1] is 'a')
+                decoded.forward = (r[1] is 'a')
             assertion = unescape_from_cfi(assertion)
             # TODO: Handle text assertion
 
@@ -381,21 +389,21 @@ def decode(cfi, doc):
         orig_offset = offset
         if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
             node = node.parentNode
-        node, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, point.forward, node)
+        node, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, node)
         if not ok:
             error = "Offset out of range: " + orig_offset
-        point.offset = offset
+        decoded.offset = offset
 
-    point.node = node
+    decoded.node = node
     if error:
-        point.error = error
+        decoded.error = error
     else if cfi.length > 0:
-        point.error = "Undecoded CFI: " + cfi
+        decoded.error = "Undecoded CFI: " + cfi
 
-    if point.error:
-        print(point.error)
+    if decoded.error:
+        print(decoded.error)
 
-    return point
+    return decoded
 # }}}
 
 def cfi_sort_key(cfi): # {{{
@@ -536,85 +544,169 @@ def at(x, y, doc):  # {{{
         # caretRangeFromPoint does weird things when the point falls in the
         # padding of the element
         target, offset = find_offset_for_point(x, y, target, cdoc)
+        if target is None:
+            return None
 
     return encode(doc, target, offset, tail)
 # }}}
 
-def point(cfi, doc):  # {{{
+# Like decode(), but tries to construct a range from the CFI's character offset and include it in
+# the return value.
+#
+# If the CFI defines a character offset, there are three cases:
+# Case 1. If the offset is 0 and the text node's length is zero,
+#         the range is set to None. This is a failure case, but
+#         later code will try to use the node's bounding box.
+# Case 2. Otherwise, if the offset is equal to the length of the range,
+#         then a range from the previous to the last character is created,
+#         and use_range_end_pos is set. This is the special case.
+# Case 3. Otherwise, the range is set start at the offset and end at one character past the offset.
+# 
+# In cases 2 and 3, the range is then checked to verify that bounding information can be obtained.
+# If not, no range is returned.
+# 
+# If the CFI does not define a character offset, then the spacial offset is set in the return value.
+#
+# Includes everything that the decode() function does, in addition to:
+# range: A text range, as desribed above.
+# use_range_end_pos: If this is True, a position calculated from the range should
+#                    use the position after the last character in the range.
+#                    (This is set if the offset is equal to the length of the text in the node.)
+def decode_with_range(cfi, doc):  # {{{
     doc = doc or window.document
-    r = decode(cfi, doc)
-    if not r:
+    decoded = decode(cfi, doc)
+    if not decoded:
         return None
-    node = r.node
+    node = decoded.node
     ndoc = node.ownerDocument
     if not ndoc:
         print(str.format("CFI node has no owner document: {} {}", cfi, node))
         return None
 
-    x = None
-    y = None
     range_ = None
+    position_at_end_of_range = None
 
-    if jstype(r.offset) is "number":
-        # Character offset
-        range_ = ndoc.createRange()
-        if r.forward:
-            try_list = [{'start':0, 'end':0, 'a':0.5}, {'start':0, 'end':1, 'a':1}, {'start':-1, 'end':0, 'a':0}]
-        else:
-            try_list = [{'start':0, 'end':0, 'a':0.5}, {'start':-1, 'end':0, 'a':0}, {'start':0, 'end':1, 'a':1}]
-        a = None
+    if jstype(decoded.offset) is "number":
+        # We can only create a meaningful range if the node length is
+        # positive and nonzero.
         node_len = node.nodeValue.length if node.nodeValue else 0
-        offset = r.offset
-        if not offset:
-            range_.setStart(node, 0)
-            range_.setEnd(node, 0)
-        else:
-            rects = v'[]'
-            for v'var i = 0; i < 2; i++':
-                # Try reducing the offset by 1 if we get no match as if it refers to the position after the
-                # last character we wont get a match with getClientRects
-                offset = r.offset - i
-                if offset < 0:
-                    offset = 0
-                k = 0
-                while not rects?.length and k < try_list.length:
-                    t = try_list[k]
-                    k += 1
-                    start_offset = offset + t.start
-                    end_offset = offset + t.end
-                    a = t.a
-                    if start_offset < 0 or end_offset >= node_len:
-                        continue
-                    range_.setStart(node, start_offset)
-                    range_.setEnd(node, end_offset)
-                    rects = range_.getClientRects()
+        if node_len:
+            range_ = ndoc.createRange()
 
-            if not rects?.length:
-                print(str.format("Could not find caret position for {} : rects: {} offset: {}", cfi, rects, r.offset))
-                return None
+            # Check for special case: End of range offset, after the last character
+            offset = decoded.offset
+            position_at_end_of_range = False
+            if offset == node_len:
+                offset -= 1
+                position_at_end_of_range = True
 
-    else:
-        x, y = r.x, r.y
+            range_.setStart(node, offset)
+            range_.setEnd(node, offset + 1)
+            rect = range_.getBoundingClientRect()
 
-    return {'x':x, 'y':y, 'node':r.node, 'time':r.time, 'range':range_, 'a':a}
+            if not rect:
+                print(str.format("Could not find caret position for {} (offset: {})", cfi, decoded.offset))
+                range_ = None
+
+    # Augment decoded with range, if found
+    decoded.range = range_
+    decoded.use_range_end_pos = position_at_end_of_range
+
+    return decoded
 
 # }}}
 
-def scroll_to(cfi, callback, doc):  # {{{
-    doc = doc or window.doc
-    point_ = point(cfi, doc)
-    if not point_:
-        print("No point found for cfi: " + cfi)
-        return
-    if jstype(point_.time) is 'number':
-        set_current_time(point_.node, point_.time)
+# It's only valid to call this if you have a decoded CFI with a range included.
+# Call decoded_to_document_position if you're not sure.
+def decoded_range_to_document_position(decoded):
+    # Character offset
+    # Get the bounding rect of the range, in (real) viewport space
+    rect = decoded.range.getBoundingClientRect()
 
-    if point_.range is not None:
+    # Now, get the viewport-space position (vs_pos) we want to scroll to
+    # This is a little complicated.
+    # The box we are using is a character's bounding box.
+    # First, the inline direction.
+    # We want to use the beginning of the box per the ePub CFI spec,
+    # which states character offset CFIs refer to the beginning of the
+    # character, which would be in the inline direction.
+    inline_vs_pos = scroll_viewport.rect_inline_start(rect)
+    #  Unless the flag is set to use the end of the range:
+    #  (because ranges indices may not exceed the range,
+    #   but CFI offets are allowed to be one past the end.)
+    if decoded.use_range_end_pos:
+        inline_vs_pos = scroll_viewport.rect_inline_end(rect)
+
+    # Next, the block direction.
+    # If the CFI specifies a side bias, we should respect that.
+    # Otherwise, we want to use the block start.
+    if decoded.forward:
+        block_vs_pos = scroll_viewport.rect_block_end(rect)
+    else:
+        block_vs_pos = scroll_viewport.rect_block_start(rect)
+
+    # Now, we need to convert these to document X and Y coordinates.
+    return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, decoded.node.ownerDocument)
+
+# This will work on a decoded CFI that refers to a node or node with spacial offset.
+# It will ignore any ranges, so call decoded_to_document_position unless you're sure the decoded CFI has no range.
+def decoded_node_or_spacial_offset_to_document_position(decoded):
+    node = decoded.node
+    rect = node.getBoundingClientRect()
+    percentx, percenty = decoded.x, decoded.y
+    # If we have a spacial offset, base the CFI position on the offset into the object
+    if jstype(percentx) is 'number' and node.offsetWidth and jstype(percenty) is 'number' and node.offsetHeight:
+        viewx = rect.left + (percentx*node.offsetWidth)/100
+        viewy = rect.top + (percenty*node.offsetHeight)/100
+        doc_left, doc_top = scroll_viewport.viewport_to_document(viewx, viewy, node.ownerDocument)
+        return doc_left, doc_top
+    # Otherwise, base it on the inline and block start and end, along with side bias:
+    else:
+        if decoded.forward:
+            block_vs_pos = scroll_viewport.rect_block_end(rect)
+        else:
+            block_vs_pos = scroll_viewport.rect_block_start(rect)
+
+        inline_vs_pos = scroll_viewport.rect_inline_start(rect)
+        return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, node.ownerDocument)
+
+# This will take a decoded CFI and return a document position.
+#
+def decoded_to_document_position(decoded):
+    node = decoded.node
+    if decoded.range is not None:
+        return decoded_range_to_document_position(decoded)
+    else if node is not None and node.getBoundingClientRect:
+        return decoded_node_or_spacial_offset_to_document_position(decoded)
+    # No range, so we can't use that, and no node, so any spacial offset is meaningless
+    else:
+        return None, None
+
+def scroll_to(cfi, callback, doc):  # {{{
+    decoded = decode_with_range(cfi, doc)
+    if not decoded:
+        print("No information found for cfi: " + cfi)
+        return
+    if jstype(decoded.time) is 'number':
+        set_current_time(decoded.node, decoded.time)
+
+    if decoded.range is not None:
         # Character offset
-        r = point_.range
-        so, eo, sc, ec = r.startOffset, r.endOffset, r.startContainer, r.endContainer
-        node = r.startContainer
-        ndoc = node.ownerDocument
+        r = decoded.range
+        so, eo = r.startOffset, r.endOffset
+        original_node = r.startContainer
+
+        # Save the node index and its parent so we can get the node back
+        # after removing the span and normalizing the parent.
+        node_parent = original_node.parentNode
+        original_node_index = 0
+        for child_node in node_parent.childNodes:
+            if child_node is original_node:
+                break
+            else:
+                ++original_node_index
+
+        ndoc = original_node.ownerDocument
         span = ndoc.createElement('span')
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
@@ -622,15 +714,6 @@ def scroll_to(cfi, callback, doc):  # {{{
         fn = def():
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
-            #
-            # In WebKit, the boundingrect of the span is wrong in some
-            # situations, whereas in IE resetting the range causes it to
-            # loose bounding info. So we use the range's rects unless they
-            # are absent, in which case we use the span's rect
-            #
-            rect = span.getBoundingClientRect()
-
-            # Remove the span we inserted
             p = span.parentNode
             for node in span.childNodes:
                 span.removeChild(node)
@@ -642,7 +725,7 @@ def scroll_to(cfi, callback, doc):  # {{{
             offset = so
             while offset > -1:
                 try:
-                    r.setStart(sc, offset)
+                    decoded.range.setStart(node_parent.childNodes[original_node_index], offset)
                     break
                 except:
                     offset -= 1
@@ -650,36 +733,49 @@ def scroll_to(cfi, callback, doc):  # {{{
             offset = eo
             while offset > -1:
                 try:
-                    r.setEnd(ec, offset)
+                    decoded.range.setEnd(node_parent.childNodes[original_node_index], offset)
                     break
                 except:
                     offset -= 1
 
-            rects = r.getClientRects()
-            if rects.length > 0:
-                rect = rects[0]
+            doc_x, doc_y = decoded_range_to_document_position(decoded)
 
-            x = (point_.a*rect.left + (1-point_.a)*rect.right)
-            y = (rect.top + rect.bottom)/2
-            x, y = scroll_viewport.viewport_to_document(x, y, ndoc)
+            # Abort if CFI position is invalid
+            if doc_x is None or doc_y is None:
+                return
+
+            # Since this position will be used for the upper-left of the viewport,
+            # in RTL mode, we need to offset it by the viewport width so the
+            # position will be on the right side of the viewport,
+            # from where we start reading.
+            # (Note that adding moves left in RTL mode because of the viewport X
+            #  coordinate reversal in RTL mode.)
+            if scroll_viewport.rtl:
+                doc_x += scroll_viewport.width()
+
             if callback:
-                callback(x, y)
+                callback(doc_x, doc_y)
     else:
-        node = point_.node
+        node = decoded.node
         scroll_viewport.scroll_into_view(node)
 
         fn = def():
-            r = node.getBoundingClientRect()
-            # Start of element is right side in RTL, so be sure to get that side in RTL mode
-            x, y = scroll_viewport.viewport_to_document(
-                r.left if scroll_viewport.ltr else r.right, r.top, node.ownerDocument)
-            if jstype(point_.x) is 'number' and node.offsetWidth:
-                x += (point_.x*node.offsetWidth)/100
-            if jstype(point_.y) is 'number' and node.offsetHeight:
-                y += (point_.y*node.offsetHeight)/100
-            scroll_viewport.scroll_to(x, y)
+            doc_x, doc_y = decoded_node_or_spacial_offset_to_document_position(decoded)
+
+            # Abort if CFI position is invalid
+            if doc_x is None or doc_y is None:
+                return
+
+            # Since this position will be used for the upper-left of the viewport,
+            # in RTL mode, we need to offset it by the viewport width so the
+            # position will be on the right side of the viewport,
+            # from where we start reading.
+            # (Note that adding moves left in RTL mode because of the viewport X
+            #  coordinate reversal in RTL mode.)
+            if scroll_viewport.rtl:
+                doc_x += scroll_viewport.width()
             if callback:
-                callback(x, y)
+                callback(doc_x, doc_y)
 
     setTimeout(fn, 10)
 
@@ -694,74 +790,108 @@ def at_point(ox, oy):  # {{{
     def dist(p1, p2):
         Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
 
-    try:
-        cfi = at(ox, oy)
-        p = point(cfi)
-    except Exception:
-        cfi = None
+    cfi = at(ox, oy)
+    if cfi is None:
+        return None
 
-    if not p:
+    decoded = decode_with_range(cfi)
+    if not decoded:
         return None
 
     if cfi:
-        if p.range is not None:
-            r = p.range
-            rect = r.getClientRects()[0]
-
-            x = (p.a*rect.left + (1-p.a)*rect.right)
-            y = (rect.top + rect.bottom)/2
-            x, y = scroll_viewport.viewport_to_document(x, y, r.startContainer.ownerDocument)
-        else:
-            node = p.node
-            r = node.getBoundingClientRect()
-            # Start of element is right side in RTL, so be sure to get that side in RTL mode
-            x, y = scroll_viewport.viewport_to_document(
-                r.left if scroll_viewport.ltr else r.right, r.top, node.ownerDocument)
-            if jstype(p.x) is 'number' and node.offsetWidth:
-                x += (p.x*node.offsetWidth)/100
-            if jstype(p.y) is 'number' and node.offsetHeight:
-                y += (p.y*node.offsetHeight)/100
-
-        if dist(scroll_viewport.viewport_to_document(ox, oy), v'[x, y]') > 50:
+        cfix, cfiy = decoded_to_document_position(decoded)
+        if cfix is None or cfiy is None or dist(scroll_viewport.viewport_to_document(ox, oy), v'[cfix, cfiy]') > 50:
             cfi = None
 
     return cfi
 # }}}
 
 def at_current():  # {{{
-    winx, winy = window_scroll_pos()
-    winw, winh = scroll_viewport.width(), scroll_viewport.height()
-    winw = max(winw, 400)
-    winh = max(winh, 600)
-    deltay = Math.floor(winh/50)
-    deltax = Math.floor(winw/25)
-    miny = max(-winy, -winh)
-    maxy = winh
-    minx = max(-winx, -winw)
-    maxx = winw
+    wini, winb = scroll_viewport.inline_size(), scroll_viewport.block_size()
 
-    def x_loop(cury):
-        for direction in v'[-1, 1]':
-            delta = deltax * direction
-            curx = 0
-            while not ((direction < 0 and curx < minx) or (direction > 0 and curx > maxx)):
-                cfi = at_point(curx, cury)
-                if cfi:
-                    return cfi
-                curx += delta
+    # We subtract one because the the actual position query for CFI elements is relative to the
+    # viewport, and the viewport coordinates actually go from 0 to the size - 1.
+    # If we don't do this, the first line of queries will always fail in those cases where we
+    # start at the right of the viewport because they'll be outside the viewport
+    wini -= 1
+    winb -= 1
 
-    for direction in v'[-1, 1]':
-        delta = deltay * direction
-        cury = 0
-        while not( (direction < 0 and cury < miny) or (direction > 0 and cury > maxy) ):
-            cfi = x_loop(cury, -1)
+    # Don't let the deltas go below 10 or above 30, to prevent perverse cases where
+    # we don't loop at all, loop too many times, or skip elements because we're
+    # looping too fast.
+    deltai = min(max(Math.ceil(rem_size() / 2), 5), 30)
+    deltab = min(max(Math.ceil(rem_size() / 2), 5), 30)
+
+    # i.e. English, Hebrew:
+    if scroll_viewport.horizontal_writing_mode:
+        # Horizontal languages always start at the top
+        startb = 0
+        endb = winb
+        if scroll_viewport.ltr:
+            # i.e. English: we scan from the left margin to the right margin
+            starti = 0
+            endi = wini
+        else:
+            # i.e. Hebrew: we scan from the right margin to the left margin
+            starti = wini
+            endi = 0
+            deltai = -deltai
+    # i.e. Japanese, Mongolian script, traditional Chinese
+    else:
+        # These languages are only top-to-bottom
+        starti = 0
+        endi = winb
+        # i.e. Japanese: To the next line is from the right margin to the left margin
+        if scroll_viewport.rtl:
+            startb = winb
+            endb = 0
+            deltab = -deltab
+        # i.e. Mongolian: To the next line is from the left margin to the right margin
+        else:
+            startb = 0
+            endb = winb
+
+    # print(f'{starti} {deltai} {endi} {startb} {deltab} {endb}')
+    # Find the bounds
+    up_boundb = max(startb, endb)
+    up_boundi = max(starti, endi)
+    low_boundb = min(startb, endb)
+    low_boundi = min(starti, endi)
+
+
+    # In horizontal mode, X is the inline and Y is the block,
+    # but it's reversed for vertical modes, so reverse the lookup.
+    def at_point_vertical_mode(i, b):
+        return at_point(b, i)
+
+    at_point_conditional = at_point
+    if scroll_viewport.vertical_writing_mode:
+        at_point_conditional = at_point_vertical_mode
+
+    def i_loop(curb):
+        curi = starti
+        # The value will be either heading toward the lower or the upper bound,
+        # so just check for exceeding either bound
+        while low_boundi <= curi <= up_boundi:
+            cfi = at_point_conditional(curi, curb)
             if cfi:
+                # print(f'found CFI at {curi}, {curb} {cfi}\n\t{starti} {deltai} {endi} {startb} {deltab} {endb}')
                 return cfi
-            cury += delta
+            curi += deltai
+
+    curb = startb
+    while low_boundb <= curb <= up_boundb:
+        cfi = i_loop(curb)
+        if cfi:
+            break
+        curb += deltab
+
+    if cfi:
+        return cfi
 
     # Use a spatial offset on the html element, since we could not find a
     # normal CFI
-    x, y = window_scroll_pos()
+    x, y = scroll_viewport.x() + (0 if scroll_viewport.ltr else scroll_viewport.width()), scroll_viewport.y()
     de = document.documentElement
     rect = de.getBoundingClientRect()
     px = (x*100)/rect.width
