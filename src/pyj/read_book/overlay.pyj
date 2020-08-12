@@ -14,7 +14,9 @@ from book_list.library_data import (
 from book_list.router import home
 from book_list.theme import get_color
 from book_list.ui import query_as_href, show_panel
-from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from dom import (
+    add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
+)
 from modals import error_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay
@@ -674,19 +676,17 @@ class Overlay:
         from_read_book = short_uuid()
 
         def show_metadata_overlay(mi, pathtoebook, lname, book_id, overlay, container):
-            container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em', id=from_read_book))
+            container_id = ensure_id(container)
+            container.appendChild(E.div(class_=BD_CLASS_NAME, style='padding: 1ex 1em'))
             table = E.table(class_='metadata')
 
             def handle_message(msg):
                 data = msg.data
                 if data.from_read_book is not from_read_book:
                     return
-                if data.type is 'edit_metadata_opened':
-                    if document.getElementById(from_read_book) and self.panels.length and self.panels[-1].from_read_book is from_read_book:
-                        self.hide_current_panel()
-                    return
                 if data.type is 'edit_metadata_closed':
                     ui_operations.stop_waiting_for_messages_from(this)
+                    self.hide_current_panel()
                     return
                 if data.type is 'update_cached_book_metadata' and data.metadata:
                     if current_library_id() is data.library_id:
@@ -702,10 +702,14 @@ class Overlay:
                 container.lastChild.appendChild(E.div(
                     style='text-align: right',
                     E.a(_('Edit metadata of book in library'), class_='blue-link', onclick=def():
-                        w = window.open(query_as_href({
+                        container = document.getElementById(container_id)
+                        clear(container)
+                        container.appendChild(E.iframe(
+                            style='position: absolute; left: 0; top: 0; width: 100vw; height: 100vh; border-width: 0',
+                            src=query_as_href({
                             'from_read_book': from_read_book, 'library_id': lname, 'book_id': book_id + ''}, 'edit_metadata')
-                        , '_blank'
-                        )
+                        ))
+                        w = container.lastChild.contentWindow
                         ui_operations.wait_for_messages_from(w, handle_message.bind(w))
                     )
                 ))
