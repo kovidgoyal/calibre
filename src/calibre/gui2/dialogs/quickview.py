@@ -459,7 +459,7 @@ class Quickview(QDialog, Ui_Quickview):
 
     def _refresh(self, book_id, key):
         '''
-        Actually fill in the left-hand pane from the information in the
+        Actually fill in the left-hand panel from the information in the
         selected column of the selected book
         '''
         # Only show items for categories
@@ -558,7 +558,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.blockSignals(True)
         tt = ('<p>' + _(
             'Double click on a book to change the selection in the library view or '
-              'change the column shown in the left-hand pane. '
+              'change the column shown in the left-hand panel. '
               'Shift- or Control- double click to edit the metadata of a book, '
               'which also changes the selected book.'
               ) + '</p>')

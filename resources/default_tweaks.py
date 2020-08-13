@@ -53,7 +53,7 @@ authors_completer_append_separator = False
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
-# must be recomputed by right-clicking on an author in the left-hand tags pane,
+# must be recomputed by right-clicking on an author in the left-hand tags panel,
 # selecting 'manage authors', and pressing 'Recalculate all author sort values'.
 # The author name suffixes are words that are ignored when they occur at the
 # end of an author name. The case of the suffix is ignored and trailing
@@ -79,10 +79,10 @@ author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
 #: Use author sort in Tag browser
-# Set which author field to display in the tags pane (the list of authors,
+# Set which author field to display in the tags panel (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
-# category in the tags pane and Content server. Please note that if you set this
+# category in the tags panel and Content server. Please note that if you set this
 # to author_sort, it is very possible to see duplicate names in the list because
 # although it is guaranteed that author names are unique, there is no such
 # guarantee for author_sort values. Showing duplicates won't break anything, but

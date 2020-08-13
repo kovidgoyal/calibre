@@ -92,7 +92,7 @@ class ShowQuickviewAction(InterfaceAction):
         self.gui.addAction(self.focus_refresh_action)
         self.gui.keyboard.register_shortcut('Refresh from Quickview',
                      _('Refresh Quickview'),
-                     description=_('Refresh the information shown in the Quickview pane'),
+                     description=_('Refresh the information shown in the Quickview panel'),
                      action=self.focus_refresh_action,
                      group=self.action_spec[0])
         self.focus_refresh_action.triggered.connect(self.refill_quickview)
