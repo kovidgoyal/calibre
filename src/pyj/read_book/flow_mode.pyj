@@ -564,21 +564,16 @@ anchor_funcs = {
             scroll_viewport.rect_block_start(br), elem.ownerDocument), scroll_viewport.viewport_to_document_inline(scroll_viewport.rect_inline_start(br))
     ,
     'visibility': def visibility(pos):
-        x, y = pos
-
-        if jstype(x) is 'number':
-            pos = x
-        if jstype(y) is 'number' and scroll_viewport.horizontal_writing_mode:
-            pos = y
-
+        y, x = pos
+        q = y if scroll_viewport.horizontal_writing_mode else x
         # Have to negate X if in RTL for the math to be correct,
         # as the value that the scroll viewport returns is negated
         if scroll_viewport.vertical_writing_mode and scroll_viewport.rtl:
-            pos = -pos
+            q = -q
 
-        if pos < scroll_viewport.block_pos():
+        if q < scroll_viewport.block_pos():
             return -1
-        if pos <= scroll_viewport.block_pos() + scroll_viewport.block_size():
+        if q <= scroll_viewport.block_pos() + scroll_viewport.block_size():
             return 0
         return 1
     ,
