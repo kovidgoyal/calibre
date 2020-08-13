@@ -878,9 +878,7 @@ def at_current():  # {{{
     def at_point_vertical_mode(i, b):
         return at_point(b, i)
 
-    at_point_conditional = at_point
-    if scroll_viewport.vertical_writing_mode:
-        at_point_conditional = at_point_vertical_mode
+    at_point_conditional = at_point_vertical_mode if scroll_viewport.vertical_writing_mode else at_point
 
     def i_loop(curb):
         curi = starti
@@ -894,10 +892,9 @@ def at_current():  # {{{
             curi += deltai
 
     curb = startb
-    while low_boundb <= curb <= up_boundb:
+    cfi = None
+    while low_boundb <= curb <= up_boundb and not cfi:
         cfi = i_loop(curb)
-        if cfi:
-            break
         curb += deltab
 
     if cfi:
