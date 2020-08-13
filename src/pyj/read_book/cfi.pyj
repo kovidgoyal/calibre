@@ -550,14 +550,14 @@ def at(x, y, doc):  # {{{
     return encode(doc, target, offset, tail)
 # }}}
 
-# Like decode(), but tries to construct a range from the CFI's character offset and include it in
-# the return value.
+# Wrapper for decode(), tries to construct a range from the CFI's
+# character offset and include it in the return value.
 #
 # If the CFI defines a character offset, there are three cases:
 # Case 1. If the offset is 0 and the text node's length is zero,
 #         the range is set to None. This is a failure case, but
 #         later code will try to use the node's bounding box.
-# Case 2. Otherwise, if the offset is equal to the length of the range,
+# Case 2. Otherwise, if the offset is >= the length of the range,
 #         then a range from the previous to the last character is created,
 #         and use_range_end_pos is set. This is the special case.
 # Case 3. Otherwise, the range is set start at the offset and end at one character past the offset.
@@ -596,8 +596,8 @@ def decode_with_range(cfi, doc):  # {{{
             # Check for special case: End of range offset, after the last character
             offset = decoded.offset
             position_at_end_of_range = False
-            if offset == node_len:
-                offset -= 1
+            if offset >= node_len:
+                offset = node_len - 1
                 position_at_end_of_range = True
 
             range_.setStart(node, offset)
