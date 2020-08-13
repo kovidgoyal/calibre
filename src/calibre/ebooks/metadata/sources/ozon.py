@@ -64,7 +64,7 @@ class Ozon(Source):
         res = None
         if ozon_id:
             # no affiliateId is used in search/detail
-            url = '{}/context/detail/id/{}'.format(self.ozon_url, quote(ozon_id), _get_affiliateId())
+            url = '{}/context/detail/id/{}'.format(self.ozon_url, quote(ozon_id))
             res = ('ozon', ozon_id, url)
         return res
 

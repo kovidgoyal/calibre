@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from gettext import gettext as _
-from select import selection_extents, move_end_of_selection, word_at_point
+from select import move_end_of_selection, selection_extents, word_at_point
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
@@ -12,20 +12,17 @@ from range_utils import (
     highlight_associated_with_selection, reset_highlight_counter, select_crw,
     unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
-from read_book.cfi import (
-    cfi_for_selection, range_from_cfi, scroll_to as scroll_to_cfi
-)
+from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import reset_find_caches, select_search_result
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
     cancel_drag_scroll as cancel_drag_scroll_flow, ensure_selection_visible,
     flow_onwheel, flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
-    handle_shortcut as flow_handle_shortcut, layout as flow_layout,
-    scroll_by_page as flow_scroll_by_page,
+    handle_shortcut as flow_handle_shortcut, jump_to_cfi as flow_jump_to_cfi,
+    layout as flow_layout, scroll_by_page as flow_scroll_by_page,
     scroll_to_extend_annotation as flow_annotation_scroll,
-    start_drag_scroll as start_drag_scroll_flow,
-    jump_to_cfi as flow_jump_to_cfi
+    start_drag_scroll as start_drag_scroll_flow
 )
 from read_book.footnotes import is_footnote_link
 from read_book.globals import (

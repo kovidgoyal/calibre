@@ -144,7 +144,7 @@ def transform_declaration(decl):
     changed = False
     nonstandard_writing_mode_props = {}
     standard_writing_mode_props = {}
-    
+
     for prop, parent_prop in tuple(decl):
         if prop.name in page_break_properties:
             changed = True

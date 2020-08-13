@@ -267,7 +267,7 @@ def main():
             parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/")
             parser.add_option(
                 "-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.",  # noqa
-                              dest="ll", action="store_true", default=False)
+                dest="ll", action="store_true", default=False)
             parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted",
                               dest="recurse", action="store_true", default=False)
             parser.remove_option("-h")

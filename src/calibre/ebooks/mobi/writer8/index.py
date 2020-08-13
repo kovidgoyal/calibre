@@ -129,7 +129,7 @@ class Index(object):  # {{{
                 shifts = mask_to_bit_shifts[mask]
                 ans |= mask & (nentries << shifts)
             if len(cbs) != cls.control_byte_count:
-                raise ValueError('The entry %r is invalid'%[lead_text, tags])
+                raise ValueError('The entry {!r} is invalid'.format([lead_text, tags]))
             control_bytes.append(cbs)
         return control_bytes
 

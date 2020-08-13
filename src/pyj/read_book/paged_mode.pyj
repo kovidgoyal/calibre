@@ -284,8 +284,6 @@ def layout(is_single_page, on_resize):
         nonlocal number_of_cols
         ncols = number_of_cols = (scroll_viewport.paged_content_inline_size() + gap) / col_and_gap
         if ncols is not Math.floor(ncols):
-            n = number_of_cols = Math.floor(ncols)
-            dw = n*col_size + (n-1)*gap
             data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':ncols, 'desired_inline_size':dis}
             return data
 
@@ -458,7 +456,7 @@ def scroll_to_elem(elem):
             # elem.scrollIntoView(). However, in some cases it gives
             # inaccurate results, so we prefer the bounding client rect,
             # when possible.
-            
+
             # In horizontal writing, the inline start position depends on the direction
             if scroll_viewport.horizontal_writing_mode:
                 inline_start = elem.scrollLeft if scroll_viewport.ltr else elem.scrollRight
