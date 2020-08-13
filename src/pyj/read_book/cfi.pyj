@@ -630,12 +630,13 @@ def decoded_range_to_document_position(decoded):
     # We want to use the beginning of the box per the ePub CFI spec,
     # which states character offset CFIs refer to the beginning of the
     # character, which would be in the inline direction.
-    inline_vs_pos = scroll_viewport.rect_inline_start(rect)
     #  Unless the flag is set to use the end of the range:
     #  (because ranges indices may not exceed the range,
     #   but CFI offets are allowed to be one past the end.)
     if decoded.use_range_end_pos:
         inline_vs_pos = scroll_viewport.rect_inline_end(rect)
+    else:
+        inline_vs_pos = scroll_viewport.rect_inline_start(rect)
 
     # Next, the block direction.
     # If the CFI specifies a side bias, we should respect that.
@@ -679,13 +680,13 @@ def decoded_to_document_position(decoded):
     else if node is not None and node.getBoundingClientRect:
         return decoded_node_or_spatial_offset_to_document_position(decoded)
     # No range, so we can't use that, and no node, so any spatial offset is meaningless
-    else:
-        return None, None
+    return None, None
+
 
 def scroll_to(cfi, callback, doc):  # {{{
     decoded = decode_with_range(cfi, doc)
     if not decoded:
-        print("No information found for cfi: " + cfi)
+        print("No location information found for cfi: " + cfi)
         return
     if jstype(decoded.time) is 'number':
         set_current_time(decoded.node, decoded.time)
@@ -700,18 +701,18 @@ def scroll_to(cfi, callback, doc):  # {{{
         # after removing the span and normalizing the parent.
         node_parent = original_node.parentNode
         original_node_index = 0
-        for child_node in node_parent.childNodes:
-            if child_node is original_node:
+        for v'var i = 0; i < node_parent.childNodes.length; i++':
+            if node_parent.childNodes[i].isSameNode(original_node):
+                original_node_index = i
                 break
-            else:
-                ++original_node_index
 
-        ndoc = original_node.ownerDocument
+        ndoc = original_node.ownerDocument or document
         span = ndoc.createElement('span')
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
         scroll_viewport.scroll_into_view(span)
         fn = def():
+            nonlocal original_node, r
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
             p = span.parentNode
@@ -720,12 +721,16 @@ def scroll_to(cfi, callback, doc):  # {{{
                 p.insertBefore(node, span)
             p.removeChild(span)
             p.normalize()
+            original_node = node_parent.childNodes[original_node_index]
+            if not original_node:
+                # something bad happened, give up
+                return
 
             # Reset the range to what it was before the span was added
             offset = so
             while offset > -1:
                 try:
-                    decoded.range.setStart(node_parent.childNodes[original_node_index], offset)
+                    r.setStart(original_node, offset)
                     break
                 except:
                     offset -= 1
@@ -733,7 +738,7 @@ def scroll_to(cfi, callback, doc):  # {{{
             offset = eo
             while offset > -1:
                 try:
-                    decoded.range.setEnd(node_parent.childNodes[original_node_index], offset)
+                    r.setEnd(original_node, offset)
                     break
                 except:
                     offset -= 1
