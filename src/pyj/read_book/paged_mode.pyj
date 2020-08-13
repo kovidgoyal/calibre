@@ -91,7 +91,9 @@ def column_at(pos):
     si = scroll_viewport.paged_content_inline_size()
     if pos >= si - col_and_gap:
         pos = si - col_size + 10
-    return (pos + gap) // col_and_gap
+    # we subtract 1 here so that a point at the absolute trailing (right in
+    # horz-LTR) edge of a column remains in the column and not at the next column
+    return max(0, (pos + gap - 1)) // col_and_gap
 
 def fit_images():
     # Ensure no images are wider than the available size of a column. Note
