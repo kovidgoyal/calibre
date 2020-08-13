@@ -786,7 +786,7 @@ def scroll_to(cfi, callback, doc):  # {{{
 
 # }}}
 
-def at_point(ox, oy):  # {{{
+def at_point(x, y):  # {{{
     # The CFI at the specified point. Different to at() in that this method
     # returns null if there is an error, and also calculates a point from
     # the CFI and returns null if the calculated point is far from the
@@ -795,17 +795,26 @@ def at_point(ox, oy):  # {{{
     def dist(p1, p2):
         Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
 
-    cfi = at(ox, oy)
+    try:
+        cfi = at(x, y)
+    except:
+        cfi = None
     if cfi is None:
         return None
 
-    decoded = decode_with_range(cfi)
+    try:
+        decoded = decode_with_range(cfi)
+    except:
+        decoded = None
     if not decoded:
         return None
 
     if cfi:
-        cfix, cfiy = decoded_to_document_position(decoded)
-        if cfix is None or cfiy is None or dist(scroll_viewport.viewport_to_document(ox, oy), v'[cfix, cfiy]') > 50:
+        try:
+            cfix, cfiy = decoded_to_document_position(decoded)
+        except:
+            cfix = cfiy = None
+        if cfix is None or cfiy is None or dist(scroll_viewport.viewport_to_document(x, y), v'[cfix, cfiy]') > 50:
             cfi = None
 
     return cfi
