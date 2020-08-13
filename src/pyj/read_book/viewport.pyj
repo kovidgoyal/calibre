@@ -72,7 +72,7 @@ class ScrollViewport:
         else:
             window.scrollTo(x, y)
 
-    def scroll_to_in_inline_direction(self, pos):        
+    def scroll_to_in_inline_direction(self, pos):
         # Lines flow vertically, so inline is vertical.
         if self.vertical_writing_mode:
             self.scroll_to(0, pos)
@@ -214,7 +214,7 @@ class ScrollViewport:
         if self.horizontal_writing_mode:
             return rect.width
         return rect.height
-        
+
     def rect_block_size(self, rect):
         # The block is vertical in horizontal writing, so use height
         if self.horizontal_writing_mode:
@@ -241,7 +241,7 @@ class ScrollViewport:
         if self.horizontal_writing_mode:
             return self.viewport_to_document(inline, block)
         return self.viewport_to_document(block, inline)
-    
+
     def element_from_point(self, doc, x, y):
         if self.rtl:
             return doc.elementFromPoint(-x, y)

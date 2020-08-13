@@ -250,10 +250,7 @@ def layout(is_single_page):
     # scroll viewport needs to know if we're in vertical mode,
     # since that will cause scrolling to happen left and right
     scroll_viewport.initialize_on_layout(body_style)
-
-    document.documentElement.style.overflow = 'hidden'
-    if scroll_viewport.vertical_writing_mode:
-        document.documentElement.style.overflow = 'visible'
+    document.documentElement.style.overflow = 'visible' if scroll_viewport.vertical_writing_mode else 'hidden'
 
 def auto_scroll_resume():
     scroll_animator.wait = False
@@ -578,7 +575,7 @@ anchor_funcs = {
         # as the value that the scroll viewport returns is negated
         if scroll_viewport.vertical_writing_mode and scroll_viewport.rtl:
             pos = -pos
-        
+
         if pos < scroll_viewport.block_pos():
             return -1
         if pos <= scroll_viewport.block_pos() + scroll_viewport.block_size():
