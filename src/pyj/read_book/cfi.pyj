@@ -300,9 +300,9 @@ def node_for_text_offset(nodes, offset, first_node):
 #
 #  node: The node to which the CFI refers.
 #  time: If the CFI refers to a video or sound, this is the time within such to which it refers.
-#  x, y: If the CFI defines a spacial offset (technically only valid for images and videos),
+#  x, y: If the CFI defines a spatial offset (technically only valid for images and videos),
 #        these are the X and Y percentages from the top-left of the image or video.
-#        Note that Calibre has a fallback to set CFIs with spacial offset on the HTML document,
+#        Note that Calibre has a fallback to set CFIs with spatial offset on the HTML document,
 #        and interprets them as a position within the Calibre-rendered document.
 #  forward: This is set to True if the CFI had a side bias of 'a' (meaning 'after').
 #  offset: When the CFI refers to a text node, this is the offset (zero-based index) of the character
@@ -561,14 +561,14 @@ def at(x, y, doc):  # {{{
 #         then a range from the previous to the last character is created,
 #         and use_range_end_pos is set. This is the special case.
 # Case 3. Otherwise, the range is set start at the offset and end at one character past the offset.
-# 
+#
 # In cases 2 and 3, the range is then checked to verify that bounding information can be obtained.
 # If not, no range is returned.
-# 
-# If the CFI does not define a character offset, then the spacial offset is set in the return value.
+#
+# If the CFI does not define a character offset, then the spatial offset is set in the return value.
 #
 # Includes everything that the decode() function does, in addition to:
-# range: A text range, as desribed above.
+# range: A text range, as described above.
 # use_range_end_pos: If this is True, a position calculated from the range should
 #                    use the position after the last character in the range.
 #                    (This is set if the offset is equal to the length of the text in the node.)
@@ -648,13 +648,13 @@ def decoded_range_to_document_position(decoded):
     # Now, we need to convert these to document X and Y coordinates.
     return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, decoded.node.ownerDocument)
 
-# This will work on a decoded CFI that refers to a node or node with spacial offset.
+# This will work on a decoded CFI that refers to a node or node with spatial offset.
 # It will ignore any ranges, so call decoded_to_document_position unless you're sure the decoded CFI has no range.
-def decoded_node_or_spacial_offset_to_document_position(decoded):
+def decoded_node_or_spatial_offset_to_document_position(decoded):
     node = decoded.node
     rect = node.getBoundingClientRect()
     percentx, percenty = decoded.x, decoded.y
-    # If we have a spacial offset, base the CFI position on the offset into the object
+    # If we have a spatial offset, base the CFI position on the offset into the object
     if jstype(percentx) is 'number' and node.offsetWidth and jstype(percenty) is 'number' and node.offsetHeight:
         viewx = rect.left + (percentx*node.offsetWidth)/100
         viewy = rect.top + (percenty*node.offsetHeight)/100
@@ -677,8 +677,8 @@ def decoded_to_document_position(decoded):
     if decoded.range is not None:
         return decoded_range_to_document_position(decoded)
     else if node is not None and node.getBoundingClientRect:
-        return decoded_node_or_spacial_offset_to_document_position(decoded)
-    # No range, so we can't use that, and no node, so any spacial offset is meaningless
+        return decoded_node_or_spatial_offset_to_document_position(decoded)
+    # No range, so we can't use that, and no node, so any spatial offset is meaningless
     else:
         return None, None
 
@@ -760,7 +760,7 @@ def scroll_to(cfi, callback, doc):  # {{{
         scroll_viewport.scroll_into_view(node)
 
         fn = def():
-            doc_x, doc_y = decoded_node_or_spacial_offset_to_document_position(decoded)
+            doc_x, doc_y = decoded_node_or_spatial_offset_to_document_position(decoded)
 
             # Abort if CFI position is invalid
             if doc_x is None or doc_y is None:
