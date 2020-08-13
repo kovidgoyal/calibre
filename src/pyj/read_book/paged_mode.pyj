@@ -377,7 +377,7 @@ def next_screen_location():
     if is_full_screen_layout:
         return -1
     cc = current_column_location()
-    ans = cc + screen_inline
+    ans = cc + screen_inline + 1
     if cols_per_screen > 1 and 0 < number_of_cols_left() < cols_per_screen:
         return -1  # Only blank, dummy pages left
     limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
