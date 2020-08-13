@@ -556,16 +556,17 @@ def handle_gesture(gesture):
 anchor_funcs = {
     'pos_for_elem': def pos_for_elem(elem):
         if not elem:
-            return 0, 0
+            return {'block': 0, 'inline': 0}
         br = elem.getBoundingClientRect()
 
         # Start of object in the scrolling direction
-        return scroll_viewport.viewport_to_document_block(
-            scroll_viewport.rect_block_start(br), elem.ownerDocument), scroll_viewport.viewport_to_document_inline(scroll_viewport.rect_inline_start(br))
+        return {
+            'block': scroll_viewport.viewport_to_document_block(scroll_viewport.rect_block_start(br), elem.ownerDocument),
+            'inline': scroll_viewport.viewport_to_document_inline(scroll_viewport.rect_inline_start(br), elem.ownerDocument)
+        }
     ,
     'visibility': def visibility(pos):
-        y, x = pos
-        q = y if scroll_viewport.horizontal_writing_mode else x
+        q = pos.block
         # Have to negate X if in RTL for the math to be correct,
         # as the value that the scroll viewport returns is negated
         if scroll_viewport.vertical_writing_mode and scroll_viewport.rtl:
@@ -578,7 +579,7 @@ anchor_funcs = {
         return 1
     ,
     'cmp': def cmp(a, b):
-        return (a[0] - b[0]) or (a[1] - b[1])
+        return (a.block - b.block) or (a.inline - b.inline)
     ,
 }
 
