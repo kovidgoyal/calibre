@@ -203,8 +203,7 @@ def layout(is_single_page, on_resize):
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
-        # (The inline size is the column direction, so it's the appropriate thing to check to make sure we don't have multiple columns)
-        single_screen = (scroll_viewport.document_inline_size() < scroll_viewport.inline_size() + 75)
+        single_screen = (scroll_viewport.document_block_size() < scroll_viewport.block_size() + 75)
         first_layout = True
         svgs = document.getElementsByTagName('svg')
         has_svg = svgs.length > 0
