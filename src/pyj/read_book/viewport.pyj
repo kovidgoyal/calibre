@@ -237,15 +237,11 @@ class ScrollViewport:
         # Horizontal in vertical mode
         return self.viewport_to_document(pos, 0, doc)[0]
 
-    def viewport_to_document_inline_block(self, inline, block):
+    def viewport_to_document_inline_block(self, inline, block, doc):
         if self.horizontal_writing_mode:
-            return self.viewport_to_document(inline, block)
-        return self.viewport_to_document(block, inline)
+            return self.viewport_to_document(inline, block, doc)
+        return self.viewport_to_document(block, inline, doc)
 
-    def element_from_point(self, doc, x, y):
-        if self.rtl:
-            return doc.elementFromPoint(-x, y)
-        return doc.elementFromPoint(x, y)
 
 class IOSScrollViewport(ScrollViewport):
 
@@ -264,6 +260,8 @@ class IOSScrollViewport(ScrollViewport):
             document.documentElement.style.transform = f'translateX({x}px) translateY({y}px)'
 
     def paged_scroll_to(self, x, y):
+        x = x or 0
+        y = y or 0
         if self.ltr:
             self._scroll_implementation(x, y)
         else:
@@ -280,7 +278,7 @@ class IOSScrollViewport(ScrollViewport):
         ans = parseInt(raw)
         if isNaN(ans):
             return 0
-        if not self.rtl:
+        if self.ltr:
             ans *= -1
         return ans
 
@@ -306,7 +304,7 @@ class IOSScrollViewport(ScrollViewport):
             left += p.offsetLeft
             p = p.offsetParent
         # left -= window_width() // 2
-        self._scroll_implementation(max(0, left))
+        self._scroll_implementation(max(0, left), 0)
 
     def paged___reset_transforms(self):
         s = document.documentElement.style
