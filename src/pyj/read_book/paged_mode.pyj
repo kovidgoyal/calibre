@@ -203,7 +203,7 @@ def layout(is_single_page, on_resize):
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
-        single_screen = (scroll_viewport.document_block_size() < scroll_viewport.block_size() + 75)
+        single_screen = scroll_viewport.document_block_size() < (scroll_viewport.block_size() + 75)
         first_layout = True
         svgs = document.getElementsByTagName('svg')
         has_svg = svgs.length > 0
@@ -230,7 +230,7 @@ def layout(is_single_page, on_resize):
     # Calculate the column size so that cols_per_screen columns fit exactly in
     # the window inline dimension, with their separator margins
     wi = col_size = screen_inline = scroll_viewport.inline_size()
-    margin_size = opts.margin_left + opts.margin_right if scroll_viewport.horizontal_writing_mode else opts.margin_top + opts.margin_bottom
+    margin_size = (opts.margin_left + opts.margin_right) if scroll_viewport.horizontal_writing_mode else (opts.margin_top + opts.margin_bottom)
     gap = margin_size
     if n > 1:
         # Adjust the margin so that the window inline dimension satisfies
