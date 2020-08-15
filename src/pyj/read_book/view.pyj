@@ -630,7 +630,10 @@ class View:
         self.focus_iframe()
 
     def focus_iframe(self):
-        self.iframe.contentWindow.focus()
+        if self.selection_bar.is_visible:
+            self.selection_bar.focus()
+        else:
+            self.iframe.contentWindow.focus()
 
     def show_chrome(self, data):
         elements = {}

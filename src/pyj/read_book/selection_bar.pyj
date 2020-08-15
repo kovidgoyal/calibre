@@ -546,11 +546,14 @@ class SelectionBar:
             if sd.get('show_selection_bar'):
                 self.container.style.display = 'block'
                 self.state = WAITING
-                self.container.focus()
+                self.focus()
 
     @property
     def is_visible(self):
         return self.container.style.display is not 'none'
+
+    def focus(self):
+        self.container.focus()
 
     def update_position(self, dragged_handle):
         container = self.container
@@ -718,7 +721,7 @@ class SelectionBar:
         if not apply_changes:
             self.state = WAITING
             self.update_position()
-            self.container.focus()
+            self.focus()
             return
         ed = self.current_editor
         self.current_editor = None
@@ -731,7 +734,7 @@ class SelectionBar:
         self.state = WAITING
         self.update_position()
         get_session_data().set('highlight_style', self.current_highlight_style.style)
-        self.container.focus()
+        self.focus()
 
     def editor_container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
