@@ -653,7 +653,7 @@ class CoversModel(QAbstractListModel):  # {{{
         text = (src + '\n' + sz)
         scaled = pmap.scaled(
             int(CoverDelegate.ICON_SIZE[0] * pmap.devicePixelRatio()), int(CoverDelegate.ICON_SIZE[1] * pmap.devicePixelRatio()),
-            Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            Qt.KeepAspectRatio, Qt.SmoothTransformation)
         scaled.setDevicePixelRatio(pmap.devicePixelRatio())
         return (text, (scaled), pmap, waiting)
 
