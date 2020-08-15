@@ -461,13 +461,25 @@ class IframeBoss:
     def get_current_cfi(self, data):
         cfi = current_cfi()
         csi = current_spine_item()
+
+        def epubcfi(cfi):
+            return 'epubcfi(/{}{})'.format(2*(index+1), cfi) if cfi else None
+
         if cfi and csi:
             index = csi.index
             if index > -1:
-                cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
+                selection = window.getSelection()
+                selcfi = seltext = None
+                if selection and not selection.isCollapsed:
+                    seltext = selection.toString()
+                    selcfi = cfi_for_selection()
+                    selcfi.start = epubcfi(selcfi.start)
+                    selcfi.end = epubcfi(selcfi.end)
+                cfi = epubcfi(cfi)
                 self.send_message(
                     'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(),
-                    file_progress_frac=progress_frac(), request_id=data.request_id)
+                    file_progress_frac=progress_frac(), request_id=data.request_id,
+                    selected_text=seltext, selection_bounds=selcfi)
                 return
         self.send_message(
             'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, request_id=data.request_id)

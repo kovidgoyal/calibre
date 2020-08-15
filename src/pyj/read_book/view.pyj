@@ -451,7 +451,7 @@ class View:
         elif data.name is 'toggle_highlights':
             ui_operations.toggle_highlights()
         elif data.name is 'new_bookmark':
-            ui_operations.new_bookmark()
+            self.new_bookmark()
         elif data.name is 'toggle_inspector':
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':
@@ -543,6 +543,9 @@ class View:
         if ui_operations.selection_changed:
             ui_operations.selection_changed(self.currently_showing.selection.text, self.currently_showing.selection.annot_id)
         self.selection_bar.update_position()
+
+    def new_bookmark(self):
+        self.get_current_cfi('new-bookmark', ui_operations.new_bookmark)
 
     def update_selection_position(self, data):
         sel = self.currently_showing.selection
@@ -1096,6 +1099,8 @@ class View:
                 'cfi': data.cfi,
                 'progress_frac': data.progress_frac,
                 'file_progress_frac': data.file_progress_frac,
+                'selected_text': data.selected_text,
+                'selection_bounds': data.selection_bounds,
             })
             v'delete self.report_cfi_callbacks[data.request_id]'
 

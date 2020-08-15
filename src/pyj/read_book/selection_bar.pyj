@@ -169,6 +169,7 @@ def all_actions():
             'quick_highlight': a('highlight', _('Quick highlight in current style'), 'quick_highlight'),
             'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
             'search': a('search', _('Search for selection in the book'), 'book_search'),
+            'bookmark': a('bookmark', _('Create a bookmark'), 'new_bookmark'),
             'search_net': a('global-search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
@@ -490,6 +491,8 @@ class SelectionBar:
             self.send_message('trigger-shortcut', name=sc_name)
         elif sc_name is 'start_search':
             self.book_search()
+        elif sc_name is 'new_bookmark':
+            self.new_bookmark()
         elif sc_name is 'toggle_highlights':
             self.view.on_handle_shortcut({'name': sc_name})
     # }}}
@@ -748,6 +751,9 @@ class SelectionBar:
     def book_search(self):
         self.view.show_search()
         self.clear_selection()
+
+    def new_bookmark(self):
+        self.view.new_bookmark()
 
     def internet_search(self):
         text = self.view.currently_showing.selection.text

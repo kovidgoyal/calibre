@@ -333,10 +333,11 @@ class BookmarkManager(QWidget):
         if not ok or not title:
             return
         title = self.uniqify_bookmark_title(title)
+        cfi = (pos_data.get('selection_bounds') or {}).get('start') or pos_data['cfi']
         bm = {
             'title': title,
             'pos_type': 'epubcfi',
-            'pos': pos_data['cfi'],
+            'pos': cfi,
             'timestamp': utcnow().isoformat(),
         }
         bookmarks = self.get_bookmarks()

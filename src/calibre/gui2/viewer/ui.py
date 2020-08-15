@@ -148,7 +148,7 @@ class EbookViewer(MainWindow):
         self.bookmarks_widget = w = BookmarkManager(self)
         connect_lambda(
             w.create_requested, self,
-            lambda self: self.web_view.get_current_cfi(self.bookmarks_widget.create_new_bookmark))
+            lambda self: self.web_view.trigger_shortcut('new_bookmark'))
         w.edited.connect(self.bookmarks_edited)
         w.activated.connect(self.bookmark_activated)
         w.toggle_requested.connect(self.toggle_bookmarks)
@@ -167,7 +167,7 @@ class EbookViewer(MainWindow):
         self.web_view.search_result_not_found.connect(self.search_widget.search_result_not_found)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.toggle_highlights.connect(self.toggle_highlights)
-        self.web_view.new_bookmark.connect(self.bookmarks_widget.create_requested)
+        self.web_view.new_bookmark.connect(self.bookmarks_widget.create_new_bookmark)
         self.web_view.toggle_inspector.connect(self.toggle_inspector)
         self.web_view.toggle_lookup.connect(self.toggle_lookup)
         self.web_view.quit.connect(self.quit)

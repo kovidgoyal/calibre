@@ -323,8 +323,9 @@ if window is window.top:
         to_python.toggle_bookmarks()
     ui_operations.toggle_highlights = def():
         to_python.toggle_highlights()
-    ui_operations.new_bookmark = def():
-        to_python.new_bookmark()
+    ui_operations.new_bookmark = def(request_id, data):
+        if request_id is 'new-bookmark':
+            to_python.new_bookmark(data)
     ui_operations.toggle_inspector = def():
         to_python.toggle_inspector()
     ui_operations.content_file_changed = def(name):
