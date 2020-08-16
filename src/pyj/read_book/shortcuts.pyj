@@ -262,6 +262,18 @@ def shortcuts_definition():
         _('Toggle the Reference mode')
     ),
 
+    'toggle_bookmarks': desc(
+        v"['Ctrl+b']",
+        'ui',
+        _('Show/hide bookmarks'),
+    ),
+
+    'new_bookmark': desc(
+        v"['Ctrl+Alt+b']",
+        'ui',
+        _('Create a new bookmark'),
+    ),
+
     'metadata': desc(
         v"['Ctrl+n', 'Ctrl+e']",
         'ui',
@@ -346,18 +358,6 @@ def shortcuts_group_desc():
 def add_standalone_viewer_shortcuts():
     ismacos = 'macos' in window.navigator.userAgent
     sc = shortcuts_definition()
-    sc['toggle_bookmarks'] = desc(
-        v"['Ctrl+b']",
-        'ui',
-        _('Show/hide bookmarks'),
-    )
-
-    sc['new_bookmark'] = desc(
-        v"['Ctrl+Alt+b']",
-        'ui',
-        _('Create a new bookmark'),
-    )
-
     sc['toggle_inspector'] = desc(
         v"['Ctrl+i']",
         'ui',

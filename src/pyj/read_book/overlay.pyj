@@ -18,6 +18,7 @@ from dom import (
     add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
 )
 from modals import error_dialog
+from read_book.bookmarks import create_bookmarks_panel
 from read_book.globals import runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay
 from read_book.open_book import create_open_book
@@ -271,8 +272,7 @@ class MainOverlay:  # {{{
         bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
         toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'toc'))
 
-        if runtime.is_standalone_viewer:
-            toc_actions.appendChild(bookmarks_action)
+        toc_actions.appendChild(bookmarks_action)
         toc_actions.appendChild(ac(_('Reference mode'), _('Toggle the Reference mode'), self.overlay.toggle_reference_mode, 'reference-mode'))
 
         actions_div = E.div( # actions
@@ -665,6 +665,10 @@ class Overlay:
         if runtime.is_standalone_viewer:
             ui_operations.toggle_bookmarks()
             return
+        def do_it(action, data):
+            self.panels.push(TOCOverlay(self, create_bookmarks_panel.bind(None, self.view.annotations_manager, data), _('Bookmarks')))
+            self.show_current_panel()
+        self.view.get_current_cfi('show-bookmarks', do_it)
 
     def show_goto(self):
         self.hide_current_panel()

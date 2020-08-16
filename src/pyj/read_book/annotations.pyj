@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from gettext import gettext as _
 from read_book.cfi import create_cfi_cmp, cfi_sort_key
 from read_book.globals import ui_operations
 
@@ -85,6 +86,7 @@ def merge_annotation_maps(a, b):
         b_items = b[field] or v'[]'
         if not a_items.length:
             ans[field] = b_items
+            updated = True
             continue
         if not b_items.length:
             ans[field] = a_items
@@ -102,6 +104,39 @@ class AnnotationsManager:  # {{{
     def __init__(self, view):
         self.view = view
         self.set_highlights()
+        self.set_bookmarks()
+
+    def set_bookmarks(self, bookmarks):
+        bookmarks = bookmarks or v'[]'
+        self.bookmarks = list(bookmarks)
+
+    def all_bookmarks(self):
+        return self.bookmarks
+
+    def add_bookmark(self, title, cfi):
+        if not title or not cfi:
+            return
+        self.bookmarks = [b for b in self.bookmarks if b.title is not title]
+        self.bookmarks.push({
+            'type': 'bookmark',
+            'timestamp': Date().toISOString(),
+            'pos_type': 'epubcfi',
+            'pos': cfi,
+            'title': title,
+        })
+        sort_annot_list(self.bookmarks, bookmark_get_cfi)
+        if ui_operations.bookmarks_changed:
+            ui_operations.bookmarks_changed(self.bookmarks.as_array())
+
+    def default_bookmark_title(self):
+        all_titles = {bm.title:True for bm in self.bookmarks if not bm.removed}
+        base_default_title = _('Bookmark')
+        c = 0
+        while True:
+            c += 1
+            default_title = f'{base_default_title} #{c}'
+            if not all_titles[default_title]:
+                return default_title
 
     def set_highlights(self, highlights):
         highlights = highlights or v'[]'

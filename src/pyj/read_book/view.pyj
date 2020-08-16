@@ -14,6 +14,7 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.annotations import AnnotationsManager
+from read_book.bookmarks import create_new_bookmark
 from read_book.content_popup import ContentPopupOverlay
 from read_book.globals import (
     current_book, rtl_page_progression, runtime, set_current_spine_item,
@@ -447,7 +448,10 @@ class View:
         elif data.name is 'toggle_toc':
             ui_operations.toggle_toc()
         elif data.name is 'toggle_bookmarks':
-            ui_operations.toggle_bookmarks()
+            if ui_operations.toggle_bookmarks:
+                ui_operations.toggle_bookmarks()
+            else:
+                self.overlay.show_bookmarks()
         elif data.name is 'toggle_highlights':
             ui_operations.toggle_highlights()
         elif data.name is 'new_bookmark':
@@ -545,7 +549,12 @@ class View:
         self.selection_bar.update_position()
 
     def new_bookmark(self):
-        self.get_current_cfi('new-bookmark', ui_operations.new_bookmark)
+        if ui_operations.new_bookmark:
+            self.get_current_cfi('new-bookmark', ui_operations.new_bookmark)
+        else:
+            self.get_current_cfi('new-bookmark', def (req_id, data):
+                create_new_bookmark(self.annotations_manager, data)
+            )
 
     def update_selection_position(self, data):
         sel = self.currently_showing.selection
@@ -833,6 +842,7 @@ class View:
             else:
                 if unkey and book.annotations_map[unkey]:
                     hl = book.annotations_map[unkey].highlight
+                    self.annotations_manager.set_bookmarks(book.annotations_map[unkey].bookmark or v'[]')
             self.annotations_manager.set_highlights(hl or v'[]')
             if runtime.is_standalone_viewer:
                 add_book_to_recently_viewed(book)

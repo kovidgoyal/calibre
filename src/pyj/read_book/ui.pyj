@@ -76,6 +76,7 @@ class ReadUI:
         ui_operations.toggle_toc = self.toggle_toc.bind(self)
         ui_operations.toggle_full_screen = self.toggle_full_screen.bind(self)
         ui_operations.highlights_changed = self.highlights_changed.bind(self)
+        ui_operations.bookmarks_changed = self.bookmarks_changed.bind(self)
         ui_operations.annotations_synced = self.annotations_synced.bind(self)
         ui_operations.wait_for_messages_from = self.wait_for_messages_from.bind(self)
         ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
@@ -209,13 +210,18 @@ class ReadUI:
     def update_color_scheme(self):
         self.view.update_color_scheme()
 
-    def highlights_changed(self, highlights):
-        amap = {'highlight': highlights}
+    def annots_changed(self, amap):
         library_id = self.base_url_data.library_id
         book_id = self.base_url_data.book_id
         fmt = self.base_url_data.fmt
         self.db.update_annotations_data_from_key(library_id, book_id, fmt, {'annotations_map': amap})
         ajax_send(f'book-update-annotations/{library_id}/{book_id}/{fmt}', amap, def (): pass;)
+
+    def highlights_changed(self, highlights):
+        self.annots_changed({'highlight': highlights})
+
+    def bookmarks_changed(self, bookmarks):
+        self.annots_changed({'bookmark': bookmarks})
 
     def annotations_synced(self, amap):
         library_id = self.base_url_data.library_id
