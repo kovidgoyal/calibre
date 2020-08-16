@@ -8,6 +8,7 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import svgicon, unique_id
+from modals import error_dialog
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -37,6 +38,21 @@ builtin_decorations_light = builtin_decorations_dark = {
 }
 
 
+def friendly_name(kind, which):
+    if kind is 'color':
+        return {
+            'yellow': _('Yellow highlight'),
+            'green': _('Green highlight'),
+            'blue': _('Blue highlight'),
+            'red': _('Pink highlight'),
+            'purple': _('Purple highlight'),
+        }[which] or _('Unknown highlight')
+    return {
+        'wavy': _('Red wavy underline'),
+        'strikeout': _('Red underline'),
+    }[which] or _('Unknown underline')
+
+
 def builtin_color(which, is_dark):
     return (builtin_colors_dark[which] if is_dark else builtin_colors_light[which]) or builtin_colors_light.yellow
 
@@ -56,12 +72,20 @@ def all_builtin_styles():
 all_style_keys = v"'type kind which background-color text-decoration-line text-decoration-color text-decoration-style'.split(' ')"
 
 
-def custom_color_theme(lightbg, darkbg):
-    return {'type': 'custom', 'kind': 'color', 'light': lightbg, 'dark': darkbg}
+def custom_color_theme(name, lightbg, darkbg):
+    return {'type': 'custom', 'kind': 'color', 'light': lightbg, 'dark': darkbg, 'friendly_name': name}
 
 
-def custom_decoration_theme(line_position, line_style, line_color):
-    return {'type': 'custom', 'kind': 'decoration', 'text-decoration-line': line_position, 'text-decoration-style': line_style, 'text-decoration-color': line_color}
+def custom_decoration_theme(name, line_position, line_style, line_color):
+    return {
+        'type': 'custom', 'kind': 'decoration', 'text-decoration-line': line_position,
+        'text-decoration-style': line_style, 'text-decoration-color': line_color,
+        'friendly_name': name
+    }
+
+
+def style_key(style):
+    return [f'{k}:{style[k]}' for k in all_style_keys].join(';')
 
 
 class HighlightStyle:
@@ -70,7 +94,7 @@ class HighlightStyle:
         if jstype(style) is 'string':
             style = JSON.parse(style)
         self.style = style or {'type': 'builtin', 'kind': 'color', 'which': 'yellow'}
-        self.key = [f'{k}:{self.style[k]}' for k in all_style_keys].join(';')
+        self.key = style_key(self.style)
 
     def make_swatch(self, container, is_dark):
         style = container.style
@@ -130,6 +154,13 @@ class HighlightStyle:
     def serialized(self):
         return JSON.stringify(self.style)
 
+    @property
+    def friendly_name(self):
+        s = self.style
+        if s.type is 'builtin':
+            return friendly_name(s.kind, s.which)
+        return s.friendly_name or _('Custom style')
+
 
 def highlight_style_as_css(s, is_dark, foreground):
 
@@ -175,16 +206,40 @@ def custom_styles_equal(a, b):
     return True
 
 
+class StyleCollection:
+
+    def __init__(self):
+        custom_highlight_styles = get_session_data().get('custom_highlight_styles')
+        self.styles = []
+        self.style_id_counter = 0
+
+        def add(raw):
+            hs = HighlightStyle(raw)
+            hs.style_id = v'++self.style_id_counter'
+            self.styles.push(hs)
+
+        for raw in custom_highlight_styles:
+            add(raw)
+        for raw in all_builtin_styles():
+            add(raw)
+
+
 class AddStyle:  # {{{
 
     def __init__(self, get_container, hide_self):
         self.get_container = get_container
         self.hide_self = hide_self
+        def onkeydown(ev):
+            ev.stopPropagation()
+            if ev.key is 'Escape':
+                hide_self(None)
+
         get_container().appendChild(E.div(
             style='margin: 1rem; text-align: left',
-            E.h4(_('Choose the type of style you want to add')),
+            E.div(_('Style name:'), ' ', E.input(name='friendly_name', onkeydown=onkeydown, placeholder=_('Name for this style'))),
             E.div('\xa0'),
             E.div(
+                _('Type of style:'), ' ',
                 E.label(E.input(type='radio', name='style_type', value='color', onchange=self.change_type, checked=True), _('Color')),
                 '\xa0\xa0',
                 E.label(E.input(type='radio', name='style_type', value='decoration', onchange=self.change_type), _('Underline')),
@@ -238,11 +293,16 @@ class AddStyle:  # {{{
                 ),
                 create_button(_('Save'), 'check', def(ev):
                     ev.stopPropagation()
+                    if not self.friendly_name:
+                        return error_dialog(_('No name specified'), _('You must give your custom style a name'), on_close=self.focus)
                     hide_self(self.created_style)
                 ),
             ),
         ))
         self.change_type()
+
+    def focus(self):
+        self.get_container().querySelector('input[name=friendly_name]').focus()
 
     @property
     def style_type(self):
@@ -259,15 +319,21 @@ class AddStyle:  # {{{
         c.querySelector('[name=decoration-container]').style.display = 'block' if q is 'decoration' else 'none'
 
     @property
+    def friendly_name(self):
+        return self.get_container().querySelector('input[name=friendly_name]').value
+
+    @property
     def created_style(self):
         c = self.get_container()
+        name = self.friendly_name
         if self.style_type is 'color':
-            return custom_color_theme(c.querySelector('input[name=light_color]').value, c.querySelector('input[name=dark_color]').value)
+            return custom_color_theme(name, c.querySelector('input[name=light_color]').value, c.querySelector('input[name=dark_color]').value)
         if self.color_type is 'currentColor':
             col = 'currentColor'
         else:
             col = c.querySelector('input[name=decoration_color]').value
         return custom_decoration_theme(
+            name,
             c.querySelector('select[name=text_decoration_line]').value,
             c.querySelector('select[name=text_decoration_style]').value,
             col)
@@ -351,6 +417,7 @@ class EditNotesAndColors:  # {{{
                 c = self.container
                 c.firstChild.style.display = 'none'
                 c.lastChild.style.display = 'block'
+                self.add_style.focus()
         ))
 
         self.set_visibility_of_remove_button()
@@ -362,6 +429,7 @@ class EditNotesAndColors:  # {{{
         c.lastChild.style.display = 'none'
         if new_style:
             self.add_new_style(new_style)
+        self.notes_edit.focus()
 
     def add_new_style(self, new_style):
         item = self.add_color(HighlightStyle(new_style), True)
