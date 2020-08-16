@@ -173,6 +173,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.current_key = None      # current lookup key in books list
         self.last_search = None
         self.no_valid_items = False
+        self.follow_library_view = True
 
         self.apply_vls.setCheckState(Qt.Checked if gprefs['qv_respects_vls']
                                         else Qt.Unchecked)
@@ -184,6 +185,8 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.currentTextChanged.connect(self.item_selected)
         self.items.setProperty('highlight_current_item', 150)
         self.items.itemDoubleClicked.connect(self.item_doubleclicked)
+        self.items.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.items.customContextMenuRequested.connect(self.show_item_context_menu)
 
         focus_filter = WidgetFocusFilter(self.items)
         focus_filter.focus_entered_signal.connect(self.focus_entered)
@@ -202,7 +205,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.refresh_button.clicked.connect(self.refill)
 
         self.tab_order_widgets = [self.items, self.books_table, self.lock_qv,
-                          self.dock_button, self.search_button, self.refresh_button,
+                          self.dock_button, self.refresh_button,
                           self.close_button]
         for idx,widget in enumerate(self.tab_order_widgets):
             widget.installEventFilter(WidgetTabFilter(widget, idx, self.tab_pressed_signal))
@@ -236,20 +239,16 @@ class Quickview(QDialog, Ui_Quickview):
         self.view.clicked.connect(self.slave)
         self.view.selectionModel().currentColumnChanged.connect(self.column_slave)
         QCoreApplication.instance().aboutToQuit.connect(self.save_state)
-        self.search_button.clicked.connect(self.do_search)
         self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
 
         self.close_button.setDefault(False)
         self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview panel')
-        self.search_button_tooltip = _('Search in the library view for the currently highlighted selection')
-        self.search_button.setToolTip(self.search_button_tooltip)
         if self.is_pane:
             self.dock_button.setText(_('Undock'))
             self.dock_button.setToolTip(_('Pop up the quickview panel into its own floating window'))
             self.dock_button.setIcon(QIcon(I('arrow-up.png')))
             # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
-            self.search_button.setText(_('Search'))
             self.refresh_button.setText(_('Refresh'))
             self.gui.quickview_splitter.add_quickview_dialog(self)
             self.close_button.setVisible(False)
@@ -268,6 +267,10 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.view_icon = QIcon(I('view.png'))
         self.view_plugin = self.gui.iactions['View']
+        self.edit_metadata_icon = QIcon(I('edit_input.png'))
+        self.quickview_icon = QIcon(I('quickview.png'))
+        self.select_book_icon = QIcon(I('library.png'))
+        self.search_icon = QIcon(I('search.png'))
         self.books_table.setContextMenuPolicy(Qt.CustomContextMenu)
         self.books_table.customContextMenuRequested.connect(self.show_context_menu)
 
@@ -288,15 +291,41 @@ class Quickview(QDialog, Ui_Quickview):
         tb.item_search.lineEdit().setText(self.current_key + ':=' + item.text())
         tb.do_find()
 
+    def show_item_context_menu(self, point):
+        item = self.items.currentItem()
+        self.context_menu = QMenu(self)
+        self.context_menu.addAction(self.search_icon, _('Search for item in tag browser'),
+                                partial(self.item_doubleclicked, item))
+        self.context_menu.addAction(self.search_icon, _('Search for item in library'),
+                                partial(self.do_search, follow_library_view=False))
+        self.context_menu.popup(self.items.mapToGlobal(point))
+        self.context_menu = QMenu(self)
+
     def show_context_menu(self, point):
         index = self.books_table.indexAt(point)
+        row = index.row()
+        column = index.column()
         item = self.books_table.item(index.row(), 0)
         if item is None:
             return False
         book_id = int(item.data(Qt.UserRole))
-        self.context_menu = QMenu(self)
-        self.context_menu.addAction(self.view_icon, _('View'),
-                            partial(self.view_plugin._view_calibre_books, [book_id]))
+        book_displayed = self.book_displayed_in_library_view(book_id)
+        m = self.context_menu = QMenu(self)
+        a = m.addAction(self.select_book_icon, _('Select book in library'),
+                                partial(self.select_book, book_id))
+        a.setEnabled(book_displayed)
+        m.addAction(self.search_icon, _('Search for item in library'),
+                        partial(self.do_search, follow_library_view=False))
+        a = m.addAction(self.edit_metadata_icon, _('Edit book metadata'),
+                        partial(self.edit_metadata, book_id, follow_library_view=False))
+        a.setEnabled(book_displayed)
+        a = m.addAction(self.quickview_icon, _('Quickview this cell'),
+                        partial(self.quickview_item, row, column))
+        a.setEnabled(self.is_category(self.column_order[column]) and
+                     book_displayed and not self.lock_qv.isChecked())
+        m.addSeparator()
+        m.addAction(self.view_icon, _('Open book in viewer'),
+                        partial(self.view_plugin._view_calibre_books, [book_id]))
         self.context_menu.popup(self.books_table.mapToGlobal(point))
         return True
 
@@ -324,15 +353,7 @@ class Quickview(QDialog, Ui_Quickview):
         self._refresh(self.current_book_id, self.current_key)
 
     def set_search_text(self, txt):
-        if txt:
-            self.search_button.setEnabled(True)
-        else:
-            self.search_button.setEnabled(False)
         self.last_search = txt
-
-    def set_search_shortcut_tooltip(self, search_sc):
-        if self.is_pane:
-            self.search_button.setToolTip(self.search_button_tooltip + ' (' + search_sc + ')')
 
     def focus_entered(self, obj):
         if obj == self.books_table:
@@ -400,11 +421,15 @@ class Quickview(QDialog, Ui_Quickview):
         self.reopen_after_dock_change.emit()
 
     # search button
-    def do_search(self):
+    def do_search(self, follow_library_view=True):
         if self.no_valid_items:
             return
         if self.last_search is not None:
-            self.gui.search.set_search_string(self.last_search)
+            try:
+                self.follow_library_view = follow_library_view
+                self.gui.search.set_search_string(self.last_search)
+            finally:
+                self.follow_library_view = True
 
     def book_was_changed(self, mi):
         '''
@@ -412,7 +437,7 @@ class Quickview(QDialog, Ui_Quickview):
         book info current. This means that prev and next in edit metadata will move
         the current book and change quickview
         '''
-        if self.is_closed or self.current_column is None:
+        if self.is_closed or self.current_column is None or not self.follow_library_view:
             return
         # There is an ordering problem when libraries are changed. The library
         # view is changed, triggering a book_was_changed signal. Unfortunately
@@ -457,13 +482,16 @@ class Quickview(QDialog, Ui_Quickview):
             traceback.print_exc()
             self.indicate_no_items()
 
+    def is_category(self, key):
+        return key is not None and self.fm[key]['is_category']
+
     def _refresh(self, book_id, key):
         '''
         Actually fill in the left-hand panel from the information in the
         selected column of the selected book
         '''
         # Only show items for categories
-        if key is None or not self.fm[key]['is_category']:
+        if not self.is_category(key):
             if self.current_key is None:
                 self.indicate_no_items()
                 return
@@ -557,7 +585,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setSortingEnabled(False)
         self.books_table.blockSignals(True)
         tt = ('<p>' + _(
-            'Double click on a book to change the selection in the library view or '
+              'Double click on a book to change the selection in the library view or '
               'change the column shown in the left-hand panel. '
               'Shift- or Control- double click to edit the metadata of a book, '
               'which also changes the selected book.'
@@ -643,28 +671,62 @@ class Quickview(QDialog, Ui_Quickview):
     def return_pressed(self):
         row = self.books_table.currentRow()
         if gprefs['qv_retkey_changes_column']:
-            self.select_book(row, self.books_table.currentColumn())
+            self.select_book_and_qv(row, self.books_table.currentColumn())
         else:
-            self.select_book(row, self.key_to_table_widget_column(self.current_key))
+            self.select_book_and_qv(row, self.key_to_table_widget_column(self.current_key))
+
+    def book_not_in_view_error(self):
+        from calibre.gui2 import error_dialog
+        error_dialog(self, _('Quickview: Book not in library view'),
+                     _('The book you selected is not currently displayed in '
+                       'the library view, perhaps because of a search or a '
+                       'virtual library, so Quickview cannot select it.'),
+                     show=True,
+                     show_copy_button=False)
+
+    def book_displayed_in_library_view(self, book_id):
+        try:
+            self.db.data.index(book_id)
+            return True
+        except:
+            return False
+
+    def quickview_item(self, row, column):
+        self.select_book_and_qv(row, column)
 
     def book_doubleclicked(self, row, column):
         if self.no_valid_items:
             return
         try:
             if gprefs['qv_dclick_changes_column']:
-                self.select_book(row, column)
+                self.quickview_item(row, column)
             else:
-                self.select_book(row, self.key_to_table_widget_column(self.current_key))
+                self.quickview_item(row, self.key_to_table_widget_column(self.current_key))
         except:
-            from calibre.gui2 import error_dialog
-            error_dialog(self, _('Quickview: Book not in library view'),
-                         _('The book you selected is not currently displayed in '
-                           'the library view, perhaps because of a search, so '
-                           'Quickview cannot select it.'),
-                         show=True,
-                         show_copy_button=False)
+            self.book_not_in_view_error()
 
-    def select_book(self, row, column):
+    def edit_metadata(self, book_id, follow_library_view=True):
+        try:
+            self.follow_library_view = follow_library_view
+            self.view.select_rows([book_id])
+            em = find_plugin('Edit Metadata')
+            if em and em.actual_plugin_:
+                em.actual_plugin_.edit_metadata(None)
+        finally:
+            self.follow_library_view = True
+
+    def select_book(self, book_id):
+        '''
+        Select a book in the library view without changing the QV lists
+        '''
+        try:
+            self.follow_library_view = False
+            self.view.select_cell(self.db.data.id_to_index(book_id),
+                                  self.current_column)
+        finally:
+            self.follow_library_view = True
+
+    def select_book_and_qv(self, row, column):
         '''
         row and column both refer the qv table. In particular, column is not
         the logical column in the book list.
@@ -673,13 +735,13 @@ class Quickview(QDialog, Ui_Quickview):
         if item is None:
             return
         book_id = int(self.books_table.item(row, column).data(Qt.UserRole))
+        if not self.book_displayed_in_library_view(book_id):
+            self.book_not_in_view_error()
+            return
         key = self.column_order[column]
         modifiers = int(QApplication.keyboardModifiers())
         if modifiers in (Qt.CTRL, Qt.SHIFT):
-            self.view.select_rows([book_id])
-            em = find_plugin('Edit Metadata')
-            if em and em.actual_plugin_:
-                em.actual_plugin_.edit_metadata(None)
+            self.edit_metadata(book_id)
         else:
             self.view.select_cell(self.db.data.id_to_index(book_id),
                                   self.view.column_map.index(key))
@@ -692,14 +754,14 @@ class Quickview(QDialog, Ui_Quickview):
         '''
         called when the column is changed on the booklist
         '''
-        if gprefs['qv_follows_column']:
+        if self.follow_library_view and gprefs['qv_follows_column']:
             self.slave(current)
 
     def slave(self, current):
         '''
         called when a book is clicked on the library view
         '''
-        if self.is_closed:
+        if self.is_closed or not self.follow_library_view:
             return
         self.refresh(current)
         self.view.activateWindow()
