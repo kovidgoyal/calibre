@@ -394,8 +394,9 @@ if window is window.top:
         to_python.scrollbar_context_menu(x, y, frac)
     ui_operations.close_prep_finished = def(cfi):
         to_python.close_prep_finished(cfi)
-    ui_operations.highlights_changed = def(highlights):
-        to_python.highlights_changed(highlights)
+    ui_operations.annots_changed = def(amap):
+        if amap.highlight:
+            to_python.highlights_changed(amap.highlight)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

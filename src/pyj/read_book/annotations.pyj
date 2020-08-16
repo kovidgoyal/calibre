@@ -106,6 +106,15 @@ class AnnotationsManager:  # {{{
         self.set_highlights()
         self.set_bookmarks()
 
+    def sync_annots_to_server(self, which):
+        if ui_operations.annots_changed:
+            amap = {}
+            if not which or which is 'bookmarks':
+                amap.bookmark = self.bookmarks.as_array()
+            if not which or which is 'highlights':
+                amap.highlight = Object.values(self.highlights)
+            ui_operations.annots_changed(amap)
+
     def set_bookmarks(self, bookmarks):
         bookmarks = bookmarks or v'[]'
         self.bookmarks = list(bookmarks)
@@ -125,8 +134,7 @@ class AnnotationsManager:  # {{{
             'title': title,
         })
         sort_annot_list(self.bookmarks, bookmark_get_cfi)
-        if ui_operations.bookmarks_changed:
-            ui_operations.bookmarks_changed(self.bookmarks.as_array())
+        self.sync_annots_to_server('bookmarks')
 
     def remove_bookmark(self, title):
         changed = False
@@ -135,8 +143,8 @@ class AnnotationsManager:  # {{{
                 b.removed = True
                 b.timestamp = Date().toISOString()
                 changed = True
-        if changed and ui_operations.bookmarks_changed:
-            ui_operations.bookmarks_changed(self.bookmarks.as_array())
+        if changed:
+            self.sync_annots_to_server('bookmarks')
         return changed
 
     def default_bookmark_title(self):
@@ -180,8 +188,7 @@ class AnnotationsManager:  # {{{
 
     def delete_highlight(self, uuid):
         if self.remove_highlight(uuid):
-            if ui_operations.highlights_changed:
-                ui_operations.highlights_changed(Object.values(self.highlights))
+            self.sync_annots_to_server('highlights')
 
     def notes_for_highlight(self, uuid):
         h = self.highlights[uuid] if uuid else None
@@ -195,8 +202,7 @@ class AnnotationsManager:  # {{{
                 h.notes = notes
             else:
                 v'delete h.notes'
-            if ui_operations.highlights_changed:
-                ui_operations.highlights_changed(Object.values(self.highlights))
+            self.sync_annots_to_server('highlights')
             return True
         return False
 
@@ -244,8 +250,7 @@ class AnnotationsManager:  # {{{
         }
         if notes:
             annot.notes = notes
-        if ui_operations.highlights_changed:
-            ui_operations.highlights_changed(Object.values(self.highlights))
+        self.sync_annots_to_server('highlights')
 
     def highlights_for_currently_showing(self):
         name = self.view.currently_showing.name

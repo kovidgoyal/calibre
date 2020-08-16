@@ -135,6 +135,7 @@ class SyncBook:  # {{{
         set_css(container, background_color=get_color('window-background'))
         book = self.overlay.view.book
         to_sync = v'[[book.key, new Date(0)]]'
+        self.overlay.view.annotations_manager.sync_annots_to_server()
         sync_library_books(book.key[0], to_sync, self.sync_data_received)
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
