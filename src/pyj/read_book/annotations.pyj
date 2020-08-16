@@ -128,6 +128,17 @@ class AnnotationsManager:  # {{{
         if ui_operations.bookmarks_changed:
             ui_operations.bookmarks_changed(self.bookmarks.as_array())
 
+    def remove_bookmark(self, title):
+        changed = False
+        for b in self.bookmarks:
+            if b.title is title:
+                b.removed = True
+                b.timestamp = Date().toISOString()
+                changed = True
+        if changed and ui_operations.bookmarks_changed:
+            ui_operations.bookmarks_changed(self.bookmarks.as_array())
+        return changed
+
     def default_bookmark_title(self):
         all_titles = {bm.title:True for bm in self.bookmarks if not bm.removed}
         base_default_title = _('Bookmark')

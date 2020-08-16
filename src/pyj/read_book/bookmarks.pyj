@@ -5,8 +5,9 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.item_list import build_list, create_item
+from book_list.item_list import build_list, create_item, create_side_action
 from dom import ensure_id, set_css
+from modals import question_dialog
 from widgets import create_button
 
 
@@ -14,12 +15,26 @@ def goto_cfi(cfi, view):
     view.goto_cfi(cfi)
 
 
+def remove_bookmark(annotations_manager, title, list_dom_node):
+    question_dialog(_('Are you sure?'), _('Do you want to permanently delete this bookmark?'), def (yes):
+        if yes:
+            annotations_manager.remove_bookmark(title)
+            list_dom_node.style.display = 'none'
+    )
+
+
+
 def create_bookmarks_list(annotations_manager, onclick):
     bookmarks = sorted(annotations_manager.all_bookmarks(), key=def(x): return x.title.toLowerCase();)
     items = []
     for bookmark in bookmarks:
         if not bookmark.removed:
-            items.push(create_item(bookmark.title, data=bookmark.pos, action=onclick.bind(None, goto_cfi.bind(None, bookmark.pos))))
+            sa = create_side_action('trash', remove_bookmark.bind(None, annotations_manager, bookmark.title), _('Remove this bookmark'))
+            items.push(create_item(
+                bookmark.title, data=bookmark.pos,
+                action=onclick.bind(None, goto_cfi.bind(None, bookmark.pos)),
+                side_actions=[sa]
+            ))
     c = E.div(style='margin-top: 1ex')
     build_list(c, items)
     return c
