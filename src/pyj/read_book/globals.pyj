@@ -119,3 +119,9 @@ annot_id_uuid_map = {}
 def clear_annot_id_uuid_map():
     nonlocal annot_id_uuid_map
     annot_id_uuid_map = {}
+
+
+def is_dark_theme(set_val):
+    if set_val?:
+        is_dark_theme.ans = set_val
+    return v'!!is_dark_theme.ans'

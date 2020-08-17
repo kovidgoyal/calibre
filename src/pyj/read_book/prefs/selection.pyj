@@ -7,6 +7,8 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from dom import clear, svgicon, unique_id
+from read_book.globals import is_dark_theme
+from read_book.highlights import all_styles
 from read_book.prefs.utils import create_button_box
 from read_book.selection_bar import all_actions
 from session import defaults
@@ -17,12 +19,16 @@ CONTAINER = unique_id('selection-settings')
 def set_actions(use_defaults):
     c = get_container()
     adef = all_actions()
-    actions = defaults.selection_bar_actions if use_defaults else get_session_data().get('selection_bar_actions')
+    sd = get_session_data()
+    actions = defaults.selection_bar_actions if use_defaults else sd.get('selection_bar_actions')
     current = [x for x in actions if adef[x]]
     c.querySelector('.current-actions').dataset.actions = JSON.stringify(current)
     available_actions = [x for x in adef if current.indexOf(x) is -1]
     c.querySelector('.available-actions').dataset.actions = JSON.stringify(available_actions)
     update_action_tables()
+    quick_actions = defaults.selection_bar_quick_highlights if use_defaults else sd.get('selection_bar_quick_highlights')
+    c.querySelector('.quick-actions').dataset.actions = JSON.stringify(quick_actions)
+    update_quick_action_table()
 
 
 def restore_defaults():
@@ -113,6 +119,32 @@ def update_action_tables():
     build_action_table(current, False)
 
 
+def update_quick_action_table():
+    c = get_container().querySelector('.quick-actions')
+    clear(c)
+    c.style.display = 'flex'
+    c.style.flexWrap = 'wrap'
+    current = {x: True for x in JSON.parse(c.dataset.actions)}
+    for hs in all_styles():
+        c.appendChild(E.label(
+            style='margin: 1ex; display: flex; align-contents: center',
+            hs.make_swatch(E.span(), is_dark_theme()),
+            '\xa0',
+            hs.friendly_name,
+            '\xa0',
+            E.input(type='checkbox', value=hs.key, checked=current[hs.key]),
+        ))
+
+
+def selected_quick_actions():
+    ans = v'[]'
+    c = get_container().querySelector('.quick-actions')
+    for inp in c.querySelectorAll('input:checked'):
+        if inp.value:
+            ans.push(inp.value)
+    return ans
+
+
 def create_selection_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
     container = container.lastChild
@@ -144,6 +176,11 @@ def create_selection_panel(container, apply_func, cancel_func):
         E.h3(_('Available actions')),
         E.div(class_='available-actions')
     ))
+    container.appendChild(E.div(style='padding: 1ex; border-bottom: solid 1px; margin-bottom: 1ex',
+        E.h3(_('Quick highlight actions')),
+        E.div(_('Choose highlight styles that will have dedicated buttons in the selection bar to create highlights with a single click')),
+        E.div(class_='quick-actions'),
+    ))
     set_actions()
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
@@ -171,5 +208,9 @@ def commit_selection(onchange):
     if list(actions) != list(sd.get('selection_bar_actions')):
         changed = True
         sd.set('selection_bar_actions', actions)
+    quick_highlights = selected_quick_actions()
+    if list(quick_highlights) != list(sd.get('selection_bar_quick_highlights')):
+        changed = True
+        sd.set('selection_bar_quick_highlights', quick_highlights)
     if changed:
         onchange()

@@ -67,6 +67,7 @@ defaults = {
     'show_selection_bar': True,
     'net_search_url': 'https://google.com/search?q={q}',
     'selection_bar_actions': v"['copy', 'lookup', 'highlight', 'remove_highlight', 'search_net', 'clear']",
+    'selection_bar_quick_highlights': v"[]",
 }
 
 is_local_setting = {

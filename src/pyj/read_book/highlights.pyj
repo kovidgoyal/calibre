@@ -38,7 +38,7 @@ builtin_decorations_light = builtin_decorations_dark = {
 }
 
 
-def friendly_name(kind, which):
+def builtin_friendly_name(kind, which):
     if kind is 'color':
         return {
             'yellow': _('Yellow highlight'),
@@ -49,7 +49,7 @@ def friendly_name(kind, which):
         }[which] or _('Unknown highlight')
     return {
         'wavy': _('Red wavy underline'),
-        'strikeout': _('Red underline'),
+        'strikeout': _('Red strikeout'),
     }[which] or _('Unknown underline')
 
 
@@ -124,7 +124,7 @@ class HighlightStyle:
                 style.textDecorationStyle = tds
             if tdc:
                 style.textDecorationColor = tdc
-            return
+            return container
 
         bg = None
         if s.type is 'builtin':
@@ -136,6 +136,7 @@ class HighlightStyle:
         if bg:
             style.backgroundColor = bg
             style.borderRadius = f'{br}{ICON_SIZE_UNIT}'
+        return container
 
     def highlight_shade(self, is_dark):
         s = self.style
@@ -158,7 +159,7 @@ class HighlightStyle:
     def friendly_name(self):
         s = self.style
         if s.type is 'builtin':
-            return friendly_name(s.kind, s.which)
+            return builtin_friendly_name(s.kind, s.which)
         return s.friendly_name or _('Custom style')
 
 
@@ -206,22 +207,14 @@ def custom_styles_equal(a, b):
     return True
 
 
-class StyleCollection:
-
-    def __init__(self):
-        custom_highlight_styles = get_session_data().get('custom_highlight_styles')
-        self.styles = []
-        self.style_id_counter = 0
-
-        def add(raw):
-            hs = HighlightStyle(raw)
-            hs.style_id = v'++self.style_id_counter'
-            self.styles.push(hs)
-
-        for raw in custom_highlight_styles:
-            add(raw)
-        for raw in all_builtin_styles():
-            add(raw)
+def all_styles():
+    ans = v'[]'
+    custom_highlight_styles = get_session_data().get('custom_highlight_styles')
+    for raw in custom_highlight_styles:
+        ans.push(HighlightStyle(raw))
+    for raw in all_builtin_styles():
+        ans.push(HighlightStyle(raw))
+    return ans
 
 
 class AddStyle:  # {{{

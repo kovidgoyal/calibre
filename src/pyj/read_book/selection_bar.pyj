@@ -11,10 +11,13 @@ from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
 from modals import error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
-from read_book.highlights import ICON_SIZE, EditNotesAndColors, HighlightStyle
+from read_book.highlights import (
+    ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles
+)
 from read_book.shortcuts import shortcut_for_key_event
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
+BUTTON_MARGIN = '0.5rem'
 
 # Utils {{{
 
@@ -291,7 +294,7 @@ class SelectionBar:
                 self.view.focus_iframe()
             )
             ans.classList.add('simple-link')
-            ans.style.marginLeft = ans.style.marginRight = '0.5rem'
+            ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
             return ans
 
         actions = all_actions()
@@ -300,8 +303,30 @@ class SelectionBar:
             ac = actions[acname]
             if ac and (not ac.needs_highlight or v'!!annot_id'):
                 bar.appendChild(cb(ac, self[ac.function_name]))
+        selection_bar_quick_highlights = sd.get('selection_bar_quick_highlights')
+        if selection_bar_quick_highlights?.length:
+            self.show_quick_highlight_buttons(bar, selection_bar_quick_highlights)
         self.show_notes(bar_container, notes)
         return bar_container
+
+    def show_quick_highlight_buttons(self, bar, actions):
+        all = {x.key:x for x in all_styles()}
+        actions = [a for a in actions if all[a]]
+        if not actions.length:
+            return
+        bar.appendChild(E.div(
+            style=f'background: currentColor; width: 1px; height: {ICON_SIZE}; margin-left: {BUTTON_MARGIN}; margin-right: {BUTTON_MARGIN}'
+        ))
+        dark = self.view.current_color_scheme.is_dark_theme
+        for key in actions:
+            hs = all[key]
+            sw = E.div(
+                class_='simple-link', style=f'margin-left: {BUTTON_MARGIN}; margin-right: {BUTTON_MARGIN}',
+                title=_('Highlight using: {}').format(hs.friendly_name),
+                onclick=self.quick_highlight_with_style.bind(None, hs),
+            )
+            hs.make_swatch(sw, dark)
+            bar.appendChild(sw)
 
     def show_notes(self, bar, notes):
         notes = (notes or "").strip()
@@ -792,6 +817,10 @@ class SelectionBar:
                 self.send_message('apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), has_notes=False)
                 self.state = WAITING
                 self.update_position()
+
+    def quick_highlight_with_style(self, hs):
+        self.current_highlight_style = hs
+        self.quick_highlight()
 
     def remove_highlight(self):
         annot_id = self.view.currently_showing.selection.annot_id

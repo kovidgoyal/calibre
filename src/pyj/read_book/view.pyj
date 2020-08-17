@@ -17,8 +17,8 @@ from read_book.annotations import AnnotationsManager
 from read_book.bookmarks import create_new_bookmark
 from read_book.content_popup import ContentPopupOverlay
 from read_book.globals import (
-    current_book, rtl_page_progression, runtime, set_current_spine_item,
-    ui_operations
+    current_book, is_dark_theme, rtl_page_progression, runtime,
+    set_current_spine_item, ui_operations
 )
 from read_book.goto import get_next_section
 from read_book.open_book import add_book_to_recently_viewed
@@ -301,6 +301,7 @@ class View:
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
             set_ui_colors(self.current_color_scheme.is_dark_theme)
+        is_dark_theme(self.current_color_scheme.is_dark_theme)
         self.iframe_wrapper = IframeWrapper(
             handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'),
             f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__index__')
@@ -741,6 +742,7 @@ class View:
         self.current_color_scheme = ans = resolve_color_scheme()
         if runtime.is_standalone_viewer:
             set_ui_colors(self.current_color_scheme.is_dark_theme)
+        is_dark_theme(self.current_color_scheme.is_dark_theme)
         for which in 'left top right bottom'.split(' '):
             m = document.getElementById('book-{}-margin'.format(which))
             s = m.style
