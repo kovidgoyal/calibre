@@ -7,7 +7,7 @@ from gettext import gettext as _
 
 from ajax import ajax, ajax_send
 from book_list.theme import get_color, get_font_size
-from dom import add_extra_css, build_rule, clear, set_css, svgicon
+from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from popups import MODAL_Z_INDEX
 from utils import safe_set_inner_html
 from widgets import create_button
@@ -20,9 +20,6 @@ add_extra_css(def():
         '#modal-container > div > a:hover',
         color=get_color('dialog-foreground') + ' !important',
         background_color=get_color('dialog-background') + ' !important'
-    )
-    style += build_rule(
-        '#modal-container a.dialog-simple-link:hover', color='red !important'
     )
     style += build_rule(
         '.button-box', display='flex', justify_content='flex-end', padding='1rem 0rem', overflow='hidden'
@@ -149,7 +146,7 @@ class ModalContainer:
 
 def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     details = details or ''
-    show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
+    show_details = E.a(class_='blue-link', style='padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
     show_details.addEventListener('click', def():
         show_details.style.display = 'none'
         show_details.nextSibling.style.display = 'block'
@@ -200,6 +197,43 @@ def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown
                 E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
         ))
     show_modal(create_func, on_close=on_close, onkeydown=onkeydown)
+
+
+def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
+    called = {}
+    cid = unique_id()
+
+    def keyaction(ok, close_modal):
+        if called.done:
+            return
+        called.done = True
+        text = document.getElementById(cid).value or ''
+        if close_modal:
+            close_modal()
+        callback(ok, text)
+
+    def on_keydown(event, close_modal):
+        if event.altKey or event.ctrlKey or event.metaKey or event.shiftKey:
+            return
+        if event.key is 'Escape' or event.key is 'Esc':
+            event.preventDefault(), event.stopPropagation()
+            keyaction(False, close_modal)
+
+    create_custom_dialog(
+        title, def(parent, close_modal):
+            parent.appendChild(E.div(
+                E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '', style='min-width: min(40rem, 60vw)'),
+                E.div(class_='button-box',
+                    create_button(_('OK'), 'check', keyaction.bind(None, True, close_modal), highlight=True),
+                    '\xa0',
+                    create_button(_('Cancel'), 'close', keyaction.bind(None, False, close_modal))
+                ),
+            ))
+            window.setTimeout(def(): parent.querySelector('textarea').focus();, 10)
+        ,
+        on_close=keyaction.bind(None, False, None),
+        onkeydown=on_keydown
+    )
 
 
 def question_dialog(title, msg, callback, yes_text=None, no_text=None):

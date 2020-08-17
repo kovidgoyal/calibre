@@ -8,8 +8,8 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from complete import create_search_bar
-from dom import add_extra_css, build_rule, svgicon, unique_id
-from modals import error_dialog, question_dialog, warning_dialog
+from dom import add_extra_css, build_rule, clear, svgicon, unique_id
+from modals import error_dialog, get_text_dialog, question_dialog, warning_dialog
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -621,11 +621,28 @@ def remove_highlight(annot_id, view, ev):
     )
 
 
+def edit_notes(annot_id, notes, view, ev):
+    entry = ev.currentTarget.closest('.highlight')
+    get_text_dialog(_('Notes'), def(ok, text):
+        print(11111111, ok, text)
+        if not ok:
+            return
+        text = text or ''
+        nc = entry.querySelector('.notes')
+        clear(nc)
+        view.set_notes_for_highlight(annot_id, text)
+        render_notes(text, nc)
+    , initial_text=notes or None)
+
+
 def highlight_entry(h, onclick, view):
 
     def action(func, ev):
         ev.stopPropagation(), ev.preventDefault()
         onclick(func)
+
+    def button(text, func):
+        return E.a(text, class_='blue-link', onclick=func)
 
     ans = E.div(
         class_='highlight',
@@ -633,9 +650,11 @@ def highlight_entry(h, onclick, view):
         E.div(class_='title', h.highlighted_text),
         E.div(
             class_='actions',
-            E.a(class_='blue-link', _('Show in text'), onclick=action.bind(None, show_in_text.bind(None, h.uuid))),
-            '\xa0\xa0',
-            E.a(class_='blue-link', _('Remove highlight'), onclick=remove_highlight.bind(None, h.uuid, view)),
+            button(_('Show in text'), action.bind(None, show_in_text.bind(None, h.uuid))),
+            E.span('\xa0'),
+            button(_('Edit notes'), edit_notes.bind(None, h.uuid, h.notes, view)),
+            E.span('\xa0'),
+            button(_('Remove highlight'), remove_highlight.bind(None, h.uuid, view)),
         ),
         E.div(class_='notes')
     )
