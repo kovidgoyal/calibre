@@ -9,7 +9,7 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, svgicon, unique_id
-from modals import error_dialog
+from modals import error_dialog, question_dialog
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -577,7 +577,17 @@ def show_in_text(annot_id, view):
     view.highlight_action(annot_id, 'goto')
 
 
-def highlight_entry(h, onclick):
+def remove_highlight(annot_id, view, ev):
+    entry = ev.currentTarget.closest('.highlight')
+    question_dialog(_('Are you sure?'), _(
+        'Do you want to permanently delete this highlight?'), def (yes):
+            if yes:
+                entry.style.display = 'none'
+                view.highlight_action(annot_id, 'delete')
+    )
+
+
+def highlight_entry(h, onclick, view):
 
     def action(func, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -591,7 +601,7 @@ def highlight_entry(h, onclick):
             class_='actions',
             E.a(class_='blue-link', _('Show in text'), onclick=action.bind(None, show_in_text.bind(None, h.uuid))),
             '\xa0\xa0',
-            E.a(class_='blue-link', _('Remove highlight')),
+            E.a(class_='blue-link', _('Remove highlight'), onclick=remove_highlight.bind(None, h.uuid, view)),
         ),
         E.div(class_='notes')
     )
@@ -617,5 +627,5 @@ def create_highlights_panel(annotations_manager, book, container, onclick):
     container.appendChild(c)
     c.appendChild(E.div())
     for h in annotations_manager.all_highlights():
-        c.lastChild.appendChild(highlight_entry(h, onclick))
+        c.lastChild.appendChild(highlight_entry(h, onclick, annotations_manager.view))
 # }}}
