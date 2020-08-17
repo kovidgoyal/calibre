@@ -624,7 +624,6 @@ def remove_highlight(annot_id, view, ev):
 def edit_notes(annot_id, notes, view, ev):
     entry = ev.currentTarget.closest('.highlight')
     get_text_dialog(_('Notes'), def(ok, text):
-        print(11111111, ok, text)
         if not ok:
             return
         text = text or ''
