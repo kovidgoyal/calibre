@@ -675,6 +675,7 @@ class Overlay:
         self.view.get_current_cfi('show-bookmarks', do_it)
 
     def show_highlights(self):
+        self.hide_current_panel()
         if ui_operations.toggle_highlights:
             self.hide()
             ui_operations.toggle_highlights()
