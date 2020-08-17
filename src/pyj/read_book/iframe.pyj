@@ -9,8 +9,8 @@ from select import move_end_of_selection, selection_extents, word_at_point
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
 from range_utils import (
-    highlight_associated_with_selection, reset_highlight_counter, select_crw,
-    unwrap_all_crw, unwrap_crw, wrap_text_in_range
+    highlight_associated_with_selection, last_span_for_crw, reset_highlight_counter,
+    select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
@@ -752,6 +752,16 @@ class IframeBoss:
                 window.setTimeout(def():
                     self.send_message('annotations', type='edit-highlight')
                 , 50)
+        elif data.type is 'notes-edited':
+            cls = 'crw-has-dot'
+            crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
+            if crw_:
+                node = last_span_for_crw(crw_)
+                if node:
+                    if data.has_notes:
+                        node.classList.add(cls)
+                    else:
+                        node.classList.remove(cls)
         elif data.type is 'remove-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_:

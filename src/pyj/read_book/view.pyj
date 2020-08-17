@@ -1066,6 +1066,7 @@ class View:
 
     def set_notes_for_highlight(self, uuid, notes):
         if self.annotations_manager.set_notes_for_highlight(uuid, notes):
+            self.selection_bar.notes_edited(uuid)
             self.selection_bar.update_position()
 
     def on_next_spine_item(self, data):

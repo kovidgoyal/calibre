@@ -828,6 +828,10 @@ class SelectionBar:
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
 
+    def notes_edited(self, annot_id):
+        notes = self.annotations_manager.notes_for_highlight(annot_id)
+        self.send_message('notes-edited', uuid=annot_id, has_notes=bool(notes))
+
     def handle_message(self, msg):
         if msg.type is 'highlight-applied':
             notes = self.current_notes

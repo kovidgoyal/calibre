@@ -152,6 +152,12 @@ def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper):
     return crw, Object.keys(intersecting_wrappers)
 
 
+def last_span_for_crw(crw):
+    nodes = document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]')
+    if nodes and nodes.length:
+        return nodes[-1]
+
+
 def reset_highlight_counter():
     nonlocal wrapper_counter
     wrapper_counter = 0
