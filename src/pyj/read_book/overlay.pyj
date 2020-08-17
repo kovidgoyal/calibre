@@ -21,6 +21,7 @@ from modals import error_dialog
 from read_book.bookmarks import create_bookmarks_panel
 from read_book.globals import runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay
+from read_book.highlights import create_highlights_panel
 from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
@@ -271,9 +272,13 @@ class MainOverlay:  # {{{
             reload_actions = E.ul(sync_action, delete_action, reload_action)
 
         bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
+        highlights_action = ac(
+            _('Browse highlights'), _('Browse all highlights'), def():
+                self.overlay.show_highlights()
+            , 'image')
+
         toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'toc'))
 
-        toc_actions.appendChild(bookmarks_action)
         toc_actions.appendChild(ac(_('Reference mode'), _('Toggle the Reference mode'), self.overlay.toggle_reference_mode, 'reference-mode'))
 
         actions_div = E.div( # actions
@@ -287,6 +292,8 @@ class MainOverlay:  # {{{
             reload_actions,
 
             toc_actions,
+
+            E.ul(highlights_action, bookmarks_action),
 
             E.ul(
                 ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
@@ -331,10 +338,6 @@ class MainOverlay:  # {{{
                     ac(_('Lookup/search word'), _('Lookup or search for the currently selected word'),
                     def(): self.overlay.hide(), ui_operations.toggle_lookup(True);, 'library')
                 ))
-            actions_div.lastChild.appendChild(
-                ac(_('Browse highlights'), _('Browse all highlights'),
-                    def(): self.overlay.hide(), ui_operations.toggle_highlights();, 'image')
-            )
             copy_actions = E.ul()
             if self.elements.link:
                 copy_actions.appendChild(ac(_('Copy link'), _('Copy the current link'), def():
@@ -670,6 +673,14 @@ class Overlay:
             self.panels.push(TOCOverlay(self, create_bookmarks_panel.bind(None, self.view.annotations_manager, data), _('Bookmarks')))
             self.show_current_panel()
         self.view.get_current_cfi('show-bookmarks', do_it)
+
+    def show_highlights(self):
+        if ui_operations.toggle_highlights:
+            self.hide()
+            ui_operations.toggle_highlights()
+            return
+        self.panels.push(TOCOverlay(self, create_highlights_panel.bind(None, self.view.annotations_manager), _('Highlights')))
+        self.show_current_panel()
 
     def show_goto(self):
         self.hide_current_panel()

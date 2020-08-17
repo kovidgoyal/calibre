@@ -12,7 +12,7 @@ from dom import clear, svgicon, unique_id
 from modals import error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import (
-    ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles
+    ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles, render_notes
 )
 from read_book.shortcuts import shortcut_for_key_event
 
@@ -340,23 +340,7 @@ class SelectionBar:
             c.style.maxHeight = 'min(20ex, 40vh)'
         else:
             c.style.maxHeight = '20ex'
-        current_block = ''
-
-        def add_para():
-            nonlocal current_block
-            c.appendChild(E.p(current_block))
-            if c.childNodes.length > 1:
-                c.lastChild.style.marginTop = '2ex'
-            current_block = ''
-
-        for line in notes.splitlines():
-            if not line or not line.strip():
-                if current_block:
-                    add_para()
-                    continue
-            current_block += line + '\n'
-        if current_block:
-            add_para()
+        render_notes(notes, c)
     # }}}
 
     # accessors {{{

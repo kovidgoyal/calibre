@@ -7,7 +7,8 @@ from gettext import gettext as _
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
-from dom import svgicon, unique_id
+from complete import create_search_bar
+from dom import add_extra_css, build_rule, svgicon, unique_id
 from modals import error_dialog
 from widgets import create_button
 
@@ -504,4 +505,117 @@ class EditNotesAndColors:  # {{{
     def current_style(self):
         style = self.container.getElementsByClassName('current-swatch')[0].dataset.style
         return HighlightStyle(JSON.parse(style))
+# }}}
+
+
+# Browse highlights panel {{{
+
+def get_container_id():
+    if not get_container_id.ans:
+        get_container_id.ans = unique_id()
+    return get_container_id.ans
+
+
+def get_container():
+    return document.getElementById(get_container_id())
+
+
+def find_previous():
+    pass
+
+
+def find_next():
+    pass
+
+add_extra_css(def():
+    sel = '#' + get_container_id()
+    ans = ''
+    qsel = sel + ' .highlight'
+    ans += build_rule(qsel, margin_top='1ex', border_top='solid 1px', padding_top='1ex', cursor='pointer')
+    ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
+    ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between')
+    current = qsel + '.current'
+    ans += build_rule(current + ' .title', font_weight='bold', font_size='larger')
+    ans += build_rule(current + ' .notes', display='block')
+    ans += build_rule(current + ' .actions', display='flex')
+    return ans
+)
+
+
+def render_notes(notes, container):
+    current_block = ''
+    def add_para():
+        nonlocal current_block
+        container.appendChild(E.p(current_block))
+        if container.childNodes.length > 1:
+            container.lastChild.style.marginTop = '2ex'
+        current_block = ''
+
+    for line in notes.splitlines():
+        if not line or not line.strip():
+            if current_block:
+                add_para()
+                continue
+        current_block += line + '\n'
+    if current_block:
+        add_para()
+    return container
+
+
+def highlight_entry_clicked(ev):
+    set_current_highlight_entry(ev.currentTarget)
+
+
+def set_current_highlight_entry(entry):
+    c = get_container()
+    for h in c.querySelectorAll('.highlight'):
+        h.classList.remove('current')
+    entry.classList.add('current')
+
+
+def show_in_text(annot_id, view):
+    view.highlight_action(annot_id, 'goto')
+
+
+def highlight_entry(h, onclick):
+
+    def action(func, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        onclick(func)
+
+    ans = E.div(
+        class_='highlight',
+        onclick=highlight_entry_clicked,
+        E.div(class_='title', h.highlighted_text),
+        E.div(
+            class_='actions',
+            E.a(class_='blue-link', _('Show in text'), onclick=action.bind(None, show_in_text.bind(None, h.uuid))),
+            '\xa0\xa0',
+            E.a(class_='blue-link', _('Remove highlight')),
+        ),
+        E.div(class_='notes')
+    )
+    if h.notes:
+        render_notes(h.notes, ans.querySelector('.notes'))
+    return ans
+
+
+def create_highlights_panel(annotations_manager, book, container, onclick):
+    next_button = E.div(style='margin-left: 1rem', class_='simple-link', svgicon('chevron-down'), title=_('Next match'))
+    prev_button = E.div(style='margin-left: 1rem', class_='simple-link', svgicon('chevron-up'), title=_('Previous match'))
+    prev_button.addEventListener('click', def(ev): find_previous();)
+    sb = create_search_bar(find_next, 'search-in-highlights', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button])
+    sb.style.flexGrow = '10'
+    c = E.div(
+        style='margin: 1rem',
+        id=get_container_id(),
+        E.div(
+            style='display: flex',
+            sb, next_button, prev_button
+        ),
+    )
+    container.appendChild(c)
+    c.appendChild(E.div())
+    for h in annotations_manager.all_highlights():
+        c.lastChild.appendChild(highlight_entry(h, onclick))
 # }}}

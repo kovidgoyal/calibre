@@ -161,6 +161,10 @@ class AnnotationsManager:  # {{{
         highlights = highlights or v'[]'
         self.highlights = {h.uuid: h for h in highlights}
 
+    def all_highlights(self):
+        ans = [h for h in Object.values(self.highlights) if not h.removed].as_array()
+        return ans
+
     def merge_highlights(self, highlights):
         highlights = highlights or v'[]'
         updated = False
