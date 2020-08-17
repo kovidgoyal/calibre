@@ -220,7 +220,7 @@ class ReadUI:
         library_id = self.base_url_data.library_id
         book_id = self.base_url_data.book_id
         fmt = self.base_url_data.fmt
-        self.db.update_annotations_data_from_key(library_id, book_id, fmt, amap)
+        self.db.update_annotations_data_from_key(library_id, book_id, fmt, {'annotations_map': amap})
 
     @property
     def url_data(self):
