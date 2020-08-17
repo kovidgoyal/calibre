@@ -9,7 +9,7 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, svgicon, unique_id
-from modals import error_dialog, question_dialog
+from modals import error_dialog, question_dialog, warning_dialog
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -520,12 +520,46 @@ def get_container():
     return document.getElementById(get_container_id())
 
 
+def focus_search():
+    c = get_container()
+    c.querySelector('input').focus()
+
+
+def find(backwards):
+    c = get_container()
+    text = c.querySelector('input').value
+    if not text:
+        return False
+    all_highlights = list(c.querySelectorAll('.highlight')).as_array()
+    current = c.querySelector('.highlight.current')
+    if current:
+        start = all_highlights.indexOf(current)
+        if backwards:
+            all_highlights = all_highlights[:start].reverse().concat(all_highlights[start:].reverse())
+        else:
+            all_highlights = all_highlights[start+1:].concat(all_highlights[:start+1])
+    elif backwards:
+        all_highlights.reverse()
+    q = text.toLowerCase()
+    for h in all_highlights:
+        console.log(h.dataset.title)
+        if h.dataset.title.toLowerCase().indexOf(q) > -1 or h.dataset.notes.toLowerCase().indexOf(q) > -1:
+            set_current_highlight_entry(h)
+            h.scrollIntoView()
+            if h is current:
+                warning_dialog(_('Not found'), _('No other matches found for: {}').format(text), on_close=focus_search)
+            return True
+    warning_dialog(_('Not found'), _('No matches found for: {}').format(text), on_close=focus_search)
+    return False
+
+
 def find_previous():
-    pass
+    return find(True)
 
 
 def find_next():
-    pass
+    return find(False)
+
 
 add_extra_css(def():
     sel = '#' + get_container_id()
@@ -607,6 +641,8 @@ def highlight_entry(h, onclick, view):
     )
     if h.notes:
         render_notes(h.notes, ans.querySelector('.notes'))
+    ans.dataset.notes = h.notes or ''
+    ans.dataset.title = h.highlighted_text or ''
     return ans
 
 
