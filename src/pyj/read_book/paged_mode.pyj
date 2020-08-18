@@ -191,6 +191,57 @@ def will_columns_per_screen_change():
     return calc_columns_per_screen() != cols_per_screen
 
 
+class ScrollResizeBugWatcher:
+
+    # In Chrome sometimes after layout the scrollWidth of body increases after a
+    # few milliseconds, this can cause scrolling to the end to not work
+    # immediately after layout
+
+    def __init__(self):
+        self.max_time = 500
+        self.last_layout_at = 0
+        self.last_command = None
+        self.doc_size = 0
+        self.timer = None
+
+    def layout_done(self):
+        self.last_layout_at = window.performance.now()
+        self.last_command = None
+        self.cancel_timer()
+
+    def scrolled(self, pos, limit):
+        self.cancel_timer()
+        now = window.performance.now()
+        if pos >= limit - 2 * col_and_gap and now - self.last_layout_at < self.max_time and self.last_command is not None:
+            self.doc_size = scroll_viewport.paged_content_inline_size()
+            self.check_for_resize_bug()
+
+    def cancel_timer(self):
+        if self.timer is not None:
+            window.clearTimeout(self.timer)
+            self.timer = None
+
+    def check_for_resize_bug(self):
+        sz = scroll_viewport.paged_content_inline_size()
+        if sz != self.doc_size:
+            return self.redo_scroll()
+        now = window.performance.now()
+        if now - self.last_layout_at < self.max_time:
+            window.setTimeout(self.check_for_resize_bug, 10)
+        else:
+            self.timer = None
+
+    def redo_scroll(self):
+        if self.last_command:
+            self.last_command()
+            self.last_command = None
+        self.timer = None
+        self.doc_size = 0
+
+
+scroll_resize_bug_watcher = ScrollResizeBugWatcher()
+
+
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, number_of_cols
     line_height(True)
@@ -301,6 +352,7 @@ def layout(is_single_page, on_resize):
 
     _in_paged_mode = True
     fit_images()
+    scroll_resize_bug_watcher.layout_done()
     return gap
 
 def current_scroll_offset():
@@ -318,6 +370,7 @@ def scroll_to_column(number, notify=False, duration=1000):
     limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
     pos = min(pos, limit)
     scroll_to_offset(pos)
+    scroll_resize_bug_watcher.scrolled(pos, limit)
 
 
 def scroll_to_pos(pos, notify=False, duration=1000):
@@ -337,7 +390,8 @@ def scroll_to_previous_position():
     fsd = next_spine_item.forward_scroll_data
     next_spine_item.forward_scroll_data = None
     if 0 < fsd.cols_left < cols_per_screen and cols_per_screen < number_of_cols:
-        scroll_to_column(fsd.current_col, duration=1000)
+        scroll_resize_bug_watcher.last_command = scroll_to_previous_position
+        scroll_to_column(fsd.current_col)
         return True
 
 
@@ -345,6 +399,7 @@ def scroll_to_fraction(frac, on_initial_load):
     # Scroll to the position represented by frac (number between 0 and 1)
     if on_initial_load and frac is 1 and is_return() and scroll_to_previous_position():
         return
+    scroll_resize_bug_watcher.last_command = scroll_to_fraction.bind(None, frac, False)
     pos = Math.floor(scroll_viewport.paged_content_inline_size() * frac)
     scroll_to_pos(pos)
 
@@ -489,6 +544,7 @@ def snap_to_selection():
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
     # indicator.
+    scroll_resize_bug_watcher.last_command = jump_to_cfi.bind(None, cfi)
     cfi_scroll_to(cfi, def(x, y):
         if scroll_viewport.horizontal_writing_mode:
             scroll_to_pos(x)
