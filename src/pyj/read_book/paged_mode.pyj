@@ -21,7 +21,7 @@
 #  The result of all this is that paged mode's math can safely pretend that
 #  things scroll in the positive inline direction.
 
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
 import traceback
 from elementmaker import E
@@ -612,7 +612,7 @@ class HandleWheel:
 
 
 wheel_handler = HandleWheel()
-onwheel = wheel_handler.onwheel.bind(wheel_handler)
+onwheel = wheel_handler.onwheel
 
 
 def scroll_by_page(backward, by_screen, flip_if_rtl_page_progression):
@@ -791,13 +791,13 @@ class DragScroller:
         if not self.is_running() or backward is not self.backward:
             self.stop()
             self.backward = backward
-            self.timer_id = window.setTimeout(self.do_one_page_turn.bind(self), self.INTERVAL)
+            self.timer_id = window.setTimeout(self.do_one_page_turn, self.INTERVAL)
 
     def do_one_page_turn(self):
         pos = previous_col_location() if self.backward else next_col_location()
         if pos >= 0:
             scroll_to_pos(pos)
-            self.timer_id = window.setTimeout(self.do_one_page_turn.bind(self), self.INTERVAL * 2)
+            self.timer_id = window.setTimeout(self.do_one_page_turn, self.INTERVAL * 2)
         else:
             self.stop()
 
