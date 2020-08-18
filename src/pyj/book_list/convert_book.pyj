@@ -15,7 +15,7 @@ from book_list.ui import set_panel_handler
 from dom import add_extra_css, build_rule, clear
 from modals import error_dialog
 from utils import conditional_timeout, human_readable, parse_url_params
-from widgets import create_button
+from widgets import create_button, enable_escape_key
 
 CLASS_NAME = 'convert-book-panel'
 current_state = 'initializing'
@@ -243,6 +243,7 @@ def create_configuring_markup():
         conversion_data.configuring_group_title = group_title
         current_state = 'configure-group'
         apply_state_to_markup()
+        document.getElementById(overall_container_id).focus()
 
     def is_group_configurable(name):
         if entry_points[name]:
@@ -475,6 +476,7 @@ def init(container_id):
     conditional_timeout(container_id, 5, check_for_data_loaded)
     q = parse_url_params()
     fetch_conversion_data(q.book_id)
+    enable_escape_key(container, on_close.bind(None, container_id))
 
 
 set_panel_handler('convert_book', init)

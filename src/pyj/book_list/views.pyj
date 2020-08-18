@@ -40,7 +40,7 @@ from dom import add_extra_css, build_rule, clear, ensure_id, set_css
 from modals import error_dialog
 from session import get_interface_data
 from utils import conditional_timeout, parse_url_params, safe_set_inner_html
-from widgets import create_button, create_spinner
+from widgets import create_button, create_spinner, enable_escape_key
 
 CLASS_NAME = 'book-list-container'
 ITEM_CLASS_NAME = 'book-list-item'
@@ -377,6 +377,7 @@ def create_sort_panel(container_id):
         items.push(create_item(name, subtitle=subtitle, icon=icon_name, action=action))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items, _('Change how the list of books is sorted'))
+    enable_escape_key(container, close_action)
 # }}}
 
 # Searching {{{
@@ -468,7 +469,7 @@ def create_more_actions_panel(container_id):
         ))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
-
+    enable_escape_key(container, back)
 # }}}
 
 # Adding books {{{

@@ -216,3 +216,13 @@ add_extra_css(def():
     ans += Breadcrumbs.STYLE_RULES + '\n'
     return ans
 )
+
+
+def enable_escape_key(container, action):
+    container.setAttribute('tabindex', '0')
+    container.addEventListener('keydown', def(ev):
+        if ev.key is 'Escape':
+            ev.stopPropagation(), ev.preventDefault()
+            action()
+    , {'passive': False})
+    container.focus()

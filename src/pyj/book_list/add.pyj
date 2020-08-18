@@ -16,7 +16,7 @@ from file_uploads import (
 )
 from session import get_interface_data
 from utils import safe_set_inner_html
-from widgets import create_button
+from widgets import create_button, enable_escape_key
 
 state = {
     'in_progress': False,
@@ -175,6 +175,7 @@ def add_books_panel(container_id):
     state.in_progress = True
     state.container_id = container_id
     state.fake_send = False
+    enable_escape_key(container, on_close)
     return upload_files_widget(container, files_chosen)
 
 
