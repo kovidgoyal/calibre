@@ -17,14 +17,24 @@ class Resolver(etree.Resolver):
         return self.resolve_string('', context)
 
 
-def create_parser(recover):
-    parser = etree.XMLParser(recover=recover, no_network=True)
+def create_parser(recover, encoding=None):
+    parser = etree.XMLParser(recover=recover, no_network=True, encoding=encoding)
     parser.resolvers.add(Resolver())
     return parser
 
 
 def safe_xml_fromstring(string_or_bytes, recover=True):
-    return fs(string_or_bytes, parser=create_parser(recover))
+    ans = fs(string_or_bytes, parser=create_parser(recover))
+    if ans is None and recover:
+        # this happens on windows where if string_or_bytes is unicode and
+        # contains non-BMP chars lxml chokes
+        if not isinstance(string_or_bytes, bytes):
+            string_or_bytes = string_or_bytes.encode('utf-8')
+            ans = fs(string_or_bytes, parser=create_parser(True, encoding='utf-8'))
+            if ans is not None:
+                return ans
+        ans = fs(string_or_bytes, parser=create_parser(False))
+    return ans
 
 
 def find_tests():
@@ -56,6 +66,13 @@ def find_tests():
             ):
                 got = getattr(safe_xml_fromstring(templ.format(id=eid, val=val)), 'text', None)
                 self.assertEqual(got, expected)
+
+        def test_lxml_unicode_parsing(self):
+            from calibre.ebooks.chardet import xml_to_unicode
+            with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'unicode-test.opf'), 'rb') as f:
+                raw = f.read()
+            text = xml_to_unicode(raw, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0]
+            self.assertIsNotNone(safe_xml_fromstring(text))
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestXMLParse)
 
