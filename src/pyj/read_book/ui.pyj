@@ -80,6 +80,7 @@ class ReadUI:
         ui_operations.wait_for_messages_from = self.wait_for_messages_from.bind(self)
         ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
         ui_operations.update_metadata = self.update_metadata.bind(self)
+        ui_operations.close_book = self.close_book.bind(self)
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text):
@@ -154,6 +155,9 @@ class ReadUI:
     def show_progress_message(self, msg):
         div = document.getElementById(self.progress_id)
         div.lastChild.textContent = msg or ''
+
+    def close_book(self):
+        self.base_url_data = {}
 
     def load_book(self, library_id, book_id, fmt, metadata, force_reload):
         self.base_url_data = {'library_id': library_id, 'book_id':book_id, 'fmt':fmt}
