@@ -39,13 +39,17 @@ def safe_xml_fromstring(string_or_bytes, recover=True):
 
 def find_tests():
     import unittest, tempfile, os
+    from calibre.constants import iswindows
 
     class TestXMLParse(unittest.TestCase):
 
         def setUp(self):
             with tempfile.NamedTemporaryFile(delete=False) as tf:
                 tf.write(b'external')
-                self.temp_file = tf.name
+                self.temp_file = os.path.abspath(tf.name)
+            if iswindows:
+                import win32api
+                self.temp_file = win32api.GetLongPathNameW(self.temp_file)
 
         def tearDown(self):
             os.remove(self.temp_file)
@@ -53,7 +57,20 @@ def find_tests():
         def test_safe_xml_fromstring(self):
             templ = '''<!DOCTYPE foo [ <!ENTITY e {id} "{val}" > ]><r>&e;</r>'''
             external = 'file:///' + self.temp_file.replace(os.sep, '/')
-            self.assertEqual(etree.fromstring(templ.format(id='SYSTEM', val=external)).text, 'external')
+
+            def t(tid, val, expected, safe=True):
+                raw = templ.format(id=tid, val=val)
+                err = None
+                try:
+                    root = safe_xml_fromstring(raw) if safe else etree.fromstring(raw)
+                except Exception as e:
+                    err = str(e)
+                    root = None
+                got = getattr(root, 'text', object())
+                self.assertEqual(got, expected, f'Unexpected result parsing: {raw!r}, got: {got!r} expected: {expected!r} with XML parser error: {err}')
+
+            t('SYSTEM', external, 'external', safe=False)
+
             for eid, val, expected in (
                 ('', 'normal entity', 'normal entity'),
                 ('', external, external),
@@ -64,15 +81,7 @@ def find_tests():
                 ('PUBLIC', external, None),
                 ('PUBLIC', 'http://example.com', None),
             ):
-                raw = templ.format(id=eid, val=val)
-                err = None
-                try:
-                    root = safe_xml_fromstring(raw)
-                except Exception as e:
-                    err = str(e)
-                    root = None
-                got = getattr(root, 'text', object())
-                self.assertEqual(got, expected, f'Unexpected result parsing: {raw!r}, got: {got!r} expected: {expected!r} with XML parser error: {err}')
+                t(eid, val, expected)
 
         def test_lxml_unicode_parsing(self):
             from calibre.ebooks.chardet import xml_to_unicode
