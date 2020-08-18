@@ -64,8 +64,15 @@ def find_tests():
                 ('PUBLIC', external, None),
                 ('PUBLIC', 'http://example.com', None),
             ):
-                got = getattr(safe_xml_fromstring(templ.format(id=eid, val=val)), 'text', None)
-                self.assertEqual(got, expected)
+                raw = templ.format(id=eid, val=val)
+                err = None
+                try:
+                    root = safe_xml_fromstring(raw)
+                except Exception as e:
+                    err = str(e)
+                    root = None
+                got = getattr(root, 'text', object())
+                self.assertEqual(got, expected, f'Unexpected result parsing: {raw!r}, got: {got!r} expected: {expected!r} with XML parser error: {err}')
 
         def test_lxml_unicode_parsing(self):
             from calibre.ebooks.chardet import xml_to_unicode
