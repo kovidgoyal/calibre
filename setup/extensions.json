@@ -32,7 +32,7 @@
         "name": "certgen",
         "sources": "calibre/utils/certgen.c",
         "libraries": "crypto",
-        "windows_libraries": "libeay32",
+        "windows_libraries": "libcrypto",
         "inc_dirs": "!openssl_inc_dirs",
         "lib_dirs": "!openssl_lib_dirs"
     },
