@@ -195,6 +195,7 @@ def create_defs():
     defs['browse_annots_restrict_to_user'] = None
     defs['browse_annots_restrict_to_type'] = None
     defs['browse_annots_use_stemmer'] = True
+    defs['annots_export_format'] = 'txt'
 
 
 create_defs()

@@ -2,22 +2,117 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
+import codecs
+import json
 import os
 from textwrap import fill
 
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QHBoxLayout,
-    QIcon, QLabel, QPalette, QPlainTextEdit, QSize, QSplitter, Qt, QTextBrowser,
-    QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
-    pyqtSignal
+    QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout,
+    QHBoxLayout, QIcon, QLabel, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
+    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
-from calibre.gui2 import Application, config, error_dialog, gprefs
+from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
+
+
+def render_highlight_as_text(hl, lines):
+    lines.append(hl['highlighted_text'])
+    date = QDateTime.fromString(hl['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
+    lines.append(date)
+    notes = hl.get('notes')
+    if notes:
+        lines.append('')
+        lines.append(notes)
+    lines.append('')
+    lines.append('───')
+    lines.append('')
+
+
+def render_bookmark_as_text(b, lines):
+    lines.append(b['title'])
+    date = QDateTime.fromString(b['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
+    lines.append(date)
+    lines.append('')
+    lines.append('───')
+    lines.append('')
+
+
+class Export(Dialog):
+
+    prefs = gprefs
+    pref_name = 'annots_export_format'
+
+    def __init__(self, annots, parent=None):
+        self.annotations = annots
+        super().__init__(name='export-annotations', title=_('Export {} annotations').format(len(annots)), parent=parent)
+
+    def file_type_data(self):
+        return _('calibre annotation collection'), 'calibre_annotation_collection'
+
+    def initial_filename(self):
+        return _('annotations')
+
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        self.export_format = ef = QComboBox(self)
+        ef.addItem(_('Plain text'), 'txt')
+        ef.addItem(*self.file_type_data())
+        idx = ef.findData(self.prefs[self.pref_name])
+        if idx > -1:
+            ef.setCurrentIndex(idx)
+        ef.currentIndexChanged.connect(self.save_format_pref)
+        l.addRow(_('Format to export in:'), ef)
+        l.addRow(self.bb)
+        self.bb.clear()
+        self.bb.addButton(self.bb.Cancel)
+        b = self.bb.addButton(_('Copy to clipboard'), self.bb.ActionRole)
+        b.clicked.connect(self.copy_to_clipboard)
+        b.setIcon(QIcon(I('edit-copy.png')))
+        b = self.bb.addButton(_('Save to file'), self.bb.ActionRole)
+        b.clicked.connect(self.save_to_file)
+        b.setIcon(QIcon(I('save.png')))
+
+    def save_format_pref(self):
+        self.prefs[self.pref_name] = self.export_format.currentData()
+
+    def copy_to_clipboard(self):
+        QApplication.instance().clipboard().setText(self.exported_data())
+        self.accept()
+
+    def save_to_file(self):
+        filters = [(self.export_format.currentText(), self.export_format.currentData())]
+        path = choose_save_file(
+            self, 'annots-export-save', _('File for exports'), filters=filters,
+            initial_filename=self.initial_filename() + '.' + filters[0][1])
+        if path:
+            data = self.exported_data().encode('utf-8')
+            with open(path, 'wb') as f:
+                f.write(codecs.BOM_UTF8)
+                f.write(data)
+            self.accept()
+
+    def exported_data(self):
+        if self.export_format.currentData() == 'calibre_annotation_collection':
+            return json.dumps({
+                'version': 1,
+                'type': 'calibre_annotation_collection',
+                'annotations': self.annotations,
+            }, ensure_ascii=False, sort_keys=True, indent=2)
+        lines = []
+        for a in self.annotations:
+            atype = a['type']
+            if atype == 'highlight':
+                render_highlight_as_text(a, lines)
+            elif atype == 'bookmark':
+                render_bookmark_as_text(a, lines)
+        return '\n'.join(lines)
 
 
 def render_notes(notes, tag='p'):
@@ -165,6 +260,15 @@ class ResultsList(QTreeWidget):
     def selected_annot_ids(self):
         for item in self.selectedItems():
             yield item.data(0, Qt.UserRole)['id']
+
+    @property
+    def selected_annotations(self):
+        for item in self.selectedItems():
+            x = item.data(0, Qt.UserRole)
+            ans = x['annotation'].copy()
+            for key in ('book_id', 'format'):
+                ans[key] = x[key]
+            yield ans
 
 
 class Restrictions(QWidget):
@@ -350,6 +454,10 @@ class BrowsePanel(QWidget):
     @property
     def selected_annot_ids(self):
         return self.results_list.selected_annot_ids
+
+    @property
+    def selected_annotations(self):
+        return self.results_list.selected_annotations
 
 
 class Details(QTextBrowser):
@@ -560,6 +668,10 @@ class AnnotationsBrowser(Dialog):
         b.setToolTip(_('Delete the selected annotations'))
         b.setIcon(QIcon(I('trash.png')))
         b.clicked.connect(self.delete_selected)
+        self.export_button = b = self.bb.addButton(_('Export all selected'), self.bb.ActionRole)
+        b.setToolTip(_('Export the selected annotations'))
+        b.setIcon(QIcon(I('save.png')))
+        b.clicked.connect(self.export_selected)
 
     def delete_selected(self):
         ids = frozenset(self.browse_panel.selected_annot_ids)
@@ -567,6 +679,13 @@ class AnnotationsBrowser(Dialog):
             return error_dialog(self, _('No selected annotations'), _(
                 'No annotations have been selected'), show=True)
         self.delete_annotations(ids)
+
+    def export_selected(self):
+        annots = tuple(self.browse_panel.selected_annotations)
+        if not annots:
+            return error_dialog(self, _('No selected annotations'), _(
+                'No annotations have been selected'), show=True)
+        Export(annots, self).exec_()
 
     def delete_annotations(self, ids):
         if confirm(ngettext(
