@@ -590,6 +590,9 @@ def decode_with_range(cfi, doc):  # {{{
         # We can only create a meaningful range if the node length is
         # positive and nonzero.
         node_len = node.nodeValue.length if node.nodeValue else 0
+        if not node_len and node.nextSibling?.dataset?.calibreRangeWrapper and node.nextSibling.firstChild?.nodeType is Node.TEXT_NODE:
+            node = node.nextSibling.firstChild
+            node_len = node.nodeValue.length if node.nodeValue else 0
         if node_len:
             range_ = ndoc.createRange()
 
@@ -607,6 +610,9 @@ def decode_with_range(cfi, doc):  # {{{
             if not rect:
                 print(str.format("Could not find caret position for {} (offset: {})", cfi, decoded.offset))
                 range_ = None
+        else:
+            print(f'Caret offset pointed to an empty text node or a non-text node for {cfi}, (offset: {decoded.offset})')
+            range_ = None
 
     # Augment decoded with range, if found
     decoded.range = range_
@@ -762,6 +768,10 @@ def scroll_to(cfi, callback, doc):  # {{{
                 callback(doc_x, doc_y)
     else:
         node = decoded.node
+        if node.nodeType is Node.TEXT_NODE:
+            node = decoded.node = node.parentNode
+        if not node.scrollIntoView:
+            return
         scroll_viewport.scroll_into_view(node)
 
         fn = def():
