@@ -170,15 +170,19 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         fields = filter(allowed_fields, fields)
     comments = v'[]'
 
-    def add_row(name, val, is_searchable=False, is_html=False, join=None):
+    def add_row(name, val, is_searchable=False, is_html=False, join=None, search_text=None):
         if val is undefined or val is None:
             return
         def add_val(v):
             if not v.appendChild:
                 v += ''
             if is_searchable:
+                text_rep = search_text or v
                 table.lastChild.lastChild.appendChild(E.a(
-                    title=_('Click to see books with {0}: {1}').format(name, v), class_='blue-link', href=href_for_search(is_searchable, v), v))
+                    v,
+                    title=_('Click to see books with {0}: {1}').format(name, text_rep), class_='blue-link',
+                    href=href_for_search(is_searchable, text_rep)
+                ))
             else:
                 if v.appendChild:
                     table.lastChild.lastChild.appendChild(v)
@@ -233,7 +237,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
         val = int(val or 0)
         if val > 0:
             add_stars_to(stars, val, fm.display?.allow_half_stars)
-            add_row(name, stars)
+            add_row(name, stars, is_searchable=field, search_text=val/2 + '')
 
     def process_identifiers(field, fm, name, val):
         if val:
