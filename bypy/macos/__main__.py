@@ -496,7 +496,7 @@ class Freeze(object):
             'usb-1.0.0', 'mtp.9', 'chm.0', 'sqlite3.0', 'hunspell-1.7.0',
             'icudata.67', 'icui18n.67', 'icuio.67', 'icuuc.67', 'hyphen.0',
             'xslt.1', 'exslt.0', 'xml2.2', 'z.1', 'unrar', 'lzma.5',
-            'crypto.1.0.0', 'ssl.1.0.0', 'iconv.2',  # 'ltdl.7'
+            'crypto.1.1', 'ssl.1.1', 'iconv.2',  # 'ltdl.7'
         ):
             print('\nAdding', x)
             x = 'lib%s.dylib' % x
