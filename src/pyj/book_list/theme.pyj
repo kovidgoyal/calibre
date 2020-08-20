@@ -51,6 +51,7 @@ DEFAULT_COLORS = {
     # Native controls
     'input-background': c('field', DT_DARK_DARKER),
     'input-foreground': c('fieldtext', DT_LIGHT),
+    'input-focus-outline-color': c('#4D90FE', DT_LIGHT),
 }
 
 DEFAULT_SIZES = {
@@ -79,7 +80,15 @@ def browser_in_dark_mode():
 
 
 def css_for_variables():
-    input_css = 'input, textarea { color: var(--calibre-color-input-foreground); background-color: var(--calibre-color-input-background); }'
+    input_css = '''
+        input, textarea {
+            color: var(--calibre-color-input-foreground); \
+            background-color: var(--calibre-color-input-background); \
+        }
+        input:focus, textarea:focus {
+            outline-color: var(--calibre-color-input-focus-outline-color); \
+        }
+    '''
     is_dark_theme = browser_in_dark_mode()
     attr = 'dark' if is_dark_theme else 'light'
     ans = v'[]'
