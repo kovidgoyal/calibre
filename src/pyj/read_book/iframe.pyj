@@ -731,28 +731,29 @@ class IframeBoss:
             end_reference_mode()
 
     def annotations_msg_received(self, data):
-        if data.type is 'move-end-of-selection':
+        dtype = data?.type
+        if dtype is 'move-end-of-selection':
             move_end_of_selection(data.pos, data.start)
-        elif data.type is 'set-highlight-style':
+        elif dtype is 'set-highlight-style':
             set_selection_style(data.style)
-        elif data.type is 'trigger-shortcut':
+        elif dtype is 'trigger-shortcut':
             self.on_handle_navigation_shortcut(data)
-        elif data.type is 'extend-to-paragraph':
+        elif dtype is 'extend-to-paragraph':
             sel = window.getSelection()
             sel.modify('extend', 'forward', 'paragraphboundary')
             end_node, end_offset = sel.focusNode, sel.focusOffset
             sel.modify('extend', 'backward', 'paragraphboundary')
             sel.setBaseAndExtent(sel.focusNode, sel.focusOffset, end_node, end_offset)
-        elif data.type is 'drag-scroll':
+        elif dtype is 'drag-scroll':
             self.scroll_to_extend_annotation(data.backwards)
-        elif data.type is 'edit-highlight':
+        elif dtype is 'edit-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_ and select_crw(crw_):
                 self.ensure_selection_visible()
                 window.setTimeout(def():
                     self.send_message('annotations', type='edit-highlight')
                 , 50)
-        elif data.type is 'notes-edited':
+        elif dtype is 'notes-edited':
             cls = 'crw-has-dot'
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_:
@@ -762,7 +763,7 @@ class IframeBoss:
                         node.classList.add(cls)
                     else:
                         node.classList.remove(cls)
-        elif data.type is 'remove-highlight':
+        elif dtype is 'remove-highlight':
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
             if crw_:
                 unwrap_crw(crw_)
@@ -772,7 +773,7 @@ class IframeBoss:
                     # have to remove selection otherwise it remains as the empty
                     # string, and the selection bar does not hide itself
                     sel.removeAllRanges()
-        elif data.type is 'apply-highlight':
+        elif dtype is 'apply-highlight':
             sel = window.getSelection()
             text = sel.toString()
             if not sel.rangeCount:
@@ -808,7 +809,7 @@ class IframeBoss:
             )
             reset_find_caches()
         else:
-            console.log('Ignoring annotations message to iframe with unknown type: ' + data.type)
+            console.log('Ignoring annotations message to iframe with unknown type: ' + dtype)
 
     def apply_highlights_on_load(self, highlights):
         clear_annot_id_uuid_map()
