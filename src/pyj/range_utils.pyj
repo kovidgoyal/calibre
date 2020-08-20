@@ -104,6 +104,8 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
         current_range = (node.ownerDocument or document).createRange()
         current_wrapper = wrapper_elem.cloneNode()
         current_range.selectNodeContents(node)
+        # adjust start and end in case the current node is one of the
+        # boundaries of the original range
         if node.isSameNode(start_node):
             current_range.setStart(node, start_offset)
             start_node = current_wrapper
@@ -116,6 +118,10 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
         if crw:
             intersecting_wrappers[crw] = True
         current_range.surroundContents(current_wrapper)
+        # remove any empty text nodes created by surroundContents() on either
+        # side of the wrapper. This happens for instance on Chrome when
+        # wrapping all text inside <i>some text</i>
+        current_range.commonAncestorContainer.normalize()
         if process_wrapper:
             process_wrapper(current_wrapper)
         all_wrappers.push(current_wrapper)
