@@ -647,8 +647,8 @@ class SelectionBar:
     def place_single_handle(self, handle_height, handle, boundary, is_left):
         s = handle.style
         s.display = 'block' if boundary.onscreen else 'none'
-        height = handle_height * 3
-        width = handle_height * 2
+        height = handle_height * 2
+        width = int(height * 2 / 3)
         s.width = f'{width}px'
         s.height = f'{height}px'
         bottom = boundary.y + boundary.height
