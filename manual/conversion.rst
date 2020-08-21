@@ -645,7 +645,7 @@ and then convert the resulting HTML file with calibre. When saving as
 HTML, be sure to use the "Save as Web Page, Filtered" option as this will
 produce clean HTML that will convert well. Note that Word produces really messy
 HTML, converting it can take a long time, so be patient. If you have a newer
-version of Word available, you can directly save it as docx as well.
+version of Word available, you can directly save it as .docx as well.
 
 Another alternative is to use the free OpenOffice. Open your .doc file in
 OpenOffice and save it in OpenOffice's format .odt. calibre can directly convert

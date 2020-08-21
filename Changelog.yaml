@@ -5,20 +5,47 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-# - version: 4.?.0
-#   date: 2020-??-??
-#
-#   new features:
-#     - title:
-#
-#   bug fixes:
-#     - title:
-#
-#   improved recipes:
-#     -
-#
-#   new recipes:
-#     - title:
+- version: 4.23.0
+  date: 2020-08-21
+
+  new features:
+    - title: "Kobo driver: Add support for new firmware. Also add recognition of 'Kobo Plus' subscription books"
+
+    - title: "Edit book: Allow customizing the base background/foreground and link colors for the preview window."
+      tickets: [1889925]
+
+    - title: "Quickview panel: Add actions to the context menu to search for book in library, open in viewer, etc."
+      tickets: [1891765]
+
+    - title: "Allow forcing calibre to remember the column width for the On device column by right clicking the header of the column"
+
+    - title: "Template language: Add functions to perform math operations to convert fractional numbers to integers"
+
+  bug fixes:
+    - title: "Content server: Fix Esc key not working in several views."
+      tickets: [1849958]
+
+    - title: "Fix unable to delete default value for custom columns of boolean type, once set"
+      tickets: [1889973]
+
+    - title: "EPUB Output: When splitting dont consider files with only a single character empty"
+
+    - title: "Comments editor: Fix syntax coloring for HTML view in dark mode"
+
+    - title: "Book list: When a series column is not wide enough, elide text in the middle so that the series number is visible"
+
+  improved recipes:
+    - El Diplo
+    - calibre Blog
+    - ESPN
+    - LA Times
+    - Winnipeg Free Press
+    - Popular Science
+    - Science News Recent Issues
+
+  new recipes:
+    - title: linuxnews.de and t3n.de
+      author: Volker Heggemann
 
 - version: 4.22.0
   date: 2020-07-31
