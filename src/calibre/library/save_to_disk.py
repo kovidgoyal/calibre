@@ -106,12 +106,10 @@ def config(defaults=None):
                 'directory with filenames containing title and author. '
                 'Available controls are: {%(controls)s}')%dict(
                     templ=DEFAULT_SEND_TEMPLATE, controls=', '.join(FORMAT_ARGS)))
-    x('asciiize', default=True,
-            help=_('Normally, calibre will convert all non English characters into English equivalents '
-                'for the file names. '
-                'WARNING: If you turn this off, you may experience errors when '
-                'saving, depending on how well the filesystem you are saving '
-                'to supports unicode.'))
+    x('asciiize', default=False,
+            help=_('Have calibre convert all non English characters into English equivalents '
+                'for the file names. This is useful if saving to a legacy filesystem '
+                'without full support for Unicode filenames.'))
     x('timefmt', default='%b, %Y',
             help=_('The format in which to display dates. %(day)s - day,'
                 ' %(month)s - month, %(mn)s - month number, %(year)s - year. Default is: %(default)s'
