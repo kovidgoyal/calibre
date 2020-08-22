@@ -341,8 +341,10 @@ class BuildTest(unittest.TestCase):
 
 
 def test_multiprocessing():
-    from multiprocessing import get_context
-    for stype in ('spawn', 'forkserver'):
+    from multiprocessing import get_context, get_all_start_methods
+    for stype in get_all_start_methods():
+        if stype == 'fork':
+            continue
         ctx = get_context(stype)
         q = ctx.Queue()
         arg = 'hello'
