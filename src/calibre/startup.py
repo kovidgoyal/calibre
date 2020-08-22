@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Perform various initialization tasks.
 '''
 
-import locale, sys
+import locale, sys, os
 
 # Default translation is NOOP
 from polyglot.builtins import builtins, unicode_type
@@ -25,6 +25,27 @@ from calibre.constants import iswindows, preferred_encoding, plugins, isosx, isl
 
 _run_once = False
 winutil = winutilerror = None
+
+
+def get_debug_executable():
+    exe_name = 'calibre-debug' + ('.exe' if iswindows else '')
+    if hasattr(sys, 'frameworks_dir'):
+        base = os.path.dirname(sys.frameworks_dir)
+        return [os.path.join(base, 'MacOS', exe_name)]
+    if getattr(sys, 'run_local', None):
+        return [sys.run_local, exe_name]
+    nearby = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), exe_name)
+    if getattr(sys, 'frozen', False):
+        return [nearby]
+    exloc = getattr(sys, 'executables_location', None)
+    if exloc:
+        ans = os.path.join(exloc, exe_name)
+        if os.path.exists(ans):
+            return [ans]
+    if os.path.exists(nearby):
+        return [nearby]
+    return [exe_name]
+
 
 if not _run_once:
     _run_once = True
@@ -101,6 +122,26 @@ if not _run_once:
                 if DEBUG:
                     import traceback
                     traceback.print_exc()
+
+    #
+    # Fix multiprocessing
+    from multiprocessing import spawn, util
+
+    def get_command_line(**kwds):
+        prog = 'from multiprocessing.spawn import spawn_main; spawn_main(%s)'
+        prog %= ', '.join('%s=%r' % item for item in kwds.items())
+        return get_debug_executable() + ['--fix-multiprocessing', '--', prog]
+    spawn.get_command_line = get_command_line
+    orig_spawn_passfds = util.spawnv_passfds
+
+    def spawnv_passfds(path, args, passfds):
+        try:
+            idx = args.index('-c')
+        except ValueError:
+            return orig_spawn_passfds(args[0], args, passfds)
+        patched_args = get_debug_executable() + ['--fix-multiprocessing', '--'] + args[idx + 1:]
+        return orig_spawn_passfds(patched_args[0], patched_args, passfds)
+    util.spawnv_passfds = spawnv_passfds
 
     #
     # Setup resources

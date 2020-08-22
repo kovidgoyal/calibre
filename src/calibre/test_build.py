@@ -340,6 +340,23 @@ class BuildTest(unittest.TestCase):
                 raise AssertionError('Mozilla CA certs not loaded')
 
 
+def test_multiprocessing():
+    from multiprocessing import get_context
+    for stype in ('spawn', 'forkserver'):
+        ctx = get_context(stype)
+        q = ctx.Queue()
+        arg = 'hello'
+        p = ctx.Process(target=q.put, args=(arg,))
+        p.start()
+        try:
+            x = q.get(timeout=2)
+        except Exception:
+            raise SystemExit(f'Failed to get response from worker process with spawn_type: {stype}')
+        if x != arg:
+            raise SystemExit(f'{x!r} != {arg!r} with spawn_type: {stype}')
+        p.join()
+
+
 def find_tests():
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
     from calibre.utils.icu_test import find_tests

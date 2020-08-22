@@ -11,27 +11,8 @@ import sys, os, functools
 from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
+from calibre.startup import get_debug_executable
 from polyglot.builtins import exec_path, raw_input, unicode_type, getcwd
-
-
-def get_debug_executable():
-    exe_name = 'calibre-debug' + ('.exe' if iswindows else '')
-    if hasattr(sys, 'frameworks_dir'):
-        base = os.path.dirname(sys.frameworks_dir)
-        return [os.path.join(base, 'MacOS', exe_name)]
-    if getattr(sys, 'run_local', None):
-        return [sys.run_local, exe_name]
-    nearby = os.path.join(os.path.dirname(os.path.abspath(sys.executable)), exe_name)
-    if getattr(sys, 'frozen', False):
-        return [nearby]
-    exloc = getattr(sys, 'executables_location', None)
-    if exloc:
-        ans = os.path.join(exloc, exe_name)
-        if os.path.exists(ans):
-            return [ans]
-    if os.path.exists(nearby):
-        return [nearby]
-    return [exe_name]
 
 
 def run_calibre_debug(*args, **kw):
@@ -127,6 +108,8 @@ Everything after the -- is passed to the script.
         'calibre-debug --diff file1 file2'))
     parser.add_option('--default-programs', default=None, choices=['register', 'unregister'],
                           help=_('(Un)register calibre from Windows Default Programs.') + ' --default-programs=(register|unregister)')
+    parser.add_option('--fix-multiprocessing', default=False, action='store_true',
+        help=_('For internal use'))
 
     return parser
 
@@ -269,9 +252,13 @@ def inspect_mobi(path):
 
 def main(args=sys.argv):
     from calibre.constants import debug
-    debug()
 
     opts, args = option_parser().parse_args(args)
+    if opts.fix_multiprocessing:
+        sys.argv = [sys.argv[0], '--multiprocessing-fork']
+        exec(args[-1])
+        return
+    debug()
     if opts.gui:
         from calibre.gui_launch import calibre
         calibre(['calibre'] + args[1:])
@@ -308,7 +295,8 @@ def main(args=sys.argv):
         f = explode if opts.explode_book else implode
         f(a1, a2)
     elif opts.test_build:
-        from calibre.test_build import test
+        from calibre.test_build import test, test_multiprocessing
+        test_multiprocessing()
         test()
     elif opts.shutdown_running_calibre:
         from calibre.gui2.main import shutdown_other
