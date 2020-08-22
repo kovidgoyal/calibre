@@ -245,7 +245,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview panel')
         if self.is_pane:
             self.dock_button.setText(_('Undock'))
-            self.dock_button.setToolTip(_('Pop up the quickview panel into its own floating window'))
+            self.dock_button.setToolTip(_('Show the Quickview panel in its own floating window'))
             self.dock_button.setIcon(QIcon(I('arrow-up.png')))
             # Remove the ampersands from the buttons because shortcuts exist.
             self.lock_qv.setText(_('Lock Quickview contents'))
@@ -294,9 +294,9 @@ class Quickview(QDialog, Ui_Quickview):
     def show_item_context_menu(self, point):
         item = self.items.currentItem()
         self.context_menu = QMenu(self)
-        self.context_menu.addAction(self.search_icon, _('Search for item in tag browser'),
+        self.context_menu.addAction(self.search_icon, _('Search for item in the Tag browser'),
                                 partial(self.item_doubleclicked, item))
-        self.context_menu.addAction(self.search_icon, _('Search for item in library'),
+        self.context_menu.addAction(self.search_icon, _('Search for item in the library'),
                                 partial(self.do_search, follow_library_view=False))
         self.context_menu.popup(self.items.mapToGlobal(point))
         self.context_menu = QMenu(self)
@@ -311,10 +311,10 @@ class Quickview(QDialog, Ui_Quickview):
         book_id = int(item.data(Qt.UserRole))
         book_displayed = self.book_displayed_in_library_view(book_id)
         m = self.context_menu = QMenu(self)
-        a = m.addAction(self.select_book_icon, _('Select book in library'),
+        a = m.addAction(self.select_book_icon, _('Select book in the library'),
                                 partial(self.select_book, book_id))
         a.setEnabled(book_displayed)
-        m.addAction(self.search_icon, _('Search for item in library'),
+        m.addAction(self.search_icon, _('Search for item in the library'),
                         partial(self.do_search, follow_library_view=False))
         a = m.addAction(self.edit_metadata_icon, _('Edit book metadata'),
                         partial(self.edit_metadata, book_id, follow_library_view=False))
@@ -324,7 +324,7 @@ class Quickview(QDialog, Ui_Quickview):
         a.setEnabled(self.is_category(self.column_order[column]) and
                      book_displayed and not self.lock_qv.isChecked())
         m.addSeparator()
-        m.addAction(self.view_icon, _('Open book in viewer'),
+        m.addAction(self.view_icon, _('Open book in the E-book viewer'),
                         partial(self.view_plugin._view_calibre_books, [book_id]))
         self.context_menu.popup(self.books_table.mapToGlobal(point))
         return True
@@ -680,7 +680,7 @@ class Quickview(QDialog, Ui_Quickview):
         error_dialog(self, _('Quickview: Book not in library view'),
                      _('The book you selected is not currently displayed in '
                        'the library view, perhaps because of a search or a '
-                       'virtual library, so Quickview cannot select it.'),
+                       'Virtual library, so Quickview cannot select it.'),
                      show=True,
                      show_copy_button=False)
 

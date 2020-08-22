@@ -104,7 +104,7 @@ def init_find_in_tag_browser(menu, ac, field, value):
     hidden_cats = get_gui().tags_view.model().hidden_categories
     if field not in hidden_cats:
         ac.setIcon(QIcon(I('search.png')))
-        ac.setText(_('Find %s in Tag browser') % value)
+        ac.setText(_('Find %s in the Tag browser') % value)
         ac.current_fmt = field, value
         menu.addAction(ac)
 
