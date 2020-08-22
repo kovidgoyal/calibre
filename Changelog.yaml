@@ -180,7 +180,7 @@
     - title: "Book details panel: Fix a regression that caused right clicking on an author name to manage it not opening with that name selected."
       tickets: [1883768]
 
-    - title: "calibredb set_metadata: When converting a string into a datetime if the string is a full ISO 8601 date with timezone do not adjust the date to make it timezone neutral."
+    - title: "calibredb set_metadata: When converting a string into a date and time if the string is a full ISO 8601 date with timezone do not adjust the date to make it timezone neutral."
       tickets: [1883433]
 
     - title: "Edit book: Fix Check book spuriously reporting incorrect mime type warnings for fonts after upgrading a book from EPUB 2 to EPUB 3."
