@@ -241,7 +241,7 @@ class POT(Command):  # {{{
                 ] + qt_inputs)
 
             with open(out.name, 'rb') as f:
-                src = f.read()
+                src = f.read().decode('utf-8')
             os.remove(out.name)
             src = pot_header + '\n' + src
             src += '\n\n' + self.get_tweaks_docs()
@@ -254,12 +254,12 @@ class POT(Command):  # {{{
             src = re.sub(r'#, python-brace-format\s+msgid ""\s+.*<code>{0:</code>',
                    lambda m: m.group().replace('python-brace', 'no-python-brace'), src)
             with open(pot, 'wb') as f:
-                f.write(src)
+                f.write(src.encode('utf-8'))
             self.info('Translations template:', os.path.abspath(pot))
             self.upload_pot(resource='main')
             self.git(['add', os.path.abspath(pot)])
 
-        if self.git('diff-index --cached --quiet --ignore-submodules HEAD --', use_call=True) != 0:
+        if not is_ci and self.git('diff-index --cached --quiet --ignore-submodules HEAD --', use_call=True) != 0:
             self.git(['commit', '-m', 'Updated translation templates'])
             self.git('push')
 
