@@ -224,7 +224,7 @@ class POT(Command):  # {{{
         pot_header = self.pot_header()
 
         with tempfile.NamedTemporaryFile() as fl:
-            fl.write('\n'.join(files))
+            fl.write('\n'.join(files).encode('utf-8'))
             fl.flush()
             out = tempfile.NamedTemporaryFile(suffix='.pot', delete=False)
             out.close()
