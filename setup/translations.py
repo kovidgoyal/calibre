@@ -18,13 +18,13 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def qt_sources():
-    qtdir = os.environ.get('QT_SRC', '/usr/src/qt5')
+    qtdir = os.environ.get('QT_SRC', '/usr/src/qt5/qtbase')
     j = partial(os.path.join, qtdir)
     return list(map(j, [
-            'qtbase/src/gui/kernel/qplatformtheme.cpp',
-            'qtbase/src/widgets/dialogs/qcolordialog.cpp',
-            'qtbase/src/widgets/dialogs/qfontdialog.cpp',
-            'qtbase/src/widgets/widgets/qscrollbar.cpp',
+            'src/gui/kernel/qplatformtheme.cpp',
+            'src/widgets/dialogs/qcolordialog.cpp',
+            'src/widgets/dialogs/qfontdialog.cpp',
+            'src/widgets/widgets/qscrollbar.cpp',
     ]))
 
 
