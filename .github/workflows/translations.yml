@@ -14,6 +14,12 @@ jobs:
               with:
                 fetch-depth: 2
 
+            - name: Checkout translations
+              uses: actions/checkout@master
+              with:
+                repository: 'kovidgoyal/calibre-translations'
+                path: 'translations'
+
             - name: Set up Python
               uses: actions/setup-python@master
               with:
