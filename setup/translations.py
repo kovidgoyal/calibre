@@ -212,7 +212,8 @@ class POT(Command):  # {{{
                 time=time.strftime('%Y-%m-%d %H:%M+%Z'))
 
     def run(self, opts):
-        require_git_master()
+        if not is_ci:
+            require_git_master()
         self.get_iso639_strings()
         if not is_ci:
             self.get_website_strings()
