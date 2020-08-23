@@ -3,6 +3,7 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import glob
 import os
 import shlex
 import subprocess
@@ -78,6 +79,7 @@ def download_and_decompress(url, dest, compression=None):
             ret = subprocess.Popen(['curl', '-fSL', url], stdout=f).wait()
             if ret == 0:
                 decompress(f.name, dest, compression)
+                sys.stdout.flush(), sys.stderr.flush()
                 return
             time.sleep(1)
     raise SystemExit('Failed to download ' + url)
@@ -86,9 +88,17 @@ def download_and_decompress(url, dest, compression=None):
 def install_calibre_binary():
     dest = os.path.expanduser('~/calibre-bin')
     os.mkdir(dest)
-    # change this to the canonical download url once 5.0 is released
+    # change this to the canonical download URL once 5.0 is released
     download_and_decompress('https://download.calibre-ebook.com/calibre-4.99.12-x86_64.txz', dest, 'J')
     return os.path.join(dest, 'calibre-debug')
+
+
+def install_qt_source_code():
+    dest = os.path.expanduser('~/qt-base')
+    os.mkdir(dest)
+    download_and_decompress('https://download.qt.io/official_releases/qt/5.15/5.15.0/submodules/qtbase-everywhere-src-5.15.0.tar.xz', dest, 'J')
+    qdir = glob.glob(dest + '/*')[0]
+    os.environ['QT_SRC'] = qdir
 
 
 def run_python(*args):
@@ -97,6 +107,12 @@ def run_python(*args):
         args = shlex.split(args[0])
     args = [python] + list(args)
     return run(*args)
+
+
+def install_linux_deps():
+    run('sudo', 'apt-get', 'update', '-y')
+    # run('sudo', 'apt-get', 'upgrade', '-y')
+    run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev')
 
 
 def main():
@@ -114,9 +130,7 @@ def main():
             'https://download.calibre-ebook.com/ci/calibre3/{}.tar.xz'.format(tball), SW
         )
         if not ismacos:
-            run('sudo', 'apt-get', 'update', '-y')
-            # run('sudo', 'apt-get', 'upgrade', '-y')
-            run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev')
+            install_linux_deps()
 
     elif action == 'bootstrap':
         install_env()
@@ -132,7 +146,9 @@ username = api
 '''.replace('PASSWORD', os.environ['tx'])
         with open(os.path.expanduser('~/.transifexrc'), 'w') as f:
             f.write(transifexrc)
+        install_linux_deps()
         interpreter = install_calibre_binary()
+        install_qt_source_code()
         run(interpreter, 'setup.py', 'pot')
 
     elif action == 'test':

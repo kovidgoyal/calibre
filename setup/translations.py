@@ -18,7 +18,7 @@ is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def qt_sources():
-    qtdir = '/usr/src/qt5'
+    qtdir = os.environ.get('QT_SRC', '/usr/src/qt5')
     j = partial(os.path.join, qtdir)
     return list(map(j, [
             'qtbase/src/gui/kernel/qplatformtheme.cpp',
