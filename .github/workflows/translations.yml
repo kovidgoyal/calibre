@@ -25,7 +25,7 @@ jobs:
 
             - name: Install translations dependencies
               run:
-                python -m pip install -U transifex-client sphinx
+                python -m pip install -U transifex-client sphinx msgpack
 
             - name: Bootstrap calibre
               run: python setup/unix-ci.py bootstrap
