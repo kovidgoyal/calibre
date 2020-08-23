@@ -692,7 +692,7 @@ class GetTranslations(Translations):  # {{{
         if opts.check_for_errors:
             self.check_all()
             return
-        self.tx('pull -a')
+        self.tx('pull -a --parallel --no-interactive')
         if not self.is_modified:
             self.info('No translations were updated')
             return
