@@ -223,7 +223,7 @@ class LoopTest(BaseTest):
         self.ae(s.fileno(), 3)
         os.environ['LISTEN_PID'] = unicode_type(os.getpid())
         os.environ['LISTEN_FDS'] = '1'
-        with TestServer(lambda data:(data.path[0] + data.read()), allow_socket_preallocation=True) as server:
+        with TestServer(lambda data:(data.path[0].encode('utf-8') + data.read()), allow_socket_preallocation=True) as server:
             conn = server.connect()
             conn.request('GET', '/test', 'body')
             r = conn.getresponse()
