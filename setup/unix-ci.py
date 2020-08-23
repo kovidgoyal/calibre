@@ -83,6 +83,14 @@ def download_and_decompress(url, dest, compression=None):
     raise SystemExit('Failed to download ' + url)
 
 
+def install_calibre_binary():
+    dest = os.path.expanduser('~/calibre-bin')
+    os.mkdir(dest)
+    # change this to the canonical download url once 5.0 is released
+    download_and_decompress('https://download.calibre-ebook.com/calibre-4.99.12-x86_64.txz', dest, 'J')
+    return os.path.join(dest, 'calibre-debug')
+
+
 def run_python(*args):
     python = os.path.expandvars('$SW/bin/python')
     if len(args) == 1:
@@ -115,7 +123,6 @@ def main():
         run_python('setup.py bootstrap --ephemeral')
 
     elif action == 'pot':
-        install_env()
         transifexrc = '''\
 [https://www.transifex.com]
 api_hostname = https://api.transifex.com
@@ -125,7 +132,8 @@ username = api
 '''.replace('PASSWORD', os.environ['tx'])
         with open(os.path.expanduser('~/.transifexrc'), 'w') as f:
             f.write(transifexrc)
-        run_python('setup.py pot')
+        interpreter = install_calibre_binary()
+        run(interpreter, 'setup.py', 'pot')
 
     elif action == 'test':
         os.environ['CI'] = 'true'
