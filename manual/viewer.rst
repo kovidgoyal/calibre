@@ -35,7 +35,7 @@ You can access the viewer controls by either:
 
   - Right clicking on the text
   - Pressing the :kbd:`Esc` or :kbd:`Menu` keys
-  - On a touchscreen by tapping the top 1/3rd or the screen
+  - On a touchscreen by tapping the top 1/3rd of the screen
 
 
 The viewer has two modes, "paged" and "flow". In paged mode the book content
