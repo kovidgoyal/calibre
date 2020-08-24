@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, textwrap
+import os
+import re
 from functools import partial
 
 from sphinx.util.console import bold
 from sphinx.util.logging import getLogger
 
-from calibre.linux import entry_points, cli_index_strings
+from calibre.linux import cli_index_strings, entry_points
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
 
@@ -94,38 +93,38 @@ def titlecase(app, x):
 def generate_calibredb_help(preamble, app):
     from calibre.db.cli.main import COMMANDS, option_parser_for, get_parser
     preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
-    preamble += textwrap.dedent('''
+    preamble += '\n\n'
+    preamble += _('''\
+:command:`calibredb` is the command line interface to the calibre database. It has
+several sub-commands, documented below.
 
-    :command:`calibredb` is the command line interface to the calibre database. It has
-    several sub-commands, documented below.
+:command:`calibredb` can be used to manipulate either a calibre database
+specified by path or a calibre :guilabel:`Content server` running either on
+the local machine or over the internet. You can start a calibre
+:guilabel:`Content server` using either the :command:`calibre-server`
+program or in the main calibre program click :guilabel:`Connect/share ->
+Start Content server`. Since :command:`calibredb` can make changes to your
+calibre libraries, you must setup authentication on the server first. There
+are two ways to do that:
 
-    :command:`calibredb` can be used to manipulate either a calibre database
-    specified by path or a calibre :guilabel:`Content server` running either on
-    the local machine or over the internet. You can start a calibre
-    :guilabel:`Content server` using either the :command:`calibre-server`
-    program or in the main calibre program click :guilabel:`Connect/share ->
-    Start Content server`. Since :command:`calibredb` can make changes to your
-    calibre libraries, you must setup authentication on the server first. There
-    are two ways to do that:
+    * If you plan to connect only to a server running on the same computer,
+      you can simply use the ``--enable-local-write`` option of the
+      content server, to allow any program, including calibredb, running on
+      the local computer to make changes to your calibre data. When running
+      the server from the main calibre program, this option is in
+      :guilabel:`Preferences->Sharing over the net->Advanced`.
 
-        * If you plan to connect only to a server running on the same computer,
-          you can simply use the ``--enable-local-write`` option of the
-          content server, to allow any program, including calibredb, running on
-          the local computer to make changes to your calibre data. When running
-          the server from the main calibre program, this option is in
-          :guilabel:`Preferences->Sharing over the net->Advanced`.
+    * If you want to enable access over the internet, then you should setup
+      user accounts on the server and use the :option:`--username` and :option:`--password`
+      options to :command:`calibredb` to give it access. You can setup
+      user authentication for :command:`calibre-server` by using the ``--enable-auth``
+      option and using ``--manage-users`` to create the user accounts.
+      If you are running the server from the main calibre program, use
+      :guilabel:`Preferences->Sharing over the net->Require username/password`.
 
-        * If you want to enable access over the internet, then you should setup
-          user accounts on the server and use the :option:`--username` and :option:`--password`
-          options to :command:`calibredb` to give it access. You can setup
-          user authentication for :command:`calibre-server` by using the ``--enable-auth``
-          option and using ``--manage-users`` to create the user accounts.
-          If you are running the server from the main calibre program, use
-          :guilabel:`Preferences->Sharing over the net->Require username/password`.
-
-    To connect to a running Content server, pass the URL of the server to the
-    :option:`--with-library` option, see the documentation of that option for
-    details and examples.
+To connect to a running Content server, pass the URL of the server to the
+:option:`--with-library` option, see the documentation of that option for
+details and examples.
     ''')
 
     global_parser = get_parser('')
