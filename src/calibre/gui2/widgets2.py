@@ -586,7 +586,7 @@ class DateTimeEdit(QDateTimeEdit):
 
     def __init__(self, parent=None):
         QDateTimeEdit.__init__(self, parent)
-        le = LineEditForDateTimeEdit(self)
+        self.custom_line_edit = le = LineEditForDateTimeEdit(self)
         self.setLineEdit(le)
         le.date_time_pasted.connect(self.date_time_pasted, type=Qt.QueuedConnection)
         le.date_time_copied.connect(self.date_time_copied, type=Qt.QueuedConnection)
@@ -600,7 +600,7 @@ class DateTimeEdit(QDateTimeEdit):
     def date_time_copied(self, text):
         md = QMimeData()
         md.setText(text or self.dateTime().toString())
-        md.setData(LineEditForDateTimeEdit.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
+        md.setData(self.custom_line_edit.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
         QApplication.instance().clipboard().setMimeData(md)
 
     def date_time_pasted(self, qt_dt):
