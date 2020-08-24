@@ -227,7 +227,7 @@
         "name": "freetype",
         "os": "macos,windows",
         "unix": {
-            "filename": "freetype-2.10.2.tar.bz2",
+            "filename": "freetype-2.10.2.tar.xz",
             "hash": "sha1:b074d5c34dc0e3cc150be6e7aa6b07c9ec4ed875",
             "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
         }
