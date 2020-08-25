@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
     snprintf(lib, PATHLEN, "%s/lib", base);
 
     /* qt-at-spi causes crashes and performance issues in various distros, so disable it */
+    /* for example: https://bugs.launchpad.net/calibre/+bug/1892646 */
     SET("QT_ACCESSIBILITY", "0")
 	SET("CALIBRE_QT_PREFIX", base)
 
