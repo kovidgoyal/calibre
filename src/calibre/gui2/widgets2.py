@@ -580,7 +580,8 @@ class DateTimeEdit(QDateTimeEdit):
     @property
     def mime_data_for_copy(self):
         md = QMimeData()
-        md.setText(self.dateTime().toString())
+        text = self.lineEdit().selectedText()
+        md.setText(text or self.dateTime().toString())
         md.setData(self.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
         return md
 
