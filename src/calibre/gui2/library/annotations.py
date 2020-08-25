@@ -106,13 +106,21 @@ class Export(Dialog):
                 'annotations': self.annotations,
             }, ensure_ascii=False, sort_keys=True, indent=2)
         lines = []
+        db = current_db()
+        bid_groups = {}
         for a in self.annotations:
-            atype = a['type']
-            if atype == 'highlight':
-                render_highlight_as_text(a, lines)
-            elif atype == 'bookmark':
-                render_bookmark_as_text(a, lines)
-        return '\n'.join(lines)
+            bid_groups.setdefault(a['book_id'], []).append(a)
+        for book_id, group in bid_groups.items():
+            lines.append('## ' + db.field_for('title', book_id))
+            lines.append('')
+            for a in group:
+                atype = a['type']
+                if atype == 'highlight':
+                    render_highlight_as_text(a, lines)
+                elif atype == 'bookmark':
+                    render_bookmark_as_text(a, lines)
+            lines.append('')
+        return '\n'.join(lines).strip()
 
 
 def render_notes(notes, tag='p'):

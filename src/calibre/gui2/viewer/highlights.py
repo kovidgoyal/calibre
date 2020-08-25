@@ -45,7 +45,7 @@ class Export(ExportBase):
         lines = []
         for hl in self.annotations:
             render_highlight_as_text(hl, lines)
-        return '\n'.join(lines)
+        return '\n'.join(lines).strip()
 
 
 class Highlights(QListWidget):
