@@ -8,10 +8,10 @@ import weakref
 from PyQt5.Qt import (
     QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
     QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
-    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QLineEdit, QMenu,
+    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu,
     QMimeData, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
     QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
-    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal, pyqtSlot
+    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -127,12 +127,13 @@ def access_key(k):
     return ''
 
 
-def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
+def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False, use_self_for_copy_actions=False):
     m = menu
     le = spinbox.lineEdit()
-    m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), le.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
-    m.addAction(_('&Copy') + access_key(QKeySequence.Copy), le.copy).setEnabled(le.hasSelectedText())
-    m.addAction(_('&Paste') + access_key(QKeySequence.Paste), le.paste).setEnabled(not le.isReadOnly())
+    ca = spinbox if use_self_for_copy_actions else le
+    m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), ca.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+    m.addAction(_('&Copy') + access_key(QKeySequence.Copy), ca.copy).setEnabled(le.hasSelectedText())
+    m.addAction(_('&Paste') + access_key(QKeySequence.Paste), ca.paste).setEnabled(not le.isReadOnly())
     m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
     m.addSeparator()
     m.addAction(_('Select &all') + access_key(QKeySequence.SelectAll), spinbox.selectAll)
@@ -556,25 +557,6 @@ def to_plain_text(self):
     return ans.rstrip('\0')
 
 
-class LineEditForDateTimeEdit(QLineEdit):
-
-    date_time_pasted = pyqtSignal(object)
-    date_time_copied = pyqtSignal(object)
-    MIME_TYPE = 'application/x-calibre-datetime-value'
-
-    @pyqtSlot()
-    def copy(self):
-        self.date_time_copied.emit(self.selectedText())
-
-    @pyqtSlot()
-    def paste(self):
-        md = QApplication.instance().clipboard().mimeData()
-        if md.hasFormat(self.MIME_TYPE):
-            self.date_time_pasted.emit(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.ISODate))
-        else:
-            QLineEdit.paste(self)
-
-
 class CalendarWidget(QCalendarWidget):
 
     def showEvent(self, ev):
@@ -584,12 +566,10 @@ class CalendarWidget(QCalendarWidget):
 
 class DateTimeEdit(QDateTimeEdit):
 
+    MIME_TYPE = 'application/x-calibre-datetime-value'
+
     def __init__(self, parent=None):
         QDateTimeEdit.__init__(self, parent)
-        self.custom_line_edit = le = LineEditForDateTimeEdit(self)
-        self.setLineEdit(le)
-        le.date_time_pasted.connect(self.date_time_pasted, type=Qt.QueuedConnection)
-        le.date_time_copied.connect(self.date_time_copied, type=Qt.QueuedConnection)
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setCalendarPopup(True)
         self.cw = CalendarWidget(self)
@@ -597,14 +577,27 @@ class DateTimeEdit(QDateTimeEdit):
         self.setCalendarWidget(self.cw)
         self.setSpecialValueText(_('Undefined'))
 
-    def date_time_copied(self, text):
+    @property
+    def mime_data_for_copy(self):
         md = QMimeData()
-        md.setText(text or self.dateTime().toString())
-        md.setData(self.custom_line_edit.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
+        md.setText(self.dateTime().toString())
+        md.setData(self.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
+        return md
+
+    def copy(self):
+        QApplication.instance().clipboard().setMimeData(self.mime_data_for_copy)
+
+    def cut(self):
+        md = self.mime_data_for_copy
+        self.lineEdit().cut()
         QApplication.instance().clipboard().setMimeData(md)
 
-    def date_time_pasted(self, qt_dt):
-        self.setDateTime(qt_dt)
+    def paste(self):
+        md = QApplication.instance().clipboard().mimeData()
+        if md.hasFormat(self.MIME_TYPE):
+            self.setDateTime(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.ISODate))
+        else:
+            self.lineEdit().paste()
 
     def create_context_menu(self):
         m = QMenu(self)
@@ -613,7 +606,7 @@ class DateTimeEdit(QDateTimeEdit):
         m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
                     self.today_date)
         m.addSeparator()
-        populate_standard_spinbox_context_menu(self, m)
+        populate_standard_spinbox_context_menu(self, m, use_self_for_copy_actions=True)
         return m
 
     def contextMenuEvent(self, ev):
@@ -634,10 +627,13 @@ class DateTimeEdit(QDateTimeEdit):
             self.today_date()
             ev.accept()
         elif ev.matches(QKeySequence.Copy):
-            self.lineEdit().copy()
+            self.copy()
+            ev.accept()
+        elif ev.matches(QKeySequence.Cut):
+            self.cut()
             ev.accept()
         elif ev.matches(QKeySequence.Paste):
-            self.lineEdit().paste()
+            self.paste()
             ev.accept()
         else:
             return QDateTimeEdit.keyPressEvent(self, ev)
