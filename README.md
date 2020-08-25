@@ -1,6 +1,6 @@
 # calibre
 
-<img align="left" src="resources/images/lt.png?raw=true" height="200" width="200"/>
+<img align="left" src="https://raw.githubusercontent.com/kovidgoyal/calibre/master/resources/images/lt.png" height="200" width="200"/>
 
 calibre is an e-book manager. It can view, convert, edit and catalog e-books 
 in all of the major e-book formats. It can also talk to e-book reader 
