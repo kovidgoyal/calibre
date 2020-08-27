@@ -2,7 +2,6 @@
 __license__ = 'GPL v3'
 '''
 '''
-import re
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
@@ -56,15 +55,15 @@ class ReadersDigest(BasicNewsRecipe):
         ('Advice', 'http://www.rd.com/advice/feed'),
     ]
 
-    # cover_url = 'http://www.rd.com/images/logo-main-rd.gif'
-
     keep_only_tags = [
-            classes('entry-header rd-article-dek'),
-            dict(name='article', attrs={'class': lambda x: x and 'post-' in x}),
+        classes('post-title post-author post-updated-date post-date featured-image post-body entry-title dek listicle-card')
     ]
+
     remove_tags = [
-        dict(attrs={'class': re.compile('rd-article--sidebar.*')}),
-        dict(attrs={'class': ['rd-article--footer', 'rd-article--sharing']}),
-        dict(attrs={'id': ['newsletter-form-container',
-                           'confirmation-msg-container']}),
+        classes('single-card ad brand-info pure-g')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
+            img['src'] = img['data-lazy-src']
+        return soup
