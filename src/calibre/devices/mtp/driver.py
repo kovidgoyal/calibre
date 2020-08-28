@@ -61,9 +61,11 @@ class MTP_DEVICE(BASE):
         if self._prefs is None:
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
-            p.defaults['send_to'] = ['Calibre_Companion', 'Books',
-                    'eBooks/import', 'eBooks', 'wordplayer/calibretransfer',
-                    'sdcard/ebooks', 'kindle', 'NOOK']
+            p.defaults['send_to'] = [
+                'Calibre_Companion', 'Books', 'eBooks/import', 'eBooks',
+                'wordplayer/calibretransfer', 'sdcard/ebooks',
+                'Android/data/com.amazon.kindle/files', 'kindle', 'NOOK'
+            ]
             p.defaults['send_template'] = '{title} - {authors}'
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
@@ -107,9 +109,10 @@ class MTP_DEVICE(BASE):
             proxy['format_map'] = ['azw3', 'mobi', 'azw', 'azw1', 'azw4', 'pdf']
             proxy['send_template'] = '{title} - {authors}'
             orig = list(proxy['send_to'])
-            if 'kindle' in orig:
-                orig.remove('kindle')
-            orig.insert(0, 'kindle')
+            for folder in ('kindle', 'Android/data/com.amazon.kindle/files'):
+                if folder in orig:
+                    orig.remove(folder)
+                orig.insert(0, folder)
             proxy['send_to'] = orig
 
     def configure_for_generic_epub_app(self):
