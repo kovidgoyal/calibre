@@ -543,7 +543,8 @@ class IframeBoss:
         self.send_message(
             'selectionchange', text=text, empty=v'!!collapsed', annot_id=annot_id,
             drag_mouse_position=drag_mouse_position, selection_change_caused_by_search=by_search,
-            selection_extents=selection_extents(current_layout_mode() is 'flow'))
+            selection_extents=selection_extents(current_layout_mode() is 'flow'),
+            rtl = scroll_viewport.rtl, vertical = scroll_viewport.vertical_writing_mode)
 
     def onresize_stage2(self):
         if scroll_viewport.width() is self.last_window_width and scroll_viewport.height() is self.last_window_height:
