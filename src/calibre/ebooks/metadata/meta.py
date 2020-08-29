@@ -106,7 +106,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
     name = os.path.basename(getattr(stream, 'name', ''))
     # The fallback pattern matches the default filename format produced by calibre
     base = metadata_from_filename(name, pat=pattern, fallback_pat=regex.compile(
-            r'^(?P<title>.+) - (?P<author>[^-]+)$', flags=regex.UNICODE | regex.VERSION1))
+            r'^(?P<title>.+) - (?P<author>[^-]+)$', flags=regex.UNICODE | regex.VERSION1 | regex.FULLCASE))
     if not base.authors:
         base.authors = [_('Unknown')]
     if not base.title:
@@ -133,7 +133,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
     name = name.rpartition('.')[0]
     mi = MetaInformation(None, None)
     if pat is None:
-        pat = regex.compile(prefs.get('filename_pattern'), flags=regex.UNICODE | regex.VERSION1)
+        pat = regex.compile(prefs.get('filename_pattern'), flags=regex.UNICODE | regex.VERSION1 | regex.FULLCASE)
     name = name.replace('_', ' ')
     match = pat.search(name)
     if match is None and fallback_pat is not None:

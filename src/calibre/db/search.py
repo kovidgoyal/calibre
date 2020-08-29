@@ -72,7 +72,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                 elif query == t:
                     return True
             elif matchkind == REGEXP_MATCH:
-                flags = regex.UNICODE | regex.VERSION1 | (0 if case_sensitive else regex.IGNORECASE)
+                flags = regex.UNICODE | regex.VERSION1 | regex.FULLCASE | (0 if case_sensitive else regex.IGNORECASE)
                 if regex.search(query, t, flags) is not None:
                     return True
             elif matchkind == CONTAINS_MATCH:
