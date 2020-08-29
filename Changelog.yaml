@@ -5,6 +5,14 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
+# changes for 5
+# viewer supports annotations
+# viewer works with RTL and vertical text
+# python upgraded to python 3 link to list of not ported plugins
+# regex engine used for searching book list and metadata from file names made more powerful
+# dark mode support in the content server and viewer UIs
+# content server viewer can now browse and create bookmarks
+
 - version: 4.23.0
   date: 2020-08-21
 

@@ -22,7 +22,9 @@ There are a few places calibre uses regular expressions. There's the
 :guilabel:`Search & replace` in conversion options, metadata detection from filenames in the import
 settings and Search & replace when editing the metadata of books in bulk. The
 calibre book editor can also use regular expressions in its search and replace
-feature.
+feature. Finally, you can use regular expressions when searching the calibre
+book list and when searching inside the calibre viewer.
+
 
 What on earth *is* a regular expression?
 ------------------------------------------------

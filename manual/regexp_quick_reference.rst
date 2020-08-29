@@ -2,9 +2,7 @@ Quick reference for regexp syntax
 =================================================
 
 This checklist summarizes the most commonly used/hard to remember parts of the
-regexp engine available in the calibre edit and conversion search/replace
-features. Note that this engine is more powerful than the basic regexp engine
-used throughout the rest of calibre.
+regexp engine available in most parts of calibre.
 
 .. contents:: Contents
   :depth: 2
@@ -173,25 +171,25 @@ character. The most useful anchors for text processing are:
 Groups
 ------
 
-    ``(expression)``        
+    ``(expression)``
         Capturing group, which stores the selection and can be recalled later
         in the *search* or *replace* patterns with ``\n``, where ``n`` is the
-        sequence number of the capturing group (starting at 1 in reading order)  
+        sequence number of the capturing group (starting at 1 in reading order)
 
-    ``(?:expression)``        
+    ``(?:expression)``
         Group that does not capture the selection
 
-    ``(?>expression)``      
+    ``(?>expression)``
         Atomic Group: As soon as the expression is satisfied, the regexp engine
         passes, and if the rest of the pattern fails, it will not backtrack to
         try other combinations with the expression. Atomic groups do not
-        capture. 
+        capture.
 
-    ``(?|expression)``      
+    ``(?|expression)``
         Branch reset group: the branches of the alternations included in the
         expression share the same group numbers
-        
-    ``(?<name>expression)`` 
+
+    ``(?<name>expression)``
         Group named “name”. The selection can be recalled later in the *search*
         pattern by ``(?P=name)`` and in the *replace* by ``\g<name>``. Two
         different groups can use the same name.
@@ -220,7 +218,7 @@ Lookarounds
 Lookaheads and lookbehinds do not consume characters, they are zero length and
 do not capture. They are atomic groups: as soon as the assertion is satisfied,
 the regexp engine passes, and if the rest of the pattern fails, it will not
-backtrack inside the lookaround to try other combinations. 
+backtrack inside the lookaround to try other combinations.
 
 When looking for multiple matches in a string, at the starting position of each
 match attempt, a lookbehind can inspect the characters before the current
@@ -230,7 +228,7 @@ only select 2, because the starting position after the first selection is
 immediately before 3, and there are not enough digits for a second match.
 Similarly, ``\d(\d)`` only captures 2. In calibre's regexp engine practice, the
 positive lookbehind behaves in the same way, and selects only 2, contrary to
-theory. 
+theory.
 
 Groups can be placed inside lookarounds, but capture is rarely useful.
 Nevertheless, if it is useful, it will be necessary to be very careful in the
@@ -275,7 +273,7 @@ To select a string between double quotation marks without stopping on an embedde
     “((?>[^“”]+|(?R))*[^“”]+)”
 
 This template can also be used to modify pairs of tags that can be
-embedded, such as ``<div>`` tags. 
+embedded, such as ``<div>`` tags.
 
 
 Special characters
@@ -334,4 +332,3 @@ Modes
     ``(?m)``
         Makes the ``^`` and ``$`` anchors match the start and end of lines
         instead of the start and end of the entire string.
-

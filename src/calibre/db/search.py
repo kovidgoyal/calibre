@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, weakref, operator
+import regex, weakref, operator
 from functools import partial
 from datetime import timedelta
 from collections import deque, OrderedDict
@@ -72,7 +72,8 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                 elif query == t:
                     return True
             elif matchkind == REGEXP_MATCH:
-                if re.search(query, t, re.UNICODE if case_sensitive else re.I|re.UNICODE):
+                flags = regex.UNICODE | regex.VERSION1 | (0 if case_sensitive else regex.IGNORECASE)
+                if regex.search(query, t, flags) is not None:
                     return True
             elif matchkind == CONTAINS_MATCH:
                 if not case_sensitive and use_primary_find_in_search:
@@ -80,7 +81,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
                         return True
                 elif query in t:
                     return True
-        except re.error:
+        except regex.error:
             pass
     return False
 # }}}
@@ -100,7 +101,7 @@ class DateSearch(object):  # {{{
         self.local_today         = {'_today', 'today', icu_lower(_('today'))}
         self.local_yesterday     = {'_yesterday', 'yesterday', icu_lower(_('yesterday'))}
         self.local_thismonth     = {'_thismonth', 'thismonth', icu_lower(_('thismonth'))}
-        self.daysago_pat = re.compile(r'(%s|daysago|_daysago)$'%_('daysago'))
+        self.daysago_pat = regex.compile(r'(%s|daysago|_daysago)$'%_('daysago'), flags=regex.UNICODE | regex.VERSION1)
 
     def eq(self, dbdate, query, field_count):
         if dbdate.year == query.year:
