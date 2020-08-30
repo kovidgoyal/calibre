@@ -593,7 +593,7 @@ class DetailsPanel(QWidget):
             atype=a(atype), text=annot_text, dt=_('Date'), date=a(date), ut=a(_('User')),
             user=a(friendly_username(r['user_type'], r['user'])),
             ov=a(_('Open in viewer')), sic=a(_('Show in calibre')),
-            ovtt=a(_('Open the book at this annotation in the calibre viewer')),
+            ovtt=a(_('Open the book at this annotation in the calibre E-book viewer')),
             sictt=(_('Show this book in the main calibre book list')),
         )
         self.text_browser.setHtml(text)

@@ -96,7 +96,7 @@ def show_controls_help():
             E.input(style='background: transparent; border-width: 0; outline: none', readonly='readonly'),
         ))
         div = container.lastChild.firstChild
-        safe_set_inner_html(div, _('Welcome to the <b>calibre viewer</b>!'))
+        safe_set_inner_html(div, _('Welcome to the <b>calibre E-book viewer</b>!'))
         div = div.nextSibling
         safe_set_inner_html(div, _('Use the <b>PageUp/PageDn</b> or <b>Arrow keys</b> to turn pages'))
         div = div.nextSibling

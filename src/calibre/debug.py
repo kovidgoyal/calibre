@@ -32,7 +32,7 @@ def option_parser():
 
 Various command line interfaces useful for debugging calibre. With no options,
 this command starts an embedded Python interpreter. You can also run the main
-calibre GUI, the calibre viewer and the calibre editor in debug mode.
+calibre GUI, the calibre E-book viewer and the calibre editor in debug mode.
 
 It also contains interfaces to various bits of calibre that do not have
 dedicated command line tools, such as font subsetting, the E-book diff tool and so
