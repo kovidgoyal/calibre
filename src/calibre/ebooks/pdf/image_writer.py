@@ -3,7 +3,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSize
+from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSizeF
 
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica
@@ -56,7 +56,7 @@ def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
                     'didot':didot, 'pica':pica, 'millimeter':mm,
                     'centimeter':cm
                 }.get(unit, 1.0)
-            return QPageSize(QSize(factor*width, factor*height), matchPolicy=QPageSize.ExactMatch)
+            return QPageSize(QSizeF(factor*width, factor*height), QPageSize.Point, matchPolicy=QPageSize.ExactMatch)
 
 
 def get_page_size(opts, for_comic=False):
@@ -68,7 +68,7 @@ def get_page_size(opts, for_comic=False):
                 opts.output_profile.height)
         dpi = opts.output_profile.dpi
         factor = 72.0 / dpi
-        page_size = QPageSize(QSize(factor * w, factor * h), matchPolicy=QPageSize.ExactMatch)
+        page_size = QPageSize(QSizeF(factor * w, factor * h), QPageSize.Point, matchPolicy=QPageSize.ExactMatch)
     else:
         page_size = None
         if opts.custom_size is not None:
