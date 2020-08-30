@@ -633,6 +633,16 @@
     },
 
     {
+        "name": "sgmllib3k",
+        "python": 3,
+        "unix": {
+            "filename": "sgmllib3k-1.0.0.tar.gz",
+            "hash": "sha256:7868fb1c8bfa764c1ac563d3cf369c381d1325d36124933a726f29fcdaa812e9",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "markdown",
         "unix": {
             "filename": "Markdown-3.2.2.tar.gz",
