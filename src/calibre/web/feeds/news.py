@@ -1527,9 +1527,14 @@ class BasicNewsRecipe(Recipe):
                             play_order=po, author=auth,
                             description=desc, toc_thumbnail=tt)
                     for entry in a.internal_toc_entries:
-                        self.play_order_counter += 1
-                        po += 1
-                        article_toc_entry.add_item(arelpath, entry['anchor'], entry['title'], play_order=po)
+                        anchor = entry.get('anchor')
+                        if anchor:
+                            self.play_order_counter += 1
+                            po += 1
+                            article_toc_entry.add_item(
+                                arelpath, entry['anchor'], entry['title'] or _('Unknown section'),
+                                play_order=po
+                            )
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
