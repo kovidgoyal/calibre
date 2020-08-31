@@ -527,7 +527,10 @@ class SelectionBar:
         handle = self.dragging_handle
         self.dragging_handle = None
         self.state = WAITING
-        self.update_position(handle)
+        # this is done after the event loop ticks because otherwise if
+        # update_position moves the handle a click event is delivered to the
+        # container, calling container_clicked() and clearing the selection
+        window.setTimeout(self.update_position.bind(None, handle), 0)
 
     def mouseup_on_container(self, ev):
         if self.state is DRAGGING:
