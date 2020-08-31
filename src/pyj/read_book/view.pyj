@@ -53,7 +53,7 @@ add_extra_css(def():
     ans += build_rule(sel + ':hover > .not-arrow', display='none')
     ans += build_rule(sel + ':active > .not-arrow', display='none')
     ans += build_rule(sel + ':hover > .arrow', display='block')
-    ans += build_rule(sel + ':active > .arrow', color=get_color('window-hover-foreground'), display='block', transform='scale(2)')
+    ans += build_rule(sel + ':active > .arrow', display='block', transform='scale(2)')
     return ans
 )
 
