@@ -41,10 +41,13 @@ class TheIndependentNew(BasicNewsRecipe):
     compress_news_images = True
 
     keep_only_tags = [
+        dict(id=['articleHeader', 'main']),
         classes('headline sub-headline breadcrumb author publish-date hero-image body-content'),
     ]
     remove_tags = [
-        classes('inline-related inline-readmore ad-wrapper icon-gallery i-gallery')
+        classes('inline-related inline-readmore ad-wrapper icon-gallery i-gallery article-im-prompt apester-media'
+                ' social-share i-amphtml-replaced-content gallery-btn related'),
+        dict(name='amp-live-list'),
     ]
     remove_attributes = ['style']
 
