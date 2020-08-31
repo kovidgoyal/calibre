@@ -654,10 +654,7 @@ class SelectionBar:
         for h in (self.start_handle, self.end_handle):
             if h.vertical is not self.vertical:
                 h.vertical = self.vertical
-                if self.vertical:
-                    change_icon_image(h, 'selection-handle-vertical')
-                else:
-                    change_icon_image(h, 'selection-handle')
+                change_icon_image(h, 'selection-handle-vertical' if h.vertical else 'selection-handle')
 
         self.show()
         self.bar.style.display = self.start_handle.style.display = self.end_handle.style.display = 'block'
@@ -720,12 +717,12 @@ class SelectionBar:
         # Cap this to prevent very large handles when selecting images.
         selection_size = min(60, selection_size)
 
-        if not self.vertical:
-            height = selection_size * 2
-            width = int(height * 2 / 3)
-        else:
+        if self.vertical:
             width = selection_size * 2
             height = int(width * 2 / 3)
+        else:
+            height = selection_size * 2
+            width = int(height * 2 / 3)
 
         s.width = f'{width}px'
         s.height = f'{height}px'
@@ -778,10 +775,10 @@ class SelectionBar:
                 s.transform = f'scaleX(-1)'
 
     def position_handles(self, start_handle, end_handle, start, end):
-        if not self.vertical:
-            selection_size = max(start.height, end.height)
-        else:
+        if self.vertical:
             selection_size = max(start.width, end.width)
+        else:
+            selection_size = max(start.height, end.height)
         self.place_single_handle(selection_size, start_handle, start, True)
         self.place_single_handle(selection_size, end_handle, end, False)
 
