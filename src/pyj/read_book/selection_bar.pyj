@@ -32,9 +32,11 @@ def map_boundaries(cs, vertical, rtl):
     margins = get_margins()
 
     def map_boundary(b):
-        x_offset = 0
-        y_offset = 0
-        if not vertical:
+        x_offset = y_offset = 0
+        if vertical:
+            if b.selected_prev:
+                y_offset = b.height
+        else:
             if rtl:
                 # Horizontal RTL
                 if not b.selected_prev:
@@ -43,10 +45,6 @@ def map_boundaries(cs, vertical, rtl):
                 # Horizontal LTR
                 if b.selected_prev:
                     x_offset = b.width
-        else:
-            # Vertical:
-            if b.selected_prev:
-                y_offset = b.height
 
         return {'x': (b.x or 0) + x_offset + margins.left, 'y': (b.y or 0) + y_offset + margins.top, 'height': b.height or 0, 'width': b.width or 0, 'onscreen': b.onscreen}
 
@@ -718,7 +716,7 @@ class SelectionBar:
         s.display = 'block' if boundary.onscreen else 'none'
 
         # Cap this to prevent very large handles when selecting images.
-        selection_size = min(60, selection_size)
+        selection_size = max(10, min(selection_size, 60))
 
         if self.vertical:
             width = selection_size * 2
@@ -734,48 +732,52 @@ class SelectionBar:
             bottom = boundary.y + boundary.height
             top = bottom - height
             s.top = f'{top}px'
-            # Horizontal, start, LTR
-            if is_start and self.ltr:
-                s.left = (boundary.x - width) + 'px'
-                self.start_line_length = selection_size
-            # Horizontal, start, RTL
-            else if is_start:
-                s.left = (boundary.x) + 'px'
-                self.start_line_length = selection_size
-                s.transform = 'scaleX(-1)'
-            # Horizontal, end, LTR
-            else if self.ltr:
-                s.left = boundary.x + 'px'
-                self.end_line_length = selection_size
-                s.transform = 'scaleX(-1)'
-            # Horizontal, end, RTL
+            if is_start:
+                # Horizontal, start, LTR
+                if self.ltr:
+                    s.left = (boundary.x - width) + 'px'
+                    self.start_line_length = selection_size
+                # Horizontal, start, RTL
+                else:
+                    s.left = (boundary.x) + 'px'
+                    self.start_line_length = selection_size
+                    s.transform = 'scaleX(-1)'
             else:
-                s.left = (boundary.x - width) + 'px'
-                self.end_line_length = selection_size
+                # Horizontal, end, LTR
+                if self.ltr:
+                    s.left = boundary.x + 'px'
+                    self.end_line_length = selection_size
+                    s.transform = 'scaleX(-1)'
+                # Horizontal, end, RTL
+                else:
+                    s.left = (boundary.x - width) + 'px'
+                    self.end_line_length = selection_size
         else:
-            # Vertical, start, RTL
-            if is_start and self.rtl:
-                s.top = boundary.y - height + 'px'
-                s.left = boundary.x + 'px'
-                self.start_line_length = selection_size
-                s.transform = f'scaleX(-1) scaleY(-1)'
-            # Vertical, start, LTR
-            else if is_start:
-                s.top = boundary.y - height + 'px'
-                s.left = boundary.x - width + boundary.width + 'px'
-                self.start_line_length = selection_size
-                s.transform = f'scaleY(-1)'
-            # Vertical, end, RTL
-            else if self.rtl:
-                s.top = boundary.y + 'px'
-                s.left = boundary.x - width + boundary.width + 'px'
-                self.end_line_length = selection_size
-            # Vertical, end, LTR
+            if is_start:
+                # Vertical, start, RTL
+                if self.rtl:
+                    s.top = boundary.y - height + 'px'
+                    s.left = boundary.x + 'px'
+                    self.start_line_length = selection_size
+                    s.transform = 'scaleX(-1) scaleY(-1)'
+                # Vertical, start, LTR
+                else:
+                    s.top = boundary.y - height + 'px'
+                    s.left = boundary.x - width + boundary.width + 'px'
+                    self.start_line_length = selection_size
+                    s.transform = 'scaleY(-1)'
             else:
-                s.top = boundary.y + 'px'
-                s.left = boundary.x + 'px'
-                self.end_line_length = selection_size
-                s.transform = f'scaleX(-1)'
+                # Vertical, end, RTL
+                if self.rtl:
+                    s.top = boundary.y + 'px'
+                    s.left = boundary.x - width + boundary.width + 'px'
+                    self.end_line_length = selection_size
+                # Vertical, end, LTR
+                else:
+                    s.top = boundary.y + 'px'
+                    s.left = boundary.x + 'px'
+                    self.end_line_length = selection_size
+                    s.transform = 'scaleX(-1)'
 
     def position_handles(self, start_handle, end_handle, start, end):
         if self.vertical:
