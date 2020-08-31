@@ -35,13 +35,13 @@ def map_boundaries(cs, vertical, rtl):
         x_offset = 0
         y_offset = 0
         if not vertical:
-            # Horizontal LTR
-            if not rtl:
-                if b.selected_prev:
-                    x_offset = b.width
-            # Horizontal RTL
-            else:
+            if rtl:
+                # Horizontal RTL
                 if not b.selected_prev:
+                    x_offset = b.width
+            else:
+                # Horizontal LTR
+                if b.selected_prev:
                     x_offset = b.width
         else:
             # Vertical:
@@ -642,7 +642,7 @@ class SelectionBar:
         self.end_handle.style.display = 'none'
         self.editor.style.display = 'none'
 
-        if not cs or cs.empty or jstype(cs.drag_mouse_position.x) is 'number' or cs.selection_change_caused_by_search:
+        if not cs or cs.empty or jstype(cs.drag_mouse_position?.x) is 'number' or cs.selection_change_caused_by_search:
             return self.hide()
 
         if not cs.start.onscreen and not cs.end.onscreen:
@@ -719,7 +719,7 @@ class SelectionBar:
 
         # Cap this to prevent very large handles when selecting images.
         selection_size = min(60, selection_size)
-        
+
         if not self.vertical:
             height = selection_size * 2
             width = int(height * 2 / 3)
