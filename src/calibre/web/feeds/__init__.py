@@ -34,6 +34,7 @@ class Article(object):
         self.url = url
         self.author = author
         self.toc_thumbnail = None
+        self.internal_toc_entries = ()
         if author and not isinstance(author, unicode_type):
             author = author.decode('utf-8', 'replace')
         if summary and not isinstance(summary, unicode_type):

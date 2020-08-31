@@ -1522,10 +1522,14 @@ class BasicNewsRecipe(Recipe):
                     arelpath = '%sindex.html'%adir
                     for curl in self.canonicalize_internal_url(a.orig_url, is_link=False):
                         aumap[curl].add(arelpath)
-                    parent.add_item(arelpath, None,
+                    article_toc_entry = parent.add_item(arelpath, None,
                             a.title if a.title else _('Untitled article'),
                             play_order=po, author=auth,
                             description=desc, toc_thumbnail=tt)
+                    for entry in a.internal_toc_entries:
+                        self.play_order_counter += 1
+                        po += 1
+                        article_toc_entry.add_item(arelpath, entry['anchor'], entry['title'], play_order=po)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
