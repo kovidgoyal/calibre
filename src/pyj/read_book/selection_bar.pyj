@@ -8,7 +8,7 @@ from uuid import short_uuid
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
-from dom import clear, svgicon, unique_id
+from dom import change_icon_image, clear, svgicon, unique_id
 from modals import error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import (
@@ -28,11 +28,27 @@ def get_margins():
     }
 
 
-def map_boundaries(cs):
+def map_boundaries(cs, vertical, rtl):
     margins = get_margins()
 
-    def map_boundary(x):
-        return {'x': (x.x or 0) + margins.left, 'y': (x.y or 0) + margins.top, 'height': x.height or 0, 'onscreen': x.onscreen}
+    def map_boundary(b):
+        x_offset = 0
+        y_offset = 0
+        if not vertical:
+            # Horizontal LTR
+            if not rtl:
+                if b.selected_prev:
+                    x_offset = b.width
+            # Horizontal RTL
+            else:
+                if not b.selected_prev:
+                    x_offset = b.width
+        else:
+            # Vertical:
+            if b.selected_prev:
+                y_offset = b.height
+
+        return {'x': (b.x or 0) + x_offset + margins.left, 'y': (b.y or 0) + y_offset + margins.top, 'height': b.height or 0, 'width': b.width or 0, 'onscreen': b.onscreen}
 
     return map_boundary(cs.start), map_boundary(cs.end)
 
@@ -182,11 +198,9 @@ def all_actions():
     return all_actions.ans
 
 
-def selection_handle(is_left):
+def selection_handle():
     ans = svgicon('selection-handle')
     s = ans.style
-    if not is_left:
-        s.transform = 'scaleX(-1)'
     s.position = 'absolute'
     s.boxSizing = 'border-box'
     s.touchAction = 'none'
@@ -217,10 +231,14 @@ class SelectionBar:
         self.current_highlight_style = HighlightStyle(get_session_data().get('highlight_style'))
         self.current_notes = ''
         self.state = HIDDEN
-        self.left_handle_id = unique_id('handle')
-        self.right_handle_id = unique_id('handle')
+        self.start_handle_id = unique_id('handle')
+        self.end_handle_id = unique_id('handle')
         self.bar_id = unique_id('bar')
         self.editor_id = unique_id('editor')
+        # Sensible defaults until we get information from a selection message.
+        self.ltr = True
+        self.rtl = False
+        self.vertical = False
         container = self.container
         container.style.overflow = 'hidden'
         container.addEventListener('click', self.container_clicked, {'passive': False})
@@ -237,14 +255,14 @@ class SelectionBar:
         self.active_touch = None
         self.drag_scroll_timer = None
         self.last_drag_scroll_at = None
-        self.left_line_height = self.right_line_height = 0
+        self.start_line_length = self.end_line_length = 0
         self.current_editor = None
 
-        left_handle = selection_handle(True)
-        left_handle.id = self.left_handle_id
-        right_handle = selection_handle(False)
-        right_handle.id = self.right_handle_id
-        for h in (left_handle, right_handle):
+        start_handle = selection_handle()
+        start_handle.id = self.start_handle_id
+        end_handle = selection_handle()
+        end_handle.id = self.end_handle_id
+        for h in (start_handle, end_handle):
             h.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
             h.addEventListener('touchstart', self.touchstart_on_handle, {'passive': False})
             container.appendChild(h)
@@ -263,7 +281,7 @@ class SelectionBar:
     def set_handle_colors(self):
         handle_fill = get_color('window-background')
         fg = self.view.current_color_scheme.foreground
-        for h in (self.left_handle, self.right_handle):
+        for h in (self.start_handle, self.end_handle):
             set_handle_color(h, handle_fill, fg)
 
     def build_bar(self, annot_id):
@@ -357,12 +375,12 @@ class SelectionBar:
         return document.getElementById(self.bar_id)
 
     @property
-    def left_handle(self):
-        return document.getElementById(self.left_handle_id)
+    def start_handle(self):
+        return document.getElementById(self.start_handle_id)
 
     @property
-    def right_handle(self):
-        return document.getElementById(self.right_handle_id)
+    def end_handle(self):
+        return document.getElementById(self.end_handle_id)
 
     @property
     def editor(self):
@@ -374,18 +392,58 @@ class SelectionBar:
 
     @property
     def current_handle_position(self):
-        lh, rh = self.left_handle, self.right_handle
-        lbr, rbr = lh.getBoundingClientRect(), rh.getBoundingClientRect()
-        return {
-            'start': {
-                'onscreen': lh.style.display is not 'none',
-                'x': Math.round(lbr.right), 'y': Math.round(lbr.bottom - self.left_line_height // 2)
-            },
-            'end': {
-                'onscreen': rh.style.display is not 'none',
-                'x': Math.round(rbr.left), 'y': Math.round(rbr.bottom - self.right_line_height // 2)
+        sh, eh = self.start_handle, self.end_handle
+        sbr, ebr = sh.getBoundingClientRect(), eh.getBoundingClientRect()
+
+        if not self.vertical:
+            # Horizontal LTR (i.e. English)
+            if not self.rtl:
+                return {
+                    'start': {
+                        'onscreen': sh.style.display is not 'none',
+                        'x': Math.round(sbr.right), 'y': Math.round(sbr.bottom - self.start_line_length // 2)
+                    },
+                    'end': {
+                        'onscreen': eh.style.display is not 'none',
+                        'x': Math.round(ebr.left), 'y': Math.round(ebr.bottom - self.end_line_length // 2)
+                    }
+                }
+            # Horizontal RTL (i.e. Hebrew, Arabic)
+            else:
+                return {
+                    'start': {
+                        'onscreen': sh.style.display is not 'none',
+                        'x': Math.round(sbr.left), 'y': Math.round(sbr.bottom - self.start_line_length // 2)
+                    },
+                    'end': {
+                        'onscreen': eh.style.display is not 'none',
+                        'x': Math.round(ebr.right), 'y': Math.round(ebr.bottom - self.end_line_length // 2)
+                    }
+                }
+        # Vertical RTL (i.e. Traditional Chinese, Japanese)
+        else if self.rtl:
+            return {
+                'start': {
+                    'onscreen': sh.style.display is not 'none',
+                    'x': Math.round(sbr.left + self.start_line_length // 2), 'y': Math.round(sbr.bottom)
+                },
+                'end': {
+                    'onscreen': eh.style.display is not 'none',
+                    'x': Math.round(ebr.right - self.end_line_length // 2), 'y': Math.round(ebr.top)
+                }
             }
-        }
+        # Vertical LTR (i.e. Mongolian)
+        else:
+            return {
+                'start': {
+                    'onscreen': sh.style.display is not 'none',
+                    'x': Math.round(sbr.right - self.end_line_length // 2), 'y': Math.round(sbr.bottom)
+                },
+                'end': {
+                    'onscreen': eh.style.display is not 'none',
+                    'x': Math.round(ebr.left + self.start_line_length // 2), 'y': Math.round(ebr.top)
+                }
+            }
 
     # }}}
 
@@ -419,7 +477,7 @@ class SelectionBar:
             if self.last_double_click_at and now - self.last_double_click_at < 500:
                 self.send_message('extend-to-paragraph')
                 return
-            for x in (self.bar, self.left_handle, self.right_handle):
+            for x in (self.bar, self.start_handle, self.end_handle):
                 if near_element(x, ev.clientX, ev.clientY):
                     return
         self.clear_selection()
@@ -446,7 +504,7 @@ class SelectionBar:
         s.top = (ev.clientY - self.position_in_handle.y) + 'px'
         margins = get_margins()
         pos = self.current_handle_position
-        if self.dragging_handle is self.left_handle_id:
+        if self.dragging_handle is self.start_handle_id:
             start = True
             position = map_to_iframe_coords(pos.start, margins)
         else:
@@ -524,10 +582,10 @@ class SelectionBar:
         if self.last_drag_scroll_at is None:
             # dont jump a page immediately in paged mode
             if in_flow_mode:
-                self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.left_handle_id else 'right', True)
+                self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.start_handle_id else 'right', True)
             self.last_drag_scroll_at = now
         elif now - self.last_drag_scroll_at > interval:
-            self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.left_handle_id else 'right', True)
+            self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.start_handle_id else 'right', True)
             self.last_drag_scroll_at = now
 
     def send_drag_scroll_message(self, backwards, handle, extend_selection):
@@ -575,13 +633,13 @@ class SelectionBar:
             self.position_undragged_handle()
             return
         if self.state is EDITING:
-            self.left_handle.style.display = 'none'
-            self.right_handle.style.display = 'none'
+            self.start_handle.style.display = 'none'
+            self.end_handle.style.display = 'none'
             self.show()
             self.place_editor()
             return
-        self.left_handle.style.display = 'none'
-        self.right_handle.style.display = 'none'
+        self.start_handle.style.display = 'none'
+        self.end_handle.style.display = 'none'
         self.editor.style.display = 'none'
 
         if not cs or cs.empty or jstype(cs.drag_mouse_position.x) is 'number' or cs.selection_change_caused_by_search:
@@ -590,9 +648,20 @@ class SelectionBar:
         if not cs.start.onscreen and not cs.end.onscreen:
             return self.hide()
 
+        self.rtl = cs.rtl
+        self.ltr = not self.rtl
+        self.vertical = cs.vertical
+        for h in (self.start_handle, self.end_handle):
+            if h.vertical is not self.vertical:
+                h.vertical = self.vertical
+                if self.vertical:
+                    change_icon_image(h, 'selection-handle-vertical')
+                else:
+                    change_icon_image(h, 'selection-handle')
+
         self.show()
-        self.bar.style.display = self.left_handle.style.display = self.right_handle.style.display = 'block'
-        start, end = map_boundaries(cs)
+        self.bar.style.display = self.start_handle.style.display = self.end_handle.style.display = 'block'
+        start, end = map_boundaries(cs, self.vertical, self.rtl)
         bar = self.build_bar(cs.annot_id)
         bar_height = bar.offsetHeight
         bar_width = bar.offsetWidth
@@ -602,8 +671,8 @@ class SelectionBar:
             # - 10 ensures we dont cover scroll bar
             'left': buffer, 'right': container.offsetWidth - bar_width - buffer - 10
         }
-        left_handle, right_handle = self.left_handle, self.right_handle
-        self.position_handles(left_handle, right_handle, start, end)
+        start_handle, end_handle = self.start_handle, self.end_handle
+        self.position_handles(start_handle, end_handle, start, end)
 
         def place_vertically(pos, put_below):
             if put_below:
@@ -617,7 +686,7 @@ class SelectionBar:
 
         # We try to place the bar near the last dragged handle so it shows up
         # close to current mouse position. We assume it is the "end" handle.
-        if dragged_handle and dragged_handle is not self.right_handle_id:
+        if dragged_handle and dragged_handle is not self.end_handle_id:
             start, end = end, start
         if not end.onscreen and start.onscreen:
             start, end = end, start
@@ -636,54 +705,107 @@ class SelectionBar:
         left = end.x - bar_width // 2
         left = max(limits.left, min(left, limits.right))
         bar.style.left = left + 'px'
-        lh, rh = left_handle.getBoundingClientRect(), right_handle.getBoundingClientRect()
-        changed = position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, container.offsetWidth - 10, container.offsetHeight, buffer)
+        sh, eh = start_handle.getBoundingClientRect(), end_handle.getBoundingClientRect()
+        changed = position_bar_avoiding_handles(sh, eh, left, top, bar_width, bar_height, container.offsetWidth - 10, container.offsetHeight, buffer)
         if changed:
             if changed.top?:
                 place_vertically(changed.top, changed.put_below)
             if changed.left?:
                 bar.style.left = changed.left + 'px'
 
-    def place_single_handle(self, handle_height, handle, boundary, is_left):
+    def place_single_handle(self, selection_size, handle, boundary, is_start):
         s = handle.style
         s.display = 'block' if boundary.onscreen else 'none'
-        height = handle_height * 2
-        width = int(height * 2 / 3)
+
+        # Cap this to prevent very large handles when selecting images.
+        selection_size = min(60, selection_size)
+        
+        if not self.vertical:
+            height = selection_size * 2
+            width = int(height * 2 / 3)
+        else:
+            width = selection_size * 2
+            height = int(width * 2 / 3)
+
         s.width = f'{width}px'
         s.height = f'{height}px'
-        bottom = boundary.y + boundary.height
-        top = bottom - height
-        s.top = f'{top}px'
-        if is_left:
-            s.left = (boundary.x - width) + 'px'
-            self.left_line_height = boundary.height
+        s.transform = 'none'
+        if not self.vertical:
+            bottom = boundary.y + boundary.height
+            top = bottom - height
+            s.top = f'{top}px'
+            # Horizontal, start, LTR
+            if is_start and self.ltr:
+                s.left = (boundary.x - width) + 'px'
+                self.start_line_length = selection_size
+            # Horizontal, start, RTL
+            else if is_start:
+                s.left = (boundary.x) + 'px'
+                self.start_line_length = selection_size
+                s.transform = 'scaleX(-1)'
+            # Horizontal, end, LTR
+            else if self.ltr:
+                s.left = boundary.x + 'px'
+                self.end_line_length = selection_size
+                s.transform = 'scaleX(-1)'
+            # Horizontal, end, RTL
+            else:
+                s.left = (boundary.x - width) + 'px'
+                self.end_line_length = selection_size
         else:
-            s.left = boundary.x + 'px'
-            self.right_line_height = boundary.height
+            # Vertical, start, RTL
+            if is_start and self.rtl:
+                s.top = boundary.y - height + 'px'
+                s.left = boundary.x + 'px'
+                self.start_line_length = selection_size
+                s.transform = f'scaleX(-1) scaleY(-1)'
+            # Vertical, start, LTR
+            else if is_start:
+                s.top = boundary.y - height + 'px'
+                s.left = boundary.x - width + boundary.width + 'px'
+                self.start_line_length = selection_size
+                s.transform = f'scaleY(-1)'
+            # Vertical, end, RTL
+            else if self.rtl:
+                s.top = boundary.y + 'px'
+                s.left = boundary.x - width + boundary.width + 'px'
+                self.end_line_length = selection_size
+            # Vertical, end, LTR
+            else:
+                s.top = boundary.y + 'px'
+                s.left = boundary.x + 'px'
+                self.end_line_length = selection_size
+                s.transform = f'scaleX(-1)'
 
-    def position_handles(self, left_handle, right_handle, start, end):
-        handle_height = max(start.height, end.height)
-        self.place_single_handle(handle_height, left_handle, start, True)
-        self.place_single_handle(handle_height, right_handle, end, False)
+    def position_handles(self, start_handle, end_handle, start, end):
+        if not self.vertical:
+            selection_size = max(start.height, end.height)
+        else:
+            selection_size = max(start.width, end.width)
+        self.place_single_handle(selection_size, start_handle, start, True)
+        self.place_single_handle(selection_size, end_handle, end, False)
 
     def position_undragged_handle(self):
         cs = self.view.currently_showing.selection
-        start, end = map_boundaries(cs)
-        handle_height = max(start.height, end.height)
-        if self.dragging_handle is self.left_handle_id:
-            handle = self.right_handle
-            boundary = end
-            is_left = False
+        start, end = map_boundaries(cs, self.vertical, self.rtl)
+        if not self.vertical:
+            selection_size = max(start.height, end.height)
         else:
-            handle = self.left_handle
+            selection_size = max(start.width, end.width)
+        if self.dragging_handle is self.start_handle_id:
+            handle = self.end_handle
+            boundary = end
+            is_start = False
+        else:
+            handle = self.start_handle
             boundary = start
-            is_left = True
-        self.place_single_handle(handle_height, handle, boundary, is_left)
+            is_start = True
+        self.place_single_handle(selection_size, handle, boundary, is_start)
     # }}}
 
     # Editor {{{
     def show_editor(self, highlight_style, notes):
-        for x in (self.bar, self.left_handle, self.right_handle):
+        for x in (self.bar, self.start_handle, self.end_handle):
             x.style.display = 'none'
         container = self.editor
         clear(container)
@@ -699,7 +821,7 @@ class SelectionBar:
             return
         ed = self.editor
         cs = self.view.currently_showing.selection
-        start, end = map_boundaries(cs)
+        start, end = map_boundaries(cs, self.vertical, self.rtl)
         if not start.onscreen and not end.onscreen:
             return
         width, height = ed.offsetWidth, ed.offsetHeight

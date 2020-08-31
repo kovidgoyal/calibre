@@ -44,10 +44,32 @@ def word_at_point(x, y):
 
 def empty_range_extents():
     return {
-        'start': {'x': 0, 'y': 0, 'height': 0, 'onscreen': False, 'is_empty': True},
-        'end':   {'x': 0, 'y': 0, 'height': 0, 'onscreen': False, 'is_empty': True}
+        'start': {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False},
+        'end':   {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False}
     }
 
+# Returns a node that we know will produce a reasonable bounding box closest to the start or end
+# of the DOM tree from the specified node.
+# Currently: BR, IMG, and text nodes.
+# This a depth first traversal, with the modification that if a node is reached that meets the criteria,
+# the traversal stops, because higher nodes in the DOM tree always have larger bounds than their children.
+def get_selection_node_at_boundary(node, start):
+    stack = []
+    stack.push({'node': node, 'visited': False})
+    while stack.length > 0:
+        top = stack[-1]
+        # If the top node is a target type, we know that no nodes below it can be more to the start or end
+        # than it, so return it immediately.
+        if top.node.nodeType is Node.TEXT_NODE or top.node.nodeName.upper() == 'IMG' or top.node.nodeName.upper() == 'BR':
+            return top.node
+        # Otherwise, depth-first traversal.
+        else if top.visited:
+            stack.pop()
+        else:
+            top.visited = True
+            for c in top.node.childNodes if start else reversed(top.node.childNodes):
+                stack.push({'node': c, 'visited': False})
+    return None
 
 def range_extents(q, in_flow_mode):
     ans = empty_range_extents()
@@ -55,21 +77,40 @@ def range_extents(q, in_flow_mode):
         return ans
     start = q.cloneRange()
     end = q.cloneRange()
-    start.collapse(True)
-    end.collapse(False)
 
-    def for_boundary(r, ans):
+    def rect_onscreen(r):
+        if r.right <= window.innerWidth and r.bottom <= window.innerHeight and r.left >= 0 and r.top >= 0:
+            return True
+        return False
+
+    def for_boundary(r, ans, is_start):
         rect = r.getBoundingClientRect()
-        if rect.height is 0:
+        if rect.height is 0 and rect.width is 0:
             # this tends to happen when moving the mouse downwards
             # at the boundary between paragraphs
             if r.startContainer?.nodeType is Node.ELEMENT_NODE:
                 node = r.startContainer
                 if r.startOffset and node.childNodes.length > r.startOffset:
                     node = node.childNodes[r.startOffset]
+
+                boundary_node = get_selection_node_at_boundary(node, is_start)
+                # If we found a node that will produce a reasonable bounding box at a boundary, use it:
+                if boundary_node:
+                    if boundary_node.nodeType is Node.TEXT_NODE:
+                        if is_start:
+                            r.setStart(boundary_node, boundary_node.length - 1)
+                            r.setEnd(boundary_node, boundary_node.length)
+                        else:
+                            r.setStart(boundary_node, 0)
+                            r.setEnd(boundary_node, 1)
+                        rect = r.getBoundingClientRect()
+                    else:
+                        rect = boundary_node.getBoundingClientRect()
+                        if not is_start:
+                            ans.selected_prev = True
                 # we cant use getBoundingClientRect as the node might be split
                 # among multiple columns
-                if node.getClientRects:
+                else if node.getClientRects:
                     rects = node.getClientRects()
                     if rects.length:
                         erect = rects[0]
@@ -77,13 +118,61 @@ def range_extents(q, in_flow_mode):
         ans.x = Math.round(rect.left)
         ans.y = Math.round(rect.top)
         ans.height = rect.height
-        if rect.right <= window.innerWidth and rect.bottom <= window.innerHeight and rect.left >= 0 and rect.top >= 0:
-            ans.onscreen = True
+        ans.width = rect.width
+        ans.onscreen = rect_onscreen(rect)
 
-    for_boundary(start, ans.start)
-    for_boundary(end, ans.end)
-    ans.start.is_empty = ans.start.height <= 0
-    ans.end.is_empty = ans.end.height <= 0
+    if q.startContainer.nodeType is Node.ELEMENT_NODE:
+        start.collapse(True)
+        for_boundary(start, ans.start, True)
+    else if q.startOffset is 0 and q.startContainer.length is 0:
+        start.collapse(True)
+        for_boundary(start, ans.start, True)
+    else if q.startOffset == q.startContainer.length:
+        start.setStart(q.startContainer, q.startOffset - 1)
+        start.setEnd(q.startContainer, q.startOffset)
+        rect = start.getBoundingClientRect()
+        ans.start.x = rect.left
+        ans.start.y = rect.top
+        ans.start.height = rect.height
+        ans.start.width = rect.width
+        ans.start.selected_prev = True
+        ans.start.onscreen = rect_onscreen(rect)
+    else:
+        start.setStart(q.startContainer, q.startOffset)
+        start.setEnd(q.startContainer, q.startOffset + 1)
+        rect = start.getBoundingClientRect()
+        ans.start.x = rect.left
+        ans.start.y = rect.top
+        ans.start.height = rect.height
+        ans.start.width = rect.width
+        ans.start.onscreen = rect_onscreen(rect)
+
+    if q.endContainer.nodeType is Node.ELEMENT_NODE:
+        end.collapse(False)
+        for_boundary(end, ans.end, False)
+    else if q.endOffset is 0 and q.endContainer.length is 0:
+        end.collapse(False)
+        for_boundary(end, ans.end, False)
+    else if q.endOffset is q.endContainer.length:
+        end.setStart(q.endContainer, q.endOffset - 1)
+        end.setEnd(q.endContainer, q.endOffset)
+        rect = end.getBoundingClientRect()
+        ans.end.x = rect.left
+        ans.end.y = rect.top
+        ans.end.height = rect.height
+        ans.end.width = rect.width
+        ans.end.selected_prev = True
+        ans.end.onscreen = rect_onscreen(rect)
+    else:
+        end.setStart(q.endContainer, q.endOffset)
+        end.setEnd(q.endContainer, q.endOffset + 1)
+        rect = end.getBoundingClientRect()
+        ans.end.x = rect.left
+        ans.end.y = rect.top
+        ans.end.height = rect.height
+        ans.end.width = rect.width
+        ans.end.onscreen = rect_onscreen(rect)
+        
     if ans.end.height is 2 and ans.start.height > 2:
         ans.end.height = ans.start.height
     if ans.start.height is 2 and ans.end.height > 2:

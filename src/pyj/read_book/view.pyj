@@ -543,7 +543,8 @@ class View:
             'text': data.text, 'empty': data.empty, 'start': data.selection_extents.start,
             'end': data.selection_extents.end, 'annot_id': data.annot_id,
             'drag_mouse_position': data.drag_mouse_position,
-            'selection_change_caused_by_search': data.selection_change_caused_by_search
+            'selection_change_caused_by_search': data.selection_change_caused_by_search,
+            'rtl': data.rtl, 'vertical': data.vertical
         }
         if ui_operations.selection_changed:
             ui_operations.selection_changed(self.currently_showing.selection.text, self.currently_showing.selection.annot_id)
