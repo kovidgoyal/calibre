@@ -1060,7 +1060,6 @@ class Application(QApplication):
             prints('Using calibre Qt style:', self.using_calibre_style)
         if self.using_calibre_style:
             self.load_calibre_style()
-            self.setStyleSheet('QTabBar::tab:selected { font-style: italic }')
         self.paletteChanged.connect(self.on_palette_change)
         self.on_palette_change()
 
@@ -1095,6 +1094,11 @@ class Application(QApplication):
         self.setProperty('is_dark_theme', self.is_dark_theme)
         if isosx and self.is_dark_theme:
             self.fix_dark_theme_colors()
+        if self.using_calibre_style:
+            ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
+            if self.is_dark_theme:
+                ss += 'QMenu { border: 1px solid palette(shadow); }'
+            self.setStyleSheet(ss)
         self.palette_changed.emit()
 
     def stylesheet_for_line_edit(self, is_error=False):
