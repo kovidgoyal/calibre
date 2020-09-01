@@ -928,7 +928,7 @@ Custom page margins for individual HTML files
 If you are converting an EPUB or AZW3 file with multiple individual HTML files
 inside it and you want to change the page margins for a particular HTML file
 you can add the following style block to the HTML file using the calibre
-editor:
+E-book editor:
 
 .. code-block:: html
 

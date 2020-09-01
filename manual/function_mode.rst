@@ -408,4 +408,4 @@ More examples
 ----------------
 
 More useful examples, contributed by calibre users, can be found in the
-`calibre Editor forum <https://www.mobileread.com/forums/showthread.php?t=237181>`_.
+`calibre E-book editor forum <https://www.mobileread.com/forums/showthread.php?t=237181>`_.

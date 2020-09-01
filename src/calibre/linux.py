@@ -1151,7 +1151,7 @@ def get_appdata():
             'name':'calibre - E-book Editor',
             'summary':_('Edit the text and styles inside e-books'),
             'description':(
-                _('The calibre e-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
+                _('The calibre E-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
                 _('It can edit books in both the EPUB and AZW3 (kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'),  # noqa
             ),
             'screenshots':(

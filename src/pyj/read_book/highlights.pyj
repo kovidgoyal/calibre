@@ -649,7 +649,7 @@ def highlight_entry(h, onclick, view):
         E.div(class_='title', h.highlighted_text),
         E.div(
             class_='actions',
-            button(_('Show in text'), action.bind(None, show_in_text.bind(None, h.uuid))),
+            button(_('Show in book'), action.bind(None, show_in_text.bind(None, h.uuid))),
             E.span('\xa0'),
             button(_('Edit notes'), edit_notes.bind(None, h.uuid, h.notes, view)),
             E.span('\xa0'),

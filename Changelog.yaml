@@ -1238,7 +1238,7 @@
     - title: "LIT Output: Fix regression in 3.41 caused by py3 porting that broke conversion of some files to LIT."
       tickets: [1837561]
 
-    - title: "Version 3.47.1 fixes an error when using internet lookup from the book details panel and the e-book viewer, and also the tweak to control number of columns in the edit metadata dialog not working"
+    - title: "Version 3.47.1 fixes an error when using internet lookup from the book details panel and the E-book viewer, and also the tweak to control number of columns in the edit metadata dialog not working"
       tickets: [1842158,1842183,1842090,1842201]
 
   improved recipes:
@@ -1862,7 +1862,7 @@ to appear as Unknown if metadata management was set to manual in calibre."
     - title: "Edit book: Insert image dialog: Add buttons to change the image thumbnail size."
       tickets: [1791428]
 
-    - title: "Book details panel: Allow right clicking on a format to open it in the calibre editor"
+    - title: "Book details panel: Allow right clicking on a format to open it in the calibre E-book editor"
 
     - title: "Edit metadata dialog: Allow viewing or editing specific formats by right clicking the format in the formats list"
 
