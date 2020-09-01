@@ -555,7 +555,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
         self.generate_cover_settings = None
-        self.button_config_cover_gen.setVisible(False)
         self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
         self.exec_()
 
