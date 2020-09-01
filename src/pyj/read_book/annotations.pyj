@@ -237,7 +237,7 @@ class AnnotationsManager:  # {{{
             x = 2 * (spine_index + 1)
             return f'epubcfi(/{x}{h.start_cfi})'
 
-    def add_highlight(self, msg, style, notes):
+    def add_highlight(self, msg, style, notes, toplevel_toc_node, toc_node):
         now = Date().toISOString()
         for uuid in msg.removed_highlights:
             self.remove_highlight(uuid)
@@ -255,6 +255,10 @@ class AnnotationsManager:  # {{{
         }
         if notes:
             annot.notes = notes
+        if toplevel_toc_node?.title:
+            annot.top_level_section_title = toplevel_toc_node.title
+        if toc_node?.title:
+            annot.lowest_level_section_title = toc_node.title
         self.sync_annots_to_server('highlights')
 
     def highlights_for_currently_showing(self):
