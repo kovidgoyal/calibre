@@ -740,7 +740,7 @@
     - title: "Viewer: Allow modifying the current selection using Ctrl+Shift+Arrow."
       tickets: [1855942]
 
-    - title: "Book details: Add an option in Preferences->Look & feel->Book details to show a heading for the comments in the book details panel"
+    - title: "Book details: Add an option in Preferences->Look & feel->Book details to show a heading for the comments in the Book details panel"
       tickets: [1855942]
 
     - title: "Edit book: Spell check: Ignore soft hyphens in words"
