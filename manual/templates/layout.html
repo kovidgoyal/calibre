@@ -13,26 +13,14 @@
       {% if not embedded %}
           <div class="body" role="main">
             <div id="ad-container" style="text-align:center">
-                <script type="text/javascript">
-                    (function(){
-                        var bsa_optimize=document.createElement('script');
-                        bsa_optimize.type='text/javascript';
-                        bsa_optimize.async=true;
-                        bsa_optimize.src='https://cdn4.buysellads.net/pub/calibreebook.js?'+(new Date()-new Date()%600000);
-                        (document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(bsa_optimize);
-                    })();
+                <script async="async" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+                <ins class="adsbygoogle"
+                    style="display:inline-block;width:728px;height:90px"
+                    data-ad-client="ca-pub-5939552585043235"
+                    data-ad-slot="7580893187"></ins>
+                <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
                 </script>
-
-                <!-- Calibre_S2S_Leaderboard_ATF -->
-                <div id="bsa-zone_1596473490701-2_123456"></div>
-                <!-- <script async="async" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script> -->
-                <!-- <ins class="adsbygoogle" -->
-                <!--     style="display:inline&#45;block;width:728px;height:90px" -->
-                <!--     data&#45;ad&#45;client="ca&#45;pub&#45;5939552585043235" -->
-                <!--     data&#45;ad&#45;slot="7580893187"></ins> -->
-                <!-- <script> -->
-                <!-- (adsbygoogle = window.adsbygoogle || []).push({}); -->
-                <!-- </script> -->
             </div>
         {% endif %}
             {% block body %} {% endblock %}
