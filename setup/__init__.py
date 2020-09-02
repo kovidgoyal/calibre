@@ -75,7 +75,7 @@ def build_cache_dir():
 
 def require_git_master(branch='master'):
     if subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD']).strip() != branch:
-        raise SystemExit('You must be in the {} got branch'.format(branch))
+        raise SystemExit('You must be in the {} git branch'.format(branch))
 
 
 def require_clean_git():
