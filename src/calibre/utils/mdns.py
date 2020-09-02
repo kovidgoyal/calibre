@@ -148,7 +148,7 @@ def create_service(desc, service_type, port, properties, add_hostname, use_ip_ad
 
     return ServiceInfo(
         service_type, service_name,
-        address=socket.inet_aton(local_ip),
+        addresses=[socket.inet_aton(local_ip),],
         port=port,
         properties=properties,
         server=server_name)
