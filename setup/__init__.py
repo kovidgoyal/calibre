@@ -81,15 +81,12 @@ def require_git_master(branch='master'):
 def require_clean_git():
     c = subprocess.check_call
     p = subprocess.Popen
-    with open(os.devnull, 'wb') as null:
-        c('git rev-parse --verify HEAD'.split(), stdout=null)
-        c('git update-index -q --ignore-submodules --refresh'.split())
-        if p('git diff-files --quiet --ignore-submodules'.split()).wait() != 0:
-            print('You have unstaged changes in your working tree', file=sys.stderr)
-            raise SystemExit(1)
-        if p('git diff-index --cached --quiet --ignore-submodules HEAD --'.split()).wait() != 0:
-            print('Your git index contains uncommitted changes', file=sys.stderr)
-            raise SystemExit(1)
+    c('git rev-parse --verify HEAD'.split(), stdout=subprocess.DEVNULL)
+    c('git update-index -q --ignore-submodules --refresh'.split())
+    if p('git diff-files --quiet --ignore-submodules'.split()).wait() != 0:
+        raise SystemExit('You have unstaged changes in your working tree')
+    if p('git diff-index --cached --quiet --ignore-submodules HEAD --'.split()).wait() != 0:
+        raise SystemExit('Your git index contains uncommitted changes')
 
 
 def initialize_constants():
