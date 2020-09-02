@@ -94,7 +94,7 @@ def import_site_packages(srcdir, dest):
         if ext in ('py', 'so'):
             shutil.copy2(f, dest)
         elif ext == 'pth' and x != 'setuptools.pth':
-            for line in open(f, 'rb').read().splitlines():
+            for line in open(f, 'rb').read().decode('utf-8').splitlines():
                 src = os.path.abspath(j(srcdir, line))
                 if os.path.exists(src) and os.path.isdir(src):
                     import_site_packages(src, dest)
