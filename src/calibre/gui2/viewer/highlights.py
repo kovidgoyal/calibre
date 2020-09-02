@@ -3,12 +3,13 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
+from collections import defaultdict
 from itertools import chain
 
 from PyQt5.Qt import (
-    QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QPushButton, Qt, QTextEdit, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    QFont, QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel,
+    QPushButton, Qt, QTextEdit, QToolButton, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import plugins
@@ -48,7 +49,7 @@ class Export(ExportBase):
         return '\n'.join(lines).strip()
 
 
-class Highlights(QListWidget):
+class Highlights(QTreeWidget):
 
     jump_to_highlight = pyqtSignal(object)
     current_highlight_changed = pyqtSignal(object)
@@ -56,30 +57,45 @@ class Highlights(QListWidget):
     edit_requested = pyqtSignal()
 
     def __init__(self, parent=None):
-        QListWidget.__init__(self, parent)
+        QTreeWidget.__init__(self, parent)
+        self.setHeaderHidden(True)
+        self.num_of_items = 0
         self.setSelectionMode(self.ExtendedSelection)
-        self.setSpacing(2)
         pi = plugins['progress_indicator'][0]
         pi.set_no_activate_on_click(self)
         self.itemActivated.connect(self.item_activated)
         self.currentItemChanged.connect(self.current_item_changed)
         self.uuid_map = {}
+        self.section_font = QFont(self.font())
+        self.section_font.setItalic(True)
 
     def current_item_changed(self, current, previous):
-        self.current_highlight_changed.emit(current.data(Qt.UserRole) if current is not None else None)
+        self.current_highlight_changed.emit(current.data(0, Qt.UserRole) if current is not None else None)
 
     def load(self, highlights):
         self.clear()
         self.uuid_map = {}
         highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
+        section_map = defaultdict(list)
         for h in self.sorted_highlights(highlights):
-            txt = h.get('highlighted_text')
-            txt = txt.replace('\n', ' ')
-            if len(txt) > 100:
-                txt = txt[:100] + '…'
-            i = QListWidgetItem(txt, self)
-            i.setData(Qt.UserRole, h)
-            self.uuid_map[h['uuid']] = self.count() - 1
+            sec = h.get('top_level_section_title') or _('Unknown')
+            section_map[sec].append(h)
+        for secnum, (sec, items) in enumerate(section_map.items()):
+            section = QTreeWidgetItem([sec], 1)
+            section.setFlags(Qt.ItemIsEnabled)
+            section.setFont(0, self.section_font)
+            self.addTopLevelItem(section)
+            section.setExpanded(True)
+            for itemnum, h in enumerate(items):
+                txt = h.get('highlighted_text')
+                txt = txt.replace('\n', ' ')
+                if len(txt) > 100:
+                    txt = txt[:100] + '…'
+                item = QTreeWidgetItem(section, [txt], 2)
+                item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemNeverHasChildren)
+                item.setData(0, Qt.UserRole, h)
+                self.uuid_map[h['uuid']] = secnum, itemnum
+                self.num_of_items += 1
 
     def sorted_highlights(self, highlights):
         defval = 999999999999999, cfi_sort_key('/99999999')
@@ -96,58 +112,80 @@ class Highlights(QListWidget):
         if h is not None:
             idx = self.uuid_map.get(h['uuid'])
             if idx is not None:
-                self.set_current_row(idx)
+                sec_idx, item_idx = idx
+                self.set_current_row(sec_idx, item_idx)
+
+    def iteritems(self):
+        root = self.invisibleRootItem()
+        for i in range(root.childCount()):
+            sec = root.child(i)
+            for k in range(sec.childCount()):
+                yield sec.child(k)
+
+    def count(self):
+        return self.num_of_items
 
     def find_query(self, query):
         cr = self.currentRow()
         pat = query.regex
+        items = tuple(self.iteritems())
+        count = len(items)
+        cr = -1
+        ch = self.current_highlight
+        if ch:
+            q = ch['uuid']
+            for i, h in enumerate(items):
+                if h['uuid'] == q:
+                    cr = i
         if query.backwards:
             if cr < 0:
-                cr = self.count()
-            indices = chain(range(cr - 1, -1, -1), range(self.count() - 1, cr, -1))
+                cr = count
+            indices = chain(range(cr - 1, -1, -1), range(count - 1, cr, -1))
         else:
             if cr < 0:
                 cr = -1
-            indices = chain(range(cr + 1, self.count()), range(0, cr + 1))
+            indices = chain(range(cr + 1, count), range(0, cr + 1))
         for i in indices:
-            item = self.item(i)
-            h = item.data(Qt.UserRole)
+            h = items[i].data(0, Qt.UserRole)
             if pat.search(h['highlighted_text']) is not None or pat.search(h.get('notes') or '') is not None:
-                self.set_current_row(i)
+                self.set_current_row(*self.uuid_map[h['uuid']])
                 return True
         return False
 
     def find_annot_id(self, annot_id):
-        for i in range(self.count()):
-            item = self.item(i)
-            h = item.data(Qt.UserRole)
-            if h.get('uuid') == annot_id:
-                self.set_current_row(i)
+        q = self.uuid_map.get(annot_id)
+        if q is not None:
+            self.set_current_row(*q)
+            return True
+        return False
+
+    def set_current_row(self, sec_idx, item_idx):
+        sec = self.topLevelItem(sec_idx)
+        if sec is not None:
+            item = sec.child(item_idx)
+            if item is not None:
+                self.setCurrentItem(item, 0, QItemSelectionModel.ClearAndSelect)
                 return True
         return False
 
-    def set_current_row(self, row):
-        self.setCurrentRow(row, QItemSelectionModel.ClearAndSelect)
-
     def item_activated(self, item):
-        self.jump_to_highlight.emit(item.data(Qt.UserRole))
+        self.jump_to_highlight.emit(item.data(0, Qt.UserRole))
 
     @property
     def current_highlight(self):
         i = self.currentItem()
         if i is not None:
-            return i.data(Qt.UserRole)
+            return i.data(0, Qt.UserRole)
 
     @property
     def all_highlights(self):
-        for i in range(self.count()):
-            item = self.item(i)
-            yield item.data(Qt.UserRole)
+        for item in self.iteritems():
+            yield item.data(0, Qt.UserRole)
 
     @property
     def selected_highlights(self):
         for item in self.selectedItems():
-            yield item.data(Qt.UserRole)
+            yield item.data(0, Qt.UserRole)
 
     def keyPressEvent(self, ev):
         if ev.matches(QKeySequence.Delete):
