@@ -8,8 +8,8 @@ from itertools import chain
 
 from PyQt5.Qt import (
     QFont, QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel,
-    QPushButton, Qt, QTextEdit, QToolButton, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal
+    QPushButton, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
 from calibre.constants import plugins
@@ -229,22 +229,18 @@ class NotesDisplay(QWidget):
         h = QHBoxLayout(self)
         h.setContentsMargins(0, 0, 0, 0)
         self.browser = nd = Details(self)
+        self.browser.anchorClicked.connect(self.edit_notes)
         h.addWidget(nd)
         self.current_notes = ''
-        self.edit_button = eb = QToolButton(self)
-        eb.setIcon(QIcon(I('modified.png')))
-        eb.setToolTip(_('Edit the notes for this highlight'))
-        h.addWidget(eb)
-        eb.clicked.connect(self.edit_notes)
 
     def show_notes(self, text=''):
         text = (text or '').strip()
         self.setVisible(bool(text))
         self.current_notes = text
-        self.browser.setHtml('\n'.join(render_notes(text)))
+        html = '\n'.join(render_notes(text))
+        self.browser.setHtml('<div><a href="edit://moo" style="text-decoration: none">{}</a></div>{}'.format(_('Edit notes'), html))
         h = self.browser.document().size().height() + 8
         self.browser.setMaximumHeight(h)
-        self.setMaximumHeight(max(self.edit_button.sizeHint().height() + 4, h))
 
     def edit_notes(self):
         current_text = self.current_notes
@@ -282,7 +278,6 @@ class HighlightsPanel(QWidget):
         self.refresh = h.refresh
 
         self.h = h = QHBoxLayout()
-        l.addLayout(h)
 
         def button(icon, text, tt, target):
             b = QPushButton(QIcon(I(icon)), text, self)
@@ -300,6 +295,7 @@ class HighlightsPanel(QWidget):
         nd.notes_edited.connect(self.notes_edited)
         l.addWidget(nd)
         nd.setVisible(False)
+        l.addLayout(h)
 
     def notes_edited(self, text):
         h = self.highlights.current_highlight
