@@ -8,7 +8,7 @@ from itertools import chain
 
 from PyQt5.Qt import (
     QFont, QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel,
-    QPushButton, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget,
+    QPushButton, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, QSizePolicy,
     pyqtSignal
 )
 
@@ -220,17 +220,14 @@ class NotesEditDialog(Dialog):
         return self.qte.toPlainText().rstrip()
 
 
-class NotesDisplay(QWidget):
+class NotesDisplay(Details):
 
     notes_edited = pyqtSignal(object)
 
     def __init__(self, parent=None):
-        QWidget.__init__(self, parent)
-        h = QHBoxLayout(self)
-        h.setContentsMargins(0, 0, 0, 0)
-        self.browser = nd = Details(self)
-        self.browser.anchorClicked.connect(self.edit_notes)
-        h.addWidget(nd)
+        Details.__init__(self, parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
+        self.anchorClicked.connect(self.edit_notes)
         self.current_notes = ''
 
     def show_notes(self, text=''):
@@ -238,9 +235,9 @@ class NotesDisplay(QWidget):
         self.setVisible(bool(text))
         self.current_notes = text
         html = '\n'.join(render_notes(text))
-        self.browser.setHtml('<div><a href="edit://moo" style="text-decoration: none">{}</a></div>{}'.format(_('Edit notes'), html))
-        h = self.browser.document().size().height() + 8
-        self.browser.setMaximumHeight(h)
+        self.setHtml('<div><a href="edit://moo" style="text-decoration: none">{}</a></div>{}'.format(_('Edit notes'), html))
+        h = self.document().size().height() + 2
+        self.setMaximumHeight(h)
 
     def edit_notes(self):
         current_text = self.current_notes
