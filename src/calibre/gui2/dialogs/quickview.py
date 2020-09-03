@@ -350,7 +350,7 @@ class Quickview(QDialog, Ui_Quickview):
             Refill the table in case the columns displayed changes
         '''
         self.add_columns_to_widget()
-        self._refresh(self.current_book_id, self.current_key)
+        self.refresh(self.view.currentIndex(), ignore_lock=True)
 
     def set_search_text(self, txt):
         self.last_search = txt
@@ -461,12 +461,18 @@ class Quickview(QDialog, Ui_Quickview):
         gprefs['qv_respects_vls'] = self.apply_vls.isChecked()
         self._refresh(self.current_book_id, self.current_key)
 
-    def refresh(self, idx):
+    def refresh(self, idx, ignore_lock=False):
         '''
         Given a cell in the library view, display the information. This method
         converts the index into the lookup key
         '''
-        if self.lock_qv.isChecked() or not idx.isValid():
+        if (not ignore_lock and self.lock_qv.isChecked()):
+            return
+        if  not idx.isValid():
+            from calibre.constants import DEBUG
+            if DEBUG:
+                from calibre import prints
+                prints('QuickView: current index is not valid')
             return
 
         try:
