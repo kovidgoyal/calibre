@@ -437,8 +437,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         # Once the gui is initialized we can restore the quickview state
         # The same thing will be true for any action-based operation with a
-        # layout button
-        QTimer.singleShot(20, self.start_quickview)
+        # layout button. We need to let a book be selected in the book list
+        # before initializing quickview, so run it after an event loop tick
+        QTimer.singleShot(0, self.start_quickview)
 
     def start_quickview(self):
         from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
