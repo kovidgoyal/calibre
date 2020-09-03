@@ -741,10 +741,19 @@ class IframeBoss:
             self.on_handle_navigation_shortcut(data)
         elif dtype is 'extend-to-paragraph':
             sel = window.getSelection()
-            sel.modify('extend', 'forward', 'paragraphboundary')
-            end_node, end_offset = sel.focusNode, sel.focusOffset
-            sel.modify('extend', 'backward', 'paragraphboundary')
-            sel.setBaseAndExtent(sel.focusNode, sel.focusOffset, end_node, end_offset)
+            try:
+                try:
+                    sel.modify('extend', 'forward', 'paragraphboundary')
+                except:
+                    sel.modify('extend', 'forward', 'lineboundary')
+                end_node, end_offset = sel.focusNode, sel.focusOffset
+                try:
+                    sel.modify('extend', 'backward', 'paragraphboundary')
+                except:
+                    sel.modify('extend', 'backward', 'lineboundary')
+                sel.setBaseAndExtent(sel.focusNode, sel.focusOffset, end_node, end_offset)
+            except:
+                (console.error or console.log)('Failed to extend selection to paragraph')
         elif dtype is 'drag-scroll':
             self.scroll_to_extend_annotation(data.backwards)
         elif dtype is 'edit-highlight':
