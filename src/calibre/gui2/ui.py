@@ -424,15 +424,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
 
-        # Now that the gui is initialized we can restore the quickview state
-        # The same thing will be true for any action-based operation with a
-        # layout button
-        from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-        qv = get_quickview_action_plugin()
-        if qv:
-            qv.qv_button.restore_state()
-        self.save_layout_state()
-
         # Collect cycles now
         gc.collect()
 
@@ -443,6 +434,20 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.iactions['Connect Share'].check_smartdevice_menus()
         QTimer.singleShot(1, self.start_smartdevice)
         QTimer.singleShot(100, self.update_toggle_to_tray_action)
+
+        # Once the gui is initialized we can restore the quickview state
+        # The same thing will be true for any action-based operation with a
+        # layout button
+        QTimer.singleShot(20, self.start_quickview)
+
+    def start_quickview(self):
+        from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
+        qv = get_quickview_action_plugin()
+        if qv:
+            if DEBUG:
+                prints('Starting QuickView')
+            qv.qv_button.restore_state()
+        self.save_layout_state()
 
     def show_gui_debug_msg(self):
         info_dialog(self, _('Debug mode'), '<p>' +
