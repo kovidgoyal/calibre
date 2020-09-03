@@ -524,7 +524,7 @@ class Main(MainWindow):
             'Compare to another book'))
         self.action_manage_snippets = treg(
             'snippets.png', _('Manage &Snippets'), self.boss.manage_snippets, 'manage-snippets', (), _(
-                'Manage user created snippets'))
+                'Manage user created Snippets'))
 
         self.plugin_menu_actions = []
 
