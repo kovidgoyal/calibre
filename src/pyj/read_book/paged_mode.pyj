@@ -195,10 +195,11 @@ class ScrollResizeBugWatcher:
 
     # In Chrome sometimes after layout the scrollWidth of body increases after a
     # few milliseconds, this can cause scrolling to the end to not work
-    # immediately after layout
+    # immediately after layout. This happens without a resize event, and
+    # without triggering the ResizeObserver and only in paged mode.
 
     def __init__(self):
-        self.max_time = 500
+        self.max_time = 750
         self.last_layout_at = 0
         self.last_command = None
         self.doc_size = 0
@@ -212,7 +213,7 @@ class ScrollResizeBugWatcher:
     def scrolled(self, pos, limit):
         self.cancel_timer()
         now = window.performance.now()
-        if pos >= limit - 2 * col_and_gap and now - self.last_layout_at < self.max_time and self.last_command is not None:
+        if now - self.last_layout_at < self.max_time and self.last_command is not None:
             self.doc_size = scroll_viewport.paged_content_inline_size()
             self.check_for_resize_bug()
 
@@ -240,7 +241,6 @@ class ScrollResizeBugWatcher:
 
 
 scroll_resize_bug_watcher = ScrollResizeBugWatcher()
-
 
 def layout(is_single_page, on_resize):
     nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, number_of_cols
