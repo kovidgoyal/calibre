@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env  python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 try:
@@ -249,7 +249,8 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_parse_index(self, soup):
-        div = soup.find(attrs={'class': 'weekly-edition-header__image'})
+        archive = self.index_to_soup("https://www.economist.com/weeklyedition/archive")
+        div = archive.find(attrs={'class': 'edition-teaser__image'})
         if div is not None:
             img = div.find('img', srcset=True)
             self.cover_url = img['srcset'].split(',')[-1].split()[0]
