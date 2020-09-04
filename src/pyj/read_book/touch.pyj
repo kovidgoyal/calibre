@@ -9,7 +9,7 @@ HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 8  # pixels
 SWIPE_THRESHOLD = 64  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
-PINCH_THRESHOLD = 10  # pixels
+PINCH_THRESHOLD = 20  # pixels
 LONG_TAP_THRESHOLD = 500  # milliseconds
 
 gesture_id = 0
