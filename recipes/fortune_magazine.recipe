@@ -30,9 +30,7 @@ class Fortune(BasicNewsRecipe):
     category = 'news'
     encoding = 'UTF-8'
     keep_only_tags = [
-        prefix_classes('articleHeader__title-- centerAligned__meta-- featuredMedia__imageWrapper-- articleBody__wrapper--'),
-        classes('lead-media longform-bylines longform-timestamps author'),
-        dict(id=['article-body', 'longform-body']),
+        classes('amp-wp-title amp-wp-dek amp-header-meta amp-wp-article-featured-image amp-wp-article-content'),
     ]
 
     no_javascript = True
@@ -50,11 +48,8 @@ class Fortune(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup, *a):
-        for div in soup.findAll(attrs={'class': lambda x: x and 'lazy-image' in x.split()}):
-            a = div.find('a', href=True)
-            if a is not None:
-                a.name = 'img'
-                a['src'] = a['href']
+        for ai in soup.findAll(name='amp-img'):
+            ai.name = 'img'
         return soup
 
     def parse_index(self):
@@ -66,9 +61,11 @@ class Fortune(BasicNewsRecipe):
 
         for li in soup.findAll('li', attrs={'class': lambda x: x and 'termArchiveContentList__item--' in x}):
             a = li.find('a', href=True)
-            url = a['href']
+            url = a['href'].rstrip('/') + '/amp'
             div = li.find(attrs={'class': lambda x: x and 'termArchiveContentListItem__title--' in x})
             title = self.tag_to_string(div)
+            if title.startswith('Magazine'):
+                title = title[len('Magazine'):]
             desc = ''
             div = li.find(attrs={'class': lambda x: x and 'termArchiveContentListItem__excerpt--' in x})
             if div is not None:
