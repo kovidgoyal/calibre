@@ -292,11 +292,13 @@ class EbookViewer(MainWindow):
     def toggle_toc(self):
         self.toc_dock.setVisible(not self.toc_dock.isVisible())
 
-    def show_search(self, text):
+    def show_search(self, text, trigger=False):
         self.search_dock.setVisible(True)
         self.search_dock.activateWindow()
         self.search_dock.raise_()
         self.search_widget.focus_input(text)
+        if trigger:
+            self.search_widget.trigger()
 
     def search_results_count_changed(self, num=-1):
         if num < 0:

@@ -680,6 +680,9 @@ class SearchPanel(QWidget):  # {{{
     def find_next_requested(self, previous):
         self.results.find_next(previous)
 
+    def trigger(self):
+        self.search_input.find_next()
+
     def do_show_search_result(self, sr):
         self.show_search_result.emit(sr.for_js)
 

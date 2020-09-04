@@ -885,7 +885,7 @@ class SelectionBar:
             self.view.overlay.show_word_actions(self.view.currently_showing.selection.text)
 
     def book_search(self):
-        self.view.show_search()
+        self.view.show_search(True)
         self.clear_selection()
 
     def new_bookmark(self):

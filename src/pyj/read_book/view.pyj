@@ -672,15 +672,17 @@ class View:
 
         self.get_current_cfi('prepare-close', close_prepared)
 
-    def show_search(self):
+    def show_search(self, trigger):
         self.hide_overlays()
         text = self.currently_showing.selection.text
         if runtime.is_standalone_viewer:
-            ui_operations.show_search(text or '')
+            ui_operations.show_search(text or '', trigger)
         else:
             if text:
                 self.search_overlay.set_text(text)
             self.search_overlay.show(text)
+            if trigger and text:
+                self.search_overlay.find_next()
 
     def show_content_popup(self):
         self.hide_overlays()
