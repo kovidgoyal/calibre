@@ -75,7 +75,6 @@ class TestHTTP(BaseTest):
     def test_accept_language(self):  # {{{
         'Test parsing of Accept-Language'
         from calibre.srv.http_response import preferred_lang
-        from calibre.utils.localization import get_translator
 
         def test(name, val, ans):
             self.ae(preferred_lang(val, lambda x:(True, x, None)), ans, name + ' failed')
@@ -84,11 +83,20 @@ class TestHTTP(BaseTest):
         test('Case insensitive', 'Es', 'es')
         test('Multiple', 'fr, es', 'fr')
         test('Priority', 'en;q=0.1, de;q=0.7, fr;q=0.5', 'de')
+        try:
+            self.do_accept_language()
+        except Exception:
+            # this test is flaky on the Linux CI machines
+            time.sleep(3)
+            self.do_accept_language()
+
+    def do_accept_language(self):
+        from calibre.utils.localization import get_translator
 
         def handler(data):
             return data.lang_code + data._('Unknown')
 
-        with TestServer(handler, timeout=0.3) as server:
+        with TestServer(handler, timeout=1) as server:
             conn = server.connect()
 
             def test(al, q):
