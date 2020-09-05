@@ -3,18 +3,21 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 import json
+import math
 from collections import defaultdict
+from functools import lru_cache
 from itertools import chain
-
 from PyQt5.Qt import (
-    QFont, QHBoxLayout, QIcon, QItemSelectionModel, QKeySequence, QLabel,
-    QPushButton, Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, QSizePolicy,
-    pyqtSignal
+    QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
+    QLabel, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy, Qt,
+    QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre.constants import plugins
+from calibre.constants import (
+    builtin_colors_dark, builtin_colors_light, builtin_decorations, plugins
+)
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, is_dark_theme
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.library.annotations import (
     Details, Export as ExportBase, render_highlight_as_text, render_notes
@@ -24,6 +27,94 @@ from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.widgets2 import Dialog
 from polyglot.builtins import range
+
+decoration_cache = {}
+
+
+@lru_cache(maxsize=8)
+def wavy_path(width, height, y_origin):
+    half_height = height / 2
+    path = QPainterPath()
+    pi2 = math.pi * 2
+    num = 100
+    num_waves = 4
+    wav_limit = num // num_waves
+    sin = math.sin
+    path.reserve(num)
+    for i in range(num):
+        x = width * i / num
+        rads = pi2 * (i % wav_limit) / wav_limit
+        factor = sin(rads)
+        y = y_origin + factor * half_height
+        path.lineTo(x, y) if i else path.moveTo(x, y)
+    return path
+
+
+def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark):
+    style_key = (is_dark, icon_size, device_pixel_ratio, tuple((k, style[k]) for k in sorted(style)))
+    sentinel = object()
+    ans = decoration_cache.get(style_key, sentinel)
+    if ans is not sentinel:
+        return ans
+    ans = None
+    kind = style.get('kind')
+    if kind == 'color':
+        key = 'dark' if is_dark else 'light'
+        val = style.get(key)
+        if val is None:
+            which = style.get('which')
+            val = (builtin_colors_dark if is_dark else builtin_colors_light).get(which)
+        if val is None:
+            val = style.get('background-color')
+        if val is not None:
+            ans = QColor(val)
+    elif kind == 'decoration':
+        which = style.get('which')
+        if which is not None:
+            q = builtin_decorations.get(which)
+            if q is not None:
+                style = q
+        sz = int(math.ceil(icon_size * device_pixel_ratio))
+        canvas = QImage(sz, sz, QImage.Format_ARGB32)
+        canvas.fill(Qt.transparent)
+        canvas.setDevicePixelRatio(device_pixel_ratio)
+        p = QPainter(canvas)
+        p.setRenderHint(QPainter.Antialiasing, True)
+        p.setPen(palette.color(palette.WindowText))
+        irect = QRect(0, 0, icon_size, icon_size)
+        adjust = -2
+        text_rect = p.drawText(irect.adjusted(0, adjust, 0, adjust), Qt.AlignHCenter| Qt.AlignTop, 'a')
+        p.drawRect(irect)
+        fm = p.fontMetrics()
+        pen = p.pen()
+        if 'text-decoration-color' in style:
+            pen.setColor(QColor(style['text-decoration-color']))
+        lstyle = style.get('text-decoration-style') or 'solid'
+        q = {'dotted': Qt.DotLine, 'dashed': Qt.DashLine, }.get(lstyle)
+        if q is not None:
+            pen.setStyle(q)
+        lw = fm.lineWidth()
+        if lstyle == 'double':
+            lw * 2
+        pen.setWidth(fm.lineWidth())
+        q = style.get('text-decoration-line') or 'underline'
+        pos = text_rect.bottom()
+        height = irect.bottom() - pos
+        if q == 'overline':
+            pos = height
+        elif q == 'line-through':
+            pos = text_rect.center().y() - adjust - lw // 2
+        p.setPen(pen)
+        if lstyle == 'wavy':
+            p.drawPath(wavy_path(icon_size, height, pos))
+        else:
+            p.drawLine(0, pos, irect.right(), pos)
+        p.end()
+        ans = QPixmap.fromImage(canvas)
+    elif 'background-color' in style:
+        ans = QColor(style['background-color'])
+    decoration_cache[style_key] = ans
+    return ans
 
 
 class Export(ExportBase):
@@ -58,6 +149,7 @@ class Highlights(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        self.default_decoration = QIcon(I('blank.png'))
         self.setHeaderHidden(True)
         self.num_of_items = 0
         self.setSelectionMode(self.ExtendedSelection)
@@ -73,6 +165,10 @@ class Highlights(QTreeWidget):
         self.current_highlight_changed.emit(current.data(0, Qt.UserRole) if current is not None else None)
 
     def load(self, highlights):
+        s = self.style()
+        icon_size = s.pixelMetric(s.PM_SmallIconSize, None, self)
+        dpr = self.devicePixelRatioF()
+        is_dark = is_dark_theme()
         self.clear()
         self.uuid_map = {}
         highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
@@ -102,6 +198,15 @@ class Highlights(QTreeWidget):
                 item = QTreeWidgetItem(section, [txt], 2)
                 item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemNeverHasChildren)
                 item.setData(0, Qt.UserRole, h)
+                try:
+                    dec = decoration_for_style(self.palette(), h.get('style') or {}, icon_size, dpr, is_dark)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+                    dec = None
+                if dec is None:
+                    dec = self.default_decoration
+                item.setData(0, Qt.DecorationRole, dec)
                 self.uuid_map[h['uuid']] = secnum, itemnum
                 self.num_of_items += 1
 
