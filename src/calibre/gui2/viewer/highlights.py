@@ -77,13 +77,21 @@ class Highlights(QTreeWidget):
         self.uuid_map = {}
         highlights = (h for h in highlights if not h.get('removed') and h.get('highlighted_text'))
         section_map = defaultdict(list)
+        section_tt_map = {}
         for h in self.sorted_highlights(highlights):
-            sec = h.get('top_level_section_title') or _('Unknown')
+            tsec = h.get('top_level_section_title')
+            lsec = h.get('lowest_level_section_title')
+            sec = lsec or tsec or _('Unknown')
+            if sec != tsec:
+                section_tt_map[sec] = tsec
             section_map[sec].append(h)
         for secnum, (sec, items) in enumerate(section_map.items()):
             section = QTreeWidgetItem([sec], 1)
             section.setFlags(Qt.ItemIsEnabled)
             section.setFont(0, self.section_font)
+            tt = section_tt_map.get(sec)
+            if tt:
+                section.setToolTip(0, _('Top level section in Table of Contents:') + '\n' + tt)
             self.addTopLevelItem(section)
             section.setExpanded(True)
             for itemnum, h in enumerate(items):
