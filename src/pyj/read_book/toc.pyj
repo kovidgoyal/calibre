@@ -78,16 +78,16 @@ def get_current_toc_nodes():
             if before:
                 ans[before.id] = True
     ans = Object.keys(ans)
+    family = v'[]'
     if ans.length:
-        pid = node_id = ans[0]
-        p = parent_map[pid]
-        while p and p.title:
-            pid = p.id
-            p = parent_map[pid]
-        p = id_map[pid]
-        return id_map[node_id], p if p and p.title else None
-
-    return None, None
+        node = id_map[ans[0]]
+        while node and node.title:
+            family.unshift(node)
+            parent = parent_map[node.id]
+            node = None
+            if parent:
+                node = id_map[parent.id]
+    return family
 
 
 def get_highlighted_toc_nodes(toc, parent_map, id_map):

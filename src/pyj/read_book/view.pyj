@@ -205,6 +205,7 @@ class View:
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_toc_node = self.current_toc_toplevel_node = None
+        self.current_toc_family = v'[]'
         self.report_cfi_callbacks = {}
         self.get_cfi_counter = 0
         self.show_loading_callback_timer = None
@@ -1203,7 +1204,12 @@ class View:
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
-        self.current_toc_node, self.current_toc_toplevel_node = get_current_toc_nodes()
+        self.current_toc_family = get_current_toc_nodes()
+        if self.current_toc_family.length:
+            self.current_toc_node = self.current_toc_family[-1]
+            self.current_toc_toplevel_node = self.current_toc_family[0]
+        else:
+            self.current_toc_node = self.current_toc_toplevel_node = None
         if runtime.is_standalone_viewer:
             ui_operations.update_current_toc_nodes(self.current_toc_node?.id, self.current_toc_toplevel_node?.id)
         self.update_header_footer()

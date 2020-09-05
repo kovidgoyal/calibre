@@ -966,7 +966,7 @@ class SelectionBar:
                     _('Failed to apply highlighting, try adjusting extent of highlight')
                 )
             self.annotations_manager.add_highlight(
-                msg, self.current_highlight_style.style, notes, self.view.current_toc_toplevel_node, self.view.current_toc_node)
+                msg, self.current_highlight_style.style, notes, self.view.current_toc_family)
         elif msg.type is 'edit-highlight':
             if self.state is WAITING:
                 self.create_highlight()

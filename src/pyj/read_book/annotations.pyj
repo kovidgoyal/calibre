@@ -189,6 +189,7 @@ class AnnotationsManager:  # {{{
             v'delete h.notes'
             v'delete h.spine_name'
             v'delete h.spine_index'
+            v'delete h.toc_family_titles'
             return True
 
     def delete_highlight(self, uuid):
@@ -237,7 +238,7 @@ class AnnotationsManager:  # {{{
             x = 2 * (spine_index + 1)
             return f'epubcfi(/{x}{h.start_cfi})'
 
-    def add_highlight(self, msg, style, notes, toplevel_toc_node, toc_node):
+    def add_highlight(self, msg, style, notes, toc_family):
         now = Date().toISOString()
         for uuid in msg.removed_highlights:
             self.remove_highlight(uuid)
@@ -255,10 +256,12 @@ class AnnotationsManager:  # {{{
         }
         if notes:
             annot.notes = notes
-        if toplevel_toc_node?.title:
-            annot.top_level_section_title = toplevel_toc_node.title
-        if toc_node?.title:
-            annot.lowest_level_section_title = toc_node.title
+        if toc_family?.length:
+            toc_family_titles = v'[]'
+            for x in toc_family:
+                if x.title:
+                    toc_family_titles.push(x.title)
+            annot.toc_family_titles = toc_family_titles
         self.sync_annots_to_server('highlights')
 
     def highlights_for_currently_showing(self):

@@ -175,11 +175,21 @@ class Highlights(QTreeWidget):
         section_map = defaultdict(list)
         section_tt_map = {}
         for h in self.sorted_highlights(highlights):
-            tsec = h.get('top_level_section_title')
-            lsec = h.get('lowest_level_section_title')
+            tfam = h.get('toc_family_titles') or ()
+            if tfam:
+                tsec = tfam[0]
+                lsec = tfam[-1]
+            else:
+                tsec = h.get('top_level_section_title')
+                lsec = h.get('lowest_level_section_title')
             sec = lsec or tsec or _('Unknown')
-            if sec != tsec:
-                section_tt_map[sec] = tsec
+            if len(tfam) > 1:
+                lines = []
+                for i, node in enumerate(tfam):
+                    lines.append('\xa0\xa0' * i + '➤ ' + node)
+                tt = ngettext('Table of Contents section:', 'Table of Contents sections:', len(lines))
+                tt += '\n' + '\n'.join(lines)
+                section_tt_map[sec] = tt
             section_map[sec].append(h)
         for secnum, (sec, items) in enumerate(section_map.items()):
             section = QTreeWidgetItem([sec], 1)
@@ -187,7 +197,7 @@ class Highlights(QTreeWidget):
             section.setFont(0, self.section_font)
             tt = section_tt_map.get(sec)
             if tt:
-                section.setToolTip(0, _('Top level section in Table of Contents:') + '\n' + tt)
+                section.setToolTip(0, tt)
             self.addTopLevelItem(section)
             section.setExpanded(True)
             for itemnum, h in enumerate(items):
