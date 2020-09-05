@@ -62,7 +62,7 @@ class MetadataBackup(Thread):
             try:
                 self.db.check_dirtied_annotations()
             except Exception:
-                if self.stop_running.is_set():
+                if self.stop_running.is_set() or self.db.is_closed:
                     return
                 traceback.print_exc()
         try:

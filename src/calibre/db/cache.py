@@ -2127,6 +2127,10 @@ class Cache(object):
                 traceback.print_exc()
         self.backend.close()
 
+    @property
+    def is_closed(self):
+        return self.backend.is_closed
+
     @write_api
     def restore_book(self, book_id, mi, last_modified, path, formats, annotations=()):
         ''' Restore the book entry in the database for a book that already exists on the filesystem '''

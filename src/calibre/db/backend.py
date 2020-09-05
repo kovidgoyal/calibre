@@ -403,6 +403,7 @@ class DB(object):
     def __init__(self, library_path, default_prefs=None, read_only=False,
                  restore_all_prefs=False, progress_callback=lambda x, y:True,
                  load_user_formatter_functions=True):
+        self.is_closed = False
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
@@ -907,6 +908,7 @@ class DB(object):
     def conn(self):
         if self._conn is None:
             self._conn = Connection(self.dbpath)
+            self.is_closed = False
             if self._exists and self.user_version == 0:
                 self._conn.close()
                 os.remove(self.dbpath)
@@ -1148,6 +1150,7 @@ class DB(object):
                     pass
             self._conn.close(force)
             del self._conn
+            self.is_closed = True
 
     def reopen(self, force=False):
         self.close(force=force, unload_formatter_functions=False)
