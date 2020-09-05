@@ -15,28 +15,9 @@ from widgets import create_button
 ICON_SIZE_VAL = 3
 ICON_SIZE_UNIT = 'ex'
 ICON_SIZE = f'{ICON_SIZE_VAL}{ICON_SIZE_UNIT}'
-
-builtin_colors_light = {
-    'yellow': '#ffeb6b',
-    'green': '#c0ed72',
-    'blue': '#add8ff',
-    'red': '#ffb0ca',
-    'purple': '#d9b2ff',
-}
-
-builtin_colors_dark = {
-    'yellow': '#c18d18',
-    'green': '#306f50',
-    'blue': '#265589',
-    'red': '#a23e5a',
-    'purple': '#505088',
-}
-
-
-builtin_decorations_light = builtin_decorations_dark = {
-    'wavy': {'text-decoration-style': 'wavy', 'text-decoration-color': 'red', 'text-decoration-line': 'underline'},
-    'strikeout': {'text-decoration-line': 'line-through', 'text-decoration-color': 'red'},
-}
+builtin_colors_light = v'''__BUILTIN_COLORS_LIGHT__'''
+builtin_colors_dark = v'''__BUILTIN_COLORS_DARK__'''
+builtin_decorations_light = builtin_decorations_dark = v'''__BUILTIN_DECORATIONS__'''
 
 
 def builtin_friendly_name(kind, which):

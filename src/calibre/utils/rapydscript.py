@@ -12,7 +12,8 @@ import sys
 
 from calibre import force_unicode
 from calibre.constants import (
-    FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__, dark_link_color
+    FAKE_HOST, FAKE_PROTOCOL, __appname__, __version__, builtin_colors_dark,
+    builtin_colors_light, builtin_decorations, dark_link_color
 )
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
@@ -54,11 +55,12 @@ def compiler():
     ans = getattr(compiler, 'ans', None)
     if ans is not None:
         return ans
+    from PyQt5.Qt import QApplication, QEventLoop
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
+
     from calibre import walk
     from calibre.gui2 import must_use_qt
     from calibre.gui2.webengine import secure_webengine
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
-    from PyQt5.Qt import QApplication, QEventLoop
     must_use_qt()
 
     with lzma.open(P(COMPILER_PATH, allow_user_override=False)) as lzf:
@@ -329,10 +331,11 @@ def atomic_write(base, name, content):
 
 
 def run_rapydscript_tests():
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
     from PyQt5.Qt import QApplication, QEventLoop
-    from calibre.gui2.webengine import secure_webengine
+    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
+
     from calibre.gui2 import must_use_qt
+    from calibre.gui2.webengine import secure_webengine
     must_use_qt()
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
@@ -381,15 +384,29 @@ def run_rapydscript_tests():
     raise SystemExit(int(result))
 
 
+def set_data(src, **kw):
+    for k, v in {
+        '__SPECIAL_TITLE__': special_title,
+        '__FAKE_PROTOCOL__': FAKE_PROTOCOL,
+        '__FAKE_HOST__': FAKE_HOST,
+        '__CALIBRE_VERSION__': __version__,
+        '__DARK_LINK_COLOR__': dark_link_color,
+        '__BUILTIN_COLORS_LIGHT__': json.dumps(builtin_colors_light),
+        '__BUILTIN_COLORS_DARK__': json.dumps(builtin_colors_dark),
+        '__BUILTIN_DECORATIONS__': json.dumps(builtin_decorations)
+    }.items():
+        src = src.replace(k, v, 1)
+    for k, v in kw.items():
+        src = src.replace(k, v, 1)
+    return src
+
+
 def compile_editor():
     base = base_dir()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'editor.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname).replace(
-            '__SPECIAL_TITLE__', special_title, 1).replace(
-            '__FAKE_PROTOCOL__', FAKE_PROTOCOL, 1).replace(
-            '__FAKE_HOST__', FAKE_HOST, 1)
+        js = set_data(compile_fast(f.read(), fname))
     base = os.path.join(base, 'resources')
     atomic_write(base, 'editor.js', js)
 
@@ -408,11 +425,7 @@ def compile_viewer():
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     fname = os.path.join(rapydscript_dir, 'viewer-main.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname).replace(
-            '__SPECIAL_TITLE__', special_title, 1).replace(
-            '__FAKE_PROTOCOL__', FAKE_PROTOCOL, 1).replace(
-            '__FAKE_HOST__', FAKE_HOST, 1).replace(
-            '__DARK_LINK_COLOR__', dark_link_color, 1)
+        js = set_data(compile_fast(f.read(), fname))
     base = os.path.join(base, 'resources')
     atomic_write(base, 'viewer.js', js)
     atomic_write(base, 'viewer.html', html)
@@ -434,11 +447,11 @@ def compile_srv():
     base = os.path.join(base, 'resources', 'content-server')
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_fast(f.read(), fname, js_version=5).replace(
-            '__RENDER_VERSION__', rv, 1).replace(
-            '__MATHJAX_VERSION__', mathjax_version, 1).replace(
-            '__CALIBRE_VERSION__', __version__, 1).replace(
-            '__DARK_LINK_COLOR__', dark_link_color, 1).encode('utf-8')
+        js = set_data(
+            compile_fast(f.read(), fname),
+            __RENDER_VERSION__=rv,
+            __MATHJAX_VERSION__=mathjax_version
+        ).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
 
