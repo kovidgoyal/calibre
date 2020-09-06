@@ -14,24 +14,27 @@ import re, string, traceback, numbers
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.formatter_functions import formatter_functions
+from calibre.utils.icu import strcmp
 from polyglot.builtins import unicode_type, error_message
 
 
 class _Parser(object):
-    LEX_OP  = 1
-    LEX_ID  = 2
-    LEX_STR = 3
-    LEX_NUM = 4
-    LEX_EOF = 5
-
-    LEX_CONSTANTS = frozenset((LEX_STR, LEX_NUM))
+    LEX_OP      = 1
+    LEX_ID      = 2
+    LEX_CONST   = 3
+    LEX_EOF     = 4
+    LEX_INFIX   = 5
+    LEX_IF      = 6
+    LEX_THEN    = 7
+    LEX_ELSE    = 8
+    LEX_FI      = 9
 
     def __init__(self, val, prog, funcs, parent):
         self.lex_pos = 0
         self.prog = prog[0]
         self.prog_len = len(self.prog)
         if prog[1] != '':
-            self.error(_('failed to scan program. Invalid input {0}').format(prog[1]))
+            self.error(_('Failed to scan program. Invalid input {0}').format(prog[1]))
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
@@ -39,141 +42,252 @@ class _Parser(object):
         self.funcs = funcs
 
     def error(self, message):
-        m = 'Formatter: ' + message + _(' near ')
+        try:
+            tval = "'" + self.prog[self.lex_pos-1][1] + "'"
+        except:
+            tval = _('Unknown')
+        m = 'Formatter: ' + message + _(' near')
         if self.lex_pos > 0:
-            m = '{0} {1}'.format(m, self.prog[self.lex_pos-1][1])
+            m = '{0} {1}'.format(m, tval)
         elif self.lex_pos < self.prog_len:
-            m = '{0} {1}'.format(m, self.prog[self.lex_pos+1][1])
+            m = '{0} {1}'.format(m, tval)
         else:
             m = '{0} {1}'.format(m, _('end of program'))
         raise ValueError(m)
 
     def token(self):
-        if self.lex_pos >= self.prog_len:
+        try:
+            token = self.prog[self.lex_pos][1]
+            self.lex_pos += 1
+            return token
+        except:
             return None
-        token = self.prog[self.lex_pos][1]
-        self.lex_pos += 1
-        return token
 
     def consume(self):
         self.lex_pos += 1
 
-    def token_op_is_a_equals(self):
-        if self.lex_pos >= self.prog_len:
+    def token_op_is_equals(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == '=' and token[0] == self.LEX_OP
+        except:
             return False
-        token = self.prog[self.lex_pos]
-        return token[0] == self.LEX_OP and token[1] == '='
 
-    def token_op_is_a_lparen(self):
-        if self.lex_pos >= self.prog_len:
+    def token_op_is_infix_compare(self):
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_INFIX
+        except:
             return False
-        token = self.prog[self.lex_pos]
-        return token[0] == self.LEX_OP and token[1] == '('
 
-    def token_op_is_a_rparen(self):
-        if self.lex_pos >= self.prog_len:
+    def token_op_is_lparen(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == '(' and token[0] == self.LEX_OP
+        except:
             return False
-        token = self.prog[self.lex_pos]
-        return token[0] == self.LEX_OP and token[1] == ')'
 
-    def token_op_is_a_comma(self):
-        if self.lex_pos >= self.prog_len:
+    def token_op_is_rparen(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == ')' and token[0] == self.LEX_OP
+        except:
             return False
-        token = self.prog[self.lex_pos]
-        return token[0] == self.LEX_OP and token[1] == ','
 
-    def token_op_is_a_semicolon(self):
-        if self.lex_pos >= self.prog_len:
+    def token_op_is_comma(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == ',' and token[0] == self.LEX_OP
+        except:
             return False
-        token = self.prog[self.lex_pos]
-        return token[0] == self.LEX_OP and token[1] == ';'
+
+    def token_op_is_semicolon(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == ';' and token[0] == self.LEX_OP
+        except:
+            return False
 
     def token_is_id(self):
-        if self.lex_pos >= self.prog_len:
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_ID
+        except:
             return False
-        return self.prog[self.lex_pos][0] == self.LEX_ID
+
+    def token_is_if(self):
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_IF
+        except:
+            return False
+
+    def token_is_then(self):
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_THEN
+        except:
+            return False
+
+    def token_is_else(self):
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_ELSE
+        except:
+            return False
+
+    def token_is_fi(self):
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_FI
+        except:
+            return False
 
     def token_is_constant(self):
-        if self.lex_pos >= self.prog_len:
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_CONST
+        except:
             return False
-        return self.prog[self.lex_pos][0] in self.LEX_CONSTANTS
 
     def token_is_eof(self):
-        if self.lex_pos >= self.prog_len:
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_EOF
+        except:
             return True
-        token = self.prog[self.lex_pos]
-        return token[0] == self.LEX_EOF
 
     def program(self):
         val = self.statement()
         if not self.token_is_eof():
-            self.error(_('syntax error - program ends before EOF'))
+            self.error(_('Syntax error - program ends before EOF'))
         return val
 
     def statement(self):
-        while True:
-            val = self.expr()
-            if self.token_is_eof():
-                return val
-            if not self.token_op_is_a_semicolon():
-                return val
+        val = ''
+        while not self.token_is_eof():
+            val = self.infix_expr()
+            if not self.token_op_is_semicolon():
+                break
             self.consume()
-            if self.token_is_eof():
-                return val
+        return val
+
+    def consume_if(self):
+        self.consume()
+        while not self.token_is_fi():
+            if self.token_is_if():
+                self.consume_if()
+            self.consume()
+
+    def consume_then_branch(self):
+        while not (self.token_is_eof() or self.token_is_fi() or self.token_is_else()):
+            if self.token_is_if():
+                self.consume_if()
+            self.consume()
+
+    def consume_else_branch(self):
+        while not (self.token_is_eof() or self.token_is_fi()):
+            if self.token_is_if():
+                self.consume_if()
+            self.consume()
+
+    def if_expression(self):
+        self.consume()
+        val = ''
+        test_part = self.infix_expr()
+        if not self.token_is_then():
+            self.error(_("Missing 'then' in if statement"))
+        if test_part:
+            self.consume()
+            val = self.statement()
+            if not (self.token_is_else() or self.token_is_fi()):
+                self.error(_("Missing 'else' or 'fi' in if statement"))
+            self.consume_else_branch()
+        else:
+            self.consume_then_branch()
+            if self.token_is_else():
+                self.consume()
+                val = self.statement()
+        if not self.token_is_fi():
+            self.error(_("Missing 'fi' in if statement"))
+        self.consume()
+        return val
+
+    INFIX_OPS = {
+        "==":  lambda x, y: strcmp(x, y) == 0,
+        "!=":  lambda x, y: strcmp(x, y) != 0,
+        "<":   lambda x, y: strcmp(x, y) < 0,
+        "<=":  lambda x, y: strcmp(x, y) <= 0,
+        ">":   lambda x, y: strcmp(x, y) > 0,
+        ">=":  lambda x, y: strcmp(x, y) >= 0,
+        "==#": lambda x, y: float(x) == float(y) if x and y else False,
+        "!=#": lambda x, y: float(x) != float(y) if x and y else False,
+        "<#":  lambda x, y: float(x) < float(y) if x and y else False,
+        "<=#": lambda x, y: float(x) <= float(y) if x and y else False,
+        ">#":  lambda x, y: float(x) > float(y) if x and y else False,
+        ">=#": lambda x, y: float(x) >= float(y) if x and y else False,
+        }
+
+    def infix_expr(self):
+        left = self.expr()
+        if self.token_op_is_infix_compare():
+            t = self.token()
+            right = self.expr()
+            return '1' if self.INFIX_OPS[t](left, right) else ''
+        return left
 
     def expr(self):
+        if self.token_is_if():
+            return self.if_expression()
         if self.token_is_id():
             # We have an identifier. Determine if it is a function
-            id = self.token()
-            if not self.token_op_is_a_lparen():
-                if self.token_op_is_a_equals():
+            id_ = self.token()
+            if not self.token_op_is_lparen():
+                if self.token_op_is_equals():
                     # classic assignment statement
                     self.consume()
                     cls = self.funcs['assign']
                     return cls.eval_(self.parent, self.parent_kwargs,
-                                    self.parent_book, self.locals, id, self.expr())
-                val = self.locals.get(id, None)
+                                    self.parent_book, self.locals, id_, self.infix_expr())
+                val = self.locals.get(id_, None)
                 if val is None:
-                    self.error(_('Unknown identifier ') + id)
+                    self.error(_('Unknown identifier {0}').format(id_))
                 return val
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
-            id = id.strip()
-            if id not in self.funcs:
-                self.error(_('unknown function {0}').format(id))
+            id_ = id_.strip()
+            if id_ not in self.funcs:
+                self.error(_('Unknown function {0}').format(id_))
 
             # Eat the paren
             self.consume()
             args = list()
-            while not self.token_op_is_a_rparen():
-                if id == 'assign' and len(args) == 0:
+            while not self.token_op_is_rparen():
+                if id_ == 'assign' and len(args) == 0:
                     # Must handle the lvalue semantics of the assign function.
                     # The first argument is the name of the destination, not
                     # the value.
                     if not self.token_is_id():
-                        self.error('assign requires the first parameter be an id')
+                        self.error(_("'Assign' requires the first parameter be an id"))
                     args.append(self.token())
                 else:
                     # evaluate the argument (recursive call)
-                    args.append(self.statement())
-                if not self.token_op_is_a_comma():
+                    args.append(self.infix_expr())
+                if not self.token_op_is_comma():
                     break
                 self.consume()
             if self.token() != ')':
-                self.error(_('missing closing parenthesis'))
+                self.error(_('Missing closing parenthesis'))
 
-            # Evaluate the function
-            cls = self.funcs[id]
+            # Evaluate the function.
+            if id_ == 'field':
+                #  Evaluate the 'field' function inline for performance
+                if len(args) != 1:
+                    self.error(_('Incorrect number of arguments for function {0}').format(id_))
+                return self.parent.get_value(args[0], [], self.parent_kwargs)
+            cls = self.funcs[id_]
             if cls.arg_count != -1 and len(args) != cls.arg_count:
-                self.error('incorrect number of arguments for function {}'.format(id))
+                self.error(_('Incorrect number of arguments for function {0}').format(id_))
             return cls.eval_(self.parent, self.parent_kwargs,
                             self.parent_book, self.locals, *args)
         elif self.token_is_constant():
             # String or number
             return self.token()
         else:
-            self.error(_('expression is not function or constant'))
+            self.error(_('Expression is not function or constant'))
 
 
 class TemplateFormatter(string.Formatter):
@@ -241,14 +355,20 @@ class TemplateFormatter(string.Formatter):
     # ################# 'Functional' template language ######################
 
     lex_scanner = re.Scanner([
-                (r'[(),=;]', lambda x,t: (1, t)),
-                (r'-?[\d\.]+', lambda x,t: (3, t)),
-                (r'\$', lambda x,t: (2, t)),
-                (r'\w+', lambda x,t: (2, t)),
-                (r'".*?((?<!\\)")', lambda x,t: (3, t[1:-1])),
-                (r'\'.*?((?<!\\)\')', lambda x,t: (3, t[1:-1])),
-                (r'\n#.*?(?:(?=\n)|$)', None),
-                (r'\s',                 None)
+            (r'(==#|!=#|<=#|<#|>=#|>#|==|!=|<=|<|>=|>)',
+                                    lambda x,t: (_Parser.LEX_INFIX, t)),
+            (r'if\b',               lambda x,t: (_Parser.LEX_IF, t)),
+            (r'then\b',             lambda x,t: (_Parser.LEX_THEN, t)),
+            (r'else\b',             lambda x,t: (_Parser.LEX_ELSE, t)),
+            (r'fi\b',               lambda x,t: (_Parser.LEX_FI, t)),
+            (r'[(),=;]',            lambda x,t: (_Parser.LEX_OP, t)),
+            (r'-?[\d\.]+',          lambda x,t: (_Parser.LEX_CONST, t)),
+            (r'\$',                 lambda x,t: (_Parser.LEX_ID, t)),
+            (r'\w+',                lambda x,t: (_Parser.LEX_ID, t)),
+            (r'".*?((?<!\\)")',     lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'\'.*?((?<!\\)\')',   lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'\n#.*?(?:(?=\n)|$)', None),
+            (r'\s',                 None),
         ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog, column_name):
