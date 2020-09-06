@@ -517,7 +517,7 @@ class RuleEditor(QDialog):  # {{{
     def filename_button_clicked(self):
         try:
             path = choose_files(self, 'choose_category_icon',
-                        _('Select Icon'), filters=[
+                        _('Select icon'), filters=[
                         (_('Images'), ['png', 'gif', 'jpg', 'jpeg'])],
                     all_files=False, select_only_single_file=True)
             if path:
