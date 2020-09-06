@@ -185,21 +185,24 @@ The example shows several things:
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
 
-The language is similar to ``functional`` languages in that it is built almost entirely from functions. A statement is a function. An expression is a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
+The language is similar to ``functional`` languages in that it is built almost entirely from functions. An expression is generally a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
 
-The syntax of the language is shown by the following grammar::
+The syntax of the language is shown by the following grammar. For a discussion of 'compare' and 'if_expression' see :ref:`General Program Mode <general_mode>`:::
 
-    constant   ::= " string " | ' string ' | number
-    identifier ::= sequence of letters or ``_`` characters
-    function   ::= identifier ( statement [ , statement ]* )
-    expression ::= identifier | constant | function | assignment
-    assignment ::= identifier '=' expression
-    statement  ::= expression [ ; expression ]*
-    program    ::= statement
+    program         ::= expression_list
+    expression_list ::= expression [ ';' expression ]*
+    expression      ::= identifier | constant | function | assignment | compare | if_expression
+    function        ::= identifier '(' expression [ ',' expression ]* ')'
+    compare         ::= expression compare_op expression
+    compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
+    if_expression   ::= 'if' expression 'then' expression_list ['else' statement] 'fi'
+    assignment      ::= identifier '=' expression
+    constant        ::= " string " | ' string ' | number
+    identifier      ::= sequence of letters or ``_`` characters
 
 Comments are lines with a '#' character at the beginning of the line.
 
-An ``expression`` always has a value, either the value of the constant, the value contained in the identifier, or the value returned by a function. The value of a ``statement`` is the value of the last expression in the sequence of statements. As such, the value of the program (statement)::
+An ``expression`` without errors always has a value. The value of an ``expression_list`` is the value of the last expression in the list. As such, the value of the program (expression_list)::
 
     1; 2; 'foobar'; 3
 
@@ -365,7 +368,42 @@ Using general program mode
 
 For more complicated template programs, it is sometimes easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classical-looking program. You can do this in calibre by beginning the template with `program:`. In this case, no template processing is done. The special variable `$` is not set. It is up to your program to produce the correct results.
 
-One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is that program mode templates are compiled to Python and can run much faster than  templates in the other two modes. Speed improvement depends on the complexity of the templates; the more complicated the template the more the improvement. Compilation is turned off or on using the tweak ``compile_gpm_templates`` (Compile General Program Mode templates to Python). The main reason to turn off compilation is if a compiled template does not work, in which case please file a bug report.
+One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is readability.
+
+Both General and Template Program Modes support if tests with the following syntax:
+    * ``if`` <<expression>> ``then`` <<expression_list>> [ ``else`` <<expression_list>> ] ``fi``.
+The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are reserved. You cannot use them as identifier names. You can put newlines and white space wherever they make sense. 
+
+<<expression>> is one template language expression. Semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
+    * ``program: if field('series') then 'yes' else 'no' fi``
+    * ``program: if field('series') then a = 'yes'; b = 'no' else a = 'no'; b='yes' fi; strcat(a, '-', b)``
+    * Nested ``if`` example::
+    
+        program:
+            if field('series')
+            then
+                if check_yes_no(field('#mybool'), '', '', '1')
+                then
+                    'yes'
+                else
+                    'no'
+                fi
+            else
+                'no series'
+            fi
+
+An ``if` produces a value like any other language expression. This means that all the following are valid:
+    * ``program: if field('series') then 'foo' else 'bar' fi``
+    * ``program: if field('series') then a = 'foo' else a = 'bar' fi; a``
+    * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
+    * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
+
+Program mode also supports the classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, '' otherwise. They do case-insensitive string comparison using lexical order. Examples:
+    * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
+    * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
+    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'. 
+    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison.
+If you want numeric comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. These operators return '' if either the left or the right side are the empty string, '1' if the operator evaluates to True, otherwise ''.
 
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 
