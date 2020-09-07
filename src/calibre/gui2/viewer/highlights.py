@@ -292,7 +292,9 @@ class Highlights(QTreeWidget):
         return False
 
     def item_activated(self, item):
-        self.jump_to_highlight.emit(item.data(0, Qt.UserRole))
+        h = item.data(0, Qt.UserRole)
+        if h is not None:
+            self.jump_to_highlight.emit(h)
 
     @property
     def current_highlight(self):
