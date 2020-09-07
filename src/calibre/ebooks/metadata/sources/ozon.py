@@ -71,7 +71,10 @@ class Ozon(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import quote_plus
+        try:
+            from urllib import quote_plus
+        except ImportError:
+            from urllib.parse import quote_plus
 
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/?context=search&group=div_book&text='
@@ -116,10 +119,20 @@ class Ozon(Source):
 
     # }}}
 
+    def unescape(self, s): # {{{
+        try:
+            from HTMLParser import HTMLParser
+            h = HTMLParser()
+            return h.unescape(s)
+        except ImportError:
+            from html import unescape
+            return unescape(s)
+
+    # }}}
+
     def identify(self, log, result_queue, abort, title=None, authors=None,
                  identifiers={}, timeout=90):  # {{{
         from calibre.ebooks.chardet import xml_to_unicode
-        from HTMLParser import HTMLParser
         from lxml import etree, html
         import json
 
@@ -152,8 +165,7 @@ class Ozon(Source):
                 self.get_all_details(log, metadata, abort, result_queue, identifiers, timeout)
             else:
                 # Redirect page: trying to extract ozon_id from javascript data
-                h = HTMLParser()
-                entry_string = (h.unescape(etree.tostring(doc, pretty_print=True, encoding='unicode')))
+                entry_string = (self.unescape(etree.tostring(doc, pretty_print=True, encoding='unicode')))
                 json_pat = re.compile(r'dataLayer\s*=\s*(.+)?;')
                 json_info = re.search(json_pat, entry_string)
                 jsondata = json_info.group(1) if json_info else None
