@@ -71,7 +71,10 @@ class Ozon(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import quote_plus
+        try:
+            from urllib.parse import quote_plus
+        except:
+            from urllib import quote_plus
 
         # div_book -> search only books, ebooks and audio books
         search_url = self.ozon_url + '/?context=search&group=div_book&text='
@@ -119,9 +122,12 @@ class Ozon(Source):
     def identify(self, log, result_queue, abort, title=None, authors=None,
                  identifiers={}, timeout=90):  # {{{
         from calibre.ebooks.chardet import xml_to_unicode
-        from HTMLParser import HTMLParser
         from lxml import etree, html
         import json
+        try:
+            from html.parser import HTMLParser
+        except:
+            from HTMLParser import HTMLParser
 
         if not self.is_configured():
             return
