@@ -14,6 +14,7 @@ from PyQt5.Qt import (
     QToolButton, QTreeView)
 
 from calibre.gui2 import error_dialog, open_local_file, choose_files, choose_save_file
+from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
 from calibre.gui2.widgets2 import Dialog
 from calibre.web.feeds.recipes import custom_recipes, compile_recipe
 from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -607,7 +608,8 @@ class CustomRecipes(Dialog):
     def reject(self):
         idx = self.stack.currentIndex()
         if idx > 0:
-            self.stack.setCurrentIndex(0)
+            if confirm_delete(_('Are you sure? Any unsaved changes will be lost.'), 'confirm-cancel-edit-custom-recipe'):
+                self.stack.setCurrentIndex(0)
             return
         Dialog.reject(self)
 
