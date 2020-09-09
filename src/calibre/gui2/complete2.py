@@ -6,8 +6,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import weakref
-
 from PyQt5.Qt import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
     QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo,
@@ -86,9 +84,8 @@ class Completer(QListView):  # {{{
     relayout_needed = pyqtSignal()
 
     def __init__(self, completer_widget, max_visible_items=7, sort_func=sort_key, strip_completion_entries=True):
-        QListView.__init__(self)
+        QListView.__init__(self, completer_widget)
         self.disable_popup = False
-        self.completer_widget = weakref.ref(completer_widget)
         self.setWindowFlags(Qt.Popup)
         self.max_visible_items = max_visible_items
         self.setEditTriggers(self.NoEditTriggers)
@@ -145,7 +142,7 @@ class Completer(QListView):  # {{{
             return
         p = self
         m = p.model()
-        widget = self.completer_widget()
+        widget = self.parent()
         if widget is None:
             return
         screen = QApplication.desktop().availableGeometry(widget)
@@ -205,7 +202,7 @@ class Completer(QListView):  # {{{
 
     def eventFilter(self, obj, e):
         'Redirect key presses from the popup to the widget'
-        widget = self.completer_widget()
+        widget = self.parent()
         if widget is None or sip.isdeleted(widget):
             return False
         etype = e.type()
