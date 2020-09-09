@@ -206,17 +206,17 @@ class _Parser(object):
         return val
 
     INFIX_OPS = {
-        "==":  lambda x, y: strcmp(x, y) == 0,
-        "!=":  lambda x, y: strcmp(x, y) != 0,
-        "<":   lambda x, y: strcmp(x, y) < 0,
-        "<=":  lambda x, y: strcmp(x, y) <= 0,
-        ">":   lambda x, y: strcmp(x, y) > 0,
-        ">=":  lambda x, y: strcmp(x, y) >= 0,
+        "==": lambda x, y: strcmp(x, y) == 0,
+        "!=": lambda x, y: strcmp(x, y) != 0,
+        "<": lambda x, y: strcmp(x, y) < 0,
+        "<=": lambda x, y: strcmp(x, y) <= 0,
+        ">": lambda x, y: strcmp(x, y) > 0,
+        ">=": lambda x, y: strcmp(x, y) >= 0,
         "==#": lambda x, y: float(x) == float(y) if x and y else False,
         "!=#": lambda x, y: float(x) != float(y) if x and y else False,
-        "<#":  lambda x, y: float(x) < float(y) if x and y else False,
+        "<#": lambda x, y: float(x) < float(y) if x and y else False,
         "<=#": lambda x, y: float(x) <= float(y) if x and y else False,
-        ">#":  lambda x, y: float(x) > float(y) if x and y else False,
+        ">#": lambda x, y: float(x) > float(y) if x and y else False,
         ">=#": lambda x, y: float(x) >= float(y) if x and y else False,
         }
 
@@ -357,16 +357,16 @@ class TemplateFormatter(string.Formatter):
     lex_scanner = re.Scanner([
             (r'(==#|!=#|<=#|<#|>=#|>#|==|!=|<=|<|>=|>)',
                                     lambda x,t: (_Parser.LEX_INFIX, t)),
-            (r'if\b',               lambda x,t: (_Parser.LEX_IF, t)),
-            (r'then\b',             lambda x,t: (_Parser.LEX_THEN, t)),
-            (r'else\b',             lambda x,t: (_Parser.LEX_ELSE, t)),
-            (r'fi\b',               lambda x,t: (_Parser.LEX_FI, t)),
-            (r'[(),=;]',            lambda x,t: (_Parser.LEX_OP, t)),
-            (r'-?[\d\.]+',          lambda x,t: (_Parser.LEX_CONST, t)),
-            (r'\$',                 lambda x,t: (_Parser.LEX_ID, t)),
-            (r'\w+',                lambda x,t: (_Parser.LEX_ID, t)),
-            (r'".*?((?<!\\)")',     lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
-            (r'\'.*?((?<!\\)\')',   lambda x,t: (_Parser.LEX_CONST, t[1:-1])),
+            (r'if\b',               lambda x,t: (_Parser.LEX_IF, t)),  # noqa
+            (r'then\b',             lambda x,t: (_Parser.LEX_THEN, t)),  # noqa
+            (r'else\b',             lambda x,t: (_Parser.LEX_ELSE, t)),  # noqa
+            (r'fi\b',               lambda x,t: (_Parser.LEX_FI, t)),  # noqa
+            (r'[(),=;]',            lambda x,t: (_Parser.LEX_OP, t)),  # noqa
+            (r'-?[\d\.]+',          lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
+            (r'\$',                 lambda x,t: (_Parser.LEX_ID, t)),  # noqa
+            (r'\w+',                lambda x,t: (_Parser.LEX_ID, t)),  # noqa
+            (r'".*?((?<!\\)")',     lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
+            (r'\'.*?((?<!\\)\')',   lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
             (r'\n#.*?(?:(?=\n)|$)', None),
             (r'\s',                 None),
         ], flags=re.DOTALL)

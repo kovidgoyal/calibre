@@ -2040,10 +2040,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 # Function to monkeypatch zeroconf to remove the 15 character name length restriction.
 # Copied from https://github.com/jstasiak/python-zeroconf version 0.28.1
 
+
 from zeroconf import (BadTypeInNameException, _HAS_A_TO_Z,
                       _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE,
                       _HAS_ASCII_CONTROL_CHARS,
                       _HAS_ONLY_A_TO_Z_NUM_HYPHEN)
+
 
 def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
     """
@@ -2143,4 +2145,3 @@ def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
             )
 
     return '_' + name + type_[-len('._tcp.local.') :]
-

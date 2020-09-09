@@ -468,7 +468,7 @@ class Quickview(QDialog, Ui_Quickview):
         '''
         if (not ignore_lock and self.lock_qv.isChecked()):
             return
-        if  not idx.isValid():
+        if not idx.isValid():
             from calibre.constants import DEBUG
             if DEBUG:
                 from calibre import prints
@@ -477,10 +477,9 @@ class Quickview(QDialog, Ui_Quickview):
 
         try:
             self.current_column = (
-                self.view.column_map.index('authors')
-                    if self.current_column is None
-                       and self.view.column_map[idx.column()] == 'title'
-                    else idx.column())
+                self.view.column_map.index('authors') if (
+                    self.current_column is None and self.view.column_map[idx.column()] == 'title'
+                ) else idx.column())
             key = self.view.column_map[self.current_column]
             book_id = self.view.model().id(idx.row())
             if self.current_book_id == book_id and self.current_key == key:
