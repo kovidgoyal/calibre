@@ -12,7 +12,7 @@ from contextlib import contextmanager
 from functools import partial
 
 from calibre import prints
-from calibre.constants import iswindows, isosx, filesystem_encoding
+from calibre.constants import iswindows, ismacos, filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
 
 
@@ -72,7 +72,7 @@ def metadata_extensions():
     return _metadata_extensions
 
 
-if iswindows or isosx:
+if iswindows or ismacos:
     unicode_listdir = os.listdir
 else:
     def unicode_listdir(root):

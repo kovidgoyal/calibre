@@ -9,7 +9,7 @@ import tempfile, os, atexit
 from polyglot.builtins import map, getenv
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        iswindows, get_windows_temp_path, isosx)
+        iswindows, get_windows_temp_path, ismacos)
 
 
 def cleanup(path):
@@ -113,7 +113,7 @@ def base_dir():
                     # unicode temp path instead. See
                     # https://bugs.launchpad.net/bugs/937389
                     base = get_windows_temp_path()
-                elif isosx:
+                elif ismacos:
                     # Use the cache dir rather than the temp dir for temp files as Apple
                     # thinks deleting unused temp files is a good idea. See note under
                     # _CS_DARWIN_USER_TEMP_DIR here

@@ -9,7 +9,7 @@ import signal
 import sys
 
 from calibre import as_unicode
-from calibre.constants import is_running_from_develop, isosx, iswindows, plugins
+from calibre.constants import is_running_from_develop, ismacos, iswindows, plugins
 from calibre.db.delete_service import shutdown as shutdown_delete_service
 from calibre.db.legacy import LibraryDatabase
 from calibre.srv.bonjour import BonJour
@@ -129,7 +129,7 @@ libraries that the main calibre program knows about will be used.
             ' URLs and export them.'
     ))
 
-    if not iswindows and not isosx:
+    if not iswindows and not ismacos:
         # Does not work on macOS because if we fork() we cannot connect to Core
         # Serives which is needed by the QApplication() constructor, which in
         # turn is needed by ensure_app()

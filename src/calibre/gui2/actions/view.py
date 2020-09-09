@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import Qt, QAction, pyqtSignal
 
-from calibre.constants import isosx, iswindows, plugins
+from calibre.constants import ismacos, iswindows, plugins
 from calibre.gui2 import (
     error_dialog, Dispatcher, question_dialog, config, open_local_file,
     info_dialog, elided_text)
@@ -135,7 +135,7 @@ class ViewAction(InterfaceAction):
         try:
             if internal:
                 args = [viewer]
-                if isosx and 'ebook' in viewer:
+                if ismacos and 'ebook' in viewer:
                     args.append('--raise-window')
 
                 if name is not None:
@@ -247,7 +247,7 @@ class ViewAction(InterfaceAction):
         for i, row in enumerate(rows):
             path = self.gui.library_view.model().db.abspath(row.row())
             open_local_file(path)
-            if isosx and i < len(rows) - 1:
+            if ismacos and i < len(rows) - 1:
                 time.sleep(0.1)  # Finder cannot handle multiple folder opens
 
     def view_folder_for_id(self, id_):

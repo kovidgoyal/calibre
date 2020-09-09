@@ -11,7 +11,7 @@ from collections import defaultdict
 from threading import Thread
 
 from calibre import walk, prints, as_unicode
-from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
+from calibre.constants import (config_dir, iswindows, ismacos, plugins, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
@@ -113,7 +113,7 @@ def font_dirs():
                 path = os.path.join(path, r'Microsoft\Windows\Fonts')
             paths.add(os.path.normcase(path))
         return list(paths)
-    if isosx:
+    if ismacos:
         return [
                 '/Library/Fonts',
                 '/System/Library/Fonts',

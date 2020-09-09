@@ -72,7 +72,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     from calibre.customize.ui import device_plugins, disabled_device_plugins
     from calibre.debug import print_basic_debug_info
     from calibre.devices.scanner import DeviceScanner
-    from calibre.constants import iswindows, isosx
+    from calibre.constants import iswindows, ismacos
     from calibre import prints
     from polyglot.io import PolyglotStringIO
     oldo, olde = sys.stdout, sys.stderr
@@ -108,7 +108,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
         out(pprint.pformat(devices))
 
         ioreg = None
-        if isosx:
+        if ismacos:
             from calibre.devices.usbms.device import Device
             mount = '\n'.join(repr(x) for x in Device.osx_run_mount().splitlines())
             drives = pprint.pformat(Device.osx_get_usb_drives())

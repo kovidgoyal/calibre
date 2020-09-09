@@ -10,7 +10,7 @@ import re
 from struct import pack
 from io import BytesIO
 
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, ismacos
 from calibre.ebooks.mobi.utils import (utf8_text, to_base)
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.ebooks.metadata import authors_to_sort_string
@@ -154,7 +154,7 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         nrecs += 1
 
     if be_kindlegen2:
-        mv = 200 if iswindows else 202 if isosx else 201
+        mv = 200 if iswindows else 202 if ismacos else 201
         vals = {204:mv, 205:2, 206:9, 207:0}
     elif is_periodical:
         # Pretend to be amazon's super secret periodical generator

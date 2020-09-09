@@ -9,7 +9,7 @@ from threading import Thread, Event
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon)
 
-from calibre.constants import (__appname__, __version__, iswindows, isosx,
+from calibre.constants import (__appname__, __version__, iswindows, ismacos,
         isportable, is64bit, numeric_version)
 from calibre import prints, as_unicode
 from calibre.utils.config import prefs
@@ -28,7 +28,7 @@ NO_CALIBRE_UPDATE = (0, 0, 0)
 
 def get_download_url():
     which = ('portable' if isportable else 'windows' if iswindows
-            else 'osx' if isosx else 'linux')
+            else 'osx' if ismacos else 'linux')
     if which == 'windows' and is64bit:
         which += '64'
     return localize_website_link('https://calibre-ebook.com/download_' + which)
@@ -41,7 +41,7 @@ def get_newest_version():
         icon_theme_name = ''
     headers={
         'CALIBRE-VERSION':__version__,
-        'CALIBRE-OS': ('win' if iswindows else 'osx' if isosx else 'oth'),
+        'CALIBRE-OS': ('win' if iswindows else 'osx' if ismacos else 'oth'),
         'CALIBRE-INSTALL-UUID': prefs['installation_uuid'],
         'CALIBRE-ICON-THEME': icon_theme_name,
     }

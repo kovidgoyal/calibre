@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QMenu, QHBoxLayout, QTimer, QUrl, QSize)
 
 from calibre import prints
-from calibre.constants import __appname__, get_version, isosx, DEBUG
+from calibre.constants import __appname__, get_version, ismacos, DEBUG
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.dbus_export.widgets import factory
@@ -357,9 +357,9 @@ class Main(MainWindow):
                 'edit-previous-file', 'Ctrl+Alt+Up', _('Edit the previous file in the spine'))
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
         # means these shortcuts interfere with editing
-        self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
+        self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if ismacos else 'Ctrl+Left',
                                       _('Revert book to before the last action (Undo)'))
-        self.action_global_redo = treg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if isosx else 'Ctrl+Right',
+        self.action_global_redo = treg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if ismacos else 'Ctrl+Right',
                                       _('Revert book state to after the next action (Redo)'))
         self.action_save = treg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
@@ -531,7 +531,7 @@ class Main(MainWindow):
         create_plugin_actions(actions, toolbar_actions, self.plugin_menu_actions)
 
     def create_menubar(self):
-        if isosx:
+        if ismacos:
             p, q = self.create_application_menubar()
             q.triggered.connect(self.action_quit.trigger)
             p.triggered.connect(self.action_preferences.trigger)

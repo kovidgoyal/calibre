@@ -16,7 +16,7 @@ from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 from calibre import force_unicode, plugins, prints
 from calibre.constants import (
     DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base,
-    islinux, isosx, iswindows
+    islinux, ismacos, iswindows
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
@@ -382,7 +382,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         wizard().exec_()
         dynamic.set('welcome_wizard_was_run', True)
     from calibre.gui2.ui import Main
-    if isosx:
+    if ismacos:
         actions = tuple(Main.create_application_menubar())
     else:
         actions = tuple(Main.get_menubar_actions())
@@ -446,7 +446,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
                listener_failed=False):
     base = '<p>%s</p><p>%s %s'
     where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
-    if isosx:
+    if ismacos:
         where += _('upper right region of the screen.')
     else:
         where += _('lower right region of the screen.')

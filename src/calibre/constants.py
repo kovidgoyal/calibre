@@ -17,16 +17,16 @@ Various run time constants.
 
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
-isosx     = 'darwin' in _plat
-isnewosx  = isosx and getattr(sys, 'new_app_bundle', False)
+ismacos = isosx = 'darwin' in _plat
+isnewosx  = ismacos and getattr(sys, 'new_app_bundle', False)
 isfreebsd = 'freebsd' in _plat
 isnetbsd = 'netbsd' in _plat
 isdragonflybsd = 'dragonfly' in _plat
 isbsd = isfreebsd or isnetbsd or isdragonflybsd
 ishaiku = 'haiku1' in _plat
-islinux   = not(iswindows or isosx or isbsd or ishaiku)
+islinux   = not(iswindows or ismacos or isbsd or ishaiku)
 isfrozen  = hasattr(sys, 'frozen')
-isunix = isosx or islinux or ishaiku
+isunix = ismacos or islinux or ishaiku
 isportable = hasenv('CALIBRE_PORTABLE_BUILD')
 ispy3 = sys.version_info.major > 2
 isxp = isoldvista = False
@@ -143,7 +143,7 @@ def _get_cache_dir():
             candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), '%s-cache'%__appname__)
         except ValueError:
             return confcache
-    elif isosx:
+    elif ismacos:
         candidate = os.path.join(os.path.expanduser('~/Library/Caches'), __appname__)
     else:
         candidate = getenv('XDG_CACHE_HOME', '~/.cache')
@@ -203,10 +203,10 @@ class Plugins(collections.Mapping):
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])
-        if isosx:
+        if ismacos:
             plugins.append('usbobserver')
             plugins.append('cocoa')
-        if isfreebsd or ishaiku or islinux or isosx:
+        if isfreebsd or ishaiku or islinux or ismacos:
             plugins.append('libusb')
             plugins.append('libmtp')
         self.plugins = frozenset(plugins)
@@ -269,7 +269,7 @@ elif iswindows:
     if not config_dir or not os.access(config_dir, os.W_OK|os.X_OK):
         config_dir = os.path.expanduser('~')
     config_dir = os.path.join(config_dir, 'calibre')
-elif isosx:
+elif ismacos:
     config_dir = os.path.expanduser('~/Library/Preferences/calibre')
 else:
     bdir = os.path.abspath(os.path.expanduser(getenv('XDG_CONFIG_HOME', '~/.config')))

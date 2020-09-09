@@ -9,7 +9,7 @@ import os, ctypes, errno, socket
 from io import DEFAULT_BUFFER_SIZE
 from select import select
 
-from calibre.constants import islinux, isosx
+from calibre.constants import islinux, ismacos
 from calibre.srv.utils import eintr_retry_call
 
 
@@ -45,7 +45,7 @@ class SendfileInterrupted(Exception):
 
 sendfile_to_socket = sendfile_to_socket_async = None
 
-if isosx:
+if ismacos:
     libc = ctypes.CDLL(None, use_errno=True)
     sendfile = ctypes.CFUNCTYPE(
         ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64), ctypes.c_void_p, ctypes.c_int, use_errno=True)(

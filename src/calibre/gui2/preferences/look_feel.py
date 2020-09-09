@@ -20,7 +20,7 @@ from PyQt5.Qt import (
 
 from calibre import human_readable
 from calibre.ebooks.metadata.book.render import DEFAULT_AUTHOR_LINK
-from calibre.constants import isosx, iswindows
+from calibre.constants import ismacos, iswindows
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2 import default_author_link
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
@@ -383,7 +383,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):
         self.gui = gui
-        if not isosx and not iswindows:
+        if not ismacos and not iswindows:
             self.label_widget_style.setVisible(False)
             self.opt_ui_style.setVisible(False)
 
@@ -402,7 +402,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.default_author_link.changed_signal.connect(self.changed_signal)
         r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
         r('hidpi', gprefs, restart_required=True, choices=[(_('Automatic'), 'auto'), (_('On'), 'on'), (_('Off'), 'off')])
-        if isosx:
+        if ismacos:
             self.opt_hidpi.setVisible(False), self.label_hidpi.setVisible(False)
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('calibre style'), 'calibre')])
         r('book_list_tooltips', gprefs)

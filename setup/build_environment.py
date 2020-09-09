@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, subprocess, re, sys, sysconfig
 from distutils.spawn import find_executable
 
-from setup import isfreebsd, isosx, iswindows, is64bit, islinux, ishaiku
+from setup import isfreebsd, ismacos, iswindows, is64bit, islinux, ishaiku
 is64bit
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = None
@@ -162,7 +162,7 @@ if iswindows:
     zlib_lib_dirs = [sw_lib_dir]
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
-elif isosx:
+elif ismacos:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     sw_inc_dir  = os.path.join(sw, 'include')
     sw_lib_dir  = os.path.join(sw, 'lib')

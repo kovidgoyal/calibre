@@ -11,7 +11,7 @@ from collections import namedtuple
 from functools import partial
 
 from calibre import prints, as_unicode, force_unicode
-from calibre.constants import plugins, islinux, isosx
+from calibre.constants import plugins, islinux, ismacos
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
@@ -51,7 +51,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if islinux:
             from calibre.devices.mtp.unix.sysfs import MTPDetect
             self._is_device_mtp = MTPDetect()
-        if isosx and 'osx' in self.supported_platforms:
+        if ismacos and 'osx' in self.supported_platforms:
             self.usbobserver, err = plugins['usbobserver']
             if err:
                 raise RuntimeError(err)

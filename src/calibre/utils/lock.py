@@ -11,7 +11,7 @@ import time
 from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins
+    __appname__, fcntl, filesystem_encoding, islinux, ismacos, iswindows, plugins
 )
 from calibre.utils.monotonic import monotonic
 from calibre.utils.shared_file import raise_winerror
@@ -172,7 +172,7 @@ else:
         )
         home = os.path.expanduser('~')
         locs = ['/var/lock', home, tempfile.gettempdir()]
-        if isosx:
+        if ismacos:
             locs.insert(0, '/Library/Caches')
         for loc in locs:
             if os.access(loc, os.W_OK | os.R_OK | os.X_OK):

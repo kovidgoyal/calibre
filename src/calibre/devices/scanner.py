@@ -11,7 +11,7 @@ from collections import namedtuple
 from threading import Lock
 
 from calibre import prints, as_unicode
-from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
+from calibre.constants import (iswindows, ismacos, plugins, islinux, isfreebsd,
         isnetbsd)
 from polyglot.builtins import range
 
@@ -172,7 +172,7 @@ if islinux:
     linux_scanner = LinuxScanner()
 
 libusb_scanner = LibUSBScanner()
-if False and isosx:
+if False and ismacos:
     # Apparently libusb causes mem leaks on some Macs and hangs on others and
     # works on a few. OS X users will just have to live without MTP support.
     # See https://bugs.launchpad.net/calibre/+bug/1044706
@@ -196,7 +196,7 @@ class DeviceScanner(object):
     def __init__(self, *args):
         if iswindows:
             from calibre.devices.winusb import scan_usb_devices as win_scanner
-        self.scanner = (win_scanner if iswindows else osx_scanner if isosx else
+        self.scanner = (win_scanner if iswindows else osx_scanner if ismacos else
                 freebsd_scanner if isfreebsd else netbsd_scanner if isnetbsd
                 else linux_scanner if islinux else libusb_scanner)
         if self.scanner is None:

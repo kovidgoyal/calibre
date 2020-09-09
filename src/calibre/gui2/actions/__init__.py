@@ -13,7 +13,7 @@ from PyQt5.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
         QKeySequence)
 
 from calibre import prints
-from calibre.constants import isosx
+from calibre.constants import ismacos
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
 from polyglot.builtins import unicode_type, string_or_bytes
@@ -201,7 +201,7 @@ class InterfaceAction(QObject):
                         QKeySequence.PortableText) for key in keys])
                 else:
                     self.shortcut_action_for_context_menu = shortcut_action
-                    if isosx:
+                    if ismacos:
                         # In Qt 5 keyboard shortcuts dont work unless the
                         # action is explicitly added to the main window
                         self.gui.addAction(shortcut_action)

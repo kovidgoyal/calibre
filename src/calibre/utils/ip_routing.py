@@ -4,7 +4,7 @@
 
 
 import subprocess, re
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, ismacos
 
 
 def get_address_of_default_gateway(family='AF_INET'):
@@ -56,7 +56,7 @@ if iswindows:
     get_default_route_src_address = get_default_route_src_address_api
 
 
-elif isosx:
+elif ismacos:
 
     def get_default_route_src_address():
         # Use -inet6 for IPv6

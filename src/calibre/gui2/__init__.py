@@ -25,7 +25,7 @@ from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import fr
 from calibre import as_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__ as APP_UID, __version__, config_dir, filesystem_encoding,
-    is_running_from_develop, isbsd, isfrozen, islinux, isosx, iswindows, isxp,
+    is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
     plugins, plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
@@ -69,7 +69,7 @@ native_menubar_defaults = {
 
 def create_defs():
     defs = gprefs.defaults
-    if isosx:
+    if ismacos:
         defs['action-layout-menubar'] = native_menubar_defaults['action-layout-menubar']
         defs['action-layout-menubar-device'] = native_menubar_defaults['action-layout-menubar-device']
         defs['action-layout-toolbar'] = (
@@ -147,7 +147,7 @@ def create_defs():
     defs['blocked_auto_formats'] = []
     defs['auto_add_auto_convert'] = True
     defs['auto_add_everything'] = False
-    defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+    defs['ui_style'] = 'calibre' if iswindows or ismacos else 'system'
     defs['tag_browser_old_look'] = False
     defs['tag_browser_hide_empty_categories'] = False
     defs['tag_browser_always_autocollapse'] = False
@@ -663,7 +663,7 @@ if iswindows and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ:
     from calibre.gui2.win_file_dialogs import is_ok as has_windows_file_dialog_helper
     has_windows_file_dialog_helper = has_windows_file_dialog_helper()
 has_linux_file_dialog_helper = False
-if not iswindows and not isosx and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ and getattr(sys, 'frozen', False):
+if not iswindows and not ismacos and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ and getattr(sys, 'frozen', False):
     has_linux_file_dialog_helper = check_for_linux_native_dialogs()
 
 if has_windows_file_dialog_helper:
@@ -883,7 +883,7 @@ class Application(QApplication):
         self.pi, pi_err = plugins['progress_indicator']
         if pi_err:
             raise RuntimeError('Failed to load the progress_indicator C extension, with error: {}'.format(pi_err))
-        if not isosx and not headless:
+        if not ismacos and not headless:
             # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
             setup_hidpi()
         QApplication.setOrganizationName('calibre-ebook.com')
@@ -897,7 +897,7 @@ class Application(QApplication):
         sh = self.styleHints()
         if hasattr(sh, 'setShowShortcutsInContextMenus'):
             sh.setShowShortcutsInContextMenus(True)
-        if isosx:
+        if ismacos:
             plugins['cocoa'][0].disable_cocoa_ui_elements()
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         self.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
@@ -929,7 +929,7 @@ class Application(QApplication):
             if s is not None:
                 font.setStretch(s)
             QApplication.setFont(font)
-        if not isosx and not iswindows:
+        if not ismacos and not iswindows:
             # Qt 5.10.1 on Linux resets the global font on first event loop tick.
             # So workaround it by setting the font once again in a timer.
             font_from_prefs = self.font()
@@ -947,7 +947,7 @@ class Application(QApplication):
         self._file_open_paths = []
         self._file_open_lock = RLock()
 
-        if not isosx:
+        if not ismacos:
             # OS X uses a native color dialog that does not support custom
             # colors
             self.color_prefs = color_prefs
@@ -975,7 +975,7 @@ class Application(QApplication):
             # Qt 5 bug: https://bugreports.qt-project.org/browse/QTBUG-41125
             self.aboutToQuit.connect(self.flush_clipboard)
 
-        if isosx:
+        if ismacos:
             cocoa, err = plugins['cocoa']
             if err:
                 raise RuntimeError('Failed to load cocoa plugin with error: {}'.format(err))
@@ -1038,7 +1038,7 @@ class Application(QApplication):
         self.set_palette(dark_palette())
 
     def setup_styles(self, force_calibre_style):
-        if iswindows or isosx:
+        if iswindows or ismacos:
             using_calibre_style = gprefs['ui_style'] != 'system'
         else:
             using_calibre_style = os.environ.get('CALIBRE_USE_SYSTEM_THEME', '0') == '0'
@@ -1047,7 +1047,7 @@ class Application(QApplication):
         if using_calibre_style:
             use_dark_palette = False
             if 'CALIBRE_USE_DARK_PALETTE' in os.environ:
-                if not isosx:
+                if not ismacos:
                     use_dark_palette = os.environ['CALIBRE_USE_DARK_PALETTE'] != '0'
             else:
                 if iswindows:
@@ -1087,7 +1087,7 @@ class Application(QApplication):
             return
         self.is_dark_theme = is_dark_theme()
         self.setProperty('is_dark_theme', self.is_dark_theme)
-        if isosx and self.is_dark_theme and self.using_calibre_style:
+        if ismacos and self.is_dark_theme and self.using_calibre_style:
             QTimer.singleShot(0, self.fix_combobox_text_color)
         if self.using_calibre_style:
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
@@ -1132,7 +1132,7 @@ class Application(QApplication):
             v = pcache[v]
             icon_map[getattr(QStyle, 'SP_'+k)] = v
         transient_scroller = 0
-        if isosx:
+        if ismacos:
             transient_scroller = plugins['cocoa'][0].transient_scroller()
         icon_map[QStyle.SP_CustomBase + 1] = I('close-for-light-theme.png')
         icon_map[QStyle.SP_CustomBase + 2] = I('close-for-dark-theme.png')
@@ -1215,7 +1215,7 @@ def sanitize_env_vars():
         env_vars = {'LD_LIBRARY_PATH':'/lib'}
     elif iswindows:
         env_vars = {}
-    elif isosx:
+    elif ismacos:
         env_vars = {k:None for k in (
                     'FONTCONFIG_FILE FONTCONFIG_PATH SSL_CERT_FILE').split()}
     else:
@@ -1300,10 +1300,10 @@ def ensure_app(headless=True):
     with _ea_lock:
         if _store_app is None and QApplication.instance() is None:
             args = sys.argv[:1]
-            has_headless = isosx or islinux or isbsd
+            has_headless = ismacos or islinux or isbsd
             if headless and has_headless:
                 args += ['-platformpluginpath', plugins_loc, '-platform', 'headless']
-                if isosx:
+                if ismacos:
                     os.environ['QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM'] = '1'
             if headless and iswindows:
                 QApplication.setAttribute(Qt.AA_UseSoftwareOpenGL, True)

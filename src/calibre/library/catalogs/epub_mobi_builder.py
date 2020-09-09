@@ -20,7 +20,7 @@ from calibre import (
     as_unicode, force_unicode, isbytestring, prepare_string_for_xml,
     replace_entities, strftime, xml_replace_entities
 )
-from calibre.constants import cache_dir, isosx
+from calibre.constants import cache_dir, ismacos
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.customize.conversion import DummyReporter
 from calibre.customize.ui import output_profiles
@@ -706,7 +706,7 @@ class CatalogBuilder(object):
                 c = item
 
             ordnum, ordlen = collation_order(c)
-            if isosx and platform.mac_ver()[0] < '10.8':
+            if ismacos and platform.mac_ver()[0] < '10.8':
                 # Hackhackhackhackhack
                 # icu returns bogus results with curly apostrophes, maybe others under OS X 10.6.x
                 # When we see the magic combo of 0/-1 for ordnum/ordlen, special case the logic

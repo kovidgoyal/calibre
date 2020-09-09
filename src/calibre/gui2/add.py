@@ -14,7 +14,7 @@ from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
 from calibre import prints, as_unicode
-from calibre.constants import DEBUG, iswindows, isosx, filesystem_encoding
+from calibre.constants import DEBUG, iswindows, ismacos, filesystem_encoding
 from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db.adding import find_books_in_directory, compile_rule
 from calibre.db.utils import find_identical_books
@@ -134,7 +134,7 @@ class Adder(QObject):
             import traceback
             traceback.print_exc()
 
-        if iswindows or isosx:
+        if iswindows or ismacos:
             def find_files(root):
                 for dirpath, dirnames, filenames in os.walk(root):
                     for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):

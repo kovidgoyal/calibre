@@ -11,7 +11,7 @@ from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
 from functools import partial
 
 from calibre import strftime
-from calibre.constants import iswindows, isosx, plugins, preferred_encoding
+from calibre.constants import iswindows, ismacos, plugins, preferred_encoding
 from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
 from calibre.utils.localization import lcdata
 from polyglot.builtins import unicode_type, native_string_type
@@ -31,7 +31,7 @@ if iswindows:
     except:
         parse_date_day_first = False
     del ctypes, LOCALE_SSHORTDATE, buf, LOCALE_USER_DEFAULT
-elif isosx:
+elif ismacos:
     try:
         date_fmt = plugins['usbobserver'][0].date_format()
         parse_date_day_first = date_fmt.index('d') < date_fmt.index('M')

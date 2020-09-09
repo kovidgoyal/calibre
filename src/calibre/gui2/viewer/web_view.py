@@ -20,7 +20,7 @@ from PyQt5.QtWebEngineWidgets import (
 from calibre import as_unicode, prints
 from calibre.constants import (
     FAKE_HOST, FAKE_PROTOCOL, __version__, in_develop_mode, is_running_from_develop,
-    isosx, iswindows
+    ismacos, iswindows
 )
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -204,7 +204,7 @@ def create_profile():
     ans = getattr(create_profile, 'ans', None)
     if ans is None:
         ans = QWebEngineProfile(QApplication.instance())
-        osname = 'windows' if iswindows else ('macos' if isosx else 'linux')
+        osname = 'windows' if iswindows else ('macos' if ismacos else 'linux')
         # DO NOT change the user agent as it is used to workaround
         # Qt bugs see workaround_qt_bug() in ajax.pyj
         ua = 'calibre-viewer {} {}'.format(__version__, osname)

@@ -13,7 +13,7 @@ from contextlib import closing
 from zipimport import ZipImportError
 
 from calibre import prints
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, ismacos
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import msgpack_loads, pickle_dumps
 from polyglot.queue import Queue
@@ -171,7 +171,7 @@ def main():
         # Close open file descriptors inherited from parent
         # On Unix this is done by the subprocess module
         os.closerange(3, 256)
-    if isosx and 'CALIBRE_WORKER_ADDRESS' not in os.environ and 'CALIBRE_SIMPLE_WORKER' not in os.environ and '--pipe-worker' not in sys.argv:
+    if ismacos and 'CALIBRE_WORKER_ADDRESS' not in os.environ and 'CALIBRE_SIMPLE_WORKER' not in os.environ and '--pipe-worker' not in sys.argv:
         # On some OS X computers launchd apparently tries to
         # launch the last run process from the bundle
         # so launch the gui as usual

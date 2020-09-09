@@ -15,7 +15,7 @@ try:
 except ImportError:
     import sip
 
-from calibre.constants import isosx
+from calibre.constants import ismacos
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
@@ -250,7 +250,7 @@ class Completer(QListView):  # {{{
                 self.hide()
             if e.isAccepted():
                 return True
-        elif isosx and etype == e.InputMethodQuery and e.queries() == (Qt.ImHints | Qt.ImEnabled) and self.isVisible():
+        elif ismacos and etype == e.InputMethodQuery and e.queries() == (Qt.ImHints | Qt.ImEnabled) and self.isVisible():
             # In Qt 5 the Esc key causes this event and the line edit does not
             # handle it, which causes the parent dialog to be closed
             # See https://bugreports.qt-project.org/browse/QTBUG-41806

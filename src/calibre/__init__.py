@@ -16,7 +16,7 @@ try:
 except EnvironmentError:
     os.chdir(os.path.expanduser('~'))
 
-from calibre.constants import (iswindows, isosx, islinux, isfrozen,
+from calibre.constants import (iswindows, ismacos, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,
         win32event, win32api, winerror, fcntl,
         filesystem_encoding, plugins, config_dir)
@@ -94,7 +94,7 @@ def unicode_path(path, abs=False):
 
 
 def osx_version():
-    if isosx:
+    if ismacos:
         import platform
         src = platform.mac_ver()[0]
         m = re.match(r'(\d+)\.(\d+)\.(\d+)', src)
@@ -169,7 +169,7 @@ def setup_cli_handlers(logger, level):
 def load_library(name, cdll):
     if iswindows:
         return cdll.LoadLibrary(name)
-    if isosx:
+    if ismacos:
         name += '.dylib'
         if hasattr(sys, 'frameworks_dir'):
             return cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), name))

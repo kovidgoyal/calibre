@@ -181,7 +181,7 @@ def print_basic_debug_info(out=None):
         out = sys.stdout
     out = functools.partial(prints, file=out)
     import platform
-    from calibre.constants import (__appname__, get_version, isportable, isosx,
+    from calibre.constants import (__appname__, get_version, isportable, ismacos,
                                    isfrozen, is64bit)
     from calibre.utils.localization import set_translators
     out(__appname__, get_version(), 'Portable' if isportable else '',
@@ -200,7 +200,7 @@ def print_basic_debug_info(out=None):
     try:
         if iswindows:
             out('Windows:', platform.win32_ver())
-        elif isosx:
+        elif ismacos:
             out('OSX:', platform.mac_ver())
         else:
             out('Linux:', platform.linux_distribution())

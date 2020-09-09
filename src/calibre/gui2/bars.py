@@ -15,7 +15,7 @@ try:
 except ImportError:
     import sip
 
-from calibre.constants import isosx
+from calibre.constants import ismacos
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
 from polyglot.builtins import itervalues, unicode_type, map, range
@@ -334,7 +334,7 @@ class MenuAction(QAction):  # {{{
 # MenuBar {{{
 
 
-if isosx:
+if ismacos:
     # On OS X we need special handling for the application global menu bar and
     # the context menus, since Qt does not handle dynamic menus or menus in
     # which the same action occurs in more than one place.
@@ -617,11 +617,11 @@ class AdaptMenuBarForDialog(object):
         self.menu_bar = menu_bar
 
     def __enter__(self):
-        if isosx and self.menu_bar.is_native_menubar:
+        if ismacos and self.menu_bar.is_native_menubar:
             self.menu_bar.adapt_for_dialog(True)
 
     def __exit__(self, *a):
-        if isosx and self.menu_bar.is_native_menubar:
+        if ismacos and self.menu_bar.is_native_menubar:
             self.menu_bar.adapt_for_dialog(False)
 
 

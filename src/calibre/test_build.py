@@ -12,7 +12,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest, time
 
-from calibre.constants import plugins, iswindows, islinux, isosx, plugins_loc
+from calibre.constants import plugins, iswindows, islinux, ismacos, plugins_loc
 from polyglot.builtins import iteritems, map, unicode_type, getenv, native_string_type
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
@@ -100,7 +100,7 @@ class BuildTest(unittest.TestCase):
             if name in exclusions:
                 if name in ('libusb', 'libmtp'):
                     # Just check that the DLL can be loaded
-                    ctypes.CDLL(os.path.join(plugins_loc, name + ('.dylib' if isosx else '.so')))
+                    ctypes.CDLL(os.path.join(plugins_loc, name + ('.dylib' if ismacos else '.so')))
                 continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
@@ -128,7 +128,7 @@ class BuildTest(unittest.TestCase):
         large = b'x' * (100 * 1024 * 1024)
         msgpack_loads(msgpack_dumps(large))
 
-    @unittest.skipUnless(isosx, 'FSEvents only present on OS X')
+    @unittest.skipUnless(ismacos, 'FSEvents only present on OS X')
     def test_fsevents(self):
         from fsevents import Observer, Stream
         del Observer, Stream
@@ -235,7 +235,7 @@ class BuildTest(unittest.TestCase):
             p.printToPdf(print_callback)
             QTimer.singleShot(5000, lambda: QApplication.instance().quit())
             QApplication.instance().exec_()
-            test_flaky = isosx and not is_ci
+            test_flaky = ismacos and not is_ci
             if not test_flaky:
                 self.assertEqual(callback.result, 2, 'Simple JS computation failed')
                 self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
@@ -334,7 +334,7 @@ class BuildTest(unittest.TestCase):
     def test_openssl(self):
         import ssl
         ssl.PROTOCOL_TLSv1_2
-        if isosx:
+        if ismacos:
             cafile = ssl.get_default_verify_paths().cafile
             if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
                 raise AssertionError('Mozilla CA certs not loaded')

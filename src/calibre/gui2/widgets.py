@@ -14,7 +14,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
         QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice)
 
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, ismacos
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
         warning_dialog)
 from calibre.gui2.filename_pattern_ui import Ui_Form
@@ -1249,7 +1249,7 @@ class PaperSizes(QComboBox):  # {{{
         from calibre.utils.icu import numeric_sort_key
         if self.system_default_paper_size is None:
             PaperSizes.system_default_paper_size = 'a4'
-            if iswindows or isosx:
+            if iswindows or ismacos:
                 # On Linux, this can cause Qt to load the system cups plugin
                 # which can crash: https://bugs.launchpad.net/calibre/+bug/1861741
                 PaperSizes.system_default_paper_size = 'letter' if QPrinter().pageSize() == QPagedPaintDevice.Letter else 'a4'

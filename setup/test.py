@@ -6,7 +6,7 @@
 import os
 import unittest
 
-from setup import Command, islinux, isosx, iswindows, SRC
+from setup import Command, islinux, ismacos, iswindows, SRC
 
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
@@ -42,7 +42,7 @@ class TestImports(unittest.TestCase):
         if not iswindows:
             exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
             exclude_packages |= {'calibre.utils.winreg'}
-        if not isosx:
+        if not ismacos:
             exclude_modules.add('calibre.utils.open_with.osx')
         if not islinux:
             exclude_modules |= {

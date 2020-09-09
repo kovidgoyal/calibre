@@ -4,14 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, zipfile, importlib
 
-from calibre.constants import numeric_version, iswindows, isosx
+from calibre.constants import numeric_version, iswindows, ismacos
 from calibre.ptempfile import PersistentTemporaryFile
 from polyglot.builtins import unicode_type
 
 platform = 'linux'
 if iswindows:
     platform = 'windows'
-elif isosx:
+elif ismacos:
     platform = 'osx'
 
 

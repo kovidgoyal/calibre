@@ -21,7 +21,7 @@ builtins.__dict__['__'] = lambda s: s
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
 
-from calibre.constants import iswindows, preferred_encoding, plugins, isosx, islinux, DEBUG, isfreebsd
+from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, DEBUG, isfreebsd
 
 _run_once = False
 winutil = winutilerror = None
@@ -100,7 +100,7 @@ if not _run_once:
     #
     # Convert command line arguments to unicode
     enc = preferred_encoding
-    if isosx:
+    if ismacos:
         enc = 'utf-8'
     for i in range(1, len(sys.argv)):
         if not isinstance(sys.argv[i], unicode_type):
@@ -199,7 +199,7 @@ if not _run_once:
         bound_signal.connect(slot, **kw)
     builtins.__dict__['connect_lambda'] = connect_lambda
 
-    if islinux or isosx or isfreebsd:
+    if islinux or ismacos or isfreebsd:
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500
         import threading

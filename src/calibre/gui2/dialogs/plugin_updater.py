@@ -15,7 +15,7 @@ from PyQt5.Qt import (Qt, QUrl, QFrame, QVBoxLayout, QLabel, QBrush, QTextEdit,
                       QFont, QPixmap, QSize, QLineEdit)
 
 from calibre import browser, prints
-from calibre.constants import numeric_version, iswindows, isosx, DEBUG, __appname__, __version__
+from calibre.constants import numeric_version, iswindows, ismacos, DEBUG, __appname__, __version__
 from calibre.customize.ui import (
     initialized_plugins, is_disabled, remove_plugin, add_plugin, enable_plugin, disable_plugin,
     NameConflict, has_external_plugins)
@@ -229,7 +229,7 @@ class DisplayPlugin(object):
     def is_valid_platform(self):
         if iswindows:
             return 'windows' in self.platforms
-        if isosx:
+        if ismacos:
             return 'osx' in self.platforms
         return 'linux' in self.platforms
 

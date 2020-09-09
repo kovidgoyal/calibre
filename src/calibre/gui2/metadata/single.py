@@ -15,7 +15,7 @@ from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QAppli
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, QInputDialog,
         QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)
 
-from calibre.constants import isosx
+from calibre.constants import ismacos
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
@@ -158,7 +158,7 @@ class MetadataSingleDialogBase(QDialog):
               'change author sort from red to green.  There is a menu of '
               'functions available under this button. Click and hold '
               'on the button to see it.') + '</p>')
-        if isosx:
+        if ismacos:
             # Workaround for https://bugreports.qt-project.org/browse/QTBUG-41017
             class Menu(QMenu):
 

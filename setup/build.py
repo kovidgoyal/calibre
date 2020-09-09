@@ -8,8 +8,8 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
 
-from setup import Command, islinux, isbsd, isfreebsd, isosx, ishaiku, SRC, iswindows, __version__
-isunix = islinux or isosx or isbsd or ishaiku
+from setup import Command, islinux, isbsd, isfreebsd, ismacos, ishaiku, SRC, iswindows, __version__
+isunix = islinux or ismacos or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 CompileCommand = namedtuple('CompileCommand', 'cmd src dest')
@@ -118,7 +118,7 @@ def parse_extension(ext):
         ans = ext.pop(k, default)
         if iswindows:
             ans = ext.pop('windows_' + k, ans)
-        elif isosx:
+        elif ismacos:
             ans = ext.pop('osx_' + k, ans)
         elif isbsd:
             ans = ext.pop('bsd_' + k, ans)
@@ -192,7 +192,7 @@ def init_env():
         ldflags.append('-lpython{}{}'.format(
             sysconfig.get_config_var('VERSION'), getattr(sys, 'abiflags', '')))
 
-    if isosx:
+    if ismacos:
         cflags.append('-D_OSX')
         ldflags.extend('-bundle -undefined dynamic_lookup'.split())
         cflags.extend(['-fno-common', '-dynamic'])
@@ -420,7 +420,7 @@ class Build(Command):
             'calibre/headless/headless_backingstore.cpp',
             'calibre/headless/headless_integration.cpp',
         ])
-        if isosx:
+        if ismacos:
             sources.extend(a(['calibre/headless/coretext_fontdatabase.mm']))
         else:
             headers.extend(a(['calibre/headless/fontconfig_database.h']))
@@ -462,7 +462,7 @@ class Build(Command):
             self.check_call([self.env.make] + ['-j%d'%(cpu_count or 1)])
         finally:
             os.chdir(cwd)
-        if isosx:
+        if ismacos:
             os.rename(self.j(self.d(target), 'libheadless.dylib'), self.j(self.d(target), 'headless.so'))
 
     def get_sip_commands(self, ext):
@@ -524,7 +524,7 @@ class Build(Command):
         )
         for incdir in ext.inc_dirs:
             pro += '\nINCLUDEPATH += ' + incdir
-        if not iswindows and not isosx:
+        if not iswindows and not ismacos:
             # Ensure that only the init symbol is exported
             pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
             with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
@@ -539,7 +539,7 @@ class Build(Command):
         qmc = []
         if iswindows:
             qmc += ['-spec', qmakespec]
-        fext = 'dll' if iswindows else 'dylib' if isosx else 'so'
+        fext = 'dll' if iswindows else 'dylib' if ismacos else 'so'
         name = '%s%s.%s' % ('release/' if iswindows else 'lib', sip['target'], fext)
         try:
             os.chdir(src_dir)

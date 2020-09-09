@@ -29,7 +29,7 @@ def available_translations():
 
 
 def get_system_locale():
-    from calibre.constants import iswindows, isosx, plugins
+    from calibre.constants import iswindows, ismacos, plugins
     lang = None
     if iswindows:
         try:
@@ -40,7 +40,7 @@ def get_system_locale():
                 lang = None
         except:
             pass  # Windows XP does not have the GetUserDefaultLocaleName fn
-    elif isosx:
+    elif ismacos:
         try:
             lang = plugins['usbobserver'][0].user_locale() or None
         except:

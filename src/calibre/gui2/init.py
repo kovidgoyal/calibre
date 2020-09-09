@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QToolButton, QVBoxLayout, QWidget
 )
 
-from calibre.constants import __appname__, get_version, isosx
+from calibre.constants import __appname__, get_version, ismacos
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import config, error_dialog, gprefs, is_widescreen, open_url
 from calibre.gui2.book_details import BookDetails
@@ -618,7 +618,7 @@ class LayoutMixin(object):  # {{{
                     button = self.search_bar_button
             self.layout_buttons.append(button)
             button.setVisible(False)
-            if isosx and stylename != 'Calibre':
+            if ismacos and stylename != 'Calibre':
                 button.setStyleSheet('''
                         QToolButton { background: none; border:none; padding: 0px; }
                         QToolButton:checked { background: rgba(0, 0, 0, 25%); }

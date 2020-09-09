@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget, QSize)
 
 from calibre import as_unicode
-from calibre.constants import isosx
+from calibre.constants import ismacos
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
         info_dialog, choose_dir)
@@ -374,7 +374,7 @@ class CopyToLibraryAction(InterfaceAction):
             self.menu.addAction(_('Choose library...'), self.choose_library)
 
         self.qaction.setVisible(bool(locations))
-        if isosx:
+        if ismacos:
             # The cloned action has to have its menu updated
             self.qaction.changed.emit()
 

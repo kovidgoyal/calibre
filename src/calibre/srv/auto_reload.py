@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, subprocess, signal, time, errno, socket, ssl
 from threading import Thread, Lock
 
-from calibre.constants import islinux, iswindows, isosx
+from calibre.constants import islinux, iswindows, ismacos
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.loop import ServerLoop
 from calibre.srv.opts import Options
@@ -161,7 +161,7 @@ elif iswindows:
                     else:
                         self.handle_modified({path})
 
-elif isosx:
+elif ismacos:
     from fsevents import Observer, Stream
 
     class Watcher(WatcherBase):

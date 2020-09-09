@@ -12,7 +12,7 @@ from math import ceil
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import (
-    filesystem_encoding, iswindows, plugins, preferred_encoding, isosx
+    filesystem_encoding, iswindows, plugins, preferred_encoding, ismacos
 )
 from calibre.utils.localization import get_udc
 from polyglot.builtins import iteritems, itervalues, unicode_type, range
@@ -52,7 +52,7 @@ def shorten_component(s, by_what):
 def limit_component(x, limit=254):
     # windows and macs use ytf-16 codepoints for length, linux uses arbitrary
     # binary data, but we will assume utf-8
-    filename_encoding_for_length = 'utf-16' if iswindows or isosx else 'utf-8'
+    filename_encoding_for_length = 'utf-16' if iswindows or ismacos else 'utf-8'
 
     def encoded_length():
         q = x if isinstance(x, bytes) else x.encode(filename_encoding_for_length)

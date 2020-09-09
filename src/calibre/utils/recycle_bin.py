@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, time, sys
 
 from calibre import isbytestring
-from calibre.constants import (iswindows, isosx, plugins, filesystem_encoding,
+from calibre.constants import (iswindows, ismacos, plugins, filesystem_encoding,
         islinux)
 from polyglot.builtins import unicode_type
 
@@ -85,7 +85,7 @@ if iswindows:
         path = os.path.abspath(path)  # Windows does not like recycling relative paths
         return delegate_recycle(path)
 
-elif isosx:
+elif ismacos:
     u = plugins['cocoa'][0]
     if hasattr(u, 'send2trash'):
         def osx_recycle(path):

@@ -21,11 +21,11 @@ from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.constants import iswindows, islinux, isosx, isfreebsd, plugins
+from calibre.constants import iswindows, islinux, ismacos, isfreebsd, plugins
 from calibre.utils.filenames import ascii_filename as sanitize
 from polyglot.builtins import iteritems, string_or_bytes, map
 
-if isosx:
+if ismacos:
     usbobserver, usbobserver_err = plugins['usbobserver']
     osx_sanitize_name_pat = re.compile(r'[.-]')
 
@@ -819,7 +819,7 @@ class Device(DeviceConfig, DevicePlugin):
                     self.open_freebsd()
             if iswindows:
                 self.open_windows()
-            if isosx:
+            if ismacos:
                 try:
                     self.open_osx()
                 except DeviceError:
@@ -891,7 +891,7 @@ class Device(DeviceConfig, DevicePlugin):
                 self.eject_windows()
             except:
                 pass
-        if isosx:
+        if ismacos:
             try:
                 self.eject_osx()
             except:

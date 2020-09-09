@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 from calibre import CurrentDir, prints, xml_replace_entities
-from calibre.constants import isbsd, islinux, isosx, iswindows
+from calibre.constants import isbsd, islinux, ismacos, iswindows
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ptempfile import PersistentTemporaryFile
@@ -26,7 +26,7 @@ def popen(cmd, **kw):
     return subprocess.Popen(cmd, **kw)
 
 
-if isosx and hasattr(sys, 'frameworks_dir'):
+if ismacos and hasattr(sys, 'frameworks_dir'):
     base = os.path.join(os.path.dirname(sys.frameworks_dir), 'utils.app', 'Contents', 'MacOS')
     PDFTOHTML = os.path.join(base, PDFTOHTML)
 if iswindows and hasattr(sys, 'frozen'):
