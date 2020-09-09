@@ -15,7 +15,7 @@ from threading import Lock, RLock
 
 from PyQt5.Qt import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QCoreApplication, QDateTime,
-    QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo,
+    QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo, QPalette,
     QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QColor,
     QNetworkProxyFactory, QObject, QSettings, QSocketNotifier, QStringListModel, Qt,
     QThread, QTimer, QTranslator, QUrl, pyqtSignal
@@ -1063,21 +1063,16 @@ class Application(QApplication):
         self.paletteChanged.connect(self.on_palette_change)
         self.on_palette_change()
 
-    def fix_dark_theme_colors(self):
-        from calibre.gui2.palette import dark_link_color
-        pal = self.palette()
-        # dark blue is unreadable when using dark backgrounds
-        pal.setColor(pal.Link, dark_link_color)
-        # alternating row colors look awful in most dark mode themes
-        pal.setColor(pal.AlternateBase, pal.color(pal.Base))
-        if self.using_calibre_style:
-            # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
-            # Buttontext is set to black for some reason
-            pal.setColor(pal.ButtonText, pal.color(pal.WindowText))
-        self.set_palette(pal)
+    def fix_combobox_text_color(self):
+        # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
+        # Buttontext is set to black for some reason
+        pal = QPalette(self.palette())
+        pal.setColor(pal.ButtonText, pal.color(pal.WindowText))
+        self.ignore_palette_changes = True
+        self.setPalette(pal, 'QComboBox')
+        self.ignore_palette_changes = False
 
     def set_palette(self, pal):
-        self.is_dark_mode_palette = False
         self.ignore_palette_changes = True
         self.setPalette(pal)
         # Needed otherwise Qt does not emit the paletteChanged signal when
@@ -1092,8 +1087,8 @@ class Application(QApplication):
             return
         self.is_dark_theme = is_dark_theme()
         self.setProperty('is_dark_theme', self.is_dark_theme)
-        if isosx and self.is_dark_theme:
-            self.fix_dark_theme_colors()
+        if isosx and self.is_dark_theme and self.using_calibre_style:
+            QTimer.singleShot(0, self.fix_combobox_text_color)
         if self.using_calibre_style:
             ss = 'QTabBar::tab:selected { font-style: italic }\n\n'
             if self.is_dark_theme:
