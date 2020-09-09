@@ -8,14 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
-    QApplication, QListView, QPoint, QModelIndex, QFont, QFontInfo,
+    QApplication, QListView, QPoint, QModelIndex,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer)
 try:
     from PyQt5 import sip
 except ImportError:
     import sip
 
-from calibre.constants import isosx, get_osx_version
+from calibre.constants import isosx
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains
 from calibre.gui2.widgets import EnComboBox, LineEditECM
 from calibre.utils.config import tweaks
@@ -176,14 +176,6 @@ class Completer(QListView):  # {{{
             self.setCurrentIndex(self.model().index(0))
 
         if not p.isVisible():
-            if isosx and get_osx_version() >= (10, 9, 0):
-                # On mavericks the popup menu seems to use a font smaller than
-                # the widgets font, see for example:
-                # https://bugs.launchpad.net/bugs/1243761
-                fp = QFontInfo(widget.font())
-                f = QFont()
-                f.setPixelSize(fp.pixelSize())
-                self.setFont(f)
             p.show()
 
     def debug_event(self, ev):
