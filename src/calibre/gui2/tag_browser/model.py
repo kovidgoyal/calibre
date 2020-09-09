@@ -529,10 +529,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                 last_ordnum = 0
                 last_c = ' '
                 for idx,tag in enumerate(data[key]):
-                    if not tag.sort:
-                        c = ' '
-                    else:
-                        c = icu_upper(tag.sort)
+                    # Deal with items that don't have sorts, such as formats
+                    t = tag.sort if tag.sort else tag.name
+                    c = icu_upper(t) if t else ' '
                     ordnum, ordlen = collation_order(c)
                     if last_ordnum != ordnum:
                         last_c = c[0:ordlen]
