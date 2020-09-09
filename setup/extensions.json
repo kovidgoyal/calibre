@@ -159,19 +159,19 @@
     },
     {
         "name": "usbobserver",
-        "only": "osx",
+        "only": "macos",
         "sources": "calibre/devices/usbobserver/usbobserver.c",
         "ldflags": "-framework CoreServices -framework IOKit"
     },
     {
         "name": "cocoa",
-        "only": "osx",
+        "only": "macos",
         "sources": "calibre/utils/cocoa.m calibre/utils/cocoa_wrapper.c",
         "ldflags": "-framework Cocoa"
     },
     {
         "name": "libusb",
-        "only": "osx linux haiku",
+        "only": "macos linux haiku",
         "sources": "calibre/devices/libusb/libusb.c",
         "libraries": "usb-1.0"
     },
@@ -183,7 +183,7 @@
     },
     {
         "name": "libmtp",
-        "only": "freebsd osx linux haiku",
+        "only": "freebsd macos linux haiku",
         "sources": "calibre/devices/mtp/unix/devices.c calibre/devices/mtp/unix/libmtp.c",
         "headers": "calibre/devices/mtp/unix/devices.h calibre/devices/mtp/unix/upstream/music-players.h calibre/devices/mtp/unix/upstream/device-flags.h",
         "libraries": "mtp"

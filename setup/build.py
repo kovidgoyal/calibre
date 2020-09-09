@@ -119,7 +119,7 @@ def parse_extension(ext):
         if iswindows:
             ans = ext.pop('windows_' + k, ans)
         elif ismacos:
-            ans = ext.pop('osx_' + k, ans)
+            ans = ext.pop('macos_' + k, ans)
         elif isbsd:
             ans = ext.pop('bsd_' + k, ans)
         elif isfreebsd:
