@@ -8,11 +8,12 @@ from calibre.constants import numeric_version, iswindows, ismacos
 from calibre.ptempfile import PersistentTemporaryFile
 from polyglot.builtins import unicode_type
 
-platform = 'linux'
 if iswindows:
     platform = 'windows'
 elif ismacos:
     platform = 'osx'
+else:
+    platform = 'linux'
 
 
 class PluginNotFound(ValueError):
