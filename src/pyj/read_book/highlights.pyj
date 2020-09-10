@@ -6,6 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from read_book.globals import is_dark_theme
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, clear, svgicon, unique_id
@@ -568,6 +569,7 @@ add_extra_css(def():
     ans += build_rule(qsel, margin_top='1ex', border_top='solid 1px', padding_top='1ex', cursor='pointer')
     ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
     ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between')
+    ans += build_rule(qsel + ' .title', display='flex', align_items='center')
     current = qsel + '.current'
     ans += build_rule(current + ' .title', font_weight='bold', font_size='larger')
     ans += build_rule(current + ' .notes', display='block')
@@ -643,10 +645,13 @@ def highlight_entry(h, onclick, view):
     def button(text, func):
         return E.a(text, class_='blue-link', onclick=func)
 
+    hs = HighlightStyle(h.style)
+    swatch = E.div()
+    hs.make_swatch(swatch, is_dark_theme())
     ans = E.div(
         class_='highlight',
         onclick=highlight_entry_clicked,
-        E.div(class_='title', h.highlighted_text),
+        E.div(class_='title', swatch, E.div('\xa0', h.highlighted_text)),
         E.div(
             class_='actions',
             button(_('Show in book'), action.bind(None, show_in_text.bind(None, h.uuid))),
