@@ -448,7 +448,7 @@ class EditNotesAndColors:  # {{{
         sqbg = get_color('window-background2') if is_current else 'unset'
         item = E.div(
             ic, style=f'padding: 4px; background-color: {sqbg}; margin: 4px; border-radius: {ICON_SIZE_VAL/4}{ICON_SIZE_UNIT}',
-            onclick=self.change_color
+            onclick=self.change_color, title=hs.friendly_name
         )
         if is_current:
             item.classList.add('current-swatch')
