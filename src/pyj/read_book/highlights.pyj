@@ -3,7 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
 from book_list.globals import get_session_data
 from read_book.globals import is_dark_theme
@@ -563,8 +563,12 @@ def find_next():
 
 
 add_extra_css(def():
-    sel = '#' + get_container_id()
+    sel = '#' + get_container_id() + ' .toc-group'
     ans = ''
+    ans += build_rule(sel + ' h3', display='flex', align_items='center', cursor='pointer', margin_top='1ex')
+    ans += build_rule(sel + '.expanded .caret-right', display='none')
+    ans += build_rule(sel + '.collapsed .caret-down', display='none')
+    ans += build_rule(sel + '.collapsed > div', display='none')
     qsel = sel + ' .highlight'
     ans += build_rule(qsel, margin_top='1ex', border_top='solid 1px', padding_top='1ex', cursor='pointer')
     ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
@@ -684,7 +688,48 @@ def create_highlights_panel(annotations_manager, book, container, onclick):
         ),
     )
     container.appendChild(c)
-    c.appendChild(E.div())
+    toc_groups = {}
+    toc_tt = {}
     for h in annotations_manager.all_highlights():
-        c.lastChild.appendChild(highlight_entry(h, onclick, annotations_manager.view))
+        toc = _('Unknown')
+        if h.toc_family_titles?.length:
+            toc = h.toc_family_titles[-1]
+        if not toc_groups[toc]:
+            toc_groups[toc] = v'[]'
+            if h.toc_family_titles?.length:
+                lines = v'[]'
+                for i, node in enumerate(h.toc_family_titles):
+                    lines.push('\xa0\xa0' * i + '➤ ' + node)
+                tt = ngettext('Table of Contents section:', 'Table of Contents sections:', lines.length)
+                tt += '\n' + '\n'.join(lines)
+                toc_tt[toc] = tt
+        toc_groups[toc].push(h)
+
+    def tree_icon(which):
+        ans = svgicon(which)
+        ans.classList.add(which)
+        return ans
+
+    for group in Object.keys(toc_groups):
+        highlights = toc_groups[group]
+        g = E.div(
+            class_='toc-group expanded',
+            E.h3(
+                title=toc_tt[group] or '',
+                tree_icon('caret-right'), tree_icon('caret-down'), E.div('\xa0' + group),
+                onclick=def (ev):
+                    tg = ev.currentTarget.closest('.toc-group')
+                    if tg.classList.contains('expanded'):
+                        tg.classList.remove('expanded')
+                        tg.classList.add('collapsed')
+                    else:
+                        tg.classList.remove('collapsed')
+                        tg.classList.add('expanded')
+            ),
+            E.div(style='margin-left: 1rem')
+        )
+        c.appendChild(g)
+        ic = g.lastChild
+        for h in highlights:
+            ic.appendChild(highlight_entry(h, onclick, annotations_manager.view))
 # }}}
