@@ -14,8 +14,10 @@ THUMBNAIL_MIN_WIDTH = 3 * 35
 THUMBNAIL_MIN_HEIGHT = 4 * 35
 BORDER_RADIUS = 10
 
+
 def description():
     return _('A grid of book covers')
+
 
 def cover_grid_css():
     sel = '.' + COVER_GRID_CLASS
@@ -26,7 +28,7 @@ def cover_grid_css():
     # Container for an individual cover
     sel += ' > a'
     ans += build_rule(
-        sel, margin=f'{margin}{margin_unit}', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
+        sel, margin=f'{margin}{margin_unit}', display='flex', align_content='flex-end', align_items='center', justify_content='space-around',
         max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
         min_width=THUMBNAIL_MIN_WIDTH+'px', min_height=THUMBNAIL_MIN_HEIGHT + 'px')
     mq =  '@media all and (orientation: {orient}) {{ {sel} {{ width: 21{dim}; height: 28{dim} }} }}\n'
