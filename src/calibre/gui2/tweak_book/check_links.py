@@ -30,6 +30,8 @@ def set_data(name, val):
         editors[name].replace_data(val, only_if_different=False)
     else:
         with current_container().open(name, 'wb') as f:
+            if isinstance(val, str):
+                val = val.encode('utf-8')
             f.write(val)
     get_boss().set_modified()
 
