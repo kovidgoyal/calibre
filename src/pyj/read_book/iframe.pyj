@@ -617,9 +617,8 @@ class IframeBoss:
         if self.content_ready:
             sc_name = shortcut_for_key_event(evt, self.keyboard_shortcut_map)
             if sc_name:
-                if self.handle_navigation_shortcut(sc_name, evt):
-                    evt.preventDefault()
-                else:
+                evt.preventDefault()
+                if not self.handle_navigation_shortcut(sc_name, evt):
                     self.send_message('handle_shortcut', name=sc_name)
 
     def on_handle_navigation_shortcut(self, data):
