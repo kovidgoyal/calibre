@@ -15,6 +15,7 @@ from read_book.highlights import (
     ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles, render_notes
 )
 from read_book.shortcuts import shortcut_for_key_event
+from read_book.toc import get_toc_nodes_bordering_spine_item, family_for_toc_node
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 BUTTON_MARGIN = '0.5rem'
@@ -965,8 +966,15 @@ class SelectionBar:
                     _('Highlighting failed'),
                     _('Failed to apply highlighting, try adjusting extent of highlight')
                 )
+            toc_family = v'[]'
+            if msg.anchor_before:
+                toc_family = family_for_toc_node(msg.anchor_before.id)
+            else:
+                before = get_toc_nodes_bordering_spine_item()[0]
+                if before:
+                    toc_family = family_for_toc_node(before.id)
             self.annotations_manager.add_highlight(
-                msg, self.current_highlight_style.style, notes, self.view.current_toc_family)
+                msg, self.current_highlight_style.style, notes, toc_family)
         elif msg.type is 'edit-highlight':
             if self.state is WAITING:
                 self.create_highlight()

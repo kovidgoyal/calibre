@@ -57,7 +57,7 @@ from read_book.settings import (
 from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
-from read_book.toc import update_visible_toc_anchors
+from read_book.toc import update_visible_toc_anchors, find_anchor_before_range
 from read_book.touch import (
     create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
 )
@@ -793,9 +793,10 @@ class IframeBoss:
                     sel.removeAllRanges()
         elif dtype is 'apply-highlight':
             sel = window.getSelection()
-            text = sel.toString()
             if not sel.rangeCount:
                 return
+            anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.anchor_funcs)
+            text = sel.toString()
             bounds = cfi_for_selection()
             style = highlight_style_as_css(data.style, opts.is_dark_theme, opts.color_scheme.foreground)
             cls = 'crw-has-dot' if data.has_notes else None
@@ -824,6 +825,7 @@ class IframeBoss:
                 bounds=bounds,
                 removed_highlights=removed_highlights,
                 highlighted_text=text,
+                anchor_before=anchor_before
             )
             reset_find_caches()
         else:
