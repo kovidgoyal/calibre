@@ -107,6 +107,22 @@ def current_book_ids():
     return library_data.previous_book_ids.concat(library_data.search_result.book_ids)
 
 
+def remove_from_array(array, item):
+    while True:
+        idx = array.indexOf(item)
+        if idx < 0:
+            break
+        array.splice(idx, 1)
+
+
+def remove_book(book_id):
+    book_id = int(book_id)
+    if library_data.previous_book_ids:
+        remove_from_array(library_data.previous_book_ids, book_id)
+    if library_data.search_result?.book_ids:
+        remove_from_array(library_data.search_result.book_ids, book_id)
+
+
 def book_after(book_id, delta):
     if not delta:
         delta = 1
