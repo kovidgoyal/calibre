@@ -145,7 +145,7 @@ def ensure_single_instance(args, open_at):
             t.join(3.0)
             if t.is_alive() or t.conn is None:
                 error_dialog(None, _('Connect to viewer failed'), _(
-                    'Unable to connect to existing viewer window, try restarting the viewer.'), show=True)
+                    'Unable to connect to existing E-book viewer window, try restarting the viewer.'), show=True)
                 raise SystemExit(1)
             t.conn.send((os.path.abspath(args[1]), open_at))
             t.conn.close()
@@ -164,10 +164,10 @@ View an e-book.
 '''))
     a = parser.add_option
     a('--raise-window', default=False, action='store_true',
-        help=_('If specified, viewer window will try to come to the '
+        help=_('If specified, the E-book viewer window will try to come to the '
                'front when started.'))
     a('--full-screen', '--fullscreen', '-f', default=False, action='store_true',
-        help=_('If specified, viewer window will try to open '
+        help=_('If specified, the E-book viewer window will try to open '
                'full screen when started.'))
     a('--force-reload', default=False, action='store_true',
         help=_('Force reload of all opened books'))

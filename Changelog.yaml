@@ -22,7 +22,7 @@
     - title: "Edit book: Allow customizing the base background/foreground and link colors for the preview window."
       tickets: [1889925]
 
-    - title: "Quickview panel: Add actions to the context menu to search for book in library, open in viewer, etc."
+    - title: "Quickview panel: Add actions to the context menu to search for book in library, open in E-book viewer, etc."
       tickets: [1891765]
 
     - title: "Allow forcing calibre to remember the column width for the On device column by right clicking the header of the column"

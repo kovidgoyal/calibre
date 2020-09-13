@@ -141,7 +141,7 @@ def friendly_username(user_type, user):
     if key == ('web', '*'):
         return _('Anonymous Content server user')
     if key == ('local', 'viewer'):
-        return _('Local viewer user')
+        return _('Local E-book viewer user')
     return user
 
 
