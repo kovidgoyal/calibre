@@ -388,13 +388,12 @@ class _Interpreter(object):
         try:
             name = self.expr(prog.expression)
             res = getattr(self.parent_book, name, None)
-            if res is None:
-                self.error(_('Unknown field {0}').format(name))
-            if isinstance(res, list):
-                fm = self.parent_book.metadata_for_field(name)
-                if fm is None:
-                    return ', '.join(res)
-                return fm['is_multiple']['list_to_ui'].join(res)
+            if res is not None:
+                if isinstance(res, list):
+                    fm = self.parent_book.metadata_for_field(name)
+                    if fm is None:
+                        return ', '.join(res)
+                    return fm['is_multiple']['list_to_ui'].join(res)
             return unicode_type(res)
         except ValueError as e:
             raise e
