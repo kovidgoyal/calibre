@@ -17,6 +17,7 @@ from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import strcmp
 from polyglot.builtins import unicode_type, error_message
 
+
 class Node(object):
     NODE_RVALUE = 1
     NODE_IF = 2
@@ -27,6 +28,7 @@ class Node(object):
     NODE_FIELD = 7
     NODE_RAW_FIELD = 8
 
+
 class IfNode(Node):
     def __init__(self, condition, then_part, else_part):
         Node.__init__(self)
@@ -35,6 +37,7 @@ class IfNode(Node):
         self.then_part = then_part
         self.else_part = else_part
 
+
 class AssignNode(Node):
     def __init__(self, left, right):
         Node.__init__(self)
@@ -42,12 +45,14 @@ class AssignNode(Node):
         self.left = left
         self.right = right
 
+
 class FunctionNode(Node):
     def __init__(self, function_name, expression_list):
         Node.__init__(self)
         self.node_type = self.NODE_FUNC
         self.name = function_name
         self.expression_list = expression_list
+
 
 class InfixNode(Node):
     def __init__(self, operator, left, right):
@@ -57,11 +62,13 @@ class InfixNode(Node):
         self.left = left
         self.right = right
 
+
 class ConstantNode(Node):
     def __init__(self, value):
         Node.__init__(self)
         self.node_type = self.NODE_CONSTANT
         self.value = value
+
 
 class VariableNode(Node):
     def __init__(self, name):
@@ -69,11 +76,13 @@ class VariableNode(Node):
         self.node_type = self.NODE_RVALUE
         self.name = name
 
+
 class FieldNode(Node):
     def __init__(self, expression):
         Node.__init__(self)
         self.node_type = self.NODE_FIELD
         self.expression = expression
+
 
 class RawFieldNode(Node):
     def __init__(self, expression):
@@ -283,8 +292,7 @@ class _Parser(object):
                 return RawFieldNode(arguments[0])
             if id_ == 'test' and len(arguments) == 3:
                 return IfNode(arguments[0], (arguments[1],), (arguments[2],))
-            if (id_ == 'assign' and len(arguments) == 2
-                        and arguments[0].node_type == Node.NODE_RVALUE):
+            if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
                 return AssignNode(arguments[0].name, arguments[1])
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
