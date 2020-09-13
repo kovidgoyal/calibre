@@ -6,20 +6,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, json
+import json
+import os
+import time
 from functools import partial
-
-from PyQt5.Qt import Qt, QAction, pyqtSignal
+from PyQt5.Qt import QAction, QIcon, Qt, pyqtSignal
 
 from calibre.constants import ismacos, iswindows, plugins
 from calibre.gui2 import (
-    error_dialog, Dispatcher, question_dialog, config, open_local_file,
-    info_dialog, elided_text)
-from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-from calibre.utils.config import prefs, tweaks
-from calibre.ptempfile import PersistentTemporaryFile
+    Dispatcher, config, elided_text, error_dialog, info_dialog, open_local_file,
+    question_dialog
+)
 from calibre.gui2.actions import InterfaceAction
-from polyglot.builtins import unicode_type, as_bytes
+from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import prefs, tweaks
+from polyglot.builtins import as_bytes, unicode_type
 
 
 class HistoryAction(QAction):
@@ -55,6 +57,7 @@ class ViewAction(InterfaceAction):
         self.internal_view_action = cm('internal', _('View with calibre E-book viewer'), triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)
+        self.view_menu.addAction(QIcon(I('highlight.png')), _('Browse annotations'), self.browse_annots)
         self.clear_sep1 = self.view_menu.addSeparator()
         self.clear_sep2 = self.view_menu.addSeparator()
         self.clear_history_action = cm('clear history',
@@ -79,6 +82,9 @@ class ViewAction(InterfaceAction):
                 ac.view_historical.connect(self.view_historical)
                 self.history_actions.append(ac)
 
+    def browse_annots(self):
+        self.gui.iactions['Browse Annotations'].show_browser()
+
     def clear_history(self):
         db = self.gui.current_db
         db.new_api.set_pref('gui_view_history', [])
@@ -100,8 +106,8 @@ class ViewAction(InterfaceAction):
         self.view_format_by_id(id_, format)
 
     def calibre_book_data(self, book_id, fmt):
-        from calibre.gui2.viewer.config import vprefs, get_session_pref
         from calibre.db.annotations import merge_annotations
+        from calibre.gui2.viewer.config import get_session_pref, vprefs
         vprefs.refresh()
         sync_annots_user = get_session_pref('sync_annots_user', default='')
         db = self.gui.current_db.new_api

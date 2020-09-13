@@ -112,9 +112,9 @@ the handles to the top or bottom margins to scroll while selecting.
 You can use the :guilabel:`Browse highlights` button in the viewer
 controls to show a separate panel with a list of all highlights in the book.
 
-You can browse *all highlights* in your entire calibre library by going to
-:guilabel:`Preferences->Toolbars` in calibre and adding the :guilabel:`Browse
-annotations` tool to the toolbar.
+You can browse *all highlights* in your entire calibre library by right
+clicking the :guilabel:`View` button and choosing :guilabel:`Browse
+annotations`.
 
 Finally, if you use the calibre Content server's in browser viewer, you can
 have the viewer sync its annotations with the browser viewer by going to
