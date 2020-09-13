@@ -703,7 +703,19 @@ class IframeBoss:
         self.last_search_at = window.performance.now()
         if data.searched_in_spine:
             window.getSelection().removeAllRanges()
-        if window.find(data.text, False, data.backwards, from_load and data.backwards):
+        wrap_search = from_load and data.backwards
+        found = window.find(data.text, False, data.backwards, wrap_search)
+        if not found and wrap_search:
+            # wrapping is not implemented on Firefox
+            prev_range = None
+            while window.find(data.text, False):
+                prev_range = window.getSelection().getRangeAt(0)
+            if prev_range:
+                sel = window.getSelection()
+                sel.removeAllRanges()
+                sel.addRange(prev_range)
+                found = window.find(data.text, False, True)
+        if found:
             if current_layout_mode() is not 'flow':
                 snap_to_selection()
         else:
