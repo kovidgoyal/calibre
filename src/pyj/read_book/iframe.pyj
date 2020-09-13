@@ -62,7 +62,7 @@ from read_book.touch import (
     create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
 )
 from read_book.viewport import scroll_viewport
-from utils import debounce, html_escape, is_ios
+from utils import debounce, is_ios
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
@@ -707,11 +707,8 @@ class IframeBoss:
             if current_layout_mode() is not 'flow':
                 snap_to_selection()
         else:
-            if from_load:
-                self.send_message('error', title=_('Invisible text'), msg=_(
-                    'The text <i>{}</i> is present on this page but not visible').format(html_escape(data.text)))
-            else:
-                self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
+            msg_type = 'invisible_text' if from_load else 'find_in_spine'
+            self.send_message(msg_type, text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
     def show_search_result(self, data, from_load):
         self.last_search_at = window.performance.now()

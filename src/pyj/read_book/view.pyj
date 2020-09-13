@@ -264,6 +264,7 @@ class View:
             'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
             'find_in_spine': self.on_find_in_spine,
+            'invisible_text': self.on_invisible_text,
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'handle_keypress': self.on_handle_keypress,
             'handle_shortcut': self.on_handle_shortcut,
@@ -593,6 +594,13 @@ class View:
 
     def find(self, text, backwards):
         self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
+
+    def on_invisible_text(self, data):
+        warning_dialog(
+                _('Not found'), _('The text: <i>{}</i> is present on this page but not visible').format(html_escape(data.text)),
+                on_close=def():
+                    self.search_overlay.show()
+            )
 
     def on_find_in_spine(self, data):
         if data.searched_in_spine:
