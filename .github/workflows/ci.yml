@@ -38,7 +38,6 @@ jobs:
             image: 'archlinux/base:latest'
             env:
                 CI: 'true'
-                CALIBRE_PY3_PORT: '1'
         steps:
             - name: Install calibre dependencies
               run: |
