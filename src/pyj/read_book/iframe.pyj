@@ -786,11 +786,9 @@ class IframeBoss:
             if crw_:
                 unwrap_crw(crw_)
                 v'delete annot_id_uuid_map[crw_]'
-                sel = window.getSelection()
-                if not sel.toString():
-                    # have to remove selection otherwise it remains as the empty
-                    # string, and the selection bar does not hide itself
-                    sel.removeAllRanges()
+                # have to remove selection otherwise selection bar does
+                # not hide itself on multiline selections
+                window.getSelection().removeAllRanges()
         elif dtype is 'apply-highlight':
             sel = window.getSelection()
             if not sel.rangeCount:
