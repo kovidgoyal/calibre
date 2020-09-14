@@ -203,6 +203,8 @@ class Highlights(QTreeWidget):
             for itemnum, h in enumerate(items):
                 txt = h.get('highlighted_text')
                 txt = txt.replace('\n', ' ')
+                if h.get('notes'):
+                    txt = '•' + txt
                 if len(txt) > 100:
                     txt = txt[:100] + '…'
                 item = QTreeWidgetItem(section, [txt], 2)
