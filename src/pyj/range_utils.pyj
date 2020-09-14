@@ -114,7 +114,7 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
             current_range.setEnd(node, end_offset)
             end_node = current_wrapper
             end_offset = 1
-        crw = node.parentNode.dataset.calibreRangeWrapper
+        crw = node.parentNode?.dataset?.calibreRangeWrapper
         if crw:
             intersecting_wrappers[crw] = True
         current_range.surroundContents(current_wrapper)

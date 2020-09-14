@@ -389,9 +389,11 @@ def decode(cfi, doc):
         orig_offset = offset
         if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
             node = node.parentNode
-        node, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, node)
+        qnode, offset, ok = node_for_text_offset(node.parentNode.childNodes, offset, node)
         if not ok:
             error = "Offset out of range: " + orig_offset
+        if qnode:
+            node = qnode
         decoded.offset = offset
 
     decoded.node = node
@@ -575,7 +577,7 @@ def at(x, y, doc):  # {{{
 def decode_with_range(cfi, doc):  # {{{
     doc = doc or window.document
     decoded = decode(cfi, doc)
-    if not decoded:
+    if not decoded or not decoded.node:
         return None
     node = decoded.node
     ndoc = node.ownerDocument
