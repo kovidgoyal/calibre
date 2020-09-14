@@ -23,10 +23,11 @@ class Node(object):
     NODE_IF = 2
     NODE_ASSIGN = 3
     NODE_FUNC = 4
-    NODE_INFIX = 5
-    NODE_CONSTANT = 6
-    NODE_FIELD = 7
-    NODE_RAW_FIELD = 8
+    NODE_STRING_INFIX = 5
+    NODE_NUMERIC_INFIX = 6
+    NODE_CONSTANT = 7
+    NODE_FIELD = 8
+    NODE_RAW_FIELD = 9
 
 
 class IfNode(Node):
@@ -54,10 +55,19 @@ class FunctionNode(Node):
         self.expression_list = expression_list
 
 
-class InfixNode(Node):
+class StringInfixNode(Node):
     def __init__(self, operator, left, right):
         Node.__init__(self)
-        self.node_type = self.NODE_INFIX
+        self.node_type = self.NODE_STRING_INFIX
+        self.operator = operator
+        self.left = left
+        self.right = right
+
+
+class NumericInfixNode(Node):
+    def __init__(self, operator, left, right):
+        Node.__init__(self)
+        self.node_type = self.NODE_NUMERIC_INFIX
         self.operator = operator
         self.left = left
         self.right = right
@@ -92,12 +102,13 @@ class RawFieldNode(Node):
 
 
 class _Parser(object):
-    LEX_OP      = 1
-    LEX_ID      = 2
-    LEX_CONST   = 3
-    LEX_EOF     = 4
-    LEX_INFIX   = 5
-    LEX_KEYWORD = 6
+    LEX_OP = 1
+    LEX_ID = 2
+    LEX_CONST = 3
+    LEX_EOF = 4
+    LEX_STRING_INFIX = 5
+    LEX_NUMERIC_INFIX = 6
+    LEX_KEYWORD = 7
 
     def error(self, message):
         try:
@@ -131,9 +142,15 @@ class _Parser(object):
         except:
             return False
 
-    def token_op_is_infix_compare(self):
+    def token_op_is_string_infix_compare(self):
         try:
-            return self.prog[self.lex_pos][0] == self.LEX_INFIX
+            return self.prog[self.lex_pos][0] == self.LEX_STRING_INFIX
+        except:
+            return False
+
+    def token_op_is_numeric_infix_compare(self):
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_NUMERIC_INFIX
         except:
             return False
 
@@ -251,10 +268,13 @@ class _Parser(object):
 
     def infix_expr(self):
         left = self.expr()
-        if not self.token_op_is_infix_compare():
-            return left
-        operator = self.token()
-        return InfixNode(operator, left, self.expr())
+        if self.token_op_is_string_infix_compare():
+            operator = self.token()
+            return StringInfixNode(operator, left, self.expr())
+        if self.token_op_is_numeric_infix_compare():
+            operator = self.token()
+            return NumericInfixNode(operator, left, self.expr())
+        return left
 
     def expr(self):
         if self.token_is_if():
@@ -324,25 +344,44 @@ class _Interpreter(object):
             val = self.expr(p)
         return val
 
-    INFIX_OPS = {
+    INFIX_STRING_OPS = {
         "==": lambda x, y: strcmp(x, y) == 0,
         "!=": lambda x, y: strcmp(x, y) != 0,
         "<": lambda x, y: strcmp(x, y) < 0,
         "<=": lambda x, y: strcmp(x, y) <= 0,
         ">": lambda x, y: strcmp(x, y) > 0,
         ">=": lambda x, y: strcmp(x, y) >= 0,
-        "==#": lambda x, y: float(x) == float(y) if x and y else False,
-        "!=#": lambda x, y: float(x) != float(y) if x and y else False,
-        "<#": lambda x, y: float(x) < float(y) if x and y else False,
-        "<=#": lambda x, y: float(x) <= float(y) if x and y else False,
-        ">#": lambda x, y: float(x) > float(y) if x and y else False,
-        ">=#": lambda x, y: float(x) >= float(y) if x and y else False,
         }
 
-    def do_node_infix(self, prog):
-        left = self.expr(prog.left)
-        right = self.expr(prog.right)
-        return '1' if self.INFIX_OPS[prog.operator](left, right) else ''
+    def do_node_string_infix(self, prog):
+        try:
+            left = self.expr(prog.left)
+            right = self.expr(prog.right)
+            return ('1' if self.INFIX_STRING_OPS[prog.operator](left, right) else '')
+        except:
+            self.error(_('Error during string comparison. Operator {0}').format(prog.operator))
+
+    INFIX_NUMERIC_OPS = {
+        "==#": lambda x, y: x == y,
+        "!=#": lambda x, y: x != y,
+        "<#": lambda x, y: x < y,
+        "<=#": lambda x, y: x <= y,
+        ">#": lambda x, y: x > y,
+        ">=#": lambda x, y: x >= y,
+        }
+
+    def float_deal_with_none(self, v):
+        # Undefined values and the string 'None' are assumed to be zero.
+        # The reason for string 'None': raw_field returns it for undefined values
+        return float(v if v and v != 'None' else 0)
+
+    def do_node_numeric_infix(self, prog):
+        try:
+            left = self.float_deal_with_none(self.expr(prog.left))
+            right = self.float_deal_with_none(self.expr(prog.right))
+            return '1' if self.INFIX_NUMERIC_OPS[prog.operator](left, right) else ''
+        except:
+            self.error(_('Value used in comparison is not a number. Operator {0}').format(prog.operator))
 
     def do_node_if(self, prog):
         test_part = self.expr(prog.condition)
@@ -406,14 +445,15 @@ class _Interpreter(object):
         return t
 
     NODE_OPS = {
-        Node.NODE_IF:       do_node_if,
-        Node.NODE_ASSIGN:   do_node_assign,
-        Node.NODE_CONSTANT: do_node_constant,
-        Node.NODE_RVALUE:   do_node_rvalue,
-        Node.NODE_FUNC:     do_node_func,
-        Node.NODE_FIELD:    do_node_field,
-        Node.NODE_RAW_FIELD:do_node_raw_field,
-        Node.NODE_INFIX:    do_node_infix,
+        Node.NODE_IF:            do_node_if,
+        Node.NODE_ASSIGN:        do_node_assign,
+        Node.NODE_CONSTANT:      do_node_constant,
+        Node.NODE_RVALUE:        do_node_rvalue,
+        Node.NODE_FUNC:          do_node_func,
+        Node.NODE_FIELD:         do_node_field,
+        Node.NODE_RAW_FIELD:     do_node_raw_field,
+        Node.NODE_STRING_INFIX:  do_node_string_infix,
+        Node.NODE_NUMERIC_INFIX: do_node_numeric_infix,
         }
 
     def expr(self, prog):
@@ -494,17 +534,17 @@ class TemplateFormatter(string.Formatter):
     # ################# 'Functional' template language ######################
 
     lex_scanner = re.Scanner([
-            (r'(==#|!=#|<=#|<#|>=#|>#|==|!=|<=|<|>=|>)',
-                                     lambda x,t: (_Parser.LEX_INFIX, t)),
-            (r'(if|then|else|fi)\b', lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'[(),=;]',             lambda x,t: (_Parser.LEX_OP, t)),  # noqa
-            (r'-?[\d\.]+',           lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
-            (r'\$',                  lambda x,t: (_Parser.LEX_ID, t)),  # noqa
-            (r'\w+',                 lambda x,t: (_Parser.LEX_ID, t)),  # noqa
-            (r'".*?((?<!\\)")',      lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
-            (r'\'.*?((?<!\\)\')',    lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
-            (r'\n#.*?(?:(?=\n)|$)', None),
-            (r'\s',                 None),
+            (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
+            (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
+            (r'(if|then|else|fi)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'[(),=;]',                 lambda x,t: (_Parser.LEX_OP, t)),  # noqa
+            (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
+            (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
+            (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),  # noqa
+            (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
+            (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
+            (r'\n#.*?(?:(?=\n)|$)',      None),
+            (r'\s',                      None),
         ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog, column_name):
