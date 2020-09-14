@@ -535,7 +535,7 @@ class TemplateFormatter(string.Formatter):
 
     lex_scanner = re.Scanner([
             (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
-            (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),
+            (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|fi)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'[(),=;]',                 lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
