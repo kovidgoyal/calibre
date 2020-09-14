@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
+import textwrap, os, shlex, subprocess, glob, shutil, sys, json
 from collections import namedtuple
 
 from setup import Command, islinux, isbsd, isfreebsd, ismacos, ishaiku, SRC, iswindows, __version__
@@ -476,19 +476,28 @@ class Build(Command):
         sbf = self.j(src_dir, self.b(sipf)+'.sbf')
         cmd = None
         if self.newer(sbf, [sipf]+ext.headers):
-            cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-b', sbf, '-I' + pyqt['pyqt_sip_dir']] + shlex.split(pyqt['sip_flags']) + [sipf]
+            shutil.rmtree(src_dir)
+            os.mkdir(src_dir)
+            cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-I' + pyqt['pyqt_sip_dir']] + shlex.split(pyqt['sip_flags']) + [sipf]
         return cmd, sbf
 
     def get_sip_data(self, sbf):
-        with open(sbf, 'rb') as f:
-            raw = f.read().decode('utf-8')
+        if os.path.exists(sbf):
+            with open(sbf) as f:
+                return json.loads(f.read())
+        src_dir = os.path.dirname(sbf)
 
-        def read(x):
-            ans = re.search(r'^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
-            if x != 'target':
-                ans = ans.split()
-            return ans
-        return {x:read(x) for x in ('target', 'sources', 'headers')}
+        def transform(x):
+            return x.replace(os.sep, '/')
+
+        ans = {
+            'target': os.path.basename(src_dir),
+            'sources': list(map(transform, glob.glob(os.path.join(src_dir, '*.cpp')))),
+            'headers': list(map(transform, glob.glob(os.path.join(src_dir, '*.h')))),
+        }
+        with open(sbf, 'w') as f:
+            f.write(json.dumps(ans))
+        return ans
 
     def build_pyqt_extension(self, ext, dest, sbf):
         self.info(f'\n####### Building {ext.name} extension', '#'*7)
