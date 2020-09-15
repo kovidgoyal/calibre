@@ -5,7 +5,6 @@
 
 import json
 from operator import itemgetter
-
 from PyQt5.Qt import (
     QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon, QInputDialog,
     QItemSelectionModel, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt,
@@ -13,6 +12,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import choose_files, choose_save_file
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.utils.date import EPOCH, utcnow
@@ -237,13 +237,17 @@ class BookmarkManager(QWidget):
         item = self.bookmarks_list.currentItem()
         if item is not None:
             bm = item.data(Qt.UserRole)
-            bm['removed'] = True
-            bm['timestamp'] = utcnow().isoformat()
-            self.bookmarks_list.blockSignals(True)
-            item.setData(Qt.UserRole, bm)
-            self.bookmarks_list.blockSignals(False)
-            item.setHidden(True)
-            self.edited.emit(self.get_bookmarks())
+            if confirm(
+                _('Are you sure you want to delete the bookmark: {0}?').format(bm['title']),
+                'delete-bookmark-from-viewer', parent=self, config_set=vprefs
+            ):
+                bm['removed'] = True
+                bm['timestamp'] = utcnow().isoformat()
+                self.bookmarks_list.blockSignals(True)
+                item.setData(Qt.UserRole, bm)
+                self.bookmarks_list.blockSignals(False)
+                item.setHidden(True)
+                self.edited.emit(self.get_bookmarks())
 
     def edit_bookmark(self):
         item = self.bookmarks_list.currentItem()
