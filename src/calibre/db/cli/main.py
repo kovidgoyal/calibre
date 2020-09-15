@@ -213,7 +213,8 @@ class DBCtx(object):
             self.interpret_http_error(err)
             raise
         if 'err' in ans:
-            prints(ans['tb'])
+            if ans['tb']:
+                prints(ans['tb'])
             raise SystemExit(ans['err'])
         return ans['result']
 

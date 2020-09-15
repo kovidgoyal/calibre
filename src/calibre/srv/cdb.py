@@ -56,8 +56,11 @@ def cdb_run(ctx, rd, which, version):
     try:
         result = m.implementation(db, partial(ctx.notify_changes, db.backend.library_path), *args)
     except Exception as err:
-        import traceback
-        return {'err': as_unicode(err), 'tb': traceback.format_exc()}
+        tb = ''
+        if not getattr(err, 'suppress_traceback', False):
+            import traceback
+            tb = traceback.format_exc()
+        return {'err': as_unicode(err), 'tb': tb}
     return {'result': result}
 
 
