@@ -9,8 +9,8 @@ from functools import lru_cache
 from itertools import chain
 from PyQt5.Qt import (
     QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
-    QLabel, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy, Qt,
-    QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
+    Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import (
@@ -146,9 +146,12 @@ class Highlights(QTreeWidget):
     current_highlight_changed = pyqtSignal(object)
     delete_requested = pyqtSignal()
     edit_requested = pyqtSignal()
+    edit_notes_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.default_decoration = QIcon(I('blank.png'))
         self.setHeaderHidden(True)
         self.num_of_items = 0
@@ -160,6 +163,23 @@ class Highlights(QTreeWidget):
         self.uuid_map = {}
         self.section_font = QFont(self.font())
         self.section_font.setItalic(True)
+
+    def show_context_menu(self, point):
+        index = self.indexAt(point)
+        h = index.data(Qt.UserRole)
+        self.context_menu = m = QMenu(self)
+        if h is not None:
+            m.addAction(QIcon(I('edit_input.png')), _('Modify this highlight'), self.edit_requested.emit)
+            m.addAction(QIcon(I('trash.png')), ngettext(
+                'Delete this highlight', 'Delete selected highlights', len(self.selectedItems())
+            ), self.delete_requested.emit)
+            if h.get('notes'):
+                m.addAction(QIcon(I('modified.png')), _('Edit notes for this highlight'), self.edit_notes_requested.emit)
+        m.addSeparator()
+        m.addAction(_('Expand all'), self.expandAll)
+        m.addAction(_('Collapse all'), self.collapseAll)
+        self.context_menu.popup(self.mapToGlobal(point))
+        return True
 
     def current_item_changed(self, current, previous):
         self.current_highlight_changed.emit(current.data(0, Qt.UserRole) if current is not None else None)
@@ -397,6 +417,7 @@ class HighlightsPanel(QWidget):
         h.jump_to_highlight.connect(self.jump_to_highlight)
         h.delete_requested.connect(self.remove_highlight)
         h.edit_requested.connect(self.edit_highlight)
+        h.edit_notes_requested.connect(self.edit_notes)
         h.current_highlight_changed.connect(self.current_highlight_changed)
         self.load = h.load
         self.refresh = h.refresh
@@ -466,6 +487,9 @@ class HighlightsPanel(QWidget):
         if h is None:
             return self.no_selected_highlight()
         self.request_highlight_action.emit(h['uuid'], 'edit')
+
+    def edit_notes(self):
+        self.notes_display.edit_notes()
 
     def remove_highlight(self):
         highlights = tuple(self.highlights.selected_highlights)
