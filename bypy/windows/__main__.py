@@ -158,7 +158,8 @@ def freeze(env, ext_dir):
     for x in glob.glob(os.path.join(env.python_base, 'DLLs', '*')):  # python pyd modules and dlls
         copybin(x)
     for f in walk(os.path.join(env.python_base, 'Lib')):
-        if f.lower().endswith('.dll') and 'scintilla' not in f.lower():
+        q = f.lower()
+        if q.endswith('.dll') and 'scintilla' not in q and 'pyqtbuild' not in q:
             copybin(f)
     add_plugins(env, ext_dir)
 
@@ -211,11 +212,6 @@ def pycryptodome_filename(dir_comps, filename):
     path = os.path.join(base, '.'.join(dir_comps + [filename]))
     return path
 ''')
-
-    pyqt = j(env.lib_dir, 'site-packages', 'PyQt5')
-    for x in {x for x in os.listdir(pyqt) if x.endswith('.pyd')}:
-        if x.partition('.')[0] not in PYQT_MODULES and x != 'sip.pyd':
-            os.remove(j(pyqt, x))
 
     printf('Adding calibre sources...')
     for x in glob.glob(j(CALIBRE_DIR, 'src', '*')):
@@ -651,7 +647,7 @@ def archive_lib_dir(env):
 
         # The rest of site-packages
         for x in os.listdir(sp):
-            if x in handled or x.endswith('.egg-info'):
+            if x in handled or x.endswith('.egg-info') or x.endswith('.dist-info'):
                 continue
             absp = j(sp, x)
             if os.path.isdir(absp):

@@ -8,12 +8,18 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, shlex, subprocess, glob, shutil, sys, json
 from collections import namedtuple
 
-from setup import Command, islinux, isbsd, isfreebsd, ismacos, ishaiku, SRC, iswindows, __version__
+from setup import Command, islinux, isbsd, isfreebsd, ismacos, ishaiku, SRC, iswindows
 isunix = islinux or ismacos or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 CompileCommand = namedtuple('CompileCommand', 'cmd src dest')
 LinkCommand = namedtuple('LinkCommand', 'cmd objects dest')
+
+
+def walk(path='.'):
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            yield os.path.join(dirpath, f)
 
 
 def init_symbol_name(name):
@@ -35,6 +41,7 @@ class Extension(object):
         self.needs_py2 = d['needs_py2'] = kwargs.get('needs_py2', False)
         self.headers = d['headers'] = absolutize(kwargs.get('headers', []))
         self.sip_files = d['sip_files'] = absolutize(kwargs.get('sip_files', []))
+        self.needs_exceptions = d['needs_exceptions'] = kwargs.get('needs_exceptions', False)
         self.inc_dirs = d['inc_dirs'] = absolutize(kwargs.get('inc_dirs', []))
         self.lib_dirs = d['lib_dirs'] = absolutize(kwargs.get('lib_dirs', []))
         self.extra_objs = d['extra_objs'] = absolutize(kwargs.get('extra_objs', []))
@@ -65,7 +72,6 @@ class Extension(object):
             flag = '/O%d' if iswindows else '-O%d'
             of = flag % of
         self.cflags.insert(0, of)
-        self.qt_private_headers = d['qt_private_headers'] = kwargs.get('qt_private', [])
 
 
 def lazy_load(name):
@@ -242,9 +248,6 @@ class Build(Command):
            PODOFO_LIB_DIR - podofo library files
 
            QMAKE          - Path to qmake
-           SIP_BIN        - Path to the sip binary
-           VS90COMNTOOLS  - Location of Microsoft Visual Studio 9 Tools (windows only)
-
         ''')
 
     def add_options(self, parser):
@@ -323,7 +326,8 @@ class Build(Command):
                 raise SystemExit(1)
         for (ext, dest) in pyqt_extensions:
             sbf = sbf_map[id(ext)]
-            self.build_pyqt_extension(ext, dest, sbf)
+            if not os.path.exists(sbf):
+                self.build_pyqt_extension(ext, dest, sbf)
 
         if opts.only in {'all', 'headless'}:
             self.build_headless()
@@ -465,100 +469,78 @@ class Build(Command):
         if ismacos:
             os.rename(self.j(self.d(target), 'libheadless.dylib'), self.j(self.d(target), 'headless.so'))
 
+    def create_sip_build_skeleton(self, src_dir, ext):
+        sipf = ext.sip_files[0]
+        needs_exceptions = 'true' if ext.needs_exceptions else 'false'
+        with open(os.path.join(src_dir, 'pyproject.toml'), 'w') as f:
+            f.write(f'''
+[build-system]
+requires = ["sip >=5.3", "PyQt-builder >=1"]
+build-backend = "sipbuild.api"
+
+[tool.sip.metadata]
+name = "{ext.name}"
+requires-dist = "PyQt5 (>=5.15)"
+
+[tool.sip]
+project-factory = "pyqtbuild:PyQtProject"
+
+[tool.sip.project]
+sip-files-dir = "."
+sip-module = "PyQt5.sip"
+
+[tool.sip.bindings.pictureflow]
+headers = {ext.headers}
+sources = {ext.sources}
+exceptions = {needs_exceptions}
+include-dirs = {ext.inc_dirs}
+qmake-QT = ["widgets"]
+sip-file = "{os.path.basename(sipf)}"
+''')
+        shutil.copy2(sipf, src_dir)
+
     def get_sip_commands(self, ext):
+        from setup.build_environment import QMAKE
         pyqt_dir = self.j(self.build_dir, 'pyqt')
         src_dir = self.j(pyqt_dir, ext.name)
-        from setup.build_environment import pyqt
-        sip_files = ext.sip_files
-        ext.sip_files = []
-        sipf = sip_files[0]
-        os.makedirs(src_dir, exist_ok=True)
+        # TODO: Handle building extensions with multiple SIP files.
+        sipf = ext.sip_files[0]
         sbf = self.j(src_dir, self.b(sipf)+'.sbf')
         cmd = None
-        if self.newer(sbf, [sipf]+ext.headers):
-            shutil.rmtree(src_dir)
-            os.mkdir(src_dir)
-            cmd = [pyqt['sip_bin'], '-w', '-c', src_dir, '-I' + pyqt['pyqt_sip_dir']] + shlex.split(pyqt['sip_flags']) + [sipf]
+        if self.newer(sbf, [sipf] + ext.headers + ext.sources):
+            shutil.rmtree(src_dir, ignore_errors=True)
+            os.makedirs(src_dir)
+            self.create_sip_build_skeleton(src_dir, ext)
+            cmd = [
+                sys.executable, '-c',
+                f'''import os; os.chdir({src_dir!r}); from sipbuild.tools.build import main; main();''',
+                '--verbose', '--no-make', '--qmake', QMAKE
+            ]
         return cmd, sbf
-
-    def get_sip_data(self, sbf):
-        if os.path.exists(sbf):
-            with open(sbf) as f:
-                return json.loads(f.read())
-        src_dir = os.path.dirname(sbf)
-
-        def transform(x):
-            return x.replace(os.sep, '/')
-
-        ans = {
-            'target': os.path.basename(src_dir),
-            'sources': list(map(transform, glob.glob(os.path.join(src_dir, '*.cpp')))),
-            'headers': list(map(transform, glob.glob(os.path.join(src_dir, '*.h')))),
-        }
-        with open(sbf, 'w') as f:
-            f.write(json.dumps(ans))
-        return ans
 
     def build_pyqt_extension(self, ext, dest, sbf):
         self.info(f'\n####### Building {ext.name} extension', '#'*7)
-        from setup.build_environment import pyqt, qmakespec, QMAKE
-        from setup.parallel_build import cpu_count
-        from distutils import sysconfig
-        pyqt_dir = self.j(self.build_dir, 'pyqt')
-        src_dir = self.j(pyqt_dir, ext.name)
-        if not os.path.exists(src_dir):
-            os.makedirs(src_dir)
-        sip = self.get_sip_data(sbf)
-        pro = textwrap.dedent(
-        '''\
-        TEMPLATE = lib
-        CONFIG += release plugin
-        QT += widgets
-        TARGET = {target}
-        HEADERS = {headers}
-        SOURCES = {sources}
-        INCLUDEPATH += {sipinc} {pyinc}
-        VERSION = {ver}
-        win32 {{
-            LIBS += {py_lib}
-            TARGET_EXT = .dll
-        }}
-        macx {{
-            QMAKE_LFLAGS += "-undefined dynamic_lookup"
-        }}
-        ''').format(
-            target=sip['target'], headers=' '.join(sip['headers'] + ext.headers), sources=' '.join(ext.sources + sip['sources']),
-            sipinc=pyqt['sip_inc_dir'], pyinc=sysconfig.get_python_inc(), py_lib=py_lib,
-            ver=__version__
-        )
-        for incdir in ext.inc_dirs:
-            pro += '\nINCLUDEPATH += ' + incdir
-        if not iswindows and not ismacos:
-            # Ensure that only the init symbol is exported
-            pro += '\nQMAKE_LFLAGS += -Wl,--version-script=%s.exp' % sip['target']
-            with open(os.path.join(src_dir, sip['target'] + '.exp'), 'wb') as f:
-                f.write(('{ global: %s; local: *; };' % init_symbol_name(sip['target'])).encode('utf-8'))
-        if ext.qt_private_headers:
-            qph = ' '.join(x + '-private' for x in ext.qt_private_headers)
-            pro += '\nQT += ' + qph
-        proname = '%s.pro' % sip['target']
-        with open(os.path.join(src_dir, proname), 'wb') as f:
-            f.write(pro.encode('utf-8'))
+        src_dir = os.path.dirname(sbf)
         cwd = os.getcwd()
-        qmc = []
-        if iswindows:
-            qmc += ['-spec', qmakespec]
-        fext = 'dll' if iswindows else 'dylib' if ismacos else 'so'
-        name = '%s%s.%s' % ('release/' if iswindows else 'lib', sip['target'], fext)
         try:
-            os.chdir(src_dir)
-            if self.newer(dest, sip['headers'] + sip['sources'] + ext.sources + ext.headers):
-                self.check_call([QMAKE] + qmc + [proname])
-                self.check_call([self.env.make]+([] if iswindows else ['-j%d'%(cpu_count or 1)]))
-                shutil.copy2(os.path.realpath(name), dest)
-                if iswindows and os.path.exists(name + '.manifest'):
-                    shutil.copy2(name + '.manifest', dest + '.manifest')
-
+            os.chdir(os.path.join(src_dir, 'build'))
+            if ext.needs_exceptions:
+                # bug in sip-build
+                for q in walk('.'):
+                    if os.path.basename(q) in ('Makefile',):
+                        with open(q, 'r+') as f:
+                            raw = f.read()
+                            raw = raw.replace('-fno-exceptions', '-fexceptions')
+                            f.seek(0), f.truncate()
+                            f.write(raw)
+            self.check_call([self.env.make] + ([] if iswindows else ['-j%d'%(os.cpu_count() or 1)]))
+            e = 'pyd' if iswindows else 'so'
+            m = glob.glob(f'{ext.name}/{ext.name}.*{e}')
+            if len(m) != 1:
+                raise SystemExit(f'Found extra PyQt extension files: {m}')
+            shutil.copy2(m[0], dest)
+            with open(sbf, 'w') as f:
+                f.write('done')
         finally:
             os.chdir(cwd)
 

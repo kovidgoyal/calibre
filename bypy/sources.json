@@ -788,29 +788,80 @@
     },
 
     {
-        "name": "sip",
+        "name": "toml",
+		"comment": "Needed for sip (build time dependency)",
         "unix": {
-            "filename": "sip-4.19.24.tar.gz",
-            "hash": "sha256:edcd3790bb01938191eef0f6117de0bf56d1136626c0ddb678f3a558d62e41e5",
-            "urls": ["https://www.riverbankcomputing.com/static/Downloads/sip/4.19.24/{filename}"]
+            "filename": "toml-0.10.1.tar.gz",
+            "hash": "sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyparsing",
+		"comment": "Needed for packaging (build time dependency)",
+        "unix": {
+            "filename": "pyparsing-2.4.7.tar.gz",
+            "hash": "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "packaging",
+		"comment": "Needed for sip (build time dependency)",
+        "unix": {
+            "filename": "packaging-20.4.tar.gz",
+            "hash": "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "sip",
+		"comment": "build time dependency",
+        "unix": {
+            "filename": "sip-5.4.0.tar.gz",
+            "hash": "sha256:4282ab45948674f5ef74278a8e70d1302f65c95b519a0af19409002f5715d641",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyqt-builder",
+		"comment": "build time dependency",
+        "unix": {
+            "filename": "PyQt-builder-1.5.0.tar.gz",
+            "hash": "sha256:11bbe26e8e3d5ffec6d2ef2f50596b1670eb2d8b49aee0f859821922d8282841",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyqt-sip",
+		"comment": "runtime sip module for PyQt",
+        "unix": {
+            "filename": "PyQt5_sip-12.8.1.tar.gz",
+            "hash": "sha256:30e944db9abee9cc757aea16906d4198129558533eb7fadbe48c5da2bd18e0bd",
+            "urls": ["pypi"]
         }
     },
 
     {
         "name": "pyqt",
         "unix": {
-            "filename": "PyQt5-5.15.0.tar.gz",
-            "hash": "sha256:c6f75488ffd5365a65893bc64ea82a6957db126fbfe33654bcd43ae1c30c52f9",
-            "urls": ["https://files.pythonhosted.org/packages/8c/90/82c62bbbadcca98e8c6fa84f1a638de1ed1c89e85368241e9cc43fcbc320/{filename}"]
+            "filename": "PyQt5-5.15.1.tar.gz",
+            "hash": "sha256:d9a76b850246d08da9863189ecb98f6c2aa9b4d97a3e85e29330a264aed0f9a1",
+            "urls": ["pypi"]
         }
     },
 
     {
         "name": "pyqt-webengine",
         "unix": {
-            "filename": "PyQtWebEngine-5.15.0.tar.gz",
-            "hash": "sha256:670812688e40bf75f70ddf01eadd897d231300318d3856b275bf8e7e0085bf75",
-            "urls": ["https://files.pythonhosted.org/packages/0d/8d/aece7598d2959f66f09fcced6487dd7727f44ad867fc09978c5aeeaf1d29/{filename}"]
+            "filename": "PyQtWebEngine-5.15.1.tar.gz",
+            "hash": "sha256:f0ca7915ee206ba5d703168c6ca40b0aad62c67360328fae4af5359cdbcee439",
+            "urls": ["pypi"]
         }
     },
 

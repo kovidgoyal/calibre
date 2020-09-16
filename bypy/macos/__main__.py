@@ -538,9 +538,6 @@ class Freeze(object):
             if err.errno != errno.ENOENT:
                 raise
         sp = join(self.resources_dir, 'Python', 'site-packages')
-        for x in os.listdir(join(sp, 'PyQt5')):
-            if x.endswith('.so') and x.rpartition('.')[0] not in PYQT_MODULES and x != 'sip.so':
-                os.remove(join(sp, 'PyQt5', x))
         self.remove_bytecode(sp)
 
     @flush

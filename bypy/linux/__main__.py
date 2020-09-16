@@ -140,12 +140,6 @@ def copy_python(env, ext_dir):
     dest = j(env.py_dir, 'site-packages')
     import_site_packages(srcdir, dest)
 
-    filter_pyqt = {x + '.so' for x in PYQT_MODULES} | {'sip.so'}
-    pyqt = j(dest, 'PyQt5')
-    for x in os.listdir(pyqt):
-        if x.endswith('.so') and x not in filter_pyqt:
-            os.remove(j(pyqt, x))
-
     for x in os.listdir(env.SRC):
         c = j(env.SRC, x)
         if os.path.exists(j(c, '__init__.py')):
