@@ -7,6 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, traceback, weakref
 from polyglot.builtins import iteritems, zip
+from collections.abc import MutableMapping
 
 from calibre import force_unicode, isbytestring
 from calibre.constants import preferred_encoding
@@ -52,7 +53,7 @@ def set_global_state(db):
     set_saved_searches(db, 'saved_searches')
 
 
-class ThreadSafePrefs:
+class ThreadSafePrefs(MutableMapping):
 
     def __init__(self, db):
         self.db = weakref.ref(db)

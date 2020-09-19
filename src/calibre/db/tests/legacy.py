@@ -189,7 +189,7 @@ class LegacyTest(BaseTest):
         db = self.init_old()
         newstag = ndb.new_api.get_item_id('tags', 'news')
 
-        self.assertEqual(dict(db.prefs), ndb.prefs.copy())
+        self.assertEqual(dict(db.prefs), dict(ndb.prefs))
 
         for meth, args in iteritems({
             'find_identical_books': [(Metadata('title one', ['author one']),), (Metadata('unknown'),), (Metadata('xxxx'),)],
