@@ -149,6 +149,10 @@ class ThreadSafePrefs(MutableMapping):
         prefs = self.db().backend.prefs
         prefs.write_serialized(library_path)
 
+    def to_raw(self, val):
+        prefs = self.db().backend.prefs
+        return prefs.to_raw(val)
+
 
 class LibraryDatabase(object):
 
