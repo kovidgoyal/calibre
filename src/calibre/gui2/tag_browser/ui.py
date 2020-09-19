@@ -108,7 +108,7 @@ class TagBrowserMixin(object):  # {{{
         opportunity to edit the name.
         '''
         db = self.library_view.model().db
-        user_cats = db.prefs.get('user_categories', {})
+        user_cats = db.new_api.pref('user_categories', {})
 
         # Ensure that the temporary name we will use is not already there
         i = 0
@@ -157,7 +157,7 @@ class TagBrowserMixin(object):  # {{{
         if category_name.startswith('@'):
             category_name = category_name[1:]
         db = self.library_view.model().db
-        user_cats = db.prefs.get('user_categories', {})
+        user_cats = db.new_api.pref('user_categories', {})
         cat_keys = sorted(user_cats.keys(), key=sort_key)
         has_children = False
         found = False
@@ -192,7 +192,7 @@ class TagBrowserMixin(object):  # {{{
         if user_cat.startswith('@'):
             user_cat = user_cat[1:]
         db = self.library_view.model().db
-        user_cats = db.prefs.get('user_categories', {})
+        user_cats = db.new_api.pref('user_categories', {})
         if user_cat not in user_cats:
             error_dialog(self.tags_view, _('Remove category'),
                          _('User category %s does not exist')%user_cat,
@@ -209,7 +209,7 @@ class TagBrowserMixin(object):  # {{{
         dest_category. Any leading '@' is removed
         '''
         db = self.library_view.model().db
-        user_cats = db.prefs.get('user_categories', {})
+        user_cats = db.new_api.pref('user_categories', {})
 
         if dest_category and dest_category.startswith('@'):
             dest_category = dest_category[1:]

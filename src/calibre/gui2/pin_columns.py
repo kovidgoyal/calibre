@@ -119,7 +119,7 @@ class PinTableView(QTableView):
     def restore_state(self):
         db = getattr(self.model(), 'db', None)
         if db is not None:
-            state = db.prefs.get('books view split pane state', None)
+            state = db.new_api.pref('books view split pane state', None)
             if self.splitter is not None:
                 self.splitter.restore_state()
             if state:

@@ -373,8 +373,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.QueuedConnection)
 
         # ######################## Search Restriction ##########################
-        if db.prefs['virtual_lib_on_startup']:
-            self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+        if db.new_api.pref('virtual_lib_on_startup'):
+            self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
         self.rebuild_vl_tabs()
 
         # ########################## Cover Flow ################################
@@ -713,7 +713,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             try:
                 olddb = self.library_view.model().db
                 if copy_structure:
-                    default_prefs = olddb.prefs
+                    default_prefs = dict(olddb.prefs)
             except:
                 olddb = None
             if copy_structure and olddb is not None and default_prefs is not None:
@@ -758,8 +758,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.set_window_title()
             self.apply_named_search_restriction('')  # reset restriction to null
             self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
-            if db.prefs['virtual_lib_on_startup']:
-                self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+            if db.new_api.pref('virtual_lib_on_startup'):
+                self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
             self.rebuild_vl_tabs()
             for action in self.iactions.values():
                 action.library_changed(db)

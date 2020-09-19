@@ -211,7 +211,7 @@ class ConditionEditor(QWidget):  # {{{
             dt = m['datatype']
             if dt == 'bool':
                 from calibre.gui2.ui import get_gui
-                if not get_gui().current_db.prefs.get('bools_are_tristate'):
+                if not get_gui().current_db.new_api.pref('bools_are_tristate'):
                     dt = 'bool2'
             if dt in self.action_map:
                 actions = self.action_map[dt]

@@ -92,7 +92,7 @@ class TagCategories(QDialog, Ui_TagCategories):
                 self.category_icons.append(cc_icon)
                 category_names.append(cc['name'])
                 self.category_values.append(lambda col=key: [t.original_name for t in self.db_categories[col]])
-        self.categories = dict.copy(db.prefs.get('user_categories', {}))
+        self.categories = dict.copy(db.new_api.pref('user_categories', {}))
         if self.categories is None:
             self.categories = {}
         self.initialize_category_lists(book_ids=None)

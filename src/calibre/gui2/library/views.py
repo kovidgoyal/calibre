@@ -760,7 +760,7 @@ class BooksView(QTableView):  # {{{
             name += ' books view state'
             db = getattr(self.model(), 'db', None)
             if db is not None:
-                ans = db.prefs.get(name, None)
+                ans = db.new_api.pref(name)
                 if ans is None:
                     ans = gprefs.get(name, None)
                     try:

@@ -71,7 +71,7 @@ class ViewAction(InterfaceAction):
         for ac in self.history_actions:
             self.view_menu.removeAction(ac)
         self.history_actions = []
-        history = db.prefs.get('gui_view_history', [])
+        history = db.new_api.pref('gui_view_history', [])
         if history:
             self.view_menu.insertAction(self.clear_sep2, self.clear_sep1)
             self.history_actions.append(self.clear_sep1)
@@ -317,7 +317,7 @@ class ViewAction(InterfaceAction):
         if views:
             seen = set()
             history = []
-            for id_, title in views + db.prefs.get('gui_view_history', []):
+            for id_, title in views + db.new_api.pref('gui_view_history', []):
                 if title not in seen:
                     seen.add(title)
                     history.append((id_, title))
@@ -325,7 +325,7 @@ class ViewAction(InterfaceAction):
             db.new_api.set_pref('gui_view_history', history[:vh])
             self.build_menus(db)
         if remove:
-            history = db.prefs.get('gui_view_history', [])
+            history = db.new_api.pref('gui_view_history', [])
             history = [x for x in history if x[0] not in remove]
             db.new_api.set_pref('gui_view_history', history[:vh])
             self.build_menus(db)

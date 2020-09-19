@@ -208,7 +208,7 @@ class CheckLibraryDialog(QDialog):
         ln = QLabel(_('Names to ignore:'))
         h.addWidget(ln)
         self.name_ignores = QLineEdit()
-        self.name_ignores.setText(db.prefs.get('check_library_ignore_names', ''))
+        self.name_ignores.setText(db.new_api.pref('check_library_ignore_names', ''))
         self.name_ignores.setToolTip(
             _('Enter comma-separated standard file name wildcards, such as synctoy*.dat'))
         ln.setBuddy(self.name_ignores)
@@ -216,7 +216,7 @@ class CheckLibraryDialog(QDialog):
         le = QLabel(_('Extensions to ignore:'))
         h.addWidget(le)
         self.ext_ignores = QLineEdit()
-        self.ext_ignores.setText(db.prefs.get('check_library_ignore_extensions', ''))
+        self.ext_ignores.setText(db.new_api.pref('check_library_ignore_extensions', ''))
         self.ext_ignores.setToolTip(
             _('Enter comma-separated extensions without a leading dot. Used only in book folders'))
         le.setBuddy(self.ext_ignores)

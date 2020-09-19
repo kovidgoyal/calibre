@@ -1372,7 +1372,7 @@ class DeviceMixin(object):  # {{{
         'Set of ids to be sent to device'
         ans = []
         try:
-            ans = self.library_view.model().db.prefs.get('news_to_be_synced',
+            ans = self.library_view.model().db.new_api.pref('news_to_be_synced',
                     [])
         except:
             import traceback
@@ -1563,7 +1563,7 @@ class DeviceMixin(object):  # {{{
         '''
         Upload metadata to device.
         '''
-        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+        plugboards = self.library_view.model().db.new_api.pref('plugboards', {})
         self.device_manager.sync_booklists(Dispatcher(lambda x: x),
                                            self.booklists(), plugboards)
 
@@ -1571,7 +1571,7 @@ class DeviceMixin(object):  # {{{
         '''
         Upload metadata to device.
         '''
-        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+        plugboards = self.library_view.model().db.new_api.pref('plugboards', {})
         self.device_manager.sync_booklists(FunctionDispatcher(self.metadata_synced),
                                            self.booklists(), plugboards,
                                            add_as_step_to_job=add_as_step_to_job)
@@ -1611,7 +1611,7 @@ class DeviceMixin(object):  # {{{
         :param files: List of either paths to files or file like objects
         '''
         titles = [i.title for i in metadata]
-        plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+        plugboards = self.library_view.model().db.new_api.pref('plugboards', {})
         job = self.device_manager.upload_books(
                 FunctionDispatcher(self.books_uploaded),
                 files, names, on_card=on_card,
@@ -1947,7 +1947,7 @@ class DeviceMixin(object):  # {{{
 
             if update_metadata:
                 if self.device_manager.is_device_connected:
-                    plugboards = self.library_view.model().db.prefs.get('plugboards', {})
+                    plugboards = self.library_view.model().db.new_api.pref('plugboards', {})
                     self.device_manager.sync_booklists(
                                 FunctionDispatcher(self.metadata_synced), booklists,
                                 plugboards, add_as_step_to_job)

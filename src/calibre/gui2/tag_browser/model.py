@@ -400,7 +400,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         # Note that _get_category_nodes can indirectly change the
         # user_categories dict.
         data = self._get_category_nodes(config['sort_tags_by'])
-        gst = self.db.prefs.get('grouped_search_terms', {})
+        gst = self.db.new_api.pref('grouped_search_terms', {})
 
         last_category_node = None
         category_node_map = {}
@@ -726,7 +726,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if result is None:
             result = not (
                     key in ['authors', 'publisher', 'news', 'formats', 'rating'] or
-                    key not in self.db.prefs.get('categories_using_hierarchy', []) or
+                    key not in self.db.new_api.pref('categories_using_hierarchy', []) or
                     config['sort_tags_by'] != 'name')
             self.hierarchical_categories[key] = result
         return result
@@ -867,7 +867,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                              is_uc, dest_key, c)
             return copied
 
-        user_cats = self.db.prefs.get('user_categories', {})
+        user_cats = self.db.new_api.pref('user_categories', {})
         path = None
         for s in src:
             src_parent, src_parent_is_gst = s[1:3]
@@ -929,7 +929,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         return False
 
     def handle_user_category_drop(self, on_node, ids, column):
-        categories = self.db.prefs.get('user_categories', {})
+        categories = self.db.new_api.pref('user_categories', {})
         cat_contents = categories.get(on_node.category_key[1:], None)
         if cat_contents is None:
             return
@@ -1147,7 +1147,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                       'renaming User categories'), show=True)
                 return False
 
-            user_cats = self.db.prefs.get('user_categories', {})
+            user_cats = self.db.new_api.pref('user_categories', {})
             user_cat_keys_lower = [icu_lower(k) for k in user_cats]
             ckey = item.category_key[1:]
             ckey_lower = icu_lower(ckey)
@@ -1250,7 +1250,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         item_category and rename them to new_name. The caller must arrange to
         redisplay the tree as appropriate.
         '''
-        user_cats = self.db.prefs.get('user_categories', {})
+        user_cats = self.db.new_api.pref('user_categories', {})
         for k in user_cats.keys():
             new_contents = []
             for tup in user_cats[k]:
@@ -1267,7 +1267,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         item_category and delete them. The caller must arrange to redisplay the
         tree as appropriate.
         '''
-        user_cats = self.db.prefs.get('user_categories', {})
+        user_cats = self.db.new_api.pref('user_categories', {})
         for cat in user_cats.keys():
             self.delete_item_from_user_category(cat, item_name, item_category,
                                                 user_categories=user_cats)
@@ -1278,7 +1278,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if user_categories is not None:
             user_cats = user_categories
         else:
-            user_cats = self.db.prefs.get('user_categories', {})
+            user_cats = self.db.new_api.pref('user_categories', {})
         new_contents = []
         for tup in user_cats[category]:
             if tup[0] != item_name or tup[1] != item_category:

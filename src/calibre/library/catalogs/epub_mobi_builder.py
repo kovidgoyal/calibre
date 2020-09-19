@@ -632,7 +632,7 @@ class CatalogBuilder(object):
 
                 # Handle condition where bools_are_tristate is False,
                 # field is a bool and contents is None, which is displayed as No
-                if (not self.db.prefs.get('bools_are_tristate') and
+                if (not self.db.new_api.pref('bools_are_tristate') and
                     self.db.metadata_for_field(rule['field'])['datatype'] == 'bool' and
                     field_contents is None):
                     field_contents = _('False')
@@ -1070,7 +1070,7 @@ class CatalogBuilder(object):
 
         if self.DEBUG:
             if self.prefix_rules:
-                self.opts.log.info(" Added prefixes (bools_are_tristate: {0}):".format(self.db.prefs.get('bools_are_tristate')))
+                self.opts.log.info(" Added prefixes (bools_are_tristate: {0}):".format(self.db.new_api.pref('bools_are_tristate')))
             else:
                 self.opts.log.info(" No added prefixes")
 

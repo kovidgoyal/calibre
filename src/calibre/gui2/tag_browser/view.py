@@ -785,7 +785,7 @@ class TagsView(QTreeView):  # {{{
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
                 if key.startswith('@') and \
-                        key[1:] in self.db.prefs.get('user_categories', {}).keys():
+                        key[1:] in self.db.new_api.pref('user_categories', {}).keys():
                     self.context_menu.addAction(_('Manage User categories'),
                             partial(self.context_menu_handler, action='manage_categories',
                                     category=key[1:]))
