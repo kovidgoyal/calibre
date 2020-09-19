@@ -283,7 +283,7 @@ class UploadInstallers(Command):  # {{{
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
             for f, desc in iteritems(files):
-                fo.write('%s: %s\n' % (f, desc))
+                fo.write(('%s: %s\n' % (f, desc)).encode('utf-8'))
 
         while True:
             try:
