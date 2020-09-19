@@ -136,8 +136,10 @@ class ThreadSafePrefs(MutableMapping):
         return prefs.get_namespaced(namespace, key, default)
 
     def set_namespaced(self, namespace, key, val):
-        prefs = self.db().backend.prefs
-        return prefs.set_namespaced(namespace, key, val)
+        db = self.db()
+        with db.write_lock:
+            prefs = db.backend.prefs
+            return prefs.set_namespaced(namespace, key, val)
 
 
 class LibraryDatabase(object):
