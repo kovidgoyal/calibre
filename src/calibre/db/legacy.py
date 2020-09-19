@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, traceback
+import os, traceback, weakref
 from polyglot.builtins import iteritems, zip
 
 from calibre import force_unicode, isbytestring
@@ -50,6 +50,93 @@ def create_backend(
 def set_global_state(db):
     backend_set_global_state(db.backend)
     set_saved_searches(db, 'saved_searches')
+
+
+class ThreadSafePrefs:
+
+    def __init__(self, db):
+        self.db = weakref.ref(db)
+
+    def has_setting(self, key):
+        prefs = self.db().backend.prefs
+        return prefs.has_setting(key)
+
+    def __getitem__(self, key):
+        prefs = self.db().backend.prefs
+        return prefs.__getitem__(key)
+
+    def __delitem__(self, key):
+        db = self.db()
+        with db.write_lock:
+            prefs = db.backend.prefs
+            prefs.__delitem__(key)
+
+    def __setitem__(self, key, val):
+        db = self.db()
+        with db.write_lock:
+            prefs = db.backend.prefs
+            prefs.__setitem__(key, val)
+
+    def __contains__(self, key):
+        prefs = self.db().backend.prefs
+        return prefs.__contains__(key)
+
+    def __iter__(self):
+        prefs = self.db().backend.prefs
+        return prefs.__iter__()
+
+    def __len__(self):
+        prefs = self.db().backend.prefs
+        return prefs.__len__()
+
+    def __bool__(self):
+        prefs = self.db().backend.prefs
+        return prefs.__bool__()
+
+    def copy(self):
+        prefs = self.db().backend.prefs
+        return prefs.copy()
+
+    def items(self):
+        prefs = self.db().backend.prefs
+        return prefs.items()
+    iteritems = items
+
+    def keys(self):
+        prefs = self.db().backend.prefs
+        return prefs.keys()
+    iterkeys = keys
+
+    def values(self):
+        prefs = self.db().backend.prefs
+        return prefs.values()
+    itervalues = values
+
+    @property
+    def defaults(self):
+        prefs = self.db().backend.prefs
+        return prefs.defaults
+
+    @property
+    def disable_setting(self):
+        prefs = self.db().backend.prefs
+        return prefs.disable_setting
+
+    @disable_setting.setter
+    def disable_setting(self, val):
+        prefs = self.db().backend.prefs
+        prefs.disable_setting = val
+
+    def set(self, key, val):
+        self.__setitem__(key, val)
+
+    def get_namespaced(self, namespace, key, default=None):
+        prefs = self.db().backend.prefs
+        return prefs.get_namespaced(namespace, key, default)
+
+    def set_namespaced(self, namespace, key, val):
+        prefs = self.db().backend.prefs
+        return prefs.set_namespaced(namespace, key, val)
 
 
 class LibraryDatabase(object):
@@ -112,7 +199,7 @@ class LibraryDatabase(object):
     # Library wide properties {{{
     @property
     def prefs(self):
-        return self.new_api.backend.prefs
+        return ThreadSafePrefs(self.new_api)
 
     @property
     def field_metadata(self):
