@@ -128,6 +128,10 @@ class ThreadSafePrefs(MutableMapping):
         prefs = self.db().backend.prefs
         prefs.disable_setting = val
 
+    def get(self, key, default=None):
+        prefs = self.db().backend.prefs
+        return prefs.get(key, default)
+
     def set(self, key, val):
         self.__setitem__(key, val)
 
