@@ -623,13 +623,18 @@ class Cache(object):
         return {fmt:field.format_fname(book_id, fmt) for fmt in fmts}
 
     @read_api
-    def pref(self, name, default=None):
+    def pref(self, name, default=None, namespace=None):
         ' Return the value for the specified preference or the value specified as ``default`` if the preference is not set. '
+        if namespace is not None:
+            return self.backend.prefs.get_namespaced(namespace, name, default)
         return self.backend.prefs.get(name, default)
 
     @write_api
-    def set_pref(self, name, val):
+    def set_pref(self, name, val, namespace=None):
         ' Set the specified preference to the specified value. See also :meth:`pref`. '
+        if namespace is not None:
+            self.backend.prefs.set_namespaced(namespace, name, val)
+            return
         self.backend.prefs.set(name, val)
         if name == 'grouped_search_terms':
             self._clear_search_caches()
