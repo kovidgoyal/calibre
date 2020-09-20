@@ -805,7 +805,7 @@ class GetTranslations(Translations):  # {{{
             for f in errfiles:
                 with open(f, 'r+b') as f:
                     raw = f.read()
-                    raw = re.sub(rb'# \(pofilter\).*', '', raw)
+                    raw = re.sub(rb'# \(pofilter\).*', b'', raw)
                     f.seek(0)
                     f.truncate()
                     f.write(raw)
