@@ -466,7 +466,9 @@ class Device(DeviceConfig, DevicePlugin):
                 for y in ('idProduct', 'idVendor', 'bcdDevice'):
                     if not os.access(j(usb_dir, y), os.R_OK):
                         usb_dir = None
-                        continue
+                        break
+                if usb_dir is None:
+                    continue
                 e = lambda q : raw2num(open(j(usb_dir, q), 'rb').read().decode('utf-8'))
                 ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
                 if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
