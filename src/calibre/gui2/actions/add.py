@@ -225,7 +225,7 @@ class AddAction(InterfaceAction):
                 formats = {x.lower() for x in formats.split(',')}
                 if format_ in formats:
                     title = db.title(ids[0], index_is_id=True)
-                    msg = _('The {0} format will be replaced in the book {1}. Are you sure?').format(
+                    msg = _('The {0} format will be replaced in the book: {1}. Are you sure?').format(
                         format_, title)
                     if not confirm(msg, 'confirm_format_override_on_add', title=_('Are you sure?'),
                                    parent=self.gui):
