@@ -149,6 +149,7 @@ username = api
         install_linux_deps()
         interpreter = install_calibre_binary()
         install_qt_source_code()
+        run(interpreter, 'setup.py', 'gui')
         run(interpreter, 'setup.py', 'pot')
 
     elif action == 'test':
