@@ -372,13 +372,11 @@ One advantage of `program:` mode is that the brackets are no longer special. For
 
 Both General and Template Program Modes support if tests with the following syntax:
     * ``if`` <<expression>> ``then`` <<expression_list>> [ ``else`` <<expression_list>> ] ``fi``.
-The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are reserved. You cannot use them as identifier names. You can put newlines and white space wherever they make sense. 
-
-<<expression>> is one template language expression. Semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
+The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are reserved. You cannot use them as identifier names. You can put newlines and white space wherever they make sense. <<expression>> is one template language expression. Semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
     * ``program: if field('series') then 'yes' else 'no' fi``
     * ``program: if field('series') then a = 'yes'; b = 'no' else a = 'no'; b='yes' fi; strcat(a, '-', b)``
     * Nested ``if`` example::
-    
+
         program:
             if field('series')
             then
@@ -392,7 +390,7 @@ The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are 
                 'no series'
             fi
 
-An ``if` produces a value like any other language expression. This means that all the following are valid:
+An ``if`` produces a value like any other language expression. This means that all the following are valid:
     * ``program: if field('series') then 'foo' else 'bar' fi``
     * ``program: if field('series') then a = 'foo' else a = 'bar' fi; a``
     * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
@@ -401,9 +399,8 @@ An ``if` produces a value like any other language expression. This means that al
 Program mode also supports the classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, '' otherwise. They do case-insensitive string comparison using lexical order. Examples:
     * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
     * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
-    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'. 
-    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison.
-If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
+    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
+    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
 
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 
