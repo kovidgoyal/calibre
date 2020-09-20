@@ -273,7 +273,7 @@ class MainOverlay:  # {{{
 
         bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
         highlights_action = ac(
-            _('Browse highlights'), _('Browse all highlights'), def():
+            _('Highlights'), _('Browse all highlights'), def():
                 self.overlay.show_highlights()
             , 'image')
 

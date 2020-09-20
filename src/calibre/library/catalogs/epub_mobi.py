@@ -141,9 +141,9 @@ class EPUB_MOBI(CatalogPlugin):
                           dest='merge_comments_rule',
                           action=None,
                           help=_("#<custom field>:[before|after]:[True|False] specifying:\n"
-                          " <custom field> Custom field containing notes to merge with Comments\n"
-                          " [before|after] Placement of notes with respect to Comments\n"
-                          " [True|False] - A horizontal rule is inserted between notes and Comments\n"
+                          " <custom field> Custom field containing notes to merge with comments\n"
+                          " [before|after] Placement of notes with respect to comments\n"
+                          " [True|False] - A horizontal rule is inserted between notes and comments\n"
                           "Default: '%default'\n"
                           "Applies to: AZW3, EPUB, MOBI output formats")),
                    Option('--output-profile',
