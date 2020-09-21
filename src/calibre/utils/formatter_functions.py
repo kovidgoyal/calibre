@@ -1668,6 +1668,39 @@ class BuiltinAuthorSorts(BuiltinFormatterFunction):
         return val_sep.join(n for n in names)
 
 
+class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
+    name = 'connected_device_name'
+    arg_count = 1
+    category = 'Get values from metadata'
+    __doc__ = doc = _("connected_device_name(storage_location) -- if a device is "
+                      "connected then return the device name, otherwise return "
+                      "the empty string. Each storage location on a device can "
+                      "have a different name. The location names are 'main', "
+                      "'carda' and 'cardb'. This function works only in the GUI.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, storage_location):
+        if hasattr(mi, '_proxy_metadata'):
+            # Do the import here so that we don't entangle the GUI when using
+            # command line functions
+            from calibre.gui2.ui import get_gui
+            info = get_gui().device_manager.get_current_device_information()
+            if info is None:
+                return ''
+            try:
+                if storage_location not in {'main', 'carda', 'cardb'}:
+                    raise ValueError(
+                         _('connected_device_name: invalid storage location "{0}"'
+                                    .format(storage_location)))
+                info = info['info'][4]
+                if storage_location not in info:
+                    return ''
+                return info[storage_location]['device_name']
+            except:
+                traceback.print_exc()
+                raise
+        return _('This function can be used only in the GUI')
+
+
 class BuiltinCheckYesNo(BuiltinFormatterFunction):
     name = 'check_yes_no'
     arg_count = 4
@@ -1754,7 +1787,7 @@ _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCheckYesNo(), BuiltinCeiling(),
-    BuiltinCmp(), BuiltinContains(),
+    BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
