@@ -10,7 +10,7 @@ from threading import Thread, Event
 from PyQt5.Qt import (
     QMenu, QAction, QActionGroup, QIcon, Qt, pyqtSignal, QDialog,
     QObject, QVBoxLayout, QDialogButtonBox, QCursor, QCoreApplication,
-    QApplication, QEventLoop)
+    QApplication, QEventLoop, QTimer)
 
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
@@ -1100,7 +1100,12 @@ class DeviceMixin(object):  # {{{
             # Empty any device view information
             for v in dviews:
                 v.set_database([])
-            self.refresh_ondevice()
+            # Use a singleShot timer to ensure that the job event queue has
+            # emptied before the ondevice column is removed from the booklist.
+            # This deals with race conditions when repainting the booklist
+            # causing incorrect evaluation of the connected_device_name
+            # formatter function
+            QTimer.singleShot(0, self.refresh_ondevice)
         device_signals.device_connection_changed.emit(connected)
 
     def info_read(self, job):
