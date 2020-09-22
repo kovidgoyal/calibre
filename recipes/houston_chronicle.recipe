@@ -48,7 +48,8 @@ def validate_link(page, link, title):
     if not title or len(title.strip()) < 5:
         print("{0} rejected, title too short".format(link))
         return None
-    if link.split('/')[3] in other_category:
+    parts = link.split('/')
+    if len(parts) > 3 and parts[3] in other_category:
         print("{0} rejected, covered in other section".format(link))
         return None
     for excluded_title in excluded_titles:
@@ -69,7 +70,10 @@ def sort_subject(element_list):
     subject_dict = OrderedDict(zip(subjects, range(len(subjects))))
     rank_dict = OrderedDict([(rank, []) for rank in range(len(subjects) + 1)])
     for element in element_list:
-        subj = element[0].split('/')[3]
+        try:
+            subj = element[0].split('/')[3]
+        except Exception:
+            subj = 'unknown'
         if subject_dict.get(subj) is not None:
             rank_dict[subject_dict[subj] + 1].append(element)
         else:
@@ -161,7 +165,7 @@ class HoustonChronicle(BasicNewsRecipe):
                         for descendant in el.contents:
                             if isinstance(descendant, NavigableString):
                                 result.append(type(u'')(descendant).strip())
-                        all_text = u' '.join(result).encode('utf-8')
+                        all_text = u' '.join(result)
                         if len(all_text) > 1:
                             sentences = re.findall(sentence_regex, all_text)
                             if sentences is not None and len(sentences) > 0:
