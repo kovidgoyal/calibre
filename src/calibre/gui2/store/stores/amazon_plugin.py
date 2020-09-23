@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 18  # Needed for dynamic plugin loading
+store_version = 19  # Needed for dynamic plugin loading
 
 from contextlib import closing
 try:
@@ -72,8 +72,8 @@ def search_amazon(query, max_results=10, timeout=60,
             title = etree.tostring(result.xpath('.//h2')[0], method='text', encoding='unicode')
             adiv = result.xpath('.//div[contains(@class, "a-color-secondary")]')[0]
             aparts = etree.tostring(adiv, method='text', encoding='unicode').split()
-            idx = aparts.index('|')
-            author = ' '.join(aparts[1:idx])
+            idx = aparts.index('by')
+            author = ' '.join(aparts[idx+1:]).split('|')[0].strip()
             price = ''
             for span in result.xpath('.//span[contains(@class, "a-price")]/span[contains(@class, "a-offscreen")]'):
                 q = ''.join(span.xpath('./text()'))
