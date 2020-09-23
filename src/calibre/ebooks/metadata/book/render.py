@@ -220,8 +220,6 @@ def mi_to_html(
                 if mi.author_link_map.get(aut):
                     link = lt = mi.author_link_map[aut]
                 elif default_author_link:
-                    if isdevice and default_author_link == 'search-calibre':
-                        default_author_link = DEFAULT_AUTHOR_LINK
                     if default_author_link.startswith('search-'):
                         which_src = default_author_link.partition('-')[2]
                         link, lt = author_search_href(which_src, title=mi.title, author=aut)
