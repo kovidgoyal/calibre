@@ -384,7 +384,7 @@ class FieldMetadata(object):
                 'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     # search labels that are not db columns
-    search_items = ['all', 'search', 'vl']
+    search_items = ['all', 'search', 'vl', 'template']
     __calibre_serializable__ = True
 
     def __init__(self):
