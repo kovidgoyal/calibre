@@ -600,6 +600,10 @@ class BooksView(QTableView):  # {{{
         except Exception:
             idx = -1
         self.set_sort_indicator(idx, ascending)
+
+    def resort(self):
+        with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
+            self._model.resort(reset=True)
     # }}}
 
     # Ondevice column {{{

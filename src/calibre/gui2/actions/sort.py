@@ -57,13 +57,7 @@ class SortByAction(InterfaceAction):
         lv.sort_by_named_field(sort_col, not order)
 
     def reapply_sort(self):
-        lv = self.gui.library_view
-        m = lv.model()
-        try:
-            sort_col, order = m.sorted_on
-        except TypeError:
-            sort_col, order = 'date', True
-        lv.sort_by_named_field(sort_col, order)
+        self.gui.library_view.resort()
 
     def location_selected(self, loc):
         enabled = loc == 'library'
