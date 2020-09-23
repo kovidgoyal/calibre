@@ -44,20 +44,14 @@ class SortByAction(InterfaceAction):
             self.gui.addAction(ac)
             return ac
 
-        c('reverse_sort_action', _('Reverse current sort'), _('Reverse the current sort order'), self.reverse_sort)
+        c('reverse_sort_action', _('Reverse current sort'), _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
         c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
 
     def reverse_sort(self):
-        lv = self.gui.library_view
-        m = lv.model()
-        try:
-            sort_col, order = m.sorted_on
-        except TypeError:
-            sort_col, order = 'date', True
-        lv.sort_by_named_field(sort_col, not order)
+        self.gui.current_view().reverse_sort()
 
     def reapply_sort(self):
-        self.gui.library_view.resort()
+        self.gui.current_view().resort()
 
     def location_selected(self, loc):
         enabled = loc == 'library'
