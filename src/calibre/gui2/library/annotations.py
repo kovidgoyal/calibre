@@ -254,16 +254,6 @@ class ResultsList(QTreeWidget):
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
 
-    def keyPressEvent(self, ev):
-        key = ev.key()
-        if key == Qt.Key_Down:
-            self.show_next()
-            return
-        if key == Qt.Key_Up:
-            self.show_next(backwards=True)
-            return
-        return QTreeWidget.keyPressEvent(self, ev)
-
     @property
     def selected_annot_ids(self):
         for item in self.selectedItems():
