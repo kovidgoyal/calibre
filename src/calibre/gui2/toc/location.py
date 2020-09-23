@@ -163,6 +163,7 @@ class ItemEdit(QWidget):
         f.la2 = la = QLabel('<b>'+_('&Name of the ToC entry:'))
         l.addWidget(la)
         self.name = QLineEdit(self)
+        self.name.setPlaceholderText(_('(Untitled)'))
         la.setBuddy(self.name)
         l.addWidget(self.name)
 
@@ -252,7 +253,7 @@ class ItemEdit(QWidget):
         self.current_item, self.current_where = item, where
         self.current_name = None
         self.current_frag = None
-        self.name.setText(_('(Untitled)'))
+        self.name.setText('')
         dest_index, frag = 0, None
         if item is not None:
             if where is None:
@@ -298,4 +299,4 @@ class ItemEdit(QWidget):
     @property
     def result(self):
         return (self.current_item, self.current_where, self.current_name,
-                self.current_frag, unicode_type(self.name.text()))
+                self.current_frag, self.name.text().strip() or _('(Untitled)'))
