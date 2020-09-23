@@ -604,6 +604,15 @@ class BooksView(QTableView):  # {{{
     def resort(self):
         with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
             self._model.resort(reset=True)
+
+    def reverse_sort(self):
+        with self.preserve_state(preserve_vpos=False, require_selected_ids=False):
+            m = self.model()
+            try:
+                sort_col, order = m.sorted_on
+            except TypeError:
+                sort_col, order = 'date', True
+            self.sort_by_named_field(sort_col, not order)
     # }}}
 
     # Ondevice column {{{
@@ -1410,5 +1419,13 @@ class DeviceBooksView(BooksView):  # {{{
     def set_editable(self, editable, supports_backloading):
         self._model.set_editable(editable)
         self.drag_allowed = supports_backloading
+
+    def resort(self):
+        h = self.horizontalHeader()
+        self.model().sort(h.sortIndicatorSection(), h.sortIndicatorOrder())
+
+    def reverse_sort(self):
+        h = self.horizontalHeader()
+        h.setSortIndicator(h.sortIndicatorSection(), 1 - int(h.sortIndicatorOrder()))
 
 # }}}
