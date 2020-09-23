@@ -752,5 +752,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Focus the opened Quick View panel
     * - :kbd:`Shift+S`
       - Perform a search in the Quick View panel
+    * - :kbd:`F5`
+      - Re-apply the current sort
     * - :kbd:`Ctrl+Q`
       - Quit calibre
