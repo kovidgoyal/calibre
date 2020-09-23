@@ -362,19 +362,19 @@ class ReadingTest(BaseTest):
 
         # template searches
         # Test text search
-        self.assertEqual(cache.search('template:"{#formats}#@t#:fmt1"'), {1,2})
-        self.assertEqual(cache.search('template:"{authors}#@t#:=Author One"'), {2})
+        self.assertEqual(cache.search('template:"{#formats}#@#:t:fmt1"'), {1,2})
+        self.assertEqual(cache.search('template:"{authors}#@#:t:=Author One"'), {2})
         cache.set_field('pubdate', {1:p('2001-02-06'), 2:p('2001-10-06'), 3:p('2001-06-06')})
         cache.set_field('timestamp', {1:p('2002-02-06'), 2:p('2000-10-06'), 3:p('2001-06-06')})
         # Test numeric compare search
         self.assertEqual(cache.search("template:\"program: "
                                       "floor(days_between(field(\'pubdate\'), "
-                                      "field(\'timestamp\')))#@n#:>0\""), {2,3})
+                                      "field(\'timestamp\')))#@#:n:>0\""), {2,3})
         # Test date search
-        self.assertEqual(cache.search('template:{pubdate}#@d#:<2001-09-01"'), {1,3})
+        self.assertEqual(cache.search('template:{pubdate}#@#:d:<2001-09-01"'), {1,3})
         # Test boolean search
-        self.assertEqual(cache.search('template:{series}#@b#:true'), {1,2})
-        self.assertEqual(cache.search('template:{series}#@b#:false'), {3})
+        self.assertEqual(cache.search('template:{series}#@#:b:true'), {1,2})
+        self.assertEqual(cache.search('template:{series}#@#:b:false'), {3})
 
         # Note that the old db searched uuid for un-prefixed searches, the new
         # db does not, for performance

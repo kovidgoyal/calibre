@@ -376,7 +376,7 @@ class SearchDialog(QDialog):
         if template and value:
             cb = self.template_test_type_box
             op =  unicode_type(cb.itemData(cb.currentIndex()))
-            l = '{0}#@{1}#:{2}'.format(template, op, value)
+            l = '{0}#@#:{1}:{2}'.format(template, op, value)
             return 'template:"' + l + '"'
         return ''
 
