@@ -206,6 +206,9 @@ class IframeClient:
                 print('Could not process message from parent:')
                 console.log(e)
                 return
+        if not data or not data.action:
+            console.log('Got a null message from parent in iframe, ignoring')
+            return
         func = self.handlers[data.action]
         if func:
             try:
