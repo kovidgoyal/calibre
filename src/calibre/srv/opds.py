@@ -235,6 +235,8 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                 ans.append(link)
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
+    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/image"))
+    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/image/thumbnail"))
 
     return ans
 
