@@ -233,8 +233,8 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                     link.set('length', unicode_type(ffm['size']))
                     link.set('mtime', ffm['mtime'].isoformat())
                 ans.append(link)
-    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
-    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
+    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/image"))
+    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/image/thumbnail"))
 
     return ans
 
