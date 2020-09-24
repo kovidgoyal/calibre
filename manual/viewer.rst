@@ -106,11 +106,12 @@ selection. You can click the highlight button in that bar to create a
 highlight. You can add notes and change the color of the highlight. On a touch
 screen, long tap a word to select it and show the popup bar. Once in highlight
 mode you can tap the :guilabel:`Adjust selection` button to change what text is
-selected using touch screen friendly selection handles.  Drag
+selected, using touch screen friendly selection handles.  Drag
 the handles to the top or bottom margins to scroll while selecting.
 
 You can use the :guilabel:`Browse highlights` button in the viewer
-controls to show a separate panel with a list of all highlights in the book.
+controls to show a separate panel with a list of all highlights in the book,
+sorted by chapter.
 
 You can browse *all highlights* in your entire calibre library by right
 clicking the :guilabel:`View` button and choosing :guilabel:`Browse
