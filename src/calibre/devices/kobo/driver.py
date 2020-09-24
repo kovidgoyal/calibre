@@ -2900,7 +2900,7 @@ class KOBOTOUCH(KOBO):
             ignore_collections_values.extend(self.ignore_collections_names)
             debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections_in=", ignore_collections_placeholder)
             debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections=", ignore_collections_values)
-            
+
         delete_query = ("DELETE FROM Shelf "
                         "WHERE Shelf._IsSynced = 'false' "
                         "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
