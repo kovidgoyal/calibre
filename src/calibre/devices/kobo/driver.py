@@ -950,6 +950,7 @@ class KOBO(USBMS):
     def sync_booklists(self, booklists, end_session=True):
         debug_print('KOBO:sync_booklists - start')
         paths = self.get_device_paths()
+        debug_print('KOBO:sync_booklists - booklists:', booklists)
 
         blists = {}
         for i in paths:
@@ -1349,7 +1350,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 160
+    supported_dbversion             = 161
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1362,7 +1363,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 23, 15439)
+    max_supported_fwversion         = (4, 24, 15672)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2891,29 +2892,35 @@ class KOBOTOUCH(KOBO):
     def delete_empty_bookshelves(self, connection):
         debug_print("KoboTouch:delete_empty_bookshelves - start")
 
-        ignore_collections_in = ''
+        ignore_collections_placeholder = ''
+        ignore_collections_values = []
         if self.ignore_collections_names:
-            ignore_collections_in = ','.join(["'%s'" % collections_name for collections_name in self.ignore_collections_names])
-            ignore_collections_in = ', %s' % ignore_collections_in
-
+            placeholder = ',?'
+            ignore_collections_placeholder = ''.join(placeholder for unused in self.ignore_collections_names)
+            ignore_collections_values.extend(self.ignore_collections_names)
+            debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections_in=", ignore_collections_placeholder)
+            debug_print("KoboTouch:delete_empty_bookshelves - ignore_collections=", ignore_collections_values)
+            
         delete_query = ("DELETE FROM Shelf "
                         "WHERE Shelf._IsSynced = 'false' "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_in + ") "
+                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
                         "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
                         "AND NOT EXISTS "
                         "(SELECT 1 FROM ShelfContent c "
                         "WHERE Shelf.Name = C.ShelfName "
                         "AND c._IsDeleted <> 'true')")
+        debug_print("KoboTouch:delete_empty_bookshelves - delete_query=", delete_query)
 
         update_query = ("UPDATE Shelf "
                         "SET _IsDeleted = 'true' "
                         "WHERE Shelf._IsSynced = 'true' "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_in + ") "
+                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_placeholder + ") "
                         "AND (Type IS NULL OR Type <> 'SystemTag') "
                         "AND NOT EXISTS "
                         "(SELECT 1 FROM ShelfContent C "
                         "WHERE Shelf.Name = C.ShelfName "
                         "AND c._IsDeleted <> 'true')")
+        debug_print("KoboTouch:delete_empty_bookshelves - update_query=", update_query)
 
         delete_activity_query = ("DELETE FROM Activity "
                                  "WHERE Type = 'Shelf' "
@@ -2922,10 +2929,11 @@ class KOBOTOUCH(KOBO):
                                     "WHERE Shelf.Name = Activity.Id "
                                     "AND Shelf._IsDeleted = 'false')"
                                  )
+        debug_print("KoboTouch:delete_empty_bookshelves - delete_activity_query=", delete_activity_query)
 
         cursor = connection.cursor()
-        cursor.execute(delete_query)
-        cursor.execute(update_query)
+        cursor.execute(delete_query, ignore_collections_values)
+        cursor.execute(update_query, ignore_collections_values)
         if self.has_activity_table():
             cursor.execute(delete_activity_query)
         cursor.close()
