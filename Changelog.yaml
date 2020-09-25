@@ -5,13 +5,29 @@
 # for important features/bug fixes.
 # Also, each release can have new and improved recipes.
 
-# changes for 5
-# viewer supports annotations
-# viewer works with RTL and vertical text
-# python upgraded to python 3 link to list of not ported plugins
-# regex engine used for searching book list and metadata from file names made more powerful
-# dark mode support in the content server and viewer UIs
-# content server viewer can now browse and create bookmarks
+- version: 5.0.0
+  date: 2020-09-25
+
+  new features:
+    - title: "For details on the major changes in calibre between 4.0 and 5.0, see https://calibre-ebook.com/new-in/fourteen"
+      type: major
+
+    - title: "E-book viewer: Add support for highlighting"
+      description: "https://manual.calibre-ebook.com/viewer.html#highlighting-text"
+      type: major
+
+    - title: "E-book viewer: Add support for right-to-left and vertical text"
+      type: major
+
+    - title: "Switch calibre to Python 3. This means that some no longer maintained third party plugins will not work. See https://www.mobileread.com/forums/showthread.php?t=326405"
+      type: major
+
+    - title: "Dark mode support for the Content server and E-book viewer user interfaces"
+
+    - title: "Content server's in-browser viewer now supports bookmarking. Bookmarks and highlights are auto-synced across devices."
+
+    - title: "Regular expression engine used for searching the book list and reading metadata from filenames has been made more powerful."
+
 
 - version: 4.23.0
   date: 2020-08-21
