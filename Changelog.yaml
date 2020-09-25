@@ -27,9 +27,8 @@
     - title: "Content server's in-browser viewer now supports bookmarking. Bookmarks and highlights are auto-synced across devices."
 
     - title: "Regular expression engine used for searching the book list and reading metadata from filenames has been made more powerful."
-
   bug fixes:
-    - "Version 5.0.1 fixes a bug in 5.0.0 that broke connecting to devices on macOS"
+    - title: "Version 5.0.1 fixes a bug in 5.0.0 that broke connecting to devices on macOS"
 
 
 - version: 4.23.0
