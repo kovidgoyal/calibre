@@ -73,7 +73,7 @@ def upload_signatures():
                 raw = f.read()
             fingerprint = hashlib.sha512(raw).hexdigest()
             sha512 = os.path.join(tdir, os.path.basename(installer + '.sha512'))
-            with open(sha512, 'wb') as f:
+            with open(sha512, 'w') as f:
                 f.write(fingerprint)
             scp.append(sha512)
         for srv in 'code main'.split():
