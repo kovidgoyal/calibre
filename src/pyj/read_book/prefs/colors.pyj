@@ -163,7 +163,7 @@ def add_color_scheme(ev):
 
         key = '*' + name
         sd = get_session_data()
-        ucs = sd.get('user_color_schemes')
+        ucs = Object.assign({}, sd.get('user_color_schemes'))
         ucs[key] = {'name':name, 'foreground':colors.fg, 'background':colors.bg}
         if div.querySelector('input[name=link_color_type]:checked').value is 'custom':
             ucs[key].link = colors.link
