@@ -280,7 +280,7 @@ usbobserver_get_mounted_filesystems(PyObject *self, PyObject *args) {
 	if (ans == NULL) { goto end; }
 
     for (i = 0 ; i < num; i++) {
-        val = PyBytes_FromString(buf[i].f_mntonname);
+        val = PyUnicode_FromString(buf[i].f_mntonname);
 		if (!val) { NUKE(ans); goto end; }
 		if (PyDict_SetItemString(ans, buf[i].f_mntfromname, val) != 0) { NUKE(ans); NUKE(val); goto end; }
         NUKE(val);
