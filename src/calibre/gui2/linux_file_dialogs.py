@@ -306,7 +306,6 @@ def linux_native_dialog(name):
                     ret[0] = func(window, *args, **kwargs)
                 except:
                     ret[1] = sys.exc_info()
-                    sys.exc_clear()
                 while not loop.isRunning():
                     time.sleep(0.001)  # yield so that loop starts
                 loop.quit()
