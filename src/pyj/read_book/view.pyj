@@ -87,6 +87,7 @@ def show_controls_help():
             window.setTimeout(focus, 10)
 
     if runtime.is_standalone_viewer:
+        clear(container)
         container.appendChild(E.div(
             style='margin: 1rem',
             E.div(style='margin-top: 1rem'),
