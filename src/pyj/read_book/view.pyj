@@ -892,10 +892,13 @@ class View:
         else:
             self.show_name(name, initial_position=pos)
         sd = get_session_data()
-        c = sd.get('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), 0)
-        if c < 2:
-            show_controls_help()
-            sd.set('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), c + 1)
+        help_key = 'controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else '')
+        if not self[help_key]:
+            self[help_key] = True
+            c = sd.get(help_key, 0)
+            if c < 2:
+                show_controls_help()
+                sd.set('controls_help_shown_count' + ('_rtl_page_progression' if rtl_page_progression() else ''), c + 1)
 
     def preferences_changed(self):
         ui_operations.update_url_state(True)
