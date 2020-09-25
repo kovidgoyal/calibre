@@ -108,6 +108,7 @@ def commit_layout(onchange, container):
         was_changed = True
         sd.set('read_mode', crm)
     cps = sd.get('columns_per_screen')
+    cps = {'portrait': cps.portrait, 'landscape': cps.landscape}
     for which in ('portrait', 'landscape'):
         inp = element(COLS, 'input[name={}]'.format(which))
         try:
