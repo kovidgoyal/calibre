@@ -224,6 +224,26 @@
       <widget class="QComboBox" name="function"/>
      </item>
      <item row="9" column="0">
+      <widget class="QLabel" name="label_22">
+       <property name="text">
+        <string>&amp;Function type:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <property name="buddy">
+        <cstring>func_type</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="QLineEdit" name="func_type">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>&amp;Documentation:</string>
@@ -236,10 +256,10 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Python &amp;code:</string>
+        <string>&amp;Code:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -249,7 +269,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="10" column="1">
       <widget class="QPlainTextEdit" name="documentation">
        <property name="maximumSize">
         <size>
@@ -259,17 +279,17 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="11" column="1">
       <widget class="QPlainTextEdit" name="source_code"/>
      </item>
-     <item row="11" column="1">
+     <item row="12" column="1">
       <widget class="QLabel" name="template_tutorial">
        <property name="openExternalLinks">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
+     <item row="13" column="1">
       <widget class="QLabel" name="template_func_reference">
        <property name="openExternalLinks">
         <bool>true</bool>
