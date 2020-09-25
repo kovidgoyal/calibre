@@ -4,7 +4,6 @@
 
 from collections import defaultdict
 from itertools import chain
-from operator import itemgetter
 
 from calibre.ebooks.epub.cfi.parse import cfi_sort_key
 from polyglot.builtins import itervalues
@@ -34,7 +33,7 @@ def merge_annots_with_identical_field(a, b, field='title'):
     for x in chain(a, b):
         title_groups[x[field]].append(x)
     for tg in itervalues(title_groups):
-        tg.sort(key=itemgetter('timestamp'), reverse=True)
+        tg.sort(key=safe_timestamp_sort_key, reverse=True)
     seen = set()
     changed = False
     ans = []
@@ -61,7 +60,7 @@ def merge_annot_lists(a, b, annot_type):
         return list(a)
     if annot_type == 'last-read':
         ans = a + b
-        ans.sort(key=itemgetter('timestamp'), reverse=True)
+        ans.sort(key=safe_timestamp_sort_key, reverse=True)
         return ans
     merge_field = merge_field_map.get(annot_type)
     if merge_field is None:
@@ -70,6 +69,21 @@ def merge_annot_lists(a, b, annot_type):
     if changed:
         sort_annot_list_by_position_in_book(c, annot_type)
     return c
+
+
+def safe_timestamp_sort_key(x):
+    # ensure we return a string, so python 3 does not barf
+    # also if the timestamp is a datetime instance convert it to
+    # a string, since we expect it to always be a string
+    ans = x.get('timestamp')
+    if hasattr(ans, 'isoformat'):
+        ans = x['timestamp'] = ans.isoformat()
+    if not isinstance(ans, str):
+        try:
+            ans = str(ans)
+        except Exception:
+            ans = 'zzzz'
+    return ans
 
 
 def merge_annotations(annots, annots_map, merge_last_read=True):
@@ -89,7 +103,7 @@ def merge_annotations(annots, annots_map, merge_last_read=True):
             if existing:
                 lr = existing + lr
             if lr:
-                lr.sort(key=itemgetter('timestamp'), reverse=True)
+                lr.sort(key=safe_timestamp_sort_key, reverse=True)
                 annots_map['last-read'] = [lr[0]]
 
     for annot_type, field in merge_field_map.items():
