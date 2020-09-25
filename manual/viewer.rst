@@ -109,7 +109,7 @@ mode you can tap the :guilabel:`Adjust selection` button to change what text is
 selected, using touch screen friendly selection handles.  Drag
 the handles to the top or bottom margins to scroll while selecting.
 
-You can use the :guilabel:`Browse highlights` button in the viewer
+You can use the :guilabel:`Highlights` button in the viewer
 controls to show a separate panel with a list of all highlights in the book,
 sorted by chapter.
 
