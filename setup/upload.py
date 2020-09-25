@@ -218,8 +218,10 @@ def upload_to_fosshub():
         'publish': True,
         'isOldRelease': False,
     }
-    # print(json.dumps(jq, indent=2))
-    if not request('projects/{}/releases/'.format(project_id), data=json.dumps(jq)):
+    data = json.dumps(jq)
+    # print(data)
+    data = data.encode('utf-8')
+    if not request('projects/{}/releases/'.format(project_id), data=data):
         raise SystemExit('Failed to queue publish job with fosshub')
 
 
