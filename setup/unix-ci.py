@@ -88,8 +88,7 @@ def download_and_decompress(url, dest, compression=None):
 def install_calibre_binary():
     dest = os.path.expanduser('~/calibre-bin')
     os.mkdir(dest)
-    # change this to the canonical download URL once 5.0 is released
-    download_and_decompress('https://download.calibre-ebook.com/calibre-4.99.12-x86_64.txz', dest, 'J')
+    download_and_decompress('https://calibre-ebook.com/dist/linux64', dest, 'J')
     return os.path.join(dest, 'calibre-debug')
 
 
