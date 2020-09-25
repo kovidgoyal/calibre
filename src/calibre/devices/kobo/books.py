@@ -14,7 +14,6 @@ from calibre.devices.usbms.books import Book as Book_, CollectionsBookList, none
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import unicode_type, iteritems, itervalues
 
 
 class Book(Book_):
@@ -93,15 +92,15 @@ class Book(Book_):
     def is_purchased_kepub(self):
         return self.contentID and not self.contentID.startswith("file")
 
-    def __unicode__(self):
+    def __str__(self):
         '''
         A string representation of this object, suitable for printing to
         console
         '''
-        ans = [u"Kobo metadata:"]
+        ans = ["Kobo metadata:"]
 
         def fmt(x, y):
-            ans.append(u'%-20s: %s'%(unicode_type(x), unicode_type(y)))
+            ans.append('%-20s: %s'%(str(x), str(y)))
 
         if self.contentID:
             fmt('Content ID', self.contentID)
@@ -114,11 +113,12 @@ class Book(Book_):
         if self.mime:
             fmt('MimeType', self.mime)
 
-        ans = u'\n'.join(ans) + u"\n" + self.kobo_metadata.__unicode__()
+        ans.append(str(self.kobo_metadata))
 
-        return super(Book,self).__unicode__() + u"\n" + ans
+        ans = '\n'.join(ans)
 
-    __str__ = __unicode__
+        return super(Book,self).__str__() + "\n" + ans
+
 
 
 class ImageWrapper(object):
@@ -227,7 +227,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 elif fm is not None and fm['datatype'] == 'series':
                     val = [orig_val]
                 elif fm is not None and fm['datatype'] == 'rating':
-                    val = [unicode_type(orig_val / 2.0)]
+                    val = [str(orig_val / 2.0)]
                 elif fm is not None and fm['datatype'] == 'text' and fm['is_multiple']:
                     if isinstance(orig_val, (list, tuple)):
                         val = orig_val
@@ -272,7 +272,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     if not category:
                         continue
 
-                    cat_name = unicode_type(category).strip(' ,')
+                    cat_name = str(category).strip(' ,')
 
                     if cat_name not in collections:
                         collections[cat_name] = {}
@@ -296,8 +296,8 @@ class KTCollectionsBookList(CollectionsBookList):
         # Sort collections
         result = {}
 
-        for category, lpaths in iteritems(collections):
-            books = sorted(itervalues(lpaths), key=cmp_to_key(none_cmp))
+        for category, lpaths in collections.items():
+            books = sorted(lpaths.values(), key=cmp_to_key(none_cmp))
             result[category] = [x[0] for x in books]
         # debug_print("KTCollectionsBookList:get_collections - result=", result.keys())
         debug_print("KTCollectionsBookList:get_collections - end")

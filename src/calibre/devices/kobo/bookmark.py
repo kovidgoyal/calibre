@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from polyglot.builtins import unicode_type
 from calibre.devices.usbms.driver import debug_print
 
 
@@ -164,15 +163,15 @@ class Bookmark():  # {{{
         # TL        self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
         pass
 
-    def __unicode__(self):
+    def __str__(self):
         '''
         A string representation of this object, suitable for printing to
         console
         '''
-        ans = [u"Kobo bookmark:"]
+        ans = ["Kobo bookmark:"]
 
         def fmt(x, y):
-            ans.append(u'%-20s: %s'%(unicode_type(x), unicode_type(y)))
+            ans.append('%-20s: %s'%(str(x), str(y)))
 
         if self.contentId:
             fmt('ContentID', self.contentId)
@@ -185,10 +184,9 @@ class Bookmark():  # {{{
         if self.user_notes:
             fmt('User Notes', self.user_notes)
 
-        ans = u'\n'.join(ans) + u"\n"
+        ans = '\n'.join(ans) + "\n"
 
         return ans
 
-    __str__ = __unicode__
 
 # }}}
