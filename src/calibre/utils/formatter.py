@@ -347,13 +347,18 @@ class _Parser(object):
                                             self.parent.lex_scanner.scan(text))
                 return CallNode(subprog, arguments[1:])
             if id_ == 'arguments':
+                new_args = []
                 for arg in arguments:
-                    if arg.node_type != Node.NODE_RVALUE:
-                        self.error(_("Parameters to 'arguments' must be variables"))
-                return ArgumentsNode(arguments)
+                    if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+                        self.error(_("Parameters to 'arguments' must be "
+                                     "variables or assignments"))
+                    if arg.node_type == Node.NODE_RVALUE:
+                        arg = AssignNode(arg.name, ConstantNode(''))
+                    new_args.append(arg)
+                return ArgumentsNode(new_args)
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
-                self.error(_('Incorrect number of expression_list for function {0}').format(id_))
+                self.error(_('Incorrect number of arguments for function {0}').format(id_))
             return FunctionNode(id_, arguments)
         elif self.token_is_constant():
             # String or number
@@ -460,7 +465,7 @@ class _Interpreter(object):
 
     def do_node_arguments(self, prog):
         for dex,arg in enumerate(prog.expression_list):
-            self.locals[arg.name] = self.locals.get('*arg_'+ str(dex), '')
+            self.locals[arg.left] = self.locals.get('*arg_'+ str(dex), self.expr(arg.right))
         return ''
 
     def do_node_constant(self, prog):
