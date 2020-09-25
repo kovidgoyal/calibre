@@ -839,7 +839,7 @@ def toc_to_html(toc, container, toc_name, title, lang=None):
     html = E.html(
         E.head(
             E.title(title),
-            E.style(P('templates/inline_toc_styles.css', data=True), type='text/css'),
+            E.style(P('templates/inline_toc_styles.css', data=True).decode('utf-8'), type='text/css'),
         ),
         E.body(
             E.h2(title),
