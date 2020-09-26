@@ -1113,7 +1113,7 @@ class Cover(ImageView):  # {{{
         b.setToolTip(_(
             'Automatically detect and remove extra space at the cover\'s edges.\n'
             'Pressing it repeatedly can sometimes remove stubborn borders.'))
-        b.m = m = QMenu()
+        b.m = m = QMenu(b)
         b.setPopupMode(QToolButton.InstantPopup)
         m.addAction(QIcon(I('trim.png')), _('Automatically trim borders'), self.trim_cover)
         m.addSeparator()
@@ -1124,7 +1124,7 @@ class Cover(ImageView):  # {{{
 
         self.download_cover_button = CB(_('Download co&ver'), 'arrow-down.png', self.download_cover)
         self.generate_cover_button = b = CB(_('&Generate cover'), 'default_cover.png', self.generate_cover)
-        b.m = m = QMenu()
+        b.m = m = QMenu(b)
         b.setMenu(m)
         m.addAction(QIcon(I('config.png')), _('Customize the styles and colors of the generated cover'), self.custom_cover)
         b.setPopupMode(b.DelayedPopup)
