@@ -224,6 +224,8 @@ class DisplayPlugin(object):
         return filter_text in icu_lower(self.name)  # case-insensitive filtering
 
     def is_upgrade_available(self):
+        if isinstance(self.installed_version, str):
+            return True
         return self.is_installed() and (self.installed_version < self.available_version or self.is_deprecated)
 
     def is_valid_platform(self):
@@ -414,7 +416,11 @@ class DisplayPluginModel(QAbstractTableModel):
         if display_plugin.installed_version is None:
             return (_('You can install this plugin')+'\n\n'+
                             _('Right-click to see more options'))
-        if display_plugin.installed_version < display_plugin.available_version:
+        try:
+            if display_plugin.installed_version < display_plugin.available_version:
+                return (_('A new version of this plugin is available')+'\n\n'+
+                                _('Right-click to see more options'))
+        except Exception:
             return (_('A new version of this plugin is available')+'\n\n'+
                             _('Right-click to see more options'))
         return (_('This plugin is installed and up-to-date')+'\n\n'+
