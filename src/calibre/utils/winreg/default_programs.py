@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, time, ctypes
+import os, sys, time, ctypes, traceback
 from ctypes.wintypes import HLOCAL, LPCWSTR
 from threading import Thread
 
@@ -14,6 +14,7 @@ import winerror
 from calibre import guess_type, prints
 from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG, plugins
 from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
+from calibre.utils.lock import singleinstance
 from polyglot.builtins import iteritems, itervalues
 
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc144154(v=vs.85).aspx
@@ -102,6 +103,12 @@ def cap_path(data):
     return r'Software\calibre\%s\Capabilities' % data['capability_name']
 
 
+def pre_import_extensions():
+    for program in default_programs():
+        ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
+        ext_map = {ext:mt for ext, mt in iteritems(ext_map) if mt}
+
+
 def register():
     base = os.path.dirname(sys.executable)
 
@@ -160,17 +167,19 @@ class Register(Thread):
     def __init__(self, prefs):
         Thread.__init__(self, name='RegisterDP')
         self.prefs = prefs
+        pre_import_extensions()
         self.start()
 
     def run(self):
+        # make sure no imports happen in this thread as python's zipimport
+        # machinery is not thread safe and main GUI importing is happening
+        # in parallel
         try:
             self.do_register()
         except Exception:
-            import traceback
             traceback.print_exc()
 
     def do_register(self):
-        from calibre.utils.lock import singleinstance
         try:
             check_allowed()
         except NotAllowed:
@@ -179,11 +188,11 @@ class Register(Thread):
             if self.prefs.get('windows_register_default_programs', None) != __version__:
                 self.prefs['windows_register_default_programs'] = __version__
                 if DEBUG:
-                    st = time.time()
+                    st = time.monotonic()
                     prints('Registering with default programs...')
                 register()
                 if DEBUG:
-                    prints('Registered with default programs in %.1f seconds' % (time.time() - st))
+                    prints('Registered with default programs in %.1f seconds' % (time.monotonic() - st))
 
     def __enter__(self):
         return self
@@ -252,7 +261,6 @@ def friendly_app_name(prog_id=None, exe=None):
     try:
         return plugins['winutil'][0].friendly_name(prog_id, exe)
     except Exception:
-        import traceback
         traceback.print_exc()
 
 
@@ -275,7 +283,6 @@ def find_programs(extensions):
                 try:
                     app_desc, prog_id_map = get_prog_id_map(base, key_path)
                 except Exception:
-                    import traceback
                     traceback.print_exc()
                     continue
                 for ext in extensions:
