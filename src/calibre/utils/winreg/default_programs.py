@@ -174,6 +174,7 @@ class Register(Thread):
         # make sure no imports happen in this thread as python's zipimport
         # machinery is not thread safe and main GUI importing is happening
         # in parallel
+        # https://bugs.python.org/issue38884
         try:
             self.do_register()
         except Exception:
