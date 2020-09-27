@@ -665,7 +665,7 @@ class TreeWidget(QTreeWidget):  # {{{
             return ' [%s]'%sc
 
         if item is not None:
-            m = QMenu()
+            m = QMenu(self)
             m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
             m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
             m.addAction(QIcon(I('trash.png')), _('Remove all selected items'), self.del_items)
@@ -683,7 +683,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 m.addAction(QIcon(I('forward.png')), (_('Indent "%s"')%ci)+key(Qt.Key_Right), self.move_right)
 
             m.addSeparator()
-            case_menu = QMenu(_('Change case'))
+            case_menu = QMenu(_('Change case'), m)
             case_menu.addAction(_('Upper case'), self.upper_case)
             case_menu.addAction(_('Lower case'), self.lower_case)
             case_menu.addAction(_('Swap case'), self.swap_case)
