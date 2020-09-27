@@ -639,7 +639,7 @@ class Parser(SearchQueryParser):  # {{{
                 if DEBUG:
                     import traceback
                     traceback.print_exc()
-                raise ParseException(_('search template: missing or invalid separator. Valid separtors are: {}').format('#@#:[tdnb]:'))
+                raise ParseException(_('search template: missing or invalid separator. Valid separators are: {}').format('#@#:[tdnb]:'))
             matchkind, query = _matchkind(query, case_sensitive=case_sensitive)
             matches = set()
             error_string = '*@*TEMPLATE_ERROR*@*'
