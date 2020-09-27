@@ -862,9 +862,13 @@ class IframeBoss:
             select_crw(crw)
 
     def copy_selection(self):
-        text = window.getSelection().toString()
+        s = window.getSelection()
+        text = s.toString()
         if text:
-            self.send_message('copy_text_to_clipboard', text=text)
+            container = document.createElement('div')
+            for i in range(s.rangeCount):
+                container.appendChild(s.getRangeAt(i).cloneContents())
+            self.send_message('copy_text_to_clipboard', text=text, html=container.innerHTML)
 
 def main():
     main.boss = IframeBoss()

@@ -556,6 +556,8 @@ class SelectionBar:
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if sc_name is 'show_chrome':
             self.clear_selection()
+        elif sc_name is 'copy_to_clipboard':
+            self.copy_to_clipboard()
         elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
             self.send_message('trigger-shortcut', name=sc_name)
         elif sc_name is 'start_search':
@@ -876,8 +878,7 @@ class SelectionBar:
 
     # Actions  {{{
     def copy_to_clipboard(self):
-        if self.view.currently_showing.selection.text:
-            ui_operations.copy_selection(self.view.currently_showing.selection.text)
+        self.view.copy_to_clipboard()
 
     def lookup(self):
         if ui_operations.toggle_lookup:

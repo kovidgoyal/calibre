@@ -7,10 +7,9 @@ import os
 import shutil
 import sys
 from itertools import count
-
 from PyQt5.Qt import (
-    QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QHBoxLayout, QSize, QT_VERSION,
-    Qt, QTimer, QUrl, QWidget, pyqtSignal
+    QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo,
+    QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -251,7 +250,7 @@ class ViewerBridge(Bridge):
     ask_for_open = from_js(object)
     selection_changed = from_js(object, object)
     autoscroll_state_changed = from_js(object)
-    copy_selection = from_js(object)
+    copy_selection = from_js(object, object)
     view_image = from_js(object)
     copy_image = from_js(object)
     change_background_image = from_js(object)
@@ -339,11 +338,13 @@ class WebPage(QWebEnginePage):
         self.bridge = ViewerBridge(self)
         self.bridge.copy_selection.connect(self.trigger_copy)
 
-    def trigger_copy(self, what):
-        if what:
-            QApplication.instance().clipboard().setText(what)
-        else:
-            self.triggerAction(self.Copy)
+    def trigger_copy(self, text, html):
+        if text:
+            md = QMimeData()
+            md.setText(text)
+            if html:
+                md.setHtml(html)
+            QApplication.instance().clipboard().setMimeData(md)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
         prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(

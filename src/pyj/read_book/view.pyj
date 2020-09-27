@@ -292,7 +292,7 @@ class View:
             ,
             'annotations': self.on_annotations_message,
             'copy_text_to_clipboard': def(data):
-                ui_operations.copy_selection(data.text)
+                ui_operations.copy_selection(data.text, data.html)
             ,
             'view_image': def(data):
                 if ui_operations.view_image:
@@ -325,6 +325,9 @@ class View:
     @property
     def reference_mode_overlay(self):
         return document.getElementById('reference-mode-overlay')
+
+    def copy_to_clipboard(self):
+        self.iframe_wrapper.send_message('copy_selection')
 
     def set_scrollbar_visibility(self, visible):
         sd = get_session_data()
@@ -460,6 +463,8 @@ class View:
             ui_operations.toggle_highlights()
         elif data.name is 'new_bookmark':
             self.new_bookmark()
+        elif data.name is 'copy_to_clipboard':
+            self.copy_to_clipboard()
         elif data.name is 'toggle_inspector':
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':

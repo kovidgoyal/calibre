@@ -190,6 +190,12 @@ def shortcuts_definition():
         _('Show/hide Table of Contents'),
     ),
 
+    'copy_to_clipboard': desc(
+        'Ctrl+C',
+        'ui',
+        _('Copy to clipboard'),
+    ),
+
     'start_search': desc(
         v"['/', 'Ctrl+f']",
         'ui',

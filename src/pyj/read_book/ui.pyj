@@ -83,7 +83,7 @@ class ReadUI:
         ui_operations.close_book = self.close_book.bind(self)
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
-        ui_operations.copy_selection = def(text):
+        ui_operations.copy_selection = def(text, html):
             if not window.navigator.clipboard:
                 return error_dialog(_('No clipboard access'), _(
                     'Your browser requires you to access the Content server over an HTTPS connection'

@@ -44,7 +44,7 @@ def all_actions():
             'back': Action('back.png', _('Back')),
             'forward': Action('forward.png', _('Forward')),
             'open': Action('document_open.png', _('Open e-book')),
-            'copy': Action('edit-copy.png', _('Copy to clipboard')),
+            'copy': Action('edit-copy.png', _('Copy to clipboard'), 'copy_to_clipboard'),
             'increase_font_size': Action('font_size_larger.png', _('Increase font size'), 'increase_font_size'),
             'decrease_font_size': Action('font_size_smaller.png', _('Decrease font size'), 'decrease_font_size'),
             'fullscreen': Action('page.png', _('Toggle full screen'), 'toggle_full_screen'),
@@ -150,8 +150,7 @@ class ActionsToolBar(ToolBar):
         a.setMenu(m)
         m.aboutToShow.connect(self.populate_open_menu)
         connect_lambda(a.triggered, self, lambda self: self.open_book_at_path.emit(None))
-        self.copy_action = a = page.action(QWebEnginePage.Copy)
-        a.setIcon(aa.copy.icon), a.setText(aa.copy.text)
+        self.copy_action = shortcut_action('copy')
         self.increase_font_size_action = shortcut_action('increase_font_size')
         self.decrease_font_size_action = shortcut_action('decrease_font_size')
         self.fullscreen_action = shortcut_action('fullscreen')
