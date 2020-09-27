@@ -18,7 +18,7 @@ from calibre.utils.date import parse_date, UNDEFINED_DATE, now, dt_as_local
 from calibre.utils.icu import primary_contains, sort_key
 from calibre.utils.localization import lang_map, canonicalize_lang
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, error_message
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 CONTAINS_MATCH = 0
 EQUALS_MATCH   = 1
@@ -639,7 +639,7 @@ class Parser(SearchQueryParser):  # {{{
                 if DEBUG:
                     import traceback
                     traceback.print_exc()
-                raise ParseException(_('template: missing or invalid separator (#@#:[tdnb]:)'))
+                raise ParseException(_('search template: missing or invalid separator. Valid separtors are: {}').format('#@#:[tdnb]:'))
             matchkind, query = _matchkind(query, case_sensitive=case_sensitive)
             matches = set()
             error_string = '*@*TEMPLATE_ERROR*@*'
