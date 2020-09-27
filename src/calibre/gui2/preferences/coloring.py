@@ -421,7 +421,7 @@ class RuleEditor(QDialog):  # {{{
         if self.rule_kind != 'color':
             self.remove_button = b = bb.addButton(_('&Remove icon'), bb.ActionRole)
             b.setIcon(QIcon(I('minus.png')))
-            b.setMenu(QMenu())
+            b.setMenu(QMenu(b))
             b.setToolTip('<p>' + _('Remove a previously added icon. Note that doing so will cause rules that use it to stop working.'))
             self.update_remove_button()
 

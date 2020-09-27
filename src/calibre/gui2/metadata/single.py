@@ -167,9 +167,9 @@ class MetadataSingleDialogBase(QDialog):
                     if ac is not None:
                         ac.trigger()
                     return QMenu.mouseReleaseEvent(self, ev)
-            b.m = m = Menu()
+            b.m = m = Menu(b)
         else:
-            b.m = m = QMenu()
+            b.m = m = QMenu(b)
         ac = m.addAction(QIcon(I('forward.png')), _('Set author sort from author'))
         ac2 = m.addAction(QIcon(I('back.png')), _('Set author from author sort'))
         ac3 = m.addAction(QIcon(I('user_profile.png')), _('Manage authors'))
@@ -256,7 +256,7 @@ class MetadataSingleDialogBase(QDialog):
         b.setIcon(QIcon(I('edit-paste.png')))
         b.clicked.connect(self.identifiers.paste_identifier)
         b.setPopupMode(b.DelayedPopup)
-        b.setMenu(QMenu())
+        b.setMenu(QMenu(b))
         self.update_paste_identifiers_menu()
 
         self.publisher = PublisherEdit(self)

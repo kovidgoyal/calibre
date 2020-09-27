@@ -91,7 +91,7 @@ class Check(QSplitter):
         self.items.clear()
 
     def context_menu(self, pos):
-        m = QMenu()
+        m = QMenu(self)
         if self.items.count() > 0:
             m.addAction(QIcon(I('edit-copy.png')), _('Copy list of errors to clipboard'), self.copy_to_clipboard)
         if list(m.actions()):

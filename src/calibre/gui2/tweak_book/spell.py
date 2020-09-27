@@ -865,7 +865,7 @@ class WordsView(QTableView):
         w = self.model().word_for_row(self.currentIndex().row())
         if w is not None:
             a = m.addAction(_('Change %s to') % w[0])
-            cm = QMenu()
+            cm = QMenu(self)
             a.setMenu(cm)
             cm.addAction(_('Specify replacement manually'), partial(self.change_to.emit, w, None))
             cm.addSeparator()
@@ -874,7 +874,7 @@ class WordsView(QTableView):
 
         m.addAction(_('Ignore/un-ignore all selected words'), self.ignore_all)
         a = m.addAction(_('Add/remove all selected words'))
-        am = QMenu()
+        am = QMenu(self)
         a.setMenu(am)
         for dic in sorted(dictionaries.active_user_dictionaries, key=lambda x:sort_key(x.name)):
             am.addAction(dic.name, partial(self.add_all.emit, dic.name))

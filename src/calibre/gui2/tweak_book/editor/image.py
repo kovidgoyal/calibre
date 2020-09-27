@@ -268,7 +268,7 @@ class Editor(QMainWindow):
         b.addSeparator()
         self.action_filters = ac = b.addAction(QIcon(I('filter.png')), _('Image filters'))
         b.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
-        self.filters_menu = m = QMenu()
+        self.filters_menu = m = QMenu(self)
         ac.setMenu(m)
         m.addAction(_('Auto-trim image'), self.canvas.autotrim_image)
         m.addAction(_('Sharpen image'), self.sharpen_image)

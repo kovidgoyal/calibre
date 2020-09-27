@@ -64,7 +64,7 @@ class ResultsView(QTreeView):
 
         result = self.model().get_result(index)
 
-        menu = QMenu()
+        menu = QMenu(self)
         da = menu.addAction(_('Download...'), partial(self.download_requested.emit, result))
         if not result.downloads:
             da.setEnabled(False)

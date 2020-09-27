@@ -462,7 +462,7 @@ class TagBrowserBar(QWidget):  # {{{
             ' items, etc.'
         )))
         b.setIcon(QIcon(I('config.png')))
-        b.m = QMenu()
+        b.m = QMenu(b)
         b.setMenu(b.m)
 
         self.item_search = FindBox(parent)
@@ -479,7 +479,7 @@ class TagBrowserBar(QWidget):  # {{{
                 'categories using syntax similar to search. For example, '
                 'tags:foo will find foo in any tag, but not in authors etc. Entering '
                 '*foo will collapse all categories then showing only those categories '
-                'with items containing the text "foo"') + '</p')
+                'with items containing the text "foo"') + '</p>')
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser find box',

@@ -215,7 +215,7 @@ class SearchBar(QFrame):  # {{{
         sb.setAutoRaise(True)
         sb.setText(_('Sort'))
         sb.setIcon(QIcon(I('sort.png')))
-        sb.setMenu(QMenu())
+        sb.setMenu(QMenu(sb))
         sb.menu().aboutToShow.connect(self.populate_sort_menu)
         sb.setVisible(False)
         l.addWidget(sb)

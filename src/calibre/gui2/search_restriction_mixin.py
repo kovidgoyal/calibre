@@ -329,7 +329,7 @@ class SearchRestrictionMixin(object):
         self.search_based_vl_name = None
         self.search_based_vl = None
 
-        self.virtual_library_menu = QMenu()
+        self.virtual_library_menu = QMenu(self.virtual_library)
         self.virtual_library.setMenu(self.virtual_library_menu)
         self.virtual_library_menu.aboutToShow.connect(self.virtual_library_menu_about_to_show)
 
@@ -342,9 +342,9 @@ class SearchRestrictionMixin(object):
         self.search_restriction = ComboBoxWithHelp(self)
         self.search_restriction.setVisible(False)
         self.clear_vl.setText(_("(all books)"))
-        self.ar_menu = QMenu(_('Additional restriction'))
-        self.edit_menu = QMenu(_('Edit Virtual library'))
-        self.rm_menu = QMenu(_('Remove Virtual library'))
+        self.ar_menu = QMenu(_('Additional restriction'), self.virtual_library_menu)
+        self.edit_menu = QMenu(_('Edit Virtual library'), self.virtual_library_menu)
+        self.rm_menu = QMenu(_('Remove Virtual library'), self.virtual_library_menu)
         self.search_restriction_list_built = False
 
     def add_virtual_library(self, db, name, search):
