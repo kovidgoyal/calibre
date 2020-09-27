@@ -5,14 +5,13 @@
 import codecs
 import json
 import os
-from textwrap import fill
-
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout,
-    QHBoxLayout, QIcon, QLabel, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
-    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QPalette, QPlainTextEdit, QSize,
+    QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
+    QVBoxLayout, QWidget, pyqtSignal
 )
+from textwrap import fill
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
@@ -190,6 +189,7 @@ class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    delete_requested = pyqtSignal()
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
@@ -268,6 +268,13 @@ class ResultsList(QTreeWidget):
                 ans[key] = x[key]
             yield ans
 
+    def keyPressEvent(self, ev):
+        if ev.matches(QKeySequence.Delete):
+            self.delete_requested.emit()
+            ev.accept()
+            return
+        return QTreeWidget.keyPressEvent(self, ev)
+
 
 class Restrictions(QWidget):
 
@@ -339,6 +346,7 @@ class BrowsePanel(QWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    delete_requested = pyqtSignal()
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -377,6 +385,7 @@ class BrowsePanel(QWidget):
         self.results_list = rl = ResultsList(self)
         rl.current_result_changed.connect(self.current_result_changed)
         rl.open_annotation.connect(self.open_annotation)
+        rl.delete_requested.connect(self.delete_requested)
         l.addWidget(rl)
 
     def re_initialize(self):
@@ -649,6 +658,7 @@ class AnnotationsBrowser(Dialog):
 
         self.browse_panel = bp = BrowsePanel(self)
         bp.open_annotation.connect(self.do_open_annotation)
+        bp.delete_requested.connect(self.delete_selected)
         s.addWidget(bp)
 
         self.details_panel = dp = DetailsPanel(self)
