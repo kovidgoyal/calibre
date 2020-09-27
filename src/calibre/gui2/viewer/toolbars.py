@@ -64,7 +64,6 @@ def all_actions():
             'print': Action('print.png', _('Print book'), 'print'),
             'preferences': Action('config.png', _('Preferences'), 'preferences'),
             'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
-            'highlight': Action('highlight.png', _('Highlight text in the book'), 'create_annotation'),
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
         }
         all_actions.ans = Actions(amap)
@@ -73,7 +72,7 @@ def all_actions():
 
 DEFAULT_ACTIONS = (
     'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-    None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'highlight', 'chrome', None,
+    None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'toggle_highlights', 'chrome', None,
     'mode', 'print', 'preferences', 'metadata', 'inspector'
 )
 
@@ -170,7 +169,6 @@ class ActionsToolBar(ToolBar):
         a.setCheckable(True)
         self.reference_action = a = shortcut_action('reference')
         a.setCheckable(True)
-        self.highlight_action = a = shortcut_action('highlight')
         self.toggle_highlights_action = self.highlights_action = a = shortcut_action('toggle_highlights')
         a.setCheckable(True)
         self.lookup_action = a = shortcut_action('lookup')
