@@ -2784,7 +2784,7 @@ class CatalogBuilder(object):
 
         # Comments
         comments = ''
-        if 'description' in book and book['description'] > '':
+        if book.get('description'):
             comments = book['description']
 
         # >>>> Populate the template <<<<
