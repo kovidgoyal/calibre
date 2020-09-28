@@ -188,12 +188,6 @@ multiple devices and it will remember your last read position. If it does not
 you can force a sync by tapping in the top quarter and choosing
 :guilabel:`Sync`.
 
-.. note:: On initial release, the book reader is fully functional but is
-    missing some more advanced features from the main calibre E-book viewer, such as
-    popup footnotes, bookmarks and annotations in general.
-    These will be added in due course. In fact, the browser reader is designed
-    to eventually replace the main viewer, once it matures.
-
 Browser support
 ------------------
 
