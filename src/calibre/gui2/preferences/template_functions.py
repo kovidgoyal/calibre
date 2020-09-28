@@ -140,7 +140,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             error_dialog(self.gui, _('Template functions'),
                          _('You cannot delete a built-in function'), show=True)
         if name in self.funcs:
-            print('delete')
             del self.funcs[name]
             self.changed_signal.emit()
             self.create_button.setEnabled(True)
