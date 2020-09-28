@@ -15,6 +15,10 @@ from functools import partial
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, is64bit, python_major_minor_version
 )
+from bypy.freeze import (
+    extract_extension_modules, freeze_python, path_to_freeze_dir,
+    save_importer_src_to_header
+)
 from bypy.utils import (
     create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 )
@@ -146,12 +150,6 @@ def copy_python(env, ext_dir):
             shutil.copytree(c, j(dest, x), ignore=partial(ignore_in_lib, ignored_dirs={}))
         elif os.path.isfile(c):
             shutil.copy2(c, j(dest, x))
-    pdir = j(env.lib_dir, 'calibre-extensions')
-    if not os.path.exists(pdir):
-        os.mkdir(pdir)
-    for x in glob.glob(j(ext_dir, '*.so')):
-        shutil.copy2(x, j(pdir, os.path.basename(x)))
-
     shutil.copytree(j(env.src_root, 'resources'), j(env.base, 'resources'))
     for pak in glob.glob(j(QT_PREFIX, 'resources', '*.pak')):
         shutil.copy2(pak, j(env.base, 'resources'))
@@ -160,7 +158,21 @@ def copy_python(env, ext_dir):
     sitepy = j(self_dir, 'site.py')
     shutil.copy2(sitepy, j(env.py_dir, 'site.py'))
 
+    pdir = j(env.lib_dir, 'calibre-extensions')
+    if not os.path.exists(pdir):
+        os.mkdir(pdir)
+    for x in os.listdir(j(env.py_dir, 'site-packages')):
+        os.rename(j(env.py_dir, 'site-packages', x), j(env.py_dir, x))
+    os.rmdir(j(env.py_dir, 'site-packages'))
+    print('Extracting extension modules from', ext_dir, 'to', pdir)
+    ext_map = extract_extension_modules(ext_dir, pdir)
+    shutil.rmtree(j(env.py_dir, 'calibre', 'plugins'))
+    print('Extracting extension modules from', env.py_dir, 'to', pdir)
+    ext_map.update(extract_extension_modules(env.py_dir, pdir))
     py_compile(env.py_dir)
+    freeze_python(env.py_dir, pdir, env.obj_dir)
+    shutil.rmtree(env.py_dir)
+    save_importer_src_to_header(env.obj_dir, ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
 
 
 def build_launchers(env):
@@ -169,6 +181,7 @@ def build_launchers(env):
     objects = [j(env.obj_dir, os.path.basename(x) + '.o') for x in sources]
     cflags = '-fno-strict-aliasing -W -Wall -c -O2 -pipe -DPY_VERSION_MAJOR={} -DPY_VERSION_MINOR={}'.format(*py_ver.split('.'))
     cflags = cflags.split() + ['-I%s/include/python%s' % (PREFIX, py_ver)]
+    cflags += [f'-I{path_to_freeze_dir()}', f'-I{env.obj_dir}']
     for src, obj in zip(sources, objects):
         cmd = ['gcc'] + cflags + ['-fPIC', '-o', obj, src]
         run(*cmd)
