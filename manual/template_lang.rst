@@ -425,6 +425,10 @@ Examples, again assuming the stored template is named ``foo``:
     * ``call foo('series', '#genre')`` the variable ``key`` is assigned the value ``series`` and the variable ``alternate`` is assigned the value ``#genre``.
     * ``call foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``#genre``.
 
+An easy way to test stored templates is using the ``Template tester`` dialog. Give it a keyboard shortcut in
+:guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a
+shortcut will help switching more rapidly between the tester and editing the stored template's source code.
+
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 
 The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view::
@@ -506,7 +510,7 @@ The following program produces the same results as the original recipe, using on
 It would be possible to do the above with no custom columns by putting the program into the template box of the plugboard. However, to do so, all comments must be removed because the plugboard text box does not support multi-line editing. It is debatable whether the gain of not having the custom column is worth the vast increase in difficulty caused by the program being one giant line.
 
 
-User-defined template functions
+User-defined python template functions
 -------------------------------
 
 You can add your own python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to guilabel`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
