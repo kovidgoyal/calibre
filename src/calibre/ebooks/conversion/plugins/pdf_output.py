@@ -196,7 +196,8 @@ class PDFOutput(OutputFormatPlugin):
         if (oeb.metadata.cover and unicode_type(oeb.metadata.cover[0]) in oeb.manifest.ids):
             cover_id = unicode_type(oeb.metadata.cover[0])
             item = oeb.manifest.ids[cover_id]
-            self.cover_data = item.data
+            if isinstance(item.data, bytes):
+                self.cover_data = item.data
 
     def process_fonts(self):
         ''' Make sure all fonts are embeddable '''
