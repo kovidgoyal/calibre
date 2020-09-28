@@ -62,7 +62,7 @@ def create_properties_for_action(ac, previous=None):
             data = icon_to_dbus_menu_icon(ac.icon())
             if data is not None:
                 ans['icon-data'] = data
-                ans['x-qt-icon-cache-key'] = icon.cacheKey()
+                ans['x-qt-icon-cache-key'] = dbus.UInt64(icon.cacheKey())
     return ans
 
 
