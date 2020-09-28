@@ -38,7 +38,7 @@ get_paths() {
 
     swprintf(interpreter_data.python_lib_path, arraysz(interpreter_data.python_lib_path), L"%ls/lib/python%d.%d", interpreter_data.python_home_path, PY_VERSION_MAJOR, PY_VERSION_MINOR);
     swprintf(interpreter_data.resources_path, arraysz(interpreter_data.resources_path), L"%ls/resources", interpreter_data.python_home_path);
-    swprintf(interpreter_data.extensions_path, arraysz(interpreter_data.extensions_path), L"%ls/site-packages/calibre/plugins", interpreter_data.python_lib_path);
+    swprintf(interpreter_data.extensions_path, arraysz(interpreter_data.extensions_path), L"%ls/lib/calibre-extensions", interpreter_data.python_home_path);
 }
 
 void

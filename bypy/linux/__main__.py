@@ -146,7 +146,7 @@ def copy_python(env, ext_dir):
             shutil.copytree(c, j(dest, x), ignore=partial(ignore_in_lib, ignored_dirs={}))
         elif os.path.isfile(c):
             shutil.copy2(c, j(dest, x))
-    pdir = j(dest, 'calibre', 'plugins')
+    pdir = j(env.lib_dir, 'calibre-extensions')
     if not os.path.exists(pdir):
         os.mkdir(pdir)
     for x in glob.glob(j(ext_dir, '*.so')):
