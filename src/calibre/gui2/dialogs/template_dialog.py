@@ -429,12 +429,17 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         name = unicode_type(toWhat)
         self.source_code.clear()
         self.documentation.clear()
+        self.func_type.clear()
         if name in self.funcs:
             self.documentation.setPlainText(self.funcs[name].doc)
             if name in self.builtins and name in self.builtin_source_dict:
                 self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
                 self.source_code.setPlainText(self.funcs[name].program_text)
+            if self.funcs[name].is_python:
+                self.func_type.setText(_('Template function in python'))
+            else:
+                self.func_type.setText(_('Stored template'))
 
     def accept(self):
         txt = unicode_type(self.textbox.toPlainText()).rstrip()

@@ -28,6 +28,8 @@ class Node(object):
     NODE_CONSTANT = 7
     NODE_FIELD = 8
     NODE_RAW_FIELD = 9
+    NODE_CALL = 10
+    NODE_ARGUMENTS = 11
 
 
 class IfNode(Node):
@@ -52,6 +54,21 @@ class FunctionNode(Node):
         Node.__init__(self)
         self.node_type = self.NODE_FUNC
         self.name = function_name
+        self.expression_list = expression_list
+
+
+class CallNode(Node):
+    def __init__(self, function, expression_list):
+        Node.__init__(self)
+        self.node_type = self.NODE_CALL
+        self.function = function
+        self.expression_list = expression_list
+
+
+class ArgumentsNode(Node):
+    def __init__(self, expression_list):
+        Node.__init__(self)
+        self.node_type = self.NODE_ARGUMENTS
         self.expression_list = expression_list
 
 
@@ -188,6 +205,13 @@ class _Parser(object):
         except:
             return False
 
+    def token_is_call(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'call' and token[0] == self.LEX_KEYWORD
+        except:
+            return False
+
     def token_is_if(self):
         try:
             token = self.prog[self.lex_pos]
@@ -228,9 +252,11 @@ class _Parser(object):
         except:
             return True
 
-    def program(self, funcs, prog):
+    def program(self, parent, funcs, prog):
         self.lex_pos = 0
+        self.parent = parent
         self.funcs = funcs
+        self.func_names = frozenset(set(self.funcs.keys()) | {'arguments',})
         self.prog = prog[0]
         self.prog_len = len(self.prog)
         if prog[1] != '':
@@ -276,9 +302,37 @@ class _Parser(object):
             return NumericInfixNode(operator, left, self.expr())
         return left
 
+    def call_expression(self):
+        self.consume()
+        if not self.token_is_id():
+            self.error(_('"call" requires a stored template name'))
+        name = self.token()
+        if name not in self.func_names or self.funcs[name].is_python:
+            self.error(_('{} is not a stored template').format(name))
+        text = self.funcs[name].program_text
+        if not text.startswith('program:'):
+            self.error((_('A stored template must begin with program:')))
+        text = text[len('program:'):]
+        if not self.token_op_is_lparen():
+            self.error(_('"call" requires arguments surrounded by "(" ")"'))
+        self.consume()
+        arguments = list()
+        while not self.token_op_is_rparen():
+            arguments.append(self.infix_expr())
+            if not self.token_op_is_comma():
+                break
+            self.consume()
+        if self.token() != ')':
+            self.error(_('Missing closing parenthesis'))
+        subprog = _Parser().program(self, self.funcs,
+                                    self.parent.lex_scanner.scan(text))
+        return CallNode(subprog, arguments)
+
     def expr(self):
         if self.token_is_if():
             return self.if_expression()
+        if self.token_is_call():
+            return self.call_expression()
         if self.token_is_id():
             # We have an identifier. Determine if it is a function
             id_ = self.token()
@@ -293,7 +347,7 @@ class _Parser(object):
             # Check if it is a known one. We do this here so error reporting is
             # better, as it can identify the tokens near the problem.
             id_ = id_.strip()
-            if id_ not in self.funcs:
+            if id_ not in self.func_names:
                 self.error(_('Unknown function {0}').format(id_))
             # Eat the paren
             self.consume()
@@ -314,9 +368,19 @@ class _Parser(object):
                 return IfNode(arguments[0], (arguments[1],), (arguments[2],))
             if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
                 return AssignNode(arguments[0].name, arguments[1])
+            if id_ == 'arguments':
+                new_args = []
+                for arg in arguments:
+                    if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
+                        self.error(_("Parameters to 'arguments' must be "
+                                     "variables or assignments"))
+                    if arg.node_type == Node.NODE_RVALUE:
+                        arg = AssignNode(arg.name, ConstantNode(''))
+                    new_args.append(arg)
+                return ArgumentsNode(new_args)
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
-                self.error(_('Incorrect number of expression_list for function {0}').format(id_))
+                self.error(_('Incorrect number of arguments for function {0}').format(id_))
             return FunctionNode(id_, arguments)
         elif self.token_is_constant():
             # String or number
@@ -408,6 +472,24 @@ class _Interpreter(object):
         return cls.eval_(self.parent, self.parent_kwargs,
                         self.parent_book, self.locals, *args)
 
+    def do_node_call(self, prog):
+        args = list()
+        for arg in prog.expression_list:
+            # evaluate the expression (recursive call)
+            args.append(self.expr(arg))
+        saved_locals = self.locals
+        self.locals = {}
+        for dex, v in enumerate(args):
+            self.locals['*arg_'+ str(dex)] = v
+        val = self.expression_list(prog.function)
+        self.locals = saved_locals
+        return val
+
+    def do_node_arguments(self, prog):
+        for dex,arg in enumerate(prog.expression_list):
+            self.locals[arg.left] = self.locals.get('*arg_'+ str(dex), self.expr(arg.right))
+        return ''
+
     def do_node_constant(self, prog):
         return prog.value
 
@@ -454,6 +536,8 @@ class _Interpreter(object):
         Node.NODE_RAW_FIELD:     do_node_raw_field,
         Node.NODE_STRING_INFIX:  do_node_string_infix,
         Node.NODE_NUMERIC_INFIX: do_node_numeric_infix,
+        Node.NODE_ARGUMENTS:     do_node_arguments,
+        Node.NODE_CALL:          do_node_call,
         }
 
     def expr(self, prog):
@@ -536,7 +620,7 @@ class TemplateFormatter(string.Formatter):
     lex_scanner = re.Scanner([
             (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
-            (r'(if|then|else|fi)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(if|then|else|fi|call)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'[(),=;]',                 lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
             (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
@@ -554,10 +638,10 @@ class TemplateFormatter(string.Formatter):
         if column_name is not None and self.template_cache is not None:
             tree = self.template_cache.get(column_name, None)
             if not tree:
-                tree = self.gpm_parser.program(self.funcs, self.lex_scanner.scan(prog))
+                tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
                 self.template_cache[column_name] = tree
         else:
-            tree = self.gpm_parser.program(self.funcs, self.lex_scanner.scan(prog))
+            tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
         return self.gpm_interpreter.program(self.funcs, self, tree, val)
 
     # ################# Override parent classes methods #####################

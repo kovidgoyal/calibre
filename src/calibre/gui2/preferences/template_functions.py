@@ -16,7 +16,8 @@ from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.formatter_functions import (formatter_functions,
                         compile_user_function, compile_user_template_functions,
-                        load_user_template_functions)
+                        load_user_template_functions, function_pref_is_python,
+                        function_pref_name)
 from polyglot.builtins import iteritems, native_string_type, unicode_type
 
 
@@ -86,7 +87,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             traceback.print_exc()
             self.builtin_source_dict = {}
 
-        self.funcs = formatter_functions().get_functions()
+        self.funcs = dict((k,v) for k,v in formatter_functions().get_functions().items()
+                                if v.is_python)
+
         self.builtins = formatter_functions().get_builtins_and_aliases()
 
         self.build_function_names_box()
@@ -116,16 +119,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.create_button.setEnabled(False)
         self.delete_button.setEnabled(False)
 
-    def build_function_names_box(self, scroll_to='', set_to=''):
+    def build_function_names_box(self, scroll_to=''):
         self.function_name.blockSignals(True)
         func_names = sorted(self.funcs)
         self.function_name.clear()
         self.function_name.addItem('')
         self.function_name.addItems(func_names)
         self.function_name.setCurrentIndex(0)
-        if set_to:
-            self.function_name.setEditText(set_to)
-            self.create_button.setEnabled(True)
         self.function_name.blockSignals(False)
         if scroll_to:
             idx = self.function_name.findText(scroll_to)
@@ -140,22 +140,29 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             error_dialog(self.gui, _('Template functions'),
                          _('You cannot delete a built-in function'), show=True)
         if name in self.funcs:
+            print('delete')
             del self.funcs[name]
             self.changed_signal.emit()
             self.create_button.setEnabled(True)
             self.delete_button.setEnabled(False)
-            self.build_function_names_box(set_to=name)
+            self.build_function_names_box()
             self.program.setReadOnly(False)
         else:
             error_dialog(self.gui, _('Template functions'),
                          _('Function not defined'), show=True)
 
-    def create_button_clicked(self):
+    def create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
-        name = unicode_type(self.function_name.currentText())
+        name = use_name if use_name else unicode_type(self.function_name.currentText())
         if name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
                          _('Name %s already used')%(name,), show=True)
+            return
+        if name in {function_pref_name(v) for v in
+                        self.db.prefs.get('user_template_functions', [])
+                        if not function_pref_is_python(v)}:
+            error_dialog(self.gui, _('Template functions'),
+                         _('Name %s is already used for stored template')%(name,), show=True)
             return
         if self.argument_count.value() == 0:
             box = warning_dialog(self.gui, _('Template functions'),
@@ -215,18 +222,19 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.setEnabled(False)
 
     def replace_button_clicked(self):
+        name = unicode_type(self.function_name.currentText())
         self.delete_button_clicked()
-        self.create_button_clicked()
+        self.create_button_clicked(use_name=name)
 
     def refresh_gui(self, gui):
         pass
 
     def commit(self):
-        # formatter_functions().reset_to_builtins()
-        pref_value = []
+        pref_value = [v for v in self.db.prefs.get('user_template_functions', [])
+                      if not function_pref_is_python(v)]
         for name, cls in iteritems(self.funcs):
             if name not in self.builtins:
-                pref_value.append((cls.name, cls.doc, cls.arg_count, cls.program_text))
+                pref_value.append(cls.to_pref())
         self.db.new_api.set_pref('user_template_functions', pref_value)
         funcs = compile_user_template_functions(pref_value)
         self.db.new_api.set_user_template_functions(funcs)

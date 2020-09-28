@@ -935,6 +935,12 @@ class ActionTemplateTester(InterfaceActionBase):
     description = _('Show an editor for testing templates')
 
 
+class ActionStoredTemplates(InterfaceActionBase):
+    name = 'Stored Templates'
+    actual_plugin = 'calibre.gui2.actions.show_stored_templates:ShowStoredTemplatesAction'
+    description = _('Show a dialog for creating and managing stored templates')
+
+
 class ActionSaveToDisk(InterfaceActionBase):
     name = 'Save To Disk'
     actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
@@ -1099,7 +1105,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary, ActionBrowseAnnotations]
+        ActionVirtualLibrary, ActionBrowseAnnotations, ActionStoredTemplates]
 
 # }}}
 
@@ -1272,6 +1278,18 @@ class TemplateFunctions(PreferencesPlugin):
     description = _('Create your own template functions')
 
 
+class StoredTemplates(PreferencesPlugin):
+    name = 'StoredTemplates'
+    icon = I('template_funcs.png')
+    gui_name = _('Stored templates')
+    category = 'Advanced'
+    gui_category = _('Advanced')
+    category_order = 5
+    name_order = 6
+    config_widget = 'calibre.gui2.preferences.stored_templates'
+    description = _('Create stored calibre templates')
+
+
 class Email(PreferencesPlugin):
     name = 'Email'
     icon = I('mail.png')
@@ -1376,7 +1394,7 @@ class Misc(PreferencesPlugin):
 plugins += [LookAndFeel, Behavior, Columns, Toolbar, Search, InputOptions,
         CommonOptions, OutputOptions, Adding, Saving, Sending, Plugboard,
         Email, Server, Plugins, Tweaks, Misc, TemplateFunctions,
-        MetadataSources, Keyboard, IgnoredDevices]
+        StoredTemplates, MetadataSources, Keyboard, IgnoredDevices]
 
 # }}}
 
