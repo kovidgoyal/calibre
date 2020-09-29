@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import unittest, functools, os, importlib, zipfile
+import unittest, functools, importlib
 from calibre.utils.monotonic import monotonic
 
 
@@ -53,20 +53,9 @@ class TestResult(unittest.TextTestResult):
                 self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
 
 
-def find_tests_in_dir(path, excludes=('main.py',)):
-    if not os.path.exists(path) and '.zip' in path:
-        idx = path.rfind('.zip')
-        zf = path[:idx+4]
-        prefix = os.path.relpath(path, zf).replace(os.sep, '/')
-        package = prefix.replace('/', '.')
-        with zipfile.ZipFile(zf) as f:
-            namelist = f.namelist()
-        items = [i for i in namelist if i.startswith(prefix) and i.count('/') == prefix.count('/') + 1]
-    else:
-        d = os.path.dirname
-        base = d(d(d(os.path.abspath(__file__))))
-        package = os.path.relpath(path, base).replace(os.sep, '/').replace('/', '.')
-        items = os.listdir(path)
+def find_tests_in_package(package, excludes=('main.py',)):
+    loader = importlib.import_module(package).__spec__.loader
+    items = list(loader.contents())
     suits = []
     for x in items:
         if x.endswith('.py') and x not in excludes:

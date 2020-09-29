@@ -5,12 +5,13 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, os, argparse
+import unittest, argparse
+
 
 def find_tests():
-    from calibre.utils.run_tests import find_tests_in_dir
-    base = os.path.dirname(os.path.abspath(__file__))
-    return find_tests_in_dir(base)
+    from calibre.utils.run_tests import find_tests_in_package
+    return find_tests_in_package('tinycss.tests')
+
 
 def run_tests(find_tests=find_tests, for_build=False):
     if not for_build:
@@ -36,7 +37,7 @@ def run_tests(find_tests=find_tests, for_build=False):
         except StopIteration:
             pass
         if ans is None:
-            print ('No test named %s found' % args.name)
+            print('No test named %s found' % args.name)
             raise SystemExit(1)
         tests = ans
     else:
@@ -50,7 +51,6 @@ def run_tests(find_tests=find_tests, for_build=False):
     if for_build and result.errors or result.failures:
         raise SystemExit(1)
 
+
 if __name__ == '__main__':
     run_tests()
-
-
