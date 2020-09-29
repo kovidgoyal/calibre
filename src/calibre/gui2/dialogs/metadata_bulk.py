@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import re, numbers
+import regex, numbers
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from threading import Thread
@@ -973,22 +973,19 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_paint_results(self, txt):
         self.s_r_error = None
         self.s_r_set_colors()
+        flags = regex.VERSION1 | regex.FULLCASE | regex.UNICODE
 
         if self.case_sensitive.isChecked():
-            flags = 0
-        else:
-            flags = re.I
-
-        flags |= re.UNICODE
+            flags |= regex.IGNORECASE
 
         try:
             stext = unicode_type(self.search_for.text())
             if not stext:
                 raise Exception(_('You must specify a search expression in the "Search for" field'))
             if self.search_mode.currentIndex() == 0:
-                self.s_r_obj = re.compile(re.escape(stext), flags)
+                self.s_r_obj = regex.compile(regex.escape(stext), flags)
             else:
-                self.s_r_obj = re.compile(stext, flags)
+                self.s_r_obj = regex.compile(stext, flags)
         except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
