@@ -57,8 +57,14 @@ def find_tests_in_package(package, excludes=('main.py',)):
     loader = importlib.import_module(package).__spec__.loader
     items = list(loader.contents())
     suits = []
+    excludes = set(excludes) | {x + 'c' for x in excludes}
+    seen = set()
     for x in items:
-        if x.endswith('.py') and x not in excludes:
+        if (x.endswith('.py') or x.endswith('.pyc')) and x not in excludes:
+            q = x.rpartition('.')[0]
+            if q in seen:
+                continue
+            seen.add(q)
             m = importlib.import_module(package + '.' + x.partition('.')[0])
             suits.append(unittest.defaultTestLoader.loadTestsFromModule(m))
     return unittest.TestSuite(suits)
