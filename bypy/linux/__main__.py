@@ -135,7 +135,7 @@ def copy_python(env, ext_dir):
         y = j(srcdir, x)
         ext = os.path.splitext(x)[1]
         if os.path.isdir(y) and x not in ('test', 'hotshot',
-                                          'site-packages', 'idlelib', 'lib2to3', 'dist-packages'):
+                                          'site-packages', 'idlelib', 'dist-packages'):
             shutil.copytree(y, j(env.py_dir, x), ignore=ignore_in_lib)
         if os.path.isfile(y) and ext in ('.py', '.so'):
             shutil.copy2(y, env.py_dir)
