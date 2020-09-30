@@ -214,7 +214,8 @@ class Plugins(collections.Mapping):
     def load_plugin(self, name):
         if name in self._plugins:
             return
-        sys.path.insert(0, plugins_loc)
+        if not isfrozen:
+            sys.path.insert(0, plugins_loc)
         try:
             del sys.modules[name]
         except KeyError:
@@ -229,7 +230,8 @@ class Plugins(collections.Mapping):
             except Exception:
                 plugin_err = as_unicode(native_string_type(err), encoding=preferred_encoding, errors='replace')
         self._plugins[name] = p, plugin_err
-        sys.path.remove(plugins_loc)
+        if not isfrozen:
+            sys.path.remove(plugins_loc)
 
     def __iter__(self):
         return iter(self.plugins)
