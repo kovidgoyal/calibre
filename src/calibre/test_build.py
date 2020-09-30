@@ -43,6 +43,16 @@ class BuildTest(unittest.TestCase):
             self.assertTrue(bus.list_names(), 'Failed to list names on the session bus')
             del bus
 
+    def test_loaders(self):
+        import importlib
+        ldr = importlib.import_module('calibre').__spec__.loader
+        self.assertIn('ebooks', ldr.contents())
+        try:
+            raw = ldr.open_resource('__init__.py').read()
+        except FileNotFoundError:
+            raw = ldr.open_resource('__init__.pyc').read()
+        self.assertGreater(len(raw), 1024)
+
     def test_regex(self):
         import regex
         self.assertEqual(regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b'), [('a', 'b'), ('A', 'B')])
