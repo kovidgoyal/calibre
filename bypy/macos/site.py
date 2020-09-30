@@ -46,9 +46,6 @@ def main():
         except Exception:
             pass
 
-    dfv = os.environ.get('CALIBRE_DEVELOP_FROM')
-    if dfv and os.path.exists(dfv):
-        sys.path.insert(0, os.path.abspath(dfv))
     set_helper()
     set_quit()
     if sys.gui_app and not (

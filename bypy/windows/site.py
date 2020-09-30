@@ -42,12 +42,6 @@ class PydImporter:
         pyd_items = None
 
 
-def add_calibre_vars():
-    dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
-    if dv and os.path.exists(dv):
-        sys.path.insert(0, os.path.abspath(dv))
-
-
 def run_entry_point():
     bname, mod, func = sys.calibre_basename, sys.calibre_module, sys.calibre_function
     sys.argv[0] = bname + '.exe'
@@ -77,7 +71,6 @@ def main():
     linecache.orig_getline = linecache.getline
     linecache.getline = fake_getline
 
-    add_calibre_vars()
     set_helper()
     set_quit()
 

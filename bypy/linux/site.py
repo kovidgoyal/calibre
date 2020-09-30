@@ -33,9 +33,6 @@ def set_helper():
 
 def main():
     sys.argv[0] = sys.calibre_basename
-    dfv = os.environ.get('CALIBRE_DEVELOP_FROM')
-    if dfv and os.path.exists(dfv):
-        sys.path.insert(0, os.path.abspath(dfv))
     set_helper()
     setup_openssl_environment()
     set_quit()
