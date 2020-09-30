@@ -213,7 +213,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
-                 text_is_placeholder=False):
+                 text_is_placeholder=False, dialog_is_st_editor=False):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
@@ -221,6 +221,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
         self.embleming = doing_emblem
+        self.dialog_is_st_editor = dialog_is_st_editor
 
         cols = []
         if fm is not None:
@@ -272,6 +273,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                         dex = i
                 self.icon_kind.setCurrentIndex(dex)
                 self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
+
+        if dialog_is_st_editor:
+            self.buttonBox.setVisible(False)
+        else:
+            self.new_doc_label.setVisible(False)
+            self.new_doc.setVisible(False)
+            self.template_name_label.setVisible(False)
+            self.template_name.setVisible(False)
 
         if mi:
             self.mi = mi
@@ -466,6 +475,27 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         else:
             self.rule = ('', txt)
         QDialog.accept(self)
+
+    def reject(self):
+        QDialog.reject(self)
+        if self.dialog_is_st_editor:
+            parent = self.parent()
+            while True:
+                if hasattr(parent, 'reject'):
+                    parent.reject()
+                    break
+                parent = parent.parent()
+                if parent is None:
+                    break
+
+
+class EmbeddedTemplateDialog(TemplateDialog):
+
+    def __init__(self, parent):
+        TemplateDialog.__init__(self, parent, "Foo", text_is_placeholder=True,
+                                dialog_is_st_editor=True)
+        self.setParent(parent)
+        self.setWindowFlags(Qt.Widget)
 
 
 if __name__ == '__main__':

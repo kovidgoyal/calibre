@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback
 
-from PyQt5.Qt import QDialogButtonBox
+from PyQt5.Qt import Qt, QDialogButtonBox, QSizePolicy
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -78,6 +78,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         </p>
         ''')
         self.textBrowser.setHtml(help_text)
+        help_text = '<p>' + _('''
+        Here you can add and remove stored templates used in template processing.
+        You use a stored template in another template with the 'call' template
+        function, as in 'call(somename, arguments...). Stored templates must use
+        General Program Mode -- they must begin with the text 'program:'.
+        In the stored template you get the arguments using the 'arguments()'
+        template function, as in arguments(var1, var2, ...). The calling arguments
+        are copied to the named variables.
+        ''') + '</p>'
+        self.st_textBrowser.setHtml(help_text)
+        self.st_textBrowser.adjustSize()
 
     def initialize(self):
         try:
@@ -91,6 +102,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 if v.is_python)
 
         self.builtins = formatter_functions().get_builtins_and_aliases()
+
+        self.st_funcs = {}
+        for v in self.db.prefs.get('user_template_functions', []):
+            if not function_pref_is_python(v):
+                self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[native_string_type].connect(self.function_index_changed)
@@ -107,6 +123,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.clicked.connect(self.replace_button_clicked)
         self.program.setTabStopWidth(20)
         self.highlighter = PythonHighlighter(self.program.document())
+
+        self.st_build_function_names_box()
+        self.template_editor.template_name.currentIndexChanged[native_string_type].connect(self.st_function_index_changed)
+        self.template_editor.template_name.editTextChanged.connect(self.st_template_name_edited)
+        self.template_editor.new_doc.textChanged.connect(self.st_enable_replace_button)
+        self.template_editor.textbox.textChanged.connect(self.st_enable_replace_button)
+        self.st_create_button.clicked.connect(self.st_create_button_clicked)
+        self.st_delete_button.clicked.connect(self.st_delete_button_clicked)
+        self.st_create_button.setEnabled(False)
+        self.st_delete_button.setEnabled(False)
+        self.st_replace_button.setEnabled(False)
+        self.st_clear_button.clicked.connect(self.st_clear_button_clicked)
+        self.st_replace_button.clicked.connect(self.st_replace_button_clicked)
+
+        self.st_button_layout.insertSpacing(0, 90)
+        self.template_editor.new_doc.setFixedHeight(50)
+
+    # Python funtion tab
 
     def enable_replace_button(self):
         self.replace_button.setEnabled(self.delete_button.isEnabled())
@@ -228,12 +262,98 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def refresh_gui(self, gui):
         pass
 
+    # Stored template tab
+
+    def st_enable_replace_button(self):
+        self.st_replace_button.setEnabled(self.st_delete_button.isEnabled())
+
+    def st_clear_button_clicked(self):
+        self.st_build_function_names_box()
+        self.template_editor.textbox.clear()
+        self.template_editor.new_doc.clear()
+        self.st_create_button.setEnabled(False)
+        self.st_delete_button.setEnabled(False)
+
+    def st_build_function_names_box(self, scroll_to=''):
+        self.template_editor.template_name.blockSignals(True)
+        func_names = sorted(self.st_funcs)
+        self.template_editor.template_name.clear()
+        self.template_editor.template_name.addItem('')
+        self.template_editor.template_name.addItems(func_names)
+        self.template_editor.template_name.setCurrentIndex(0)
+        self.template_editor.template_name.blockSignals(False)
+        if scroll_to:
+            idx = self.template_editor.template_name.findText(scroll_to)
+            if idx >= 0:
+                self.template_editor.template_name.setCurrentIndex(idx)
+
+    def st_delete_button_clicked(self):
+        name = unicode_type(self.template_editor.template_name.currentText())
+        if name in self.st_funcs:
+            del self.st_funcs[name]
+            self.changed_signal.emit()
+            self.st_create_button.setEnabled(True)
+            self.st_delete_button.setEnabled(False)
+            self.st_build_function_names_box()
+            self.template_editor.textbox.setReadOnly(False)
+        else:
+            error_dialog(self.gui, _('Stored templates'),
+                         _('Function not defined'), show=True)
+
+    def st_create_button_clicked(self, use_name=None):
+        self.changed_signal.emit()
+        name = use_name if use_name else unicode_type(self.template_editor.template_name.currentText())
+        for k,v in formatter_functions().get_functions().items():
+            if k == name and v.is_python:
+                error_dialog(self.gui, _('Stored templates'),
+                         _('Name %s is already used for template function')%(name,), show=True)
+        try:
+            prog = unicode_type(self.template_editor.textbox.toPlainText())
+            if not prog.startswith('program:'):
+                error_dialog(self.gui, _('Stored templates'),
+                         _('The stored template must begin with "program:"'), show=True)
+
+            cls = compile_user_function(name, unicode_type(self.template_editor.new_doc.toPlainText()),
+                                        0, prog)
+            self.st_funcs[name] = cls
+            self.st_build_function_names_box(scroll_to=name)
+        except:
+            error_dialog(self.gui, _('Stored templates'),
+                         _('Exception while storing template'), show=True,
+                         det_msg=traceback.format_exc())
+
+    def st_template_name_edited(self, txt):
+        self.st_create_button.setEnabled(True)
+        self.st_replace_button.setEnabled(False)
+        self.template_editor.textbox.setReadOnly(False)
+
+    def st_function_index_changed(self, txt):
+        txt = unicode_type(txt)
+        self.st_create_button.setEnabled(False)
+        if not txt:
+            self.template_editor.textbox.clear()
+            self.template_editor.new_doc.clear()
+            return
+        func = self.st_funcs[txt]
+        self.template_editor.new_doc.setPlainText(func.doc)
+        self.template_editor.textbox.setPlainText(func.program_text)
+        self.st_delete_button.setEnabled(True)
+        self.template_editor.textbox.setReadOnly(False)
+        self.st_replace_button.setEnabled(False)
+
+    def st_replace_button_clicked(self):
+        name = unicode_type(self.template_editor.template_name.currentText())
+        self.st_delete_button_clicked()
+        self.st_create_button_clicked(use_name=name)
+
     def commit(self):
-        pref_value = [v for v in self.db.prefs.get('user_template_functions', [])
-                      if not function_pref_is_python(v)]
+        pref_value = []
         for name, cls in iteritems(self.funcs):
+            print(name)
             if name not in self.builtins:
                 pref_value.append(cls.to_pref())
+        for v in self.st_funcs.values():
+            pref_value.append(v.to_pref())
         self.db.new_api.set_pref('user_template_functions', pref_value)
         funcs = compile_user_template_functions(pref_value)
         self.db.new_api.set_user_template_functions(funcs)
