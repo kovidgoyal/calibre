@@ -80,14 +80,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.textBrowser.setHtml(help_text)
         help_text = '<p>' + _('''
         Here you can add and remove stored templates used in template processing.
-        You use a stored template in another template with the 'call' template
-        function, as in 'call(somename, arguments...). Stored templates must use
-        General Program Mode -- they must begin with the text 'program:'.
-        In the stored template you get the arguments using the 'arguments()'
-        template function, as in arguments(var1, var2, ...). The calling arguments
-        are copied to the named variables.
+        You use a stored template in another template with the '{0}' template
+        function, as in '{0}(some_name, arguments...). Stored templates must use
+        General Program Mode -- they must begin with the text '{1}'.
+        In the stored template you retrieve the arguments using the '{2}()'
+        template function, as in '{2}(var1, var2, ...)'. The calling arguments
+        are copied to the named variables. See the template language tutorial
+        for more information.
         ''') + '</p>'
-        self.st_textBrowser.setHtml(help_text)
+        self.st_textBrowser.setHtml(help_text.format('call', 'program:', 'arguments'))
         self.st_textBrowser.adjustSize()
 
     def initialize(self):
@@ -127,8 +128,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.st_build_function_names_box()
         self.template_editor.template_name.currentIndexChanged[native_string_type].connect(self.st_function_index_changed)
         self.template_editor.template_name.editTextChanged.connect(self.st_template_name_edited)
-        self.template_editor.new_doc.textChanged.connect(self.st_enable_replace_button)
-        self.template_editor.textbox.textChanged.connect(self.st_enable_replace_button)
         self.st_create_button.clicked.connect(self.st_create_button_clicked)
         self.st_delete_button.clicked.connect(self.st_delete_button_clicked)
         self.st_create_button.setEnabled(False)
@@ -264,9 +263,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     # Stored template tab
 
-    def st_enable_replace_button(self):
-        self.st_replace_button.setEnabled(self.st_delete_button.isEnabled())
-
     def st_clear_button_clicked(self):
         self.st_build_function_names_box()
         self.template_editor.textbox.clear()
@@ -323,8 +319,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                          det_msg=traceback.format_exc())
 
     def st_template_name_edited(self, txt):
-        self.st_create_button.setEnabled(True)
-        self.st_replace_button.setEnabled(False)
+        b = txt in self.st_funcs
+        self.st_create_button.setEnabled(not b)
+        self.st_replace_button.setEnabled(b)
+        self.st_delete_button.setEnabled(b)
         self.template_editor.textbox.setReadOnly(False)
 
     def st_function_index_changed(self, txt):
@@ -337,9 +335,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         func = self.st_funcs[txt]
         self.template_editor.new_doc.setPlainText(func.doc)
         self.template_editor.textbox.setPlainText(func.program_text)
-        self.st_delete_button.setEnabled(True)
-        self.template_editor.textbox.setReadOnly(False)
-        self.st_replace_button.setEnabled(False)
+        self.st_template_name_edited(txt)
 
     def st_replace_button_clicked(self):
         name = unicode_type(self.template_editor.template_name.currentText())

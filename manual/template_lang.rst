@@ -405,7 +405,7 @@ Program mode also supports the classic relational (comparison) operators: ``==``
     * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
 
 General Program Mode support saving General Program Mode templates and calling those templates from another template. You save
-templates using :guilabel:`Preferences->Advanced->Stored templates`. More information is provided in that dialog. You call
+templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
 a template using the ``call`` keyword, passing positional arguments if desired. An argument can be any expression.
 Examples of ``call``, assuming the stored template is named ``foo``:
 

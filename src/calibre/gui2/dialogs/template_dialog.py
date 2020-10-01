@@ -303,6 +303,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 from calibre.gui2.ui import get_gui
                 self.mi.set_all_user_metadata(
                       get_gui().current_db.new_api.field_metadata.custom_field_metadata())
+            for col in self.mi.get_all_user_metadata(False):
+                self.mi.set(col, (col,), 0)
 
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -322,6 +324,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         if text is not None:
             if text_is_placeholder:
                 self.textbox.setPlaceholderText(text)
+                self.textbox.clear()
             else:
                 self.textbox.setPlainText(text)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
@@ -492,7 +495,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 class EmbeddedTemplateDialog(TemplateDialog):
 
     def __init__(self, parent):
-        TemplateDialog.__init__(self, parent, "Foo", text_is_placeholder=True,
+        TemplateDialog.__init__(self, parent, _('A General Program Mode Template'), text_is_placeholder=True,
                                 dialog_is_st_editor=True)
         self.setParent(parent)
         self.setWindowFlags(Qt.Widget)
