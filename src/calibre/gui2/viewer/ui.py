@@ -336,6 +336,8 @@ class EbookViewer(MainWindow):
 
     def toggle_lookup(self, force_show=False):
         self.lookup_dock.setVisible(force_show or not self.lookup_dock.isVisible())
+        if force_show:
+            self.lookup_widget.on_forced_show()
 
     def toc_clicked(self, index):
         item = self.toc_model.itemFromIndex(index)

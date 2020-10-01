@@ -5,11 +5,11 @@
 
 import os
 import sys
-
+import textwrap
 from PyQt5.Qt import (
-    QApplication, QComboBox, QDialog, QDialogButtonBox, QFormLayout, QHBoxLayout,
-    QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton, QSize, Qt,
-    QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+    QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton,
+    QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
@@ -264,9 +264,27 @@ class Lookup(QWidget):
         self.source_box.currentIndexChanged.connect(self.source_changed)
         self.view.setHtml('<p>' + _('Double click on a word in the book\'s text'
             ' to look it up.'))
-        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add more sources'))
+        self.add_button = b = QPushButton(QIcon(I('plus.png')), _('Add sources'))
+        b.setToolTip(_('Add more sources at which to lookup words'))
         b.clicked.connect(self.add_sources)
-        l.addWidget(b)
+        self.refresh_button = rb = QPushButton(QIcon(I('view-refresh.png')), _('Refresh'))
+        rb.setToolTip(_('Refresh the result to match the currently selected text'))
+        rb.clicked.connect(self.update_query)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(b), h.addWidget(rb)
+        self.auto_update_query = a = QCheckBox(_('Update on selection change'), self)
+        a.setToolTip(textwrap.fill(
+            _('Automatically update the displayed result when selected text in the book changes. With this disabled'
+              ' the lookup is changed only when clicking the Refresh button.')))
+        a.setChecked(vprefs['auto_update_lookup'])
+        a.stateChanged.connect(self.auto_update_state_changed)
+        l.addWidget(a)
+        self.update_refresh_button_status()
+
+    def auto_update_state_changed(self, state):
+        vprefs['auto_update_lookup'] = self.auto_update_query.isChecked()
+        self.update_refresh_button_status()
 
     def show_devtools(self):
         if not hasattr(self, '_devtools_page'):
@@ -325,10 +343,20 @@ class Lookup(QWidget):
         if idx > -1:
             return self.source_box.itemData(idx)['url']
 
+    @property
+    def query_is_up_to_date(self):
+        query = self.selected_text or self.current_query
+        return self.current_query == query and self.current_source == self.url_template
+
+    def update_refresh_button_status(self):
+        b = self.refresh_button
+        b.setVisible(not self.auto_update_query.isChecked())
+        b.setEnabled(not self.query_is_up_to_date)
+
     def update_query(self):
         self.debounce_timer.stop()
         query = self.selected_text or self.current_query
-        if self.current_query == query and self.current_source == self.url_template:
+        if self.query_is_up_to_date:
             return
         if not self.is_visible or not query:
             return
@@ -336,7 +364,14 @@ class Lookup(QWidget):
         url = self.current_source.format(word=query)
         self.view.load(QUrl(url))
         self.current_query = query
+        self.update_refresh_button_status()
 
     def selected_text_changed(self, text, annot_id):
+        already_has_text = bool(self.current_query)
         self.selected_text = text or ''
-        self.debounce_timer.start()
+        if self.auto_update_query.isChecked() or not already_has_text:
+            self.debounce_timer.start()
+        self.update_refresh_button_status()
+
+    def on_forced_show(self):
+        self.update_query()
