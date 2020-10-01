@@ -42,8 +42,10 @@ class Dialog(QDialog):
 
         if show_cancel_button:
             buttons = QDialogButtonBox.Yes | QDialogButtonBox.No
+            standard_button = QDialogButtonBox.Yes
         else:
             buttons = QDialogButtonBox.Ok
+            standard_button = QDialogButtonBox.Ok
         self.buttonBox = bb = QDialogButtonBox(buttons, self)
         bb.setObjectName("buttonBox")
         bb.setFocus(Qt.OtherFocusReason)
@@ -54,6 +56,7 @@ class Dialog(QDialog):
         self.config_set = config_set
 
         self.resize(self.sizeHint())
+        bb.button(standard_button).setFocus(Qt.OtherFocusReason)
 
     def toggle(self, *args):
         self.config_set[confirm_config_name(self.name)] = self.again.isChecked()
