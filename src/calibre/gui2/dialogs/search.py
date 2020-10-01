@@ -252,8 +252,7 @@ def create_template_tab(self):
                     "With Text comparisons you can use exact, contains "
                     "or regular expression matches. With Date you can use "
                     "today, yesterday, etc. Set/not set takes 'true' for set "
-                    "and 'false' for not set.")
-                  + '</p>')
+                    "and 'false' for not set.") + '</p>')
     l.addRow(_('Template &value:'), le)
 
     self.template_test_type_box = le = QComboBox(w)
