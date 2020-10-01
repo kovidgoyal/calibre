@@ -90,7 +90,7 @@ class ModalContainer:
         self.modals.push(Modal(create_func, on_close, show_close, onkeydown))
         modal_id = self.modals[-1].id
         self.update()
-        self.modal_container.focus()
+        window.setTimeout(def(): self.modal_container.focus();, 0)
         return modal_id
 
     def hide_modal(self, modal_id):
@@ -294,10 +294,9 @@ def question_dialog(
                     create_button(no_text, 'close', keyaction.bind(None, False, close_modal))
                 ))
             )
-            parent.lastChild.focus()
-    ,
-    on_close=keyaction.bind(None, False, None),
-    onkeydown=on_keydown
+        ,
+        on_close=keyaction.bind(None, False, None),
+        onkeydown=on_keydown
     )
 
 
