@@ -11,6 +11,7 @@ from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from popups import MODAL_Z_INDEX
 from utils import safe_set_inner_html
 from widgets import create_button
+from book_list.globals import get_session_data
 
 modal_container = None
 modal_count = 0
@@ -236,7 +237,11 @@ def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
     )
 
 
-def question_dialog(title, msg, callback, yes_text=None, no_text=None):
+def question_dialog(
+    title, msg, callback, yes_text=None, no_text=None,
+    skip_dialog_name=None, skip_dialog_msg=None,
+    skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
+):
     yes_text = yes_text or _('Yes')
     no_text = no_text or _('No')
     called = {}
@@ -245,6 +250,12 @@ def question_dialog(title, msg, callback, yes_text=None, no_text=None):
         if called.done:
             return
         called.done = True
+        if skip_dialog_name:
+            if not skip_box.querySelector('input').checked:
+                sd = get_session_data()
+                skipped_dialogs = Object.assign(v'{}', sd.get('skipped_dialogs', v'{}'))
+                skipped_dialogs[skip_dialog_name] = Date().toISOString()
+                sd.set('skipped_dialogs', skipped_dialogs)
         if close_modal:
             close_modal()
         callback(yes)
@@ -259,10 +270,24 @@ def question_dialog(title, msg, callback, yes_text=None, no_text=None):
             event.preventDefault(), event.stopPropagation()
             keyaction(True, close_modal)
 
+    skip_box = E.div(style='margin-top: 2ex;')
+    if skip_dialog_name:
+        sd = get_session_data()
+        skipped_dialogs = sd.get('skipped_dialogs', v'{}')
+        if skipped_dialogs[skip_dialog_name]:
+            return callback(skip_dialog_skipped_value)
+        skip_dialog_msg = skip_dialog_msg or _('Show this confirmation again')
+        skip_box.appendChild(E.label(E.input(type='checkbox', name='skip_dialog'), '\xa0', skip_dialog_msg))
+        if skip_dialog_skip_precheck:
+            skip_box.querySelector('input').checked = True
+    else:
+        skip_box.style.display = 'none'
+
     create_custom_dialog(
         title, def(parent, close_modal):
             parent.appendChild(E.div(
                 E.div(msg),
+                skip_box,
                 E.div(class_='button-box',
                     create_button(yes_text, 'check', keyaction.bind(None, True, close_modal), highlight=True),
                     '\xa0',

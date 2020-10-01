@@ -27,7 +27,7 @@ from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
-from session import get_device_uuid
+from session import get_device_uuid, defaults as session_defaults
 from utils import (
     default_context_menu_should_be_allowed, full_screen_element,
     full_screen_supported, is_ios, safe_set_inner_html
@@ -360,7 +360,12 @@ class MainOverlay:  # {{{
                 ac(_('Inspector'), _('Show the content inspector'),
                    def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug'),
                 ac(_('Reset interface'), _('Reset viewer panels, toolbars and scrollbars to defaults'),
-                   def(): self.overlay.hide(), ui_operations.reset_interface();, 'window-restore'),
+                    def():
+                        self.overlay.hide()
+                        ui_operations.reset_interface()
+                        sd = get_session_data()
+                        sd.set('skipped_dialogs', session_defaults.skipped_dialogs)
+                    , 'window-restore'),
                 ac(_('Quit'), _('Close the viewer'),
                    def(): self.overlay.hide(), ui_operations.quit();, 'remove'),
             ))

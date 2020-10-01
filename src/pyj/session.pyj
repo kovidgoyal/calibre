@@ -68,9 +68,11 @@ defaults = {
     'net_search_url': 'https://google.com/search?q={q}',
     'selection_bar_actions': v"['copy', 'lookup', 'highlight', 'remove_highlight', 'search_net', 'clear']",
     'selection_bar_quick_highlights': v"[]",
+    'skipped_dialogs': v'{}',
 }
 
 is_local_setting = {
+    'skipped_dialogs': True,
     'background_image_fade': True,
     'background_image_style': True,
     'background_image': True,

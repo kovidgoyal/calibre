@@ -935,10 +935,12 @@ class SelectionBar:
     def remove_highlight(self):
         annot_id = self.view.currently_showing.selection.annot_id
         if annot_id:
-            question_dialog(_('Are you sure?'), _('Are you sure you want to delete this highlight permanently?'),
+            question_dialog(
+                _('Are you sure?'), _('Are you sure you want to delete this highlight permanently?'),
                 def (yes):
                     if yes:
                         self.remove_highlight_with_id(annot_id)
+                , skip_dialog_name='confirm_remove_highlight'
             )
 
     def remove_highlight_with_id(self, annot_id):
