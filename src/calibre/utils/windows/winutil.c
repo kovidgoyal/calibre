@@ -54,10 +54,6 @@ wherever possible in this module.
 #include <stdarg.h>
 #include <time.h>
 
-#define PyStructSequence_GET_ITEM(op, i) \
-    (((PyStructSequence *)(op))->ob_item[i])
-
-
 #define BUFSIZE    512
 #define MAX_DRIVES 26
 static BOOL DEBUG = FALSE;
