@@ -302,37 +302,21 @@ class _Parser(object):
             return NumericInfixNode(operator, left, self.expr())
         return left
 
-    def call_expression(self):
-        self.consume()
-        if not self.token_is_id():
-            self.error(_('"call" requires a stored template name'))
-        name = self.token()
-        if name not in self.func_names or self.funcs[name].is_python:
-            self.error(_('{} is not a stored template').format(name))
-        text = self.funcs[name].program_text
-        if not text.startswith('program:'):
-            self.error((_('A stored template must begin with program:')))
-        text = text[len('program:'):]
-        if not self.token_op_is_lparen():
-            self.error(_('"call" requires arguments surrounded by "(" ")"'))
-        self.consume()
-        arguments = list()
-        while not self.token_op_is_rparen():
-            arguments.append(self.infix_expr())
-            if not self.token_op_is_comma():
-                break
-            self.consume()
-        if self.token() != ')':
-            self.error(_('Missing closing parenthesis'))
-        subprog = _Parser().program(self, self.funcs,
-                                    self.parent.lex_scanner.scan(text))
+    def call_expression(self, name, arguments):
+        subprog = self.funcs[name].cached_parse_tree
+        if subprog is None:
+            text = self.funcs[name].program_text
+            if not text.startswith('program:'):
+                self.error((_('A stored template must begin with program:')))
+            text = text[len('program:'):]
+            subprog = _Parser().program(self, self.funcs,
+                                        self.parent.lex_scanner.scan(text))
+            self.funcs[name].cached_parse_tree = subprog
         return CallNode(subprog, arguments)
 
     def expr(self):
         if self.token_is_if():
             return self.if_expression()
-        if self.token_is_call():
-            return self.call_expression()
         if self.token_is_id():
             # We have an identifier. Determine if it is a function
             id_ = self.token()
@@ -378,6 +362,8 @@ class _Parser(object):
                         arg = AssignNode(arg.name, ConstantNode(''))
                     new_args.append(arg)
                 return ArgumentsNode(new_args)
+            if id_ in self.func_names and not self.funcs[id_].is_python:
+                return self.call_expression(id_, arguments)
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
                 self.error(_('Incorrect number of arguments for function {0}').format(id_))
@@ -394,12 +380,14 @@ class _Interpreter(object):
         m = 'Interpreter: ' + message
         raise ValueError(m)
 
-    def program(self, funcs, parent, prog, val):
+    def program(self, funcs, parent, prog, val, is_call=False, args=None):
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
         self.funcs = funcs
         self.locals = {'$':val}
+        if is_call:
+            return self.do_node_call(CallNode(prog, None), args=args)
         return self.expression_list(prog)
 
     def expression_list(self, prog):
@@ -472,11 +460,12 @@ class _Interpreter(object):
         return cls.eval_(self.parent, self.parent_kwargs,
                         self.parent_book, self.locals, *args)
 
-    def do_node_call(self, prog):
-        args = list()
-        for arg in prog.expression_list:
-            # evaluate the expression (recursive call)
-            args.append(self.expr(arg))
+    def do_node_call(self, prog, args=None):
+        if args is None:
+            args = list()
+            for arg in prog.expression_list:
+                # evaluate the expression (recursive call)
+                args.append(self.expr(arg))
         saved_locals = self.locals
         self.locals = {}
         for dex, v in enumerate(args):
@@ -620,7 +609,7 @@ class TemplateFormatter(string.Formatter):
     lex_scanner = re.Scanner([
             (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
-            (r'(if|then|else|fi|call)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(if|then|else|fi)\b',     lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'[(),=;]',                 lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
             (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
@@ -632,9 +621,6 @@ class TemplateFormatter(string.Formatter):
         ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog, column_name):
-        # keep a cache of the lex'ed program under the theory that re-lexing
-        # is much more expensive than the cache lookup. This is certainly true
-        # for more than a few tokens, but it isn't clear for simple programs.
         if column_name is not None and self.template_cache is not None:
             tree = self.template_cache.get(column_name, None)
             if not tree:
@@ -644,6 +630,15 @@ class TemplateFormatter(string.Formatter):
             tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
         return self.gpm_interpreter.program(self.funcs, self, tree, val)
 
+    def _eval_sfm_call(self, template_name, args):
+        func = self.funcs[template_name]
+        tree = func.cached_parse_tree
+        if tree is None:
+            tree = self.gpm_parser.program(self, self.funcs,
+                           self.lex_scanner.scan(func.program_text[len('program:'):]))
+            func.cached_parse_tree = tree
+        return self.gpm_interpreter.program(self.funcs, self, tree, None,
+                                            is_call=True, args=args)
     # ################# Override parent classes methods #####################
 
     def get_value(self, key, args, kwargs):
@@ -697,17 +692,22 @@ class TemplateFormatter(string.Formatter):
                     else:
                         args = self.arg_parser.scan(fmt[p+1:])[0]
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
-                    if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
-                            (func.arg_count > 1 and func.arg_count != len(args)+1):
-                        raise ValueError('Incorrect number of expression_list for function '+ fmt[0:p])
-                    if func.arg_count == 1:
-                        val = func.eval_(self, self.kwargs, self.book, self.locals, val)
-                        if self.strip_results:
-                            val = val.strip()
+                    if not func.is_python:
+                        args.insert(0, val)
+                        val = self._eval_sfm_call(fname, args)
                     else:
-                        val = func.eval_(self, self.kwargs, self.book, self.locals, val, *args)
-                        if self.strip_results:
-                            val = val.strip()
+                        if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
+                                (func.arg_count > 1 and func.arg_count != len(args)+1):
+                            raise ValueError(
+                                _('Incorrect number of arguments for function {0}').format(fmt[0:p]))
+                        if func.arg_count == 1:
+                            val = func.eval_(self, self.kwargs, self.book, self.locals, val)
+                            if self.strip_results:
+                                val = val.strip()
+                        else:
+                            val = func.eval_(self, self.kwargs, self.book, self.locals, val, *args)
+                            if self.strip_results:
+                                val = val.strip()
                 else:
                     return _('%s: unknown function')%fname
         if val:

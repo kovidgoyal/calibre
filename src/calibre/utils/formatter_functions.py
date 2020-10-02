@@ -1820,6 +1820,7 @@ class FormatterUserFunction(FormatterFunction):
         self.doc = doc
         self.arg_count = arg_count
         self.program_text = program_text
+        self.cached_parse_tree = None
 
     def to_pref(self):
         return [self.name, self.doc, self.arg_count, self.program_text]
