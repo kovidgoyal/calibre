@@ -127,7 +127,7 @@ class JournalOfAccountancy(BasicNewsRecipe):
             make_topic('FEATURES', get_data('issuelanding/articles2'))
         ]
 
-        for category, articles in get_data('articletypelist').iteritems():
+        for category, articles in get_data('articletypelist').items():
             ans.append(make_topic(category, articles))
 
         return ans
