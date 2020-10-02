@@ -42,6 +42,10 @@ from polyglot.builtins import filter, iteritems, map, range, unicode_type, as_by
 ROOT = QModelIndex()
 
 
+def psk(x):
+    return QByteArray(numeric_sort_key(x))
+
+
 def read_state(name, default=None):
     data = tprefs.get('reports-ui-state')
     if data is None:
@@ -243,7 +247,6 @@ class FilesModel(FileCollection):
         self.total_size = sum(map(itemgetter(3), self.files))
         self.images_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'image')))
         self.fonts_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'font')))
-        psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')))
                                for entry in self.files)
         self.endResetModel()
@@ -427,7 +430,6 @@ class ImagesModel(FileCollection):
         self.beginResetModel()
         self.files = data['images']
         self.total_size = sum(map(itemgetter(3), self.files))
-        psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.basename), entry.size, len(entry.usage), (entry.width, entry.height))
                                for entry in self.files)
         self.endResetModel()
@@ -525,7 +527,6 @@ class LinksModel(FileCollection):
         self.links = self.files = data['links']
         self.total_size = len(self.links)
         self.num_bad = sum(1 for link in self.links if link.ok is False)
-        psk = numeric_sort_key
         self.sort_keys = tuple((
             link.ok, psk(link.location.name), psk(link.text or ''), psk(link.href or ''), psk(link.anchor.id or ''), psk(link.anchor.text or ''))
                                for link in self.links)
@@ -686,7 +687,6 @@ class WordsModel(FileCollection):
         self.beginResetModel()
         self.total_words, self.files = data['words']
         self.total_size = len({entry.locale for entry in self.files})
-        psk = numeric_sort_key
         lsk_cache = {}
 
         def locale_sort_key(loc):
@@ -783,7 +783,6 @@ class CharsModel(FileCollection):
         self.beginResetModel()
         self.files = data['chars']
         self.all_chars = tuple(entry.char for entry in self.files)
-        psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.char), None, entry.codepoint, entry.count) for entry in self.files)
         self.endResetModel()
 
