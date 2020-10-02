@@ -297,9 +297,15 @@ else:
 # }}}
 
 
-dv = getenv('CALIBRE_DEVELOP_FROM')
-is_running_from_develop = bool(getattr(sys, 'frozen', False) and dv and os.path.abspath(dv) in sys.path)
-del dv
+is_running_from_develop = False
+if getattr(sys, 'frozen', False):
+    try:
+        from bypy_importer import running_in_develop_mode
+    except ImportError:
+        pass
+    else:
+        is_running_from_develop = running_in_develop_mode()
+
 in_develop_mode = getenv('CALIBRE_ENABLE_DEVELOP_MODE') == '1'
 
 
