@@ -89,6 +89,29 @@ class wchar_raii {  // {{{
 		void set_ptr(wchar_t *val) { handle = val; }
 }; // }}}
 
+class handle_raii {  // {{{
+	private:
+		HANDLE handle;
+		handle_raii( const handle_raii & ) ;
+		handle_raii & operator=( const handle_raii & ) ;
+
+	public:
+		handle_raii() : handle(INVALID_HANDLE_VALUE) {}
+		handle_raii(HANDLE h) : handle(h) {}
+
+		~handle_raii() {
+			if (handle != INVALID_HANDLE_VALUE) {
+				CloseHandle(handle);
+				handle = INVALID_HANDLE_VALUE;
+			}
+		}
+
+		HANDLE ptr() const { return handle; }
+		void set_ptr(HANDLE val) { handle = val; }
+		explicit operator bool() const { return handle != INVALID_HANDLE_VALUE; }
+
+}; // }}}
+
 class scoped_com_initializer {  // {{{
 	public:
 		scoped_com_initializer() : m_succeded(false) { if (SUCCEEDED(CoInitialize(NULL))) m_succeded = true; }
@@ -119,11 +142,10 @@ winutil_get_file_id(PyObject *self, PyObject *args) {
 	wchar_raii path;
 	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
 	if (path.ptr()) {
-		HANDLE h = CreateFileW(path.ptr(), 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-		if (h == INVALID_HANDLE_VALUE) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+		handle_raii file_handle(CreateFileW(path.ptr(), 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL));
+		if (!file_handle) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
 		BY_HANDLE_FILE_INFORMATION info = {0};
-		BOOL ok = GetFileInformationByHandle(h, &info);
-		CloseHandle(h);
+		BOOL ok = GetFileInformationByHandle(file_handle.ptr(), &info);
 		if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
 		unsigned long volnum = info.dwVolumeSerialNumber, index_high = info.nFileIndexHigh, index_low = info.nFileIndexLow;
 		return Py_BuildValue("kkk", volnum, index_high, index_low);
