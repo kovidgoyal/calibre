@@ -114,6 +114,23 @@ py_to_wchar(PyObject *obj, wchar_raii *output) {
 
 extern "C" {
 
+PyObject*
+winutil_get_file_id(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
+	if (path.ptr()) {
+		HANDLE h = CreateFileW(path.ptr(), 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+		if (h == INVALID_HANDLE_VALUE) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+		BY_HANDLE_FILE_INFORMATION info = {0};
+		BOOL ok = GetFileInformationByHandle(h, &info);
+		CloseHandle(h);
+		if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+		unsigned long volnum = info.dwVolumeSerialNumber, index_high = info.nFileIndexHigh, index_low = info.nFileIndexLow;
+		return Py_BuildValue("kkk", volnum, index_high, index_low);
+	}
+	Py_RETURN_NONE;
+}
+
 PyObject *
 winutil_add_to_recent_docs(PyObject *self, PyObject *args) {
 	wchar_raii path, app_id;

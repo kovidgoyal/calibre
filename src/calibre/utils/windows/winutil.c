@@ -380,6 +380,7 @@ extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
 extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *args);
 extern PyObject *winutil_move_to_trash(PyObject *self, PyObject *args);
 extern PyObject *winutil_manage_shortcut(PyObject *self, PyObject *args);
+extern PyObject *winutil_get_file_id(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -469,6 +470,10 @@ be a unicode string. Returns unicode strings."
 
     {"manage_shortcut", (PyCFunction)winutil_manage_shortcut, METH_VARARGS,
         "manage_shortcut()\n\nManage a shortcut"
+    },
+
+    {"get_file_id", (PyCFunction)winutil_get_file_id, METH_VARARGS,
+        "get_file_id(path)\n\nGet the windows file id (volume_num, file_index_high, file_index_low)"
     },
 
     {NULL, NULL, 0, NULL}

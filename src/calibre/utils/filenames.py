@@ -9,6 +9,7 @@ import os
 import shutil
 import time
 from math import ceil
+from contextlib import suppress
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import (
@@ -218,9 +219,10 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     return ans, fpath
 
 
-def windows_get_fileid(path):
-    ''' The fileid uniquely identifies actual file contents (it is the same for
-    all hardlinks to a file). Similar to inode number on linux. '''
+def old_windows_get_fileid(path):
+    # we dont use this anymore as the win32 implementation reads the windows
+    # registry to convert file times which is slow and breaks on systems with
+    # registry issues.
     import win32file
     from pywintypes import error
     if isbytestring(path):
@@ -235,6 +237,20 @@ def windows_get_fileid(path):
     except (error, EnvironmentError):
         return None
     return data[4], data[8], data[9]
+
+
+def windows_get_fileid(path):
+    ''' The fileid uniquely identifies actual file contents (it is the same for
+    all hardlinks to a file). Similar to inode number on linux. '''
+    try:
+        get_file_id = plugins['winutil'][0].get_file_id
+    except AttributeError:
+        # running from source without updating binary
+        return old_windows_get_fileid(path)
+    if isbytestring(path):
+        path = path.decode(filesystem_encoding)
+    with suppress(OSError):
+        return get_file_id(path)
 
 
 def samefile_windows(src, dst):
