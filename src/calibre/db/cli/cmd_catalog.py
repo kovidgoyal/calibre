@@ -50,8 +50,10 @@ def option_parser(get_parser, args):  # {{{
 
 Export a catalog in format specified by path/to/destination extension.
 Options control how entries are displayed in the generated catalog output.
-Note that different catalog formats support different sets of options.
-'''
+Note that different catalog formats support different sets of options. To
+see the different options, specify the name of the output file and then the
+{} option.
+'''.format('--help')
         )
     )
 
