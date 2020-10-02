@@ -286,14 +286,14 @@ class ViewAction(InterfaceAction):
         views = []
         for id_ in ids:
             try:
-                formats = db.formats(id_, index_is_id=True)
+                title = db.title(id_, index_is_id=True)
             except:
                 error_dialog(self.gui, _('Cannot view'),
                     _('This book no longer exists in your library'), show=True)
                 self.update_history([], remove={id_})
                 continue
 
-            title   = db.title(id_, index_is_id=True)
+            formats = db.formats(id_, index_is_id=True)
             if not formats:
                 error_dialog(self.gui, _('Cannot view'),
                     _('%s has no available formats.')%(title,), show=True)
