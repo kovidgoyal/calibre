@@ -103,12 +103,6 @@ def cap_path(data):
     return r'Software\calibre\%s\Capabilities' % data['capability_name']
 
 
-def pre_import_extensions():
-    for program in default_programs():
-        ext_map = {ext.lower():guess_type('file.' + ext.lower())[0] for ext in extensions(program)}
-        ext_map = {ext:mt for ext, mt in iteritems(ext_map) if mt}
-
-
 def register():
     base = os.path.dirname(sys.executable)
 
@@ -167,14 +161,9 @@ class Register(Thread):
     def __init__(self, prefs):
         Thread.__init__(self, name='RegisterDP')
         self.prefs = prefs
-        pre_import_extensions()
         self.start()
 
     def run(self):
-        # make sure no imports happen in this thread as python's zipimport
-        # machinery is not thread safe and main GUI importing is happening
-        # in parallel
-        # https://bugs.python.org/issue38884
         try:
             self.do_register()
         except Exception:

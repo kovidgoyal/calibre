@@ -393,10 +393,6 @@ def identify(log, abort,  # {{{
     log('The log from individual plugins is below')
 
     workers = [Worker(p, kwargs, abort) for p in plugins]
-    # Ensure Browser is imported to workaround threading bugs in zipimport on
-    # Windows
-    from calibre import browser
-    browser()
     for w in workers:
         w.start()
 
