@@ -191,12 +191,11 @@ The syntax of the language is shown by the following grammar. For a discussion o
 
     program         ::= expression_list
     expression_list ::= expression [ ';' expression ]*
-    expression      ::= identifier | constant | function | assignment | compare | if_expression | template_call
+    expression      ::= identifier | constant | function | assignment | compare | if_expression
     function        ::= identifier '(' expression [ ',' expression ]* ')'
     compare         ::= expression compare_op expression
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
     if_expression   ::= 'if' expression 'then' expression_list ['else' statement] 'fi'
-    template_call	::= 'call' identifier '(' [expression [,]]* ')'
     assignment      ::= identifier '=' expression
     constant        ::= " string " | ' string ' | number
     identifier      ::= sequence of letters or ``_`` characters
@@ -406,24 +405,24 @@ Program mode also supports the classic relational (comparison) operators: ``==``
 
 General Program Mode support saving General Program Mode templates and calling those templates from another template. You save
 templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
-a template using the ``call`` keyword, passing positional arguments if desired. An argument can be any expression.
-Examples of ``call``, assuming the stored template is named ``foo``:
+a template the same way you call a function, passing positional arguments if desired. An argument can be any expression.
+Examples of calling a template, assuming the stored template is named ``foo``:
 
-    * ``call foo()`` -- call the template passing no arguments.
-    * ``call foo(a, b)`` call the template passing the values of the two variables ``a`` and ``b``.
-    * ``call foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the             ``series_index``, otherwise pass the value ``0``.
+    * ``foo()`` -- call the template passing no arguments.
+    * ``foo(a, b)`` call the template passing the values of the two variables ``a`` and ``b``.
+    * ``foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the             ``series_index``, otherwise pass the value ``0``.
 
-In the stored template you retrieve the arguments passed in ``call`` using the ``arguments`` function. It both declares and
-initializes local variables. The variables are positional; they get the value of the value given to ``call`` in the same position.
-If the corresponding parameter is not provided in the ``call`` then ``arguments`` gives that parameter the provided default value. If there is no default value then the argument is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
+In the stored template you retrieve the arguments passed in the call using the ``arguments`` function. It both declares and
+initializes local variables. The variables are positional; they get the value of the value given in the call in the same position.
+If the corresponding parameter is not provided in the call then ``arguments`` gives that parameter the provided default value. If there is no default value then the argument is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
 
             ``arguments(key, alternate='series')
 
 Examples, again assuming the stored template is named ``foo``:
 
-    * ``call foo('#myseries')`` -- argument``key`` will have the value ``myseries`` and the argument ``alternate`` will have the value ``series``.
-    * ``call foo('series', '#genre')`` the variable ``key`` is assigned the value ``series`` and the variable ``alternate`` is assigned the value ``#genre``.
-    * ``call foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``#genre``.
+    * ``foo('#myseries')`` -- argument``key`` will have the value ``myseries`` and the argument ``alternate`` will have the value ``series``.
+    * ``foo('series', '#genre')`` the variable ``key`` is assigned the value ``series`` and the variable ``alternate`` is assigned the value ``#genre``.
+    * ``foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``#genre``.
 
 An easy way to test stored templates is using the ``Template tester`` dialog. Give it a keyboard shortcut in
 :guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a
