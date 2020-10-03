@@ -7,31 +7,29 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import hashlib
-from functools import partial
 from collections import OrderedDict, namedtuple
-
-from lxml import etree, html
+from functools import partial
+from html5_parser import parse
+from lxml import etree
 from lxml.builder import ElementMaker
 
+from calibre import force_unicode, guess_type, prepare_string_for_xml as xml
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
-from calibre.utils.xml_parse import safe_xml_fromstring
-from calibre.ebooks.metadata import fmt_sidx, authors_to_string, rating_to_stars
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.library.comments import comments_to_html
-from calibre import guess_type, prepare_string_for_xml as xml
-from calibre.utils.icu import sort_key
-from calibre.utils.date import as_utc, timestampfromdt, is_date_undefined
-from calibre.utils.search_query_parser import ParseException
-from calibre.utils.config import prefs
-from calibre import force_unicode
-
-from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
-from calibre.srv.routes import endpoint
+from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound
 from calibre.srv.http_request import parse_uri
-from calibre.srv.utils import get_library_data, http_date, Offsets
-from polyglot.builtins import iteritems, unicode_type, filter, as_bytes
-from polyglot.urllib import urlencode, unquote_plus
+from calibre.srv.routes import endpoint
+from calibre.srv.utils import Offsets, get_library_data, http_date
+from calibre.utils.config import prefs
+from calibre.utils.date import as_utc, is_date_undefined, timestampfromdt
+from calibre.utils.icu import sort_key
+from calibre.utils.search_query_parser import ParseException
+from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_hex_unicode, from_hex_unicode
+from polyglot.builtins import as_bytes, filter, iteritems, unicode_type
+from polyglot.urllib import unquote_plus, urlencode
 
 
 def atom(ctx, rd, endpoint, output):
@@ -42,7 +40,6 @@ def atom(ctx, rd, endpoint, output):
     elif isinstance(output, unicode_type):
         ans = output.encode('utf-8')
     else:
-        from lxml import etree
         ans = etree.tostring(output, encoding='utf-8', xml_declaration=True, pretty_print=True)
     return ans
 
@@ -120,7 +117,8 @@ PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
 
 def html_to_lxml(raw):
     raw = '<div>%s</div>'%raw
-    root = html.fragment_fromstring(raw)
+    root = parse(raw, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
+    root = next(root.iterdescendants('div'))
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
     try:
