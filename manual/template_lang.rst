@@ -509,8 +509,8 @@ The following program produces the same results as the original recipe, using on
 It would be possible to do the above with no custom columns by putting the program into the template box of the plugboard. However, to do so, all comments must be removed because the plugboard text box does not support multi-line editing. It is debatable whether the gain of not having the custom column is worth the vast increase in difficulty caused by the program being one giant line.
 
 
-User-defined python template functions
--------------------------------
+User-defined Python template functions
+------------------------------------------
 
 You can add your own python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to guilabel`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
 

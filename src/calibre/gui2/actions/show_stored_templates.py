@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
+# License: GPLv3 Copyright: 2020, Charles Haley
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.preferences.main import Preferences
@@ -27,4 +22,3 @@ class ShowTemplateFunctionsAction(InterfaceAction):
         d = Preferences(self.gui, initial_plugin=('Advanced', 'TemplateFunctions'),
                 close_after_initial=True)
         d.exec_()
-

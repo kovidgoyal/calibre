@@ -345,7 +345,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def commit(self):
         pref_value = []
         for name, cls in iteritems(self.funcs):
-            print(name)
             if name not in self.builtins:
                 pref_value.append(cls.to_pref())
         for v in self.st_funcs.values():
@@ -359,6 +358,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    from calibre import Application
+    app = Application([])
     test_widget('Advanced', 'TemplateFunctions')
+    del app

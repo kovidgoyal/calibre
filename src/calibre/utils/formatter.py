@@ -307,7 +307,7 @@ class _Parser(object):
         if subprog is None:
             text = self.funcs[name].program_text
             if not text.startswith('program:'):
-                self.error((_('A stored template must begin with program:')))
+                self.error(_('A stored template must begin with program:'))
             text = text[len('program:'):]
             subprog = _Parser().program(self, self.funcs,
                                         self.parent.lex_scanner.scan(text))
@@ -462,7 +462,7 @@ class _Interpreter(object):
 
     def do_node_call(self, prog, args=None):
         if args is None:
-            args = list()
+            args = []
             for arg in prog.expression_list:
                 # evaluate the expression (recursive call)
                 args.append(self.expr(arg))
@@ -475,7 +475,7 @@ class _Interpreter(object):
         return val
 
     def do_node_arguments(self, prog):
-        for dex,arg in enumerate(prog.expression_list):
+        for dex, arg in enumerate(prog.expression_list):
             self.locals[arg.left] = self.locals.get('*arg_'+ str(dex), self.expr(arg.right))
         return ''
 
