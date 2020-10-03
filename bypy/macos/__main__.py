@@ -22,10 +22,7 @@ from itertools import repeat
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version
 )
-from bypy.freeze import (
-    extract_extension_modules, freeze_python, path_to_freeze_dir,
-    save_importer_src_to_header
-)
+from bypy.freeze import extract_extension_modules, freeze_python, path_to_freeze_dir
 from bypy.utils import current_dir, mkdtemp, py_compile, timeit, walk
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
@@ -648,9 +645,8 @@ class Freeze(object):
             os.rename(join(src, x), join(pydir, x))
         os.rmdir(src)
         py_compile(pydir)
-        freeze_python(pydir, dest, self.inc_dir)
+        freeze_python(pydir, dest, self.inc_dir, self.ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
         shutil.rmtree(pydir)
-        save_importer_src_to_header(self.inc_dir, self.ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
 
     def create_app_clone(self, name, specialise_plist, remove_doc_types=False, base_dir=None):
         print('\nCreating ' + name)

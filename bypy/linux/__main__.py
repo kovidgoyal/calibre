@@ -15,10 +15,7 @@ from functools import partial
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, SRC as CALIBRE_DIR, is64bit, python_major_minor_version
 )
-from bypy.freeze import (
-    extract_extension_modules, freeze_python, path_to_freeze_dir,
-    save_importer_src_to_header
-)
+from bypy.freeze import extract_extension_modules, freeze_python, path_to_freeze_dir
 from bypy.utils import (
     create_job, get_dll_path, mkdtemp, parallel_build, py_compile, run, walk
 )
@@ -170,9 +167,8 @@ def copy_python(env, ext_dir):
     print('Extracting extension modules from', env.py_dir, 'to', pdir)
     ext_map.update(extract_extension_modules(env.py_dir, pdir))
     py_compile(env.py_dir)
-    freeze_python(env.py_dir, pdir, env.obj_dir)
+    freeze_python(env.py_dir, pdir, env.obj_dir, ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
     shutil.rmtree(env.py_dir)
-    save_importer_src_to_header(env.obj_dir, ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
 
 
 def build_launchers(env):

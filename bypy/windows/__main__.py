@@ -21,7 +21,7 @@ from bypy.constants import (
 )
 from bypy.freeze import (
     cleanup_site_packages, extract_extension_modules, freeze_python,
-    path_to_freeze_dir, save_importer_src_to_header
+    path_to_freeze_dir
 )
 from bypy.utils import mkdtemp, py_compile, run, walk
 
@@ -213,9 +213,8 @@ def freeze(env, ext_dir, incdir):
     py_compile(env.lib_dir.replace(os.sep, '/'))
     # from bypy.utils import run_shell
     # run_shell(cwd=env.lib_dir)
-    freeze_python(env.lib_dir, env.dll_dir, incdir)
+    freeze_python(env.lib_dir, env.dll_dir, incdir, ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
     shutil.rmtree(env.lib_dir)
-    save_importer_src_to_header(incdir, ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
 
 
 def embed_manifests(env):
