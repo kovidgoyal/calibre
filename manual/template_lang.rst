@@ -512,7 +512,7 @@ It would be possible to do the above with no custom columns by putting the progr
 User-defined Python template functions
 ------------------------------------------
 
-You can add your own python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to guilabel`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
+You can add your own python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
 
 Special notes for save/send templates
 -------------------------------------
