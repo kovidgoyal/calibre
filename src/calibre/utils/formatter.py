@@ -307,7 +307,7 @@ class _Parser(object):
         if subprog is None:
             text = self.funcs[name].program_text
             if not text.startswith('program:'):
-                self.error(_('A stored template must begin with program:'))
+                self.error(_('A stored template must begin with {0}').format('program:'))
             text = text[len('program:'):]
             subprog = _Parser().program(self, self.funcs,
                                         self.parent.lex_scanner.scan(text))
@@ -492,7 +492,7 @@ class _Interpreter(object):
         except ValueError as e:
             raise e
         except:
-            self.error(_('Unknown field {0}').format('parse error'))
+            self.error(_('Unknown field {0}').format('internal parse error'))
 
     def do_node_raw_field(self, prog):
         try:
@@ -508,7 +508,7 @@ class _Interpreter(object):
         except ValueError as e:
             raise e
         except:
-            self.error(_('Unknown field {0}').format('parse error'))
+            self.error(_('Unknown field {0}').format('internal parse error'))
 
     def do_node_assign(self, prog):
         t = self.expr(prog.right)
@@ -699,7 +699,7 @@ class TemplateFormatter(string.Formatter):
                         if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
                                 (func.arg_count > 1 and func.arg_count != len(args)+1):
                             raise ValueError(
-                                _('Incorrect number of arguments for function {0}').format(fmt[0:p]))
+                                _('Incorrect number of arguments for function {0}').format(fname))
                         if func.arg_count == 1:
                             val = func.eval_(self, self.kwargs, self.book, self.locals, val)
                             if self.strip_results:
@@ -788,7 +788,7 @@ class EvalFormatter(TemplateFormatter):
         if key == '':
             return ''
         key = key.lower()
-        return kwargs.get(key, _('No such variable ') + key)
+        return kwargs.get(key, _('No such variable {0}').format(key))
 
 
 # DEPRECATED. This is not thread safe. Do not use.
