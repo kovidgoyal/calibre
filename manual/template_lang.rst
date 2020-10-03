@@ -187,7 +187,7 @@ The example shows several things:
 
 The language is similar to ``functional`` languages in that it is built almost entirely from functions. An expression is generally a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
 
-The syntax of the language is shown by the following grammar. For a discussion of 'compare' and 'if_expression' see :ref:`General Program Mode <general_mode>`:::
+The syntax of the language is shown by the following grammar. For a discussion of 'compare','if_expression', and 'template_call' see :ref:`General Program Mode <general_mode>`:::
 
     program         ::= expression_list
     expression_list ::= expression [ ';' expression ]*
@@ -254,7 +254,7 @@ The following functions are available in addition to those described in single-f
       returns "yes" if the yes/no field ``"#bool"`` is either undefined (neither True nor False) or True. More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.  This function is usually used by the ``test()`` or ``is_empty()`` functions.
     * ``ceiling(x)`` -- returns the smallest integer greater than or equal to x. Throws an exception if x is not a number.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
-	* ``connected_device_name(storage_location)`` -- if a device is connected then return the device name, otherwise return the empty string. Each storage location on a device can have a different name. The location names are 'main', 'carda' and 'cardb'. This function works only in the GUI.
+    * ``connected_device_name(storage_location)`` -- if a device is connected then return the device name, otherwise return the empty string. Each storage location on a device can have a different name. The location names are 'main', 'carda' and 'cardb'. This function works only in the GUI.
     * ``current_library_name()`` -- return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
     * ``current_library_path()`` -- return the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_path()'}``.
     * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
@@ -403,6 +403,31 @@ Program mode also supports the classic relational (comparison) operators: ``==``
     * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
     * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
 
+General Program Mode support saving General Program Mode templates and calling those templates from another template. You save
+templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
+a template the same way you call a function, passing positional arguments if desired. An argument can be any expression.
+Examples of calling a template, assuming the stored template is named ``foo``:
+
+    * ``foo()`` -- call the template passing no arguments.
+    * ``foo(a, b)`` call the template passing the values of the two variables ``a`` and ``b``.
+    * ``foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the             ``series_index``, otherwise pass the value ``0``.
+
+In the stored template you retrieve the arguments passed in the call using the ``arguments`` function. It both declares and
+initializes local variables. The variables are positional; they get the value of the value given in the call in the same position.
+If the corresponding parameter is not provided in the call then ``arguments`` gives that parameter the provided default value. If there is no default value then the argument is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
+
+            ``arguments(key, alternate='series')
+
+Examples, again assuming the stored template is named ``foo``:
+
+    * ``foo('#myseries')`` -- argument``key`` will have the value ``myseries`` and the argument ``alternate`` will have the value ``series``.
+    * ``foo('series', '#genre')`` the variable ``key`` is assigned the value ``series`` and the variable ``alternate`` is assigned the value ``#genre``.
+    * ``foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``#genre``.
+
+An easy way to test stored templates is using the ``Template tester`` dialog. Give it a keyboard shortcut in
+:guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a
+shortcut will help switching more rapidly between the tester and editing the stored template's source code.
+
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 
 The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view::
@@ -484,10 +509,10 @@ The following program produces the same results as the original recipe, using on
 It would be possible to do the above with no custom columns by putting the program into the template box of the plugboard. However, to do so, all comments must be removed because the plugboard text box does not support multi-line editing. It is debatable whether the gain of not having the custom column is worth the vast increase in difficulty caused by the program being one giant line.
 
 
-User-defined template functions
+User-defined python template functions
 -------------------------------
 
-You can add your own functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to Preferences -> Advanced -> Template functions. Instructions are shown in that dialog.
+You can add your own python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to guilabel`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
 
 Special notes for save/send templates
 -------------------------------------

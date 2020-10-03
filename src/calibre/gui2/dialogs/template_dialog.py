@@ -213,7 +213,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
-                 text_is_placeholder=False):
+                 text_is_placeholder=False, dialog_is_st_editor=False):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
@@ -221,6 +221,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.coloring = color_field is not None
         self.iconing = icon_field_key is not None
         self.embleming = doing_emblem
+        self.dialog_is_st_editor = dialog_is_st_editor
 
         cols = []
         if fm is not None:
@@ -273,6 +274,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.icon_kind.setCurrentIndex(dex)
                 self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
 
+        if dialog_is_st_editor:
+            self.buttonBox.setVisible(False)
+        else:
+            self.new_doc_label.setVisible(False)
+            self.new_doc.setVisible(False)
+            self.template_name_label.setVisible(False)
+            self.template_name.setVisible(False)
+
         if mi:
             self.mi = mi
         else:
@@ -294,6 +303,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 from calibre.gui2.ui import get_gui
                 self.mi.set_all_user_metadata(
                       get_gui().current_db.new_api.field_metadata.custom_field_metadata())
+            for col in self.mi.get_all_user_metadata(False):
+                self.mi.set(col, (col,), 0)
 
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -313,6 +324,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         if text is not None:
             if text_is_placeholder:
                 self.textbox.setPlaceholderText(text)
+                self.textbox.clear()
             else:
                 self.textbox.setPlainText(text)
         self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
@@ -429,12 +441,17 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         name = unicode_type(toWhat)
         self.source_code.clear()
         self.documentation.clear()
+        self.func_type.clear()
         if name in self.funcs:
             self.documentation.setPlainText(self.funcs[name].doc)
             if name in self.builtins and name in self.builtin_source_dict:
                 self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
                 self.source_code.setPlainText(self.funcs[name].program_text)
+            if self.funcs[name].is_python:
+                self.func_type.setText(_('Template function in python'))
+            else:
+                self.func_type.setText(_('Stored template'))
 
     def accept(self):
         txt = unicode_type(self.textbox.toPlainText()).rstrip()
@@ -461,6 +478,27 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         else:
             self.rule = ('', txt)
         QDialog.accept(self)
+
+    def reject(self):
+        QDialog.reject(self)
+        if self.dialog_is_st_editor:
+            parent = self.parent()
+            while True:
+                if hasattr(parent, 'reject'):
+                    parent.reject()
+                    break
+                parent = parent.parent()
+                if parent is None:
+                    break
+
+
+class EmbeddedTemplateDialog(TemplateDialog):
+
+    def __init__(self, parent):
+        TemplateDialog.__init__(self, parent, _('A General Program Mode Template'), text_is_placeholder=True,
+                                dialog_is_st_editor=True)
+        self.setParent(parent)
+        self.setWindowFlags(Qt.Widget)
 
 
 if __name__ == '__main__':

@@ -935,6 +935,12 @@ class ActionTemplateTester(InterfaceActionBase):
     description = _('Show an editor for testing templates')
 
 
+class ActionTemplateFunctions(InterfaceActionBase):
+    name = 'Template Functions'
+    actual_plugin = 'calibre.gui2.actions.show_stored_templates:ShowTemplateFunctionsAction'
+    description = _('Show a dialog for creating and managing template functions and stored templates')
+
+
 class ActionSaveToDisk(InterfaceActionBase):
     name = 'Save To Disk'
     actual_plugin = 'calibre.gui2.actions.save_to_disk:SaveToDiskAction'
@@ -1099,7 +1105,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary, ActionBrowseAnnotations]
+        ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions]
 
 # }}}
 

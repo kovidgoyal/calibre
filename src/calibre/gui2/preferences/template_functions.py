@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback
 
-from PyQt5.Qt import QDialogButtonBox
+from PyQt5.Qt import Qt, QDialogButtonBox, QSizePolicy
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -16,7 +16,8 @@ from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.formatter_functions import (formatter_functions,
                         compile_user_function, compile_user_template_functions,
-                        load_user_template_functions)
+                        load_user_template_functions, function_pref_is_python,
+                        function_pref_name)
 from polyglot.builtins import iteritems, native_string_type, unicode_type
 
 
@@ -77,6 +78,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         </p>
         ''')
         self.textBrowser.setHtml(help_text)
+        help_text = '<p>' + _('''
+        Here you can add and remove stored templates used in template processing.
+        You use a stored template in another template with the '{0}' template
+        function, as in '{0}(some_name, arguments...). Stored templates must use
+        General Program Mode -- they must begin with the text '{1}'.
+        In the stored template you retrieve the arguments using the '{2}()'
+        template function, as in '{2}(var1, var2, ...)'. The calling arguments
+        are copied to the named variables. See the template language tutorial
+        for more information.
+        ''') + '</p>'
+        self.st_textBrowser.setHtml(help_text.format('call', 'program:', 'arguments'))
+        self.st_textBrowser.adjustSize()
 
     def initialize(self):
         try:
@@ -86,8 +99,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             traceback.print_exc()
             self.builtin_source_dict = {}
 
-        self.funcs = formatter_functions().get_functions()
+        self.funcs = dict((k,v) for k,v in formatter_functions().get_functions().items()
+                                if v.is_python)
+
         self.builtins = formatter_functions().get_builtins_and_aliases()
+
+        self.st_funcs = {}
+        for v in self.db.prefs.get('user_template_functions', []):
+            if not function_pref_is_python(v):
+                self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[native_string_type].connect(self.function_index_changed)
@@ -105,6 +125,22 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.program.setTabStopWidth(20)
         self.highlighter = PythonHighlighter(self.program.document())
 
+        self.st_build_function_names_box()
+        self.template_editor.template_name.currentIndexChanged[native_string_type].connect(self.st_function_index_changed)
+        self.template_editor.template_name.editTextChanged.connect(self.st_template_name_edited)
+        self.st_create_button.clicked.connect(self.st_create_button_clicked)
+        self.st_delete_button.clicked.connect(self.st_delete_button_clicked)
+        self.st_create_button.setEnabled(False)
+        self.st_delete_button.setEnabled(False)
+        self.st_replace_button.setEnabled(False)
+        self.st_clear_button.clicked.connect(self.st_clear_button_clicked)
+        self.st_replace_button.clicked.connect(self.st_replace_button_clicked)
+
+        self.st_button_layout.insertSpacing(0, 90)
+        self.template_editor.new_doc.setFixedHeight(50)
+
+    # Python funtion tab
+
     def enable_replace_button(self):
         self.replace_button.setEnabled(self.delete_button.isEnabled())
 
@@ -116,16 +152,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.create_button.setEnabled(False)
         self.delete_button.setEnabled(False)
 
-    def build_function_names_box(self, scroll_to='', set_to=''):
+    def build_function_names_box(self, scroll_to=''):
         self.function_name.blockSignals(True)
         func_names = sorted(self.funcs)
         self.function_name.clear()
         self.function_name.addItem('')
         self.function_name.addItems(func_names)
         self.function_name.setCurrentIndex(0)
-        if set_to:
-            self.function_name.setEditText(set_to)
-            self.create_button.setEnabled(True)
         self.function_name.blockSignals(False)
         if scroll_to:
             idx = self.function_name.findText(scroll_to)
@@ -144,18 +177,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
             self.create_button.setEnabled(True)
             self.delete_button.setEnabled(False)
-            self.build_function_names_box(set_to=name)
+            self.build_function_names_box()
             self.program.setReadOnly(False)
         else:
             error_dialog(self.gui, _('Template functions'),
                          _('Function not defined'), show=True)
 
-    def create_button_clicked(self):
+    def create_button_clicked(self, use_name=None):
         self.changed_signal.emit()
-        name = unicode_type(self.function_name.currentText())
+        name = use_name if use_name else unicode_type(self.function_name.currentText())
         if name in self.funcs:
             error_dialog(self.gui, _('Template functions'),
                          _('Name %s already used')%(name,), show=True)
+            return
+        if name in {function_pref_name(v) for v in
+                        self.db.prefs.get('user_template_functions', [])
+                        if not function_pref_is_python(v)}:
+            error_dialog(self.gui, _('Template functions'),
+                         _('Name %s is already used for stored template')%(name,), show=True)
             return
         if self.argument_count.value() == 0:
             box = warning_dialog(self.gui, _('Template functions'),
@@ -215,18 +254,102 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.replace_button.setEnabled(False)
 
     def replace_button_clicked(self):
+        name = unicode_type(self.function_name.currentText())
         self.delete_button_clicked()
-        self.create_button_clicked()
+        self.create_button_clicked(use_name=name)
 
     def refresh_gui(self, gui):
         pass
 
+    # Stored template tab
+
+    def st_clear_button_clicked(self):
+        self.st_build_function_names_box()
+        self.template_editor.textbox.clear()
+        self.template_editor.new_doc.clear()
+        self.st_create_button.setEnabled(False)
+        self.st_delete_button.setEnabled(False)
+
+    def st_build_function_names_box(self, scroll_to=''):
+        self.template_editor.template_name.blockSignals(True)
+        func_names = sorted(self.st_funcs)
+        self.template_editor.template_name.clear()
+        self.template_editor.template_name.addItem('')
+        self.template_editor.template_name.addItems(func_names)
+        self.template_editor.template_name.setCurrentIndex(0)
+        self.template_editor.template_name.blockSignals(False)
+        if scroll_to:
+            idx = self.template_editor.template_name.findText(scroll_to)
+            if idx >= 0:
+                self.template_editor.template_name.setCurrentIndex(idx)
+
+    def st_delete_button_clicked(self):
+        name = unicode_type(self.template_editor.template_name.currentText())
+        if name in self.st_funcs:
+            del self.st_funcs[name]
+            self.changed_signal.emit()
+            self.st_create_button.setEnabled(True)
+            self.st_delete_button.setEnabled(False)
+            self.st_build_function_names_box()
+            self.template_editor.textbox.setReadOnly(False)
+        else:
+            error_dialog(self.gui, _('Stored templates'),
+                         _('Function not defined'), show=True)
+
+    def st_create_button_clicked(self, use_name=None):
+        self.changed_signal.emit()
+        name = use_name if use_name else unicode_type(self.template_editor.template_name.currentText())
+        for k,v in formatter_functions().get_functions().items():
+            if k == name and v.is_python:
+                error_dialog(self.gui, _('Stored templates'),
+                         _('Name %s is already used for template function')%(name,), show=True)
+        try:
+            prog = unicode_type(self.template_editor.textbox.toPlainText())
+            if not prog.startswith('program:'):
+                error_dialog(self.gui, _('Stored templates'),
+                         _('The stored template must begin with "program:"'), show=True)
+
+            cls = compile_user_function(name, unicode_type(self.template_editor.new_doc.toPlainText()),
+                                        0, prog)
+            self.st_funcs[name] = cls
+            self.st_build_function_names_box(scroll_to=name)
+        except:
+            error_dialog(self.gui, _('Stored templates'),
+                         _('Exception while storing template'), show=True,
+                         det_msg=traceback.format_exc())
+
+    def st_template_name_edited(self, txt):
+        b = txt in self.st_funcs
+        self.st_create_button.setEnabled(not b)
+        self.st_replace_button.setEnabled(b)
+        self.st_delete_button.setEnabled(b)
+        self.template_editor.textbox.setReadOnly(False)
+
+    def st_function_index_changed(self, txt):
+        txt = unicode_type(txt)
+        self.st_create_button.setEnabled(False)
+        if not txt:
+            self.template_editor.textbox.clear()
+            self.template_editor.new_doc.clear()
+            return
+        func = self.st_funcs[txt]
+        self.template_editor.new_doc.setPlainText(func.doc)
+        self.template_editor.textbox.setPlainText(func.program_text)
+        self.st_template_name_edited(txt)
+
+    def st_replace_button_clicked(self):
+        name = unicode_type(self.template_editor.template_name.currentText())
+        self.st_delete_button_clicked()
+        self.st_create_button_clicked(use_name=name)
+
     def commit(self):
-        # formatter_functions().reset_to_builtins()
         pref_value = []
         for name, cls in iteritems(self.funcs):
+            print(name)
             if name not in self.builtins:
-                pref_value.append((cls.name, cls.doc, cls.arg_count, cls.program_text))
+                pref_value.append(cls.to_pref())
+        for v in self.st_funcs.values():
+            pref_value.append(v.to_pref())
         self.db.new_api.set_pref('user_template_functions', pref_value)
         funcs = compile_user_template_functions(pref_value)
         self.db.new_api.set_user_template_functions(funcs)

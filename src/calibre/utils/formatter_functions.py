@@ -126,6 +126,7 @@ class FormatterFunction(object):
     category = 'Unknown'
     arg_count = 0
     aliases = []
+    is_python = True
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         raise NotImplementedError()
@@ -1813,17 +1814,36 @@ _formatter_builtins = [
 
 class FormatterUserFunction(FormatterFunction):
 
-    def __init__(self, name, doc, arg_count, program_text):
+    def __init__(self, name, doc, arg_count, program_text, is_python):
+        self.is_python = is_python
         self.name = name
         self.doc = doc
         self.arg_count = arg_count
         self.program_text = program_text
+        self.cached_parse_tree = None
 
+    def to_pref(self):
+        return [self.name, self.doc, self.arg_count, self.program_text]
 
 tabs = re.compile(r'^\t*')
 
 
+def function_pref_is_python(pref):
+    if isinstance(pref, list):
+        pref = pref[3]
+    if pref.startswith('def'):
+        return True
+    if pref.startswith('program'):
+        return False
+    raise ValueError('Unknown program type in formatter function pref')
+
+def function_pref_name(pref):
+    return pref[0]
+
 def compile_user_function(name, doc, arg_count, eval_func):
+    if not function_pref_is_python(eval_func):
+        return FormatterUserFunction(name, doc, arg_count, eval_func, False)
+
     def replace_func(mo):
         return mo.group().replace('\t', '    ')
 
@@ -1838,7 +1858,7 @@ class UserFunction(FormatterUserFunction):
     if DEBUG and tweaks.get('enable_template_debug_printing', False):
         print(prog)
     exec(prog, locals_)
-    cls = locals_['UserFunction'](name, doc, arg_count, eval_func)
+    cls = locals_['UserFunction'](name, doc, arg_count, eval_func, True)
     return cls
 
 
@@ -1855,6 +1875,7 @@ def compile_user_template_functions(funcs):
             # then white space differences don't cause them to compare differently
 
             cls = compile_user_function(*func)
+            cls.is_python = function_pref_is_python(func)
             compiled_funcs[cls.name] = cls
         except Exception:
             try:
@@ -1862,7 +1883,7 @@ def compile_user_template_functions(funcs):
             except Exception:
                 func_name = 'Unknown'
             prints('**** Compilation errors in user template function "%s" ****' % func_name)
-            traceback.print_exc(limit=0)
+            traceback.print_exc(limit=10)
             prints('**** End compilation errors in %s "****"' % func_name)
     return compiled_funcs
 
