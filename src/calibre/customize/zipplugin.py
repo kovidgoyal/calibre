@@ -158,7 +158,7 @@ class CalibrePluginLoader:
                     except Exception:
                         # Maybe the zip file changed from under us
                         src = zf.read(zinfo.filename)
-        return src.decode('utf-8').replace('\r\n', '\n')
+        return src.decode('utf-8-sig').replace('\r\n', '\n')
 
     def get_filename(self, fullname):
         return self.filename
