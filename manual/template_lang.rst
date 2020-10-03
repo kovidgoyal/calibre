@@ -403,7 +403,7 @@ Program mode also supports the classic relational (comparison) operators: ``==``
     * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
     * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
 
-General Program Mode support saving General Program Mode templates and calling those templates from another template. You save
+General Program Mode supports saving General Program Mode templates and calling those templates from another template. You save
 templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
 a template the same way you call a function, passing positional arguments if desired. An argument can be any expression.
 Examples of calling a template, assuming the stored template is named ``foo``:
@@ -420,7 +420,7 @@ If the corresponding parameter is not provided in the call then ``arguments`` gi
 
 Examples, again assuming the stored template is named ``foo``:
 
-    * ``foo('#myseries')`` -- argument``key`` will have the value ``myseries`` and the argument ``alternate`` will have the value ``series``.
+    * ``foo('#myseries')`` -- argument ``key`` will have the value ``myseries`` and the argument ``alternate`` will have the value ``series``.
     * ``foo('series', '#genre')`` the variable ``key`` is assigned the value ``series`` and the variable ``alternate`` is assigned the value ``#genre``.
     * ``foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``#genre``.
 
