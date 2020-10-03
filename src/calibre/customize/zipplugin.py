@@ -251,7 +251,7 @@ class CalibrePluginFinder:
         is_package = bool(
             fullname.count('.') < 2 or
             fullname_in_plugin == '__init__' or
-            (fullname_in_plugin and fullname_in_plugin.endswith('__init__'))
+            (fullname_in_plugin and fullname_in_plugin.endswith('.__init__'))
         )
         if zip_file_path:
             filename = posixpath.join(zip_file_path, *fullname_in_plugin.split('.')) + '.py'
