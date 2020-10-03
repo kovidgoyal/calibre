@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback
 
-from PyQt5.Qt import Qt, QDialogButtonBox, QSizePolicy
+from PyQt5.Qt import QDialogButtonBox
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget

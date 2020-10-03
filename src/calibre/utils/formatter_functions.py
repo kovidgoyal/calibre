@@ -1825,6 +1825,7 @@ class FormatterUserFunction(FormatterFunction):
     def to_pref(self):
         return [self.name, self.doc, self.arg_count, self.program_text]
 
+
 tabs = re.compile(r'^\t*')
 
 
@@ -1837,8 +1838,10 @@ def function_pref_is_python(pref):
         return False
     raise ValueError('Unknown program type in formatter function pref')
 
+
 def function_pref_name(pref):
     return pref[0]
+
 
 def compile_user_function(name, doc, arg_count, eval_func):
     if not function_pref_is_python(eval_func):
