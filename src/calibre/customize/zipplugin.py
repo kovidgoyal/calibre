@@ -147,7 +147,7 @@ class CalibrePluginLoader:
     def is_package(self, fullname):
         return self._is_package
 
-    def get_source(self, fullname=None):
+    def get_source_as_bytes(self, fullname=None):
         src = b''
         if self.plugin_name and self.fullname_in_plugin and self.zip_file_path:
             zinfo = self.names.get(self.fullname_in_plugin)
@@ -158,13 +158,16 @@ class CalibrePluginLoader:
                     except Exception:
                         # Maybe the zip file changed from under us
                         src = zf.read(zinfo.filename)
-        return src.decode('utf-8-sig').replace('\r\n', '\n')
+        return src
+
+    def get_source(self, fullname=None):
+        return self.get_source_as_bytes(fullname).decode('utf-8-sig').replace('\r\n', '\n')
 
     def get_filename(self, fullname):
         return self.filename
 
     def get_code(self, fullname=None):
-        return compile(self.get_source(fullname), f'calibre_plugins.{self.plugin_name}.{self.fullname_in_plugin}',
+        return compile(self.get_source_as_bytes(fullname), f'calibre_plugins.{self.plugin_name}.{self.fullname_in_plugin}',
             'exec', dont_inherit=True)
 
     def exec_module(self, module):
