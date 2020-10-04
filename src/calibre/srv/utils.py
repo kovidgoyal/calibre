@@ -391,7 +391,7 @@ class HandleInterrupt(object):  # {{{
     # On windows socket functions like accept(), recv(), send() are not
     # interrupted by a Ctrl-C in the console. So to make Ctrl-C work we have to
     # use this special context manager. See the echo server example at the
-    # bottom of this file for how to use it.
+    # bottom of srv/loop.py for how to use it.
 
     def __init__(self, action):
         if not iswindows:
@@ -414,12 +414,7 @@ class HandleInterrupt(object):  # {{{
                 if self.action is not None:
                     self.action()
                     self.action = None
-                # Typical C implementations would return 1 to indicate that
-                # the event was processed and other control handlers in the
-                # stack should not be executed.  However, that would
-                # prevent the Python interpreter's handler from translating
-                # CTRL-C to a `KeyboardInterrupt` exception, so we pretend
-                # that we didn't handle it.
+                    return 1
             return 0
         self.handle = handle
 

@@ -20,7 +20,7 @@ from calibre.srv.loop import BadIPSpec, ServerLoop
 from calibre.srv.manage_users_cli import manage_users_cli
 from calibre.srv.opts import opts_to_parser
 from calibre.srv.users import connect
-from calibre.srv.utils import RotatingLog
+from calibre.srv.utils import HandleInterrupt, RotatingLog
 from calibre.utils.config import prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
@@ -188,7 +188,7 @@ def main(args=sys.argv):
         if getattr(opts, 'daemonize', False):
             raise SystemExit(
                 'Cannot specify --auto-reload and --daemonize at the same time')
-        from calibre.srv.auto_reload import auto_reload, NoAutoReload
+        from calibre.srv.auto_reload import NoAutoReload, auto_reload
         try:
             from calibre.utils.logging import default_log
             return auto_reload(default_log, listen_on=opts.listen_on)
@@ -241,7 +241,8 @@ def main(args=sys.argv):
     # Needed for dynamic cover generation, which uses Qt for drawing
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
-    try:
-        server.serve_forever()
-    finally:
-        shutdown_delete_service()
+    with HandleInterrupt(server.stop):
+        try:
+            server.serve_forever()
+        finally:
+            shutdown_delete_service()

@@ -763,7 +763,12 @@ class EchoLine(Connection):  # {{{
 # }}}
 
 
-if __name__ == '__main__':
+def main():
+    print('Starting Echo server')
     s = ServerLoop(EchoLine)
-    with HandleInterrupt(s.wakeup):
+    with HandleInterrupt(s.stop):
         s.serve_forever()
+
+
+if __name__ == '__main__':
+    main()
