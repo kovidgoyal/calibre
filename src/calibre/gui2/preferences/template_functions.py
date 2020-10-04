@@ -1,23 +1,19 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import json, traceback
-
+import json
+import traceback
 from PyQt5.Qt import QDialogButtonBox
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
-from calibre.utils.formatter_functions import (formatter_functions,
-                        compile_user_function, compile_user_template_functions,
-                        load_user_template_functions, function_pref_is_python,
-                        function_pref_name)
+from calibre.utils.formatter_functions import (
+    compile_user_function, compile_user_template_functions, formatter_functions,
+    function_pref_is_python, function_pref_name, load_user_template_functions
+)
 from polyglot.builtins import iteritems, native_string_type, unicode_type
 
 
@@ -194,7 +190,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                         self.db.prefs.get('user_template_functions', [])
                         if not function_pref_is_python(v)}:
             error_dialog(self.gui, _('Template functions'),
-                         _('Name %s is already used for stored template')%(name,), show=True)
+                         _('The name {} is already used for stored template').format(name), show=True)
             return
         if self.argument_count.value() == 0:
             box = warning_dialog(self.gui, _('Template functions'),
@@ -302,7 +298,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for k,v in formatter_functions().get_functions().items():
             if k == name and v.is_python:
                 error_dialog(self.gui, _('Stored templates'),
-                         _('Name %s is already used for template function')%(name,), show=True)
+                         _('The name {} is already used for template function').format(name), show=True)
         try:
             prog = unicode_type(self.template_editor.textbox.toPlainText())
             if not prog.startswith('program:'):

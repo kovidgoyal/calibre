@@ -449,7 +449,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             else:
                 self.source_code.setPlainText(self.funcs[name].program_text)
             if self.funcs[name].is_python:
-                self.func_type.setText(_('Template function in python'))
+                self.func_type.setText(_('Template function in Python'))
             else:
                 self.func_type.setText(_('Stored template'))
 
