@@ -687,8 +687,12 @@ class SelectionBar:
 
         # We try to place the bar near the last dragged handle so it shows up
         # close to current mouse position. We assume it is the "end" handle.
-        if dragged_handle and dragged_handle is not self.end_handle_id:
-            start, end = end, start
+        if dragged_handle:
+            if dragged_handle is not self.end_handle_id:
+                start, end = end, start
+        else:
+            if not cs.start_is_anchor:
+                start, end = end, start
         if not end.onscreen and start.onscreen:
             start, end = end, start
 
