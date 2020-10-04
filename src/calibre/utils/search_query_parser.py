@@ -207,7 +207,6 @@ class Parser(object):
         prog = self.or_expression()
         if not self.is_eof():
             raise ParseException(_('Extra characters at end of search'))
-        # prints(self.tokens, '\n', prog)
         return prog
 
     def or_expression(self):
@@ -334,6 +333,26 @@ class SearchQueryParser(object):
         self._tests_failed = False
         self.optimize = optimize
 
+    def get_queried_fields(self, query):
+        # empty the list of searches used for recursion testing
+        self.recurse_level = 0
+        self.searches_seen = set()
+        tree = self._get_tree(query)
+        yield from self._walk_expr(tree)
+
+    def _walk_expr(self, tree):
+        if tree[0] in ('or', 'and'):
+            yield from self._walk_expr(tree[1])
+            yield from self._walk_expr(tree[2])
+        elif tree[0] == 'not':
+            yield from self._walk_expr(tree[1])
+        else:
+            if tree[1] == 'search':
+                yield from self._walk_expr(self._get_tree(
+                                          self._get_saved_search_text(tree[2])))
+            else:
+                yield (tree[1], tree[2])
+
     def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing
         self.recurse_level = 0
@@ -341,26 +360,32 @@ class SearchQueryParser(object):
         candidates = self.universal_set()
         return self._parse(query, candidates=candidates)
 
+    def _get_tree(self, query):
+        self.recurse_level += 1
+        try:
+            res = self.sqp_parse_cache.get(query, None)
+        except AttributeError:
+            res = None
+        if res is not None:
+            return res
+        try:
+            res = self.parser.parse(query, self.locations)
+        except RuntimeError:
+            raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
+        if self.sqp_parse_cache is not None:
+            self.sqp_parse_cache[query] = res
+        return res
+
     # this parse is used internally because it doesn't clear the
     # recursive search test list. However, we permit seeing the
     # same search a few times because the search might appear within
     # another search.
     def _parse(self, query, candidates=None):
         self.recurse_level += 1
-        try:
-            res = self.sqp_parse_cache.get(query, None)
-        except AttributeError:
-            res = None
-        if res is None:
-            try:
-                res = self.parser.parse(query, self.locations)
-            except RuntimeError:
-                raise ParseException(_('Failed to parse query, recursion limit reached: %s')%repr(query))
-            if self.sqp_parse_cache is not None:
-                self.sqp_parse_cache[query] = res
+        tree = self._get_tree(query)
         if candidates is None:
             candidates = self.universal_set()
-        t = self.evaluate(res, candidates)
+        t = self.evaluate(tree, candidates)
         self.recurse_level -= 1
         return t
 
@@ -393,27 +418,30 @@ class SearchQueryParser(object):
 #     def evaluate_parenthesis(self, argument, candidates):
 #         return self.evaluate(argument[0], candidates)
 
+    def _get_saved_search_text(self, query):
+        if query.startswith('='):
+            query = query[1:]
+        try:
+            if query in self.searches_seen:
+                raise ParseException(_('Recursive saved search: {0}').format(query))
+            if self.recurse_level > 5:
+                self.searches_seen.add(query)
+            ss = self.lookup_saved_search(query)
+            if ss is None:
+                raise ParseException(_('Unknown saved search: {}').format(query))
+            return ss
+        except ParseException as e:
+            raise e
+        except:  # convert all exceptions (e.g., missing key) to a parse error
+            import traceback
+            traceback.print_exc()
+            raise ParseException(_('Unknown error in saved search: {0}').format(query))
+
     def evaluate_token(self, argument, candidates):
         location = argument[0]
         query = argument[1]
         if location.lower() == 'search':
-            if query.startswith('='):
-                query = query[1:]
-            try:
-                if query in self.searches_seen:
-                    raise ParseException(_('Recursive saved search: {0}').format(query))
-                if self.recurse_level > 5:
-                    self.searches_seen.add(query)
-                ss = self.lookup_saved_search(query)
-                if ss is None:
-                    raise ParseException(_('Unknown saved search: {}').format(query))
-                return self._parse(ss, candidates)
-            except ParseException as e:
-                raise e
-            except:  # convert all exceptions (e.g., missing key) to a parse error
-                import traceback
-                traceback.print_exc()
-                raise ParseException(_('Unknown error in saved search: {0}').format(query))
+            return self._parse(self._get_saved_search_text(query), candidates)
         return self._get_matches(location, query, candidates)
 
     def _get_matches(self, location, query, candidates):
