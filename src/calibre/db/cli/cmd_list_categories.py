@@ -25,7 +25,7 @@ def option_parser(get_parser, args):
 %prog list_categories [options]
 
 Produce a report of the category information in the database. The
-information is the equivalent of what is shown in the tags pane.
+information is the equivalent of what is shown in the Tag browser.
 '''
         )
     )

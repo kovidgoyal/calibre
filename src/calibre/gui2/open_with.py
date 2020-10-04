@@ -44,7 +44,7 @@ def run_program(entry, path, parent):
     except Exception as err:
         return error_dialog(
             parent, _('Failed to run'), _(
-            'Failed to run program, click "Show Details" for more information'),
+            'Failed to run program, click "Show details" for more information'),
             det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
     t = Thread(name='WaitProgram', target=process.wait)
     t.daemon = True
@@ -142,7 +142,7 @@ if iswindows:
         except Exception as err:
             return error_dialog(
                 parent, _('Failed to run'), _(
-                'Failed to run program, click "Show Details" for more information'),
+                'Failed to run program, click "Show details" for more information'),
                 det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
     # }}}
 
