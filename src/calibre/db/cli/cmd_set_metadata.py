@@ -137,7 +137,7 @@ def main(opts, args, dbctx):
             'first argument'
         ))
     if len(args) < 2 and not opts.field:
-        raise SystemExit(_('You must specify either a field or an opf file'))
+        raise SystemExit(_('You must specify either a field or an OPF file'))
     book_id = int(args[0])
 
     if len(args) > 1:
