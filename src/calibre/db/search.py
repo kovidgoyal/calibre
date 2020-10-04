@@ -926,6 +926,20 @@ class Search(object):
         finally:
             sqp.dbcache = sqp.lookup_saved_search = None
 
+    def _use_cache(self, sqp, dbcache, query):
+        if query:
+            for name, value in sqp.get_queried_fields(query):
+                if name == 'template' and '#@#:d:' in value:
+                    return False
+                elif name in dbcache.field_metadata.all_field_keys():
+                    fm = dbcache.field_metadata[name]
+                    if fm['datatype'] == 'datetime':
+                        return False
+                    if fm['datatype'] == 'composite':
+                        if fm.get('display', {}).get('composite_sort', '') == 'date':
+                            return False
+        return True
+
     def _do_search(self, sqp, query, search_restriction, dbcache, book_ids=None):
         ''' Do the search, caching the results. Results are cached only if the
         search is on the full library and no virtual field is searched on '''
@@ -935,30 +949,36 @@ class Search(object):
             query = query.decode('utf-8')
 
         query = query.strip()
-        if book_ids is None and query and not search_restriction:
+        use_cache = self._use_cache(sqp, dbcache, query)
+
+        if use_cache and book_ids is None and query and not search_restriction:
             cached = self.cache.get(query)
             if cached is not None:
                 return cached
 
         restricted_ids = all_book_ids = dbcache._all_book_ids(type=set)
         if search_restriction and search_restriction.strip():
-            cached = self.cache.get(search_restriction.strip())
-            if cached is None:
-                sqp.all_book_ids = all_book_ids if book_ids is None else book_ids
-                restricted_ids = sqp.parse(search_restriction)
-                if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
-                    self.cache.add(search_restriction.strip(), restricted_ids)
+            sr = search_restriction.strip()
+            sqp.all_book_ids = all_book_ids if book_ids is None else book_ids
+            if self._use_cache(sqp, dbcache, sr):
+                cached = self.cache.get(sr)
+                if cached is None:
+                    restricted_ids = sqp.parse(sr)
+                    if not sqp.virtual_field_used and sqp.all_book_ids is all_book_ids:
+                        self.cache.add(sr, restricted_ids)
+                else:
+                    restricted_ids = cached
+                    if book_ids is not None:
+                        restricted_ids = book_ids.intersection(restricted_ids)
             else:
-                restricted_ids = cached
-                if book_ids is not None:
-                    restricted_ids = book_ids.intersection(restricted_ids)
+                restricted_ids = sqp.parse(sr)
         elif book_ids is not None:
             restricted_ids = book_ids
 
         if not query:
             return restricted_ids
 
-        if restricted_ids is all_book_ids:
+        if use_cache and restricted_ids is all_book_ids:
             cached = self.cache.get(query)
             if cached is not None:
                 return cached
