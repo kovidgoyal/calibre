@@ -660,7 +660,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                                                   cover_as_data=True)
                         newmi = None
                         if use_plugboard and format.lower() in plugboard_formats:
-                            plugboards = self.new_api.pref('plugboards', {})
+                            plugboards = self.db.new_api.pref('plugboards', {})
                             cpb = find_plugboard(use_plugboard, format.lower(),
                                                  plugboards)
                             if cpb:
