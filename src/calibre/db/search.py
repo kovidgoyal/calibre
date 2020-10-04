@@ -926,7 +926,7 @@ class Search(object):
         finally:
             sqp.dbcache = sqp.lookup_saved_search = None
 
-    def _use_cache(self, sqp, dbcache, query):
+    def query_is_cacheable(self, sqp, dbcache, query):
         if query:
             for name, value in sqp.get_queried_fields(query):
                 if name == 'template' and '#@#:d:' in value:
@@ -949,7 +949,7 @@ class Search(object):
             query = query.decode('utf-8')
 
         query = query.strip()
-        use_cache = self._use_cache(sqp, dbcache, query)
+        use_cache = self.query_is_cacheable(sqp, dbcache, query)
 
         if use_cache and book_ids is None and query and not search_restriction:
             cached = self.cache.get(query)
@@ -960,7 +960,7 @@ class Search(object):
         if search_restriction and search_restriction.strip():
             sr = search_restriction.strip()
             sqp.all_book_ids = all_book_ids if book_ids is None else book_ids
-            if self._use_cache(sqp, dbcache, sr):
+            if self.query_is_cacheable(sqp, dbcache, sr):
                 cached = self.cache.get(sr)
                 if cached is None:
                     restricted_ids = sqp.parse(sr)

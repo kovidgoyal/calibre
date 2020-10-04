@@ -351,7 +351,7 @@ class SearchQueryParser(object):
                 yield from self._walk_expr(self._get_tree(
                                           self._get_saved_search_text(tree[2])))
             else:
-                yield (tree[1], tree[2])
+                yield tree[1], tree[2]
 
     def parse(self, query, candidates=None):
         # empty the list of searches used for recursion testing
