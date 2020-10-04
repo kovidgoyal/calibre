@@ -137,7 +137,7 @@ class IframeBoss:
             'scroll_to_ref': self.on_scroll_to_ref,
             'set_reference_mode': self.set_reference_mode,
             'toggle_autoscroll': self.toggle_autoscroll,
-            'wheel_from_margin': self.wheel_from_margin,
+            'fake_wheel_event': self.fake_wheel_event,
             'window_size': self.received_window_size,
             'overlay_visibility_changed': self.on_overlay_visibility_changed,
             'show_search_result': self.show_search_result,
@@ -305,7 +305,8 @@ class IframeBoss:
     def gesture_from_margin(self, data):
         self.handle_gesture(data.gesture)
 
-    def wheel_from_margin(self, data):
+    def fake_wheel_event(self, data):
+        # these are wheel events from margin or selection mode
         self.onwheel(data.evt)
 
     def report_human_scroll(self, scrolled_by_frac):

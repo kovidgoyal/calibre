@@ -389,10 +389,13 @@ class View:
 
     def on_margin_wheel(self, which, event):
         event.preventDefault()
-        evt = {}
+        self.send_wheel_event_to_iframe(event, f'margin-{which}')
+
+    def send_wheel_event_to_iframe(self, event, location):
+        evt = {'location': location}
         for attr in ('deltaX', 'deltaY', 'deltaMode', 'altKey', 'ctrlKey', 'shiftKey', 'metaKey'):
             evt[attr] = event[attr]
-        self.iframe_wrapper.send_message('wheel_from_margin', evt=evt)
+        self.iframe_wrapper.send_message('fake_wheel_event', evt=evt)
 
     def forward_gesture(self, gesture):
         self.iframe_wrapper.send_message('gesture_from_margin', gesture=gesture)
