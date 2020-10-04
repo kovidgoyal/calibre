@@ -77,7 +77,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         help_text = '<p>' + _('''
         Here you can add and remove stored templates used in template processing.
         You use a stored template in another template with the '{0}' template
-        function, as in '{0}(some_name, arguments...). Stored templates must use
+        function, as in '{0}(some_name, arguments...)'. Stored templates must use
         General Program Mode -- they must begin with the text '{1}'.
         In the stored template you retrieve the arguments using the '{2}()'
         template function, as in '{2}(var1, var2, ...)'. The calling arguments
