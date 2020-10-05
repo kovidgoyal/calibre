@@ -973,7 +973,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_paint_results(self, txt):
         self.s_r_error = None
         self.s_r_set_colors()
-        flags = regex.VERSION1 | regex.FULLCASE | regex.UNICODE
+        flags = regex.FULLCASE | regex.UNICODE
 
         if self.case_sensitive.isChecked():
             flags |= regex.IGNORECASE
@@ -983,9 +983,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if not stext:
                 raise Exception(_('You must specify a search expression in the "Search for" field'))
             if self.search_mode.currentIndex() == 0:
-                self.s_r_obj = regex.compile(regex.escape(stext), flags)
+                self.s_r_obj = regex.compile(regex.escape(stext), flags | regex.V1)
             else:
-                self.s_r_obj = regex.compile(stext, flags)
+                try:
+                    self.s_r_obj = regex.compile(stext, flags | regex.V1)
+                except regex.error:
+                    self.s_r_obj = regex.compile(stext, flags)
         except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
