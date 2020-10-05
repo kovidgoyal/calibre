@@ -192,7 +192,15 @@ class MobiReader(object):
         except Exception:
             self.log.warning('MOBI markup appears to contain random bytes. Stripping.')
             self.processed_html = self.remove_random_bytes(self.processed_html)
-            root = html.fromstring(self.processed_html)
+            try:
+                root = html.fromstring(self.processed_html)
+            except Exception:
+                self.log.warning('MOBI markup could not be parsed by lxml using html5-parser')
+                # Happens on windows with python 3 where lxml causes libxml to die with an
+                # error about using UCS-4 little endian encoding if certain
+                # characters are present in the input
+                from html5_parser import parse
+                root = parse(self.processed_html, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
         if root.xpath('descendant::p/descendant::p'):
             from html5_parser import parse
             self.log.warning('Malformed markup, parsing using html5-parser')
