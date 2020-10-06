@@ -1805,6 +1805,8 @@ class DB(object):
         ls = json.loads
         try:
             for (rowid, book_id, fmt, user_type, user, annot_data, text) in self.execute(query, tuple(data)):
+                if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
+                    continue
                 try:
                     parsed_annot = ls(annot_data)
                 except Exception:
@@ -1875,7 +1877,7 @@ class DB(object):
                     self.execute('UPDATE annotations SET annot_data=?, timestamp=?, annot_type=?, searchable_text=?, annot_id=? WHERE id=?',
                         (json.dumps(annot), timestamp, atype, text, aid, annot_id))
 
-    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False):
+    def all_annotations(self, restrict_to_user=None, limit=None, annotation_type=None, ignore_removed=False, restrict_to_book_ids=None):
         ls = json.loads
         q = 'SELECT id, book, format, user_type, user, annot_data FROM annotations'
         data = []
@@ -1891,6 +1893,8 @@ class DB(object):
         q += ' ORDER BY timestamp DESC '
         count = 0
         for (rowid, book_id, fmt, user_type, user, annot_data) in self.execute(q, tuple(data)):
+            if restrict_to_book_ids is not None and book_id not in restrict_to_book_ids:
+                continue
             try:
                 annot = ls(annot_data)
                 atype = annot['type']
