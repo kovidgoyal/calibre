@@ -21,6 +21,7 @@ from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
 
+# rendering {{{
 def render_highlight_as_text(hl, lines):
     lines.append(hl['highlighted_text'])
     date = QDateTime.fromString(hl['timestamp'], Qt.ISODate).toLocalTime().toString(Qt.SystemLocaleShortDate)
@@ -43,7 +44,59 @@ def render_bookmark_as_text(b, lines):
     lines.append('')
 
 
-class Export(Dialog):
+def render_notes(notes, tag='p'):
+    current_lines = []
+    for line in notes.splitlines():
+        if line:
+            current_lines.append(line)
+        else:
+            if current_lines:
+                yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
+                current_lines = []
+    if current_lines:
+        yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
+
+
+def friendly_username(user_type, user):
+    key = user_type, user
+    if key == ('web', '*'):
+        return _('Anonymous Content server user')
+    if key == ('local', 'viewer'):
+        return _('Local E-book viewer user')
+    return user
+
+
+def annotation_title(atype, singular=False):
+    if singular:
+        return {'bookmark': _('Bookmark'), 'highlight': _('Highlight')}.get(atype, atype)
+    return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
+
+
+class AnnotsResultsDelegate(ResultsDelegate):
+
+    add_ellipsis = False
+    emphasize_text = True
+
+    def result_data(self, result):
+        if not isinstance(result, dict):
+            return None, None, None, None
+        full_text = result['text'].replace('\x1f', ' ')
+        parts = full_text.split('\x1d', 2)
+        before = after = ''
+        if len(parts) > 2:
+            before, text = parts[:2]
+            after = parts[2].replace('\x1d', '')
+        elif len(parts) == 2:
+            before, text = parts
+        else:
+            text = parts[0]
+        return False, before, text, after
+
+
+# }}}
+
+
+class Export(Dialog):  # {{{
 
     prefs = gprefs
     pref_name = 'annots_export_format'
@@ -120,39 +173,12 @@ class Export(Dialog):
                     render_bookmark_as_text(a, lines)
             lines.append('')
         return '\n'.join(lines).strip()
-
-
-def render_notes(notes, tag='p'):
-    current_lines = []
-    for line in notes.splitlines():
-        if line:
-            current_lines.append(line)
-        else:
-            if current_lines:
-                yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
-                current_lines = []
-    if current_lines:
-        yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
-
-
-def friendly_username(user_type, user):
-    key = user_type, user
-    if key == ('web', '*'):
-        return _('Anonymous Content server user')
-    if key == ('local', 'viewer'):
-        return _('Local E-book viewer user')
-    return user
+# }}}
 
 
 def current_db():
     from calibre.gui2.ui import get_gui
     return (getattr(current_db, 'ans', None) or get_gui().current_db).new_api
-
-
-def annotation_title(atype, singular=False):
-    if singular:
-        return {'bookmark': _('Bookmark'), 'highlight': _('Highlight')}.get(atype, atype)
-    return {'bookmark': _('Bookmarks'), 'highlight': _('Highlights')}.get(atype, atype)
 
 
 class BusyCursor(object):
@@ -162,27 +188,6 @@ class BusyCursor(object):
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
-
-
-class AnnotsResultsDelegate(ResultsDelegate):
-
-    add_ellipsis = False
-    emphasize_text = True
-
-    def result_data(self, result):
-        if not isinstance(result, dict):
-            return None, None, None, None
-        full_text = result['text'].replace('\x1f', ' ')
-        parts = full_text.split('\x1d', 2)
-        before = after = ''
-        if len(parts) > 2:
-            before, text = parts[:2]
-            after = parts[2].replace('\x1d', '')
-        elif len(parts) == 2:
-            before, text = parts
-        else:
-            text = parts[0]
-        return False, before, text, after
 
 
 class ResultsList(QTreeWidget):
