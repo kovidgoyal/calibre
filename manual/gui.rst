@@ -716,6 +716,8 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Edit book
     * - :kbd:`V`
       - View
+    * - :kbd:`Shift+V`
+      - View last read book
     * - :kbd:`Alt+V/Cmd+V in macOS`
       - View specific format
     * - :kbd:`Alt+Shift+J`
