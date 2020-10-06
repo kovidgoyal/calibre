@@ -25,17 +25,22 @@ class BrowseAnnotationsAction(InterfaceAction):
     def browser(self):
         if self._browser is None:
             from calibre.gui2.library.annotations import AnnotationsBrowser
+            self.gui.library_view.selection_changed.connect(self.selection_changed)
             self._browser = AnnotationsBrowser(self.gui)
             self._browser.show_book.connect(self.open_book, type=Qt.QueuedConnection)
             self._browser.open_annotation.connect(self.open_annotation, type=Qt.QueuedConnection)
         return self._browser
 
     def show_browser(self):
-        self.browser.show_dialog()
+        self.browser.show_dialog(self.gui.library_view.get_selected_ids(as_set=True))
 
     def library_changed(self, db):
         if self._browser is not None:
             self._browser.reinitialize()
+
+    def selection_changed(self):
+        if self._browser is not None:
+            self._browser.selection_changed()
 
     def open_book(self, book_id, fmt):
         self.gui.library_view.select_rows({book_id})

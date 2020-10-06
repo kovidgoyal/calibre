@@ -206,6 +206,7 @@ class BooksView(QTableView):  # {{{
 
     files_dropped = pyqtSignal(object)
     books_dropped = pyqtSignal(object)
+    selection_changed = pyqtSignal()
     add_column_signal = pyqtSignal()
     is_library_view = True
 
@@ -288,6 +289,7 @@ class BooksView(QTableView):  # {{{
             wv.setSelectionBehavior(QAbstractItemView.SelectRows)
             wv.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
+        self.selectionModel().selectionChanged.connect(self.selection_changed.emit)
         self.preserve_state = partial(PreserveViewState, self)
         self.marked_changed_listener = FunctionDispatcher(self.marked_changed)
 
@@ -1235,15 +1237,17 @@ class BooksView(QTableView):  # {{{
                 m.index(max(group), max_col)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
 
-    def get_selected_ids(self):
+    def get_selected_ids(self, as_set=False):
         ans = []
+        seen = set()
         m = self.model()
         for idx in self.selectedIndexes():
             r = idx.row()
             i = m.id(r)
-            if i not in ans:
+            if i not in seen:
                 ans.append(i)
-        return ans
+                seen.add(i)
+        return seen if as_set else ans
 
     @property
     def current_id(self):
