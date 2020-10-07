@@ -136,7 +136,11 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
         try:
             pat = regex.compile(prefs.get('filename_pattern'), flags=regex.UNICODE | regex.VERSION1 | regex.FULLCASE)
         except Exception:
-            pat = regex.compile(prefs.get('filename_pattern'), flags=regex.UNICODE | regex.VERSION0 | regex.FULLCASE)
+            try:
+                pat = regex.compile(prefs.get('filename_pattern'), flags=regex.UNICODE | regex.VERSION0 | regex.FULLCASE)
+            except Exception:
+                pat = regex.compile('(?P<title>.+) - (?P<author>[^_]+)', flags=regex.UNICODE | regex.VERSION0 | regex.FULLCASE)
+
     name = name.replace('_', ' ')
     match = pat.search(name)
     if match is None and fallback_pat is not None:
