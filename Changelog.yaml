@@ -22,6 +22,52 @@
 #       author:
 
 
+- version: 5.2.0
+  date: 2020-10-07
+
+  new features:
+    - title: "Browse annotations: Add a check box to restrict the displayed annotations to only the books currently selected in the calibre library."
+      tickets: [1897354]
+
+    - title: "Allow storing and calling functions in the calibre template language (Preferences->Template functions)"
+
+    - title: "Add a shortcut (Shift+V) to open the last read book."
+      tickets: [1897336]
+
+  bug fixes:
+    - title: "Fix import errors with some third party plugin on Windows"
+
+    - title: "Viewer: Fix toolbar show controls button not working when no book is open."
+      tickets: [1898598]
+
+    - title: "Viewer: Fix incorrect positioning of context menu for viewer toolbar."
+      tickets: [1898577]
+
+    - title: "MOBI Input: Fix regression that broke reading of some documents"
+
+    - title: "Bulk metadata search and replace: Fix some regular expression causing errors with the new regex engine"
+
+    - title: "Fix a regression that broke application of plugboards when sending by e-mail"
+
+    - title: "ODT Input: Fix a regression that broke conversion of ODT files with footnotes."
+      tickets: [1898441]
+
+    - title: "Viewer: Fix mouse wheel not working while selection bar is visible"
+      tickets: [1898413]
+
+    - title: "Viewer: Fix selection popup bar not always close to mouse when ending select-to-drag"
+
+    - title: "Fix calibre-server not exiting on Ctrl+c on Windows"
+
+    - title: "Content server OPDS feeds: Fix error if the metadata for a book contains particular unicode characters."
+      tickets: [1897410]
+
+    - title: "Edit book: Reports tool: Fix a regression that broke sorting."
+      tickets: [1898167]
+
+    - title: "HTMLZ Output: Fix an error when converting a document that has SVG images"
+
+
 - version: 5.1.0
   date: 2020-10-02
 
