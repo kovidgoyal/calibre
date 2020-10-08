@@ -192,7 +192,11 @@ winutil_read_file(PyObject *self, PyObject *args) {
     PyObject *ans = PyBytes_FromStringAndSize(NULL, chunk_size);
     if (!ans) return PyErr_NoMemory();
     DWORD bytes_read;
-    if (!ReadFile(PyLong_AsVoidPtr(handle), PyBytes_AS_STRING(ans), chunk_size, &bytes_read, NULL)) {
+    BOOL ok;
+    Py_BEGIN_ALLOW_THREADS;
+    ok = ReadFile(PyLong_AsVoidPtr(handle), PyBytes_AS_STRING(ans), chunk_size, &bytes_read, NULL);
+    Py_END_ALLOW_THREADS;
+    if (!ok) {
         Py_DECREF(ans);
         return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
     }
