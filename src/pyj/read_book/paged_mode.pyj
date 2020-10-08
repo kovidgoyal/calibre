@@ -386,11 +386,11 @@ def scroll_to_pos(pos, notify=False, duration=1000):
     scroll_to_column(column_at(pos), notify=notify, duration=duration)
 
 
-def scroll_to_previous_position():
-    fsd = next_spine_item.forward_scroll_data
+def scroll_to_previous_position(fsd):
+    fsd = fsd or next_spine_item.forward_scroll_data
     next_spine_item.forward_scroll_data = None
     if 0 < fsd.cols_left < cols_per_screen and cols_per_screen < number_of_cols:
-        scroll_resize_bug_watcher.last_command = scroll_to_previous_position
+        scroll_resize_bug_watcher.last_command = scroll_to_previous_position.bind(None, fsd)
         scroll_to_column(fsd.current_col)
         return True
 
@@ -410,13 +410,17 @@ def column_boundaries():
     l = column_at(current_scroll_offset() + 10)
     return l, l + cols_per_screen
 
+
+def column_at_current_scroll_offset():
+    return column_at(current_scroll_offset() + 10)
+
+
 def current_column_location():
     # The location of the starting edge of the first column currently
     # visible in the viewport
     if is_full_screen_layout:
         return 0
-    c = column_at(current_scroll_offset() + 10)
-    return c * col_and_gap
+    return column_at_current_scroll_offset() * col_and_gap
 
 
 def number_of_cols_left():
@@ -467,7 +471,10 @@ def next_col_location():
     limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
     # print(f'cc={cc} col_and_gap={col_and_gap} ans={ans} limit={limit} content_inline_size={scroll_viewport.paged_content_inline_size()} inline={scroll_viewport.inline_size()} current_scroll_offset={current_scroll_offset()}')
     if ans > limit:
-        ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
+        if Math.ceil(current_scroll_offset()) < limit and column_at(limit) > column_at_current_scroll_offset():
+            ans = limit
+        else:
+            ans = -1
     return ans
 
 
@@ -480,7 +487,10 @@ def previous_col_location():
     cc = current_column_location()
     ans = cc - col_and_gap
     if ans < 0:
-        ans = 0 if Math.floor(current_scroll_offset()) > 0 else -1
+        if Math.floor(current_scroll_offset()) > 0 and column_at(0) < column_at_current_scroll_offset():
+            ans = 0
+        else:
+            ans = -1
     return ans
 
 
