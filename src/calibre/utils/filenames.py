@@ -219,34 +219,10 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     return ans, fpath
 
 
-def old_windows_get_fileid(path):
-    # we dont use this anymore as the win32 implementation reads the windows
-    # registry to convert file times which is slow and breaks on systems with
-    # registry issues.
-    import win32file
-    from pywintypes import error
-    if isbytestring(path):
-        path = path.decode(filesystem_encoding)
-    try:
-        h = win32file.CreateFileW(path, 0, 0, None, win32file.OPEN_EXISTING,
-                win32file.FILE_FLAG_BACKUP_SEMANTICS, 0)
-        try:
-            data = win32file.GetFileInformationByHandle(h)
-        finally:
-            win32file.CloseHandle(h)
-    except (error, EnvironmentError):
-        return None
-    return data[4], data[8], data[9]
-
-
 def windows_get_fileid(path):
     ''' The fileid uniquely identifies actual file contents (it is the same for
     all hardlinks to a file). Similar to inode number on linux. '''
-    try:
-        get_file_id = plugins['winutil'][0].get_file_id
-    except AttributeError:
-        # running from source without updating binary
-        return old_windows_get_fileid(path)
+    get_file_id = plugins['winutil'][0].get_file_id
     if isbytestring(path):
         path = path.decode(filesystem_encoding)
     with suppress(OSError):

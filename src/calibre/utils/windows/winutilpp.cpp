@@ -131,16 +131,108 @@ py_to_wchar(PyObject *obj, wchar_raii *output) {
 		return 0;
 	}
     wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
+    if (!buf) { PyErr_NoMemory(); return 0; }
 	output->set_ptr(buf);
 	return 1;
+}
+
+static inline int
+py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
+	if (!PyUnicode_Check(obj)) {
+		PyErr_SetString(PyExc_TypeError, "unicode object expected");
+		return 0;
+	}
+    wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
+    if (!buf) { PyErr_NoMemory(); return 0; }
+	output->set_ptr(buf);
+	return 1;
+}
+
+static PyObject*
+set_error_from_file_handle(HANDLE h) {
+    int error_code = GetLastError();
+    wchar_t buf[4096] = {0};
+    if (GetFinalPathNameByHandleW(h, buf, 4095, FILE_NAME_OPENED)) {
+        PyObject *fname = PyUnicode_FromWideChar(buf, -1);
+        if (fname) {
+            PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, error_code, fname);
+            Py_DECREF(fname);
+            return NULL;
+        }
+    }
+    return PyErr_SetFromWindowsErr(error_code);
 }
 
 extern "C" {
 
 PyObject*
+winutil_read_file(PyObject *self, PyObject *args) {
+    unsigned long chunk_size = 16 * 1024;
+    PyObject *handle;
+    if (!PyArg_ParseTuple(args, "O!|k", &PyLong_Type, &handle, &chunk_size)) return NULL;
+    PyObject *ans = PyBytes_FromStringAndSize(NULL, chunk_size);
+    if (!ans) return PyErr_NoMemory();
+    DWORD bytes_read;
+    if (!ReadFile(PyLong_AsVoidPtr(handle), PyBytes_AS_STRING(ans), chunk_size, &bytes_read, NULL)) {
+        Py_DECREF(ans);
+        return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
+    }
+    if (bytes_read < chunk_size) _PyBytes_Resize(&ans, bytes_read);
+    return ans;
+}
+
+
+PyObject*
+winutil_get_file_size(PyObject *self, PyObject *pyhandle) {
+    if (!PyLong_Check(pyhandle)) { PyErr_SetString(PyExc_TypeError, "handle must be an int"); return NULL; }
+    LARGE_INTEGER ans = {0};
+    if (!GetFileSizeEx(PyLong_AsVoidPtr(pyhandle), &ans)) return set_error_from_file_handle(PyLong_AsVoidPtr(pyhandle));
+    return PyLong_FromLongLong(ans.QuadPart);
+}
+
+PyObject*
+winutil_set_file_pointer(PyObject *self, PyObject *args) {
+    PyObject *handle; unsigned long move_method = FILE_BEGIN;
+    LARGE_INTEGER pos = {0};
+    if (!PyArg_ParseTuple(args, "O!L|k", &PyLong_Type, &handle, &pos.QuadPart, &move_method)) return NULL;
+    LARGE_INTEGER ans = {0};
+    if (!SetFilePointerEx(PyLong_AsVoidPtr(handle), pos, &ans, move_method)) return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
+    return PyLong_FromLongLong(ans.QuadPart);
+}
+
+PyObject*
+winutil_create_file(PyObject *self, PyObject *args) {
+	wchar_raii path;
+    unsigned long desired_access, share_mode, creation_disposition, flags_and_attributes;
+	if (!PyArg_ParseTuple(args, "O&kkkk", py_to_wchar_no_none, &path, &desired_access, &share_mode, &creation_disposition, &flags_and_attributes)) return NULL;
+    HANDLE h = CreateFileW(
+        path.ptr(), desired_access, share_mode, NULL, creation_disposition, flags_and_attributes, NULL
+    );
+    if (h == INVALID_HANDLE_VALUE) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    return PyLong_FromVoidPtr(h);
+}
+
+PyObject*
+winutil_delete_file(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+    if (!DeleteFileW(path.ptr())) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    Py_RETURN_NONE;
+}
+
+PyObject*
+winutil_create_hard_link(PyObject *self, PyObject *args) {
+	wchar_raii path, existing_path;
+	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar_no_none, &path, py_to_wchar_no_none, &existing_path)) return NULL;
+    if (!CreateHardLinkW(path.ptr(), existing_path.ptr(), NULL)) return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1));
+    Py_RETURN_NONE;
+}
+
+
+PyObject*
 winutil_get_file_id(PyObject *self, PyObject *args) {
 	wchar_raii path;
-	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
 	if (path.ptr()) {
 		handle_raii file_handle(CreateFileW(path.ptr(), 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL));
 		if (!file_handle) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
@@ -152,6 +244,28 @@ winutil_get_file_id(PyObject *self, PyObject *args) {
 	}
 	Py_RETURN_NONE;
 }
+
+PyObject*
+winutil_nlinks(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+    handle_raii file_handle(CreateFileW(path.ptr(), 0, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL));
+    if (!file_handle) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    BY_HANDLE_FILE_INFORMATION info = {0};
+    BOOL ok = GetFileInformationByHandle(file_handle.ptr(), &info);
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    unsigned long ans = info.nNumberOfLinks;
+    return PyLong_FromUnsignedLong(ans);
+}
+
+PyObject*
+winutil_set_file_attributes(PyObject *self, PyObject *args) {
+	wchar_raii path; unsigned long attrs;
+	if (!PyArg_ParseTuple(args, "O&k", py_to_wchar_no_none, &path, &attrs)) return NULL;
+    if (!SetFileAttributes(path.ptr(), attrs)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    Py_RETURN_NONE;
+}
+
 
 PyObject *
 winutil_add_to_recent_docs(PyObject *self, PyObject *args) {

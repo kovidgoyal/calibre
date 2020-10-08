@@ -369,7 +369,14 @@ winutil_strftime(PyObject *self, PyObject *args)
     return NULL;
 }
 
-static char winutil_doc[] = "Defines utility methods to interface with windows.";
+static PyObject*
+winutil_close_handle(PyObject *self, PyObject *pyhandle) {
+    if (!PyLong_Check(pyhandle)) { PyErr_SetString(PyExc_TypeError, "handle must be an int"); return NULL; }
+    if (!CloseHandle(PyLong_AsVoidPtr(pyhandle))) return PyErr_SetFromWindowsErr(0);
+    Py_RETURN_NONE;
+}
+
+static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 extern PyObject *winutil_add_to_recent_docs(PyObject *self, PyObject *args);
 extern PyObject *winutil_file_association(PyObject *self, PyObject *args);
 extern PyObject *winutil_friendly_name(PyObject *self, PyObject *args);
@@ -377,6 +384,14 @@ extern PyObject *winutil_notify_associations_changed(PyObject *self, PyObject *a
 extern PyObject *winutil_move_to_trash(PyObject *self, PyObject *args);
 extern PyObject *winutil_manage_shortcut(PyObject *self, PyObject *args);
 extern PyObject *winutil_get_file_id(PyObject *self, PyObject *args);
+extern PyObject *winutil_create_file(PyObject *self, PyObject *args);
+extern PyObject *winutil_delete_file(PyObject *self, PyObject *args);
+extern PyObject *winutil_create_hard_link(PyObject *self, PyObject *args);
+extern PyObject *winutil_nlinks(PyObject *self, PyObject *args);
+extern PyObject *winutil_set_file_attributes(PyObject *self, PyObject *args);
+extern PyObject *winutil_get_file_size(PyObject *self, PyObject *args);
+extern PyObject *winutil_set_file_pointer(PyObject *self, PyObject *args);
+extern PyObject *winutil_read_file(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -472,6 +487,42 @@ be a unicode string. Returns unicode strings."
         "get_file_id(path)\n\nGet the windows file id (volume_num, file_index_high, file_index_low)"
     },
 
+    {"create_file", (PyCFunction)winutil_create_file, METH_VARARGS,
+        "create_file(path, desired_access, share_mode, creation_disposition, flags_and_attributes)\n\nWrapper for CreateFile"
+    },
+
+    {"get_file_size", (PyCFunction)winutil_get_file_size, METH_O,
+        "get_file_size(handle)\n\nWrapper for GetFileSizeEx"
+    },
+
+    {"set_file_pointer", (PyCFunction)winutil_set_file_pointer, METH_VARARGS,
+        "set_file_pointer(handle, pos, method=FILE_BEGIN)\n\nWrapper for SetFilePointer"
+    },
+
+    {"read_file", (PyCFunction)winutil_read_file, METH_VARARGS,
+        "set_file_pointer(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
+    },
+
+    {"close_handle", (PyCFunction)winutil_close_handle, METH_O,
+        "close_handle(handle)\n\nWrapper for CloseHandle"
+    },
+
+    {"delete_file", (PyCFunction)winutil_delete_file, METH_VARARGS,
+        "delete_file(path)\n\nWrapper for DeleteFile"
+    },
+
+    {"create_hard_link", (PyCFunction)winutil_create_hard_link, METH_VARARGS,
+        "create_hard_link(path, existing_path)\n\nWrapper for CreateHardLink"
+    },
+
+    {"nlinks", (PyCFunction)winutil_nlinks, METH_VARARGS,
+        "nlinks(path)\n\nReturn the number of hardlinks"
+    },
+
+    {"set_file_attributes", (PyCFunction)winutil_set_file_attributes, METH_VARARGS,
+        "set_file_attributes(path, attrs)\n\nWrapper for SetFileAttributes"
+    },
+
     {NULL, NULL, 0, NULL}
 };
 
@@ -514,6 +565,27 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
     PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
     PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
+    PyModule_AddIntConstant(m, "CREATE_NEW", CREATE_NEW);
+    PyModule_AddIntConstant(m, "CREATE_ALWAYS", CREATE_ALWAYS);
+    PyModule_AddIntConstant(m, "OPEN_EXISTING", OPEN_EXISTING);
+    PyModule_AddIntConstant(m, "OPEN_ALWAYS", OPEN_ALWAYS);
+    PyModule_AddIntConstant(m, "TRUNCATE_EXISTING", TRUNCATE_EXISTING);
+    PyModule_AddIntConstant(m, "FILE_SHARE_READ", FILE_SHARE_READ);
+    PyModule_AddIntConstant(m, "FILE_SHARE_WRITE", FILE_SHARE_WRITE);
+    PyModule_AddIntConstant(m, "FILE_SHARE_DELETE", FILE_SHARE_DELETE);
+    PyModule_AddIntConstant(m, "FILE_SHARE_VALID_FLAGS", FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE);
+    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_READONLY", FILE_ATTRIBUTE_READONLY);
+    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_NORMAL", FILE_ATTRIBUTE_NORMAL);
+    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_TEMPORARY", FILE_ATTRIBUTE_TEMPORARY);
+    PyModule_AddIntConstant(m, "FILE_FLAG_DELETE_ON_CLOSE", FILE_FLAG_DELETE_ON_CLOSE);
+    PyModule_AddIntConstant(m, "FILE_FLAG_SEQUENTIAL_SCAN", FILE_FLAG_SEQUENTIAL_SCAN);
+    PyModule_AddIntConstant(m, "FILE_FLAG_RANDOM_ACCESS", FILE_FLAG_RANDOM_ACCESS);
+    PyModule_AddIntConstant(m, "GENERIC_READ", GENERIC_READ);
+    PyModule_AddIntConstant(m, "GENERIC_WRITE", GENERIC_WRITE);
+    PyModule_AddIntConstant(m, "DELETE", DELETE);
+    PyModule_AddIntConstant(m, "FILE_BEGIN", FILE_BEGIN);
+    PyModule_AddIntConstant(m, "FILE_CURRENT", FILE_CURRENT);
+    PyModule_AddIntConstant(m, "FILE_END", FILE_END);
 
     return m;
 }

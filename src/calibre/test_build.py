@@ -180,6 +180,39 @@ class BuildTest(unittest.TestCase):
             if isinstance(fmt, bytes):
                 fmt = fmt.decode('ascii')
             self.assertEqual(unicode_type(time.strftime(fmt.replace('%e', '%#d'), t)), x)
+        tdir = winutil.temp_path()
+        path = os.path.join(tdir, 'test-create-file.txt')
+        h = winutil.create_file(
+            path, winutil.GENERIC_READ | winutil.GENERIC_WRITE, 0, winutil.OPEN_ALWAYS, winutil.FILE_ATTRIBUTE_NORMAL)
+        winutil.close_handle(h)
+        self.assertRaises(OSError, winutil.close_handle, h)
+        winutil.delete_file(path)
+        self.assertRaises(OSError, winutil.delete_file, path)
+        self.assertRaises(OSError, winutil.create_file,
+            os.path.join(path, 'cannot'), winutil.GENERIC_READ, 0, winutil.OPEN_ALWAYS, winutil.FILE_ATTRIBUTE_NORMAL)
+        sz = 23
+        data = os.urandom(sz)
+        open(path, 'wb').write(data)
+        h = winutil.create_file(
+            path, winutil.GENERIC_READ | winutil.GENERIC_WRITE, 0, winutil.OPEN_ALWAYS, winutil.FILE_ATTRIBUTE_NORMAL)
+        self.assertEqual(winutil.get_file_size(h), sz)
+        self.assertRaises(OSError, winutil.set_file_pointer, h, 23, 23)
+        self.assertEqual(winutil.read_file(h), data)
+        self.assertEqual(winutil.read_file(h), b'')
+        winutil.set_file_pointer(h, 3)
+        self.assertEqual(winutil.read_file(h), data[3:])
+        winutil.close_handle(h)
+        self.assertEqual(winutil.nlinks(path), 1)
+        npath = path + '.2'
+        winutil.create_hard_link(npath, path)
+        self.assertEqual(open(npath, 'rb').read(), data)
+        self.assertEqual(winutil.nlinks(path), 2)
+        winutil.delete_file(path)
+        self.assertEqual(winutil.nlinks(npath), 1)
+        winutil.set_file_attributes(npath, winutil.FILE_ATTRIBUTE_READONLY)
+        self.assertRaises(OSError, winutil.delete_file, npath)
+        winutil.set_file_attributes(npath, winutil.FILE_ATTRIBUTE_NORMAL)
+        winutil.delete_file(npath)
 
     def test_sqlite(self):
         import sqlite3
