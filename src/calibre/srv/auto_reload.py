@@ -5,10 +5,17 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, subprocess, signal, time, errno, socket, ssl
-from threading import Thread, Lock
+import errno
+import os
+import signal
+import socket
+import ssl
+import subprocess
+import sys
+import time
+from threading import Lock, Thread
 
-from calibre.constants import islinux, iswindows, ismacos
+from calibre.constants import islinux, ismacos, iswindows, plugins
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.loop import ServerLoop
 from calibre.srv.opts import Options
@@ -16,8 +23,8 @@ from calibre.srv.standalone import create_option_parser
 from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import itervalues, error_message, native_string_type
-from polyglot.queue import Queue, Empty
+from polyglot.builtins import error_message, itervalues, native_string_type
+from polyglot.queue import Empty, Queue
 
 MAX_RETRIES = 10
 
@@ -61,6 +68,7 @@ class WatcherBase(object):
 
 if islinux:
     import select
+
     from calibre.utils.inotify import INotifyTreeWatcher
 
     class Watcher(WatcherBase):
@@ -93,48 +101,49 @@ if islinux:
             self.client_sock.sendall(b'w')
 
 elif iswindows:
-    import win32file, win32con
-    FILE_LIST_DIRECTORY = 0x0001
     from calibre.srv.utils import HandleInterrupt
 
     class TreeWatcher(Thread):
-        daemon = True
 
         def __init__(self, path_to_watch, modified_queue):
-            Thread.__init__(self, name='TreeWatcher')
+            Thread.__init__(self, name='TreeWatcher', daemon=True)
             self.modified_queue = modified_queue
             self.path_to_watch = path_to_watch
-            self.dir_handle = win32file.CreateFileW(
-                path_to_watch,
-                FILE_LIST_DIRECTORY,
-                win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
-                None,
-                win32con.OPEN_EXISTING,
-                win32con.FILE_FLAG_BACKUP_SEMANTICS,
-                None
-            )
 
         def run(self):
+            winutil = plugins['winutil'][0]
+            dir_handle = winutil.create_file(
+                self.path_to_watch,
+                winutil.FILE_LIST_DIRECTORY,
+                winutil.FILE_SHARE_READ,
+                winutil.OPEN_EXISTING,
+                winutil.FILE_FLAG_BACKUP_SEMANTICS,
+            )
+
             try:
+                buffer = b'0' * 8192
                 while True:
-                    results = win32file.ReadDirectoryChangesW(
-                        self.dir_handle,
-                        8192,  # Buffer size for storing events
-                        True,  # Watch sub-directories as well
-                        win32con.FILE_NOTIFY_CHANGE_FILE_NAME |
-                        win32con.FILE_NOTIFY_CHANGE_DIR_NAME |
-                        win32con.FILE_NOTIFY_CHANGE_ATTRIBUTES |
-                        win32con.FILE_NOTIFY_CHANGE_SIZE |
-                        win32con.FILE_NOTIFY_CHANGE_LAST_WRITE |
-                        win32con.FILE_NOTIFY_CHANGE_SECURITY,
-                        None, None
-                    )
-                    for action, filename in results:
-                        if self.file_is_watched(filename):
-                            self.modified_queue.put(os.path.join(self.path_to_watch, filename))
+                    try:
+                        results = winutil.read_directory_changes(
+                            dir_handle, buffer,
+                            True,  # Watch sub-directories as well
+                            winutil.FILE_NOTIFY_CHANGE_FILE_NAME |
+                            winutil.FILE_NOTIFY_CHANGE_DIR_NAME |
+                            winutil.FILE_NOTIFY_CHANGE_ATTRIBUTES |
+                            winutil.FILE_NOTIFY_CHANGE_SIZE |
+                            winutil.FILE_NOTIFY_CHANGE_LAST_WRITE |
+                            winutil.FILE_NOTIFY_CHANGE_SECURITY,
+                        )
+                        for action, filename in results:
+                            if self.file_is_watched(filename):
+                                self.modified_queue.put(os.path.join(self.path_to_watch, filename))
+                    except OverflowError:
+                        pass  # the buffer overflowed, there are unknown changes
             except Exception:
                 import traceback
                 traceback.print_exc()
+            finally:
+                winutil.close_handle(dir_handle)
 
     class Watcher(WatcherBase):
 
@@ -282,7 +291,7 @@ class Worker(object):
             self.p = None
 
     def restart(self, forced=False):
-        from calibre.utils.rapydscript import compile_srv, CompileFailure
+        from calibre.utils.rapydscript import CompileFailure, compile_srv
         self.clean_kill()
         if forced:
             self.retry_count += 1
