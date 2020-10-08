@@ -225,15 +225,6 @@ winutil_set_max_stdio(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
-static PyObject*
-winutil_move_file(PyObject *self, PyObject *args) {
-    Py_UNICODE *a, *b;
-    unsigned int flags = MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH;
-    if (!PyArg_ParseTuple(args, "uu|I", &a, &b, &flags)) return NULL;
-    if (!MoveFileExW(a, b, flags)) { PyErr_SetFromWindowsErr(0); return NULL; }
-    Py_RETURN_NONE;
-}
-
 static PyObject *
 winutil_username(PyObject *self) {
     wchar_t buf[UNLEN + 1] = {0};
@@ -392,6 +383,9 @@ extern PyObject *winutil_set_file_attributes(PyObject *self, PyObject *args);
 extern PyObject *winutil_get_file_size(PyObject *self, PyObject *args);
 extern PyObject *winutil_set_file_pointer(PyObject *self, PyObject *args);
 extern PyObject *winutil_read_file(PyObject *self, PyObject *args);
+extern PyObject *winutil_get_disk_free_space(PyObject *self, PyObject *args);
+extern PyObject *winutil_move_file(PyObject *self, PyObject *args);
+extern PyObject *winutil_read_directory_changes(PyObject *self, PyObject *args);
 
 static PyMethodDef winutil_methods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -503,6 +497,10 @@ be a unicode string. Returns unicode strings."
         "set_file_pointer(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
     },
 
+    {"get_disk_free_space", (PyCFunction)winutil_get_disk_free_space, METH_VARARGS,
+        "get_disk_free_space(path)\n\nWrapper for GetDiskFreeSpaceEx"
+    },
+
     {"close_handle", (PyCFunction)winutil_close_handle, METH_O,
         "close_handle(handle)\n\nWrapper for CloseHandle"
     },
@@ -521,6 +519,14 @@ be a unicode string. Returns unicode strings."
 
     {"set_file_attributes", (PyCFunction)winutil_set_file_attributes, METH_VARARGS,
         "set_file_attributes(path, attrs)\n\nWrapper for SetFileAttributes"
+    },
+
+    {"move_file", (PyCFunction)winutil_move_file, METH_VARARGS,
+        "move_file(a, b, flags)\n\nWrapper for MoveFileEx"
+    },
+
+    {"read_directory_changes", (PyCFunction)winutil_read_directory_changes, METH_VARARGS,
+        "read_directory_changes(handle, buffer, subtree, flags)\n\nWrapper for ReadDirectoryChangesW"
     },
 
     {NULL, NULL, 0, NULL}
@@ -586,6 +592,27 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "FILE_BEGIN", FILE_BEGIN);
     PyModule_AddIntConstant(m, "FILE_CURRENT", FILE_CURRENT);
     PyModule_AddIntConstant(m, "FILE_END", FILE_END);
+    PyModule_AddIntConstant(m, "MOVEFILE_COPY_ALLOWED", MOVEFILE_COPY_ALLOWED);
+    PyModule_AddIntConstant(m, "MOVEFILE_CREATE_HARDLINK", MOVEFILE_CREATE_HARDLINK);
+    PyModule_AddIntConstant(m, "MOVEFILE_DELAY_UNTIL_REBOOT", MOVEFILE_DELAY_UNTIL_REBOOT);
+    PyModule_AddIntConstant(m, "MOVEFILE_FAIL_IF_NOT_TRACKABLE", MOVEFILE_FAIL_IF_NOT_TRACKABLE);
+    PyModule_AddIntConstant(m, "MOVEFILE_REPLACE_EXISTING", MOVEFILE_REPLACE_EXISTING);
+    PyModule_AddIntConstant(m, "MOVEFILE_WRITE_THROUGH", MOVEFILE_WRITE_THROUGH);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_FILE_NAME", FILE_NOTIFY_CHANGE_FILE_NAME);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_DIR_NAME", FILE_NOTIFY_CHANGE_DIR_NAME);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_ATTRIBUTES", FILE_NOTIFY_CHANGE_ATTRIBUTES);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_SIZE", FILE_NOTIFY_CHANGE_SIZE);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_LAST_WRITE", FILE_NOTIFY_CHANGE_LAST_WRITE);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_LAST_ACCESS", FILE_NOTIFY_CHANGE_LAST_ACCESS);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_CREATION", FILE_NOTIFY_CHANGE_CREATION);
+    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_SECURITY", FILE_NOTIFY_CHANGE_SECURITY);
+    PyModule_AddIntConstant(m, "FILE_ACTION_ADDED", FILE_ACTION_ADDED);
+    PyModule_AddIntConstant(m, "FILE_ACTION_REMOVED", FILE_ACTION_REMOVED);
+    PyModule_AddIntConstant(m, "FILE_ACTION_MODIFIED", FILE_ACTION_MODIFIED);
+    PyModule_AddIntConstant(m, "FILE_ACTION_RENAMED_OLD_NAME", FILE_ACTION_RENAMED_OLD_NAME);
+    PyModule_AddIntConstant(m, "FILE_ACTION_RENAMED_NEW_NAME", FILE_ACTION_RENAMED_NEW_NAME);
+    PyModule_AddIntConstant(m, "FILE_LIST_DIRECTORY", FILE_LIST_DIRECTORY);
+    PyModule_AddIntConstant(m, "FILE_FLAG_BACKUP_SEMANTICS", FILE_FLAG_BACKUP_SEMANTICS);
 
     return m;
 }

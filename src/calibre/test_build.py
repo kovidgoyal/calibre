@@ -147,6 +147,7 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipUnless(iswindows, 'winutil is windows only')
     def test_winutil(self):
+        import tempfile
         from calibre.constants import plugins
         from calibre import strftime
         winutil = plugins['winutil'][0]
@@ -213,6 +214,41 @@ class BuildTest(unittest.TestCase):
         self.assertRaises(OSError, winutil.delete_file, npath)
         winutil.set_file_attributes(npath, winutil.FILE_ATTRIBUTE_NORMAL)
         winutil.delete_file(npath)
+        self.assertGreater(min(winutil.get_disk_free_space(None)), 0)
+        open(path, 'wb').close()
+        open(npath, 'wb').close()
+        winutil.move_file(path, npath, winutil.MOVEFILE_WRITE_THROUGH | winutil.MOVEFILE_REPLACE_EXISTING)
+        self.assertFalse(os.path.exists(path))
+        os.remove(npath)
+        dpath = tempfile.mkdtemp(dir=os.path.dirname(path))
+        dh = winutil.create_file(
+            dpath, winutil.FILE_LIST_DIRECTORY, winutil.FILE_SHARE_READ, winutil.OPEN_EXISTING, winutil.FILE_FLAG_BACKUP_SEMANTICS,
+        )
+        from threading import Thread
+        events = []
+
+        def read_changes():
+            buffer = b'0' * 8192
+            events.extend(winutil.read_directory_changes(
+                dh, buffer, True,
+                winutil.FILE_NOTIFY_CHANGE_FILE_NAME |
+                winutil.FILE_NOTIFY_CHANGE_DIR_NAME |
+                winutil.FILE_NOTIFY_CHANGE_ATTRIBUTES |
+                winutil.FILE_NOTIFY_CHANGE_SIZE |
+                winutil.FILE_NOTIFY_CHANGE_LAST_WRITE |
+                winutil.FILE_NOTIFY_CHANGE_SECURITY
+            ))
+        t = Thread(target=read_changes, daemon=True)
+        t.start()
+        testp = os.path.join(dpath, 'test')
+        open(testp, 'w').close()
+        t.join(2)
+        self.assertTrue(events)
+        for actions, path in events:
+            self.assertEqual(os.path.join(dpath, path), testp)
+        winutil.close_handle(dh)
+        os.remove(testp)
+        os.rmdir(dpath)
 
     def test_sqlite(self):
         import sqlite3

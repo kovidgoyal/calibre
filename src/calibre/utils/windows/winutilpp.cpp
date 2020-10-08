@@ -166,6 +166,25 @@ set_error_from_file_handle(HANDLE h) {
 extern "C" {
 
 PyObject*
+winutil_move_file(PyObject *self, PyObject *args) {
+    wchar_raii a, b;
+    unsigned int flags = MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH;
+    if (!PyArg_ParseTuple(args, "O&O&|I", py_to_wchar_no_none, &a, py_to_wchar_no_none, &b, &flags)) return NULL;
+    if (!MoveFileExW(a.ptr(), b.ptr(), flags))
+        return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1));
+    Py_RETURN_NONE;
+}
+
+PyObject*
+winutil_get_disk_free_space(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
+    ULARGE_INTEGER bytes_available_to_caller, total_bytes, total_free_bytes;
+    if (!GetDiskFreeSpaceEx(path.ptr(), &bytes_available_to_caller, &total_bytes, &total_free_bytes)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    return Py_BuildValue("KKK", bytes_available_to_caller.QuadPart, total_bytes.QuadPart, total_free_bytes.QuadPart);
+}
+
+PyObject*
 winutil_read_file(PyObject *self, PyObject *args) {
     unsigned long chunk_size = 16 * 1024;
     PyObject *handle;
@@ -181,6 +200,38 @@ winutil_read_file(PyObject *self, PyObject *args) {
     return ans;
 }
 
+PyObject*
+winutil_read_directory_changes(PyObject *self, PyObject *args) {
+    PyObject *buffer, *handle; int watch_subtree; unsigned long filter;
+    if (!PyArg_ParseTuple(args, "O!O!pk", &PyLong_Type, &handle, &PyBytes_Type, &buffer, &watch_subtree, &filter)) return NULL;
+    DWORD bytes_returned;
+    BOOL ok;
+    Py_BEGIN_ALLOW_THREADS;
+    ok = ReadDirectoryChangesW(PyLong_AsVoidPtr(handle), PyBytes_AS_STRING(buffer), (DWORD)PyBytes_GET_SIZE(buffer), watch_subtree, filter, &bytes_returned, NULL, NULL);
+    Py_END_ALLOW_THREADS;
+    if (!ok) return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
+    PFILE_NOTIFY_INFORMATION p;
+    size_t offset = 0;
+    PyObject *ans = PyList_New(0);
+    if (!ans) return NULL;
+    if (bytes_returned) {
+        do {
+            p = (PFILE_NOTIFY_INFORMATION)(PyBytes_AS_STRING(buffer) + offset);
+            offset += p->NextEntryOffset;
+            if (p->FileNameLength) {
+                PyObject *temp = Py_BuildValue("ku#", p->Action, p->FileName, p->FileNameLength / sizeof(wchar_t));
+                if (!temp) { Py_DECREF(ans); return NULL; }
+                int ret = PyList_Append(ans, temp);
+                Py_DECREF(temp);
+                if (ret != 0) { Py_DECREF(ans); return NULL; }
+            }
+        } while(p->NextEntryOffset);
+    } else {
+        Py_CLEAR(ans);
+        PyErr_SetString(PyExc_OverflowError, "the change events buffer overflowed, something has changed");
+    }
+    return ans;
+}
 
 PyObject*
 winutil_get_file_size(PyObject *self, PyObject *pyhandle) {
