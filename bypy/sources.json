@@ -246,11 +246,15 @@
 
     {
         "name": "iconv",
-        "os": "macos, linux",
         "unix": {
             "filename": "libiconv-1.16.tar.gz",
             "hash": "sha256:e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04",
             "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
+        },
+        "windows": {
+            "filename": "libiconv-for-Windows-1.16.zip",
+            "hash": "sha256:d542e635cad954a62a2b451b5644e855b848398917e93adf46d8da4c9cc88b6d",
+            "urls": ["https://github.com/pffang/libiconv-for-Windows/archive/v1.16.zip"]
         }
     },
 

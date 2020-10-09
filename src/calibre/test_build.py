@@ -124,6 +124,8 @@ class BuildTest(unittest.TestCase):
         raw = b'<a/>'
         root = etree.fromstring(raw, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         self.assertEqual(etree.tostring(root), raw)
+        from lxml import html
+        html.fromstring("<p>\U0001f63a")
 
     def test_certgen(self):
         from calibre.utils.certgen import create_key_pair
