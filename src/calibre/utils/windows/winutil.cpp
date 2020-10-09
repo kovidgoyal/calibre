@@ -8,6 +8,7 @@
 
 #define UNICODE
 #include <Windows.h>
+#include <processthreadsapi.h>
 #include <wininet.h>
 #include <Lmcons.h>
 #include <combaseapi.h>
@@ -636,6 +637,28 @@ get_long_path_name(PyObject *self, PyObject *args) {
     return ans;
 }
 
+static PyObject *
+get_process_times(PyObject *self, PyObject *pid) {
+    HANDLE h;
+    if (pid == Py_None) {
+        h = GetCurrentProcess();
+    } else if (PyLong_Check(pid)) {
+        h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, PyLong_AsUnsignedLong(pid));
+        if (h == NULL) return PyErr_SetFromWindowsErr(0);
+    } else {
+        PyErr_SetString(PyExc_TypeError, "process pid must be None or an integer");
+        return NULL;
+    }
+    FILETIME creation, exit, kernel, user;
+    BOOL ok = GetProcessTimes(h, &creation, &exit, &kernel, &user);
+    int ec = GetLastError();
+    CloseHandle(h);
+    if (!ok) return PyErr_SetFromWindowsErr(ec);
+#define T(ft) ((unsigned long long)(ft.dwHighDateTime) << 32 | ft.dwLowDateTime)
+    return Py_BuildValue("KKKK", T(creation), T(exit), T(kernel), T(user));
+#undef T
+}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
@@ -645,6 +668,7 @@ static PyMethodDef winutil_methods[] = {
     M(create_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),
     M(get_long_path_name, METH_VARARGS),
+    M(get_process_times, METH_O),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
