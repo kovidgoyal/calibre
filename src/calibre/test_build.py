@@ -178,9 +178,6 @@ class BuildTest(unittest.TestCase):
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
-            if isinstance(fmt, bytes):
-                fmt = fmt.decode('ascii')
-            self.assertEqual(unicode_type(time.strftime(fmt.replace('%e', '%#d'), t)), x)
         tdir = winutil.temp_path()
         path = os.path.join(tdir, 'test-create-file.txt')
         h = winutil.create_file(
