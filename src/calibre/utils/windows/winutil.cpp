@@ -618,6 +618,24 @@ set_handle_information(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject *
+get_long_path_name(PyObject *self, PyObject *args) {
+    wchar_raii path;
+    if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+    DWORD sz = GetLongPathNameW(path.ptr(), NULL, 0) * 2;
+    if (!sz) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    wchar_t *buf = (wchar_t*) PyMem_Malloc(sz);
+    if (!buf) return PyErr_NoMemory();
+    if (!GetLongPathNameW(path.ptr(), buf, sz-1)) {
+        PyMem_Free(buf);
+        return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    }
+    buf[sz-1] = 0;
+    PyObject *ans = PyUnicode_FromWideChar(buf, -1);
+    PyMem_Free(buf);
+    return ans;
+}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
@@ -626,6 +644,7 @@ static PyMethodDef winutil_methods[] = {
     M(get_dll_directory, METH_NOARGS),
     M(create_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),
+    M(get_long_path_name, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
