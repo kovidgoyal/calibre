@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.base import prefixname, \
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
-from calibre import plugins
+from calibre.constants import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
 from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, zip, native_string_type
