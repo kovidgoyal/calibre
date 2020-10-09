@@ -1,0 +1,48 @@
+from calibre.web.feeds.news import BasicNewsRecipe
+# History:
+# 1: Base Version
+# 2: Added rules for wdr.de, ndr.de, br-online.de
+# 3: Added rules for rbb-online.de, boerse.ard.de, sportschau.de
+# 4: New design of tagesschau.de implemented. Simplyfied.
+# 5: Taken out the pictures.
+
+
+class DeutscheWelle(BasicNewsRecipe):
+    title = 'Deutsche Welle'
+    description = 'Nachrichten der Deutschen Welle (DW)'
+    publisher = 'DW - info@dw.com'
+    language = 'de'
+    version = 1
+    cover_url = 'https://pbs.twimg.com/profile_images/900269457976823808/nkod9w_m_400x400.jpg'
+    __author__ = 'VoHe'
+    oldest_article = 3
+    max_articles_per_feed = 200
+    no_stylesheets = True
+    remove_javascript = True
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
+
+    remove_tags_before = dict(name='h4', attrs={'class':'artikel'})
+
+    remove_tags_after = dict(name='div', attrs={'class':'col1 dim'})
+
+    remove_tags = [
+        dict(name='div', attrs={'class':'footerSection'}),
+        dict(name='div', attrs={'class':'sharing-bar'}),
+        dict(name='div', attrs={'class':'coll dim'}),
+        dict(name='div', attrs={'class':'languageSection'}),
+    ]
+    # watch out https://www.dw.com/de/service/rss/s-9773 for description of possible rss feeds
+    feeds = [
+        ('Thema des Tages', 'http://rss.dw.com/xml/rss-de-top'),
+        # ('Nachrichten', 'http://rss.dw.com/xml/rss-de-news'),
+        ('Wissenschaft', 'http://rss.dw.com/xml/rss-de-wissenschaft'),
+        # ('Sport', 'http://rss.dw.com/xml/rss-de-sport'),
+        ('Deuschland entdecken', 'http://rss.dw.com/xml/rss-de-deutschlandentdecken'),
+        ('Presse', 'http://rss.dw.com/xml/presse'),
+        ('Politik', 'http://rss.dw.com/xml/rss_de_politik'),
+        ('Wirtschaft', 'http://rss.dw.com/xml/rss-de-eco'),
+        ('Kultur und Leben', 'http://rss.dw.com/xml/rss-de-cul'),
+    ]
