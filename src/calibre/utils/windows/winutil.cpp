@@ -8,6 +8,8 @@
 
 #define UNICODE
 #include <Windows.h>
+#include <wininet.h>
+#include <Lmcons.h>
 #include <combaseapi.h>
 #include <locale.h>
 #include <shlobj.h>
