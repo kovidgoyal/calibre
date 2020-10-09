@@ -139,7 +139,7 @@
     {
         "name": "winutil",
         "only": "windows",
-        "sources": "calibre/utils/windows/winutilpp.cpp",
+        "sources": "calibre/utils/windows/winutil.cpp",
         "libraries": "shell32 wininet advapi32",
         "cflags": "/X"
     },
