@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time
 
 from calibre.constants import plugins, iswindows, islinux, ismacos, plugins_loc
-from polyglot.builtins import iteritems, map, unicode_type, getenv, native_string_type
+from polyglot.builtins import iteritems, map, unicode_type, getenv
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
@@ -22,12 +22,11 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipUnless(iswindows and not is_ci, 'DLL loading needs testing only on windows (non-continuous integration)')
     def test_dlls(self):
-        import win32api
-        base = win32api.GetDllDirectory()
+        base = plugins['winutil'][0].get_dll_directory()
         for x in os.listdir(base):
             if x.lower().endswith('.dll'):
                 try:
-                    ctypes.WinDLL(native_string_type(os.path.join(base, x)))
+                    ctypes.WinDLL(os.path.join(base, x))
                 except Exception as err:
                     self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
         from Crypto.Cipher import AES

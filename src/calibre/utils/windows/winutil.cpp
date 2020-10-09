@@ -588,10 +588,45 @@ winutil_manage_shortcut(PyObject *self, PyObject *args) {
 
 }
 
+static PyObject *
+get_dll_directory(PyObject *self, PyObject *args) {
+    DWORD sz = GetDllDirectory(0, NULL) * 2;
+    wchar_t *buf = (wchar_t*)PyMem_Malloc(sz);
+    if (!buf) return PyErr_NoMemory();
+    GetDllDirectory(sz - 1, buf);
+    buf[sz - 1] = 0;
+    PyObject *ans = PyUnicode_FromWideChar(buf, -1);
+    PyMem_Free(buf);
+    return ans;
+}
+
+static PyObject *
+create_named_pipe(PyObject *self, PyObject *args) {
+    wchar_raii name;
+    unsigned long open_mode, pipe_mode, max_instances, out_buffer_size, in_buffer_size, default_time_out;
+    if (!PyArg_ParseTuple(args, "O&kkkkkk", py_to_wchar_no_none, &name, &open_mode, &pipe_mode, &max_instances, &out_buffer_size, &in_buffer_size, &default_time_out)) return NULL;
+    HANDLE h = CreateNamedPipeW(name.ptr(), open_mode, pipe_mode, max_instances, out_buffer_size, in_buffer_size, default_time_out, NULL);
+    if (h == INVALID_HANDLE_VALUE) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    return PyLong_FromVoidPtr(h);
+}
+
+static PyObject *
+set_handle_information(PyObject *self, PyObject *args) {
+    PyObject *handle; unsigned long mask, flags;
+    if (!PyArg_ParseTuple(args, "O!kk", &PyLong_Type, &handle, &mask, &flags)) return NULL;
+    if (!SetHandleInformation(PyLong_AsVoidPtr(handle), mask, flags)) return PyErr_SetFromWindowsErr(0);
+    Py_RETURN_NONE;
+}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
+#define M(name, args) { #name, name, args, ""}
 static PyMethodDef winutil_methods[] = {
+    M(get_dll_directory, METH_NOARGS),
+    M(create_named_pipe, METH_VARARGS),
+    M(set_handle_information, METH_VARARGS),
+
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
             "Get paths to common system folders. "
@@ -715,6 +750,7 @@ static PyMethodDef winutil_methods[] = {
 
     {NULL, NULL, 0, NULL}
 };
+#undef M
 
 static struct PyModuleDef winutil_module = {
     /* m_base     */ PyModuleDef_HEAD_INIT,
@@ -804,6 +840,14 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "FILE_FLAG_BACKUP_SEMANTICS", FILE_FLAG_BACKUP_SEMANTICS);
     PyModule_AddIntConstant(m, "SHGFP_TYPE_CURRENT", SHGFP_TYPE_CURRENT);
     PyModule_AddIntConstant(m, "SHGFP_TYPE_DEFAULT", SHGFP_TYPE_DEFAULT);
+    PyModule_AddIntConstant(m, "PIPE_ACCESS_INBOUND", PIPE_ACCESS_INBOUND);
+    PyModule_AddIntConstant(m, "FILE_FLAG_FIRST_PIPE_INSTANCE", FILE_FLAG_FIRST_PIPE_INSTANCE);
+    PyModule_AddIntConstant(m, "PIPE_TYPE_BYTE", PIPE_TYPE_BYTE);
+    PyModule_AddIntConstant(m, "PIPE_READMODE_BYTE", PIPE_READMODE_BYTE);
+    PyModule_AddIntConstant(m, "PIPE_WAIT", PIPE_WAIT);
+    PyModule_AddIntConstant(m, "PIPE_REJECT_REMOTE_CLIENTS", PIPE_REJECT_REMOTE_CLIENTS);
+    PyModule_AddIntConstant(m, "HANDLE_FLAG_INHERIT", HANDLE_FLAG_INHERIT);
+    PyModule_AddIntConstant(m, "HANDLE_FLAG_PROTECT_FROM_CLOSE", HANDLE_FLAG_PROTECT_FROM_CLOSE);
 
     return m;
 }
