@@ -27,12 +27,6 @@ wherever possible in this module.
         >>>  special_folder_path(CSIDL_PERSONAL)
         u'C:\\Documents and Settings\\Kovid Goyal\\My Documents'
 
-.. function:: argv() -> list of unicode command line arguments
-    Get command line arguments as unicode objects. Note that the
-    first argument will be the path to the interpreter, *not* the
-    script being run. So to replace sys.argv, you should use
-    `if len(sys.argv) > 1: sys.argv[1:] = winutil.argv()[1-len(sys.argv):]`
-
 .. function:: internet_connected() -> Return True if there is an active
    internet connection.
 
@@ -56,35 +50,6 @@ wherever possible in this module.
 
 #define BUFSIZE    512
 #define MAX_DRIVES 26
-static BOOL DEBUG = FALSE;
-
-//#define debug(fmt, ...) if DEBUG printf(x, __VA_ARGS__);
-void
-debug(const char *fmt, ...) {
-    va_list argList;
-    va_start(argList, fmt);
-    if (DEBUG) vprintf(fmt, argList);
-    va_end(argList);
-}
-
-static void console_out(LPCWSTR fmt, LPCWSTR arg) {
-    char *bfmt, *barg;
-    int sz;
-
-    sz = WideCharToMultiByte(CP_UTF8, 0, fmt, -1, NULL, 0, NULL, NULL);
-    bfmt = (char*)calloc(sz+1, sizeof(char));
-    WideCharToMultiByte(CP_UTF8, 0, fmt, -1, bfmt, sz, NULL, NULL);
-
-    sz = WideCharToMultiByte(CP_UTF8, 0, arg, -1, NULL, 0, NULL, NULL);
-    barg = (char*)calloc(sz+1, sizeof(char));
-    WideCharToMultiByte(CP_UTF8, 0, arg, -1, barg, sz, NULL, NULL);
-
-    if (bfmt != NULL && barg != NULL) {
-        printf(bfmt, barg);
-        fflush(stdout);
-        free(bfmt); free(barg);
-    }
-}
 
 static PyObject *
 winutil_folder_path(PyObject *self, PyObject *args) {
@@ -104,94 +69,6 @@ winutil_folder_path(PyObject *self, PyObject *args) {
     res = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, buf, 4*MAX_PATH, NULL, NULL);
     ans = PyUnicode_DecodeUTF8(buf, res-1, "strict");
     return ans;
-}
-
-static PyObject *
-winutil_argv(PyObject *self, PyObject *args) {
-    PyObject *argv, *v;
-    LPWSTR *_argv;
-    int argc, i;
-    if (!PyArg_ParseTuple(args, "")) return NULL;
-    _argv = CommandLineToArgvW(GetCommandLineW(), &argc);
-    if (_argv == NULL) { PyErr_NoMemory(); return NULL; }
-    argv = PyList_New(argc);
-    if (argv != NULL) {
-        for (i = 0; i < argc; i++) {
-            v = PyUnicode_FromWideChar(_argv[i], wcslen(_argv[i]));
-            if ( v == NULL) {
-                Py_DECREF(argv); argv = NULL; PyErr_NoMemory(); break;
-            }
-            PyList_SetItem(argv, i, v);
-        }
-    }
-    LocalFree(_argv);
-    return argv;
-}
-
-
-static LPVOID
-format_last_error() {
-    /* Format the last error as a string. The returned pointer should
-       be freed with :cfunction:`LocalFree(lpMsgBuf)`. It can be printed with
-       :cfunction:`printf("\n%ws\n", (LPCTSTR)lpMsgBuf)`.
-    */
-
-    LPVOID lpMsgBuf;
-    FormatMessage(
-    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-    FORMAT_MESSAGE_FROM_SYSTEM |
-    FORMAT_MESSAGE_IGNORE_INSERTS,
-    NULL,
-    GetLastError(),
-    0, // Default language
-    (LPTSTR) &lpMsgBuf,
-    0,
-    NULL
-    );
-    return lpMsgBuf;
-}
-
-static PyObject *
-winutil_set_debug(PyObject *self, PyObject *args) {
-    PyObject *yes;
-    if (!PyArg_ParseTuple(args, "O", &yes)) return NULL;
-    DEBUG = (BOOL)PyObject_IsTrue(yes);
-    return Py_None;
-}
-
-static int
-gettmarg(PyObject *args, struct tm *p)
-{
-    int y;
-    memset((void *) p, '\0', sizeof(struct tm));
-
-    if (!PyArg_Parse(args, "(iiiiiiiii)",
-             &y,
-             &p->tm_mon,
-             &p->tm_mday,
-             &p->tm_hour,
-             &p->tm_min,
-             &p->tm_sec,
-             &p->tm_wday,
-             &p->tm_yday,
-             &p->tm_isdst))
-        return 0;
-    if (y < 1900) {
-        if (69 <= y && y <= 99)
-            y += 1900;
-        else if (0 <= y && y <= 68)
-            y += 2000;
-        else {
-            PyErr_SetString(PyExc_ValueError,
-                    "year out of range");
-            return 0;
-        }
-    }
-    p->tm_year = y - 1900;
-    p->tm_mon--;
-    p->tm_wday = (p->tm_wday + 1) % 7;
-    p->tm_yday--;
-    return 1;
 }
 
 static PyObject *
@@ -272,94 +149,6 @@ winutil_localeconv(PyObject *self) {
 }
 
 
-static PyObject *
-winutil_strftime(PyObject *self, PyObject *args)
-{
-    PyObject *tup = NULL;
-    struct tm buf;
-    size_t buflen;
-    wchar_t *outbuf = NULL;
-    Py_UNICODE *fmt = NULL;
-    int fmtlen;
-    size_t i;
-    memset((void *) &buf, 0, sizeof(buf));
-
-    if (!PyArg_ParseTuple(args, "u#|O:strftime", &fmt, &fmtlen, &tup)) return NULL;
-
-    if (tup == NULL) {
-        time_t tt = time(NULL);
-        if(localtime_s(&buf, &tt) != 0) {
-            PyErr_SetString(PyExc_ValueError, "Failed to get localtime()");
-            return NULL;
-        }
-    } else if (!gettmarg(tup, &buf)) return NULL;
-
-    if (buf.tm_mon == -1) buf.tm_mon = 0;
-    else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
-        PyErr_SetString(PyExc_ValueError, "month out of range");
-        return NULL;
-    }
-    if (buf.tm_mday == 0) buf.tm_mday = 1;
-    else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
-        PyErr_SetString(PyExc_ValueError, "day of month out of range");
-        return NULL;
-    }
-    if (buf.tm_hour < 0 || buf.tm_hour > 23) {
-        PyErr_SetString(PyExc_ValueError, "hour out of range");
-        return NULL;
-    }
-    if (buf.tm_min < 0 || buf.tm_min > 59) {
-        PyErr_SetString(PyExc_ValueError, "minute out of range");
-        return NULL;
-    }
-    if (buf.tm_sec < 0 || buf.tm_sec > 61) {
-        PyErr_SetString(PyExc_ValueError, "seconds out of range");
-        return NULL;
-    }
-    /* tm_wday does not need checking of its upper-bound since taking
-       ``% 7`` in gettmarg() automatically restricts the range. */
-    if (buf.tm_wday < 0) {
-        PyErr_SetString(PyExc_ValueError, "day of week out of range");
-        return NULL;
-    }
-    if (buf.tm_yday == -1) buf.tm_yday = 0;
-    else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
-        PyErr_SetString(PyExc_ValueError, "day of year out of range");
-        return NULL;
-    }
-    if (buf.tm_isdst < -1 || buf.tm_isdst > 1) {
-        PyErr_SetString(PyExc_ValueError,
-                "daylight savings flag out of range");
-        return NULL;
-    }
-
-    for (i = 5*(unsigned int)fmtlen; ; i += i) {
-        outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
-        if (outbuf == NULL) {
-            PyErr_NoMemory(); return NULL;
-        }
-        buflen = wcsftime(outbuf, i, fmt, &buf);
-        if (buflen > 0 || i >= 256 * (unsigned int)fmtlen) {
-            /* If the buffer is 256 times as long as the format,
-               it's probably not failing for lack of room!
-               More likely, the format yields an empty result,
-               e.g. an empty format, or %Z when the timezone
-               is unknown. */
-            PyObject *ret;
-            ret = PyUnicode_FromWideChar(outbuf, buflen);
-            PyMem_Free(outbuf);
-            return ret;
-        }
-        PyMem_Free(outbuf);
-        /* VisualStudio .NET 2005 does this properly */
-        if (buflen == 0 && errno == EINVAL) {
-            PyErr_SetString(PyExc_ValueError, "Invalid format string");
-            return NULL;
-        }
-    }
-    return NULL;
-}
-
 static PyObject*
 winutil_close_handle(PyObject *self, PyObject *pyhandle) {
     if (!PyLong_Check(pyhandle)) { PyErr_SetString(PyExc_TypeError, "handle must be an int"); return NULL; }
@@ -396,26 +185,6 @@ static PyMethodDef winutil_methods[] = {
             "of the symbolic constants defined in this module. You can also OR "
             "a symbolic constant with CSIDL_FLAG_CREATE to force the operating "
             "system to create a folder if it does not exist."},
-
-    {"argv", winutil_argv, METH_VARARGS,
-    "argv() -> list of command line arguments\n\n"
-            "Get command line arguments as unicode objects. Note that the "
-            "first argument will be the path to the interpreter, *not* the "
-            "script being run. So to replace sys.argv, you should use "
-            "sys.argv[1:] = argv()[1:]."},
-
-    {"set_debug", winutil_set_debug, METH_VARARGS,
-            "set_debug(bool)\n\nSet debugging mode."
-    },
-
-    {"strftime", winutil_strftime, METH_VARARGS,
-        "strftime(format[, tuple]) -> string\n\
-\n\
-Convert a time tuple to a string according to a format specification.\n\
-See the library reference manual for formatting codes. When the time tuple\n\
-is not present, current time as returned by localtime() is used. format must\n\
-be a unicode string. Returns unicode strings."
-     },
 
     {"internet_connected", winutil_internet_connected, METH_VARARGS,
         "internet_connected()\n\nReturn True if there is an active internet connection"

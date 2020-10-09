@@ -19,7 +19,7 @@ except EnvironmentError:
 from calibre.constants import (iswindows, ismacos, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,
         win32event, win32api, winerror, fcntl,
-        filesystem_encoding, plugins, config_dir)
+        filesystem_encoding, config_dir)
 from calibre.startup import winutil, winutilerror
 from calibre.utils.icu import safe_chr
 from calibre.prints import prints
@@ -409,15 +409,9 @@ def strftime(fmt, t=None):
         t[0] = replacement
         t = time.struct_time(t)
     ans = None
-    if iswindows:
-        if isinstance(fmt, bytes):
-            fmt = fmt.decode('mbcs', 'replace')
-        fmt = fmt.replace('%e', '%#d')
-        ans = plugins['winutil'][0].strftime(fmt, t)
-    else:
-        ans = time.strftime(fmt, t)
-        if isinstance(ans, bytes):
-            ans = ans.decode(preferred_encoding, 'replace')
+    if isinstance(fmt, bytes):
+        fmt = fmt.decode('mbcs' if iswindows else 'utf-8', 'replace')
+    ans = time.strftime(fmt, t)
     if early_year:
         ans = ans.replace('_early year hack##', unicode_type(orig_year))
     return ans

@@ -81,15 +81,6 @@ if not _run_once:
 
     sys.meta_path.insert(0, DeVendor())
 
-    #
-    # Platform specific modules
-    if iswindows:
-        winutil, winutilerror = plugins['winutil']
-        if not winutil:
-            raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-        if len(sys.argv) > 1 and not isinstance(sys.argv[1], unicode_type):
-            sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
-
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
     try:

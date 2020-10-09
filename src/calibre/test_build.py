@@ -158,8 +158,6 @@ class BuildTest(unittest.TestCase):
             self.assertTrue(
                 isinstance(x, unicode_type),
                 '%s() did not return a unicode string, instead returning: %r' % (name, x))
-        for x in winutil.argv():
-            au(x, 'argv')
         for x in 'username temp_path locale_name'.split():
             au(getattr(winutil, x)(), x)
         d = winutil.localeconv()

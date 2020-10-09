@@ -163,6 +163,7 @@ set_error_from_file_handle(HANDLE h) {
     return PyErr_SetFromWindowsErr(error_code);
 }
 
+
 extern "C" {
 
 PyObject*
