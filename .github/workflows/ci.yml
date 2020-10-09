@@ -31,6 +31,7 @@ jobs:
               run:
                   python setup/unix-ci.py test
 
+    # Disabled because of: https://bugreports.qt.io/browse/QTBUG-87320
     # archtest:
     #     name: Test on Arch
     #     runs-on: ubuntu-latest
