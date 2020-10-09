@@ -14,9 +14,8 @@ import sys, os, time
 from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
         QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication)
 
-from calibre.constants import plugins
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.constants import islinux
+from calibre.constants import islinux, plugins
 from calibre.gui2 import (config, available_height, available_width, gprefs,
         rating_font)
 
