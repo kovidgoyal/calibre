@@ -940,8 +940,6 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "DONT_RESOLVE_DLL_REFERENCES", DONT_RESOLVE_DLL_REFERENCES);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-    PyModule_AddObject(m, "RT_GROUP_ICON", PyUnicode_FromWideChar(RT_GROUP_ICON, -1));
-    PyModule_AddObject(m, "RT_ICON", PyUnicode_FromWideChar(RT_ICON, -1));
 
     return m;
 }
