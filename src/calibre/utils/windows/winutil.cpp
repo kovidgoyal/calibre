@@ -677,7 +677,7 @@ get_handle_information(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
-get_last_error(PyObject *self) {
+get_last_error(PyObject *self, PyObject *args) {
 	return PyLong_FromLong(GetLastError());
 }
 
@@ -695,7 +695,7 @@ static PyObject*
 free_library(PyObject *self, PyObject *args) {
 	PyObject *handle;
 	if (!PyArg_ParseTuple(args, "O!", &PyLong_Type, &handle)) return NULL;
-	if (!FreeLibrary(PyLong_AsVoidPtr(handle))) return PyErr_SetFromWindowsErr(0);
+	if (!FreeLibrary((HMODULE)PyLong_AsVoidPtr(handle))) return PyErr_SetFromWindowsErr(0);
 	Py_RETURN_NONE;
 }
 
@@ -940,7 +940,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "DONT_RESOLVE_DLL_REFERENCES", DONT_RESOLVE_DLL_REFERENCES);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-    PyModule_AddIntConstant(m, "RT_GROUP_ICON", RT_GROUP_ICON);
+    PyModule_AddStringConstant(m, "RT_GROUP_ICON", RT_GROUP_ICON);
 
     return m;
 }
