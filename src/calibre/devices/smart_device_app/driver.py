@@ -817,7 +817,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             break
                         raw = fd.read(int(rec_len))
                         book = json.loads(raw.decode('utf-8'), object_hook=from_json)
-                        key = book.keys()[0]
+                        key = list(book.keys())[0]
                         metadata = self.json_codec.raw_to_book(book[key]['book'],
                                                             SDBook, self.PREFIX)
                         book[key]['book'] = metadata
