@@ -659,16 +659,61 @@ get_process_times(PyObject *self, PyObject *pid) {
 #undef T
 }
 
+static PyObject*
+get_async_key_state(PyObject *self, PyObject *args) {
+	int key;
+	if (!PyArg_ParseTuple(args, "i", &key)) return NULL;
+	long state = GetAsyncKeyState(key);
+	return PyLong_FromLong(state);
+}
+
+static PyObject*
+get_handle_information(PyObject *self, PyObject *args) {
+	PyObject *handle;
+	if (!PyArg_ParseTuple(args, "O!", &PyLong_Type, &handle)) return NULL;
+	DWORD ans;
+	if (!GetHandleInformation(PyLong_AsVoidPtr(handle), &ans)) return PyErr_SetFromWindowsErr(0);
+	return PyLong_FromUnsignedLong(ans);
+}
+
+static PyObject*
+get_last_error(PyObject *self) {
+	return PyLong_FromLong(GetLastError());
+}
+
+static PyObject*
+load_library(PyObject *self, PyObject *args) {
+	unsigned long flags = 0;
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar_no_none, &path, &flags)) return NULL;
+	HMODULE h = LoadLibraryEx(path.ptr(), NULL, flags);
+	if (h == NULL) return PyErr_SetFromWindowsErr(0);
+	return PyLong_FromVoidPtr(h);
+}
+
+static PyObject*
+free_library(PyObject *self, PyObject *args) {
+	PyObject *handle;
+	if (!PyArg_ParseTuple(args, "O!", &PyLong_Type, &handle)) return NULL;
+	if (!FreeLibrary(PyLong_AsVoidPtr(handle))) return PyErr_SetFromWindowsErr(0);
+	Py_RETURN_NONE;
+}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
 #define M(name, args) { #name, name, args, ""}
 static PyMethodDef winutil_methods[] = {
     M(get_dll_directory, METH_NOARGS),
+    M(get_async_key_state, METH_VARARGS),
     M(create_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),
     M(get_long_path_name, METH_VARARGS),
     M(get_process_times, METH_O),
+	M(get_handle_information, METH_VARARGS),
+	M(get_last_error, METH_NOARGS),
+	M(load_library, METH_VARARGS),
+	M(free_library, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -891,6 +936,11 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "PIPE_REJECT_REMOTE_CLIENTS", PIPE_REJECT_REMOTE_CLIENTS);
     PyModule_AddIntConstant(m, "HANDLE_FLAG_INHERIT", HANDLE_FLAG_INHERIT);
     PyModule_AddIntConstant(m, "HANDLE_FLAG_PROTECT_FROM_CLOSE", HANDLE_FLAG_PROTECT_FROM_CLOSE);
+    PyModule_AddIntConstant(m, "VK_RMENU", VK_RMENU);
+    PyModule_AddIntConstant(m, "DONT_RESOLVE_DLL_REFERENCES", DONT_RESOLVE_DLL_REFERENCES);
+    PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
+    PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+    PyModule_AddIntConstant(m, "RT_GROUP_ICON", RT_GROUP_ICON);
 
     return m;
 }
