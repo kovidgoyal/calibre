@@ -90,11 +90,15 @@ def is_category(field):
     return field in {x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])}
 
 
+def escape_for_menu(x):
+    return x.replace('&', '&&')
+
+
 def init_manage_action(ac, field, value):
     from calibre.library.field_metadata import category_icon_map
     ic = category_icon_map.get(field) or 'blank.png'
     ac.setIcon(QIcon(I(ic)))
-    ac.setText(_('Manage %s') % value)
+    ac.setText(_('Manage %s') % escape_for_menu(value))
     ac.current_fmt = field, value
     return ac
 
@@ -104,7 +108,7 @@ def init_find_in_tag_browser(menu, ac, field, value):
     hidden_cats = get_gui().tags_view.model().hidden_categories
     if field not in hidden_cats:
         ac.setIcon(QIcon(I('search.png')))
-        ac.setText(_('Find %s in the Tag browser') % value)
+        ac.setText(_('Find %s in the Tag browser') % escape_for_menu(value))
         ac.current_fmt = field, value
         menu.addAction(ac)
 
@@ -291,7 +295,7 @@ def add_item_specific_entries(menu, data, book_info):
                 init_find_in_tag_browser(menu, find_action, field, value)
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
-            ac.setText(_('Remove %s from this book') % value)
+            ac.setText(_('Remove %s from this book') % escape_for_menu(value))
             menu.addAction(ac)
     return search_internet_added
 
