@@ -142,8 +142,6 @@ elif iswindows:
             except Exception:
                 import traceback
                 traceback.print_exc()
-            finally:
-                winutil.close_handle(dir_handle)
 
     class Watcher(WatcherBase):
 

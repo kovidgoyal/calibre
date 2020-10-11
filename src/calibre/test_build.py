@@ -10,7 +10,7 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import os, ctypes, sys, unittest, time
+import os, ctypes, sys, unittest, time, shutil
 
 from calibre.constants import plugins, iswindows, islinux, ismacos, plugins_loc
 from polyglot.builtins import iteritems, map, unicode_type, getenv
@@ -177,12 +177,12 @@ class BuildTest(unittest.TestCase):
         for fmt in (fmt, fmt.encode('ascii')):
             x = strftime(fmt, t)
             au(x, 'strftime')
-        tdir = winutil.temp_path()
+        tdir = tempfile.mkdtemp(dir=winutil.temp_path())
         path = os.path.join(tdir, 'test-create-file.txt')
         h = winutil.create_file(
             path, winutil.GENERIC_READ | winutil.GENERIC_WRITE, 0, winutil.OPEN_ALWAYS, winutil.FILE_ATTRIBUTE_NORMAL)
-        winutil.close_handle(h)
-        self.assertRaises(OSError, winutil.close_handle, h)
+        self.assertRaises(OSError, winutil.delete_file, path)
+        del h
         winutil.delete_file(path)
         self.assertRaises(OSError, winutil.delete_file, path)
         self.assertRaises(OSError, winutil.create_file,
@@ -198,10 +198,10 @@ class BuildTest(unittest.TestCase):
         self.assertEqual(winutil.read_file(h), b'')
         winutil.set_file_pointer(h, 3)
         self.assertEqual(winutil.read_file(h), data[3:])
-        winutil.close_handle(h)
         self.assertEqual(winutil.nlinks(path), 1)
         npath = path + '.2'
         winutil.create_hard_link(npath, path)
+        h.close()
         self.assertEqual(open(npath, 'rb').read(), data)
         self.assertEqual(winutil.nlinks(path), 2)
         winutil.delete_file(path)
@@ -242,9 +242,11 @@ class BuildTest(unittest.TestCase):
         self.assertTrue(events)
         for actions, path in events:
             self.assertEqual(os.path.join(dpath, path), testp)
-        winutil.close_handle(dh)
+        dh.close()
         os.remove(testp)
         os.rmdir(dpath)
+        del h
+        shutil.rmtree(tdir)
 
     def test_sqlite(self):
         import sqlite3

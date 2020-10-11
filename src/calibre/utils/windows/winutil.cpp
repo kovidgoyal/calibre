@@ -5,7 +5,7 @@
  * Distributed under terms of the GPL3 license.
  */
 
-
+#define PY_SSIZE_T_CLEAN
 #define UNICODE
 #include <Windows.h>
 #include <processthreadsapi.h>
@@ -18,6 +18,110 @@
 #include <atlbase.h>  // for CComPtr
 #include <Python.h>
 #include <versionhelpers.h>
+
+// Handle {{{
+typedef enum { NormalHandle, ModuleHandle, IconHandle } WinHandleType;
+
+typedef struct {
+    PyObject_HEAD
+	void *handle;
+	WinHandleType handle_type;
+	PyObject *associated_name;
+} Handle;
+
+static void
+Handle_close_(Handle *self) {
+	if (self->handle) {
+		switch(self->handle_type) {
+			case NormalHandle:
+				CloseHandle(self->handle); break;
+			case ModuleHandle:
+				FreeLibrary((HMODULE)self->handle); break;
+			case IconHandle:
+				DestroyIcon((HICON)self->handle); break;
+		}
+		self->handle = NULL;
+	}
+}
+
+static void
+Handle_dealloc(Handle *self) {
+	Handle_close_(self);
+	Py_CLEAR(self->associated_name);
+}
+
+static PyObject*
+Handle_as_int(Handle * self) {
+	return PyLong_FromVoidPtr(self->handle);
+}
+
+static PyObject*
+Handle_repr(Handle * self) {
+	const char* name = "UNKNOWN";
+	switch(self->handle_type) {
+		case NormalHandle:
+			name = "HANDLE"; break;
+		case ModuleHandle:
+			name = "HMODULE"; break;
+		case IconHandle:
+			name = "HICON"; break;
+	}
+	return PyUnicode_FromFormat("<Win32 handle of type %s at: %p %V>", name, self->handle, self->associated_name, "");
+}
+
+static PyNumberMethods HandleNumberMethods = {0};
+
+static PyTypeObject HandleType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+};
+
+static Handle*
+Handle_create(void *handle, WinHandleType handle_type = NormalHandle, PyObject *associated_name = NULL) {
+	Handle *self = (Handle *) HandleType.tp_alloc(&HandleType, 0);
+	if (self != NULL) {
+		self->handle = handle;
+		self->handle_type = handle_type;
+		if (associated_name) { self->associated_name = associated_name; Py_INCREF(associated_name); }
+	}
+	return self;
+}
+
+static int
+convert_handle(Handle *obj, void **output) {
+	if (Py_TYPE(obj) != &HandleType) {
+		PyErr_SetString(PyExc_TypeError, "Handle object expected");
+		return 0;
+	}
+	*output = obj->handle;
+	return 1;
+}
+
+static PyObject*
+set_error_from_handle(Handle *h, int error_code=0) {
+	if (h->associated_name) {
+		PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, error_code, h->associated_name);
+	} else PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, error_code, Handle_repr(h));
+	return NULL;
+}
+
+static PyObject*
+set_error_from_handle(PyObject *args, int error_code=0, Py_ssize_t idx=0) {
+	return set_error_from_handle((Handle*)PyTuple_GET_ITEM(args, idx), error_code);
+}
+
+static PyObject*
+Handle_close(Handle *self) {
+	Handle_close_(self);
+	Py_RETURN_NONE;
+}
+
+#define M(name, args) {#name, (PyCFunction)Handle_##name, args, ""}
+static PyMethodDef Handle_methods[] = {
+	M(close, METH_NOARGS),
+    {NULL, NULL, 0, NULL}
+};
+#undef M
+// }}}
 
 class DeleteFileProgressSink : public IFileOperationProgressSink {  // {{{
  public:
@@ -128,7 +232,7 @@ class scoped_com_initializer {  // {{{
 }; // }}}
 
 // py_to_wchar {{{
-static inline int
+static int
 py_to_wchar(PyObject *obj, wchar_raii *output) {
 	if (!PyUnicode_Check(obj)) {
 		if (obj == Py_None) { return 1; }
@@ -141,7 +245,7 @@ py_to_wchar(PyObject *obj, wchar_raii *output) {
 	return 1;
 }
 
-static inline int
+static int
 py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
 	if (!PyUnicode_Check(obj)) {
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
@@ -152,22 +256,6 @@ py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
 	output->set_ptr(buf);
 	return 1;
 } // }}}
-
-static PyObject*  // set_error_from_file_handle {{{
-set_error_from_file_handle(HANDLE h) {
-    int error_code = GetLastError();
-    wchar_t buf[4096] = {0};
-    if (GetFinalPathNameByHandleW(h, buf, 4095, FILE_NAME_OPENED)) {
-        PyObject *fname = PyUnicode_FromWideChar(buf, -1);
-        if (fname) {
-            PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, error_code, fname);
-            Py_DECREF(fname);
-            return NULL;
-        }
-    }
-    return PyErr_SetFromWindowsErr(error_code);
-} // }}}
-
 
 static PyObject *
 winutil_folder_path(PyObject *self, PyObject *args) {
@@ -263,13 +351,6 @@ winutil_localeconv(PyObject *self) {
 #undef W
 }
 
-static PyObject*
-winutil_close_handle(PyObject *self, PyObject *pyhandle) {
-    if (!PyLong_Check(pyhandle)) { PyErr_SetString(PyExc_TypeError, "handle must be an int"); return NULL; }
-    if (!CloseHandle(PyLong_AsVoidPtr(pyhandle))) return PyErr_SetFromWindowsErr(0);
-    Py_RETURN_NONE;
-}
-
 
 static PyObject*
 winutil_move_file(PyObject *self, PyObject *args) {
@@ -293,18 +374,18 @@ winutil_get_disk_free_space(PyObject *self, PyObject *args) {
 static PyObject*
 winutil_read_file(PyObject *self, PyObject *args) {
     unsigned long chunk_size = 16 * 1024;
-    PyObject *handle;
-    if (!PyArg_ParseTuple(args, "O!|k", &PyLong_Type, &handle, &chunk_size)) return NULL;
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&|k", convert_handle, &handle, &chunk_size)) return NULL;
     PyObject *ans = PyBytes_FromStringAndSize(NULL, chunk_size);
     if (!ans) return PyErr_NoMemory();
     DWORD bytes_read;
     BOOL ok;
     Py_BEGIN_ALLOW_THREADS;
-    ok = ReadFile(PyLong_AsVoidPtr(handle), PyBytes_AS_STRING(ans), chunk_size, &bytes_read, NULL);
+    ok = ReadFile(handle, PyBytes_AS_STRING(ans), chunk_size, &bytes_read, NULL);
     Py_END_ALLOW_THREADS;
     if (!ok) {
         Py_DECREF(ans);
-        return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
+        return set_error_from_handle(args);
     }
     if (bytes_read < chunk_size) _PyBytes_Resize(&ans, bytes_read);
     return ans;
@@ -312,14 +393,15 @@ winutil_read_file(PyObject *self, PyObject *args) {
 
 static PyObject*
 winutil_read_directory_changes(PyObject *self, PyObject *args) {
-    PyObject *buffer, *handle; int watch_subtree; unsigned long filter;
-    if (!PyArg_ParseTuple(args, "O!O!pk", &PyLong_Type, &handle, &PyBytes_Type, &buffer, &watch_subtree, &filter)) return NULL;
+    PyObject *buffer; int watch_subtree; unsigned long filter;
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&O!pk", convert_handle, &handle, &PyBytes_Type, &buffer, &watch_subtree, &filter)) return NULL;
     DWORD bytes_returned;
     BOOL ok;
     Py_BEGIN_ALLOW_THREADS;
-    ok = ReadDirectoryChangesW(PyLong_AsVoidPtr(handle), PyBytes_AS_STRING(buffer), (DWORD)PyBytes_GET_SIZE(buffer), watch_subtree, filter, &bytes_returned, NULL, NULL);
+    ok = ReadDirectoryChangesW(handle, PyBytes_AS_STRING(buffer), (DWORD)PyBytes_GET_SIZE(buffer), watch_subtree, filter, &bytes_returned, NULL, NULL);
     Py_END_ALLOW_THREADS;
-    if (!ok) return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
+    if (!ok) return set_error_from_handle(args);
     PFILE_NOTIFY_INFORMATION p;
     size_t offset = 0;
     PyObject *ans = PyList_New(0);
@@ -344,20 +426,22 @@ winutil_read_directory_changes(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
-winutil_get_file_size(PyObject *self, PyObject *pyhandle) {
-    if (!PyLong_Check(pyhandle)) { PyErr_SetString(PyExc_TypeError, "handle must be an int"); return NULL; }
+winutil_get_file_size(PyObject *self, PyObject *args) {
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&", convert_handle, &handle)) return NULL;
     LARGE_INTEGER ans = {0};
-    if (!GetFileSizeEx(PyLong_AsVoidPtr(pyhandle), &ans)) return set_error_from_file_handle(PyLong_AsVoidPtr(pyhandle));
+    if (!GetFileSizeEx(handle, &ans)) return set_error_from_handle(args);
     return PyLong_FromLongLong(ans.QuadPart);
 }
 
 static PyObject*
 winutil_set_file_pointer(PyObject *self, PyObject *args) {
-    PyObject *handle; unsigned long move_method = FILE_BEGIN;
+    unsigned long move_method = FILE_BEGIN;
+	HANDLE handle;
     LARGE_INTEGER pos = {0};
-    if (!PyArg_ParseTuple(args, "O!L|k", &PyLong_Type, &handle, &pos.QuadPart, &move_method)) return NULL;
+    if (!PyArg_ParseTuple(args, "O&L|k", convert_handle, &handle, &pos.QuadPart, &move_method)) return NULL;
     LARGE_INTEGER ans = {0};
-    if (!SetFilePointerEx(PyLong_AsVoidPtr(handle), pos, &ans, move_method)) return set_error_from_file_handle(PyLong_AsVoidPtr(handle));
+    if (!SetFilePointerEx(handle, pos, &ans, move_method)) return set_error_from_handle(args);
     return PyLong_FromLongLong(ans.QuadPart);
 }
 
@@ -370,7 +454,7 @@ winutil_create_file(PyObject *self, PyObject *args) {
         path.ptr(), desired_access, share_mode, NULL, creation_disposition, flags_and_attributes, NULL
     );
     if (h == INVALID_HANDLE_VALUE) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
-    return PyLong_FromVoidPtr(h);
+    return (PyObject*)Handle_create(h, NormalHandle, PyTuple_GET_ITEM(args, 0));
 }
 
 static PyObject*
@@ -608,14 +692,15 @@ create_named_pipe(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O&kkkkkk", py_to_wchar_no_none, &name, &open_mode, &pipe_mode, &max_instances, &out_buffer_size, &in_buffer_size, &default_time_out)) return NULL;
     HANDLE h = CreateNamedPipeW(name.ptr(), open_mode, pipe_mode, max_instances, out_buffer_size, in_buffer_size, default_time_out, NULL);
     if (h == INVALID_HANDLE_VALUE) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
-    return PyLong_FromVoidPtr(h);
+    return (PyObject*)Handle_create(h, NormalHandle, PyTuple_GET_ITEM(args, 0));
 }
 
 static PyObject *
 set_handle_information(PyObject *self, PyObject *args) {
-    PyObject *handle; unsigned long mask, flags;
-    if (!PyArg_ParseTuple(args, "O!kk", &PyLong_Type, &handle, &mask, &flags)) return NULL;
-    if (!SetHandleInformation(PyLong_AsVoidPtr(handle), mask, flags)) return PyErr_SetFromWindowsErr(0);
+    unsigned long mask, flags;
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&kk", convert_handle, &handle, &mask, &flags)) return NULL;
+    if (!SetHandleInformation(handle, mask, flags)) return set_error_from_handle(args);
     Py_RETURN_NONE;
 }
 
@@ -639,7 +724,7 @@ get_long_path_name(PyObject *self, PyObject *args) {
 
 static PyObject *
 get_process_times(PyObject *self, PyObject *pid) {
-    HANDLE h;
+    HANDLE h = INVALID_HANDLE_VALUE;
     if (pid == Py_None) {
         h = GetCurrentProcess();
     } else if (PyLong_Check(pid)) {
@@ -669,10 +754,10 @@ get_async_key_state(PyObject *self, PyObject *args) {
 
 static PyObject*
 get_handle_information(PyObject *self, PyObject *args) {
-	PyObject *handle;
-	if (!PyArg_ParseTuple(args, "O!", &PyLong_Type, &handle)) return NULL;
+	HANDLE handle;
+	if (!PyArg_ParseTuple(args, "O&", convert_handle, &handle)) return NULL;
 	DWORD ans;
-	if (!GetHandleInformation(PyLong_AsVoidPtr(handle), &ans)) return PyErr_SetFromWindowsErr(0);
+	if (!GetHandleInformation(handle, &ans)) return set_error_from_handle(args);
 	return PyLong_FromUnsignedLong(ans);
 }
 
@@ -687,16 +772,8 @@ load_library(PyObject *self, PyObject *args) {
 	wchar_raii path;
 	if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar_no_none, &path, &flags)) return NULL;
 	HMODULE h = LoadLibraryEx(path.ptr(), NULL, flags);
-	if (h == NULL) return PyErr_SetFromWindowsErr(0);
-	return PyLong_FromVoidPtr(h);
-}
-
-static PyObject*
-free_library(PyObject *self, PyObject *args) {
-	PyObject *handle;
-	if (!PyArg_ParseTuple(args, "O!", &PyLong_Type, &handle)) return NULL;
-	if (!FreeLibrary((HMODULE)PyLong_AsVoidPtr(handle))) return PyErr_SetFromWindowsErr(0);
-	Py_RETURN_NONE;
+	if (h == NULL) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	return (PyObject*)Handle_create(h, ModuleHandle, PyTuple_GET_ITEM(args, 0));
 }
 
 // Boilerplate  {{{
@@ -713,7 +790,6 @@ static PyMethodDef winutil_methods[] = {
 	M(get_handle_information, METH_VARARGS),
 	M(get_last_error, METH_NOARGS),
 	M(load_library, METH_VARARGS),
-	M(free_library, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -792,7 +868,7 @@ static PyMethodDef winutil_methods[] = {
         "create_file(path, desired_access, share_mode, creation_disposition, flags_and_attributes)\n\nWrapper for CreateFile"
     },
 
-    {"get_file_size", (PyCFunction)winutil_get_file_size, METH_O,
+    {"get_file_size", (PyCFunction)winutil_get_file_size, METH_VARARGS,
         "get_file_size(handle)\n\nWrapper for GetFileSizeEx"
     },
 
@@ -806,10 +882,6 @@ static PyMethodDef winutil_methods[] = {
 
     {"get_disk_free_space", (PyCFunction)winutil_get_disk_free_space, METH_VARARGS,
         "get_disk_free_space(path)\n\nWrapper for GetDiskFreeSpaceEx"
-    },
-
-    {"close_handle", (PyCFunction)winutil_close_handle, METH_O,
-        "close_handle(handle)\n\nWrapper for CloseHandle"
     },
 
     {"delete_file", (PyCFunction)winutil_delete_file, METH_VARARGS,
@@ -857,12 +929,30 @@ static struct PyModuleDef winutil_module = {
 extern "C" {
 
 CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
+    HandleType.tp_name = "winutil.Handle";
+    HandleType.tp_doc = "Wrappers for Win32 handles that free the handle on delete automatically";
+    HandleType.tp_basicsize = sizeof(Handle);
+    HandleType.tp_itemsize = 0;
+    HandleType.tp_flags = Py_TPFLAGS_DEFAULT;
+	HandleType.tp_repr = (reprfunc)Handle_repr;
+	HandleType.tp_as_number = &HandleNumberMethods;
+	HandleType.tp_str = (reprfunc)Handle_repr;
+    HandleType.tp_new = PyType_GenericNew;
+    HandleType.tp_methods = Handle_methods;
+	HandleType.tp_dealloc = (destructor)Handle_dealloc;
+	if (PyType_Ready(&HandleType) < 0) return NULL;
+
     PyObject *m = PyModule_Create(&winutil_module);
 
-    if (m == NULL) {
+    if (m == NULL) return NULL;
+
+	Py_INCREF(&HandleType);
+    if (PyModule_AddObject(m, "Handle", (PyObject *) &HandleType) < 0) {
+        Py_DECREF(&HandleType);
+        Py_DECREF(m);
         return NULL;
     }
-
     PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
     PyModule_AddIntConstant(m, "CSIDL_APPDATA", CSIDL_APPDATA);
     PyModule_AddIntConstant(m, "CSIDL_COMMON_ADMINTOOLS", CSIDL_COMMON_ADMINTOOLS);
