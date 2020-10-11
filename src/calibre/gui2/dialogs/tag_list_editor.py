@@ -277,8 +277,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.triggered.connect(self.undo_edit)
         ca.setEnabled(False)
         for item in self.table.selectedItems():
-            if (item.text() != self.original_names[int(item.data(Qt.UserRole))]
-                     or item.is_deleted):
+            if (item.text() != self.original_names[int(item.data(Qt.UserRole))] or item.is_deleted):
                 ca.setEnabled(True)
                 break
         ca = m.addAction(_('Edit'))
