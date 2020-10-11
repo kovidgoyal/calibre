@@ -257,7 +257,8 @@ class TagBrowserMixin(object):  # {{{
         else:
             key = sort_key
 
-        d = TagListEditor(self, cat_name=db.field_metadata[category]['name'],
+        d = TagListEditor(self, category=category,
+                          cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag,
                           get_book_ids=partial(self.get_book_ids, db=db, category=category),
                           sorter=key, ttm_is_first_letter=is_first_letter)

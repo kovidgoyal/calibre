@@ -9,13 +9,16 @@ from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
                       QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
                       pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu)
 
-from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
+from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.config import prefs
-from calibre.utils.icu import contains, primary_contains, primary_startswith
+from calibre.utils.icu import contains, primary_contains, primary_startswith, capitalize
+from calibre.utils.titlecase import titlecase
 from polyglot.builtins import unicode_type
 
 QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
@@ -138,7 +141,7 @@ class EditColumnDelegate(QItemDelegate):
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
-                 ttm_is_first_letter=False):
+                 ttm_is_first_letter=False, category=None):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -148,6 +151,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         # Put the category name into the title bar
         t = self.windowTitle()
         self.category_name = cat_name
+        self.category = category
         self.setWindowTitle(t + ' (' + cat_name + ')')
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -261,14 +265,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         m = self.au_context_menu = QMenu(self)
 
         item = self.table.itemAt(point)
-        disable_copy_paste = len(self.table.selectedItems()) != 1 or item.is_deleted
+        disable_copy_paste_search = len(self.table.selectedItems()) != 1 or item.is_deleted
         ca = m.addAction(_('Copy'))
         ca.triggered.connect(partial(self.copy_to_clipboard, item))
-        if disable_copy_paste:
+        if disable_copy_paste_search:
             ca.setEnabled(False)
         ca = m.addAction(_('Paste'))
         ca.triggered.connect(partial(self.paste_from_clipboard, item))
-        if disable_copy_paste:
+        if disable_copy_paste_search:
             ca.setEnabled(False)
         ca = m.addAction(_('Undo'))
         ca.triggered.connect(self.undo_edit)
@@ -282,6 +286,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.triggered.connect(self.rename_tag)
         ca = m.addAction(_('Delete'))
         ca.triggered.connect(self.delete_tags)
+        if self.category is not None:
+            ca = m.addAction(_("Search books for '{0}'").format(
+                                   unicode_type(item.text())))
+            ca.triggered.connect(partial(self.search_for_books, item))
+            if disable_copy_paste_search:
+                ca.setEnabled(False)
         m.addSeparator()
         case_menu = QMenu(_('Change case'))
         action_upper_case = case_menu.addAction(_('Upper case'))
@@ -289,13 +299,27 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         action_swap_case = case_menu.addAction(_('Swap case'))
         action_title_case = case_menu.addAction(_('Title case'))
         action_capitalize = case_menu.addAction(_('Capitalize'))
-        action_upper_case.triggered.connect(partial(self.do_case, self.upper_case))
-        action_lower_case.triggered.connect(partial(self.do_case, self.lower_case))
+        action_upper_case.triggered.connect(partial(self.do_case, icu_upper))
+        action_lower_case.triggered.connect(partial(self.do_case, icu_lower))
         action_swap_case.triggered.connect(partial(self.do_case, self.swap_case))
-        action_title_case.triggered.connect(partial(self.do_case, self.title_case))
-        action_capitalize.triggered.connect(partial(self.do_case, self.capitalize))
+        action_title_case.triggered.connect(partial(self.do_case, titlecase))
+        action_capitalize.triggered.connect(partial(self.do_case, capitalize))
         m.addMenu(case_menu)
         m.exec_(self.table.mapToGlobal(point))
+
+    def search_for_books(self, item):
+        get_gui().search.set_search_string('{0}:"{1}"'.format(self.category,
+                                   unicode_type(item.text()).replace(r'"', r'\"')))
+
+        qv = get_quickview_action_plugin()
+        if qv:
+            view = get_gui().library_view
+            rows = view.selectionModel().selectedRows()
+            if len(rows) > 0:
+                current_row = rows[0].row()
+                current_col = view.column_map.index(self.category)
+                index = view.model().index(current_row, current_col)
+                qv.change_quickview_column(index)
 
     def copy_to_clipboard(self, item):
         cb = QApplication.clipboard()
@@ -310,25 +334,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         # block signals to avoid the "edit one changes all" behavior
         self.table.blockSignals(True)
         for item in items:
-            func(item)
+            item.setText(func(unicode_type(item.text())))
         self.table.blockSignals(False)
 
-    def upper_case(self, item):
-        item.setText(icu_upper(unicode_type(item.text())))
-
-    def lower_case(self, item):
-        item.setText(icu_lower(unicode_type(item.text())))
-
-    def swap_case(self, item):
-        item.setText(unicode_type(item.text()).swapcase())
-
-    def title_case(self, item):
-        from calibre.utils.titlecase import titlecase
-        item.setText(titlecase(unicode_type(item.text())))
-
-    def capitalize(self, item):
-        from calibre.utils.icu import capitalize
-        item.setText(capitalize(unicode_type(item.text())))
+    def swap_case(self, txt):
+        return txt.swapcase()
 
     def vl_box_changed(self):
         self.search_item_row = -1
