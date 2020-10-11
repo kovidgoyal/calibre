@@ -259,7 +259,7 @@ class Quickview(QDialog, Ui_Quickview):
 
         self.books_table.horizontalHeader().sectionResized.connect(self.section_resized)
         self.dock_button.clicked.connect(self.show_as_pane_changed)
-        self.gui.search.cleared.connect(self.indicate_no_items)
+        self.view.model().search_done.connect(self.check_for_no_items)
 
         # Enable the refresh button only when QV is locked
         self.refresh_button.setEnabled(False)
@@ -555,8 +555,11 @@ class Quickview(QDialog, Ui_Quickview):
             self.fill_in_books_box(vals[0])
         else:
             self.indicate_no_items()
-
         self.items.blockSignals(False)
+
+    def check_for_no_items(self):
+        if not self.is_closed and self.view.model().count() == 0:
+            self.indicate_no_items()
 
     def indicate_no_items(self):
         self.no_valid_items = True
