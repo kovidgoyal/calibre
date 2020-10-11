@@ -277,13 +277,23 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                         self.index(num-1, 0, group))
 
     def commit(self):
-        kmap = {}
+        # start with a copy and remove set_to_defaults instead of
+        # building from empty because shortcuts tied to actions not
+        # visible in the current library will be erased otherwise.
+        # Reading List, View Manager and FanFicFare plugins are
+        # examples where menu actions change by library.
+        kmap = dict(self.keyboard.config['map'])
         for node in self.all_shortcuts:
             sc = node.data
             if sc['set_to_default']:
-                continue
-            keys = [unicode_type(k.toString(k.PortableText)) for k in sc['keys']]
-            kmap[sc['unique_name']] = keys
+                if sc['unique_name'] in kmap:
+                    del kmap[sc['unique_name']]
+            else:
+                keys = [unicode_type(k.toString(k.PortableText)) for k in sc['keys']]
+                kmap[sc['unique_name']] = keys
+        # note that something further on appears to depends on
+        # self.keyboard.config['map'] being a different object now to
+        # signal to save it.
         self.keyboard.config['map'] = kmap
 
     def universal_set(self):
