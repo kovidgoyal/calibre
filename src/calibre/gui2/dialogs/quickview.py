@@ -311,7 +311,7 @@ class Quickview(QDialog, Ui_Quickview):
         book_id = int(item.data(Qt.UserRole))
         book_displayed = self.book_displayed_in_library_view(book_id)
         m = self.context_menu = QMenu(self)
-        a = m.addAction(self.select_book_icon, _('Select book in the library'),
+        a = m.addAction(self.select_book_icon, _('Select this book in the library'),
                                 partial(self.select_book, book_id))
         a.setEnabled(book_displayed)
         m.addAction(self.search_icon, _('Search for item in the library'),
