@@ -13,7 +13,6 @@ from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.utils.config import prefs
@@ -308,6 +307,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         m.exec_(self.table.mapToGlobal(point))
 
     def search_for_books(self, item):
+        from calibre.gui2.ui import get_gui
         get_gui().search.set_search_string('{0}:"{1}"'.format(self.category,
                                    unicode_type(item.text()).replace(r'"', r'\"')))
 
