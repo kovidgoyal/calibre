@@ -4,8 +4,6 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import re
-
 from calibre.web.feeds.news import BasicNewsRecipe, classes
 
 country = 'us'
@@ -21,6 +19,19 @@ country_defs = {
 }
 
 
+def prefixed_classes(classes):
+    q = frozenset(classes.split(' '))
+
+    def matcher(x):
+        if x:
+            for candidate in frozenset(x.split()):
+                for x in q:
+                    if candidate.startswith(x):
+                        return True
+        return False
+    return {'attrs': {'class': matcher}}
+
+
 class Reuters(BasicNewsRecipe):
     title = 'Reuters'
     description = 'News from all over'
@@ -28,12 +39,23 @@ class Reuters(BasicNewsRecipe):
     language = 'en'
 
     keep_only_tags = [
-        classes('ArticleHeader_content-container StandardArticleBody_body')
+        prefixed_classes('ArticlePage-article-header ArticlePage-article-body'),
     ]
     remove_tags = [
-        classes('Image_expand-button RelatedCoverage_related-coverage-module'),
-        dict(name='link'),
+        prefixed_classes('ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer-'),
+        dict(name=['button', 'link']),
     ]
+
+    def preprocess_html(self, soup, *a):
+        meta = soup.find(attrs={'name': "sailthru.image.full"})
+        if meta is not None:
+            url = meta['content']
+            body = soup.find(**prefixed_classes('ArticlePage-article-body'))
+            if body is not None:
+                div = soup.new_tag('div')
+                div.append(soup.new_tag('img', src=url))
+                body.insert(0, div)
+        return soup
 
     def parse_index(self):
         base, sections = country_defs[country]
@@ -59,19 +81,3 @@ class Reuters(BasicNewsRecipe):
             url = 'https://{}{}'.format(base, a['href'])
             self.log('\t', title, url)
             yield {'title': title, 'url': url}
-
-    def preprocess_html(self, soup):
-        url_pat = re.compile(r'url\((.+?)\)')
-        for div in soup.findAll(style=True, **classes('LazyImage_image')):
-            m = url_pat.search(div['style'])
-            if m is None:
-                self.warn('Failed to find lazy image url in:', div['style'])
-                continue
-            url = m.group(1)
-            if url.startswith('//'):
-                url = 'https:' + url
-            url = url.replace('&w=20', '')
-            img = div.findPreviousSibling('img')
-            img['src'] = url
-            img['data-modified'] = url
-        return soup
