@@ -269,6 +269,8 @@ class Key(object):
                 file_time = RegEnumKeyEx(self.hkey, i, name_buf, ctypes.byref(lname_buf))
             except ValueError:
                 raise RuntimeError('Enumerating keys failed with buffer too small, which should never happen')
+            except StopIteration:
+                break
             if get_last_write_times:
                 yield name_buf.value[:lname_buf.value], filetime_to_datettime(file_time)
             else:
@@ -330,11 +332,16 @@ class Key(object):
                     except ValueError:
                         data_buf = (BYTE * ldata_buf.value)()
                         continue
+                    except StopIteration:
+                        break
                     data = convert_registry_data(data_buf, ldata_buf.value, vtype.value)
                     yield name_buf.value[:lname_buf.value], data
                 else:
-                    RegEnumValue(
-                        key, i, name_buf, ctypes.byref(lname_buf), None, None, None, None)
+                    try:
+                        RegEnumValue(
+                            key, i, name_buf, ctypes.byref(lname_buf), None, None, None, None)
+                    except StopIteration:
+                        break
                     yield name_buf.value[:lname_buf.value]
 
                 i += 1
