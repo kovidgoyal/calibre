@@ -285,7 +285,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca = m.addAction(_('Delete'))
         ca.triggered.connect(self.delete_tags)
         if self.category is not None:
-            ca = m.addAction(_("Search books for '{0}'").format(
+            ca = m.addAction(_("Search the library for '{0}'").format(
                                    unicode_type(item.text())))
             ca.triggered.connect(partial(self.search_for_books, item))
             if disable_copy_paste_search:
