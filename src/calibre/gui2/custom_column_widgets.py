@@ -34,6 +34,16 @@ def safe_disconnect(signal):
         pass
 
 
+def label_string(txt):
+    if txt:
+        try:
+            if txt[0].isalnum():
+                return '&' + txt
+        except:
+            pass
+    return txt
+
+
 class Base(object):
 
     def __init__(self, db, col_id, parent=None):
@@ -101,7 +111,8 @@ class Base(object):
 class SimpleText(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), QLineEdit(parent)]
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent),
+                        QLineEdit(parent)]
 
     def setter(self, val):
         self.widgets[1].setText(unicode_type(val or ''))
@@ -118,7 +129,7 @@ class LongText(Base):
 
     def setup_ui(self, parent):
         self._box = QGroupBox(parent)
-        self._box.setTitle('&'+self.col_metadata['name'])
+        self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
         self._tb = QPlainTextEdit(self._box)
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -140,7 +151,7 @@ class LongText(Base):
 class Bool(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent)]
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent)]
         w = QWidget(parent)
         self.widgets.append(w)
 
@@ -213,7 +224,7 @@ class Int(Base):
 
     def setup_ui(self, parent):
         self.was_none = False
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent),
                 ClearingSpinBox(parent)]
         w = self.widgets[1]
         w.setRange(-1000000, 100000000)
@@ -246,7 +257,7 @@ class Int(Base):
 class Float(Int):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent),
                 ClearingDoubleSpinBox(parent)]
         w = self.widgets[1]
         w.setRange(-1000000., float(100000000))
@@ -261,7 +272,8 @@ class Rating(Base):
 
     def setup_ui(self, parent):
         allow_half_stars = self.col_metadata['display'].get('allow_half_stars', False)
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), RatingEditor(parent=parent, is_half_star=allow_half_stars)]
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent),
+                        RatingEditor(parent=parent, is_half_star=allow_half_stars)]
 
     def setter(self, val):
         val = max(0, min(int(val or 0), 10))
@@ -297,42 +309,42 @@ class DateTime(Base):
 
     def setup_ui(self, parent):
         cm = self.col_metadata
-        self.widgets = [QLabel('&'+cm['name']+':', parent), DateTimeEdit(parent)]
-        self.widgets.append(QLabel(''))
+        self.widgets = [QLabel(label_string(cm['name'])+':', parent)]
         w = QWidget(parent)
         self.widgets.append(w)
         l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         w.setLayout(l)
-        l.addStretch(1)
-        self.today_button = QPushButton(_('Set \'%s\' to today')%cm['name'], parent)
-        l.addWidget(self.today_button)
-        self.clear_button = QPushButton(_('Clear \'%s\'')%cm['name'], parent)
-        l.addWidget(self.clear_button)
-        l.addStretch(2)
-
-        w = self.widgets[1]
+        self.dte = dte = DateTimeEdit(parent)
         format_ = cm['display'].get('date_format','')
         if not format_:
             format_ = 'dd MMM yyyy hh:mm'
         elif format_ == 'iso':
             format_ = internal_iso_format_string()
-        w.setDisplayFormat(format_)
-        w.setCalendarPopup(True)
-        w.setMinimumDateTime(UNDEFINED_QDATETIME)
-        w.setSpecialValueText(_('Undefined'))
-        self.today_button.clicked.connect(w.set_to_today)
-        self.clear_button.clicked.connect(w.set_to_clear)
+        dte.setDisplayFormat(format_)
+        dte.setCalendarPopup(True)
+        dte.setMinimumDateTime(UNDEFINED_QDATETIME)
+        dte.setSpecialValueText(_('Undefined'))
+        l.addWidget(dte)
+        self.today_button = QToolButton(parent)
+        self.today_button.setText(_('Today'))
+        self.today_button.clicked.connect(dte.set_to_today)
+        l.addWidget(self.today_button)
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.clicked.connect(dte.set_to_clear)
+        l.addWidget(self.clear_button)
+        l.addStretch(1)
 
     def setter(self, val):
         if val is None:
-            val = self.widgets[1].minimumDateTime()
+            val = self.dte.minimumDateTime()
         else:
             val = QDateTime(val)
-        self.widgets[1].setDateTime(val)
+        self.dte.setDateTime(val)
 
     def getter(self):
-        val = self.widgets[1].dateTime()
+        val = self.dte.dateTime()
         if val <= UNDEFINED_QDATETIME:
             val = None
         else:
@@ -346,15 +358,15 @@ class DateTime(Base):
         return as_utc(val) if val is not None else None
 
     def connect_data_changed(self, slot):
-        self.widgets[1].dateTimeChanged.connect(slot)
-        self.signals_to_disconnect.append(self.widgets[1].dateTimeChanged)
+        self.dte.dateTimeChanged.connect(slot)
+        self.signals_to_disconnect.append(self.dte.dateTimeChanged)
 
 
 class Comments(Base):
 
     def setup_ui(self, parent):
         self._box = QGroupBox(parent)
-        self._box.setTitle('&'+self.col_metadata['name'])
+        self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
         self._tb = CommentsEditor(self._box, toolbar_prefs_name='metadata-comments-editor-widget-hidden-toolbars')
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -475,7 +487,7 @@ class Text(Base):
             w.set_separator(None)
             w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent), w]
 
     def initialize(self, book_id):
         values = list(self.db.all_custom(num=self.col_id))
@@ -548,10 +560,10 @@ class Series(Base):
         w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
         self.name_widget = w
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), w]
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent), w]
         w.editTextChanged.connect(self.series_changed)
 
-        self.widgets.append(QLabel('&'+self.col_metadata['name']+_(' index:'), parent))
+        self.widgets.append(QLabel(label_string(self.col_metadata['name'])+_(' index:'), parent))
         w = QDoubleSpinBox(parent)
         w.setRange(-10000., float(100000000))
         w.setDecimals(2)
@@ -622,7 +634,7 @@ class Enumeration(Base):
 
     def setup_ui(self, parent):
         self.parent = parent
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', parent),
                 QComboBox(parent)]
         w = self.widgets[1]
         vals = self.col_metadata['display']['enum_values']
@@ -863,7 +875,7 @@ class BulkBase(Base):
     def make_widgets(self, parent, main_widget_class, extra_label_text='',
                      add_tags_edit_button=False):
         w = QWidget(parent)
-        self.widgets = [QLabel('&'+self.col_metadata['name']+':', w), w]
+        self.widgets = [QLabel(label_string(self.col_metadata['name'])+':', w), w]
         l = QHBoxLayout()
         l.setContentsMargins(0, 0, 0, 0)
         w.setLayout(l)
@@ -1019,18 +1031,14 @@ class BulkDateTime(BulkBase):
     def setup_ui(self, parent):
         cm = self.col_metadata
         self.make_widgets(parent, DateTimeEdit)
-        self.widgets.append(QLabel(''))
-        w = QWidget(parent)
-        self.widgets.append(w)
-        l = QHBoxLayout()
-        l.setContentsMargins(0, 0, 0, 0)
-        w.setLayout(l)
-        l.addStretch(1)
-        self.today_button = QPushButton(_('Set \'%s\' to today')%cm['name'], parent)
-        l.addWidget(self.today_button)
-        self.clear_button = QPushButton(_('Clear \'%s\'')%cm['name'], parent)
-        l.addWidget(self.clear_button)
-        l.addStretch(2)
+        l = self.widgets[1].layout()
+        self.today_button = QToolButton(parent)
+        self.today_button.setText(_('Today'))
+        l.insertWidget(1, self.today_button)
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon(I('trash.png')))
+        l.insertWidget(2, self.clear_button)
+        l.insertStretch(3)
 
         w = self.main_widget
         format_ = cm['display'].get('date_format','')
@@ -1297,7 +1305,8 @@ class BulkText(BulkBase):
                 self.edit_tags_button.clicked.connect(self.edit_add)
                 w = RemoveTags(parent, values)
                 w.remove_tags_button.clicked.connect(self.edit_remove)
-                self.widgets.append(QLabel('&'+self.col_metadata['name']+': ' + _('tags to remove'), parent))
+                self.widgets.append(QLabel(label_string(self.col_metadata['name'])+': ' +
+                                           _('tags to remove'), parent))
                 self.widgets.append(w)
                 self.removing_widget = w
                 self.main_widget.set_separator(',')
