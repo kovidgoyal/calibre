@@ -59,11 +59,20 @@ def build_rule(selector, **kw):
     ans.push('}')
     return ans.join('\n') + '\n'
 
+
 def clear():
     for v'var i = 0; i < arguments.length; i++':
         node = arguments[i]
         while node.firstChild:
             node.removeChild(node.firstChild)
+
+
+def remove_all_attributes():
+    for v'var i = 0; i < arguments.length; i++':
+        node = arguments[i]
+        while node.attributes.length > 0:
+            node.removeAttributeNode(node.attributes[0])
+
 
 def create_keyframes(animation_name, *frames):
     ans = v'[]'
@@ -80,13 +89,17 @@ def change_icon_image(icon_element, new_name):
     else:
         icon_element.firstChild.removeAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href')
 
-def svgicon(name, height, width):
+def svgicon(name, height, width, tooltip):
     ans = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     ans.setAttribute('style', 'fill: currentColor; height: {}; width: {}; vertical-align: text-top'.format(height ? '2ex', width ? '2ex'))
     u = document.createElementNS('http://www.w3.org/2000/svg', 'use')
     ans.appendChild(u)
     if name:
         ans.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + name)
+    if tooltip:
+        tt = document.createElementNS('http://www.w3.org/2000/svg', 'title')
+        tt.textContent = tooltip
+        ans.appendChild(tt)
     return ans
 
 def element(elem_id, child_selector):
@@ -124,3 +137,12 @@ def add_extra_css(func):
 
 def get_widget_css():
     return extra_css.join('\n')
+
+
+def set_radio_group_value(parent, name, val):
+    changed = False
+    for inp in parent.querySelectorAll(f'input[name={name}]'):
+        inp.checked = inp.value is val
+        changed = True
+    if not changed:
+        raise KeyError(f'No radio group with name={name} found')

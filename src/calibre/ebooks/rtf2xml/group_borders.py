@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -13,6 +14,7 @@
 import sys, os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class GroupBorders:
@@ -150,7 +152,7 @@ class GroupBorders:
             sys.stderr.write('Wrong flag in __after_pard_func\n')
             if self.__run_level > 2:
                 msg =  'wrong flag'
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
         elif self.__token_info in self.__end_list:
             self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
             self.__write_end_border_tag()
@@ -285,8 +287,8 @@ class GroupBorders:
         Logic:
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

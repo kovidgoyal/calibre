@@ -7,9 +7,11 @@ from gettext import gettext as _
 
 from ajax import ajax, ajax_send
 from book_list.theme import get_color, get_font_size
-from dom import add_extra_css, build_rule, clear, set_css, svgicon
+from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from popups import MODAL_Z_INDEX
 from utils import safe_set_inner_html
+from widgets import create_button
+from book_list.globals import get_session_data
 
 modal_container = None
 modal_count = 0
@@ -21,9 +23,6 @@ add_extra_css(def():
         background_color=get_color('dialog-background') + ' !important'
     )
     style += build_rule(
-        '#modal-container a.dialog-simple-link:hover', color='red !important'
-    )
-    style += build_rule(
         '.button-box', display='flex', justify_content='flex-end', padding='1rem 0rem', overflow='hidden'
     )
     style += build_rule('.button-box .calibre-push-button', transform_origin='right')
@@ -32,21 +31,23 @@ add_extra_css(def():
 
 class Modal:
 
-    def __init__(self, create_func, on_close, show_close):
+    def __init__(self, create_func, on_close, show_close, onkeydown):
         nonlocal modal_count
         self.create_func, self.on_close, self.show_close = create_func, on_close, show_close
+        self.onkeydown = onkeydown
         modal_count += 1
         self.id = modal_count
 
 class ModalContainer:
 
     def __init__(self):
-        div = E.div(id='modal-container',
+        div = E.div(id='modal-container', tabindex='0',
             E.div(  # popup
                 E.div(),  # content area
                 E.a(svgicon('close'), title=_('Close'))
             )
         )
+        div.addEventListener('keydown', self.onkeydown.bind(self), {'passive': False})
         document.body.appendChild(div)
 
         # Container style
@@ -85,10 +86,11 @@ class ModalContainer:
     def modal_container(self):
         return document.getElementById('modal-container')
 
-    def show_modal(self, create_func, on_close=None, show_close=True):
-        self.modals.push(Modal(create_func, on_close, show_close))
+    def show_modal(self, create_func, on_close=None, show_close=True, onkeydown=None):
+        self.modals.push(Modal(create_func, on_close, show_close, onkeydown))
         modal_id = self.modals[-1].id
         self.update()
+        window.setTimeout(def(): self.modal_container.focus();, 0)
         return modal_id
 
     def hide_modal(self, modal_id):
@@ -135,10 +137,17 @@ class ModalContainer:
         while self.current_modal is not None:
             self.close_current_modal()
 
+    def onkeydown(self, event):
+        if self.current_modal is not None and self.current_modal.onkeydown:
+            return self.current_modal.onkeydown(event, self.clear_current_modal.bind(self))
+        if (event.key is 'Escape' or event.key is 'Esc') and not event.altKey and not event.ctrlKey and not event.metaKey and not event.shiftKey:
+            event.preventDefault(), event.stopPropagation()
+            self.close_current_modal(event)
+
 
 def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     details = details or ''
-    show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
+    show_details = E.a(class_='blue-link', style='padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
     show_details.addEventListener('click', def():
         show_details.style.display = 'none'
         show_details.nextSibling.style.display = 'block'
@@ -174,11 +183,11 @@ def create_simple_dialog_markup(title, msg, details, icon, prefix, parent):
     )
 
 
-def create_simple_dialog(title, msg, details, icon, prefix):
-    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix))
+def create_simple_dialog(title, msg, details, icon, prefix, on_close=None):
+    show_modal(create_simple_dialog_markup.bind(None, title, msg, details, icon, prefix), on_close=on_close)
 
 
-def create_custom_dialog(title, content_generator_func):
+def create_custom_dialog(title, content_generator_func, on_close=None, onkeydown=None):
     def create_func(parent, close_modal):
         content_div = E.div()
         content_generator_func(content_div, close_modal)
@@ -188,7 +197,108 @@ def create_custom_dialog(title, content_generator_func):
                 E.h2(title, style='font-weight: bold; font-size: ' + get_font_size('title')),
                 E.div(content_div, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
         ))
-    show_modal(create_func)
+    show_modal(create_func, on_close=on_close, onkeydown=onkeydown)
+
+
+def get_text_dialog(title, callback, initial_text=None, msg=None, rows=12):
+    called = {}
+    cid = unique_id()
+
+    def keyaction(ok, close_modal):
+        if called.done:
+            return
+        called.done = True
+        text = document.getElementById(cid).value or ''
+        if close_modal:
+            close_modal()
+        callback(ok, text)
+
+    def on_keydown(event, close_modal):
+        if event.altKey or event.ctrlKey or event.metaKey or event.shiftKey:
+            return
+        if event.key is 'Escape' or event.key is 'Esc':
+            event.preventDefault(), event.stopPropagation()
+            keyaction(False, close_modal)
+
+    create_custom_dialog(
+        title, def(parent, close_modal):
+            parent.appendChild(E.div(
+                E.textarea(initial_text or '', placeholder=msg or '', id=cid, rows=rows + '', style='min-width: min(40rem, 60vw)'),
+                E.div(class_='button-box',
+                    create_button(_('OK'), 'check', keyaction.bind(None, True, close_modal), highlight=True),
+                    '\xa0',
+                    create_button(_('Cancel'), 'close', keyaction.bind(None, False, close_modal))
+                ),
+            ))
+            window.setTimeout(def(): parent.querySelector('textarea').focus();, 10)
+        ,
+        on_close=keyaction.bind(None, False, None),
+        onkeydown=on_keydown
+    )
+
+
+def question_dialog(
+    title, msg, callback, yes_text=None, no_text=None,
+    skip_dialog_name=None, skip_dialog_msg=None,
+    skip_dialog_skipped_value=True, skip_dialog_skip_precheck=True,
+):
+    yes_text = yes_text or _('Yes')
+    no_text = no_text or _('No')
+    called = {}
+
+    def keyaction(yes, close_modal):
+        if called.done:
+            return
+        called.done = True
+        if skip_dialog_name:
+            if not skip_box.querySelector('input').checked:
+                sd = get_session_data()
+                skipped_dialogs = Object.assign(v'{}', sd.get('skipped_dialogs', v'{}'))
+                skipped_dialogs[skip_dialog_name] = Date().toISOString()
+                sd.set('skipped_dialogs', skipped_dialogs)
+        if close_modal:
+            close_modal()
+        callback(yes)
+
+    def on_keydown(event, close_modal):
+        if event.altKey or event.ctrlKey or event.metaKey or event.shiftKey:
+            return
+        if event.key is 'Escape' or event.key is 'Esc':
+            event.preventDefault(), event.stopPropagation()
+            keyaction(False, close_modal)
+        if event.key is 'Enter' or event.key is 'Return' or event.key is 'Space':
+            event.preventDefault(), event.stopPropagation()
+            keyaction(True, close_modal)
+
+    skip_box = E.div(style='margin-top: 2ex;')
+    if skip_dialog_name:
+        sd = get_session_data()
+        skipped_dialogs = sd.get('skipped_dialogs', v'{}')
+        if skipped_dialogs[skip_dialog_name]:
+            return callback(skip_dialog_skipped_value)
+        skip_dialog_msg = skip_dialog_msg or _('Show this confirmation again')
+        skip_box.appendChild(E.label(E.input(type='checkbox', name='skip_dialog'), '\xa0', skip_dialog_msg))
+        if skip_dialog_skip_precheck:
+            skip_box.querySelector('input').checked = True
+    else:
+        skip_box.style.display = 'none'
+
+    create_custom_dialog(
+        title, def(parent, close_modal):
+            parent.appendChild(E.div(
+                E.div(msg),
+                skip_box,
+                E.div(class_='button-box',
+                    create_button(yes_text, 'check', keyaction.bind(None, True, close_modal), highlight=True),
+                    '\xa0',
+                    create_button(no_text, 'close', keyaction.bind(None, False, close_modal))
+                ))
+            )
+        ,
+        on_close=keyaction.bind(None, False, None),
+        onkeydown=on_keydown
+    )
+
 
 
 def create_progress_dialog(msg, on_close):
@@ -237,19 +347,19 @@ def create_modal_container():
     # , 10)
     return modal_container
 
-def show_modal(create_func, on_close=None, show_close=True):
-    return modal_container.show_modal(create_func, on_close, show_close)
+def show_modal(create_func, on_close=None, show_close=True, onkeydown=None):
+    return modal_container.show_modal(create_func, on_close, show_close, onkeydown)
 
 
 def close_all_modals():
     return modal_container.close_all_modals()
 
 
-def error_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'bug', _('Error:'))
+def error_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'bug', _('Error:'), on_close)
 
-def warning_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
+def warning_dialog(title, msg, details=None, on_close=None):
+    create_simple_dialog(title, msg, details, 'warning', _('Warning:'), on_close)
 
 def progress_dialog(msg, on_close=None):
     # Show a modal dialog with a progress bar and an optional close button.

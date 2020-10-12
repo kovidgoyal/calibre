@@ -4,6 +4,7 @@ __copyright__ = '2014, Darko Miletic <darko.miletic at gmail.com>'
 www.wired.com
 '''
 
+from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -15,10 +16,14 @@ def classes(classes):
 
 class WiredDailyNews(BasicNewsRecipe):
     title = 'Wired Daily Edition'
-    __author__ = 'Darko Miletic'
-    description = ('Wired is a full-color monthly American magazine, published in both print '
-                   'and online editions, that reports on how emerging technologies affect culture,'
-                   'the economy and politics.')
+    __author__ = 'Darko Miletic, PatStapleton(update 2020-05-24)'
+    description = (
+        'Wired is a full-color monthly American magazine, published in both print'
+        ' and online editions, that reports on how emerging technologies affect culture,'
+        ' the economy and politics.'
+    )
+    masthead_url = 'https://www.wired.com/images/logos/apple-touch-icon.png'
+    cover_url = 'https://www.wired.com/images/logos/wired.png'
     publisher = 'Conde Nast'
     category = 'news, IT, computers, technology'
     oldest_article = 2
@@ -30,39 +35,59 @@ class WiredDailyNews(BasicNewsRecipe):
     ignore_duplicate_articles = {'url'}
     remove_empty_feeds = True
     publication_type = 'newsportal'
-    extra_css             = """
-                            .entry-header{
-                                          text-transform: uppercase;
-                                          vertical-align: baseline;
-                                          display: inline;
-                                         }
-                            ul li{display: inline}
-                            """
+    extra_css = """
+        .entry-header{
+                        text-transform: uppercase;
+                        vertical-align: baseline;
+                        display: inline;
+                        }
+        ul li{display: inline}
+    """
 
     remove_tags = [
-        classes('related-cne-video-component tags-component podcast_storyboard inset-left-component'),
-        dict(name=['meta', 'link']),
+        classes('related-cne-video-component tags-component podcast_42 storyboard inset-left-component social-icons'),
+        dict(name=['meta', 'link', 'aside']),
         dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
     ]
     keep_only_tags = [
-        dict(name='main', attrs={'class': lambda x: x and 'article-main-component__content' in x}),
+        dict(name='article', attrs={'class': 'article main-content'}),
     ]
     remove_attributes = ['srcset']
     handle_gzip = True
 
     feeds = [
-    (u'Top Stories', u'https://www.wired.com/feed/'),
-    (u'Business', u'https://www.wired.com/category/business/feed/'),
-    (u'Design', u'https://www.wired.com/category/design/feed/'),
-    (u'Entertainment', u'https://www.wired.com/category/underwire/feed/'),
-    (u'Tech', u'https://www.wired.com/category/gear/feed/'),
-    (u'Product Reviews', u'https://www.wired.com/category/reviews/feed/'),
-    (u'Science', u'https://www.wired.com/category/science/feed/'),
-    (u'Science Blogs', u'https://www.wired.com/category/science/science-blogs/feed/'),
-    (u'Security', u'https://www.wired.com/category/security/feed/'),
-    (u'Transportation', u'https://www.wired.com/category/transportation/feed/'),
-    (u'Photo', u'https://www.wired.com/category/photo/feed/'),
+        (u'Top Stories', u'https://www.wired.com/feed/rss'),
+        (u'Business', u'https://www.wired.com/feed/category/business/latest/rss'),
+        (u'Culture', u'https://www.wired.com/feed/category/culture/latest/rss'),
+        (u'Gear', u'https://www.wired.com/feed/category/gear/latest/rss'),
+        (u'Ideas', u'https://www.wired.com/feed/category/ideas/latest/rss'),
+        (u'Science', u'https://www.wired.com/feed/category/science/latest/rss'),
+        (u'Security', u'https://www.wired.com/feed/category/security/latest/rss'),
+        (
+            u'Transportation',
+            u'https://www.wired.com/feed/category/transportation/latest/rss'
+        ),
+        (
+            u'Backchannel',
+            u'https://www.wired.com/feed/category/backchannel/latest/rss'
+        ),
+        (u'WIRED Guides', u'https://www.wired.com/feed/tag/wired-guide/latest/rss'),
+        #    (u'Photo', u'https://www.wired.com/feed/category/photo/latest/rss'),
     ]
 
     def get_article_url(self, article):
-        return article.get('link',  None)
+        return article.get('link', None)
+
+    # Wired changes the content it delivers based on cookies, so the
+    # following ensures that we send no cookies
+    def get_browser(self, *args, **kwargs):
+        return self
+
+    def clone_browser(self, *args, **kwargs):
+        return self.get_browser()
+
+    def open_novisit(self, *args, **kwargs):
+        br = browser()
+        return br.open_novisit(*args, **kwargs)
+
+    open = open_novisit

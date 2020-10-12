@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class Header:
@@ -120,9 +122,9 @@ class Header:
         """
         self.__initiate_sep_values()
         self.__header_holder = better_mktemp()
-        with open(self.__file) as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
-                with open(self.__header_holder, 'w') as self.__write_to_head_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
+                with open_for_write(self.__header_holder) as self.__write_to_head_obj:
                     for line in read_obj:
                         self.__token_info = line[:16]
                         # keep track of opening and closing brackets
@@ -137,8 +139,8 @@ class Header:
                         else:
                             self.__default_sep(line)
 
-        with open(self.__header_holder, 'r') as read_obj:
-            with open(self.__write_to, 'a') as write_obj:
+        with open_for_read(self.__header_holder) as read_obj:
+            with open_for_write(self.__write_to, append=True) as write_obj:
                 write_obj.write(
                 'mi<mk<header-beg\n')
                 for line in read_obj:
@@ -187,9 +189,9 @@ class Header:
         These two functions do the work of separating the footnotes form the
         body.
         """
-        with open(self.__file) as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
-                with open(self.__header_holder, 'w') as self.__write_to_head_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
+                with open_for_write(self.__header_holder) as self.__write_to_head_obj:
                     for line in read_obj:
                         self.__token_info = line[:16]
                         if self.__state == 'body':
@@ -225,9 +227,9 @@ class Header:
         print out to the third file.
         If no footnote marker is found, simply print out the token (line).
         """
-        self.__read_from_head_obj = open(self.__header_holder, 'r')
-        self.__write_obj = open(self.__write_to2, 'w')
-        with open(self.__write_to, 'r') as read_obj:
+        self.__read_from_head_obj = open_for_read(self.__header_holder)
+        self.__write_obj = open_for_write(self.__write_to2)
+        with open_for_read(self.__write_to) as read_obj:
             for line in read_obj:
                 if line[:16] == 'mi<mk<header-ind':
                     line = self.__get_head_from_temp(line[17:-1])

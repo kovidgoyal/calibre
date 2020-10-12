@@ -1,9 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 import ctypes
 from ctypes import windll
 from ctypes import wintypes
@@ -42,6 +41,7 @@ class SOCKADDR(ctypes.Structure):
         ('sa_family', wintypes.USHORT),
         ('sa_data', ctypes.c_char * 14),
     ]
+
 
 ERROR_SUCCESS = 0
 ERROR_INSUFFICIENT_BUFFER = 122
@@ -332,6 +332,7 @@ def _get_adapters():
             HeapFree(heap, 0, addresses)
             addresses = None
 
+
 Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status transmit_speed receive_speed')
 
 
@@ -389,8 +390,8 @@ def routes():
 
     return ans
 
+
 if __name__ == '__main__':
     from pprint import pprint
     pprint(adapters())
     pprint(routes())
-

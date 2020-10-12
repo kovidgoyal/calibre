@@ -1,11 +1,9 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-try:
-    from PIL import ImageFont
-    ImageFont
-except ImportError:
-    import ImageFont
+from PIL import ImageFont
 
 '''
 Default fonts used in the PRS500

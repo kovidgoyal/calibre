@@ -1,12 +1,18 @@
 __license__ = 'GPL v3'
 __copyright__ = '2010-2012, Darko Miletic <darko.miletic at gmail.com>, Rogelio Domínguez <rogelio.dominguez@gmail.com>'
 '''
-www.jornada.unam.mx
+www.jornada.com.mx
 '''
 
 import re
-from urllib import urlencode
-from urlparse import urlparse, urlunparse, parse_qs
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+try:
+    from urllib.parse import urlparse, urlunparse, parse_qs
+except ImportError:
+    from urlparse import urlparse, urlunparse, parse_qs
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -24,8 +30,8 @@ class LaJornada_mx(BasicNewsRecipe):
     use_embedded_content = False
     language = 'es_MX'
     remove_empty_feeds = True
-    cover_url = strftime("http://www.jornada.unam.mx/%Y/%m/%d/portada.pdf")
-    masthead_url = 'http://www.jornada.unam.mx/v7.0/imagenes/la-jornada-trans.png'
+    cover_url = strftime("http://www.jornada.com.mx/%Y/%m/%d/portada.pdf")
+    masthead_url = 'http://www.jornada.com.mx/v7.0/imagenes/la-jornada-trans.png'
     publication_type = 'newspaper'
     extra_css             = """
                                 body{font-family: "Times New Roman",serif }
@@ -65,20 +71,20 @@ class LaJornada_mx(BasicNewsRecipe):
 
     feeds = [
 
-    (u'Opinion', u'http://www.jornada.unam.mx/rss/opinion.xml'),
-    (u'Cartones', u'http://www.jornada.unam.mx/rss/cartones.xml'),
-    (u'Politica', u'http://www.jornada.unam.mx/rss/politica.xml'),
-    (u'Economia', u'http://www.jornada.unam.mx/rss/economia.xml'),
-    (u'Mundo', u'http://www.jornada.unam.mx/rss/mundo.xml'),
-    (u'Estados', u'http://www.jornada.unam.mx/rss/estados.xml'),
-    (u'Capital', u'http://www.jornada.unam.mx/rss/capital.xml'),
-    (u'Sociedad y justicia', u'http://www.jornada.unam.mx/rss/sociedad.xml'),
-    (u'Ciencias', u'http://www.jornada.unam.mx/rss/ciencias.xml'),
-    (u'Cultura', u'http://www.jornada.unam.mx/rss/cultura.xml'),
-    (u'Gastronomia', u'http://www.jornada.unam.mx/rss/gastronomia.xml'),
-    (u'Espectaculos', u'http://www.jornada.unam.mx/rss/espectaculos.xml'),
-    (u'Deportes', u'http://www.jornada.unam.mx/rss/deportes.xml'),
-    (u'Ultimas noticias', u'http://www.jornada.unam.mx/ultimas/news/RSS')
+    (u'Opinion', u'http://www.jornada.com.mx/rss/opinion.xml'),
+    (u'Cartones', u'http://www.jornada.com.mx/rss/cartones.xml'),
+    (u'Politica', u'http://www.jornada.com.mx/rss/politica.xml'),
+    (u'Economia', u'http://www.jornada.com.mx/rss/economia.xml'),
+    (u'Mundo', u'http://www.jornada.com.mx/rss/mundo.xml'),
+    (u'Estados', u'http://www.jornada.com.mx/rss/estados.xml'),
+    (u'Capital', u'http://www.jornada.com.mx/rss/capital.xml'),
+    (u'Sociedad y justicia', u'http://www.jornada.com.mx/rss/sociedad.xml'),
+    (u'Ciencias', u'http://www.jornada.com.mx/rss/ciencias.xml'),
+    (u'Cultura', u'http://www.jornada.com.mx/rss/cultura.xml'),
+    (u'Gastronomia', u'http://www.jornada.com.mx/rss/gastronomia.xml'),
+    (u'Espectaculos', u'http://www.jornada.com.mx/rss/espectaculos.xml'),
+    (u'Deportes', u'http://www.jornada.com.mx/rss/deportes.xml'),
+    (u'Ultimas noticias', u'http://www.jornada.com.mx/ultimas/news/RSS')
     ]
 
     def preprocess_html(self, soup):

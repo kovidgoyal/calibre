@@ -6,7 +6,12 @@ arstechnica.com
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ArsTechnica(BasicNewsRecipe):
@@ -33,12 +38,13 @@ class ArsTechnica(BasicNewsRecipe):
     '''
 
     keep_only_tags = [
-        dict(itemprop=['headline', 'description']), dict(attrs={'class': ['post-meta', 'article-guts', 'standalone']})
+        dict(itemprop=['headline', 'description']),
+        classes('post-meta article-guts standalone'),
     ]
 
     remove_tags = [
+        classes('site-header video corner-info article-expander left-column related-stories'),
         dict(name=['object', 'link', 'embed', 'iframe', 'meta']),
-        dict(attrs={'class': ['video', 'corner-info', 'article-expander']}),
         dict(id=['social-left', 'article-footer-wrap']),
         dict(name='nav', attrs={'class': 'subheading'}),
     ]
@@ -66,43 +72,15 @@ class ArsTechnica(BasicNewsRecipe):
         ('Internet', 'http://feeds.arstechnica.com/arstechnica/web'),
     ]
 
-    def append_page(self, soup, appendtag, position):
-        pager = soup.find(attrs={'class': 'numbers'})
-        if pager:
-            nexttag = pager.find(attrs={'class': 'next'})
-            if nexttag:
-                nurl = nexttag.parent['href']
-                rawc = self.index_to_soup(nurl, True)
-                soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
-                texttag = soup2.find(attrs={'class': 'article-guts'})
-                if texttag is not None:
-                    newpos = len(texttag.contents)
-                    self.append_page(soup2, texttag, newpos)
-                    texttag.extract()
-                    pager.extract()
-                    appendtag.insert(position, texttag)
+    recursions = 1
 
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body, 3)
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-                str = item.string
-                item.replaceWith(str)
-            else:
-                if limg:
-                    item.name = 'div'
-                    item.attrs = []
-                else:
-                    str = self.tag_to_string(item)
-                    item.replaceWith(str)
-        for div in soup.findAll('div', attrs={'class':'image', 'style':lambda x: x and 'background-image' in x}):
-            url = re.search(r'''url\(['"]?([^'")]+)''', div['style'])
-            if url is not None:
-                div.name = 'img'
-                div['src'] = url.group(1)
-                div['style'] = ''
+    def is_link_wanted(self, url, tag):
+        return re.search(r'/[0-9]/$', url) is not None
+
+    def postprocess_html(self, soup, first_fetch):
+        if not first_fetch:
+            for x in soup.findAll(itemprop=['headline', 'description']):
+                x.extract()
+            for x in soup.findAll(**classes('post-meta')):
+                x.extract()
         return soup
-
-    def preprocess_raw_html(self, raw, url):
-        return '<html><head>' + raw[raw.find('</head>'):]

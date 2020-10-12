@@ -1,20 +1,43 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+
+# Notes of paged mode scrolling:
+#  All the math in paged mode is based on the block and inline directions.
+#  Inline is "the direction lines of text go."
+#  In horizontal scripts such as English and Hebrew, the inline is horizontal
+#  and the block is vertical.
+#  In vertical languages such as Japanese and Mongolian, the inline is vertical
+#  and block is horizontal.
+#  Regardless of language, paged mode scrolls by column in the inline direction,
+#  because by the CSS spec, columns are laid out in the inline direction.
+#
+#  In horizontal RTL books, such as Hebrew, the inline direction goes right to left.
+#  |<------|
+#  This means that the column positions become negative as you scroll.
+#  This is hidden from paged mode by the viewport, which transparently
+#  negates any inline coordinates sent in to the viewport_to_document* functions
+#  and the various scroll_to/scroll_by functions, as well as the reported X position.
+#
+#  The result of all this is that paged mode's math can safely pretend that
+#  things scroll in the positive inline direction.
+
+from __python__ import hash_literals, bound_methods
 
 import traceback
 from elementmaker import E
+from gettext import gettext as _
 
 from dom import set_css
-from keycodes import get_key
 from read_book.cfi import (
     at_current as cfi_at_current, at_point as cfi_at_point,
     scroll_to as cfi_scroll_to
 )
-from read_book.globals import get_boss
+from read_book.globals import current_spine_item, get_boss, rtl_page_progression
 from read_book.settings import opts
-from read_book.viewport import scroll_viewport
-from utils import document_width, get_elem_data, set_elem_data, viewport_to_document
+from read_book.viewport import scroll_viewport, line_height, rem_size
+from utils import (
+    get_elem_data, set_elem_data
+)
 
 
 def first_child(parent):
@@ -37,14 +60,9 @@ def has_start_text(elem):
     return False
 
 def handle_rtl_body(body_style):
-    # Make the body and root nodes have direction ltr so that column layout
-    # works as expected
     if body_style.direction is "rtl":
-        for node in document.body.childNodes:
-            if node.nodeType is Node.ELEMENT_NODE and window.getComputedStyle(node).direction is "rtl":
-                node.style.setProperty("direction", "rtl")
-        document.body.style.direction = "ltr"
-        document.documentElement.style.direction = 'ltr'
+        # If this in not set, Chrome scrolling breaks for some RTL and vertical content.
+        document.documentElement.style.overflow = 'visible'
 
 def create_page_div(elem):
     div = E('blank-page-div', ' \n    ')
@@ -55,63 +73,100 @@ def create_page_div(elem):
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
-col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
+
+
+col_size = screen_inline = screen_block = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
 is_full_screen_layout = False
 
-def reset_paged_mode_globals():
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
-    scroll_viewport.reset_globals()
-    col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
-    is_full_screen_layout = _in_paged_mode = False
 
-def column_at(xpos):
-    # Return the (zero-based) number of the column that contains xpos
-    sw = scroll_viewport.paged_content_width()
-    if xpos >= sw - col_and_gap:
-        xpos = sw - col_width + 10
-    return (xpos + gap) // col_and_gap
+def reset_paged_mode_globals():
+    nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, number_of_cols, last_scrolled_to_column
+    scroll_viewport.reset_globals()
+    col_size = screen_inline = screen_block = cols_per_screen = gap = col_and_gap = number_of_cols = last_scrolled_to_column = 0
+    is_full_screen_layout = _in_paged_mode = False
+    resize_manager.reset()
+
+def column_at(pos):
+    # Return the (zero-based) number of the column that contains pos
+    si = scroll_viewport.paged_content_inline_size()
+    if pos >= si - col_and_gap:
+        pos = si - col_size + 10
+    # we subtract 1 here so that a point at the absolute trailing (right in
+    # horz-LTR) edge of a column remains in the column and not at the next column
+    return max(0, (pos + gap - 1)) // col_and_gap
 
 def fit_images():
-    # Ensure no images are wider than the available width in a column. Note
+    # Ensure no images are wider than the available size of a column. Note
     # that this method use getBoundingClientRect() which means it will
     # force a relayout if the render tree is dirty.
-    images = []
-    vimages = []
-    maxh = screen_height
-    for img in document.getElementsByTagName('img'):
-        previously_limited = get_elem_data(img, 'width-limited', False)
+    inline_limited_images = v'[]'
+    block_limited_images = v'[]'
+    img_tags = document.getElementsByTagName('img')
+    bounding_rects = v'[]'
+    for img_tag in img_tags:
+        bounding_rects.push(img_tag.getBoundingClientRect())
+    maxb = screen_block
+    for i in range(img_tags.length):
+        img = img_tags[i]
+        br = bounding_rects[i]
+        previously_limited = get_elem_data(img, 'inline-limited', False)
         data = get_elem_data(img, 'img-data', None)
-        br = img.getBoundingClientRect()
         if data is None:
             data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
             set_elem_data(img, 'img-data', data)
-        left = viewport_to_document(br.left, 0, img.ownerDocument)[0]
-        col = column_at(left) * col_and_gap
-        rleft = left - col
-        width  = br.right - br.left
-        rright = rleft + width
-        if previously_limited or rright > col_width:
-            images.push([img, col_width - rleft])
-        previously_limited = get_elem_data(img, 'height-limited', False)
-        if previously_limited or br.height > maxh:
-            vimages.push(img)
+
+        # Get start of image bounding box in the column direction (inline)
+        image_start = scroll_viewport.viewport_to_document_inline(scroll_viewport.rect_inline_start(br), img.ownerDocument)
+        col_start = column_at(image_start) * col_and_gap
+        # Get inline distance from the start of the column to the start of the image bounding box
+        column_start_to_image_start = image_start - col_start
+        image_block_size = scroll_viewport.rect_block_size(br)
+        image_inline_size = scroll_viewport.rect_inline_size(br)
+        # Get the inline distance from the start of the column to the end of the image
+        image_inline_end = column_start_to_image_start + image_inline_size
+        # If the end of the image goes past the column, add it to the list of inline_limited_images
+        if previously_limited or image_inline_end > col_size:
+            inline_limited_images.push(v'[img, col_size - column_start_to_image_start]')
+        previously_limited = get_elem_data(img, 'block-limited', False)
+        if previously_limited or image_block_size > maxb or (image_block_size is maxb and image_inline_size > col_size):
+            block_limited_images.push(img)
         if previously_limited:
             set_css(img, break_before='auto', display=data.display)
         set_css(img, break_inside='avoid')
 
-    for img, max_width in images:
-        img.style.setProperty('max-width', max_width+'px')
-        set_elem_data(img, 'width-limited', True)
+    for img_tag, max_inline_size in inline_limited_images:
+        if scroll_viewport.vertical_writing_mode:
+            img_tag.style.setProperty('max-height', max_inline_size+'px')
+        else:
+            img_tag.style.setProperty('max-width', max_inline_size+'px')
+        set_elem_data(img_tag, 'inline-limited', True)
 
-    for img in vimages:
-        data = get_elem_data(img, 'img-data', None)
-        set_css(img, break_before='always', max_height=maxh+'px')
-        if data.height > maxh:
-            # This is needed to force the image onto a new page, without
-            # it, the webkit algorithm may still decide to split the image
-            # by keeping it part of its parent block
-            img.style.setProperty('display', 'block')
-        set_elem_data(img, 'height-limited', True)
+    for img_tag in block_limited_images:
+        if scroll_viewport.vertical_writing_mode:
+            set_css(img_tag, break_before='always', max_width='100vw')
+        else:
+            set_css(img_tag, break_before='always', max_height='100vh')
+        set_elem_data(img_tag, 'block-limited', True)
+
+
+def cps_by_em_size():
+    ans = cps_by_em_size.ans
+    fs = window.getComputedStyle(document.body).fontSize
+    if not ans or cps_by_em_size.at_font_size is not fs:
+        d = document.createElement('span')
+        d.style.position = 'absolute'
+        d.style.visibility = 'hidden'
+        d.style.width = '1rem'
+        d.style.fontSize = '1rem'
+        d.style.paddingTop = d.style.paddingBottom = d.style.paddingLeft = d.style.paddingRight = '0'
+        d.style.marginTop = d.style.marginBottom = d.style.marginLeft = d.style.marginRight = '0'
+        d.style.borderStyle = 'none'
+        document.body.appendChild(d)
+        w = d.clientWidth
+        document.body.removeChild(d)
+        ans = cps_by_em_size.ans = max(2, w)
+        cps_by_em_size.at_font_size = fs
+    return ans
 
 
 def calc_columns_per_screen():
@@ -122,23 +177,87 @@ def calc_columns_per_screen():
     except:
         cps = 0
     if not cps:
-        cps = int(Math.floor(scroll_viewport.width() / 500.0))
+        cps = int(Math.floor(scroll_viewport.inline_size() / (35 * cps_by_em_size())))
     cps = max(1, min(cps or 1, 20))
     return cps
 
 
-def layout(is_single_page):
-    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
+def get_columns_per_screen_data():
+    which = 'landscape' if scroll_viewport.width() > scroll_viewport.height() else 'portrait'
+    return {'which': which, 'cps': calc_columns_per_screen()}
+
+
+def will_columns_per_screen_change():
+    return calc_columns_per_screen() != cols_per_screen
+
+
+class ScrollResizeBugWatcher:
+
+    # In Chrome sometimes after layout the scrollWidth of body increases after a
+    # few milliseconds, this can cause scrolling to the end to not work
+    # immediately after layout. This happens without a resize event, and
+    # without triggering the ResizeObserver and only in paged mode.
+
+    def __init__(self):
+        self.max_time = 750
+        self.last_layout_at = 0
+        self.last_command = None
+        self.doc_size = 0
+        self.timer = None
+
+    def layout_done(self):
+        self.last_layout_at = window.performance.now()
+        self.last_command = None
+        self.cancel_timer()
+
+    def scrolled(self, pos, limit):
+        self.cancel_timer()
+        now = window.performance.now()
+        if now - self.last_layout_at < self.max_time and self.last_command is not None:
+            self.doc_size = scroll_viewport.paged_content_inline_size()
+            self.check_for_resize_bug()
+
+    def cancel_timer(self):
+        if self.timer is not None:
+            window.clearTimeout(self.timer)
+            self.timer = None
+
+    def check_for_resize_bug(self):
+        sz = scroll_viewport.paged_content_inline_size()
+        if sz != self.doc_size:
+            return self.redo_scroll()
+        now = window.performance.now()
+        if now - self.last_layout_at < self.max_time:
+            window.setTimeout(self.check_for_resize_bug, 10)
+        else:
+            self.timer = None
+
+    def redo_scroll(self):
+        if self.last_command:
+            self.last_command()
+            self.last_command = None
+        self.timer = None
+        self.doc_size = 0
+
+
+scroll_resize_bug_watcher = ScrollResizeBugWatcher()
+
+def layout(is_single_page, on_resize):
+    nonlocal _in_paged_mode, col_size, col_and_gap, screen_block, gap, screen_inline, is_full_screen_layout, cols_per_screen, number_of_cols
+    line_height(True)
+    rem_size(True)
     body_style = window.getComputedStyle(document.body)
+    scroll_viewport.initialize_on_layout(body_style)
     first_layout = not _in_paged_mode
     cps = calc_columns_per_screen()
     if first_layout:
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
-        single_screen = (document.body.scrollHeight < scroll_viewport.height() + 75)
+        single_screen = scroll_viewport.document_block_size() < (scroll_viewport.block_size() + 75)
         first_layout = True
-        has_svg = document.getElementsByTagName('svg').length > 0
+        svgs = document.getElementsByTagName('svg')
+        has_svg = svgs.length > 0
         imgs = document.getElementsByTagName('img')
         only_img = imgs.length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
         if only_img and window.getComputedStyle(imgs[0]).zIndex < 0:
@@ -148,7 +267,7 @@ def layout(is_single_page):
         if not single_screen and cps > 1:
             num = cps - 1
             elems = document.querySelectorAll('body > *')
-            if elems.length == 1:
+            if elems.length is 1:
                 # Workaround for the case when the content is wrapped in a
                 # 100% height <div>. This causes the generated page divs to
                 # not be in the correct location, at least in WebKit. See
@@ -159,24 +278,24 @@ def layout(is_single_page):
                 create_page_div()
 
     n = cols_per_screen = cps
-    # Calculate the column width so that cols_per_screen columns fit exactly in
-    # the window width, with their separator margins
-    ww = col_width = screen_width = scroll_viewport.width()
-    gap = 0
+    # Calculate the column size so that cols_per_screen columns fit exactly in
+    # the window inline dimension, with their separator margins
+    wi = col_size = screen_inline = scroll_viewport.inline_size()
+    margin_size = (opts.margin_left + opts.margin_right) if scroll_viewport.horizontal_writing_mode else (opts.margin_top + opts.margin_bottom)
+    gap = margin_size
     if n > 1:
-        # Adjust the side margin so that the window width satisfies
-        # col_width * n + (n-1) * 2 * side_margin = window_width
-        sm = opts.margin_left + opts.margin_right
-        gap = sm + ((ww + sm) % n)  # Ensure ww + gap is a multiple of n
-        col_width = ((ww + gap) // n) - gap
+        # Adjust the margin so that the window inline dimension satisfies
+        # col_size * n + (n-1) * 2 * margin = window_inline
+        gap += ((wi + margin_size) % n)  # Ensure wi + gap is a multiple of n
+        col_size = ((wi + gap) // n) - gap
 
-    screen_height = scroll_viewport.height()
-    col_and_gap = col_width + gap
+    screen_block = scroll_viewport.block_size()
+    col_and_gap = col_size + gap
 
-    set_css(document.body, column_gap=gap + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
+    set_css(document.body, column_gap=gap + 'px', column_width=col_size + 'px', column_rule='0px inset blue',
         min_width='0', max_width='none', min_height='0', max_height='100vh', column_fill='auto',
         margin='0', border_width='0', padding='0', box_sizing='content-box',
-        width=screen_width + 'px', height=screen_height + 'px'
+        width=scroll_viewport.width() + 'px', height=scroll_viewport.height() + 'px', overflow_wrap='break-word'
     )
     # Without this, webkit bleeds the margin of the first block(s) of body
     # above the columns, which causes them to effectively be added to the
@@ -201,68 +320,88 @@ def layout(is_single_page):
         # width 100% are wider than body and lead to a blank page after the
         # current page (when cols_per_screen == 1). Similarly img elements
         # with height=100% overflow the first column
-        is_full_screen_layout = (only_img or has_svg) and single_screen and (scroll_viewport.paged_content_width() < 2*ww + 10)
-        if is_single_page:
-            is_full_screen_layout = True
+        is_full_screen_layout = is_single_page
+        if not is_full_screen_layout:
+            has_no_more_than_two_columns = (scroll_viewport.paged_content_inline_size() < 2*wi + 10)
+            if has_no_more_than_two_columns and single_screen:
+                if only_img and imgs.length and imgs[0].getBoundingClientRect().left < wi:
+                    is_full_screen_layout = True
+                if has_svg and svgs.length == 1 and svgs[0].getBoundingClientRect().left < wi:
+                    is_full_screen_layout = True
 
-        # Prevent the TAB key from shifting focus as it causes partial scrolling
-        document.documentElement.addEventListener('keydown', def (evt):
-            if get_key(evt) is 'tab':
-                evt.preventDefault()
-        )
-
-    # Some browser engine, WebKit at least, adjust column widths to please
-    # themselves, unless the container width is an exact multiple, so we check
-    # for that and manually set the container widths.
-    def check_column_widths():
-        ncols = (scroll_viewport.paged_content_width() + gap) / col_and_gap
+    # Some browser engine, WebKit at least, adjust column sizes to please
+    # themselves, unless the container size is an exact multiple, so we check
+    # for that and manually set the container sizes.
+    def check_column_sizes():
+        nonlocal number_of_cols
+        ncols = number_of_cols = (scroll_viewport.paged_content_inline_size() + gap) / col_and_gap
         if ncols is not Math.floor(ncols):
-            n = Math.floor(ncols)
-            dw = n*col_width + (n-1)*gap
-            data = {'col_width':col_width, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_width(), 'ncols':ncols, 'desired_width':dw}
+            data = {'col_size':col_size, 'gap':gap, 'scrollWidth':scroll_viewport.paged_content_inline_size(), 'ncols':ncols, 'desired_inline_size':dis}
             return data
-    data = check_column_widths()
+
+    data = check_column_sizes()
     if data:
-        dw = data.desired_width
+        dis = data.desired_inline_size
         for elem in document.documentElement, document.body:
-            set_css(elem, max_width=dw + 'px', min_width=dw + 'px')
-    data = check_column_widths()
+            set_css(elem, max_width=dis + 'px', min_width=dis + 'px')
+            if scroll_viewport.vertical_writing_mode:
+                set_css(elem, max_height=dis + 'px', min_height=dis + 'px')
+    data = check_column_sizes()
     if data:
-        print('WARNING: column layout broken, probably because there is some non-reflowable content in the book that is wider than the column width', data)
+        print('WARNING: column layout broken, probably because there is some non-reflowable content in the book whose inline size is greater than the column size', data)
 
     _in_paged_mode = True
     fit_images()
+    scroll_resize_bug_watcher.layout_done()
     return gap
 
 def current_scroll_offset():
-    return scroll_viewport.x()
+    return scroll_viewport.inline_pos()
 
 
-def scroll_to_offset(x):
-    scroll_viewport.scroll_to(x, 0)
+def scroll_to_offset(offset):
+    scroll_viewport.scroll_to_in_inline_direction(offset)
 
 
 def scroll_to_column(number, notify=False, duration=1000):
+    nonlocal last_scrolled_to_column
+    last_scrolled_to_column = number
     pos = number * col_and_gap
-    limit = scroll_viewport.paged_content_width() - screen_width
+    limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
     pos = min(pos, limit)
     scroll_to_offset(pos)
+    scroll_resize_bug_watcher.scrolled(pos, limit)
 
-def scroll_to_xpos(xpos, notify=False, duration=1000):
-    # Scroll so that the column containing xpos is the left most column in
-    # the viewport
-    if jstype(xpos) is not 'number':
-        print(xpos, 'is not a number, cannot scroll to it!')
+
+def scroll_to_pos(pos, notify=False, duration=1000):
+    nonlocal last_scrolled_to_column
+    # Scroll to the column containing pos
+    if jstype(pos) is not 'number':
+        print(pos, 'is not a number, cannot scroll to it!')
         return
     if is_full_screen_layout:
         scroll_to_offset(0)
+        last_scrolled_to_column = 0
         return
-    scroll_to_column(column_at(xpos), notify=notify, duration=duration)
+    scroll_to_column(column_at(pos), notify=notify, duration=duration)
 
-def scroll_to_fraction(frac):
+
+def scroll_to_previous_position(fsd):
+    fsd = fsd or next_spine_item.forward_scroll_data
+    next_spine_item.forward_scroll_data = None
+    if 0 < fsd.cols_left < cols_per_screen and cols_per_screen < number_of_cols:
+        scroll_resize_bug_watcher.last_command = scroll_to_previous_position.bind(None, fsd)
+        scroll_to_column(fsd.current_col)
+        return True
+
+
+def scroll_to_fraction(frac, on_initial_load):
     # Scroll to the position represented by frac (number between 0 and 1)
-    xpos = Math.floor(scroll_viewport.paged_content_width() * frac)
-    scroll_to_xpos(xpos)
+    if on_initial_load and frac is 1 and is_return() and scroll_to_previous_position():
+        return
+    scroll_resize_bug_watcher.last_command = scroll_to_fraction.bind(None, frac, False)
+    pos = Math.floor(scroll_viewport.paged_content_inline_size() * frac)
+    scroll_to_pos(pos)
 
 
 def column_boundaries():
@@ -271,13 +410,24 @@ def column_boundaries():
     l = column_at(current_scroll_offset() + 10)
     return l, l + cols_per_screen
 
+
+def column_at_current_scroll_offset():
+    return column_at(current_scroll_offset() + 10)
+
+
 def current_column_location():
-    # The location of the left edge of the left most column currently
+    # The location of the starting edge of the first column currently
     # visible in the viewport
     if is_full_screen_layout:
         return 0
-    c = column_at(current_scroll_offset() + 10)
-    return c * col_and_gap
+    return column_at_current_scroll_offset() * col_and_gap
+
+
+def number_of_cols_left():
+    current_col = column_at(current_scroll_offset() + 10)
+    cols_left = number_of_cols - (current_col + cols_per_screen)
+    return Math.max(0, cols_left)
+
 
 def next_screen_location():
     # The position to scroll to for the next screen (which could contain
@@ -285,19 +435,16 @@ def next_screen_location():
     if is_full_screen_layout:
         return -1
     cc = current_column_location()
-    ans = cc + screen_width
-    if cols_per_screen > 1:
-        current_col = column_at(current_scroll_offset() + 10)
-        ncols = (scroll_viewport.paged_content_width() + gap) // col_and_gap
-        cols_left = ncols - (current_col + cols_per_screen)
-        if cols_left < cols_per_screen:
-            return -1  # Only blank, dummy pages left
-    limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
+    ans = cc + screen_inline + 1
+    if cols_per_screen > 1 and 0 < number_of_cols_left() < cols_per_screen:
+        return -1  # Only blank, dummy pages left
+    limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
     if limit < col_and_gap:
         return -1
     if ans > limit:
-        ans = limit if current_scroll_offset() < limit else -1
+        ans = limit if Math.ceil(current_scroll_offset()) < limit else -1
     return ans
+
 
 def previous_screen_location():
     # The position to scroll to for the previous screen (which could contain
@@ -305,12 +452,13 @@ def previous_screen_location():
     if is_full_screen_layout:
         return -1
     cc = current_column_location()
-    ans = cc - screen_width
+    ans = cc - screen_inline
     if ans < 0:
         # We ignore small scrolls (less than 15px) when going to previous
         # screen
         ans = 0 if current_scroll_offset() > 15 else -1
     return ans
+
 
 def next_col_location():
     # The position to scroll to for the next column (same as
@@ -320,10 +468,15 @@ def next_col_location():
         return -1
     cc = current_column_location()
     ans = cc + col_and_gap
-    limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
+    limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
+    # print(f'cc={cc} col_and_gap={col_and_gap} ans={ans} limit={limit} content_inline_size={scroll_viewport.paged_content_inline_size()} inline={scroll_viewport.inline_size()} current_scroll_offset={current_scroll_offset()}')
     if ans > limit:
-        ans = limit if current_scroll_offset() < limit else -1
+        if Math.ceil(current_scroll_offset()) < limit and column_at(limit) > column_at_current_scroll_offset():
+            ans = limit
+        else:
+            ans = -1
     return ans
+
 
 def previous_col_location():
     # The position to scroll to for the previous column (same as
@@ -334,13 +487,15 @@ def previous_col_location():
     cc = current_column_location()
     ans = cc - col_and_gap
     if ans < 0:
-        ans = 0 if current_scroll_offset() > 0 else -1
+        if Math.floor(current_scroll_offset()) > 0 and column_at(0) < column_at_current_scroll_offset():
+            ans = 0
+        else:
+            ans = -1
     return ans
 
+
 def jump_to_anchor(name):
-    # Jump to the element identified by anchor name. Ensures that the left
-    # most column in the viewport is the column containing the start of the
-    # element and that the scroll position is at the start of the column.
+    # Jump to the element identified by anchor name.
     elem = document.getElementById(name)
     if not elem:
         elems = document.getElementsByName(name)
@@ -350,11 +505,11 @@ def jump_to_anchor(name):
         return
     scroll_to_elem(elem)
 
+
 def scroll_to_elem(elem):
     scroll_viewport.scroll_into_view(elem)
-    scroll_viewport.reset_transforms()  # needed for viewport_to_document()
 
-    if in_paged_mode:
+    if in_paged_mode():
         # Ensure we are scrolled to the column containing elem
 
         # Because of a bug in WebKit's getBoundingClientRect() in column
@@ -367,62 +522,78 @@ def scroll_to_elem(elem):
             # elem.scrollIntoView(). However, in some cases it gives
             # inaccurate results, so we prefer the bounding client rect,
             # when possible.
-            left = elem.scrollLeft
+
+            # In horizontal writing, the inline start position depends on the direction
+            if scroll_viewport.horizontal_writing_mode:
+                inline_start = elem.scrollLeft if scroll_viewport.ltr else elem.scrollRight
+            # In vertical writing, the inline start position is always the top since
+            # vertical text only flows top-to-bottom
+            else:
+                inline_start = elem.scrollTop
         else:
-            left = br.left
-        scroll_to_xpos(viewport_to_document(
-            left+2, elem.scrollTop, elem.ownerDocument)[0])
+            # If we can use the rect, just use the simpler viewport helper function
+            inline_start = scroll_viewport.rect_inline_start(br)
+
+        scroll_to_pos(scroll_viewport.viewport_to_document_inline(inline_start+2, elem.ownerDocument))
 
 def snap_to_selection():
     # Ensure that the viewport is positioned at the start of the column
     # containing the start of the current selection
-    if in_paged_mode:
-        scroll_viewport.reset_transforms()  # needed for viewport_to_document()
+    if in_paged_mode():
         sel = window.getSelection()
         r = sel.getRangeAt(0).getBoundingClientRect()
         node = sel.anchorNode
-        left = viewport_to_document(r.left, r.top, doc=node.ownerDocument)[0]
+        # Columns are in the inline direction, so get the beginning of the element in the inline
+        pos = scroll_viewport.viewport_to_document_inline(
+            scroll_viewport.rect_inline_start(r), doc=node.ownerDocument)
 
         # Ensure we are scrolled to the column containing the start of the
         # selection
-        scroll_to_xpos(left+5)
+        scroll_to_pos(pos+5)
 
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
-    # indicator. When in paged mode, the
-    # scroll is performed so that the column containing the position
-    # pointed to by the cfi is the left most column in the viewport
+    # indicator.
+    scroll_resize_bug_watcher.last_command = jump_to_cfi.bind(None, cfi)
     cfi_scroll_to(cfi, def(x, y):
-        if in_paged_mode:
-            scroll_to_xpos(x)
+        if scroll_viewport.horizontal_writing_mode:
+            scroll_to_pos(x)
         else:
-            scroll_viewport.scroll_to(0, y)
+            scroll_to_pos(y)
     )
 
 def current_cfi():
     # The Conformal Fragment Identifier at the current position, returns
     # null if it could not be calculated.
     ans = None
-    if in_paged_mode:
-        c = current_column_location()
-        for x in c, c - col_and_gap, c + col_and_gap:
-            # Try the current column, the previous column and the next
-            # column. Each column is tried from top to bottom.
-            left, right = x, x + col_and_gap
-            if left < 0 or right > scroll_viewport.paged_content_width():
-                continue
-            deltax = col_and_gap // 25
-            deltay = scroll_viewport.height() // 25
-            cury = 0
-            while cury < scroll_viewport.height():
-                curx = left
-                while curx < right - gap:
-                    cfi = cfi_at_point(curx-current_scroll_offset(), cury-window.pageYOffset)
-                    if cfi:
-                        # print('Viewport cfi:', cfi)
-                        return cfi
-                    curx += deltax
-                cury += deltay
+    if in_paged_mode():
+        for cnum in range(cols_per_screen):
+            left = cnum * (col_and_gap + gap)
+            right = left + col_size
+            top, bottom = 0, scroll_viewport.height()
+            midx = (right - left) // 2
+            deltax = (right - left) // 24
+            deltay = (bottom - top) // 24
+            midy = (bottom - top) // 2
+            yidx = 0
+            while True:
+                yb, ya = midy - yidx * deltay, midy + yidx * deltay
+                if yb <= top or ya >= bottom:
+                    break
+                yidx += 1
+                xidx = 0
+                ys = v'[ya]' if ya is yb else v'[yb, ya]'
+                for cury in ys:
+                    xb, xa = midx - xidx * deltax, midx + xidx * deltax
+                    if xa <= left or xb >= right:
+                        break
+                    xidx += 1
+                    xs = v'[xa]' if xa is xb else v'[xb, xa]'
+                    for curx in xs:
+                        cfi = cfi_at_point(curx, cury)
+                        if cfi:
+                            # print('Viewport cfi:', cfi)
+                            return cfi
     else:
         try:
             ans = cfi_at_current() or None
@@ -435,65 +606,152 @@ def current_cfi():
 
 def progress_frac(frac):
     # The current scroll position as a fraction between 0 and 1
-    if in_paged_mode:
-        limit = scroll_viewport.paged_content_width() - scroll_viewport.width()
+    if in_paged_mode():
+        limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
         if limit <= 0:
             return 0.0
         return current_scroll_offset() / limit
-    limit = document.body.scrollHeight - scroll_viewport.height()
+    # In flow mode, we scroll in the block direction, so use that
+    limit = scroll_viewport.document_block_size() - scroll_viewport.block_size()
     if limit <= 0:
         return 0.0
-    return window.pageYOffset / limit
+    return Math.max(0, Math.min(scroll_viewport.block_pos() / limit, 1))
 
 
-def onwheel(evt):
-    if evt.deltaY:
+def next_spine_item(backward):
+    if not backward:
+        csi = current_spine_item()
+        next_spine_item.forward_scroll_data = {
+            'cols_per_screen': cols_per_screen, 'cols_left': number_of_cols_left(),
+            'spine_index': csi.index, 'spine_name': csi.name, 'current_col': column_at(current_scroll_offset() + 10)
+        }
+    get_boss().send_message('next_spine_item', previous=backward)
+
+
+def is_return():
+    fsd = next_spine_item.forward_scroll_data
+    csi = current_spine_item()
+    return fsd and fsd.cols_per_screen is cols_per_screen and fsd.spine_index is csi.index and fsd.spine_name is csi.name
+
+
+class HandleWheel:
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.last_event_mode = 'page'
+        self.last_event_at = -10000
+        self.last_event_backwards = False
+        self.accumulated_scroll = 0
+
+    def onwheel(self, evt):
+        if not evt.deltaY:
+            return
         backward = evt.deltaY < 0
-        x = previous_col_location() if backward else next_col_location()
-        if x is -1:
-            get_boss().send_message('next_spine_item', previous=backward)
+        if evt.deltaMode is window.WheelEvent.DOM_DELTA_PIXEL:
+            self.add_pixel_scroll(backward, Math.abs(evt.deltaY))
         else:
-            scroll_to_xpos(x)
+            self.do_scroll(backward)
 
-def scroll_by_page(backward, by_screen):
+    def add_pixel_scroll(self, backward, deltaY):
+        now = window.performance.now()
+        if now - self.last_event_at > 1000 or self.last_event_backwards is not backward or self.last_event_mode is not 'pixel':
+            self.accumulated_scroll = 0
+        self.last_event_mode = 'pixel'
+        self.last_event_at = now
+        self.last_event_backwards = backward
+        self.accumulated_scroll += deltaY
+        if self.accumulated_scroll > opts.paged_pixel_scroll_threshold:
+            self.do_scroll(backward)
+
+    def do_scroll(self, backward):
+        self.reset()
+        if opts.paged_wheel_scrolls_by_screen:
+            pos = previous_screen_location() if backward else next_screen_location()
+        else:
+            pos = previous_col_location() if backward else next_col_location()
+        if pos is -1:
+            next_spine_item(backward)
+        else:
+            scroll_to_pos(pos)
+
+
+wheel_handler = HandleWheel()
+onwheel = wheel_handler.onwheel
+
+
+def scroll_by_page(backward, by_screen, flip_if_rtl_page_progression):
+    if flip_if_rtl_page_progression and rtl_page_progression():
+        backward = not backward
+
     if by_screen:
         pos = previous_screen_location() if backward else next_screen_location()
+        pages = cols_per_screen
     else:
         pos = previous_col_location() if backward else next_col_location()
+        pages = 1
     if pos is -1:
-        get_boss().send_message('next_spine_item', previous=backward)
+        # dont report human scroll since we dont know if a full page was
+        # scrolled or not
+        next_spine_item(backward)
     else:
-        scroll_to_xpos(pos)
+        if not backward:
+            scrolled_frac = (pages / number_of_cols) if number_of_cols > 0 else 0
+            get_boss().report_human_scroll(scrolled_frac)
+        else:
+            get_boss().report_human_scroll()
+        scroll_to_pos(pos)
 
-def onkeydown(evt):
-    handled = False
-    key = get_key(evt)
-    if key is 'up' or key is 'down':
-        handled = True
-        if evt.ctrlKey:
-            scroll_to_offset(0 if key is 'left' else document_width())
-        else:
-            scroll_by_page(key is 'up', True)
-    elif (key is 'left' or key is 'right') and not evt.altKey:
-        handled = True
-        if evt.ctrlKey:
-            scroll_to_offset(0 if key is 'left' else document_width())
-        else:
-            scroll_by_page(key is 'left', False)
-    elif key is 'home' or key is 'end':
-        handled = True
-        if evt.ctrlKey:
-            get_boss().send_message('goto_doc_boundary', start=key is 'home')
-        else:
-            if key is 'home':
-                scroll_to_offset(0)
-            else:
-                scroll_to_offset(document_width())
-    elif key is 'pageup' or key is 'pagedown' or key is 'space':
-        handled = True
-        scroll_by_page(key is 'pageup', True)
-    if handled:
-        evt.preventDefault()
+
+def scroll_to_extend_annotation(backward):
+    pos = previous_col_location() if backward else next_col_location()
+    if pos is -1:
+        return False
+    scroll_to_pos(pos)
+    return True
+
+
+def handle_shortcut(sc_name, evt):
+    if sc_name is 'up':
+        scroll_by_page(backward=True, by_screen=True, flip_if_rtl_page_progression=False)
+        return True
+    if sc_name is 'down':
+        scroll_by_page(backward=False, by_screen=True, flip_if_rtl_page_progression=False)
+        return True
+    if sc_name is 'start_of_file':
+        get_boss().report_human_scroll()
+        scroll_to_offset(0)
+        return True
+    if sc_name is 'end_of_file':
+        get_boss().report_human_scroll()
+        scroll_to_offset(scroll_viewport.document_inline_size())
+        return True
+    if sc_name is 'left':
+        scroll_by_page(backward=True, by_screen=False, flip_if_rtl_page_progression=True)
+        return True
+    if sc_name is 'right':
+        scroll_by_page(backward=False, by_screen=False, flip_if_rtl_page_progression=True)
+        return True
+    if sc_name is 'start_of_book':
+        get_boss().report_human_scroll()
+        get_boss().send_message('goto_doc_boundary', start=True)
+        return True
+    if sc_name is 'end_of_book':
+        get_boss().report_human_scroll()
+        get_boss().send_message('goto_doc_boundary', start=False)
+        return True
+    if sc_name is 'pageup':
+        scroll_by_page(backward=True, by_screen=True, flip_if_rtl_page_progression=False)
+        return True
+    if sc_name is 'pagedown':
+        scroll_by_page(backward=False, by_screen=True, flip_if_rtl_page_progression=False)
+        return True
+    if sc_name is 'toggle_autoscroll':
+        auto_scroll_action('toggle')
+        return True
+    return False
+
 
 def handle_gesture(gesture):
     if gesture.type is 'swipe':
@@ -502,11 +760,13 @@ def handle_gesture(gesture):
                 get_boss().send_message('next_section', forward=gesture.direction is 'up')
         else:
             if not gesture.active or gesture.is_held:
-                scroll_by_page(gesture.direction is 'right', True)
+                scroll_by_page(gesture.direction is 'right', True, flip_if_rtl_page_progression=True)
+    # Gesture progression direction is determined in the gesture code,
+    # don't set flip_if_rtl_page_progression=True here.
     elif gesture.type is 'prev-page':
-        scroll_by_page(True, False)
+        scroll_by_page(True, opts.paged_taps_scroll_by_screen, flip_if_rtl_page_progression=False)
     elif gesture.type is 'next-page':
-        scroll_by_page(False, False)
+        scroll_by_page(False, opts.paged_taps_scroll_by_screen, flip_if_rtl_page_progression=False)
 
 
 anchor_funcs = {
@@ -514,8 +774,9 @@ anchor_funcs = {
         if not elem:
             return 0
         br = elem.getBoundingClientRect()
-        x = viewport_to_document(br.left, br.top, elem.ownerDocument)[0]
-        return column_at(x)
+        pos = scroll_viewport.viewport_to_document_inline(
+            scroll_viewport.rect_inline_start(br))
+        return column_at(pos)
     ,
     'visibility': def visibility(pos):
         first = column_at(current_scroll_offset() + 10)
@@ -529,3 +790,95 @@ anchor_funcs = {
         return a - b
     ,
 }
+
+
+class ResizeManager:
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.resize_in_progress = None
+        self.last_transition = None
+
+    def start_resize(self, width, height):
+        self.resize_in_progress = {'width': width, 'height': height, 'column': last_scrolled_to_column}
+
+    def end_resize(self):
+        if not self.resize_in_progress:
+            return
+        rp, self.resize_in_progress = self.resize_in_progress, None
+        transition = {'before': rp, 'after': {
+            'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'column': last_scrolled_to_column}}
+        if self.is_inverse_transition(transition):
+            if transition.after.column is not self.last_transition.before.column:
+                scroll_to_column(transition.after.column)
+                transition.after.column = last_scrolled_to_column
+        self.last_transition = transition
+
+    def is_inverse_transition(self, transition):
+        p = self.last_transition
+        if not p:
+            return False
+        p = p.after
+        n = transition.before
+        return p.column is n.column and p.width is n.width and p.height is n.height
+
+
+resize_manager = ResizeManager()
+def prepare_for_resize(width, height):
+    resize_manager.start_resize(width, height)
+
+def resize_done():
+    resize_manager.end_resize()
+
+
+def auto_scroll_action(action):
+    if action is 'toggle':
+        get_boss().send_message('error', title=_('No auto scroll in paged mode'), msg=_(
+            'Switch to flow mode (Viewer preferences->Page layout) to enable auto'
+            ' scrolling'), is_non_critical=True
+        )
+    return False
+
+
+class DragScroller:
+
+    INTERVAL = 500
+
+    def __init__(self):
+        self.backward = False
+        self.timer_id = None
+
+    def is_running(self):
+        return self.timer_id is not None
+
+    def start(self, backward):
+        if not self.is_running() or backward is not self.backward:
+            self.stop()
+            self.backward = backward
+            self.timer_id = window.setTimeout(self.do_one_page_turn, self.INTERVAL)
+
+    def do_one_page_turn(self):
+        pos = previous_col_location() if self.backward else next_col_location()
+        if pos >= 0:
+            scroll_to_pos(pos)
+            self.timer_id = window.setTimeout(self.do_one_page_turn, self.INTERVAL * 2)
+        else:
+            self.stop()
+
+    def stop(self):
+        if self.timer_id is not None:
+            window.clearTimeout(self.timer_id)
+            self.timer_id = None
+
+
+drag_scroller = DragScroller()
+
+
+def cancel_drag_scroll():
+    drag_scroller.stop()
+
+
+def start_drag_scroll(delta):
+    drag_scroller.start(delta < 0)

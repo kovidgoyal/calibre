@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,7 @@ from lxml import etree
 
 from calibre import walk
 from calibre.utils.zipfile import ZipFile
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def pretty_all_xml_in_dir(path):
@@ -20,7 +20,7 @@ def pretty_all_xml_in_dir(path):
             with open(f, 'r+b') as stream:
                 raw = stream.read()
                 if raw:
-                    root = etree.fromstring(raw)
+                    root = safe_xml_fromstring(raw)
                     stream.seek(0)
                     stream.truncate()
                     stream.write(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True))
@@ -39,8 +39,8 @@ def dump(path):
     dest += '-dumped'
     do_dump(path, dest)
 
-    print (path, 'dumped to', dest)
+    print(path, 'dumped to', dest)
+
 
 if __name__ == '__main__':
     dump(sys.argv[-1])
-

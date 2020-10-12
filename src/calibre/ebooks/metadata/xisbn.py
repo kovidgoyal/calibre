@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -31,6 +32,9 @@ class xISBN(object):
         return self.isbn_pat.sub('', isbn.upper())
 
     def fetch_data(self, isbn):
+        # xisbn service has been de-comissioned see
+        # https://www.oclc.org/developer/news/2018/xid-decommission.en.html
+        return []
         url = self.QUERY%isbn
         data = browser().open_novisit(url).read()
         data = json.loads(data)
@@ -70,7 +74,7 @@ class xISBN(object):
 
     def get_associated_isbns(self, isbn):
         data = self.get_data(isbn)
-        ans = set([])
+        ans = set()
         for rec in data:
             for i in rec.get('isbn', []):
                 ans.add(i)
@@ -101,8 +105,6 @@ xisbn = xISBN()
 if __name__ == '__main__':
     import sys, pprint
     isbn = sys.argv[-1]
-    print pprint.pprint(xisbn.get_data(isbn))
-    print
-    print xisbn.get_associated_isbns(isbn)
-
-
+    print(pprint.pprint(xisbn.get_data(isbn)))
+    print()
+    print(xisbn.get_associated_isbns(isbn))

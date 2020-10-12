@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
@@ -9,10 +9,14 @@ __docformat__ = 'restructuredtext de'
 www.taz.de/digiabo
 '''
 import os
-import urllib2
 import zipfile
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
+try:
+    from urllib.request import HTTPBasicAuthHandler, build_opener, install_opener, urlopen
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import HTTPBasicAuthHandler, build_opener, install_opener, urlopen, HTTPError
 
 
 class TazDigiabo(BasicNewsRecipe):
@@ -34,17 +38,17 @@ class TazDigiabo(BasicNewsRecipe):
 
         url = domain + "/epub/"
 
-        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler = HTTPBasicAuthHandler()
         auth_handler.add_password(realm='TAZ-ABO',
                                   uri=url,
                                   user=self.username,
                                   passwd=self.password)
-        opener = urllib2.build_opener(auth_handler)
-        urllib2.install_opener(opener)
+        opener = build_opener(auth_handler)
+        install_opener(opener)
 
         try:
-            f = urllib2.urlopen(url)
-        except urllib2.HTTPError:
+            f = urlopen(url)
+        except HTTPError:
             self.report_progress(0, _('Can\'t login to download issue'))
             raise ValueError('Failed to login, check your username and'
                              ' password')

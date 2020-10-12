@@ -1,4 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+
+
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
@@ -11,6 +13,7 @@ from calibre.ebooks.metadata import authors_to_string, authors_to_sort_string, \
 from calibre.gui2.dialogs.delete_matching_from_device_ui import \
                                             Ui_DeleteMatchingFromDeviceDialog
 from calibre.utils.date import UNDEFINED_DATE
+from polyglot.builtins import unicode_type
 
 
 class tableItem(QTableWidgetItem):
@@ -116,7 +119,6 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
             if self.table.item(row, 0).checkState() == Qt.Unchecked:
                 continue
             (model, id, path) = self.table.item(row, 0).data(Qt.UserRole)
-            path = unicode(path)
+            path = unicode_type(path)
             self.result.append((model, id, path))
         return
-

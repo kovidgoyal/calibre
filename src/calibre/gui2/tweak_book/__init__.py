@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import string
-from future_builtins import map
+from polyglot.builtins import iteritems, map
 
 from calibre.utils.config import JSONConfig
 from calibre.spell.dictionary import Dictionaries, parse_lang_code
@@ -32,13 +31,16 @@ d['dock_top_left'] = 'horizontal'
 d['dock_top_right'] = 'horizontal'
 d['dock_bottom_left'] = 'horizontal'
 d['dock_bottom_right'] = 'horizontal'
-d['preview_serif_family'] = 'Liberation Serif'
-d['preview_sans_family'] = 'Liberation Sans'
-d['preview_mono_family'] = 'Liberation Mono'
+d['engine_preview_serif_family'] = None
+d['engine_preview_sans_family'] = None
+d['engine_preview_mono_family'] = None
 d['preview_standard_font_family'] = 'serif'
 d['preview_base_font_size'] = 18
 d['preview_mono_font_size'] = 14
 d['preview_minimum_font_size'] = 8
+d['preview_background'] = 'auto'
+d['preview_foreground'] = 'auto'
+d['preview_link_color'] = 'auto'
 d['remove_existing_links_when_linking_sheets'] = True
 d['charmap_favorites'] = list(map(ord, '\xa0\u2002\u2003\u2009\xad' '‘’“”‹›«»‚„' '—–§¶†‡©®™' '→⇒•·°±−×÷¼½½¾' '…µ¢£€¿¡¨´¸ˆ˜' 'ÀÁÂÃÄÅÆÇÈÉÊË' 'ÌÍÎÏÐÑÒÓÔÕÖØ' 'ŒŠÙÚÛÜÝŸÞßàá' 'âãäåæçèéêëìí' 'îïðñòóôõöøœš' 'ùúûüýÿþªºαΩ∞'))  # noqa
 d['folders_for_types'] = {'style':'styles', 'image':'images', 'font':'fonts', 'audio':'audio', 'video':'video'}
@@ -77,6 +79,7 @@ d['insert_full_screen_image'] = False
 d['preserve_aspect_ratio_when_inserting_image'] = False
 d['file_list_shows_full_pathname'] = False
 d['auto_link_stylesheets'] = True
+d['check_external_link_anchors'] = True
 del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
@@ -117,7 +120,7 @@ dictionaries = Dictionaries()
 
 
 def editor_name(editor):
-    for n, ed in editors.iteritems():
+    for n, ed in iteritems(editors):
         if ed is editor:
             return n
 

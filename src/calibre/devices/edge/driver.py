@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal'
 __docformat__ = 'restructuredtext en'
@@ -36,5 +37,3 @@ class EDGE(USBMS):
 
     EBOOK_DIR_MAIN = 'download'
     SUPPORTS_SUB_DIRS = True
-
-

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2012, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -6,7 +6,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 from collections import Counter
 from io import BytesIO
-from Queue import Empty, Queue
 from threading import Event, Thread
 
 from calibre.customize.ui import metadata_plugins
@@ -18,6 +17,8 @@ from calibre.ebooks.metadata.sources.identify import identify, msprefs
 from calibre.ebooks.metadata.sources.update import patch_plugins
 from calibre.utils.date import as_utc
 from calibre.utils.logging import GUILog
+from polyglot.queue import Empty, Queue
+from polyglot.builtins import iteritems
 
 
 def merge_result(oldmi, newmi, ensure_fields=None):
@@ -54,7 +55,7 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
     log = GUILog()
     patch_plugins()
 
-    for book_id, mi in metadata.iteritems():
+    for book_id, mi in iteritems(metadata):
         mi = OPF(BytesIO(mi), basedir=tdir,
                 populate_spine=False).to_book_metadata()
         title, authors, identifiers = mi.title, mi.authors, mi.identifiers

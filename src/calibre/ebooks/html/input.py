@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,12 +12,13 @@ Input plugin for HTML or OPF ebooks.
 '''
 
 import os, re, sys,  errno as gerrno
-from urlparse import urlparse, urlunparse
 
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
+from polyglot.builtins import unicode_type
+from polyglot.urllib import urlparse, urlunparse
 
 
 class Link(object):
@@ -45,7 +46,7 @@ class Link(object):
         :param base: The base directory that relative URLs are with respect to.
                      Must be a unicode string.
         '''
-        assert isinstance(url, unicode) and isinstance(base, unicode)
+        assert isinstance(url, unicode_type) and isinstance(base, unicode_type)
         self.url         = url
         self.parsed_url  = urlparse(self.url)
         self.is_local    = self.parsed_url.scheme in ('', 'file')
@@ -64,7 +65,7 @@ class Link(object):
         return self.path == getattr(other, 'path', other)
 
     def __str__(self):
-        return u'Link: %s --> %s'%(self.url, self.path)
+        return 'Link: %s --> %s'%(self.url, self.path)
 
 
 class IgnoreFile(Exception):
@@ -87,6 +88,7 @@ class HTMLFile(object):
     '''
 
     HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
+    HTML_PAT_BIN  = re.compile(br'<\s*html', re.IGNORECASE)
     TITLE_PAT = re.compile('<title>([^<>]+)</title>', re.IGNORECASE)
     LINK_PAT  = re.compile(
     r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
@@ -111,10 +113,13 @@ class HTMLFile(object):
                 encoding = detect_xml_encoding(src)[1]
                 if encoding:
                     try:
-                        header = header.decode(encoding)
+                        header = header.decode(encoding, errors='replace')
                     except ValueError:
                         pass
-                self.is_binary = level > 0 and not bool(self.HTML_PAT.search(header))
+                self.is_binary = False
+                if level > 0:
+                    pat = self.HTML_PAT_BIN if isinstance(header, bytes) else self.HTML_PAT
+                    self.is_binary = not bool(pat.search(header))
                 if not self.is_binary:
                     src += f.read()
         except IOError as err:
@@ -143,11 +148,14 @@ class HTMLFile(object):
     def __eq__(self, other):
         return self.path == getattr(other, 'path', other)
 
+    def __hash__(self):
+        return hash(self.path)
+
     def __str__(self):
-        return u'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
+        return 'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
 
     def __repr__(self):
-        return str(self)
+        return unicode_type(self)
 
     def find_links(self, src):
         for match in self.LINK_PAT.finditer(src):
@@ -169,8 +177,10 @@ class HTMLFile(object):
         return Link(url, self.base)
 
 
-def depth_first(root, flat, visited=set([])):
+def depth_first(root, flat, visited=None):
     yield root
+    if visited is None:
+        visited = set()
     visited.add(root)
     for link in root.links:
         if link.path is not None and link not in visited:
@@ -188,7 +198,7 @@ def depth_first(root, flat, visited=set([])):
                         visited.add(hf)
 
 
-def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None):
+def traverse(path_to_html_file, max_levels=sys.maxsize, verbose=0, encoding=None):
     '''
     Recursively traverse all links in the HTML file.
 
@@ -220,7 +230,7 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                 except IgnoreFile as err:
                     rejects.append(link)
                     if not err.doesnt_exist or verbose > 1:
-                        print repr(err)
+                        print(repr(err))
             for link in rejects:
                 hf.links.remove(link)
 
@@ -247,6 +257,3 @@ def get_filelist(htmlfile, dir, opts, log):
         for f in filelist:
             log.debug('\t\t', f)
     return filelist
-
-
-

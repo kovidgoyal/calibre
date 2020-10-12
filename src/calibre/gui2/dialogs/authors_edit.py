@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,6 +15,7 @@ from calibre.utils.config_base import tweaks
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.ebooks.metadata import string_to_authors
+from polyglot.builtins import unicode_type, range
 
 
 class ItemDelegate(QStyledItemDelegate):
@@ -30,12 +30,12 @@ class ItemDelegate(QStyledItemDelegate):
         return QStyledItemDelegate.sizeHint(self, *args) + QSize(0, 15)
 
     def setEditorData(self, editor, index):
-        name = unicode(index.data(Qt.DisplayRole) or '')
+        name = unicode_type(index.data(Qt.DisplayRole) or '')
         editor.setText(name)
         editor.lineEdit().selectAll()
 
     def setModelData(self, editor, model, index):
-        authors = string_to_authors(unicode(editor.text()))
+        authors = string_to_authors(unicode_type(editor.text()))
         model.setData(index, authors[0])
         self.edited.emit(index.row())
 
@@ -83,16 +83,16 @@ class List(QListWidget):
             self.mark_as_editable()
 
     def mark_as_editable(self):
-        for i in xrange(self.count()):
+        for i in range(self.count()):
             item = self.item(i)
             item.setFlags(item.flags() | Qt.ItemIsEditable)
 
     def edited(self, i):
         item = self.item(i)
-        q = unicode(item.text())
+        q = unicode_type(item.text())
         remove = []
-        for j in xrange(self.count()):
-            if i != j and unicode(self.item(j).text()) == q:
+        for j in range(self.count()):
+            if i != j and unicode_type(self.item(j).text()) == q:
                 remove.append(j)
         for x in sorted(remove, reverse=True):
             self.takeItem(x)
@@ -159,7 +159,7 @@ class AuthorsEdit(QDialog):
         self.resize(self.sizeHint() + QSize(150, 100))
         geom = gprefs.get('authors-edit-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         self.author.setFocus(Qt.OtherFocusReason)
 
     def save_geometry(self):
@@ -176,8 +176,8 @@ class AuthorsEdit(QDialog):
     @property
     def authors(self):
         ans = []
-        for i in xrange(self.al.count()):
-            ans.append(unicode(self.al.item(i).text()))
+        for i in range(self.al.count()):
+            ans.append(unicode_type(self.al.item(i).text()))
         return ans or [_('Unknown')]
 
     def add_author(self):
@@ -196,8 +196,9 @@ class AuthorsEdit(QDialog):
                     authors[la] = author
         self.author.setText('')
 
+
 if __name__ == '__main__':
     app = QApplication([])
     d = AuthorsEdit(['kovid goyal', 'divok layog', 'other author'], ['kovid goyal', 'other author'])
     d.exec_()
-    print (d.authors)
+    print(d.authors)

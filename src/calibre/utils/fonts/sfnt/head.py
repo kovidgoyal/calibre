@@ -1,17 +1,17 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from itertools import izip
 from struct import unpack_from, pack, calcsize
 
 from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from calibre.utils.fonts.sfnt.loca import read_array
+from polyglot.builtins import zip
 
 
 class HeadTable(UnknownTable):
@@ -47,7 +47,7 @@ class HeadTable(UnknownTable):
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
-        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
     def update(self):
@@ -68,7 +68,7 @@ class HorizontalHeader(UnknownTable):
             'descender', 'h',
             'line_gap', 'h',
             'advance_width_max', 'H',
-            'min_left_size_bearing', 'h',
+            'min_left_side_bearing', 'h',
             'min_right_side_bearing', 'h',
             'x_max_extent', 'h',
             'caret_slope_rise', 'h',
@@ -85,7 +85,7 @@ class HorizontalHeader(UnknownTable):
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
-        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
         raw = hmtx.raw
@@ -93,12 +93,55 @@ class HorizontalHeader(UnknownTable):
         if len(raw) < 4*num:
             raise UnsupportedFont('The hmtx table has insufficient data')
         long_hor_metric = raw[:4*num]
-        fmt = '>%dH'%(2*num)
-        entries = unpack_from(fmt.encode('ascii'), long_hor_metric)
-        self.advance_widths = entries[0::2]
-        fmt = '>%dh'%(2*num)
-        entries = unpack_from(fmt.encode('ascii'), long_hor_metric)
-        self.left_side_bearings = entries[1::2]
+        a = read_array(long_hor_metric)
+        self.advance_widths = a[0::2]
+        a = read_array(long_hor_metric, 'h')
+        self.left_side_bearings = a[1::2]
+
+
+class VerticalHeader(UnknownTable):
+
+    version_number = FixedProperty('_version_number')
+
+    def read_data(self, vmtx):
+        if hasattr(self, 'ascender'):
+            return
+        field_types = (
+            '_version_number' , 'l',
+            'ascender', 'h',
+            'descender', 'h',
+            'line_gap', 'h',
+            'advance_height_max', 'H',
+            'min_top_side_bearing', 'h',
+            'min_bottom_side_bearing', 'h',
+            'y_max_extent', 'h',
+            'caret_slope_rise', 'h',
+            'caret_slop_run', 'h',
+            'caret_offset', 'h',
+            'r1', 'h',
+            'r2', 'h',
+            'r3', 'h',
+            'r4', 'h',
+            'metric_data_format', 'h',
+            'number_of_v_metrics', 'H',
+        )
+
+        self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
+        self._fields = field_types[0::2]
+
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
+            setattr(self, f, val)
+
+        raw = vmtx.raw
+        num = self.number_of_v_metrics
+        if len(raw) < 4*num:
+            raise UnsupportedFont('The vmtx table has insufficient data')
+        long_hor_metric = raw[:4*num]
+        long_hor_metric = raw[:4*num]
+        a = read_array(long_hor_metric)
+        self.advance_heights = a[0::2]
+        a = read_array(long_hor_metric, 'h')
+        self.top_side_bearings = a[1::2]
 
 
 class OS2Table(UnknownTable):
@@ -149,7 +192,7 @@ class OS2Table(UnknownTable):
         self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
         self._fields = field_types[0::2]
 
-        for f, val in izip(self._fields, unpack_from(self._fmt, self.raw)):
+        for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
     def zero_fstype(self):
@@ -168,4 +211,3 @@ class PostTable(UnknownTable):
             return
         (self._version, self._italic_angle, self.underline_position,
          self.underline_thickness) = unpack_from(b'>llhh', self.raw)
-

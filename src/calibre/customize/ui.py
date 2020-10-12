@@ -1,4 +1,4 @@
-from __future__ import with_statement
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -10,7 +10,7 @@ from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store, ViewerPlugin, EditBookToolPlugin,
+                              StoreBase as Store, EditBookToolPlugin,
                               LibraryClosedPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
@@ -22,6 +22,7 @@ from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.constants import DEBUG, numeric_version
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
@@ -36,8 +37,8 @@ def _config():
     c.add_opt('plugins', default={}, help=_('Installed plugins'))
     c.add_opt('filetype_mapping', default={}, help=_('Mapping for filetype plugins'))
     c.add_opt('plugin_customization', default={}, help=_('Local plugin customization'))
-    c.add_opt('disabled_plugins', default=set([]), help=_('Disabled plugins'))
-    c.add_opt('enabled_plugins', default=set([]), help=_('Enabled plugins'))
+    c.add_opt('disabled_plugins', default=set(), help=_('Disabled plugins'))
+    c.add_opt('enabled_plugins', default=set(), help=_('Enabled plugins'))
 
     return ConfigProxy(c)
 
@@ -101,9 +102,9 @@ def restore_plugin_state_to_default(plugin_or_name):
     config['enabled_plugins'] = ep
 
 
-default_disabled_plugins = set([
+default_disabled_plugins = {
     'Overdrive', 'Douban Books', 'OZON.ru', 'Edelweiss', 'Google Images', 'Big Book Search',
-])
+}
 
 
 def is_disabled(plugin):
@@ -170,7 +171,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
             try:
                 nfp = plugin.run(nfp) or nfp
             except:
-                print >>oe, 'Running file type plugin %s failed with traceback:'%plugin.name
+                print('Running file type plugin %s failed with traceback:'%plugin.name, file=oe)
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
     x = lambda j: os.path.normpath(os.path.normcase(j))
@@ -194,7 +195,7 @@ def run_plugins_on_postimport(db, book_id, fmt):
             try:
                 plugin.postimport(book_id, fmt, db)
             except:
-                print ('Running file type plugin %s failed with traceback:'%
+                print('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
 
@@ -209,7 +210,7 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
             try:
                 plugin.postadd(book_id, fmt_map, db)
             except Exception:
-                print ('Running file type plugin %s failed with traceback:'%
+                print('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
 
@@ -306,14 +307,14 @@ def available_store_plugins():
 
 
 def stores():
-    stores = set([])
+    stores = set()
     for plugin in store_plugins():
         stores.add(plugin.name)
     return stores
 
 
 def available_stores():
-    stores = set([])
+    stores = set()
     for plugin in available_store_plugins():
         stores.add(plugin.name)
     return stores
@@ -340,9 +341,19 @@ def reread_metadata_plugins():
             for ft in plugin.file_types:
                 _metadata_writers[ft].append(plugin)
 
+    # Ensure custom metadata plugins are used in preference to builtin
+    # ones for a given filetype
+    def key(plugin):
+        return (1 if plugin.plugin_path is None else 0), plugin.name
+
+    for group in (_metadata_readers, _metadata_writers):
+        for plugins in itervalues(group):
+            if len(plugins) > 1:
+                plugins.sort(key=key)
+
 
 def metadata_readers():
-    ans = set([])
+    ans = set()
     for plugins in _metadata_readers.values():
         for plugin in plugins:
             ans.add(plugin)
@@ -350,7 +361,7 @@ def metadata_readers():
 
 
 def metadata_writers():
-    ans = set([])
+    ans = set()
     for plugins in _metadata_writers.values():
         for plugin in plugins:
             ans.add(plugin)
@@ -546,7 +557,7 @@ def plugin_for_output_format(fmt):
 
 
 def available_output_formats():
-    formats = set([])
+    formats = set()
     for plugin in output_format_plugins():
         if not is_disabled(plugin):
             formats.add(plugin.file_type)
@@ -564,7 +575,7 @@ def catalog_plugins():
 
 
 def available_catalog_formats():
-    formats = set([])
+    formats = set()
     for plugin in catalog_plugins():
         if not is_disabled(plugin):
             for format in plugin.file_types:
@@ -629,17 +640,8 @@ def patch_metadata_plugins(possibly_updated_plugins):
                     # Metadata source plugins dont use initialize() but that
                     # might change in the future, so be safe.
                     patches[i].initialize()
-    for i, pup in patches.iteritems():
+    for i, pup in iteritems(patches):
         _initialized_plugins[i] = pup
-# }}}
-
-# Viewer plugins {{{
-
-
-def all_viewer_plugins():
-    for plugin in _initialized_plugins:
-        if isinstance(plugin, ViewerPlugin):
-            yield plugin
 # }}}
 
 # Editor plugins {{{
@@ -663,7 +665,7 @@ def initialize_plugin(plugin, path_to_zip_file):
         p.initialize()
         return p
     except Exception:
-        print 'Failed to initialize plugin:', plugin.name, plugin.version
+        print('Failed to initialize plugin:', plugin.name, plugin.version)
         tb = traceback.format_exc()
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
                             %tb) + '\n'+tb)
@@ -708,16 +710,16 @@ def initialize_plugins(perf=False):
                 times[plugin.name] = time.time() - st
             _initialized_plugins.append(plugin)
         except:
-            print 'Failed to initialize plugin:', repr(zfp)
+            print('Failed to initialize plugin:', repr(zfp))
             if DEBUG:
                 traceback.print_exc()
     # Prevent a custom plugin from overriding stdout/stderr as this breaks
     # ipython
     sys.stdout, sys.stderr = ostdout, ostderr
     if perf:
-        for x in sorted(times, key=lambda x:times[x]):
-            print ('%50s: %.3f'%(x, times[x]))
-    _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
+        for x in sorted(times, key=lambda x: times[x]):
+            print('%50s: %.3f'%(x, times[x]))
+    _initialized_plugins.sort(key=lambda x: x.priority, reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()
 
@@ -738,18 +740,18 @@ def build_plugin(path):
     from calibre import prints
     from calibre.ptempfile import PersistentTemporaryFile
     from calibre.utils.zipfile import ZipFile, ZIP_STORED
-    path = type(u'')(path)
+    path = unicode_type(path)
     names = frozenset(os.listdir(path))
-    if u'__init__.py' not in names:
+    if '__init__.py' not in names:
         prints(path, ' is not a valid plugin')
         raise SystemExit(1)
     t = PersistentTemporaryFile(u'.zip')
-    with ZipFile(t, u'w', ZIP_STORED) as zf:
+    with ZipFile(t, 'w', ZIP_STORED) as zf:
         zf.add_dir(path, simple_filter=lambda x:x in {'.git', '.bzr', '.svn', '.hg'})
     t.close()
     plugin = add_plugin(t.name)
     os.remove(t.name)
-    prints(u'Plugin updated:', plugin.name, plugin.version)
+    prints('Plugin updated:', plugin.name, plugin.version)
 
 
 def option_parser():
@@ -785,19 +787,19 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     if opts.add_plugin is not None:
         plugin = add_plugin(opts.add_plugin)
-        print 'Plugin added:', plugin.name, plugin.version
+        print('Plugin added:', plugin.name, plugin.version)
     if opts.build_plugin is not None:
         build_plugin(opts.build_plugin)
     if opts.remove_plugin is not None:
         if remove_plugin(opts.remove_plugin):
-            print 'Plugin removed'
+            print('Plugin removed')
         else:
-            print 'No custom plugin named', opts.remove_plugin
+            print('No custom plugin named', opts.remove_plugin)
     if opts.customize_plugin is not None:
         name, custom = opts.customize_plugin.split(',')
         plugin = find_plugin(name.strip())
         if plugin is None:
-            print 'No plugin with the name %s exists'%name
+            print('No plugin with the name %s exists'%name)
             return 1
         customize_plugin(plugin, custom)
     if opts.enable_plugin is not None:
@@ -809,21 +811,21 @@ def main(args=sys.argv):
         for plugin in initialized_plugins():
             type_len, name_len = max(type_len, len(plugin.type)), max(name_len, len(plugin.name))
         fmt = '%-{}s%-{}s%-15s%-15s%s'.format(type_len+1, name_len+1)
-        print fmt%tuple(('Type|Name|Version|Disabled|Site Customization'.split('|')))
-        print
+        print(fmt%tuple(('Type|Name|Version|Disabled|Site Customization'.split('|'))))
+        print()
         for plugin in initialized_plugins():
-            print fmt%(
+            print(fmt%(
                                 plugin.type, plugin.name,
                                 plugin.version, is_disabled(plugin),
                                 plugin_customization(plugin)
-                                )
-            print '\t', plugin.description
+                                ))
+            print('\t', plugin.description)
             if plugin.is_customizable():
                 try:
-                    print '\t', plugin.customization_help()
+                    print('\t', plugin.customization_help())
                 except NotImplementedError:
                     pass
-            print
+            print()
 
     return 0
 

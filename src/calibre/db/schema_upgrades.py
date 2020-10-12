@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +10,7 @@ import os
 
 from calibre import prints
 from calibre.utils.date import isoformat, DEFAULT_DATE
+from polyglot.builtins import itervalues, unicode_type
 
 
 class SchemaUpgrade(object):
@@ -23,7 +23,7 @@ class SchemaUpgrade(object):
         # Upgrade database
         try:
             while True:
-                uv = self.db.execute('pragma user_version').next()[0]
+                uv = next(self.db.execute('pragma user_version'))[0]
                 meth = getattr(self, 'upgrade_version_%d'%uv, None)
                 if meth is None:
                     break
@@ -298,7 +298,7 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -374,7 +374,7 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.db.execute(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.db.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -595,13 +595,13 @@ class SchemaUpgrade(object):
                     custom_recipe_filename)
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(map(int, custom_recipes.iterkeys()))
+                existing = frozenset(map(int, custom_recipes))
                 if id_ in existing:
                     id_ = max(existing) + 1000
-                id_ = str(id_)
+                id_ = unicode_type(id_)
                 fname = custom_recipe_filename(id_, title)
                 custom_recipes[id_] = (title, fname)
-                if isinstance(script, unicode):
+                if isinstance(script, unicode_type):
                     script = script.encode('utf-8')
                 with open(os.path.join(bdir, fname), 'wb') as f:
                     f.write(script)
@@ -688,6 +688,101 @@ CREATE TRIGGER fkc_lrp_insert
         END;
 CREATE TRIGGER fkc_lrp_update
         BEFORE UPDATE OF book ON last_read_positions
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+
+        ''')
+
+    def upgrade_version_23(self):
+        ''' Create the annotations table '''
+        self.db.execute('''
+DROP TABLE IF EXISTS annotations_dirtied;
+CREATE TABLE annotations_dirtied(id INTEGER PRIMARY KEY,
+                             book INTEGER NOT NULL,
+                             UNIQUE(book));
+DROP TABLE IF EXISTS annotations;
+CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
+    book INTEGER NOT NULL,
+    format TEXT NOT NULL COLLATE NOCASE,
+    user_type TEXT NOT NULL,
+    user TEXT NOT NULL,
+    timestamp REAL NOT NULL,
+    annot_id TEXT NOT NULL,
+    annot_type TEXT NOT NULL,
+    annot_data TEXT NOT NULL,
+    searchable_text TEXT NOT NULL DEFAULT "",
+    UNIQUE(book, user_type, user, format, annot_type, annot_id)
+);
+
+DROP INDEX IF EXISTS annot_idx;
+CREATE INDEX annot_idx ON annotations (book);
+
+DROP TABLE IF EXISTS annotations_fts;
+DROP TABLE IF EXISTS annotations_fts_stemmed;
+CREATE VIRTUAL TABLE annotations_fts USING fts5(searchable_text,
+    content = 'annotations', content_rowid = 'id', tokenize = 'unicode61 remove_diacritics 2');
+CREATE VIRTUAL TABLE annotations_fts_stemmed USING fts5(searchable_text,
+    content = 'annotations', content_rowid = 'id', tokenize = 'porter unicode61 remove_diacritics 2');
+
+DROP TRIGGER IF EXISTS annotations_fts_insert_trg;
+CREATE TRIGGER annotations_fts_insert_trg AFTER INSERT ON annotations
+BEGIN
+    INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+END;
+
+DROP TRIGGER IF EXISTS annotations_fts_delete_trg;
+CREATE TRIGGER annotations_fts_delete_trg AFTER DELETE ON annotations
+BEGIN
+    INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+END;
+
+DROP TRIGGER IF EXISTS annotations_fts_update_trg;
+CREATE TRIGGER annotations_fts_update_trg AFTER UPDATE ON annotations
+BEGIN
+    INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+END;
+
+
+DROP TRIGGER IF EXISTS books_delete_trg;
+CREATE TRIGGER books_delete_trg
+    AFTER DELETE ON books
+    BEGIN
+        DELETE FROM books_authors_link WHERE book=OLD.id;
+        DELETE FROM books_publishers_link WHERE book=OLD.id;
+        DELETE FROM books_ratings_link WHERE book=OLD.id;
+        DELETE FROM books_series_link WHERE book=OLD.id;
+        DELETE FROM books_tags_link WHERE book=OLD.id;
+        DELETE FROM books_languages_link WHERE book=OLD.id;
+        DELETE FROM data WHERE book=OLD.id;
+        DELETE FROM last_read_positions WHERE book=OLD.id;
+        DELETE FROM annotations WHERE book=OLD.id;
+        DELETE FROM comments WHERE book=OLD.id;
+        DELETE FROM conversion_options WHERE book=OLD.id;
+        DELETE FROM books_plugin_data WHERE book=OLD.id;
+        DELETE FROM identifiers WHERE book=OLD.id;
+END;
+
+DROP TRIGGER IF EXISTS fkc_annot_insert;
+DROP TRIGGER IF EXISTS fkc_annot_update;
+CREATE TRIGGER fkc_annot_insert
+        BEFORE INSERT ON annotations
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+CREATE TRIGGER fkc_annot_update
+        BEFORE UPDATE OF book ON annotations
         BEGIN
             SELECT CASE
                 WHEN (SELECT id from books WHERE id=NEW.book) IS NULL

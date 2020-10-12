@@ -20,9 +20,9 @@
    <string>Manage authors</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="">
-     <item>
+   <item >
+    <layout class="QGridLayout" name="">
+     <item row="0" column="0">
       <widget class="QLabel">
        <property name="text">
         <string>&amp;Search for:</string>
@@ -32,7 +32,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="HistoryLineEdit" name="find_box">
        <property name="minimumSize">
         <size>
@@ -40,16 +40,19 @@
          <height>0</height>
         </size>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="find_button">
-       <property name="text">
-        <string>F&amp;ind</string>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="find_button">
+       <property name="text">
+        <string>S&amp;earch</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
       <spacer>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -61,6 +64,52 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item row="0" column="4">
+      <widget class="QCheckBox" name="apply_vl_checkbox">
+       <property name="toolTip">
+        <string>&lt;p&gt;Only show authors in the
+          current Virtual library. Edits already done may be hidden but will
+          not be forgotten.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string>Only show authors in the current &amp;Virtual library</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel">
+       <property name="text">
+        <string>Filter &amp;by:</string>
+       </property>
+       <property name="buddy">
+        <cstring>filter_box</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="HistoryLineEdit" name="filter_box">
+       <property name="minimumSize">
+        <size>
+         <width>200</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="toolTip">
+        <string>&lt;p&gt;Only show authors that contain the text in this box.
+          The match ignores case.&lt;/p&gt;</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QPushButton" name="filter_button">
+       <property name="text">
+        <string>Fi&amp;lter</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -79,20 +128,6 @@
    </item>
    <item>
     <layout class="QGridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="sort_by_author">
-       <property name="text">
-        <string>Sort by &amp;author</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="sort_by_author_sort">
-       <property name="text">
-        <string>Sort by author &amp;sort</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QPushButton" name="recalc_author_sort">
        <property name="toolTip">

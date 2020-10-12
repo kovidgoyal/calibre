@@ -130,7 +130,7 @@
       <item>
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>More information on &lt;a href=&quot;https://pythonhosted.org/Markdown/extensions/index.html&quot;&gt;Markdown extensions&lt;/a&gt;</string>
+         <string>More information on &lt;a href=&quot;https://python-markdown.github.io/extensions/&quot;&gt;Markdown extensions&lt;/a&gt;</string>
         </property>
         <property name="openExternalLinks">
          <bool>true</bool>

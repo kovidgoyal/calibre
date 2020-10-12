@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import sys, os, re
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class Info:
@@ -228,7 +230,7 @@ class Info:
             if att_changed is None:
                 if self.__run_level > 3:
                     msg = 'No dictionary match for %s\n' % att
-                    raise self.__bug_handler, msg
+                    raise self.__bug_handler(msg)
             else:
                 self.__text_string += '<%s>%s' % (att_changed, value)
 
@@ -267,8 +269,8 @@ class Info:
             information table, simply write the line to the output file.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'wb') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)

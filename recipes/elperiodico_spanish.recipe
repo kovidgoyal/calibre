@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
@@ -9,6 +9,13 @@ elperiodico.cat
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class ElPeriodico_cat(BasicNewsRecipe):
@@ -58,7 +65,7 @@ class ElPeriodico_cat(BasicNewsRecipe):
         return url.replace('/default.asp?', '/print.asp?')
 
     def preprocess_html(self, soup):
-        mcharset = Tag(soup, 'meta', [
+        mcharset = new_tag(soup, 'meta', [
                        ("http-equiv", "Content-Type"), ("content", "text/html; charset=utf-8")])
         soup.head.insert(0, mcharset)
         for item in soup.findAll(style=True):

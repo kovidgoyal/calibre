@@ -2,45 +2,140 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals reset_transforms'.split(' ')
+FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms'.split(' ')
 
 from read_book.globals import get_boss, viewport_mode_changer
-from utils import is_ios
+from utils import document_height, document_width, is_ios
 
 class ScrollViewport:
 
     def __init__(self):
         self.set_mode('flow')
         self.window_width_from_parent = self.window_height_from_parent = None
+        # In RTL mode, we hide the fact that we are scrolling to the left by negating the
+        # current X position and the requested X scroll position, which fools the reader
+        # code into thinking that it's always scrolling in positive X.
+        self.rtl = False
+        self.ltr = True
+        self.vertical_writing_mode = False
+        self.horizontal_writing_mode = True
 
     def set_mode(self, mode):
         prefix = ('flow' if mode is 'flow' else 'paged') + '_'
         for attr in FUNCTIONS:
             self[attr] = self[prefix + attr]
 
+    def initialize_on_layout(self, body_style):
+        self.horizontal_writing_mode = True
+        self.vertical_writing_mode = False
+        self.ltr = True
+        self.rtl = False
+        if body_style.direction is "rtl":
+            self.rtl = True
+            self.ltr = False
+
+        css_vertical_rl = body_style.getPropertyValue("writing-mode") is "vertical-rl"
+        if css_vertical_rl:
+            self.vertical_writing_mode = True
+            self.horizontal_writing_mode = False
+            self.rtl = True
+            self.ltr = False
+        else:
+            css_vertical_lr = body_style.getPropertyValue("writing-mode") is "vertical-lr"
+            if css_vertical_lr:
+                self.vertical_writing_mode = True
+                self.horizontal_writing_mode = False
+                self.ltr = True
+                self.rtl = False
+
     def flow_x(self):
+        if self.rtl:
+            return -window.pageXOffset
         return window.pageXOffset
 
     def flow_y(self):
         return window.pageYOffset
 
-    def paged_y(self):
-        return 0
+    def inline_pos(self):
+        if self.vertical_writing_mode:
+            return self.y()
+        return self.x()
+
+    def block_pos(self):
+        if self.horizontal_writing_mode:
+            return self.y()
+        return self.x()
 
     def flow_scroll_to(self, x, y):
-        window.scrollTo(x, y)
+        if self.rtl:
+            window.scrollTo(-x,y)
+        else:
+            window.scrollTo(x, y)
+
+    def scroll_to_in_inline_direction(self, pos):
+        # Lines flow vertically, so inline is vertical.
+        if self.vertical_writing_mode:
+            self.scroll_to(0, pos)
+        else:
+            self.scroll_to(pos, 0)
+
+    def scroll_to_in_block_direction(self, pos):
+        # In horizontal modes, the block direction is vertical.
+        if self.horizontal_writing_mode:
+            self.scroll_to(0, pos)
+        # In vertical modes, the block direction is horizontal.
+        else:
+            self.scroll_to(pos, 0)
 
     def flow_scroll_into_view(self, elem):
         elem.scrollIntoView()
 
+    def scroll_by(self, x, y):
+        if self.ltr:
+            window.scrollBy(x, y)
+        # Swap inline direction if in RTL mode.
+        else:
+            window.scrollBy(-x,y)
+
+    def scroll_by_in_inline_direction(self, offset):
+        # Same logic as scroll_to_in_inline_direction
+        if self.vertical_writing_mode:
+            self.scroll_by(0, offset)
+        else:
+            self.scroll_by(offset, 0)
+
+    def scroll_by_in_block_direction(self, offset):
+        # Same logic as scroll_to_in_block_direction
+        if self.horizontal_writing_mode:
+            self.scroll_by(0, offset)
+        else:
+            self.scroll_by(offset, 0)
+
     def flow_reset_globals(self):
         pass
 
-    def flow_reset_transforms(self):
+    def flow___reset_transforms(self):
         pass
 
-    def paged_content_width(self):
+    def paged_content_inline_size(self):
+        if self.horizontal_writing_mode:
+            return document.documentElement.scrollWidth
+        return document.documentElement.scrollHeight
+
+    def paged_content_block_size(self):
+        if self.horizontal_writing_mode:
+            return document.documentElement.scrollHeight
         return document.documentElement.scrollWidth
+
+    def inline_size(self):
+        if self.horizontal_writing_mode:
+            return self.width()
+        return self.height()
+
+    def block_size(self):
+        if self.horizontal_writing_mode:
+            return self.height()
+        return self.width()
 
     def update_window_size(self, w, h):
         self.window_width_from_parent = w
@@ -52,6 +147,101 @@ class ScrollViewport:
     def height(self):
         return window.innerHeight
 
+    def document_inline_size(self):
+        if self.horizontal_writing_mode:
+            return document_width()
+        return document_height()
+
+    def document_block_size(self):
+        if self.horizontal_writing_mode:
+            return document_height()
+        return document_width()
+
+    # Assure that the viewport position returned is corrected for the RTL
+    # mode of ScrollViewport.
+    def viewport_to_document(self, x, y, doc):
+        self.__reset_transforms()
+
+        # Convert x, y from the viewport (window) co-ordinate system to the
+        # document (body) co-ordinate system
+        doc = doc or window.document
+        topdoc = window.document
+        while doc is not topdoc and doc.defaultView:
+            # We are in a frame
+            frame = doc.defaultView.frameElement
+            rect = frame.getBoundingClientRect()
+            x += rect.left
+            y += rect.top
+            doc = frame.ownerDocument
+        win = doc.defaultView or window
+        wx, wy = win.pageXOffset, win.pageYOffset
+        x += wx
+        y += wy
+        if self.rtl:
+            return -x, y
+        return x, y
+
+    def rect_inline_start(self, rect):
+        # Lines start on the left in LTR mode, right in RTL mode
+        if self.horizontal_writing_mode:
+            return rect.left if self.ltr else rect.right
+        # Only top-to-bottom vertical writing is supported
+        return rect.top
+
+    def rect_inline_end(self, rect):
+        # Lines end on the right in LTR mode, left in RTL mode
+        if self.horizontal_writing_mode:
+            return rect.right if self.ltr else rect.left
+        # In top-to-bottom (the only vertical mode supported), bottom:
+        return rect.bottom
+
+    def rect_block_start(self, rect):
+        # Block flows top to bottom in horizontal modes
+        if self.horizontal_writing_mode:
+            return rect.top
+        # Block flows either left or right in vertical modes
+        return rect.left if self.ltr else rect.right
+
+    def rect_block_end(self, rect):
+        # Block flows top to bottom in horizontal modes
+        if self.horizontal_writing_mode:
+            return rect.bottom
+        # Block flows either left or right in vertical modes
+        return rect.right if self.ltr else rect.left
+
+    def rect_inline_size(self, rect):
+        # Lines go horizontally in horizontal writing, so use width
+        if self.horizontal_writing_mode:
+            return rect.width
+        return rect.height
+
+    def rect_block_size(self, rect):
+        # The block is vertical in horizontal writing, so use height
+        if self.horizontal_writing_mode:
+            return rect.height
+        return rect.width
+
+    # Returns document inline coordinate (1 value) at viewport inline coordinate
+    def viewport_to_document_inline(self, pos, doc):
+        # Lines flow horizontally in horizontal mode
+        if self.horizontal_writing_mode:
+            return self.viewport_to_document(pos, 0, doc)[0]
+        # Inline is vertical in vertical mode
+        return self.viewport_to_document(0, pos, doc)[1]
+
+    # Returns document block coordinate (1 value) at viewport block coordinate
+    def viewport_to_document_block(self, pos, doc):
+        # Block is vertical in horizontal mode
+        if self.horizontal_writing_mode:
+            return self.viewport_to_document(0, pos, doc)[1]
+        # Horizontal in vertical mode
+        return self.viewport_to_document(pos, 0, doc)[0]
+
+    def viewport_to_document_inline_block(self, inline, block, doc):
+        if self.horizontal_writing_mode:
+            return self.viewport_to_document(inline, block, doc)
+        return self.viewport_to_document(block, inline, doc)
+
 
 class IOSScrollViewport(ScrollViewport):
 
@@ -61,15 +251,21 @@ class IOSScrollViewport(ScrollViewport):
     def height(self):
         return self.window_height_from_parent or window.innerHeight
 
-    def _scroll_implementation(self, x):
-        if x is 0:
+    def _scroll_implementation(self, x, y):
+        if x is 0 and y is 0:
             document.documentElement.style.transform = 'none'
         else:
             x *= -1
-            document.documentElement.style.transform = f'translateX({x}px)'
+            y *= -1
+            document.documentElement.style.transform = f'translateX({x}px) translateY({y}px)'
 
     def paged_scroll_to(self, x, y):
-        self._scroll_implementation(x)
+        x = x or 0
+        y = y or 0
+        if self.ltr:
+            self._scroll_implementation(x, y)
+        else:
+            self._scroll_implementation(-x, y)
         boss = get_boss()
         if boss:
             boss.onscroll()
@@ -79,6 +275,18 @@ class IOSScrollViewport(ScrollViewport):
         if not raw or raw is 'none':
             return 0
         raw = raw[raw.indexOf('(') + 1:]
+        ans = parseInt(raw)
+        if isNaN(ans):
+            return 0
+        if self.ltr:
+            ans *= -1
+        return ans
+
+    def paged_y(self):
+        raw = document.documentElement.style.transform
+        if not raw or raw is 'none':
+            return 0
+        raw = raw[raw.lastIndexOf('(') + 1:]
         ans = parseInt(raw)
         if isNaN(ans):
             return 0
@@ -96,13 +304,15 @@ class IOSScrollViewport(ScrollViewport):
             left += p.offsetLeft
             p = p.offsetParent
         # left -= window_width() // 2
-        self._scroll_implementation(max(0, left))
+        self._scroll_implementation(max(0, left), 0)
 
-    def paged_reset_transforms(self):
-        document.documentElement.style.transform = 'none'
+    def paged___reset_transforms(self):
+        s = document.documentElement.style
+        if s.transform is not 'none':
+            s.transform = 'none'
 
     def paged_reset_globals(self):
-        self.paged_reset_transforms()
+        self.__reset_transforms()
 
 
 if is_ios:
@@ -113,3 +323,38 @@ for attr in FUNCTIONS:
     if not scroll_viewport['paged_' + attr]:
         scroll_viewport['paged_' + attr] = scroll_viewport[attr]
 viewport_mode_changer(scroll_viewport.set_mode)
+
+def rem_size(reset):
+    if reset:
+        rem_size.ans = None
+        return
+    if not rem_size.ans:
+        d = document.createElement('span')
+        d.style.position = 'absolute'
+        d.style.visibility = 'hidden'
+        d.style.width = '1rem'
+        d.style.fontSize = '1rem'
+        d.style.paddingTop = d.style.paddingBottom = d.style.paddingLeft = d.style.paddingRight = '0'
+        d.style.marginTop = d.style.marginBottom = d.style.marginLeft = d.style.marginRight = '0'
+        d.style.borderStyle = 'none'
+        document.body.appendChild(d)
+        rem_size.ans = d.clientWidth
+        document.body.removeChild(d)
+    return rem_size.ans
+
+def line_height(reset):
+    if reset:
+        line_height.ans = None
+        return
+    if not line_height.ans:
+        ds = window.getComputedStyle(document.body)
+        try:
+            # will fail if line-height = "normal"
+            lh = float(ds.lineHeight)
+        except:
+            try:
+                lh = 1.2 * float(ds.fontSize)
+            except:
+                lh = 15
+        line_height.ans = max(5, lh)
+    return line_height.ans

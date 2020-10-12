@@ -14,7 +14,7 @@ class Ksiazka_net_pl(BasicNewsRecipe):
     no_stylesheets = True
     remove_empty_feeds = True
     preprocess_regexps = [
-        (re.compile(ur'Podoba mi się, kupuję:'), lambda match: '<br />')]
+        (re.compile(u'Podoba mi się, kupuję:'), lambda match: '<br />')]
     remove_tags_before = dict(name='div', attrs={'class': 'm-body'})
     remove_tags_after = dict(name='div', attrs={'class': 'm-body-link'})
     remove_tags = [

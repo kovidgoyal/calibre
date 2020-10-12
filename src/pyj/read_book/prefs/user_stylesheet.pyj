@@ -1,45 +1,155 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from gettext import gettext as _
-from dom import add_extra_css, build_rule, unique_id
-from book_list.globals import get_session_data
 from elementmaker import E
+from gettext import gettext as _
 
-CONTAINER = unique_id('reader-us-prefs')
+from book_list.globals import get_session_data
+from dom import ensure_id, unique_id
+from read_book.globals import runtime, ui_operations
+from read_book.prefs.utils import create_button_box
+from session import defaults
+from viewer.constants import READER_BACKGROUND_URL
+from widgets import create_button
 
-add_extra_css(def():
-    sel = '#' + CONTAINER
-    style = ''
-    style += build_rule(sel, display="flex", flex_direction="column")
-    style += build_rule(sel + ' textarea', margin_left='1em', margin_right='1em', min_height='75vh')
-    style += build_rule(sel + ' .simple-link', color='blue')
-    return style
-)
+BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
 
-def create_user_stylesheet_panel(container):
-    container.appendChild(E.div(id=CONTAINER))
-    container = container.lastChild
+
+def change_background_image(img_id):
+    ui_operations.change_background_image(img_id)
+
+
+def clear_image(img_id):
+    document.getElementById(img_id).src = BLANK
+
+
+def standalone_background_widget(sd):
+    if sd.get('background_image'):
+        src = READER_BACKGROUND_URL
+    else:
+        src = BLANK
+    img_id = unique_id('bg-image')
+
+    return E.div(
+        style='display: flex; align-items: center',
+        E.div(E.img(src=src, id=img_id, class_='bg-image-preview', style='width: 75px; height: 75px; border: solid 1px')),
+        E.div('\xa0', style='margin: 0.5rem'),
+        create_button(_('Change image'), action=change_background_image.bind(None, img_id)),
+        E.div('\xa0', style='margin: 0.5rem'),
+        create_button(_('Clear image'), action=clear_image.bind(None, img_id)),
+    )
+
+
+def background_widget(sd):
+    if runtime.is_standalone_viewer:
+        return standalone_background_widget(sd)
+    return E.div(style='margin-bottom: 1ex', E.label(
+        _('Image URL') + ':\xa0',
+        E.input(type='url', name='background_image', value=sd.get('background_image') or '')
+    ))
+
+
+def background_style_widget(sd):
+    ans = E.div(style='margin-bottom: 1ex', E.label(
+        _('Background image style') + ':\xa0',
+        E.select(name='background_image_style',
+            E.option(_('Scaled'), value='scaled'),
+            E.option(_('Tiled'), value='tiled'),
+        ),
+    ))
+    ans.querySelector('select').value = sd.get('background_image_style')
+    return ans
+
+
+def background_fade_widget(sd):
+    return E.div(E.label(
+        _('Background image fade (%)') + ':\xa0',
+        E.input(
+            name='background_image_fade', type='number', max='100', min='0', step='1',
+            value='' + sd.get('background_image_fade'),
+            title=_('Fading of the background image is done by blending it with the background color')
+        ),
+    ))
+
+
+def restore_defaults():
+    container = document.getElementById(create_user_stylesheet_panel.container_id)
+    container.querySelector('[name=user-stylesheet]').value = ''
+    if runtime.is_standalone_viewer:
+        clear_image(container.querySelector('img').id)
+    else:
+        container.querySelector('[name=background_image]').value = ''
+    container.querySelector('select[name=background_image_style]').value = defaults.background_image_style
+    container.querySelector('input[name=background_image_fade]').value = str(defaults.background_image_fade)
+
+
+def create_user_stylesheet_panel(container, apply_func, cancel_func):
     sd = get_session_data()
-    container.appendChild(E.div(style='margin:1ex 1rem; padding: 1ex 0'))
-    container.firstChild.innerHTML = _(
-        'A CSS style sheet that can be used to control the look and feel of books. For examples, click'
-        ' <a class="{cls}" href="{url}" target="{target}" title="Examples of user style sheets">here</a>.'
-    ).format(url='https://www.mobileread.com/forums/showthread.php?t=51500', target="_blank", cls="simple-link")
-    container.appendChild(E.textarea(style="flex-grow: 10"))
+    create_user_stylesheet_panel.container_id = ensure_id(container)
+    container.appendChild(
+        E.div(
+            style='min-height: 75vh; display: flex; flex-flow: column; margin: 1ex 1rem; padding: 1ex 0',
+            E.div(
+                style='border-bottom: solid 1px; margin-bottom: 1.5ex; padding-bottom: 1.5ex',
+                E.div(_('Choose a background image to display behind the book text'), style='margin-bottom: 1.5ex'),
+                background_widget(sd),
+                background_style_widget(sd),
+                background_fade_widget(sd),
+            ),
+            E.div(
+                style='flex-grow: 10; display: flex; flex-flow: column',
+                E.div(
+                    _('A CSS style sheet that can be used to control the look and feel of the text. For examples, click'), ' ',
+                    E.a(class_='blue-link', title=_("Examples of user style sheets"),
+                        target=('_self' if runtime.is_standalone_viewer else '_blank'),
+                        href='https://www.mobileread.com/forums/showthread.php?t=51500', _('here.')),
+                    ' ', _(
+                        'Note that you can use the selectors body.calibre-viewer-paginated and body.calibre-viewer-scrolling'
+                        ' to target the Paged and Flow modes. Similarly, use body.calibre-viewer-light-colors and'
+                        ' body.calibre-viewer-dark-colors to target light and dark color schemes.')
+                ),
+                E.textarea(name='user-stylesheet', style='width: 100%; margin-top: 1ex; box-sizing: border-box; flex-grow: 10'),
+            )
+        )
+    )
     val = sd.get('user_stylesheet')
     if val:
-        container.lastChild.value = val
+        container.querySelector('[name=user-stylesheet]').value = val
+    container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
+
 
 develop = create_user_stylesheet_panel
 
 
 def commit_user_stylesheet(onchange, container):
     sd = get_session_data()
-    ta = document.getElementById(CONTAINER).querySelector('textarea')
+    ta = container.querySelector('[name=user-stylesheet]')
     val = ta.value or ''
     old = sd.get('user_stylesheet')
+    changed = False
     if old is not val:
         sd.set('user_stylesheet', val)
+        changed = True
+    if runtime.is_standalone_viewer:
+        bg_image = container.querySelector('img.bg-image-preview').src
+        if bg_image is BLANK:
+            bg_image = None
+    else:
+        bg_image = container.querySelector('input[name=background_image]').value
+    old = sd.get('background_image')
+    if old is not bg_image:
+        sd.set('background_image', bg_image)
+        changed = True
+    old = sd.get('background_image_style')
+    bis = container.querySelector('select[name=background_image_style]').value
+    if bis is not old:
+        changed = True
+        sd.set('background_image_style', bis)
+    old = int(sd.get('background_image_fade'))
+    bif = int(container.querySelector('input[name=background_image_fade]').value)
+    if old is not bif:
+        changed = True
+        sd.set('background_image_fade', bif)
+    if changed:
         onchange()

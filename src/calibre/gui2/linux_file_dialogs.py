@@ -1,8 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import functools
 import os
@@ -14,8 +12,9 @@ from threading import Thread
 from PyQt5.Qt import QEventLoop
 
 from calibre import force_unicode
-from calibre.constants import filesystem_encoding, preferred_encoding, DEBUG
+from calibre.constants import DEBUG, filesystem_encoding, preferred_encoding
 from calibre.utils.config import dynamic
+from polyglot.builtins import getenv, reraise, string_or_bytes, unicode_type
 
 
 def dialog_name(name, title):
@@ -28,20 +27,20 @@ def get_winid(widget=None):
 
 
 def detect_desktop_environment():
-    de = os.environ.get('XDG_CURRENT_DESKTOP')
+    de = getenv('XDG_CURRENT_DESKTOP')
     if de:
-        return de.decode('utf-8', 'replace').upper().split(':', 1)[0]
-    if os.environ.get('KDE_FULL_SESSION') == 'true':
+        return de.upper().split(':', 1)[0]
+    if getenv('KDE_FULL_SESSION') == 'true':
         return 'KDE'
-    if os.environ.get('GNOME_DESKTOP_SESSION_ID'):
+    if getenv('GNOME_DESKTOP_SESSION_ID'):
         return 'GNOME'
-    ds = os.environ.get('DESKTOP_SESSION')
-    if ds and ds.upper() in {b'GNOME', b'XFCE'}:
-        return ds.decode('utf-8').upper()
+    ds = getenv('DESKTOP_SESSION')
+    if ds and ds.upper() in {'GNOME', 'XFCE'}:
+        return ds.upper()
 
 
 def is_executable_present(name):
-    PATH = os.environ.get('PATH') or b''
+    PATH = getenv('PATH') or ''
     for path in PATH.split(os.pathsep):
         if os.access(os.path.join(path, name), os.X_OK):
             return True
@@ -67,7 +66,7 @@ def get_initial_dir(name, title, default_dir, no_save_dir):
         return ensure_dir(process_path(default_dir))
     key = dialog_name(name, title)
     saved = dynamic.get(key)
-    if not isinstance(saved, basestring):
+    if not isinstance(saved, string_or_bytes):
         saved = None
     if saved and os.path.isdir(saved):
         return ensure_dir(process_path(saved))
@@ -83,7 +82,7 @@ def save_initial_dir(name, title, ans, no_save_dir, is_file=False):
 
 
 def encode_arg(title):
-    if isinstance(title, unicode):
+    if isinstance(title, unicode_type):
         try:
             title = title.encode(preferred_encoding)
         except UnicodeEncodeError:
@@ -106,14 +105,13 @@ def decode_output(raw):
 
 def run(cmd):
     from calibre.gui2 import sanitize_env_vars
-    ecmd = list(map(encode_arg, cmd))
     if DEBUG:
         try:
-            print(ecmd)
+            print(cmd)
         except Exception:
             pass
     with sanitize_env_vars():
-        p = subprocess.Popen(ecmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
     ret = p.wait()
     return ret, decode_output(stdout), decode_output(stderr)
@@ -124,7 +122,10 @@ def run(cmd):
 def kdialog_supports_desktopfile():
     ans = getattr(kdialog_supports_desktopfile, 'ans', None)
     if ans is None:
-        raw = subprocess.check_output(['kdialog', '--help'])
+        try:
+            raw = subprocess.check_output(['kdialog', '--help'])
+        except EnvironmentError:
+            raw = b'--desktopfile'
         ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
     return ans
 
@@ -135,7 +136,7 @@ def kde_cmd(window, title, *rest):
         ans += ['--desktopfile', 'calibre-gui']
     winid = get_winid(window)
     if winid is not None:
-        ans += ['--attach', str(int(winid))]
+        ans += ['--attach', unicode_type(int(winid))]
     return ans + list(rest)
 
 
@@ -173,7 +174,7 @@ def kdialog_choose_files(
     filters=[],
     all_files=True,
     select_only_single_file=False,
-    default_dir=u'~'):
+    default_dir='~'):
     initial_dir = get_initial_dir(name, title, default_dir, False)
     args = []
     if not select_only_single_file:
@@ -250,7 +251,7 @@ def zenity_choose_files(
     filters=[],
     all_files=True,
     select_only_single_file=False,
-    default_dir=u'~'):
+    default_dir='~'):
     initial_dir = get_initial_dir(name, title, default_dir, False)
     args = ['--filename=' + os.path.join(initial_dir, '.fgdfg.gdfhjdhf*&^839')]
     args += zenity_filters(filters, all_files)
@@ -305,7 +306,6 @@ def linux_native_dialog(name):
                     ret[0] = func(window, *args, **kwargs)
                 except:
                     ret[1] = sys.exc_info()
-                    sys.exc_clear()
                 while not loop.isRunning():
                     time.sleep(0.001)  # yield so that loop starts
                 loop.quit()
@@ -314,7 +314,7 @@ def linux_native_dialog(name):
             t.start()
             loop.exec_(QEventLoop.ExcludeUserInputEvents)
             if ret[1] is not None:
-                raise ret[1][0], ret[1][1], ret[1][2]
+                reraise(*ret[1])
             return ret[0]
         except Exception:
             linux_native_dialog.native_failed = True

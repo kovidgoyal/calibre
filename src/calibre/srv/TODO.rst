@@ -14,13 +14,11 @@ New features for the in-browser viewer
 - Allow loading fonts from the computer running calibre and using them
   for reading.
 
-- Templates for headers/footers including current chapter name
 
 New features for the server generally
 ---------------------------------------
 
-- Create a UI for making changes to the library such as editing metadata,
-  adding/deleting books, converting, sending by email, etc.
+- Create a UI for sending by email
 
 - Add a way to search the set of locally available books stored in offline
   storage.
@@ -28,15 +26,14 @@ New features for the server generally
 - Automatic Let's Encrypt integration so that using HTTPS is easier
   Should wait for the acme v2 protocol endpoint:
   https://letsencrypt.org/2017/06/14/acme-v2-api.html
+  Turns out this fairly pointless to do, since it only works if the server
+  is running on port 80, which is a privileged port.
 
 - Some way to manage remote calibre server instances via the calibre GUI. Two
-  possibilities are: 
+  possibilities are:
     1) Have the remote server appear as a "device" in the GUI. You can then
     send books to the remote server, update metadata, etc. just as you would
     when connecting calibre to a real device.
     2) Have the remote server appear as a library in the GUI
   (2) is preferable in terms of features/functionality, but is
   **much** harder to implement in a performant and semantically correct manner.
-
-Bug fixes
---------------

@@ -1,12 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from pprint import pformat
 
 from calibre import prints
+from polyglot.builtins import iteritems
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -37,7 +37,7 @@ List available custom columns. Shows column labels and ids.
 
 
 def main(opts, args, dbctx):
-    for col, data in dbctx.run('custom_columns').iteritems():
+    for col, data in iteritems(dbctx.run('custom_columns')):
         if opts.details:
             prints(col)
             print()

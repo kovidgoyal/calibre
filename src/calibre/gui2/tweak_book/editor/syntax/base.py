@@ -1,12 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys
 from collections import defaultdict, deque
 
 from PyQt5.Qt import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
@@ -14,14 +11,13 @@ from PyQt5.Qt import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
 from ..themes import highlight_to_char_format
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.utils.icu import utf16_length
-
-is_wide_build = sys.maxunicode >= 0x10ffff
+from polyglot.builtins import iteritems, unicode_type
 
 
 def run_loop(user_data, state_map, formats, text):
     state = user_data.state
     i = 0
-    fix_offsets = is_wide_build and utf16_length(text) != len(text)
+    fix_offsets = utf16_length(text) != len(text)
     seen_states = defaultdict(set)
     while i < len(text):
         orig_i = i
@@ -38,7 +34,7 @@ def run_loop(user_data, state_map, formats, text):
                 i += num
         if orig_i == i and state.parse in seen_states[i]:
             # Something went wrong in the syntax highlighter
-            print ('Syntax highlighter returned a zero length format, parse state:', state.parse)
+            print('Syntax highlighter returned a zero length format, parse state:', state.parse)
             break
 
 
@@ -85,7 +81,7 @@ class SyntaxHighlighter(object):
         return bool(self.requests)
 
     def apply_theme(self, theme):
-        self.theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
+        self.theme = {k:highlight_to_char_format(v) for k, v in iteritems(theme)}
         self.create_formats()
         self.rehighlight()
 
@@ -201,6 +197,10 @@ class SyntaxHighlighter(object):
         finally:
             self.ignore_requests = False
 
+    @property
+    def is_working(self):
+        return bool(self.requests)
+
     def parse_single_block(self, block):
         ud, is_new_ud = self.get_user_data(block)
         orig_state = ud.state
@@ -215,7 +215,7 @@ class SyntaxHighlighter(object):
             start_state = self.user_data_factory().state
         ud.clear(state=start_state, doc_name=self.doc_name)  # Ensure no stale user data lingers
         formats = []
-        for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode(block.text())):
+        for i, num, fmt in run_loop(ud, self.state_map, self.formats, unicode_type(block.text())):
             if fmt is not None:
                 r = QTextLayout.FormatRange()
                 r.start, r.length, r.format = i, num, fmt
@@ -239,4 +239,3 @@ class SyntaxHighlighter(object):
                 elif r.start + r.length >= preedit_start:
                     r.length += preedit_length
         layout.setAdditionalFormats(formats)
-

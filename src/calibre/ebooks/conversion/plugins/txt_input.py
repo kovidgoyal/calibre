@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -8,17 +9,23 @@ import os
 
 from calibre import _ent_pat, walk, xml_entity_to_unicode
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
+from polyglot.builtins import getcwd
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
     'admonition': _('Support admonitions'),
     'attr_list': _('Add attribute to HTML tags'),
+    'codehilite': _('Add code highlighting via Pygments'),
     'def_list': _('Definition lists'),
     'extra': _('Enables various common extensions'),
     'fenced_code': _('Alternative code block syntax'),
     'footnotes': _('Footnotes'),
-    'headerid': _('Allow ids as part of a header'),
+    'legacy_attrs': _('Use legacy element attributes'),
+    'legacy_em': _('Use legacy underscore handling for connected words'),
     'meta': _('Metadata in the document'),
+    'nl2br': _('Treat newlines as hard breaks'),
+    'sane_lists': _('Do not allow mixing list types'),
+    'smarty': _('Use markdown\'s internal smartypants parser'),
     'tables': _('Support tables'),
     'toc': _('Generate a table of contents'),
     'wikilinks': _('Wiki style links'),
@@ -31,32 +38,49 @@ class TXTInput(InputFormatPlugin):
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
     file_types  = {'txt', 'txtz', 'text', 'md', 'textile', 'markdown'}
+    commit_name = 'txt_input'
+    ui_data = {
+        'md_extensions': MD_EXTENSIONS,
+        'paragraph_types': {
+            'auto': _('Try to auto detect paragraph type'),
+            'block': _('Treat a blank line as a paragraph break'),
+            'single': _('Assume every line is a paragraph'),
+            'print': _('Assume every line starting with 2+ spaces or a tab starts a paragraph'),
+            'unformatted': _('Most lines have hard line breaks, few/no blank lines or indents'),
+            'off': _('Don\'t modify the paragraph structure'),
+        },
+        'formatting_types': {
+            'auto': _('Automatically decide which formatting processor to use'),
+            'plain': _('No formatting'),
+            'heuristic': _('Use heuristics to determine chapter headings, italics, etc.'),
+            'textile': _('Use the TexTile markup language'),
+            'markdown': _('Use the Markdown markup language')
+        },
+    }
 
-    options = set([
-        OptionRecommendation(name='paragraph_type', recommended_value='auto',
-            choices=['auto', 'block', 'single', 'print', 'unformatted', 'off'],
-            help=_('Paragraph structure.\n'
-                   'choices are [\'auto\', \'block\', \'single\', \'print\', \'unformatted\', \'off\']\n'
-                   '* auto: Try to auto detect paragraph type.\n'
-                   '* block: Treat a blank line as a paragraph break.\n'
-                   '* single: Assume every line is a paragraph.\n'
-                   '* print:  Assume every line starting with 2+ spaces or a tab '
-                   'starts a paragraph.\n'
-                   '* unformatted: Most lines have hard line breaks, few/no blank lines or indents. '
-                   'Tries to determine structure and reformat the differentiate elements.\n'
-                   '* off: Don\'t modify the paragraph structure. This is useful when combined with '
-                   'Markdown or Textile formatting to ensure no formatting is lost.')),
+    options = {
         OptionRecommendation(name='formatting_type', recommended_value='auto',
-            choices=['auto', 'plain', 'heuristic', 'textile', 'markdown'],
+            choices=list(ui_data['formatting_types']),
             help=_('Formatting used within the document.\n'
-                   '* auto: Automatically decide which formatting processor to use.\n'
-                   '* plain: Do not process the document formatting. Everything is a '
-                   'paragraph and no styling is applied.\n'
-                   '* heuristic: Process using heuristics to determine formatting such '
-                   'as chapter headings and italic text.\n'
-                   '* textile: Processing using textile formatting.\n'
-                   '* markdown: Processing using markdown formatting. '
-                   'To learn more about markdown see')+' https://daringfireball.net/projects/markdown/'),
+                   '* auto: {auto}\n'
+                   '* plain: {plain}\n'
+                   '* heuristic: {heuristic}\n'
+                   '* textile: {textile}\n'
+                   '* markdown: {markdown}\n'
+                   'To learn more about markdown see {url}').format(
+                       url='https://daringfireball.net/projects/markdown/', **ui_data['formatting_types'])
+        ),
+        OptionRecommendation(name='paragraph_type', recommended_value='auto',
+            choices=list(ui_data['paragraph_types']),
+            help=_('Paragraph structure to assume. The value of "off" is useful for formatted documents such as Markdown or Textile. '
+                   'Choices are:\n'
+                   '* auto: {auto}\n'
+                   '* block: {block}\n'
+                   '* single: {single}\n'
+                   '* print:  {print}\n'
+                   '* unformatted: {unformatted}\n'
+                   '* off: {off}').format(**ui_data['paragraph_types'])
+        ),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
                 'With this option all spaces will be displayed.')),
@@ -66,10 +90,42 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
             help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
                    'of the standard markdown format. The extensions enabled by default: %default.\n'
-                   'To learn more about markdown extensions, see https://pythonhosted.org/Markdown/extensions/index.html\n'
-                   'This should be a comma separated list of extensions to enable:\n') +
-                             '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
-    ])
+                   'To learn more about markdown extensions, see {}\n'
+                   'This should be a comma separated list of extensions to enable:\n'
+                   ).format('https://python-markdown.github.io/extensions/') + '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
+    }
+
+    def shift_file(self, fname, data):
+        name, ext = os.path.splitext(fname)
+        candidate = os.path.join(self.output_dir, fname)
+        c = 0
+        while os.path.exists(candidate):
+            c += 1
+            candidate = os.path.join(self.output_dir, '{}-{}{}'.format(name, c, ext))
+        ans = candidate
+        with open(ans, 'wb') as f:
+            f.write(data)
+        return f.name
+
+    def fix_resources(self, html, base_dir):
+        from html5_parser import parse
+        root = parse(html)
+        changed = False
+        for img in root.xpath('//img[@src]'):
+            src = img.get('src')
+            prefix = src.split(':', 1)[0].lower()
+            if prefix not in ('file', 'http', 'https', 'ftp') and not os.path.isabs(src):
+                src = os.path.join(base_dir, src)
+                if os.access(src, os.R_OK):
+                    with open(src, 'rb') as f:
+                        data = f.read()
+                    f = self.shift_file(os.path.basename(src), data)
+                    changed = True
+                    img.set('src', os.path.basename(f))
+        if changed:
+            from lxml import etree
+            html = etree.tostring(root, encoding='unicode')
+        return html
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -84,9 +140,10 @@ class TXTInput(InputFormatPlugin):
                 block_to_single_line, separate_hard_scene_breaks)
 
         self.log = log
-        txt = ''
+        txt = b''
         log.debug('Reading text from file...')
         length = 0
+        base_dir = self.output_dir = getcwd()
 
         # Extract content from zip archive.
         if file_ext == 'txtz':
@@ -96,8 +153,10 @@ class TXTInput(InputFormatPlugin):
             for x in walk('.'):
                 if os.path.splitext(x)[1].lower() in ('.txt', '.text'):
                     with open(x, 'rb') as tf:
-                        txt += tf.read() + '\n\n'
+                        txt += tf.read() + b'\n\n'
         else:
+            if getattr(stream, 'name', None):
+                base_dir = os.path.dirname(stream.name)
             txt = stream.read()
             if file_ext in {'md', 'textile', 'markdown'}:
                 options.formatting_type = {'md': 'markdown'}.get(file_ext, file_ext)
@@ -194,47 +253,42 @@ class TXTInput(InputFormatPlugin):
             txt = preserve_spaces(txt)
 
         # Process the text using the appropriate text processor.
-        html = ''
-        input_mi = None
-        if options.formatting_type == 'markdown':
-            log.debug('Running text through markdown conversion...')
-            try:
-                input_mi, html = convert_markdown_with_metadata(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
-            except RuntimeError:
-                raise ValueError('This txt file has malformed markup, it cannot be'
-                    ' converted by calibre. See https://daringfireball.net/projects/markdown/syntax')
-        elif options.formatting_type == 'textile':
-            log.debug('Running text through textile conversion...')
-            html = convert_textile(txt)
-        else:
-            log.debug('Running text through basic conversion...')
-            flow_size = getattr(options, 'flow_size', 0)
-            html = convert_basic(txt, epub_split_size_kb=flow_size)
+        self.shifted_files = []
+        try:
+            html = ''
+            input_mi = None
+            if options.formatting_type == 'markdown':
+                log.debug('Running text through markdown conversion...')
+                try:
+                    input_mi, html = convert_markdown_with_metadata(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
+                except RuntimeError:
+                    raise ValueError('This txt file has malformed markup, it cannot be'
+                        ' converted by calibre. See https://daringfireball.net/projects/markdown/syntax')
+                html = self.fix_resources(html, base_dir)
+            elif options.formatting_type == 'textile':
+                log.debug('Running text through textile conversion...')
+                html = convert_textile(txt)
+                html = self.fix_resources(html, base_dir)
+            else:
+                log.debug('Running text through basic conversion...')
+                flow_size = getattr(options, 'flow_size', 0)
+                html = convert_basic(txt, epub_split_size_kb=flow_size)
 
-        # Run the HTMLized text through the html processing plugin.
-        from calibre.customize.ui import plugin_for_input_format
-        html_input = plugin_for_input_format('html')
-        for opt in html_input.options:
-            setattr(options, opt.option.name, opt.recommended_value)
-        options.input_encoding = 'utf-8'
-        base = os.getcwdu()
-        if file_ext != 'txtz' and hasattr(stream, 'name'):
-            base = os.path.dirname(stream.name)
-        fname = os.path.join(base, 'index.html')
-        c = 0
-        while os.path.exists(fname):
-            c += 1
-            fname = 'index%d.html'%c
-        htmlfile = open(fname, 'wb')
-        with htmlfile:
-            htmlfile.write(html.encode('utf-8'))
-        odi = options.debug_pipeline
-        options.debug_pipeline = None
-        # Generate oeb from html conversion.
-        oeb = html_input.convert(open(htmlfile.name, 'rb'), options, 'html', log,
-                {})
-        options.debug_pipeline = odi
-        os.remove(htmlfile.name)
+            # Run the HTMLized text through the html processing plugin.
+            from calibre.customize.ui import plugin_for_input_format
+            html_input = plugin_for_input_format('html')
+            for opt in html_input.options:
+                setattr(options, opt.option.name, opt.recommended_value)
+            options.input_encoding = 'utf-8'
+            htmlfile = self.shift_file('index.html', html.encode('utf-8'))
+            odi = options.debug_pipeline
+            options.debug_pipeline = None
+            # Generate oeb from html conversion.
+            oeb = html_input.convert(open(htmlfile, 'rb'), options, 'html', log, {})
+            options.debug_pipeline = odi
+        finally:
+            for x in self.shifted_files:
+                os.remove(x)
 
         # Set metadata from file.
         if input_mi is None:

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+
 '''
 Read the header data from a pdb file.
 '''
@@ -10,6 +12,7 @@ __docformat__ = 'restructuredtext en'
 import re
 import struct
 import time
+from polyglot.builtins import long_type
 
 
 class PdbHeaderReader(object):
@@ -23,7 +26,7 @@ class PdbHeaderReader(object):
     def identity(self):
         self.stream.seek(60)
         ident = self.stream.read(8)
-        return ident
+        return ident.decode('utf-8')
 
     def section_count(self):
         self.stream.seek(76)
@@ -31,10 +34,10 @@ class PdbHeaderReader(object):
 
     def name(self):
         self.stream.seek(0)
-        return re.sub('[^-A-Za-z0-9 ]+', '_', self.stream.read(32).replace('\x00', ''))
+        return re.sub(b'[^-A-Za-z0-9 ]+', b'_', self.stream.read(32).replace(b'\x00', b''))
 
     def full_section_info(self, number):
-        if number not in range(0, self.num_sections):
+        if not (0 <= number < self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
 
         self.stream.seek(78 + number * 8)
@@ -43,14 +46,14 @@ class PdbHeaderReader(object):
         return (offset, flags, val)
 
     def section_offset(self, number):
-        if number not in range(0, self.num_sections):
+        if not (0 <= number < self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
 
         self.stream.seek(78 + number * 8)
         return struct.unpack('>LBBBB', self.stream.read(8))[0]
 
     def section_data(self, number):
-        if number not in range(0, self.num_sections):
+        if not (0 <= number < self.num_sections):
             raise ValueError('Not a valid section number %i' % number)
 
         start = self.section_offset(number)
@@ -66,8 +69,8 @@ class PdbHeaderReader(object):
 class PdbHeaderBuilder(object):
 
     def __init__(self, identity, title):
-        self.identity = identity.ljust(3, '\x00')[:8]
-        self.title = '%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', title).ljust(31, '\x00')[:31].encode('ascii', 'replace')
+        self.identity = identity.ljust(3, '\x00')[:8].encode('utf-8')
+        self.title = b'%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', title).ljust(31, '\x00')[:31].encode('ascii', 'replace')
 
     def build_header(self, section_lengths, out_stream):
         '''
@@ -82,7 +85,6 @@ class PdbHeaderBuilder(object):
 
         offset = 78 + (8 * nrecords) + 2
         for id, record in enumerate(section_lengths):
-            out_stream.write(struct.pack('>LBBBB', long(offset), 0, 0, 0, 0))
+            out_stream.write(struct.pack('>LBBBB', long_type(offset), 0, 0, 0, 0))
             offset += record
-        out_stream.write('\x00\x00')
-
+        out_stream.write(b'\x00\x00')

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 '''
 Created on 29 Jun 2012
 
@@ -11,7 +10,6 @@ import socket, select, json, os, traceback, time, sys, random
 import posixpath
 from collections import defaultdict
 import hashlib, threading
-import Queue
 
 from functools import wraps
 from errno import EAGAIN, EINTR
@@ -20,12 +18,12 @@ from threading import Thread
 from calibre import prints
 from calibre.constants import numeric_version, DEBUG, cache_dir
 from calibre.devices.errors import (OpenFailed, OpenFeedback, ControlError, TimeoutError,
-                                    InitialConnectionError, PacketError)
+                                    InitialConnectionError, PacketError, UserFeedback)
 from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.utils import build_template_regexp
+from calibre.devices.utils import build_template_regexp, sanity_check
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.base import Metadata
@@ -38,6 +36,8 @@ from calibre.utils.filenames import ascii_filename as sanitize, shorten_componen
 from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
 from calibre.utils.socket_inheritance import set_socket_inherit
+from polyglot.builtins import as_bytes, unicode_type, iteritems, itervalues
+from polyglot import queue
 
 
 def synchronous(tlockname):
@@ -100,9 +100,9 @@ class ConnectionListener(Thread):
                         s = self.driver._json_encode(
                                         self.driver.opcodes['CALIBRE_BUSY'],
                                         {'otherDevice': d.get_gui_name()})
-                        self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + s)
+                        self.driver._send_byte_string(device_socket, (b'%d' % len(s)) + as_bytes(s))
                         sock.close()
-                    except Queue.Empty:
+                    except queue.Empty:
                         pass
 
             if getattr(self.driver, 'broadcast_socket', None) is not None:
@@ -112,16 +112,16 @@ class ConnectionListener(Thread):
                         try:
                             packet = self.driver.broadcast_socket.recvfrom(100)
                             remote = packet[1]
-                            content_server_port = b''
+                            content_server_port = ''
                             try:
                                 from calibre.srv.opts import server_config
-                                content_server_port = str(server_config().port)
+                                content_server_port = unicode_type(server_config().port)
                             except Exception:
                                 pass
-                            message = str(self.driver.ZEROCONF_CLIENT_STRING + b' (on ' +
-                                            str(socket.gethostname().partition('.')[0]) +
-                                            b');' + content_server_port +
-                                            b',' + str(self.driver.port))
+                            message = (self.driver.ZEROCONF_CLIENT_STRING + ' (on ' +
+                                            unicode_type(socket.gethostname().partition('.')[0]) +
+                                            ');' + content_server_port +
+                                            ',' + unicode_type(self.driver.port)).encode('utf-8')
                             self.driver._debug('received broadcast', packet, message)
                             self.driver.broadcast_socket.sendto(message, remote)
                         except:
@@ -147,7 +147,7 @@ class ConnectionListener(Thread):
 
                         try:
                             self.driver.connection_queue.put_nowait(device_socket)
-                        except Queue.Full:
+                        except queue.Full:
                             self._close_socket(device_socket)
                             device_socket = None
                             self.driver._debug('driver is not answering')
@@ -172,7 +172,7 @@ class SDBook(Book):
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'
-    gui_name = _('Wireless Device')
+    gui_name = _('Wireless device')
     gui_name_template = '%s: %s'
 
     icon = I('devices/tablet.png')
@@ -233,7 +233,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     CURRENT_CC_VERSION          = 128
 
-    ZEROCONF_CLIENT_STRING      = b'calibre wireless device client'
+    ZEROCONF_CLIENT_STRING      = 'calibre wireless device client'
 
     # A few "random" port numbers to use for detecting clients using broadcast
     # The clients are expected to broadcast a UDP 'hi there' on all of these
@@ -252,6 +252,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_LIBRARY_INFO'       : 19,
         'DELETE_BOOK'            : 13,
         'DISPLAY_MESSAGE'        : 17,
+        'ERROR'                  : 20,
         'FREE_SPACE'             : 5,
         'GET_BOOK_FILE_SEGMENT'  : 14,
         'GET_BOOK_METADATA'      : 15,
@@ -265,7 +266,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         'SET_CALIBRE_DEVICE_NAME': 2,
         'TOTAL_SPACE'            : 4,
     }
-    reverse_opcodes = dict([(v, k) for k,v in opcodes.iteritems()])
+    reverse_opcodes = {v: k for k, v in iteritems(opcodes)}
 
     MESSAGE_PASSWORD_ERROR = 1
     MESSAGE_UPDATE_NEEDED  = 2
@@ -338,7 +339,11 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
               'to be able to send to the device. For example, you might have '
               'audio books in your library with the extension "m4b" that you '
               'want to listen to on your device. Don\'t worry about the "extra '
-              'enabled extensions" warning.')
+              'enabled extensions" warning.'),
+        _('Ignore device free space') + ':::<p>' +
+        _("Check this box to ignore the amount of free space reported by your "
+          "devices. This might be needed if you store books on an SD card and "
+          "the device doesn't have much free main memory.") + '</p>',
         ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 False, '',
@@ -349,7 +354,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 False, '',
                 True,   '75',
                 True,   '',
-                ''
+                '',     False,
     ]
     OPT_AUTOSTART               = 0
     OPT_PASSWORD                = 2
@@ -363,6 +368,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     OPT_COMPRESSION_QUALITY     = 13
     OPT_USE_METADATA_CACHE      = 14
     OPT_EXTRA_EXTENSIONS        = 16
+    OPT_IGNORE_FREESPACE        = 17
     OPTNAME_TO_NUMBER_MAP = {
         'password': OPT_PASSWORD,
         'autostart': OPT_AUTOSTART,
@@ -378,6 +384,10 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.debug_time = time.time()
         self.is_connected = False
+        # Hack to work around the newly-enforced 15 character service name limit.
+        # "monkeypatch" zeroconf with a function without the check
+        import zeroconf
+        zeroconf.service_type_name = service_type_name
 
     # Don't call this method from the GUI unless you are sure that there is no
     # network traffic in progress. Otherwise the gui might hang waiting for the
@@ -396,8 +406,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 try:
                     if isinstance(a, dict):
                         printable = {}
-                        for k,v in a.iteritems():
-                            if isinstance(v, (str, unicode)) and len(v) > 50:
+                        for k,v in iteritems(a):
+                            if isinstance(v, (bytes, unicode_type)) and len(v) > 50:
                                 printable[k] = 'too long'
                             else:
                                 printable[k] = v
@@ -418,14 +428,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
-            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+            dinfo['device_store_uuid'] = unicode_type(uuid.uuid4())
         if dinfo.get('device_name') is None:
             dinfo['device_name'] = self.get_gui_name()
         if name is not None:
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['prefix'] = self.PREFIX
         return dinfo
@@ -478,9 +488,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.library.save_to_disk import get_components
         from calibre.library.save_to_disk import config
         opts = config().parse()
-        if not isinstance(template, unicode):
+        if not isinstance(template, unicode_type):
             template = template.decode('utf-8')
-        app_id = str(getattr(mdata, 'application_id', ''))
+        app_id = unicode_type(getattr(mdata, 'application_id', ''))
         id_ = mdata.get('id', fname)
         extra_components = get_components(template, mdata, id_,
                 timefmt=opts.send_timefmt, length=maxlen-len(app_id)-1,
@@ -539,7 +549,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     # codec to first convert it to a string dict
     def _json_encode(self, op, arg):
         res = {}
-        for k,v in arg.iteritems():
+        for k,v in iteritems(arg):
             if isinstance(v, (Book, Metadata)):
                 res[k] = self.json_codec.encode_book_metadata(v)
                 series = v.get('series', None)
@@ -553,7 +563,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             else:
                 res[k] = v
         from calibre.utils.config import to_json
-        return json.dumps([op, res], encoding='utf-8', default=to_json)
+        return json.dumps([op, res], default=to_json)
 
     # Network functions
 
@@ -568,7 +578,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             raise
 
     def _read_string_from_net(self):
-        data = bytes(0)
+        data = b'0'
         while True:
             dex = data.find(b'[')
             if dex >= 0:
@@ -577,7 +587,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             # Things get trashed if we don't make a copy of the data.
             v = self._read_binary_from_net(2)
             if len(v) == 0:
-                return ''  # documentation says the socket is broken permanently.
+                return b''  # documentation says the socket is broken permanently.
             data += v
         total_len = int(data[:dex])
         data = data[dex:]
@@ -585,7 +595,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         while pos < total_len:
             v = self._read_binary_from_net(total_len - pos)
             if len(v) == 0:
-                return ''  # documentation says the socket is broken permanently.
+                return b''  # documentation says the socket is broken permanently.
             data += v
             pos += len(v)
         return data
@@ -636,7 +646,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             s = self._json_encode(self.opcodes[op], arg)
             if print_debug_info and extra_debug:
                 self._debug('send string', s)
-            self._send_byte_string(self.device_socket, (b'%d' % len(s)) + s)
+            self._send_byte_string(self.device_socket, (b'%d' % len(s)) + as_bytes(s))
             if not wait_for_response:
                 return None, None
             return self._receive_from_client(print_debug_info=print_debug_info)
@@ -665,7 +675,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if v:
                 v = json.loads(v, object_hook=from_json)
                 if print_debug_info and extra_debug:
-                        self._debug('receive after decode')  # , v)
+                    self._debug('receive after decode')  # , v)
                 return (self.reverse_opcodes[v[0]], v[1])
             self._debug('protocol error -- empty json string')
         except socket.timeout:
@@ -702,8 +712,12 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                'canSupportLpathChanges': True},
                           print_debug_info=False,
                           wait_for_response=self.can_send_ok_to_sendbook)
-
         if self.can_send_ok_to_sendbook:
+            if opcode == 'ERROR':
+                raise UserFeedback(msg='Sending book %s to device failed' % lpath,
+                                   details=result.get('message', ''),
+                                   level=UserFeedback.ERROR)
+                return
             lpath = result.get('lpath', lpath)
             book_metadata.lpath = lpath
         self._set_known_metadata(book_metadata)
@@ -726,7 +740,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.utils.date import now, parse_date
         try:
             key = self._make_metadata_cache_key(uuid, ext_or_lpath)
-            if isinstance(lastmod, unicode):
+            if isinstance(lastmod, unicode_type):
                 if lastmod == 'None':
                     return None
                 lastmod = parse_date(lastmod)
@@ -757,7 +771,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def _uuid_in_cache(self, uuid, ext):
         try:
-            for b in self.device_book_cache.itervalues():
+            for b in itervalues(self.device_book_cache):
                 metadata = b['book']
                 if metadata.get('uuid', '') != uuid:
                     continue
@@ -803,7 +817,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             break
                         raw = fd.read(int(rec_len))
                         book = json.loads(raw.decode('utf-8'), object_hook=from_json)
-                        key = book.keys()[0]
+                        key = list(book.keys())[0]
                         metadata = self.json_codec.raw_to_book(book[key]['book'],
                                                             SDBook, self.PREFIX)
                         book[key]['book'] = metadata
@@ -834,17 +848,17 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             prefix = os.path.join(cache_dir(),
                         'wireless_device_' + self.device_uuid + '_metadata_cache')
             with lopen(prefix + '.tmp', mode='wb') as fd:
-                for key,book in self.device_book_cache.iteritems():
+                for key,book in iteritems(self.device_book_cache):
                     if (now_ - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
                         purged += 1
                         continue
                     json_metadata = defaultdict(dict)
                     json_metadata[key]['book'] = self.json_codec.encode_book_metadata(book['book'])
                     json_metadata[key]['last_used'] = book['last_used']
-                    result = json.dumps(json_metadata, indent=2, default=to_json)
-                    fd.write("%0.7d\n"%(len(result)+1))
+                    result = as_bytes(json.dumps(json_metadata, indent=2, default=to_json))
+                    fd.write(("%0.7d\n"%(len(result)+1)).encode('ascii'))
                     fd.write(result)
-                    fd.write('\n')
+                    fd.write(b'\n')
                     count += 1
             self._debug('wrote', count, 'entries, purged', purged, 'entries')
 
@@ -992,7 +1006,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     raise
                 except:
                     pass
-            except Queue.Empty:
+            except queue.Empty:
                 self.is_connected = False
             return self if self.is_connected else None
         return None
@@ -1026,7 +1040,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             password = self.settings().extra_customization[self.OPT_PASSWORD]
             if password:
                 challenge = isoformat(now())
-                hasher = hashlib.new('sha1')
+                hasher = hashlib.sha1()
                 hasher.update(password.encode('UTF-8'))
                 hasher.update(challenge.encode('UTF-8'))
                 hash_digest = hasher.hexdigest()
@@ -1154,7 +1168,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                       (self.DEFAULT_THUMBNAIL_HEIGHT/3) * 4)
                 self._debug('cover width', self.THUMBNAIL_WIDTH)
             elif hasattr(self, 'THUMBNAIL_WIDTH'):
-                    delattr(self, 'THUMBNAIL_WIDTH')
+                delattr(self, 'THUMBNAIL_WIDTH')
 
             self.is_read_sync_col = result.get('isReadSyncCol', None)
             self._debug('Device is_read sync col', self.is_read_sync_col)
@@ -1266,6 +1280,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self._debug()
         opcode, result = self._call_client('FREE_SPACE', {})
         if opcode == 'OK':
+            self._debug('free space:', result['free_space_on_device'])
             return (result['free_space_on_device'], 0, 0)
         # protocol error if we get here
         return (0, 0, 0)
@@ -1320,7 +1335,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 self._debug('processed cache. count=', len(books_on_device))
                 count_of_cache_items_deleted = 0
                 if self.client_cache_uses_lpaths:
-                    for lpath in tuple(self.known_metadata.iterkeys()):
+                    for lpath in tuple(self.known_metadata):
                         if lpath not in lpaths_on_device:
                             try:
                                 uuid = self.known_metadata[lpath].get('uuid', None)
@@ -1391,7 +1406,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         coldict = {}
         if colattrs:
             collections = booklists[0].get_collections(colattrs)
-            for k,v in collections.iteritems():
+            for k,v in iteritems(collections):
                 lpaths = []
                 for book in v:
                     lpaths.append(book.lpath)
@@ -1451,6 +1466,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def eject(self):
         self._debug()
+        self._call_client('NOOP', {'ejecting': True})
         self._close_device_socket()
 
     @synchronous('sync_lock')
@@ -1464,13 +1480,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug(names)
         else:
             self._debug()
-
+        if not self.settings().extra_customization[self.OPT_IGNORE_FREESPACE]:
+            sanity_check(on_card='', files=files, card_prefixes=[],
+                         free_space=self.free_space())
         paths = []
         names = iter(names)
         metadata = iter(metadata)
 
         for i, infile in enumerate(files):
-            mdata, fname = metadata.next(), names.next()
+            mdata, fname = next(metadata), next(names)
             lpath = self._create_upload_path(mdata, fname, create_dirs=False)
             self._debug('lpath', lpath)
             if not hasattr(infile, 'read'):
@@ -1496,7 +1514,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         for i, location in enumerate(locations):
             self.report_progress((i + 1) / float(len(locations)),
                                  _('Adding books to device metadata listing...'))
-            info = metadata.next()
+            info = next(metadata)
             lpath = location[0]
             length = location[1]
             lpath = self._strip_prefix(lpath)
@@ -1884,7 +1902,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                             'between 50 and 99. Forced to be %d.')%self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY
                 self._debug(message)
                 self.set_option('thumbnail_compression_quality',
-                                str(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
+                                unicode_type(self.DEFAULT_THUMBNAIL_COMPRESSION_QUALITY))
 
             try:
                 self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -1917,7 +1935,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 while i < 100:  # try 9090 then up to 99 random port numbers
                     i += 1
                     port = self._attach_to_port(self.listen_socket,
-                                    9090 if i == 1 else random.randint(8192, 32000))
+                                    9090 if i == 1 else random.randint(8192, 65525))
                     if port != 0:
                         break
                 if port == 0:
@@ -1927,7 +1945,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     return message
 
             try:
-                self.listen_socket.listen(0)
+                self.listen_socket.listen(1)
             except:
                 message = 'listen on port %d failed' % port
                 self._debug(message)
@@ -1968,7 +1986,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     message = 'attaching port to broadcast socket failed. This is not fatal.'
                     self._debug(message)
 
-            self.connection_queue = Queue.Queue(1)
+            self.connection_queue = queue.Queue(1)
             self.connection_listener = ConnectionListener(self)
             self.connection_listener.start()
         return message
@@ -2018,3 +2036,112 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     def is_running(self):
         return getattr(self, 'listen_socket', None) is not None
+
+# Function to monkeypatch zeroconf to remove the 15 character name length restriction.
+# Copied from https://github.com/jstasiak/python-zeroconf version 0.28.1
+
+
+from zeroconf import (BadTypeInNameException, _HAS_A_TO_Z,
+                      _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE,
+                      _HAS_ASCII_CONTROL_CHARS,
+                      _HAS_ONLY_A_TO_Z_NUM_HYPHEN)
+
+
+def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
+    """
+    Validate a fully qualified service name, instance or subtype. [rfc6763]
+
+    Returns fully qualified service name.
+
+    Domain names used by mDNS-SD take the following forms:
+
+                   <sn> . <_tcp|_udp> . local.
+      <Instance> . <sn> . <_tcp|_udp> . local.
+      <sub>._sub . <sn> . <_tcp|_udp> . local.
+
+    1) must end with 'local.'
+
+      This is true because we are implementing mDNS and since the 'm' means
+      multi-cast, the 'local.' domain is mandatory.
+
+    2) local is preceded with either '_udp.' or '_tcp.'
+
+    3) service name <sn> precedes <_tcp|_udp>
+
+      The rules for Service Names [RFC6335] state that they may be no more
+      than fifteen characters long (not counting the mandatory underscore),
+      consisting of only letters, digits, and hyphens, must begin and end
+      with a letter or digit, must not contain consecutive hyphens, and
+      must contain at least one letter.
+
+    The instance name <Instance> and sub type <sub> may be up to 63 bytes.
+
+    The portion of the Service Instance Name is a user-
+    friendly name consisting of arbitrary Net-Unicode text [RFC5198]. It
+    MUST NOT contain ASCII control characters (byte values 0x00-0x1F and
+    0x7F) [RFC20] but otherwise is allowed to contain any characters,
+    without restriction, including spaces, uppercase, lowercase,
+    punctuation -- including dots -- accented characters, non-Roman text,
+    and anything else that may be represented using Net-Unicode.
+
+    :param type_: Type, SubType or service name to validate
+    :return: fully qualified service name (eg: _http._tcp.local.)
+    """
+    if not (type_.endswith('._tcp.local.') or type_.endswith('._udp.local.')):
+        raise BadTypeInNameException("Type '%s' must end with '._tcp.local.' or '._udp.local.'" % type_)
+
+    remaining = type_[: -len('._tcp.local.')].split('.')
+    name = remaining.pop()
+    if not name:
+        raise BadTypeInNameException("No Service name found")
+
+    if len(remaining) == 1 and len(remaining[0]) == 0:
+        raise BadTypeInNameException("Type '%s' must not start with '.'" % type_)
+
+    if name[0] != '_':
+        raise BadTypeInNameException("Service name (%s) must start with '_'" % name)
+
+    # remove leading underscore
+    name = name[1:]
+
+#     if len(name) > 15:
+#         raise BadTypeInNameException("Service name (%s) must be <= 15 bytes" % name)
+
+    if '--' in name:
+        raise BadTypeInNameException("Service name (%s) must not contain '--'" % name)
+
+    if '-' in (name[0], name[-1]):
+        raise BadTypeInNameException("Service name (%s) may not start or end with '-'" % name)
+
+    if not _HAS_A_TO_Z.search(name):
+        raise BadTypeInNameException("Service name (%s) must contain at least one letter (eg: 'A-Z')" % name)
+
+    allowed_characters_re = (
+        _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE if allow_underscores else _HAS_ONLY_A_TO_Z_NUM_HYPHEN
+    )
+
+    if not allowed_characters_re.search(name):
+        raise BadTypeInNameException(
+            "Service name (%s) must contain only these characters: "
+            "A-Z, a-z, 0-9, hyphen ('-')%s" % (name, ", underscore ('_')" if allow_underscores else "")
+        )
+
+    if remaining and remaining[-1] == '_sub':
+        remaining.pop()
+        if len(remaining) == 0 or len(remaining[0]) == 0:
+            raise BadTypeInNameException("_sub requires a subtype name")
+
+    if len(remaining) > 1:
+        remaining = ['.'.join(remaining)]
+
+    if remaining:
+        length = len(remaining[0].encode('utf-8'))
+        if length > 63:
+            raise BadTypeInNameException("Too long: '%s'" % remaining[0])
+
+        if _HAS_ASCII_CONTROL_CHARS.search(remaining[0]):
+            raise BadTypeInNameException(
+                "Ascii control character 0x00-0x1F and 0x7F illegal in '%s'" % remaining[0]
+            )
+
+    return '_' + name + type_[-len('._tcp.local.') :]

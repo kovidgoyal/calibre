@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -15,13 +14,14 @@ import re
 
 from functools import partial
 from lxml import html
-from urlparse import urldefrag
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import (
-    XHTML, XHTML_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
+    XHTML, XHTML_NS, SVG_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
+from polyglot.builtins import unicode_type, string_or_bytes, as_bytes
+from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 
@@ -46,7 +46,7 @@ class OEB2HTML(object):
         self.log.info('Converting OEB book to HTML...')
         self.opts = opts
         try:
-            self.book_title = unicode(oeb_book.metadata.title[0])
+            self.book_title = unicode_type(oeb_book.metadata.title[0])
         except Exception:
             self.book_title = _('Unknown')
         self.links = {}
@@ -97,7 +97,7 @@ class OEB2HTML(object):
                 for el in root.iter():
                     attribs = el.attrib
                     try:
-                        if not isinstance(el.tag, basestring):
+                        if not isinstance(el.tag, string_or_bytes):
                             continue
                     except:
                         continue
@@ -134,7 +134,7 @@ class OEB2HTML(object):
         css = b''
         for item in oeb_book.manifest:
             if item.media_type == 'text/css':
-                css += item.data.cssText + b'\n\n'
+                css += as_bytes(item.data.cssText) + b'\n\n'
         return css
 
     def prepare_string_for_html(self, raw):
@@ -158,10 +158,10 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, basestring) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, string_or_bytes) \
+           or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -191,6 +191,7 @@ class OEB2HTMLNoCSSizer(OEB2HTML):
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
         for k, v in attribs.items():
+            k = k.split('}')[-1]
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Write the tag.
@@ -247,10 +248,10 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, basestring) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, string_or_bytes) \
+           or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -271,7 +272,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
             # as a page break and remove all other page break types that might be set.
             style_a = 'page-break-before: always; %s' % re.sub('page-break-[^:]+:[^;]+;?', '', style_a)
         # Remove unnecessary spaces.
-        style_a = re.sub('\s{2,}', ' ', style_a).strip()
+        style_a = re.sub(r'\s{2,}', ' ', style_a).strip()
         tags.append(tag)
 
         # Remove attributes we won't want.
@@ -283,6 +284,7 @@ class OEB2HTMLInlineCSSizer(OEB2HTML):
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
         for k, v in attribs.items():
+            k = k.split('}')[-1]
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Turn style into strings for putting in the tag.
@@ -350,10 +352,10 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, basestring) \
-           or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, string_or_bytes) \
+           or namespace(elem.tag) not in (XHTML_NS, SVG_NS):
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) in (XHTML_NS, SVG_NS) \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -375,6 +377,7 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
         # Turn the rest of the attributes into a string we can write with the tag.
         at = ''
         for k, v in attribs.items():
+            k = k.split('}')[-1]
             at += ' %s="%s"' % (k, prepare_string_for_xml(v, attribute=True))
 
         # Write the tag.

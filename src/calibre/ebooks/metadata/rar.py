@@ -1,4 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -34,5 +36,3 @@ def get_metadata(stream):
                 mi.timestamp = None
                 return mi
     raise ValueError('No ebook found in RAR archive')
-
-

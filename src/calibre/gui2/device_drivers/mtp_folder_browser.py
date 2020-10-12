@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from PyQt5.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider
+from polyglot.builtins import unicode_type, range
 
 
 def browser_item(f, parent):
@@ -164,7 +164,7 @@ class IgnoredFolders(QDialog):
 
     def iterchildren(self, node):
         ' Iterate over all descendants of node '
-        for i in xrange(node.childCount()):
+        for i in range(node.childCount()):
             child = node.child(i)
             yield child
             for gc in self.iterchildren(child):
@@ -182,13 +182,13 @@ class IgnoredFolders(QDialog):
 
     def select_all(self):
         w = self.tabs.currentWidget()
-        for i in xrange(w.invisibleRootItem().childCount()):
+        for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
             c.setCheckState(0, Qt.Checked)
 
     def select_none(self):
         w = self.tabs.currentWidget()
-        for i in xrange(w.invisibleRootItem().childCount()):
+        for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
             c.setCheckState(0, Qt.Unchecked)
 
@@ -200,11 +200,11 @@ class IgnoredFolders(QDialog):
             for node in self.iterchildren(w.invisibleRootItem()):
                 if node.checkState(0) == Qt.Checked:
                     continue
-                path = unicode(node.data(0, Qt.UserRole) or '')
+                path = unicode_type(node.data(0, Qt.UserRole) or '')
                 parent = path.rpartition('/')[0]
                 if '/' not in path or icu_lower(parent) not in folders:
                     folders.add(icu_lower(path))
-            ans[unicode(w.storage.storage_id)] = list(folders)
+            ans[unicode_type(w.storage.storage_id)] = list(folders)
         return ans
 
 
@@ -245,5 +245,5 @@ def ignored_folders():
 
 
 if __name__ == '__main__':
-    print (browse())
+    print(browse())
     # print ('Ignored:', ignored_folders())

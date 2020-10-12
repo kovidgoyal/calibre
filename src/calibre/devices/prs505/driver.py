@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -130,15 +132,15 @@ class PRS505(USBMS):
                     dname = os.path.dirname(cachep)
                     if not os.path.exists(dname):
                         try:
-                            os.makedirs(dname, mode=0777)
+                            os.makedirs(dname, mode=0o777)
                         except:
                             time.sleep(5)
-                            os.makedirs(dname, mode=0777)
+                            os.makedirs(dname, mode=0o777)
                     with lopen(cachep, 'wb') as f:
-                        f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+                        f.write(b'''<?xml version="1.0" encoding="UTF-8"?>
                             <cache xmlns="http://www.kinoma.com/FskCache/1">
                             </cache>
-                            '''.encode('utf8'))
+                            ''')
                         fsync(f)
                 return True
             except:

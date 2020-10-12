@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,6 @@ __docformat__ = 'restructuredtext en'
 
 import json, traceback, posixpath, importlib, os
 from io import BytesIO
-from itertools import izip
 
 from calibre import prints
 from calibre.constants import iswindows, numeric_version
@@ -18,6 +16,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.filenames import shorten_components_to
+from polyglot.builtins import iteritems, itervalues, unicode_type, zip, as_bytes
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
@@ -62,9 +61,11 @@ class MTP_DEVICE(BASE):
         if self._prefs is None:
             self._prefs = p = JSONConfig('mtp_devices')
             p.defaults['format_map'] = self.FORMATS
-            p.defaults['send_to'] = ['Calibre_Companion', 'Books',
-                    'eBooks/import', 'eBooks', 'wordplayer/calibretransfer',
-                    'sdcard/ebooks', 'kindle']
+            p.defaults['send_to'] = [
+                'Calibre_Companion', 'Books', 'eBooks/import', 'eBooks',
+                'wordplayer/calibretransfer', 'sdcard/ebooks',
+                'Android/data/com.amazon.kindle/files', 'kindle', 'NOOK'
+            ]
             p.defaults['send_template'] = '{title} - {authors}'
             p.defaults['blacklist'] = []
             p.defaults['history'] = {}
@@ -75,7 +76,7 @@ class MTP_DEVICE(BASE):
 
     def is_folder_ignored(self, storage_or_storage_id, path,
                           ignored_folders=None):
-        storage_id = unicode(getattr(storage_or_storage_id, 'object_id',
+        storage_id = unicode_type(getattr(storage_or_storage_id, 'object_id',
                              storage_or_storage_id))
         lpath = tuple(icu_lower(name) for name in path)
         if ignored_folders is None:
@@ -108,9 +109,10 @@ class MTP_DEVICE(BASE):
             proxy['format_map'] = ['azw3', 'mobi', 'azw', 'azw1', 'azw4', 'pdf']
             proxy['send_template'] = '{title} - {authors}'
             orig = list(proxy['send_to'])
-            if 'kindle' in orig:
-                orig.remove('kindle')
-            orig.insert(0, 'kindle')
+            for folder in ('kindle', 'Android/data/com.amazon.kindle/files'):
+                if folder in orig:
+                    orig.remove(folder)
+                orig.insert(0, folder)
             proxy['send_to'] = orig
 
     def configure_for_generic_epub_app(self):
@@ -166,17 +168,17 @@ class MTP_DEVICE(BASE):
                 traceback.print_exc()
                 dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
-            dinfo['device_store_uuid'] = unicode(uuid.uuid4())
+            dinfo['device_store_uuid'] = unicode_type(uuid.uuid4())
         if dinfo.get('device_name', None) is None:
             dinfo['device_name'] = self.current_friendly_name
         if name is not None:
             dinfo['device_name'] = name
         dinfo['location_code'] = location_code
         dinfo['last_library_uuid'] = getattr(self, 'current_library_uuid', None)
-        dinfo['calibre_version'] = '.'.join([unicode(i) for i in numeric_version])
+        dinfo['calibre_version'] = '.'.join([unicode_type(i) for i in numeric_version])
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['mtp_prefix'] = storage.storage_prefix
-        raw = json.dumps(dinfo, default=to_json)
+        raw = as_bytes(json.dumps(dinfo, default=to_json))
         self.put_calibre_file(storage, 'driveinfo', BytesIO(raw), len(raw))
         self.driveinfo[location_code] = dinfo
 
@@ -276,7 +278,7 @@ class MTP_DEVICE(BASE):
             book.path = mtp_file.mtp_id_path
 
         # Remove books in the cache that no longer exist
-        for idx in sorted(relpath_cache.itervalues(), reverse=True):
+        for idx in sorted(itervalues(relpath_cache), reverse=True):
             del bl[idx]
             need_sync = True
 
@@ -420,7 +422,7 @@ class MTP_DEVICE(BASE):
 
         routing = {fmt:dest for fmt,dest in self.get_pref('rules')}
 
-        for infile, fname, mi in izip(files, names, metadata):
+        for infile, fname, mi in zip(files, names, metadata):
             path = self.create_upload_path(prefix, mi, fname, routing)
             if path and self.is_folder_ignored(storage, path):
                 raise MTPInvalidSendPathError('/'.join(path))
@@ -455,7 +457,7 @@ class MTP_DEVICE(BASE):
 
         i, total = 0, len(mtp_files)
         self.report_progress(0, _('Adding books to device metadata listing...'))
-        for x, mi in izip(mtp_files, metadata):
+        for x, mi in zip(mtp_files, metadata):
             mtp_file, bl_idx = x
             bl = booklists[bl_idx]
             book = Book(mtp_file.storage_id, '/'.join(mtp_file.mtp_relpath),
@@ -546,7 +548,7 @@ class MTP_DEVICE(BASE):
     def get_user_blacklisted_devices(self):
         bl = frozenset(self.prefs['blacklist'])
         ans = {}
-        for dev, x in self.prefs['history'].iteritems():
+        for dev, x in iteritems(self.prefs['history']):
             name = x[0]
             if dev in bl:
                 ans[dev] = name
@@ -572,6 +574,6 @@ if __name__ == '__main__':
         dev.set_progress_reporter(prints)
         dev.open(cd, None)
         dev.filesystem_cache.dump()
-        print ('Prefix for main mem:', dev.prefix_for_location(None))
+        print('Prefix for main mem:', dev.prefix_for_location(None))
     finally:
         dev.shutdown()

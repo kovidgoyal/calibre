@@ -1,19 +1,26 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """www.dunyahalleri.com"""
 import locale
 import os
 import re
-import time
 
 from shutil import copyfile
 
+from calibre import strftime
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from PIL import Image, ImageDraw, ImageFont
 
 __license__ = 'GPL v3'
 __copyright__ = '2017, sukru alatas / alatas.org'
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class DunyaHalleri(BasicNewsRecipe):
@@ -40,15 +47,15 @@ class DunyaHalleri(BasicNewsRecipe):
 
     extra_css = '.caption {color: #998; font-style: italic; font-size: 8pt}'
     __author__ = 'Sukru Alatas'
-    feeds = [("Genel Gündem".decode('utf-8', 'replace'),
+    feeds = [(u"Genel Gündem",
               'https://www.dunyahalleri.com/genel-gundem/feed/'),
-             ("Teknoloji / Bilim".decode('utf-8', 'replace'),
+             (u"Teknoloji / Bilim",
               'https://www.dunyahalleri.com/teknoloji-bilim/feed/'),
-             ("İnternet / Girişimler".decode('utf-8', 'replace'),
+             (u"İnternet / Girişimler",
               'https://www.dunyahalleri.com/internet-girisimler/feed/'),
-             ("Tasarım / İnovasyon".decode('utf-8', 'replace'),
+             (u"Tasarım / İnovasyon",
               'https://www.dunyahalleri.com/tasarim-inovasyon/feed/'),
-             ("Kültür / Sanat".decode('utf-8', 'replace'), 'https://www.dunyahalleri.com/kultur-sanat/feed/')]
+             (u"Kültür / Sanat", 'https://www.dunyahalleri.com/kultur-sanat/feed/')]
     oldest_article = 7
     max_articles_per_feed = 50
 
@@ -77,21 +84,21 @@ class DunyaHalleri(BasicNewsRecipe):
 
         # title insert
         article_title = soup.title.contents[0]
-        article_title.replace(' - Dünya Halleri'.decode('utf-8', 'replace'), '')
-        h2 = Tag(soup, 'h2')
+        article_title.replace(u' - Dünya Halleri', '')
+        h2 = new_tag(soup, 'h2')
         h2.append(article_title)
         span.insert(0, h2)
 
         # featured image insert
         meta = soup.findAll('meta', {'property': 'og:image'}, limit=1)[0]
         if meta:
-            img = Tag(soup, 'img')
+            img = new_tag(soup, 'img')
             img.attrs = [('src', meta['content'])]
             span.insert(1, img)
 
         # gallery normalization
         for div in soup.findAll('div', {'itemtype': 'http://schema.org/ImageGallery'}):
-            p = Tag(soup, 'p')
+            p = new_tag(soup, 'p')
             for img in div.findAll('img'):
                 img.attrs = [(key, value)
                              for key, value in img.attrs if key in ['src']]
@@ -102,9 +109,9 @@ class DunyaHalleri(BasicNewsRecipe):
         # this block finds the cover image for each embeded youtube video then
         # changes it to "a href" and "img"
         for iframe in soup.findAll('iframe'):
-            a = Tag(soup, 'a')
-            caption = Tag(soup, 'pre')
-            img = Tag(soup, 'img')
+            a = new_tag(soup, 'a')
+            caption = new_tag(soup, 'pre')
+            img = new_tag(soup, 'img')
 
             m = re.match(
                 r'https\:\/\/(www\.)?youtube.com\/(embed\/|watch\?v\=)'
@@ -170,9 +177,8 @@ class DunyaHalleri(BasicNewsRecipe):
 
     def default_cover(self, cover_file):
         title = self.title
-        date = time.strftime(
-            '%d %B %Y').decode('utf8', 'replace')
-        author = 'www.dunyahalleri.com'.decode('utf8', 'replace')
+        date = strftime('%d %B %Y')
+        author = u'www.dunyahalleri.com'
         # Texts
         img = Image.new(
             'RGB', (self.COVER_WIDTH, self.COVER_HEIGHT), 'white')

@@ -1,5 +1,14 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import os
+from collections import defaultdict
+
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
@@ -8,36 +17,32 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     description = 'Popular Science'
     publisher = 'Popular Science'
-    oldest_article = 7  # change this if you want more current articles. I like to go a week in
     max_articles_per_feed = 100
-    no_stylesheets = True
-    remove_javascript = True
-    use_embedded_content = False
-    remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
 
-    feeds = [
-        ('Gadgets', 'http://www.popsci.com/full-feed/gadgets'),
-        ('Cars', 'http://www.popsci.com/full-feed/cars'),
-        ('Science', 'http://www.popsci.com/full-feed/science'),
-        ('Technology', 'http://www.popsci.com/full-feed/technology'),
-        ('DIY', 'http://www.popsci.com/full-feed/diy'),
-        ('Animals', 'https://www.popsci.com/rss-animals.xml'),
-        ('Space', 'https://www.popsci.com/rss-space.xml'),
-        ('Environment', 'https://www.popsci.com/rss-environment.xml'),
-        ('Eastern Arsenal', 'https://www.popsci.com/rss-eastern-arsenal.xml'),
-    ]
-
-    pane_node_body = re.compile('pane-node-(?:\w+-){0,9}body')
-
-    keep_only_tags = [
-        dict(attrs={'class': lambda x: x and frozenset('pane-node-header'.split()).issubset(frozenset(x.split()))}),
-        dict(attrs={'class': pane_node_body}),
-    ]
-
-    remove_tags = [
-        dict(attrs={'class': lambda x: x and frozenset('ads seperator'.split()).issubset(frozenset(x.split()))}),
-    ]
+    def parse_index(self):
+        from lxml import etree
+        raw = self.index_to_soup('https://www.popsci.com/arcio/rss/', raw=True)
+        root = etree.fromstring(raw)
+        ans = defaultdict(list)
+        for item in root.iterdescendants('item'):
+            title = item.find('title').text
+            desc = item.find('description').text
+            author = item.find('dc:creator', {'dc': 'http://purl.org/dc/elements/1.1/'}).text
+            section = item.find('category').text
+            content = item.find('content:encoded', {'content': 'http://purl.org/rss/1.0/modules/content/'}).text
+            content = '<html><body><h1>{title}</h1><h3>{desc}</h3><p>{author}</p><div>{content}</div></body></html>'.format(
+                title=title, author=author, desc=desc, content=content)
+            if author:
+                desc += ' by ' + author
+            with PersistentTemporaryFile('popsci.html') as pt:
+                pt.write(content.encode('utf-8'))
+            ans[section].append({
+                'title': title,
+                'description': desc,
+                'url': 'file:///' + pt.name.replace(os.sep, '/'),
+            })
+        return [(sec, ans[sec]) for sec in sorted(ans)]
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-medsrc': True}):

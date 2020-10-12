@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 ##
 # Title:        Microwave Journal
 # Contact:      Kiavash (use Mobile Read)
@@ -98,7 +98,7 @@ class MWJournal(BasicNewsRecipe):
             self.log('Found Cover image:', self.cover_url)
 
         feeds = []
-        seen_titles = set([])  # This is used to remove duplicant articles
+        seen_titles = set()  # This is used to remove duplicant articles
         sections = soup.find('div', attrs={'class': 'box2 publication'})
         for section in sections.findAll('div', attrs={'class': 'records'}):
             section_title = self.tag_to_string(section.find('h3'))

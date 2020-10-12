@@ -1,5 +1,11 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
 
 
 class YahooNews(BasicNewsRecipe):
@@ -20,13 +26,15 @@ class YahooNews(BasicNewsRecipe):
         (u'Science', u'http://rss.news.yahoo.com/rss/science')
     ]
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'yn-story'})]
+    keep_only_tags = [
+            dict(name='h1'),
+            dict(attrs={'itemprop': 'articleBody'})
+    ]
 
-    remove_tags = [dict(name='div', attrs={'class': ['hd', 'ft', 'yn-share-social']}),
-                   dict(name='div', attrs={'id': ['yn-story-minor-media']})]
-
-    preprocess_regexps = [
-        (re.compile(r'<span>Play Video</span>', re.DOTALL), lambda match: '<span></span>')]
+    remove_tags = [
+            classes('canvas-yahoovideo canvas-sharebuttons'),
+            dict(name='button'),
+    ]
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}

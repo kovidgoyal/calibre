@@ -1,0 +1,128 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+def build_text_map():
+    node_list = v'[]'
+    flat_text = ''
+    ignored_tags = {
+        'style': True, 'script': True, 'noscript': True, 'title': True, 'meta': True, 'head': True, 'link': True, 'html': True,
+        'img': True
+    }
+
+    def process_node(node):
+        nonlocal flat_text
+        if node.nodeType is Node.TEXT_NODE:
+            text = node.nodeValue
+            if text and text.length:
+                node_list.push({'node': node, 'offset': flat_text.length, 'length': text.length})
+                flat_text += text
+        elif node.nodeType is Node.ELEMENT_NODE:
+            if not node.hasChildNodes():
+                return
+            tag = node.tagName.toLowerCase()
+            if ignored_tags[tag]:
+                return
+            style = window.getComputedStyle(node)
+            if style.display is 'none' or style.visibility is 'hidden':
+                return
+            children = node.childNodes
+            for i in range(children.length):
+                process_node(v'children[i]')
+
+    process_node(document.body)
+    return {'timestamp': window.performance.now(), 'flat_text': flat_text, 'node_list': node_list}
+
+
+def find_node_for_index_binary(node_list, idx_in_flat_text, start):
+    # Do a binary search for idx
+    start = start or 0
+    end = node_list.length - 1
+    while start <= end:
+        mid = Math.floor((start + end)/2)
+        q = node_list[mid]
+        limit = q.offset + q.length
+        if q.offset <= idx_in_flat_text and limit > idx_in_flat_text:
+            start_node = q.node
+            start_offset = idx_in_flat_text - q.offset
+            return start_node, start_offset, mid
+        if limit <= idx_in_flat_text:
+            start = mid + 1
+        else:
+            end = mid - 1
+    return None, None, None
+
+
+def find_node_for_index_linear(node_list, idx_in_flat_text, start):
+    start = start or 0
+    for i in range(start, node_list.length):
+        q = node_list[i]
+        limit = q.offset + q.length
+        if q.offset <= idx_in_flat_text and limit > idx_in_flat_text:
+            start_node = q.node
+            start_offset = idx_in_flat_text - q.offset
+            return start_node, start_offset, i
+    return None, None, None
+
+
+def find_specific_occurrence(q, num, before_len, after_len, text_map):
+    if not q or not q.length:
+        return
+    from_idx = 0
+    flat_text = text_map.flat_text
+    pos = 0
+    match_num = -1
+    while True:
+        idx = flat_text.indexOf(q, from_idx)
+        if idx < 0:
+            break
+        match_num += 1
+        from_idx = idx + 1
+        if match_num < num:
+            continue
+        start_node, start_offset, node_pos = find_node_for_index_binary(text_map.node_list, idx + before_len, pos)
+        if start_node is not None:
+            pos = node_pos
+            end_node, end_offset, node_pos = find_node_for_index_linear(text_map.node_list, idx + q.length - after_len, pos)
+            if end_node is not None:
+                return {
+                    'start_node': start_node, 'start_offset': start_offset, 'start_pos': pos,
+                    'end_node': end_node, 'end_offset': end_offset, 'end_pos': node_pos,
+                    'idx_in_flat_text': idx
+                }
+        break
+
+
+cache = {}
+
+
+def reset_find_caches():
+    nonlocal cache
+    cache = {}
+
+
+def select_find_result(match):
+    sel = window.getSelection()
+    sel.setBaseAndExtent(match.start_node, match.start_offset, match.end_node, match.end_offset)
+
+
+def select_search_result(sr):
+    window.getSelection().removeAllRanges()
+    if not cache.text_map:
+        cache.text_map = build_text_map()
+    q = ''
+    before_len = after_len = 0
+    if sr.before:
+        q = sr.before[-5:]
+        before_len = q.length
+    q += sr.text
+    if sr.after:
+        after = sr.after[:5]
+        after_len = after.length
+        q += after
+    match = find_specific_occurrence(q, int(sr.index), before_len, after_len, cache.text_map)
+    if not match:
+        return False
+    select_find_result(match)
+    return True

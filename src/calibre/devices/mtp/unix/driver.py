@@ -1,7 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,11 +10,12 @@ from threading import RLock
 from collections import namedtuple
 from functools import partial
 
-from calibre import prints, as_unicode
-from calibre.constants import plugins, islinux, isosx
+from calibre import prints, as_unicode, force_unicode
+from calibre.constants import plugins, islinux, ismacos
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
+from polyglot.builtins import unicode_type
 
 MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
@@ -52,7 +51,7 @@ class MTP_DEVICE(MTPDeviceBase):
         if islinux:
             from calibre.devices.mtp.unix.sysfs import MTPDetect
             self._is_device_mtp = MTPDetect()
-        if isosx and 'osx' in self.supported_platforms:
+        if ismacos and 'osx' in self.supported_platforms:
             self.usbobserver, err = plugins['usbobserver']
             if err:
                 raise RuntimeError(err)
@@ -166,8 +165,11 @@ class MTP_DEVICE(MTPDeviceBase):
     @synchronous
     def create_device(self, connected_device):
         d = connected_device
+        man, prod = d.manufacturer, d.product
+        man = force_unicode(man, 'utf-8') if isinstance(man, bytes) else man
+        prod = force_unicode(prod, 'utf-8') if isinstance(prod, bytes) else prod
         return self.libmtp.Device(d.busnum, d.devnum, d.vendor_id,
-                d.product_id, d.manufacturer, d.product, d.serial)
+                d.product_id, man, prod, d.serial)
 
     @synchronous
     def eject(self):
@@ -191,8 +193,8 @@ class MTP_DEVICE(MTPDeviceBase):
         p = plugins['libmtp']
         self.libmtp = p[0]
         if self.libmtp is None:
-            print ('Failed to load libmtp, MTP device detection disabled')
-            print (p[1])
+            print('Failed to load libmtp, MTP device detection disabled')
+            print(p[1])
         else:
             self.known_devices = frozenset(self.libmtp.known_devices())
 
@@ -222,7 +224,7 @@ class MTP_DEVICE(MTPDeviceBase):
         try:
             storage = sorted(self.dev.storage_info, key=operator.itemgetter('id'))
         except self.libmtp.MTPError as e:
-            if "The device has no storage information." in str(e):
+            if "The device has no storage information." in unicode_type(e):
                 # This happens on newer Android devices while waiting for
                 # the user to allow access. Apparently what happens is
                 # that when the user clicks allow, the device disconnects
@@ -317,7 +319,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     storage.append({'id':sid, 'size':capacity,
                         'is_folder':True, 'name':name, 'can_delete':False,
                         'is_system':True})
-                    self._currently_getting_sid = unicode(sid)
+                    self._currently_getting_sid = unicode_type(sid)
                     items, errs = self.dev.get_filesystem(sid,
                             partial(self._filesystem_callback, {}))
                     all_items.extend(items), all_errs.extend(errs)
@@ -369,11 +371,10 @@ class MTP_DEVICE(MTPDeviceBase):
         e = parent.folder_named(name)
         if e is not None:
             return e
-        ename = name.encode('utf-8') if isinstance(name, unicode) else name
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0
-        ans, errs = self.dev.create_folder(sid, pid, ename)
+        ans, errs = self.dev.create_folder(sid, pid, name)
         if ans is None:
             raise DeviceError(
                     'Failed to create folder named %s in %s with error: %s'%
@@ -392,12 +393,11 @@ class MTP_DEVICE(MTPDeviceBase):
                 raise ValueError('Cannot upload file %s, it already exists'%(
                     e.full_path,))
             self.delete_file_or_folder(e)
-        ename = name.encode('utf-8') if isinstance(name, unicode) else name
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
             pid = 0xFFFFFFFF
 
-        ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
+        ans, errs = self.dev.put_file(sid, pid, name, stream, size, callback)
         if ans is None:
             raise DeviceError('Failed to upload file named: %s to %s: %s'
                     %(name, parent.full_path, self.format_errorstack(errs)))

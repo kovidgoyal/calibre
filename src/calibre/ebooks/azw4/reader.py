@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read content from azw4 file.
 
@@ -15,6 +16,7 @@ import os
 import re
 
 from calibre.ebooks.pdb.formatreader import FormatReader
+from polyglot.builtins import getcwd
 
 
 def unwrap(stream, output_path):
@@ -39,12 +41,12 @@ class Reader(FormatReader):
 
         self.stream.seek(0)
         raw_data = self.stream.read()
-        data = ''
+        data = b''
         mo = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
         if mo:
             data = mo.group()
 
-        pdf_n = os.path.join(os.getcwdu(), 'tmp.pdf')
+        pdf_n = os.path.join(getcwd(), 'tmp.pdf')
         with open(pdf_n, 'wb') as pdf:
             pdf.write(data)
         from calibre.customize.ui import plugin_for_input_format

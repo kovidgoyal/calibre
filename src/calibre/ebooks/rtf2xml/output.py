@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -11,6 +12,8 @@
 #                                                                       #
 #########################################################################
 import sys, os
+from polyglot.builtins import raw_input
+from . import open_for_read, open_for_write
 # , codecs
 
 
@@ -83,8 +86,8 @@ class Output:
             sys.stderr.write(msg)
             user_response = raw_input()
         if user_response == 'o':
-            with open(self.__file, 'r') as read_obj:
-                with open(self.output_file, 'w') as write_obj:
+            with open_for_read(self.__file) as read_obj:
+                with open_for_write(self.output_file) as write_obj:
                     for line in read_obj:
                         write_obj.write(line)
         else:
@@ -99,8 +102,8 @@ class Output:
         Logic:
             read one line at a time. Output to standard
         """
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__out_file, 'w') as write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__out_file) as write_obj:
                 for line in read_obj:
                     write_obj.write(line)
 
@@ -113,24 +116,6 @@ class Output:
         Logic:
             read one line at a time. Output to standard
         """
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             for line in read_obj:
                 sys.stdout.write(line)
-
-    # def __output_xml(self, in_file, out_file):
-        # """
-        # output the ill-formed xml file
-        # """
-        # (utf8_encode, utf8_decode, utf8_reader, utf8_writer) = codecs.lookup("utf-8")
-        # write_obj = utf8_writer(open(out_file, 'w'))
-        # write_obj = open(out_file, 'w')
-        # read_obj = utf8_writer(open(in_file, 'r'))
-        # read_obj = open(in_file, 'r')
-        # line = 1
-        # while line:
-            # line = read_obj.readline()
-            # if isinstance(line, type(u"")):
-                # line = line.encode("utf-8")
-            # write_obj.write(line)
-        # read_obj.close()
-        # write_obj.close()

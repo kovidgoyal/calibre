@@ -19,90 +19,120 @@
 #include <unicode/ustring.h>
 #include <unicode/usearch.h>
 #include <unicode/utrans.h>
-#include <unicode/unorm.h>
+#include <unicode/unorm2.h>
 #include <unicode/ubrk.h>
 
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
+#if PY_VERSION_HEX < 0x03030000
+#error Not implemented for python < 3.3
 #endif
 
-#define MIN(x, y) ((x)<(y)) ? (x) : (y)
-
-// Roundtripping will need to be implemented differently for python 3.3+ where strings are stored with variable widths
-
-#ifndef NO_PYTHON_TO_ICU
-static UChar* python_to_icu(PyObject *obj, int32_t *osz, uint8_t do_check) {
+static UChar* python_to_icu(PyObject *obj, int32_t *osz) {
     UChar *ans = NULL;
     Py_ssize_t sz = 0;
-#ifdef Py_UNICODE_WIDE
     UErrorCode status = U_ZERO_ERROR;
-#endif
+    Py_UCS2 *data;
+    int i;
 
-    if (do_check && !PyUnicode_CheckExact(obj)) {
+    if (!PyUnicode_CheckExact(obj)) {
         PyErr_SetString(PyExc_TypeError, "Not a unicode string");
-        goto end;
+        return NULL;
+    }
+    if(PyUnicode_READY(obj) == -1) {
+        return NULL;
+    }
+    sz = PyUnicode_GET_LENGTH(obj);
+
+
+    switch(PyUnicode_KIND(obj)) {
+    case PyUnicode_1BYTE_KIND: {
+        Py_ssize_t data_sz;
+        const char *utf8_data = PyUnicode_AsUTF8AndSize(obj, &data_sz);
+        if (!utf8_data) return NULL;
+        size_t buf_sz = (sz > data_sz ? sz : data_sz) + 1;
+        ans = (UChar*) malloc(buf_sz * sizeof(UChar));
+        if (ans == NULL) { PyErr_NoMemory(); return NULL; }
+        u_strFromUTF8Lenient(ans, buf_sz, (int32_t*) osz, utf8_data, (int32_t)data_sz, &status);
+        // add null terminator
+        ans[buf_sz-1] = 0;
+        break;
+    }
+    case PyUnicode_2BYTE_KIND:
+        ans = (UChar*) malloc((sz+1) * sizeof(UChar));
+        data = PyUnicode_2BYTE_DATA(obj);
+        // if UChar is more than 2 bytes, we need to copy manually.
+        if(sizeof(UChar) != sizeof(Py_UCS2)) {
+            for(i = 0; i < sz; i++) {
+                ans[i] = data[i];
+            }
+        } else {
+            memcpy(ans, data, sz * sizeof(UChar));
+        }
+        // add null terminator
+        ans[sz] = 0;
+        if (osz != NULL) *osz = sz;
+        break;
+    case PyUnicode_4BYTE_KIND:
+        // +1 for null terminator
+        ans = (UChar*) malloc(2 * (sz+1) * sizeof(UChar));
+        if (ans == NULL) {
+            PyErr_NoMemory();
+            return NULL;
+        }
+        u_strFromUTF32(
+            ans, 2 * (sz+1),
+            (int32_t*) osz,
+            (UChar32*) PyUnicode_4BYTE_DATA(obj),
+            (int32_t) sz,
+            &status);
+        break;
     }
 
-#ifdef Py_UNICODE_WIDE
-// wide build (UCS 4)
-    sz = PyUnicode_GET_SIZE(obj);
-    ans = (UChar*) calloc(2*(sz+1), sizeof(UChar)); // There can be no more than 2 UChars per character + ensure null termination
-    if (ans == NULL) { PyErr_NoMemory(); goto end; }
-    u_strFromUTF32(ans, (int32_t)(2*(sz+1)), osz, (UChar32*)PyUnicode_AS_UNICODE(obj), (int32_t)sz, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); free(ans); ans = NULL; goto end; }
-#else
-// narrow build (UTF-16)
-    sz = PyUnicode_GET_DATA_SIZE(obj);
-    ans = (UChar*) calloc(sz+2, 1);  // Ensure null termination
-    if (ans == NULL) { PyErr_NoMemory(); goto end; }
-    memcpy(ans, PyUnicode_AS_UNICODE(obj), sz);
-    if (osz != NULL) *osz = (int32_t)PyUnicode_GET_SIZE(obj);
-#endif
-end:
+    if (U_FAILURE(status)) {
+        PyErr_SetString(PyExc_ValueError, u_errorName(status));
+        free(ans);
+        ans = NULL;
+        return NULL;
+    }
+
     return ans;
 }
 
 #ifndef NO_PYTHON_TO_ICU32
-static UChar32* python_to_icu32(PyObject *obj, int32_t *osz, uint8_t do_check) {
+static UChar32* python_to_icu32(PyObject *obj, int32_t *osz) {
     UChar32 *ans = NULL;
     Py_ssize_t sz = 0;
-#ifndef Py_UNICODE_WIDE
-    UErrorCode status = U_ZERO_ERROR;
-#endif
+    int i;
 
-    if (do_check && !PyUnicode_CheckExact(obj)) {
+    if (!PyUnicode_CheckExact(obj)) {
         PyErr_SetString(PyExc_TypeError, "Not a unicode string");
-        goto end;
+        return NULL;
     }
+    if(PyUnicode_READY(obj) == -1) {
+        return NULL;
+    }
+    sz = PyUnicode_GET_LENGTH(obj);
+    ans = (UChar32*) malloc((sz+1) * sizeof(UChar32));
+    if (ans == NULL) { PyErr_NoMemory(); return NULL; }
+	int kind;
+	if ((kind = PyUnicode_KIND(obj)) == PyUnicode_4BYTE_KIND) {
+		memcpy(ans, PyUnicode_4BYTE_DATA(obj), sz * 4);
+	} else {
+		for(i = 0; i < sz; i++) {
+			// Work around strict aliasing rules by manually memcpy.
+			// This should get optimized.
+			ans[i] = PyUnicode_READ(kind, PyUnicode_DATA(obj), i);
+		}
+	}
+    ans[sz] = 0;
 
-    sz = PyUnicode_GET_SIZE(obj);  // number of UCS2 code-points in narrow build and UCS4 code-points in wide build
-    ans = (UChar32*) calloc(sz+1, sizeof(UChar32));  // Ensure null termination
-    if (ans == NULL) { PyErr_NoMemory(); goto end; }
+    if (osz != NULL) *osz = sz;
 
-#ifdef Py_UNICODE_WIDE
-// wide build (UCS 4)
-    memcpy(ans, PyUnicode_AS_DATA(obj), MIN((sizeof(UChar32)*(sz+1)),PyUnicode_GET_DATA_SIZE(obj)));
-    if (osz != NULL) *osz = (int32_t)PyUnicode_GET_SIZE(obj);
-#else
-// narrow build (UTF-16)
-    u_strToUTF32(ans, (int32_t)sz + 1, osz, (UChar*)PyUnicode_AS_UNICODE(obj), (int32_t)sz, &status);
-    if (U_FAILURE(status)) { PyErr_SetString(PyExc_ValueError, u_errorName(status)); free(ans); ans = NULL; goto end; }
-#endif
-end:
     return ans;
 }
 #endif
 
-#endif
-
 #ifndef NO_ICU_TO_PYTHON
 static PyObject* icu_to_python(UChar *src, int32_t sz) {
-#ifdef Py_UNICODE_WIDE
-    return PyUnicode_DecodeUTF16((char*)src, sz*sizeof(UChar), "strict", NULL);
-#else
-    return PyUnicode_FromUnicode((Py_UNICODE*)src, sz);
-#endif
+    return PyUnicode_DecodeUTF16((char*) src, sz * sizeof(UChar), "replace", NULL);
 }
 #endif
-
-

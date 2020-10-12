@@ -1,7 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
+
+from polyglot.builtins import unicode_type
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -24,4 +25,4 @@ class DataError(Exception):
         self.tb = tb
 
     def traceback(self):
-        return unicode(self) + '\n' + self.tb
+        return unicode_type(self) + '\n' + self.tb

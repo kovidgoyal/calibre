@@ -1,19 +1,47 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, numbers
 from io import BytesIO
 
 from calibre.utils.zipfile import safe_replace
+from polyglot.builtins import unicode_type, as_unicode
 
 BM_FIELD_SEP = u'*|!|?|*'
 BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
+
+
+def parse_bookmarks(raw):
+    raw = as_unicode(raw)
+    for line in raw.splitlines():
+        if '^' in line:
+            tokens = line.rpartition('^')
+            title, ref = tokens[0], tokens[2]
+            try:
+                spine, _, pos = ref.partition('#')
+                spine = int(spine.strip())
+            except Exception:
+                continue
+            yield {'type':'legacy', 'title':title, 'spine':spine, 'pos':pos}
+        elif BM_FIELD_SEP in line:
+            try:
+                title, spine, pos = line.strip().split(BM_FIELD_SEP)
+                spine = int(spine)
+            except Exception:
+                continue
+            # Unescape from serialization
+            pos = pos.replace(BM_LEGACY_ESC, u'^')
+            # Check for pos being a scroll fraction
+            try:
+                pos = float(pos)
+            except Exception:
+                pass
+            yield {'type':'cfi', 'title':title, 'pos':pos, 'spine':spine}
 
 
 class BookmarksMixin(object):
@@ -22,34 +50,8 @@ class BookmarksMixin(object):
         self.copy_bookmarks_to_file = copy_bookmarks_to_file
 
     def parse_bookmarks(self, raw):
-        for line in raw.splitlines():
-            bm = None
-            if line.count('^') > 0:
-                tokens = line.rpartition('^')
-                title, ref = tokens[0], tokens[2]
-                try:
-                    spine, _, pos = ref.partition('#')
-                    spine = int(spine.strip())
-                except:
-                    continue
-                bm = {'type':'legacy', 'title':title, 'spine':spine, 'pos':pos}
-            elif BM_FIELD_SEP in line:
-                try:
-                    title, spine, pos = line.strip().split(BM_FIELD_SEP)
-                    spine = int(spine)
-                except:
-                    continue
-                # Unescape from serialization
-                pos = pos.replace(BM_LEGACY_ESC, u'^')
-                # Check for pos being a scroll fraction
-                try:
-                    pos = float(pos)
-                except:
-                    pass
-                bm = {'type':'cfi', 'title':title, 'pos':pos, 'spine':spine}
-
-            if bm:
-                self.bookmarks.append(bm)
+        for bm in parse_bookmarks(raw):
+            self.bookmarks.append(bm)
 
     def serialize_bookmarks(self, bookmarks):
         dat = []
@@ -58,11 +60,11 @@ class BookmarksMixin(object):
                 rec = u'%s^%d#%s'%(bm['title'], bm['spine'], bm['pos'])
             else:
                 pos = bm['pos']
-                if isinstance(pos, (int, float)):
-                    pos = unicode(pos)
+                if isinstance(pos, numbers.Number):
+                    pos = unicode_type(pos)
                 else:
                     pos = pos.replace(u'^', BM_LEGACY_ESC)
-                rec = BM_FIELD_SEP.join([bm['title'], unicode(bm['spine']), pos])
+                rec = BM_FIELD_SEP.join([bm['title'], unicode_type(bm['spine']), pos])
             dat.append(rec)
         return (u'\n'.join(dat) +u'\n')
 
@@ -87,12 +89,12 @@ class BookmarksMixin(object):
         if not no_copy_to_file and self.copy_bookmarks_to_file and os.path.splitext(
                 self.pathtoebook)[1].lower() == '.epub' and os.access(self.pathtoebook, os.W_OK):
             try:
-                zf = open(self.pathtoebook, 'r+b')
+                with open(self.pathtoebook, 'r+b') as zf:
+                    safe_replace(zf, 'META-INF/calibre_bookmarks.txt',
+                            BytesIO(dat.encode('utf-8')),
+                            add_missing=True)
             except IOError:
                 return
-            safe_replace(zf, 'META-INF/calibre_bookmarks.txt',
-                    BytesIO(dat.encode('utf-8')),
-                    add_missing=True)
 
     def add_bookmark(self, bm, no_copy_to_file=False):
         self.bookmarks = [x for x in self.bookmarks if x['title'] !=
@@ -102,5 +104,3 @@ class BookmarksMixin(object):
 
     def set_bookmarks(self, bookmarks):
         self.bookmarks = bookmarks
-
-

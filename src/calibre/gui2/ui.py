@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 '''The main GUI'''
 
 import collections, os, sys, textwrap, time, gc, errno, re
-from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
 from io import BytesIO
@@ -22,7 +21,7 @@ from PyQt5.Qt import (
 
 from calibre import prints, force_unicode, detect_ncpus
 from calibre.constants import (
-        __appname__, isosx, iswindows, filesystem_encoding, DEBUG, config_dir)
+        __appname__, ismacos, iswindows, filesystem_encoding, DEBUG, config_dir)
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.pool import Pool
 from calibre.db.legacy import LibraryDatabase
@@ -53,6 +52,8 @@ from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker
+from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.queue import Queue, Empty
 
 
 class Listener(Thread):  # {{{
@@ -270,7 +271,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon = factory(app_id='com.calibre-ebook.gui').create_system_tray_icon(parent=self, title='calibre')
         if self.system_tray_icon is not None:
             self.system_tray_icon.setIcon(QIcon(I('lt.png', allow_user_override=False)))
-            if not (iswindows or isosx):
+            if not (iswindows or ismacos):
                 self.system_tray_icon.setIcon(QIcon.fromTheme('calibre-tray', self.system_tray_icon.icon()))
             self.system_tray_icon.setToolTip(self.jobs_button.tray_tooltip())
             self.system_tray_icon.setVisible(True)
@@ -317,7 +318,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.ctrl_esc_action = QAction(self)
         self.addAction(self.ctrl_esc_action)
         self.keyboard.register_shortcut('clear virtual library',
-                _('Clear the virtual library'), default_keys=('Ctrl+Esc',),
+                _('Clear the Virtual library'), default_keys=('Ctrl+Esc',),
                 action=self.ctrl_esc_action)
         self.ctrl_esc_action.triggered.connect(self.ctrl_esc)
 
@@ -372,8 +373,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.QueuedConnection)
 
         # ######################## Search Restriction ##########################
-        if db.prefs['virtual_lib_on_startup']:
-            self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+        if db.new_api.pref('virtual_lib_on_startup'):
+            self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
         self.rebuild_vl_tabs()
 
         # ########################## Cover Flow ################################
@@ -398,6 +399,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
+        if show_gui:
+            self.show()
         self.read_settings()
 
         self.finalize_layout()
@@ -417,22 +420,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
-        if show_gui:
-            # Note this has to come after restoreGeometry() because of
-            # https://bugreports.qt.io/browse/QTBUG-56831
-            self.show()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
-
-        # Now that the gui is initialized we can restore the quickview state
-        # The same thing will be true for any action-based operation with a
-        # layout button
-        from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
-        qv = get_quickview_action_plugin()
-        if qv:
-            qv.qv_button.restore_state()
-        self.save_layout_state()
 
         # Collect cycles now
         gc.collect()
@@ -444,6 +434,21 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.iactions['Connect Share'].check_smartdevice_menus()
         QTimer.singleShot(1, self.start_smartdevice)
         QTimer.singleShot(100, self.update_toggle_to_tray_action)
+
+        # Once the gui is initialized we can restore the quickview state
+        # The same thing will be true for any action-based operation with a
+        # layout button. We need to let a book be selected in the book list
+        # before initializing quickview, so run it after an event loop tick
+        QTimer.singleShot(0, self.start_quickview)
+
+    def start_quickview(self):
+        from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
+        qv = get_quickview_action_plugin()
+        if qv:
+            if DEBUG:
+                prints('Starting QuickView')
+            qv.qv_button.restore_state()
+        self.save_layout_state()
 
     def show_gui_debug_msg(self):
         info_dialog(self, _('Debug mode'), '<p>' +
@@ -534,7 +539,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def create_spare_pool(self, *args):
         if self._spare_pool is None:
-            num = min(detect_ncpus(), int(config['worker_limit']/2.0))
+            num = min(detect_ncpus(), config['worker_limit']//2)
             self._spare_pool = Pool(max_workers=num, name='GUIPool')
 
     def spare_pool(self):
@@ -599,7 +604,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.content_server is not None and \
                 self.content_server.exception is not None:
             error_dialog(self, _('Failed to start Content server'),
-                         unicode(self.content_server.exception)).exec_()
+                         unicode_type(self.content_server.exception)).exec_()
 
     @property
     def current_db(self):
@@ -613,11 +618,20 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         m.research()
         self.tags_view.recount()
 
+    def handle_cli_args(self, args):
+        if isinstance(args, string_or_bytes):
+            args = [args]
+        files = [os.path.abspath(p) for p in args if not os.path.isdir(p) and os.access(p, os.R_OK)]
+        if files:
+            self.iactions['Add Books'].add_filesystem_book(files)
+
     def another_instance_wants_to_talk(self):
         try:
             msg = self.listener.queue.get_nowait()
         except Empty:
             return
+        if isinstance(msg, bytes):
+            msg = msg.decode('utf-8', 'replace')
         if msg.startswith('launched:'):
             import json
             try:
@@ -631,9 +645,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                                  det_msg='Invalid msg: %r' % msg, show=True)
                 argv = ()
             if isinstance(argv, (list, tuple)) and len(argv) > 1:
-                files = [os.path.abspath(p) for p in argv[1:] if not os.path.isdir(p) and os.access(p, os.R_OK)]
-                if files:
-                    self.iactions['Add Books'].add_filesystem_book(files)
+                self.handle_cli_args(argv[1:])
             self.setWindowState(self.windowState() & ~Qt.WindowMinimized|Qt.WindowActive)
             self.show_windows()
             self.raise_()
@@ -658,8 +670,25 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except Exception:
                 import traceback
                 traceback.print_exc()
+        elif msg.startswith('web-store:'):
+            import json
+            try:
+                data = json.loads(msg[len('web-store:'):])
+            except ValueError:
+                prints('Failed to decode message from other instance: %r' % msg)
+            path = data['path']
+            if data['tags']:
+                before = self.current_db.new_api.all_book_ids()
+            self.iactions['Add Books'].add_filesystem_book([path], allow_device=False)
+            if data['tags']:
+                db = self.current_db.new_api
+                after = self.current_db.new_api.all_book_ids()
+                for book_id in after - before:
+                    tags = list(db.field_for('tags', book_id))
+                    tags += list(data['tags'])
+                    self.current_db.new_api.set_field('tags', {book_id: tags})
         else:
-            print msg
+            prints('Ignoring unknown message from other instance: %r' % msg[:20])
 
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
@@ -684,7 +713,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             try:
                 olddb = self.library_view.model().db
                 if copy_structure:
-                    default_prefs = olddb.prefs
+                    default_prefs = dict(olddb.prefs)
             except:
                 olddb = None
             if copy_structure and olddb is not None and default_prefs is not None:
@@ -729,8 +758,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.set_window_title()
             self.apply_named_search_restriction('')  # reset restriction to null
             self.saved_searches_changed(recount=False)  # reload the search restrictions combo box
-            if db.prefs['virtual_lib_on_startup']:
-                self.apply_virtual_library(db.prefs['virtual_lib_on_startup'])
+            if db.new_api.pref('virtual_lib_on_startup'):
+                self.apply_virtual_library(db.new_api.pref('virtual_lib_on_startup'))
             self.rebuild_vl_tabs()
             for action in self.iactions.values():
                 action.library_changed(db)
@@ -759,7 +788,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             font.setBold(True)
             font.setItalic(True)
         self.virtual_library.setFont(font)
-        title = u'{0} - || {1}{2} ||'.format(
+        title = '{0} - || {1}{2} ||'.format(
                 __appname__, self.iactions['Choose Library'].library_name(), restrictions)
         self.setWindowTitle(title)
 
@@ -882,13 +911,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             pass
         if not minz:
             self.job_error_dialog.show_error(dialog_title,
-                    _('<b>Failed</b>')+': '+unicode(job.description),
+                    _('<b>Failed</b>')+': '+unicode_type(job.description),
                     det_msg=job.details, retry_func=retry_func)
 
     def read_settings(self):
         geometry = config['main_window_geometry']
         if geometry is not None:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
         self.read_layout_settings()
 
     def write_settings(self):
@@ -907,13 +936,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         try:
             self.shutdown()
         except:
-            pass
+            import traceback
+            traceback.print_exc()
         self.restart_after_quit = restart
         self.debug_on_restart = debug_on_restart
+        if self.system_tray_icon is not None and self.restart_after_quit:
+            # Needed on windows to prevent multiple systray icons
+            self.system_tray_icon.setVisible(False)
         QApplication.instance().quit()
 
     def donate(self, *args):
-        open_url(QUrl('https://calibre-ebook.com/donate'))
+        from calibre.utils.localization import localize_website_link
+        open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
 
     def confirm_quit(self):
         if self.job_manager.has_jobs():
@@ -967,12 +1001,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             db.commit_dirty_cache()
             db.prefs.write_serialized(prefs['library_path'])
         for action in self.iactions.values():
-            if not action.shutting_down():
-                return
+            action.shutting_down()
         if write_settings:
             self.write_settings()
         self.check_messages_timer.stop()
-        if hasattr(self, 'update_checker'):
+        if getattr(self, 'update_checker', None):
             self.update_checker.shutdown()
         self.listener.close()
         self.job_manager.server.close()
@@ -1036,7 +1069,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             return
         self.write_settings()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
-            if not dynamic['systray_msg'] and not isosx:
+            if not dynamic['systray_msg'] and not ismacos:
                 info_dialog(self, 'calibre', 'calibre '+
                         _('will keep running in the system tray. To close it, '
                         'choose <b>Quit</b> in the context menu of the '

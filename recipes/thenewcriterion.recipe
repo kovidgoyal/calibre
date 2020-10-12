@@ -1,0 +1,115 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+# vi: set fenc=utf-8 ft=python :
+# kate: encoding utf-8; syntax python;
+
+__license__ = 'GPL v3'
+__copyright__ = '2019, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.newcriterion.com
+'''
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
+import re
+from mechanize import Request
+from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
+
+
+class TheNewCriterion(BasicNewsRecipe):
+    title                = 'The New Criterion'
+    __author__           = 'Darko Miletic'
+    description          = 'On the front lines of the battle for culture'
+    publisher            = 'The Foundation for Cultural Review'
+    category             = 'art, politics, USA, world'
+    oldest_article       = 40
+    no_stylesheets       = True
+    encoding             = 'utf8'
+    use_embedded_content = False
+    language             = 'en'
+    remove_empty_feeds   = True
+    publication_type     = 'magazine'
+    needs_subscription   = 'optional'
+    delay                = 1
+    simultaneous_downloads = 1
+    timeout                = 8
+    ignore_duplicate_articles = {'url'}
+    articles_are_obfuscated = True
+    temp_files              = []
+    fetch_retries           = 10
+    auto_cleanup         = True
+    masthead_url         = 'https://www.newcriterion.com/themes/thenewcriterion/assets/img/horizontal-logo.svg'
+    extra_css            = """
+        body{font-family: Galliard, serif}
+    """
+
+    conversion_options = {
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('https://www.newcriterion.com/')
+        if self.username is not None and self.password is not None:
+            data = urlencode({'login': self.username, 'password': self.password})
+            header = {
+                'X-OCTOBER-REQUEST-HANDLER': 'onSignin',
+                'X-Requested-With': 'XMLHttpRequest',
+                'DNT':'1',
+                'X-OCTOBER-REQUEST-PARTIALS':'',
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            }
+            request = Request('https://www.newcriterion.com/', data, header)
+            br.open(request)
+        return br
+
+    def parse_index(self):
+        part = strftime('/issues/%Y/') + str(int(strftime('%m')))
+        partf = part + '/'
+        currentIssue_url = 'https://www.newcriterion.com' + part
+        soup1 = self.index_to_soup(currentIssue_url)
+        self.log(currentIssue_url)
+        rsr = re.compile('^' + partf + '.+$')
+        date = strftime(' %B %Y')
+        articles = []
+        subset = soup1.find('div', id='main')
+        for item in subset.findAll('a', href=True):
+            relurl = str(item['href'])
+            if rsr.search(relurl):
+                title = ''
+                description = ''
+                if item.find('div'):
+                    title = self.tag_to_string(item.div.h1).strip()
+                    description = self.tag_to_string(item.div.p)
+                else:
+                    title = self.tag_to_string(item.h1).strip()
+                    description = self.tag_to_string(item.p)
+                articles.append({
+                    'title': title,
+                    'date': date,
+                    'url': 'https://www.newcriterion.com' + relurl,
+                    'description': description
+                })
+        return [(self.title, articles)]
+
+    def get_obfuscated_article(self, url):
+        result = None
+        count = 0
+        while (count < self.fetch_retries):
+            try:
+                response = self.browser.open(url, timeout=self.timeout)
+                html = response.read()
+                count = self.fetch_retries
+                tfile = PersistentTemporaryFile('_fa.html')
+                tfile.write(html)
+                tfile.close()
+                self.temp_files.append(tfile)
+                result = tfile.name
+            except:
+                print("Retrying download...")
+            count += 1
+        return result

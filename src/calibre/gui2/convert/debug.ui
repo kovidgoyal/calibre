@@ -14,24 +14,7 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="3">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Choose a folder to put the debug output into. If you specify a folder, calibre will place a lot of debug output into it. This will be useful in understanding the conversion process and figuring out the correct values for conversion parameters like Table of Contents and Chapter Detection.</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLineEdit" name="opt_debug_pipeline">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
+   <item row="1" column="1">
     <widget class="QToolButton" name="button_debug_dir">
      <property name="toolTip">
       <string>Choose debug folder</string>
@@ -40,7 +23,7 @@
       <string>...</string>
      </property>
      <property name="icon">
-      <iconset resource="../../../work/calibre/resources/images.qrc">
+      <iconset resource="../../../../resources/images.qrc">
        <normaloff>:/images/document_open.png</normaloff>:/images/document_open.png</iconset>
      </property>
     </widget>
@@ -58,14 +41,13 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="1">
-    <widget class="QToolButton" name="button_clear">
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
      <property name="text">
-      <string>...</string>
+      <string>Choose a folder to put the debug output into. If you specify a folder, calibre will place a lot of debug output into it. This will be useful in understanding the conversion process and figuring out the correct values for conversion parameters like Table of Contents and Chapter Detection.</string>
      </property>
-     <property name="icon">
-      <iconset resource="../../../work/calibre/resources/images.qrc">
-       <normaloff>:/images/clear_left.png</normaloff>:/images/clear_left.png</iconset>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -79,10 +61,17 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QLineEdit" name="opt_debug_pipeline">
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>
-  <include location="../../../work/calibre/resources/images.qrc"/>
+  <include location="../../../../resources/images.qrc"/>
  </resources>
  <connections/>
 </ui>

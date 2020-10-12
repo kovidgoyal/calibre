@@ -1,30 +1,28 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import sys
-from io import BytesIO
+from contextlib import contextmanager
 from optparse import OptionGroup, OptionValueError
 
 from calibre import prints
-from calibre.db.adding import compile_rule, recursive_import, import_book_directory, import_book_directory_multiple
+from calibre.db.adding import (
+    cdb_find_in_dir, cdb_recursive_find, compile_rule, create_format_map,
+    run_import_plugins, run_import_plugins_before_metadata
+)
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from calibre.ebooks.metadata.book.serialize import read_cover
-from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata.book.serialize import read_cover, serialize_cover
+from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
+from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.changes import books_added
 from calibre.utils.localization import canonicalize_lang
+from polyglot.builtins import unicode_type
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
-
-
-def to_stream(data):
-    ans = BytesIO(data[1])
-    ans.name = data[0]
-    return ans
 
 
 def empty(db, notify_changes, is_remote, args):
@@ -37,46 +35,74 @@ def empty(db, notify_changes, is_remote, args):
 
 
 def book(db, notify_changes, is_remote, args):
-    data, fmt, mi, add_duplicates = args
-    if is_remote:
-        data = to_stream(data)
-    ids, duplicates = db.add_books(
-        [(mi, {fmt: data})], add_duplicates=add_duplicates)
+    data, fname, fmt, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages = args
+    with add_ctx(), TemporaryDirectory('add-single') as tdir, run_import_plugins_before_metadata(tdir):
+        if is_remote:
+            with lopen(os.path.join(tdir, fname), 'wb') as f:
+                f.write(data[1])
+            path = f.name
+        else:
+            path = data
+        path = run_import_plugins([path])[0]
+        fmt = os.path.splitext(path)[1]
+        fmt = (fmt[1:] if fmt else None) or 'unknown'
+        with lopen(path, 'rb') as stream:
+            mi = get_metadata(stream, stream_type=fmt, use_libprs_metadata=True)
+        if not mi.title:
+            mi.title = os.path.splitext(os.path.basename(path))[0]
+        if not mi.authors:
+            mi.authors = [_('Unknown')]
+        if oidentifiers:
+            ids = mi.get_identifiers()
+            ids.update(oidentifiers)
+            mi.set_identifiers(ids)
+        for x in ('title', 'authors', 'isbn', 'tags', 'series', 'languages'):
+            val = locals()['o' + x]
+            if val:
+                setattr(mi, x, val)
+        if oseries:
+            mi.series_index = oseries_index
+        if ocover:
+            mi.cover = None
+            mi.cover_data = ocover
+
+        ids, duplicates = db.add_books(
+            [(mi, {fmt: path})], add_duplicates=add_duplicates, run_hooks=False)
+
     if is_remote:
         notify_changes(books_added(ids))
     db.dump_metadata()
-    return ids, bool(duplicates)
+    return ids, bool(duplicates), mi.title
 
 
-def add_books(db, notify_changes, is_remote, args):
-    books, kwargs = args
-    if is_remote:
-        books = [(mi, {k:to_stream(v) for k, v in fmt_map.iteritems()}) for mi, fmt_map in books]
-    ids, duplicates = db.add_books(books, **kwargs)
-    if is_remote:
-        notify_changes(books_added(ids))
-    db.dump_metadata()
-    return ids, [(mi.title, [getattr(x, 'name', '<stream>') for x in format_map.itervalues()]) for mi, format_map in duplicates]
+def format_group(db, notify_changes, is_remote, args):
+    formats, add_duplicates, cover_data = args
+    with add_ctx(), TemporaryDirectory('add-multiple') as tdir, run_import_plugins_before_metadata(tdir):
+        if is_remote:
+            paths = []
+            for name, data in formats:
+                with lopen(os.path.join(tdir, os.path.basename(name)), 'wb') as f:
+                    f.write(data)
+                paths.append(f.name)
+        else:
+            paths = list(formats)
+        paths = run_import_plugins(paths)
+        mi = metadata_from_formats(paths)
+        if mi.title is None:
+            return None, set(), False
+        if cover_data and not mi.cover_data or not mi.cover_data[1]:
+            mi.cover_data = 'jpeg', cover_data
+        ids, dups = db.add_books([(mi, create_format_map(paths))], add_duplicates=add_duplicates, run_hooks=False)
+        if is_remote:
+            notify_changes(books_added(ids))
+        db.dump_metadata()
+        return mi.title, ids, bool(dups)
 
 
 def implementation(db, notify_changes, action, *args):
     is_remote = notify_changes is not None
     func = globals()[action]
     return func(db, notify_changes, is_remote, args)
-
-
-class DBProxy(object):
-    # Allows dbctx to be used with the directory adding API that expects a
-    # normal db object. Fortunately that API only calls one method,
-    # add_books()
-
-    def __init__(self, dbctx):
-        self.new_api = self
-        self.dbctx = dbctx
-
-    def add_books(self, books, **kwargs):
-        books = [(read_cover(mi), {k:self.dbctx.path(v) for k, v in fmt_map.iteritems()}) for mi, fmt_map in books]
-        return self.dbctx.run('add', 'add_books', books, kwargs)
 
 
 def do_add_empty(
@@ -104,13 +130,19 @@ def do_add_empty(
     prints(_('Added book ids: %s') % ','.join(map(str, ids)))
 
 
+@contextmanager
+def add_ctx():
+    orig = sys.stdout
+    yield
+    sys.stdout = orig
+
+
 def do_add(
     dbctx, paths, one_book_per_directory, recurse, add_duplicates, otitle, oauthors,
     oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages,
     compiled_rules
 ):
-    orig = sys.stdout
-    try:
+    with add_ctx():
         files, dirs = [], []
         for path in paths:
             path = os.path.abspath(path)
@@ -128,56 +160,39 @@ def do_add(
             fmt = fmt[1:] if fmt else None
             if not fmt:
                 continue
-            with lopen(book, 'rb') as stream:
-                mi = get_metadata(stream, stream_type=fmt, use_libprs_metadata=True)
-            if not mi.title:
-                mi.title = os.path.splitext(os.path.basename(book))[0]
-            if not mi.authors:
-                mi.authors = [_('Unknown')]
-            if oidentifiers:
-                ids = mi.get_identifiers()
-                ids.update(oidentifiers)
-                mi.set_identifiers(ids)
-            for x in ('title', 'authors', 'isbn', 'tags', 'series', 'languages'):
-                val = locals()['o' + x]
-                if val:
-                    setattr(mi, x, val)
-            if oseries:
-                mi.series_index = oseries_index
-            if ocover:
-                mi.cover = ocover
-                mi.cover_data = (None, None)
-
-            ids, dups = dbctx.run(
-                'add', 'book', dbctx.path(book), fmt, read_cover(mi), add_duplicates
+            ids, dups, book_title = dbctx.run(
+                'add', 'book', dbctx.path(book), os.path.basename(book), fmt, add_duplicates,
+                otitle, oauthors, oisbn, otags, oseries, oseries_index, serialize_cover(ocover) if ocover else None,
+                oidentifiers, olanguages
             )
             added_ids |= set(ids)
             if dups:
-                file_duplicates.append((mi.title, book))
+                file_duplicates.append((book_title, book))
 
         dir_dups = []
-        dbproxy = DBProxy(dbctx)
-
+        scanner = cdb_recursive_find if recurse else cdb_find_in_dir
         for dpath in dirs:
-            if recurse:
-                dups = recursive_import(
-                    dbproxy,
-                    dpath,
-                    single_book_per_directory=one_book_per_directory,
-                    added_ids=added_ids,
-                    compiled_rules=compiled_rules,
-                    add_duplicates=add_duplicates
-                ) or []
-            else:
-                func = import_book_directory if one_book_per_directory else import_book_directory_multiple
-                dups = func(
-                    dbproxy,
-                    dpath,
-                    added_ids=added_ids,
-                    compiled_rules=compiled_rules,
-                    add_duplicates=add_duplicates
-                ) or []
-            dir_dups.extend(dups)
+            for formats in scanner(dpath, one_book_per_directory, compiled_rules):
+                cover_data = None
+                for fmt in formats:
+                    if fmt.lower().endswith('.opf'):
+                        with lopen(fmt, 'rb') as f:
+                            mi = get_metadata(f, stream_type='opf')
+                            if mi.cover_data and mi.cover_data[1]:
+                                cover_data = mi.cover_data[1]
+                            elif mi.cover:
+                                try:
+                                    with lopen(mi.cover, 'rb') as f:
+                                        cover_data = f.read()
+                                except EnvironmentError:
+                                    pass
+
+                book_title, ids, dups = dbctx.run(
+                        'add', 'format_group', tuple(map(dbctx.path, formats)), add_duplicates, cover_data)
+                if book_title is not None:
+                    added_ids |= set(ids)
+                    if dups:
+                        dir_dups.append((book_title, formats))
 
         sys.stdout = sys.__stdout__
 
@@ -200,9 +215,7 @@ def do_add(
                     prints('   ', path)
 
         if added_ids:
-            prints(_('Added book ids: %s') % (', '.join(map(type(u''), added_ids))))
-    finally:
-        sys.stdout = orig
+            prints(_('Added book ids: %s') % (', '.join(map(unicode_type, added_ids))))
 
 
 def option_parser(get_parser, args):
@@ -291,14 +304,9 @@ the directory related options below.
     )
 
     def filter_pat(option, opt, value, parser, action):
+        rule = {'match_type': 'glob', 'query': value, 'action': action}
         try:
-            getattr(parser.values, option.dest).append(
-                compile_rule({
-                    'match_type': 'glob',
-                    'query': value,
-                    'action': action
-                })
-            )
+            getattr(parser.values, option.dest).append(compile_rule(rule))
         except Exception:
             raise OptionValueError('%r is not a valid filename pattern' % value)
 

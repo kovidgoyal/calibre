@@ -1,17 +1,18 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, time, re
 from collections import defaultdict
-from future_builtins import map
+from polyglot.builtins import itervalues, map as it_map, unicode_type
+from contextlib import contextmanager
+from functools import partial
 
 from calibre import prints
-from calibre.constants import iswindows, isosx, filesystem_encoding
+from calibre.constants import iswindows, ismacos, filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
 
 
@@ -67,11 +68,11 @@ def metadata_extensions():
     # but not actually added)
     global _metadata_extensions
     if _metadata_extensions is None:
-        _metadata_extensions =  frozenset(map(unicode, BOOK_EXTENSIONS)) | {'opf'}
+        _metadata_extensions =  frozenset(it_map(unicode_type, BOOK_EXTENSIONS)) | {'opf'}
     return _metadata_extensions
 
 
-if iswindows or isosx:
+if iswindows or ismacos:
     unicode_listdir = os.listdir
 else:
     def unicode_listdir(root):
@@ -105,6 +106,27 @@ def allow_path(path, ext, compiled_rules):
     return ans
 
 
+import_ctx = None
+
+
+@contextmanager
+def run_import_plugins_before_metadata(tdir, group_id=0):
+    global import_ctx
+    import_ctx = {'tdir': tdir, 'group_id': group_id, 'format_map': {}}
+    yield import_ctx
+    import_ctx = None
+
+
+def run_import_plugins(formats):
+    from calibre.ebooks.metadata.worker import run_import_plugins
+    import_ctx['group_id'] += 1
+    ans = run_import_plugins(formats, import_ctx['group_id'], import_ctx['tdir'])
+    fm = import_ctx['format_map']
+    for old_path, new_path in zip(formats, ans):
+        fm[new_path] = old_path
+    return ans
+
+
 def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(), listdir_impl=listdir):
     dirpath = os.path.abspath(dirpath)
     if single_book_per_directory:
@@ -114,17 +136,17 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
             if allow_path(path, ext, compiled_rules):
                 formats[ext] = path
         if formats_ok(formats):
-            yield list(formats.itervalues())
+            yield list(itervalues(formats))
     else:
         books = defaultdict(dict)
         for path in listdir_impl(dirpath, sort_by_mtime=True):
             key, ext = splitext(path)
             if allow_path(path, ext, compiled_rules):
-                books[icu_lower(key) if isinstance(key, unicode) else key.lower()][ext] = path
+                books[icu_lower(key) if isinstance(key, unicode_type) else key.lower()][ext] = path
 
-        for formats in books.itervalues():
+        for formats in itervalues(books):
             if formats_ok(formats):
-                yield list(formats.itervalues())
+                yield list(itervalues(formats))
 
 
 def create_format_map(formats):
@@ -196,6 +218,18 @@ def recursive_import(db, root, single_book_per_directory=True,
     return duplicates
 
 
+def cdb_find_in_dir(dirpath, single_book_per_directory, compiled_rules):
+    return find_books_in_directory(dirpath, single_book_per_directory=single_book_per_directory,
+            compiled_rules=compiled_rules, listdir_impl=partial(listdir, sort_by_mtime=True))
+
+
+def cdb_recursive_find(root, single_book_per_directory=True, compiled_rules=()):
+    root = os.path.abspath(root)
+    for dirpath in os.walk(root):
+        for formats in cdb_find_in_dir(dirpath[0], single_book_per_directory, compiled_rules):
+            yield formats
+
+
 def add_catalog(cache, path, title, dbapi=None):
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.metadata.meta import get_metadata
@@ -247,9 +281,9 @@ def add_news(cache, path, arg, dbapi=None):
         if mi.series_index is None:
             mi.series_index = cache._get_next_series_num_for(mi.series)
         mi.tags = [_('News')]
-        if arg['add_title_tag']:
+        if arg.get('add_title_tag'):
             mi.tags += [arg['title']]
-        if arg['custom_tags']:
+        if arg.get('custom_tags'):
             mi.tags += arg['custom_tags']
         if mi.pubdate is None:
             mi.pubdate = utcnow()

@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -5,7 +7,7 @@ import re, copy
 from datetime import date
 
 from PyQt5.Qt import (
-    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout,
+    QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
     QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
     QSpinBox, QRadioButton
 )
@@ -18,6 +20,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks
 from calibre.utils.date import now
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type, range, map
 
 box_values = {}
 last_matchkind = CONTAINS_MATCH
@@ -36,7 +39,7 @@ def init_dateop(cb):
 
 
 def current_dateop(cb):
-    return unicode(cb.itemData(cb.currentIndex()) or '')
+    return unicode_type(cb.itemData(cb.currentIndex()) or '')
 
 
 def create_msg_label(self):
@@ -113,11 +116,13 @@ def create_simple_tab(self, db):
     l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
 
     self.title_box = le = QLineEdit(w)
+    le.setObjectName('title_box')
     le.setPlaceholderText(_('The title to search for'))
     l.addRow(_('&Title:'), le)
 
     self.authors_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The author to search for'))
+    le.setObjectName('authors_box')
     le.setEditText('')
     le.set_separator('&')
     le.set_space_before_sep(True)
@@ -127,6 +132,7 @@ def create_simple_tab(self, db):
 
     self.series_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The series to search for'))
+    le.setObjectName('series_box')
     all_series = sorted((x[1] for x in db.all_series()), key=sort_key)
     le.set_separator(None)
     le.update_items_cache(all_series)
@@ -134,6 +140,7 @@ def create_simple_tab(self, db):
     l.addRow(_('&Series:'), le)
 
     self.tags_box = le = EditWithComplete(self)
+    le.setObjectName('tags_box')
     le.lineEdit().setPlaceholderText(_('The tags to search for'))
     self.tags_box.update_items_cache(db.all_tags())
     l.addRow(_('Ta&gs:'), le)
@@ -144,6 +151,7 @@ def create_simple_tab(self, db):
     self.general_combo.addItems(searchables)
     self.box_last_values = copy.deepcopy(box_values)
     self.general_box = le = QLineEdit(self)
+    le.setObjectName('general_box')
     l.addRow(self.general_combo, le)
     if self.box_last_values:
         for k,v in self.box_last_values.items():
@@ -172,8 +180,12 @@ def create_date_tab(self, db):
     w.h1 = h = QHBoxLayout()
     l.addLayout(h)
     self.date_field = df = add(_("&Search the"), QComboBox(w))
-    vals = [((v['search_terms'] or [k])[0], v['name'] or k) for k, v in db.field_metadata.iteritems() if v.get('datatype', None) == 'datetime']
-    for k, v in sorted(vals, key=lambda (k, v): sort_key(v)):
+    vals = [((v['search_terms'] or [k])[0], v['name'] or k)
+                for k, v in db.field_metadata.iter_items()
+                    if v.get('datatype', None) == 'datetime' or
+                       (v.get('datatype', None) == 'composite' and
+                        v.get('display', {}).get('composite_sort', None) == 'date')]
+    for k, v in sorted(vals, key=lambda k_v: sort_key(k_v[1])):
         df.addItem(v, k)
     h.addWidget(df)
     self.dateop_date = dd = add(_("date column for books whose &date is "), QComboBox(w))
@@ -189,11 +201,11 @@ def create_date_tab(self, db):
     dy.setRange(102, 10000)
     dy.setValue(now().year)
     self.date_month = dm = add(_('mo&nth'), QComboBox(w))
-    for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in xrange(1, 13)]:
+    for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in range(1, 13)]:
         dm.addItem(text, val)
     self.date_day = dd = add(_('&day'), QSpinBox(w))
     dd.setRange(0, 31)
-    dd.setSpecialValueText(u' \xa0')
+    dd.setSpecialValueText(' \xa0')
     h.addStretch(10)
 
     w.h3 = h = QHBoxLayout()
@@ -212,15 +224,54 @@ def create_date_tab(self, db):
     self.date_human = dh = a(QComboBox(w))
     for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:
         dh.addItem(text, val)
-    self.date_year.valueChanged.connect(lambda : self.sel_date.setChecked(True))
-    self.date_month.currentIndexChanged.connect(lambda : self.sel_date.setChecked(True))
-    self.date_day.valueChanged.connect(lambda : self.sel_date.setChecked(True))
-    self.date_daysago.valueChanged.connect(lambda : self.sel_daysago.setChecked(True))
-    self.date_human.currentIndexChanged.connect(lambda : self.sel_human.setChecked(True))
+    connect_lambda(self.date_year.valueChanged, self, lambda self: self.sel_date.setChecked(True))
+    connect_lambda(self.date_month.currentIndexChanged, self, lambda self: self.sel_date.setChecked(True))
+    connect_lambda(self.date_day.valueChanged, self, lambda self: self.sel_date.setChecked(True))
+    connect_lambda(self.date_daysago.valueChanged, self, lambda self: self.sel_daysago.setChecked(True))
+    connect_lambda(self.date_human.currentIndexChanged, self, lambda self: self.sel_human.setChecked(True))
     self.sel_date.setChecked(True)
     h.addStretch(10)
 
     l.addStretch(10)
+
+
+def create_template_tab(self):
+    self.simple_tab = w = QWidget(self.tab_widget)
+    self.tab_widget.addTab(w, _("&Template search"))
+
+    w.l = l = QFormLayout(w)
+    l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+
+    self.template_value_box = le = QLineEdit(w)
+    le.setObjectName('template_value_box')
+    le.setPlaceholderText(_('The value to search for'))
+    le.setToolTip('<p>' +
+                  _("You can use the search test specifications described "
+                    "in the calibre documentation. For example, with Number "
+                    "comparisons you can the relational operators like '>=' etc. "
+                    "With Text comparisons you can use exact, contains "
+                    "or regular expression matches. With Date you can use "
+                    "today, yesterday, etc. Set/not set takes 'true' for set "
+                    "and 'false' for not set.") + '</p>')
+    l.addRow(_('Template &value:'), le)
+
+    self.template_test_type_box = le = QComboBox(w)
+    le.setObjectName('template_test_type_box')
+    for op, desc in [
+            ('t', _('Text')),
+            ('d', _('Date')),
+            ('n', _('Number')),
+            ('b', _('Set/Not set'))]:
+        le.addItem(desc, op)
+    le.setToolTip(_('How the template result will be compared to the value'))
+    l.addRow(_('C&omparison type:'), le)
+
+    from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+    self.template_program_box = le = TemplateLineEditor(self.tab_widget)
+    le.setObjectName('template_program_box')
+    le.setPlaceholderText(_('The template that generates the value'))
+    le.setToolTip(_('Right click to open a template editor'))
+    l.addRow(_('Tem&plate:'), le)
 
 
 def setup_ui(self, db):
@@ -239,6 +290,7 @@ def setup_ui(self, db):
     create_adv_tab(self)
     create_simple_tab(self, db)
     create_date_tab(self, db)
+    create_template_tab(self)
 # }}}
 
 
@@ -254,11 +306,33 @@ class SearchDialog(QDialog):
         self.tab_widget.setCurrentIndex(current_tab)
         if current_tab == 1:
             self.matchkind.setCurrentIndex(last_matchkind)
+            focused_field = gprefs.get('advanced_search_simple_tab_focused_field', 'title_box')
+            w = getattr(self, focused_field, None)
+            if w is not None:
+                w.setFocus(Qt.OtherFocusReason)
+        elif current_tab == 3:
+            self.template_program_box.setText(
+                      gprefs.get('advanced_search_template_tab_program_field', ''))
+            self.template_value_box.setText(
+                      gprefs.get('advanced_search_template_tab_value_field', ''))
+            self.template_test_type_box.setCurrentIndex(
+                      int(gprefs.get('advanced_search_template_tab_test_field', '0')))
         self.resize(self.sizeHint())
 
     def save_state(self):
         gprefs['advanced search dialog current tab'] = \
             self.tab_widget.currentIndex()
+        if self.tab_widget.currentIndex() == 1:
+            fw = self.tab_widget.focusWidget()
+            if fw:
+                gprefs.set('advanced_search_simple_tab_focused_field', fw.objectName())
+        elif self.tab_widget.currentIndex() == 3:
+            gprefs.set('advanced_search_template_tab_program_field',
+                       unicode_type(self.template_program_box.text()))
+            gprefs.set('advanced_search_template_tab_value_field',
+                       unicode_type(self.template_value_box.text()))
+            gprefs.set('advanced_search_template_tab_test_field',
+                       unicode_type(self.template_test_type_box.currentIndex()))
 
     def accept(self):
         self.save_state()
@@ -270,9 +344,9 @@ class SearchDialog(QDialog):
 
     def clear_button_pushed(self):
         w = self.tab_widget.currentWidget()
+        for c in w.findChildren(QComboBox):
+            c.setCurrentIndex(0)
         if w is self.date_tab:
-            for c in w.findChildren(QComboBox):
-                c.setCurrentIndex(0)
             for c in w.findChildren(QSpinBox):
                 c.setValue(c.minimum())
             self.sel_date.setChecked(True)
@@ -292,10 +366,21 @@ class SearchDialog(QDialog):
 
     def search_string(self):
         i = self.tab_widget.currentIndex()
-        return (self.adv_search_string, self.box_search_string, self.date_search_string)[i]()
+        return (self.adv_search_string, self.box_search_string,
+                self.date_search_string, self.template_search_string)[i]()
+
+    def template_search_string(self):
+        template = unicode_type(self.template_program_box.text())
+        value = unicode_type(self.template_value_box.text()).replace('"', '\\"')
+        if template and value:
+            cb = self.template_test_type_box
+            op =  unicode_type(cb.itemData(cb.currentIndex()))
+            l = '{0}#@#:{1}:{2}'.format(template, op, value)
+            return 'template:"' + l + '"'
+        return ''
 
     def date_search_string(self):
-        field = unicode(self.date_field.itemData(self.date_field.currentIndex()) or '')
+        field = unicode_type(self.date_field.itemData(self.date_field.currentIndex()) or '')
         op = current_dateop(self.dateop_date)
         prefix = '%s:%s' % (field, op)
         if self.sel_date.isChecked():
@@ -311,7 +396,7 @@ class SearchDialog(QDialog):
             val = self.date_daysago.value()
             val *= {0:1, 1:7, 2:30, 3:365}[self.date_ago_type.currentIndex()]
             return '%s%sdaysago' % (prefix, val)
-        return '%s%s' % (prefix, unicode(self.date_human.itemData(self.date_human.currentIndex()) or ''))
+        return '%s%s' % (prefix, unicode_type(self.date_human.itemData(self.date_human.currentIndex()) or ''))
 
     def adv_search_string(self):
         mk = self.matchkind.currentIndex()
@@ -321,7 +406,7 @@ class SearchDialog(QDialog):
             self.mc = '='
         else:
             self.mc = '~'
-        all, any, phrase, none = map(lambda x: unicode(x.text()),
+        all, any, phrase, none = map(lambda x: unicode_type(x.text()),
                 (self.all, self.any, self.phrase, self.none))
         all, any, none = map(self.tokens, (all, any, none))
         phrase = phrase.strip()
@@ -343,11 +428,11 @@ class SearchDialog(QDialog):
         return ans
 
     def token(self):
-        txt = unicode(self.text.text()).strip()
+        txt = unicode_type(self.text.text()).strip()
         if txt:
             if self.negate.isChecked():
                 txt = '!'+txt
-            tok = self.FIELDS[unicode(self.field.currentText())]+txt
+            tok = self.FIELDS[unicode_type(self.field.currentText())]+txt
             if re.search(r'\s', tok):
                 tok = '"%s"'%tok
             return tok
@@ -363,35 +448,35 @@ class SearchDialog(QDialog):
 
         ans = []
         self.box_last_values = {}
-        title = unicode(self.title_box.text()).strip()
+        title = unicode_type(self.title_box.text()).strip()
         self.box_last_values['title_box'] = title
         if title:
             ans.append('title:"' + self.mc + title + '"')
-        author = unicode(self.authors_box.text()).strip()
+        author = unicode_type(self.authors_box.text()).strip()
         self.box_last_values['authors_box'] = author
         if author:
             ans.append('author:"' + self.mc + author + '"')
-        series = unicode(self.series_box.text()).strip()
+        series = unicode_type(self.series_box.text()).strip()
         self.box_last_values['series_box'] = series
         if series:
             ans.append('series:"' + self.mc + series + '"')
 
-        tags = unicode(self.tags_box.text())
+        tags = unicode_type(self.tags_box.text())
         self.box_last_values['tags_box'] = tags
         tags = [t.strip() for t in tags.split(',') if t.strip()]
         if tags:
             tags = ['tags:"' + self.mc + t + '"' for t in tags]
             ans.append('(' + ' or '.join(tags) + ')')
-        general = unicode(self.general_box.text())
+        general = unicode_type(self.general_box.text())
         self.box_last_values['general_box'] = general
-        general_index = unicode(self.general_combo.currentText())
+        general_index = unicode_type(self.general_combo.currentText())
         self.box_last_values['general_index'] = general_index
         global box_values
         global last_matchkind
         box_values = copy.deepcopy(self.box_last_values)
         last_matchkind = mk
         if general:
-            ans.append(unicode(self.general_combo.currentText()) + ':"' +
+            ans.append(unicode_type(self.general_combo.currentText()) + ':"' +
                     self.mc + general + '"')
         if ans:
             return ' and '.join(ans)

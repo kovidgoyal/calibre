@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="save.svg">
   <defs
      id="defs4">
@@ -23,11 +23,11 @@
        inkscape:collect="always"
        id="linearGradient4171">
       <stop
-         style="stop-color:#3a98df;stop-opacity:1"
+         style="stop-color:#4ca1e2;stop-opacity:1"
          offset="0"
          id="stop4173" />
       <stop
-         style="stop-color:#173363;stop-opacity:1"
+         style="stop-color:#244f99;stop-opacity:1"
          offset="1"
          id="stop4175" />
     </linearGradient>
@@ -51,15 +51,15 @@
      inkscape:pageshadow="2"
      inkscape:zoom="11.2"
      inkscape:cx="52.101496"
-     inkscape:cy="69.707741"
+     inkscape:cy="26.831835"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -118,27 +118,27 @@
     <g
        transform="matrix(1.0385714,0,0,-0.32005121,12.070391,1039.6119)"
        id="g8"
-       style="fill:#000000;fill-opacity:0.66872427">
+       style="fill:#2caf45;fill-opacity:1">
       <path
          inkscape:connector-curvature="0"
          d="m 82.292,16.667 c 0,1.146 -0.938,2.083 -2.084,2.083 l -60.416,0 c -1.146,0 -2.083,-0.938 -2.083,-2.083 l 0,-2.083 c 0,-1.146 0.937,-2.083 2.083,-2.083 l 60.417,0 c 1.146,0 2.084,0.938 2.084,2.083 l 0,2.083 z"
          id="path10"
-         style="fill:#000000;fill-opacity:0.66872427" />
+         style="fill:#2caf45;fill-opacity:1" />
     </g>
     <g
        transform="matrix(1.0385714,0,0,-0.32005121,12.070391,1027.8625)"
        id="g12"
-       style="fill:#000000;fill-opacity:0.66872427">
+       style="fill:#2caf45;fill-opacity:1">
       <path
          inkscape:connector-curvature="0"
          d="m 82.292,29.167 c 0,1.146 -0.938,2.083 -2.084,2.083 l -60.416,0 c -1.146,0 -2.083,-0.938 -2.083,-2.083 l 0,-2.083 c 0,-1.146 0.937,-2.083 2.083,-2.083 l 60.417,0 c 1.146,0 2.084,0.938 2.084,2.083 l 0,2.083 z"
          id="path14"
-         style="fill:#000000;fill-opacity:0.66872427" />
+         style="fill:#2caf45;fill-opacity:1" />
     </g>
     <path
        inkscape:connector-curvature="0"
        d="m 97.536509,1002.7776 c 0,-0.3668 -0.97418,-0.6667 -2.164383,-0.6667 l -62.74633,0 c -1.190203,0 -2.163344,0.3002 -2.163344,0.6667 l 0,0.6666 c 0,0.3668 0.973141,0.6667 2.163344,0.6667 l 62.747369,0 c 1.190202,0 2.164383,-0.3002 2.164383,-0.6667 l 0,-0.6666 z"
        id="path18"
-       style="fill:#000000;fill-opacity:0.66872427" />
+       style="fill:#2caf45;fill-opacity:1" />
   </g>
 </svg>

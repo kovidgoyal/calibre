@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -95,18 +96,19 @@ class USER_DEFINED(USBMS):
     def do_delayed_plugin_initialization(self):
         try:
             e = self.settings().extra_customization
-            self.VENDOR_ID          = int(e[self.OPT_USB_VENDOR_ID], 16)
-            self.PRODUCT_ID         = int(e[self.OPT_USB_PRODUCT_ID], 16)
-            self.BCD                = [int(e[self.OPT_USB_REVISION_ID], 16)]
-            if e[self.OPT_USB_WINDOWS_MM_VEN_ID]:
-                self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_MM_VEN_ID])
-            if e[self.OPT_USB_WINDOWS_CA_VEN_ID] and \
-                    e[self.OPT_USB_WINDOWS_CA_VEN_ID] not in self.VENDOR_NAME:
-                self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_CA_VEN_ID])
-            self.WINDOWS_MAIN_MEM   = e[self.OPT_USB_WINDOWS_MM_ID] + '&'
-            self.WINDOWS_CARD_A_MEM = e[self.OPT_USB_WINDOWS_CA_ID] + '&'
-            self.EBOOK_DIR_MAIN     = e[self.OPT_MAIN_MEM_FOLDER]
-            self.EBOOK_DIR_CARD_A   = e[self.OPT_CARD_A_FOLDER]
+            if e[self.OPT_USB_VENDOR_ID]:
+                self.VENDOR_ID          = int(e[self.OPT_USB_VENDOR_ID], 16)
+                self.PRODUCT_ID         = int(e[self.OPT_USB_PRODUCT_ID], 16)
+                self.BCD                = [int(e[self.OPT_USB_REVISION_ID], 16)]
+                if e[self.OPT_USB_WINDOWS_MM_VEN_ID]:
+                    self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_MM_VEN_ID])
+                if e[self.OPT_USB_WINDOWS_CA_VEN_ID] and \
+                        e[self.OPT_USB_WINDOWS_CA_VEN_ID] not in self.VENDOR_NAME:
+                    self.VENDOR_NAME.append(e[self.OPT_USB_WINDOWS_CA_VEN_ID])
+                self.WINDOWS_MAIN_MEM   = e[self.OPT_USB_WINDOWS_MM_ID] + '&'
+                self.WINDOWS_CARD_A_MEM = e[self.OPT_USB_WINDOWS_CA_ID] + '&'
+                self.EBOOK_DIR_MAIN     = e[self.OPT_MAIN_MEM_FOLDER]
+                self.EBOOK_DIR_CARD_A   = e[self.OPT_CARD_A_FOLDER]
         except:
             import traceback
             traceback.print_exc()
@@ -151,5 +153,3 @@ class USER_DEFINED(USBMS):
             names['carda'] = main
 
         return names
-
-

@@ -1,15 +1,14 @@
 '''Read meta information from SNB files'''
 
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Li Fanxi <lifanxi@freemindworld.com>'
 
 import os
-from StringIO import StringIO
+import io
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.snb.snbfile import SNBFile
-from lxml import etree
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 def get_metadata(stream, extract_cover=True):
@@ -19,7 +18,7 @@ def get_metadata(stream, extract_cover=True):
 
     try:
         if not hasattr(stream, 'write'):
-            snbFile.Parse(StringIO(stream), True)
+            snbFile.Parse(io.BytesIO(stream), True)
         else:
             stream.seek(0)
             snbFile.Parse(stream, True)
@@ -27,7 +26,7 @@ def get_metadata(stream, extract_cover=True):
         meta = snbFile.GetFileStream('snbf/book.snbf')
 
         if meta is not None:
-            meta = etree.fromstring(meta)
+            meta = safe_xml_fromstring(meta)
             mi.title = meta.find('.//head/name').text
             mi.authors = [meta.find('.//head/author').text]
             mi.language = meta.find('.//head/language').text.lower().replace('_', '-')

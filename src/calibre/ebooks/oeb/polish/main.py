@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,13 +14,16 @@ from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import subset_all_fonts, iter_subsettable_fonts
 from calibre.ebooks.oeb.polish.images import compress_images
+from calibre.ebooks.oeb.polish.upgrade import upgrade_book
 from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
 from calibre.ebooks.oeb.polish.jacket import (
     replace_jacket, add_or_replace_jacket, find_existing_jacket, remove_jacket)
 from calibre.ebooks.oeb.polish.css import remove_unused_css
+from calibre.ebooks.oeb.polish.hyphenation import remove_soft_hyphens, add_soft_hyphens
 from calibre.utils.logging import Log
+from polyglot.builtins import iteritems
 
 ALL_OPTS = {
     'embed': False,
@@ -33,6 +35,9 @@ ALL_OPTS = {
     'smarten_punctuation':False,
     'remove_unused_css':False,
     'compress_images': False,
+    'upgrade_book': False,
+    'add_soft_hyphens': False,
+    'remove_soft_hyphens': False,
 }
 
 CUSTOMIZATION = {
@@ -112,6 +117,19 @@ that need to parse them all.</p>
 affecting image quality.</p>
 '''),
 
+'upgrade_book': _('''\
+<p>Upgrade the internal structures of the book, if possible. For instance,
+upgrades EPUB 2 books to EPUB 3 books.</p>
+'''),
+
+'add_soft_hyphens': _('''\
+<p>Add soft hyphens to all words in the book. This allows the book to be rendered
+better when the text is justified, in readers that do not support hyphenation.</p>
+'''),
+
+'remove_soft_hyphens': _('''\
+<p>Remove soft hyphens from all text in the book.</p>
+'''),
 }
 
 
@@ -125,7 +143,7 @@ def hfix(name, raw):
     return raw
 
 
-CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
+CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in iteritems(HELP)}
 # }}}
 
 
@@ -225,12 +243,27 @@ def polish_one(ebook, opts, report, customization=None):
             changed = True
         report('')
 
+    if opts.upgrade_book:
+        rt(_('Upgrading book, if possible'))
+        if upgrade_book(ebook, report):
+            changed = True
+        report('')
+
+    if opts.remove_soft_hyphens:
+        rt(_('Removing soft hyphens'))
+        remove_soft_hyphens(ebook, report)
+        changed = True
+    elif opts.add_soft_hyphens:
+        rt(_('Adding soft hyphens'))
+        add_soft_hyphens(ebook, report)
+        changed = True
+
     return changed
 
 
 def polish(file_map, opts, log, report):
     st = time.time()
-    for inbook, outbook in file_map.iteritems():
+    for inbook, outbook in iteritems(file_map):
         report(_('## Polishing: %s')%(inbook.rpartition('.')[-1].upper()))
         ebook = get_container(inbook, log)
         polish_one(ebook, opts, report)
@@ -251,7 +284,7 @@ def gui_polish(data):
     file_map = {x:x for x in files}
     opts = ALL_OPTS.copy()
     opts.update(data)
-    O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+    O = namedtuple('Options', ' '.join(ALL_OPTS))
     opts = O(**opts)
     log = Log(level=Log.DEBUG)
     report = []
@@ -266,7 +299,7 @@ def gui_polish(data):
 def tweak_polish(container, actions, customization=None):
     opts = ALL_OPTS.copy()
     opts.update(actions)
-    O = namedtuple('Options', ' '.join(ALL_OPTS.iterkeys()))
+    O = namedtuple('Options', ' '.join(ALL_OPTS))
     opts = O(**opts)
     report = []
     changed = polish_one(container, opts, report.append, customization=customization)
@@ -292,6 +325,9 @@ def option_parser():
     o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
     o('--remove-unused-css', '-u', help=CLI_HELP['remove_unused_css'])
     o('--compress-images', '-i', help=CLI_HELP['compress_images'])
+    o('--add-soft-hyphens', '-H', help=CLI_HELP['add_soft_hyphens'])
+    o('--remove-soft-hyphens', help=CLI_HELP['remove_soft_hyphens'])
+    o('--upgrade-book', '-U', help=CLI_HELP['upgrade_book'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
@@ -318,10 +354,10 @@ def main(args=None):
         inbook, outbook = args
 
     popts = ALL_OPTS.copy()
-    for k, v in popts.iteritems():
+    for k, v in iteritems(popts):
         popts[k] = getattr(opts, k, None)
 
-    O = namedtuple('Options', ' '.join(popts.iterkeys()))
+    O = namedtuple('Options', ' '.join(popts))
     popts = O(**popts)
     report = []
     if not tuple(filter(None, (getattr(popts, name) for name in ALL_OPTS))):

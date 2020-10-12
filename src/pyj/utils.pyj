@@ -8,6 +8,15 @@ from book_list.theme import get_font_family
 
 
 is_ios = v'!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)'
+if !is_ios and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
+    # iPad Safari in desktop mode https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
+    is_ios = True
+
+
+def default_context_menu_should_be_allowed(evt):
+    if evt.target and evt.target.tagName and evt.target.tagName.toLowerCase() in ('input', 'textarea'):
+        return True
+    return False
 
 
 def debounce(func, wait, immediate=False):
@@ -72,10 +81,18 @@ def encode_query_with_path(query, path):
     return path + encode_query(query, '#')
 
 
+def full_screen_supported(elem):
+    elem = elem or document.documentElement
+    if elem.requestFullScreen or elem.webkitRequestFullScreen or elem.mozRequestFullScreen:
+        return True
+    return False
+
+
 def request_full_screen(elem):
     elem = elem or document.documentElement
+    options = {'navigationUI': 'hide'}
     if elem.requestFullScreen:
-        elem.requestFullScreen()
+        elem.requestFullScreen(options)
     elif elem.webkitRequestFullScreen:
         elem.webkitRequestFullScreen()
     elif elem.mozRequestFullScreen:
@@ -110,7 +127,7 @@ def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
         return int(val) + ''
     return fmt.format(float(val))
 
-def rating_to_stars(value, allow_half_stars=False, star='★', half='½'):
+def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     r = max(0, min(int(value or 0), 10))
     if allow_half_stars:
         ans = star.repeat(r // 2)
@@ -161,24 +178,6 @@ def get_elem_data(elem, name, defval):
 def set_elem_data(elem, name, val):
     elem.setAttribute(data_ns(name), JSON.stringify(val))
 
-def viewport_to_document(x, y, doc):
-    # Convert x, y from the viewport (window) co-ordinate system to the
-    # document (body) co-ordinate system
-    doc = doc or window.document
-    topdoc = window.document
-    while doc is not topdoc:
-        # We are in a frame
-        frame = doc.defaultView.frameElement
-        rect = frame.getBoundingClientRect()
-        x += rect.left
-        y += rect.top
-        doc = frame.ownerDocument
-    win = doc.defaultView
-    wx, wy = win.pageXOffset, win.pageYOffset
-    x += wx
-    y += wy
-    return x, y
-
 def username_key(username):
     return ('u' if username else 'n') + username
 
@@ -219,7 +218,7 @@ def simple_markup(html):
     div.textContent = html
     html = div.innerHTML
     return html.replace(/\uffff(\/?[a-z1-6]+)\uffff/g, '<$1>')
-simple_markup.allowed_tags = v"'a|b|i|br|h1|h2|h3|h4|h5|h6|div|em|strong|span'.split('|')"
+simple_markup.allowed_tags = v"'a|b|i|br|hr|h1|h2|h3|h4|h5|h6|div|em|strong|span'.split('|')"
 
 
 def safe_set_inner_html(elem, html):
@@ -239,10 +238,3 @@ def sandboxed_html(html, style, sandbox):
     # Microsoft Edge does not support srcdoc not does it work using a data URI.
     ans.srcdoc = final_html
     return ans
-
-if __name__ is '__main__':
-    from pythonize import strings
-    strings()
-    print(rating_to_stars(3, True))
-    print(fmt_sidx(10), fmt_sidx(1.2))
-    print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))

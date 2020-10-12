@@ -1,26 +1,19 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1275798572(BasicNewsRecipe):
+class AdvancedUserRecipe1384137533(BasicNewsRecipe):
     title = u'CBC Canada'
-    publisher = 'www.cbc.ca'
     language = 'en_CA'
     __author__ = 'rty'
-    category = 'news'
-    oldest_article = 4
-    max_articles_per_feed = 100
-    remove_javascript = True
-    use_embedded_content = False
-    no_stylesheets = True
-    masthead_url = 'http://www.cbc.ca/includes/gfx/cbcnews_logo_09.gif'
-    cover_url = 'http://img692.imageshack.us/img692/2814/cbc.png'
-    keep_only_tags = [
-        dict(name='div', attrs={'id': ['storyhead', 'storybody']})]
-    remove_tags_after = dict(id=['socialtools'])
+    oldest_article = 7
+    max_articles_per_feed = 50
+    auto_cleanup = True
+
     feeds = [(u'Top Stories', u'http://rss.cbc.ca/lineup/topstories.xml'),
              (u'World', u'http://rss.cbc.ca/lineup/world.xml'),
              (u'National', u'http://rss.cbc.ca/lineup/canada.xml'),
-             (u'Manitoba', u'http://rss.cbc.ca/lineup/canada-manitoba.xml'),
+             (u'Toronto', u'http://rss.cbc.ca/lineup/canada-toronto.xml'),
+             (u'Business', u'http://rss.cbc.ca/lineup/business.xml'),
              (u'Politics', u'http://rss.cbc.ca/lineup/politics.xml'),
-             (u'Tech & Science', u'http://rss.cbc.ca/lineup/technology.xml'),
-             (u'Books', u'http://rss.cbc.ca/lineup/arts-books.xml')]
+             (u'Sci & Tech', u'http://rss.cbc.ca/lineup/technology.xml'),
+             (u'Offbeat', u'http://rss.cbc.ca/lineup/offbeat.xml')]

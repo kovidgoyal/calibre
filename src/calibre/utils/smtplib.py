@@ -1,5 +1,5 @@
-#!/usr/bin/env python2
-from __future__ import print_function
+#!/usr/bin/env python
+
 
 '''SMTP/ESMTP client class.
 
@@ -48,9 +48,11 @@ import re
 import email.utils
 import base64
 import hmac
-from email.base64mime import encode as encode_base64
+from email.base64mime import body_encode as encode_base64
 from sys import stderr
 from functools import partial
+
+from polyglot.builtins import unicode_type, string_or_bytes
 
 __all__ = ["SMTPException", "SMTPServerDisconnected", "SMTPResponseException",
            "SMTPSenderRefused", "SMTPRecipientsRefused", "SMTPDataError",
@@ -265,6 +267,7 @@ class SMTP:
         sys.stderr. You should pass in a print function of your own to control
         where debug output is written.
         """
+        self._host = host
         self.timeout = timeout
         self.debug = debug_to
         self.esmtp_features = {}
@@ -279,7 +282,7 @@ class SMTP:
             # if that can't be calculated, that we should use a domain literal
             # instead (essentially an encoded IP address like [A.B.C.D]).
             fqdn = socket.getfqdn()
-            if '.' in fqdn and fqdn != '.':  # Changed by Kovid
+            if '.' in fqdn:
                 self.local_hostname = fqdn
             else:
                 # We can't find an fqdn hostname, so use a domain literal
@@ -331,6 +334,7 @@ class SMTP:
             port = self.default_port
         if self.debuglevel > 0:
             self.debug('connect:', (host, port))
+        self._host = host
         self.sock = self._get_socket(host, port, self.timeout)
         (code, msg) = self.getreply()
         if self.debuglevel > 0:
@@ -341,11 +345,6 @@ class SMTP:
         """Send `str' to the server."""
         if self.debuglevel > 0:
             raw = repr(str)
-            if self.debuglevel < 2:
-                if len(raw) > 100:
-                    raw = raw[:100] + '...'
-                if 'AUTH' in raw:
-                    raw = 'AUTH <censored>'
             self.debug('send:', raw)
         if hasattr(self, 'sock') and self.sock:
             try:
@@ -385,8 +384,7 @@ class SMTP:
                 line = self.file.readline(_MAXLINE + 1)
             except socket.error as e:
                 self.close()
-                raise SMTPServerDisconnected("Connection unexpectedly closed: " +
-                                             str(e))
+                raise SMTPServerDisconnected("Connection unexpectedly closed: " + str(e))
             if line == '':
                 self.close()
                 raise SMTPServerDisconnected("Connection unexpectedly closed")
@@ -592,7 +590,7 @@ class SMTP:
 
         def encode_cram_md5(challenge, user, password):
             challenge = base64.decodestring(challenge)
-            if isinstance(password, unicode):  # Added by Kovid, see http://bugs.python.org/issue5285
+            if isinstance(password, unicode_type):  # Added by Kovid, see http://bugs.python.org/issue5285
                 password = password.encode('utf-8')
             response = user + " " + hmac.HMAC(password, challenge).hexdigest()
             return encode_base64(response, eol="")
@@ -647,7 +645,7 @@ class SMTP:
             raise SMTPAuthenticationError(code, resp)
         return (code, resp)
 
-    def starttls(self, keyfile=None, certfile=None):
+    def starttls(self, context=None):
         """Puts the connection to the SMTP server into TLS mode.
 
         If there has been no previous EHLO or HELO command this session, this
@@ -671,7 +669,10 @@ class SMTP:
         if resp == 220:
             if not _have_ssl:
                 raise RuntimeError("No SSL support included in this Python")
-            self.sock = ssl.wrap_socket(self.sock, keyfile, certfile)
+            if context is None:
+                self.sock = ssl.wrap_socket(self.sock)
+            else:
+                self.sock = context.wrap_socket(self.sock, server_hostname=self._host)
             self.file = SSLFakeFile(self.sock)
             # RFC 3207:
             # The client MUST discard any knowledge obtained from
@@ -760,7 +761,7 @@ class SMTP:
             self.rset()
             raise SMTPSenderRefused(code, resp, from_addr)
         senderrs = {}
-        if isinstance(to_addrs, basestring):
+        if isinstance(to_addrs, string_or_bytes):
             to_addrs = [to_addrs]
         for each in to_addrs:
             (code, resp) = self.rcpt(each, rcpt_options)
@@ -891,14 +892,14 @@ if __name__ == '__main__':
 
     fromaddr = prompt("From")
     toaddrs = prompt("To").split(',')
-    print ("Enter message, end with ^D:")
+    print("Enter message, end with ^D:")
     msg = ''
     while 1:
         line = sys.stdin.readline()
         if not line:
             break
         msg = msg + line
-    print ("Message length is %d" % len(msg))
+    print("Message length is %d" % len(msg))
 
     server = SMTP('localhost')
     server.set_debuglevel(1)

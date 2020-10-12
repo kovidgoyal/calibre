@@ -9,6 +9,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import NavigableString, Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class Nspm(BasicNewsRecipe):
     title = 'Nova srpska politicka misao'
     __author__ = 'Darko Miletic'
@@ -62,7 +69,7 @@ class Nspm(BasicNewsRecipe):
     def preprocess_html(self, soup):
         atitle = soup.body.find('a', attrs={'class': 'contentpagetitle'})
         if atitle:
-            cleanTitle = Tag(soup, 'h1', [('class', 'contentpagetitle')])
+            cleanTitle = new_tag(soup, 'h1', [('class', 'contentpagetitle')])
             cnt = NavigableString(self.tag_to_string(atitle))
             cleanTitle.append(cnt)
 
@@ -73,12 +80,12 @@ class Nspm(BasicNewsRecipe):
 
         crdate = soup.body.find('td', attrs={'class': 'createdate'})
         if crdate:
-            cleanCrdate = Tag(soup, 'div', [('class', 'createdate')])
+            cleanCrdate = new_tag(soup, 'div', [('class', 'createdate')])
             cnt = NavigableString(self.tag_to_string(crdate))
             cleanCrdate.append(cnt)
 
             # get the dependant element
-            artText = Tag(soup, 'div', [('class', 'text')])
+            artText = new_tag(soup, 'div', [('class', 'text')])
             textHolderp = crdate.parent
             textHolder = textHolderp.nextSibling
             while textHolder and (not isinstance(textHolder, Tag) or (textHolder.name != textHolderp.name)):
@@ -109,7 +116,6 @@ class Nspm(BasicNewsRecipe):
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):  # noqa
-                item['alt'] = 'image'
+        for item in soup.findAll('img', alt=False):
+            item['alt'] = 'image'
         return soup

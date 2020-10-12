@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-__license__ = 'GPL 3'
+
+__license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
@@ -54,7 +55,7 @@ class CLI(object):
             try:
                 shutil.copyfileobj(infile, dest)
             except IOError:
-                print 'WARNING: First attempt to send file to device failed'
+                print('WARNING: First attempt to send file to device failed')
                 time.sleep(0.2)
                 infile.seek(0)
                 dest.seek(0)
@@ -101,6 +102,6 @@ class CLI(object):
     def touch(self, path, end_session=True):
         path = self.munge_path(path)
         if not os.path.exists(path):
-            lopen(path, 'w').close()
+            lopen(path, 'wb').close()
         if not os.path.isdir(path):
             os.utime(path, None)

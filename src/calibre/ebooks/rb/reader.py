@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -7,13 +8,14 @@ __docformat__ = 'restructuredtext en'
 import os
 import struct
 import zlib
-from urllib import unquote as urlunquote
 
 from calibre import CurrentDir
 from calibre.ebooks.rb import HEADER
 from calibre.ebooks.rb import RocketBookError
 from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from polyglot.builtins import range, as_unicode
+from polyglot.urllib import unquote
 
 
 class RBToc(list):
@@ -63,7 +65,7 @@ class Reader(object):
 
         toc = RBToc()
         for i in range(pages):
-            name = urlunquote(self.stream.read(32).strip('\x00'))
+            name = unquote(self.stream.read(32).strip(b'\x00'))
             size, offset, flags = self.read_i32(), self.read_i32(), self.read_i32()
             toc.append(RBToc.Item(name=name, size=size, offset=offset, flags=flags))
 
@@ -73,14 +75,14 @@ class Reader(object):
         if toc_item.flags in (1, 2):
             return
 
-        output = u''
+        output = ''
         self.stream.seek(toc_item.offset)
 
         if toc_item.flags == 8:
             count = self.read_i32()
             self.read_i32()  # Uncompressed size.
             chunck_sizes = []
-            for i in xrange(count):
+            for i in range(count):
                 chunck_sizes.append(self.read_i32())
 
             for size in chunck_sizes:
@@ -89,7 +91,7 @@ class Reader(object):
         else:
             output += self.stream.read(toc_item.size).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
 
-        with open(os.path.join(output_dir, toc_item.name), 'wb') as html:
+        with open(os.path.join(output_dir, toc_item.name.decode('utf-8')), 'wb') as html:
             html.write(output.replace('<TITLE>', '<TITLE> ').encode('utf-8'))
 
     def get_image(self, toc_item, output_dir):
@@ -99,7 +101,7 @@ class Reader(object):
         self.stream.seek(toc_item.offset)
         data = self.stream.read(toc_item.size)
 
-        with open(os.path.join(output_dir, toc_item.name), 'wb') as img:
+        with open(os.path.join(output_dir, toc_item.name.decode('utf-8')), 'wb') as img:
             img.write(data)
 
     def extract_content(self, output_dir):
@@ -108,13 +110,14 @@ class Reader(object):
         images = []
 
         for item in self.toc:
-            if item.name.lower().endswith('html'):
-                self.log.debug('HTML item %s found...' % item.name)
-                html.append(item.name)
+            iname = as_unicode(item.name)
+            if iname.lower().endswith('html'):
+                self.log.debug('HTML item %s found...' % iname)
+                html.append(iname)
                 self.get_text(item, output_dir)
-            if item.name.lower().endswith('png'):
-                self.log.debug('PNG item %s found...' % item.name)
-                images.append(item.name)
+            if iname.lower().endswith('png'):
+                self.log.debug('PNG item %s found...' % iname)
+                images.append(iname)
                 self.get_image(item, output_dir)
 
         opf_path = self.create_opf(output_dir, html, images)

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -43,6 +42,7 @@ def convert_path(path):  # {{{
                 raise ValueError('Invalid curve to operation')
     return p
 # }}}
+
 
 Brush = namedtuple('Brush', 'origin brush color')
 
@@ -430,9 +430,12 @@ class Graphics(object):
         pdf.current_page.write('%d j '%join)
 
         # Dash pattern
-        ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
-              Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
-        if ps:
+        if pen.style() == Qt.CustomDashLine:
+            pdf.serialize(Array(pen.dashPattern()))
+            pdf.current_page.write(' %d d ' % pen.dashOffset())
+        else:
+            ps = {Qt.DashLine:[3], Qt.DotLine:[1,2], Qt.DashDotLine:[3,2,1,2],
+                  Qt.DashDotDotLine:[3, 2, 1, 2, 1, 2]}.get(pen.style(), [])
             pdf.serialize(Array(ps))
             pdf.current_page.write(' 0 d ')
 
@@ -482,5 +485,3 @@ class Graphics(object):
             pat = TexturePattern(None, matrix, self.pdf, clone=self.last_fill.brush)
             pattern = self.pdf.add_pattern(pat)
             self.pdf.apply_fill(self.last_fill.color, pattern)
-
-

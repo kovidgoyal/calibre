@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import (Qt, QDialog, QIcon, QComboBox)
+from PyQt5.Qt import (Qt, QDialog, QIcon, QComboBox, QApplication)
 
 from calibre.gui2.store.stores.mobileread.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.stores.mobileread.models import BooksModel
@@ -40,7 +40,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.restore_state()
 
     def do_search(self):
-        self.results_view.model().search(unicode(self.search_query.text()))
+        self.results_view.model().search(type(u'')(self.search_query.text()))
 
     def open_store(self, index):
         result = self.results_view.model().get_book(index)
@@ -58,7 +58,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
     def restore_state(self):
         geometry = self.plugin.config.get('dialog_geometry', None)
         if geometry:
-            self.restoreGeometry(geometry)
+            QApplication.instance().safe_restore_geometry(self, geometry)
 
         results_cwidth = self.plugin.config.get('dialog_results_view_column_width')
         if results_cwidth:
@@ -67,7 +67,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
                     break
                 self.results_view.setColumnWidth(i, x)
         else:
-            for i in xrange(self.results_view.model().columnCount()):
+            for i in range(self.results_view.model().columnCount()):
                 self.results_view.resizeColumnToContents(i)
 
         self.results_view.model().sort_col = self.plugin.config.get('dialog_sort_col', 0)

@@ -1,36 +1,44 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import time, textwrap, json
-from bisect import bisect_right
-from base64 import b64encode
-from future_builtins import map
-from threading import Thread
-from Queue import Queue, Empty
+import json
+import textwrap
+import time
+from collections import defaultdict
 from functools import partial
-from urlparse import urlparse
+from threading import Thread
 
 from PyQt5.Qt import (
-    QWidget, QVBoxLayout, QApplication, QSize, QNetworkAccessManager, QMenu, QIcon,
-    QNetworkReply, QTimer, QNetworkRequest, QUrl, Qt, QToolBar,
-    pyqtSlot, pyqtSignal)
-from PyQt5.QtWebKitWidgets import QWebView, QWebInspector, QWebPage
+    QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize, QSizePolicy,
+    QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
+)
+from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
+from PyQt5.QtWebEngineWidgets import (
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
+)
 
 from calibre import prints
-from calibre.constants import FAKE_PROTOCOL, FAKE_HOST
+from calibre.constants import (
+    FAKE_HOST, FAKE_PROTOCOL, __version__, is_running_from_develop
+)
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.base import serialize, OEB_DOCS
-from calibre.gui2 import error_dialog, open_url, NO_URL_FORMATTING, secure_web_page
-from calibre.gui2.tweak_book import current_container, editors, tprefs, actions, TOP
-from calibre.gui2.viewer.documentview import apply_settings
-from calibre.gui2.viewer.config import config
+from calibre.gui2 import NO_URL_FORMATTING, error_dialog, is_dark_theme, open_url
+from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
+from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
+from calibre.gui2.tweak_book.file_list import OpenWithHandler
+from calibre.gui2.viewer.web_view import handle_mathjax_request, send_reply
+from calibre.gui2.webengine import (
+    Bridge, RestartingWebEngineView, create_script, from_js, insert_scripts,
+    secure_webengine, to_js
+)
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.ipc.simple_worker import offload_worker
+from polyglot.builtins import iteritems, unicode_type
+from polyglot.queue import Empty, Queue
+from polyglot.urllib import urlparse
 
 shutdown = object()
 
@@ -46,7 +54,10 @@ def get_data(name):
 
 def parse_html(raw):
     root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
-    return serialize(root, 'text/html').encode('utf-8')
+    ans = serialize(root, 'text/html')
+    if not isinstance(ans, bytes):
+        ans = ans.encode('utf-8')
+    return ans
 
 
 class ParseItem(object):
@@ -151,87 +162,66 @@ parse_worker = ParseWorker()
 # Override network access to load data "live" from the editors {{{
 
 
-class NetworkReply(QNetworkReply):
+class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
-    def __init__(self, parent, request, mime_type, name):
-        QNetworkReply.__init__(self, parent)
-        self.setOpenMode(QNetworkReply.ReadOnly | QNetworkReply.Unbuffered)
-        self.setRequest(request)
-        self.setUrl(request.url())
-        self._aborted = False
-        if mime_type in OEB_DOCS:
-            self.resource_name = name
-            QTimer.singleShot(0, self.check_for_parse)
-        else:
-            data = get_data(name)
-            if isinstance(data, type('')):
-                data = data.encode('utf-8')
-                mime_type += '; charset=utf-8'
-            self.__data = data
-            mime_type = {
-                # Prevent warning in console about mimetype of fonts
-                'application/vnd.ms-opentype':'application/x-font-ttf',
-                'application/x-font-truetype':'application/x-font-ttf',
-                'application/font-sfnt': 'application/x-font-ttf',
-            }.get(mime_type, mime_type)
-            self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
-            self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
-            QTimer.singleShot(0, self.finalize_reply)
+    def __init__(self, parent=None):
+        QWebEngineUrlSchemeHandler.__init__(self, parent)
+        self.requests = defaultdict(list)
+
+    def requestStarted(self, rq):
+        if bytes(rq.requestMethod()) != b'GET':
+            rq.fail(rq.RequestDenied)
+            return
+        url = rq.requestUrl()
+        if url.host() != FAKE_HOST or url.scheme() != FAKE_PROTOCOL:
+            rq.fail(rq.UrlNotFound)
+            return
+        name = url.path()[1:]
+        try:
+            if name.startswith('calibre_internal-mathjax/'):
+                handle_mathjax_request(rq, name.partition('-')[-1])
+                return
+            c = current_container()
+            if not c.has_name(name):
+                rq.fail(rq.UrlNotFound)
+                return
+            mime_type = c.mime_map.get(name, 'application/octet-stream')
+            if mime_type in OEB_DOCS:
+                mime_type = XHTML_MIME
+                self.requests[name].append((mime_type, rq))
+                QTimer.singleShot(0, self.check_for_parse)
+            else:
+                data = get_data(name)
+                if isinstance(data, unicode_type):
+                    data = data.encode('utf-8')
+                mime_type = {
+                    # Prevent warning in console about mimetype of fonts
+                    'application/vnd.ms-opentype':'application/x-font-ttf',
+                    'application/x-font-truetype':'application/x-font-ttf',
+                    'application/font-sfnt': 'application/x-font-ttf',
+                }.get(mime_type, mime_type)
+                send_reply(rq, mime_type, data)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            rq.fail(rq.RequestFailed)
 
     def check_for_parse(self):
-        if self._aborted:
-            return
-        data = parse_worker.get_data(self.resource_name)
-        if data is None:
+        remove = []
+        for name, requests in iteritems(self.requests):
+            data = parse_worker.get_data(name)
+            if data is not None:
+                if not isinstance(data, bytes):
+                    data = data.encode('utf-8')
+                for mime_type, rq in requests:
+                    send_reply(rq, mime_type, data)
+                remove.append(name)
+        for name in remove:
+            del self.requests[name]
+
+        if self.requests:
             return QTimer.singleShot(10, self.check_for_parse)
-        self.__data = data
-        self.setHeader(QNetworkRequest.ContentTypeHeader, 'application/xhtml+xml; charset=utf-8')
-        self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
-        self.finalize_reply()
 
-    def bytesAvailable(self):
-        try:
-            return len(self.__data)
-        except AttributeError:
-            return 0
-
-    def isSequential(self):
-        return True
-
-    def abort(self):
-        self._aborted = True
-
-    def readData(self, maxlen):
-        ans, self.__data = self.__data[:maxlen], self.__data[maxlen:]
-        return ans
-    read = readData
-
-    def finalize_reply(self):
-        if self._aborted:
-            return
-        self.setFinished(True)
-        self.setAttribute(QNetworkRequest.HttpStatusCodeAttribute, 200)
-        self.setAttribute(QNetworkRequest.HttpReasonPhraseAttribute, "Ok")
-        self.metaDataChanged.emit()
-        self.downloadProgress.emit(len(self.__data), len(self.__data))
-        self.readyRead.emit()
-        self.finished.emit()
-
-
-class NetworkAccessManager(QNetworkAccessManager):
-
-    def createRequest(self, operation, request, data):
-        qurl = request.url()
-        if operation == self.GetOperation and qurl.host() == FAKE_HOST:
-            name = qurl.path()[1:]
-            c = current_container()
-            if c.has_name(name):
-                try:
-                    return NetworkReply(self, request, c.mime_map.get(name, 'application/octet-stream'), name)
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
-        return QNetworkAccessManager.createRequest(self, operation, request, data)
 
 # }}}
 
@@ -244,140 +234,200 @@ def uniq(vals):
     return tuple(x for x in vals if x not in seen and not seen_add(x))
 
 
-def find_le(a, x):
-    'Find rightmost value in a less than or equal to x'
-    try:
-        return a[bisect_right(a, x)]
-    except IndexError:
-        return a[-1]
+def create_profile():
+    ans = getattr(create_profile, 'ans', None)
+    if ans is None:
+        ans = QWebEngineProfile(QApplication.instance())
+        ua = 'calibre-editor-preview ' + __version__
+        ans.setHttpUserAgent(ua)
+        if is_running_from_develop:
+            from calibre.utils.rapydscript import compile_editor
+            compile_editor()
+        js = P('editor.js', data=True, allow_user_override=False)
+        cparser = P('csscolorparser.js', data=True, allow_user_override=False)
+        dark_mode_css = P('dark_mode.css', data=True, allow_user_override=False).decode('utf-8')
+
+        insert_scripts(ans,
+            create_script('csscolorparser.js', cparser),
+            create_script('editor.js', js),
+            create_script('dark-mode.js', '''
+            (function() {
+                var settings = JSON.parse(navigator.userAgent.split('|')[1]);
+                var dark_css = CSS;
+
+                function apply_body_colors(event) {
+                    if (document.documentElement) {
+                        if (settings.bg) document.documentElement.style.backgroundColor = settings.bg;
+                        if (settings.fg) document.documentElement.style.color = settings.fg;
+                    }
+                    if (document.body) {
+                        if (settings.bg) document.body.style.backgroundColor = settings.bg;
+                        if (settings.fg) document.body.style.color = settings.fg;
+                    }
+                }
+
+                function apply_css() {
+                    var css = '';
+                    if (settings.link) css += 'html > body :link, html > body :link * { color: ' + settings.link + ' !important; }';
+                    if (settings.is_dark_theme) { css += dark_css; }
+                    var style = document.createElement('style');
+                    style.textContent = css;
+                    document.documentElement.appendChild(style);
+                    apply_body_colors();
+                }
+
+                apply_body_colors();
+                document.addEventListener("DOMContentLoaded", apply_css);
+            })();
+            '''.replace('CSS', json.dumps(dark_mode_css), 1),
+            injection_point=QWebEngineScript.DocumentCreation)
+        )
+        url_handler = UrlSchemeHandler(ans)
+        ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
+        s = ans.settings()
+        s.setDefaultTextEncoding('utf-8')
+        s.setAttribute(s.FullScreenSupportEnabled, False)
+        s.setAttribute(s.LinksIncludedInFocusChain, False)
+        create_profile.ans = ans
+    return ans
 
 
-class WebPage(QWebPage):
+class PreviewBridge(Bridge):
 
-    sync_requested = pyqtSignal(object, object, object)
-    split_requested = pyqtSignal(object, object)
+    request_sync = from_js(object, object, object)
+    request_split = from_js(object, object)
+    live_css_data = from_js(object)
+
+    go_to_sourceline_address = to_js()
+    go_to_anchor = to_js()
+    set_split_mode = to_js()
+    live_css = to_js()
+
+
+class WebPage(QWebEnginePage):
 
     def __init__(self, parent):
-        QWebPage.__init__(self, parent)
-        settings = self.settings()
-        apply_settings(settings, config().parse())
-        settings.setMaximumPagesInCache(0)
-        secure_web_page(settings)
-        settings.setAttribute(settings.PrivateBrowsingEnabled, True)
-        settings.setAttribute(settings.LinksIncludedInFocusChain, False)
-        settings.setAttribute(settings.DeveloperExtrasEnabled, True)
-        settings.setDefaultTextEncoding('utf-8')
-        data = 'data:text/css;charset=utf-8;base64,'
-        css = '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
-        data += b64encode(css.encode('utf-8'))
-        settings.setUserStyleSheetUrl(QUrl(data))
+        QWebEnginePage.__init__(self, create_profile(), parent)
+        secure_webengine(self, for_viewer=True)
+        self.bridge = PreviewBridge(self)
 
-        self.setNetworkAccessManager(NetworkAccessManager(self))
-        self.setLinkDelegationPolicy(self.DelegateAllLinks)
-        self.mainFrame().javaScriptWindowObjectCleared.connect(self.init_javascript)
-        self.init_javascript()
+    def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
+        prints('%s:%s: %s' % (source_id, linenumber, msg))
 
-    def javaScriptConsoleMessage(self, msg, lineno, source_id):
-        prints('preview js:%s:%s:'%(unicode(source_id), lineno), unicode(msg))
+    def acceptNavigationRequest(self, url, req_type, is_main_frame):
+        if req_type == self.NavigationTypeReload:
+            return True
+        if url.scheme() in (FAKE_PROTOCOL, 'data'):
+            return True
+        open_url(url)
+        return False
 
-    def init_javascript(self):
-        if not hasattr(self, 'js'):
-            from calibre.utils.resources import compiled_coffeescript
-            self.js = compiled_coffeescript('ebooks.oeb.display.utils', dynamic=False)
-            self.js += P('csscolorparser.js', data=True, allow_user_override=False)
-            self.js += compiled_coffeescript('ebooks.oeb.polish.preview', dynamic=False)
-        self._line_numbers = None
-        mf = self.mainFrame()
-        mf.addToJavaScriptWindowObject("py_bridge", self)
-        mf.evaluateJavaScript(self.js)
+    def go_to_anchor(self, anchor):
+        if anchor is TOP:
+            anchor = ''
+        self.bridge.go_to_anchor.emit(anchor or '')
 
-    @pyqtSlot(str, str, str)
-    def request_sync(self, tag_name, href, sourceline_address):
-        try:
-            self.sync_requested.emit(unicode(tag_name), unicode(href), json.loads(unicode(sourceline_address)))
-        except (TypeError, ValueError, OverflowError, AttributeError):
-            pass
-
-    def go_to_anchor(self, anchor, lnum):
-        self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.go_to_anchor(%s, %s)' % (
-            json.dumps(anchor), json.dumps(str(lnum))))
-
-    @pyqtSlot(str, str)
-    def request_split(self, loc, totals):
-        actions['split-in-preview'].setChecked(False)
-        loc, totals = json.loads(unicode(loc)), json.loads(unicode(totals))
-        if not loc or not totals:
-            return error_dialog(self.view(), _('Invalid location'),
-                                _('Cannot split on the body tag'), show=True)
-        self.split_requested.emit(loc, totals)
-
-    @property
-    def line_numbers(self):
-        if self._line_numbers is None:
-            def atoi(x):
-                try:
-                    ans = int(x)
-                except (TypeError, ValueError):
-                    ans = None
-                return ans
-            val = self.mainFrame().evaluateJavaScript('window.calibre_preview_integration.line_numbers()')
-            self._line_numbers = sorted(uniq(filter(lambda x:x is not None, map(atoi, val))))
-        return self._line_numbers
-
-    def go_to_line(self, lnum):
-        try:
-            lnum = find_le(self.line_numbers, lnum)
-        except IndexError:
-            return
-        self.mainFrame().evaluateJavaScript(
-            'window.calibre_preview_integration.go_to_line(%d)' % lnum)
+    def runjs(self, src, callback=None):
+        if callback is None:
+            self.runJavaScript(src, QWebEngineScript.ApplicationWorld)
+        else:
+            self.runJavaScript(src, QWebEngineScript.ApplicationWorld, callback)
 
     def go_to_sourceline_address(self, sourceline_address):
-        lnum, tags = sourceline_address
-        if lnum is None:
-            return
-        tags = [x.lower() for x in tags]
-        self.mainFrame().evaluateJavaScript(
-            'window.calibre_preview_integration.go_to_sourceline_address(%d, %s)' % (lnum, json.dumps(tags)))
+        if self.bridge.ready:
+            lnum, tags = sourceline_address
+            if lnum is None:
+                return
+            tags = [x.lower() for x in tags]
+            self.bridge.go_to_sourceline_address.emit(lnum, tags)
 
     def split_mode(self, enabled):
-        self.mainFrame().evaluateJavaScript(
-            'window.calibre_preview_integration.split_mode(%s)' % (
-                'true' if enabled else 'false'))
+        if self.bridge.ready:
+            self.bridge.set_split_mode.emit(1 if enabled else 0)
 
 
-class WebView(QWebView):
+class Inspector(QWidget):
 
     def __init__(self, parent=None):
-        QWebView.__init__(self, parent)
-        self.inspector = QWebInspector(self)
+        QWidget.__init__(self, parent=parent)
+        self.view_to_debug = parent
+        self.view = None
+        self.layout = QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+
+    def connect_to_dock(self):
+        ac = actions['inspector-dock']
+        ac.toggled.connect(self.visibility_changed)
+        if ac.isChecked():
+            self.visibility_changed(True)
+
+    def visibility_changed(self, visible):
+        if visible and self.view is None:
+            self.view = QWebEngineView(self.view_to_debug)
+            self.view_to_debug.page().setDevToolsPage(self.view.page())
+            self.layout.addWidget(self.view)
+
+    def sizeHint(self):
+        return QSize(1280, 600)
+
+
+class WebView(RestartingWebEngineView, OpenWithHandler):
+
+    def __init__(self, parent=None):
+        RestartingWebEngineView.__init__(self, parent)
+        self.inspector = Inspector(self)
         w = QApplication.instance().desktop().availableGeometry(self).width()
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
         self.setPage(self._page)
-        self.inspector.setPage(self._page)
         self.clear()
         self.setAcceptDrops(False)
+        self.dead_renderer_error_shown = False
+        self.render_process_failed.connect(self.render_process_died)
+
+    def render_process_died(self):
+        if self.dead_renderer_error_shown:
+            return
+        self.dead_renderer_error_shown = True
+        error_dialog(self, _('Render process crashed'), _(
+            'The Qt WebEngine Render process has crashed so Preview/Live CSS will not work.'
+            ' You should try restarting the editor.')
+, show=True)
 
     def sizeHint(self):
         return self._size_hint
 
+    def update_settings(self):
+        dark = is_dark_theme()
+
+        def get_color(name, dark_val):
+            ans = tprefs[name]
+            if ans == 'auto' and dark:
+                ans = dark_val.name()
+            if ans in ('auto', 'unset'):
+                return None
+            return ans
+
+        settings = {
+            'is_dark_theme': dark,
+            'bg': get_color('preview_background', dark_color),
+            'fg': get_color('preview_foreground', dark_text_color),
+            'link': get_color('preview_link_color', dark_link_color),
+        }
+        p = self._page.profile()
+        ua = p.httpUserAgent().split('|')[0] + '|' + json.dumps(settings)
+        p.setHttpUserAgent(ua)
+
     def refresh(self):
-        self.pageAction(self.page().Reload).trigger()
+        self.update_settings()
+        self.pageAction(QWebEnginePage.ReloadAndBypassCache).trigger()
 
-    @dynamic_property
-    def scroll_pos(self):
-        def fget(self):
-            mf = self.page().mainFrame()
-            return (mf.scrollBarValue(Qt.Horizontal), mf.scrollBarValue(Qt.Vertical))
-
-        def fset(self, val):
-            mf = self.page().mainFrame()
-            mf.setScrollBarValue(Qt.Horizontal, val[0])
-            mf.setScrollBarValue(Qt.Vertical, val[1])
-        return property(fget=fget, fset=fset)
+    def set_url(self, qurl):
+        self.update_settings()
+        RestartingWebEngineView.setUrl(self, qurl)
 
     def clear(self):
+        self.update_settings()
         self.setHtml(_(
             '''
             <h3>Live preview</h3>
@@ -393,22 +443,42 @@ class WebView(QWebView):
     def inspect(self):
         self.inspector.parent().show()
         self.inspector.parent().raise_()
-        self.pageAction(self.page().InspectElement).trigger()
+        self.pageAction(QWebEnginePage.InspectElement).trigger()
 
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
-        p = self.page()
-        mf = p.mainFrame()
-        r = mf.hitTestContent(ev.pos())
-        url = unicode(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
-        ca = self.pageAction(QWebPage.Copy)
-        if ca.isEnabled():
-            menu.addAction(ca)
+        data = self._page.contextMenuData()
+        url = data.linkUrl()
+        url = unicode_type(url.toString(NO_URL_FORMATTING)).strip()
+        text = data.selectedText()
+        if text:
+            ca = self.pageAction(QWebEnginePage.Copy)
+            if ca.isEnabled():
+                menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
         menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
         if url.partition(':')[0].lower() in {'http', 'https'}:
-            menu.addAction(_('Open link'), partial(open_url, r.linkUrl()))
+            menu.addAction(_('Open link'), partial(open_url, data.linkUrl()))
+        if data.MediaTypeImage <= data.mediaType() <= data.MediaTypeFile:
+            url = data.mediaUrl()
+            if url.scheme() == FAKE_PROTOCOL:
+                href = url.path().lstrip('/')
+                if href:
+                    c = current_container()
+                    resource_name = c.href_to_name(href)
+                    if resource_name and c.exists(resource_name) and resource_name not in c.names_that_must_not_be_changed:
+                        self.add_open_with_actions(menu, resource_name)
+                        if data.mediaType() == data.MediaTypeImage:
+                            mime = c.mime_map[resource_name]
+                            if mime.startswith('image/'):
+                                menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
         menu.exec_(ev.globalPos())
+
+    def open_with(self, file_name, fmt, entry):
+        self.parent().open_file_with.emit(file_name, fmt, entry)
+
+    def edit_image(self, resource_name):
+        self.parent().edit_file.emit(resource_name)
 
 
 class Preview(QWidget):
@@ -419,19 +489,37 @@ class Preview(QWidget):
     link_clicked = pyqtSignal(object, object)
     refresh_starting = pyqtSignal()
     refreshed = pyqtSignal()
+    live_css_data = pyqtSignal(object)
+    render_process_restarted = pyqtSignal()
+    open_file_with = pyqtSignal(object, object, object)
+    edit_file = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
+        self.stack = QStackedLayout(l)
+        self.stack.setStackingMode(self.stack.StackAll)
+        self.current_sync_retry_count = 0
         self.view = WebView(self)
-        self.view.page().sync_requested.connect(self.request_sync)
-        self.view.page().split_requested.connect(self.request_split)
-        self.view.page().loadFinished.connect(self.load_finished)
+        self.view._page.bridge.request_sync.connect(self.request_sync)
+        self.view._page.bridge.request_split.connect(self.request_split)
+        self.view._page.bridge.live_css_data.connect(self.live_css_data)
+        self.view._page.bridge.bridge_ready.connect(self.on_bridge_ready)
+        self.view._page.loadFinished.connect(self.load_finished)
+        self.view._page.loadStarted.connect(self.load_started)
+        self.view.render_process_restarted.connect(self.render_process_restarted)
+        self.pending_go_to_anchor = None
         self.inspector = self.view.inspector
-        self.inspector.setPage(self.view.page())
-        l.addWidget(self.view)
+        self.stack.addWidget(self.view)
+        self.cover = c = QLabel(_('Loading preview, please wait...'))
+        c.setWordWrap(True)
+        c.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        c.setStyleSheet('QLabel { background-color: palette(window); }')
+        c.setAlignment(Qt.AlignCenter)
+        self.stack.addWidget(self.cover)
+        self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
         self.bar = QToolBar(self)
         l.addWidget(self.bar)
 
@@ -474,18 +562,27 @@ class Preview(QWidget):
         self.search = HistoryLineEdit2(self)
         self.search.initialize('tweak_book_preview_search')
         self.search.setPlaceholderText(_('Search in preview'))
-        self.search.returnPressed.connect(partial(self.find, 'next'))
+        self.search.returnPressed.connect(self.find_next)
         self.bar.addSeparator()
         self.bar.addWidget(self.search)
         for d in ('next', 'prev'):
             ac = actions['find-%s-preview' % d]
-            ac.triggered.connect(partial(self.find, d))
+            ac.triggered.connect(getattr(self, 'find_' + d))
             self.bar.addAction(ac)
 
     def find(self, direction):
-        text = unicode(self.search.text())
-        self.view.findText(text, QWebPage.FindWrapsAroundDocument | (
-            QWebPage.FindBackward if direction == 'prev' else QWebPage.FindFlags(0)))
+        text = unicode_type(self.search.text())
+        self.view._page.findText(text, (
+            QWebEnginePage.FindBackward if direction == 'prev' else QWebEnginePage.FindFlags(0)))
+
+    def find_next(self):
+        self.find('next')
+
+    def find_prev(self):
+        self.find('prev')
+
+    def go_to_anchor(self, anchor):
+        self.view._page.go_to_anchor(anchor)
 
     def request_sync(self, tagname, href, lnum):
         if self.current_name:
@@ -496,30 +593,38 @@ class Preview(QWidget):
                 else:
                     name = c.href_to_name(href, self.current_name) if href else None
                 if name == self.current_name:
-                    return self.view.page().go_to_anchor(urlparse(href).fragment, lnum)
+                    return self.go_to_anchor(urlparse(href).fragment)
                 if name and c.exists(name) and c.mime_map[name] in OEB_DOCS:
                     return self.link_clicked.emit(name, urlparse(href).fragment or TOP)
             self.sync_requested.emit(self.current_name, lnum)
 
     def request_split(self, loc, totals):
+        actions['split-in-preview'].setChecked(False)
+        if not loc or not totals:
+            return error_dialog(self, _('Invalid location'),
+                                _('Cannot split on the body tag'), show=True)
         if self.current_name:
             self.split_requested.emit(self.current_name, loc, totals)
 
+    @property
+    def bridge_ready(self):
+        return self.view._page.bridge.ready
+
     def sync_to_editor(self, name, sourceline_address):
         self.current_sync_request = (name, sourceline_address)
+        self.current_sync_retry_count = 0
         QTimer.singleShot(100, self._sync_to_editor)
 
     def _sync_to_editor(self):
-        if not actions['sync-preview-to-editor'].isChecked():
+        if not actions['sync-preview-to-editor'].isChecked() or self.current_sync_retry_count >= 3000 or self.current_sync_request is None:
             return
-        try:
-            if self.refresh_timer.isActive() or self.current_sync_request[0] != self.current_name:
-                return QTimer.singleShot(100, self._sync_to_editor)
-        except TypeError:
-            return  # Happens if current_sync_request is None
+        if self.refresh_timer.isActive() or not self.bridge_ready or self.current_sync_request[0] != self.current_name:
+            self.current_sync_retry_count += 1
+            return QTimer.singleShot(100, self._sync_to_editor)
         sourceline_address = self.current_sync_request[1]
         self.current_sync_request = None
-        self.view.page().go_to_sourceline_address(sourceline_address)
+        self.current_sync_retry_count = 0
+        self.view._page.go_to_sourceline_address(sourceline_address)
 
     def report_worker_launch_error(self):
         if parse_worker.launch_error is not None:
@@ -539,7 +644,7 @@ class Preview(QWidget):
             self.current_name = name
             self.report_worker_launch_error()
             parse_worker.add_request(name)
-            self.view.setUrl(self.name_to_qurl())
+            self.view.set_url(self.name_to_qurl())
             return True
 
     def refresh(self):
@@ -554,7 +659,7 @@ class Preview(QWidget):
             self.refresh_starting.emit()
             if current_url != self.view.url():
                 # The container was changed
-                self.view.setUrl(current_url)
+                self.view.set_url(current_url)
             else:
                 self.view.refresh()
             self.refreshed.emit()
@@ -608,29 +713,48 @@ class Preview(QWidget):
         if checked:
             self.split_start_requested.emit()
         else:
-            self.view.page().split_mode(False)
+            self.view._page.split_mode(False)
 
     def do_start_split(self):
-        self.view.page().split_mode(True)
+        self.view._page.split_mode(True)
 
     def stop_split(self):
         actions['split-in-preview'].setChecked(False)
 
+    def load_started(self):
+        self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
+
+    def on_bridge_ready(self):
+        self.stack.setCurrentIndex(self.stack.indexOf(self.view))
+
     def load_finished(self, ok):
+        self.stack.setCurrentIndex(self.stack.indexOf(self.view))
+        if self.pending_go_to_anchor:
+            self.view._page.go_to_anchor(self.pending_go_to_anchor)
+            self.pending_go_to_anchor = None
         if actions['split-in-preview'].isChecked():
             if ok:
                 self.do_start_split()
             else:
                 self.stop_split()
 
+    def request_live_css_data(self, editor_name, sourceline, tags):
+        if self.view._page.bridge.ready:
+            self.view._page.bridge.live_css(editor_name, sourceline, tags)
+
     def apply_settings(self):
-        s = self.view.page().settings()
+        s = self.view.settings()
         s.setFontSize(s.DefaultFontSize, tprefs['preview_base_font_size'])
         s.setFontSize(s.DefaultFixedFontSize, tprefs['preview_mono_font_size'])
         s.setFontSize(s.MinimumLogicalFontSize, tprefs['preview_minimum_font_size'])
         s.setFontSize(s.MinimumFontSize, tprefs['preview_minimum_font_size'])
-        sf, ssf, mf = tprefs['preview_serif_family'], tprefs['preview_sans_family'], tprefs['preview_mono_family']
-        s.setFontFamily(s.StandardFont, {'serif':sf, 'sans':ssf, 'mono':mf, None:sf}[tprefs['preview_standard_font_family']])
-        s.setFontFamily(s.SerifFont, sf)
-        s.setFontFamily(s.SansSerifFont, ssf)
-        s.setFontFamily(s.FixedFont, mf)
+        sf, ssf, mf = tprefs['engine_preview_serif_family'], tprefs['engine_preview_sans_family'], tprefs['engine_preview_mono_family']
+        if sf:
+            s.setFontFamily(s.SerifFont, sf)
+        if ssf:
+            s.setFontFamily(s.SansSerifFont, ssf)
+        if mf:
+            s.setFontFamily(s.FixedFont, mf)
+        stdfnt = tprefs['preview_standard_font_family'] or 'serif'
+        stdfnt = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[stdfnt])
+        s.setFontFamily(s.StandardFont, s.fontFamily(stdfnt))

@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -30,8 +30,8 @@ class RescaleImages(object):
             page_width, page_height = self.opts.dest.comic_screen_size
         else:
             page_width, page_height = self.opts.dest.width, self.opts.dest.height
-            page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72.
-            page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72.
+            page_width -= (self.opts.margin_left + self.opts.margin_right) * self.opts.dest.dpi/72
+            page_height -= (self.opts.margin_top + self.opts.margin_bottom) * self.opts.dest.dpi/72
 
         for item in self.oeb.manifest:
             if item.media_type.startswith('image'):

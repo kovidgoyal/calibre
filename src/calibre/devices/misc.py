@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -238,7 +238,7 @@ class TREKSTOR(USBMS):
             0x0067,  # This is for the Pyrus Mini
             0x006f,  # This is for the Pyrus Maxi
             0x003e,  # This is for the EBOOK_PLAYER_5M https://bugs.launchpad.net/bugs/792091
-            0x05cL,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
+            0x05c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=191318
             0x006c,  # This is for the 4ink https://www.mobileread.com/forums/showthread.php?t=218273
             0x006d,  # Another Pyrus? https://www.mobileread.com/forums/showthread.php?t=231982
             0x73,    # This is for the Pyrus 2 LED https://bugs.launchpad.net/bugs/1376018
@@ -525,14 +525,14 @@ class POCKETBOOK626(USBMS):
 
     name  = 'PocketBook Touch Lux 2'
     gui_name = 'PocketBook'
-    description    = _('Communicate with the PocketBook Touch Lux 2 reader')
+    description    = _('Communicate with the PocketBook Touch Lux 2 and Inkpad X readers')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
     # Ordered list of supported formats
     FORMATS     = ['epub', 'pdf', 'fb2', 'txt', 'pdf', 'html', 'djvu', 'doc', 'docx', 'rtf', 'chm']
     VENDOR_ID   = [0xfffe]
     PRODUCT_ID  = [0x0001]
-    BCD         = [0x0230]
+    BCD         = [0x0230, 0x101]
 
     EBOOK_DIR_MAIN = 'Books'
     SCAN_FROM_ROOT = True

@@ -1,5 +1,6 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from lxml import etree
 
 
 class Ekathimerini(BasicNewsRecipe):
@@ -41,12 +42,10 @@ class Ekathimerini(BasicNewsRecipe):
 
     def parse_index(self):
         idx_contents = self.browser.open(self.rss_url).read()
-        idx = BeautifulStoneSoup(
-            idx_contents, convertEntities=BeautifulStoneSoup.XML_ENTITIES)
+        idx = etree.fromstring(idx_contents, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
 
-        cats = list(set([self.tag_to_string(subcat)
-                         for subcat in idx.findAll('subcat')]))
-        cats.sort()
+        cats = sorted({self.tag_to_string(subcat)
+                         for subcat in idx.xpath('//*[local-name()="subcat"]')})
 
         feeds = [(u'News', list(self.find_articles(idx, u'')))]
 

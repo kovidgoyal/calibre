@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -11,8 +10,9 @@ from functools import partial
 from contextlib import closing
 
 from calibre import detect_ncpus as cpu_count
+from polyglot.builtins import range
 
-DEBUG, INFO, WARN, ERROR, CRITICAL = xrange(5)
+DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
 
 
 class BaseError(object):
@@ -55,4 +55,3 @@ def run_checkers(func, args_list):
                 raise Exception('Failed to run worker: \n%s' % tb)
             ans.extend(result)
     return ans
-

@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 '''
@@ -28,10 +28,16 @@ class ScienceNewsIssue(BasicNewsRecipe):
     auto_cleanup = False
 
     keep_only_tags = [
-        dict(name="h1", attrs={'itemprop': 'headline'}),
-        dict(name="div", attrs={'property': 'rnews:articlebody schema:articleBody'}),
-        dict(name="div", attrs={'itemprop': 'author'}),
+        dict(attrs={'class': lambda x: x and (
+            'single__content___' in x or 'header-default__title___' in x or
+            'header-default__deck___' in x or 'header-default__figure___' in x
+        )})
+    ]
+    remove_tags = [
+        dict(attrs={'class': lambda x: x and (
+            'newsletter-signup__wrapper___' in x
+        )})
     ]
 
     feeds = [(u"Science News Headlines",
-              u'https://www.sciencenews.org/feeds/headlines.rss')]
+              u'https://www.sciencenews.org/feed')]

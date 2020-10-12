@@ -1,3 +1,4 @@
+from __future__ import print_function
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -41,7 +42,7 @@ class AdvancedUserRecipe1390146870(BasicNewsRecipe):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:
-                print 'article.title is: ', article.title
+                print('article.title is: ', article.title)
                 if 'VIDEO:' in article.title.upper():
                     feed.articles.remove(article)
 

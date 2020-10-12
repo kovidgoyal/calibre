@@ -1,3 +1,5 @@
+
+
 # Copyright (C) 2003-2006 Red Hat Inc. <http://www.redhat.com/>
 # Copyright (C) 2003 David Zeuthen
 # Copyright (C) 2004 Rob Taylor
@@ -24,8 +26,6 @@
 # DEALINGS IN THE SOFTWARE.
 #
 
-from __future__ import absolute_import
-
 __all__ = ('BusName', 'Object', 'PropertiesInterface', 'method', 'dbus_property', 'signal')
 __docformat__ = 'restructuredtext'
 
@@ -44,7 +44,8 @@ from dbus.exceptions import (
     DBusException, NameExistsException, UnknownMethodException)
 from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
-is_py2 = sys.version_info.major == 2
+
+from polyglot.builtins import itervalues, zip, native_string_type
 
 
 class dbus_property(object):
@@ -141,6 +142,7 @@ class dbus_property(object):
     def setter(self, fset):
         return self._copy(fset=fset)
 
+
 _logger = logging.getLogger('dbus.service')
 
 
@@ -158,9 +160,6 @@ class _VariantSignature(object):
     def __next__(self):
         """Return 'v' whenever called."""
         return 'v'
-
-    if is_py2:
-        next = __next__
 
 
 class BusName(object):
@@ -499,7 +498,7 @@ class InterfaceType(type):
 
 # Define Interface as an instance of the metaclass InterfaceType, in a way
 # that is compatible across both Python 2 and Python 3.
-Interface = InterfaceType('Interface', (object,), {})
+Interface = InterfaceType(native_string_type('Interface'), (object,), {})
 
 
 class PropertiesInterface(Interface):
@@ -518,7 +517,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("Name %s on object interface %s is not a property" % (property_name, interface_name))
             return prop
         else:
-            for interface in interfaces.itervalues():
+            for interface in itervalues(interfaces):
                 prop = interface.get(property_name)
                 if prop and isinstance(prop, dbus_property):
                     return prop
@@ -558,7 +557,7 @@ class PropertiesInterface(Interface):
                 raise DBusException("No interface %s on object" % interface_name)
             ifaces = [iface]
         else:
-            ifaces = interfaces.values()
+            ifaces = list(interfaces.values())
         properties = {}
         for iface in ifaces:
             for name, prop in iface.items():
@@ -600,7 +599,7 @@ class Object(Interface):
                 self.LastInputChanged(var)      # emits the signal
                 # Emit the property changed signal
                 self.PropertiesChanged('com.example.Sample', {'LastInput': var}, [])
-                return str(var)
+                return unicode_type(var)
 
             @dbus.service.signal(interface='com.example.Sample',
                                  signature='v')

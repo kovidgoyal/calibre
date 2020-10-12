@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,6 +14,8 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
+from calibre.utils.icu import primary_sort_key
+from polyglot.builtins import unicode_type, range
 
 
 class DuplicatesQuestion(QDialog):
@@ -62,19 +63,19 @@ class DuplicatesQuestion(QDialog):
         self.resize(self.sizeHint())
         geom = gprefs.get('duplicates-question-dialog-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         self.exec_()
 
     def copy_to_clipboard(self):
         QApplication.clipboard().setText(self.as_text)
 
     def select_all(self):
-        for i in xrange(self.dup_list.topLevelItemCount()):
+        for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             x.setCheckState(0, Qt.Checked)
 
     def select_none(self):
-        for i in xrange(self.dup_list.topLevelItemCount()):
+        for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             x.setCheckState(0, Qt.Unchecked)
 
@@ -119,12 +120,18 @@ class DuplicatesQuestion(QDialog):
 
             add_child(_('Already in calibre:')).setData(0, Qt.FontRole, itf)
 
+            author_text = {}
             for book_id in matching_books:
-                aut = [a.replace('|', ',') for a in (db.authors(book_id,
-                    index_is_id=True) or '').split(',')]
+                author_text[book_id] = authors_to_string([a.replace('|', ',') for a in (db.authors(book_id,
+                    index_is_id=True) or '').split(',')])
+
+            def key(x):
+                return primary_sort_key(unicode_type(author_text[x]))
+
+            for book_id in sorted(matching_books, key=key):
                 add_child(ta%dict(
                     title=db.title(book_id, index_is_id=True),
-                    author=authors_to_string(aut),
+                    author=author_text[book_id],
                     formats=db.formats(book_id, index_is_id=True,
                                        verify_formats=False)))
             add_child('')
@@ -133,7 +140,7 @@ class DuplicatesQuestion(QDialog):
 
     @property
     def duplicates(self):
-        for i in xrange(self.dup_list.topLevelItemCount()):
+        for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             if x.checkState(0) == Qt.Checked:
                 yield x.data(0, Qt.UserRole)
@@ -141,13 +148,13 @@ class DuplicatesQuestion(QDialog):
     @property
     def as_text(self):
         entries = []
-        for i in xrange(self.dup_list.topLevelItemCount()):
+        for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
             check = '✓' if x.checkState(0) == Qt.Checked else '✗'
-            title = '%s %s' % (check, unicode(x.text(0)))
+            title = '%s %s' % (check, unicode_type(x.text(0)))
             dups = []
-            for child in (x.child(j) for j in xrange(x.childCount())):
-                dups.append('\t' + unicode(child.text(0)))
+            for child in (x.child(j) for j in range(x.childCount())):
+                dups.append('\t' + unicode_type(child.text(0)))
             entries.append(title + '\n' + '\n'.join(dups))
         return '\n\n'.join(entries)
 
@@ -160,4 +167,4 @@ if __name__ == '__main__':
     db = db()
     d = DuplicatesQuestion(db, [(M('Life of Pi', ['Yann Martel']), None, None),
                             (M('Heirs of the blade', ['Adrian Tchaikovsky']), None, None)])
-    print (tuple(d.duplicates))
+    print(tuple(d.duplicates))

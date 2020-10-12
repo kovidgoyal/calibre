@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -20,5 +22,3 @@ class BookView(QGraphicsView):
 
     def resize_for(self, width, height):
         self.preferred_size = QSize(width, height)
-
-

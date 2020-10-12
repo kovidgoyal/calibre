@@ -6,9 +6,10 @@
 %Import QtWidgets/QtWidgetsmod.sip
 
 %ModuleHeaderCode
-int load_style(QHash<int,QString> icon_map);
+#include <QPainter>
+int load_style(QHash<int,QString> icon_map, int transient_scroller);
 void set_no_activate_on_click(QWidget *widget);
-void set_touch_menu_style(QWidget *widget, int margin);
+void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
 %End
 
 class QProgressIndicator : QWidget {
@@ -19,34 +20,33 @@ class QProgressIndicator : QWidget {
 
 public:
 
-    QProgressIndicator(QWidget *parent /TransferThis/ = 0, int size = 64);
+    QProgressIndicator(QWidget *parent /TransferThis/ = 0, int size = 64, int interval = 10);
 
     int animationDelay() const;
 
     bool isAnimated () const;
 
-    bool isDisplayedWhenStopped() const;
-
-    const QColor & color() const;
-
     virtual QSize sizeHint() const;
 
     int heightForWidth(int w) const;
     
-    int displaySize() const;
+    QSize displaySize() const;
 
 public slots:
     void startAnimation();
+	void start();
 
     void stopAnimation();
+	void stop();
 
     void setAnimationDelay(int delay);
 
-    void setDisplayedWhenStopped(bool state);
+    void set_colors(const QColor & dark, const QColor & light);
 
-    void setColor(const QColor & color);
-
+    void setDisplaySize(QSize size);
     void setDisplaySize(int size);
+    void setSizeHint(int size);
+    void setSizeHint(QSize size);
 
 protected:
     
@@ -56,6 +56,6 @@ protected:
 
 };
 
-int load_style(QHash<int,QString> icon_map);
+int load_style(QHash<int,QString> icon_map, int transient_scroller);
 void set_no_activate_on_click(QWidget *widget);
-void set_touch_menu_style(QWidget *widget, int margin=20);
+void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark) /ReleaseGIL/;

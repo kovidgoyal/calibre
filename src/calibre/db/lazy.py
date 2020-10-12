@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,6 +14,7 @@ from copy import deepcopy
 from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.utils.date import utcnow
+from polyglot.builtins import unicode_type, native_string_type
 
 # Lazy format metadata retrieval {{{
 '''
@@ -38,7 +38,7 @@ class MutableBase(object):
 
     @resolved
     def __str__(self):
-        return str(self._values)
+        return native_string_type(self._values)
 
     @resolved
     def __repr__(self):
@@ -46,7 +46,7 @@ class MutableBase(object):
 
     @resolved
     def __unicode__(self):
-        return unicode(self._values)
+        return unicode_type(self._values)
 
     @resolved
     def __len__(self):
@@ -104,6 +104,7 @@ class FormatsList(MutableBase, MutableSequence):
         self._values.insert(idx, val)
 
 # }}}
+
 
 # Lazy metadata getters {{{
 ga = object.__getattribute__
@@ -222,6 +223,7 @@ def has_cover_getter(dbref, book_id, cache):
         cache['has_cover'] = ret = _('Yes') if db.field_for('cover', book_id, default_value=False) else ''
         return ret
 
+
 fmt_custom = lambda x:list(x) if isinstance(x, tuple) else x
 
 
@@ -274,6 +276,7 @@ def user_categories_getter(proxy_metadata):
         book_id = ga(proxy_metadata, '_book_id')
         ret = cache['user_categories'] = db.user_categories_for_books((book_id,), {book_id:proxy_metadata})[book_id]
         return ret
+
 
 getters = {
     'title':simple_getter('title', _('Unknown')),
@@ -389,7 +392,7 @@ class ProxyMetadata(Metadata):
 
     def all_field_keys(self):
         um = ga(self, '_user_metadata')
-        return frozenset(ALL_METADATA_FIELDS.union(um.iterkeys()))
+        return frozenset(ALL_METADATA_FIELDS.union(frozenset(um)))
 
     @property
     def _proxy_metadata(self):

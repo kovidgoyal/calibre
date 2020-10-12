@@ -48,7 +48,7 @@ Advanced formatting
 
 You can do more than just simple substitution with the templates. You can also conditionally include text and control how the substituted data is formatted.
 
-First, conditionally including text. There are cases where you might want to have text appear in the output only if a field is not empty. A common case is ``series`` and ``series_index``, where you want either nothing or the two values with a hyphen between them. Calibre handles this case using a special field syntax.
+First, conditionally including text. There are cases where you might want to have text appear in the output only if a field is not empty. A common case is ``series`` and ``series_index``, where you want either nothing or the two values with a hyphen between them. calibre handles this case using a special field syntax.
 
 For example, assume you want to use the template::
 
@@ -84,7 +84,7 @@ If you want only the first two letters of the data, use::
 
    {author_sort:.2} - Only the first two letter of the author sort name
 
-The calibre template language comes from Python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/2/library/string.html#format-string-syntax>`_.
+The calibre template language comes from Python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/library/string.html#format-string-syntax>`_.
 
 Advanced features
 ------------------
@@ -107,7 +107,7 @@ Function references appear in the format part, going after the ``:`` and before 
 
 Functions are always applied before format specifications. See further down for an example of using both a format and a function, where this order is demonstrated.
 
-The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Arguments are separated by commas. Commas inside arguments must be preceeded by a backslash ( '\\' ). The last (or only) argument cannot contain a closing parenthesis ( ')' ). Functions return the value of the field used in the template, suitably modified.
+The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Arguments are separated by commas. Commas inside arguments must be preceded by a backslash ( ``\`` ). The last (or only) argument cannot contain a closing parenthesis ( ``)`` ). Functions return the value of the field used in the template, suitably modified.
 
 Important: If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. **Do not use subtemplates (`{ ... }`) as function arguments.** Instead, use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>`.
 
@@ -123,14 +123,15 @@ The functions available are listed below. Note that the definitive documentation
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items in the list. Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`
     * ``format_number(template)`` -- interprets the field as a number and format that number using a Python formatting template such as "{0:5.2f}" or "{0:,d}" or "${0:5,.2f}". The field_name part of the template must be a 0 (zero) (the "{0:" in the above examples). You can leave off the leading "{0:" and trailing "}" if the template contains only a format. See the template language and Python documentation for more examples. Returns the empty string if formatting fails.
     * ``human_readable()`` -- expects the value to be a number and returns a string representing that number in KB, MB, GB, etc.
-    * ``ifempty(text)``	-- if the field is not empty, return the value of the field. Otherwise return `text`.
+    * ``ifempty(text)`` -- if the field is not empty, return the value of the field. Otherwise return `text`.
     * ``in_list(separator, pattern, found_val, ..., not_found_val)`` -- interpret the field as a list of items separated by `separator`, evaluating the `pattern` against each value in the list. If the `pattern` matches a value, return `found_val`, otherwise return `not_found_val`. The `pattern` and `found_value` can be repeated as many times as desired, permitting returning different values depending on the search. The patterns are checked in order. The first match is returned.
     * ``language_codes(lang_strings)`` -- return the language codes for the strings passed in `lang_strings`. The strings must be in the language of the current locale. `Lang_strings` is a comma-separated list.
     * ``language_strings(lang_codes, localize)`` -- return the strings for the language codes passed in `lang_codes`. If `localize` is zero, return the strings in English. If localize is not zero, return the strings in the language of the current locale. `Lang_codes` is a comma-separated list.
     * ``list_item(index, separator)`` -- interpret the field as a list of items separated by `separator`, returning the `index`th item. The first item is number zero. The last item can be returned using `list_item(-1,separator)`. If the item is not in the list, then the empty value is returned. The separator has the same meaning as in the `count` function.
     * ``lookup(pattern, field, pattern, field, ..., else_field)`` -- like switch, except the arguments are field (metadata) names, not text. The value of the appropriate field will be fetched and used. Note that because composite columns are fields, you can use this function in one composite field to use the value of some other composite field. This is extremely useful when constructing variable save paths (more later).
+    * ``rating_to_stars(use_half_stars)`` -- Returns the rating as string of star characters. The source value must be a number between 0 and 5. Set use_half_stars to 1 if you want half star characters for custom ratings columns that are not integers, for example 2.5.
     * ``re(pattern, replacement)`` -- return the field after applying the regular expression. All instances of `pattern` are replaced with `replacement`. As in all of calibre, these are Python-compatible regular expressions.
-    * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an isbn from the set of identifiers for a book.
+    * ``select(key)`` -- interpret the field as a comma-separated list of items, with the items being of the form "id:value". Find the pair with the id equal to key, and return the corresponding value. This function is particularly useful for extracting a value such as an ISBN from the set of identifiers for a book.
     * ``shorten(left chars, middle text, right chars)`` -- Return a shortened version of the field, consisting of `left chars` characters from the beginning of the field, followed by `middle text`, followed by `right chars` characters from the end of the string. `Left chars` and `right chars` must be integers. For example, assume the title of the book is `Ancient English Laws in the Times of Ivanhoe`, and you want it to fit in a space of at most 15 characters. If you use ``{title:shorten(9,-,5)}``, the result will be `Ancient E-nhoe`. If the field's length is less than ``left chars`` + ``right chars`` + the length of ``middle text``, then the field will be used intact. For example, the title `The Dome` would not be changed.
     * ``str_in_list(separator, string, found_val, ..., not_found_val)`` -- interpret the field as a list of items separated by `separator`, comparing the `string` against each value in the list. If the `string` matches a value (ignoring case), return `found_val`, otherwise return `not_found_val`. If the string contains separators, then it is also treated as a list and each value is checked. The `string` and `found_value` can be repeated as many times as desired, permitting returning different values depending on the search. The strings are checked in order. The first match is returned.
     * ``subitems(start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the field as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the components from `start_index` to `end_index`, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
@@ -149,6 +150,7 @@ The functions available are listed below. Note that the definitive documentation
         {tags:sublist(-1,0,\,)} returns "C"
         {tags:sublist(0,-1,\,)} returns "A, B"
 
+    * ``swap_around_articles(separator)`` -- returns the val with articles moved to the end. The value can be a list, in which case each member of the list is processed. If the value is a list then you must provide the list value separator. If no separator is provided then the value is treated as being a single value, not a list.
     * ``swap_around_comma()`` -- given a field with a value of the form ``B, A``, return ``A B``. This is most useful for converting names in LN, FN format to FN LN. If there is no comma, the function returns val unchanged.
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not empty, otherwise return `text if empty`.
@@ -183,21 +185,25 @@ The example shows several things:
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
 
-The language is similar to ``functional`` languages in that it is built almost entirely from functions. A statement is a function. An expression is a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
+The language is similar to ``functional`` languages in that it is built almost entirely from functions. An expression is generally a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
 
-The syntax of the language is shown by the following grammar::
+The syntax of the language is shown by the following grammar. For a discussion of 'compare','if_expression', and 'template_call' see :ref:`General Program Mode <general_mode>`:::
 
-    constant   ::= " string " | ' string ' | number
-    identifier ::= sequence of letters or ``_`` characters
-    function   ::= identifier ( statement [ , statement ]* )
-    expression ::= identifier | constant | function | assignment
-    assignment ::= identifier '=' expression
-    statement  ::= expression [ ; expression ]*
-    program    ::= statement
+    program         ::= expression_list
+    expression_list ::= expression [ ';' expression ]*
+    expression      ::= identifier | constant | function | assignment | compare | if_expression
+    function        ::= identifier '(' expression [ ',' expression ]* ')'
+    compare         ::= expression compare_op expression
+    compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
+    if_expression   ::= 'if' expression 'then' expression_list [elif_expression] ['else' expression_list] 'fi'
+    elif_expression ::= 'elif' expression 'then' expression_list elif_expression | ''
+    assignment      ::= identifier '=' expression
+    constant        ::= " string " | ' string ' | number
+    identifier      ::= sequence of letters or ``_`` characters
 
 Comments are lines with a '#' character at the beginning of the line.
 
-An ``expression`` always has a value, either the value of the constant, the value contained in the identifier, or the value returned by a function. The value of a ``statement`` is the value of the last expression in the sequence of statements. As such, the value of the program (statement)::
+An ``expression`` without errors always has a value. The value of an ``expression_list`` is the value of the last expression in the list. As such, the value of the program (expression_list)::
 
     1; 2; 'foobar'; 3
 
@@ -242,13 +248,40 @@ The following functions are available in addition to those described in single-f
     * ``author_links(val_separator, pair_separator)`` -- returns a string containing a list of authors and that author's link values in the form ``author1 val_separator author1link pair_separator author2 val_separator author2link`` etc. An author is separated from its link value by the ``val_separator`` string with no added spaces. ``author:linkvalue`` pairs are separated by the ``pair_separator`` string argument with no added spaces. It is up to you to choose separator strings that do not occur in author names or links. An author is included even if the author link is empty.
     * ``author_sorts(val_separator)`` -- returns a string containing a list of author's sort values for the authors of the book. The sort is the one in the author metadata (different from the author_sort in books). The returned list has the form author sort 1 ``val_separator`` author sort 2 etc. The author sort values in this list are in the same order as the authors of the book. If you want spaces around ``val_separator`` then include them in the separator string
     * ``booksize()`` -- returns the value of the calibre 'size' field. Returns '' if there are no formats.
+    * ``check_yes_no(field_name, is_undefined, is_false, is_true)`` -- checks the value of the yes/no field named by the lookup key ``field_name`` for a value specified by the parameters, returning "yes" if a match is found, otherwise returning an empty string. Set the parameter ``is_undefined``, ``is_false``, or ``is_true`` to 1 (the number) to check that condition, otherwise set it to 0. Example::
+
+            check_yes_no("#bool", 1, 0, 1)
+
+      returns "yes" if the yes/no field ``"#bool"`` is either undefined (neither True nor False) or True. More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.  This function is usually used by the ``test()`` or ``is_empty()`` functions.
+    * ``ceiling(x)`` -- returns the smallest integer greater than or equal to x. Throws an exception if x is not a number.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
+    * ``connected_device_name(storage_location)`` -- if a device is connected then return the device name, otherwise return the empty string. Each storage location on a device can have a different name. The location names are 'main', 'carda' and 'cardb'. This function works only in the GUI.
     * ``current_library_name()`` -- return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
     * ``current_library_path()`` -- return the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_path()'}``.
     * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
     * ``field(name)`` -- returns the metadata field named by ``name``.
+    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
+      prefix, and suffix to a value in the same way as done in a template like
+      ``{series_index:05.2f| - |- }``. This function is provided to ease
+      conversion of complex single-function- or template-program-mode templates
+      to :ref:`general program mode <general_mode>` (see below) to take
+      advantage of GPM template compilation. For example, the following program
+      produces the same output as the above template::
+
+            program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
+
+
+      Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
+
+            program:
+                strcat(
+                    re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
+                    finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
+                    field('title')
+                )
+
     * ``first_matching_cmp(val, cmp1, result1, cmp2, r2, ..., else_result)`` -- compares ``val < cmpN`` in sequence, returning resultN for the first comparison that succeeds. Returns else_result if no comparison succeeds. Example::
 
             first_matching_cmp(10,5,"small",10,"middle",15,"large","giant")
@@ -257,7 +290,7 @@ The following functions are available in addition to those described in single-f
       returns "large". The same example with a first value of 16 returns "giant".
 
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
-
+    * ``floor(x)`` -- returns the largest integer less than or equal to x. Throws an exception if x is not a number.
     * ``format_date(val, format_string)`` -- format the value, which must be a date
       field, using the format_string, returning a string. The formatting codes
       are::
@@ -284,32 +317,12 @@ The following functions are available in addition to those described in single-f
 
 
       You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain ``MMMM``. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using template program mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
-
-    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
-      prefix, and suffix to a value in the same way as done in a template like
-      ``{series_index:05.2f| - |- }``. This function is provided to ease
-      conversion of complex single-function- or template-program-mode templates
-      to :ref:`general program mode <general_mode>` (see below) to take
-      advantage of GPM template compilation. For example, the following program
-      produces the same output as the above template::
-
-            program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
-
-
-      Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
-
-            program:
-                strcat(
-                    re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
-                    finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
-                    field('title')
-                )
-
     * ``formats_modtimes(format_string)`` -- return a comma-separated list of colon-separated items representing modification times for the formats of a book. The format_string parameter specifies how the date is to be formatted. See the `format_date()` function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_paths()`` -- return a comma-separated list of colon-separated items representing full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_sizes()`` -- return a comma-separated list of colon-separated items representing sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
+    * ``fractional_part(x)`` -- returns the value after the decimal point. For example, fractional_part(3.14) returns 0.14. Throws an exception if x is not a number.
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string
-    * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty. 
+    * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well with test or first_non_empty.
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from `list1` any item found in `list2`, using a case-insensitive comparison. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
     * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return `yes_val` if `list1` and `list2` contain the same items, otherwise return `no_val`. The items are determined by splitting each list using the appropriate separator character (`sep1` or `sep2`). The order of items in the lists is not relevant. The comparison is case-insensitive.
     * ``list_intersection(list1, list2, separator)`` -- return a list made by removing from `list1` any item not found in `list2`, using a case-insensitive comparison. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
@@ -317,6 +330,7 @@ The following functions are available in addition to those described in single-f
     * ``list_re_group(src_list, separator, include_re, search_re, template_for_group_1, for_group_2, ...)`` -- Like list_re except replacements are not optional. It uses re_group(item, search_re, template ...) when doing the replacements.
     * ``list_sort(list, direction, separator)`` -- return list sorted using a case-insensitive sort. If `direction` is zero, the list is sorted ascending, otherwise descending. The list items are separated by separator, as are the items in the returned list.
     * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in list1 and list2, removing duplicate items using a case-insensitive comparison. If items differ in case, the one in list1 is used. The items in list1 and list2 are separated by separator, as are the items in the returned list.
+    * ``mod(x)`` -- returns the remainder of x / y, where x, y, and the result are integers. Throws an exception if either x or y is not a number.
     * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
     * ``ondevice()`` -- return the string "Yes" if ondevice is set, otherwise return the empty string
     * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
@@ -327,6 +341,7 @@ The following functions are available in addition to those described in single-f
 
         {series:'re_group($, "(\S* )(.*)", "[[$:uppercase()]]", "[[$]]")'}
 
+    * ``round(x)`` -- returns the nearest integer to x. Throws an exception if x is not a number.
     * ``series_sort()`` -- returns the series sort value.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
     * ``strcat_max(max, string1, prefix2, string2, ...)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to string1. `Prefix, string` pairs are added to the end of the value as long as the resulting string length is less than `max`. String1 is returned even if string1 is longer than max. You can pass as many `prefix, string` pairs as you wish.
@@ -355,7 +370,64 @@ Using general program mode
 
 For more complicated template programs, it is sometimes easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classical-looking program. You can do this in calibre by beginning the template with `program:`. In this case, no template processing is done. The special variable `$` is not set. It is up to your program to produce the correct results.
 
-One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is that program mode templates are compiled to Python and can run much faster than  templates in the other two modes. Speed improvement depends on the complexity of the templates; the more complicated the template the more the improvement. Compilation is turned off or on using the tweak ``compile_gpm_templates`` (Compile General Program Mode templates to Python). The main reason to turn off compilation is if a compiled template does not work, in which case please file a bug report.
+One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is readability.
+
+Both General and Template Program Modes support if tests with the following syntax:
+    * ``if`` <<expression>> ``then`` <<expression_list>> [ ``else`` <<expression_list>> ] ``fi``.
+The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are reserved. You cannot use them as identifier names. You can put newlines and white space wherever they make sense. <<expression>> is one template language expression. Semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
+    * ``program: if field('series') then 'yes' else 'no' fi``
+    * ``program: if field('series') then a = 'yes'; b = 'no' else a = 'no'; b='yes' fi; strcat(a, '-', b)``
+    * Nested ``if`` example::
+
+        program:
+            if field('series')
+            then
+                if check_yes_no(field('#mybool'), '', '', '1')
+                then
+                    'yes'
+                else
+                    'no'
+                fi
+            else
+                'no series'
+            fi
+
+An ``if`` produces a value like any other language expression. This means that all the following are valid:
+    * ``program: if field('series') then 'foo' else 'bar' fi``
+    * ``program: if field('series') then a = 'foo' else a = 'bar' fi; a``
+    * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
+    * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
+
+Program mode also supports the classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, '' otherwise. They do case-insensitive string comparison using lexical order. Examples:
+    * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
+    * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
+    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
+    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
+
+General Program Mode supports saving General Program Mode templates and calling those templates from another template. You save
+templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
+a template the same way you call a function, passing positional arguments if desired. An argument can be any expression.
+Examples of calling a template, assuming the stored template is named ``foo``:
+
+    * ``foo()`` -- call the template passing no arguments.
+    * ``foo(a, b)`` call the template passing the values of the two variables ``a`` and ``b``.
+    * ``foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the             ``series_index``, otherwise pass the value ``0``.
+
+In the stored template you retrieve the arguments passed in the call using the ``arguments`` function. It both declares and
+initializes local variables. The variables are positional; they get the value of the value given in the call in the same position.
+If the corresponding parameter is not provided in the call then ``arguments`` gives that parameter the provided default value. If there is no default value then the argument is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
+
+            ``arguments(key, alternate='series')
+
+Examples, again assuming the stored template is named ``foo``:
+
+    * ``foo('#myseries')`` -- argument ``key`` will have the value ``myseries`` and the argument ``alternate`` will have the value ``series``.
+    * ``foo('series', '#genre')`` the variable ``key`` is assigned the value ``series`` and the variable ``alternate`` is assigned the value ``#genre``.
+    * ``foo()`` -- the variable ``key`` is assigned the empty string and the variable ``alternate`` is assigned the value ``#genre``.
+
+An easy way to test stored templates is using the ``Template tester`` dialog. Give it a keyboard shortcut in
+:guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a
+shortcut will help switching more rapidly between the tester and editing the stored template's source code.
 
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 
@@ -438,10 +510,10 @@ The following program produces the same results as the original recipe, using on
 It would be possible to do the above with no custom columns by putting the program into the template box of the plugboard. However, to do so, all comments must be removed because the plugboard text box does not support multi-line editing. It is debatable whether the gain of not having the custom column is worth the vast increase in difficulty caused by the program being one giant line.
 
 
-User-defined template functions
--------------------------------
+User-defined Python template functions
+------------------------------------------
 
-You can add your own functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to Preferences -> Advanced -> Template functions. Instructions are shown in that dialog.
+You can add your own Python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
 
 Special notes for save/send templates
 -------------------------------------
@@ -495,4 +567,3 @@ You might find the following tips useful.
   :hidden:
 
   generated/en/template_ref
-

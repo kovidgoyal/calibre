@@ -1,15 +1,16 @@
+
 __license__   = 'GPL v3'
 __copyright__ = '2010-2012, , Timothy Legge <timlegge at gmail.com> and David Forrester <davidfor@internode.on.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time, sys
+from functools import cmp_to_key
 
 from calibre.constants import preferred_encoding, DEBUG
-from calibre import isbytestring, force_unicode
-from calibre.utils.icu import sort_key
+from calibre import isbytestring
 
-from calibre.devices.usbms.books import Book as Book_
-from calibre.devices.usbms.books import CollectionsBookList
+from calibre.ebooks.metadata.book.base import Metadata
+from calibre.devices.usbms.books import Book as Book_, CollectionsBookList, none_cmp
 from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
@@ -20,12 +21,15 @@ class Book(Book_):
     def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,
                  thumbnail_name=None, size=None, other=None):
         from calibre.utils.date import parse_date
-#        debug_print('Book::__init__ - title=', title)
+#         debug_print('Book::__init__ - title=', title)
         show_debug = title is not None and title.lower().find("xxxxx") >= 0
+        if other is not None:
+            other.title = title
+            other.published_date = date
         if show_debug:
             debug_print("Book::__init__ - title=", title, 'authors=', authors)
             debug_print("Book::__init__ - other=", other)
-        Book_.__init__(self, prefix, lpath, size, other)
+        super(Book, self).__init__(prefix, lpath, size, other)
 
         if title is not None and len(title) > 0:
             self.title = title
@@ -58,12 +62,15 @@ class Book(Book_):
                             except:
                                 self.datetime = time.gmtime()
 
+        self.kobo_metadata = Metadata(title, self.authors)
         self.contentID          = None
         self.current_shelves    = []
         self.kobo_collections   = []
-        self.kobo_series        = None
-        self.kobo_series_number = None
         self.can_put_on_shelves = True
+        self.kobo_series        = None
+        self.kobo_series_number = None  # Kobo stores the series number as string. And it can have a leading "#".
+        self.kobo_series_id     = None
+        self.kobo_subtitle      = None
 
         if thumbnail_name is not None:
             self.thumbnail = ImageWrapper(thumbnail_name)
@@ -71,6 +78,46 @@ class Book(Book_):
         if show_debug:
             debug_print("Book::__init__ end - self=", self)
             debug_print("Book::__init__ end - title=", title, 'authors=', authors)
+
+    @property
+    def is_sideloaded(self):
+        # If we don't have a content Id, we don't know what type it is.
+        return self.contentID and self.contentID.startswith("file")
+
+    @property
+    def has_kobo_series(self):
+        return self.kobo_series is not None
+
+    @property
+    def is_purchased_kepub(self):
+        return self.contentID and not self.contentID.startswith("file")
+
+    def __str__(self):
+        '''
+        A string representation of this object, suitable for printing to
+        console
+        '''
+        ans = ["Kobo metadata:"]
+
+        def fmt(x, y):
+            ans.append('%-20s: %s'%(str(x), str(y)))
+
+        if self.contentID:
+            fmt('Content ID', self.contentID)
+        if self.kobo_series:
+            fmt('Kobo Series', self.kobo_series + ' #%s'%self.kobo_series_number)
+        if self.kobo_series_id:
+            fmt('Kobo Series ID', self.kobo_series_id)
+        if self.kobo_subtitle:
+            fmt('Subtitle', self.kobo_subtitle)
+        if self.mime:
+            fmt('MimeType', self.mime)
+
+        ans.append(str(self.kobo_metadata))
+
+        ans = '\n'.join(ans)
+
+        return super(Book,self).__str__() + "\n" + ans
 
 
 class ImageWrapper(object):
@@ -179,7 +226,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 elif fm is not None and fm['datatype'] == 'series':
                     val = [orig_val]
                 elif fm is not None and fm['datatype'] == 'rating':
-                    val = [type(u'')(orig_val / 2.0)]
+                    val = [str(orig_val / 2.0)]
                 elif fm is not None and fm['datatype'] == 'text' and fm['is_multiple']:
                     if isinstance(orig_val, (list, tuple)):
                         val = orig_val
@@ -224,7 +271,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     if not category:
                         continue
 
-                    cat_name = type(u'')(category).strip(' ,')
+                    cat_name = str(category).strip(' ,')
 
                     if cat_name not in collections:
                         collections[cat_name] = {}
@@ -234,10 +281,10 @@ class KTCollectionsBookList(CollectionsBookList):
                         if is_series:
                             if doing_dc:
                                 collections[cat_name][lpath] = \
-                                    (book, book.get('series_index', sys.maxint), tsval)
+                                    (book, book.get('series_index', sys.maxsize), tsval)
                             else:
                                 collections[cat_name][lpath] = \
-                                    (book, book.get(attr+'_index', sys.maxint), tsval)
+                                    (book, book.get(attr+'_index', sys.maxsize), tsval)
                         else:
                             collections[cat_name][lpath] = (book, tsval, tsval)
                         if show_debug:
@@ -248,27 +295,8 @@ class KTCollectionsBookList(CollectionsBookList):
         # Sort collections
         result = {}
 
-        def none_cmp(xx, yy):
-            x = xx[1]
-            y = yy[1]
-            if x is None and y is None:
-                # No sort_key needed here, because defaults are ascii
-                return cmp(xx[2], yy[2])
-            if x is None:
-                return 1
-            if y is None:
-                return -1
-            if isinstance(x, basestring) and isinstance(y, basestring):
-                x, y = sort_key(force_unicode(x)), sort_key(force_unicode(y))
-            c = cmp(x, y)
-            if c != 0:
-                return c
-            # same as above -- no sort_key needed here
-            return cmp(xx[2], yy[2])
-
         for category, lpaths in collections.items():
-            books = lpaths.values()
-            books.sort(cmp=none_cmp)
+            books = sorted(lpaths.values(), key=cmp_to_key(none_cmp))
             result[category] = [x[0] for x in books]
         # debug_print("KTCollectionsBookList:get_collections - result=", result.keys())
         debug_print("KTCollectionsBookList:get_collections - end")

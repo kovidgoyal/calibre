@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.utils.dbus_service import Object, BusName, method as dbus_method, dbus_property, signal as dbus_signal
 from calibre.gui2.dbus_export.utils import (
     setup_for_cli_run, swap_mnemonic_char, key_sequence_to_dbus_shortcut, icon_to_dbus_menu_icon)
+from polyglot.builtins import iteritems
 
 null = object()
 
@@ -62,7 +62,7 @@ def create_properties_for_action(ac, previous=None):
             data = icon_to_dbus_menu_icon(ac.icon())
             if data is not None:
                 ans['icon-data'] = data
-                ans['x-qt-icon-cache-key'] = icon.cacheKey()
+                ans['x-qt-icon-cache-key'] = dbus.UInt64(icon.cacheKey())
     return ans
 
 
@@ -124,13 +124,13 @@ class DBusMenu(QObject):
             return {}
         ans = self._action_properties.get(action_id, PropDict())
         if restrict_to:
-            ans = PropDict({k:v for k, v in ans.iteritems() if k in restrict_to})
+            ans = PropDict({k:v for k, v in iteritems(ans) if k in restrict_to})
         return ans
 
     def publish_new_menu(self, qmenu=None):
         self.init_maps(qmenu)
         if qmenu is not None:
-            qmenu.destroyed.connect(lambda obj=None:self.publish_new_menu())
+            connect_lambda(qmenu.destroyed, self, lambda self:self.publish_new_menu())
             ac = qmenu.menuAction()
             self.add_action(ac)
         self.dbus_api.LayoutUpdated(self.dbus_api.revision, 0)
@@ -167,7 +167,7 @@ class DBusMenu(QObject):
     def eventFilter(self, obj, ev):
         ac = getattr(obj, 'menuAction', lambda : None)()
         ac_id = self.action_to_id(ac)
-        if ac_id is not None:
+        if ac_id is not None and hasattr(ev, 'action'):
             etype = ev.type()
             if etype == QEvent.ActionChanged:
                 ac_id = self.action_to_id(ev.action())
@@ -195,7 +195,7 @@ class DBusMenu(QObject):
             removed = set(old_props) - set(new_props)
             if removed:
                 removed_props.append((ac_id, dbus.Array(removed, signature='as')))
-            updated = PropDict({k:v for k, v in new_props.iteritems() if v != old_props.get(k, null)})
+            updated = PropDict({k:v for k, v in iteritems(new_props) if v != old_props.get(k, null)})
             if updated:
                 updated_props.append((ac_id, updated))
         self.action_changes = set()
@@ -387,6 +387,7 @@ def test():
     menu.publish_new_menu(m)
     app.exec_()
     del dbus_name
+
 
 if __name__ == '__main__':
     test()

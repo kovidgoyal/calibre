@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from functools import partial
 from itertools import product
-from future_builtins import map
+from polyglot.builtins import iteritems, itervalues, map, unicode_type, range
 
 from PyQt5.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
@@ -17,7 +16,8 @@ from PyQt5.Qt import (
     QMenu, QHBoxLayout, QTimer, QUrl, QSize)
 
 from calibre import prints
-from calibre.constants import __appname__, get_version, isosx, DEBUG
+from calibre.constants import __appname__, get_version, ismacos, DEBUG
+from calibre.customize.ui import find_plugin
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.keyboard import Manager as KeyboardManager
@@ -30,7 +30,7 @@ from calibre.gui2.tweak_book.job import BlockingJob
 from calibre.gui2.tweak_book.boss import Boss
 from calibre.gui2.tweak_book.undo import CheckpointView
 from calibre.gui2.tweak_book.preview import Preview
-from calibre.gui2.tweak_book.plugin import create_plugin_actions
+from calibre.gui2.tweak_book.plugin import create_plugin_actions, install_plugin
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.check_links import CheckExternalLinks
@@ -45,12 +45,13 @@ from calibre.gui2.tweak_book.manage_fonts import ManageFonts
 from calibre.gui2.tweak_book.function_replace import DebugOutput
 from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
 from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
-from calibre.utils.icu import character_name, sort_key
-from calibre.utils.localization import localize_user_manual_link
+from calibre.utils.icu import sort_key, ord_string
+from calibre.utils.unicode_names import character_name_from_code
+from calibre.utils.localization import localize_user_manual_link, localize_website_link
 
 
 def open_donate():
-    open_url(QUrl('https://calibre-ebook.com/donate'))
+    open_url(QUrl(localize_website_link('https://calibre-ebook.com/donate')))
 
 
 class Central(QStackedWidget):  # {{{
@@ -106,15 +107,15 @@ class Central(QStackedWidget):  # {{{
     @property
     def tab_order(self):
         ans = []
-        rmap = {v:k for k, v in editors.iteritems()}
-        for i in xrange(self.editor_tabs.count()):
+        rmap = {v:k for k, v in iteritems(editors)}
+        for i in range(self.editor_tabs.count()):
             name = rmap.get(self.editor_tabs.widget(i))
             if name is not None:
                 ans.append(name)
         return ans
 
     def rename_editor(self, editor, name):
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 fname = name.rpartition('/')[2]
                 self.editor_tabs.setTabText(i, fname)
@@ -125,7 +126,7 @@ class Central(QStackedWidget):  # {{{
         self.editor_tabs.setCurrentWidget(editor)
 
     def close_editor(self, editor):
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             if self.editor_tabs.widget(i) is editor:
                 self.editor_tabs.removeTab(i)
                 if self.editor_tabs.count() == 0:
@@ -135,7 +136,7 @@ class Central(QStackedWidget):  # {{{
 
     def editor_modified(self, *args):
         tb = self.editor_tabs.tabBar()
-        for i in xrange(self.editor_tabs.count()):
+        for i in range(self.editor_tabs.count()):
             editor = self.editor_tabs.widget(i)
             modified = getattr(editor, 'is_modified', False)
             tb.setTabIcon(i, self.modified_icon if modified else QIcon())
@@ -151,7 +152,7 @@ class Central(QStackedWidget):  # {{{
     def close_all_but(self, ed):
         close = []
         if ed is not None:
-            for i in xrange(self.editor_tabs.count()):
+            for i in range(self.editor_tabs.count()):
                 q = self.editor_tabs.widget(i)
                 if q is not None and q is not ed:
                     close.append(q)
@@ -165,7 +166,7 @@ class Central(QStackedWidget):  # {{{
     def save_state(self):
         tprefs.set('search-panel-visible', self.search_panel.isVisible())
         self.search_panel.save_state()
-        for ed in editors.itervalues():
+        for ed in itervalues(editors):
             ed.save_state()
         if self.current_editor is not None:
             self.current_editor.save_state()  # Ensure the current editor saves it state last
@@ -219,7 +220,7 @@ class CursorPositionWidget(QWidget):  # {{{
             self.la.setText('')
         else:
             try:
-                name = character_name(character) if character and tprefs['editor_show_char_under_cursor'] else None
+                name = character_name_from_code(ord_string(character)[0]) if character and tprefs['editor_show_char_under_cursor'] else None
             except Exception:
                 name = None
             text = _('Line: {0} : {1}').format(line, col)
@@ -231,6 +232,18 @@ class CursorPositionWidget(QWidget):  # {{{
 # }}}
 
 
+def install_new_plugins():
+    from calibre.utils.config import JSONConfig
+    prefs = JSONConfig('newly-installed-editor-plugins')
+    pl = prefs.get('newly_installed_plugins', ())
+    if pl:
+        for name in pl:
+            plugin = find_plugin(name)
+            if plugin is not None:
+                install_plugin(plugin)
+        prefs['newly_installed_plugins'] = []
+
+
 class Main(MainWindow):
 
     APP_NAME = _('Edit book')
@@ -238,6 +251,11 @@ class Main(MainWindow):
 
     def __init__(self, opts, notify=None):
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
+        try:
+            install_new_plugins()
+        except Exception:
+            import traceback
+            traceback.print_exc()
         self.setWindowTitle(self.APP_NAME)
         self.boss = Boss(self, notify=notify)
         self.setWindowIcon(QIcon(I('tweak.png')))
@@ -272,11 +290,8 @@ class Main(MainWindow):
         self.cursor_position_widget = CursorPositionWidget(self)
         self.status_bar.addPermanentWidget(self.cursor_position_widget)
         self.status_bar_default_msg = la = QLabel(' ' + _('{0} {1} created by {2}').format(__appname__, get_version(), 'Kovid Goyal'))
-        la.base_template = unicode(la.text())
+        la.base_template = unicode_type(la.text())
         self.status_bar.addWidget(la)
-        f = self.status_bar.font()
-        f.setBold(True)
-        self.status_bar.setFont(f)
 
         self.boss(self)
         g = QApplication.instance().desktop().availableGeometry(self)
@@ -320,10 +335,10 @@ class Main(MainWindow):
                 toolbar_actions[sid] = ac
             if target is not None:
                 ac.triggered.connect(target)
-            if isinstance(keys, type('')):
+            if isinstance(keys, unicode_type):
                 keys = (keys,)
             self.keyboard.register_shortcut(
-                sid, unicode(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
+                sid, unicode_type(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
 
@@ -333,21 +348,25 @@ class Main(MainWindow):
         self.action_new_file = treg('document-new.png', _('&New file (images/fonts/HTML/etc.)'), self.boss.add_file,
                                    'new-file', (), _('Create a new file in the current book'))
         self.action_import_files = treg('document-import.png', _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
-        self.action_open_book = treg('document_open.png', _('&Open book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
+        self.action_open_book = treg('document_open.png', _('&Open book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a book'))
         self.action_open_book_folder = treg('mimetypes/dir.png', _('Open &folder (unzipped EPUB) as book'), partial(self.boss.open_book, open_folder=True),
                                             'open-folder-as-book', (), _('Open a folder (unzipped EPUB) as a book'))
+        self.action_edit_next_file = treg('arrow-down.png', _('Edit &next file'), partial(self.boss.edit_next_file, backwards=False),
+                'edit-next-file', 'Ctrl+Alt+Down', _('Edit the next file in the spine'))
+        self.action_edit_previous_file = treg('arrow-up.png', _('Edit &previous file'), partial(self.boss.edit_next_file, backwards=True),
+                'edit-previous-file', 'Ctrl+Alt+Up', _('Edit the previous file in the spine'))
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
         # means these shortcuts interfere with editing
-        self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
+        self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if ismacos else 'Ctrl+Left',
                                       _('Revert book to before the last action (Undo)'))
-        self.action_global_redo = treg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if isosx else 'Ctrl+Right',
+        self.action_global_redo = treg('forward.png', _('&Revert to after'), self.boss.do_global_redo, 'global-redo', () if ismacos else 'Ctrl+Right',
                                       _('Revert book state to after the next action (Redo)'))
         self.action_save = treg('save.png', _('&Save'), self.boss.save_book, 'save-book', 'Ctrl+S', _('Save book'))
         self.action_save.setEnabled(False)
         self.action_save_copy = treg('save.png', _('Save a &copy'), self.boss.save_copy, 'save-copy', 'Ctrl+Alt+S', _('Save a copy of the book'))
         self.action_quit = treg('window-close.png', _('&Quit'), self.boss.quit, 'quit', 'Ctrl+Q', _('Quit'))
         self.action_preferences = treg('config.png', _('&Preferences'), self.boss.preferences, 'preferences', 'Ctrl+P', _('Preferences'))
-        self.action_new_book = treg('plus.png', _('Create &new, empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
+        self.action_new_book = treg('plus.png', _('Create new, &empty book'), self.boss.new_book, 'new-book', (), _('Create a new, empty book'))
         self.action_import_book = treg('add_book.png', _('&Import an HTML or DOCX file as a new book'),
                                       self.boss.import_book, 'import-book', (), _('Import an HTML or DOCX file as a new book'))
         self.action_quick_edit = treg('modified.png', _('&Quick open a file to edit'), self.boss.quick_open, 'quick-open', ('Ctrl+T'), _(
@@ -424,6 +443,9 @@ class Main(MainWindow):
         self.action_remove_unused_css = treg(
             'edit-clear.png', _('Remove &unused CSS rules'), partial(
                 self.boss.polish, 'remove_unused_css', _('Remove unused CSS rules')), 'remove-unused-css', (), _('Remove unused CSS rules'))
+        self.action_upgrade_book_internals = treg(
+            'arrow-up.png', _('&Upgrade book internals'), partial(
+                self.boss.polish, 'upgrade_book', _('Upgrade book internals')), 'upgrade-book', (), _('Upgrade book internals'))
 
         # Preview actions
         group = _('Preview')
@@ -448,7 +470,7 @@ class Main(MainWindow):
                                          'find', {'direction':'up'}, ('Shift+F3', 'Shift+Ctrl+G'), _('Find previous match'))
         self.action_replace = sreg('replace', _('&Replace'),
                                    'replace', keys=('Ctrl+R'), description=_('Replace current match'))
-        self.action_replace_next = sreg('replace-next', _('&Replace and find next'),
+        self.action_replace_next = sreg('replace-next', _('Replace and find ne&xt'),
                                         'replace-find', {'direction':'down'}, ('Ctrl+]'), _('Replace current match and find next'))
         self.action_replace_previous = sreg('replace-previous', _('R&eplace and find previous'),
                                         'replace-find', {'direction':'up'}, ('Ctrl+['), _('Replace current match and find previous'))
@@ -467,7 +489,7 @@ class Main(MainWindow):
 
         # Check Book actions
         group = _('Check book')
-        self.action_check_book = treg('debug.png', _('&Check book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
+        self.action_check_book = treg('debug.png', _('C&heck book'), self.boss.check_requested, 'check-book', ('F7'), _('Check book for errors'))
         self.action_spell_check_book = treg('spell-check.png', _('Check &spelling'), self.boss.spell_check_requested, 'spell-check-book', ('Alt+F7'), _(
             'Check book for spelling errors'))
         self.action_check_book_next = reg('forward.png', _('&Next error'), partial(
@@ -486,7 +508,7 @@ class Main(MainWindow):
             'window-close.png', _('&Close current tab'), self.central.close_current_editor, 'close-current-tab', 'Ctrl+W', _(
                 'Close the currently open tab'))
         self.action_close_all_but_current_tab = reg(
-            'edit-clear.png', _('&Close other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
+            'edit-clear.png', _('C&lose other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
                 'Close all tabs except the current tab'))
         self.action_help = treg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl(localize_user_manual_link(
@@ -502,14 +524,14 @@ class Main(MainWindow):
             'Compare to another book'))
         self.action_manage_snippets = treg(
             'snippets.png', _('Manage &Snippets'), self.boss.manage_snippets, 'manage-snippets', (), _(
-                'Manage user created snippets'))
+                'Manage user created Snippets'))
 
         self.plugin_menu_actions = []
 
         create_plugin_actions(actions, toolbar_actions, self.plugin_menu_actions)
 
     def create_menubar(self):
-        if isosx:
+        if ismacos:
             p, q = self.create_application_menubar()
             q.triggered.connect(self.action_quit.trigger)
             p.triggered.connect(self.action_preferences.trigger)
@@ -572,6 +594,7 @@ class Main(MainWindow):
         er.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
         e.addAction(self.action_reports)
+        e.addAction(self.action_upgrade_book_internals)
 
         e = b.addMenu(_('&View'))
         t = e.addMenu(_('Tool&bars'))
@@ -612,7 +635,7 @@ class Main(MainWindow):
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
-            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(unicode(x.text()))):
+            for ac in sorted(self.plugin_menu_actions, key=lambda x:sort_key(unicode_type(x.text()))):
                 e.addAction(ac)
 
         e = b.addMenu(_('&Help'))
@@ -664,7 +687,7 @@ class Main(MainWindow):
                     bar.addAction(actions[ac])
                 except KeyError:
                     if DEBUG:
-                        prints('Unknown action for toolbar %r: %r' % (unicode(bar.objectName()), ac))
+                        prints('Unknown action for toolbar %r: %r' % (unicode_type(bar.objectName()), ac))
 
         for x in tprefs['global_book_toolbar']:
             add(self.global_bar, x)
@@ -721,7 +744,7 @@ class Main(MainWindow):
         self.preview.inspector.setParent(d)
         self.addDockWidget(Qt.BottomDockWidgetArea, d)
         d.close()  # By default the inspector window is closed
-        d.setFeatures(d.DockWidgetClosable | d.DockWidgetMovable)  # QWebInspector does not work in a floating dock
+        QTimer.singleShot(10, self.preview.inspector.connect_to_dock)
 
         d = create(_('Table of Contents'), 'toc-viewer')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
@@ -753,8 +776,12 @@ class Main(MainWindow):
         return super(Main, self).resizeEvent(ev)
 
     def update_window_title(self):
-        fname = os.path.basename(current_container().path_to_ebook)
-        self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(current_container().book_type.upper(), fname, self.APP_NAME))
+        cc = current_container()
+        if cc is not None:
+            fname = os.path.basename(cc.path_to_ebook)
+            self.setWindowTitle(self.current_metadata.title + ' [%s] :: %s :: %s' %(cc.book_type_for_display, fname, self.APP_NAME))
+        else:
+            self.setWindowTitle(self.APP_NAME)
 
     def closeEvent(self, e):
         if self.boss.quit():
@@ -773,7 +800,7 @@ class Main(MainWindow):
     def restore_state(self):
         geom = tprefs.get('main_window_geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         state = tprefs.get('main_window_state', None)
         if state is not None:
             self.restoreState(state, self.STATE_VERSION)

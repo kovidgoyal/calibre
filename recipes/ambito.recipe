@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 __license__   = 'GPL v3'
-__copyright__ = '2008-2016, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2018, Darko Miletic <darko.miletic at gmail.com>'
 '''
 ambito.com
 '''
@@ -39,6 +39,7 @@ class Ambito(BasicNewsRecipe):
                           dict(name='h6', attrs={'class': lambda x: x and 'bajada' in x.split()})
                           ,dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()})
                           ,dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()})
+                          ,dict(attrs={'class': lambda x: x and 'foto-perfil-columnista' in x.split()})
                           ,dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
                         ]
     remove_tags       = [dict(name=['object','link','embed','iframe','meta','link'])]

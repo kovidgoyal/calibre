@@ -1,3 +1,5 @@
+
+
 __license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -5,6 +7,8 @@ Defines the errors that the device drivers generate.
 
 G{classtree ProtocolError}
 """
+
+from polyglot.builtins import unicode_type
 
 
 class ProtocolError(Exception):
@@ -91,7 +95,7 @@ class DeviceBusy(ProtocolError):
     def __init__(self, uerr=""):
         ProtocolError.__init__(
             self, "Device is in use by another application:"
-            "\nUnderlying error:" + str(uerr)
+            "\nUnderlying error:" + unicode_type(uerr)
         )
 
 
@@ -134,9 +138,9 @@ class ControlError(ProtocolError):
     def __str__(self):
         if self.query and self.response:
             return "Got unexpected response:\n" + \
-           "query:\n"+str(self.query.query)+"\n"+\
-           "expected:\n"+str(self.query.response)+"\n" +\
-           "actual:\n"+str(self.response)
+           "query:\n"+unicode_type(self.query.query)+"\n"+\
+           "expected:\n"+unicode_type(self.query.response)+"\n" +\
+           "actual:\n"+unicode_type(self.response)
         if self.desc:
             return self.desc
         return "Unknown control error occurred"

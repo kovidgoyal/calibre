@@ -1,33 +1,39 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, select, os, traceback
-from io import BytesIO
-from Queue import Empty, Full
+import ipaddress
+import os
+import select
+import socket
+import ssl
+import traceback
 from functools import partial
+from io import BytesIO
 
 from calibre import as_unicode
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import JobQueueFull
-from calibre.srv.pool import ThreadPool, PluginPool
-from calibre.srv.opts import Options
 from calibre.srv.jobs import JobsManager
+from calibre.srv.opts import Options
+from calibre.srv.pool import PluginPool, ThreadPool
 from calibre.srv.utils import (
-    socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
-    socket_errors_eintr, start_cork, stop_cork, DESIRED_SEND_BUFFER_SIZE,
-    create_sock_pair)
-from calibre.utils.socket_inheritance import set_socket_inherit
+    DESIRED_SEND_BUFFER_SIZE, HandleInterrupt, create_sock_pair, socket_errors_eintr,
+    socket_errors_nonblocking, socket_errors_socket_closed, start_cork, stop_cork
+)
 from calibre.utils.logging import ThreadSafeLog
-from calibre.utils.monotonic import monotonic
 from calibre.utils.mdns import get_external_ip
+from calibre.utils.monotonic import monotonic
+from calibre.utils.socket_inheritance import set_socket_inherit
+from polyglot.builtins import iteritems, unicode_type
+from polyglot.queue import Empty, Full
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
-WAKEUP, JOB_DONE = bytes(bytearray(xrange(2)))
+WAKEUP, JOB_DONE = b'\0', b'\x01'
+IPPROTO_IPV6 = getattr(socket, "IPPROTO_IPV6", 41)
 
 
 class ReadBuffer(object):  # {{{
@@ -118,6 +124,33 @@ class ReadBuffer(object):  # {{{
     # }}}
 
 
+class BadIPSpec(ValueError):
+    pass
+
+
+def parse_trusted_ips(spec):
+    for part in as_unicode(spec).split(','):
+        part = part.strip()
+        try:
+            if '/' in part:
+                yield ipaddress.ip_network(part)
+            else:
+                yield ipaddress.ip_address(part)
+        except Exception as e:
+            raise BadIPSpec(_('{0} is not a valid IP address/network, with error: {1}').format(part, e))
+
+
+def is_ip_trusted(remote_addr, trusted_ips):
+    for tip in trusted_ips:
+        if hasattr(tip, 'hosts'):
+            if remote_addr in tip:
+                return True
+        else:
+            if tip == remote_addr:
+                return True
+    return False
+
+
 class Connection(object):  # {{{
 
     def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup):
@@ -125,10 +158,13 @@ class Connection(object):  # {{{
         try:
             self.remote_addr = addr[0]
             self.remote_port = addr[1]
+            self.parsed_remote_addr = ipaddress.ip_address(as_unicode(self.remote_addr))
         except Exception:
-            # In case addr is None, which can occassionally happen
-            self.remote_addr = self.remote_port = None
-        self.is_local_connection = self.remote_addr in ('127.0.0.1', '::1')
+            # In case addr is None, which can occasionally happen
+            self.remote_addr = self.remote_port = self.parsed_remote_addr = None
+        self.is_trusted_ip = bool(self.opts.local_write and getattr(self.parsed_remote_addr, 'is_loopback', False))
+        if not self.is_trusted_ip and self.opts.trusted_ips and self.parsed_remote_addr is not None:
+            self.is_trusted_ip = is_ip_trusted(self.parsed_remote_addr, self.opts.trusted_ips)
         self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
         self.wait_for = READ
@@ -273,6 +309,10 @@ class Connection(object):  # {{{
             self.read_buffer.recv_from(self.socket)
         except ssl.SSLWantReadError:
             return
+        except ssl.SSLError as e:
+            self.log.error('Error while reading SSL data from client: %s' % as_unicode(e))
+            self.ready = False
+            return
         except socket.error as e:
             if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
                 return
@@ -342,6 +382,8 @@ class ServerLoop(object):
         self.ready = False
         self.handler = handler
         self.opts = opts or Options()
+        if self.opts.trusted_ips:
+            self.opts.trusted_ips = tuple(parse_trusted_ips(self.opts.trusted_ips))
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.jobs_manager = JobsManager(self.opts, self.log)
         self.access_log = access_log
@@ -446,7 +488,7 @@ class ServerLoop(object):
         self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
-            ba = ':'.join(map(type(''), ba))
+            ba = ':'.join(map(unicode_type, ba))
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
@@ -481,8 +523,7 @@ class ServerLoop(object):
         if (hasattr(socket, 'AF_INET6') and self.socket.family == socket.AF_INET6 and
                 self.bind_address[0] in ('::', '::0', '::0.0.0.0')):
             try:
-                self.socket.setsockopt(
-                    socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+                self.socket.setsockopt(IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
             except (AttributeError, socket.error):
                 # Apparently, the socket option is not available in
                 # this machine's TCP stack
@@ -500,7 +541,7 @@ class ServerLoop(object):
         now = monotonic()
         read_needed, write_needed, readable, remove, close_needed = [], [], [], [], []
         has_ssl = self.ssl_context is not None
-        for s, conn in self.connection_map.iteritems():
+        for s, conn in iteritems(self.connection_map):
             if now - conn.last_activity > self.opts.timeout:
                 if conn.handle_timeout():
                     conn.last_activity = now
@@ -546,7 +587,7 @@ class ServerLoop(object):
                 # e.args[0]
                 if getattr(e, 'errno', e.args[0]) in socket_errors_eintr:
                     return
-                for s, conn in tuple(self.connection_map.iteritems()):
+                for s, conn in tuple(iteritems(self.connection_map)):
                     try:
                         select.select([s], [], [], 0)
                     except (select.error, socket.error) as e:
@@ -676,7 +717,7 @@ class ServerLoop(object):
                 self.socket = None
         except socket.error:
             pass
-        for s, conn in tuple(self.connection_map.iteritems()):
+        for s, conn in tuple(iteritems(self.connection_map)):
             self.close(s, conn)
         wait_till = monotonic() + self.opts.shutdown_timeout
         for pool in (self.plugin_pool, self.pool):
@@ -722,7 +763,12 @@ class EchoLine(Connection):  # {{{
 # }}}
 
 
-if __name__ == '__main__':
+def main():
+    print('Starting Echo server')
     s = ServerLoop(EchoLine)
-    with HandleInterrupt(s.wakeup):
+    with HandleInterrupt(s.stop):
         s.serve_forever()
+
+
+if __name__ == '__main__':
+    main()

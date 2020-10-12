@@ -1,14 +1,19 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ForeignPolicy(BasicNewsRecipe):
@@ -21,10 +26,7 @@ class ForeignPolicy(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(name='p', attrs={'class': 'dek'}),
-        dict(name='li', attrs={'class': 'author'}),
-        dict(attrs={'class': ['feature', 'post-inner',
-                              'inline_photo', 'infographic']}),
+        classes('dek-heading meta-data figure-image post-content-main'),
         dict(attrs={'class': lambda x: x and set(x.split()).intersection(
             {'wide_header_bg', 'wide_header_text'})}),
     ]
@@ -33,47 +35,36 @@ class ForeignPolicy(BasicNewsRecipe):
         dict(attrs={'class': ['fp-lightbox--overlay']}),
         dict(attrs={'class': lambda x: x and 'share-links' in x}),
     ]
+    remove_tags_after = [classes('post-content-main')]
 
     def parse_index(self):
-        title_map = OrderedDict()
-        soup = self.index_to_soup('http://foreignpolicy.com/')
-        img = soup.find('img', alt='Current Issue',
-                        attrs={'data-issue_slug': True})
+        soup = self.index_to_soup('https://foreignpolicy.com/the-magazine')
+        img = soup.find('img', src=True, attrs={'alt': lambda x: x and 'foreign-policy-magazine-cover' in x})
         self.cover_url = img['src']
-        slug = img['data-issue_slug']
-        url = 'https://foreignpolicymag.wordpress.com/wp-admin/admin-ajax.php?action=mag_issue_request&issue_slug=' + slug
-        soup = self.index_to_soup(url)
-        ul = soup.find(id='mag-terms')
-        self.timefmt = ' ' + self.tag_to_string(ul.find('li'))
-        for li in ul.findAll('li', attrs={'data-cat': True}):
-            title_map[li['data-cat']] = self.tag_to_string(li)
-        feeds = defaultdict(list)
-        for ul in soup.findAll('ul', attrs={'data-cat': lambda x: x and x in title_map}):
-            sec = ul['data-cat']
-            self.log('\nFound section:', title_map[sec])
-            articles = []
-            for li in ul.findAll('li'):
-                a = li.find('a', href=True)
+        current_section = None
+        amap = OrderedDict()
+        for x in soup.findAll(name=('h2', 'h3')):
+            if x.name == 'h2':
+                current_section = self.tag_to_string(x)
+                self.log(current_section)
+                if current_section.lower() == 'recent issues':
+                    break
+            else:
+                title = self.tag_to_string(x)
+                a = x.parent
                 url = a['href']
-                title = self.tag_to_string(a)
-                desc = ''
-                dek = li.find(attrs={'class': 'dek'})
-                if dek is not None:
-                    desc += self.tag_to_string(dek)
-                aut = li.find(attrs={'class': 'author'})
-                if aut is not None:
-                    desc += ' by ' + self.tag_to_string(aut)
-                self.log('\t', title, ' at ', url)
-                if desc:
-                    self.log('\t\t', desc)
-                articles.append(
-                    {'title': title, 'description': desc, 'url': url})
+                self.log('\t', title, 'url')
+                amap.setdefault(current_section, []).append({'title': title, 'url': url})
+        ans = []
+        for sec_name in sorted(amap, key=lambda x: x.lower()):
+            articles = amap[sec_name]
             if articles:
-                feeds[sec].extend(articles)
-
-        return [(title_map[x], feeds[x]) for x in title_map if feeds[x]]
+                ans.append((sec_name, articles))
+        return ans
 
     def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset'].split()[0]
         body = soup.find('body')
         div = soup.find(
             attrs={'class': lambda x: x and 'wide_header_bg' in x.split()})

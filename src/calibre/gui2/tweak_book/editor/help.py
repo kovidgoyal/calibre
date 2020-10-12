@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -30,6 +29,7 @@ class URLMap(object):
             except EnvironmentError:
                 raise KeyError('The mapping %s is not available' % key)
             return ans
+
 
 _url_map = URLMap()
 
@@ -130,6 +130,7 @@ def write_tag_help():
 
     with open(P(base % 'opf3'), 'wb') as f:
         f.write(dump(get_opf3_tag_index()))
+
 
 if __name__ == '__main__':
     write_tag_help()

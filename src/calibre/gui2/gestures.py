@@ -1,10 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import sys, os
-from functools import partial
 
 from PyQt5.Qt import (
     QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QTouchDevice,
@@ -13,6 +12,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import iswindows
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import itervalues
 
 touch_supported = False
 if iswindows and sys.getwindowsversion()[:2] >= (6, 2):  # At least windows 7
@@ -92,14 +92,14 @@ class State(QObject):
         else:
             self.check_for_holds()
             if Flick in self.possible_gestures:
-                tp = next(self.touch_points.itervalues())
+                tp = next(itervalues(self.touch_points))
                 self.flicking.emit(tp, False)
 
     def check_for_holds(self):
         if not {TapAndHold} & self.possible_gestures:
             return
         now = monotonic()
-        tp = next(self.touch_points.itervalues())
+        tp = next(itervalues(self.touch_points))
         if now - tp.time_of_last_move < HOLD_THRESHOLD:
             return
         if self.hold_started:
@@ -117,20 +117,20 @@ class State(QObject):
 
     def finalize(self):
         if Tap in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             if tp.total_movement <= TAP_THRESHOLD:
                 self.tapped.emit(tp)
                 return
 
         if Flick in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             self.flicking.emit(tp, True)
 
         if not self.hold_started:
             return
 
         if TapAndHold in self.possible_gestures:
-            tp = next(self.touch_points.itervalues())
+            tp = next(itervalues(self.touch_points))
             self.tap_hold_finished.emit(tp)
             return
 
@@ -156,9 +156,9 @@ class GestureManager(QObject):
         self.state = State()
         self.state.tapped.connect(self.handle_tap, type=Qt.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
         self.state.flicking.connect(self.handle_flicking)
-        self.state.tap_hold_started.connect(partial(self.handle_tap_hold, 'start'))
-        self.state.tap_hold_updated.connect(partial(self.handle_tap_hold, 'update'))
-        self.state.tap_hold_finished.connect(partial(self.handle_tap_hold, 'end'))
+        connect_lambda(self.state.tap_hold_started, self, lambda self, tp: self.handle_tap_hold('start', tp))
+        connect_lambda(self.state.tap_hold_updated, self, lambda self, tp: self.handle_tap_hold('update', tp))
+        connect_lambda(self.state.tap_hold_finished, self, lambda self, tp: self.handle_tap_hold('end', tp))
         self.evmap = {QEvent.TouchBegin: 'start', QEvent.TouchUpdate: 'update', QEvent.TouchEnd: 'end'}
         self.last_tap_at = 0
         if touch_supported:

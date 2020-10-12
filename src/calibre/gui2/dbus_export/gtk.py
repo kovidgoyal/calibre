@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,6 +13,8 @@ from threading import Thread
 from pprint import pformat
 
 from gi.repository import Gtk, Gdk, GdkX11  # noqa
+
+from polyglot.builtins import unicode_type, iteritems
 
 UI_INFO = """
 <ui>
@@ -199,14 +200,14 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
 
 
 def convert(v):
-    if isinstance(v, basestring):
-        return unicode(v)
+    if isinstance(v, (unicode_type, bytes)):
+        return unicode_type(v)
     if isinstance(v, dbus.Struct):
         return tuple(convert(val) for val in v)
     if isinstance(v, list):
         return [convert(val) for val in v]
     if isinstance(v, dict):
-        return {convert(k):convert(val) for k, val in v.iteritems()}
+        return {convert(k):convert(val) for k, val in iteritems(v)}
     if isinstance(v, dbus.Boolean):
         return bool(v)
     if isinstance(v, (dbus.UInt32, dbus.UInt16)):
@@ -231,10 +232,10 @@ class MyApplication(Gtk.Application):
         conn = xcb.Connection()
         atoms = conn.core.ListProperties(win_id).reply().atoms
         atom_names = {atom:conn.core.GetAtomNameUnchecked(atom) for atom in atoms}
-        atom_names = {k:bytes(a.reply().name.buf()) for k, a in atom_names.iteritems()}
-        property_names = {name:atom for atom, name in atom_names.iteritems() if
+        atom_names = {k:bytes(a.reply().name.buf()) for k, a in iteritems(atom_names)}
+        property_names = {name:atom for atom, name in iteritems(atom_names) if
             name.startswith('_GTK') or name.startswith('_UNITY') or name.startswith('_GNOME')}
-        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in property_names.iteritems()}
+        replies = {name:conn.core.GetProperty(False, win_id, atom, xcb.xproto.GetPropertyType.Any, 0, 2 ** 32 - 1) for name, atom in iteritems(property_names)}
 
         type_atom_cache = {}
 
@@ -254,7 +255,7 @@ class MyApplication(Gtk.Application):
                                         property_reply.value.buf()))
 
             return None
-        props = {name:get_property_value(r.reply()) for name, r in replies.iteritems()}
+        props = {name:get_property_value(r.reply()) for name, r in iteritems(replies)}
         ans = ['\nX Window properties:']
         for name in sorted(props):
             ans.append('%s: %r' % (name, props[name]))
@@ -270,17 +271,17 @@ class MyApplication(Gtk.Application):
         seen = seen or set()
         seen.add(group)
         print = self.print
-        print ('\nMenu description (Group %d)' % group)
+        print('\nMenu description (Group %d)' % group)
         for item in bus.call_blocking(self.bus_name, self.object_path, 'org.gtk.Menus', 'Start', 'au', ([group],)):
-            print ('Subscription group:', item[0])
-            print ('Menu number:', item[1])
+            print('Subscription group:', item[0])
+            print('Menu number:', item[1])
             for menu_item in item[2]:
-                menu_item = {unicode(k):convert(v) for k, v in menu_item.iteritems()}
+                menu_item = {unicode_type(k):convert(v) for k, v in iteritems(menu_item)}
                 if ':submenu' in menu_item:
                     groups.add(menu_item[':submenu'][0])
                 if ':section' in menu_item:
                     groups.add(menu_item[':section'][0])
-                print (pformat(menu_item))
+                print(pformat(menu_item))
         for other_group in sorted(groups - seen):
             self.print_menu_start(bus, other_group, seen)
 
@@ -301,11 +302,12 @@ class MyApplication(Gtk.Application):
         for name in sorted(adata):
             data = adata[name]
             d[name] = {'enabled':convert(data[0]), 'param type': convert(data[1]), 'state':convert(data[2])}
-            print ('Name:', name)
-            print (pformat(d[name]))
+            print('Name:', name)
+            print(pformat(d[name]))
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
+
 
 app = MyApplication(application_id='com.calibre-ebook.test-gtk')
 signal.signal(signal.SIGINT, signal.SIG_DFL)

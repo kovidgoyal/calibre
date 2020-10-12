@@ -1,18 +1,22 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-_count = 0
 
-import time, cStringIO
-from Queue import Queue, Empty
+import time, io
+from itertools import count
 
 from calibre import prints
 from calibre.constants import DEBUG
+from polyglot.queue import Queue, Empty
+from polyglot.builtins import cmp
+
+
+job_counter = count()
 
 
 class BaseJob(object):
@@ -22,10 +26,7 @@ class BaseJob(object):
     FINISHED = 2
 
     def __init__(self, description, done=lambda x: x):
-        global _count
-        _count += 1
-
-        self.id            = _count
+        self.id            = next(job_counter)
         self.description   = description
         self.done          = done
         self.done2         = None
@@ -59,10 +60,8 @@ class BaseJob(object):
                 self._status_text = _('Error') if self.failed else _('Finished')
             if DEBUG:
                 try:
-                    prints('Job:', self.id, self.description, 'finished',
-                        safe_encode=True)
-                    prints('\t'.join(self.details.splitlines(True)),
-                        safe_encode=True)
+                    prints('Job:', self.id, self.description, 'finished')
+                    prints('\t'.join(self.details.splitlines(True)))
                 except:
                     pass
             if not self._done_called:
@@ -125,28 +124,45 @@ class BaseJob(object):
     def is_running(self):
         return self.is_started and not self.is_finished
 
-    def __cmp__(self, other):
-        if self.is_finished == other.is_finished:
-            if self.start_time is None:
-                if other.start_time is None:  # Both waiting
-                    return cmp(other.id, self.id)
-                else:
-                    return 1
-            else:
-                if other.start_time is None:
-                    return -1
-                else:  # Both running
-                    return cmp(other.start_time, self.start_time)
+    def __hash__(self):
+        return id(self)
 
-        else:
+    def __eq__(self, other):
+        return self is other
+
+    def __ne__(self, other):
+        return self is not other
+
+    def __lt__(self, other):
+        return self.compare_to_other(other) < 0
+
+    def __le__(self, other):
+        return self.compare_to_other(other) <= 0
+
+    def __gt__(self, other):
+        return self.compare_to_other(other) > 0
+
+    def __ge__(self, other):
+        return self.compare_to_other(other) >= 0
+
+    def compare_to_other(self, other):
+        if self.is_finished != other.is_finished:
             return 1 if self.is_finished else -1
-        return 0
+
+        if self.start_time is None:
+            if other.start_time is None:  # Both waiting
+                return cmp(other.id, self.id)
+            return 1
+        if other.start_time is None:
+            return -1
+        # Both running
+        return cmp((other.start_time, id(other)), (self.start_time, id(self)))
 
     @property
     def log_file(self):
         if self.log_path:
             return open(self.log_path, 'rb')
-        return cStringIO.StringIO(_('No details available.').encode('utf-8',
+        return io.BytesIO(_('No details available.').encode('utf-8',
             'replace'))
 
     @property
@@ -159,6 +175,3 @@ class ParallelJob(BaseJob):
     def __init__(self, name, description, done, args=[], kwargs={}):
         self.name, self.args, self.kwargs = name, args, kwargs
         BaseJob.__init__(self, description, done)
-
-
-

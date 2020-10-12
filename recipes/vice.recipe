@@ -13,6 +13,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class VICENews(BasicNewsRecipe):
     __author__ = 'Adrian Tennessee (adrian.tennessee at domainthatnobodytakes.com)'
     __license__ = 'GPLv3'
@@ -36,32 +42,18 @@ class VICENews(BasicNewsRecipe):
     extra_css = '.article-title { font-size:125%; font-weight:bold }'
 
     keep_only_tags = [
-        # this is the image. comment it out if you don't want it
-        # desktop and lede version provide higher-res images
-        {'class': 'lede-image mobile'},
-        # publication information
-        {'class': 'article-header-inner'},
-        {'class': 'author'},
-        {'class': 'meta-time'},
-        # actual article
-        {'class': 'left-column'}
+        classes('article__header__title contributors article__header__datebar__date--original short-form__body__article-body')
     ]
 
     remove_tags = [
-        # remove topic section
-        dict(name='p', attrs={'class': ['article-topic']}),
-        # remove side header
-        dict(name='header', attrs={
-            'class': ['site-header article-site-header']}),
-        # remove topic tags at end of article
-        dict(name='div', attrs={'class': ['article-topics-inner']}),
-        # remove social media buttons
-        dict(name='div', attrs={'class': ['socials']}),
-        # remove "Recommended"-header for recommended articles
-        dict(name='header', attrs={'class': ['widget-header']}),
-        # remove recommended article links
-        dict(name='div', attrs={
-            'class': ['widget-list-item article-feature-item']})
+        classes('lazy-vice-ad abc__article_embed article__tagged user-newsletter-signup article__embed-component'),
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll(**classes('responsive-image__img')):
+            for source in img.findPreviousSiblings('source'):
+                img['src'] = source['srcset'].split('?')[0]
+                source.extract()
+        return soup
 
     feeds = [(u'VICE News', u'https://news.vice.com/rss')]

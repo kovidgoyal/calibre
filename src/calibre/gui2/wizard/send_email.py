@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cStringIO, sys
-from binascii import hexlify, unhexlify
+import sys
 from functools import partial
 from threading import Thread
 
@@ -20,6 +19,9 @@ from calibre import prints
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2 import error_dialog, question_dialog
+from polyglot.builtins import unicode_type
+from polyglot.binary import as_hex_unicode, from_hex_unicode
+from polyglot.io import PolyglotStringIO
 
 
 class TestEmail(QDialog):
@@ -46,7 +48,7 @@ class TestEmail(QDialog):
         l.addLayout(h)
         if opts.relay_host:
             self.la = la = QLabel(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
-                    dict(un=opts.relay_username, pw=unhexlify(opts.relay_password).decode('utf-8'),
+                    dict(un=opts.relay_username, pw=from_hex_unicode(opts.relay_password),
                         host=opts.relay_host, port=opts.relay_port, enc=opts.encryption))
             l.addWidget(la)
         self.log = QPlainTextEdit(self)
@@ -68,7 +70,7 @@ class TestEmail(QDialog):
 
     def run_test(self):
         try:
-            tb = self.test_func(unicode(self.to.text())) or _('Email successfully sent')
+            tb = self.test_func(unicode_type(self.to.text())) or _('Email successfully sent')
         except Exception:
             import traceback
             tb = traceback.format_exc()
@@ -130,7 +132,7 @@ class RelaySetup(QDialog):
         self.service = service
 
     def accept(self):
-        un = unicode(self.username.text())
+        un = unicode_type(self.username.text())
         if self.service.get('at_in_username', False) and '@' not in un:
             return error_dialog(self, _('Incorrect username'),
                     _('%s needs the full email address as your username') %
@@ -162,7 +164,7 @@ class SendEmail(QWidget, Ui_Form):
             self.relay_username.setText(opts.relay_username)
         self.relay_username.textChanged.connect(self.changed)
         if opts.relay_password:
-            self.relay_password.setText(unhexlify(opts.relay_password).decode('utf-8'))
+            self.relay_password.setText(from_hex_unicode(opts.relay_password))
         self.relay_password.textChanged.connect(self.changed)
         getattr(self, 'relay_'+opts.encryption.lower()).setChecked(True)
         self.relay_tls.toggled.connect(self.changed)
@@ -192,7 +194,7 @@ class SendEmail(QWidget, Ui_Form):
     def test_email_settings(self, to):
         opts = smtp_prefs().parse()
         from calibre.utils.smtp import sendmail, create_mail
-        buf = cStringIO.StringIO()
+        buf = PolyglotStringIO()
         debug_out = partial(prints, file=buf)
         oout, oerr = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = buf
@@ -203,7 +205,7 @@ class SendEmail(QWidget, Ui_Form):
             sendmail(msg, from_=opts.from_, to=[to],
                 verbose=3, timeout=30, relay=opts.relay_host,
                 username=opts.relay_username, debug_output=debug_out,
-                password=unhexlify(opts.relay_password).decode('utf-8'),
+                password=from_hex_unicode(opts.relay_password),
                 encryption=opts.encryption, port=opts.relay_port)
         except:
             import traceback
@@ -221,7 +223,9 @@ class SendEmail(QWidget, Ui_Form):
                     'port': 587,
                     'username': '@gmx.com',
                     'url': 'www.gmx.com',
-                    'extra': '',
+                    'extra': _('Before using this account to send mail, you must enable the'
+                        ' "Enable access to this account via POP3 and IMAP" option in GMX'
+                        ' under More > E-mail Settings > POP3 & IMAP.'),
                     'at_in_username': True,
                 },
                 'gmail': {
@@ -263,14 +267,14 @@ class SendEmail(QWidget, Ui_Form):
         self.relay_tls.setChecked(True)
 
     def set_email_settings(self, to_set):
-        from_ = unicode(self.email_from.text()).strip()
+        from_ = unicode_type(self.email_from.text()).strip()
         if to_set and not from_:
             error_dialog(self, _('Bad configuration'),
                          _('You must set the From email address')).exec_()
             return False
-        username = unicode(self.relay_username.text()).strip()
-        password = unicode(self.relay_password.text()).strip()
-        host = unicode(self.relay_host.text()).strip()
+        username = unicode_type(self.relay_username.text()).strip()
+        password = unicode_type(self.relay_password.text()).strip()
+        host = unicode_type(self.relay_host.text()).strip()
         enc_method = ('TLS' if self.relay_tls.isChecked() else 'SSL'
                 if self.relay_ssl.isChecked() else 'NONE')
         if host:
@@ -280,16 +284,16 @@ class SendEmail(QWidget, Ui_Form):
                             _('You must either set both the username <b>and</b> password for '
                             'the mail server or no username and no password at all.')).exec_()
                 return False
-            if not (username and password) and not question_dialog(self,
-                    _('Are you sure?'),
-                _('No username and password set for mailserver. Most '
-                    ' mailservers need a username and password. Are you sure?')):
-                    return False
+            if not (username and password) and not question_dialog(
+                    self, _('Are you sure?'),
+                    _('No username and password set for mailserver. Most '
+                      ' mailservers need a username and password. Are you sure?')):
+                return False
         conf = smtp_prefs()
         conf.set('from_', from_)
         conf.set('relay_host', host if host else None)
         conf.set('relay_port', self.relay_port.value())
         conf.set('relay_username', username if username else None)
-        conf.set('relay_password', hexlify(password.encode('utf-8')))
+        conf.set('relay_password', as_hex_unicode(password))
         conf.set('encryption', enc_method)
         return True

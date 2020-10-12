@@ -52,9 +52,9 @@ class respektRecipe(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://www.respekt.cz/')
+            br.open('https://www.respekt.cz/uzivatel/prihlaseni')
             for form in br.forms():
-                if form.attrs.get('id') == 'frm-authBox-loginForm':
+                if form.attrs.get('id') == 'frm-loginForm':
                     br.form = form
                     break
             for c in form.controls:
@@ -107,7 +107,7 @@ class respektRecipe(BasicNewsRecipe):
         self.browser.open('https://www.respekt.cz/?do=logout')
 
     def preprocess_html(self,soup):
-        raw = u''.join(unicode(a) for a in soup.contents)
+        raw = u''.join(type(u'')(a) for a in soup.contents)
         root = lxml.html.fromstring(raw)
         # Fix Letem světem
         if "Letem sv" in root.xpath("//title")[0].text:
@@ -169,4 +169,4 @@ class respektRecipe(BasicNewsRecipe):
             o.getparent().replace(o,e)
         except:
             pass
-        return(BeautifulSoup(lxml.etree.tostring(root,encoding=unicode)))
+        return(BeautifulSoup(lxml.etree.tostring(root,encoding='unicode')))

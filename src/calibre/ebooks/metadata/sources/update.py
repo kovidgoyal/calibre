@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
@@ -17,6 +17,7 @@ from calibre.constants import DEBUG, numeric_version
 from calibre.ebooks.metadata.sources.base import Source
 from calibre.utils.config import JSONConfig
 from calibre.utils.https import get_https_resource_securely
+from polyglot.builtins import iteritems, itervalues
 
 cache = JSONConfig('metadata-sources-cache.json')
 
@@ -37,30 +38,46 @@ def debug_print(*args, **k):
 def load_plugin(src):
     src = src.encode('utf-8')
     ns = {}
-    exec src in ns
-    for x in ns.itervalues():
+    exec(src, ns)
+    for x in itervalues(ns):
         if isinstance(x, type) and issubclass(x, Source) and x is not Source:
             return x
+
+
+class PatchedSearchEngines(object):
+
+    def __init__(self, ns):
+        self.__ns = ns
+
+    def __getattr__(self, attr):
+        try:
+            return self.__ns[attr]
+        except KeyError:
+            raise AttributeError('{} not present in search_engines_module'.format(attr))
 
 
 def patch_search_engines(src):
     global current_search_engines
     src = src.encode('utf-8')
     ns = {}
-    exec src in ns
-    mcv = ns.get('minimum_calibre_version')
+    try:
+        exec(src, ns)
+    except Exception:
+        mcv = None
+    else:
+        mcv = ns.get('minimum_calibre_version')
     if mcv is None or mcv > numeric_version:
         return
     cv = ns.get('current_version')
     if cv is None or cv <= builtin_search_engines.current_version:
         return
-    current_search_engines = ns
+    current_search_engines = PatchedSearchEngines(ns)
 
 
 def patch_plugins():
     from calibre.customize.ui import patch_metadata_plugins
     patches = {}
-    for name, val in cache.iteritems():
+    for name, val in iteritems(cache):
         if name == 'hashes':
             continue
         if name == 'search_engines':
@@ -78,7 +95,7 @@ def update_needed():
         'https://code.calibre-ebook.com/metadata-sources/hashes.json')
     hashes = bz2.decompress(hashes)
     hashes = json.loads(hashes)
-    for k, v in hashes.iteritems():
+    for k, v in iteritems(hashes):
         if current_hashes.get(k) != v:
             needed[k] = v
     remove = set(current_hashes) - set(hashes)
@@ -116,7 +133,7 @@ def main(report_error=prints, report_action=prints):
             cache.touch()
             return
         updated = {}
-        for name, expected_hash in needed.iteritems():
+        for name, expected_hash in iteritems(needed):
             report_action('Updating metadata source {}...'.format(name))
             try:
                 update_plugin(name, updated, expected_hash)

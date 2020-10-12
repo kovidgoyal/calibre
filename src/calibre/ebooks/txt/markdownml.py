@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__ = 'GPL 3'
 __copyright__ = '''2011, John Schember <john@nachtimwald.com>
 2011, Leigh Parry <leighparry@blueyonder.co.uk>'''
@@ -15,6 +16,7 @@ from functools import partial
 from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class MarkdownMLizer(OEB2HTML):
@@ -41,7 +43,7 @@ class MarkdownMLizer(OEB2HTML):
         return txt
 
     def mlize_spine(self, oeb_book):
-        output = [u'']
+        output = ['']
         for item in oeb_book.spine:
             self.log.debug('Converting %s to Markdown formatted TXT...' % item.href)
             self.rewrite_ids(item.data, item)
@@ -76,8 +78,8 @@ class MarkdownMLizer(OEB2HTML):
         text = re.sub('(?msu)\n{7,}', '\n' * 6, text)
 
         # Remove blank lines at beginning and end of document.
-        text = re.sub('^\s*', '', text)
-        text = re.sub('\s*$', '\n\n', text)
+        text = re.sub(r'^\s*', '', text)
+        text = re.sub(r'\s*$', '\n\n', text)
 
         return text
 
@@ -110,10 +112,10 @@ class MarkdownMLizer(OEB2HTML):
         '''
 
         # We can only processes tags. If there isn't a tag return any text.
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, string_or_bytes) \
            or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
             return ['']
@@ -182,9 +184,9 @@ class MarkdownMLizer(OEB2HTML):
             tags.append('\n')
         elif tag == 'a':
             # Only write links with absolute (external) urls.
-            if self.opts.keep_links and attribs.has_key('href') and '://' in attribs['href']:  # noqa
+            if self.opts.keep_links and 'href' in attribs and '://' in attribs['href']:
                 title = ''
-                if attribs.has_key('title'):  # noqa
+                if 'title' in attribs:
                     title = ' "' + attribs['title'] + '"'
                     remove_space = self.remove_space_after_newline
                     title = self.remove_newlines(title)
@@ -194,7 +196,7 @@ class MarkdownMLizer(OEB2HTML):
         elif tag == 'img':
             if self.opts.keep_image_references:
                 txt = '!'
-                if attribs.has_key('alt'):  # noqa
+                if 'alt' in attribs:
                     remove_space = self.remove_space_after_newline
                     txt += '[' + self.remove_newlines(attribs['alt']) + ']'
                     self.remove_space_after_newline = remove_space
@@ -225,7 +227,7 @@ class MarkdownMLizer(OEB2HTML):
                 text.append('+ ')
             elif li['name'] == 'ol':
                 li['num'] += 1
-                text.append(unicode(li['num']) + '. ')
+                text.append(unicode_type(li['num']) + '. ')
 
         # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:

@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from functools import partial
 
 from PyQt5.Qt import QTextBlockUserData
@@ -48,7 +48,7 @@ def create_lexer(base_class):
                                     statestack.append(statestack[-1])
                                 else:
                                     statestack.append(state)
-                        elif isinstance(new_state, int):
+                        elif isinstance(new_state, numbers.Integral):
                             # pop
                             del statestack[new_state:]
                         elif new_state == '#push':
@@ -92,7 +92,9 @@ def create_lexer(base_class):
         state.pygments_stack = statestack
         return formats
 
-    return type(str('Qt'+base_class.__name__), (base_class,), {
+    name_type = type(base_class.__name__)
+
+    return type(name_type('Qt'+base_class.__name__), (base_class,), {
         'get_tokens_unprocessed': get_tokens_unprocessed,
         'lex_a_line':lex_a_line,
     })
@@ -143,7 +145,8 @@ def create_formats(highlighter):
 
 
 def create_highlighter(name, lexer_class):
-    return type(str(name), (SyntaxHighlighter,), {
+    name_type = type(lexer_class.__name__)
+    return type(name_type(name), (SyntaxHighlighter,), {
         'state_map': {NORMAL:create_lexer(lexer_class)().lex_a_line},
         'create_formats_func': create_formats,
         'user_data_factory': PygmentsUserData,

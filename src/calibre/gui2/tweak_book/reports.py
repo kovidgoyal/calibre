@@ -1,19 +1,17 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
-from future_builtins import map
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
 from csv import writer as csv_writer
-from io import BytesIO
+from io import StringIO
 
 import regex
 from PyQt5.Qt import (
@@ -22,23 +20,30 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl, QWebView)
+    QFontDatabase, QComboBox, QUrl)
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import (
     gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
     ClassFileMatch, ClassElement, CSSRule, LinkLocation)
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url, secure_web_page
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
+from calibre.gui2.webengine import secure_webengine, RestartingWebEngineView
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.utils.icu import primary_contains, numeric_sort_key, character_name_from_code
+from calibre.utils.icu import primary_contains, numeric_sort_key
+from calibre.utils.unicode_names import character_name_from_code
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
+from polyglot.builtins import filter, iteritems, map, range, unicode_type, as_bytes
 
 # Utils {{{
 
 ROOT = QModelIndex()
+
+
+def psk(x):
+    return QByteArray(numeric_sort_key(x))
 
 
 def read_state(name, default=None):
@@ -75,7 +80,7 @@ class ProxyModel(QSortFilterProxyModel):
         if not self._filter_text:
             return True
         sm = self.sourceModel()
-        for item in (sm.data(sm.index(row, c, parent)) or '' for c in xrange(sm.columnCount())):
+        for item in (sm.data(sm.index(row, c, parent)) or '' for c in range(sm.columnCount())):
             if item and primary_contains(self._filter_text, item):
                 return True
         return False
@@ -146,7 +151,7 @@ class FilesView(QTableView):
         if self.model().rowCount() > 0:
             num = min(5, self.model().rowCount())
             h = 1000000
-            for i in xrange(num):
+            for i in range(num):
                 self.resizeRowToContents(i)
                 h = min(h, self.rowHeight(i))
             self.verticalHeader().setDefaultSectionSize(h)
@@ -165,7 +170,7 @@ class FilesView(QTableView):
 
     @property
     def selected_locations(self):
-        return filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes()))
+        return list(filter(None, (self.proxy.sourceModel().location(self.proxy.mapToSource(index)) for index in self.selectionModel().selectedIndexes())))
 
     @property
     def current_location(self):
@@ -193,12 +198,12 @@ class FilesView(QTableView):
             m.exec_(pos)
 
     def to_csv(self):
-        buf = BytesIO()
+        buf = StringIO(newline='')
         w = csv_writer(buf)
         w.writerow(self.proxy.sourceModel().COLUMN_HEADERS)
         cols = self.proxy.columnCount()
-        for r in xrange(self.proxy.rowCount()):
-            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in xrange(cols)]
+        for r in range(self.proxy.rowCount()):
+            items = [self.proxy.index(r, c).data(Qt.DisplayRole) for c in range(cols)]
             w.writerow(items)
         return buf.getvalue()
 
@@ -242,7 +247,6 @@ class FilesModel(FileCollection):
         self.total_size = sum(map(itemgetter(3), self.files))
         self.images_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'image')))
         self.fonts_size = sum(map(itemgetter(3), (f for f in self.files if f.category == 'font')))
-        psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.dir), psk(entry.basename), entry.size, psk(self.CATEGORY_NAMES.get(entry.category, '')))
                                for entry in self.files)
         self.endResetModel()
@@ -265,7 +269,7 @@ class FilesModel(FileCollection):
                 return entry.basename
             if col == 2:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
 
@@ -426,7 +430,6 @@ class ImagesModel(FileCollection):
         self.beginResetModel()
         self.files = data['images']
         self.total_size = sum(map(itemgetter(3), self.files))
-        psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.basename), entry.size, len(entry.usage), (entry.width, entry.height))
                                for entry in self.files)
         self.endResetModel()
@@ -447,9 +450,9 @@ class ImagesModel(FileCollection):
                 return entry.basename
             if col == 1:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else type('')(sz))
+                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
             if col == 2:
-                return type('')(len(entry.usage))
+                return unicode_type(len(entry.usage))
             if col == 3:
                 return '%d x %d' % (entry.width, entry.height)
         elif role == Qt.UserRole:
@@ -524,7 +527,6 @@ class LinksModel(FileCollection):
         self.links = self.files = data['links']
         self.total_size = len(self.links)
         self.num_bad = sum(1 for link in self.links if link.ok is False)
-        psk = numeric_sort_key
         self.sort_keys = tuple((
             link.ok, psk(link.location.name), psk(link.text or ''), psk(link.href or ''), psk(link.anchor.id or ''), psk(link.anchor.text or ''))
                                for link in self.links)
@@ -576,7 +578,7 @@ class LinksModel(FileCollection):
                 pass
 
 
-class WebView(QWebView):
+class WebView(RestartingWebEngineView):
 
     def sizeHint(self):
         return QSize(600, 200)
@@ -602,11 +604,8 @@ class LinksWidget(QWidget):
         e.textChanged.connect(f.proxy.filter_text)
         s.addWidget(f)
         self.links.restore_table('links-table', sort_column=1)
-        self.view = WebView(self)
-        secure_web_page(self.view.page())
+        self.view = None
         self.setContextMenuPolicy(Qt.NoContextMenu)
-        self.view.setContextMenuPolicy(Qt.NoContextMenu)
-        s.addWidget(self.view)
         self.ignore_current_change = False
         self.current_url = None
         f.current_changed.connect(self.current_changed)
@@ -614,10 +613,16 @@ class LinksWidget(QWidget):
             s.restoreState(read_state('links-view-splitter'))
         except TypeError:
             pass
-        s.setCollapsible(0, False), s.setCollapsible(1, True)
+        s.setCollapsible(0, False)
         s.setStretchFactor(0, 10)
 
     def __call__(self, data):
+        if self.view is None:
+            self.view = WebView(self)
+            secure_webengine(self.view)
+            self.view.setContextMenuPolicy(Qt.NoContextMenu)
+            self.splitter.addWidget(self.view)
+            self.splitter.setCollapsible(1, True)
         self.ignore_current_change = True
         self.model(data)
         self.filter_edit.clear()
@@ -642,11 +647,13 @@ class LinksWidget(QWidget):
                 if link.anchor.id:
                     url.setFragment(link.anchor.id)
         if url is None:
-            self.view.setHtml('<p>' + _('No destination found for this link'))
+            if self.view:
+                self.view.setHtml('<p>' + _('No destination found for this link'))
             self.current_url = url
         elif url != self.current_url:
             self.current_url = url
-            self.view.setUrl(url)
+            if self.view:
+                self.view.setUrl(url)
 
     def double_clicked(self, index):
         link = index.data(Qt.UserRole)
@@ -680,7 +687,6 @@ class WordsModel(FileCollection):
         self.beginResetModel()
         self.total_words, self.files = data['words']
         self.total_size = len({entry.locale for entry in self.files})
-        psk = numeric_sort_key
         lsk_cache = {}
 
         def locale_sort_key(loc):
@@ -713,7 +719,7 @@ class WordsModel(FileCollection):
                     ans += ' (%s)' % entry.locale.countrycode
                 return ans
             if col == 2:
-                return type('')(len(entry.usage))
+                return unicode_type(len(entry.usage))
         elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
@@ -777,7 +783,6 @@ class CharsModel(FileCollection):
         self.beginResetModel()
         self.files = data['chars']
         self.all_chars = tuple(entry.char for entry in self.files)
-        psk = numeric_sort_key
         self.sort_keys = tuple((psk(entry.char), None, entry.codepoint, entry.count) for entry in self.files)
         self.endResetModel()
 
@@ -802,7 +807,7 @@ class CharsModel(FileCollection):
             if col == 2:
                 return ('U+%04X' if entry.codepoint < 0x10000 else 'U+%06X') % entry.codepoint
             if col == 3:
-                return type('')(entry.count)
+                return unicode_type(entry.count)
         elif role == Qt.UserRole:
             try:
                 return self.files[index.row()]
@@ -874,7 +879,7 @@ class CharsWidget(QWidget):
             ed = boss.edit_file_requested(file_name)
             if ed is None:
                 return
-            if ed.editor.find(pat, complete=not from_cursor):
+            if ed.editor.find_text(pat, complete=not from_cursor):
                 boss.show_editor(file_name)
                 return True
         return False
@@ -980,7 +985,7 @@ class CSSRulesModel(QAbstractItemModel):
         self.rules = data['css']
         self.num_unused = sum(1 for r in self.rules if r.count == 0)
         try:
-            self.num_size = len(str(max(r.count for r in self.rules)))
+            self.num_size = len(unicode_type(max(r.count for r in self.rules)))
         except ValueError:
             self.num_size = 1
         self.build_maps()
@@ -1060,14 +1065,13 @@ class CSSWidget(QWidget):
         self.summary = la = QLabel('\xa0')
         h.addWidget(la)
 
-    @dynamic_property
+    @property
     def sort_order(self):
-        def fget(self):
-            return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
+        return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
 
-        def fset(self, val):
-            self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
-        return property(fget=fget, fset=fset)
+    @sort_order.setter
+    def sort_order(self, val):
+        self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
 
     def update_summary(self):
         self.summary.setText(_('{0} rules, {1} unused').format(self.model.rowCount(), self.model.num_unused))
@@ -1088,10 +1092,10 @@ class CSSWidget(QWidget):
         self.proxy.sort(0, self.sort_order)
 
     def to_csv(self):
-        buf = BytesIO()
+        buf = StringIO(newline='')
         w = csv_writer(buf)
         w.writerow([_('Style Rule'), _('Number of matches')])
-        for r in xrange(self.proxy.rowCount()):
+        for r in range(self.proxy.rowCount()):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.rule.selector, entry.count])
         return buf.getvalue()
@@ -1205,7 +1209,7 @@ class ClassesModel(CSSRulesModel):
         self.rules = self.classes = tuple(data['classes'])
         self.num_unused = sum(1 for ce in self.classes if ce.num_of_matches == 0)
         try:
-            self.num_size = len(str(max(r.num_of_matches for r in self.classes)))
+            self.num_size = len(unicode_type(max(r.num_of_matches for r in self.classes)))
         except ValueError:
             self.num_size = 1
         self.build_maps()
@@ -1234,10 +1238,10 @@ class ClassesWidget(CSSWidget):
         self.summary.setText(_('{0} classes, {1} unused').format(self.model.rowCount(), self.model.num_unused))
 
     def to_csv(self):
-        buf = BytesIO()
+        buf = StringIO(newline='')
         w = csv_writer(buf)
         w.writerow([_('Class'), _('Number of matches')])
-        for r in xrange(self.proxy.rowCount()):
+        for r in range(self.proxy.rowCount()):
             entry = self.proxy.mapToSource(self.proxy.index(r, 0)).data(Qt.UserRole)
             w.writerow([entry.cls, entry.num_of_matches])
         return buf.getvalue()
@@ -1327,22 +1331,22 @@ class ReportsWidget(QWidget):
         if current_page is not None:
             self.reports.setCurrentRow(current_page)
         self.layout().setContentsMargins(0, 0, 0, 0)
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             self.stack.widget(i).layout().setContentsMargins(0, 0, 0, 0)
 
     def __call__(self, data):
         jump.clear()
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             st = time.time()
             self.stack.widget(i)(data)
             if DEBUG:
                 category = self.reports.item(i).data(Qt.DisplayRole)
-                print ('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
+                print('Widget time for %12s: %.2fs seconds' % (category, time.time() - st))
 
     def save(self):
         save_state('splitter-state', bytearray(self.splitter.saveState()))
         save_state('report-page', self.reports.currentRow())
-        for i in xrange(self.stack.count()):
+        for i in range(self.stack.count()):
             self.stack.widget(i).save()
 
     def to_csv(self):
@@ -1356,7 +1360,7 @@ class ReportsWidget(QWidget):
             (_('CSV files'), ['csv'])], all_files=False, initial_filename='%s.csv' % category)
         if fname:
             with open(fname, 'wb') as f:
-                f.write(data)
+                f.write(as_bytes(data))
 
 
 class Reports(Dialog):
@@ -1438,8 +1442,8 @@ class Reports(Dialog):
                 ' information.'), det_msg=data, show=True)
         data, timing = data
         if DEBUG:
-            for x, t in sorted(timing.iteritems(), key=itemgetter(1)):
-                print ('Time for %6s data: %.3f seconds' % (x, t))
+            for x, t in sorted(iteritems(timing), key=itemgetter(1)):
+                print('Time for %6s data: %.3f seconds' % (x, t))
         self.reports(data)
 
     def accept(self):

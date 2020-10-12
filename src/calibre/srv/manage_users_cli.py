@@ -1,14 +1,13 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
 from functools import partial
 
 from calibre import prints
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, iswindows
+from polyglot.builtins import iteritems, raw_input, filter, unicode_type
 
 # Manage users CLI {{{
 
@@ -20,7 +19,13 @@ def manage_users_cli(path=None):
 
     def get_input(prompt):
         prints(prompt, end=' ')
-        return raw_input().decode(enc)
+        ans = raw_input()
+        if isinstance(ans, bytes):
+            ans = ans.decode(enc)
+        if iswindows:
+            # https://bugs.python.org/issue11272
+            ans = ans.rstrip('\r')
+        return ans
 
     def choice(
         question=_('What do you want to do?'), choices=(), default=None, banner=''):
@@ -35,7 +40,7 @@ def manage_users_cli(path=None):
                     len(choices), _('default'), default + 1)
             reply = get_input(prompt)
             if not reply and default is not None:
-                reply = str(default + 1)
+                reply = unicode_type(default + 1)
             if not reply:
                 prints(_('No choice selected, exiting...'))
                 raise SystemExit(0)
@@ -70,7 +75,7 @@ def manage_users_cli(path=None):
         return get_valid(_('Enter the username'), validate)
 
     def get_pass(username):
-        from calibre.utils.unicode_getpass import getpass
+        from getpass import getpass
 
         while True:
             one = getpass(
@@ -115,10 +120,10 @@ def manage_users_cli(path=None):
     def change_readonly(username):
         readonly = m.is_readonly(username)
         if readonly:
-            q = _('Allow {} to make changes (i.e. grant write access)?')
+            q = _('Allow {} to make changes (i.e. grant write access)')
         else:
-            q = _('Prevent {} from making changes (i.e. remove write access)?')
-        if get_input(q.format(username) + ' [y/n]:').lower() == 'y':
+            q = _('Prevent {} from making changes (i.e. remove write access)')
+        if get_input(q.format(username) + '? [y/n]:').lower() == 'y':
             m.set_readonly(username, not readonly)
 
     def change_restriction(username):
@@ -126,18 +131,24 @@ def manage_users_cli(path=None):
         if r is None:
             raise SystemExit('The user {} does not exist'.format(username))
         if r['allowed_library_names']:
+            libs = r['allowed_library_names']
             prints(
-                _('{} is currently only allowed to access the libraries named: {}')
-                .format(username, ', '.join(r['allowed_library_names'])))
+                ngettext(
+                    '{} is currently only allowed to access the library named: {}',
+                    '{} is currently only allowed to access the libraries named: {}',
+                    len(libs)).format(username, ', '.join(libs)))
         if r['blocked_library_names']:
+            libs = r['blocked_library_names']
             prints(
-                _('{} is currently not allowed to access the libraries named: {}')
-                .format(username, ', '.join(r['blocked_library_names'])))
+                ngettext(
+                    '{} is currently not allowed to access the library named: {}',
+                    '{} is currently not allowed to access the libraries named: {}',
+                    len(libs)).format(username, ', '.join(libs)))
         if r['library_restrictions']:
             prints(
                 _('{} has the following additional per-library restrictions:')
                 .format(username))
-            for k, v in r['library_restrictions'].iteritems():
+            for k, v in iteritems(r['library_restrictions']):
                 prints(k + ':', v)
         else:
             prints(_('{} has no additional per-library restrictions').format(username))
@@ -171,7 +182,7 @@ def manage_users_cli(path=None):
             pass
         else:
             names = get_input(_('Enter a comma separated list of library names:'))
-            names = filter(None, [x.strip() for x in names.split(',')])
+            names = list(filter(None, [x.strip() for x in names.split(',')]))
             w = 'allowed_library_names' if c == 1 else 'blocked_library_names'
             t = _('Allowing access only to libraries: {}') if c == 1 else _(
                 'Allowing access to all libraries, except: {}')
@@ -187,7 +198,7 @@ def manage_users_cli(path=None):
                 _('Change read/write permission for {}').format(username),
                 _('Change the libraries {} is allowed to access').format(username),
                 _('Cancel'), ],
-            banner='\n' + _('{} has {} access').format(
+            banner='\n' + _('{0} has {1} access').format(
                 username,
                 _('readonly') if m.is_readonly(username) else _('read-write')))
         print()

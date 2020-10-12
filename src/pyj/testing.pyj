@@ -1,0 +1,102 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from dom import clear
+
+def raise_fail(preamble, msg, call_site):
+    if msg:
+        msg = '. ' + msg
+    else:
+        msg = ''
+    if call_site?.module_name:
+        msg += f' [in module {call_site.module_name}:{call_site.line}:{call_site.col}]'
+    raise AssertionError(preamble + msg)
+
+
+def repr_of(a):
+    if not a:
+        return a
+    q = a.outerHTML
+    if q:
+        return q.split('>')[0] + '>'
+    if a.nodeType is Node.TEXT_NODE:
+        return repr(a.nodeValue)
+    return str(a)
+
+
+def assert_equal(a, b, msg, call_site=None):
+
+    def fail():
+        ra = repr_of(a)
+        rb = repr_of(b)
+        p = f'{ra} != {rb}'
+        raise_fail(p, msg, call_site)
+
+    atype = jstype(a)
+    btype = jstype(b)
+    base_types = {'number': True, 'boolean': True, 'string': True, 'undefined': True}
+    if base_types[atype] or base_types[btype] or a is None or b is None:
+        if a is not b:
+            fail()
+        return
+    if a.__eq__:
+        if not a.__eq__(b):
+            fail()
+        return
+    if a.isSameNode:
+        if not a.isSameNode(b):
+            fail()
+        return
+    if b.__eq__:
+        if not b.__eq__(a):
+            fail()
+        return
+    if b.isSameNode:
+        if not b.isSameNode(a):
+            fail()
+        return
+    if a.length? or b.length?:
+        if a.length is not b.length:
+            fail()
+        for i in range(a.length):
+            assert_equal(a[i], b[i])
+        return
+    if atype is 'object':
+        for key in Object.keys(a):
+            assert_equal(a[key], b[key])
+    if btype is 'object':
+        for key in Object.keys(b):
+            assert_equal(a[key], b[key])
+
+    if atype is not 'object' and btype is not 'object':
+        fail()
+
+
+def assert_true(x, msg, call_site=None):
+    if not x:
+        raise_fail(f'{x} is not truthy', msg, call_site)
+
+
+def assert_fale(x, msg, call_site=None):
+    if x:
+        raise_fail(f'{x} is truthy', msg, call_site)
+
+
+def reset_dom():
+    html = document.documentElement
+    clear(html)
+    head = document.createElement('head')
+    body = document.createElement('body')
+    html.appendChild(head)
+    html.appendChild(body)
+
+
+registered_tests = {}
+
+
+def test(f):
+    mod = f.__module__ or 'unknown_test_module'
+    f.test_name = mod + '.' + f.name
+    registered_tests[f.test_name] = f
+    return f

@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -91,7 +93,7 @@ def Book(options, logger, font_delta=0, header=None,
                linespace=int(10*profile.line_space),
                baselineskip=baselineskip,
                wordspace=10*options.wordspace)
-    if fonts['serif'] and fonts['serif'].has_key('normal'):  # noqa
+    if fonts['serif'] and 'normal' in fonts['serif']:
         tsd['fontfacename'] = fonts['serif']['normal'][1]
 
     book = _Book(textstyledefault=tsd,
@@ -108,7 +110,6 @@ def Book(options, logger, font_delta=0, header=None,
     for family in ['serif', 'sans', 'mono']:
         if not fonts[family]:
             fonts[family] = {'normal' : (None, profile.default_fonts[family])}
-        elif not fonts[family].has_key('normal'):  # noqa
+        elif 'normal' not in fonts[family]:
             raise ConversionError('Could not find the normal version of the ' + family + ' font')
     return book, fonts
-

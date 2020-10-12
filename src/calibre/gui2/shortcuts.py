@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import error_dialog
 from calibre.utils.config import XMLConfig
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 DEFAULTS = Qt.UserRole
 DESCRIPTION = Qt.UserRole + 1
@@ -111,14 +112,14 @@ class Customize(QFrame):
                 Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt, Qt.Key_Meta,
                 Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock, Qt.Key_ScrollLock):
             return QWidget.keyPressEvent(self, ev)
-        sequence = QKeySequence(code|(int(ev.modifiers())&~Qt.KeypadModifier))
+        sequence = QKeySequence(code|(int(ev.modifiers()) & (~Qt.KeypadModifier)))
         setattr(self, 'shortcut%d'%which, sequence)
         self.clear_button(which)
         self.capture = 0
         dup_desc = self.dup_check(sequence, self.key)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
-                    unicode(sequence.toString(QKeySequence.NativeText)) + ' ' +
+                    unicode_type(sequence.toString(QKeySequence.NativeText)) + ' ' +
                     _('already assigned to') + ' ' + dup_desc, show=True)
             self.clear_clicked(which=which)
 
@@ -169,12 +170,12 @@ class Delegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         defs = index.data(DEFAULTS)
-        defs = _(' or ').join([unicode(x.toString(x.NativeText)) for x in defs])
-        editor.key = unicode(index.data(KEY))
+        defs = _(' or ').join([unicode_type(x.toString(x.NativeText)) for x in defs])
+        editor.key = unicode_type(index.data(KEY))
         editor.default_shortcuts.setText(_('&Default') + ': %s' % defs)
         editor.default_shortcuts.setChecked(True)
         editor.header.setText('<b>%s: %s</b>'%(_('Customize shortcuts for'),
-            unicode(index.data(DESCRIPTION))))
+            unicode_type(index.data(DESCRIPTION))))
         custom = index.data(CUSTOM)
         if custom:
             editor.custom.setChecked(True)
@@ -202,7 +203,7 @@ class Delegate(QStyledItemDelegate):
 
 class Shortcuts(QAbstractListModel):
 
-    TEMPLATE = u'''
+    TEMPLATE = '''
     <p><b>{0}</b><br>
     {2}: <code>{1}</code></p>
     '''
@@ -236,7 +237,7 @@ class Shortcuts(QAbstractListModel):
     def get_match(self, event_or_sequence, ignore=tuple()):
         q = event_or_sequence
         if isinstance(q, QKeyEvent):
-            q = QKeySequence(q.key()|(int(q.modifiers())&~Qt.KeypadModifier))
+            q = QKeySequence(q.key()|(int(q.modifiers()) & (~Qt.KeypadModifier)))
         for key in self.order:
             if key not in ignore:
                 for seq in self.get_sequences(key):
@@ -250,7 +251,7 @@ class Shortcuts(QAbstractListModel):
             return self.descriptions[key]
 
     def get_shortcuts(self, key):
-        return [unicode(x.toString(x.NativeText)) for x in
+        return [unicode_type(x.toString(x.NativeText)) for x in
                 self.get_sequences(key)]
 
     def data(self, index, role):
@@ -279,7 +280,7 @@ class Shortcuts(QAbstractListModel):
     def set_data(self, index, custom):
         key = self.order[index.row()]
         if custom:
-            self.custom[key] = [unicode(x.toString(QKeySequence.PortableText)) for x in custom]
+            self.custom[key] = [unicode_type(x.toString(QKeySequence.PortableText)) for x in custom]
         elif key in self.custom:
             del self.custom[key]
 

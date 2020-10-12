@@ -26,7 +26,7 @@ Basic workflow
 ---------------
 
 .. note::
-    A video tour of the calibre editor is available `here
+    A video tour of the calibre E-book editor is available `here
     <https://calibre-ebook.com/demo#tutorials>`_.
 
 When you first open a book with the Edit book tool, you will be presented with
@@ -102,7 +102,10 @@ want to rename all the HTML files to have names Chapter-1.html, Chapter-2.html
 and so on. Select the files you want bulk renamed by holding down the Shift or
 Ctrl key and clicking the files. Then right click and select :guilabel:`Bulk
 rename`. Enter a prefix and what number you would like the automatic numbering
-to start at, click OK and you are done.
+to start at, click OK and you are done. The bulk rename dialog also lets you
+rename files by the order they appear in the book instead of the order you
+selected them in, useful, for instance to rename all images by the order
+they appear.
 
 Finally, you can bulk change the file extension for all selected files. Select
 multiple files, as above, and right click and choose :guilabel:`Change the file
@@ -171,6 +174,12 @@ Once you are done working on the exported file, you can re-import it into the
 book, by right clicking on the file again and choosing :guilabel:`Replace with
 file...` which will allow you to replace the file in the book with
 the previously exported file.
+
+You can also copy files between multiple editor instances. Select
+the files you want to copy in the :guilabel:`File browser`, then right click
+and choose, :guilabel:`Copy selected files to another editor instance`. Then,
+in the other editor instance, right click in the :guilabel:`File browser`
+and choose :guilabel:`Paste file from other editor instance`.
 
 Adding new images/fonts/etc. or creating new blank files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -242,10 +251,11 @@ You can also go to a specific line in the currently open editor via
 Saved searches
 ^^^^^^^^^^^^^^^
 
-You can save frequently used search/replace expressions and reuse them multiple times.
-To save a search simply right click in the Find box and select :guilabel:`Save current search`.
+You can save frequently used search/replace expressions (including function
+mode expressions) and reuse them multiple times.  To save a search simply right
+click in the Find box and select :guilabel:`Save current search`.
 
-You can bring up the dialog of saved searches via :guilabel:`Search->Saved
+You can bring up the saved searches via :guilabel:`Search->Saved
 searches`. This will present you with a list of search and replace expressions
 that you can apply. You can even select multiple entries in the list by holding
 down the Ctrl Key while clicking so as to run multiple search and replace
@@ -481,6 +491,14 @@ attributes. After removing the style information, a summary of all the changes
 made is displayed so you can see exactly what was changed. The tool can be
 accessed via :guilabel:`Tools->Filter style information`.
 
+
+Upgrading the book's internals
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This tool can be used to upgrade the book's internals, if possible. For
+instance it will upgrade EPUB 2 books to EPUB 3 books. The tool can be
+accessed via :guilabel:`Upgrade book internals`.
+
 .. _checkpoints:
 
 Checkpoints
@@ -549,7 +567,7 @@ Splitting HTML files
 .. |spmb| image:: images/split-button.png
 
 One, perhaps non-obvious, use of the preview panel is to split long HTML files.
-While viewing the file you want to split, click the :guilabel:`split mode`
+While viewing the file you want to split, click the :guilabel:`Split mode`
 button under the preview panel |spmb|. Then simply move your mouse to the place
 where you want to split the file and click. A thick green line will show you
 exactly where the split will happen as you move your mouse. Once you have found
@@ -652,8 +670,8 @@ common in your book and to run a simple search and replace on individual words.
 
 .. note::
     If you make any changes to the book by editing files while the spell check
-    tool is open, you should click the :guilabel:`Refresh` button in the spell
-    check tool. If you do not do this and continue to use the spell check tool,
+    tool is open, you should click the :guilabel:`Refresh` button in the Spell
+    check tool. If you do not do this and continue to use the Spell check tool,
     you could lose the changes you have made in the editor.
 
 Adding new dictionaries
@@ -714,7 +732,7 @@ Checking external links
 
 You can use this tool to check all links in your book that point to external
 websites. The tool will try to visit every externally linked website, and
-if the visit fails, it will report all broken links in a convenient format for 
+if the visit fails, it will report all broken links in a convenient format for
 you to fix.
 
 
@@ -784,7 +802,8 @@ The HTML editor has very sophisticated syntax highlighting. Features include:
     * The text inside bold, italic and heading tags is made bold/italic
     * As you move your cursor through the HTML, the matching HTML tags are
       highlighted, and you can jump to the opening or closing tag with the
-      keyboard shortcuts :kbd:`Ctrl+{` and :kbd:`Ctrl+}`
+      keyboard shortcuts :kbd:`Ctrl+{` and :kbd:`Ctrl+}`. Similarly, you
+      can select the contents of a tag with :kbd:`Ctrl+Alt+T`.
     * Invalid HTML is highlighted with a red underline
     * Spelling errors in the text inside HTML tags and attributes such as title
       are highlighted. The spell checking is language aware, based on the value
@@ -832,7 +851,7 @@ find it saves you a lot of time and effort.
 Snippets
 ^^^^^^^^^^^^^^^
 
-The calibre editor supports *snippets*. A snippet is a
+The calibre E-book editor supports *snippets*. A snippet is a
 piece of text that is either re-used often or contains a lot of redundant
 text. The editor allows you to insert a snippet with only a few key strokes.
 The snippets are very powerful, with many features, such as placeholders you

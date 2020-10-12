@@ -1,50 +1,45 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import hashlib, binascii
-from functools import partial
+import hashlib
 from collections import OrderedDict, namedtuple
-from urllib import urlencode
-
-from lxml import etree, html
+from functools import partial
+from html5_parser import parse
+from lxml import etree
 from lxml.builder import ElementMaker
 
+from calibre import force_unicode, guess_type, prepare_string_for_xml as xml
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
-from calibre.ebooks.metadata import fmt_sidx, authors_to_string, rating_to_stars
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, rating_to_stars
 from calibre.library.comments import comments_to_html
-from calibre import guess_type, prepare_string_for_xml as xml
-from calibre.utils.icu import sort_key
-from calibre.utils.date import as_utc, timestampfromdt, is_date_undefined
-from calibre.utils.search_query_parser import ParseException
-
-from calibre.srv.errors import HTTPNotFound, HTTPInternalServerError
+from calibre.srv.errors import HTTPInternalServerError, HTTPNotFound
+from calibre.srv.http_request import parse_uri
 from calibre.srv.routes import endpoint
-from calibre.srv.utils import get_library_data, http_date, Offsets
-
-
-def hexlify(x):
-    if isinstance(x, unicode):
-        x = x.encode('utf-8')
-    return binascii.hexlify(x)
-
-
-def unhexlify(x):
-    return binascii.unhexlify(x).decode('utf-8')
+from calibre.srv.utils import Offsets, get_library_data, http_date
+from calibre.utils.config import prefs
+from calibre.utils.date import as_utc, is_date_undefined, timestampfromdt
+from calibre.utils.icu import sort_key
+from calibre.utils.search_query_parser import ParseException
+from calibre.utils.xml_parse import safe_xml_fromstring
+from polyglot.binary import as_hex_unicode, from_hex_unicode
+from polyglot.builtins import as_bytes, filter, iteritems, unicode_type
+from polyglot.urllib import unquote_plus, urlencode
 
 
 def atom(ctx, rd, endpoint, output):
     rd.outheaders.set('Content-Type', 'application/atom+xml; charset=UTF-8', replace_all=True)
+    rd.outheaders.set('Calibre-Instance-Id', force_unicode(prefs['installation_uuid'], 'utf-8'), replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 XML
-    elif isinstance(output, type('')):
+    elif isinstance(output, unicode_type):
         ans = output.encode('utf-8')
     else:
-        from lxml import etree
         ans = etree.tostring(output, encoding='utf-8', xml_declaration=True, pretty_print=True)
     return ans
 
@@ -101,8 +96,8 @@ SUBTITLE = E.subtitle
 
 
 def NAVCATALOG_ENTRY(url_for, updated, title, description, query):
-    href = url_for('/opds/navcatalog', which=hexlify(query))
-    id_ = 'calibre-navcatalog:'+str(hashlib.sha1(href).hexdigest())
+    href = url_for('/opds/navcatalog', which=as_hex_unicode(query))
+    id_ = 'calibre-navcatalog:' + hashlib.sha1(as_bytes(href)).hexdigest()
     return E.entry(
         TITLE(title),
         ID(id_),
@@ -121,12 +116,13 @@ PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
 
 
 def html_to_lxml(raw):
-    raw = u'<div>%s</div>'%raw
-    root = html.fragment_fromstring(raw)
+    raw = '<div>%s</div>'%raw
+    root = parse(raw, keep_doctype=False, namespace_elements=False, maybe_xhtml=False, sanitize_names=True)
+    root = next(root.iterdescendants('div'))
     root.set('xmlns', "http://www.w3.org/1999/xhtml")
     raw = etree.tostring(root, encoding=None)
     try:
-        return etree.fromstring(raw)
+        return safe_xml_fromstring(raw, recover=False)
     except:
         for x in root.iterdescendants():
             remove = []
@@ -137,7 +133,7 @@ def html_to_lxml(raw):
                 del x.attrib[a]
         raw = etree.tostring(root, encoding=None)
         try:
-            return etree.fromstring(raw)
+            return safe_xml_fromstring(raw, recover=False)
         except:
             from calibre.ebooks.oeb.parse_utils import _html4_parse
             return _html4_parse(raw)
@@ -148,9 +144,9 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
     id_ = 'calibre:category:'+item.name
     iid = 'N' + item.name
     if item.id is not None:
-        iid = 'I' + str(item.id)
+        iid = 'I' + unicode_type(item.id)
         iid += ':'+item_kind
-    href = request_context.url_for('/opds/category', category=hexlify(catalog_name), which=hexlify(iid))
+    href = request_context.url_for('/opds/category', category=as_hex_unicode(catalog_name), which=as_hex_unicode(iid))
     link = NAVLINK(href=href)
     if ignore_count:
         count = ''
@@ -172,7 +168,7 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
 def CATALOG_GROUP_ENTRY(item, category, request_context, updated):
     id_ = 'calibre:category-group:'+category+':'+item.text
     iid = item.text
-    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=hexlify(category), which=hexlify(iid)))
+    link = NAVLINK(href=request_context.url_for('/opds/categorygroup', category=as_hex_unicode(category), which=as_hex_unicode(iid)))
     return E.entry(
         TITLE(item.text),
         ID(id_),
@@ -186,7 +182,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
     field_metadata = request_context.db.field_metadata
     mi = request_context.db.get_metadata(book_id)
     extra = []
-    if mi.rating > 0:
+    if (mi.rating or 0) > 0:
         rating = rating_to_stars(mi.rating)
         extra.append(_('RATING: %s<br />')%rating)
     if mi.tags:
@@ -206,11 +202,10 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                               xml(format_tag_string(val,
                                     fm['is_multiple']['ui_to_list'],
                                     joinval=fm['is_multiple']['list_to_ui']))))
-            elif datatype == 'comments' or (fm['datatype'] == 'composite' and
-                            fm['display'].get('contains_html', False)):
-                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode(val))))
+            elif datatype == 'comments' or (fm['datatype'] == 'composite' and fm['display'].get('contains_html', False)):
+                extra.append('%s: %s<br />'%(xml(name), comments_to_html(unicode_type(val))))
             else:
-                extra.append('%s: %s<br />'%(xml(name), xml(unicode(val))))
+                extra.append('%s: %s<br />'%(xml(name), xml(unicode_type(val))))
     if mi.comments:
         comments = comments_to_html(mi.comments)
         extra.append(comments)
@@ -233,11 +228,13 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                 link = E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition")
                 ffm = fm.get(fmt.upper())
                 if ffm:
-                    link.set('length', str(ffm['size']))
+                    link.set('length', unicode_type(ffm['size']))
                     link.set('mtime', ffm['mtime'].isoformat())
                 ans.append(link)
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
+    ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/image"))
+    ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/image/thumbnail"))
 
     return ans
 
@@ -298,7 +295,7 @@ class TopLevel(Feed):  # {{{
             categories]
         for x in subcatalogs:
             self.root.append(x)
-        for library_id, library_name in request_context.library_map.iteritems():
+        for library_id, library_name in sorted(iteritems(request_context.library_map), key=lambda item: sort_key(item[1])):
             id_ = 'calibre-library:' + library_id
             self.root.append(E.entry(
                 TITLE(_('Library:') + ' ' + library_name),
@@ -489,7 +486,10 @@ def opds(ctx, rd):
         except KeyError:
             return x
 
+    fm = rc.db.field_metadata
     for category in sorted(categories, key=lambda x: sort_key(getter(x))):
+        if fm.is_ignorable_field(category) and not rc.ctx.is_field_displayable(category):
+            continue
         if len(categories[category]) == 0:
             continue
         if category in ('formats', 'identifiers'):
@@ -513,7 +513,7 @@ def opds_navcatalog(ctx, rd, which):
 
     page_url = rc.url_for('/opds/navcatalog', which=which)
     up_url = rc.url_for('/opds')
-    which = unhexlify(which)
+    which = from_hex_unicode(which)
     type_ = which[0]
     which = which[1:]
     if type_ == 'O':
@@ -536,7 +536,7 @@ def opds_category(ctx, rd, category, which):
     page_url = rc.url_for('/opds/category', which=which, category=category)
     up_url = rc.url_for('/opds/navcatalog', which=category)
 
-    which, category = unhexlify(which), unhexlify(category)
+    which, category = from_hex_unicode(which), from_hex_unicode(category)
     type_ = which[0]
     which = which[1:]
     if type_ == 'I':
@@ -548,8 +548,7 @@ def opds_category(ctx, rd, category, which):
             which = int(which[:p])
         except Exception:
             # Might be a composite column, where we have the lookup key
-            if not (category in rc.db.field_metadata and
-                    rc.db.field_metadata[category]['datatype'] == 'composite'):
+            if not (category in rc.db.field_metadata and rc.db.field_metadata[category]['datatype'] == 'composite'):
                 raise HTTPNotFound('Tag %r not found'%which)
 
     categories = rc.get_categories()
@@ -569,10 +568,10 @@ def opds_category(ctx, rd, category, which):
     q = category
     if q == 'news':
         q = 'tags'
-    ids = rc.db.get_books_for_category(q, which)
+    ids = rc.db.get_books_for_category(q, which) & rc.allowed_book_ids()
     sort_by = 'series' if category == 'series' else 'title'
 
-    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+str(which), sort_by=sort_by)
+    return get_acquisition_feed(rc, ids, offset, page_url, up_url, 'calibre-category:'+category+':'+unicode_type(which), sort_by=sort_by)
 
 
 @endpoint('/opds/categorygroup/{category}/{which}', postprocess=atom)
@@ -589,15 +588,15 @@ def opds_categorygroup(ctx, rd, category, which):
     categories = rc.get_categories()
     page_url = rc.url_for('/opds/categorygroup', category=category, which=which)
 
-    category = unhexlify(category)
+    category = from_hex_unicode(category)
     if category not in categories:
         raise HTTPNotFound('Category %r not found'%which)
     category_meta = rc.db.field_metadata
     meta = category_meta.get(category, {})
     category_name = meta.get('name', which)
-    which = unhexlify(which)
+    which = from_hex_unicode(which)
     feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
-    owhich = hexlify('N'+which)
+    owhich = as_hex_unicode('N'+which)
     up_url = rc.url_for('/opds/navcatalog', which=owhich)
     items = categories[category]
 
@@ -627,6 +626,11 @@ def opds_search(ctx, rd, query):
         raise HTTPNotFound('Not found')
 
     rc = RequestContext(ctx, rd)
+    if query:
+        path = parse_uri(rd.request_original_uri, parse_query=False, unquote_func=unquote_plus)[1]
+        query = path[-1]
+        if isinstance(query, bytes):
+            query = query.decode('utf-8')
     try:
         ids = rc.search(query)
     except Exception:

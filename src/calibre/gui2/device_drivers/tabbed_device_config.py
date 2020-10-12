@@ -1,7 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals,  # division, absolute_import,
-                        print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
+from polyglot.builtins import unicode_type, range
 
 
 def wrap_msg(msg):
@@ -163,7 +162,7 @@ class TabbedDeviceConfig(QTabWidget):
                     return getattr(atab, attr_name)
                 except AttributeError:
                     pass
-        raise ae
+            raise ae
 
     @property
     def device(self):
@@ -244,7 +243,7 @@ class DeviceConfigTab(QWidget):  # {{{
                     return getattr(awidget, attr_name)
                 except AttributeError:
                     pass
-        raise ae
+            raise ae
 
 
 class ExtraCustomization(DeviceConfigTab):  # {{{
@@ -277,7 +276,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
             if isinstance(extra_customization_message, list):
                 self.opt_extra_customization = []
                 if len(extra_customization_message) > 6:
-                    row_func = lambda x, y: ((x/2) * 2) + y
+                    row_func = lambda x, y: ((x//2) * 2) + y
                     col_func = lambda x: x%2
                 else:
                     row_func = lambda x, y: x*2 + y
@@ -340,11 +339,11 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
                     if hasattr(self.opt_extra_customization[i], 'isChecked'):
                         ec.append(self.opt_extra_customization[i].isChecked())
                     elif hasattr(self.opt_extra_customization[i], 'currentText'):
-                        ec.append(unicode(self.opt_extra_customization[i].currentText()).strip())
+                        ec.append(unicode_type(self.opt_extra_customization[i].currentText()).strip())
                     else:
-                        ec.append(unicode(self.opt_extra_customization[i].text()).strip())
+                        ec.append(unicode_type(self.opt_extra_customization[i].text()).strip())
             else:
-                ec = unicode(self.opt_extra_customization.text()).strip()
+                ec = unicode_type(self.opt_extra_customization.text()).strip()
                 if not ec:
                     ec = None
 

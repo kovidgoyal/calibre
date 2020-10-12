@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 #       Templite+
 #       A light-weight, fully functional, general purpose templating engine
@@ -26,6 +26,8 @@
 #
 
 import sys, re
+
+from polyglot.builtins import unicode_type
 
 class Templite(object):
     auto_emit = re.compile('(^[\'\"])|(^[a-zA-Z0-9_\[\]\'\"]+$)')
@@ -84,4 +86,4 @@ class Templite(object):
 
     def write(self, *args):
         for a in args:
-            self.__output.append(unicode(a))
+            self.__output.append(unicode_type(a))

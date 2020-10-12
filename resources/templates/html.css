@@ -40,7 +40,7 @@
 
 /* blocks */
 
-html, div, map, dt, isindex, form {
+div, map, dt, isindex, form {
   display: block;
 }
 
@@ -78,14 +78,6 @@ blockquote[type=cite] {
   margin: 1em 0em;
   border-color: blue;
   border-width: thin;
-}
-
-span[_moz_quote=true] {
-  color: blue;
-}
-
-pre[_moz_quote=true] {
-  color: blue;
 }
 
 h1 {
@@ -129,18 +121,10 @@ h6 {
   margin: 2.33em 0;
 }
 
-listing {
+pre {
   display: block;
   font-family: monospace;
-  font-size: medium;
-  white-space: pre;
-  margin: 1em 0;
-}
-
-xmp, pre, plaintext {
-  display: block;
-  font-family: monospace;
-  white-space: pre;
+  white-space: pre-wrap;
   margin: 1em 0;
 }
 
@@ -166,8 +150,8 @@ table[align="right"] {
 table[rules]:not([rules="none"]) {
   border-collapse: collapse;
 }
-   
-/* caption inherits from table not table-outer */  
+
+/* caption inherits from table not table-outer */
 caption {
   display: table-caption;
   text-align: center;
@@ -219,10 +203,10 @@ table > tr {
   vertical-align: middle;
 }
 
-td { 
+td {
   display: table-cell;
   vertical-align: inherit;
-  text-align: inherit; 
+  text-align: inherit;
   padding: 1px;
 }
 
@@ -301,6 +285,22 @@ ol {
   display: block;
   list-style-type: decimal;
   margin: 1em 0;
+}
+
+ol[type="a"] {
+    list-style-type: lower-alpha;
+}
+
+ol[type="A"] {
+    list-style-type: upper-alpha;
+}
+
+ol[type="i"] {
+    list-style-type: lower-roman;
+}
+
+ol[type="I"] {
+    list-style-type: upper-roman;
 }
 
 li {
@@ -402,4 +402,3 @@ img, object, svg|svg {
     width: auto;
     height: auto;
 }
-

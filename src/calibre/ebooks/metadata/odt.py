@@ -1,5 +1,4 @@
-#!/usr/bin/python2
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 #
 # Copyright (C) 2006 Søren Roug, European Environment Agency
@@ -19,207 +18,238 @@
 #
 # Contributor(s):
 #
-from __future__ import division
 
-import zipfile, re
-import xml.sax.saxutils
-from cStringIO import StringIO
 
-from odf.namespaces import OFFICENS, DCNS, METANS
-from odf.opendocument import load as odLoad
-from odf.draw import Image as odImage, Frame as odFrame
+import io
+import json
+import os
+import re
 
-from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
+from lxml.etree import fromstring, tostring
+
+from calibre.ebooks.metadata import (
+    MetaInformation, authors_to_string, check_isbn, string_to_authors
+)
+from calibre.utils.date import isoformat, parse_date
 from calibre.utils.imghdr import identify
-from calibre.utils.date import parse_date
-from calibre.utils.localization import canonicalize_lang
-
-whitespace = re.compile(r'\s+')
+from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
+from calibre.utils.zipfile import ZipFile, safe_replace
+from odf.draw import Frame as odFrame, Image as odImage
+from odf.namespaces import DCNS, METANS, OFFICENS
+from odf.opendocument import load as odLoad
+from polyglot.builtins import as_unicode
 
 fields = {
-'title':            (DCNS,u'title'),
-'description':      (DCNS,u'description'),
-'subject':          (DCNS,u'subject'),
-'creator':          (DCNS,u'creator'),
-'date':             (DCNS,u'date'),
-'language':         (DCNS,u'language'),
-'generator':        (METANS,u'generator'),
-'initial-creator':  (METANS,u'initial-creator'),
-'keyword':          (METANS,u'keyword'),
-'editing-duration': (METANS,u'editing-duration'),
-'editing-cycles':   (METANS,u'editing-cycles'),
-'printed-by':       (METANS,u'printed-by'),
-'print-date':       (METANS,u'print-date'),
-'creation-date':    (METANS,u'creation-date'),
-'user-defined':     (METANS,u'user-defined'),
-# 'template':         (METANS,u'template'),
+    'title':            (DCNS, 'title'),
+    'description':      (DCNS, 'description'),
+    'subject':          (DCNS, 'subject'),
+    'creator':          (DCNS, 'creator'),
+    'date':             (DCNS, 'date'),
+    'language':         (DCNS, 'language'),
+    'generator':        (METANS, 'generator'),
+    'initial-creator':  (METANS, 'initial-creator'),
+    'keyword':          (METANS, 'keyword'),
+    'keywords':         (METANS, 'keywords'),
+    'editing-duration': (METANS, 'editing-duration'),
+    'editing-cycles':   (METANS, 'editing-cycles'),
+    'printed-by':       (METANS, 'printed-by'),
+    'print-date':       (METANS, 'print-date'),
+    'creation-date':    (METANS, 'creation-date'),
+    'user-defined':     (METANS, 'user-defined'),
+    # 'template':         (METANS, 'template'),
 }
 
 
-def normalize(str):
-    """
-    The normalize-space function returns the argument string with whitespace
-    normalized by stripping leading and trailing whitespace and replacing
-    sequences of whitespace characters by a single space.
-    """
-    return whitespace.sub(' ', str).strip()
-
-
-class MetaCollector:
-    """
-    The MetaCollector is a pseudo file object, that can temporarily ignore write-calls
-    It could probably be replaced with a StringIO object.
-    """
-
-    def __init__(self):
-        self._content = []
-        self.dowrite = True
-
-    def write(self, str):
-        if self.dowrite:
-            self._content.append(str)
-
-    def content(self):
-        return ''.join(self._content)
-
-
-class odfmetaparser(xml.sax.saxutils.XMLGenerator):
-    """ Parse a meta.xml file with an event-driven parser and replace elements.
-        It would probably be a cleaner approach to use a DOM based parser and
-        then manipulate in memory.
-        Small issue: Reorders elements
-    """
-
-    def __init__(self, deletefields={}, yieldfields={}, addfields={}):
-        self.deletefields = deletefields
-        self.yieldfields = yieldfields
-        self.addfields = addfields
-        self._mimetype = ''
-        self.output = MetaCollector()
-        self._data = []
-        self.seenfields = {}
-        xml.sax.saxutils.XMLGenerator.__init__(self, self.output, 'utf-8')
-
-    def startElementNS(self, name, qname, attrs):
-        self._data = []
-        field = name
-# I can't modify the template until the tool replaces elements at the same
-# location and not at the end
-#       if name == (METANS,u'template'):
-#           self._data = [attrs.get((XLINKNS,u'title'),'')]
-        if name == (METANS,u'user-defined'):
-            field = attrs.get((METANS,u'name'))
-        if field in self.deletefields:
-            self.output.dowrite = False
-        elif field in self.yieldfields:
-            del self.addfields[field]
-            xml.sax.saxutils.XMLGenerator.startElementNS(self, name, qname, attrs)
-        else:
-            xml.sax.saxutils.XMLGenerator.startElementNS(self, name, qname, attrs)
-        self._tag = field
-
-    def endElementNS(self, name, qname):
-        field = name
-        if name == (METANS,u'user-defined'):
-            field = self._tag
-        if name == (OFFICENS,u'meta'):
-            for k,v in self.addfields.items():
-                if len(v) > 0:
-                    if isinstance(k, basestring):
-                        xml.sax.saxutils.XMLGenerator.startElementNS(self,(METANS,u'user-defined'),None,{(METANS,u'name'):k})
-                        xml.sax.saxutils.XMLGenerator.characters(self, v)
-                        xml.sax.saxutils.XMLGenerator.endElementNS(self, (METANS,u'user-defined'),None)
-                    else:
-                        xml.sax.saxutils.XMLGenerator.startElementNS(self, k, None, {})
-                        xml.sax.saxutils.XMLGenerator.characters(self, v)
-                        xml.sax.saxutils.XMLGenerator.endElementNS(self, k, None)
-        if isinstance(self._tag, tuple):
-            texttag = self._tag[1]
-        else:
-            texttag = self._tag
-        self.seenfields[texttag] = self.data()
-        # OpenOffice has the habit to capitalize custom properties, so we add a
-        # lowercase version for easy access
-        if texttag[:4].lower() == u'opf.':
-            self.seenfields[texttag.lower()] = self.data()
-
-        if field in self.deletefields:
-            self.output.dowrite = True
-        else:
-            xml.sax.saxutils.XMLGenerator.endElementNS(self, name, qname)
-
-    def characters(self, content):
-        xml.sax.saxutils.XMLGenerator.characters(self, content)
-        self._data.append(content)
-
-    def meta(self):
-        return self.output.content()
-
-    def data(self):
-        return normalize(''.join(self._data))
-
-
 def get_metadata(stream, extract_cover=True):
-    zin = zipfile.ZipFile(stream, 'r')
-    odfs = odfmetaparser()
-    parser = xml.sax.make_parser()
-    parser.setFeature(xml.sax.handler.feature_namespaces, True)
-    parser.setFeature(xml.sax.handler.feature_external_ges, False)
-    parser.setContentHandler(odfs)
-    content = zin.read('meta.xml')
-    parser.parse(StringIO(content))
-    data = odfs.seenfields
-    mi = MetaInformation(None, [])
-    if 'title' in data:
-        mi.title = data['title']
-    if data.get('initial-creator', '').strip():
-        mi.authors = string_to_authors(data['initial-creator'])
-    elif 'creator' in data:
-        mi.authors = string_to_authors(data['creator'])
-    if 'description' in data:
-        mi.comments = data['description']
-    if 'language' in data:
-        mi.language = data['language']
-    if data.get('keywords', ''):
-        mi.tags = [x.strip() for x in data['keywords'].split(',') if x.strip()]
-    opfmeta = False  # we need this later for the cover
-    opfnocover = False
-    if data.get('opf.metadata','') == 'true':
-        # custom metadata contains OPF information
-        opfmeta = True
-        if data.get('opf.titlesort', ''):
-            mi.title_sort = data['opf.titlesort']
-        if data.get('opf.authors', ''):
-            mi.authors = string_to_authors(data['opf.authors'])
-        if data.get('opf.authorsort', ''):
-            mi.author_sort = data['opf.authorsort']
-        if data.get('opf.isbn', ''):
-            isbn = check_isbn(data['opf.isbn'])
-            if isbn is not None:
-                mi.isbn = isbn
-        if data.get('opf.publisher', ''):
-            mi.publisher = data['opf.publisher']
-        if data.get('opf.pubdate', ''):
-            mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
-        if data.get('opf.series', ''):
-            mi.series = data['opf.series']
-            if data.get('opf.seriesindex', ''):
+    whitespace = re.compile(r'\s+')
+
+    def normalize(s):
+        return whitespace.sub(' ', s).strip()
+
+    with ZipFile(stream) as zf:
+        meta = zf.read('meta.xml')
+        root = fromstring(meta)
+
+        def find(field):
+            ns, tag = fields[field]
+            ans = root.xpath('//ns0:{}'.format(tag), namespaces={'ns0': ns})
+            if ans:
+                return normalize(tostring(ans[0], method='text', encoding='unicode', with_tail=False)).strip()
+
+        mi = MetaInformation(None, [])
+        title = find('title')
+        if title:
+            mi.title = title
+        creator = find('initial-creator') or find('creator')
+        if creator:
+            mi.authors = string_to_authors(creator)
+        desc = find('description')
+        if desc:
+            mi.comments = desc
+        lang = find('language')
+        if lang and canonicalize_lang(lang):
+            mi.languages = [canonicalize_lang(lang)]
+        kw = find('keyword') or find('keywords')
+        if kw:
+            mi.tags = [x.strip() for x in kw.split(',') if x.strip()]
+        data = {}
+        for tag in root.xpath('//ns0:user-defined', namespaces={'ns0': fields['user-defined'][0]}):
+            name = (tag.get('{%s}name' % METANS) or '').lower()
+            vtype = tag.get('{%s}value-type' % METANS) or 'string'
+            val = tag.text
+            if name and val:
+                if vtype == 'boolean':
+                    val = val == 'true'
+                data[name] = val
+        opfmeta = False  # we need this later for the cover
+        opfnocover = False
+        if data.get('opf.metadata'):
+            # custom metadata contains OPF information
+            opfmeta = True
+            if data.get('opf.titlesort', ''):
+                mi.title_sort = data['opf.titlesort']
+            if data.get('opf.authors', ''):
+                mi.authors = string_to_authors(data['opf.authors'])
+            if data.get('opf.authorsort', ''):
+                mi.author_sort = data['opf.authorsort']
+            if data.get('opf.isbn', ''):
+                isbn = check_isbn(data['opf.isbn'])
+                if isbn is not None:
+                    mi.isbn = isbn
+            if data.get('opf.publisher', ''):
+                mi.publisher = data['opf.publisher']
+            if data.get('opf.pubdate', ''):
+                mi.pubdate = parse_date(data['opf.pubdate'], assume_utc=True)
+            if data.get('opf.identifiers'):
                 try:
-                    mi.series_index = float(data['opf.seriesindex'])
-                except ValueError:
-                    mi.series_index = 1.0
-        if data.get('opf.language', ''):
-            cl = canonicalize_lang(data['opf.language'])
-            if cl:
-                mi.languages = [cl]
-        opfnocover = data.get('opf.nocover', 'false') == 'true'
-    if not opfnocover:
-        try:
-            read_cover(stream, zin, mi, opfmeta, extract_cover)
-        except:
-            pass  # Do not let an error reading the cover prevent reading other data
+                    mi.identifiers = json.loads(data['opf.identifiers'])
+                except Exception:
+                    pass
+            if data.get('opf.rating'):
+                try:
+                    mi.rating = max(0, min(float(data['opf.rating']), 10))
+                except Exception:
+                    pass
+            if data.get('opf.series', ''):
+                mi.series = data['opf.series']
+                if data.get('opf.seriesindex', ''):
+                    try:
+                        mi.series_index = float(data['opf.seriesindex'])
+                    except Exception:
+                        mi.series_index = 1.0
+            if data.get('opf.language', ''):
+                cl = canonicalize_lang(data['opf.language'])
+                if cl:
+                    mi.languages = [cl]
+            opfnocover = data.get('opf.nocover', False)
+        if not opfnocover:
+            try:
+                read_cover(stream, zf, mi, opfmeta, extract_cover)
+            except Exception:
+                pass  # Do not let an error reading the cover prevent reading other data
 
     return mi
+
+
+def set_metadata(stream, mi):
+
+    with ZipFile(stream) as zf:
+        raw = _set_metadata(zf.open('meta.xml').read(), mi)
+        # print(raw.decode('utf-8'))
+
+    stream.seek(os.SEEK_SET)
+    safe_replace(stream, "meta.xml", io.BytesIO(raw))
+
+
+def _set_metadata(raw, mi):
+    root = fromstring(raw)
+    namespaces = {'office': OFFICENS, 'meta': METANS, 'dc': DCNS}
+    nsrmap = {v: k for k, v in namespaces.items()}
+
+    def xpath(expr, parent=root):
+        return parent.xpath(expr, namespaces=namespaces)
+
+    def remove(*tag_names):
+        for tag_name in tag_names:
+            ns = fields[tag_name][0]
+            tag_name = '{}:{}'.format(nsrmap[ns], tag_name)
+            for x in xpath('descendant::' + tag_name, meta):
+                x.getparent().remove(x)
+
+    def add(tag, val=None):
+        ans = meta.makeelement('{%s}%s' % fields[tag])
+        ans.text = val
+        meta.append(ans)
+        return ans
+
+    def remove_user_metadata(*names):
+        for x in xpath('//meta:user-defined'):
+            q = (x.get('{%s}name' % METANS) or '').lower()
+            if q in names:
+                x.getparent().remove(x)
+
+    def add_um(name, val, vtype='string'):
+        ans = add('user-defined', val)
+        ans.set('{%s}value-type' % METANS, vtype)
+        ans.set('{%s}name' % METANS, name)
+
+    def add_user_metadata(name, val):
+        if not hasattr(add_user_metadata, 'sentinel_added'):
+            add_user_metadata.sentinel_added = True
+            remove_user_metadata('opf.metadata')
+            add_um('opf.metadata', 'true', 'boolean')
+        val_type = 'string'
+        if hasattr(val, 'strftime'):
+            val = isoformat(val, as_utc=True).split('T')[0]
+            val_type = 'date'
+        add_um(name, val, val_type)
+
+    meta = xpath('//office:meta')[0]
+
+    if not mi.is_null('title'):
+        remove('title')
+        add('title', mi.title)
+        if not mi.is_null('title_sort'):
+            remove_user_metadata('opf.titlesort')
+            add_user_metadata('opf.titlesort', mi.title_sort)
+    if not mi.is_null('authors'):
+        remove('initial-creator', 'creator')
+        val = authors_to_string(mi.authors)
+        add('initial-creator', val), add('creator', val)
+        remove_user_metadata('opf.authors')
+        add_user_metadata('opf.authors', val)
+        if not mi.is_null('author_sort'):
+            remove_user_metadata('opf.authorsort')
+            add_user_metadata('opf.authorsort', mi.author_sort)
+    if not mi.is_null('comments'):
+        remove('description')
+        add('description', mi.comments)
+    if not mi.is_null('tags'):
+        remove('keyword')
+        add('keyword', ', '.join(mi.tags))
+    if not mi.is_null('languages'):
+        lang = lang_as_iso639_1(mi.languages[0])
+        if lang:
+            remove('language')
+            add('language', lang)
+    if not mi.is_null('pubdate'):
+        remove_user_metadata('opf.pubdate')
+        add_user_metadata('opf.pubdate', mi.pubdate)
+    if not mi.is_null('publisher'):
+        remove_user_metadata('opf.publisher')
+        add_user_metadata('opf.publisher', mi.publisher)
+    if not mi.is_null('series'):
+        remove_user_metadata('opf.series', 'opf.seriesindex')
+        add_user_metadata('opf.series', mi.series)
+        add_user_metadata('opf.seriesindex', '{}'.format(mi.series_index))
+    if not mi.is_null('identifiers'):
+        remove_user_metadata('opf.identifiers')
+        add_user_metadata('opf.identifiers', as_unicode(json.dumps(mi.identifiers)))
+    if not mi.is_null('rating'):
+        remove_user_metadata('opf.rating')
+        add_user_metadata('opf.rating', '%.2g' % mi.rating)
+
+    return tostring(root, encoding='utf-8', pretty_print=True)
 
 
 def read_cover(stream, zin, mi, opfmeta, extract_cover):
@@ -241,11 +271,11 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
         except KeyError:
             continue
         try:
-            fmt, width, height = identify(bytes(raw))
+            fmt, width, height = identify(raw)
         except Exception:
             continue
         imgnum += 1
-        if opfmeta and frm.getAttribute('name').lower() == u'opf.cover':
+        if opfmeta and frm.getAttribute('name').lower() == 'opf.cover':
             cover_href = i_href
             cover_data = (fmt, raw)
             cover_frame = frm.getAttribute('name')  # could have upper case
@@ -264,10 +294,9 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
             if not cover_data:
                 raw = zin.read(cover_href)
                 try:
-                    fmt = identify(bytes(raw))[0]
+                    fmt = identify(raw)[0]
                 except Exception:
                     pass
                 else:
                     cover_data = (fmt, raw)
             mi.cover_data = cover_data
-

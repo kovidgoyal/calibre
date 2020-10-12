@@ -3,7 +3,7 @@ Snippets
 
 .. |ct| replace:: ``Control+J``
 
-The calibre editor supports *snippets*. A snippet is a 
+The calibre E-book editor supports *snippets*. A snippet is a
 piece of text that is either re-used often or contains a lot of redundant
 text. The editor allows you to insert a snippet with only a few key strokes.
 For example, suppose you often find yourself inserting link tags when editing
@@ -24,7 +24,7 @@ built-in snippets and you can create your own to suit your editing style.
 The following discussion of the built-in snippets should help illustrate the
 power of the snippets system.
 
-.. note:: 
+.. note::
     You can also use snippets in the text entry fields in the :guilabel:`Search & replace`
     panel, however, placeholders (using |ct| to jump around) will not
     work.
@@ -69,7 +69,7 @@ Placeholders are simply the dollar ($) sign followed by a number. When the
 snippet is expanded by pressing |ct| the cursor is positioned at the first
 placeholder (the placeholder with the lowest number). When you press |ct| again
 the cursor jumps to the next placeholder (the placeholder with the next higher
-number). 
+number).
 
 Inserting an HTML link tag [<a]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,7 +100,7 @@ substituted for the placeholder when the snippet is expanded. Also when you
 jump to a placeholder with default text using |ct|, the default text is
 selected. In this way, you can use default text to act as a reminder to you to
 fill in important parts of the template. You can specify default text for a
-placeholder by using the syntax: ``${<number>:default text}``. 
+placeholder by using the syntax: ``${<number>:default text}``.
 
 The other new feature is that the second placeholder has an asterisk after it
 (``${2*}``). This means that any text that was selected before expanding the
@@ -159,7 +159,7 @@ assumes that you want to specify a class for the tag::
 This will allow you to first type the tag name, press |ct|, type the class
 name, press |ct| type the contents of the tag and press |ct| one last time to
 jump out of the tag. The closing tag will be auto-filled.
-    
+
 
 Creating your own snippets
 ----------------------------

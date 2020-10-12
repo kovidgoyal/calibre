@@ -1,14 +1,16 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from functools import partial
+from PyQt5.Qt import Qt, QDialog, QAbstractItemView, QApplication
 
-from PyQt5.Qt import Qt, QDialog, QAbstractItemView
-
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, primary_contains
+from polyglot.builtins import unicode_type, range
 
 
 class TagEditor(QDialog, Ui_TagEditor):
@@ -28,10 +30,25 @@ class TagEditor(QDialog, Ui_TagEditor):
                 self.is_names = fm['display'].get('is_names', False)
                 if self.is_names:
                     self.sep = '&'
-                self.setWindowTitle(_('Edit %s') % fm['name'])
+                self.setWindowTitle(self.windowTitle() + ': ' + fm['name'])
             except Exception:
                 pass
             key = db.field_metadata.key_to_label(key)
+        else:
+            self.setWindowTitle(self.windowTitle() + ': ' + db.field_metadata['tags']['name'])
+
+        if self.sep == '&':
+            self.add_tag_input.setToolTip('<p>' +
+                        _('If the item you want is not in the available list, '
+                          'you can add it here. Accepts an ampersand-separated '
+                          'list of items. The items will be applied to '
+                          'the book.') + '</p>')
+        else:
+            self.add_tag_input.setToolTip('<p>' +
+                        _('If the item you want is not in the available list, '
+                          'you can add it here. Accepts a comma-separated '
+                          'list of items. The items will be applied to '
+                          'the book.') + '</p>')
         self.key = key
         self.index = db.row(id_) if id_ is not None else None
         if self.index is not None:
@@ -67,19 +84,20 @@ class TagEditor(QDialog, Ui_TagEditor):
             if tag not in q:
                 self.available_tags.addItem(tag)
 
-        self.apply_button.clicked.connect(lambda: self.apply_tags())
-        self.unapply_button.clicked.connect(lambda: self.unapply_tags())
+        connect_lambda(self.apply_button.clicked, self, lambda self: self.apply_tags())
+        connect_lambda(self.unapply_button.clicked, self, lambda self: self.unapply_tags())
         self.add_tag_button.clicked.connect(self.add_tag)
-        self.delete_button.clicked.connect(lambda: self.delete_tags())
+        connect_lambda(self.delete_button.clicked, self, lambda self: self.delete_tags())
         self.add_tag_input.returnPressed[()].connect(self.add_tag)
         # add the handlers for the filter input fields
-        self.available_filter_input.textChanged.connect(self.filter_tags)
-        self.applied_filter_input.textChanged.connect(partial(self.filter_tags, which='applied_tags'))
+        connect_lambda(self.available_filter_input.textChanged, self, lambda self, text: self.filter_tags(text))
+        connect_lambda(self.applied_filter_input.textChanged, self, lambda self, text: self.filter_tags(text, which='applied_tags'))
 
         # Restore the focus to the last input box used (typed into)
-        self.add_tag_input.textChanged.connect(partial(self.edit_box_changed, which="add_tag_input"))
-        self.available_filter_input.textChanged.connect(partial(self.edit_box_changed, which="available_filter_input"))
-        self.applied_filter_input.textChanged.connect(partial(self.edit_box_changed, which="applied_filter_input"))
+        for x in ('add_tag_input', 'available_filter_input', 'applied_filter_input'):
+            ibox = getattr(self, x)
+            ibox.setObjectName(x)
+            connect_lambda(ibox.textChanged, self, lambda self: self.edit_box_changed(self.sender().objectName()))
         getattr(self, gprefs.get('tag_editor_last_filter', 'add_tag_input')).setFocus()
 
         if islinux:
@@ -90,7 +108,7 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         geom = gprefs.get('tag_editor_geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which
@@ -101,17 +119,21 @@ class TagEditor(QDialog, Ui_TagEditor):
         if not items:
             error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
             return
+        if not confirm(
+            _('Deleting tags is done immediately and there is no undo.'),
+            'tag_editor_delete'):
+            return
         pos = self.available_tags.verticalScrollBar().value()
         for item in items:
-            used = self.db.is_tag_used(unicode(item.text())) \
+            used = self.db.is_tag_used(unicode_type(item.text())) \
                 if self.key is None else \
-                self.db.is_item_used_in_multiple(unicode(item.text()), label=self.key)
+                self.db.is_item_used_in_multiple(unicode_type(item.text()), label=self.key)
             if used:
                 confirms.append(item)
             else:
                 deletes.append(item)
         if confirms:
-            ct = ', '.join([unicode(item.text()) for item in confirms])
+            ct = ', '.join([unicode_type(item.text()) for item in confirms])
             if question_dialog(self, _('Are your sure?'),
                 '<p>'+_('The following tags are used by one or more books. '
                     'Are you certain you want to delete them?')+'<br>'+ct):
@@ -119,9 +141,9 @@ class TagEditor(QDialog, Ui_TagEditor):
 
         for item in deletes:
             if self.key is None:
-                self.db.delete_tag(unicode(item.text()))
+                self.db.delete_tag(unicode_type(item.text()))
             else:
-                bks = self.db.delete_item_from_multiple(unicode(item.text()),
+                bks = self.db.delete_item_from_multiple(unicode_type(item.text()),
                                                         label=self.key)
                 self.db.refresh_ids(bks)
             self.available_tags.takeItem(self.available_tags.row(item))
@@ -135,7 +157,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         row = max(rows)
         tags = self._get_applied_tags_box_contents()
         for item in items:
-            tag = unicode(item.text())
+            tag = unicode_type(item.text())
             tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
 
@@ -158,14 +180,14 @@ class TagEditor(QDialog, Ui_TagEditor):
     def _get_applied_tags_box_contents(self):
         tags = []
         for i in range(0, self.applied_tags.count()):
-            tags.append(unicode(self.applied_tags.item(i).text()))
+            tags.append(unicode_type(self.applied_tags.item(i).text()))
         return tags
 
     def unapply_tags(self, item=None):
         tags = self._get_applied_tags_box_contents()
         items = self.applied_tags.selectedItems() if item is None else [item]
         for item in items:
-            tag = unicode(item.text())
+            tag = unicode_type(item.text())
             tags.remove(tag)
             self.available_tags.addItem(tag)
 
@@ -175,7 +197,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         for tag in tags:
             self.applied_tags.addItem(tag)
 
-        items = [unicode(self.available_tags.item(x).text()) for x in
+        items = [unicode_type(self.available_tags.item(x).text()) for x in
                 range(self.available_tags.count())]
         items.sort(key=sort_key)
         self.available_tags.clear()
@@ -187,7 +209,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.filter_tags(self.available_filter_input.text())
 
     def add_tag(self):
-        tags = unicode(self.add_tag_input.text()).split(self.sep)
+        tags = unicode_type(self.add_tag_input.text()).split(self.sep)
         tags_in_box = self._get_applied_tags_box_contents()
         for tag in tags:
             tag = tag.strip()
@@ -211,10 +233,10 @@ class TagEditor(QDialog, Ui_TagEditor):
     # filter tags
     def filter_tags(self, filter_value, which='available_tags'):
         collection = getattr(self, which)
-        q = icu_lower(unicode(filter_value))
-        for i in xrange(collection.count()):  # on every available tag
+        q = icu_lower(unicode_type(filter_value))
+        for i in range(collection.count()):  # on every available tag
             item = collection.item(i)
-            item.setHidden(bool(q and not primary_contains(q, unicode(item.text()))))
+            item.setHidden(bool(q and not primary_contains(q, unicode_type(item.text()))))
 
     def accept(self):
         self.tags = self._get_applied_tags_box_contents()

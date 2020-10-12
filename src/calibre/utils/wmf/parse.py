@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -145,7 +146,7 @@ class WMF(object):
             size, func = struct.unpack_from('<IH', data, offset)
             size *= 2  # Convert to bytes
             offset += hsize
-            params = ''
+            params = b''
             delta = size - hsize
             if delta > 0:
                 params = data[offset:offset+delta]
@@ -158,6 +159,8 @@ class WMF(object):
             self.records.append((func, params))
 
         for rec in self.records:
+            if not hasattr(rec[0], 'split'):
+                continue
             f = getattr(self, rec[0], None)
             if callable(f):
                 f(rec[1])
@@ -219,9 +222,9 @@ def wmf_unwrap(wmf_data, verbose=0):
         raise ValueError('No raster image found in the WMF')
     return w.to_png()
 
+
 if __name__ == '__main__':
     wmf = WMF(verbose=4)
     wmf(open(sys.argv[-1], 'rb'))
     open('/t/test.bmp', 'wb').write(wmf.bitmaps[0])
     open('/t/test.png', 'wb').write(wmf.to_png())
-

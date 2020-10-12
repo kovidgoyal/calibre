@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 '''
@@ -6,7 +6,10 @@ Hacker News
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
-from urlparse import urlparse
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 import re
 
 

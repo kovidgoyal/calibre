@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -32,6 +31,9 @@ class SearchResult(object):
 
     def __eq__(self, other):
         return self.title == other.title and self.author == other.author and self.store_name == other.store_name and self.formats == other.formats
+
+    def __hash__(self):
+        return hash((self.title, self.author, self.store_name, self.formats))
 
     def __str__(self):
         items = []

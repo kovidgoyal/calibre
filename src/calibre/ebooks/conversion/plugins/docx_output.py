@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,6 +16,8 @@ class DOCXOutput(OutputFormatPlugin):
     name = 'DOCX Output'
     author = 'Kovid Goyal'
     file_type = 'docx'
+    commit_name = 'docx_output'
+    ui_data = {'page_sizes': PAGE_SIZES}
 
     options = {
         OptionRecommendation(name='docx_page_size', recommended_value='letter',

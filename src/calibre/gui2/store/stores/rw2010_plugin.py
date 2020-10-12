@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
@@ -8,8 +8,11 @@ __copyright__ = '2011, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 from lxml import html
 
@@ -46,7 +49,7 @@ class RW2010Store(BasicStoreConfig, StorePlugin):
         br = browser()
 
         counter = max_results
-        with closing(br.open(url, data=urllib.urlencode(values), timeout=timeout)) as f:
+        with closing(br.open(url, data=urlencode(values), timeout=timeout)) as f:
             doc = html.fromstring(f.read())
             for data in doc.xpath('//div[@class="ProductDetail"]'):
                 if counter <= 0:

@@ -21,7 +21,7 @@ class pravo(BasicNewsRecipe):
     no_stylesheets = True
 
     # our variables
-    seen_titles = set([])
+    seen_titles = set()
     # only yesterday's articles are online
     parent_url = 'http://pravo.novinky.cz/minule/'
     feeds = [
@@ -38,7 +38,8 @@ class pravo(BasicNewsRecipe):
             articles.append(self.parse_page(feed))
         return articles
 
-    def parse_page(self, (feed_title, url)):
+    def parse_page(self, title_and_url):
+        (feed_title, url) = title_and_url
         articles = []
 
         soup = self.index_to_soup(url)

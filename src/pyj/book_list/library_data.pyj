@@ -10,13 +10,19 @@ from lru_cache import LRUCache
 from session import get_interface_data
 from utils import parse_url_params
 
-load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
-library_data = {'metadata':{}, 'previous_book_ids': v'[]'}
+load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'http_error_code': 0}
+library_data = {'metadata':{}, 'previous_book_ids': v'[]', 'force_refresh': False}
 
 
 def current_library_id():
     q = parse_url_params()
     return q.library_id or get_interface_data().default_library_id
+
+
+def all_libraries():
+    interface_data = get_interface_data()
+    lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
+    return [(lid, interface_data.library_map[lid]) for lid in lids]
 
 
 def current_virtual_library():
@@ -72,7 +78,11 @@ def update_library_data(data):
     load_status.loading = False
     load_status.ok = True
     load_status.error_html = None
+    load_status.http_error_code = 0
     library_data.previous_book_ids = v'[]'
+    if library_data.for_library is not current_library_id():
+        library_data.field_names = {}
+    library_data.for_library = current_library_id()
     for key in 'search_result sortable_fields field_metadata metadata virtual_libraries book_display_fields'.split(' '):
         library_data[key] = data[key]
     sr = library_data.search_result
@@ -97,12 +107,39 @@ def current_book_ids():
     return library_data.previous_book_ids.concat(library_data.search_result.book_ids)
 
 
+def remove_from_array(array, item):
+    while True:
+        idx = array.indexOf(item)
+        if idx < 0:
+            break
+        array.splice(idx, 1)
+
+
+def remove_book(book_id):
+    book_id = int(book_id)
+    if library_data.previous_book_ids:
+        remove_from_array(library_data.previous_book_ids, book_id)
+    if library_data.search_result?.book_ids:
+        remove_from_array(library_data.search_result.book_ids, book_id)
+
+
+def book_after(book_id, delta):
+    if not delta:
+        delta = 1
+    ids = current_book_ids()
+    idx = ids.indexOf(int(book_id))
+    if idx > -1:
+        new_idx = (idx + ids.length + delta) % ids.length
+        return ids[new_idx]
+
+
 def on_data_loaded(end_type, xhr, ev):
     load_status.current_fetch = None
     def bad_load(msg):
         load_status.ok = False
         load_status.loading = False
         load_status.error_html = msg or xhr.error_html
+        load_status.http_error_code = xhr.status
 
     if end_type is 'load':
         data = JSON.parse(xhr.responseText)
@@ -126,8 +163,43 @@ def fetch_init_data():
     load_status.loading = True
     load_status.ok = False
     load_status.error_html = None
+    load_status.http_error_code = 0
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
+
+
+def field_names_received(library_id, field, proceed, end_type, xhr, event):
+    if library_id is not current_library_id():
+        return
+    if end_type is not 'load':
+        if end_type is not 'abort':
+            proceed(False, field, xhr.error_html)
+        return
+    try:
+        names = JSON.parse(xhr.responseText)
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        proceed(False, field, 'Invalid JSON from server')
+        return
+    library_data.field_names[field] = {
+        'loading': False,
+        'loaded': True,
+        'last_updated_at': Date.now(),
+        'names': names
+    }
+    proceed(True, field, names)
+
+
+def field_names_for(field, proceed):
+    if library_data.field_names[field] and library_data.field_names[field].loaded:
+        proceed(True, field, library_data.field_names[field].names)
+    if not library_data.field_names[field] or (not library_data.field_names[field].loading and Date.now() - library_data.field_names[field].last_updated_at > 3600 * 1000):
+
+        ajax(f'interface-data/field-names/{encodeURIComponent(field)}', field_names_received.bind(None, current_library_id(), field, proceed), query={'library_id': current_library_id()}).send()
+        if not library_data.field_names[field]:
+            library_data.field_names[field] = {'last_updated_at': 0, 'loaded': False, 'names': v'[]'}
+        library_data.field_names[field].loading = True
 
 
 def thumbnail_url(book_id, width, height):
@@ -156,20 +228,35 @@ def set_book_metadata(book_id, value):
     library_data.metadata[book_id] = value
 
 
+def loaded_book_ids():
+    return Object.keys(library_data.metadata)
+
+
+def force_refresh_on_next_load():
+    library_data.force_refresh = True
+
+
 def ensure_current_library_data():
-    q = url_books_query()
-    loaded = loaded_books_query()
-    matches = True
+    fr = library_data.force_refresh
+    library_data.force_refresh = False
 
     def is_same(a, b):
         if not a and not b:
             return True
         return a is b
 
-    for key in q:
-        if not is_same(q[key], loaded[key]):
-            matches = False
-            break
+
+    if fr:
+        matches = False
+    else:
+        q = url_books_query()
+        loaded = loaded_books_query()
+        matches = True
+
+        for key in q:
+            if not is_same(q[key], loaded[key]):
+                matches = False
+                break
     if not matches:
         fetch_init_data()
 
@@ -213,7 +300,7 @@ thumbnail_cache = ThumbnailCache()
 
 
 def sync_library_books(library_id, to_sync, callback):
-    url = f'book-get-last-read-position/{library_id}/'
+    url = f'book-get-annotations/{library_id}/'
     which = v'[]'
     lrmap = {}
     for key, last_read in to_sync:

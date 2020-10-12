@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,6 +13,7 @@ class DOCXInput(InputFormatPlugin):
     author      = 'Kovid Goyal'
     description = _('Convert DOCX files (.docx and .docm) to HTML')
     file_types  = {'docx', 'docm'}
+    commit_name = 'docx_input'
 
     options = {
         OptionRecommendation(name='docx_no_cover', recommended_value=False,
@@ -26,7 +26,7 @@ class DOCXInput(InputFormatPlugin):
             help=_('Render superscripts and subscripts so that they do not affect the line height.')),
     }
 
-    recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
+    recommendations = {('page_breaks_before', '/', OptionRecommendation.MED)}
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.docx.to_html import Convert

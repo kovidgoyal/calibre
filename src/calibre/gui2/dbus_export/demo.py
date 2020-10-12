@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,6 +13,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run
 from calibre.gui2.dbus_export.widgets import factory
+from polyglot.builtins import range
 
 setup_for_cli_run()
 
@@ -45,13 +45,13 @@ class MainWindow(QMainWindow):
         q.triggered.connect(QApplication.quit)
         self.addAction(q)
         QApplication.instance().setWindowIcon(s.standardIcon(s.SP_ComputerIcon))
-        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp))):
+        for i, icon in zip(range(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp))):
             ac = m.addAction('One - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_1 + i), Qt.SHIFT | (Qt.Key_1 + i)))
             ac.setIcon(icon)
         m.addSeparator()
         self.menu_two = m2 = m.addMenu('A &submenu')
-        for i, icon in zip(xrange(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
+        for i, icon in zip(range(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
             ac = m2.addAction('Two - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_A + i)))
             ac.setIcon(icon)
@@ -90,7 +90,7 @@ class MainWindow(QMainWindow):
         b.clicked.connect(self.remove_menu), l.addWidget(b)
         self.sd = b = QPushButton('Show modal dialog')
         b.clicked.connect(self.show_dialog), l.addWidget(b)
-        print ('DBUS connection unique name:', f.bus.get_unique_name())
+        print('DBUS connection unique name:', f.bus.get_unique_name())
 
     def update_tooltip(self):
         self.systray.setToolTip(time.strftime('A dynamically updated tooltip [%H:%M:%S]'))
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
     def add_menu(self):
         mb = self.menu_bar
         m = mb.addMenu('Created menu %d' % len(mb.actions()))
-        for i in xrange(3):
+        for i in range(3):
             m.addAction('Some action %d' % i)
         for ac in m.findChildren(QAction):
             ac.triggered.connect(self.action_triggered)
@@ -159,6 +159,7 @@ class MainWindow(QMainWindow):
             else:
                 self.window_unblocked.emit()
         return QMainWindow.event(self, ev)
+
 
 app=QApplication([])
 app.setAttribute(Qt.AA_DontUseNativeMenuBar, False)

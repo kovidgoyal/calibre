@@ -1,19 +1,19 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, os
-from itertools import izip_longest
+import errno, os, numbers
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
 from functools import partial
 
 from calibre.constants import config_dir
 from calibre.utils.lock import ExclusiveFile
+from polyglot.builtins import itervalues
+from itertools import zip_longest
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
@@ -109,7 +109,7 @@ raw_options = (
 
     _('The interface on which to listen for connections'),
     'listen_on', '0.0.0.0',
-    _('The default is to listen on all available interfaces. You can change this to, for'
+    _('The default is to listen on all available IPv4 interfaces. You can change this to, for'
     ' example, "127.0.0.1" to only listen for connections from the local machine, or'
     ' to "::" to listen to all incoming IPv6 and IPv4 connections.'),
 
@@ -152,6 +152,17 @@ raw_options = (
       ' turning on this option means any program running on the computer'
       ' can make changes to your calibre libraries.'),
 
+    _('Allow un-authenticated connections from specific IP addresses to make changes'),
+    'trusted_ips', None,
+    _('Normally, if you do not turn on authentication, the server operates in'
+      ' read-only mode, so as to not allow anonymous users to make changes to your'
+      ' calibre libraries. This option allows anybody connecting from the specified'
+      ' IP addresses to make changes. Must be a comma separated list of address or network specifications.'
+      ' This is useful if you want to run the server without authentication but still'
+      ' use calibredb to make changes to your calibre libraries. Note that'
+      ' turning on this option means anyone connecting from the specified IP addresses'
+      ' can make changes to your calibre libraries.'),
+
     _('Path to user database'),
     'userdb', None,
     _('Path to a file in which to store the user and password information. Normally a'
@@ -183,7 +194,10 @@ raw_options = (
       ' option, any fields not in this list will not be displayed. For example: {}').format(
       'my_rating,my_tags'),
 
-
+    _('Choose the default book list mode'),
+    'book_list_mode', Choices('cover_grid', 'details_list', 'custom_list'),
+    _('Set the default book list mode that will be used for new users. Individual users'
+      ' can override the default in their own settings. The default is to use a cover grid.'),
 )
 assert len(raw_options) % 4 == 0
 
@@ -193,7 +207,7 @@ options = []
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return izip_longest(*args, fillvalue=fillvalue)
+    return zip_longest(*args, fillvalue=fillvalue)
 
 
 for shortdoc, name, default, doc in grouper(4, raw_options):
@@ -211,7 +225,7 @@ class Options(object):
     __slots__ = tuple(name for name in options)
 
     def __init__(self, **kwargs):
-        for opt in options.itervalues():
+        for opt in itervalues(options):
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
 
 
@@ -238,7 +252,7 @@ def boolean_option(add_option, opt):
 def opts_to_parser(usage):
     from calibre.utils.config import OptionParser
     parser =  OptionParser(usage)
-    for opt in options.itervalues():
+    for opt in itervalues(options):
         add_option = partial(parser.add_option, dest=opt.name, help=opt_to_cli_help(opt), default=opt.default)
         if opt.default is True or opt.default is False:
             boolean_option(add_option, opt)
@@ -248,7 +262,7 @@ def opts_to_parser(usage):
         else:
             name = '--' + opt.name.replace('_', '-')
             otype = 'string'
-            if isinstance(opt.default, (int, long, float)):
+            if isinstance(opt.default, numbers.Number):
                 otype = type(opt.default).__name__
             add_option(name, type=otype)
 
@@ -278,7 +292,7 @@ def parse_config_file(path=DEFAULT_CONFIG):
         val = rest
         if isinstance(opt.default, bool):
             val = val.lower() in ('true', 'yes', 'y')
-        elif isinstance(opt.default, (int, long, float)):
+        elif isinstance(opt.default, numbers.Number):
             try:
                 val = type(opt.default)(rest)
             except Exception:

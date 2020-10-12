@@ -1,67 +1,117 @@
-#!/usr/bin/env python2
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import absolute_import, division, print_function, unicode_literals
+#!/usr/bin/env python
 
+import re
 from collections import defaultdict
-from pprint import pformat
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
+DIR_COLLECTIONS = [['world'],
+                   ['nation'],
+                   ['politics'],
+                   ['opinion', 'op-ed', 'opinion-la', 'editorials',
+                       'readersreact', 'topoftheticket', 'endorsements'],
+                   ['local', 'lanow', 'california', 'crime',
+                       'abcarian', 'education', 'weather'],
+                   ['business', 'hollywood', 'technology'],
+                   ['sports'],
+                   ['entertainment', 'movies', 'music',
+                       'tv', 'arts', 'gossip', 'envelope'],
+                   ['books'],
+                   ['food', 'jonathon-gold', 'dailydish'],
+                   ['health'],
+                   ['style', 'laaffairs', 'pets'],
+                   ['science', 'sciencenow'],
+                   ['home'],
+                   ['travel'],
+                   ['fashion']]
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(url):
     if url.startswith('/'):
-        url = 'http://www.latimes.com' + url
+        url = 'https://www.latimes.com' + url
     return url
+
+
+def what_section(url):
+    parts = url.split('/')
+    return parts[-4].capitalize()
 
 
 class LATimes(BasicNewsRecipe):
     title = 'Los Angeles Times'
-    __author__ = 'Kovid Goyal'
+    __author__ = 'Jose Ortiz'
     description = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa
     category = 'news, politics, USA, Los Angeles, world'
-    oldest_article = 2
+    oldest_article = 1
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
     publication_type = 'newspaper'
     cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
-        dict(itemprop='articleBody'),
-        dict(name='h1'),
-        dict(attrs={'data-content-type': 'image'}),
+        classes('headline page-lead-media authors published-date page-article-container'),
     ]
-    remove_tags = [
-        dict(attrs={'data-content-type': 'story'}),
-        dict(attrs={'data-load-type': 'commentFrame'}),
+
+    remove_tags= [
+        classes('google-dfp-ad-wrapper enhancement')
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.latimes.com')
+        index = 'https://www.latimes.com/'
+        pat = r'^https://www\.latimes\.com/[^/]+?/story/20\d{2}-\d{2}-\d{2}/\S+'
+        articles = self.find_articles(index, pat)
+        for collection in DIR_COLLECTIONS:
+            if self.test:
+                continue
+            topdir = collection.pop(0)
+            collection_index = index + topdir + '/'
+            articles += self.find_articles(collection_index, pat)
+            for subdir in collection:
+                sub_index = collection_index + subdir + '/'
+                articles += self.find_articles(sub_index, pat)
+
         feeds = defaultdict(list)
-        for x in soup.findAll(
-            attrs={
-                'data-content-type': 'story',
-                'data-content-section': True,
-                'data-content-slug': True,
-            }
-        ):
-            a = x.find('a', attrs={'class': lambda x: not x or 'SectionHeading' not in x})
-            if a is not None:
-                url = absurl(a['href'])
-                section = x['data-content-section'].capitalize()
-                title = self.tag_to_string(a)
-                feeds[section].append({'title': title, 'url': url})
-        self.log(pformat(dict(feeds)))
+        for article in articles:
+            section = what_section(article['url'])
+            feeds[section].append(article)
+
         return [(k, feeds[k]) for k in sorted(feeds)]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-baseurl': True}):
-            img['src'] = img['data-baseurl'] + '/750'
-        for div in soup.findAll(itemprop='articleBody'):
-            div.extract()
-            soup.find('body').append(div)
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            if img.findParent('a', href='http://www.latimes.com/opinion/la-letter-to-the-editor-htmlstory.html') \
+               is img.parent and img['data-src'].endswith('/la-letter-to-the-editor'):
+                img.parent.extract()
+            else:
+                img['src'] = img['data-src']
         return soup
+
+    def find_articles(self, index, pattern):
+        self.log('Downloading and parsing index: ', index)
+        self.log('Pattern: ', pattern)
+        try:
+            soup = self.index_to_soup(index)
+        except:
+            self.log('Failed to download ', index)
+            return []
+        if soup.main is not None:
+            alinks = soup.main.findAll('a', {'href': re.compile(pattern)})
+        else:
+            alinks = soup.findAll('a', {'href': re.compile(pattern)})
+        alinks = [a for a in alinks if len(
+            a.contents) == 1 and a.find(text=True, recursive=False)]
+        articles = [
+            {'title': self.tag_to_string(a), 'url': absurl(a['href'])} for a in alinks]
+        self.log('Found: ', len(articles), ' articles.\n')
+        return articles

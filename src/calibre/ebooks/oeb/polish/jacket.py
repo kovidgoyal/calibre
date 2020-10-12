@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -98,7 +97,7 @@ def add_or_replace_jacket(container):
     if not found:
         # Insert new jacket into spine
         index = 0
-        sp = container.abspath_to_name(container.spine_items.next())
+        sp = container.abspath_to_name(next(container.spine_items))
         if sp == find_cover_page(container):
             index = 1
         itemref = container.opf.makeelement(OPF('itemref'),

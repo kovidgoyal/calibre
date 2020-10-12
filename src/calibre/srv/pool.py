@@ -1,16 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from Queue import Queue, Full
 from threading import Thread
 
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import range
+from polyglot.queue import Queue, Full
 
 
 class Worker(Thread):
@@ -52,7 +52,7 @@ class ThreadPool(object):
 
     def __init__(self, log, notify_server, count=10, queue_size=1000):
         self.request_queue, self.result_queue = Queue(queue_size), Queue(queue_size)
-        self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in xrange(count)]
+        self.workers = [Worker(log, notify_server, i, self.request_queue, self.result_queue) for i in range(count)]
 
     def start(self):
         for w in self.workers:

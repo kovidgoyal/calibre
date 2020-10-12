@@ -15,9 +15,9 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
-    <widget class="QTabWidget" name="tabWidget">
+    <widget class="ScrollingTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -47,10 +47,10 @@
        <item>
         <widget class="QCheckBox" name="opt_swap_author_names">
          <property name="toolTip">
-          <string>Swap the firstname and lastname of the author. This affects only metadata read from file names.</string>
+          <string>Swap the first name and last name of the author. This affects only metadata read from file names.</string>
          </property>
          <property name="text">
-          <string>&amp;Swap author firstname and lastname when reading author from filename</string>
+          <string>&amp;Swap author first name and last name when reading author from filename</string>
          </property>
         </widget>
        </item>
@@ -125,7 +125,7 @@
        <item row="5" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_manual_add_auto_convert">
          <property name="text">
-          <string>Automatically &amp;convert added books to the current output format</string>
+          <string>Automatically &amp;convert added books to the preferred output format</string>
          </property>
         </widget>
        </item>
@@ -163,13 +163,13 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
        <item row="8" column="1">
         <widget class="QComboBox" name="opt_automerge">
          <property name="toolTip">
-          <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats automatically into
+          <string>Auto-merge: If books with similar titles and authors found, merge the incoming formats (files) automatically into
 existing book records. This box controls what happens when an existing record already has
 the incoming format:
 
-Ignore duplicate incoming files - means that existing files in your calibre library will not be replaced
-Overwrite existing duplicate files - means that existing files in your calibre library will be replaced
-Create new record for each duplicate file - means that a new book entry will be created for each duplicate file
+Ignore duplicate incoming formats - means that existing formats in your calibre library will not be replaced
+Overwrite existing duplicate formats - means that existing formats in your calibre library will be replaced
+Create new record for each duplicate formats - means that a new book entry will be created for each duplicate formats
 
 Title matching ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc.
 Author matching is exact.</string>
@@ -220,10 +220,17 @@ Author matching is exact.</string>
          </property>
         </widget>
        </item>
+       <item row="13" column="0" colspan="2">
+        <widget class="Line" name="line_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
        <item row="14" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Control how tags are processed:</string>
+          <string>Contro&amp;l how tags are processed:</string>
          </property>
          <property name="buddy">
           <cstring>tag_map_rules_button</cstring>
@@ -250,7 +257,7 @@ Author matching is exact.</string>
        <item row="18" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Control which files are added during bulk imports:</string>
+          <string>Control which files are added during bul&amp;k imports:</string>
          </property>
          <property name="buddy">
           <cstring>add_filter_rules_button</cstring>
@@ -267,10 +274,20 @@ Author matching is exact.</string>
          </property>
         </widget>
        </item>
-       <item row="13" column="0" colspan="2">
-        <widget class="Line" name="line_8">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="15" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>Control how auth&amp;ors are processed:</string>
+         </property>
+         <property name="buddy">
+          <cstring>author_map_rules_button</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="15" column="1">
+        <widget class="QPushButton" name="author_map_rules_button">
+         <property name="text">
+          <string>Rules to manipulate a&amp;uthor names</string>
          </property>
         </widget>
        </item>
@@ -296,9 +313,12 @@ that have been explicitly ignored below.</string>
        <item row="1" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <widget class="QLineEdit" name="opt_auto_add_path">
+          <widget class="HistoryLineEdit" name="opt_auto_add_path">
            <property name="placeholderText">
             <string>Folder to automatically add files from</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -321,7 +341,7 @@ that have been explicitly ignored below.</string>
        <item row="4" column="0">
         <widget class="QCheckBox" name="opt_auto_add_auto_convert">
          <property name="text">
-          <string>Automatically &amp;convert added files to the current output format</string>
+          <string>Automatically &amp;convert added files to the preferred output format</string>
          </property>
         </widget>
        </item>
@@ -419,6 +439,19 @@ that have been explicitly ignored below.</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScrollingTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>calibre/gui2/widgets2.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../../../../resources/images.qrc"/>
  </resources>

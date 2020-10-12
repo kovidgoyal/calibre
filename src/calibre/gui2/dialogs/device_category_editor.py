@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -5,6 +7,7 @@ from PyQt5.Qt import Qt, QDialog, QListWidgetItem
 
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
 from calibre.gui2 import question_dialog, error_dialog
+from polyglot.builtins import unicode_type
 
 
 class ListWidgetItem(QListWidgetItem):
@@ -59,7 +62,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
         self.setWindowIcon(icon)
 
         self.to_rename = {}
-        self.to_delete = set([])
+        self.to_delete = set()
         self.original_names = {}
         self.all_tags = {}
 
@@ -84,13 +87,13 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
 
     def finish_editing(self, item):
         if not item.text():
-                error_dialog(self, _('Item is blank'),
-                             _('An item cannot be set to nothing. Delete it instead.')).exec_()
-                item.setText(item.previous_text())
-                return
+            error_dialog(self, _('Item is blank'),
+                            _('An item cannot be set to nothing. Delete it instead.')).exec_()
+            item.setText(item.previous_text())
+            return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode(item.text())
+            self.to_rename[id_] = unicode_type(item.text())
 
     def rename_tag(self):
         item = self.available_tags.currentItem()
@@ -109,7 +112,7 @@ class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
             error_dialog(self, _('No items selected'),
                          _('You must select at least one item from the list.')).exec_()
             return
-        ct = ', '.join([unicode(item.text()) for item in deletes])
+        ct = ', '.join([unicode_type(item.text()) for item in deletes])
         if not question_dialog(self, _('Are you sure?'),
             '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct):
             return

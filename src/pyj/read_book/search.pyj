@@ -1,14 +1,16 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from complete import create_search_bar
-from dom import add_extra_css, build_rule, svgicon
-from keycodes import get_key
 from elementmaker import E
 from gettext import gettext as _
+
 from book_list.theme import get_color
+from complete import create_search_bar
+from dom import add_extra_css, build_rule, svgicon
+from read_book.globals import ui_operations
 from read_book.resources import text_from_serialized_html
+from read_book.shortcuts import shortcut_for_key_event
 
 CLASS_NAME = 'book-search-container'
 
@@ -16,7 +18,7 @@ add_extra_css(def():
     sel = '.' + CLASS_NAME
     style = build_rule(sel, text_align='right', user_select='none')
     sel += ' > div '
-    style += build_rule(sel, display='inline-flex', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
+    style += build_rule(sel, display='inline-flex', align_items='center', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
     return style
 )
 
@@ -39,13 +41,22 @@ class SearchOverlay:
             create_search_bar(self.find_next, 'search-in-book', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button, close_button]),
             '\xa0', next_button, '\xa0', prev_button, '\xa0', close_button
         ))
-        c.firstChild.addEventListener('keydown', self.onkeydown)
+        c.firstChild.addEventListener('keydown', self.onkeydown, {'passive': False})
 
     def onkeydown(self, event):
-        k = get_key(event)
-        if k is 'escape':
+        if event.key is 'Escape' or event.key is 'Esc':
             self.hide()
             event.preventDefault(), event.stopPropagation()
+            return
+        sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
+        if sc_name is 'next_match':
+            self.find_next()
+            event.preventDefault(), event.stopPropagation()
+            return
+        if sc_name is 'previous_match':
+            self.find_previous()
+            event.preventDefault(), event.stopPropagation()
+            return
 
     @property
     def container(self):
@@ -59,13 +70,18 @@ class SearchOverlay:
     def is_visible(self):
         return self.container.style.display is not 'none'
 
+    def set_text(self, text):
+        self.container.querySelector('input').value = text or ''
+
     def hide(self):
         self.container.style.display = 'none'
+        ui_operations.focus_iframe()
 
     def show(self):
         c = self.container
         c.style.display = 'block'
-        c.querySelector('input').focus()
+        inp = c.querySelector('input')
+        inp.focus(), inp.select()
 
     def find(self, text, backwards):
         if not text:
@@ -73,10 +89,16 @@ class SearchOverlay:
         self.view.find(text, backwards)
 
     def find_next(self):
-        self.find(self.search_text, False)
+        if ui_operations.find_next:
+            ui_operations.find_next(False)
+        else:
+            self.find(self.search_text, False)
 
     def find_previous(self):
-        self.find(self.search_text, True)
+        if ui_operations.find_next:
+            ui_operations.find_next(True)
+        else:
+            self.find(self.search_text, True)
 
 
 def find_in_serialized_html(data, text):
@@ -84,7 +106,7 @@ def find_in_serialized_html(data, text):
     return haystack.toLowerCase().indexOf(text) > -1
 
 
-def find_in_spine(names, book, db, text, proceed):
+def find_in_spine(names, book, text, proceed):
     text = text.toLowerCase()
 
     def got_one(data, name, mimetype):
@@ -96,7 +118,7 @@ def find_in_spine(names, book, db, text, proceed):
     def do_one():
         name = names.shift()
         if name:
-            db.get_file(book, name, got_one)
+            ui_operations.get_file(book, name, got_one)
         else:
             proceed(None)
 

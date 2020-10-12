@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """www.dunyahalleri.com/haftanin-ozeti"""
 import locale
@@ -14,6 +14,13 @@ from PIL import Image, ImageDraw, ImageFont
 
 __license__ = 'GPL v3'
 __copyright__ = '2017, sukru alatas / alatas.org'
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
@@ -85,7 +92,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         if raw:
             return _raw
 
-        if not isinstance(_raw, unicode) and self.encoding:
+        if not isinstance(_raw, type(u'')) and self.encoding:
             if callable(self.encoding):
                 _raw = self.encoding(_raw)
             else:
@@ -94,7 +101,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
         from calibre.utils.cleantext import clean_xml_chars
 
-        if isinstance(_raw, unicode):
+        if isinstance(_raw, type(u'')):
             _raw = strip_encoding_declarations(_raw)
         else:
             _raw = xml_to_unicode(
@@ -156,7 +163,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
     def preprocess_html(self, soup):
         # gallery normalization
         for div in soup.findAll('div', {'itemtype': 'http://schema.org/ImageGallery'}):
-            p = Tag(soup, 'p')
+            p = new_tag(soup, 'p')
             for img in div.findAll('img'):
                 img.attrs = [(key, value)
                              for key, value in img.attrs if key in ['src']]
@@ -167,9 +174,9 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         # this block finds the cover image for each embeded youtube video then
         # changes it to "a href" and "img"
         for iframe in soup.findAll('iframe'):
-            a = Tag(soup, 'a')
-            caption = Tag(soup, 'pre')
-            img = Tag(soup, 'img')
+            a = new_tag(soup, 'a')
+            caption = new_tag(soup, 'pre')
+            img = new_tag(soup, 'img')
 
             m = re.match(
                 r'https\:\/\/(www\.)?youtube.com\/(embed\/|watch\?v\=)'
@@ -236,8 +243,7 @@ class DunyaHalleri_HaftaninOzeti(BasicNewsRecipe):
         title = self.issue_title
         date = self.issue_date.strftime(
             '%d %B %Y').decode('utf8', 'replace')
-        author = 'www.dunyahalleri.com/haftanin-ozeti'.decode(
-            'utf8', 'replace')
+        author = u'www.dunyahalleri.com/haftanin-ozeti'
         # Texts
         img = Image.new(
             'RGB', (self.COVER_WIDTH, self.COVER_HEIGHT), 'white')

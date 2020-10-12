@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2010, matek09, matek09@gmail.com'
@@ -51,7 +51,7 @@ class Polityka(BasicNewsRecipe):
                         'http://archiwum.polityka.pl' + div.a['href'],)
                     section = self.tag_to_string(article_page.find(
                         'h2', attrs={'class': 'box_nag'})).split('/')[0].lstrip().rstrip()
-                    if not articles.has_key(section):  # noqa
+                    if section not in articles:
                         articles[section] = []
                     articles[section].append({
                         'title': self.tag_to_string(div.a),

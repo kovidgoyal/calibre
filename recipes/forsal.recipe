@@ -43,7 +43,7 @@ class ForsalPL(BasicNewsRecipe):
     (u'Moja firma', u'http://forsal.pl/atom/tagi/moja_firma')]
 
     def print_version(self, url):
-        url_id = re.search(ur'/[0-9]+,', url)
+        url_id = re.search(u'/[0-9]+,', url)
         if url_id:
             return 'http://forsal.pl/drukowanie' + url_id.group(0)[:-1]
         else:

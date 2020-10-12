@@ -1,23 +1,23 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
-
-is_narrow_build = sys.maxunicode < 0x10ffff
+from polyglot.builtins import filter
 
 # Setup code {{{
 import codecs
 
 from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
+from polyglot.builtins import unicode_type, cmp
 
 _locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
+cmp
 
 _none = u''
 _none2 = b''
@@ -28,7 +28,7 @@ if _icu is None:
     raise RuntimeError('Failed to load icu with error: %s' % err)
 del err
 icu_unicode_version = getattr(_icu, 'unicode_version', None)
-_nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NFKD', 'NONE', 'DEFAULT', 'FCD')}
+_nmodes = {m:getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
 
 # Ensure that the python internal filesystem and default encodings are not ASCII
 
@@ -38,6 +38,8 @@ def is_ascii(name):
         return codecs.lookup(name).name == b'ascii'
     except (TypeError, LookupError):
         return True
+
+
 try:
     if is_ascii(sys.getdefaultencoding()):
         _icu.set_default_encoding(b'utf-8')
@@ -66,7 +68,7 @@ def collator():
         try:
             _collator = _icu.Collator(_locale)
         except Exception as e:
-            print ('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
+            print('Failed to load collator for locale: %r with error %r, using English' % (_locale, e))
             _collator = _icu.Collator('en')
     return _collator
 
@@ -119,13 +121,15 @@ def case_sensitive_collator():
 # function implementations based on different collators, to allow lazy loading
 # of collators, with maximum runtime performance
 
+
 _sort_key_template = '''
 def {name}(obj):
     try:
         try:
             return {collator}.{func}(obj)
         except AttributeError:
-            return {collator_func}().{func}(obj)
+            pass
+        return {collator_func}().{func}(obj)
     except TypeError:
         if isinstance(obj, bytes):
             try:
@@ -142,7 +146,8 @@ def {name}(a, b):
         try:
             return {collator}.{func}(a, b)
         except AttributeError:
-            return {collator_func}().{func}(a, b)
+            pass
+        return {collator_func}().{func}(a, b)
     except TypeError:
         if isinstance(a, bytes):
             try:
@@ -167,8 +172,9 @@ def {name}(x):
         try:
             return _icu.change_case(x, _icu.{which}, _locale)
         except NotImplementedError:
-            collator()  # sets _locale
-            return _icu.change_case(x, _icu.{which}, _locale)
+            pass
+        collator()  # sets _locale
+        return _icu.change_case(x, _icu.{which}, _locale)
     except TypeError:
         if isinstance(x, bytes):
             try:
@@ -184,7 +190,7 @@ def _make_func(template, name, **kwargs):
     l = globals()
     kwargs['name'] = name
     kwargs['func'] = kwargs.get('func', 'sort_key')
-    exec template.format(**kwargs) in l
+    exec(template.format(**kwargs), l)
     return l[name]
 
 
@@ -222,6 +228,7 @@ def capitalize(x):
     except (IndexError, TypeError, AttributeError):
         return x
 
+
 try:
     swapcase = _icu.swap_case
 except AttributeError:  # For people running from source
@@ -246,7 +253,7 @@ ord_string = _icu.ord_string
 
 def character_name(string):
     try:
-        return _icu.character_name(unicode(string)) or None
+        return _icu.character_name(unicode_type(string)) or None
     except (TypeError, ValueError, KeyError):
         pass
 
@@ -263,7 +270,7 @@ def normalize(text, mode='NFC'):
     # that unless you have very good reasons not too. Also, it's speed
     # decreases on wide python builds, where conversion to/from ICU's string
     # representation is slower.
-    return _icu.normalize(_nmodes[mode], unicode(text))
+    return _icu.normalize(_nmodes[mode], unicode_type(text))
 
 
 def contractions(col=None):
@@ -290,9 +297,7 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
         c = icu_upper(key(item) or ' ')
         ordnum, ordlen = collation_order(c)
         if last_ordnum != ordnum:
-            if not is_narrow_build:
-                ordlen = 1
-            last_c = c[0:ordlen]
+            last_c = c[0:1]
             last_ordnum = ordnum
         try:
             ans[last_c].append(item)
@@ -300,15 +305,15 @@ def partition_by_first_letter(items, reverse=False, key=lambda x:x):
             ans[last_c] = [item]
     return ans
 
+
 # Return the number of unicode codepoints in a string
-string_length = _icu.string_length if is_narrow_build else len
+string_length = len
 
 # Return the number of UTF-16 codepoints in a string
-utf16_length = len if is_narrow_build else _icu.utf16_length
+utf16_length = _icu.utf16_length
 
 ################################################################################
 
 if __name__ == '__main__':
     from calibre.utils.icu_test import run
     run(verbosity=4)
-

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 """
     Tokenizer, parser and parsed objects for CSS selectors.
@@ -15,28 +15,34 @@ import operator
 import string
 
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
+from polyglot.builtins import unicode_type, codepoint_to_chr, range
 
-if sys.version_info[0] < 3:
-    _unicode = unicode
-    _unichr = unichr
+
+utab = {c:c+32 for c in range(ord(u'A'), ord(u'Z')+1)}
+
+if sys.version_info.major < 3:
+    tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
+
+    def ascii_lower(string):
+        """Lower-case, but only in the ASCII range."""
+        return string.translate(utab if isinstance(string, unicode_type) else tab)
+
+    def urepr(x):
+        if isinstance(x, list):
+            return '[%s]' % ', '.join((map(urepr, x)))
+        ans = repr(x)
+        if ans.startswith("u'") or ans.startswith('u"'):
+            ans = ans[1:]
+        return ans
+
+
 else:
-    _unicode = str
-    _unichr = chr
 
-tab = string.maketrans(string.ascii_uppercase, string.ascii_lowercase)
-utab = {c:c+32 for c in range(ord('A'), ord('Z')+1)}
+    def ascii_lower(x):
+        return x.translate(utab)
 
-def ascii_lower(string):
-    """Lower-case, but only in the ASCII range."""
-    return string.translate(utab if isinstance(string, _unicode) else tab)
+    urepr = repr
 
-def urepr(x):
-    if isinstance(x, list):
-        return '[%s]' % ', '.join((map(urepr, x)))
-    ans = repr(x)
-    if ans.startswith("u'") or ans.startswith('u"'):
-        ans = ans[1:]
-    return ans
 
 # Parsed objects
 
@@ -369,8 +375,6 @@ def parse(css):
 #        message = "%s at %s -> %r" % (
 #            e, stream.used, stream.peek())
 #        e.msg = message
-#        if sys.version_info < (2,6):
-#            e.message = message
 #        e.args = tuple([message])
 #        raise
 
@@ -384,6 +388,7 @@ def parse_selector_group(stream):
             stream.skip_whitespace()
         else:
             break
+
 
 def parse_selector(stream):
     result, pseudo_element = parse_simple_selector(stream)
@@ -407,6 +412,10 @@ def parse_selector(stream):
         next_selector, pseudo_element = parse_simple_selector(stream)
         result = CombinedSelector(result, combinator, next_selector)
     return result, pseudo_element
+
+
+special_pseudo_elements = (
+    'first-line', 'first-letter', 'before', 'after')
 
 
 def parse_simple_selector(stream, inside_negation=False):
@@ -457,11 +466,10 @@ def parse_simple_selector(stream, inside_negation=False):
                         pseudo_element, parse_arguments(stream))
                 continue
             ident = stream.next_ident()
-            if ident.lower() in ('first-line', 'first-letter',
-                                 'before', 'after'):
+            if ident.lower() in special_pseudo_elements:
                 # Special case: CSS 2.1 pseudo-elements can have a single ':'
                 # Any new pseudo-element must have two.
-                pseudo_element = _unicode(ident)
+                pseudo_element = unicode_type(ident)
                 continue
             if stream.peek() != ('DELIM', '('):
                 result = Pseudo(result, ident)
@@ -626,11 +634,13 @@ class TokenMacros:
     nmchar = '[_a-z0-9-]|%s|%s' % (escape, nonascii)
     nmstart = '[_a-z]|%s|%s' % (escape, nonascii)
 
+
 def _compile(pattern):
     return re.compile(pattern % vars(TokenMacros), re.IGNORECASE).match
 
+
 _match_whitespace = _compile(r'[ \t\r\n\f]+')
-_match_number = _compile('[+-]?(?:[0-9]*\.[0-9]+|[0-9]+)')
+_match_number = _compile(r'[+-]?(?:[0-9]*\.[0-9]+|[0-9]+)')
 _match_hash = _compile('#(?:%(nmchar)s)+')
 _match_ident = _compile('-?(?:%(nmstart)s)(?:%(nmchar)s)*')
 _match_string_by_quote = {
@@ -650,11 +660,12 @@ else:
     def _replace_simple(match):
         return match.group(1)
 
+
 def _replace_unicode(match):
     codepoint = int(match.group(1), 16)
     if codepoint > sys.maxunicode:
         codepoint = 0xFFFD
-    return _unichr(codepoint)
+    return codepoint_to_chr(codepoint)
 
 
 def unescape_ident(value):

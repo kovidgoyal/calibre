@@ -7,6 +7,7 @@ from gettext import gettext as _
 
 from book_list.router import is_reading_book
 from modals import error_dialog
+from read_book.annotations import merge_annotation_maps
 from session import get_interface_data
 from utils import username_key
 
@@ -43,6 +44,25 @@ def get_error_details(event):
         elif desc.name:
             desc = desc.name
     return desc or 'Unknown Error'
+
+
+def new_book(key, metadata):
+    return {
+        'key':key,
+        'is_complete':False,
+        'stored_files': {},
+        'book_hash':None,
+        'metadata': metadata,
+        'manifest': None,
+        'cover_width': None,
+        'cover_height': None,
+        'cover_name': None,
+        'recent_date': new Date(),
+        'last_read': {},
+        'last_read_position': {},
+        'annotations_map': {},
+    }
+
 
 DB_NAME = 'calibre'
 DB_VERSION = 1
@@ -124,7 +144,7 @@ class DB:
         idb.onversionchange = def(event):
             idb.close()
             self.show_error(_('Database upgraded!'), _(
-                'A newer version of calibre is available, please click the reload button in your browser.'))
+                'A newer version of calibre is available, please click the Reload button in your browser.'))
         self.callback()
 
     def display_error(self, msg, event):
@@ -170,20 +190,9 @@ class DB:
         book_id = int(book_id)
         key = v'[library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
-            proceed(result or {
-                'key':key,
-                'is_complete':False,
-                'stored_files': {},
-                'book_hash':None,
-                'metadata': metadata,
-                'manifest': None,
-                'cover_width': None,
-                'cover_height': None,
-                'cover_name': None,
-                'recent_date': new Date(),
-                'last_read': {},
-                'last_read_position': {},
-            })
+            if result and not result.annotations_map:
+                result.annotations_map = {}
+            proceed(result or new_book(key, metadata))
         )
 
     def get_mathjax_info(self, proceed):
@@ -197,26 +206,32 @@ class DB:
         book.book_hash = manifest.book_hash.hash
         book.stored_files = {}
         book.is_complete = False
-        if get_interface_data().username:
-            newest_epoch = newest_pos = None
-            for pos in manifest.last_read_positions:
-                if newest_epoch is None or pos.epoch > newest_epoch:
-                    newest_epoch = pos.epoch
-                    newest_pos = pos.cfi
-            if newest_pos:
-                unkey = username_key(get_interface_data().username)
-                book.last_read[unkey] = new Date(newest_epoch * 1000)
-                book.last_read_position[unkey] = newest_pos
+        newest_epoch = newest_pos = None
+        for pos in manifest.last_read_positions:
+            if newest_epoch is None or pos.epoch > newest_epoch:
+                newest_epoch = pos.epoch
+                newest_pos = pos.cfi
+        username = get_interface_data().username
+        unkey = username_key(username)
+        if newest_pos and username:
+            book.last_read[unkey] = new Date(newest_epoch * 1000)
+            book.last_read_position[unkey] = newest_pos
+        if manifest.annotations_map:
+            book.annotations_map[unkey] = manifest.annotations_map
 
-        v'delete manifest["metadata"]'
-        v'delete manifest["last_read_positions"]'
+        v'delete manifest.metadata'
+        v'delete manifest.last_read_positions'
+        v'delete manifest.annotations_map'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
     def store_file(self, book, name, xhr, proceed, is_cover):
         store_as_text = xhr.responseType is 'text' or not xhr.responseType
         fname = file_store_name(book, name)
         needs_encoding = not store_as_text and not self.supports_blobs
-        book.stored_files[fname] = {'encoded':needs_encoding, 'mimetype':book.manifest.files[name].mimetype, 'store_as_text':store_as_text}
+        mt = book.manifest.files[name]?.mimetype
+        if not mt and is_cover:
+            mt = 'image/jpeg'
+        book.stored_files[fname] = {'encoded':needs_encoding, 'mimetype':mt, 'store_as_text':store_as_text}
         if is_cover:
             self.store_cover(book, needs_encoding, xhr.response, name, fname, proceed)
         else:
@@ -282,13 +297,35 @@ class DB:
         book.last_read[unkey] = book.recent_date = now
         self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
 
-    def update_last_read_data_from_key(self, library_id, book_id, fmt, last_read, last_read_position):
+    def update_metadata(self, book, new_metadata):
+        if book.metadata:
+            for key in Object.keys(new_metadata):
+                book.metadata[key] = new_metadata[key]
+            self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+
+    def update_annotations_data_from_key(self, library_id, book_id, fmt, new_data):
         unkey = username_key(get_interface_data().username)
         self.get_book(library_id, book_id, fmt, None, def(book):
             if book.metadata:  # book exists
-                book.last_read[unkey] = book.recent_date = last_read
-                book.last_read_position[unkey] = last_read_position
-                self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+                changed = False
+                if new_data.last_read_position:
+                    book.last_read[unkey] = book.recent_date = new_data.last_read
+                    book.last_read_position[unkey] = new_data.last_read_position
+                    changed = True
+                if not book.annotations_map:
+                    book.annotations_map = v'{}'
+                if new_data.annotations_map:
+                    existing = book.annotations_map[unkey]
+                    if not existing:
+                        changed = True
+                        book.annotations_map[unkey] = new_data.annotations_map
+                    else:
+                        updated, merged = merge_annotation_maps(existing, new_data.annotations_map)
+                        if updated:
+                            changed = True
+                            book.annotations_map[unkey] = merged
+                if changed:
+                    self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
         )
 
     def get_file(self, book, name, proceed):
@@ -301,10 +338,10 @@ class DB:
                 # File was not found in the cache, this happens in Chrome if
                 # the Application Cache is full. IndexedDB put succeeds,
                 # but get fails. Browsers are a horrible travesty.
-                err += _(
+                bad = err + _(
                     ' This usually means the cache is close to full. Clear the browser'
                     ' cache from the browser settings.')
-                self.show_error(_('Cannot read file from book'), err)
+                self.show_error(_('Cannot read file from book'), bad)
                 return
             fdata = book.stored_files[key]
             mt = fdata.mimetype or 'application/octet-stream'
@@ -348,6 +385,25 @@ class DB:
             if cursor:
                 cursor.continue()
 
+    def has_book_matching(self, library_id, book_id, proceed):
+        # Should really be using a multiEntry index to avoid iterating over all
+        # books in JS, but since the number of stored books is not that large,
+        # I can't be bothered.
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        c.onerror = def(event):
+            proceed(False)
+        book_id = int(book_id)
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                book = cursor.value
+                if book.key[0] is library_id and book.key[1] is book_id:
+                    proceed(True)
+                    return
+                cursor.continue()
+            else:
+                proceed(False)
+
     def delete_book(self, book, proceed):
         c = self.idb.transaction(['books', 'files'], 'readwrite')
         files = c.objectStore('files')
@@ -365,6 +421,31 @@ class DB:
             else:
                 books.delete(book.key)
         next_step()
+
+    def delete_books_matching(self, library_id, book_id, proceed):
+        c = self.idb.transaction(['books'], 'readonly').objectStore('books').index('recent_index').openCursor(None, 'prev')
+        c.onerror = def(event):
+            pass
+        book_id = int(book_id)
+        matches = v'[]'
+
+        def delete_all():
+            if matches.length:
+                book = matches.pop()
+                self.delete_book(book, delete_all)
+            else:
+                if proceed:
+                    proceed()
+
+        c.onsuccess = def (ev):
+            cursor = ev.target.result
+            if cursor:
+                book = cursor.value
+                if book.key[0] is library_id and book.key[1] is book_id:
+                    matches.push(book)
+                cursor.continue()
+            else:
+                delete_all()
 
 
 def get_db(callback, show_read_book_error):

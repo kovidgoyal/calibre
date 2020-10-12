@@ -1,47 +1,133 @@
+#!/usr/bin/python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2020, Jose Ortiz <jlortiz84 at gmail.com>
 
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+from time import sleep
+from mechanize import Request
+from contextlib import closing
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class JournalOfAccountancyRecipe(BasicNewsRecipe):
-    __license__ = 'GPL v3'
-    __author__ = 'kwetal'
-    language = 'en'
-    version = 1
+def absolutize(url):
+    if url.startswith('/'):
+        url = ('https://www.journalofaccountancy.com' + url).partition('#')[0]
+    return url
 
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class JournalOfAccountancy(BasicNewsRecipe):
+    __author__ = 'Jose Ortiz'
+    language = 'en_US'
     title = u'Journal of Accountancy'
-    publisher = u'AICPA'
-    category = u'News, Accountancy'
-    description = u'Publication of the American Institute of Certified Public Accountants'
-
-    use_embedded_content = False
-    remove_empty_feeds = True
-    oldest_article = 30
-    max_articles_per_feed = 100
-
+    description = (
+        'A monthly journal of tax, financial reporting, auditing and other'
+        ' topics of accountancy from American Institute of Certified Public'
+        ' Accountants (AICPA).'
+    )
+    publication_type = 'magazine'
+    masthead_url = 'http://developmentprofits.com/images/JournalOfAccountancy.jpg'
     no_stylesheets = True
     remove_javascript = True
 
-    extra_css = '''
-                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
-                div#Rubricname {font-size: small; color: #666666; margin-bottom: 1em;}
-                div#Headline {font-size: x-large; font-weight: bold; margin-bottom: 0.6em}
-                div#SubHeadline {font-size: medium; font-weight: bold; margin-bottom: 1em}
-                div#Authorname, div#Date {font-size: x-small; color: #696969;}
-                '''
+    conversion_options = {
+        'comments': description,
+        'tags': 'News, Accountancy',
+        'publisher': 'American Institute of Certified Public Accountants (AICPA)'
+    }
 
-    conversion_options = {'comments': description, 'tags': category, 'language': 'en',
-                          'publisher': publisher}
+    keep_only_tags = [classes('contentSectionArticlePage')]
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'id': 'Rubricname'}))
-    keep_only_tags.append(dict(name='div', attrs={'id': 'Headline'}))
-    keep_only_tags.append(dict(name='div', attrs={'id': 'SubHeadline'}))
-    keep_only_tags.append(dict(name='div', attrs={'id': 'Authorname'}))
-    keep_only_tags.append(dict(name='div', attrs={'id': 'Date'}))
-    keep_only_tags.append(dict(name='div', attrs={'id': 'BodyContent'}))
+    def parse_index(self):
+        # ISSUES ######################
+        issues_url = 'https://www.journalofaccountancy.com/issues.html'
+        with closing(self.browser.open(issues_url)):
+            pass
+        ###############################
 
-    remove_attributes = ['style']
+        common_headers = {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'DNT': '1',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+        }
 
-    feeds = []
-    feeds.append((u'Journal of Accountancy',
-                  u'http://feeds2.feedburner.com/JournalOfAccountancy'))
+        URL_TEMPLATE = 'https://www.journalofaccountancy.com/content/jofa-home/issues/jcr:content/main-content-section/issuelibrary.%s.service'
+
+        # INIT #################################################
+        init_url = URL_TEMPLATE % 'init'
+        init_headers = {'Referer': issues_url}
+        init_headers.update(common_headers)
+
+        self.log('\nINIT URL at ', init_url)
+        with closing(self.browser.open(Request(init_url, None, init_headers))) as r:
+            issue_path = json.loads(r.read())[0]['page']['path']
+        ########################################################
+
+        # FILTER ###############################
+        filter_url = URL_TEMPLATE % ('filter.' + issue_path.split('/')[-2])
+        filter_headers = {'issues': issue_path}
+        filter_headers.update(init_headers)
+
+        self.log('\nFILTER URL at ', filter_url)
+        with closing(
+            self.browser.open(Request(filter_url, None, filter_headers))
+        ) as r:
+            issue_data = json.loads(r.read())[0]
+        ########################################
+
+        self.cover_url = absolutize(issue_data['issueCover']['src'])
+        self.log('cover_url at ', self.cover_url)
+        self.timefmt = ' ' + issue_data['issueName']
+
+        # INDEX ####################################
+        index_url = absolutize(issue_path + '.html')
+        self.log('INDEX URL at ', index_url)
+        self.log('3 second pause')
+        sleep(3)  # mimicking human user behavior
+        with closing(self.browser.open(index_url)):
+            pass
+        ############################################
+
+        service_headers = {'Referer': index_url}
+        service_headers.update(common_headers)
+
+        def get_data(service):
+            service_url = (
+                'https://www.journalofaccountancy.com' + issue_path +
+                '/jcr:content/main-content-section/' + service + '.en.service'
+            )
+            self.log('\nSERIVICE URL at ', service_url)
+            req = Request(service_url, None, service_headers)
+            with closing(self.browser.open(req)) as r:
+                return json.loads(r.read())
+
+        def make_topic(category, articles):
+            topic = (category, [])
+            self.log(topic[0])
+            for article in articles:
+                title = article['articleTitle']
+                url = absolutize(article['page']['path'] + '.html')
+                desc = article.get('articleAbstract')
+                self.log('\t', title, ' at ', url)
+                topic[1].append({'title': title, 'url': url, 'description': desc})
+            return topic
+
+        ans = [
+            make_topic('SPOTLIGHT', get_data('issuelanding/articles1')),
+            make_topic('FEATURES', get_data('issuelanding/articles2'))
+        ]
+
+        for category, articles in get_data('articletypelist').items():
+            ans.append(make_topic(category, articles))
+
+        return ans

@@ -1,9 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 from threading import Thread
 
 from PyQt5.Qt import (
@@ -15,6 +14,7 @@ from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.ebooks.oeb.polish.download import get_external_resources, download_external_resources, replace_resources
+from polyglot.builtins import iteritems, range
 
 
 class ChooseResources(QWidget):
@@ -29,7 +29,7 @@ class ChooseResources(QWidget):
         l.addWidget(i)
 
     def __iter__(self):
-        for i in xrange(self.items.count()):
+        for i in range(self.items.count()):
             yield self.items.item(i)
 
     def select_none(self):
@@ -42,14 +42,22 @@ class ChooseResources(QWidget):
 
     @property
     def resources(self):
-        return {i.text():self.original_resources[i.text()] for i in self if i.checkState() == Qt.Checked}
+        return {i.data(Qt.UserRole):self.original_resources[i.data(Qt.UserRole)] for i in self if i.checkState() == Qt.Checked}
 
     @resources.setter
     def resources(self, resources):
         self.items.clear()
         self.original_resources = resources
-        for url in resources:
-            i = QListWidgetItem(url, self.items)
+        dc = 0
+        for url, matches in iteritems(resources):
+            text = url
+            num = len(matches)
+            if text.startswith('data:'):
+                dc += 1
+                text = _('Data URL #{}').format(dc)
+            text += ' ({})'.format(ngettext('one instance', '{} instances', num).format(num))
+            i = QListWidgetItem(text, self.items)
+            i.setData(Qt.UserRole, url)
             i.setCheckState(Qt.Checked)
             i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
 
@@ -171,7 +179,7 @@ class DownloadResources(Dialog):
         else:
             replacements, failures = ret
             if failures:
-                tb = ['{}\n\t{}\n'.format(url, err) for url, err in failures.iteritems()]
+                tb = ['{}\n\t{}\n'.format(url, err) for url, err in iteritems(failures)]
                 if not replacements:
                     error_dialog(self, _('Download failed'), _(
                         'Failed to download external resources, click "Show Details" for more information.'),
@@ -219,7 +227,7 @@ class DownloadResources(Dialog):
             b = self.bb.button(self.bb.Ok)
             b.setText(_('See what &changed'))
             b.setIcon(QIcon(I('diff.png')))
-            b.clicked.connect(lambda : setattr(self, 'show_diff', True))
+            connect_lambda(b.clicked, self, lambda self: setattr(self, 'show_diff', True))
             self.bb.setVisible(True)
 
     def accept(self):

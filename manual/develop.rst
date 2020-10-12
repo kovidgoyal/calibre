@@ -7,7 +7,7 @@ calibre is completely open source, licensed under the `GNU GPL v3 <https://www.g
 This means that you are free to download and modify the program to your heart's content. In this section,
 you will learn how to get a calibre development environment set up on the operating system of your choice.
 calibre is written primarily in `Python <https://www.python.org>`_ with some C/C++ code for speed and system interfacing.
-Note that calibre is not compatible with Python 3 and requires at least Python 2.7.9.
+Note that calibre requires at least Python 3.8.
 
 .. contents:: Contents
   :depth: 2
@@ -58,7 +58,7 @@ All the calibre python code is in the ``calibre`` package. This package contains
         * E-book editing happens using a different container object. It is
           documented in :ref:`polish_api`.
 
-    * db - The database back-end. See :ref:`db_api` for the interface to the calibre library. 
+    * db - The database back-end. See :ref:`db_api` for the interface to the calibre library.
 
     * Content server: ``srv`` is the calibre Content server.
 
@@ -83,7 +83,7 @@ installing Git, you can get the calibre source code with the command::
 
     git clone git://github.com/kovidgoyal/calibre.git
 
-On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`. 
+On Windows you will need the complete path name, that will be something like :file:`C:\\Program Files\\Git\\git.exe`.
 
 calibre is a very large project with a very long source control history, so the
 above can take a while (10 mins to an hour depending on your internet speed).
@@ -94,7 +94,7 @@ always available as an `archive <https://calibre-ebook.com/dist/src>`_.
 To update a branch to the latest code, use the command::
 
     git pull --no-edit
-    
+
 You can also browse the code at `GitHub <https://github.com/kovidgoyal/calibre>`_.
 
 Submitting your changes to be included
@@ -136,7 +136,7 @@ for inclusion into the main calibre repository:
         git clone git@github.com:<username>/calibre.git
         git remote add upstream https://github.com/kovidgoyal/calibre.git
 
-    Replace <username> above with your github username. That will get your fork checked out locally.
+    Replace <username> above with your GitHub username. That will get your fork checked out locally.
   * You can make changes and commit them whenever you like. When you are ready to have your work merged, do a::
 
         git push
@@ -166,7 +166,7 @@ calibre is the directory that contains the src and resources sub-directories.
 
 The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
 So, following the example above, it would be ``C:\Users\kovid\work\calibre\src``. `Here is a short
-guide <https://docs.python.org/2/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
+guide <https://docs.python.org/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
 variables on Windows.
 
 Once you have set the environment variable, open a new command prompt and check that it was correctly set by using
@@ -196,7 +196,11 @@ the previously checked out calibre code directory, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories. Ensure you have installed the calibre commandline tools via :guilabel:`Preferences->Advanced->Miscellaneous` in the calibre GUI.
+calibre is the directory that contains the src and resources sub-directories.
+The calibre command line tools are found inside the calibre app bundle, in
+:file:`/Applications/calibre.app/Contents/MacOS`
+you should add this directory to your PATH environment variable, if you want to
+run the command line tools easily.
 
 The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
 
@@ -329,7 +333,7 @@ the debugging session::
     calibre-debug -c "from calibre.rpdb import cli; cli()"
 
 You can read about how to use the Python debugger in the `Python stdlib docs
-for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands>`_.
+for the pdb module <https://docs.python.org/library/pdb.html#debugger-commands>`_.
 
 .. note::
     By default, the remote debugger will try to connect on port 4444. You can
@@ -337,7 +341,7 @@ for the pdb module <https://docs.python.org/2/library/pdb.html#debugger-commands
     cli() functions above, like this: ``set_trace(port=1234)`` and
     ``cli(port=1234)``.
 
-.. note:: 
+.. note::
     The Python debugger cannot handle multiple threads, so you have to
     call set_trace once per thread, each time with a different port number.
 
@@ -411,4 +415,3 @@ API documentation for various parts of calibre
     plugins
     db_api
     polish
-

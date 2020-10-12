@@ -1,14 +1,18 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os
+import sys, os, numbers
+from itertools import count
 
 from lxml import etree
+
+from polyglot.builtins import range, map
+from calibre.utils.xml_parse import safe_xml_fromstring
 
 
 class Font(object):
@@ -38,7 +42,7 @@ class Image(Element):
     def __init__(self, img, opts, log, idc):
         Element.__init__(self)
         self.opts, self.log = opts, log
-        self.id = idc.next()
+        self.id = next(idc)
         self.top, self.left, self.width, self.height, self.iwidth, self.iheight = \
           map(float, map(img.get, ('top', 'left', 'rwidth', 'rheight', 'iwidth',
               'iheight')))
@@ -59,7 +63,7 @@ class Text(Element):
 
     def __init__(self, text, font_map, opts, log, idc):
         Element.__init__(self)
-        self.id = idc.next()
+        self.id = next(idc)
         self.opts, self.log = opts, log
         self.font_map = font_map
         self.top, self.left, self.width, self.height = map(float, map(text.get,
@@ -73,10 +77,10 @@ class Text(Element):
 
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
-                encoding=unicode)
+                encoding='unicode')
         self.raw = text.text if text.text else u''
         for x in text.iterchildren():
-            self.raw += etree.tostring(x, method='xml', encoding=unicode)
+            self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.average_character_width = self.width/len(self.text_as_string)
 
     def coalesce(self, other, page_number):
@@ -166,10 +170,10 @@ class Column(object):
         self._post_add()
 
     def _post_add(self):
-        self.elements.sort(cmp=lambda x,y:cmp(x.bottom,y.bottom))
+        self.elements.sort(key=lambda x: x.bottom)
         self.top = self.elements[0].top
         self.bottom = self.elements[-1].bottom
-        self.left, self.right = sys.maxint, 0
+        self.left, self.right = sys.maxsize, 0
         for x in self:
             self.left = min(self.left, x.left)
             self.right = max(self.right, x.right)
@@ -220,7 +224,7 @@ class Box(list):
     def to_html(self):
         ans = ['<%s>'%self.tag]
         for elem in self:
-            if isinstance(elem, int):
+            if isinstance(elem, numbers.Integral):
                 ans.append('<a name="page_%d"/>'%elem)
             else:
                 ans.append(elem.to_html()+' ')
@@ -240,7 +244,7 @@ class ImageBox(Box):
         if len(self) > 0:
             ans.append('<br/>')
             for elem in self:
-                if isinstance(elem, int):
+                if isinstance(elem, numbers.Integral):
                     ans.append('<a name="page_%d"/>'%elem)
                 else:
                     ans.append(elem.to_html()+' ')
@@ -257,7 +261,7 @@ class Region(object):
 
     def add(self, columns):
         if not self.columns:
-            for x in sorted(columns, cmp=lambda x,y: cmp(x.left, y.left)):
+            for x in sorted(columns, key=lambda x: x.left):
                 self.columns.append(x)
         else:
             for i in range(len(columns)):
@@ -455,7 +459,7 @@ class Page(object):
         self.elements = list(self.texts)
         for img in page.xpath('descendant::img'):
             self.elements.append(Image(img, self.opts, self.log, idc))
-        self.elements.sort(cmp=lambda x,y:cmp(x.top, y.top))
+        self.elements.sort(key=lambda x: x.top)
 
     def coalesce_fragments(self):
 
@@ -488,7 +492,7 @@ class Page(object):
         for i, x in enumerate(self.elements):
             x.idx = i
         current_region = Region(self.opts, self.log)
-        processed = set([])
+        processed = set()
         for x in self.elements:
             if x in processed:
                 continue
@@ -523,8 +527,8 @@ class Page(object):
         # closer to the avg number of cols in the set, if equal use larger
         # region)
         found = True
-        absorbed = set([])
-        processed = set([])
+        absorbed = set()
+        processed = set()
         while found:
             found = False
             for i, region in enumerate(self.regions):
@@ -577,7 +581,7 @@ class Page(object):
 
     def sort_into_columns(self, elem, neighbors):
         neighbors.add(elem)
-        neighbors = sorted(neighbors, cmp=lambda x,y:cmp(x.left, y.left))
+        neighbors = sorted(neighbors, key=lambda x: x.left)
         if self.opts.verbose > 3:
             self.log.debug('Neighbors:', [x.to_html() for x in neighbors])
         columns = [Column()]
@@ -592,7 +596,7 @@ class Page(object):
             if not added:
                 columns.append(Column())
                 columns[-1].add(x)
-                columns.sort(cmp=lambda x,y:cmp(x.left, y.left))
+                columns.sort(key=lambda x: x.left)
         return columns
 
     def find_elements_in_row_of(self, x):
@@ -619,9 +623,8 @@ class PDFDocument(object):
 
     def __init__(self, xml, opts, log):
         self.opts, self.log = opts, log
-        parser = etree.XMLParser(recover=True)
-        self.root = etree.fromstring(xml, parser=parser)
-        idc = iter(xrange(sys.maxint))
+        self.root = safe_xml_fromstring(xml)
+        idc = count()
 
         self.fonts = []
         self.font_map = {}
@@ -695,7 +698,3 @@ class PDFDocument(object):
         raw = (u'\n'.join(html)).replace('</strong><strong>', '')
         with open('index.html', 'wb') as f:
             f.write(raw.encode('utf-8'))
-
-
-
-

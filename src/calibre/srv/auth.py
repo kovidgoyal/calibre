@@ -1,12 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import binascii, os, random, struct, base64, httplib
+import os, random, struct
 from collections import OrderedDict
 from hashlib import md5, sha256
 from itertools import permutations
@@ -16,6 +15,8 @@ from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, HTTPForbidd
 from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
+from polyglot import http_client
+from polyglot.binary import from_base64_unicode, from_hex_bytes, as_hex_unicode
 
 MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()
@@ -66,16 +67,22 @@ def as_bytestring(x):
     return x
 
 
+def as_unicodestring(x):
+    if isinstance(x, bytes):
+        x = x.decode('utf-8')
+    return x
+
+
 def md5_hex(s):
-    return md5(as_bytestring(s)).hexdigest().decode('ascii')
+    return as_unicodestring(md5(as_bytestring(s)).hexdigest())
 
 
 def sha256_hex(s):
-    return sha256(as_bytestring(s)).hexdigest().decode('ascii')
+    return as_unicodestring(sha256(as_bytestring(s)).hexdigest())
 
 
 def base64_decode(s):
-    return base64.standard_b64decode(as_bytestring(s)).decode('utf-8')
+    return from_base64_unicode(s)
 
 
 def synthesize_nonce(key_order, realm, secret, timestamp=None):
@@ -92,7 +99,7 @@ def synthesize_nonce(key_order, realm, secret, timestamp=None):
             # The resolution of monotonic() on windows is very low (10s of
             # milliseconds) so to ensure nonce values are not re-used, we have a
             # global counter
-            timestamp = binascii.hexlify(struct.pack(b'!dH', float(monotonic()), nonce_counter))
+            timestamp = as_hex_unicode(struct.pack(b'!dH', float(monotonic()), nonce_counter))
     h = sha256_hex(key_order.format(timestamp, realm, secret))
     nonce = ':'.join((timestamp, h))
     return nonce
@@ -106,7 +113,7 @@ def validate_nonce(key_order, nonce, realm, secret):
 
 def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
     try:
-        timestamp = struct.unpack(b'!dH', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
+        timestamp = struct.unpack(b'!dH', from_hex_bytes(as_bytestring(nonce.partition(':')[0])))[0]
         return timestamp + max_age_seconds < monotonic()
     except Exception:
         pass
@@ -133,19 +140,19 @@ class DigestAuth(object):  # {{{
         self.nonce_count = data.get('nc')
 
         if self.algorithm not in self.valid_algorithms:
-            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported digest algorithm')
+            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported digest algorithm')
 
         if not (self.username and self.realm and self.nonce and self.uri and self.response):
-            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Digest algorithm required fields missing')
+            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Digest algorithm required fields missing')
 
         if self.qop:
             if self.qop not in self.valid_qops:
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported digest qop')
+                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported digest qop')
             if not (self.cnonce and self.nonce_count):
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
+                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop present, but cnonce and nonce_count absent')
         else:
             if self.cnonce or self.nonce_count:
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'qop missing')
+                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'qop missing')
 
     def H(self, val):
         return md5_hex(val)
@@ -201,7 +208,7 @@ class DigestAuth(object):  # {{{
             if log is not None:
                 log.warn('Authorization URI mismatch: %s != %s from client: %s' % (
                     data.path, path, data.remote_addr))
-            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
+            raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and data.path == path and self.request_digest(pw, data) == self.response
 # }}}
 
@@ -241,7 +248,7 @@ class AuthController(object):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
         self.ban_list = BanList(ban_time_in_minutes=ban_time_in_minutes, max_failures_before_ban=ban_after)
         self.log = log
-        self.secret = binascii.hexlify(os.urandom(random.randint(20, 30))).decode('ascii')
+        self.secret = as_hex_unicode(os.urandom(random.randint(20, 30)))
         self.max_age_seconds = max_age_seconds
         self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))
         self.realm = realm
@@ -290,16 +297,16 @@ class AuthController(object):
                 try:
                     un, pw = base64_decode(rest.strip()).partition(':')[::2]
                 except ValueError:
-                    raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
+                    raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The username or password contained non-UTF8 encoded characters')
                 if not un or not pw:
-                    raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The username or password was empty')
+                    raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'The username or password was empty')
                 if self.check(un, pw):
                     data.username = un
                     return
                 log_msg = 'Failed login attempt from: %s' % data.remote_addr
                 self.ban_list.failed(ban_key)
             else:
-                raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unsupported authentication method')
+                raise HTTPSimpleResponse(http_client.BAD_REQUEST, 'Unsupported authentication method')
 
         if self.prefer_basic_auth:
             raise HTTPAuthRequired('Basic realm="%s"' % self.realm, log=log_msg)

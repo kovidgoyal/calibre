@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from calibre.constants import iswindows, islinux
 from calibre.utils.icu import lower
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
+from polyglot.builtins import range
 
 
 class ProgressCallback(object):
@@ -172,9 +172,9 @@ class TestDeviceInteraction(unittest.TestCase):
         gc.disable()
         try:
             start_mem = memory()
-            for i in xrange(repetitions):
+            for i in range(repetitions):
                 func(*args, **kwargs)
-            for i in xrange(3):
+            for i in range(3):
                 gc.collect()
             end_mem = memory()
         finally:
@@ -262,6 +262,6 @@ def tests():
 def run():
     unittest.TextTestRunner(verbosity=2).run(tests())
 
+
 if __name__ == '__main__':
     run()
-

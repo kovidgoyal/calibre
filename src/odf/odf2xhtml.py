@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (C) 2006-2010 Søren Roug, European Environment Agency
 #
@@ -20,16 +20,18 @@
 #
 # import pdb
 # pdb.set_trace()
+
 from collections import defaultdict
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
 from xml.dom import Node
 
-from opendocument import load
+from .opendocument import load
 
-from namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
+from .namespaces import ANIMNS, CHARTNS, CONFIGNS, DCNS, DR3DNS, DRAWNS, FONS, \
   FORMNS, MATHNS, METANS, NUMBERNS, OFFICENS, PRESENTATIONNS, SCRIPTNS, \
   SMILNS, STYLENS, SVGNS, TABLENS, TEXTNS, XLINKNS
+from polyglot.builtins import unicode_type
 
 if False:  # Added by Kovid
     DR3DNS, MATHNS, CHARTNS, CONFIGNS, ANIMNS, FORMNS, SMILNS, SCRIPTNS
@@ -54,6 +56,7 @@ if False:  # Added by Kovid
 # Styles have scope. The same name can be used for both paragraph and
 # character etc. styles Since CSS2 has no scope we use a prefix. (Not elegant)
 # In ODF a style can have a parent, these parents can be chained.
+
 
 class StyleToCSS:
 
@@ -317,12 +320,14 @@ class TagStack:
             if attr in attrs:
                 return attrs[attr]
         return None
+
     def count_tags(self, tag):
         c = 0
         for ttag, tattrs in self.stack:
             if ttag == tag:
                 c = c + 1
         return c
+
 
 special_styles = {
    'S-Emphasis':'em',
@@ -352,6 +357,8 @@ special_styles = {
 # ODFCONTENTHANDLER
 #
 # -----------------------------------------------------------------------------
+
+
 class ODF2XHTML(handler.ContentHandler):
 
     """ The ODF2XHTML parses an ODF file and produces XHTML"""
@@ -625,9 +632,6 @@ class ODF2XHTML(handler.ContentHandler):
             self.anchors[name] = "anchor%d" % (len(self.anchors) + 1)
         return self.anchors.get(name)
 
-
-# --------------------------------------------------
-
     def purgedata(self):
         self.data = []
 
@@ -879,7 +883,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         css_styles = {}
         for name in self.stylestack:
             styles = self.styledict.get(name)
-            css2 = tuple(self.cs.convert_styles(styles).iteritems())
+            css2 = tuple(self.cs.convert_styles(styles).items())
             if css2 in css_styles:
                 css_styles[css2].append(name)
             else:
@@ -900,7 +904,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 if k not in ignore:
                     yield k, v
 
-        for css2, names in css_styles.iteritems():
+        for css2, names in css_styles.items():
             self.writeout("%s {\n" % ', '.join(names))
             for style, val in filter_margins(css2):
                 self.writeout("\t%s: %s;\n" % (style, val))
@@ -923,9 +927,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 #           self.closetag('sup', False)
             self.writeout('[')
             self.opentag('a', {'href': "#citation-%d" % key})
-            self.writeout(u"\u2190%d".encode('utf-8') % key)
+            self.writeout("←%d" % key)
             self.closetag('a')
-            self.writeout(u']\xa0'.encode('utf-8'))
+            self.writeout(']\xa0')
             self.closetag('dt')
             self.opentag('dd')
             self.writeout(note['body'])
@@ -1192,7 +1196,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         htmlattrs = {}
         if c:
             htmlattrs['class'] = "TC-%s" % c.replace(".","_")
-        for x in xrange(repeated):
+        for x in range(repeated):
             self.emptytag('col', htmlattrs)
         self.purgedata()
 
@@ -1329,7 +1333,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.list_class_stack.append(number_class)
         attrs = {}
         if tag_name == 'ol' and self.list_number_map[number_class] != 1:
-            attrs = {'start': str(self.list_number_map[number_class])}
+            attrs = {'start': unicode_type(self.list_number_map[number_class])}
         if self.generate_css:
             attrs['class'] = list_class
         self.opentag('%s' % tag_name, attrs)
@@ -1457,7 +1461,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 #        self.writeout( escape(mark) )
         # Since HTML only knows about endnotes, there is too much risk that the
         # marker is reused in the source. Therefore we force numeric markers
-        self.writeout(unicode(self.currentnote))
+        self.writeout(type(u'')(self.currentnote))
         self.closetag('a')
         self.closetag('sup')
 
@@ -1566,12 +1570,11 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         self.writedata()
         self.purgedata()
 
-
-# -----------------------------------------------------------------------------
-#
-# Reading the file
-#
-# -----------------------------------------------------------------------------
+    # -----------------------------------------------------------------------------
+    #
+    # Reading the file
+    #
+    # -----------------------------------------------------------------------------
 
     def load(self, odffile):
         """ Loads a document into the parser and parses it.
@@ -1579,8 +1582,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         """
         self.lines = []
         self._wfunc = self._wlines
-        if isinstance(odffile, basestring) \
-                or hasattr(odffile, 'read'):  # Added by Kovid
+        if isinstance(odffile, (bytes, type(u''))) or hasattr(odffile, 'read'):  # Added by Kovid
             self.document = load(odffile)
         else:
             self.document = odffile
@@ -1593,7 +1595,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
                 self._walknode(c)
             self.endElementNS(node.qname, node.tagName)
         if node.nodeType == Node.TEXT_NODE or node.nodeType == Node.CDATA_SECTION_NODE:
-            self.characters(unicode(node))
+            self.characters(type(u'')(node))
 
     def odf2xhtml(self, odffile):
         """ Load a file and return the XHTML
@@ -1602,7 +1604,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         return self.xhtml()
 
     def _wlines(self,s):
-        if s != '':
+        if s:
             self.lines.append(s)
 
     def xhtml(self):
@@ -1611,7 +1613,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         return ''.join(self.lines)
 
     def _writecss(self, s):
-        if s != '':
+        if s:
             self._csslines.append(s)
 
     def _writenothing(self, s):
@@ -1638,7 +1640,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
         else:
             if addsuffix:
                 outputfile = outputfile + ".html"
-            outputfp = file(outputfile, "w")
+            outputfp = open(outputfile, "wb")
         outputfp.write(self.xhtml().encode('us-ascii','xmlcharrefreplace'))
         outputfp.close()
 

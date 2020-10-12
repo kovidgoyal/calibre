@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from collections import defaultdict
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class ThePrint(BasicNewsRecipe):
+
+    title = 'The Print'
+    __author__ = 'Kovid Goyal'
+    description = 'News and current affairs in India'
+    language = 'en_IN'
+
+    no_stylesheets = True
+    ignore_duplicate_articles = {'url'}
+    remove_attributes = ['style']
+
+    keep_only_tags = [
+        classes('td-post-title td-post-content')
+    ]
+
+    remove_tags = [
+        dict(name='button'),
+        classes('fontsize_Btn postBtm'),
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://theprint.in/')
+        current_section = 'Unknown'
+        ans = defaultdict(list)
+        secs = []
+        for x in soup.findAll(['h3', 'h4'], attrs={'class': True}):
+            cls = x['class']
+            if 'td-block-title' in cls:
+                current_section = self.tag_to_string(x)
+                secs.append(current_section)
+                self.log(current_section)
+            elif 'entry-title' in cls:
+                h3 = x
+                title = self.tag_to_string(h3)
+                url = h3.find('a')['href']
+                desc = ''
+                dnode = h3.parent.find(**classes('td-excerpt'))
+                if dnode:
+                    desc = self.tag_to_string(dnode)
+                self.log('\t', title)
+                ans[current_section].append({'title': title, 'url': url, 'description': desc})
+        ret = []
+        for sec in secs:
+            if sec in ('On Camera',):
+                continue
+            arts = ans[sec]
+            if arts:
+                ret.append((sec, arts))
+        return ret

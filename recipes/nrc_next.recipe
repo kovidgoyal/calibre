@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Based on veezh's original recipe, Kovid Goyal's New York Times
 # recipe and Snaabs nrc Handelsblad recipe
@@ -41,7 +41,7 @@ class NRCNext(BasicNewsRecipe):
         br['password'] = self.password
         response2 = br.submit()
         raw = response2.get_data()
-        if 'niet ingelogd' in raw:  # in body class
+        if b'niet ingelogd' in raw:  # in body class
             raise ValueError('Failed to login, check username and password')
         epubraw = None
         for today in (date.today(), date.today() - timedelta(days=1),):

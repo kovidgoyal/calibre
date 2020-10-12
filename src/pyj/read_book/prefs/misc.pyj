@@ -1,0 +1,99 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import unique_id
+from read_book.globals import ui_operations
+from read_book.prefs.utils import create_button_box
+from session import defaults
+from widgets import create_button
+
+CONTAINER = unique_id('standalone-misc-settings')
+DEFAULTS = {
+    'remember_window_geometry': False,
+    'remember_last_read': True,
+    'show_actions_toolbar': False,
+    'show_actions_toolbar_in_fullscreen': False,
+    'save_annotations_in_ebook': True,
+    'sync_annots_user': '',
+    'singleinstance': False,
+    'auto_hide_mouse': True,
+}
+
+
+def restore_defaults():
+    container = get_container()
+    for q in Object.keys(DEFAULTS):
+        control = container.querySelector(f'[name={q}]')
+        if jstype(DEFAULTS[q]) is 'boolean':
+            control.checked = DEFAULTS[q]
+        else:
+            control.value = DEFAULTS[q]
+    container.querySelector(f'[name=hide_tooltips]').checked = defaults.hide_tooltips
+
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def create_misc_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    sd = get_session_data()
+    settings = sd.get('standalone_misc_settings')
+    settings.hide_tooltips = sd.get('hide_tooltips')
+
+    def cb(name, text):
+        ans = E.input(type='checkbox', name=name)
+        ans.checked = settings[name] if jstype(settings[name]) is 'boolean' else DEFAULTS[name]
+        return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
+
+    sai = E.input(name='sync_annots_user', title=_(
+        'The username of a Content server user that you want all annotations synced with.'
+        ' Use the special value * to sync with anonymous users'
+    ))
+    sai.value = settings.sync_annots_user if jstype(settings.sync_annots_user) is 'string' else DEFAULTS.sync_annots_user
+    sync_annots = E.div(
+        style='margin-top: 1ex; margin-left: 3px',
+        E.label(_('Sync bookmarks/highlights with Content server user:') + '\xa0', sai)
+    )
+
+    container.append(cb('remember_window_geometry', _('Remember last used window size and position')))
+    container.append(cb('show_actions_toolbar', _('Show a toolbar with the most useful actions')))
+    container.lastChild.append(E.span('\xa0'))
+    container.lastChild.append(
+        create_button(_('Customize toolbar'), action=ui_operations.customize_toolbar))
+    container.append(cb('show_actions_toolbar_in_fullscreen', _('Keep the toolbar in full screen mode (needs restart)')))
+    container.append(cb('remember_last_read', _('Remember current page when quitting')))
+    container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
+    container.append(sync_annots)
+    container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
+    container.append(cb('hide_tooltips', _('Hide mouse-over tooltips in the book text')))
+    container.append(cb('auto_hide_mouse', _('Auto hide the mouse cursor when unused for a few seconds')))
+
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+
+develop = create_misc_panel
+
+
+def commit_misc(onchange):
+    sd = get_session_data()
+    container = get_container()
+    vals = {}
+    for q in Object.keys(DEFAULTS):
+        control = container.querySelector(f'[name={q}]')
+        if jstype(DEFAULTS[q]) is 'boolean':
+            val = control.checked
+        else:
+            val = control.value.strip()
+        if val is not DEFAULTS[q]:
+            vals[q] = val
+    sd.set('standalone_misc_settings', vals)
+    hide_tooltips = container.querySelector(f'[name=hide_tooltips]').checked
+    sd.set('hide_tooltips', None if hide_tooltips is defaults.hide_tooltips else hide_tooltips)
+    onchange()

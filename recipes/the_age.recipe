@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __copyright__ = '2009, Matthew Briggs <hal.sulphur@gmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -45,7 +45,7 @@ class TheAge(BasicNewsRecipe):
 
             # Make sure to skip: <a href="/">TheAge</a>
 
-            elif section and tag.has_key('href') and len(tag['href'].strip()) > 1:  # noqa
+            elif section and tag.get('href'):
                 url = tag['href'].strip()
                 if url.startswith('/'):
                     url = 'http://www.theage.com.au' + url
@@ -99,13 +99,13 @@ class TheAge(BasicNewsRecipe):
 
             # Collapse the paragraph by joining the non-tag contents
 
-            contents = [i for i in p.contents if isinstance(i, unicode)]
+            contents = [i for i in p.contents if isinstance(i, type(u''))]
             if len(contents):
                 contents = ''.join(contents)
 
                 # Filter out what's left of the text-mode navigation stuff
 
-                if re.match('((\s)|(\&nbsp\;))*\[[\|\s*]*\]((\s)|(\&nbsp\;))*$', contents):
+                if re.match(r'((\s)|(\&nbsp\;))*\[[\|\s*]*\]((\s)|(\&nbsp\;))*$', contents):
                     p.extract()
                     continue
 

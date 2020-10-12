@@ -1,18 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
-
 from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
+from polyglot.builtins import iteritems, getcwd
 
 tag_fieldname_map = {
         1:  ['pos',0],
@@ -56,13 +54,13 @@ def read_ncx(sections, index, codec):
     if index != NULL_INDEX:
         table, cncx = read_index(sections, index, codec)
 
-        for num, x in enumerate(table.iteritems()):
+        for num, x in enumerate(iteritems(table)):
             text, tag_map = x
             entry = default_entry.copy()
             entry['name'] = text
             entry['num'] = num
 
-            for tag in tag_fieldname_map.iterkeys():
+            for tag in tag_fieldname_map:
                 fieldname, i = tag_fieldname_map[tag]
                 if tag in tag_map:
                     fieldvalue = tag_map[tag][i]
@@ -71,9 +69,9 @@ def read_ncx(sections, index, codec):
                         # offset
                         fieldvalue = tuple(tag_map[tag])
                     entry[fieldname] = fieldvalue
-                    for which, name in {3:'text', 5:'kind', 70:'description',
+                    for which, name in iteritems({3:'text', 5:'kind', 70:'description',
                             71:'author', 72:'image_caption',
-                            73:'image_attribution'}.iteritems():
+                            73:'image_attribution'}):
                         if tag == which:
                             entry[name] = cncx.get(fieldvalue,
                                     default_entry[name])
@@ -83,7 +81,7 @@ def read_ncx(sections, index, codec):
 
 
 def build_toc(index_entries):
-    ans = TOC(base_path=os.getcwdu())
+    ans = TOC(base_path=getcwd())
     levels = {x['hlvl'] for x in index_entries}
     num_map = {-1: ans}
     level_map = {l:[x for x in index_entries if x['hlvl'] == l] for l in
@@ -100,4 +98,3 @@ def build_toc(index_entries):
         item.play_order = i
 
     return ans
-

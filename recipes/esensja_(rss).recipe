@@ -23,7 +23,7 @@ class EsensjaRSS(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     preprocess_regexps = [(re.compile(r'alt="[^"]*"'), lambda match: ''),
                           (re.compile(
-                              ur'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
+                              u'(title|alt)="[^"]*?"', re.DOTALL), lambda match: ''),
                           ]
     remove_attributes = ['style', 'bgcolor', 'alt', 'color']
     keep_only_tags = [dict(attrs={'class': 'sekcja'}), ]

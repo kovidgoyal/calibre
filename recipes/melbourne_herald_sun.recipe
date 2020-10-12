@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __copyright__ = '2009, Matthew Briggs'
 __docformat__ = 'restructuredtext en'
@@ -75,7 +75,7 @@ class DailyTelegraph(BasicNewsRecipe):
             br['username'] = self.username
             br['password'] = self.password
             raw = br.submit().read()
-            if '>log out' not in raw.lower():
+            if b'>log out' not in raw.lower():
                 raise ValueError('Failed to log in to www.heralsun'
                                  ' are your username and password correct?')
         return br

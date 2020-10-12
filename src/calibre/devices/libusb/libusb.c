@@ -93,7 +93,7 @@ static PyObject* get_devices(PyObject *self, PyObject *args) {
         if (t == NULL) {
             t = read_string_data(dev, desc.iManufacturer, desc.iProduct, desc.iSerialNumber);
             if (t == NULL) { Py_DECREF(d); break; }
-            PyDict_SetItem(cache, d, t); 
+            PyDict_SetItem(cache, d, t);
             Py_DECREF(t);
         }
 
@@ -115,34 +115,54 @@ static PyObject* get_devices(PyObject *self, PyObject *args) {
     return ans;
 }
 
+static char libusb_doc[] = "Interface to libusb.";
+
 static PyMethodDef libusb_methods[] = {
-    {"get_devices", get_devices, METH_VARARGS,
+    {"get_devices", get_devices, METH_NOARGS,
         "get_devices()\n\nGet the list of USB devices on the system."
     },
 
     {NULL, NULL, 0, NULL}
 };
 
-CALIBRE_MODINIT_FUNC
-initlibusb(void) {
+static struct PyModuleDef libusb_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "libusb",
+    /* m_doc      */ libusb_doc,
+    /* m_size     */ -1,
+    /* m_methods  */ libusb_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+CALIBRE_MODINIT_FUNC PyInit_libusb(void) {
     PyObject *m;
 
     // We deliberately use the default context. This is the context used by
     // libmtp and we want to ensure that the busnum/devnum numbers are the same
-    // here and for libmtp. 
-    if(libusb_init(NULL) != 0) return;
+    // here and for libmtp.
+    if(libusb_init(NULL) != 0) {
+        return NULL;
+    }
 
     Error = PyErr_NewException("libusb.Error", NULL, NULL);
-    if (Error == NULL) return;
+    if (Error == NULL) {
+        return NULL;
+    }
 
     cache = PyDict_New();
-    if (cache == NULL) return;
+    if (cache == NULL) {
+        return NULL;
+    }
 
-    m = Py_InitModule3("libusb", libusb_methods, "Interface to libusb.");
-    if (m == NULL) return;
+    m = PyModule_Create(&libusb_module);
+    if (m == NULL) {
+        return NULL;
+    }
 
     PyModule_AddObject(m, "Error", Error);
     PyModule_AddObject(m, "cache", cache);
 
+    return m;
 }
-

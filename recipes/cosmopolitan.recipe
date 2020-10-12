@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __author__ = '2010, Gustavo Azambuja <hola at gazambuja.com>'
@@ -53,8 +53,8 @@ class General(BasicNewsRecipe):
         for item in soup.body.findAll(name=['table', 'td', 'tr', 'th', 'caption', 'thead', 'tfoot', 'tbody', 'colgroup', 'col']):
             item.name = 'div'
             for attrib in attribs:
-                if item.has_key(attrib):  # noqa
-                    del item[attrib]
+                item[attrib] = ''
+                del item[attrib]
         return soup
 
     def get_cover_url(self):

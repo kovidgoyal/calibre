@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -24,7 +25,7 @@ def get_metadata(stream, extract_cover=True):
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
 
-    pml = ''
+    pml = b''
     if stream.name.endswith('.pmlz'):
         with TemporaryDirectory('_unpmlz') as tdir:
             zf = ZipFile(stream)
@@ -41,22 +42,22 @@ def get_metadata(stream, extract_cover=True):
         if extract_cover:
             mi.cover_data = get_cover(os.path.splitext(os.path.basename(stream.name))[0], os.path.abspath(os.path.dirname(stream.name)))
 
-    for comment in re.findall(r'(?mus)\\v.*?\\v', pml):
-        m = re.search(r'TITLE="(.*?)"', comment)
+    for comment in re.findall(br'(?ms)\\v.*?\\v', pml):
+        m = re.search(br'TITLE="(.*?)"', comment)
         if m:
             mi.title = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
-        m = re.search(r'AUTHOR="(.*?)"', comment)
+        m = re.search(br'AUTHOR="(.*?)"', comment)
         if m:
             if mi.authors == [_('Unknown')]:
                 mi.authors = []
             mi.authors.append(re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace'))))
-        m = re.search(r'PUBLISHER="(.*?)"', comment)
+        m = re.search(br'PUBLISHER="(.*?)"', comment)
         if m:
             mi.publisher = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
-        m = re.search(r'COPYRIGHT="(.*?)"', comment)
+        m = re.search(br'COPYRIGHT="(.*?)"', comment)
         if m:
             mi.rights = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
-        m = re.search(r'ISBN="(.*?)"', comment)
+        m = re.search(br'ISBN="(.*?)"', comment)
         if m:
             mi.isbn = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
 
@@ -73,7 +74,7 @@ def get_cover(name, tdir, top_level=False):
         cover_path = os.path.join(tdir, name + '_img', 'cover.png') if os.path.exists(os.path.join(tdir, name + '_img', 'cover.png')) else os.path.join(
             os.path.join(tdir, 'images'), 'cover.png') if os.path.exists(os.path.join(os.path.join(tdir, 'images'), 'cover.png')) else ''
     if cover_path:
-        with open(cover_path, 'r+b') as cstream:
+        with open(cover_path, 'rb') as cstream:
             cover_data = cstream.read()
 
     return ('png', cover_data)

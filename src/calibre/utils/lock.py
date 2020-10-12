@@ -1,8 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import atexit
 import errno
@@ -13,9 +11,10 @@ import time
 from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, islinux, isosx, iswindows, plugins
+    __appname__, fcntl, filesystem_encoding, islinux, ismacos, iswindows, plugins
 )
 from calibre.utils.monotonic import monotonic
+from calibre.utils.shared_file import raise_winerror
 
 speedup = plugins['speedup'][0]
 if iswindows:
@@ -49,8 +48,10 @@ def unix_retry(err):
 
 
 def windows_open(path):
+    if isinstance(path, bytes):
+        path = os.fsdecode(path)
     try:
-        h = win32file.CreateFile(
+        h = win32file.CreateFileW(
             path,
             win32file.GENERIC_READ |
             win32file.GENERIC_WRITE,  # Open for reading and writing
@@ -61,7 +62,7 @@ def windows_open(path):
             None,  # No template file
         )
     except pywintypes.error as err:
-        raise WindowsError(err[0], err[2], path)
+        raise_winerror(err)
     fd = msvcrt.open_osfhandle(h.Detach(), 0)
     return os.fdopen(fd, 'r+b')
 
@@ -83,28 +84,30 @@ def retry_for_a_time(timeout, sleep_time, func, error_retry, *args):
         time.sleep(sleep_time)
 
 
+def lock_file(path, timeout=15, sleep_time=0.2):
+    if iswindows:
+        return retry_for_a_time(
+            timeout, sleep_time, windows_open, windows_retry, path
+        )
+    f = unix_open(path)
+    retry_for_a_time(
+        timeout, sleep_time, fcntl.flock, unix_retry,
+        f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
+    )
+    return f
+
+
 class ExclusiveFile(object):
 
     def __init__(self, path, timeout=15, sleep_time=0.2):
-        if iswindows:
-            if isinstance(path, bytes):
-                path = path.decode(filesystem_encoding)
+        if iswindows and isinstance(path, bytes):
+            path = path.decode(filesystem_encoding)
         self.path = path
         self.timeout = timeout
         self.sleep_time = sleep_time
 
     def __enter__(self):
-        if iswindows:
-            self.file = retry_for_a_time(
-                self.timeout, self.sleep_time, windows_open, windows_retry, self.path
-            )
-        else:
-            f = unix_open(self.path)
-            retry_for_a_time(
-                self.timeout, self.sleep_time, fcntl.flock, unix_retry,
-                f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB
-            )
-            self.file = f
+        self.file = lock_file(self.path, self.timeout, self.sleep_time)
         return self.file
 
     def __exit__(self, type, value, traceback):
@@ -147,8 +150,8 @@ elif islinux:
         name = '%s-singleinstance-%s-%s' % (
             __appname__, (os.geteuid() if per_user else ''), name
         )
-        name = name.encode('utf-8')
-        address = b'\0' + name.replace(b' ', b'_')
+        name = name
+        address = '\0' + name.replace(' ', '_')
         sock = socket.socket(family=socket.AF_UNIX)
         try:
             eintr_retry_call(sock.bind, address)
@@ -169,7 +172,7 @@ else:
         )
         home = os.path.expanduser('~')
         locs = ['/var/lock', home, tempfile.gettempdir()]
-        if isosx:
+        if ismacos:
             locs.insert(0, '/Library/Caches')
         for loc in locs:
             if os.access(loc, os.W_OK | os.R_OK | os.X_OK):

@@ -76,13 +76,13 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="lock_qv">
+      <widget class="QCheckBox" name="apply_vls">
        <property name="text">
-        <string>&amp;Lock Quickview contents</string>
+        <string>&amp;Apply Virtual libraries</string>
        </property>
        <property name="toolTip">
-        <string>&lt;p&gt;Select to prevent Quickview from changing content when the
-        selection on the library view is changed&lt;/p&gt;</string>
+        <string>&lt;p&gt;Select to make Quickview show only books in the current
+        Virtual library&lt;/p&gt;</string>
        </property>
       </widget>
      </item>
@@ -100,53 +100,15 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="dock_button">
+      <widget class="QCheckBox" name="lock_qv">
        <property name="text">
-        <string>&amp;Dock</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="search_button">
-       <property name="text">
-        <string>&amp;Search</string>
+        <string>&amp;Lock Quickview contents</string>
        </property>
        <property name="toolTip">
-        <string>Search in the library view for the currently highlighted selection</string>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
+        <string>&lt;p&gt;Select to prevent Quickview from changing content when the
+        selection on the library view is changed&lt;/p&gt;</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="refresh_button">
@@ -155,6 +117,29 @@
        </property>
        <property name="toolTip">
         <string>When Quickview is locked, refresh the window using the last selected book and that book's value in the last selected column.</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="dock_button">
+       <property name="text">
+        <string>&amp;Dock</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>

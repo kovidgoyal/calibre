@@ -1,0 +1,68 @@
+from calibre.web.feeds.recipes import BasicNewsRecipe
+import re
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class TheBaffler(BasicNewsRecipe):
+
+    title = 'The Baffler'
+    __author__ = 'Jose Ortiz'
+    description = ('This magazine contains left-wing criticism, cultural analysis, shorts'
+                   ' stories, poems and art.  They publish six print issues annually.')
+    language = 'en'
+    encoding = 'UTF-8'
+    no_javascript = True
+    no_stylesheets = True
+
+    keep_only_tags = [
+        classes('header-contain entry-content')
+    ]
+
+    def parse_index(self):
+        soup = self.index_to_soup('https://thebaffler.com/issues').main.article
+        self.timefmt = ' [%s]' % self.tag_to_string(soup.find(**classes('date'))).strip()
+        try:
+            self.cover_url = re.sub(
+                r'.*?url\((.*?)\).*', r'\1',
+                soup.find(**classes('image-fill'))['style']).strip()
+            self.log('cover_url at ', self.cover_url)
+        except:
+            self.log.error('Failed to download cover_url')
+
+        soup = self.index_to_soup(soup.a['href'])
+
+        # Extract comments from `.entry-content' and prepend to self.description
+        self.description = (
+            u'\n\n' + self.tag_to_string(soup.find(**classes('entry-content'))) +
+            u'\n\n' + self.description
+        )
+
+        ans = []
+
+        # Articles at `.contents section .meta'
+        for section in soup.find(**classes('contents'))('section'):
+            current_section = self.tag_to_string(section.h2)
+            self.log(current_section)
+            articles = []
+            for div in section(**classes('meta')):
+                # Getting articles
+                a = div.find(**classes('title')).a
+                title = self.tag_to_string(a)
+                url = a['href']
+                self.log('\t', title, ' at ', url)
+                desc = ''
+                r = div.find(**classes('deck'))
+                if r is not None:
+                    desc = self.tag_to_string(r)
+                articles.append(
+                    {'title': title, 'url': url, 'description': desc})
+            if current_section and articles:
+                ans.append((current_section,articles))
+
+        return ans

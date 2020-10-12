@@ -7,7 +7,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
@@ -15,33 +14,42 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="window-close.svg">
   <defs
      id="defs4">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient4139">
-      <stop
-         style="stop-color:#850906;stop-opacity:1"
-         offset="0"
-         id="stop4141" />
-      <stop
-         style="stop-color:#b60c09;stop-opacity:1"
-         offset="1"
-         id="stop4143" />
-    </linearGradient>
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4139"
-       id="radialGradient4145"
-       cx="64"
-       cy="988.36217"
-       fx="64"
-       fy="988.36217"
-       r="63"
-       gradientTransform="translate(0,-5.4516802e-4)"
-       gradientUnits="userSpaceOnUse" />
+    <filter
+       style="color-interpolation-filters:sRGB;"
+       inkscape:label="Drop Shadow"
+       id="filter4187">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood4189" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="out"
+         result="composite1"
+         id="feComposite4191" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="3"
+         result="blur"
+         id="feGaussianBlur4193" />
+      <feOffset
+         dx="1"
+         dy="1"
+         result="offset"
+         id="feOffset4195" />
+      <feComposite
+         in="offset"
+         in2="SourceGraphic"
+         operator="atop"
+         result="composite2"
+         id="feComposite4197" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -50,17 +58,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="5.6"
      inkscape:cx="19.843024"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -111,10 +119,10 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-924.36216)">
-    <path
-       inkscape:connector-curvature="0"
-       style="fill:url(#radialGradient4145);fill-opacity:1"
-       d="M 96.455421,967.68931 84.67155,955.91083 64.00063,976.57981 43.328447,955.91083 l -11.782612,11.77848 20.672179,20.67024 -20.672179,20.67155 11.782612,11.7824 20.672183,-20.6704 20.67092,20.6704 11.783871,-11.7824 -20.67218,-20.67155 20.67218,-20.67025 z M 64.00063,1051.3622 c -34.795946,0 -63.0006305,-28.2076 -63.0006305,-63.00265 0,-34.7898 28.2046845,-62.99742 63.0006305,-62.99742 34.795951,0 62.99937,28.20762 62.99937,62.99742 0,34.79505 -28.203419,63.00265 -62.99937,63.00265 z"
-       id="path4" />
+    <polygon
+       transform="matrix(1.18,0,0,1.18,6.7857143,928.64787)"
+       points="35,50 12.5,72.5 27.5,87.5 50,65 72.5,87.5 87.5,72.5 65,50 87.5,27.5 72.5,12.5 50,35 27.5,12.5 12.5,27.5 "
+       id="polygon4"
+       style="fill:#b60c09;fill-opacity:1;filter:url(#filter4187)" />
   </g>
 </svg>

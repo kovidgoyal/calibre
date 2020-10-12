@@ -2,14 +2,14 @@
 # Title:        BBC News, Sport, and Blog Calibre Recipe
 # Contact:      mattst - jmstanfield@gmail.com
 ##
-# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# License:      GNU General Public License v3 - https://www.gnu.org/copyleft/gpl.html
 # Copyright:    mattst - jmstanfield@gmail.com
 ##
 # Written:      November 2011
 # Last Edited:  2011-11-19
 ##
 
-__license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__license__ = 'GNU General Public License v3 - https://www.gnu.org/copyleft/gpl.html'
 __copyright__ = 'mattst - jmstanfield@gmail.com'
 
 
@@ -43,8 +43,8 @@ class BBCNews(BasicNewsRecipe):
     #  Select the BBC rss feeds which you want in your ebook.
     #  Selected feed have NO '#' at their start, de-selected feeds begin with a '#'.
     #
-    #  Eg.  ("News Home", "http://feeds.bbci.co.uk/... - include feed.
-    #  Eg. #("News Home", "http://feeds.bbci.co.uk/... - do not include feed.
+    #  Eg.  ("News Home", "https://feeds.bbci.co.uk/... - include feed.
+    #  Eg. #("News Home", "https://feeds.bbci.co.uk/... - do not include feed.
     #
     # There are 68 feeds below which constitute the bulk of the available rss
     # feeds on the BBC web site. These include 5 blogs by editors and
@@ -68,75 +68,75 @@ class BBCNews(BasicNewsRecipe):
     # Select / de-select the feeds you want in your ebook.
     #
     feeds = [
-        ("News Home", "http://feeds.bbci.co.uk/news/rss.xml"),
-        ("UK", "http://feeds.bbci.co.uk/news/uk/rss.xml"),
-        ("World", "http://feeds.bbci.co.uk/news/world/rss.xml"),
-        # ("England", "http://feeds.bbci.co.uk/news/england/rss.xml"),
-        # ("Scotland", "http://feeds.bbci.co.uk/news/scotland/rss.xml"),
-        # ("Wales", "http://feeds.bbci.co.uk/news/wales/rss.xml"),
-        # ("N. Ireland", "http://feeds.bbci.co.uk/news/northern_ireland/rss.xml"),
-        # ("Africa", "http://feeds.bbci.co.uk/news/world/africa/rss.xml"),
-        # ("Asia", "http://feeds.bbci.co.uk/news/world/asia/rss.xml"),
-        # ("Europe", "http://feeds.bbci.co.uk/news/world/europe/rss.xml"),
-        # ("Latin America", "http://feeds.bbci.co.uk/news/world/latin_america/rss.xml"),
-        # ("Middle East", "http://feeds.bbci.co.uk/news/world/middle_east/rss.xml"),
-        ("US & Canada", "http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"),
-        ("Politics", "http://feeds.bbci.co.uk/news/politics/rss.xml"),
+        ("News Home", "https://feeds.bbci.co.uk/news/rss.xml"),
+        ("UK", "https://feeds.bbci.co.uk/news/uk/rss.xml"),
+        ("World", "https://feeds.bbci.co.uk/news/world/rss.xml"),
+        # ("England", "https://feeds.bbci.co.uk/news/england/rss.xml"),
+        # ("Scotland", "https://feeds.bbci.co.uk/news/scotland/rss.xml"),
+        # ("Wales", "https://feeds.bbci.co.uk/news/wales/rss.xml"),
+        # ("N. Ireland", "https://feeds.bbci.co.uk/news/northern_ireland/rss.xml"),
+        # ("Africa", "https://feeds.bbci.co.uk/news/world/africa/rss.xml"),
+        # ("Asia", "https://feeds.bbci.co.uk/news/world/asia/rss.xml"),
+        # ("Europe", "https://feeds.bbci.co.uk/news/world/europe/rss.xml"),
+        # ("Latin America", "https://feeds.bbci.co.uk/news/world/latin_america/rss.xml"),
+        # ("Middle East", "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml"),
+        ("US & Canada", "https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml"),
+        ("Politics", "https://feeds.bbci.co.uk/news/politics/rss.xml"),
         ("Science/Environment",
-         "http://feeds.bbci.co.uk/news/science_and_environment/rss.xml"),
-        ("Technology", "http://feeds.bbci.co.uk/news/technology/rss.xml"),
-        ("Magazine", "http://feeds.bbci.co.uk/news/magazine/rss.xml"),
+         "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml"),
+        ("Technology", "https://feeds.bbci.co.uk/news/technology/rss.xml"),
+        ("Magazine", "https://feeds.bbci.co.uk/news/magazine/rss.xml"),
         ("Entertainment/Arts",
-         "http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"),
-        # ("Health", "http://feeds.bbci.co.uk/news/health/rss.xml"),
-        # ("Education/Family", "http://feeds.bbci.co.uk/news/education/rss.xml"),
-        ("Business", "http://feeds.bbci.co.uk/news/business/rss.xml"),
-        ("Special Reports", "http://feeds.bbci.co.uk/news/special_reports/rss.xml"),
-        ("Also in the News", "http://feeds.bbci.co.uk/news/also_in_the_news/rss.xml"),
-        # ("Newsbeat", "http://www.bbc.co.uk/newsbeat/rss.xml"),
-        # ("Click", "http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/programmes/click_online/rss.xml"),
-        # ("Blog: Mark D'Arcy (Parliamentary Correspondent)", "http://feeds.bbci.co.uk/news/correspondents/markdarcy/rss.sxml"),
-        # ("Blog: Robert Peston (Business Editor)", "http://feeds.bbci.co.uk/news/correspondents/robertpeston/rss.sxml"),
-        # ("Blog: Stephanie Flanders (Economics Editor)", "http://feeds.bbci.co.uk/news/correspondents/stephanieflanders/rss.sxml"),
+         "https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml"),
+        # ("Health", "https://feeds.bbci.co.uk/news/health/rss.xml"),
+        # ("Education/Family", "https://feeds.bbci.co.uk/news/education/rss.xml"),
+        ("Business", "https://feeds.bbci.co.uk/news/business/rss.xml"),
+        ("Special Reports", "https://feeds.bbci.co.uk/news/special_reports/rss.xml"),
+        ("Also in the News", "https://feeds.bbci.co.uk/news/also_in_the_news/rss.xml"),
+        # ("Newsbeat", "https://www.bbc.co.uk/newsbeat/rss.xml"),
+        # ("Click", "https://newsrss.bbc.co.uk/rss/newsonline_uk_edition/programmes/click_online/rss.xml"),
+        # ("Blog: Mark D'Arcy (Parliamentary Correspondent)", "https://feeds.bbci.co.uk/news/correspondents/markdarcy/rss.sxml"),
+        # ("Blog: Robert Peston (Business Editor)", "https://feeds.bbci.co.uk/news/correspondents/robertpeston/rss.sxml"),
+        # ("Blog: Stephanie Flanders (Economics Editor)", "https://feeds.bbci.co.uk/news/correspondents/stephanieflanders/rss.sxml"),
         ("Sport Front Page",
-         "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/front_page/rss.xml"),
-        # ("Football", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"),
-        # ("Cricket", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/cricket/rss.xml"),
-        # ("Rugby Union", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_union/rss.xml"),
-        # ("Rugby League", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_league/rss.xml"),
-        # ("Tennis", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/tennis/rss.xml"),
-        # ("Golf", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/golf/rss.xml"),
-        # ("Motorsport", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/motorsport/rss.xml"),
-        # ("Boxing", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/boxing/rss.xml"),
-        # ("Athletics", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/athletics/rss.xml"),
-        # ("Snooker", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/snooker/rss.xml"),
-        # ("Horse Racing", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/horse_racing/rss.xml"),
-        # ("Cycling", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/cycling/rss.xml"),
-        # ("Disability Sport", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/disability_sport/rss.xml"),
-        # ("Other Sport", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/rss.xml"),
-        # ("Olympics 2012", "http://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/olympics_2012/rss.xml"),
-        # ("N. Ireland Politics", "http://feeds.bbci.co.uk/news/northern_ireland/northern_ireland_politics/rss.xml"),
-        # ("Scotland Politics", "http://feeds.bbci.co.uk/news/scotland/scotland_politics/rss.xml"),
-        # ("Scotland Business", "http://feeds.bbci.co.uk/news/scotland/scotland_business/rss.xml"),
-        # ("E. Scotland, Edinburgh & Fife", "http://feeds.bbci.co.uk/news/scotland/edinburgh_east_and_fife/rss.xml"),
-        # ("W. Scotland & Glasgow", "http://feeds.bbci.co.uk/news/scotland/glasgow_and_west/rss.xml"),
-        # ("Highlands & Islands", "http://feeds.bbci.co.uk/news/scotland/highlands_and_islands/rss.xml"),
-        # ("NE. Scotland, Orkney & Shetland", "http://feeds.bbci.co.uk/news/scotland/north_east_orkney_and_shetland/rss.xml"),
-        # ("South Scotland", "http://feeds.bbci.co.uk/news/scotland/south_scotland/rss.xml"),
-        # ("Central Scotland & Tayside", "http://feeds.bbci.co.uk/news/scotland/tayside_and_central/rss.xml"),
-        # ("Wales Politics", "http://feeds.bbci.co.uk/news/wales/wales_politics/rss.xml"),
-        # ("NW. Wales", "http://feeds.bbci.co.uk/news/wales/north_west_wales/rss.xml"),
-        # ("NE. Wales", "http://feeds.bbci.co.uk/news/wales/north_east_wales/rss.xml"),
-        # ("Mid. Wales", "http://feeds.bbci.co.uk/news/wales/mid_wales/rss.xml"),
-        # ("SW. Wales", "http://feeds.bbci.co.uk/news/wales/south_west_wales/rss.xml"),
-        # ("SE. Wales", "http://feeds.bbci.co.uk/news/wales/south_east_wales/rss.xml"),
-        # ("Newyddion - News in Welsh", "http://feeds.bbci.co.uk/newyddion/rss.xml"),
-        # ("Gwleidyddiaeth", "http://feeds.bbci.co.uk/newyddion/gwleidyddiaeth/rss.xml"),
-        # ("Gogledd-Ddwyrain", "http://feeds.bbci.co.uk/newyddion/gogledd-ddwyrain/rss.xml"),
-        # ("Gogledd-Orllewin", "http://feeds.bbci.co.uk/newyddion/gogledd-orllewin/rss.xml"),
-        # ("Canolbarth", "http://feeds.bbci.co.uk/newyddion/canolbarth/rss.xml"),
-        # ("De-Ddwyrain", "http://feeds.bbci.co.uk/newyddion/de-ddwyrain/rss.xml"),
-        # ("De-Orllewin", "http://feeds.bbci.co.uk/newyddion/de-orllewin/rss.xml"),
+         "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/front_page/rss.xml"),
+        # ("Football", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/football/rss.xml"),
+        # ("Cricket", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/cricket/rss.xml"),
+        # ("Rugby Union", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_union/rss.xml"),
+        # ("Rugby League", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/rugby_league/rss.xml"),
+        # ("Tennis", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/tennis/rss.xml"),
+        # ("Golf", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/golf/rss.xml"),
+        # ("Motorsport", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/motorsport/rss.xml"),
+        # ("Boxing", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/boxing/rss.xml"),
+        # ("Athletics", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/athletics/rss.xml"),
+        # ("Snooker", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/snooker/rss.xml"),
+        # ("Horse Racing", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/horse_racing/rss.xml"),
+        # ("Cycling", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/cycling/rss.xml"),
+        # ("Disability Sport", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/disability_sport/rss.xml"),
+        # ("Other Sport", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/rss.xml"),
+        # ("Olympics 2012", "https://newsrss.bbc.co.uk/rss/sportonline_uk_edition/other_sports/olympics_2012/rss.xml"),
+        # ("N. Ireland Politics", "https://feeds.bbci.co.uk/news/northern_ireland/northern_ireland_politics/rss.xml"),
+        # ("Scotland Politics", "https://feeds.bbci.co.uk/news/scotland/scotland_politics/rss.xml"),
+        # ("Scotland Business", "https://feeds.bbci.co.uk/news/scotland/scotland_business/rss.xml"),
+        # ("E. Scotland, Edinburgh & Fife", "https://feeds.bbci.co.uk/news/scotland/edinburgh_east_and_fife/rss.xml"),
+        # ("W. Scotland & Glasgow", "https://feeds.bbci.co.uk/news/scotland/glasgow_and_west/rss.xml"),
+        # ("Highlands & Islands", "https://feeds.bbci.co.uk/news/scotland/highlands_and_islands/rss.xml"),
+        # ("NE. Scotland, Orkney & Shetland", "https://feeds.bbci.co.uk/news/scotland/north_east_orkney_and_shetland/rss.xml"),
+        # ("South Scotland", "https://feeds.bbci.co.uk/news/scotland/south_scotland/rss.xml"),
+        # ("Central Scotland & Tayside", "https://feeds.bbci.co.uk/news/scotland/tayside_and_central/rss.xml"),
+        # ("Wales Politics", "https://feeds.bbci.co.uk/news/wales/wales_politics/rss.xml"),
+        # ("NW. Wales", "https://feeds.bbci.co.uk/news/wales/north_west_wales/rss.xml"),
+        # ("NE. Wales", "https://feeds.bbci.co.uk/news/wales/north_east_wales/rss.xml"),
+        # ("Mid. Wales", "https://feeds.bbci.co.uk/news/wales/mid_wales/rss.xml"),
+        # ("SW. Wales", "https://feeds.bbci.co.uk/news/wales/south_west_wales/rss.xml"),
+        # ("SE. Wales", "https://feeds.bbci.co.uk/news/wales/south_east_wales/rss.xml"),
+        # ("Newyddion - News in Welsh", "https://feeds.bbci.co.uk/newyddion/rss.xml"),
+        # ("Gwleidyddiaeth", "https://feeds.bbci.co.uk/newyddion/gwleidyddiaeth/rss.xml"),
+        # ("Gogledd-Ddwyrain", "https://feeds.bbci.co.uk/newyddion/gogledd-ddwyrain/rss.xml"),
+        # ("Gogledd-Orllewin", "https://feeds.bbci.co.uk/newyddion/gogledd-orllewin/rss.xml"),
+        # ("Canolbarth", "https://feeds.bbci.co.uk/newyddion/canolbarth/rss.xml"),
+        # ("De-Ddwyrain", "https://feeds.bbci.co.uk/newyddion/de-ddwyrain/rss.xml"),
+        # ("De-Orllewin", "https://feeds.bbci.co.uk/newyddion/de-orllewin/rss.xml"),
     ]
 
     #    **** SELECT YOUR USER PREFERENCES ****
@@ -181,7 +181,7 @@ class BBCNews(BasicNewsRecipe):
     timeout = 30
 
     # The format string for the date shown on the ebook's first page.
-    # List of all values: http://docs.python.org/library/time.html
+    # List of all values: https://docs.python.org/library/time.html
     # Default in news.py has a leading space so that's mirrored here.
     # As with 'feeds' select/de-select by adding/removing the initial '#',
     # only one timefmt should be selected, here's a few to choose from.
@@ -293,7 +293,7 @@ class BBCNews(BasicNewsRecipe):
     # robust against minor changes and errors in the HTML, Eg. double spaces, leading
     # and trailing spaces, missing hyphens, and such like.
     # Python regular expression ('re' class) page:
-    # http://docs.python.org/library/re.html
+    # https://docs.python.org/library/re.html
 
     # ***************************************
     # Regular expressions for keep_only_tags:
@@ -608,6 +608,8 @@ class BBCNews(BasicNewsRecipe):
     # blank / missing / empty articles which have an index title and then no
     # body.
     def print_version(self, url):
+        if url.startswith("https://www.bbc.co.uk/news/world-51235105"):
+            self.abort_article("This article contains a gigantic coronavirus table")
 
         # Handle sports page urls type 01:
         if (url.find("go/rss/-/sport1/") != -1):
@@ -635,7 +637,7 @@ class BBCNews(BasicNewsRecipe):
     #
     # Code logic written by: Starson17 - posted in: "Recipes - Re-usable code"
     # thread, in post with title: "Remove articles from feed", see url:
-    # http://www.mobileread.com/forums/showpost.php?p=1165462&postcount=6
+    # https://www.mobileread.com/forums/showpost.php?p=1165462&postcount=6
     # Many thanks and all credit to Starson17.
     #
     # Starson17's code has obviously been altered to suite my requirements.

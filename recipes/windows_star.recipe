@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 
@@ -70,7 +70,7 @@ class CanWestPaper(BasicNewsRecipe):
 
         # Find each instance of class="sectiontitle", class="featurecontent"
         for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
-            if divtag['class'].startswith('section_title'):
+            if 'section_title' in ''.join(divtag['class']):
                 # div contains section title
                 if not divtag.h3:
                     continue
@@ -96,10 +96,10 @@ class CanWestPaper(BasicNewsRecipe):
             autag = divtag.find('h4')
             if autag:
                 author = self.tag_to_string(autag, False)
-            if not articles.has_key(key):  # noqa
+            if key not in articles:
                 articles[key] = []
             articles[key].append(dict(title=title, url=url, date=pubdate,
                                       description=description, author=author, content=''))
 
-        ans = [(keyl, articles[key]) for keyl in ans if articles.has_key(keyl)]  # noqa
+        ans = [(keyl, articles[key]) for keyl in ans if keyl in articles]
         return ans

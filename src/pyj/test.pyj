@@ -1,0 +1,67 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+import traceback
+
+import initialize  # noqa: unused-import
+import test_date  # noqa: unused-import
+import test_utils  # noqa: unused-import
+import read_book.test_cfi  # noqa: unused-import
+import test_annotations  # noqa: unused-import
+
+from testing import registered_tests, reset_dom
+
+
+def get_matching_tests_for_name(name):
+    ans = []
+    for k in Object.keys(registered_tests):
+        q = k.split('.')[-1]
+        if not name or q is name:
+            ans.append(registered_tests[k])
+    return ans
+
+
+def get_traceback():
+    lines = traceback.format_exception()
+    last_line = lines[-1]
+    final_lines = v'[]'
+    pat = /at assert_[0-9a-zA-Z_]+ \(/
+    for line in lines[:-1]:
+        if pat.test(line):
+            break
+        final_lines.push(line)
+    final_lines.push(last_line)
+    return final_lines.join('')
+
+
+def run_tests(tests):
+    failed_tests = []
+    count = 0
+    for f in tests:
+        print(f.test_name, '...')
+        reset_dom()
+        try:
+            f()
+            count += 1
+        except:
+            tb = get_traceback()
+            console.error(tb)
+            failed_tests.append((f.test_name, tb))
+    return failed_tests, count
+
+
+def main():
+    tests = get_matching_tests_for_name()
+    st = window.performance.now()
+    failed_tests, total = run_tests(tests)
+    time = (window.performance.now() - st) / 1000
+    if failed_tests.length:
+        console.error(f'{failed_tests.length} out of {total} failed in {time:.1f} seconds')
+    else:
+        print(f'Ran {total} tests in {time:.1f} seconds')
+    return 1 if failed_tests.length else 0
+
+
+window.main = main
+document.title = 'initialized'

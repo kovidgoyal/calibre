@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 from calibre.utils.config_base import Config, ConfigProxy
+from polyglot.builtins import unicode_type
 
 
 class DeviceConfig(object):
@@ -107,15 +109,15 @@ class DeviceConfig(object):
                     if hasattr(config_widget.opt_extra_customization[i], 'isChecked'):
                         ec.append(config_widget.opt_extra_customization[i].isChecked())
                     elif hasattr(config_widget.opt_extra_customization[i], 'currentText'):
-                        ec.append(unicode(config_widget.opt_extra_customization[i].currentText()).strip())
+                        ec.append(unicode_type(config_widget.opt_extra_customization[i].currentText()).strip())
                     else:
-                        ec.append(unicode(config_widget.opt_extra_customization[i].text()).strip())
+                        ec.append(unicode_type(config_widget.opt_extra_customization[i].text()).strip())
             else:
-                ec = unicode(config_widget.opt_extra_customization.text()).strip()
+                ec = unicode_type(config_widget.opt_extra_customization.text()).strip()
                 if not ec:
                     ec = None
             proxy['extra_customization'] = ec
-        st = unicode(config_widget.opt_save_template.text())
+        st = unicode_type(config_widget.opt_save_template.text())
         proxy['save_template'] = st
 
     @classmethod

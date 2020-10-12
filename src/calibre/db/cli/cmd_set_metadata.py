@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 
@@ -11,6 +10,7 @@ from calibre.ebooks.metadata.book.base import field_from_string
 from calibre.ebooks.metadata.book.serialize import read_cover
 from calibre.ebooks.metadata.opf import get_metadata
 from calibre.srv.changes import metadata
+from polyglot.builtins import iteritems, unicode_type, getcwd
 
 readonly = False
 version = 0  # change this if you change signature of implementation()
@@ -137,7 +137,7 @@ def main(opts, args, dbctx):
             'first argument'
         ))
     if len(args) < 2 and not opts.field:
-        raise SystemExit(_('You must specify either a field or an opf file'))
+        raise SystemExit(_('You must specify either a field or an OPF file'))
     book_id = int(args[0])
 
     if len(args) > 1:
@@ -147,7 +147,7 @@ def main(opts, args, dbctx):
         with lopen(opf, 'rb') as stream:
             mi = get_metadata(stream)[0]
         if mi.cover:
-            mi.cover = os.path.join(os.path.dirname(opf), os.path.relpath(mi.cover, os.getcwdu()))
+            mi.cover = os.path.join(os.path.dirname(opf), os.path.relpath(mi.cover, getcwd()))
         final_mi = dbctx.run('set_metadata', 'opf', book_id, read_cover(mi))
         if not final_mi:
             raise SystemExit(_('No book with id: %s in the database') % book_id)
@@ -169,7 +169,7 @@ def main(opts, args, dbctx):
             vals[field] = val
         fvals = []
         for field, val in sorted(  # ensure series_index fields are set last
-                vals.iteritems(), key=lambda k: 1 if k[0].endswith('_index') else 0):
+                iteritems(vals), key=lambda k: 1 if k[0].endswith('_index') else 0):
             if field.endswith('_index'):
                 try:
                     val = float(val)
@@ -181,5 +181,5 @@ def main(opts, args, dbctx):
         if not final_mi:
             raise SystemExit(_('No book with id: %s in the database') % book_id)
 
-    prints(unicode(final_mi))
+    prints(unicode_type(final_mi))
     return 0

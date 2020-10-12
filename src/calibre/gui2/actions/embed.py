@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -38,7 +37,7 @@ class EmbedAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False

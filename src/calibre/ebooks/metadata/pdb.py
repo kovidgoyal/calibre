@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read meta information from pdb files.
 '''
@@ -59,4 +60,3 @@ def set_metadata(stream, mi):
 
     stream.seek(0)
     stream.write('%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace'))
-

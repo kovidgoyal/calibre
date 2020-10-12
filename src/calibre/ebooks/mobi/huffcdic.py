@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,6 +14,7 @@ and igorsk.
 import struct
 
 from calibre.ebooks.mobi import MobiError
+from polyglot.builtins import map
 
 
 class Reader(object):
@@ -34,7 +34,7 @@ class Reader(object):
                 assert term
             maxcode = ((maxcode + 1) << (32 - codelen)) - 1
             return (codelen, term, maxcode)
-        self.dict1 = map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1))
+        self.dict1 = tuple(map(dict1_unpack, struct.unpack_from(b'>256L', huff, off1)))
 
         dict2 = struct.unpack_from(b'>64L', huff, off2)
         self.mincode, self.maxcode = (), ()
@@ -106,5 +106,3 @@ class HuffReader(object):
 
     def unpack(self, section):
         return self.reader.unpack(section)
-
-

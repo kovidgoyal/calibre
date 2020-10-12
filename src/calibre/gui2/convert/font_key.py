@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,6 +10,7 @@ from PyQt5.Qt import QDialog
 
 from calibre.gui2.convert.font_key_ui import Ui_Dialog
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type
 
 
 class FontKeyChooser(QDialog, Ui_Dialog):
@@ -66,7 +67,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
 
     @property
     def fsizes(self):
-        key = unicode(self.font_size_key.text()).strip()
+        key = unicode_type(self.font_size_key.text()).strip()
         return [float(x.strip()) for x in key.split(',' if ',' in key else ' ') if x.strip()]
 
     @property

@@ -7,12 +7,11 @@ class CalibreBlog(BasicNewsRecipe):
     __author__ = 'Krittika Goyal'
     oldest_article = 1000  # days
     max_articles_per_feed = 5
-    use_embedded_content = False
+    use_embedded_content = True
 
     no_stylesheets = True
-    auto_cleanup = True
     resolve_internal_links = True
 
     feeds = [
-        ('Article', 'http://blog.calibre-ebook.com/feeds/posts/default'),
+        ('Article', 'https://blog.calibre-ebook.com/feed'),
     ]

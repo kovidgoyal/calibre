@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -13,6 +12,7 @@ from PyQt5.Qt import (QDialog, QDialogButtonBox)
 from calibre.gui2.store.config.chooser.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type, map
 
 
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
@@ -77,7 +77,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             self.mc = '='
         else:
             self.mc = '~'
-        all, any, phrase, none = map(lambda x: unicode(x.text()),
+        all, any, phrase, none = map(lambda x: unicode_type(x.text()),
                 (self.all, self.any, self.phrase, self.none))
         all, any, none = map(self.tokens, (all, any, none))
         phrase = phrase.strip()
@@ -96,11 +96,11 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         return ans
 
     def token(self):
-        txt = unicode(self.text.text()).strip()
+        txt = unicode_type(self.text.text()).strip()
         if txt:
             if self.negate.isChecked():
                 txt = '!'+txt
-            tok = self.FIELDS[unicode(self.field.currentText())]+txt
+            tok = self.FIELDS[unicode_type(self.field.currentText())]+txt
             if re.search(r'\s', tok):
                 tok = '"%s"'%tok
             return tok
@@ -116,25 +116,25 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
         ans = []
         self.box_last_values = {}
-        name = unicode(self.name_box.text()).strip()
+        name = unicode_type(self.name_box.text()).strip()
         if name:
             ans.append('name:"' + self.mc + name + '"')
-        description = unicode(self.description_box.text()).strip()
+        description = unicode_type(self.description_box.text()).strip()
         if description:
             ans.append('description:"' + self.mc + description + '"')
-        headquarters = unicode(self.headquarters_box.text()).strip()
+        headquarters = unicode_type(self.headquarters_box.text()).strip()
         if headquarters:
             ans.append('headquarters:"' + self.mc + headquarters + '"')
-        format = unicode(self.format_box.text()).strip()
+        format = unicode_type(self.format_box.text()).strip()
         if format:
             ans.append('format:"' + self.mc + format + '"')
-        enabled = unicode(self.enabled_combo.currentText()).strip()
+        enabled = unicode_type(self.enabled_combo.currentText()).strip()
         if enabled:
             ans.append('enabled:' + enabled)
-        drm = unicode(self.drm_combo.currentText()).strip()
+        drm = unicode_type(self.drm_combo.currentText()).strip()
         if drm:
             ans.append('drm:' + drm)
-        affiliate = unicode(self.affiliate_combo.currentText()).strip()
+        affiliate = unicode_type(self.affiliate_combo.currentText()).strip()
         if affiliate:
             ans.append('affiliate:' + affiliate)
         if ans:

@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+__license__ = 'GPL v3'
+__copyright__ = '2020, Pat Stapleton <pat.stapleton at gmail.com>'
+'''
+Recipe for Die Tagespost
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class AdvancedUserRecipe1589629735(BasicNewsRecipe):
+    title          = 'Tagespost'
+    language       = 'de'
+    __author__     = 'Pat Stapleton'
+    description = ('Die Tagespost trägt den Untertitel Katholische Wochenzeitung für Politik, Gesellschaft'
+        ' und Kultur und ist eine überregionale, wöchentlich im Johann Wilhelm Naumann Verlag in Würzburg erscheinende Zeitung.')
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+    use_embedded_content = False
+
+    feeds          = [
+        ('Tagespost', 'https://www.die-tagespost.de/storage/rss/rss/die-tagespost-komplett.xml'),
+    ]
+
+    extra_css = 'td.textb {font-size: medium;}'

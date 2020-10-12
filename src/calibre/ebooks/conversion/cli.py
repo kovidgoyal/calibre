@@ -1,4 +1,5 @@
-from __future__ import with_statement
+
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -7,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 Command line interface to conversion sub-system
 '''
 
-import sys, os
+import sys, os, numbers
 from optparse import OptionGroup, Option
 from collections import OrderedDict
 
@@ -17,6 +18,7 @@ from calibre.customize.conversion import OptionRecommendation
 from calibre import patheq
 from calibre.ebooks.conversion import ConversionUserFeedBack
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import iteritems
 
 USAGE = '%prog ' + _('''\
 input_file output_file [options]
@@ -91,9 +93,9 @@ def option_recommendation_to_cli_option(add_option, rec):
         attrs['action'] = 'store_false' if rec.recommended_value else \
                           'store_true'
     else:
-        if isinstance(rec.recommended_value, int):
+        if isinstance(rec.recommended_value, numbers.Integral):
             attrs['type'] = 'int'
-        if isinstance(rec.recommended_value, float):
+        if isinstance(rec.recommended_value, numbers.Real):
             attrs['type'] = 'float'
 
     if opt.long_switch == 'verbose':
@@ -123,9 +125,9 @@ def recipe_test(option, opt_str, value, parser):
     assert value is None
     value = []
 
-    def floatable(str):
+    def floatable(s):
         try:
-            float(str)
+            float(s)
             return True
         except ValueError:
             return False
@@ -254,7 +256,7 @@ def add_pipeline_options(parser, plumber):
 
               ))
 
-    for group, (desc, options) in groups.iteritems():
+    for group, (desc, options) in iteritems(groups):
         if group:
             group = OptionGroup(parser, group, desc)
             parser.add_option_group(group)
@@ -307,7 +309,10 @@ def create_option_parser(args, log):
     parser = option_parser()
     if len(args) < 3:
         print_help(parser, log)
-        raise SystemExit(1)
+        if any(x in args for x in ('-h', '--help')):
+            raise SystemExit(0)
+        else:
+            raise SystemExit(1)
 
     input, output = check_command_line_options(parser, args, log)
 
@@ -330,6 +335,10 @@ def abspath(x):
     return os.path.abspath(os.path.expanduser(x))
 
 
+def escape_sr_pattern(exp):
+    return exp.replace('\n', '\ue123')
+
+
 def read_sr_patterns(path, log=None):
     import json, re
     pats = []
@@ -340,10 +349,11 @@ def read_sr_patterns(path, log=None):
         if pat is None:
             if not line.strip():
                 continue
+            line = line.replace('\ue123', '\n')
             try:
                 re.compile(line)
             except:
-                msg = u'Invalid regular expression: %r from file: %r'%(
+                msg = 'Invalid regular expression: %r from file: %r'%(
                         line, path)
                 if log is not None:
                     log.error(msg)

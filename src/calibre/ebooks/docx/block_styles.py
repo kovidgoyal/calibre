@@ -1,16 +1,40 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import numbers
 from collections import OrderedDict
+from polyglot.builtins import iteritems
 
 
-class Inherit:
-    pass
+class Inherit(object):
+
+    def __eq__(self, other):
+        return other is self
+
+    def __hash__(self):
+        return id(self)
+
+    def __lt__(self, other):
+        return False
+
+    def __gt__(self, other):
+        return other is not self
+
+    def __ge__(self, other):
+        if self is other:
+            return True
+        return True
+
+    def __le__(self, other):
+        if self is other:
+            return True
+        return False
+
+
 inherit = Inherit()
 
 
@@ -22,7 +46,7 @@ def binary_property(parent, name, XPath, get):
     return True if val in {'on', '1', 'true'} else False
 
 
-def simple_color(col, auto='black'):
+def simple_color(col, auto='currentColor'):
     if not col or col == 'auto' or len(col) != 6:
         return auto
     return '#'+col
@@ -112,11 +136,11 @@ def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'
 
     for border in XPath('./w:' + name)(parent):
         for edge in border_edges:
-            for prop, val in read_single_border(border, edge, XPath, get).iteritems():
+            for prop, val in iteritems(read_single_border(border, edge, XPath, get)):
                 if val is not None:
                     vals[prop % edge] = val
 
-    for key, val in vals.iteritems():
+    for key, val in iteritems(vals):
         setattr(dest, key, val)
 
 
@@ -124,7 +148,7 @@ def border_to_css(edge, style, css):
     bs = getattr(style, 'border_%s_style' % edge)
     bc = getattr(style, 'border_%s_color' % edge)
     bw = getattr(style, 'border_%s_width' % edge)
-    if isinstance(bw, (float, int, long)):
+    if isinstance(bw, numbers.Number):
         # WebKit needs at least 1pt to render borders and 3pt to render double borders
         bw = max(bw, (3 if bs == 'double' else 1))
     if bs is not inherit and bs is not None:
@@ -132,7 +156,7 @@ def border_to_css(edge, style, css):
     if bc is not inherit and bc is not None:
         css['border-%s-color' % edge] = bc
     if bw is not inherit and bw is not None:
-        if isinstance(bw, (int, float, long)):
+        if isinstance(bw, numbers.Number):
             bw = '%.3gpt' % bw
         css['border-%s-width' % edge] = bw
 
@@ -213,7 +237,7 @@ def read_shd(parent, dest, XPath, get):
 
 
 def read_numbering(parent, dest, XPath, get):
-    lvl = num_id = None
+    lvl = num_id = inherit
     for np in XPath('./w:numPr')(parent):
         for ilvl in XPath('./w:ilvl[@w:val]')(np):
             try:
@@ -222,8 +246,8 @@ def read_numbering(parent, dest, XPath, get):
                 pass
         for num in XPath('./w:numId[@w:val]')(np):
             num_id = get(num, 'w:val')
-    val = (num_id, lvl) if num_id is not None or lvl is not None else inherit
-    setattr(dest, 'numbering', val)
+    setattr(dest, 'numbering_id', num_id)
+    setattr(dest, 'numbering_level', lvl)
 
 
 class Frame(object):
@@ -331,7 +355,8 @@ class ParagraphStyle(object):
 
         # Misc.
         'text_indent', 'text_align', 'line_height', 'background_color',
-        'numbering', 'font_family', 'font_size', 'color', 'frame',
+        'numbering_id', 'numbering_level', 'font_family', 'font_size', 'color', 'frame',
+        'cs_font_size', 'cs_font_family',
     )
 
     def __init__(self, namespace, pPr=None):
@@ -350,13 +375,13 @@ class ParagraphStyle(object):
                 setattr(self, p, binary_property(pPr, p, namespace.XPath, namespace.get))
 
             for x in ('border', 'indent', 'justification', 'spacing', 'shd', 'numbering', 'frame'):
-                f = globals()['read_%s' % x]
+                f = read_funcs[x]
                 f(pPr, self, namespace.XPath, namespace.get)
 
             for s in namespace.XPath('./w:pStyle[@w:val]')(pPr):
                 self.linked_style = namespace.get(s, 'w:val')
 
-            self.font_family = self.font_size = self.color = inherit
+            self.font_family = self.font_size = self.color = self.cs_font_size = self.cs_font_family = inherit
 
         self._css = None
         self._border_key = None
@@ -448,3 +473,6 @@ class ParagraphStyle(object):
             if bw is not inherit and bw and bs is not inherit and bs != 'none':
                 return True
         return False
+
+
+read_funcs = {k[5:]:v for k, v in iteritems(globals()) if k.startswith('read_')}

@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class AdvancedUserRecipe1294946868(BasicNewsRecipe):
 
-    title = u'20 Minutos new'
+    title = u'20 Minutos'
     publisher = u'Grupo 20 Minutos'
 
     __author__ = 'Luis Hernandez'

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +10,10 @@ from calibre.ebooks.metadata.sources.base import Source, Option
 
 
 def get_urls(br, tokens):
-    from urllib import quote_plus
+    try:
+        from urllib.parse import quote_plus
+    except ImportError:
+        from urllib import quote_plus
     from mechanize import Request
     from lxml import html
     escaped = [quote_plus(x.encode('utf-8')) for x in tokens if x and x.strip()]

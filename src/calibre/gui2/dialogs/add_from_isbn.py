@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,6 +16,7 @@ from PyQt5.Qt import (
 from calibre.ebooks.metadata import check_isbn
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, question_dialog, error_dialog
+from polyglot.builtins import unicode_type, filter
 
 
 class AddFromISBN(QDialog):
@@ -23,9 +25,9 @@ class AddFromISBN(QDialog):
         QDialog.__init__(self, parent)
         self.setup_ui()
 
-        path = r'C:\Users\kovid\e-books\some_book.epub' if iswindows else \
+        path = 'C:\\Users\\kovid\\e-books\\some_book.epub' if iswindows else \
                 '/Users/kovid/e-books/some_book.epub'
-        self.label.setText(unicode(self.label.text())%path)
+        self.label.setText(unicode_type(self.label.text())%path)
 
         self.isbns = []
         self.books = []
@@ -70,19 +72,19 @@ class AddFromISBN(QDialog):
     def paste(self, *args):
         app = QApplication.instance()
         c = app.clipboard()
-        txt = unicode(c.text()).strip()
+        txt = unicode_type(c.text()).strip()
         if txt:
-            old = unicode(self.isbn_box.toPlainText()).strip()
+            old = unicode_type(self.isbn_box.toPlainText()).strip()
             new = old + '\n' + txt
             self.isbn_box.setPlainText(new)
 
     def accept(self, *args):
-        tags = unicode(self.add_tags.text()).strip().split(',')
+        tags = unicode_type(self.add_tags.text()).strip().split(',')
         tags = list(filter(None, [x.strip() for x in tags]))
         gprefs['add from ISBN tags'] = tags
         self.set_tags = tags
         bad = set()
-        for line in unicode(self.isbn_box.toPlainText()).strip().splitlines():
+        for line in unicode_type(self.isbn_box.toPlainText()).strip().splitlines():
             line = line.strip()
             if not line:
                 continue
@@ -117,4 +119,3 @@ class AddFromISBN(QDialog):
                         _('All the ISBNs you entered were invalid. No books'
                             ' can be added.'), show=True)
         QDialog.accept(self, *args)
-

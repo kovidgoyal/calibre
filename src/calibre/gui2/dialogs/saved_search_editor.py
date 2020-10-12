@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
@@ -42,7 +42,7 @@ class AddSavedSearch(Dialog):
 
         self.la = la = QLabel(self.label or _(
             'You can create a <i>Saved search</i>, for frequently used searches here.'
-            ' The search will be visible under <i>Searches</i> in the Tag browser,'
+            ' The search will be visible under <i>Saved searches</i> in the Tag browser,'
             ' using the name that you specify here.'))
         la.setWordWrap(True)
         l.addRow(la)
@@ -93,7 +93,7 @@ class SavedSearchEditor(Dialog):
     def __init__(self, parent, initial_search=None):
         self.initial_search = initial_search
         Dialog.__init__(
-            self, _('Manage saved searches'), 'manage-saved-searches', parent)
+            self, _('Manage Saved searches'), 'manage-saved-searches', parent)
 
     def setup_ui(self):
         from calibre.gui2.ui import get_gui
@@ -140,6 +140,12 @@ class SavedSearchEditor(Dialog):
             ans = i.text()
             if ans in self.searches:
                 return ans
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Delete:
+            self.del_search()
+            return
+        return Dialog.keyPressEvent(self, ev)
 
     def populate_search_list(self):
         self.slist.clear()

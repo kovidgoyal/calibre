@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -58,7 +57,7 @@ class StorePlugin(object):  # {{{
         self.name = name
         self.base_plugin = base_plugin
         if config is None:
-            from calibre.gui2 import JSONConfig
+            from calibre.utils.config import JSONConfig
             config = JSONConfig('store/stores/' + ascii_filename(self.name))
         self.config = config
 

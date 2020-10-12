@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,9 +8,8 @@ __docformat__ = 'restructuredtext en'
 
 from io import BytesIO
 
-from lxml import etree
-
 from calibre.ebooks.docx.container import DOCX
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.docx.writer.container import update_doc_props, xml2str
 from calibre.utils.imghdr import identify
 
@@ -27,7 +25,7 @@ def get_cover(docx):
         if rid in rid_map:
             try:
                 raw = docx.read(rid_map[rid])
-                fmt, width, height = identify(bytes(raw))
+                fmt, width, height = identify(raw)
             except Exception:
                 continue
             if width < 0 or height < 0:
@@ -62,11 +60,11 @@ def set_metadata(stream, mi):
         ap_raw = c.read(ap_name)
     except Exception:
         ap_raw = None
-    cp = etree.fromstring(dp_raw)
+    cp = safe_xml_fromstring(dp_raw)
     update_doc_props(cp, mi, c.namespace)
     replacements = {}
     if ap_raw is not None:
-        ap = etree.fromstring(ap_raw)
+        ap = safe_xml_fromstring(ap_raw)
         comp = ap.makeelement('{%s}Company' % c.namespace.namespaces['ep'])
         for child in tuple(ap):
             if child.tag == comp.tag:
@@ -77,7 +75,8 @@ def set_metadata(stream, mi):
     stream.seek(0)
     safe_replace(stream, dp_name, BytesIO(xml2str(cp)), extra_replacements=replacements)
 
+
 if __name__ == '__main__':
     import sys
     with open(sys.argv[-1], 'rb') as stream:
-        print (get_metadata(stream))
+        print(get_metadata(stream))

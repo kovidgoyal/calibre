@@ -21,8 +21,11 @@
 # *
 # */
 
-from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
+
 import re
+
+from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
+from polyglot.builtins import iteritems
 
 
 class J2H (object):
@@ -46,7 +49,7 @@ class J2H (object):
         return (0x3400 <= ord(c) and ord(c) < 0xfa2e)
 
     def isCletter(self, l, c):
-        if (ord(u"ぁ") <= ord(c) and ord(c) <= 0x309f) and (l in self.cl_table[ord(c) - ord(u"ぁ")-1]):
+        if (ord("ぁ") <= ord(c) and ord(c) <= 0x309f) and (l in self.cl_table[ord(c) - ord("ぁ")-1]):
             return True
         return False
 
@@ -65,12 +68,12 @@ class J2H (object):
         table = self.kanwa.load_jisyo(text[0])
         if table is None:
             return ("", 0)
-        for (k,v) in table.iteritems():
+        for (k,v) in iteritems(table):
             length = len(k)
             if len(text) >= length:
                 if text.startswith(k):
                     for (yomi, tail) in v:
-                        if tail is '':
+                        if tail == '':
                             if max_len < length:
                                 Hstr = yomi
                                 max_len = length

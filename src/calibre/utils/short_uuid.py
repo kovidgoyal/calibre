@@ -1,15 +1,15 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 
 '''
 Generate UUID encoded using a user specified alphabet.
 '''
 
 import string, math, uuid as _uuid
+
+from polyglot.builtins import unicode_type
 
 
 def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
@@ -36,7 +36,7 @@ class ShortUUID(object):
         # We do not include zero and one in the default alphabet as they can be
         # confused with the letters O and I in some fonts. And removing them
         # does not change the uuid_pad_len.
-        self.alphabet = tuple(sorted(type('')(alphabet or (string.digits + string.ascii_letters)[2:])))
+        self.alphabet = tuple(sorted(unicode_type(alphabet or (string.digits + string.ascii_letters)[2:])))
         self.alphabet_len = len(self.alphabet)
         self.alphabet_map = {c:i for i, c in enumerate(self.alphabet)}
         self.uuid_pad_len = int(math.ceil(math.log(1 << 128, self.alphabet_len)))
@@ -53,6 +53,7 @@ class ShortUUID(object):
 
     def decode(self, encoded):
         return _uuid.UUID(int=string_to_num(encoded, self.alphabet_map, self.alphabet_len))
+
 
 _global_instance = ShortUUID()
 uuid4 = _global_instance.uuid4

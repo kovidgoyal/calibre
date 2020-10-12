@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 
@@ -7,9 +8,8 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 Read meta information from extZ (TXTZ, HTMLZ...) files.
 '''
 
+import io
 import os
-
-from cStringIO import StringIO
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
@@ -26,7 +26,7 @@ def get_metadata(stream, extract_cover=True):
     try:
         with ZipFile(stream) as zf:
             opf_name = get_first_opf_name(zf)
-            opf_stream = StringIO(zf.read(opf_name))
+            opf_stream = io.BytesIO(zf.read(opf_name))
             opf = OPF(opf_stream)
             mi = opf.to_book_metadata()
             if extract_cover:
@@ -53,7 +53,7 @@ def set_metadata(stream, mi):
     # Get the OPF in the archive.
     with ZipFile(stream) as zf:
         opf_path = get_first_opf_name(zf)
-        opf_stream = StringIO(zf.read(opf_path))
+        opf_stream = io.BytesIO(zf.read(opf_path))
     opf = OPF(opf_stream)
 
     # Cover.
@@ -64,7 +64,8 @@ def set_metadata(stream, mi):
             raise Exception('no cover')
     except:
         try:
-            new_cdata = open(mi.cover, 'rb').read()
+            with open(mi.cover, 'rb') as f:
+                new_cdata = f.read()
         except:
             pass
     if new_cdata:
@@ -77,7 +78,7 @@ def set_metadata(stream, mi):
 
     # Update the metadata.
     opf.smart_update(mi, replace_metadata=True)
-    newopf = StringIO(opf.render())
+    newopf = io.BytesIO(opf.render())
     safe_replace(stream, opf_path, newopf, extra_replacements=replacements, add_missing=True)
 
     # Cleanup temporary files.

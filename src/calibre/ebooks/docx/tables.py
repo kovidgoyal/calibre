@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ from lxml.html.builder import TABLE, TR, TD
 
 from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle, border_to_css
 from calibre.ebooks.docx.char_styles import RunStyle
+from polyglot.builtins import filter, iteritems, itervalues, range, unicode_type
 
 # Read from XML {{{
 read_shd = rs
@@ -85,7 +85,7 @@ def read_spacing(parent, dest, XPath, get):
 def read_float(parent, dest, XPath, get):
     ans = inherit
     for x in XPath('./w:tblpPr')(parent):
-        ans = {k.rpartition('}')[-1]: v for k, v in x.attrib.iteritems()}
+        ans = {k.rpartition('}')[-1]: v for k, v in iteritems(x.attrib)}
     setattr(dest, 'float', ans)
 
 
@@ -94,6 +94,7 @@ def read_indent(parent, dest, XPath, get):
     for cs in XPath('./w:tblInd')(parent):
         ans = _read_width(cs, get)
     setattr(dest, 'indent', ans)
+
 
 border_edges = ('left', 'top', 'right', 'bottom', 'insideH', 'insideV')
 
@@ -504,8 +505,6 @@ class Table(object):
 
     def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row):
         cs = CellStyle(self.namespace)
-        # from lxml.etree import tostring
-        # txt = tostring(tc, method='text', encoding=unicode)
         for o in overrides:
             if o in self.overrides:
                 ovr = self.overrides[o]
@@ -571,7 +570,7 @@ class Table(object):
             return
         # Handle vMerge
         max_col_num = max(len(r) for r in self.cell_map)
-        for c in xrange(max_col_num):
+        for c in range(max_col_num):
             cells = [row[c] if c < len(row) else None for row in self.cell_map]
             runs = [[]]
             for cell in cells:
@@ -618,7 +617,7 @@ class Table(object):
     def __iter__(self):
         for p in self.paragraphs:
             yield p
-        for t in self.sub_tables.itervalues():
+        for t in itervalues(self.sub_tables):
             for p in t:
                 yield p
 
@@ -647,9 +646,9 @@ class Table(object):
                 td = TD()
                 style_map[td] = s = self.style_map[tc]
                 if s.col_span is not inherit:
-                    td.set('colspan', type('')(s.col_span))
+                    td.set('colspan', unicode_type(s.col_span))
                 if s.row_span is not inherit:
-                    td.set('rowspan', type('')(s.row_span))
+                    td.set('rowspan', unicode_type(s.row_span))
                 td.tail = '\n\t\t\t'
                 tr.append(td)
                 for x in self.namespace.XPath('./w:p|./w:tbl')(tc):
@@ -665,7 +664,7 @@ class Table(object):
         table_style = self.table_style.css
         if table_style:
             table.set('class', self.styles.register(table_style, 'table'))
-        for elem, style in style_map.iteritems():
+        for elem, style in iteritems(style_map):
             css = style.css
             if css:
                 elem.set('class', self.styles.register(css, elem.tag))
@@ -686,7 +685,7 @@ class Tables(object):
         self.sub_tables |= set(self.tables[-1].sub_tables)
 
     def apply_markup(self, object_map, page_map):
-        rmap = {v:k for k, v in object_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(object_map)}
         for table in self.tables:
             table.apply_markup(rmap, page_map[table.tbl])
 
@@ -699,4 +698,3 @@ class Tables(object):
         table = self.para_map.get(p, None)
         if table is not None:
             return table.style_map.get(p, (None, None))[1]
-

@@ -9,7 +9,6 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import unicode_literals
 
 import re
 import sys
@@ -214,7 +213,7 @@ FIND_NEWLINES = lambda x : list(re.compile(COMPILED_MACROS['nl']).finditer(x))
 
 
 class Token(object):
-    """A single atomic token.
+    r"""A single atomic token.
 
     .. attribute:: is_container
 

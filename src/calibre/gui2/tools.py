@@ -1,4 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -7,22 +9,22 @@ __docformat__ = 'restructuredtext en'
 Logic for setting up conversion jobs
 '''
 
-import cPickle, os
+import os
 
 from PyQt5.Qt import QDialog, QProgressDialog, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog
-from calibre.gui2.convert.single import NoSupportedInputFormats
-from calibre.gui2.convert.single import Config as SingleConfig, \
-    get_input_format_for_book
+from calibre.gui2.convert.single import Config as SingleConfig
 from calibre.gui2.convert.bulk import BulkConfig
 from calibre.gui2.convert.metadata import create_opf_file, create_cover_file
 from calibre.customize.conversion import OptionRecommendation
 from calibre.utils.config import prefs
-from calibre.ebooks.conversion.config import GuiRecommendations, \
-    load_defaults, load_specifics, save_specifics
+from calibre.ebooks.conversion.config import (
+        GuiRecommendations, load_defaults, load_specifics, save_specifics,
+        get_input_format_for_book, NoSupportedInputFormats)
 from calibre.gui2.convert import bulk_defaults_for_input_format
+from polyglot.builtins import unicode_type, as_bytes
 
 
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
@@ -60,18 +62,18 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
                             index_is_id=True)
 
                 out_file = PersistentTemporaryFile('.' + d.output_format)
-                out_file.write(d.output_format)
+                out_file.write(as_bytes(d.output_format))
                 out_file.close()
                 temp_files = [in_file]
 
                 try:
-                    dtitle = unicode(mi.title)
+                    dtitle = unicode_type(mi.title)
                 except:
                     dtitle = repr(mi.title)
                 desc = _('Convert book %(num)d of %(total)d (%(title)s)') % \
                         {'num':i + 1, 'total':total, 'title':dtitle}
 
-                recs = cPickle.loads(d.recommendations)
+                recs = d.recommendations
                 if d.opf_file is not None:
                     recs.append(('read_metadata_from_opf', d.opf_file.name,
                         OptionRecommendation.HIGH))
@@ -100,12 +102,12 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
     if bad and show_no_format_warning:
         if len(bad) == 1 and not bad[0][1]:
             title = db.title(bad[0][0], True)
-            warning_dialog(parent, _('Could not convert'), '<p>'+
-                _('Could not convert <b>%s</b> as it has no e-book files. If you '
-                  'think it should have files, but calibre is not finding '
-                  'them, that is most likely because you moved the book\'s '
-                  'files around outside of calibre. You will need to find those files '
-                  'and re-add them to calibre.')%title, show=True)
+            warning_dialog(parent, _('Could not convert'), '<p>'+ _(
+                'Could not convert <b>%s</b> as it has no e-book files. If you '
+                'think it should have files, but calibre is not finding '
+                'them, that is most likely because you moved the book\'s '
+                'files around outside of calibre. You will need to find those files '
+                'and re-add them to calibre.')%title, show=True)
         else:
             res = []
             for id, available_formats in bad:
@@ -119,10 +121,11 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 
             msg = '%s' % '\n'.join(res)
             warning_dialog(parent, _('Could not convert some books'),
-                ngettext(
-                    'Could not convert the book because no supported source format was found',
-                    'Could not convert {num} of {tot} books, because no supported source formats were found.',
-                    len(res)).format(num=len(res), tot=total),
+                (
+                    _('Could not convert the book because no supported source format was found')
+                    if len(res) == 1 else
+                    _('Could not convert {num} of {tot} books, because no supported source formats were found.')
+                ).format(num=len(res), tot=total),
                 msg).exec_()
 
     return jobs, changed, bad
@@ -139,12 +142,12 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     has_saved_settings = db.has_conversion_options(book_ids)
 
     d = BulkConfig(parent, db, out_format,
-            has_saved_settings=has_saved_settings)
+            has_saved_settings=has_saved_settings, book_ids=book_ids)
     if d.exec_() != QDialog.Accepted:
         return None
 
     output_format = d.output_format
-    user_recs = cPickle.loads(d.recommendations)
+    user_recs = d.recommendations
 
     book_ids = convert_existing(parent, db, book_ids, output_format)
     use_saved_single_settings = d.opt_individual_saved_settings.isChecked()
@@ -186,7 +189,7 @@ class QueueBulk(QProgressDialog):
                         index_is_id=True)
 
             out_file = PersistentTemporaryFile('.' + self.output_format)
-            out_file.write(self.output_format)
+            out_file.write(as_bytes(self.output_format))
             out_file.close()
             temp_files = [in_file]
 
@@ -225,7 +228,7 @@ class QueueBulk(QProgressDialog):
                 if x[0] == 'debug_pipeline':
                     lrecs.remove(x)
             try:
-                dtitle = unicode(mi.title)
+                dtitle = unicode_type(mi.title)
             except:
                 dtitle = repr(mi.title)
             if len(dtitle) > 50:
@@ -307,13 +310,13 @@ def fetch_scheduled_recipe(arg):  # {{{
         for opt in p.options:
             recs.append((opt.option.name, pdf.get(opt.option.name, opt.recommended_value), OptionRecommendation.HIGH))
 
-    args = [arg['recipe'], pt.name, recs]
+    args = [arg['urn'], pt.name, recs]
     if arg['username'] is not None:
         recs.append(('username', arg['username'], OptionRecommendation.HIGH))
     if arg['password'] is not None:
         recs.append(('password', arg['password'], OptionRecommendation.HIGH))
 
-    return 'gui_convert', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
+    return 'gui_convert_recipe', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
 
 # }}}
 

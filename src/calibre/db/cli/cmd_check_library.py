@@ -1,10 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import csv
+import io
 import sys
 
 from calibre import prints
@@ -72,10 +72,11 @@ def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
 
     if as_csv:
         to_output = [(check[1], i[0], i[1]) for i in list]
-        csv_print = csv.writer(out)
+        buf = io.StringIO(newline='')
+        csv_print = csv.writer(buf)
         for line in to_output:
             csv_print.writerow(line)
-
+        out.write(buf.getvalue())
     else:
         print(check[1], file=out)
         for i in list:

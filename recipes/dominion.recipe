@@ -1,5 +1,10 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class stuffconz(BasicNewsRecipe):
@@ -9,17 +14,15 @@ class stuffconz(BasicNewsRecipe):
     oldest_article = 1  # days
     max_articles_per_feed = 25
 
-    remove_stylesheets = True
-    remove_tags_after = dict(name='div', attrs={'id': 'related_box'})
+    keep_only_tags = [
+        classes('sics-component__headline sics-component__byline sics-component__story')
+    ]
     remove_tags = [
-        dict(name='iframe'),
-        dict(name='div', attrs={'class': ['story_feature_title']}),
-        dict(name='div', attrs={
-            'id': ['toolbox', 'related_box', 'adSTORYBODY']}),
-        dict(name='span', attrs={
-            'class': ['related_link', 'slideshowcontrols']}),
+        dict(name=['meta', 'link', 'style']),
+        classes('sics-component__sharebar'),
     ]
 
+    remove_stylesheets = True
     feeds = [
         ('Dominion Post',
          'http://www.stuff.co.nz/rss/dominion-post'),
@@ -39,11 +42,3 @@ class stuffconz(BasicNewsRecipe):
          'http://www.stuff.co.nz/rss/life-style'),
 
     ]
-
-    def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'id': 'left_col'})
-        soup = BeautifulSoup(
-            '<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        return soup

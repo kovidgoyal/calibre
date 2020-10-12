@@ -31,7 +31,7 @@ class KopalniaWiedzy(BasicNewsRecipe):
         (re.compile(u'<a .* rel="lightboxText" .*><img (.*)></a>'),
          lambda match: '<img class="topimage" ' + match.group(1) + '>'),
         (re.compile(u'<br  /><br  />'),
-         lambda match: '<br\/>')
+         lambda match: '<br/>')
     ]
 
     feeds = [
@@ -44,7 +44,7 @@ class KopalniaWiedzy(BasicNewsRecipe):
     ]
 
     def is_link_wanted(self, url, tag):
-        return tag['class'] == 'next'
+        return ''.join(tag['class']) == 'next'
 
     def remove_beyond(self, tag, next):
         while tag is not None and getattr(tag, 'name', None) != 'body':

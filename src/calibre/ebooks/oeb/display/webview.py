@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 
 from calibre import guess_type
+from polyglot.builtins import iteritems
 
 
 class EntityDeclarationProcessor(object):  # {{{
@@ -21,7 +21,7 @@ class EntityDeclarationProcessor(object):  # {{{
             if len(tokens) > 1:
                 self.declared_entities[tokens[0].strip()] = tokens[1].strip().replace('"', '')
         self.processed_html = html
-        for key, val in self.declared_entities.iteritems():
+        for key, val in iteritems(self.declared_entities):
             self.processed_html = self.processed_html.replace('&%s;'%key, val)
 # }}}
 
@@ -40,8 +40,11 @@ def cleanup_html(html):
     return html
 
 
+xml_detect_pat = re.compile(r'<!(?:\[CDATA\[|ENTITY)')
+
+
 def load_as_html(html):
-    return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and '<![CDATA[' not in html
+    return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and xml_detect_pat.search(html) is None
 
 
 def load_html(path, view, codec='utf-8', mime_type=None,

@@ -6,21 +6,23 @@ import traceback
 from elementmaker import E
 from gettext import gettext as _
 
-from ajax import ajax, encode_query_component
+from ajax import ajax, ajax_send, encode_query_component
+from book_list.delete_book import refresh_after_delete, start_delete_book
 from book_list.globals import get_session_data
 from book_list.item_list import create_item, create_item_list
 from book_list.library_data import (
-    book_metadata, cover_url, current_library_id, current_virtual_library,
-    download_url, library_data, load_status, set_book_metadata
+    all_libraries, book_after, book_metadata, cover_url, current_library_id,
+    current_virtual_library, download_url, library_data, load_status,
+    set_book_metadata
 )
-from book_list.router import back, home, open_book
-from book_list.theme import get_color, get_font_size
-from book_list.top_bar import add_button, create_top_bar, set_title, clear_buttons
+from book_list.router import back, home, open_book, report_a_load_failure
+from book_list.theme import get_color, get_color_as_rgba, get_font_size
+from book_list.top_bar import add_button, clear_buttons, create_top_bar, set_title
 from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
-from dom import add_extra_css, build_rule, clear, svgicon
-from modals import create_custom_dialog, error_dialog
+from dom import add_extra_css, build_rule, clear, ensure_id, svgicon, unique_id
+from modals import create_custom_dialog, error_dialog, warning_dialog
 from session import get_interface_data
 from utils import (
     conditional_timeout, debounce, fmt_sidx, human_readable, parse_url_params,
@@ -32,6 +34,7 @@ bd_counter = 0
 
 CLASS_NAME = 'book-details-panel'
 SEARCH_INTERNET_CLASS = 'book-details-search-internet'
+COPY_TO_LIBRARY_CLASS = 'book-details-copy-to-library'
 FORMAT_PRIORITIES = [
     'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
 ]
@@ -42,15 +45,20 @@ def sort_formats_key(fmt):
         ans = FORMAT_PRIORITIES.length
     return ans
 
-def get_preferred_format(metadata, output_format, input_formats):
+def get_preferred_format(metadata, output_format, input_formats, for_download):
     formats = (metadata and metadata.formats) or v'[]'
     formats = [f.toUpperCase() for f in formats]
     fmt = 'EPUB' if output_format is 'PDF' else output_format
     if formats.length and formats.indexOf(fmt) is -1:
-        for q in sorted(formats, key=sort_formats_key):
+        found = False
+        formats = sorted(formats, key=sort_formats_key)
+        for q in formats:
             if input_formats[q]:
                 fmt = q
+                found = True
                 break
+        if for_download and not found and formats.length:
+            fmt = formats[0]
     return fmt.toUpperCase()
 
 IGNORED_FIELDS = {'title', 'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path'}
@@ -116,20 +124,30 @@ def adjust_all_iframes(ev):
             adjust_iframe_height(iframe)
 
 
+def add_stars_to(stars, val, allow_half_stars):
+    for i in range(val // 2):
+        stars.appendChild(svgicon('star'))
+    if allow_half_stars and (val % 2):
+        stars.appendChild(svgicon('star-half'))
+
+
 window.addEventListener('resize', debounce(adjust_all_iframes, 250))
 
-def adjusting_sandboxed_html(html):
-    css =  'html, body {{ overflow: hidden; color: {} }}'.format(get_color('window-foreground'))
+def adjusting_sandboxed_html(html, extra_css):
+    color = get_color_as_rgba('window-foreground')
+    css =  f'html, body {{ overflow: hidden; color: rgba({color[0]}, {color[1]}, {color[2]}, {color[3]}) }}'
+    if extra_css:
+        css += '\n\n' + extra_css
     # allow-same-origin is needed for resizing and allow-popups is needed for
     # target="_blank"
-    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups')
+    ans = sandboxed_html(html, css, 'allow-same-origin allow-popups allow-popups-to-escape-sandbox')
     ans.addEventListener('load', def(ev): setup_iframe(ev.target);)
     ans.style.height = '50vh'
     ans.dataset.last_window_width = '0'
     return ans
 
 
-def render_metadata(mi, table, book_id):  # {{{
+def render_metadata(mi, table, book_id, iframe_css):  # {{{
     field_metadata = library_data.field_metadata
     interface_data = get_interface_data()
     def allowed_fields(field):
@@ -150,17 +168,21 @@ def render_metadata(mi, table, book_id):  # {{{
         fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
     else:
         fields = filter(allowed_fields, fields)
-    comments = {}
+    comments = v'[]'
 
-    def add_row(name, val, is_searchable=False, is_html=False, join=None):
+    def add_row(name, val, is_searchable=False, is_html=False, join=None, search_text=None):
         if val is undefined or val is None:
             return
         def add_val(v):
             if not v.appendChild:
                 v += ''
             if is_searchable:
+                text_rep = search_text or v
                 table.lastChild.lastChild.appendChild(E.a(
-                    title=_('Click to see books with {0}: {1}').format(name, v), href=href_for_search(is_searchable, v), v))
+                    v,
+                    title=_('Click to see books with {0}: {1}').format(name, text_rep), class_='blue-link',
+                    href=href_for_search(is_searchable, text_rep)
+                ))
             else:
                 if v.appendChild:
                     table.lastChild.lastChild.appendChild(v)
@@ -169,7 +191,7 @@ def render_metadata(mi, table, book_id):  # {{{
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
         if is_html and /[<>]/.test(val + ''):
-            table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + ''))
+            table.lastChild.lastChild.appendChild(adjusting_sandboxed_html(val + '', iframe_css))
         else:
             if not join:
                 add_val(val)
@@ -203,7 +225,7 @@ def render_metadata(mi, table, book_id):  # {{{
             for fmt in val:
                 fmt = fmt.toUpperCase()
                 td.appendChild(E.a(
-                    fmt, class_='simple-link', href='javascript:void(0)',
+                    fmt, class_='blue-link', href='javascript:void(0)',
                     title=_('Read or download this book in the {} format').format(fmt),
                     onclick=on_fmt_click.bind(v'[mi.title, mi.format_sizes[fmt] || 0]'),
                     data_format=fmt, data_book_id='' + book_id))
@@ -214,34 +236,36 @@ def render_metadata(mi, table, book_id):  # {{{
         stars = E.span()
         val = int(val or 0)
         if val > 0:
-            for i in range(val // 2):
-                stars.appendChild(svgicon('star'))
-            if fm.display.allow_half_stars and (val % 2):
-                stars.appendChild(svgicon('star-half'))
-            add_row(name, stars)
+            add_stars_to(stars, val, fm.display?.allow_half_stars)
+            add_row(name, stars, is_searchable=field, search_text=val/2 + '')
 
     def process_identifiers(field, fm, name, val):
         if val:
             keys = Object.keys(val)
             if keys.length:
-                table.appendChild(E.tr(E.td(name + ':'), E.td()))
+                td = E.td()
                 url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
-                td = table.lastChild.lastChild
                 for k in keys:
                     idval = val[k]
                     x = url_map[k]
                     if x:
                         if td.childNodes.length:
                             td.appendChild(document.createTextNode(', '))
-                        td.appendChild(E.a(title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
+                        td.appendChild(E.a(class_='blue-link', title='{}:{}'.format(k, idval), target='_new', href=x[1], x[0]))
+                if td.childNodes.length:
+                    table.appendChild(E.tr(E.td(name + ':'), td))
 
     def process_languages(field, fm, name, val):
         if val and val.length:
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
             td = table.lastChild.lastChild
             for k in val:
-                lang = mi.lang_names[k] or k
+                if mi.lang_names:
+                    lang = mi.lang_names[k] or k
+                else:
+                    lang = k
                 td.appendChild(E.a(lang,
+                    class_='blue-link',
                     title=_('Click to see books with language: {}').format(lang),
                     href=href_for_search(field, k)
                 ))
@@ -251,7 +275,9 @@ def render_metadata(mi, table, book_id):  # {{{
     def process_datetime(field, fm, name, val):
         if val:
             fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
-            add_row(name, format_date(val, fmt))
+            val = format_date(val, fmt)
+            if val:
+                add_row(name, val)
 
     def process_series(field, fm, name, val):
         if val:
@@ -263,8 +289,14 @@ def render_metadata(mi, table, book_id):  # {{{
             ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
             s = safe_set_inner_html(E.span(), _('{0} of <a>{1}</a>').format(ival, val))
-            s.lastChild.setAttribute('href', href_for_search(field, val))
-            s.lastChild.setAttribute('title', _('Click to see books with {0}: {1}').format(name, val))
+            a = s.getElementsByTagName('a')
+            if a and a.length:
+                a = a[0]
+                a.setAttribute('href', href_for_search(field, val))
+                a.setAttribute('title', _('Click to see books with {0}: {1}').format(name, val))
+                a.setAttribute('class', 'blue-link')
+            else:
+                print("WARNING: Translation of series template is incorrect as it does not have an <a> tag")
             table.lastChild.lastChild.appendChild(s)
 
     def process_field(field, fm):
@@ -286,12 +318,13 @@ def render_metadata(mi, table, book_id):  # {{{
                     add_row(name, val)
                     return
                 val = E.span(val).outerHTML
+            else:
+                if field is 'comments' and '<' not in val:
+                    val = '\n'.join(['<p class="description">{}</p>'.format(x.pyreplace('\n', '<br>')) for x in val.split('\n\n')])
             if hp is 'side':
                 add_row(name, val, is_html=True)
                 return
-            if hp is 'above':
-                val = E.h3(name).outerHTML + val
-            comments[field] = val
+            comments.push(v'[field, val]')
             return
         func = None
         if datatype is 'composite':
@@ -341,34 +374,39 @@ def render_metadata(mi, table, book_id):  # {{{
             traceback.print_exc()
 
     all_html = ''
-    for i, field in enumerate(sorted(comments)):
-        fm = field_metadata[field]
-        comment = comments[field]
+    for field, comment in comments:
         if comment:
+            fm = field_metadata[field]
             if fm.display?.heading_position is 'above':
                 name = fm.name or field
                 all_html += f'<h3>{name}</h3>'
             all_html += comment
-    iframe = adjusting_sandboxed_html(all_html)
+    iframe = adjusting_sandboxed_html(all_html, iframe_css)
     iframe.style.marginTop = '2ex'
     table.parentNode.appendChild(iframe)
 # }}}
 
 
-add_extra_css(def():
-    sel = '.' + CLASS_NAME + ' '
+def basic_table_rules(sel):
     style = ''
     style += build_rule(sel + 'table.metadata td', vertical_align='top')
     style += build_rule(sel + 'table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
     style += build_rule(sel + 'table.metadata td:last-of-type', overflow_wrap='break-word')
-    style += build_rule(sel + 'table.metadata a[href]', color='blue')
-    style += build_rule(sel + 'table.metadata a[href]:hover', color=get_color('window-hover-foreground'))
-    style += build_rule(sel + 'table.metadata a[href]:active', color=get_color('window-hover-foreground'), transform='scale(1.5)')
+    return style
+
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = basic_table_rules(sel)
+    style += build_rule(sel + ' .next-book-button:hover', transform='scale(1.5)')
 
     sel = '.' + SEARCH_INTERNET_CLASS
     style += build_rule(sel, margin='1ex 1em')
     style += build_rule(sel + ' ul > li', list_style_type='none')
     style += build_rule(sel + ' ul > li > a', padding='2ex 1em', display='block', width='100%')
+
+    sel = '.' + COPY_TO_LIBRARY_CLASS
+    style += build_rule(sel, margin='1ex 1em')
     return style
 )
 
@@ -386,9 +424,9 @@ def on_img_err(err):
     if img.parentNode:
         img.parentNode.style.display = 'none'
 
-def preferred_format(book_id):
+def preferred_format(book_id, for_download):
     interface_data = get_interface_data()
-    return get_preferred_format(book_metadata(book_id), interface_data.output_format, interface_data.input_formats)
+    return get_preferred_format(book_metadata(book_id), interface_data.output_format, interface_data.input_formats, for_download)
 
 
 def read_format(book_id, fmt):
@@ -405,8 +443,16 @@ def download_format(book_id, fmt):
 
 
 def download_book(book_id):
-    fmt = preferred_format(book_id)
+    fmt = preferred_format(book_id, True)
     download_format(book_id, fmt)
+
+
+def next_book(book_id, delta):
+    next_book_id = book_after(book_id, delta)
+    if next_book_id:
+        q = parse_url_params()
+        q.book_id = next_book_id + ''
+        show_panel('book_details', query=q, replace=True)
 
 
 def render_book(container_id, book_id):
@@ -415,17 +461,39 @@ def render_book(container_id, book_id):
     if not c:
         return
     metadata = book_metadata(book_id)
+    render_book.title = metadata.title
     set_title(c, metadata.title)
     authors = metadata.authors.join(' & ') if metadata.authors else _('Unknown')
-    alt = _('{} by {}').format(metadata.title, authors)
-    imgdiv = E.div(
+    alt = _('{} by {}\n\nClick to read').format(metadata.title, authors)
+    border_radius = 20
+    button_style = f'cursor: pointer; border-radius: {border_radius//5}px;'
+    button_style += 'color: #ccc; background-color:rgba(0, 0, 0, 0.75);'
+    button_style += 'display: flex; justify-content: center; align-items: center; padding: 2px;'
+
+    def prev_next_button(is_prev):
+        return E.div(
+            style=button_style,
+            title=_('Previous book') if is_prev else _('Next book'),
+            class_='next-book-button',
+            svgicon('chevron-left' if is_prev else 'chevron-right'),
+            onclick=next_book.bind(None, book_id, (-1 if is_prev else 1))
+        )
+
+    imgdiv = E.div(style='position: relative',
         E.img(
             alt=alt, title=alt, data_title=metadata.title, data_authors=authors,
-            style='border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: 20px'.format(get_font_size('title')
-        ))
+            onclick=read_book.bind(None, book_id),
+            style='cursor: pointer; border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: {}px'.format(get_font_size('title'), border_radius
+        )),
+        E.div(
+            style=f'position: absolute; top:0; width: 100%; padding: {border_radius//2}px; box-sizing: border-box; font-size: 2rem; display: flex; justify-content: space-between; color: {get_color("button-text")}',
+            prev_next_button(True),
+            prev_next_button(),
+        ),
     )
-    imgdiv.firstChild.onerror = on_img_err
-    imgdiv.firstChild.src = cover_url(book_id)
+    img = imgdiv.getElementsByTagName('img')[0]
+    img.onerror = on_img_err
+    img.src = cover_url(book_id)
     c = c.lastChild
     c.appendChild(E.div(
         style='display:flex; padding: 1ex 1em; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap',
@@ -434,7 +502,7 @@ def render_book(container_id, book_id):
     ))
     container = c.lastChild.firstChild
     read_button = create_button(_('Read'), 'book', read_book.bind(None, book_id), _('Read this book'))
-    fmt = preferred_format(book_id)
+    fmt = preferred_format(book_id, True)
     download_button = create_button(_('Download'), 'cloud-download', download_url(book_id, fmt),
         _('Download this book in the {0} format ({1})').format(fmt, human_readable(metadata.format_sizes[fmt] or 0)),
         download_filename=f'{metadata.title}.{fmt.toLowerCase()}')
@@ -446,6 +514,7 @@ def render_book(container_id, book_id):
     table = E.table(class_='metadata')
     container.appendChild(md)
     md.appendChild(table)
+
     render_metadata(metadata, table, book_id)
 
 
@@ -453,13 +522,21 @@ def add_top_bar_buttons(container_id):
     container = document.getElementById(container_id)
     if container:
         clear_buttons(container)
+        add_button(container, 'convert', action=convert_book, tooltip=_('Convert this book to another format'))
+        add_button(container, 'edit', action=edit_metadata, tooltip=_('Edit the metadata for this book'))
+        add_button(container, 'trash', action=delete_book, tooltip=_('Delete this book'))
         book_id = parse_url_params().book_id
         if book_id is '0':
-            add_button(container, 'random', def(): fetch_metadata(container_id, 0);)
+            add_button(container, 'random', def(): fetch_metadata(container_id, 0, proceed_after_succesful_fetch_metadata);)
         add_button(container, 'ellipsis-v', action=show_subsequent_panel.bind(None, 'more_actions'), tooltip=_('More actions'))
 
 
-def metadata_fetched(container_id, book_id, end_type, xhr, event):
+def proceed_after_succesful_fetch_metadata(container_id, book_id):
+    render_book(container_id, book_id)
+    add_top_bar_buttons(container_id)
+
+
+def metadata_fetched(container_id, book_id, proceed, end_type, xhr, event):
     nonlocal current_fetch
     if current_fetch is None or current_fetch is not xhr:
         return  # Fetching was aborted
@@ -477,8 +554,7 @@ def metadata_fetched(container_id, book_id, end_type, xhr, event):
         clear(c)
         book_id = int(data['id'])
         set_book_metadata(book_id, data)
-        render_book(container_id, book_id)
-        add_top_bar_buttons(container_id)
+        proceed(container_id, book_id)
     elif end_type is not 'abort':
         clear(c)
         c.appendChild(E.div(
@@ -488,14 +564,14 @@ def metadata_fetched(container_id, book_id, end_type, xhr, event):
         ))
         safe_set_inner_html(c.lastChild.lastChild, xhr.error_html)
 
-def fetch_metadata(container_id, book_id):
+def fetch_metadata(container_id, book_id, proceed):
     nonlocal current_fetch
     container = document.getElementById(container_id)
     if not container:
         return
     if current_fetch:
         current_fetch.abort()
-    current_fetch = ajax('interface-data/book-metadata/' + book_id, metadata_fetched.bind(None, container_id, book_id),
+    current_fetch = ajax('interface-data/book-metadata/' + book_id, metadata_fetched.bind(None, container_id, book_id, proceed),
                          query={'library_id':current_library_id(), 'vl':current_virtual_library()})
     current_fetch.send()
     container = container.lastChild
@@ -518,7 +594,14 @@ def create_book_details(container):
         render_book(container_id, current_book_id)
         add_top_bar_buttons(container_id)
     else:
-        fetch_metadata(container_id, current_book_id)
+        fetch_metadata(container_id, current_book_id, proceed_after_succesful_fetch_metadata)
+
+
+def report_load_failure(container):
+    report_a_load_failure(
+        container, _('Failed to load books from calibre library, with error:'),
+        load_status.error_html)
+
 
 
 def check_for_books_loaded():
@@ -529,19 +612,23 @@ def check_for_books_loaded():
     container = container.lastChild
     clear(container)
     if not load_status.ok:
-        err = E.div()
-        safe_set_inner_html(err, load_status.error_html)
-        container.appendChild(E.div(
-            style='margin: 1ex 1em',
-            E.div(_('Failed to load books from calibre library, with error:')),
-            err,
-            E.div(
-                style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-                E.a(onclick=def(): home(replace=True);, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
-            ),
-        )
+        report_load_failure(container)
         return
     create_book_details(container)
+
+
+def onkeydown(container_id, close_action, ev):
+    if render_book.book_id:
+        if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+            if ev.key is 'ArrowLeft':
+                next_book(render_book.book_id, -1)
+                ev.preventDefault(), ev.stopPropagation()
+            elif ev.key is 'ArrowRight':
+                next_book(render_book.book_id, 1)
+                ev.preventDefault(), ev.stopPropagation()
+            elif ev.key is 'Escape':
+                ev.preventDefault(), ev.stopPropagation()
+                close_action()
 
 
 def init(container_id):
@@ -556,7 +643,9 @@ def init(container_id):
             show_panel('book_list', {'book_id':q.book_id})
     create_top_bar(container, title=_('Book details'), action=close_action, icon=close_icon)
     window.scrollTo(0, 0)  # Ensure we are at the top of the window
-    container.appendChild(E.div(class_=CLASS_NAME))
+    container.appendChild(E.div(class_=CLASS_NAME, tabindex='0'))
+    container.lastChild.addEventListener('keydown', onkeydown.bind(None, container_id, close_action), {'passive': False, 'capture': True})
+    container.lastChild.focus()
     container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
@@ -565,6 +654,18 @@ def show_subsequent_panel(name, replace=False):
     q = parse_url_params()
     q.book_id = (read_book.book_id or q.book_id) + ''
     show_panel('book_details^' + name, query=q, replace=replace)
+
+
+def edit_metadata():
+    q = parse_url_params()
+    q.book_id = (read_book.book_id or q.book_id) + ''
+    show_panel('edit_metadata', query=q, replace=False)
+
+
+def convert_book():
+    q = parse_url_params()
+    q.book_id = (read_book.book_id or q.book_id) + ''
+    show_panel('convert_book', query=q, replace=False)
 
 
 def create_more_actions_panel(container_id):
@@ -579,7 +680,13 @@ def create_more_actions_panel(container_id):
                     action=def():
                         show_subsequent_panel('search_internet', replace=True)
         ),
+
         create_item(title, subtitle=subtitle, action=toggle_fields),
+
+        create_item(_('Copy to library'), subtitle=_('Copy or move this book to another calibre library'),
+                    action=def():
+                        show_subsequent_panel('copy_to_library', replace=True)
+        ),
     ]
     container.appendChild(E.div())
     create_item_list(container.lastChild, items)
@@ -609,27 +716,160 @@ def search_internet(container_id):
     create_top_bar(container, title=_('Search the internet'), action=back, icon='close')
     mi = book_metadata(render_book.book_id)
     data = {'title':mi.title, 'author':mi.authors[0] if mi.authors else _('Unknown')}
+    interface_data = get_interface_data()
 
     def link_for(name, template):
         return E.a(name, class_='simple-link', href=url_for(template, data), target="_blank")
 
+    author_links = E.ul()
+    book_links = E.ul()
+
+    if interface_data.search_the_net_urls:
+        for entry in interface_data.search_the_net_urls:
+            links = book_links if entry.type is 'book' else author_links
+            links.appendChild(E.li(link_for(entry.name, entry.url)))
+    for name, url in [
+        (_('Goodreads'), 'https://www.goodreads.com/book/author/{author}'),
+        (_('Wikipedia'), 'https://en.wikipedia.org/w/index.php?search={author}'),
+        (_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22'),
+    ]:
+        author_links.appendChild(E.li(link_for(name, url)))
+
+    for name, url in [
+        (_('Goodreads'), 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books'),
+        (_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22'),
+        (_('Amazon'), 'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}'),
+    ]:
+        book_links.appendChild(E.li(link_for(name, url)))
+
     container.appendChild(E.div(class_=SEARCH_INTERNET_CLASS,
         safe_set_inner_html(E.h2(), _('Search for the author <i>{}</i> at:').format(data.author)),
-        E.ul(
-            E.li(link_for(_('Goodreads'), 'https://www.goodreads.com/book/author/{author}')),
-            E.li(link_for(_('Wikipedia'), 'https://en.wikipedia.org/w/index.php?search={author}')),
-            E.li(link_for(_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22')),
-        ),
+        author_links,
         E.hr(),
         safe_set_inner_html(E.h2(), _('Search for the book <i>{}</i> at:').format(data.title)),
-        E.ul(
-            E.li(link_for(_('Goodreads'), 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books')),
-            E.li(link_for(_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22')),
-            E.li(link_for(_('Amazon'), 'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}')),
-        ),
-
+        book_links,
     ))
+
+
+# Copy to library {{{
+
+def do_copy_to_library(book_id, target_library_id, target_library_name):
+
+    def handle_result(move, close_func, end_type, xhr, ev):
+        close_func()
+        title = book_metadata(book_id).title
+        return_to_book_details()
+        if end_type is 'abort':
+            return
+        if end_type is not 'load':
+            error_dialog(_('Failed to copy book'), _(
+                'Failed to copy the book "{}". Click "Show details" for more information.').format(title),
+                xhr.error_html)
+            return
+        try:
+            response = JSON.parse(xhr.responseText)[book_id]
+            if not response:
+                raise Exception('bad')
+        except:
+            error_dialog(_('Failed to copy book'), _(
+                'Failed to copy the book "{}" because of an invalid response from calibre').format(title))
+            return
+        if not response.ok:
+            error_dialog(_('Failed to copy book'), _(
+                'Failed to copy the book "{}". Click "Show details" for more information.').format(title),
+                response.payload
+            )
+            return
+        if response.action is 'duplicate':
+            warning_dialog(_('Book already exists'), _(
+                'Could not copy as a book with the same title and authors already exists in the {} library').format(target_library_name))
+
+        elif response.action is 'automerge':
+            warning_dialog(_('Book merged'), _(
+                'The files from the book were merged into a book with the same title and authors in the {} library').format(target_library_name))
+        if move:
+            refresh_after_delete(book_id, current_library_id())
+
+
+    def trigger_copy(container_id, move, close_func):
+        try:
+            choice = document.querySelector(f'#{dupes_id} input[name="dupes"]:checked').value
+        except:
+            choice = document.querySelector(f'#{dupes_id} input[name="dupes"]').value
+        sd.set('copy_to_library_dupes', choice)
+        duplicate_action, automerge_action = choice.split(';', 2)
+
+        data = {'book_ids':v'[book_id]', 'move': move, 'duplicate_action': duplicate_action, 'automerge_action': automerge_action}
+        container = document.getElementById(container_id)
+        clear(container)
+        container.appendChild(E.div(
+            _('Contacting calibre to copy book, please wait...')))
+        ajax_send(f'cdb/copy-to-library/{target_library_id}/{current_library_id()}',
+                  data, handle_result.bind(None, move, close_func))
+
+    def radio(value, text):
+        return E.div(style='margin-top: 1rem', E.input(type='radio', name='dupes', value=value, checked=value is saved_value), '\xa0', E.span(text))
+
+    title = book_metadata(book_id).title
+    dupes_id = unique_id()
+    sd = get_session_data()
+    saved_value = sd.get('copy_to_library_dupes')
+    create_custom_dialog(_(
+        'Copy book to "{target_library_name}"').format(target_library_name=target_library_name),
+    def (container, close_func):
+        container_id = ensure_id(container)
+        container.appendChild(E.div(
+            E.div(_('Copying: {}').format(title)),
+            E.div(id=dupes_id,
+                E.p(_('If there are already existing books in "{}" with the same title and authors,'
+                      ' how would you like to handle them?').format(target_library_name)),
+                radio('add;overwrite', _('Copy anyway')),
+                radio('ignore;overwrite', _('Do not copy')),
+                radio('add_formats_to_existing;overwrite', _('Merge into existing books, overwriting existing files')),
+                radio('add_formats_to_existing;ignore', _('Merge into existing books, keeping existing files')),
+                radio('add_formats_to_existing;new record', _('Merge into existing books, putting conflicting files into a new book record')),
+            ),
+            E.div(
+                class_='button-box',
+                create_button(_('Copy'), None, trigger_copy.bind(None, container_id, False, close_func), highlight=True),
+                '\xa0',
+                create_button(_('Move'), None, trigger_copy.bind(None, container_id, True, close_func)),
+                '\xa0',
+                create_button(_('Cancel'), None, close_func),
+            )
+        ))
+        if not container.querySelector(f'#{dupes_id} input[name="dupes"]:checked'):
+            container.querySelector(f'#{dupes_id} input[name="dupes"]').checked = True
+
+    )
+
+
+def copy_to_library(container_id):
+    if not render_book.book_id or not book_metadata(render_book.book_id):
+        return return_to_book_details()
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Copy to library'), action=back, icon='close')
+    libraries = all_libraries()
+    container.appendChild(E.div(class_=COPY_TO_LIBRARY_CLASS))
+    container = container.lastChild
+    if libraries.length < 2:
+        container.appendChild(E.div(_('There are no other calibre libraries available to copy the book to')))
+        return
+    container.appendChild(E.h2(_('Choose the library to copy to below')))
+    items = []
+    for library_id, library_name in libraries:
+        if library_id is current_library_id():
+            continue
+        items.push(create_item(library_name, action=do_copy_to_library.bind(None, render_book.book_id, library_id, library_name)))
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items)
+# }}}
+
+
+def delete_book():
+    start_delete_book(current_library_id(), render_book.book_id, render_book.title or _('Unknown'))
 
 set_panel_handler('book_details', init)
 set_panel_handler('book_details^more_actions', create_more_actions_panel)
 set_panel_handler('book_details^search_internet', search_internet)
+set_panel_handler('book_details^copy_to_library', copy_to_library)

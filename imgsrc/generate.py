@@ -1,10 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-import os, glob, subprocess, argparse
+import os, glob, subprocess, argparse, json, hashlib
 
 duplicates = {
     'character-set': ['languages'],
@@ -27,12 +25,22 @@ skip = {'calibre'}
 j = os.path.join
 base = os.path.dirname(os.path.abspath(__file__))
 output_base = j(os.path.dirname(base), 'resources', 'images')
+hash_path = j(os.path.dirname(base), '.build-cache', 'imgsrc-gen.json')
+if os.path.exists(hash_path):
+    with open(hash_path, 'rb') as f:
+        hashes = json.load(f)
+else:
+    hashes = {}
+src_hashes = {}
 
 
 def iterfiles(only=()):
     for src in glob.glob(j(base, '*.svg')) + glob.glob(j(base, 'plugins/*.svg')):
         name = os.path.relpath(src, base).rpartition('.')[0]
         if only and name not in only:
+            continue
+        src_hashes[name] = h = hashlib.sha1(open(src, 'rb').read()).hexdigest()
+        if not only and h == hashes.get(name):
             continue
         output_names = [n for n in [name] + duplicates.get(name, []) if n not in skip]
         output_files = [j(output_base, n) + '.png' for n in output_names]
@@ -54,6 +62,8 @@ def render(src, output_files):
         size = sizes.get(oname, '128')
         print('Rendering', oname, 'at size:', size)
         rsvg(src, size, dest)
+        name = os.path.relpath(src, base).rpartition('.')[0]
+        hashes[name] = src_hashes[name]
 
 
 def main():
@@ -62,6 +72,8 @@ def main():
     args = p.parse_args()
     for src, ofiles in iterfiles(args.only):
         render(src, ofiles)
+    with open(hash_path, 'w') as f:
+        json.dump(hashes, f, indent=2, sort_keys=True)
 
 
 if __name__ == '__main__':

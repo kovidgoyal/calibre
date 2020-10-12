@@ -9,6 +9,12 @@ http://www.ilsole24ore.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class IlSole24Ore(BasicNewsRecipe):
     __author__ = 'Marco Saraceno'
     description = 'Italian financial daily newspaper'
@@ -25,10 +31,13 @@ class IlSole24Ore(BasicNewsRecipe):
     max_articles_per_feed = 100
     use_embedded_content = False
     extra_css = '.headline {font-size: x-large;} \n .fact { padding-top: 10pt  }'
+    no_stylesheets = True
 
+    keep_only_tags = [
+        classes('ahead atext')
+    ]
     remove_tags = [
-        dict(name='div', attrs={'class': ['header', 'titolo']}),
-        dict(name='table', attrs={'class': ['footer1024', 'footerdown']}),
+        classes('ahead-ltool')
     ]
 
     def get_article_url(self, article):
@@ -44,21 +53,25 @@ class IlSole24Ore(BasicNewsRecipe):
             link = "http://" + link
         return link
 
-    feeds = [
-        (u'Notizie Italia', u'http://www.ilsole24ore.com/rss/notizie/italia.xml'),
-        (u'Notizie Europa', u'http://www.ilsole24ore.com/rss/notizie/europa.xml'),
-        (u'Notizie USA', u'http://www.ilsole24ore.com/rss/notizie/usa.xml'),
-        (u'Notizie Americhe', u'http://www.ilsole24ore.com/rss/notizie/americhe.xml'),
-        (u'Notizie Medio Oriente e Africa',
-         u'http://www.ilsole24ore.com/rss/notizie/medio-oriente-e-africa.xml'),
-        (u'Notizie Asia e Oceania',
-         u'http://www.ilsole24ore.com/rss/notizie/asia-e-oceania.xml'),
-        (u'Commenti', u'http://www.ilsole24ore.com/rss/commenti-e-idee.xml'),
-        (u'Norme e tributi', u'http://www.ilsole24ore.com/rss/norme-e-tributi.xml'),
-        (u'Finanza', u'http://www.ilsole24ore.com/rss/finanza-e-mercati.xml'),
-        (u'Economia', u'http://www.ilsole24ore.com/rss/economia.xml'),
-        (u'Tecnologia', u'http://www.ilsole24ore.com/rss/tecnologie.xml'),
-        (u'Cultura', u'http://www.ilsole24ore.com/rss/cultura.xml'),
+    feeds          = [
+        ('Italia', 'https://www.ilsole24ore.com/rss/italia.xml'),
+        ('Mondo', 'https://www.ilsole24ore.com/rss/mondo.xml'),
+        ('Economia', 'https://www.ilsole24ore.com/rss/economia.xml'),
+        ('Finanzia', 'https://www.ilsole24ore.com/rss/finanza.xml'),
+        ('Commenti', 'https://www.ilsole24ore.com/rss/commenti.xml'),
+        ('Risparmio', 'https://www.ilsole24ore.com/rss/risparmio.xml'),
+        ('Norme e Tributi', 'https://www.ilsole24ore.com/rss/norme-e-tributi.xml'),
+        ('Management', 'https://www.ilsole24ore.com/rss/management.xml'),
+        ('Cultura', 'https://www.ilsole24ore.com/rss/cultura.xml'),
+        ('Tecnologia', 'https://www.ilsole24ore.com/rss/tecnologia.xml'),
+        ('Food', 'https://www.ilsole24ore.com/rss/food.xml'),
+        ('Moda', 'https://www.ilsole24ore.com/rss/moda.xml'),
+        ('Motori', 'https://www.ilsole24ore.com/rss/motori.xml'),
+        ('Casa', 'https://www.ilsole24ore.com/rss/casa.xml'),
+        ('Viaggi', 'https://www.ilsole24ore.com/rss/viaggi.xml'),
+        ('Salute', 'https://www.ilsole24ore.com/rss/salute.xml'),
+        ('Arteconomy', 'https://www.ilsole24ore.com/rss/arteconomy.xml'),
+        ('Sport', 'https://www.ilsole24ore.com/rss/sport24.xml'),
     ]
 
     def print_version(self, url):

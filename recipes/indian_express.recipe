@@ -1,6 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class IndianExpress(BasicNewsRecipe):
     title = u'Indian Express'
     language = 'en_IN'
@@ -11,7 +17,13 @@ class IndianExpress(BasicNewsRecipe):
 
     no_stylesheets = True
     use_embedded_content = False
-    auto_cleanup = True
+
+    keep_only_tags = [
+        classes('heading-part full-details')
+    ]
+    remove_tags = [
+        classes('share-social appstext story-tags')
+    ]
     feeds = [
         ('Front Page',
          'http://indianexpress.com/print/front-page/feed/'),
@@ -39,5 +51,12 @@ class IndianExpress(BasicNewsRecipe):
          'http://indianexpress.com/section/entertainment/bollywood/feed/'),
     ]
 
-    def print_version(self, url):
-        return url.partition('?')[0].rstrip('/') + '/99'
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img'):
+            noscript = img.findParent('noscript')
+            if noscript is not None:
+                lazy = noscript.findPreviousSibling('img')
+                if lazy is not None:
+                    lazy.extract()
+                noscript.name = 'div'
+        return soup

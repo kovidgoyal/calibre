@@ -1,7 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
@@ -14,6 +13,7 @@ from PyQt5.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 
 class TableItem(QTableWidgetItem):
@@ -58,8 +58,9 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         try:
             self.books_table_column_widths = \
                         gprefs.get('match_books_dialog_books_table_widths', None)
-            geom = gprefs.get('match_books_dialog_geometry', bytearray(''))
-            self.restoreGeometry(QByteArray(geom))
+            geom = gprefs.get('match_books_dialog_geometry', None)
+            if geom:
+                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except:
             pass
 
@@ -125,10 +126,10 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             QDialog.keyPressEvent(self, e)
 
     def do_search(self):
-        query = unicode(self.search_text.text())
+        query = unicode_type(self.search_text.text())
         if not query:
             d = error_dialog(self.gui, _('Match books'),
-                     _('You must enter a search expression into the search box'))
+                     _('You must enter a search expression into the search field'))
             d.exec_()
             return
         try:
@@ -217,4 +218,3 @@ class MatchBooks(QDialog, Ui_MatchBooks):
     def reject(self):
         self.close()
         QDialog.reject(self)
-

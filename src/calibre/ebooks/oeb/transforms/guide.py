@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -28,7 +28,7 @@ class Clean(object):
                     else:
                         covers.append([self.oeb.guide[x], len(item.data)])
 
-            covers.sort(cmp=lambda x,y:cmp(x[1], y[1]), reverse=True)
+            covers.sort(key=lambda x: x[1], reverse=True)
             if covers:
                 ref = covers[0][0]
                 if len(covers) > 1:
@@ -53,4 +53,3 @@ class Clean(object):
                 if item.title and item.title.lower() == 'start':
                     continue
                 self.oeb.guide.remove(x)
-

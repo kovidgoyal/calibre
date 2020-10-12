@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.utils.date import isoformat, DEFAULT_DATE
+from polyglot.builtins import itervalues, unicode_type
 
 
 class SchemaUpgrade(object):
@@ -21,7 +22,7 @@ class SchemaUpgrade(object):
             if meth is None:
                 break
             else:
-                print 'Upgrading database to version %d...'%(uv+1)
+                print('Upgrading database to version %d...'%(uv+1))
                 meth()
                 self.user_version = uv+1
 
@@ -292,7 +293,7 @@ class SchemaUpgrade(object):
                 '''.format(tn=table_name, cn=column_name, vcn=view_column_name))
             self.conn.executescript(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.conn.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -368,7 +369,7 @@ class SchemaUpgrade(object):
                 '''.format(lt=link_table_name, table=table_name)
             self.conn.executescript(script)
 
-        for field in self.field_metadata.itervalues():
+        for field in itervalues(self.field_metadata):
             if field['is_category'] and not field['is_custom'] and 'link_column' in field:
                 table = self.conn.get(
                     'SELECT name FROM sqlite_master WHERE type="table" AND name=?',
@@ -589,13 +590,13 @@ class SchemaUpgrade(object):
                     custom_recipe_filename
             bdir = os.path.dirname(custom_recipes.file_path)
             for id_, title, script in recipes:
-                existing = frozenset(map(int, custom_recipes.iterkeys()))
+                existing = frozenset(map(int, custom_recipes))
                 if id_ in existing:
                     id_ = max(existing) + 1000
-                id_ = str(id_)
+                id_ = unicode_type(id_)
                 fname = custom_recipe_filename(id_, title)
                 custom_recipes[id_] = (title, fname)
-                if isinstance(script, unicode):
+                if isinstance(script, unicode_type):
                     script = script.encode('utf-8')
                 with open(os.path.join(bdir, fname), 'wb') as f:
                     f.write(script)
@@ -610,5 +611,3 @@ class SchemaUpgrade(object):
         ALTER TABLE authors ADD COLUMN link TEXT NOT NULL DEFAULT "";
         '''
         self.conn.executescript(script)
-
-

@@ -1,11 +1,14 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from gettext import gettext as _
-from dom import add_extra_css, build_rule, unique_id, element
-from book_list.globals import get_session_data
 from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import add_extra_css, build_rule, element, unique_id
+from read_book.prefs.utils import create_button_box
+from session import defaults
 
 CONTAINER = unique_id('reader-page-layout')
 MARGINS = unique_id('reader-page-margins')
@@ -20,7 +23,20 @@ add_extra_css(def():
     return style
 )
 
-def create_layout_panel(container):
+def restore_defaults():
+    container = document.getElementById(CONTAINER)
+    for which in 'top bottom left right'.split(' '):
+        container.querySelector('input[name={}]'.format(which)).value = str(defaults['margin_' + which])
+    for name in 'paged flow'.split(' '):
+        container.querySelector('input[data-name={}]'.format(name)).checked = defaults.read_mode is name
+    for name in 'portrait landscape'.split(' '):
+        container.querySelector('input[name={}]'.format(name)).value = str(defaults.columns_per_screen[name])
+    for which in 'width height'.split(' '):
+        container.querySelector('input[name={}]'.format(which)).value = str(defaults['max_text_' + which])
+    container.querySelector('input[name=cover_preserve_aspect_ratio]').checked = defaults.cover_preserve_aspect_ratio
+
+
+def create_layout_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
     sd = get_session_data()
@@ -33,7 +49,7 @@ def create_layout_panel(container):
         ))
 
     def sec(text):
-        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px'))
+        container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px; max-width: 50em'))
 
     sec(_('Choose the page layout mode. In paged mode, the text is split up into individual pages, as in a paper book. In flow mode'
             ' text is presented as one long scrolling page, as in web browsers.'))
@@ -42,7 +58,7 @@ def create_layout_panel(container):
     rm = 'flow' if rm is 'flow' else 'paged'
     def rb(name, text):
         d = container.lastChild
-        d.appendChild(E.label(E.input(type='radio', name='page-layout-mode', checked=rm is name), text))
+        d.appendChild(E.label(E.input(type='radio', name='page-layout-mode', data_name=name, checked=rm is name), text))
     rb('paged', _('Paged mode'))
     container.lastChild.appendChild(E.span('\xa0', style='width:3em'))
     rb('flow', _('Flow mode'))
@@ -51,15 +67,23 @@ def create_layout_panel(container):
           ' set based on the screen size.'))
     cps = sd.get('columns_per_screen')
     container.appendChild(E.table(style='margin: 1ex 1rem', id=COLS,
-        E.tr(E.td(_('In portrait orientation:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait)))),
-        E.tr(E.td(_('In landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
+        E.tr(E.td(_('Portrait orientation:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait)))),
+        E.tr(E.td(_('Landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
     ))
 
-    sec(_('Change the maximum screen area (in pixels) used to display text. A value of zero means that all available screen area is used.'))
+    sec(_('Change the maximum screen area (in pixels) used to display text.'
+          ' A value of zero means that all available screen area is used.'
+          ' Current window width is {0} and height is {1} pixels.'
+    ).format(window.innerWidth, window.innerHeight))
     container.appendChild(E.table(style='margin: 1ex 1rem', id=TEXT_AREA,
         E.tr(E.td(_('Max. width:')), E.td(E.input(type='number', name='width',   min='0', step='10', value=str(sd.get('max_text_width'))))),
         E.tr(E.td(_('Max. height:')), E.td(E.input(type='number', name='height', min='0', step='10', value=str(sd.get('max_text_height'))))),
     ))
+
+    sec(_('Control how the cover is displayed'))
+    container.appendChild(E.div(style='margin: 1ex 2rem; display: flex;',
+        E.label(E.input(type='checkbox', name='cover_preserve_aspect_ratio', checked=sd.get('cover_preserve_aspect_ratio')), _('Preserve cover aspect ratio'))))
+    container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
 
 
 develop = create_layout_panel
@@ -84,6 +108,7 @@ def commit_layout(onchange, container):
         was_changed = True
         sd.set('read_mode', crm)
     cps = sd.get('columns_per_screen')
+    cps = {'portrait': cps.portrait, 'landscape': cps.landscape}
     for which in ('portrait', 'landscape'):
         inp = element(COLS, 'input[name={}]'.format(which))
         try:
@@ -102,6 +127,11 @@ def commit_layout(onchange, container):
         if val is not sd.get('max_text_' + which):
             was_changed = True
             sd.set('max_text_' + which, val)
+
+    cover_preserve_aspect_ratio = element(CONTAINER, 'input[name=cover_preserve_aspect_ratio]').checked
+    if cover_preserve_aspect_ratio is not sd.get('cover_preserve_aspect_ratio'):
+        was_changed = True
+        sd.set('cover_preserve_aspect_ratio', cover_preserve_aspect_ratio)
 
     if was_changed:
         onchange()

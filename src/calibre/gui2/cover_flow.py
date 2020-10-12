@@ -1,4 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -10,11 +12,10 @@ Module to implement the Cover Flow feature
 import sys, os, time
 
 from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
-        QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence, QFont)
+        QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication)
 
-from calibre import plugins
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.constants import islinux
+from calibre.constants import islinux, plugins
 from calibre.gui2 import (config, available_height, available_width, gprefs,
         rating_font)
 
@@ -55,7 +56,7 @@ if pictureflow is not None:
             return self.subtitles[index]
 
         def currentChanged(self, index):
-            print 'current changed:', index
+            print('current changed:', index)
 
     class DummyImageList(pictureflow.FlowImages):
 
@@ -240,9 +241,8 @@ class CBDialog(QDialog):
         self.setWindowTitle(_('Browse by covers'))
         self.layout().addWidget(cover_flow)
 
-        geom = gprefs.get('cover_browser_dialog_geometry', bytearray(''))
-        geom = QByteArray(geom)
-        if not self.restoreGeometry(geom):
+        geom = gprefs.get('cover_browser_dialog_geometry', None)
+        if not geom or not QApplication.instance().safe_restore_geometry(self, geom):
             h, w = available_height()-60, int(available_width()/1.5)
             self.resize(w, h)
         self.action_fs_toggle = a = QAction(self)
@@ -278,7 +278,7 @@ class CBDialog(QDialog):
     def show_normal(self):
         self.showNormal()
         if self.pre_fs_geom is not None:
-            self.restoreGeometry(self.pre_fs_geom)
+            QApplication.instance().safe_restore_geometry(self, self.pre_fs_geom)
             self.pre_fs_geom = None
 
     def show_fullscreen(self):
@@ -453,7 +453,7 @@ class CoverFlowMixin(object):
 
 
 def test():
-    from PyQt5.Qt import QApplication, QMainWindow
+    from PyQt5.Qt import QMainWindow
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
@@ -474,7 +474,7 @@ def main(args=sys.argv):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication, QMainWindow
+    from PyQt5.Qt import QMainWindow
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()

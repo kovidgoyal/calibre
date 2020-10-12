@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
@@ -30,7 +31,7 @@ class DrawAndCook(BasicNewsRecipe):
             articles = self.make_links(url)
             if articles:
                 feeds.append((title, articles))
-        print 'feeds are: ', feeds
+        print('feeds are: ', feeds)
         return feeds
 
     def make_links(self, url):
@@ -45,9 +46,9 @@ class DrawAndCook(BasicNewsRecipe):
             'li', attrs={'data-id': re.compile(r'artwork_entry_\d+', re.DOTALL)})
         for recipe in recipes:
             page_url = self.INDEX + recipe.a['href']
-            print 'page_url is: ', page_url
+            print('page_url is: ', page_url)
             title = recipe.find('strong').string
-            print 'title is: ', title
+            print('title is: ', title)
             current_articles.append(
                 {'title': title, 'url': page_url, 'description': '', 'date': date})
         return current_articles

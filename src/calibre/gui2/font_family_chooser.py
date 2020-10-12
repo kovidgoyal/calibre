@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,6 +16,7 @@ from PyQt5.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog, info_dialog, empty_index
+from polyglot.builtins import unicode_type, range
 
 
 def add_fonts(parent):
@@ -112,7 +112,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         painter.restore()
 
     def do_paint(self, painter, option, index):
-        text = unicode(index.data(Qt.DisplayRole) or '')
+        text = unicode_type(index.data(Qt.DisplayRole) or '')
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
         font2 = QFont(font)
@@ -264,10 +264,10 @@ class FontFamilyDialog(QDialog):
         i = self.view.currentIndex().row()
         if i < 0:
             i = 0
-        q = icu_lower(unicode(self.search.text())).strip()
+        q = icu_lower(unicode_type(self.search.text())).strip()
         if not q:
             return
-        r = (xrange(i-1, -1, -1) if backwards else xrange(i+1,
+        r = (range(i-1, -1, -1) if backwards else range(i+1,
             len(self.families)))
         for j in r:
             f = self.families[j]
@@ -286,7 +286,7 @@ class FontFamilyDialog(QDialog):
             self.families = list(self.font_scanner.find_font_families())
         except:
             self.families = []
-            print ('WARNING: Could not load fonts')
+            print('WARNING: Could not load fonts')
             import traceback
             traceback.print_exc()
         self.families.insert(0, _('None'))
@@ -352,18 +352,17 @@ class FontFamilyChooser(QWidget):
     def clear_family(self):
         self.font_family = None
 
-    @dynamic_property
+    @property
     def font_family(self):
-        def fget(self):
-            return self._current_family
+        return self._current_family
 
-        def fset(self, val):
-            if not val:
-                val = None
-            self._current_family = val
-            self.button.setText(val or self.default_text)
-            self.family_changed.emit(val)
-        return property(fget=fget, fset=fset)
+    @font_family.setter
+    def font_family(self, val):
+        if not val:
+            val = None
+        self._current_family = val
+        self.button.setText(val or self.default_text)
+        self.family_changed.emit(val)
 
     def show_chooser(self):
         d = FontFamilyDialog(self.font_family, self)

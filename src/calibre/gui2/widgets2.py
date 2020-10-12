@@ -1,29 +1,33 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+# License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import weakref
 
 from PyQt5.Qt import (
-    QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal,
-    QKeySequence, QToolButton, QDialog, QDialogButtonBox, QComboBox, QFont,
-    QAbstractListModel, QModelIndex, QApplication, QStyledItemDelegate,
-    QUndoCommand, QUndoStack, QLayout, QRect, QSize, QStyle, QSizePolicy,
-    QPoint, QWidget, QLabel, QCheckBox)
+    QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
+    QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
+    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu,
+    QMimeData, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
+    QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
+    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal
+)
 
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, rating_font
-from calibre.gui2.complete2 import LineEdit, EditWithComplete
+from calibre.gui2 import UNDEFINED_QDATETIME, gprefs, rating_font
+from calibre.gui2.complete2 import EditWithComplete, LineEdit
 from calibre.gui2.widgets import history
+from calibre.utils.config_base import tweaks
+from calibre.utils.date import UNDEFINED_DATE
+from polyglot.builtins import unicode_type
+from polyglot.functools import lru_cache
 
 
 class HistoryMixin(object):
 
     max_history_items = None
+    min_history_entry_length = 3
 
     def __init__(self, *args, **kwargs):
         pass
@@ -34,7 +38,7 @@ class HistoryMixin(object):
 
     def initialize(self, name):
         self._name = name
-        self.history = history.get(self.store_name, [])
+        self.history = self.load_history()
         self.set_separator(None)
         self.update_items_cache(self.history)
         self.setText('')
@@ -43,9 +47,12 @@ class HistoryMixin(object):
         except AttributeError:
             self.lineEdit().editingFinished.connect(self.save_history)
 
+    def load_history(self):
+        return history.get(self.store_name, [])
+
     def save_history(self):
-        ct = unicode(self.text())
-        if len(ct) > 2:
+        ct = unicode_type(self.text())
+        if len(ct) >= self.min_history_entry_length:
             try:
                 self.history.remove(ct)
             except ValueError:
@@ -64,14 +71,14 @@ class HistoryMixin(object):
 
 class HistoryLineEdit2(LineEdit, HistoryMixin):
 
-    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
+    def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:b''):
         LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
 
 
 class HistoryComboBox(EditWithComplete, HistoryMixin):
 
-    def __init__(self, parent=None):
-        EditWithComplete.__init__(self, parent, sort_func=lambda x:None)
+    def __init__(self, parent=None, strip_completion_entries=True):
+        EditWithComplete.__init__(self, parent, sort_func=lambda x:b'', strip_completion_entries=strip_completion_entries)
 
 
 class ColorButton(QPushButton):
@@ -85,33 +92,32 @@ class ColorButton(QPushButton):
         self.color = initial_color
         self.clicked.connect(self.choose_color)
 
-    @dynamic_property
+    @property
     def color(self):
-        def fget(self):
-            return self._color
+        return self._color
 
-        def fset(self, val):
-            val = unicode(val or '')
-            col = QColor(val)
-            orig = self._color
-            if col.isValid():
-                self._color = val
-                self.setText(val)
-                p = QPixmap(self.iconSize())
-                p.fill(col)
-                self.setIcon(QIcon(p))
-            else:
-                self._color = None
-                self.setText(self.choose_text)
-                self.setIcon(QIcon())
-            if orig != col:
-                self.color_changed.emit(self._color)
-        return property(fget=fget, fset=fset)
+    @color.setter
+    def color(self, val):
+        val = unicode_type(val or '')
+        col = QColor(val)
+        orig = self._color
+        if col.isValid():
+            self._color = val
+            self.setText(val)
+            p = QPixmap(self.iconSize())
+            p.fill(col)
+            self.setIcon(QIcon(p))
+        else:
+            self._color = None
+            self.setText(self.choose_text)
+            self.setIcon(QIcon())
+        if orig != col:
+            self.color_changed.emit(self._color)
 
     def choose_color(self):
         col = QColorDialog.getColor(QColor(self._color or Qt.white), self, _('Choose a color'))
         if col.isValid():
-            self.color = unicode(col.name())
+            self.color = unicode_type(col.name())
 
 
 def access_key(k):
@@ -121,12 +127,13 @@ def access_key(k):
     return ''
 
 
-def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
+def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False, use_self_for_copy_actions=False):
     m = menu
     le = spinbox.lineEdit()
-    m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), le.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
-    m.addAction(_('&Copy') + access_key(QKeySequence.Copy), le.copy).setEnabled(le.hasSelectedText())
-    m.addAction(_('&Paste') + access_key(QKeySequence.Paste), le.paste).setEnabled(not le.isReadOnly())
+    ca = spinbox if use_self_for_copy_actions else le
+    m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), ca.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+    m.addAction(_('&Copy') + access_key(QKeySequence.Copy), ca.copy).setEnabled(le.hasSelectedText())
+    m.addAction(_('&Paste') + access_key(QKeySequence.Paste), ca.paste).setEnabled(not le.isReadOnly())
     m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
     m.addSeparator()
     m.addAction(_('Select &all') + access_key(QKeySequence.SelectAll), spinbox.selectAll)
@@ -173,7 +180,7 @@ class Dialog(QDialog):
         self.resize(self.sizeHint())
         geom = self.prefs_for_persistence.get(name + '-geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
         if hasattr(self, 'splitter'):
             state = self.prefs_for_persistence.get(name + '-splitter-state', None)
             if state is not None:
@@ -195,25 +202,6 @@ class Dialog(QDialog):
         raise NotImplementedError('You must implement this method in Dialog subclasses')
 
 
-class RatingModel(QAbstractListModel):
-
-    def __init__(self, parent=None, is_half_star=False):
-        QAbstractListModel.__init__(self, parent)
-        self.is_half_star = is_half_star
-        self.rating_font = QFont(rating_font())
-        self.null_text = _('Not rated')
-
-    def rowCount(self, parent=QModelIndex()):
-        return 11 if self.is_half_star else 6
-
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            val = index.row() * (1 if self.is_half_star else 2)
-            return rating_to_stars(val, self.is_half_star) or self.null_text
-        if role == Qt.FontRole:
-            return QApplication.instance().font() if index.row() == 0 else self.rating_font
-
-
 class UndoCommand(QUndoCommand):
 
     def __init__(self, widget, val):
@@ -231,17 +219,34 @@ class UndoCommand(QUndoCommand):
             w.setCurrentIndex(self.redo_val)
 
 
+@lru_cache(maxsize=16)
+def stars(num, is_half_star=False):
+    return rating_to_stars(num, is_half_star)
+
+
+class RatingItemDelegate(QStyledItemDelegate):
+
+    def initStyleOption(self, option, index):
+        QStyledItemDelegate.initStyleOption(self, option, index)
+        option.font = QApplication.instance().font() if index.row() <= 0 else self.parent().rating_font
+        option.fontMetrics = QFontMetrics(option.font)
+
+
 class RatingEditor(QComboBox):
 
     def __init__(self, parent=None, is_half_star=False):
         QComboBox.__init__(self, parent)
+        self.addItem(_('Not rated'))
+        if is_half_star:
+            [self.addItem(stars(x, True)) for x in range(1, 11)]
+        else:
+            [self.addItem(stars(x)) for x in (2, 4, 6, 8, 10)]
+        self.rating_font = QFont(rating_font())
         self.undo_stack = QUndoStack(self)
         self.undo, self.redo = self.undo_stack.undo, self.undo_stack.redo
         self.allow_undo = False
         self.is_half_star = is_half_star
-        self._model = RatingModel(is_half_star=is_half_star, parent=self)
-        self.setModel(self._model)
-        self.delegate = QStyledItemDelegate(self)
+        self.delegate = RatingItemDelegate(self)
         self.view().setItemDelegate(self.delegate)
         self.view().setStyleSheet('QListView { background: palette(window) }\nQListView::item { padding: 6px }')
         self.setMaxVisibleItems(self.count())
@@ -249,18 +254,17 @@ class RatingEditor(QComboBox):
 
     @property
     def null_text(self):
-        return self._model.null_text
+        return self.itemText(0)
 
     @null_text.setter
     def null_text(self, val):
-        self._model.null_text = val
-        self._model.dataChanged.emit(self._model.index(0, 0), self._model.index(0, 0))
+        self.setItemtext(0, val)
 
     def update_font(self):
         if self.currentIndex() == 0:
             self.setFont(QApplication.instance().font())
         else:
-            self.setFont(self._model.rating_font)
+            self.setFont(self.rating_font)
 
     def clear_to_undefined(self):
         self.setCurrentIndex(0)
@@ -427,10 +431,219 @@ class FlowLayout(QLayout):  # {{{
 # }}}
 
 
+class HTMLDisplay(QTextBrowser):
+
+    anchor_clicked = pyqtSignal(object)
+
+    def __init__(self, parent=None):
+        QTextBrowser.__init__(self, parent)
+        self.last_set_html = ''
+        self.default_css = self.external_css = ''
+        app = QApplication.instance()
+        app.palette_changed.connect(self.palette_changed)
+        self.palette_changed()
+        font = self.font()
+        f = QFontInfo(font)
+        delta = tweaks['change_book_details_font_size_by'] + 1
+        if delta:
+            font.setPixelSize(f.pixelSize() + delta)
+            self.setFont(font)
+        self.setFrameShape(self.NoFrame)
+        self.setOpenLinks(False)
+        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        palette = self.palette()
+        palette.setBrush(QPalette.Base, Qt.transparent)
+        self.setPalette(palette)
+        self.setAcceptDrops(False)
+        self.anchorClicked.connect(self.on_anchor_clicked)
+
+    def setHtml(self, html):
+        self.last_set_html = html
+        QTextBrowser.setHtml(self, html)
+
+    def setDefaultStyleSheet(self, css=''):
+        self.external_css = css
+        self.document().setDefaultStyleSheet(self.default_css + self.external_css)
+
+    def palette_changed(self):
+        app = QApplication.instance()
+        if app.is_dark_theme:
+            pal = app.palette()
+            col = pal.color(pal.Link)
+            self.default_css = 'a { color: %s }\n\n' % col.name(col.HexRgb)
+        else:
+            self.default_css = ''
+        self.document().setDefaultStyleSheet(self.default_css + self.external_css)
+        self.setHtml(self.last_set_html)
+
+    def on_anchor_clicked(self, qurl):
+        if not qurl.scheme() and qurl.hasFragment() and qurl.toString().startswith('#'):
+            frag = qurl.fragment(qurl.FullyDecoded)
+            if frag:
+                self.scrollToAnchor(frag)
+                return
+        self.anchor_clicked.emit(qurl)
+
+    def loadResource(self, rtype, qurl):
+        if qurl.isLocalFile():
+            path = qurl.toLocalFile()
+            try:
+                with lopen(path, 'rb') as f:
+                    data = f.read()
+            except EnvironmentError:
+                if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
+                    return QByteArray(bytearray.fromhex(
+                        '89504e470d0a1a0a0000000d49484452'
+                        '000000010000000108060000001f15c4'
+                        '890000000a49444154789c6300010000'
+                        '0500010d0a2db40000000049454e44ae'
+                        '426082'))
+            else:
+                return QByteArray(data)
+        else:
+            return QTextBrowser.loadResource(self, rtype, qurl)
+
+
+class ScrollingTabWidget(QTabWidget):
+
+    def __init__(self, parent=None):
+        QTabWidget.__init__(self, parent)
+
+    def wrap_widget(self, page):
+        sw = QScrollArea(self)
+        pl = page.layout()
+        if pl is not None:
+            cm = pl.contentsMargins()
+            # For some reasons designer insists on setting zero margins for
+            # widgets added to a tab widget, which looks horrible.
+            if (cm.left(), cm.top(), cm.right(), cm.bottom()) == (0, 0, 0, 0):
+                pl.setContentsMargins(9, 9, 9, 9)
+        name = 'STW{}'.format(abs(id(self)))
+        sw.setObjectName(name)
+        sw.setWidget(page)
+        sw.setWidgetResizable(True)
+        page.setAutoFillBackground(False)
+        sw.setStyleSheet('#%s { background: transparent }' % name)
+        return sw
+
+    def indexOf(self, page):
+        for i in range(self.count()):
+            t = self.widget(i)
+            if t.widget() is page:
+                return i
+        return -1
+
+    def currentWidget(self):
+        return QTabWidget.currentWidget(self).widget()
+
+    def addTab(self, page, *args):
+        return QTabWidget.addTab(self, self.wrap_widget(page), *args)
+
+
+PARAGRAPH_SEPARATOR = '\u2029'
+
+
+def to_plain_text(self):
+    # QPlainTextEdit's toPlainText implementation replaces nbsp with normal
+    # space, so we re-implement it using QTextCursor, which does not do
+    # that
+    c = self.textCursor()
+    c.clearSelection()
+    c.movePosition(c.Start)
+    c.movePosition(c.End, c.KeepAnchor)
+    ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
+    # QTextCursor pads the return value of selectedText with null bytes if
+    # non BMP characters such as 0x1f431 are present.
+    return ans.rstrip('\0')
+
+
+class CalendarWidget(QCalendarWidget):
+
+    def showEvent(self, ev):
+        if self.selectedDate().year() == UNDEFINED_DATE.year:
+            self.setSelectedDate(QDate.currentDate())
+
+
+class DateTimeEdit(QDateTimeEdit):
+
+    MIME_TYPE = 'application/x-calibre-datetime-value'
+
+    def __init__(self, parent=None):
+        QDateTimeEdit.__init__(self, parent)
+        self.setMinimumDateTime(UNDEFINED_QDATETIME)
+        self.setCalendarPopup(True)
+        self.cw = CalendarWidget(self)
+        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
+        self.setCalendarWidget(self.cw)
+        self.setSpecialValueText(_('Undefined'))
+
+    @property
+    def mime_data_for_copy(self):
+        md = QMimeData()
+        text = self.lineEdit().selectedText()
+        md.setText(text or self.dateTime().toString())
+        md.setData(self.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
+        return md
+
+    def copy(self):
+        QApplication.instance().clipboard().setMimeData(self.mime_data_for_copy)
+
+    def cut(self):
+        md = self.mime_data_for_copy
+        self.lineEdit().cut()
+        QApplication.instance().clipboard().setMimeData(md)
+
+    def paste(self):
+        md = QApplication.instance().clipboard().mimeData()
+        if md.hasFormat(self.MIME_TYPE):
+            self.setDateTime(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.ISODate))
+        else:
+            self.lineEdit().paste()
+
+    def create_context_menu(self):
+        m = QMenu(self)
+        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
+                    self.clear_date)
+        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+                    self.today_date)
+        m.addSeparator()
+        populate_standard_spinbox_context_menu(self, m, use_self_for_copy_actions=True)
+        return m
+
+    def contextMenuEvent(self, ev):
+        m = self.create_context_menu()
+        m.popup(ev.globalPos())
+
+    def today_date(self):
+        self.setDateTime(QDateTime.currentDateTime())
+
+    def clear_date(self):
+        self.setDateTime(UNDEFINED_QDATETIME)
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key_Minus:
+            ev.accept()
+            self.clear_date()
+        elif ev.key() == Qt.Key_Equal:
+            self.today_date()
+            ev.accept()
+        elif ev.matches(QKeySequence.Copy):
+            self.copy()
+            ev.accept()
+        elif ev.matches(QKeySequence.Cut):
+            self.cut()
+            ev.accept()
+        elif ev.matches(QKeySequence.Paste):
+            self.paste()
+            ev.accept()
+        else:
+            return QDateTimeEdit.keyPressEvent(self, ev)
+
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     app.load_builtin_fonts()
-    w = FlowLayout.test()
+    w = RatingEditor.test()
     w.show()
     app.exec_()

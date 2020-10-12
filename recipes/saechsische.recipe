@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+##
+# Written:      March 2020
+# Version:      1.0
+# Last update:  2020-03-27
+##
+from __future__ import unicode_literals, division, absolute_import, print_function
+'''
+Fetch RSS-Feeds from saechsische.de
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class Saechsische(BasicNewsRecipe):
+    title = 'Saechsische Zeitung'
+    __author__ = 'epubli'
+    description = 'RSS-Feeds von saechsische.de'
+    publisher = 'SZ'
+    publication_type = 'newspaper'
+    language = 'de'
+    encoding = 'UTF-8'
+    oldest_article = 1
+    max_articles_per_feed = 40
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
+    scale_news_images_to_device = True
+    ignore_duplicate_articles = {'title', 'url'}
+    cover_url = 'https://www.saechsische.de/img/logo.svg'
+
+    feeds = [
+        ('Dresden', 'feed://www.saechsische.de/rss/dresden'),
+        ('Sachsen', 'feed://saechsische.de/rss/sachsen'),
+        ('Dynamo', 'feed://www.saechsische.de/rss/dynamo'),
+        ('Politik', 'feed://www.saechsische.de/rss/politik'),
+        ('Wirtschaft', 'feed://www.saechsische.de/rss/wirtschaft'),
+        ('Feuilleton', 'feed://www.saechsische.de/rss/feuilleton'),
+        ('Sport', 'feed://www.saechsische.de/rss/sport'),
+        ('Deutschland und Welt', 'feed://www.saechsische.de/rss/deutschland-welt'),
+        # ('Bautzen', 'feed://www.saechsische.de/rss/bautzen'),
+        # ('Bischofswerda', 'feed://www.saechsische.de/rss/bischofswerda'),
+        # ('Dippoldiswalde', 'feed://www.saechsische.de/rss/dippoldiswalde'),
+        # ('Döbeln', 'feed://www.saechsische.de/rss/doebeln'),
+        # ('Freital', 'feed://www.saechsische.de/rss/freital'),
+        # ('Großenhain', 'feed://www.saechsische.de/rss/grossenhain'),
+        # ('Görlitz', 'feed://www.saechsische.de/rss/goerlitz'),
+        # ('Kamenz', 'feed://www.saechsische.de/rss/kamenz'),
+        # ('Löbau', 'feed://www.saechsische.de/rss/loebau'),
+        # ('Meißen', 'feed://www.saechsische.de/rss/meissen'),
+        # ('Niesky', 'feed://www.saechsische.de/rss/niesky'),
+        # ('Pirna', 'feed://www.saechsische.de/rss/pirna'),
+        # ('Radeberg', 'feed://www.saechsische.de/rss/radeberg'),
+        # ('Radebeul', 'feed://www.saechsische.de/rss/radebeul'),
+        # ('Riesa', 'feed://www.saechsische.de/rss/riesa'),
+        # ('Sebnitz', 'feed://www.saechsische.de/rss/sebnitz'),
+        # ('Zittau', 'feed://www.saechsische.de/rss/zittau'),
+    ]
+
+    keep_only_tags = [
+        dict(name='article', attrs={'class': 'article-detail'}),
+    ]
+
+    remove_tags = [
+        classes('article-fill'),
+        dict(name='div', attrs={'class': 'article-related-container'}),
+        dict(name='div', attrs={'id': 'article-header'}),
+        dict(name='span', attrs={'class': 'article-plus'}),
+    ]

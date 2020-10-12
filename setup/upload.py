@@ -1,14 +1,17 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-__license__ = 'GPL v3'
+
+__license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json, httplib
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, json
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
+from polyglot.builtins import iteritems
+from polyglot.urllib import urlopen, Request
 
 if __name__ == '__main__':
     d = os.path.dirname
@@ -20,8 +23,10 @@ DOWNLOADS = '/srv/main/downloads'
 HTML2LRF = "calibre/ebooks/lrf/html/demo"
 TXT2LRF = "src/calibre/ebooks/lrf/txt/demo"
 STAGING_HOST = 'download.calibre-ebook.com'
-STAGING_USER = 'root'
+BACKUP_HOST = 'code.calibre-ebook.com'
+STAGING_USER = BACKUP_USER = 'root'
 STAGING_DIR = '/root/staging'
+BACKUP_DIR = '/binaries'
 
 
 def installers(include_source=True):
@@ -68,7 +73,7 @@ def upload_signatures():
                 raw = f.read()
             fingerprint = hashlib.sha512(raw).hexdigest()
             sha512 = os.path.join(tdir, os.path.basename(installer + '.sha512'))
-            with open(sha512, 'wb') as f:
+            with open(sha512, 'w') as f:
                 f.write(fingerprint)
             scp.append(sha512)
         for srv in 'code main'.split():
@@ -104,8 +109,8 @@ class ReUpload(Command):  # {{{
 
 # Data {{{
 def get_github_data():
-    with open(os.environ['PENV'] + '/github', 'rb') as f:
-        un, pw = f.read().strip().split(':')
+    with open(os.environ['PENV'] + '/github-token', 'rb') as f:
+        un, pw = f.read().decode('utf-8').strip().split(':')
     return {'username': un, 'password': pw}
 
 
@@ -115,13 +120,23 @@ def get_sourceforge_data():
 
 def get_fosshub_data():
     with open(os.environ['PENV'] + '/fosshub', 'rb') as f:
-        return f.read().decode('utf-8')
+        return f.read().decode('utf-8').strip()
 
 
 def send_data(loc):
     subprocess.check_call([
-        'rsync', '--inplace', '--delete', '-r', '-z', '-h', '--progress', '-e',
+        'rsync', '--inplace', '--delete', '-r', '-zz', '-h', '--info=progress2', '-e',
         'ssh -x', loc + '/', '%s@%s:%s' % (STAGING_USER, STAGING_HOST, STAGING_DIR)
+    ])
+
+
+def send_to_backup(loc):
+    host = f'{BACKUP_USER}@{BACKUP_HOST}'
+    dest = f'{BACKUP_DIR}/{__version__}'
+    subprocess.check_call(['ssh', '-x', host, 'mkdir', '-p', dest])
+    subprocess.check_call([
+        'rsync', '--inplace', '--delete', '-r', '-zz', '-h', '--info=progress2', '-e',
+        'ssh -x', loc + '/', f'{host}:{dest}/'
     ])
 
 
@@ -143,10 +158,10 @@ def calibre_cmdline(ver):
 
 
 def run_remote_upload(args):
-    print 'Running remotely:', ' '.join(args)
+    print('Running remotely:', ' '.join(args))
     subprocess.check_call([
         'ssh', '-x', '%s@%s' % (STAGING_USER, STAGING_HOST), 'cd', STAGING_DIR, '&&',
-        'python2', 'hosting.py'
+        'python', 'hosting.py'
     ] + args)
 
 
@@ -154,8 +169,37 @@ def run_remote_upload(args):
 
 
 def upload_to_fosshub():
+    # https://devzone.fosshub.com/dashboard/restApi
     # fosshub has no API to do partial uploads, so we always upload all files.
+    api_key = get_fosshub_data()
+
+    def request(path, data=None):
+        r = Request('https://api.fosshub.com/rest/' + path.lstrip('/'),
+                headers={
+                    'Content-Type': 'application/json',
+                    'X-auth-key': api_key,
+                    'User-Agent': 'calibre'
+        })
+        res = urlopen(r, data=data)
+        ans = json.loads(res.read())
+        if ans.get('error'):
+            raise SystemExit(ans['error'])
+        if res.getcode() != 200:
+            raise SystemExit('Request to {} failed with response code: {}'.format(path, res.getcode()))
+        # from pprint import pprint
+        # pprint(ans)
+        return ans['status'] if 'status' in ans else ans['data']
+
     print('Sending upload request to fosshub...')
+    project_id = None
+
+    for project in request('projects'):
+        if project['name'].lower() == 'calibre':
+            project_id = project['id']
+            break
+    else:
+        raise SystemExit('No calibre project found')
+
     files = set(installers())
     entries = []
     for fname in files:
@@ -164,33 +208,21 @@ def upload_to_fosshub():
             __version__, os.path.basename(fname)
         )
         entries.append({
-            'url': url,
+            'fileUrl': url,
             'type': desc,
             'version': __version__,
         })
     jq = {
-        'software': 'Calibre',
-        'apiKey': get_fosshub_data(),
-        'upload': entries,
-        'delete': [{
-            'type': '*',
-            'version': '*',
-            'name': '*'
-        }]
+        'version': __version__,
+        'files': entries,
+        'publish': True,
+        'isOldRelease': False,
     }
-    # print(json.dumps(jq, indent=2))
-    rq = urllib2.urlopen(
-        'https://www.fosshub.com/JSTools/uploadJson',
-        urllib.urlencode({
-            'content': json.dumps(jq)
-        })
-    )
-    resp = rq.read()
-    if rq.getcode() != httplib.OK:
-        raise SystemExit(
-            'Failed to upload to fosshub, with HTTP error code: %d and response: %s'
-            % (rq.getcode(), resp)
-        )
+    data = json.dumps(jq)
+    # print(data)
+    data = data.encode('utf-8')
+    if not request('projects/{}/releases/'.format(project_id), data=data):
+        raise SystemExit('Failed to queue publish job with fosshub')
 
 
 class UploadInstallers(Command):  # {{{
@@ -216,11 +248,8 @@ class UploadInstallers(Command):  # {{{
         sizes = {os.path.basename(x): os.path.getsize(x) for x in files}
         self.record_sizes(sizes)
         tdir = mkdtemp()
-        backup = os.path.join('/mnt/external/calibre/%s' % __version__)
-        if not os.path.exists(backup):
-            os.mkdir(backup)
         try:
-            self.upload_to_staging(tdir, backup, files)
+            self.upload_to_staging(tdir, files)
             self.upload_to_calibre()
             if opts.replace:
                 upload_signatures()
@@ -235,11 +264,11 @@ class UploadInstallers(Command):  # {{{
         print('\nRecording dist sizes')
         args = [
             '%s:%s:%s' % (__version__, fname, size)
-            for fname, size in sizes.iteritems()
+            for fname, size in iteritems(sizes)
         ]
         check_call(['ssh', 'code', '/usr/local/bin/dist_sizes'] + args)
 
-    def upload_to_staging(self, tdir, backup, files):
+    def upload_to_staging(self, tdir, files):
         os.mkdir(tdir + '/dist')
         hosting = os.path.join(
             os.path.dirname(os.path.abspath(__file__)), 'hosting.py'
@@ -247,7 +276,7 @@ class UploadInstallers(Command):  # {{{
         shutil.copyfile(hosting, os.path.join(tdir, 'hosting.py'))
 
         for f in files:
-            for x in (tdir + '/dist', backup):
+            for x in (tdir + '/dist',):
                 dest = os.path.join(x, os.path.basename(f))
                 shutil.copy2(f, x)
                 os.chmod(
@@ -255,14 +284,23 @@ class UploadInstallers(Command):  # {{{
                 )
 
         with open(os.path.join(tdir, 'fmap'), 'wb') as fo:
-            for f, desc in files.iteritems():
-                fo.write('%s: %s\n' % (f, desc))
+            for f, desc in iteritems(files):
+                fo.write(('%s: %s\n' % (f, desc)).encode('utf-8'))
 
         while True:
             try:
                 send_data(tdir)
             except:
                 print('\nUpload to staging failed, retrying in a minute')
+                time.sleep(60)
+            else:
+                break
+
+        while True:
+            try:
+                send_to_backup(tdir)
+            except:
+                print('\nUpload to backup failed, retrying in a minute')
                 time.sleep(60)
             else:
                 break
@@ -318,7 +356,7 @@ class UploadUserManual(Command):  # {{{
         srcdir = self.j(gettempdir(), 'user-manual-build', 'en', 'html') + '/'
         check_call(
             ' '.join(
-                ['rsync', '-zrl', '--info=progress2', srcdir, 'main:/srv/manual/']
+                ['rsync', '-zz', '-rl', '--info=progress2', srcdir, 'main:/srv/manual/']
             ),
             shell=True
         )
@@ -361,6 +399,7 @@ class UploadToServer(Command):  # {{{
 
     def run(self, opts):
         check_call('scp translations/website/locales.zip main:/srv/main/'.split())
+        check_call('scp translations/changelog/locales.zip main:/srv/main/changelog-locales.zip'.split())
         check_call('ssh main /apps/static/generate.py'.split())
         src_file = glob.glob('dist/calibre-*.tar.xz')[0]
         upload_signatures()

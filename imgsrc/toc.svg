@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="toc.svg">
   <defs
      id="defs4">
@@ -23,11 +23,11 @@
        inkscape:collect="always"
        id="linearGradient4154">
       <stop
-         style="stop-color:#020e1e;stop-opacity:1"
+         style="stop-color:#2271d5;stop-opacity:1"
          offset="0"
          id="stop4156" />
       <stop
-         style="stop-color:#116def;stop-opacity:1"
+         style="stop-color:#90bbf8;stop-opacity:1"
          offset="1"
          id="stop4158" />
     </linearGradient>
@@ -49,16 +49,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="11.2"
-     inkscape:cx="19.843024"
-     inkscape:cy="69.707741"
+     inkscape:cx="62.700167"
+     inkscape:cy="83.993455"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -112,7 +112,7 @@
     <path
        d="m 127.002,1024.9675 0,23.3947 -65.832321,0 -33.885781,-28.5666 a 4.7843252,4.7887596 0 0 1 2.360267,-8.4027 l 0,0 a 22.964761,22.986046 0 0 1 16.496354,3.7672 l 12.885783,8.939 1.518225,-65.61244 a 8.7393675,8.7474677 0 1 1 17.478735,0 l 2.309235,38.46337 28.157343,5.51667 a 22.964761,22.986046 0 0 1 18.51216,22.5008 z"
        id="path4147"
-       style="fill:#116def;fill-opacity:1" />
+       style="fill:#2271d5;fill-opacity:1" />
     <g
        id="g4149"
        style="fill-opacity:1;fill:url(#linearGradient4160)">

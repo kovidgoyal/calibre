@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,18 +12,19 @@ from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
+from polyglot.builtins import iteritems, range
 
 
-def from_headings(body, log, namespace):
+def from_headings(body, log, namespace, num_levels=3):
     ' Create a TOC from headings in the document '
-    XPath, descendants = namespace.XPath, namespace.descendants
-    headings = ('h1', 'h2', 'h3')
     tocroot = TOC()
-    xpaths = [XPath('//%s' % x) for x in headings]
-    level_prev = {i+1:None for i in xrange(len(xpaths))}
+    all_heading_nodes = body.xpath('//*[@data-heading-level]')
+    level_prev = {i+1:None for i in range(num_levels)}
     level_prev[0] = tocroot
-    level_item_map = {i+1:frozenset(xp(body)) for i, xp in enumerate(xpaths)}
-    item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
+    level_item_map = {i:frozenset(
+        x for x in all_heading_nodes if int(x.get('data-heading-level')) == i)
+        for i in range(1, num_levels+1)}
+    item_level_map = {e:i for i, elems in iteritems(level_item_map) for e in elems}
 
     idcount = count()
 
@@ -35,7 +35,7 @@ def from_headings(body, log, namespace):
             elem.set('id', ans)
         return ans
 
-    for item in descendants(body, *headings):
+    for item in all_heading_nodes:
         lvl = plvl = item_level_map.get(item, None)
         if lvl is None:
             continue
@@ -48,7 +48,7 @@ def from_headings(body, log, namespace):
         text = elem_to_toc_text(item)
         toc = parent.add_item('index.html', elem_id, text)
         level_prev[lvl] = toc
-        for i in xrange(lvl+1, len(xpaths)+1):
+        for i in range(lvl+1, num_levels+1):
             level_prev[i] = None
 
     if len(tuple(tocroot.flat())) > 1:
@@ -78,7 +78,7 @@ def structure_toc(entries):
         parent = find_parent(level)
         last_found[level] = parent.add_item('index.html', item.anchor,
                     item.text)
-        for i in xrange(level+1, len(last_found)):
+        for i in range(level+1, len(last_found)):
             last_found[i] = None
 
     return newtoc
@@ -93,7 +93,7 @@ def link_to_txt(a, styles, object_map):
                 if rs.css.get('display', None) == 'none':
                     a.remove(child)
 
-    return tostring(a, method='text', with_tail=False, encoding=unicode).strip()
+    return tostring(a, method='text', with_tail=False, encoding='unicode').strip()
 
 
 def from_toc(docx, link_map, styles, object_map, log, namespace):
@@ -136,4 +136,8 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
 
 
 def create_toc(docx, body, link_map, styles, object_map, log, namespace):
-    return from_toc(docx, link_map, styles, object_map, log, namespace) or from_headings(body, log, namespace)
+    ans = from_toc(docx, link_map, styles, object_map, log, namespace) or from_headings(body, log, namespace)
+    # Remove heading level attributes
+    for h in body.xpath('//*[@data-heading-level]'):
+        del h.attrib['data-heading-level']
+    return ans

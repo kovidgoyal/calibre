@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, James Ralston <jralston at mindspring.com>'
 __docformat__ = 'restructuredtext en'
@@ -10,10 +11,11 @@ Device driver for Ectaco Jetbook firmware >= JL04_v030e
 
 import os
 import re
-import sys
 
+from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
+from polyglot.builtins import unicode_type, map
 
 
 class JETBOOK(USBMS):
@@ -63,10 +65,9 @@ class JETBOOK(USBMS):
     def metadata_from_path(cls, path):
 
         def check_unicode(txt):
+            if not isinstance(txt, unicode_type):
+                txt = txt.decode(filesystem_encoding, 'replace')
             txt = txt.replace('_', ' ')
-            if not isinstance(txt, unicode):
-                return txt.decode(sys.getfilesystemencoding(), 'replace')
-
             return txt
 
         mi = cls.metadata_from_formats([path])
@@ -78,7 +79,7 @@ class JETBOOK(USBMS):
             if match is not None:
                 mi.title = check_unicode(match.group('title'))
                 authors = string_to_authors(match.group('authors'))
-                mi.authors = map(check_unicode, authors)
+                mi.authors = list(map(check_unicode, authors))
 
         return mi
 

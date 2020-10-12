@@ -1,38 +1,37 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, socket, select, os, time
-from Cookie import SimpleCookie
 from contextlib import closing
-from urlparse import parse_qs
-import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
-from future_builtins import map
-from urllib import quote as urlquote
-from binascii import hexlify, unhexlify
 
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.srv.errors import HTTPNotFound
-from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open, raise_winerror
+from polyglot.builtins import iteritems, map, range
+from polyglot import reprlib
+from polyglot.http_cookie import SimpleCookie
+from polyglot.builtins import unicode_type, as_unicode
+from polyglot.urllib import parse_qs, quote as urlquote
+from polyglot.binary import as_hex_unicode as encode_name, from_hex_unicode as decode_name
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
 DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
+encode_name, decode_name
 
 
 def http_date(timeval=None):
-    return type('')(formatdate(timeval=timeval, usegmt=True))
+    return unicode_type(formatdate(timeval=timeval, usegmt=True))
 
 
 class MultiDict(dict):  # {{{
@@ -48,17 +47,19 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        for k, v in parse_qs(qs, keep_blank_values=True).iteritems():
-            dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
+        qs = as_unicode(qs)
+        for k, v in iteritems(parse_qs(qs, keep_blank_values=True)):
+            dict.__setitem__(ans, as_unicode(k), [as_unicode(x) for x in v])
         return ans
 
     def update_from_listdict(self, ld):
-        for key, values in ld.iteritems():
+        for key, values in iteritems(ld):
             for val in values:
                 self[key] = val
 
     def items(self, duplicates=True):
-        for k, v in dict.iteritems(self):
+        f = dict.items
+        for k, v in f(self):
             if duplicates:
                 for x in v:
                     yield k, x
@@ -67,7 +68,8 @@ class MultiDict(dict):  # {{{
     iteritems = items
 
     def values(self, duplicates=True):
-        for v in dict.itervalues(self):
+        f = dict.values
+        for v in f(self):
             if duplicates:
                 for x in v:
                     yield x
@@ -99,7 +101,7 @@ class MultiDict(dict):  # {{{
         return ans if all else ans[-1]
 
     def __repr__(self):
-        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in self.iteritems()) + '}'
+        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in iteritems(self)) + '}'
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):
@@ -282,37 +284,17 @@ def get_translator_for_lang(cache, bcp_47_code):
 
 def encode_path(*components):
     'Encode the path specified as a list of path components using URL encoding'
-    return '/' + '/'.join(urlquote(x.encode('utf-8'), '').decode('ascii') for x in components)
-
-
-def encode_name(name):
-    'Encode a name (arbitrary string) as URL safe characters. See decode_name() also.'
-    if isinstance(name, unicode):
-        name = name.encode('utf-8')
-    return hexlify(name)
-
-
-def decode_name(name):
-    return unhexlify(name).decode('utf-8')
+    return '/' + '/'.join(urlquote(x.encode('utf-8'), '') for x in components)
 
 
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
-        if not isinstance(key, bytes):
-            key = key.encode('ascii')  # Python 2.x cannot handle unicode keys
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
 
 
 def custom_fields_to_display(db):
-    ckeys = set(db.field_metadata.ignorable_field_keys())
-    yes_fields = set(tweaks['content_server_will_display'])
-    no_fields = set(tweaks['content_server_wont_display'])
-    if '*' in yes_fields:
-        yes_fields = ckeys
-    if '*' in no_fields:
-        no_fields = ckeys
-    return frozenset(ckeys & (yes_fields - no_fields))
+    return frozenset(db.field_metadata.ignorable_field_keys())
 
 # Logging {{{
 
@@ -330,26 +312,23 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
+        if iswindows:
+            self.stream = share_open(self.filename, 'a', newline='')
+        else:
+            # see https://bugs.python.org/issue27805
+            self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'w')
         try:
-            self.current_pos = self.stream.tell()
+            self.stream.tell()
         except EnvironmentError:
             # Happens if filename is /dev/stdout for example
-            self.current_pos = 0
             self.max_size = None
 
     def flush(self):
         self.stream.flush()
 
     def prints(self, level, *args, **kwargs):
-        kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
-        self.current_pos += prints(*args, **kwargs)
-        if iswindows:
-            # For some reason line buffering does not work on windows
-            end = kwargs.get('end', b'\n')
-            if b'\n' in end:
-                self.flush()
+        prints(*args, **kwargs)
         self.rollover()
 
     def rename(self, src, dest):
@@ -367,10 +346,10 @@ class RotatingStream(object):
                 raise
 
     def rollover(self):
-        if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
+        if not self.max_size or self.stream.tell() <= self.max_size:
             return
         self.stream.close()
-        for i in xrange(self.history - 1, 0, -1):
+        for i in range(self.history - 1, 0, -1):
             src, dest = '%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1)
             self.rename(src, dest)
         self.rename(self.filename, '%s.%d' % (self.filename, 1))
@@ -412,7 +391,7 @@ class HandleInterrupt(object):  # {{{
     # On windows socket functions like accept(), recv(), send() are not
     # interrupted by a Ctrl-C in the console. So to make Ctrl-C work we have to
     # use this special context manager. See the echo server example at the
-    # bottom of this file for how to use it.
+    # bottom of srv/loop.py for how to use it.
 
     def __init__(self, action):
         if not iswindows:
@@ -435,24 +414,21 @@ class HandleInterrupt(object):  # {{{
                 if self.action is not None:
                     self.action()
                     self.action = None
-                # Typical C implementations would return 1 to indicate that
-                # the event was processed and other control handlers in the
-                # stack should not be executed.  However, that would
-                # prevent the Python interpreter's handler from translating
-                # CTRL-C to a `KeyboardInterrupt` exception, so we pretend
-                # that we didn't handle it.
+                    return 1
             return 0
         self.handle = handle
 
     def __enter__(self):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
-                raise WindowsError()
+                import ctypes
+                raise ctypes.WinError()
 
     def __exit__(self, *args):
         if iswindows:
             if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
-                raise WindowsError()
+                import ctypes
+                raise ctypes.WinError()
 # }}}
 
 
@@ -528,10 +504,5 @@ def get_use_roman():
     return _use_roman
 
 
-if iswindows:
-    def fast_now_strftime(fmt):
-        fmt = fmt.encode('mbcs')
-        return time.strftime(fmt).decode('mbcs', 'replace')
-else:
-    def fast_now_strftime(fmt):
-        return time.strftime(fmt).decode('utf-8', 'replace')
+def fast_now_strftime(fmt):
+    return as_unicode(time.strftime(fmt), errors='replace')

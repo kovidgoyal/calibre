@@ -1,5 +1,8 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 import collections, itertools, glob
 
 from PyQt5.Qt import (
@@ -7,10 +10,9 @@ from PyQt5.Qt import (
     QBrush, QColor, QFontDatabase, QGraphicsItem, QGraphicsLineItem)
 
 from calibre.gui2.lrf_renderer.text import TextBlock, FontLoader, COLOR, PixmapItem
-
-
 from calibre.ebooks.lrf.objects import RuledLine as _RuledLine
 from calibre.ebooks.lrf.objects import Canvas as __Canvas
+from polyglot.builtins import unicode_type
 
 
 class Color(QColor):
@@ -163,10 +165,10 @@ class _Canvas(QGraphicsRectItem):
             self.is_full = y > self.max_y-5
             ib.has_content = False
             if ib.block_id == 54:
-                print
-                print ib.block_id, ib.has_content, self.is_full
-                print self.current_y, self.max_y, y, br.height()
-                print
+                print()
+                print(ib.block_id, ib.has_content, self.is_full)
+                print(self.current_y, self.max_y, y, br.height())
+                print()
 
     def search(self, phrase):
         matches = []
@@ -416,7 +418,7 @@ class Document(QGraphicsScene):
             fdata = QByteArray(lrf.font_map[font].data)
             id = QFontDatabase.addApplicationFontFromData(fdata)
             if id != -1:
-                font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
+                font_map[font] = [unicode_type(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
 
         if load_substitutions:
             base = P('fonts/liberation/*.ttf')
@@ -475,6 +477,7 @@ class Document(QGraphicsScene):
         return chapter, chapter.page(num)
 
     def show_page(self, num):
+        num = int(num)
         if num < 1 or num > self.num_of_pages or num == self.current_page:
             return
         odd = num%2 == 1
@@ -520,10 +523,9 @@ class Document(QGraphicsScene):
         self.next_match()
 
     def next_match(self):
-        page_num = self.last_search.next()[0]
+        page_num = next(self.last_search)[0]
         if self.current_page == page_num:
             self.update()
         else:
             self.add_to_history()
             self.show_page(page_num)
-

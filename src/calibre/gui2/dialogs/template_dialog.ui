@@ -142,10 +142,67 @@
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="textbox"/>
-   </item>
-   <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="template_name_label">
+       <property name="text">
+        <string>Template &amp;name:</string>
+       </property>
+       <property name="buddy">
+        <cstring>template_name</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="template_name">
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>The name of the callable template</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel">
+       <property name="text">
+        <string>T&amp;emplate:</string>
+       </property>
+       <property name="buddy">
+        <cstring>textbox</cstring>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPlainTextEdit" name="textbox">
+       <property name="toolTip">
+        <string>The template program text</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="new_doc_label">
+       <property name="text">
+        <string>D&amp;ocumentation:</string>
+       </property>
+       <property name="buddy">
+        <cstring>new_doc</cstring>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QTextEdit" name="new_doc">
+       <property name="toolTip">
+        <string>Documentation for the function being defined or edited</string>
+       </property>
+      </widget>
+     </item>
      <item row="5" column="0">
       <widget class="QLabel">
        <property name="text">
@@ -173,7 +230,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="6" column="1" colspan="3">
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="0">
         <widget class="QSpinBox" name="font_size_box"/>
@@ -203,14 +260,24 @@
        </item>
       </layout>
      </item>
-     <item row="7" column="0" colspan="2">
+     <item row="7" column="0" colspan="5">
       <widget class="QFrame">
        <property name="frameShape">
         <enum>QFrame::HLine</enum>
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
+     <item row="8" column="0" colspan="2">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Template Function Reference</string>
+       </property>
+       <property name="buddy">
+        <cstring>function</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Function &amp;name:</string>
@@ -220,10 +287,30 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="9" column="1" colspan="3">
       <widget class="QComboBox" name="function"/>
      </item>
-     <item row="9" column="0">
+     <item row="10" column="0">
+      <widget class="QLabel" name="label_22">
+       <property name="text">
+        <string>&amp;Function type:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <property name="buddy">
+        <cstring>func_type</cstring>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="1" colspan="3">
+      <widget class="QLineEdit" name="func_type">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="11" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>&amp;Documentation:</string>
@@ -236,10 +323,10 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
+     <item row="12" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>Python &amp;code:</string>
+        <string>&amp;Code:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -249,7 +336,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="11" column="1" colspan="3">
       <widget class="QPlainTextEdit" name="documentation">
        <property name="maximumSize">
         <size>
@@ -259,17 +346,17 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="12" column="1" colspan="3">
       <widget class="QPlainTextEdit" name="source_code"/>
      </item>
-     <item row="11" column="1">
+     <item row="13" column="1">
       <widget class="QLabel" name="template_tutorial">
        <property name="openExternalLinks">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="12" column="1">
+     <item row="14" column="1">
       <widget class="QLabel" name="template_func_reference">
        <property name="openExternalLinks">
         <bool>true</bool>

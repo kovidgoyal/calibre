@@ -1,21 +1,20 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, tempfile, time
-from Queue import Queue, Empty
 from threading import Event
 
 from calibre.customize.ui import all_metadata_plugins
-from calibre import prints, sanitize_file_name2
+from calibre import prints, sanitize_file_name
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import create_log, get_cached_cover_urls
 from calibre.ebooks.metadata.sources.prefs import msprefs
+from polyglot.queue import Queue, Empty
 
 
 def isbn_test(isbn):
@@ -47,10 +46,10 @@ def title_test(title, exact=False):
 
 
 def authors_test(authors):
-    authors = set([x.lower() for x in authors])
+    authors = {x.lower() for x in authors}
 
     def test(mi):
-        au = set([x.lower() for x in mi.authors])
+        au = {x.lower() for x in mi.authors}
         if msprefs['swap_author_names']:
             def revert_to_fn_ln(a):
                 if ',' not in a:
@@ -61,7 +60,7 @@ def authors_test(authors):
                 parts.insert(0, t)
                 return ' '.join(parts)
 
-            au = set([revert_to_fn_ln(x) for x in au])
+            au = {revert_to_fn_ln(x) for x in au}
 
         if au == authors:
             return True
@@ -72,10 +71,10 @@ def authors_test(authors):
 
 
 def tags_test(tags):
-    tags = set([x.lower() for x in tags])
+    tags = {x.lower() for x in tags}
 
     def test(mi):
-        t = set([x.lower() for x in mi.tags])
+        t = {x.lower() for x in mi.tags}
         if t == tags:
             return True
         prints('Tags test failed. Expected: \'%s\' found \'%s\''%(tags, t))
@@ -127,7 +126,7 @@ def pubdate_test(year, month, day):
 def init_test(tdir_name):
     tdir = tempfile.gettempdir()
     lf = os.path.join(tdir, tdir_name.replace(' ', '')+'_identify_test.txt')
-    log = create_log(open(lf, 'wb'))
+    log = create_log(open(lf, 'w'))
     abort = Event()
     return tdir, lf, log, abort
 
@@ -320,7 +319,7 @@ def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,  # {{{
             elif results:
                 cdata = results[0]
                 cover = os.path.join(tdir, plugin.name.replace(' ',
-                    '')+'-%s-cover.jpg'%sanitize_file_name2(mi.title.replace(' ',
+                    '')+'-%s-cover.jpg'%sanitize_file_name(mi.title.replace(' ',
                         '_')))
                 with open(cover, 'wb') as f:
                     f.write(cdata[-1])

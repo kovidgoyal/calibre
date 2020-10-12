@@ -1,0 +1,274 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from gettext import gettext as _
+from read_book.cfi import create_cfi_cmp, cfi_sort_key
+from read_book.globals import ui_operations
+
+
+no_cfi = '/99999999'
+
+
+def bookmark_get_cfi(b):
+    if b.pos_type is 'epubcfi':
+        return b.pos[8:-1]
+
+
+def highlight_get_cfi(hl):
+    cfi = hl.start_cfi
+    if cfi:
+        return cfi[8:-1]
+
+
+def sort_annot_list(annots, get_cfi_func):
+    key_map = {no_cfi: cfi_sort_key(no_cfi)}
+    for annot in annots:
+        cfi = get_cfi_func(annot)
+        if cfi and not key_map[cfi]:
+            key_map[cfi] = cfi_sort_key(cfi)
+    cfi_cmp = create_cfi_cmp(key_map)
+    annots.sort(def (a, b):
+        acfi = get_cfi_func(a) or no_cfi
+        bcfi = get_cfi_func(b) or no_cfi
+        return cfi_cmp(acfi, bcfi)
+    )
+
+
+def annots_descending_cmp(a, b):
+    return -1 if a.timestamp > b.timestamp else (1 if a.timestamp < b.timestamp else 0)
+
+
+def merge_annots_with_identical_field(annots_a, annots_b, field, cfi_getter_func):
+    title_groups = {}
+    changed = False
+    all_annots = annots_a.concat(annots_b)
+    for a in all_annots:
+        q = title_groups[a[field]]
+        if not q:
+            q = title_groups[a[field]] = v'[]'
+        q.push(a)
+    for tg in Object.values(title_groups):
+        tg.sort(annots_descending_cmp)
+    seen = {}
+    ans = v'[]'
+    for a in all_annots:
+        title = a[field]
+        if not seen[title]:
+            seen[title] = True
+            candidates = title_groups[title]
+            if not changed and candidates.length > 1 and candidates[0].timestamp is not candidates[1].timestamp:
+                changed = True
+            ans.push(title_groups[title][0])
+    if ans.length is not annots_a.length or ans.length is not annots_b.length:
+        changed = True
+    if changed:
+        sort_annot_list(ans, cfi_getter_func)
+    return changed, ans
+
+
+field_map = {'bookmark': 'title', 'highlight': 'uuid'}
+getter_map = {'bookmark': bookmark_get_cfi, 'highlight': highlight_get_cfi}
+
+
+def merge_annot_lists(a, b, field):
+    key_field = field_map[field]
+    return merge_annots_with_identical_field(a, b, key_field, getter_map[field])
+
+
+def merge_annotation_maps(a, b):
+    # If you make changes to this algorithm also update the
+    # implementation in calibre.db.annotations
+    updated = False
+    ans = {}
+    for field in field_map:
+        a_items = a[field] or v'[]'
+        b_items = b[field] or v'[]'
+        if not a_items.length:
+            ans[field] = b_items
+            updated = True
+            continue
+        if not b_items.length:
+            ans[field] = a_items
+            continue
+        changed, ans[field] = merge_annot_lists(a_items, b_items, field)
+        if changed:
+            updated = True
+
+    return updated, ans
+
+
+
+class AnnotationsManager:  # {{{
+
+    def __init__(self, view):
+        self.view = view
+        self.set_highlights()
+        self.set_bookmarks()
+
+    def sync_annots_to_server(self, which):
+        if ui_operations.annots_changed:
+            amap = {}
+            if not which or which is 'bookmarks':
+                amap.bookmark = self.bookmarks.as_array()
+            if not which or which is 'highlights':
+                amap.highlight = Object.values(self.highlights)
+            ui_operations.annots_changed(amap)
+
+    def set_bookmarks(self, bookmarks):
+        bookmarks = bookmarks or v'[]'
+        self.bookmarks = list(bookmarks)
+
+    def all_bookmarks(self):
+        return self.bookmarks
+
+    def add_bookmark(self, title, cfi):
+        if not title or not cfi:
+            return
+        self.bookmarks = [b for b in self.bookmarks if b.title is not title]
+        self.bookmarks.push({
+            'type': 'bookmark',
+            'timestamp': Date().toISOString(),
+            'pos_type': 'epubcfi',
+            'pos': cfi,
+            'title': title,
+        })
+        sort_annot_list(self.bookmarks, bookmark_get_cfi)
+        self.sync_annots_to_server('bookmarks')
+
+    def remove_bookmark(self, title):
+        changed = False
+        for b in self.bookmarks:
+            if b.title is title:
+                b.removed = True
+                b.timestamp = Date().toISOString()
+                changed = True
+        if changed:
+            self.sync_annots_to_server('bookmarks')
+        return changed
+
+    def default_bookmark_title(self):
+        all_titles = {bm.title:True for bm in self.bookmarks if not bm.removed}
+        base_default_title = _('Bookmark')
+        c = 0
+        while True:
+            c += 1
+            default_title = f'{base_default_title} #{c}'
+            if not all_titles[default_title]:
+                return default_title
+
+    def set_highlights(self, highlights):
+        highlights = highlights or v'[]'
+        self.highlights = {h.uuid: h for h in highlights}
+
+    def all_highlights(self):
+        ans = [h for h in Object.values(self.highlights) if not h.removed].as_array()
+        sort_annot_list(ans, highlight_get_cfi)
+        return ans
+
+    def merge_highlights(self, highlights):
+        highlights = highlights or v'[]'
+        updated = False
+        if highlights.length:
+            base = {'highlight': Object.values(self.highlights)}
+            newvals = {'highlight': highlights}
+            updated, ans = merge_annotation_maps(base, newvals)
+            if updated:
+                self.set_highlights(ans.highlight)
+        return updated
+
+    def remove_highlight(self, uuid):
+        h = self.highlights[uuid]
+        if h:
+            h.timestamp = Date().toISOString()
+            h.removed = True
+            v'delete h.style'
+            v'delete h.highlighted_text'
+            v'delete h.start_cfi'
+            v'delete h.end_cfi'
+            v'delete h.notes'
+            v'delete h.spine_name'
+            v'delete h.spine_index'
+            v'delete h.toc_family_titles'
+            return True
+
+    def delete_highlight(self, uuid):
+        if self.remove_highlight(uuid):
+            self.sync_annots_to_server('highlights')
+
+    def notes_for_highlight(self, uuid):
+        h = self.highlights[uuid] if uuid else None
+        if h:
+            return h.notes
+
+    def set_notes_for_highlight(self, uuid, notes):
+        h = self.highlights[uuid]
+        if h:
+            if notes:
+                h.notes = notes
+            else:
+                v'delete h.notes'
+            self.sync_annots_to_server('highlights')
+            return True
+        return False
+
+    def style_for_highlight(self, uuid):
+        h = self.highlights[uuid]
+        if h:
+            return h.style
+
+    def data_for_highlight(self, uuid):
+        return self.highlights[uuid]
+
+    def spine_index_for_highlight(self, uuid, spine):
+        h = self.highlights[uuid]
+        if not h:
+            return -1
+        ans = h.spine_index
+        name = h.spine_name
+        if name:
+            idx = spine.indexOf(name)
+            if idx > -1:
+                ans = idx
+        return ans
+
+    def cfi_for_highlight(self, uuid, spine_index):
+        h = self.highlights[uuid]
+        if h:
+            x = 2 * (spine_index + 1)
+            return f'epubcfi(/{x}{h.start_cfi})'
+
+    def add_highlight(self, msg, style, notes, toc_family):
+        now = Date().toISOString()
+        for uuid in msg.removed_highlights:
+            self.remove_highlight(uuid)
+
+        annot = self.highlights[msg.uuid] = {
+            'type': 'highlight',
+            'timestamp': now,
+            'uuid': msg.uuid,
+            'highlighted_text': msg.highlighted_text,
+            'start_cfi': msg.bounds.start,
+            'end_cfi': msg.bounds.end,
+            'style': style,  # dict with color and background-color
+            'spine_name': self.view.currently_showing.name,
+            'spine_index': self.view.currently_showing.spine_index,
+        }
+        if notes:
+            annot.notes = notes
+        if toc_family?.length:
+            toc_family_titles = v'[]'
+            for x in toc_family:
+                if x.title:
+                    toc_family_titles.push(x.title)
+            annot.toc_family_titles = toc_family_titles
+        self.sync_annots_to_server('highlights')
+
+    def highlights_for_currently_showing(self):
+        name = self.view.currently_showing.name
+        ans = v'[]'
+        for h in Object.values(self.highlights):
+            if h.spine_name is name and not h.removed and h.start_cfi:
+                ans.push(h)
+        return ans
+# }}}

@@ -1,20 +1,25 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, textwrap
+import os
+import re
 from functools import partial
 
 from sphinx.util.console import bold
+from sphinx.util.logging import getLogger
 
-from calibre.linux import entry_points, cli_index_strings
+from calibre.linux import cli_index_strings, entry_points
 from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
 
 
 def substitute(app, doctree):
     pass
+
+
+def info(*a):
+    getLogger(__name__).info(*a)
 
 
 include_pat = re.compile(r'^.. include:: (\S+.rst)', re.M)
@@ -27,7 +32,7 @@ def source_read_handler(app, docname, source):
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
         included_doc_name = m.group(1).lstrip('/')
-        ss = [open(included_doc_name).read().decode('utf-8')]
+        ss = [open(included_doc_name, 'rb').read().decode('utf-8')]
         source_read_handler(app, included_doc_name.partition('.')[0], ss)
         src = src[:m.start()] + ss[0] + src[m.end():]
     source[0] = src
@@ -88,38 +93,38 @@ def titlecase(app, x):
 def generate_calibredb_help(preamble, app):
     from calibre.db.cli.main import COMMANDS, option_parser_for, get_parser
     preamble = preamble[:preamble.find('\n\n\n', preamble.find('code-block'))]
-    preamble += textwrap.dedent('''
+    preamble += '\n\n'
+    preamble += _('''\
+:command:`calibredb` is the command line interface to the calibre database. It has
+several sub-commands, documented below.
 
-    :command:`calibredb` is the command line interface to the calibre database. It has
-    several sub-commands, documented below.
+:command:`calibredb` can be used to manipulate either a calibre database
+specified by path or a calibre :guilabel:`Content server` running either on
+the local machine or over the internet. You can start a calibre
+:guilabel:`Content server` using either the :command:`calibre-server`
+program or in the main calibre program click :guilabel:`Connect/share ->
+Start Content server`. Since :command:`calibredb` can make changes to your
+calibre libraries, you must setup authentication on the server first. There
+are two ways to do that:
 
-    :command:`calibredb` can be used to manipulate either a calibre database
-    specified by path or a calibre :guilabel:`Content server` running either on
-    the local machine or over the internet. You can start a calibre
-    :guilabel:`Content server` using either the :command:`calibre-server`
-    program or in the main calibre program click :guilabel:`Connect/share ->
-    Start Content server`. Since :command:`calibredb` can make changes to your
-    calibre libraries, you must setup authentication on the server first. There
-    are two ways to do that:
+    * If you plan to connect only to a server running on the same computer,
+      you can simply use the ``--enable-local-write`` option of the
+      content server, to allow any program, including calibredb, running on
+      the local computer to make changes to your calibre data. When running
+      the server from the main calibre program, this option is in
+      :guilabel:`Preferences->Sharing over the net->Advanced`.
 
-        * If you plan to connect only to a server running on the same computer,
-          you can simply use the ``--enable-local-write`` option of the
-          content server, to allow any program, including calibredb, running on
-          the local computer to make changes to your calibre data. When running
-          the server from the main calibre program, this option is in
-          :guilabel:`Preferences->Sharing over the net->Advanced`.
+    * If you want to enable access over the internet, then you should setup
+      user accounts on the server and use the :option:`--username` and :option:`--password`
+      options to :command:`calibredb` to give it access. You can setup
+      user authentication for :command:`calibre-server` by using the ``--enable-auth``
+      option and using ``--manage-users`` to create the user accounts.
+      If you are running the server from the main calibre program, use
+      :guilabel:`Preferences->Sharing over the net->Require username/password`.
 
-        * If you want to enable access over the internet, then you should setup
-          user accounts on the server and use the :option:`--username` and :option:`--password`
-          options to :command:`calibredb` to give it access. You can setup
-          user authentication for :command:`calibre-server` by using the ``--enable-auth``
-          option and using ``--manage-users`` to create the user accounts.
-          If you are running the server from the main calibre program, use
-          :guilabel:`Preferences->Sharing over the net->Require username/password`.
-
-    To connect to a running Content server, pass the URL of the server to the
-    :option:`--with-library` option, see the documentation of that option for
-    details and examples.
+To connect to a running Content server, pass the URL of the server to the
+:option:`--with-library` option, see the documentation of that option for
+details and examples.
     ''')
 
     global_parser = get_parser('')
@@ -173,7 +178,7 @@ def generate_ebook_convert_help(preamble, app):
     raw += '\n\n.. contents::\n  :local:'
 
     raw += '\n\n' + options
-    for pl in sorted(input_format_plugins(), key=lambda x:x.name):
+    for pl in sorted(input_format_plugins(), key=lambda x: x.name):
         parser, plumber = create_option_parser(['ebook-convert',
             'dummyi.'+sorted(pl.file_types)[0], 'dummyo.epub', '-h'], default_log)
         groups = [(pl.name+ ' Options', '', g.option_list) for g in
@@ -192,23 +197,23 @@ def generate_ebook_convert_help(preamble, app):
 
 
 def update_cli_doc(name, raw, app):
-    if isinstance(raw, unicode):
-        raw = raw.encode('utf-8')
+    if isinstance(raw, bytes):
+        raw = raw.decode('utf-8')
     path = 'generated/%s/%s.rst' % (app.config.language, name)
-    old_raw = open(path, 'rb').read() if os.path.exists(path) else ''
+    old_raw = open(path, encoding='utf-8').read() if os.path.exists(path) else ''
     if not os.path.exists(path) or old_raw != raw:
         import difflib
-        print path, 'has changed'
+        print(path, 'has changed')
         if old_raw:
             lines = difflib.unified_diff(old_raw.splitlines(), raw.splitlines(),
                     path, path)
             for line in lines:
-                print line
-        app.builder.info('creating '+os.path.splitext(os.path.basename(path))[0])
+                print(line)
+        info('creating '+os.path.splitext(os.path.basename(path))[0])
         p = os.path.dirname(path)
         if p and not os.path.exists(p):
             os.makedirs(p)
-        open(path, 'wb').write(raw)
+        open(path, 'wb').write(raw.encode('utf-8'))
 
 
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
@@ -236,7 +241,7 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
 
 
 def mark_options(raw):
-    raw = re.sub(r'(\s+)--(\s+)', ur'\1``--``\2', raw)
+    raw = re.sub(r'(\s+)--(\s+)', u'\\1``--``\\2', raw)
 
     def sub(m):
         opt = m.group()
@@ -270,11 +275,10 @@ def get_cli_docs():
 
 
 def cli_docs(app):
-    info = app.builder.info
     info(bold('creating CLI documentation...'))
     documented_cmds, undocumented_cmds = get_cli_docs()
 
-    documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
+    documented_cmds.sort(key=lambda x: x[0])
     undocumented_cmds.sort()
 
     documented = [' '*4 + c[0] for c in documented_cmds]
@@ -334,9 +338,9 @@ def add_html_context(app, pagename, templatename, context, *args):
 
 
 def guilabel_role(typ, rawtext, text, *args, **kwargs):
-    from sphinx.roles import menusel_role
+    from sphinx.roles import GUILabel
     text = text.replace(u'->', u'\N{THIN SPACE}\N{RIGHTWARDS ARROW}\N{THIN SPACE}')
-    return menusel_role(typ, rawtext, text, *args, **kwargs)
+    return GUILabel()(typ, rawtext, text, *args, **kwargs)
 
 
 def setup_man_pages(app):
@@ -350,8 +354,24 @@ def setup_man_pages(app):
     app.config['man_pages'] = man_pages
 
 
+def monkey_patch_docutils():
+    # fixes a bug in sphinx https://github.com/sphinx-doc/sphinx/issues/5150
+    from docutils import nodes
+
+    orig_method = nodes.document.set_duplicate_name_id
+
+    def set_duplicate_name_id(*a):
+        try:
+            return orig_method(*a)
+        except KeyError:
+            pass
+
+    nodes.document.set_duplicate_name_id = set_duplicate_name_id
+
+
 def setup(app):
     from docutils.parsers.rst import roles
+    monkey_patch_docutils()
     setup_man_pages(app)
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)

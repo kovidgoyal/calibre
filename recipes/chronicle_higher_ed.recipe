@@ -76,7 +76,7 @@ class Chronicle(BasicNewsRecipe):
                     if section_title not in feeds:
                         feeds[section_title] = []
                     feeds[section_title] += articles
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in feeds.items()]
         return ans
 
     def preprocess_html(self, soup):

@@ -106,6 +106,9 @@ CREATE TABLE library_id ( id   INTEGER PRIMARY KEY,
 CREATE TABLE metadata_dirtied(id INTEGER PRIMARY KEY,
                              book INTEGER NOT NULL,
                              UNIQUE(book));
+CREATE TABLE annotations_dirtied(id INTEGER PRIMARY KEY,
+                             book INTEGER NOT NULL,
+                             UNIQUE(book));
 CREATE TABLE preferences(id INTEGER PRIMARY KEY,
                                  key TEXT NOT NULL,
                                  val TEXT NOT NULL,
@@ -138,6 +141,43 @@ CREATE TABLE last_read_positions ( id INTEGER PRIMARY KEY,
 	pos_frac REAL NOT NULL DEFAULT 0,
 	UNIQUE(user, device, book, format)
 );
+
+CREATE TABLE annotations ( id INTEGER PRIMARY KEY,
+	book INTEGER NOT NULL,
+	format TEXT NOT NULL COLLATE NOCASE,
+	user_type TEXT NOT NULL,
+	user TEXT NOT NULL,
+	timestamp REAL NOT NULL,
+	annot_id TEXT NOT NULL,
+	annot_type TEXT NOT NULL,
+	annot_data TEXT NOT NULL,
+    searchable_text TEXT NOT NULL DEFAULT "",
+    UNIQUE(book, user_type, user, format, annot_type, annot_id)
+);
+
+CREATE VIRTUAL TABLE annotations_fts USING fts5(searchable_text, content = 'annotations', content_rowid = 'id', tokenize = 'unicode61 remove_diacritics 2');
+CREATE VIRTUAL TABLE annotations_fts_stemmed USING fts5(searchable_text, content = 'annotations', content_rowid = 'id', tokenize = 'porter unicode61 remove_diacritics 2');
+
+CREATE TRIGGER annotations_fts_insert_trg AFTER INSERT ON annotations 
+BEGIN
+    INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+END;
+
+CREATE TRIGGER annotations_fts_delete_trg AFTER DELETE ON annotations 
+BEGIN
+    INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+END;
+
+CREATE TRIGGER annotations_fts_update_trg AFTER UPDATE ON annotations 
+BEGIN
+    INSERT INTO annotations_fts(annotations_fts, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+    INSERT INTO annotations_fts_stemmed(annotations_fts_stemmed, rowid, searchable_text) VALUES('delete', OLD.id, OLD.searchable_text);
+    INSERT INTO annotations_fts_stemmed(rowid, searchable_text) VALUES (NEW.id, NEW.searchable_text);
+END;
+
 
 CREATE VIEW meta AS
         SELECT id, title,
@@ -290,6 +330,7 @@ CREATE INDEX conversion_options_idx_b ON conversion_options (book);
 CREATE INDEX custom_columns_idx ON custom_columns (label);
 CREATE INDEX data_idx ON data (book);
 CREATE INDEX lrp_idx ON last_read_positions (book);
+CREATE INDEX annot_idx ON annotations (book);
 CREATE INDEX formats_idx ON data (format);
 CREATE INDEX languages_idx ON languages (lang_code COLLATE NOCASE);
 CREATE INDEX publishers_idx ON publishers (name COLLATE NOCASE);
@@ -306,6 +347,7 @@ CREATE TRIGGER books_delete_trg
                 DELETE FROM books_languages_link WHERE book=OLD.id;
                 DELETE FROM data WHERE book=OLD.id;
                 DELETE FROM last_read_positions WHERE book=OLD.id;
+                DELETE FROM annotations WHERE book=OLD.id;
                 DELETE FROM comments WHERE book=OLD.id;
                 DELETE FROM conversion_options WHERE book=OLD.id;
                 DELETE FROM books_plugin_data WHERE book=OLD.id;
@@ -363,6 +405,22 @@ CREATE TRIGGER fkc_lrp_insert
         END;
 CREATE TRIGGER fkc_lrp_update
         BEFORE UPDATE OF book ON last_read_positions
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+CREATE TRIGGER fkc_annot_insert
+        BEFORE INSERT ON annotations
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
+                THEN RAISE(ABORT, 'Foreign key violation: book not in books')
+            END;
+        END;
+CREATE TRIGGER fkc_annot_update
+        BEFORE UPDATE OF book ON annotations
         BEGIN
             SELECT CASE
                 WHEN (SELECT id from books WHERE id=NEW.book) IS NULL
@@ -575,4 +633,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=23;
+pragma user_version=24;

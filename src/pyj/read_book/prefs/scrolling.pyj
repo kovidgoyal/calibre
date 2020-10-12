@@ -1,0 +1,138 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import unique_id
+from read_book.prefs.utils import create_button_box
+from session import defaults
+
+CONTAINER = unique_id('standalone-scrolling-settings')
+
+# Scroll speeds in lines/sec
+MIN_SCROLL_SPEED_AUTO = 0.05
+MAX_SCROLL_SPEED_AUTO = 5
+
+MIN_SCROLL_AUTO_DELAY = -1
+MAX_SCROLL_AUTO_DELAY = 50
+
+MIN_SCROLL_SPEED_SMOOTH = 5
+MAX_SCROLL_SPEED_SMOOTH = 80
+
+def restore_defaults():
+    container = get_container()
+    for control in container.querySelectorAll('input[name]'):
+        val = defaults[control.getAttribute('name')]
+        if control.type is 'checkbox':
+            control.checked = val
+        else:
+            control.valueAsNumber = val
+
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def change_scroll_speed(amt):
+    sd = get_session_data()
+    lps = sd.get('lines_per_sec_auto')
+    nlps = max(MIN_SCROLL_SPEED_AUTO, min(lps + amt, MAX_SCROLL_SPEED_AUTO))
+    if nlps != lps:
+        sd.set('lines_per_sec_auto', nlps)
+    return nlps
+
+
+def create_scrolling_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    sd = get_session_data()
+
+    def cb(name, text):
+        ans = E.input(type='checkbox', name=name)
+        if sd.get(name):
+            ans.checked = True
+        return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
+
+    def spinner(name, text, **kwargs):
+        ans = E.input(type='number', name=name, id=name)
+        for key, val in Object.entries(kwargs):
+            ans[key] = val
+        ans.valueAsNumber = sd.get(name, defaults[name])
+        return E.label("for"=name, text), ans
+
+    container.appendChild(E.div(style='margin-top:1ex', _('Control how scrolling works in paged mode')))
+    container.appendChild(cb(
+        'paged_wheel_scrolls_by_screen', _('Mouse wheel scrolls by screen fulls instead of pages')))
+    container.appendChild(cb(
+        'paged_margin_clicks_scroll_by_screen', _('Clicking on the margins scrolls by screen fulls instead of pages')))
+    container.appendChild(cb(
+        'paged_taps_scroll_by_screen', _('Tapping scrolls by screen fulls instead of pages')))
+    container.appendChild(
+        E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:auto min-content;grid-gap:1ex; max-width: 30em',
+            *spinner(
+                'paged_pixel_scroll_threshold',
+    _('Pixel scroll threshold:'),
+                title=_('When using a touchpad or mouse wheel that produces scroll events in pixels, set the number of pixels before a page turn is triggered'),
+                step=5,
+                min=0,
+                max=1000
+            ),
+    ))
+
+    container.appendChild(E.hr())
+    container.appendChild(E.div(style='margin-top:1ex', _('Control how smooth scrolling works in flow mode')))
+    container.appendChild(cb(
+        'scroll_stop_boundaries',
+        _('Stop at internal file boundaries when smooth scrolling by holding down the scroll key')
+    ))
+    container.appendChild(
+        E.div(style='display:grid;margin-top:1ex;align-items:center;grid-template-columns:auto min-content;grid-gap:1ex; max-width: 30em',
+            *spinner(
+                'lines_per_sec_smooth',
+                _('Smooth scrolling speed in lines/sec:'),
+                step=5,
+                min=MIN_SCROLL_SPEED_SMOOTH,
+                max=MAX_SCROLL_SPEED_SMOOTH
+            ),
+            *spinner(
+                'lines_per_sec_auto',
+                _('Auto scrolling speed in lines/sec:'),
+                step=0.05,
+                min=MIN_SCROLL_SPEED_AUTO,
+                max=MAX_SCROLL_SPEED_AUTO
+            ),
+            *spinner(
+                'scroll_auto_boundary_delay',
+                _('Seconds to pause before auto-scrolling past internal file boundaries:'),
+                title=_('Use negative values to not auto-scroll past internal file boundaries'),
+                step=0.25,
+                min=MIN_SCROLL_AUTO_DELAY,
+                max=MAX_SCROLL_AUTO_DELAY
+            )
+        )
+    )
+
+    container.appendChild(E.hr())
+    container.appendChild(cb('book_scrollbar', _('Show a scrollbar')))
+
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+
+develop = create_scrolling_panel
+
+
+def commit_scrolling(onchange):
+    sd = get_session_data()
+    container = get_container()
+    changed = False
+    for control in container.querySelectorAll('input[name]'):
+        name = control.getAttribute('name')
+        val = control.checked if control.type is 'checkbox' else control.valueAsNumber
+        if val is not sd.get(name) and control.validity.valid:
+            sd.set(name, val)
+            changed = True
+    if changed:
+        onchange()

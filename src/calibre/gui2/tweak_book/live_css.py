@@ -1,13 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import json
-
+import sys
 from PyQt5.Qt import (
     QWidget, QTimer, QStackedLayout, QLabel, QScrollArea, QVBoxLayout,
     QPainter, Qt, QPalette, QRect, QSize, QSizePolicy, pyqtSignal,
@@ -18,6 +16,9 @@ from calibre.gui2.tweak_book import editors, actions, tprefs
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.gui2.tweak_book.editor.text import default_font_family
 from css_selectors import parse, SelectorError
+
+
+lowest_specificity = (-sys.maxsize, 0, 0, 0, 0, 0)
 
 
 class Heading(QWidget):  # {{{
@@ -282,7 +283,7 @@ class Box(QWidget):
         self.widgets = []
         for node in data['nodes']:
             node_name = node['name'] + ' @%s' % node['sourceline']
-            if node['is_ancestor']:
+            if node['ancestor_specificity'] != 0:
                 title = _('Inherited from %s') % node_name
             else:
                 title = _('Matched CSS rules for %s') % node_name
@@ -382,6 +383,7 @@ class LiveCSS(QWidget):
     def __init__(self, preview, parent=None):
         QWidget.__init__(self, parent)
         self.preview = preview
+        preview.live_css_data.connect(self.got_live_css_data)
         self.preview_is_refreshing = False
         self.refresh_needed = False
         preview.refresh_starting.connect(self.preview_refresh_starting)
@@ -417,8 +419,6 @@ class LiveCSS(QWidget):
 
     def preview_refreshed(self):
         self.preview_is_refreshing = False
-        # We must let the event loop run otherwise the webview will return
-        # stale data in read_data()
         self.refresh_needed = True
         self.start_update_timer()
 
@@ -448,54 +448,39 @@ class LiveCSS(QWidget):
         if sourceline is None:
             self.clear()
         else:
-            data = self.read_data(sourceline, tags)
-            if data is None or len(data['computed_css']) < 1:
-                if editor_name == self.current_name and (editor_name, sourceline, tags) == self.now_showing:
-                    # Try again in a little while in case there was a transient
-                    # error in the web view
-                    self.start_update_timer()
-                    return
-                if self.now_showing == (None, None, None) or self.now_showing[0] != self.current_name:
-                    self.clear()
-                    return
-                # Try to refresh the data for the currently shown tag instead
-                # of clearing
-                editor_name, sourceline, tags = self.now_showing
-                data = self.read_data(sourceline, tags)
-                if data is None or len(data['computed_css']) < 1:
-                    self.clear()
-                    return
-            self.now_showing = (editor_name, sourceline, tags)
-            data['html_name'] = editor_name
-            self.box.show_data(data)
-            self.refresh_needed = False
-            self.stack.setCurrentIndex(1)
+            self.preview.request_live_css_data(editor_name, sourceline, tags)
 
-    def read_data(self, sourceline, tags):
-        mf = self.preview.view.page().mainFrame()
-        tags = [x.lower() for x in tags]
-        result = unicode(mf.evaluateJavaScript(
-            'window.calibre_preview_integration.live_css(%s, %s)' % (
-                json.dumps(sourceline), json.dumps(tags))) or '')
-        try:
-            result = json.loads(result)
-        except ValueError:
-            result = None
-        if result is not None:
-            maximum_specificities = {}
-            for node in result['nodes']:
-                is_ancestor = node['is_ancestor']
-                for rule in node['css']:
-                    self.process_rule(rule, is_ancestor, maximum_specificities)
-            for node in result['nodes']:
-                for rule in node['css']:
-                    for prop in rule['properties']:
-                        if prop.specificity < maximum_specificities[prop.name]:
-                            prop.is_overriden = True
+    def got_live_css_data(self, result):
+        maximum_specificities = {}
+        for node in result['nodes']:
+            for rule in node['css']:
+                self.process_rule(rule, node['ancestor_specificity'], maximum_specificities)
+        for node in result['nodes']:
+            for rule in node['css']:
+                for prop in rule['properties']:
+                    if prop.specificity < maximum_specificities[prop.name]:
+                        prop.is_overriden = True
+        self.display_received_live_css_data(result)
 
-        return result
+    def display_received_live_css_data(self, data):
+        editor_name = data['editor_name']
+        sourceline = data['sourceline']
+        tags = data['tags']
+        if data is None or len(data['computed_css']) < 1:
+            if editor_name == self.current_name and (editor_name, sourceline, tags) == self.now_showing:
+                # Try again in a little while in case there was a transient
+                # error in the web view
+                self.start_update_timer()
+                return
+            self.clear()
+            return
+        self.now_showing = (editor_name, sourceline, tags)
+        data['html_name'] = editor_name
+        self.box.show_data(data)
+        self.refresh_needed = False
+        self.stack.setCurrentIndex(1)
 
-    def process_rule(self, rule, is_ancestor, maximum_specificities):
+    def process_rule(self, rule, ancestor_specificity, maximum_specificities):
         selector = rule['selector']
         sheet_index = rule['sheet_index']
         rule_address = rule['rule_address'] or ()
@@ -507,13 +492,12 @@ class LiveCSS(QWidget):
         else:  # style attribute
             specificity = [1, 0, 0, 0]
         specificity.extend((sheet_index, tuple(rule_address)))
-        ancestor_specificity = 0 if is_ancestor else 1
         properties = []
         for prop in rule['properties']:
             important = 1 if prop[-1] == 'important' else 0
             p = Property(prop, [ancestor_specificity] + [important] + specificity)
             properties.append(p)
-            if p.specificity > maximum_specificities.get(p.name, (0,0,0,0,0,0)):
+            if p.specificity > maximum_specificities.get(p.name, lowest_specificity):
                 maximum_specificities[p.name] = p.specificity
         rule['properties'] = properties
 

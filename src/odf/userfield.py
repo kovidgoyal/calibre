@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Copyright (C) 2006-2009 Søren Roug, European Environment Agency
 #
@@ -20,6 +20,7 @@
 # $Id: userfield.py 447 2008-07-10 20:01:30Z roug $
 
 """Class to show and manipulate user fields in odf documents."""
+
 
 import sys
 import zipfile
@@ -62,7 +63,7 @@ class UserFields(object):
         self.document = None
 
     def loaddoc(self):
-        if isinstance(self.src_file, basestring):
+        if isinstance(self.src_file, (bytes, type(u''))):
             # src_file is a filename, check if it is a zip-file
             if not zipfile.is_zipfile(self.src_file):
                 raise TypeError("%s is no odt file." % self.src_file)
@@ -158,12 +159,11 @@ class UserFields(object):
         all_fields = self.document.getElementsByType(UserFieldDecl)
         for f in all_fields:
             field_name = f.getAttribute('name')
-            if data.has_key(field_name):
+            if field_name in data:
                 value_type = f.getAttribute('valuetype')
                 value = data.get(field_name)
                 if value_type == 'string':
                     f.setAttribute('stringvalue', value)
                 else:
-                    f.setAttribute('value', value) 
+                    f.setAttribute('value', value)
         self.savedoc()
-

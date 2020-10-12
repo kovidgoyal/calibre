@@ -1,0 +1,60 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+special_title = '__SPECIAL_TITLE__'
+slots = {}
+
+def ping(suffix):
+    document.title = special_title + suffix
+
+
+def signal():
+    args = Array.from(arguments)
+    to_python._queue_message({'type': 'signal', 'name': this, 'args': args})
+
+
+class ToPython:
+
+    def __init__(self):
+        self._messages = v'[]'
+        self._last_ping_value = 0
+        self._ping_timer_id = -1
+        self._queue_message({'type': 'qt-ready'})
+
+    def _ping(self):
+        if self._ping_timer_id < 0:
+            self._last_ping_value = 0 if self._last_ping_value else 1
+            self._ping_timer_id = setTimeout(def():
+                ping(self._last_ping_value)
+                self._ping_timer_id = -1
+            , 0)
+
+    def _queue_message(self, msg):
+        self._messages.push(msg)
+        self._ping()
+
+    def _register_signals(self, signals):
+        for signal_name in signals:
+            self[signal_name] = signal.bind(signal_name)
+
+    def _poll(self):
+        ans = self._messages
+        self._messages = v'[]'
+        return ans
+
+    def _from_python(self, name, args):
+        callback = slots[name]
+        if callback:
+            callback.apply(None, args)
+        else:
+            console.warn(f'Attempt to call non-existent python-to-js slot named: {name}')
+
+
+to_python = None  # TODO: Implement this via message passing from sub-frames
+if window is window.top:
+    window.python_comm = to_python = ToPython()
+
+
+def from_python(func):
+    slots[func.name] = func

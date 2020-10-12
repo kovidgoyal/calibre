@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals
 
@@ -14,10 +14,16 @@ from calibre.web.feeds import feeds_from_index
 from datetime import date, timedelta
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Mediapart(BasicNewsRecipe):
     title = 'Mediapart'
     __author__ = 'Daniel Bonnery from a version by Mathieu Godlewski, Louis Gesbert'
-    description = 'Global news in french from news site Mediapart'
+    description = 'Global news in French from news site Mediapart'
     publication_type = 'newspaper'
     language = 'fr'
     needs_subscription = True
@@ -25,6 +31,15 @@ class Mediapart(BasicNewsRecipe):
 
     use_embedded_content = False
     no_stylesheets = True
+
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='div', **classes('author')),
+        classes('introduction content-article')
+    ]
+    remove_tags = [
+        classes('login-subscribe print-source_url')
+    ]
 
     cover_url = 'https://static.mediapart.fr/files/M%20Philips/logo-mediapart.png'
 
@@ -60,19 +75,19 @@ class Mediapart(BasicNewsRecipe):
             try:
                 title = article.find('h3', recursive=False)
 
-                if title is None or title['class'] == 'title-specific':
+                if title is None or ''.join(title['class']) == 'title-specific':
                     continue
 
                 # print "found fil ",title
                 article_type = article.find('a', {'href': re.compile(
-                    r'.*\/type-darticles\/.*')}).renderContents()
+                    r'.*\/type-darticles\/.*')}).renderContents().decode('utf-8')
                 # print "kind: ",article_type
 
                 for s in title('span'):
-                    s.replaceWith(s.renderContents() + "\n")
+                    s.replaceWith(s.renderContents().decode('utf-8') + "\n")
                 url = title.find('a', href=True)['href']
 
-                # article_date = self.parse_french_date(article.find("span", "article-date").renderContents())
+                # article_date = self.parse_french_date(article.find("span", "article-date").renderContents().decode('utf-8'))
                 # print("################################# 9")
                 # print(article_date)
 
@@ -116,8 +131,6 @@ class Mediapart(BasicNewsRecipe):
 
     conversion_options = {'smarten_punctuation': True}
 
-    remove_tags = [dict(name='div', attrs={'class': 'print-source_url'})]
-
     # non-locale specific date parse (strptime("%d %b %Y",s) would work with
     # french locale)
     def parse_french_date(self, date_str):
@@ -126,21 +139,6 @@ class Mediapart(BasicNewsRecipe):
                     year=int(date_arr[2]),
                     month=[None, 'janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet',
                            'août', 'septembre', 'octobre', 'novembre', 'décembre'].index(date_arr[1]))
-
-    def print_version(self, url):
-        soup = self.index_to_soup(url)
-        # Filter old articles
-        # article_date = self.parse_french_date(self.tag_to_string(soup.find('span', 'article-date')))
-
-        # if article_date < self.oldest_article_date:
-        #     return None
-
-        tools = soup.find('li', {'class': 'print'})
-        link = tools.find('a', {'href': re.compile(r'\/print\/.*')})
-        # if link is None:
-        #    print 'Error: print link not found'
-        #    return None
-        return 'https://mediapart.fr' + link['href']
 
 # -- Handle login
     def get_browser(self):
@@ -154,12 +152,3 @@ class Mediapart(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         return br
-
-    # This is a workaround articles with scribd content that include
-    # <body></body> tags _within_ the body
-    preprocess_regexps = [
-        (re.compile(r'(<body.*?>)(.*)</body>', re.IGNORECASE | re.DOTALL),
-         lambda match:
-             match.group(1) + re.sub(
-                 re.compile(r'</?body>', re.IGNORECASE | re.DOTALL), '', match.group(2)) + '</body>')
-    ]

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,6 +15,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
+from polyglot.builtins import unicode_type
 
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
@@ -170,9 +170,9 @@ class ProceedQuestion(QWidget):
     def copy_to_clipboard(self, *args):
         QApplication.clipboard().setText(
                 'calibre, version %s\n%s: %s\n\n%s' %
-                (__version__, unicode(self.windowTitle()),
-                    unicode(self.msg_label.text()),
-                    unicode(self.det_msg.toPlainText())))
+                (__version__, unicode_type(self.windowTitle()),
+                    unicode_type(self.msg_label.text()),
+                    unicode_type(self.det_msg.toPlainText())))
         self.copy_button.setText(_('Copied'))
 
     def action_clicked(self):
@@ -210,7 +210,7 @@ class ProceedQuestion(QWidget):
         self.show_question()
 
     def toggle_det_msg(self, *args):
-        vis = unicode(self.det_msg_toggle.text()) == self.hide_det_msg
+        vis = unicode_type(self.det_msg_toggle.text()) == self.hide_det_msg
         self.det_msg_toggle.setText(self.show_det_msg if vis else
                 self.hide_det_msg)
         self.det_msg.setVisible(not vis)
@@ -269,7 +269,14 @@ class ProceedQuestion(QWidget):
         dpr = getattr(self, 'devicePixelRatioF', self.devicePixelRatio)()
         p = QImage(dpr * self.size(), QImage.Format_ARGB32_Premultiplied)
         p.setDevicePixelRatio(dpr)
-        self.render(p)
+        # For some reason, Qt scrolls the book view when rendering this widget,
+        # for the very first time, so manually preserve its position
+        pr = getattr(self.parent(), 'library_view', None)
+        if not hasattr(pr, 'preserve_state'):
+            self.render(p)
+        else:
+            with pr.preserve_state():
+                self.render(p)
         self.rendered_pixmap = QPixmap.fromImage(p)
         self.original_visibility = v = []
         for child in self.findChildren(QWidget):
@@ -416,6 +423,7 @@ def main():
             show_det=True, show_ok=True)
     QTimer.singleShot(10, doit)
     app.exec_()
+
 
 if __name__ == '__main__':
     main()

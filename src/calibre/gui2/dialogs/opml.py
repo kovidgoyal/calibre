@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,7 +15,9 @@ from PyQt5.Qt import (
 from lxml import etree
 
 from calibre.gui2 import choose_files, error_dialog
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.icu import sort_key
+from polyglot.builtins import unicode_type
 
 Group = namedtuple('Group', 'title feeds')
 
@@ -32,7 +33,7 @@ def uniq(vals, kmap=lambda x:x):
 
 
 def import_opml(raw, preserve_groups=True):
-    root = etree.fromstring(raw)
+    root = safe_xml_fromstring(raw)
     groups = defaultdict(list)
     ax = etree.XPath('ancestor::outline[@title or @text]')
     for outline in root.xpath('//outline[@type="rss" and @xmlUrl]'):
@@ -48,7 +49,7 @@ def import_opml(raw, preserve_groups=True):
                         break
         groups[parent].append((title, url))
 
-    for title in sorted(groups.iterkeys(), key=sort_key):
+    for title in sorted(groups, key=sort_key):
         yield Group(title, uniq(groups[title], kmap=itemgetter(1)))
 
 
@@ -125,7 +126,7 @@ class ImportOPML(QDialog):
             self.path.setText(opml_files[0])
 
     def accept(self):
-        path = unicode(self.path.text())
+        path = unicode_type(self.path.text())
         if not path:
             return error_dialog(self, _('Path not specified'), _(
                 'You must specify the path to the OPML file to import'), show=True)
@@ -138,10 +139,11 @@ class ImportOPML(QDialog):
 
         QDialog.accept(self)
 
+
 if __name__ == '__main__':
     import sys
     for group in import_opml(open(sys.argv[-1], 'rb').read()):
-        print (group.title)
+        print(group.title)
         for title, url in group.feeds:
-            print ('\t%s - %s' % (title, url))
-        print ()
+            print('\t%s - %s' % (title, url))
+        print()

@@ -1,21 +1,25 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals, bound_methods
+from __python__ import bound_methods, hash_literals
 
-from dom import unique_id, set_css, add_extra_css, rule, element
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button
-from book_list.globals import get_session_data, get_read_ui
+
+from book_list.globals import get_session_data
 from book_list.theme import get_color
+from dom import add_extra_css, rule, unique_id
+from read_book.globals import ui_operations
+from widgets import create_button
 
 CONTAINER = unique_id('font-size-prefs')
-QUICK = unique_id('quick')
+MIN_FONT_SIZE = 8
+MAX_FONT_SIZE = 80
 
 add_extra_css(def():
-    style = rule(QUICK, 'li.current', background_color=get_color('window-background2'))
-    style += rule(QUICK, 'li:hover', background_color=get_color('window-background2'))
+    style = rule(CONTAINER, 'option.current', background_color=get_color('window-background2'))
+    style += rule(CONTAINER, 'option:hover', background_color=get_color('window-background2'))
     style += rule(CONTAINER, 'a:hover', color=get_color('window-hover-foreground'))
+    style += rule(CONTAINER, 'a.calibre-push-button:hover', color=get_color('button-text'))
     return style
 )
 
@@ -23,57 +27,111 @@ def change_font_size(sz):
     sd = get_session_data()
     if sd.get('base_font_size') is not sz:
         sd.set('base_font_size', sz)
-        get_read_ui().update_font_size()
+        ui_operations.update_font_size()
+
+
+def apply_font_size():
+    fs = int(document.getElementById(CONTAINER).dataset.cfs)
+    change_font_size(fs)
+
 
 def set_quick_size(ev):
-    li = ev.currentTarget
-    sz = int(li.dataset.sz)
-    change_font_size(sz)
+    newval = ev.currentTarget.value
+    try:
+        int(newval)
+    except:
+        return
+    if newval is not document.getElementById(CONTAINER).dataset.cfs:
+        display_changed_font_size(newval)
 
-def set_custom_size(ev):
-    sz = int(element(CONTAINER, 'input').value)
-    change_font_size(sz)
 
-def change_font_size_by(amt):
+def change_font_size_by(frac):
     sd = get_session_data()
     sz = sd.get('base_font_size')
-    nsz = sz + amt
-    nsz = max(8, min(nsz, 40))
+    amt = sz * frac
+    if abs(amt) < 1:
+        amt = -1 if amt < 0 else 1
+    nsz = int(sz + amt)
+    nsz = max(MIN_FONT_SIZE, min(nsz, MAX_FONT_SIZE))
     change_font_size(nsz)
 
-def show_custom_size(ev):
-    c = element(CONTAINER)
-    for child in c.childNodes:
-        child.style.display = 'none'
-    c.lastChild.style.display = 'block'
+
+def display_changed_font_size(sz):
+    sz = max(MIN_FONT_SIZE, min(int(sz), MAX_FONT_SIZE))
+    sz += ''
+    c = document.getElementById(CONTAINER)
+    c.dataset.cfs = sz
+    for option in c.querySelectorAll('option'):
+        if option.value is sz:
+            option.classList.add('current')
+        else:
+            option.classList.remove('current')
+    for input in c.querySelectorAll('input'):
+        input.value = sz
+    c.querySelector('.cfs_preview').style.fontSize = f'{sz}px'
+
 
 def create_font_size_panel(container, close):
-    container.appendChild(E.div(id=CONTAINER,
-        style='margin:15vh auto; max-width: 500px; border-radius: 8px; border: solid 1px currentColor; padding:1ex 1rem',
-        onclick=def(ev): ev.preventDefault(), ev.stopPropagation()
-    ))
-    container = container.lastChild
-    container.style.backgroundColor = get_color('window-background')
-    quick = E.ul(id=QUICK, style='display:flex; justify-content:space-around; flex-wrap: wrap; align-items: baseline; list-style: none')
-    container.appendChild(quick)
     sd = get_session_data()
     cfs = sd.get('base_font_size')
+    container.appendChild(E.div(
+        style='width: 100%; height: 100%; display: flex; justify-content: center; align-items: center',
+        E.div(
+            id=CONTAINER,
+            style='max-width: 500px; width: 80vw; border-radius: 8px; border: solid 1px currentColor; padding:1ex 1rem;',
+            onclick=def(ev): ev.preventDefault(), ev.stopPropagation()
+    )))
+    container = container.lastChild.lastChild
+    container.style.backgroundColor = get_color('window-background')
+    container.dataset.cfs = cfs + ''
+    quick = E.datalist(style='display:flex; justify-content:space-around; flex-wrap: wrap; align-items: baseline;')
+    container.appendChild(quick)
     for sz in (10, 12, 14, 16, 18, 20, 22):
-        quick.appendChild(set_css(E.li('Aa', title='{} px'.format(sz), class_='current' if cfs is sz else '', data_sz=str(sz), onclick=def(ev):set_quick_size(ev), close();),
-            display='inline-block', font_size=sz + 'px', padding='5px', cursor='pointer', border_radius='2px'))
+        quick.appendChild(E.option(
+            'Aa', title='{} px'.format(sz),
+            class_='current' if cfs is sz else '',
+            value=sz + '',
+            style=f'display: inline-block; font-size:{sz}px; padding: 5px; cursor: pointer; border-radius: 4px; margin: 0 0.5rem',
+            onclick=def(ev):
+                set_quick_size(ev)
+        ))
+
+    def set_size(ev):
+        newval = ev.currentTarget.value
+        try:
+            q = int(newval)
+        except:
+            return
+        if MIN_FONT_SIZE <= q <= MAX_FONT_SIZE:
+            set_quick_size(ev)
 
     container.appendChild(E.div(
-        E.a(_('Custom size'), href='javascript:void', onclick=show_custom_size, style='cursor:pointer'),
-        style='text-align: right; color: blue; font-size: smaller; margin-top: 2ex'
+        style='display: flex; margin-top: 1rem',
+        E.input(
+            type='range', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '', value=cfs + '', style='flex-grow: 4',
+            oninput=set_quick_size,
+        ),
+
+        E.span('\xa0', E.input(
+            value=f'{cfs}', oninput=set_size, type='number', min=MIN_FONT_SIZE + '', max=MAX_FONT_SIZE + '',
+            step='1', style='width: 3em',
+        ), '\xa0px')
     ))
 
-    container.appendChild(E.div(style='display:none',
-        E.div(E.label(_('Font size (pixels):'), '\xa0', E.input(type='number', min=8, max=60, step=1, value=str(sd.get('base_font_size'))))),
-    E.div(style='text-align:right; margin-top:1ex; display:flex; justify-content: flex-end',
-            create_button(_('OK'), 'check', def(): set_custom_size(), close();), E.span('\xa0'),
-            create_button(_('Cancel'), action=close)
-    )))
+    container.appendChild(E.div(
+        style=f'font-size: {cfs}px; margin-top: 1rem; min-height: 60px; max-height: 60px; overflow: hidden; display: flex;',
+        E.div(class_='cfs_preview', _('Sample to preview font size'))
+    ))
 
+    container.appendChild(E.div(
+        style='margin-top: 1rem; text-align: right',
+        create_button(_('OK'), highlight=True, action=def():
+            apply_font_size()
+            close()
+        ),
+        '\xa0\xa0',
+        create_button(_('Cancel'), action=close),
+    ))
 
 
 def develop(container):

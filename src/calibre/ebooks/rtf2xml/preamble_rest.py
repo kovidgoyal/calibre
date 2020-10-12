@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -13,6 +14,7 @@
 import sys,os
 
 from calibre.ebooks.rtf2xml import copy
+from . import open_for_read, open_for_write
 
 
 class Preamble:
@@ -139,8 +141,8 @@ class Preamble:
             the list table.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)

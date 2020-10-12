@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
@@ -380,7 +382,7 @@ ATTRS35 = {
     0x804a: "align",
     0x8bbd: "palette",
     0x8bbe: "pluginspage",
-    0x8bbf: "codebase",
+    # 0x8bbf: "codebase",
     0x8bbf: "src",
     0x8bc1: "units",
     0x8bc2: "type",
@@ -640,7 +642,7 @@ ATTRS66 = {
     0x03f5: "n",
     }
 ATTRS71 = {
-    0x8000: "border",
+    # 0x8000: "border",
     0x8000: "usemap",
     0x8001: "name",
     0x8006: "width",
@@ -682,8 +684,8 @@ ATTRS74 = {
     0x9399: "clear",
     }
 ATTRS75 = {
-    0x8000: "name",
-    0x8000: "value",
+    # 0x8000: "name",
+    # 0x8000: "value",
     0x8000: "type",
     }
 ATTRS76 = {

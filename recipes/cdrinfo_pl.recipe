@@ -22,7 +22,7 @@ class cdrinfo(BasicNewsRecipe):
     remove_empty_feeds = True
     remove_javascript = True
     remove_attributes = ['style', 'onmouseover']
-    preprocess_regexps = [(re.compile(u'<p[^>]*?>Uprzejmie prosimy o przestrzeganie netykiety.+?www\.gravatar\.com</a>\.</p>', re.DOTALL), lambda match: ''),
+    preprocess_regexps = [(re.compile(u'<p[^>]*?>Uprzejmie prosimy o przestrzeganie netykiety.+?www\\.gravatar\\.com</a>\\.</p>', re.DOTALL), lambda match: ''),
                           (re.compile(u'<p[^>]*?>.{,2}</p>', re.DOTALL), lambda match: '')]
     ignore_duplicate_articles = {'title', 'url'}
 

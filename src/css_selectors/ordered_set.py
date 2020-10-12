@@ -1,14 +1,15 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import collections
+from polyglot.builtins import string_or_bytes
 
 SLICE_ALL = slice(None)
+
 
 def is_iterable(obj):
     """
@@ -18,11 +19,8 @@ def is_iterable(obj):
 
     Strings, however, should be considered as atomic values to look up, not
     iterables.
-
-    We don't need to check for the Python 2 `unicode` type, because it doesn't
-    have an `__iter__` attribute anyway.
     """
-    return hasattr(obj, '__iter__') and not isinstance(obj, str)
+    return hasattr(obj, '__iter__') and not isinstance(obj, string_or_bytes)
 
 
 class OrderedSet(collections.MutableSet):

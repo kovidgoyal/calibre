@@ -1,16 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from lxml import etree
-
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.oeb.base import (urlnormalize, XPath, XHTML_NS, XHTML,
-        XHTML_MIME)
+        XHTML_MIME, css_text)
 
 DEFAULT_TITLE = __('Table of Contents')
 
@@ -85,11 +83,11 @@ class TOCAdder(object):
         embed_css = ''
         s = getattr(oeb, 'store_embed_font_rules', None)
         if getattr(s, 'body_font_family', None):
-            css = [x.cssText for x in s.rules] + [
+            css = [css_text(x) for x in s.rules] + [
                     'body { font-family: %s }'%s.body_font_family]
             embed_css = '\n\n'.join(css)
 
-        root = etree.fromstring(TEMPLATE.format(xhtmlns=XHTML_NS,
+        root = safe_xml_fromstring(TEMPLATE.format(xhtmlns=XHTML_NS,
             title=self.title, embed_css=embed_css,
             extra_css=(opts.extra_css or '')))
         parent = XPath('//h:ul')(root)[0]
@@ -139,5 +137,3 @@ class TOCAdder(object):
         if self.added_toc_guide_entry:
             self.oeb.guide.remove('toc')
             self.added_toc_guide_entry = False
-
-

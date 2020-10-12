@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -14,16 +13,18 @@ from calibre.constants import islinux
 
 def pre_activated_socket():
     return None
+
+
 has_preactivated_support = False
 
 if islinux:
     import ctypes
 
     class SOCKADDR_NL(ctypes.Structure):
-            _fields_ = [("nl_family", ctypes.c_ushort),
-                        ("nl_pad",    ctypes.c_ushort),
-                        ("nl_pid",    ctypes.c_int),
-                        ("nl_groups", ctypes.c_int)]
+        _fields_ = [("nl_family", ctypes.c_ushort),
+                    ("nl_pad",    ctypes.c_ushort),
+                    ("nl_pid",    ctypes.c_int),
+                    ("nl_groups", ctypes.c_int)]
 
     def getsockfamily(fd):
         addr = SOCKADDR_NL(0, 0, 0, 0)
@@ -61,4 +62,4 @@ if __name__ == '__main__':
     # /usr/lib/systemd/systemd-activate -l 8081 calibre-debug pre_activated.py
     # telnet localhost 8081
     s = pre_activated_socket()
-    print (s, s.getsockname())
+    print(s, s.getsockname())

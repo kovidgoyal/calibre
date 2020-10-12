@@ -4,12 +4,15 @@ __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 azstarnet.com
 '''
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Azstarnet(BasicNewsRecipe):
-    title = 'Arizona  Daily Star'
+    title = 'Arizona Daily Star'
     __author__ = 'Darko Miletic'
     description = 'news from Arizona'
     language = 'en'
@@ -31,7 +34,7 @@ class Azstarnet(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://azstarnet.com/')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'m': 'login', 'u': self.username, 'p': self.password, 'z': 'http://azstarnet.com/'
+            data = urlencode({'m': 'login', 'u': self.username, 'p': self.password, 'z': 'http://azstarnet.com/'
                                      })
             br.open('http://azstarnet.com/app/registration/proxy.php', data)
         return br

@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2009, Pu Bo <pubo at pubolab.com>'
@@ -83,11 +83,10 @@ class ZAOBAO(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
-        for tag in soup.findAll(name='a'):
-            if tag.has_key('href'):  # noqa
-                tag_url = tag['href']
-                if tag_url.find('http://') != -1 and tag_url.find('zaobao.com') == -1:
-                    del tag['href']
+        for tag in soup.findAll(name='a', href=True):
+            tag_url = tag['href']
+            if tag_url.find('http://') != -1 and tag_url.find('zaobao.com') == -1:
+                del tag['href']
         return soup
 
     def postprocess_html(self, soup, first):
@@ -107,8 +106,8 @@ class ZAOBAO(BasicNewsRecipe):
             for i, item in enumerate(soup.findAll('li')):
                 if i >= self.MAX_ITEMS_IN_INDEX:
                     break
-                a = item.find('a')
-                if a and a.has_key('href'):  # noqa
+                a = item.find('a', href=True)
+                if a is not None:
                     a_url = a['href']
                     a_title = self.tag_to_string(a)
                     date = ''
@@ -138,7 +137,7 @@ class ZAOBAO(BasicNewsRecipe):
             # workaorund a strange problem: Somethimes the xml encoding is not
             # apllied correctly by parse()
             weired_encoding_detected = False
-            if not isinstance(feed.description, unicode) and self.encoding and feed.description:
+            if not isinstance(feed.description, type(u'')) and self.encoding and feed.description:
                 self.log(
                     _('Feed %s is not encoded correctly, manually replace it') % (feed.title))
                 feed.description = feed.description.decode(
@@ -151,14 +150,14 @@ class ZAOBAO(BasicNewsRecipe):
                 weired_encoding_detected = True
 
             for a, article in enumerate(feed):
-                if not isinstance(article.title, unicode) and self.encoding:
+                if not isinstance(article.title, type(u'')) and self.encoding:
                     article.title = article.title.decode(
                         self.encoding, 'replace')
-                if not isinstance(article.summary, unicode) and self.encoding and article.summary:
+                if not isinstance(article.summary, type(u'')) and self.encoding and article.summary:
                     article.summary = article.summary.decode(
                         self.encoding, 'replace')
                     article.text_summary = article.summary
-                if not isinstance(article.text_summary, unicode) and self.encoding and article.text_summary:
+                if not isinstance(article.text_summary, type(u'')) and self.encoding and article.text_summary:
                     article.text_summary = article.text_summary.decode(
                         self.encoding, 'replace')
                     article.summary = article.text_summary

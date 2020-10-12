@@ -45,7 +45,7 @@ class MediaDaumRecipe(BasicNewsRecipe):
             lambda match: '</em>'),
         (re.compile(r'(<br[^>]*>[ \t\r\n]*)*</i>', re.DOTALL | re.IGNORECASE),
             lambda match: '</i>'),
-        (re.compile(u'\(\uB05D\)[ \t\r\n]*<br[^>]*>.*</div>', re.DOTALL | re.IGNORECASE),
+        (re.compile(r'\(\uB05D\)[ \t\r\n]*<br[^>]*>.*</div>', re.DOTALL | re.IGNORECASE),
             lambda match: '</div>'),
         (re.compile(r'(<br[^>]*>[ \t\r\n]*)*<div', re.DOTALL | re.IGNORECASE),
             lambda match: '<div'),

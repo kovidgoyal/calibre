@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ from PyQt5.Qt import QToolButton, QAction, pyqtSignal, QIcon
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
+from polyglot.builtins import iteritems
 
 
 class SortAction(QAction):
@@ -32,16 +32,31 @@ class SortByAction(InterfaceAction):
     action_type = 'current'
     popup_type = QToolButton.InstantPopup
     action_add_menu = True
-    dont_add_to = frozenset([
-        'toolbar-device', 'context-menu-device', 'menubar', 'menubar-device',
-        'context-menu-cover-browser'])
+    dont_add_to = frozenset(('context-menu-cover-browser', ))
 
     def genesis(self):
         self.sorted_icon = QIcon(I('ok.png'))
         self.qaction.menu().aboutToShow.connect(self.about_to_show)
 
+        def c(attr, title, tooltip, callback, keys=()):
+            ac = self.create_action(spec=(title, None, tooltip, keys), attr=attr)
+            ac.triggered.connect(callback)
+            self.gui.addAction(ac)
+            return ac
+
+        c('reverse_sort_action', _('Reverse current sort'), _('Reverse the current sort order'), self.reverse_sort, 'shift+f5')
+        c('reapply_sort_action', _('Re-apply current sort'), _('Re-apply the current sort'), self.reapply_sort, 'f5')
+
+    def reverse_sort(self):
+        self.gui.current_view().reverse_sort()
+
+    def reapply_sort(self):
+        self.gui.current_view().resort()
+
     def location_selected(self, loc):
-        self.qaction.setEnabled(loc == 'library')
+        enabled = loc == 'library'
+        self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def about_to_show(self):
         self.update_menu()
@@ -59,7 +74,7 @@ class SortByAction(InterfaceAction):
         except TypeError:
             sort_col, order = 'date', True
         fm = db.field_metadata
-        name_map = {v:k for k, v in fm.ui_sortable_field_keys().iteritems()}
+        name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
             if key == 'ondevice' and self.gui.device_connected is None:

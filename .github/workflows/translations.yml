@@ -1,0 +1,38 @@
+name: Transifex
+on:
+  push:
+    branches: [master, ]
+
+
+jobs:
+    Push-To-Transifex:
+        name: Update translations on Transifex
+        if: github.repository == 'kovidgoyal/calibre'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout source code
+              uses: actions/checkout@master
+              with:
+                fetch-depth: 2
+
+            - name: Checkout translations
+              uses: actions/checkout@master
+              with:
+                repository: 'kovidgoyal/calibre-translations'
+                path: 'translations'
+
+            - name: Set up Python
+              uses: actions/setup-python@master
+              with:
+                python-version: 3.8
+
+            - name: Install translations dependencies
+              run:
+                python -m pip install -U transifex-client sphinx
+
+            - name: Update translations
+              env:
+                tx: ${{ secrets.tx }}
+                CI: "true"
+              run:
+                  python setup/unix-ci.py pot

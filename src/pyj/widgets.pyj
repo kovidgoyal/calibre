@@ -29,11 +29,14 @@ def create_button(text, icon=None, action=None, tooltip=None, highlight=False, d
 create_button.style = build_rule('a.calibre-push-button',
     border_radius='1em', background_clip='padding-box', background_color=get_color('button-start'),
     background_image='linear-gradient(to bottom, {}, {})'.format(get_color('button-start'), get_color('button-end')),
-    padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex', align_items='center',
+    padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex',
+    align_items='center', user_select='none',
     box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)', white_space='nowrap'
 )
-create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.2)')
-create_button.style += build_rule('a.calibre-push-button:active', transform='scale(2)')
+create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.05)')
+create_button.style += build_rule('a.calibre-push-button:active', transform='scale(1.1)')
+# This is needed because of a bug in Firefox: https://bugs.launchpad.net/bugs/1881385
+create_button.style += build_rule('a.calibre-push-button:visited', color=get_color('button-text'))
 # }}}
 
 # Spinner {{{
@@ -206,8 +209,20 @@ def scroll_tree_item_into_view(item):
 add_extra_css(def():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
     ans += '.simple-link { cursor: pointer } .simple-link:hover { color: HC } .simple-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground'))
+    ans += '.blue-link { cursor: pointer; color: COL } .blue-link:visited { color: COL} .blue-link:hover { color: HC } .blue-link:active { transform: scale(1.5) }\n'.replace('HC', get_color('window-hover-foreground')).replace(/COL/g, get_color('link-foreground'))
+    ans += create_button.style + '\n'
     ans += create_button.style + '\n'
     ans += create_spinner.style + '\n'
     ans += Breadcrumbs.STYLE_RULES + '\n'
     return ans
 )
+
+
+def enable_escape_key(container, action):
+    container.setAttribute('tabindex', '0')
+    container.addEventListener('keydown', def(ev):
+        if ev.key is 'Escape':
+            ev.stopPropagation(), ev.preventDefault()
+            action()
+    , {'passive': False})
+    container.focus()

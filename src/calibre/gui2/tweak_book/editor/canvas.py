@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -309,6 +308,7 @@ class Canvas(QWidget):
         self.current_image = i = self.original_image = (
             QImage.fromData(data, format=fmt) if fmt else QImage.fromData(data))
         self.is_valid = not i.isNull()
+        self.current_scaled_pixmap = None
         self.update()
         self.image_changed.emit(self.current_image)
 
@@ -324,7 +324,7 @@ class Canvas(QWidget):
         if not self.is_modified:
             return self.original_image_data
         fmt = self.original_image_format or 'JPEG'
-        if fmt.lower() not in set(map(lambda x:bytes(x).decode('ascii'), QImageWriter.supportedImageFormats())):
+        if fmt.lower() not in {x.data().decode('utf-8') for x in QImageWriter.supportedImageFormats()}:
             if fmt.lower() == 'gif':
                 data = image_to_data(self.current_image, fmt='PNG', png_compression_level=0)
                 from PIL import Image
@@ -678,6 +678,7 @@ class Canvas(QWidget):
         finally:
             p.end()
     # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])

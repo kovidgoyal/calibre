@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 __license__ = 'GPL v3'
@@ -9,7 +9,6 @@ www.canada.com
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 
 
 class CanWestPaper(BasicNewsRecipe):
@@ -144,15 +143,7 @@ class CanWestPaper(BasicNewsRecipe):
         return fixed
 
     def massageNCXText(self, description):
-        # Kindle TOC descriptions won't render certain characters
-        if description:
-            massaged = unicode(BeautifulStoneSoup(
-                description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
-            # Replace '&' with '&'
-            massaged = re.sub("&", "&", massaged)
-            return self.fixChars(massaged)
-        else:
-            return description
+        return description
 
     def populate_article_metadata(self, article, soup, first):
         if first:
@@ -189,9 +180,9 @@ class CanWestPaper(BasicNewsRecipe):
 
         # Find each instance of class="sectiontitle", class="featurecontent"
         for divtag in soup.findAll('div', attrs={'class': ["section_title02", "featurecontent"]}):
-                # self.log(" div class = %s" % divtag['class'])
-            if divtag['class'].startswith('section_title'):
-                    # div contains section title
+            # self.log(" div class = %s" % divtag['class'])
+            if ''.join(divtag['class']).startswith('section_title'):
+                # div contains section title
                 if not divtag.h3:
                     continue
                 key = self.tag_to_string(divtag.h3, False)
@@ -221,11 +212,11 @@ class CanWestPaper(BasicNewsRecipe):
             if autag:
                 author = self.tag_to_string(autag, False)
                 # self.log("author %s" % author)
-            if not articles.has_key(key):  # noqa
+            if key not in articles:
                 articles[key] = []
             articles[key].append(dict(title=title, url=url, date=pubdate,
                                       description=description, author=author, content=''))
 
         ans = [(keyl, articles[keyl])
-               for keyl in ans if articles.has_key(keyl)]  # noqa
+               for keyl in ans if keyl in articles]
         return ans

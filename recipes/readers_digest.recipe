@@ -1,10 +1,15 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 '''
 '''
-import re
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class ReadersDigest(BasicNewsRecipe):
@@ -20,6 +25,7 @@ class ReadersDigest(BasicNewsRecipe):
 
     language = 'en'
     remove_javascript = True
+    remove_attributes = ['style']
 
     extra_css      = ''' h1 {font-family:georgia,serif;color:#000000;}
                         .mainHd{font-family:georgia,serif;color:#000000;}
@@ -49,12 +55,15 @@ class ReadersDigest(BasicNewsRecipe):
         ('Advice', 'http://www.rd.com/advice/feed'),
     ]
 
-    # cover_url = 'http://www.rd.com/images/logo-main-rd.gif'
-
-    keep_only_tags = dict(id='main')
-    remove_tags = [
-        dict(attrs={'class': re.compile('rd-article--sidebar.*')}),
-        dict(attrs={'class': ['rd-article--footer', 'rd-article--sharing']}),
-        dict(attrs={'id': ['newsletter-form-container',
-                           'confirmation-msg-container']}),
+    keep_only_tags = [
+        classes('post-title post-author post-updated-date post-date featured-image post-body entry-title dek listicle-card')
     ]
+
+    remove_tags = [
+        classes('single-card ad brand-info pure-g')
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
+            img['src'] = img['data-lazy-src']
+        return soup

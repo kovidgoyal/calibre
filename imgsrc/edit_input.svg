@@ -14,7 +14,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="edit_input.svg">
   <defs
      id="defs4" />
@@ -25,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="5.6"
      inkscape:cx="-10.424833"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -105,29 +105,28 @@
          transform="matrix(1.4835039,0,0,1.4904899,-11.62087,914.96969)"
          style="fill-opacity:1;fill:#ea8404" />
     </g>
+    <path
+       id="path12"
+       d="m 112.20127,973.84851 v 64.10449 c 0,4.9186 -4.00546,8.9429 -8.90103,8.9429 H 14.356767 c -4.8955631,0 -8.9010236,-4.0243 -8.9010236,-8.9429 v -88.94052 c 0,-4.91862 4.0054605,-8.94294 8.9010236,-8.94294 h 64.643682"
+       inkscape:connector-curvature="0"
+       style="fill:none;fill-opacity:1;stroke:#2271d5;stroke-width:8.92195702;stroke-opacity:1" />
     <g
-       transform="matrix(1.4835039,0,0,1.4904899,-11.62087,914.96969)"
-       id="g10"
-       style="fill:none;fill-opacity:1;stroke:#3244c4;stroke-opacity:1">
-      <path
-         style="fill:none;stroke:#3244c4;stroke-width:6;fill-opacity:1;stroke-opacity:1"
-         inkscape:connector-curvature="0"
-         d="m 83.466,39.503 0,43.009 c 0,3.3 -2.7,6 -6,6 l -59.955,0 c -3.3,0 -6,-2.7 -6,-6 l 0,-59.672 c 0,-3.3 2.7,-6 6,-6 l 43.575,0"
-         id="path12" />
+       id="g823"
+       style="stroke:#2caf45;stroke-opacity:1">
+      <line
+         id="line14"
+         y2="1018.5588"
+         x2="92.966148"
+         y1="1018.5588"
+         x1="24.724976"
+         style="fill:none;stroke:#2caf45;stroke-width:4.46097851;stroke-opacity:1" />
+      <line
+         id="line16"
+         y2="1030.4828"
+         x2="92.966148"
+         y1="1030.4828"
+         x1="24.724976"
+         style="fill:none;stroke:#2caf45;stroke-width:4.46097851;stroke-opacity:1" />
     </g>
-    <line
-       style="fill:none;stroke:#000000;stroke-width:4.46097851"
-       x1="24.724976"
-       y1="1018.5588"
-       x2="92.966148"
-       y2="1018.5588"
-       id="line14" />
-    <line
-       style="fill:none;stroke:#000000;stroke-width:4.46097851"
-       x1="24.724976"
-       y1="1030.4828"
-       x2="92.966148"
-       y2="1030.4828"
-       id="line16" />
   </g>
 </svg>

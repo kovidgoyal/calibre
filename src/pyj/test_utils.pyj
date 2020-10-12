@@ -1,0 +1,14 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from testing import assert_equal, test
+from utils import fmt_sidx, human_readable, rating_to_stars
+
+
+@test
+def misc_utils():
+    assert_equal(rating_to_stars(3, True), '★⯨')
+    assert_equal(fmt_sidx(10), 'X')
+    assert_equal(fmt_sidx(1.2), '1.20')
+    assert_equal(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])), ["1 B", "1 KB", "1 KB", "2.3 MB"])

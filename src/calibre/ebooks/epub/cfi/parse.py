@@ -1,15 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import regex, sys
-from future_builtins import map, zip
-
-is_narrow_build = sys.maxunicode < 0x10ffff
+import regex
+from polyglot.builtins import map, zip
 
 
 class Parser(object):
@@ -22,10 +19,7 @@ class Parser(object):
     def __init__(self):
         # All allowed unicode characters + escaped special characters
         special_char = r'[\[\](),;=^]'
-        if is_narrow_build:
-            unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd]--%s]' % special_char
-        else:
-            unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--%s]' % special_char
+        unescaped_char = '[[\t\n\r -\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]--%s]' % special_char
         escaped_char = r'\^' + special_char
         chars = r'(?:%s|(?:%s))+' % (unescaped_char, escaped_char)
         chars_no_space = chars.replace('0020', '0021')
@@ -63,6 +57,9 @@ class Parser(object):
     def parse_epubcfi(self, raw):
         ' Parse a full epubcfi of the form epubcfi(path [ , path , path ]) '
         null = {}, {}, {}, raw
+        if not raw:
+            return null
+
         if not raw.startswith('epubcfi('):
             return null
         raw = raw[len('epubcfi('):]
@@ -165,6 +162,7 @@ class Parser(object):
             ans['text_assertion'] = ta
         return raw[1:]
 
+
 _parser = None
 
 
@@ -193,15 +191,50 @@ def cfi_sort_key(cfi, only_path=True):
     except Exception:
         import traceback
         traceback.print_exc()
-        return ()
+        return (), (0, (0, 0), 0)
     if not pcfi:
         import sys
-        print ('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
-        return ()
+        print('Failed to parse CFI: %r' % cfi, file=sys.stderr)
+        return (), (0, (0, 0), 0)
     steps = get_steps(pcfi)
     step_nums = tuple(s.get('num', 0) for s in steps)
     step = steps[-1] if steps else {}
     offsets = (step.get('temporal_offset', 0), tuple(reversed(step.get('spatial_offset', (0, 0)))), step.get('text_offset', 0), )
-    return (step_nums, offsets)
+    return step_nums, offsets
 
 
+def decode_cfi(root, cfi):
+    from lxml.etree import XPathEvalError
+    p = parser()
+    try:
+        pcfi = p.parse_path(cfi)[0]
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        return
+    if not pcfi:
+        import sys
+        print('Failed to parse CFI: %r' % pcfi, file=sys.stderr)
+        return
+    steps = get_steps(pcfi)
+    ans = root
+    for step in steps:
+        num = step.get('num', 0)
+        node_id = step.get('id')
+        try:
+            match = ans.xpath('descendant::*[@id="%s"]' % node_id)
+        except XPathEvalError:
+            match = ()
+        if match:
+            ans = match[0]
+            continue
+        index = 0
+        for child in ans.iterchildren('*'):
+            index |= 1  # increment index by 1 if it is even
+            index += 1
+            if index == num:
+                ans = child
+                break
+        else:
+            return
+    return ans

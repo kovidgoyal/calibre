@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 
@@ -38,7 +38,7 @@ class naszdziennik(BasicNewsRecipe):
             section = self.tag_to_string(section)
             # sprawdzamy czy w słowniku artykułów istnieje klucz dotyczący sekcji
             # jeśli nie istnieje to :
-            if not articles.has_key(section):  # noqa
+            if section not in articles:
                 # do listy sekcji dodajemy nową sekcje
                 sections.append(section)
                 # deklarujemy nową sekcje w słowniku artykułów przypisując jej

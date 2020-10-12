@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 from datetime import date
 from lxml import etree
@@ -170,7 +170,7 @@ class CodelessCode(BasicNewsRecipe):
 
         for item in oeb.manifest.hrefs['index.html'].data.xpath('//*[local-name()="div"]'):
             for credit in self.credits[::-1]:
-                item.insert(0, etree.fromstring(credit))
+                item.insert(0, etree.fromstring(credit, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)))
 
         # Change the creator from "calibre" to the actual author
         # Also, we don't need the date in the ebook's title

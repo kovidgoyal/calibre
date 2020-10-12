@@ -1,0 +1,22 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+from read_book.globals import annot_id_uuid_map
+
+
+def get_elements(x, y):
+    nonlocal img_id_counter
+    ans = {'link': None, 'img': None, 'highlight': None, 'crw': None}
+    for elem in document.elementsFromPoint(x, y):
+        if elem.tagName.toLowerCase() is 'a' and elem.getAttribute('href') and not ans.link:
+            ans.link = elem.getAttribute('href')
+        elif elem.tagName.toLowerCase() is 'img' and elem.getAttribute('data-calibre-src') and not ans.img:
+            ans.img = elem.getAttribute('data-calibre-src')
+        elif elem.dataset?.calibreRangeWrapper:
+            ans.crw = elem.dataset.calibreRangeWrapper
+            annot_id = annot_id_uuid_map[ans.crw]
+            if annot_id:
+                ans.highlight = annot_id
+    return ans

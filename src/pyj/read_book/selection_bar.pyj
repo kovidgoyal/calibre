@@ -1,0 +1,1000 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+from uuid import short_uuid
+
+from book_list.globals import get_session_data
+from book_list.theme import get_color
+from dom import change_icon_image, clear, svgicon, unique_id
+from modals import error_dialog, question_dialog
+from read_book.globals import runtime, ui_operations
+from read_book.highlights import (
+    ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles, render_notes
+)
+from read_book.shortcuts import shortcut_for_key_event
+from read_book.toc import get_toc_nodes_bordering_spine_item, family_for_toc_node
+
+DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
+BUTTON_MARGIN = '0.5rem'
+
+# Utils {{{
+
+def get_margins():
+    return {
+        'top': document.getElementById('book-top-margin').offsetHeight,
+        'left': document.getElementById('book-left-margin').offsetWidth,
+    }
+
+
+def map_boundaries(cs, vertical, rtl):
+    margins = get_margins()
+
+    def map_boundary(b):
+        x_offset = y_offset = 0
+        if vertical:
+            if b.selected_prev:
+                y_offset = b.height
+        else:
+            if rtl:
+                # Horizontal RTL
+                if not b.selected_prev:
+                    x_offset = b.width
+            else:
+                # Horizontal LTR
+                if b.selected_prev:
+                    x_offset = b.width
+
+        return {'x': (b.x or 0) + x_offset + margins.left, 'y': (b.y or 0) + y_offset + margins.top, 'height': b.height or 0, 'width': b.width or 0, 'onscreen': b.onscreen}
+
+    return map_boundary(cs.start), map_boundary(cs.end)
+
+
+def map_to_iframe_coords(point, margins):
+    point.x -= margins.left
+    point.y -= margins.top
+    return point
+
+
+def near_element(elem, x, y):
+    r = elem.getBoundingClientRect()
+    extend_by = 15
+    left = r.left - extend_by
+    top = r.top - extend_by
+    right = r.right + extend_by
+    bottom = r.bottom + extend_by
+    return left <= x <= right and top <= y <= bottom
+
+
+def position_bar_avoiding_handles(lh, rh, left, top, bar_width, bar_height, available_width, available_height, buffer):
+    # adjust position to minimize overlap with handles
+
+    def bar_rect(left, top):
+        return {'left': left, 'top': top, 'right': left + bar_width, 'bottom': top + bar_height}
+
+    def overlaps_a_handle(left, top):
+        b = bar_rect(left, top)
+        if elements_overlap(lh, b):
+            return lh
+        if elements_overlap(rh, b):
+            return rh
+
+    if not overlaps_a_handle(left, top):
+        return
+
+    if Math.abs(lh.top - rh.top) < lh.height + buffer:
+        # handles close vertically, place either above or below
+        bottom = max(lh.bottom, rh.bottom)
+        has_space_below = bottom + bar_height < available_height - buffer
+        if has_space_below:
+            return {'top': bottom, 'put_below': True}
+        return {'top': min(lh.top, rh.top), 'put_below': False}
+
+    b = bar_rect(left, top)
+    if lh.left > rh.left:
+        lh, rh = rh, lh
+    left_overlaps = elements_overlap(lh, b)
+    right_overlaps = elements_overlap(rh, b)
+    if not left_overlaps or not right_overlaps:
+        # overlapping a single handle, see if we can move horizontally
+        h = lh if left_overlaps else rh
+        d1 = d2 = 2 * available_width
+        q1 = h.left - bar_width - 1
+        if q1 > -buffer and not overlaps_a_handle(q1, top):
+            d1 = abs(left - q1)
+        q2 = h.right + 1
+        if q2 + bar_width < available_width + buffer and not overlaps_a_handle(q2, top):
+            d2 = abs(left - q2)
+        d = min(d1, d2)
+        if d < available_width:
+            return {'left': q1 if d is d1 else q2}
+
+    # try to place either to left of both handles, between both handles, to
+    # the right of both
+    d1 = d2 = d3 = 2 * available_width
+    q1 = lh.left - bar_width - 1
+    if q1 > -buffer and not overlaps_a_handle(q1, top):
+        d1 = abs(left - q1)
+    q2 = lh.right + 1
+    if q2 + bar_width < rh.left + buffer and not overlaps_a_handle(q2, top):
+        d2 = abs(left - q2)
+    q3 = rh.right + 1
+    if q3 + bar_width < available_width + buffer and not overlaps_a_handle(q3, top):
+        d3 = abs(left - q3)
+    d = min(d1, d2, d3)
+    if d < available_width:
+        return {'left': q1 if d is d1 else (q2 if d is d2 else q3)}
+
+    # look above both vertically, between both and below both
+    th, bh = v'[lh, rh]' if lh.top <= rh.top else v'[rh, lh]'
+    d1 = d2 = d3 = 2 * available_height
+    q1 = th.top - bar_height - 1
+    if q1 > -buffer and not overlaps_a_handle(left, q1):
+        d1 = abs(top - q1)
+    q2 = th.bottom + 1
+    if q2 + bar_height < bh.top + buffer and not overlaps_a_handle(left, q2):
+        d2 = abs(top - q2)
+    q3 = bh.bottom + 1
+    if q3 + bar_height < available_height + buffer and not overlaps_a_handle(left, q3):
+        d3 = abs(top - q3)
+    d = min(d1, d2, d3)
+    if d < available_height:
+        return {'top': (q1 + bar_height) if d is d1 else (q2 if d is d2 else q3), 'put_below': d is not d1}
+
+    # look in the four corners
+    if not overlaps_a_handle(buffer, buffer):
+        return {'left': buffer, 'top': buffer + bar_height, 'put_below': False}
+    if not overlaps_a_handle(available_width - bar_width, buffer):
+        return {'left': available_width - bar_width, 'top': buffer + bar_height, 'put_below': False}
+    if not overlaps_a_handle(buffer, available_height - bar_height):
+        return {'left': buffer, 'top': available_height - bar_height, 'put_below': True}
+    if not overlaps_a_handle(available_width - bar_width, available_height - bar_height):
+        return {'left': available_width - bar_width, 'top': available_height - bar_height, 'put_below': True}
+
+    # give up should be relatively rare
+
+
+
+def quick_highlight_icon(name, tooltip, hcolor):
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+    svg.setAttribute('style', f'fill: currentColor; height: 2ex; width: 2ex; vertical-align: text-top; margin: 0')
+    u = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+    svg.appendChild(u)
+    svg.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + name)
+    ans = E.div(
+        style=f'width: {ICON_SIZE}; height: {ICON_SIZE}; display: flex; flex-direction: column',
+        title=tooltip or '',
+        svg,
+        E.div(style=f'width: {ICON_SIZE}; height: 1ex; background-color: {hcolor}; color: {hcolor}; margin: 0')
+    )
+    return ans
+
+
+def all_actions():
+    def a(icon, text, func, needs_highlight):
+        return {
+            'icon': icon, 'text': text, 'function_name': func, 'needs_highlight': v'!!needs_highlight',
+            'icon_function': def (hcolor):
+                return svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+    }
+
+    if not all_actions.ans:
+        all_actions.ans = {
+            'copy': a('copy', _('Copy to clipboard'), 'copy_to_clipboard'),
+            'lookup': a('library', _('Lookup/search selected word'), 'lookup'),
+            'quick_highlight': a('highlight', _('Quick highlight in current style'), 'quick_highlight'),
+            'highlight': a('highlight', _('Highlight selection'), 'create_highlight'),
+            'search': a('search', _('Search for selection in the book'), 'book_search'),
+            'bookmark': a('bookmark', _('Create a bookmark'), 'new_bookmark'),
+            'search_net': a('global-search', _('Search for selection on the net'), 'internet_search'),
+            'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
+            'clear': a('close', _('Clear selection'), 'clear_selection'),
+        }
+        qh = all_actions.ans.quick_highlight
+        qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
+    return all_actions.ans
+
+
+def selection_handle():
+    ans = svgicon('selection-handle')
+    s = ans.style
+    s.position = 'absolute'
+    s.boxSizing = 'border-box'
+    s.touchAction = 'none'
+    return ans
+
+
+def set_handle_color(handle, bg, fg):
+    use = handle.querySelector('use')
+    use.style.stroke = fg
+    use.style.fill = bg
+
+
+def elements_overlap(a, b):
+    return a.left < b.right and b.left < a.right and a.top < b.bottom and b.top < a.bottom
+
+
+HIDDEN = 0
+WAITING = 1
+DRAGGING = 2
+EDITING = 3
+# }}}
+
+
+class SelectionBar:
+
+    def __init__(self, view):
+        self.view = view
+        self.current_highlight_style = HighlightStyle(get_session_data().get('highlight_style'))
+        self.current_notes = ''
+        self.state = HIDDEN
+        self.start_handle_id = unique_id('handle')
+        self.end_handle_id = unique_id('handle')
+        self.bar_id = unique_id('bar')
+        self.editor_id = unique_id('editor')
+        # Sensible defaults until we get information from a selection message.
+        self.ltr = True
+        self.rtl = False
+        self.vertical = False
+        container = self.container
+        container.style.overflow = 'hidden'
+        container.addEventListener('click', self.container_clicked, {'passive': False})
+        container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
+        container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
+        container.addEventListener('touchmove', self.touchmove_on_container, {'passive': False})
+        container.addEventListener('touchend', self.touchend_on_container, {'passive': False})
+        container.addEventListener('touchcancel', self.touchend_on_container, {'passive': False})
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})
+        container.addEventListener('wheel', self.on_wheel, {'passive': False})
+        container.setAttribute('tabindex', '0')
+
+        self.dragging_handle = None
+        self.position_in_handle = {'x': 0, 'y': 0}
+        self.active_touch = None
+        self.drag_scroll_timer = None
+        self.last_drag_scroll_at = None
+        self.start_line_length = self.end_line_length = 0
+        self.current_editor = None
+
+        start_handle = selection_handle()
+        start_handle.id = self.start_handle_id
+        end_handle = selection_handle()
+        end_handle.id = self.end_handle_id
+        for h in (start_handle, end_handle):
+            h.addEventListener('mousedown', self.mousedown_on_handle, {'passive': False})
+            h.addEventListener('touchstart', self.touchstart_on_handle, {'passive': False})
+            container.appendChild(h)
+        container.appendChild(E.div(
+            id=self.bar_id,
+            style='position: absolute; border: solid 1px currentColor; border-radius: 5px;'
+            'left: 0; top: 0; display: flex; flex-direction: column;'
+        ))
+
+        editor_div = E.div(id=self.editor_id, style='position: absolute')
+        container.appendChild(editor_div)
+        editor_div.addEventListener('click', self.editor_container_clicked, {'passive': False})
+
+    # bar and handles markup {{{
+
+    def set_handle_colors(self):
+        handle_fill = get_color('window-background')
+        fg = self.view.current_color_scheme.foreground
+        for h in (self.start_handle, self.end_handle):
+            set_handle_color(h, handle_fill, fg)
+
+    def build_bar(self, annot_id):
+        notes = self.annotations_manager.notes_for_highlight(annot_id)
+        bar_container = self.bar
+        clear(bar_container)
+        bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
+        bar_container.style.backgroundColor = get_color("window-background")
+        notes_container = E.div()
+        notes_container.addEventListener('wheel', def(evt): evt.stopPropagation();, {'passive': True})
+        for x in [
+            E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
+
+            E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
+
+            E.div(
+                style='display: none; padding: 5px;',
+                notes_container,
+            )
+        ]:
+            bar_container.appendChild(x)
+        bar = bar_container.firstChild
+        hs = self.current_highlight_style.highlight_shade(self.view.current_color_scheme.is_dark_theme)
+
+        def cb(ac, callback):
+            ans = ac.icon_function(hs)
+            ans.addEventListener('click', def(ev):
+                ev.stopPropagation(), ev.preventDefault()
+                callback(ev)
+                self.view.focus_iframe()
+            )
+            ans.classList.add('simple-link')
+            ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
+            return ans
+
+        actions = all_actions()
+        sd = get_session_data()
+        for acname in sd.get('selection_bar_actions'):
+            ac = actions[acname]
+            if ac and (not ac.needs_highlight or v'!!annot_id'):
+                bar.appendChild(cb(ac, self[ac.function_name]))
+        selection_bar_quick_highlights = sd.get('selection_bar_quick_highlights')
+        if selection_bar_quick_highlights?.length:
+            self.show_quick_highlight_buttons(bar, selection_bar_quick_highlights)
+        self.show_notes(bar_container, notes)
+        return bar_container
+
+    def show_quick_highlight_buttons(self, bar, actions):
+        all = {x.key:x for x in all_styles()}
+        actions = [a for a in actions if all[a]]
+        if not actions.length:
+            return
+        bar.appendChild(E.div(
+            style=f'background: currentColor; width: 1px; height: {ICON_SIZE}; margin-left: {BUTTON_MARGIN}; margin-right: {BUTTON_MARGIN}'
+        ))
+        dark = self.view.current_color_scheme.is_dark_theme
+        for key in actions:
+            hs = all[key]
+            sw = E.div(
+                class_='simple-link', style=f'margin-left: {BUTTON_MARGIN}; margin-right: {BUTTON_MARGIN}',
+                title=_('Highlight using: {}').format(hs.friendly_name),
+                onclick=self.quick_highlight_with_style.bind(None, hs),
+            )
+            hs.make_swatch(sw, dark)
+            bar.appendChild(sw)
+
+    def show_notes(self, bar, notes):
+        notes = (notes or "").strip()
+        if not notes:
+            return
+        notes_container = bar.lastChild
+        c = notes_container.lastChild
+        notes_container.style.display = notes_container.previousSibling.style.display = 'block'
+        c.style.overflow = 'auto'
+        if self.supports_css_min_max:
+            c.style.maxHeight = 'min(20ex, 40vh)'
+        else:
+            c.style.maxHeight = '20ex'
+        render_notes(notes, c)
+    # }}}
+
+    # accessors {{{
+    @property
+    def supports_css_min_max(self):
+        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
+
+    @property
+    def container(self):
+        return document.getElementById('book-selection-bar-overlay')
+
+    @property
+    def bar(self):
+        return document.getElementById(self.bar_id)
+
+    @property
+    def start_handle(self):
+        return document.getElementById(self.start_handle_id)
+
+    @property
+    def end_handle(self):
+        return document.getElementById(self.end_handle_id)
+
+    @property
+    def editor(self):
+        return document.getElementById(self.editor_id)
+
+    @property
+    def annotations_manager(self):
+        return self.view.annotations_manager
+
+    @property
+    def current_handle_position(self):
+        sh, eh = self.start_handle, self.end_handle
+        sbr, ebr = sh.getBoundingClientRect(), eh.getBoundingClientRect()
+
+        if not self.vertical:
+            # Horizontal LTR (i.e. English)
+            if not self.rtl:
+                return {
+                    'start': {
+                        'onscreen': sh.style.display is not 'none',
+                        'x': Math.round(sbr.right), 'y': Math.round(sbr.bottom - self.start_line_length // 2)
+                    },
+                    'end': {
+                        'onscreen': eh.style.display is not 'none',
+                        'x': Math.round(ebr.left), 'y': Math.round(ebr.bottom - self.end_line_length // 2)
+                    }
+                }
+            # Horizontal RTL (i.e. Hebrew, Arabic)
+            else:
+                return {
+                    'start': {
+                        'onscreen': sh.style.display is not 'none',
+                        'x': Math.round(sbr.left), 'y': Math.round(sbr.bottom - self.start_line_length // 2)
+                    },
+                    'end': {
+                        'onscreen': eh.style.display is not 'none',
+                        'x': Math.round(ebr.right), 'y': Math.round(ebr.bottom - self.end_line_length // 2)
+                    }
+                }
+        # Vertical RTL (i.e. Traditional Chinese, Japanese)
+        else if self.rtl:
+            return {
+                'start': {
+                    'onscreen': sh.style.display is not 'none',
+                    'x': Math.round(sbr.left + self.start_line_length // 2), 'y': Math.round(sbr.bottom)
+                },
+                'end': {
+                    'onscreen': eh.style.display is not 'none',
+                    'x': Math.round(ebr.right - self.end_line_length // 2), 'y': Math.round(ebr.top)
+                }
+            }
+        # Vertical LTR (i.e. Mongolian)
+        else:
+            return {
+                'start': {
+                    'onscreen': sh.style.display is not 'none',
+                    'x': Math.round(sbr.right - self.end_line_length // 2), 'y': Math.round(sbr.bottom)
+                },
+                'end': {
+                    'onscreen': eh.style.display is not 'none',
+                    'x': Math.round(ebr.left + self.start_line_length // 2), 'y': Math.round(ebr.top)
+                }
+            }
+
+    # }}}
+
+    # event handlers {{{
+    def mousedown_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING:
+            self.start_handle_drag(ev, ev.currentTarget)
+
+    def touchstart_on_handle(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is WAITING:
+            for touch in ev.changedTouches:
+                self.active_touch = touch.identifier
+                self.start_handle_drag(touch, ev.currentTarget)
+                break
+
+    def start_handle_drag(self, ev, handle):
+        self.state = DRAGGING
+        self.dragging_handle = handle.id
+        r = handle.getBoundingClientRect()
+        self.position_in_handle.x = Math.round(ev.clientX - r.left)
+        self.position_in_handle.y = Math.round(ev.clientY - r.top)
+
+    def container_clicked(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if self.state is EDITING:
+            self.hide_editor(True)
+        if self.state is WAITING:
+            now = window.performance.now()
+            if self.last_double_click_at and now - self.last_double_click_at < 500:
+                self.send_message('extend-to-paragraph')
+                return
+            for x in (self.bar, self.start_handle, self.end_handle):
+                if near_element(x, ev.clientX, ev.clientY):
+                    return
+        self.clear_selection()
+
+    def mousemove_on_container(self, ev):
+        if self.state is not DRAGGING:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        self.move_handle(ev)
+
+    def touchmove_on_container(self, ev):
+        if self.state is not DRAGGING:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        for touch in ev.changedTouches:
+            if touch.identifier is self.active_touch:
+                self.move_handle(touch)
+                return
+
+    def move_handle(self, ev):
+        handle = document.getElementById(self.dragging_handle)
+        s = handle.style
+        s.left = (ev.clientX - self.position_in_handle.x) + 'px'
+        s.top = (ev.clientY - self.position_in_handle.y) + 'px'
+        margins = get_margins()
+        pos = self.current_handle_position
+        if self.dragging_handle is self.start_handle_id:
+            start = True
+            position = map_to_iframe_coords(pos.start, margins)
+        else:
+            start = False
+            position = map_to_iframe_coords(pos.end, margins)
+        self.send_message('move-end-of-selection', start=start, pos=position)
+        c = self.container
+        rect = c.getBoundingClientRect()
+        t = document.getElementById('book-top-margin').offsetHeight
+        top = rect.top + max(t, DRAG_SCROLL_ZONE_MIN_HEIGHT)
+        t = document.getElementById('book-bottom-margin').offsetHeight
+        bottom = rect.bottom - max(t, DRAG_SCROLL_ZONE_MIN_HEIGHT)
+        if ev.clientY < top or ev.clientY > bottom:
+            self.run_drag_scroll(ev.clientY, top, bottom)
+        else:
+            self.end_drag_scroll()
+
+    def end_handle_drag(self):
+        self.end_drag_scroll()
+        handle = self.dragging_handle
+        self.dragging_handle = None
+        self.state = WAITING
+        # this is done after the event loop ticks because otherwise if
+        # update_position moves the handle a click event is delivered to the
+        # container, calling container_clicked() and clearing the selection
+        window.setTimeout(self.update_position.bind(None, handle), 0)
+
+    def mouseup_on_container(self, ev):
+        if self.state is DRAGGING:
+            ev.preventDefault(), ev.stopPropagation()
+            self.end_handle_drag()
+
+    def touchend_on_container(self, ev):
+        if self.state is DRAGGING:
+            ev.preventDefault(), ev.stopPropagation()
+            for touch in ev.changedTouches:
+                if touch.identifier is self.active_touch:
+                    self.active_touch = None
+                    self.end_handle_drag()
+                    return
+
+    def on_wheel(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        self.view.send_wheel_event_to_iframe(ev, 'selection-mode')
+
+    def on_keydown(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if ev.key is 'Escape':
+            self.clear_selection()
+            return
+        if ev.key and ev.key.toLowerCase() is 'c' and ev.ctrlKey:
+            self.copy_to_clipboard()
+            return
+        sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if sc_name is 'show_chrome':
+            self.clear_selection()
+        elif sc_name is 'copy_to_clipboard':
+            self.copy_to_clipboard()
+        elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
+            self.send_message('trigger-shortcut', name=sc_name)
+        elif sc_name is 'start_search':
+            self.book_search()
+        elif sc_name is 'new_bookmark':
+            self.new_bookmark()
+        elif sc_name is 'toggle_highlights':
+            self.view.on_handle_shortcut({'name': sc_name})
+    # }}}
+
+    # drag scroll {{{
+    def run_drag_scroll(self, mouse_y, top, bottom):
+        backwards = mouse_y <= top
+        self.do_one_drag_scroll(backwards, top - mouse_y if backwards else mouse_y - bottom)
+
+    def do_one_drag_scroll(self, backwards, distance_from_boundary):
+        window.clearTimeout(self.drag_scroll_timer)
+        self.drag_scroll_timer = None
+        if self.state is not DRAGGING:
+            return
+        sd = get_session_data()
+        in_flow_mode = sd.get('read_mode') is 'flow'
+        interval = 1000/sd.get('lines_per_sec_smooth') if in_flow_mode else 1200
+        self.drag_scroll_timer = window.setTimeout(self.do_one_drag_scroll.bind(None, backwards, distance_from_boundary), interval)
+        now = window.performance.now()
+        if self.last_drag_scroll_at is None:
+            # dont jump a page immediately in paged mode
+            if in_flow_mode:
+                self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.start_handle_id else 'right', True)
+            self.last_drag_scroll_at = now
+        elif now - self.last_drag_scroll_at > interval:
+            self.send_drag_scroll_message(backwards, 'left' if self.dragging_handle is self.start_handle_id else 'right', True)
+            self.last_drag_scroll_at = now
+
+    def send_drag_scroll_message(self, backwards, handle, extend_selection):
+        self.send_message(
+            'drag-scroll', backwards=backwards, handle=handle, extents=self.current_handle_position,
+            extend_selection=extend_selection)
+
+    def end_drag_scroll(self):
+        if self.drag_scroll_timer is not None:
+            window.clearTimeout(self.drag_scroll_timer)
+            self.drag_scroll_timer = None
+            self.last_drag_scroll_at = None
+
+    # }}}
+
+    # show and hide {{{
+    def hide(self):
+        self.state = HIDDEN
+        self.container.style.display = 'none'
+        self.view.focus_iframe()
+
+    def show(self):
+        sd = get_session_data()
+        if self.state is HIDDEN:
+            if sd.get('show_selection_bar'):
+                self.container.style.display = 'block'
+                self.state = WAITING
+                self.focus()
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def focus(self):
+        self.container.focus()
+
+    def update_position(self, dragged_handle):
+        container = self.container
+        cs = self.view.currently_showing.selection
+        self.bar.style.display = 'none'
+        self.set_handle_colors()
+        if self.state is DRAGGING:
+            self.show()
+            # needed for drag scrolling
+            self.position_undragged_handle()
+            return
+        if self.state is EDITING:
+            self.start_handle.style.display = 'none'
+            self.end_handle.style.display = 'none'
+            self.show()
+            self.place_editor()
+            return
+        self.start_handle.style.display = 'none'
+        self.end_handle.style.display = 'none'
+        self.editor.style.display = 'none'
+
+        if not cs or cs.empty or jstype(cs.drag_mouse_position?.x) is 'number' or cs.selection_change_caused_by_search:
+            return self.hide()
+
+        if not cs.start.onscreen and not cs.end.onscreen:
+            return self.hide()
+
+        self.rtl = cs.rtl
+        self.ltr = not self.rtl
+        self.vertical = cs.vertical
+        for h in (self.start_handle, self.end_handle):
+            if h.vertical is not self.vertical:
+                h.vertical = self.vertical
+                change_icon_image(h, 'selection-handle-vertical' if h.vertical else 'selection-handle')
+
+        self.show()
+        self.bar.style.display = self.start_handle.style.display = self.end_handle.style.display = 'block'
+        start, end = map_boundaries(cs, self.vertical, self.rtl)
+        bar = self.build_bar(cs.annot_id)
+        bar_height = bar.offsetHeight
+        bar_width = bar.offsetWidth
+        buffer = 2
+        limits = {
+            'top': buffer, 'bottom': container.offsetHeight - bar_height - buffer,
+            # - 10 ensures we dont cover scroll bar
+            'left': buffer, 'right': container.offsetWidth - bar_width - buffer - 10
+        }
+        start_handle, end_handle = self.start_handle, self.end_handle
+        self.position_handles(start_handle, end_handle, start, end)
+
+        def place_vertically(pos, put_below):
+            if put_below:
+                top = pos
+                bar.style.flexDirection = 'column'
+            else:
+                top = pos - bar_height - buffer
+                bar.style.flexDirection = 'column-reverse'
+            bar.style.top = top + 'px'
+            return top
+
+        # We try to place the bar near the last dragged handle so it shows up
+        # close to current mouse position. We assume it is the "end" handle.
+        if dragged_handle:
+            if dragged_handle is not self.end_handle_id:
+                start, end = end, start
+        else:
+            if not cs.start_is_anchor:
+                start, end = end, start
+        if not end.onscreen and start.onscreen:
+            start, end = end, start
+
+        end_after_start = start.y < end.y or (start.y is end.y and start.x < end.x)
+        # vertical position
+        if end_after_start:
+            has_space_below = end.y + end.height < container.offsetHeight - bar_height - buffer
+            put_below = has_space_below
+        else:
+            has_space_above = end.y + bar_height - buffer > 0
+            put_below = not has_space_above
+        top = place_vertically(end.y + end.height if put_below else end.y, put_below)
+
+        # horizontal position
+        left = end.x - bar_width // 2
+        left = max(limits.left, min(left, limits.right))
+        bar.style.left = left + 'px'
+        sh, eh = start_handle.getBoundingClientRect(), end_handle.getBoundingClientRect()
+        changed = position_bar_avoiding_handles(sh, eh, left, top, bar_width, bar_height, container.offsetWidth - 10, container.offsetHeight, buffer)
+        if changed:
+            if changed.top?:
+                place_vertically(changed.top, changed.put_below)
+            if changed.left?:
+                bar.style.left = changed.left + 'px'
+
+    def place_single_handle(self, selection_size, handle, boundary, is_start):
+        s = handle.style
+        s.display = 'block' if boundary.onscreen else 'none'
+
+        # Cap this to prevent very large handles when selecting images.
+        selection_size = max(10, min(selection_size, 60))
+
+        if self.vertical:
+            width = selection_size * 2
+            height = int(width * 2 / 3)
+        else:
+            height = selection_size * 2
+            width = int(height * 2 / 3)
+
+        s.width = f'{width}px'
+        s.height = f'{height}px'
+        s.transform = 'none'
+        if not self.vertical:
+            bottom = boundary.y + boundary.height
+            top = bottom - height
+            s.top = f'{top}px'
+            if is_start:
+                # Horizontal, start, LTR
+                if self.ltr:
+                    s.left = (boundary.x - width) + 'px'
+                    self.start_line_length = selection_size
+                # Horizontal, start, RTL
+                else:
+                    s.left = (boundary.x) + 'px'
+                    self.start_line_length = selection_size
+                    s.transform = 'scaleX(-1)'
+            else:
+                # Horizontal, end, LTR
+                if self.ltr:
+                    s.left = boundary.x + 'px'
+                    self.end_line_length = selection_size
+                    s.transform = 'scaleX(-1)'
+                # Horizontal, end, RTL
+                else:
+                    s.left = (boundary.x - width) + 'px'
+                    self.end_line_length = selection_size
+        else:
+            if is_start:
+                # Vertical, start, RTL
+                if self.rtl:
+                    s.top = boundary.y - height + 'px'
+                    s.left = boundary.x + 'px'
+                    self.start_line_length = selection_size
+                    s.transform = 'scaleX(-1) scaleY(-1)'
+                # Vertical, start, LTR
+                else:
+                    s.top = boundary.y - height + 'px'
+                    s.left = boundary.x - width + boundary.width + 'px'
+                    self.start_line_length = selection_size
+                    s.transform = 'scaleY(-1)'
+            else:
+                # Vertical, end, RTL
+                if self.rtl:
+                    s.top = boundary.y + 'px'
+                    s.left = boundary.x - width + boundary.width + 'px'
+                    self.end_line_length = selection_size
+                # Vertical, end, LTR
+                else:
+                    s.top = boundary.y + 'px'
+                    s.left = boundary.x + 'px'
+                    self.end_line_length = selection_size
+                    s.transform = 'scaleX(-1)'
+
+    def position_handles(self, start_handle, end_handle, start, end):
+        if self.vertical:
+            selection_size = max(start.width, end.width)
+        else:
+            selection_size = max(start.height, end.height)
+        self.place_single_handle(selection_size, start_handle, start, True)
+        self.place_single_handle(selection_size, end_handle, end, False)
+
+    def position_undragged_handle(self):
+        cs = self.view.currently_showing.selection
+        start, end = map_boundaries(cs, self.vertical, self.rtl)
+        if not self.vertical:
+            selection_size = max(start.height, end.height)
+        else:
+            selection_size = max(start.width, end.width)
+        if self.dragging_handle is self.start_handle_id:
+            handle = self.end_handle
+            boundary = end
+            is_start = False
+        else:
+            handle = self.start_handle
+            boundary = start
+            is_start = True
+        self.place_single_handle(selection_size, handle, boundary, is_start)
+    # }}}
+
+    # Editor {{{
+    def show_editor(self, highlight_style, notes):
+        for x in (self.bar, self.start_handle, self.end_handle):
+            x.style.display = 'none'
+        container = self.editor
+        clear(container)
+        container.style.display = 'block'
+        self.state = EDITING
+        cs = self.view.currently_showing.selection
+        self.current_editor = EditNotesAndColors(
+            container, self.view.current_color_scheme.is_dark_theme, notes, highlight_style, cs.annot_id, self.hide_editor)
+        self.place_editor()
+
+    def place_editor(self):
+        if self.current_editor is None:
+            return
+        ed = self.editor
+        cs = self.view.currently_showing.selection
+        start, end = map_boundaries(cs, self.vertical, self.rtl)
+        if not start.onscreen and not end.onscreen:
+            return
+        width, height = ed.offsetWidth, ed.offsetHeight
+        if not start.onscreen:
+            start = end
+        if not end.onscreen:
+            end = start
+        top, bottom = v'[start, end]' if start.y <= end.y else v'[end, start]'
+        container = self.container
+        space_above, space_below = top.y, container.offsetHeight - (bottom.y + bottom.height)
+        if height <= min(space_above, space_below):
+            put_above = space_above < space_below
+        else:
+            put_above = space_above > space_below
+        if put_above:
+            y = max(0, top.y - height)
+        else:
+            y = bottom.y + bottom.height
+            if y + height > container.offsetHeight:
+                y = container.offsetHeight - height
+        x = max(0, end.x - width // 2)
+        if x + width > container.offsetWidth:
+            x = container.offsetWidth - width
+        ed.style.left = x + 'px'
+        ed.style.top = y + 'px'
+
+    def hide_editor(self, apply_changes):
+        if not apply_changes:
+            self.state = WAITING
+            self.update_position()
+            self.focus()
+            return
+        ed = self.current_editor
+        self.current_editor = None
+        self.current_highlight_style = ed.current_style
+        self.current_notes = ed.current_notes
+        self.send_message(
+            'apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), existing=ed.annot_id,
+            has_notes=v'!!self.current_notes'
+        )
+        self.state = WAITING
+        self.update_position()
+        get_session_data().set('highlight_style', self.current_highlight_style.style)
+        self.focus()
+
+    def editor_container_clicked(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+    # }}}
+
+    # Actions  {{{
+    def copy_to_clipboard(self):
+        self.view.copy_to_clipboard()
+
+    def lookup(self):
+        if ui_operations.toggle_lookup:
+            ui_operations.toggle_lookup(True)
+        else:
+            self.view.overlay.show_word_actions(self.view.currently_showing.selection.text)
+
+    def book_search(self):
+        self.view.show_search(True)
+        self.clear_selection()
+
+    def new_bookmark(self):
+        self.view.new_bookmark()
+
+    def internet_search(self):
+        text = self.view.currently_showing.selection.text
+        if text:
+            q = encodeURIComponent(text)
+            url = get_session_data().get('net_search_url').format(q=q)
+            ui_operations.open_url(url)
+
+    def clear_selection(self):
+        self.view.on_handle_shortcut({'name': 'clear_selection'})
+        self.hide()
+
+    def create_highlight(self):
+        cs = self.view.currently_showing.selection
+        hs = self.current_highlight_style
+        notes = ''
+        if cs.annot_id:
+            am = self.annotations_manager
+            q = am.style_for_highlight(cs.annot_id)
+            if q:
+                hs = HighlightStyle(q)
+            notes = am.notes_for_highlight(cs.annot_id) or notes
+            self.show()
+        self.show_editor(hs, notes)
+
+    def quick_highlight(self):
+        cs = self.view.currently_showing.selection
+        if cs.text:
+            if cs.annot_id:
+                self.create_highlight()
+            else:
+                self.current_notes = ''
+                self.send_message('apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), has_notes=False)
+                self.state = WAITING
+                self.update_position()
+
+    def quick_highlight_with_style(self, hs):
+        self.current_highlight_style = hs
+        self.quick_highlight()
+
+    def remove_highlight(self):
+        annot_id = self.view.currently_showing.selection.annot_id
+        if annot_id:
+            question_dialog(
+                _('Are you sure?'), _('Are you sure you want to delete this highlight permanently?'),
+                def (yes):
+                    if yes:
+                        self.remove_highlight_with_id(annot_id)
+                , skip_dialog_name='confirm_remove_highlight'
+            )
+
+    def remove_highlight_with_id(self, annot_id):
+        self.send_message('remove-highlight', uuid=annot_id)
+        self.annotations_manager.delete_highlight(annot_id)
+
+    def edit_highlight(self, annot_id):
+        self.send_message('edit-highlight', uuid=annot_id)
+    # }}}
+
+    # Interact with iframe {{{
+
+    def send_message(self, type, **kw):
+        self.view.iframe_wrapper.send_message('annotations', type=type, **kw)
+
+    def notes_edited(self, annot_id):
+        notes = self.annotations_manager.notes_for_highlight(annot_id)
+        self.send_message('notes-edited', uuid=annot_id, has_notes=bool(notes))
+
+    def handle_message(self, msg):
+        if msg.type is 'highlight-applied':
+            notes = self.current_notes
+            self.current_notes = ''
+            if not msg.ok:
+                return error_dialog(
+                    _('Highlighting failed'),
+                    _('Failed to apply highlighting, try adjusting extent of highlight')
+                )
+            toc_family = v'[]'
+            if msg.anchor_before:
+                toc_family = family_for_toc_node(msg.anchor_before.id)
+            else:
+                before = get_toc_nodes_bordering_spine_item()[0]
+                if before:
+                    toc_family = family_for_toc_node(before.id)
+            self.annotations_manager.add_highlight(
+                msg, self.current_highlight_style.style, notes, toc_family)
+        elif msg.type is 'edit-highlight':
+            if self.state is WAITING:
+                self.create_highlight()
+        elif msg.type is 'double-click':
+            self.last_double_click_at = window.performance.now()
+        else:
+            print('Ignoring annotations message with unknown type:', msg.type)
+
+    # }}}

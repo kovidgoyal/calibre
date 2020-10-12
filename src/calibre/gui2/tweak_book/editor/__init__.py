@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -29,6 +28,7 @@ def syntax_from_mime(name, mime):
         return 'raster_image'
     if mime.endswith('+xml'):
         return 'xml'
+
 
 all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
 
@@ -69,4 +69,6 @@ class StoreLocale(object):
 
     def __exit__(self, *args):
         self.enabled = False
+
+
 store_locale = StoreLocale()

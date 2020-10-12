@@ -1,10 +1,11 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
+
+from polyglot.builtins import native_string_type
 
 
 class ConversionUserFeedBack(Exception):
@@ -23,6 +24,7 @@ class ConversionUserFeedBack(Exception):
         self.title, self.msg, self.det_msg = title, msg, det_msg
         self.level = level
 
+
 # Ensure exception uses fully qualified name as this is used to detect it in
 # the GUI.
-ConversionUserFeedBack.__name__ = str('calibre.ebooks.conversion.ConversionUserFeedBack')
+ConversionUserFeedBack.__name__ = native_string_type('calibre.ebooks.conversion.ConversionUserFeedBack')

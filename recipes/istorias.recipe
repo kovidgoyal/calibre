@@ -1,0 +1,17 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
+
+class BasicUserRecipe1501589422(AutomaticNewsRecipe):
+    title          = 'Istòrias'
+    oldest_article = 30
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+    language       = 'sc'
+    __author__     = 'tzium'
+
+    feeds          = [
+        ('Istòrias', 'http://www.istorias.it/feed'),
+    ]

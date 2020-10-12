@@ -4,7 +4,6 @@ from __python__ import hash_literals, bound_methods
 
 from dom import ensure_id
 from elementmaker import E
-from keycodes import get_key
 from session import local_storage
 from popups import CompletionPopup
 from utils import uniq
@@ -34,20 +33,30 @@ class EditWithComplete:
             return True
 
     def onkeydown(self, event):
-        k = get_key(event)
-        if self.completion_popup.is_visible and self.completion_popup.handle_keydown(k):
+        if self.completion_popup.is_visible and self.completion_popup.handle_keydown(event):
             event.preventDefault(), event.stopPropagation()
             return
-        if k is 'enter':
+        if event.key is 'Enter':
+            if self.completion_popup.is_visible:
+                if self.apply_completion(self.completion_popup.current_text):
+                    self.completion_popup.hide()
+                    event.preventDefault(), event.stopPropagation()
+                    return
             if self.onenterkey:
                 event.preventDefault(), event.stopPropagation()
                 self.onenterkey()
-        elif k is 'tab':
+        elif event.key is 'Tab':
             if self.completion_popup.is_visible:
                 if self.apply_completion(self.completion_popup.current_text):
                     self.completion_popup.hide()
                 else:
                     self.completion_popup.move_highlight()
+                event.preventDefault(), event.stopPropagation()
+        elif event.key is 'ArrowDown':
+            ti = self.text_input
+            if not ti.value:
+                self.completion_popup.set_query('')
+                self.completion_popup.popup(ti)
                 event.preventDefault(), event.stopPropagation()
 
     def oninput(self, event):
@@ -85,7 +94,7 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
             items = local_storage().get(history_name) or v'[]'
             idx = items.indexOf(text)
             if idx > -1:
-                items = items.splice(idx, 1)
+                items.splice(idx, 1)
             items.unshift(text)
             local_storage().set(history_name, uniq(items[:history_size]))
             update_completion_items()

@@ -1,0 +1,40 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = '2018, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.cronista.com
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class ElCronistaArg(BasicNewsRecipe):
+    title                = 'El Cronista'
+    __author__           = 'Darko Miletic'
+    description          = (
+        'El Cronista Comercial es el Diario economico-politico mas valorado.'
+        ' Es la fuente mas confiable de informacion en temas de economia, finanzas y negocios.')
+    publisher            = 'El Cronista'
+    category             = 'news, politics, Argentina'
+    oldest_article       = 2
+    no_stylesheets       = True
+    encoding             = 'utf8'
+    use_embedded_content = False
+    language             = 'es_AR'
+    remove_empty_feeds   = True
+    publication_type     = 'newsportal'
+    auto_cleanup         = True
+    auto_cleanup_keep    = '//div[@class="header-bottom"] | //h1 | //h2'
+    ignore_duplicate_articles = {'url'}
+    masthead_url         = 'https://www.cronista.com/export/sites/diarioelcronista/arte/v2/lg_cronista_footer.png_665574830.png'
+    extra_css            = """
+        body{font-family: 'Source Sans Pro', sans-serif}
+        h1,h2,h3,h4{font-family: 'Libre Baskerville', serif}
+    """
+
+    conversion_options = {
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
+
+    feeds = [(u'Articulos', u'https://www.cronista.com/rss/feed.xml')]

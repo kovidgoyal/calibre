@@ -1,4 +1,6 @@
 # coding:utf-8
+
+
 __license__ = 'GPL 3'
 __copyright__ = '2010, Hiroshi Miura <miurahr@linux.com>'
 __docformat__ = 'restructuredtext en'
@@ -39,4 +41,3 @@ class Jadecoder(Unidecoder):
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),result)
         except:
             return re.sub('[^\x00-\x7f]', lambda x: self.replace_point(x.group()),text)
-

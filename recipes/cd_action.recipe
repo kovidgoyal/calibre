@@ -22,7 +22,7 @@ class CD_Action(BasicNewsRecipe):
         return getattr(self, 'cover_url', self.cover_url)
 
     def preprocess_html(self, soup):
-        for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
+        for a in soup.findAll('a', href=True):
+            if 'http://' not in a['href'] and 'https://' not in a['href']:
                 a['href'] = self.index + a['href']
         return soup

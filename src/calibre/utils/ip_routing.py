@@ -1,11 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 import subprocess, re
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, ismacos
 
 
 def get_address_of_default_gateway(family='AF_INET'):
@@ -26,11 +25,12 @@ def get_addresses_for_interface(name, family='AF_INET'):
                     addr = addr.decode('ascii')
                 yield addr
 
+
 if iswindows:
 
     def get_default_route_src_address_external():
         # Use -6 for IPv6 addresses
-        raw = subprocess.check_output('route -4 print 0.0.0.0'.split(), creationflags=0x08).decode('utf-8', 'replace')
+        raw = subprocess.check_output('route -4 print 0.0.0.0'.split(), creationflags=subprocess.DETACHED_PROCESS).decode('utf-8', 'replace')
         in_table = False
         default_gateway = get_address_of_default_gateway()
         for line in raw.splitlines():
@@ -56,7 +56,7 @@ if iswindows:
     get_default_route_src_address = get_default_route_src_address_api
 
 
-elif isosx:
+elif ismacos:
 
     def get_default_route_src_address():
         # Use -inet6 for IPv6
@@ -70,7 +70,8 @@ else:
 
     def get_default_route_src_address():
         # Use /proc/net/ipv6_route for IPv6 addresses
-        raw = open('/proc/net/route', 'rb').read().decode('utf-8')
+        with open('/proc/net/route', 'rb') as f:
+            raw = f.read().decode('utf-8')
         for line in raw.splitlines():
             parts = line.split()
             if len(parts) > 1 and parts[1] == '00000000':

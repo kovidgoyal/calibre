@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read meta information from eReader pdb files.
 '''
@@ -24,7 +25,7 @@ def get_cover(pheader, eheader):
     for i in range(eheader.image_count):
         raw = pheader.section_data(eheader.image_data_offset + i)
 
-        if raw[4:4 + 32].strip('\x00') == 'cover.png':
+        if raw[4:4 + 32].strip(b'\x00') == b'cover.png':
             cover_data = raw[62:]
             break
 
@@ -48,12 +49,12 @@ def get_metadata(stream, extract_cover=True):
             try:
                 mdata = pheader.section_data(hr.metadata_offset)
 
-                mdata = mdata.split('\x00')
+                mdata = mdata.decode('cp1252', 'replace').split('\x00')
                 mi.title = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[0])
                 mi.authors = [re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[1])]
                 mi.publisher = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[3])
                 mi.isbn = re.sub(r'[^a-zA-Z0-9 \._=\+\-!\?,\'\"]', '', mdata[4])
-            except:
+            except Exception:
                 pass
 
             if extract_cover:
@@ -80,7 +81,7 @@ def set_metadata(stream, mi):
 
     # Create a metadata record for the file if one does not alreay exist
     if not hr.has_metadata:
-        sections += ['', 'MeTaInFo\x00']
+        sections += [b'', b'MeTaInFo\x00']
         last_data = len(sections) - 1
 
         for i in range(0, 132, 2):
@@ -95,8 +96,8 @@ def set_metadata(stream, mi):
     # Merge the metadata into the file
     file_mi = get_metadata(stream, False)
     file_mi.smart_update(mi)
-    sections[hr.metadata_offset] = '%s\x00%s\x00%s\x00%s\x00%s\x00' % \
-        (file_mi.title, authors_to_string(file_mi.authors), '', file_mi.publisher, file_mi.isbn)
+    sections[hr.metadata_offset] = ('%s\x00%s\x00%s\x00%s\x00%s\x00' % (
+        file_mi.title, authors_to_string(file_mi.authors), '', file_mi.publisher, file_mi.isbn)).encode('cp1252', 'replace')
 
     # Rebuild the PDB wrapper because the offsets have changed due to the
     # new metadata.

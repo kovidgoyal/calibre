@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Based on Lars Jacob's Taz Digiabo recipe
 
@@ -6,7 +6,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2010, Starson17'
 
 import os
-import urllib2
 import zipfile
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
@@ -25,10 +24,10 @@ class NowToronto(BasicNewsRecipe):
         epub_feed = "http://feeds.feedburner.com/NowEpubEditions"
         soup = self.index_to_soup(epub_feed)
         url = soup.find(name='feedburner:origlink').string
-        f = urllib2.urlopen(url)
+        raw = self.index_to_soup(url, raw=True)
         tmp = PersistentTemporaryFile(suffix='.epub')
         self.report_progress(0, _('downloading epub'))
-        tmp.write(f.read())
+        tmp.write(raw)
         tmp.close()
         zfile = zipfile.ZipFile(tmp.name, 'r')
         self.report_progress(0, _('extracting epub'))

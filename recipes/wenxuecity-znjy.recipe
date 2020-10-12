@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2010, Derek Liang <Derek.liang.ca @@@at@@@ gmail.com>'
@@ -42,11 +42,11 @@ class TheCND(BasicNewsRecipe):
                 url = 'http://bbs.wenxuecity.com' + url
             title = self.tag_to_string(a)
             self.log('\tFound article: ', title, ' at:', url)
-            dateReg = re.search('(\d\d?)/(\d\d?)/(\d\d)',
+            dateReg = re.search(r'(\d\d?)/(\d\d?)/(\d\d)',
                                 self.tag_to_string(a.parent))
             date = '%(y)s/%(m)02d/%(d)02d' % {'y': dateReg.group(3),
                                               'm': int(dateReg.group(1)), 'd': int(dateReg.group(2))}
-            if not articles.has_key(date):  # noqa
+            if date not in articles:  # noqa
                 articles[date] = []
             articles[date].append(
                 {'title': title, 'url': url, 'description': '', 'date': ''})

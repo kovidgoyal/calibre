@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
@@ -8,9 +8,11 @@ import json
 import re
 import time
 from collections import defaultdict, namedtuple
-from future_builtins import map
-from urllib import quote_plus, urlencode
-from urlparse import parse_qs
+try:
+    from urllib.parse import parse_qs, quote_plus, urlencode
+except ImportError:
+    from urlparse import parse_qs
+    from urllib import quote_plus, urlencode
 
 from lxml import etree
 
@@ -18,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 0)
+current_version = (1, 0, 4)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -27,11 +29,12 @@ Result = namedtuple('Result', 'url title cached_url')
 
 
 def tostring(elem):
-    return etree.tostring(elem, encoding=unicode, method='text', with_tail=False)
+    return etree.tostring(elem, encoding='unicode', method='text', with_tail=False)
 
 
 def browser():
     ua = random_user_agent(allow_ie=False)
+    # ua = 'Mozilla/5.0 (Linux; Android 8.0.0; VTR-L29; rv:63.0) Gecko/20100101 Firefox/63.0'
     br = _browser(user_agent=ua)
     br.set_handle_gzip(True)
     br.addheaders += [
@@ -42,7 +45,7 @@ def browser():
 
 
 def encode_query(**query):
-    q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.iteritems()}
+    q = {k.encode('utf-8'): v.encode('utf-8') for k, v in query.items()}
     return urlencode(q).decode('utf-8')
 
 
@@ -72,7 +75,10 @@ def query(br, url, key, dump_raw=None, limit=1, parser=parse_html, timeout=60):
 
 
 def quote_term(x):
-    return quote_plus(x.encode('utf-8')).decode('utf-8')
+    ans = quote_plus(x.encode('utf-8'))
+    if isinstance(ans, bytes):
+        ans = ans.decode('utf-8')
+    return ans
 
 
 # DDG + Wayback machine {{{
@@ -122,8 +128,7 @@ def wayback_url_processor(url):
 
 def ddg_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # https://duck.co/help/results/syntax
-    terms = map(ddg_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(ddg_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -164,8 +169,7 @@ def bing_url_processor(url):
 
 def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
     # http://vlaurie.com/computers2/Articles/bing_advanced_search.htm
-    terms = map(bing_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(bing_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -175,7 +179,8 @@ def bing_search(terms, site=None, br=None, log=prints, safe_search=False, dump_r
     root = query(br, url, 'bing', dump_raw, timeout=timeout)
     ans = []
     for li in root.xpath('//*[@id="b_results"]/li[@class="b_algo"]'):
-        a = li.xpath('descendant::h2/a[@href]')[0]
+        a = li.xpath('descendant::h2/a[@href]') or li.xpath('descendant::div[@class="b_algoheader"]/a[@href]')
+        a = a[0]
         title = tostring(a)
         try:
             div = li.xpath('descendant::div[@class="b_attribution" and @u]')[0]
@@ -219,8 +224,7 @@ def google_url_processor(url):
 
 
 def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump_raw=None, timeout=60):
-    terms = map(google_term, terms)
-    terms = [quote_term(t) for t in terms]
+    terms = [quote_term(google_term(t)) for t in terms]
     if site is not None:
         terms.append(quote_term(('site:' + site)))
     q = '+'.join(terms)
@@ -230,10 +234,14 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     root = query(br, url, 'google', dump_raw, timeout=timeout)
     ans = []
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="g"]'):
-        a = div.xpath('descendant::h3[@class="r"]/a[@href]')[0]
+        try:
+            a = div.xpath('descendant::div[@class="r"]/a[@href]')[0]
+        except IndexError:
+            log('Ignoring div with no descendant')
+            continue
         title = tostring(a)
         try:
-            c = div.xpath('descendant::div[@class="s"]//a[@class="fl"]')[0]
+            c = div.xpath('descendant::*[@role="menu"]//a[@class="fl"]')[0]
         except IndexError:
             log('Ignoring {!r} as it has no cached page'.format(title))
             continue
@@ -245,9 +253,9 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     return ans, url
 
 
-def google_develop():
+def google_develop(search_terms='1423146786'):
     br = browser()
-    for result in google_search('1423146786'.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
+    for result in google_search(search_terms.split(), 'www.amazon.com', dump_raw='/t/raw.html', br=br)[0]:
         if '/dp/' in result.url:
             print(result.title)
             print(' ', result.url)

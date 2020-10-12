@@ -1,0 +1,125 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import unique_id
+from read_book.globals import runtime
+from read_book.prefs.utils import create_button_box
+
+CONTAINER = unique_id('standalone-font-settings')
+DEFAULT_STANDARD_FONT = 'serif'
+DEFAULT_MINIMUM_FONT_SIZE = 8
+DEFAULT_ZOOM_STEP_SIZE = 20
+
+
+def current_zoom_step_size():
+    s = get_session_data().get('standalone_font_settings')
+    return s.zoom_step_size or DEFAULT_ZOOM_STEP_SIZE
+
+
+def font_select(name, settings):
+    ans = E.select(name=name)
+    ans.appendChild(E.option(_('— Choose a font —'), value=''))
+    current_val = settings[name]
+    if not current_val:
+        ans.lastChild.setAttribute('selected', 'selected')
+    for family in runtime.all_font_families:
+        if family:
+            ans.appendChild(E.option(family))
+            if family is current_val:
+                ans.lastChild.setAttribute('selected', 'selected')
+    return ans
+
+
+def standard_font(settings):
+    ans = E.select(name='standard_font')
+    ans.appendChild(E.option(_('Serif'), value='serif'))
+    ans.appendChild(E.option(_('Sans-serif'), value='sans'))
+    ans.appendChild(E.option(_('Monospace'), value='mono'))
+    sf = settings.standard_font or DEFAULT_STANDARD_FONT
+    ans.querySelector(f'[value={sf}]').setAttribute('selected', 'selected')
+    return ans
+
+
+def minimum_font_size(settings):
+    ans = E.input(max='100', min='0', step='1', type='number', name='minimum_font_size')
+    if jstype(settings.minimum_font_size) is 'number':
+        ans.value = settings.minimum_font_size + ''
+    else:
+        ans.value = '' + DEFAULT_MINIMUM_FONT_SIZE
+    return ans
+
+
+def zoom_step_size(settings):
+    ans = E.input(max='100', min='1', step='1', type='number', name='zoom_step_size')
+    if jstype(settings.zoom_step_size) is 'number':
+        ans.value = settings.zoom_step_size + ''
+    else:
+        ans.value = '' + DEFAULT_ZOOM_STEP_SIZE
+    return ans
+
+
+def restore_defaults():
+    container = get_container()
+    for q in ('serif_family', 'sans_family', 'mono_family'):
+        container.querySelector(f'[name={q}]').value = ''
+    container.querySelector('[name=zoom_step_size]').value = DEFAULT_ZOOM_STEP_SIZE + ''
+    container.querySelector('[name=minimum_font_size]').value = DEFAULT_MINIMUM_FONT_SIZE + ''
+    container.querySelector('[name=standard_font]').value = DEFAULT_STANDARD_FONT
+
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def create_fonts_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    container.append(E.div(_('Choose fonts to use for un-styled text:'), style='margin-top: 1rem'))
+    sd = get_session_data()
+    settings = sd.get('standalone_font_settings')
+
+    def row(label, widget):
+        return E.tr(E.td(label + ':\xa0', style='padding-top: 1ex'), E.td(widget, style='padding-top: 1ex'))
+
+    container.append(E.table(style='margin-top: 1rem',
+        row(_('Serif family'), font_select('serif_family', settings)),
+        row(_('Sans-serif family'), font_select('sans_family', settings)),
+        row(_('Monospace family'), font_select('mono_family', settings)),
+        row(_('Standard font'), standard_font(settings)),
+    ))
+
+    container.append(E.div(_('Zoom related settings'), style='margin-top: 1rem; padding-top: 1rem; width: 100%; border-top: solid 1px'))
+    container.append(E.table(
+        row(_('Zoom step size (%)'), zoom_step_size(settings)),
+        row(_('Minimum font size (px)'), minimum_font_size(settings)),
+    ))
+
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+
+develop = create_fonts_panel
+
+
+def commit_fonts(onchange):
+    sd = get_session_data()
+    container = get_container()
+    vals = {}
+    zss = parseInt(container.querySelector('[name=zoom_step_size]').value)
+    if zss is not DEFAULT_ZOOM_STEP_SIZE:
+        vals.zoom_step_size = zss
+    mfs = parseInt(container.querySelector('[name=minimum_font_size]').value)
+    if mfs is not DEFAULT_MINIMUM_FONT_SIZE:
+        vals.minimum_font_size = mfs
+    sf = container.querySelector('[name=standard_font]').value
+    if sf is not DEFAULT_STANDARD_FONT:
+        vals.standard_font = sf
+    for q in ('serif_family', 'sans_family', 'mono_family'):
+        val = container.querySelector(f'[name={q}]').value
+        if val:
+            vals[q] = val
+    sd.set('standalone_font_settings', vals)

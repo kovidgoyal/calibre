@@ -1,22 +1,32 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, unicodedata
 
-from calibre.ebooks.oeb.base import (OEB_DOCS, XHTML, XHTML_NS, XML_NS,
-        namespace, prefixname, urlnormalize)
+import re
+import unicodedata
+from collections import defaultdict
+from io import BytesIO
+
 from calibre.ebooks.mobi.mobiml import MBP_NS
 from calibre.ebooks.mobi.utils import is_guide_ref_start
+from calibre.ebooks.oeb.base import (
+    OEB_DOCS, XHTML, XHTML_NS, XML_NS, namespace, prefixname, urlnormalize
+)
+from polyglot.builtins import unicode_type, string_or_bytes
+from polyglot.urllib import urldefrag
 
-from collections import defaultdict
-from urlparse import urldefrag
-from cStringIO import StringIO
+
+class Buf(BytesIO):
+
+    def write(self, x):
+        if isinstance(x, unicode_type):
+            x = x.encode('utf-8')
+        BytesIO.write(self, x)
 
 
 class Serializer(object):
@@ -115,7 +125,7 @@ class Serializer(object):
         '''
         Return the document serialized as a single UTF-8 encoded bytestring.
         '''
-        buf = self.buf = StringIO()
+        buf = self.buf = Buf()
         buf.write(b'<html>')
         self.serialize_head()
         self.serialize_body()
@@ -213,22 +223,22 @@ class Serializer(object):
             # if href is provided add a link ref to the toc level output (e.g. feed_0/index.html)
             if href is not None:
                 # resolve the section url in id_offsets
-                buf.write('<mbp:pagebreak />')
+                buf.write(b'<mbp:pagebreak />')
                 self.id_offsets[urlnormalize(href)] = buf.tell()
 
             if tocref.klass == "periodical":
-                buf.write('<div> <div height="1em"></div>')
+                buf.write(b'<div> <div height="1em"></div>')
             else:
                 t = tocref.title
-                if isinstance(t, unicode):
+                if isinstance(t, unicode_type):
                     t = t.encode('utf-8')
-                buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t +
-                          '</b></font></h2> <div height="1em"></div>')
+                buf.write(b'<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t +
+                          b'</b></font></h2> <div height="1em"></div>')
 
-            buf.write('<ul>')
+            buf.write(b'<ul>')
 
             for tocitem in tocref.nodes:
-                buf.write('<li><a filepos=')
+                buf.write(b'<li><a filepos=')
                 itemhref = tocitem.href
                 if tocref.klass == 'periodical':
                     # This is a section node.
@@ -237,15 +247,15 @@ class Serializer(object):
                     # so we change the href.
                     itemhref = re.sub(r'article_\d+/', '', itemhref)
                 self.href_offsets[itemhref].append(buf.tell())
-                buf.write('0000000000')
-                buf.write(' ><font size="+1"><b><u>')
+                buf.write(b'0000000000')
+                buf.write(b' ><font size="+1"><b><u>')
                 t = tocitem.title
-                if isinstance(t, unicode):
+                if isinstance(t, unicode_type):
                     t = t.encode('utf-8')
                 buf.write(t)
-                buf.write('</u></b></font></a></li>')
+                buf.write(b'</u></b></font></a></li>')
 
-            buf.write('</ul><div height="1em"></div></div><mbp:pagebreak />')
+            buf.write(b'</ul><div height="1em"></div></div><mbp:pagebreak />')
 
         self.anchor_offset = buf.tell()
         buf.write(b'<body>')
@@ -300,7 +310,7 @@ class Serializer(object):
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buf = self.buf
-        if not isinstance(elem.tag, basestring) \
+        if not isinstance(elem.tag, string_or_bytes) \
             or namespace(elem.tag) not in nsrmap:
             return
         tag = prefixname(elem.tag, nsrmap)
@@ -349,7 +359,7 @@ class Serializer(object):
                 if child.tail:
                     self.anchor_offset = None
                     self.serialize_text(child.tail)
-        buf.write(b'</%s>' % tag.encode('utf-8'))
+        buf.write(('</%s>' % tag).encode('utf-8'))
 
     def serialize_text(self, text, quot=False):
         text = text.replace('&', '&amp;')
@@ -358,7 +368,7 @@ class Serializer(object):
         text = text.replace(u'\u00AD', '')  # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
-        if isinstance(text, unicode):
+        if isinstance(text, unicode_type):
             text = unicodedata.normalize('NFC', text)
         self.buf.write(text.encode('utf-8'))
 
@@ -383,6 +393,4 @@ class Serializer(object):
                     self.start_offset = ioff
                 for hoff in hoffs:
                     buf.seek(hoff)
-                    buf.write(b'%010d' % ioff)
-
-
+                    buf.write(('%010d' % ioff).encode('utf-8'))

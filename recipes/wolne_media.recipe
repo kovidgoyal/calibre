@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __author__ = 'teepel <teepel44@gmail.com>'
@@ -23,6 +23,9 @@ class wolne_media(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     auto_cleanup = True
+    ignore_duplicate_articles = {'url'}
+
+    remove_tags = [dict(name='p', attrs={'class': 'tags'})]
 
     feeds = [
     (u'Wiadomości z kraju', u'http://wolnemedia.net/category/wiadomosci-z-kraju/feed/'),

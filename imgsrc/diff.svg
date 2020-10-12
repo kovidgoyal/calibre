@@ -7,7 +7,6 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
@@ -15,41 +14,10 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="diff.svg">
   <defs
-     id="defs4">
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient4136">
-      <stop
-         style="stop-color:#34ae3d;stop-opacity:1;"
-         offset="0"
-         id="stop4138" />
-      <stop
-         style="stop-color:#27812d;stop-opacity:1"
-         offset="1"
-         id="stop4140" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4136"
-       id="linearGradient4142"
-       x1="18.439"
-       y1="46.9435"
-       x2="46.291"
-       y2="46.9435"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient4136"
-       id="linearGradient4150"
-       x1="18.438999"
-       y1="46.943501"
-       x2="46.291"
-       y2="46.943501"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
+     id="defs4" />
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -57,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="5.6"
      inkscape:cx="-10.424833"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -122,14 +90,14 @@
        inkscape:connector-curvature="0"
        d="m 97.75685,950.20353 -29.611681,0 -23.709931,-24.84123 -23.747868,0 c -10.8726981,0 -19.6873739,8.81466 -19.6873739,19.68737 l 0,61.78533 c 0,10.8728 8.8146758,19.6875 19.6873739,19.6875 l 33.305003,0 c 0.111101,0 0.218131,-0.015 0.327874,-0.018 l 0,5.1701 c 0,10.8714 8.814675,19.6874 19.687373,19.6874 l 33.30501,0 c 10.87269,0 19.68737,-8.816 19.68737,-19.6874 l 0,-50.83407 -29.24315,-30.63734 z m -76.576314,66.70757 c -5.435672,0 -9.844363,-4.4073 -9.844363,-9.8444 l 0,-61.85172 c 0,-5.43703 4.407337,-9.84437 9.844363,-9.84437 l 18.210583,0 c 2.717835,0 4.922182,2.20299 4.922182,4.92219 l 0,9.31731 c 0,2.71784 2.202991,4.92218 4.922181,4.92218 l 9.844365,0 c 2.717835,0 4.922181,2.20299 4.922181,4.92218 l 0,35.40507 0,12.20856 c 0,5.437 -4.407337,9.8444 -9.844364,9.8444 l -32.977128,0 z m 96.140394,14.9969 c 0,5.4384 -4.40734,9.8444 -9.84437,9.8444 l -32.975775,0 c -5.437026,0 -9.844364,-4.406 -9.844364,-9.8444 l 0,-8.5383 c 5.423479,-3.5077 9.021969,-9.5951 9.021969,-16.5333 l 0,-46.57986 c 0.270971,-0.023 0.543297,-0.0447 0.821041,-0.0447 l 18.209228,0 c 2.719191,0 4.922181,2.20299 4.922181,4.92218 l 0,9.31868 c 0,2.71784 2.204354,4.92218 4.92218,4.92218 l 9.84438,0 c 2.71918,0 4.92217,2.20304 4.92217,4.92223 l 0,47.61089 z"
        id="path8"
-       style="fill:#3027dd;fill-opacity:1" />
+       style="fill:#2271d5;fill-opacity:1" />
     <polygon
        transform="matrix(1.3284504,0,0,1.4015682,2.5047034,916.06764)"
        points="29.216,60.143 46.291,46.943 29.216,33.744 29.216,43.31 18.439,43.31 18.439,50.333 29.216,50.333 "
        id="polygon4"
-       style="fill:url(#linearGradient4142);fill-opacity:1" />
+       style="fill:#2caf45;fill-opacity:1" />
     <polygon
-       style="fill:url(#linearGradient4150);fill-opacity:1.0"
+       style="fill:#2caf45;fill-opacity:1"
        id="polygon4153"
        points="18.439,43.31 18.439,50.333 29.216,50.333 29.216,60.143 46.291,46.943 29.216,33.744 29.216,43.31 "
        transform="matrix(-1.3284504,0,0,1.4015682,134.4953,948.06764)" />

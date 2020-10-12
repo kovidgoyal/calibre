@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,6 +15,7 @@ class LITOutput(OutputFormatPlugin):
     name = 'LIT Output'
     author = 'Marshall T. Vandegrift'
     file_type = 'lit'
+    commit_name = 'lit_output'
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb
@@ -35,5 +36,3 @@ class LITOutput(OutputFormatPlugin):
         rasterizer(oeb, opts)
         lit = LitWriter(self.opts)
         lit(oeb, output_path)
-
-

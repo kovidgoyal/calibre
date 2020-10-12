@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Aimylios <aimylios at gmx.de>
 
@@ -85,7 +85,7 @@ class BerlinPolicyJournal(BasicNewsRecipe):
                         div.find('h3', {'class': 'entry-title'}).a)
                     article_url = div.find(
                         'h3', {'class': 'entry-title'}).a['href']
-                    article_date = unicode(time.strftime(
+                    article_date = type(u'')(time.strftime(
                         ' [%a, %d %b %H:%M]', timestamp))
                     article_desc = self.tag_to_string(
                         div.find('div', {'class': 'i-summary'}).p)
@@ -104,7 +104,7 @@ class BerlinPolicyJournal(BasicNewsRecipe):
         div = soup.find('div', {'class': 'meta-info'})
         authors = ''
         for entry in div.findAll('span', {'class': 'entry-author'}):
-            authors = authors + entry.a.span.renderContents().strip() + ', '
-        date = div.find('time').renderContents().strip()
+            authors = authors + entry.a.span.renderContents().decode('utf-8').strip() + ', '
+        date = div.find('time').renderContents().decode('utf-8').strip()
         div.replaceWith('<div>' + date + ' | ' + authors[:-2] + '<br/></div>')
         return soup

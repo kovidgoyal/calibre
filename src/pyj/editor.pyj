@@ -1,0 +1,199 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from fs_images import fix_fullscreen_svg_images
+from live_css import get_matched_css, get_sourceline_address
+from qt import from_python, to_python
+
+
+FAKE_HOST = '__FAKE_HOST__'
+FAKE_PROTOCOL = '__FAKE_PROTOCOL__'
+
+
+def is_hidden(elem):
+    while elem:
+        if (elem.style and (elem.style.visibility is 'hidden' or elem.style.display is 'none')):
+            return True
+        elem = elem.parentNode
+    return False
+
+
+def is_block(elem):
+    style = window.getComputedStyle(elem)
+    return style.display is 'block' or style.display is 'flex-box' or style.display is 'box'
+
+
+def in_table(elem):
+    while elem:
+        tn = elem.tagName.toLowerCase() if elem.tagName else ''
+        if tn is 'table':
+            return True
+        elem = elem.parentNode
+    return False
+
+
+def find_containing_block(elem):
+    while elem and elem.dataset.isBlock is not '1':
+        elem = elem.parentNode
+    return elem
+
+def scroll_to_node(node):
+    if node is document.body:
+        window.scrollTo(0, 0)
+    else:
+        node.scrollIntoView()
+
+
+state = {'blocks_found': False, 'in_split_mode': False}
+
+
+
+def go_to_line(lnum):
+    for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
+        if is_hidden(node):
+            continue
+        scroll_to_node(node)
+        break
+
+@from_python
+def go_to_sourceline_address(sourceline, tags):
+    nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
+    for index in range(nodes.length):
+        node = nodes[index]
+        if index >= tags.length or node.tagName.toLowerCase() is not tags[index]:
+            break
+        if index == tags.length - 1 and not is_hidden(node):
+            return scroll_to_node(node)
+    go_to_line(sourceline)
+
+def line_numbers():
+    found_body = False
+    ans = v'[]'
+    for node in document.getElementsByTagName('*'):
+        if not found_body and node.tagName.toLowerCase() is "body":
+            found_body = True
+        if found_body:
+            ans.push(node.dataset.lnum)
+    return ans
+
+def find_blocks():
+    if state.blocks_found:
+        return
+    for elem in document.body.getElementsByTagName('*'):
+        if is_block(elem) and not in_table(elem):
+            elem.setAttribute('data-is-block', '1')
+    state.blocks_found = True
+
+@from_python
+def set_split_mode(enabled):
+    state.in_split_mode = enabled
+    document.body.dataset.inSplitMode = '1' if enabled else '0'
+    if enabled:
+        find_blocks()
+
+def report_split(node):
+    loc = v'[]'
+    totals = v'[]'
+    parent = find_containing_block(node)
+    while parent and parent.tagName.toLowerCase() is not 'body':
+        totals.push(parent.parentNode.children.length)
+        num = 0
+        sibling = parent.previousElementSibling
+        while sibling:
+            num += 1
+            sibling = sibling.previousElementSibling
+        loc.push(num)
+        parent = parent.parentNode
+    loc.reverse()
+    totals.reverse()
+    to_python.request_split(loc, totals)
+
+def onclick(event):
+    event.preventDefault()
+    if state.in_split_mode:
+        report_split(event.target)
+    else:
+        e = event.target
+        address = get_sourceline_address(e)
+        # Find the closest containing link, if any
+        href = tn = ''
+        while e and e is not document.body and e is not document and e is not document.documentElement and (tn is not 'a' or not href):
+            tn = e.tagName.toLowerCase() if e.tagName else ''
+            href = e.getAttribute('href')
+            e = e.parentNode
+        if to_python.request_sync:
+            to_python.request_sync(tn, href, address)
+    return False
+
+@from_python
+def go_to_anchor(anchor):
+    elem = document.getElementById(anchor)
+    if not elem:
+        elem = document.querySelector(f'[name="{anchor}"]')
+    if elem:
+        elem.scrollIntoView()
+        address = get_sourceline_address(elem)
+        if to_python.request_sync:
+            to_python.request_sync('', '', address)
+
+@from_python
+def live_css(editor_name, sourceline, tags):
+    all_properties = {}
+    ans = {'nodes':v'[]', 'computed_css':all_properties, 'editor_name': editor_name, 'sourceline': sourceline, 'tags': tags}
+    target = None
+    i = 0
+    for node in document.querySelectorAll(f'[data-lnum="{sourceline}"]'):
+        tn = node.tagName.toLowerCase() if node.tagName else ''
+        if tn is not tags[i]:
+            if to_python.live_css_data:
+                to_python.live_css_data(ans)
+            return
+        i += 1
+        target = node
+        if i >= tags.length:
+            break
+    ancestor_specificity = 0
+    while target and target.ownerDocument:
+        css = get_matched_css(target, ancestor_specificity is not 0, all_properties)
+        # We want to show the Matched CSS rules header even if no rules matched
+        if css.length > 0 or ancestor_specificity is 0:
+            tn = target.tagName.toLowerCase() if target.tagName else ''
+            ans.nodes.push({
+                'name': tn,
+                'css': css, 'ancestor_specificity': -ancestor_specificity,
+                'sourceline': target.getAttribute('data-lnum')
+            })
+        target = target.parentNode
+        ancestor_specificity += 1
+    if to_python.live_css_data:
+        to_python.live_css_data(ans)
+
+
+def check_for_maths():
+    if document.body.getElementsByTagNameNS('http://www.w3.org/1998/Math/MathML', 'math').length > 0:
+        return True
+    for s in document.scripts:
+        if s.type is 'text/x-mathjax-config':
+            return True
+    return False
+
+
+def load_mathjax():
+    script = E.script(type='text/javascript')
+    script.async = True
+    script.src = f'{FAKE_PROTOCOL}://{FAKE_HOST}/calibre_internal-mathjax/startup.js'
+    document.head.appendChild(script)
+
+
+document.body.addEventListener('click', onclick, True)
+document.documentElement.appendChild(E.style(
+    type='text/css',
+    '[data-in-split-mode="1"] [data-is-block="1"]:hover { cursor: pointer !important; border-top: solid 5px green !important }'
+))
+
+fix_fullscreen_svg_images()
+if check_for_maths():
+    load_mathjax()

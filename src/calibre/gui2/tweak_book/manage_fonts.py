@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -22,11 +21,12 @@ from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
+from polyglot.builtins import iteritems, unicode_type
 
 
-def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+def rule_for_font(font_file, added_name):
     try:
-        fm = FontMetadata(BytesIO(file_data)).to_dict()
+        fm = FontMetadata(font_file).to_dict()
     except UnsupportedFont:
         return
     pp = _('Change this to the relative path to: %s') % added_name
@@ -37,10 +37,28 @@ def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
   font-style: {sy};
   font-stretch: {st};
   }}'''.format(pp=pp, ff=fm['font-family'], w=fm['font-weight'], sy=fm['font-style'], st=fm['font-stretch'])
+    return rule
+
+
+def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+    rule = rule_for_font(BytesIO(file_data), added_name)
     QApplication.clipboard().setText(rule)
     QMessageBox.information(parent, _('Font file added'), _(
         'The font file <b>{}</b> has been added. The text for the CSS @font-face rule for this file has been copied'
         ' to the clipboard. You should paste it into whichever CSS file you want to add this font to.').format(added_name))
+
+
+def show_font_face_rule_for_font_files(container, added_names, parent=None):
+    rules = []
+    for name in sorted(added_names):
+        rule = rule_for_font(container.open(name), name)
+        if rule:
+            rules.append(rule)
+    if rules:
+        QApplication.clipboard().setText('\n\n'.join(rules))
+        QMessageBox.information(parent, _('Font files added'), _(
+        'The specified font files have been added. The text for the CSS @font-face rules for these files has been copied'
+        ' to the clipboard. You should paste it into whichever CSS file you want to add these fonts to.'))
 
 
 class EmbeddingData(Dialog):
@@ -66,11 +84,11 @@ class EmbeddingData(Dialog):
             text.append('<li style="margin-bottom:2em">' + '<b>' + face['path'] + '</b>')
             name = face.get('full_name') or face.get('family_name') or face.get('subfamily_name')
             if name:
-                text.append('<br>' + _('Name:') + '\xa0<b>' + type('')(name) + '</b>')
+                text.append('<br>' + _('Name:') + '\xa0<b>' + unicode_type(name) + '</b>')
             if 'font-weight' in face:
-                text.append('<br>' + 'font-weight:\xa0' + type('')(face['font-weight']))
+                text.append('<br>' + 'font-weight:\xa0' + unicode_type(face['font-weight']))
             if 'font-style' in face:
-                text.append('<br>' + 'font-style:\xa0' + type('')(face['font-style']))
+                text.append('<br>' + 'font-style:\xa0' + unicode_type(face['font-style']))
         self.text.setHtml('\n'.join(text))
 
 
@@ -102,7 +120,7 @@ class AllFonts(QAbstractTableModel):
 
     def do_sort(self):
         reverse = not self.sorted_on[1]
-        self.items = sorted(self.font_data.iterkeys(), key=sort_key, reverse=reverse)
+        self.items = sorted(self.font_data, key=sort_key, reverse=reverse)
         if self.sorted_on[0] != 'name':
             self.items.sort(key=self.font_data.get, reverse=reverse)
 
@@ -179,7 +197,7 @@ class ChangeFontFamily(Dialog):
 
     @property
     def family(self):
-        return unicode(self._family.text())
+        return unicode_type(self._family.text())
 
     @property
     def normalized_family(self):
@@ -314,7 +332,7 @@ class ManageFonts(Dialog):
         fonts = self.get_selected_data()
         if not fonts:
             return
-        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in self.model.font_data.iteritems() if embedded}, self)
+        d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in iteritems(self.model.font_data) if embedded}, self)
         if d.exec_() != d.Accepted:
             return
         changed = False

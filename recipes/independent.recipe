@@ -1,8 +1,21 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 from calibre import random_user_agent
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class TheIndependentNew(BasicNewsRecipe):
@@ -28,15 +41,14 @@ class TheIndependentNew(BasicNewsRecipe):
     compress_news_images = True
 
     keep_only_tags = [
-        dict(itemprop=['articleBody', 'headline', 'contentUrl']),
-        dict(attrs={'class': ['intro', 'author']}),
+        dict(id=['articleHeader', 'main']),
+        classes('headline sub-headline breadcrumb author publish-date hero-image body-content'),
     ]
     remove_tags = [
-        dict(attrs={'class': lambda x: x and 'show-all' in x.split()}),
-        dict(attrs={'class': lambda x: x and 'context-sdl_editor_representation' in x.split()}),
-        dict(attrs={'data-scald-gallery': True}),
+        classes('inline-related inline-readmore ad-wrapper icon-gallery i-gallery article-im-prompt apester-media'
+                ' social-share i-amphtml-replaced-content gallery-btn related'),
+        dict(name='amp-live-list'),
     ]
-
     remove_attributes = ['style']
 
     def get_browser(self, *a, **kw):
@@ -51,6 +63,10 @@ class TheIndependentNew(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
+        for img in soup.findAll('amp-img'):
+            img.name = 'img'
+            img['srcset'] = ''
+
         for div in soup.findAll(attrs={'class': 'full-gallery'}):
             imgs = {}
             for li in div.findAll('li', attrs={'data-gallery-item': True, 'data-original': True}):
@@ -59,7 +75,7 @@ class TheIndependentNew(BasicNewsRecipe):
             for li in div.findAll('li', attrs={'data-gallery-legend': True}):
                 src = imgs.get(li['data-gallery-legend'])
                 if src is not None:
-                    img = Tag(soup, 'img')
+                    img = new_tag(soup, 'img')
                     img['src'] = src
                     img['style'] = 'display:block'
                     li.append(img)

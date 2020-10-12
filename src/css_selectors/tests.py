@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from lxml import etree, html
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
 from css_selectors.parser import tokenize, parse
 from css_selectors.select import Select
+
 
 class TestCSSSelectors(unittest.TestCase):
 
@@ -510,32 +510,32 @@ by William Shakespeare
             assert len(result) == 1
             return result[0]
 
-        assert parse_one('foo') == ('Element[foo]', None)
-        assert parse_one('*') == ('Element[*]', None)
-        assert parse_one(':empty') == ('Pseudo[Element[*]:empty]', None)
+        self.ae(parse_one('foo'), ('Element[foo]', None))
+        self.ae(parse_one('*'), ('Element[*]', None))
+        self.ae(parse_one(':empty'), ('Pseudo[Element[*]:empty]', None))
 
         # Special cases for CSS 2.1 pseudo-elements
-        assert parse_one(':BEfore') == ('Element[*]', 'before')
-        assert parse_one(':aftER') == ('Element[*]', 'after')
-        assert parse_one(':First-Line') == ('Element[*]', 'first-line')
-        assert parse_one(':First-Letter') == ('Element[*]', 'first-letter')
+        self.ae(parse_one(':BEfore'), ('Element[*]', 'before'))
+        self.ae(parse_one(':aftER'), ('Element[*]', 'after'))
+        self.ae(parse_one(':First-Line'), ('Element[*]', 'first-line'))
+        self.ae(parse_one(':First-Letter'), ('Element[*]', 'first-letter'))
 
-        assert parse_one('::befoRE') == ('Element[*]', 'before')
-        assert parse_one('::AFter') == ('Element[*]', 'after')
-        assert parse_one('::firsT-linE') == ('Element[*]', 'first-line')
-        assert parse_one('::firsT-letteR') == ('Element[*]', 'first-letter')
+        self.ae(parse_one('::befoRE'), ('Element[*]', 'before'))
+        self.ae(parse_one('::AFter'), ('Element[*]', 'after'))
+        self.ae(parse_one('::firsT-linE'), ('Element[*]', 'first-line'))
+        self.ae(parse_one('::firsT-letteR'), ('Element[*]', 'first-letter'))
 
-        assert parse_one('::text-content') == ('Element[*]', 'text-content')
+        self.ae(parse_one('::text-content'), ('Element[*]', 'text-content'))
         self.ae(parse_one('::attr(name)'), (
             "Element[*]", "FunctionalPseudoElement[::attr(['name'])]"))
 
-        assert parse_one('::Selection') == ('Element[*]', 'selection')
-        assert parse_one('foo:after') == ('Element[foo]', 'after')
-        assert parse_one('foo::selection') == ('Element[foo]', 'selection')
-        assert parse_one('lorem#ipsum ~ a#b.c[href]:empty::selection') == (
+        self.ae(parse_one('::Selection'), ('Element[*]', 'selection'))
+        self.ae(parse_one('foo:after'), ('Element[foo]', 'after'))
+        self.ae(parse_one('foo::selection'), ('Element[foo]', 'selection'))
+        self.ae(parse_one('lorem#ipsum ~ a#b.c[href]:empty::selection'), (
             'CombinedSelector[Hash[Element[lorem]#ipsum] ~ '
             'Pseudo[Attrib[Class[Hash[Element[a]#b].c][href]]:empty]]',
-            'selection')
+            'selection'))
 
         parse_pseudo('foo:before, bar, baz:after') == [
             ('Element[foo]', 'before'),
@@ -646,7 +646,7 @@ by William Shakespeare
     # }}}
 
     def test_select(self):  # {{{
-        document = etree.fromstring(self.HTML_IDS)
+        document = etree.fromstring(self.HTML_IDS, parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False))
         select = Select(document)
 
         def select_ids(selector):
@@ -797,9 +797,11 @@ by William Shakespeare
 
     # }}}
 
+
 # Run tests {{{
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestCSSSelectors)
+
 
 def run_tests(find_tests=find_tests, for_build=False):
     if not for_build:
@@ -821,7 +823,7 @@ def run_tests(find_tests=find_tests, for_build=False):
         except StopIteration:
             pass
         if ans is None:
-            print ('No test named %s found' % args.name)
+            print('No test named %s found' % args.name)
             raise SystemExit(1)
         tests = ans
     else:
@@ -834,6 +836,7 @@ def run_tests(find_tests=find_tests, for_build=False):
     result = r.run(tests)
     if for_build and result.errors or result.failures:
         raise SystemExit(1)
+
 
 if __name__ == '__main__':
     run_tests()

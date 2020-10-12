@@ -14,7 +14,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="unpack-book.svg">
   <defs
      id="defs4" />
@@ -25,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="7.919596"
      inkscape:cx="19.843024"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -98,7 +98,7 @@
        id="polygon6" />
     <path
        inkscape:connector-curvature="0"
-       style="fill:#338000"
+       style="fill:#2caf45;fill-opacity:1"
        d="m 98.132182,951.59533 c -23.613331,6.04273 -38.636943,25.54445 -35.585696,46.19444 -14.109918,-23.69086 0.493889,-52.38683 30.578648,-60.09594 -0.839612,-2.33215 -1.685644,-4.67763 -2.521798,-7.0152 10.000264,2.52229 19.998064,5.05396 29.998334,7.57675 -6.64429,6.78406 -13.29846,13.57504 -19.94571,20.36404 -0.841592,-2.34499 -1.682685,-4.68355 -2.523778,-7.02409 z"
        id="path8" />
     <path

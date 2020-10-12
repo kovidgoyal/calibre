@@ -1,20 +1,23 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-import re
+import json
+import gzip
+import io
 from datetime import datetime
 
 from setup import download_securely
+
+from polyglot.builtins import filter
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def filter_ans(ans):
-    return filter(None, (x.strip() for x in ans))
+    return list(filter(None, (x.strip() for x in ans)))
 
 
 def common_user_agents():
@@ -37,10 +40,14 @@ def common_user_agents():
         ]
     print('Getting recent UAs...')
     raw = download_securely(
-        'https://techblog.willshouse.com/2012/01/03/most-common-user-agents/').decode('utf-8')
-    lines = re.search(
-        r'<textarea.+"get-the-list".+>([^<]+)</textarea>', raw).group(1).splitlines()
-    ans = filter_ans(lines)
+        'https://raw.githubusercontent.com/intoli/user-agents/master/src/user-agents.json.gz')
+    data = json.loads(gzip.GzipFile(fileobj=io.BytesIO(raw)).read())
+    uas = []
+    for item in data:
+        ua = item['userAgent']
+        if not ua.startswith('Opera'):
+            uas.append(ua)
+    ans = filter_ans(uas)[:256]
     if not ans:
         raise ValueError('Failed to download list of common UAs')
     return ans
@@ -54,7 +61,7 @@ def firefox_versions():
     raw = download_securely(
         'https://www.mozilla.org/en-US/firefox/releases/').decode('utf-8')
     root = html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
-    ol = root.xpath('//div[@id="main-content"]/ol')[0]
+    ol = root.xpath('//main[@id="main-content"]/ol')[0]
     ol.xpath('descendant::li/strong/a[@href]')
     ans = filter_ans(ol.xpath('descendant::li/strong/a[@href]/text()'))
     if not ans:

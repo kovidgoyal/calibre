@@ -1,13 +1,15 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 store_version = 15  # Needed for dynamic plugin loading
 
 from contextlib import closing
-import urllib
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 from lxml import html
 
@@ -45,8 +47,8 @@ def search_amazon(query, max_results=10, timeout=60,
         if isinstance(x, type('')):
             x = x.encode('utf-8')
         return x
-    uquery = {asbytes(k):asbytes(v) for k, v in uquery.iteritems()}
-    url = base_url + '?' + urllib.urlencode(uquery).decode('ascii')
+    uquery = {asbytes(k):asbytes(v) for k, v in uquery.items()}
+    url = base_url + '?' + urlencode(uquery)
     br = browser(user_agent=get_user_agent())
 
     counter = max_results
@@ -148,4 +150,4 @@ class AmazonKindleStore(StorePlugin):
 if __name__ == '__main__':
     import sys
     for result in search_amazon(' '.join(sys.argv[1:]), write_html_to='/t/amazon.html'):
-        print (result)
+        print(result)

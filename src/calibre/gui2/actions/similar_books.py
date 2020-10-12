@@ -1,15 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from functools import partial
 
 from PyQt5.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
+from polyglot.builtins import string_or_bytes
 
 
 class SimilarBooksAction(InterfaceAction):
@@ -30,8 +31,9 @@ class SimilarBooksAction(InterfaceAction):
         (_('Books with the same tags'), 'tags.png', 'tags', 'Alt+T'),]:
             ac = self.create_action(spec=(text, icon, None, shortcut),
                     attr=target)
+            ac.setObjectName(target)
             m.addAction(ac)
-            ac.triggered.connect(partial(self.show_similar_books, target))
+            connect_lambda(ac.triggered, self, lambda self: self.show_similar_books(self.gui.sender().objectName()))
         self.qaction.setMenu(m)
 
     def show_similar_books(self, typ, *args):
@@ -74,7 +76,7 @@ class SimilarBooksAction(InterfaceAction):
         if not val:
             return
 
-        if isinstance(val, basestring):
+        if isinstance(val, string_or_bytes):
             val = [val]
         search = [col + ':"='+t.replace('"', '\\"')+'"' for t in val]
         if search:

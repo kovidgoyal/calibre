@@ -58,11 +58,11 @@ class HistoryToday(BasicNewsRecipe):
 
         feeds = OrderedDict()
         section_title = ''
-        for section in div.findAll('div', attrs={'id': re.compile("block\-views\-contents.*")}):
+        for section in div.findAll('div', attrs={'id': re.compile(r"block\-views\-contents.*")}):
             section_title = self.tag_to_string(
                 section.find('h2', attrs={'class': 'title'}))
             sectionbody = section.find('div', attrs={'class': 'view-content'})
-            for article in sectionbody.findAll('div', attrs={'class': re.compile("views\-row.*")}):
+            for article in sectionbody.findAll('div', attrs={'class': re.compile(r"views\-row.*")}):
                 articles = []
                 subarticle = []
                 subarticle = article.findAll('div')
@@ -84,7 +84,7 @@ class HistoryToday(BasicNewsRecipe):
                         feeds[section_title] = []
                     feeds[section_title] += articles
 
-        ans = [(key, val) for key, val in feeds.iteritems()]
+        ans = [(key, val) for key, val in feeds.items()]
         return ans
 
     def cleanup(self):

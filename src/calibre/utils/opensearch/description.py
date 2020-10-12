@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '''
@@ -11,9 +10,8 @@ __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 
-from lxml import etree
-
 from calibre import browser
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.opensearch.url import URL
 
 
@@ -38,7 +36,7 @@ class Description(object):
         '''
         br = browser()
         with closing(br.open(url, timeout=15)) as f:
-            doc = etree.fromstring(f.read())
+            doc = safe_xml_fromstring(f.read())
 
         # version 1.1 has repeating Url elements.
         self.urls = []

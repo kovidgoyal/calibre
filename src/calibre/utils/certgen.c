@@ -61,10 +61,10 @@ static PyObject* create_rsa_keypair(PyObject *self, PyObject *args) {
     Py_END_ALLOW_THREADS;
     if (!ret) { set_error("RSA_generate_key_ex"); goto error; }
 
-    ans = PyCapsule_New(KeyPair, NULL, free_rsa_keypair);  
+    ans = PyCapsule_New(KeyPair, NULL, free_rsa_keypair);
     if (ans == NULL) { PyErr_NoMemory(); goto error; }
 error:
-    if(BigNumber) BN_free(BigNumber); 
+    if(BigNumber) BN_free(BigNumber);
     if (!ans && KeyPair) RSA_free(KeyPair);
     return ans;
 }
@@ -129,7 +129,7 @@ static PyObject* create_rsa_cert_req(PyObject *self, PyObject *args) {
         for (i = 0; i < PySequence_Length(alt_names); i++) {
             t = PySequence_ITEM(alt_names, i);
             memset(buf, 0, 1024);
-            snprintf(buf, 1023, "DNS:%s", PyBytes_AS_STRING(t));
+            snprintf(buf, 1023, "%s", PyBytes_AS_STRING(t));
             Py_XDECREF(t);
             if(!add_ext(exts, NID_subject_alt_name, buf)) goto error;
         }
@@ -192,7 +192,7 @@ static int certificate_set_serial(X509 *cert)
         (sno = BN_to_ASN1_INTEGER(bn,sno)) != NULL &&
         X509_set_serialNumber(cert, sno) == 1)
         rv = 1;
-    else 
+    else
         set_error("X509_set_serialNumber");
     BN_free(bn);
     ASN1_INTEGER_free(sno);
@@ -270,8 +270,8 @@ static PyObject* create_rsa_cert(PyObject *self, PyObject *args) {
     ok = 1;
 
 error:
-    if (!ok) { 
-        if (Cert) X509_free(Cert); 
+    if (!ok) {
+        if (Cert) X509_free(Cert);
     }
     return ans;
 }
@@ -379,15 +379,25 @@ static PyMethodDef certgen_methods[] = {
 };
 
 
-CALIBRE_MODINIT_FUNC
-initcertgen(void) {
-    PyObject *m;
-    m = Py_InitModule3("certgen", certgen_methods,
-    "OpenSSL bindings to easily create certificates/certificate authorities"
-    );
-    if (m == NULL) return;
+static struct PyModuleDef certgen_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "certgen",
+    /* m_doc      */ "OpenSSL bindings to easily create certificates/certificate authorities.",
+    /* m_size     */ -1,
+    /* m_methods  */ certgen_methods,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_certgen(void) {
+    PyObject *mod = PyModule_Create(&certgen_module);
+    if (mod == NULL) return NULL;
+
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     ERR_load_BIO_strings();
-}
 
+    return mod;
+}

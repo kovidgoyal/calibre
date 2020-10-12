@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Interface defining the necessary public functions for a pdb format writer.
 '''

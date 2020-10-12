@@ -1,3 +1,5 @@
+
+
 """ Hyphenation, using Frank Liang's algorithm.
 
     This module provides a single function to hyphenate words.  hyphenate_word takes
@@ -520,7 +522,7 @@ if __name__ == '__main__':
     import sys
     if len(sys.argv) > 1:
         for word in sys.argv[1:]:
-            print '-'.join(hyphenate_word(word))
+            print('-'.join(hyphenate_word(word)))
     else:
         import doctest
         doctest.testmod(verbose=True)

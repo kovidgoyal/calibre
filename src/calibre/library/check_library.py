@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,6 +11,7 @@ import re, os, traceback, fnmatch
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
+from polyglot.builtins import iteritems, filter
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])
@@ -106,33 +108,38 @@ class CheckLibrary(object):
 
             # Look for titles in the author directories
             found_titles = False
-            for title_dir in os.listdir(auth_path):
-                if self.ignore_name(title_dir):
-                    continue
-                title_path = os.path.join(auth_path, title_dir)
-                db_path = os.path.join(auth_dir, title_dir)
-                m = self.db_id_regexp.search(title_dir)
-                # Second check: title must have an ID and must be a directory
-                if m is None or not os.path.isdir(title_path):
-                    self.invalid_titles.append((auth_dir, db_path, 0))
-                    continue
-
-                id_ = m.group(1)
-                # Third check: the id_ must be in the DB and the paths must match
-                if self.is_case_sensitive:
-                    if int(id_) not in self.all_ids or \
-                            db_path not in self.all_dbpaths:
-                        self.extra_titles.append((title_dir, db_path, 0))
+            try:
+                for title_dir in os.listdir(auth_path):
+                    if self.ignore_name(title_dir):
                         continue
-                else:
-                    if int(id_) not in self.all_ids or \
-                            db_path.lower() not in self.all_lc_dbpaths:
-                        self.extra_titles.append((title_dir, db_path, 0))
+                    title_path = os.path.join(auth_path, title_dir)
+                    db_path = os.path.join(auth_dir, title_dir)
+                    m = self.db_id_regexp.search(title_dir)
+                    # Second check: title must have an ID and must be a directory
+                    if m is None or not os.path.isdir(title_path):
+                        self.invalid_titles.append((auth_dir, db_path, 0))
                         continue
 
-                # Record the book to check its formats
-                self.book_dirs.append((db_path, title_dir, id_))
-                found_titles = True
+                    id_ = m.group(1)
+                    # Third check: the id_ must be in the DB and the paths must match
+                    if self.is_case_sensitive:
+                        if int(id_) not in self.all_ids or \
+                                db_path not in self.all_dbpaths:
+                            self.extra_titles.append((title_dir, db_path, 0))
+                            continue
+                    else:
+                        if int(id_) not in self.all_ids or \
+                                db_path.lower() not in self.all_lc_dbpaths:
+                            self.extra_titles.append((title_dir, db_path, 0))
+                            continue
+
+                    # Record the book to check its formats
+                    self.book_dirs.append((db_path, title_dir, id_))
+                    found_titles = True
+            except:
+                traceback.print_exc()
+                # Sort-of check: exception processing directory
+                self.failed_folders.append((auth_dir, traceback.format_exc(), []))
 
             # Fourth check: author directories that contain no titles
             if not found_titles:
@@ -219,14 +226,14 @@ class CheckLibrary(object):
             missing = book_formats_lc - formats_lc
 
             # Check: any books that aren't formats or normally there?
-            for lcfn,ccfn in lc_map(filenames, unknowns).iteritems():
+            for lcfn,ccfn in iteritems(lc_map(filenames, unknowns)):
                 if lcfn in missing:  # An unknown format correctly registered
                     continue
                 self.extra_files.append((title_dir, os.path.join(db_path, ccfn),
                                          book_id))
 
             # Check: any book formats that should be there?
-            for lcfn,ccfn in lc_map(book_formats, missing).iteritems():
+            for lcfn,ccfn in iteritems(lc_map(book_formats, missing)):
                 if lcfn in unknowns:  # An unknown format correctly registered
                     continue
                 self.missing_formats.append((title_dir,

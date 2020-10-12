@@ -1,111 +1,66 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # encoding: utf-8
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class AdvancedUserRecipe1290663986(BasicNewsRecipe):
-    title = u'Animal Pol\u00EDtico'
-    publisher = u'Animal Pol\u00EDtico'
-    category = u'News, Mexico'
-    description = u'Noticias Pol\u00EDticas'
-    __author__ = 'leamsi'
-    masthead_url = 'http://www.animalpolitico.com/wp-content/themes/animal_mu/images/logo.png'
-    oldest_article = 1
-    max_articles_per_feed = 100
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class AnimalPolitico(BasicNewsRecipe):
+    title = u'Animal Político'
+    description = u'Noticias Políticas'
+    __author__ = 'Jose Ortiz'
+    masthead_url = 'https://www.animalpolitico.com/wp-content/themes/animalpolitico-2019/static/assets/logo_black.svg'
     language = 'es_MX'
+    ignore_duplicate_articles = {'title', 'url'}
+    conversion_options = {
+        'tags': 'News, Mexico',
+        'publisher': 'Animal Politico',
+        'comments': description
+    }
 
-    remove_tags_before = dict(name='div', id='main')
-    remove_tags = [dict(name='div', attrs={'class': 'fb-like-button'})]
-    keep_only_tags = [dict(name='h1', attrs={'class': 'entry-title'}),
-                      dict(name='div', attrs={'class': 'entry-content'})]
-    remove_javascript = True
-    INDEX = 'http://www.animalpolitico.com/'
-
-    def generic_parse(self, soup):
-        articles = []
-        # soup.findAll('li', 'hentry'):
-        for entry in soup.findAll(lambda tag: tag.name == 'li' and tag.has_key('class') and tag['class'].find('hentry') != -1):  # noqa
-            article_url = entry.a['href'] + '?print=yes'
-            article_title = entry.find('h3', 'entry-title')
-            article_title = self.tag_to_string(article_title)
-            article_date = entry.find('span', 'the-time')
-            article_date = self.tag_to_string(article_date)
-            article_desc = self.tag_to_string(entry.find('p'))
-
-            # print 'Article:',article_title, article_date,article_url
-            # print entry['class']
-
-            articles.append({'title': article_title,
-                             'date': article_date,
-                             'description': article_desc,
-                             'url': article_url})
-            # Avoid including the multimedia stuff.
-            if entry['class'].find('last') != -1:
-                break
-
-        return articles
-
-    def plumaje_parse(self, soup):
-        articles = []
-        blogs_soup = soup.find(lambda tag: tag.name == 'ul' and tag.has_key('class') and tag['class'].find('bloglist-fecha') != -1)  # noqa
-        for entry in blogs_soup.findAll('li'):
-            article_title = entry.p
-            article_url = article_title.a['href'] + '?print=yes'
-            article_date = article_title.nextSibling
-            article_title = self.tag_to_string(article_title)
-            article_date = self.tag_to_string(
-                article_date).replace(u'Last Updated: ', '')
-            article_desc = self.tag_to_string(entry.find('h4'))
-
-            # print 'Article:',article_title, article_date,article_url
-            articles.append({'title': article_title,
-                             'date': article_date,
-                             'description': article_desc,
-                             'url': article_url})
-
-        return articles
-
-    def boca_parse(self, soup):
-        articles = []
-        # soup.findAll('li', 'hentry'):
-        for entry in soup.findAll(lambda tag: tag.name == 'div' and tag.has_key('class') and tag['class'].find('hentry') != -1):  # noqa
-            article_title = entry.find('h2', 'entry-title')
-            article_url = article_title.a['href'] + '?print=yes'
-            article_title = self.tag_to_string(article_title)
-            article_date = entry.find('span', 'entry-date')
-            article_date = self.tag_to_string(article_date)
-            article_desc = self.tag_to_string(
-                entry.find('div', 'entry-content'))
-
-            # print 'Article:',article_title, article_date,article_url
-            # print entry['class']
-
-            articles.append({'title': article_title,
-                             'date': article_date,
-                             'description': article_desc,
-                             'url': article_url})
-            # Avoid including the multimedia stuff.
-            if entry['class'].find('last') != -1:
-                break
-
-        return articles
+    keep_only_tags = [classes('ap_single_first ap_single_content ax_single')]
+    remove_tags = [classes('ap_single_sharers_head ap_single_sharers_share')]
 
     def parse_index(self):
-        gobierno_soup = self.index_to_soup(self.INDEX + 'gobierno/')
-        congreso_soup = self.index_to_soup(self.INDEX + 'congreso/')
-        seguridad_soup = self.index_to_soup(self.INDEX + 'seguridad/')
-        comunidad_soup = self.index_to_soup(self.INDEX + 'comunidad/')
-        plumaje_soup = self.index_to_soup(self.INDEX + 'plumaje/')
-        la_boca_del_lobo_soup = self.index_to_soup(
-            self.INDEX + 'category/la-boca-del-lobo/')
+        soup = self.index_to_soup('http://www.animalpolitico.com/')
+        articles = []
+        for a in soup(**{
+                'name': 'a',
+                'attrs': {
+                    'href': True, 'title': True,
+                    'data-author': True, 'data-type': True,
+                    'data-home-title': True
+                }
+        }):
+            title = a['title']
+            url = a['href']
+            author = a['data-author']
+            self.log('\t', title, ' at ', url)
 
-        gobierno_articles = self.generic_parse(gobierno_soup)
-        congreso_articles = self.generic_parse(congreso_soup)
-        seguridad_articles = self.generic_parse(seguridad_soup)
-        comunidad_articles = self.generic_parse(comunidad_soup)
-        plumaje_articles = self.plumaje_parse(plumaje_soup)
-        la_boca_del_lobo_articles = self.boca_parse(la_boca_del_lobo_soup)
+            articles.append({'title':  title,
+                             'author': author,
+                             'url':    url})
+        ans = {}
+        for article in articles:
+            if re.match(r'https?://www\.animalpolitico\.com/elsabueso/.', article['url'], re.I):
+                ans.setdefault('El Sabueso', []).append(article)
+            elif re.match(r'https?://www\.animalpolitico\.com/.', article['url'], re.I):
+                ans.setdefault('Noticias', []).append(article)
+            elif re.match(r'https?://www\.animalgourmet\.com/.', article['url'], re.I):
+                ans.setdefault('Comida', []).append(article)
 
-        return [(u'Gobierno', gobierno_articles), (u'Congreso', congreso_articles), (u'Seguridad', seguridad_articles),
-                (u'Comunidad', comunidad_articles), (u'Plumaje', plumaje_articles), (u'La Boca del Lobo', la_boca_del_lobo_articles), ]
+        return [(sec, ans[sec]) for sec in sorted(ans)]
+
+    def populate_article_metadata(self, article, soup, first):
+        if re.match(r'https?://www\.animalpolitico\.com/.', article.url, re.I):
+            article.formatted_date = self.tag_to_string(
+                soup.find(
+                    **classes('ap_single_first')).find(
+                        **classes('ap_single_first_info_date')))

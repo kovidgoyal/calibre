@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -9,11 +8,11 @@ __docformat__ = 'restructuredtext en'
 
 import os, time, tempfile, json
 from threading import Thread, RLock, Event
-from Queue import Queue
 
 from calibre.utils.ipc.job import BaseJob
 from calibre.utils.logging import GUILog
 from calibre.ptempfile import base_dir
+from polyglot.queue import Queue
 
 
 class ThreadedJob(BaseJob):
@@ -129,9 +128,11 @@ class ThreadedJob(BaseJob):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
         fd, path = tempfile.mkstemp(suffix='.json', prefix='log-', dir=log_dir)
+        data = json.dumps(logs, ensure_ascii=False, indent=2)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
         with os.fdopen(fd, 'wb') as f:
-            f.write(json.dumps(logs, ensure_ascii=False,
-                indent=2).encode('utf-8'))
+            f.write(data)
         self.consolidated_log = path
         self.log = None
 
@@ -245,5 +246,3 @@ class ThreadedJobServer(Thread):
                 queued_types.append(job.type)
                 ans.append(job)
         return ans
-
-

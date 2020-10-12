@@ -19,7 +19,7 @@
      <item row="0" column="0" colspan="2">
       <widget class="QCheckBox" name="opt_new_version_notification">
        <property name="text">
-        <string>Show notification when &amp;new version is available</string>
+        <string>Notify when a &amp;new version is available</string>
        </property>
       </widget>
      </item>
@@ -78,7 +78,7 @@
      <item row="14" column="1">
       <widget class="QComboBox" name="opt_edit_metadata_single_layout">
        <property name="toolTip">
-        <string>Choose a different layout for the Edit Metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
+        <string>Choose a different layout for the Edit metadata dialog. The compact metadata layout favors editing custom metadata over changing covers and formats.</string>
        </property>
       </widget>
      </item>
@@ -103,6 +103,15 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="dragEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="dragDropMode">
+             <enum>QAbstractItemView::InternalMove</enum>
+            </property>
+            <property name="defaultDropAction">
+             <enum>Qt::MoveAction</enum>
             </property>
             <property name="alternatingRowColors">
              <bool>true</bool>
@@ -243,7 +252,7 @@ If not checked, the values can be Yes or No.</string>
         </size>
        </property>
        <property name="toolTip">
-        <string>Use this virtual library on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
+        <string>Use this Virtual library on calibre startup if the current library is being used. Also applied when switching to this library. Note that this setting is per library. </string>
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>

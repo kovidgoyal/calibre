@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,7 @@ import unittest, sys
 from contextlib import contextmanager
 
 import calibre.utils.icu as icu
+from polyglot.builtins import iteritems, unicode_type, cmp
 
 
 @contextmanager
@@ -65,7 +65,7 @@ class TestICU(unittest.TestCase):
             with make_collation_func('scmp', 'es', template='_strcmp_template') as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae(0, icu.primary_strcmp(k, v))
 
         # Test different types of collation
@@ -96,10 +96,10 @@ class TestICU(unittest.TestCase):
     def test_find(self):
         ' Test searching for substrings '
         self.ae((1, 1), icu.find(b'a', b'1ab'))
-        self.ae((1, 1 if sys.maxunicode >= 0x10ffff else 2), icu.find('\U0001f431', 'x\U0001f431x'))
-        self.ae((1 if sys.maxunicode >= 0x10ffff else 2, 1), icu.find('y', '\U0001f431y'))
+        self.ae((1, 1), icu.find('\U0001f431', 'x\U0001f431x'))
+        self.ae((1, 1), icu.find('y', '\U0001f431y'))
         self.ae((0, 4), icu.primary_find('pena', 'peña'))
-        for k, v in {u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}.iteritems():
+        for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):
             self.ae((1, len(k)), icu.primary_find(v, ' ' + k), 'Failed to find %s in %s' % (v, k))
         self.assertTrue(icu.startswith(b'abc', b'ab'))
         self.assertTrue(icu.startswith('abc', 'abc'))
@@ -133,6 +133,8 @@ class TestICU(unittest.TestCase):
         ' Test roundtripping '
         for r in (u'xxx\0\u2219\U0001f431xxx', u'\0', u'', u'simple'):
             self.ae(r, icu._icu.roundtrip(r))
+        self.ae(icu._icu.roundtrip('\ud8e81'), '\ufffd1')
+        self.ae(icu._icu.roundtrip('\udc01\ud8e8'), '\ufffd\ufffd')
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 1)]:
             self.ae(icu._icu.string_length(x), l)
         for x, l in [('', 0), ('a', 1), ('\U0001f431', 2)]:
@@ -143,7 +145,12 @@ class TestICU(unittest.TestCase):
 
     def test_character_name(self):
         ' Test character naming '
-        self.ae(icu.character_name('\U0001f431'), 'CAT FACE')
+        from calibre.utils.unicode_names import character_name_from_code
+        for q, e in {
+                '\U0001f431': 'CAT FACE'
+                }.items():
+            self.ae(icu.character_name(q), e)
+            self.ae(character_name_from_code(icu.ord_string(q)[0]), e)
 
     def test_contractions(self):
         ' Test contractions '
@@ -155,15 +162,16 @@ class TestICU(unittest.TestCase):
 
     def test_break_iterator(self):
         ' Test the break iterator '
-        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions
+        from calibre.spell.break_iterator import split_into_words as split, index_of, split_into_words_and_positions, count_words
         for q in ('one two three', ' one two three', 'one\ntwo  three ', ):
-            self.ae(split(unicode(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
+            self.ae(split(unicode_type(q)), ['one', 'two', 'three'], 'Failed to split: %r' % q)
         self.ae(split(u'I I\'m'), ['I', "I'm"])
         self.ae(split(u'out-of-the-box'), ['out-of-the-box'])
         self.ae(split(u'-one two-'), ['-one', 'two-'])
         self.ae(split(u'-one a-b-c-d e'), ['-one', 'a-b-c-d', 'e'])
         self.ae(split(u'-one -a-b-c-d- e'), ['-one', '-a-b-c-d-', 'e'])
-        self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (7 if icu.is_narrow_build else 6, 5)])
+        self.ae(split_into_words_and_positions('one \U0001f431 three'), [(0, 3), (6, 5)])
+        self.ae(count_words('a b c d e f'), 6)
         for needle, haystack, pos in (
                 ('word', 'a word b', 2),
                 ('word', 'a word', 2),
@@ -181,7 +189,7 @@ class TestICU(unittest.TestCase):
                 ('i', 'six i', 4),
                 ('i', '', -1), ('', '', -1), ('', 'i', -1),
                 ('i', 'six clicks', -1),
-                ('i', '\U0001f431 i', (3 if icu.is_narrow_build else 2)),
+                ('i', '\U0001f431 i', 2),
                 ('-a', 'b -a', 2),
                 ('a-', 'a-b a- d', 4),
                 ('-a-', 'b -a -a-', 5),
@@ -218,6 +226,6 @@ def test_build():
     if not result.wasSuccessful():
         raise SystemExit(1)
 
+
 if __name__ == '__main__':
     run(verbosity=4)
-

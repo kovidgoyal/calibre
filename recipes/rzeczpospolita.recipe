@@ -5,7 +5,6 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = u'kwetal, Tomasz Dlugosz, adrianf0'
     language = 'pl'
-    version = 2
 
     title = u'Rzeczpospolita OnLine'
     publisher = u'Presspublica Sp.'
@@ -25,28 +24,16 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     feeds.append((u"Prawo", u'http://www.rp.pl/rss/1037'))  # Prawo
 
     keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'class': 'article-content'}))
+    keep_only_tags.append(dict(name='h1', attrs={'id': 'article-title'}))
+    keep_only_tags.append(dict(name='img', attrs={'class': 'img-responsive article__image'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': ['article-content', 'article__lead js-voice-read',
+        'article__content js-voice-read','article__image-desc','article__image-author']}))
 
     remove_tags = []
-    remove_tags.append(dict(name='div', attrs={'id': 'article-copyright-box'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'article-footer'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'article-tags'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'related-articles__wrapper'}))
+    remove_tags.append(dict(name='span', attrs={'class': ['article__premium-player','ad-label']}))
 
     extra_css = '''
-                    body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
-                    h1{text-align: left;}
-                    h2{font-size: medium; font-weight: bold;}
-                    p.lead {font-weight: bold; text-align: left;}
-                    .authordate {font-size: small; color: #696969;}
-                    .fot{font-size: x-small; color: #666666;}
-                    '''
-
-    # def skip_ad_pages(self, soup):
-    #     if ('advertisement' in soup.find('title').string.lower()):
-    #         href = soup.find('a').get('href')
-    #         return self.index_to_soup(href, raw=True)
-    #     else:
-    #         return None
-
-    def print_version(self, url):
-        return url + '?template=printart'
+            div.article__image-desc {font-style:italic; font-size:70%;text-align:right}
+            div.article__image-author {font-size:60%;text-align:right}
+    '''

@@ -24,7 +24,7 @@ class FocusRecipe(BasicNewsRecipe):
     simultaneous_downloads = 2
 
     r = re.compile(
-        '.*(?P<url>http:\/\/(www.money.pl)|(rss.feedsportal.com\/c)\/.*\.html?).*')
+        r'.*(?P<url>http:\/\/(www.money.pl)|(rss.feedsportal.com\/c)\/.*\.html?).*')
     keep_only_tags = []
     keep_only_tags.append(dict(name='div', attrs={'class': 'artykul'}))
     remove_tags = [dict(name='ul', attrs={'class': 'socialStuff'})]

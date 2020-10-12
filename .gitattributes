@@ -38,3 +38,17 @@
 # Prevent certain files from being exported:
 .gitattributes  export-ignore
 .gitignore      export-ignore
+
+# Mark vendored files
+resources/mathjax/* linguist-vendored=true
+resources/coffee-script.js linguist-vendored=true
+resources/csscolorparser.js linguist-vendored=true
+resources/viewer/hyphen* linguist-vendored=true
+resources/viewer/jquery* linguist-vendored=true
+src/hunspell linguist-vendored=true
+
+# Mark generated files
+resources/content-server/index-generated.html linguist-generated=true
+resources/editor.js linguist-generated=true
+resources/viewer.js linguist-generated=true
+resources/viewer.html linguist-generated=true

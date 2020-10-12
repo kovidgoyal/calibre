@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,6 +15,7 @@ from calibre.gui2 import config, error_dialog, gprefs
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.library.caches import set_use_primary_find_in_search
+from polyglot.builtins import iteritems, unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -63,7 +65,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     "a particular item, or to have hierarchical categories (categories "
     "that contain categories)."))
         self.gst = db.prefs.get('grouped_search_terms', {}).copy()
-        self.orig_gst_keys = self.gst.keys()
+        self.orig_gst_keys = list(self.gst.keys())
 
         fl = []
         for f in db.all_field_keys():
@@ -143,13 +145,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def gst_save_clicked(self):
         idx = self.gst_names.currentIndex()
-        name = icu_lower(unicode(self.gst_names.currentText()))
+        name = icu_lower(unicode_type(self.gst_names.currentText()))
         if not name:
             return error_dialog(self.gui, _('Grouped search terms'),
                                 _('The search term cannot be blank'),
                                 show=True)
         if idx != 0:
-            orig_name = unicode(self.gst_names.itemData(idx) or '')
+            orig_name = unicode_type(self.gst_names.itemData(idx) or '')
         else:
             orig_name = ''
         if name != orig_name:
@@ -163,7 +165,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     _('That name is already used for User category'),
                     show=True)
 
-        val = [v.strip() for v in unicode(self.gst_value.text()).split(',') if v.strip()]
+        val = [v.strip() for v in unicode_type(self.gst_value.text()).split(',') if v.strip()]
         if not val:
             return error_dialog(self.gui, _('Grouped search terms'),
                 _('The value box cannot be empty'), show=True)
@@ -180,7 +182,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.gst_names.currentIndex() == 0:
             return error_dialog(self.gui, _('Grouped search terms'),
                 _('The empty grouped search term cannot be deleted'), show=True)
-        name = unicode(self.gst_names.currentText())
+        name = unicode_type(self.gst_names.currentText())
         if name in self.gst:
             del self.gst[name]
             self.fill_gst_box(select='')
@@ -215,7 +217,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx == 0:
             self.gst_value.setText('')
         else:
-            name = unicode(self.gst_names.itemData(idx) or '')
+            name = unicode_type(self.gst_names.itemData(idx) or '')
             self.gst_value.setText(','.join(self.gst[name]))
         self.gst_value.blockSignals(False)
 
@@ -229,13 +231,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.db.new_api.set_pref('grouped_search_terms', self.gst)
             self.db.field_metadata.add_grouped_search_terms(self.gst)
         self.db.new_api.set_pref('similar_authors_search_key',
-                          unicode(self.similar_authors_search_key.currentText()))
+                          unicode_type(self.similar_authors_search_key.currentText()))
         self.db.new_api.set_pref('similar_tags_search_key',
-                          unicode(self.similar_tags_search_key.currentText()))
+                          unicode_type(self.similar_tags_search_key.currentText()))
         self.db.new_api.set_pref('similar_series_search_key',
-                          unicode(self.similar_series_search_key.currentText()))
+                          unicode_type(self.similar_series_search_key.currentText()))
         self.db.new_api.set_pref('similar_publisher_search_key',
-                          unicode(self.similar_publisher_search_key.currentText()))
+                          unicode_type(self.similar_publisher_search_key.currentText()))
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
@@ -248,7 +250,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.search.do_search()
 
     def clear_histories(self, *args):
-        for key, val in config.defaults.iteritems():
+        for key, val in iteritems(config.defaults):
             if key.endswith('_search_history') and isinstance(val, list):
                 config[key] = []
         self.gui.search.clear_history()

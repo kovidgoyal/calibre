@@ -1,14 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, textwrap, json
-from functools import partial
 
 from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
@@ -16,7 +14,7 @@ from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
         QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu)
 
-from calibre import prepare_string_for_xml, sanitize_file_name_unicode, as_unicode
+from calibre import prepare_string_for_xml, sanitize_file_name, as_unicode
 from calibre.constants import config_dir
 from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data, gprefs, choose_save_file
@@ -27,6 +25,7 @@ from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns, rule_from_template, color_row_key)
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import lower
+from polyglot.builtins import iteritems, unicode_type
 
 all_columns_string = _('All columns')
 
@@ -39,10 +38,17 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
 class ConditionEditor(QWidget):  # {{{
 
     ACTION_MAP = {
+            'bool2' : (
+                    (_('is true'), 'is true',),
+                    (_('is false'), 'is not true'),
+            ),
             'bool' : (
                     (_('is true'), 'is true',),
+                    (_('is not true'), 'is not true'),
                     (_('is false'), 'is false'),
-                    (_('is undefined'), 'is undefined')
+                    (_('is not false'), 'is not false'),
+                    (_('is undefined'), 'is undefined'),
+                    (_('is defined'), 'is defined'),
             ),
             'ondevice' : (
                     (_('is true'), 'is set',),
@@ -55,7 +61,9 @@ class ConditionEditor(QWidget):  # {{{
             'int' : (
                 (_('is equal to'), 'eq'),
                 (_('is less than'), 'lt'),
-                (_('is greater than'), 'gt')
+                (_('is greater than'), 'gt'),
+                (_('is set'), 'is set'),
+                (_('is not set'), 'is not set')
             ),
             'datetime' : (
                 (_('is equal to'), 'eq'),
@@ -127,7 +135,7 @@ class ConditionEditor(QWidget):  # {{{
         self.column_box.addItem('', '')
         for key in sorted(
                 conditionable_columns(fm),
-                key=lambda(key): sort_key(fm[key]['name'])):
+                key=lambda key: sort_key(fm[key]['name'])):
             self.column_box.addItem(fm[key]['name'], key)
         self.column_box.setCurrentIndex(0)
 
@@ -138,64 +146,60 @@ class ConditionEditor(QWidget):  # {{{
             b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
             b.setMinimumContentsLength(20)
 
-    @dynamic_property
+    @property
     def current_col(self):
-        def fget(self):
-            idx = self.column_box.currentIndex()
-            return unicode(self.column_box.itemData(idx) or '')
+        idx = self.column_box.currentIndex()
+        return unicode_type(self.column_box.itemData(idx) or '')
 
-        def fset(self, val):
-            for idx in range(self.column_box.count()):
-                c = unicode(self.column_box.itemData(idx) or '')
-                if c == val:
-                    self.column_box.setCurrentIndex(idx)
-                    return
-            raise ValueError('Column %r not found'%val)
-        return property(fget=fget, fset=fset)
+    @current_col.setter
+    def current_col(self, val):
+        for idx in range(self.column_box.count()):
+            c = unicode_type(self.column_box.itemData(idx) or '')
+            if c == val:
+                self.column_box.setCurrentIndex(idx)
+                return
+        raise ValueError('Column %r not found'%val)
 
-    @dynamic_property
+    @property
     def current_action(self):
-        def fget(self):
-            idx = self.action_box.currentIndex()
-            return unicode(self.action_box.itemData(idx) or '')
+        idx = self.action_box.currentIndex()
+        return unicode_type(self.action_box.itemData(idx) or '')
 
-        def fset(self, val):
-            for idx in range(self.action_box.count()):
-                c = unicode(self.action_box.itemData(idx) or '')
-                if c == val:
-                    self.action_box.setCurrentIndex(idx)
-                    return
-            raise ValueError('Action %r not valid for current column'%val)
-        return property(fget=fget, fset=fset)
+    @current_action.setter
+    def current_action(self, val):
+        for idx in range(self.action_box.count()):
+            c = unicode_type(self.action_box.itemData(idx) or '')
+            if c == val:
+                self.action_box.setCurrentIndex(idx)
+                return
+        raise ValueError('Action %r not valid for current column'%val)
 
     @property
     def current_val(self):
-        ans = unicode(self.value_box.text()).strip()
+        ans = unicode_type(self.value_box.text()).strip()
         if self.current_col == 'languages':
-            rmap = {lower(v):k for k, v in lang_map().iteritems()}
+            rmap = {lower(v):k for k, v in iteritems(lang_map())}
             ans = rmap.get(lower(ans), ans)
         return ans
 
-    @dynamic_property
+    @property
     def condition(self):
 
-        def fget(self):
-            c, a, v = (self.current_col, self.current_action,
-                    self.current_val)
-            if not c or not a:
-                return None
-            return (c, a, v)
+        c, a, v = (self.current_col, self.current_action,
+                self.current_val)
+        if not c or not a:
+            return None
+        return (c, a, v)
 
-        def fset(self, condition):
-            c, a, v = condition
-            if not v:
-                v = ''
-            v = v.strip()
-            self.current_col = c
-            self.current_action = a
-            self.value_box.setText(v)
-
-        return property(fget=fget, fset=fset)
+    @condition.setter
+    def condition(self, condition):
+        c, a, v = condition
+        if not v:
+            v = ''
+        v = v.strip()
+        self.current_col = c
+        self.current_action = a
+        self.value_box.setText(v)
 
     def init_action_box(self):
         self.action_box.blockSignals(True)
@@ -205,6 +209,10 @@ class ConditionEditor(QWidget):  # {{{
         if col:
             m = self.fm[col]
             dt = m['datatype']
+            if dt == 'bool':
+                from calibre.gui2.ui import get_gui
+                if not get_gui().current_db.new_api.pref('bools_are_tristate'):
+                    dt = 'bool2'
             if dt in self.action_map:
                 actions = self.action_map[dt]
             else:
@@ -413,7 +421,7 @@ class RuleEditor(QDialog):  # {{{
         if self.rule_kind != 'color':
             self.remove_button = b = bb.addButton(_('&Remove icon'), bb.ActionRole)
             b.setIcon(QIcon(I('minus.png')))
-            b.setMenu(QMenu())
+            b.setMenu(QMenu(b))
             b.setToolTip('<p>' + _('Remove a previously added icon. Note that doing so will cause rules that use it to stop working.'))
             self.update_remove_button()
 
@@ -429,7 +437,7 @@ class RuleEditor(QDialog):  # {{{
                 b.setMinimumContentsLength(15)
 
         for key in sorted(displayable_columns(fm),
-                          key=lambda(k): sort_key(fm[k]['name']) if k != color_row_key else 0):
+                          key=lambda k: sort_key(fm[k]['name']) if k != color_row_key else b''):
             if key == color_row_key and self.rule_kind != 'color':
                 continue
             name = all_columns_string if key == color_row_key else fm[key]['name']
@@ -492,8 +500,8 @@ class RuleEditor(QDialog):  # {{{
 
     def update_color_label(self):
         pal = QApplication.palette()
-        bg1 = unicode(pal.color(pal.Base).name())
-        bg2 = unicode(pal.color(pal.AlternateBase).name())
+        bg1 = unicode_type(pal.color(pal.Base).name())
+        bg2 = unicode_type(pal.color(pal.AlternateBase).name())
         c = self.color_box.color
         self.color_label.setText('''
             <span style="color: {c}; background-color: {bg1}">&nbsp;{st}&nbsp;</span>
@@ -501,7 +509,7 @@ class RuleEditor(QDialog):  # {{{
             '''.format(c=c, bg1=bg1, bg2=bg2, st=_('Sample text')))
 
     def sanitize_icon_file_name(self, icon_path):
-        n = lower(sanitize_file_name_unicode(
+        n = lower(sanitize_file_name(
                              os.path.splitext(
                                    os.path.basename(icon_path))[0]+'.png'))
         return n.replace("'", '_')
@@ -509,7 +517,7 @@ class RuleEditor(QDialog):  # {{{
     def filename_button_clicked(self):
         try:
             path = choose_files(self, 'choose_category_icon',
-                        _('Select Icon'), filters=[
+                        _('Select icon'), filters=[
                         (_('Images'), ['png', 'gif', 'jpg', 'jpeg'])],
                     all_files=False, select_only_single_file=True)
             if path:
@@ -549,10 +557,10 @@ class RuleEditor(QDialog):  # {{{
             for i in range(1, model.rowCount()):
                 item = model.item(i, 0)
                 if item.checkState() == Qt.Checked:
-                    fnames.append(lower(unicode(item.text())))
+                    fnames.append(lower(unicode_type(item.text())))
             fname = ' : '.join(fnames)
         else:
-            fname = lower(unicode(self.filename_box.currentText()))
+            fname = lower(unicode_type(self.filename_box.currentText()))
         return fname
 
     def update_icon_filenames_in_box(self):
@@ -575,8 +583,8 @@ class RuleEditor(QDialog):  # {{{
         m = self.remove_button.menu()
         m.clear()
         for name in self.icon_file_names:
-            m.addAction(QIcon(os.path.join(self.icon_folder, name)), name).triggered.connect(partial(
-                self.remove_image, name))
+            ac = m.addAction(QIcon(os.path.join(self.icon_folder, name)), name)
+            connect_lambda(ac.triggered, self, lambda self: self.remove_image(self.sender().text()))
 
     def remove_image(self, name):
         try:
@@ -611,7 +619,7 @@ class RuleEditor(QDialog):  # {{{
             self.update_icon_filenames_in_box()
 
         for i in range(self.column_box.count()):
-            c = unicode(self.column_box.itemData(i) or '')
+            c = unicode_type(self.column_box.itemData(i) or '')
             if col == c:
                 self.column_box.setCurrentIndex(i)
                 break
@@ -665,13 +673,13 @@ class RuleEditor(QDialog):  # {{{
         else:
             r.color = self.color_box.color
         idx = self.column_box.currentIndex()
-        col = unicode(self.column_box.itemData(idx) or '')
+        col = unicode_type(self.column_box.itemData(idx) or '')
         for c in self.conditions:
             condition = c.condition
             if condition is not None:
                 r.add_condition(*condition)
         if self.rule_kind == 'icon':
-            kind = unicode(self.kind_box.itemData(
+            kind = unicode_type(self.kind_box.itemData(
                                     self.kind_box.currentIndex()) or '')
         else:
             kind = self.rule_kind
@@ -1090,8 +1098,11 @@ class EditRules(QWidget):  # {{{
                 'type': self.model.pref_name,
                 'rules': self.model.rules_as_list(for_export=True)
             }
+            data = json.dumps(rules, indent=2)
+            if not isinstance(data, bytes):
+                data = data.encode('utf-8')
             with lopen(path, 'wb') as f:
-                f.write(json.dumps(rules, indent=2))
+                f.write(data)
 
     def import_rules(self):
         files = choose_files(self, 'import-coloring-rules', _('Choose file to import from'),
@@ -1129,9 +1140,9 @@ if __name__ == '__main__':
 
         kind, col, r = d.rule
 
-        print ('Column to be colored:', col)
-        print ('Template:')
-        print (r.template)
+        print('Column to be colored:', col)
+        print('Template:')
+        print(r.template)
     else:
         d = EditRules()
         d.resize(QSize(800, 600))

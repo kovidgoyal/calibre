@@ -12,13 +12,23 @@ CLASS_NAME = 'generic-items-list'
 add_extra_css(def():
     sel = '.' + CLASS_NAME + ' '
     style = ''
-    style += build_rule(sel + 'li', padding='1em', border_bottom='solid 1px ' + get_color('window-foreground'), border_top='solid 1px ' + get_color('window-background'), cursor='pointer', list_style='none')
+    style += build_rule(sel + 'li', padding='0', border_bottom='solid 1px ' + get_color('window-foreground'), border_top='solid 1px ' + get_color('window-background'), cursor='pointer', list_style='none')
     style += build_rule(sel + '.item-title', font_size=get_font_size('item-list-title'))
     style += build_rule(sel + ' .item-subtitle', font_size=get_font_size('item-list-subtitle'), font_style='italic')
-    style += build_rule(sel + ' li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'), border_top_color=get_color('list-hover-foreground'))
-    style += build_rule(sel + ' li:active', transform='scale(1, 1.5)')
+    sel += ' li > div:nth-child(1)'
+    style += build_rule(sel, padding='1rem')
+    style += build_rule(sel + ':hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'), border_top_color=get_color('list-hover-foreground'))
+    style += build_rule(sel + ':active', transform='scale(1, 1.5)')
     return style
 )
+
+
+def side_action(action, ev):
+    ev.stopPropagation(), ev.preventDefault()
+    if action:
+        li = ev.currentTarget.closest('li')
+        action(li)
+
 
 def build_list(container, items, subtitle):
     c = container
@@ -40,17 +50,38 @@ def build_list(container, items, subtitle):
             if item.icon:
                 ic = svgicon(item.icon)
             ic = E.span(ic, '\xa0')
-        ul.appendChild(E.li(
-            E.div(ic, item.title, class_='item-title')
-        ))
-        div = ul.lastChild.firstChild
+        li = E.li(E.div(ic, item.title, class_='item-title'))
+        ul.appendChild(li)
         if item.subtitle:
-            div.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
+            li.firstChild.appendChild(E.div(item.subtitle, class_='item-subtitle', style='padding-top:1ex'))
         if item.action:
-            ul.lastChild.addEventListener('click', item.action)
+            li.addEventListener('click', item.action)
+        if item.data:
+            li.dataset.userData = item.data
+        if item.side_actions?.length:
+            s = li.style
+            s.display = 'flex'
+            s.alignItems = 'center'
+            li.firstChild.style.flexGrow = '10'
+            li.appendChild(E.div(
+                style='display: flex; align-items: center; margin-left: 0.5rem'
+            ))
+            for x in item.side_actions:
+                li.lastChild.appendChild(E.div(
+                    class_='simple-link',
+                    style='padding: 0.5rem',
+                    title=x.tooltip or '',
+                    onclick=side_action.bind(None, x.action),
+                    svgicon(x.icon)
+                ))
 
-def create_item(title, action=None, subtitle=None, icon=None):
-    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon}
+
+def create_side_action(icon, action=None, tooltip=None):
+    return {'icon':icon, 'action': action, 'tooltip': tooltip}
+
+
+def create_item(title, action=None, subtitle=None, icon=None, data=None, side_actions=None):
+    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon, 'data': data, 'side_actions': side_actions or v'[]'}
 
 
 def create_item_list(container, items, subtitle=None):

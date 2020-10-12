@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
 import os
@@ -13,6 +12,7 @@ from calibre import prints
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
+from polyglot.builtins import as_bytes, iteritems, map, unicode_type
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -64,7 +64,7 @@ def implementation(
                 continue
             if field == 'isbn':
                 x = db.all_field_for('identifiers', book_ids, default_value={})
-                data[field] = {k: v.get('isbn') or '' for k, v in x.iteritems()}
+                data[field] = {k: v.get('isbn') or '' for k, v in iteritems(x)}
                 continue
             field = field.replace('*', '#')
             metadata[field] = fm[field]
@@ -80,37 +80,37 @@ def implementation(
 
 
 def stringify(data, metadata, for_machine):
-    for field, m in metadata.iteritems():
+    for field, m in iteritems(metadata):
         if field == 'authors':
             data[field] = {
                 k: authors_to_string(v)
-                for k, v in data[field].iteritems()
+                for k, v in iteritems(data[field])
             }
         else:
             dt = m['datatype']
             if dt == 'datetime':
                 data[field] = {
                     k: isoformat(v, as_utc=for_machine) if v else 'None'
-                    for k, v in data[field].iteritems()
+                    for k, v in iteritems(data[field])
                 }
             elif not for_machine:
                 ism = m['is_multiple']
                 if ism:
                     data[field] = {
                         k: ism['list_to_ui'].join(v)
-                        for k, v in data[field].iteritems()
+                        for k, v in iteritems(data[field])
                     }
                     if field == 'formats':
                         data[field] = {
                             k: '[' + v + ']'
-                            for k, v in data[field].iteritems()
+                            for k, v in iteritems(data[field])
                         }
 
 
 def as_machine_data(book_ids, data, metadata):
     for book_id in book_ids:
         ans = {'id': book_id}
-        for field, val_map in data.iteritems():
+        for field, val_map in iteritems(data):
             val = val_map.get(book_id)
             if val is not None:
                 ans[field.replace('#', '*')] = val
@@ -119,16 +119,15 @@ def as_machine_data(book_ids, data, metadata):
 
 def prepare_output_table(fields, book_ids, data, metadata):
     ans = []
-    u = type('')
     for book_id in book_ids:
         row = []
         ans.append(row)
         for field in fields:
             if field == 'id':
-                row.append(u(book_id))
+                row.append(unicode_type(book_id))
                 continue
             val = data.get(field.replace('*', '#'), {}).get(book_id)
-            row.append(u(val).replace('\n', ' '))
+            row.append(unicode_type(val).replace('\n', ' '))
     return ans
 
 
@@ -160,12 +159,14 @@ def do_list(
     fields = ['id'] + fields
     stringify(data, metadata, for_machine)
     if for_machine:
-        json.dump(
+        raw = json.dumps(
             list(as_machine_data(book_ids, data, metadata)),
-            sys.stdout,
             indent=2,
             sort_keys=True
         )
+        if not isinstance(raw, bytes):
+            raw = raw.encode('utf-8')
+        getattr(sys.stdout, 'buffer', sys.stdout).write(raw)
         return
     from calibre.utils.terminal import ColoredStream, geometry
 
@@ -180,7 +181,7 @@ def do_list(
     if not screen_width:
         screen_width = 80
     field_width = screen_width // len(fields)
-    base_widths = map(lambda x: min(x + 1, field_width), widths)
+    base_widths = list(map(lambda x: min(x + 1, field_width), widths))
 
     while sum(base_widths) < screen_width:
         adjusted = False
@@ -201,6 +202,8 @@ def do_list(
     )
     with ColoredStream(sys.stdout, fg='green'):
         prints(''.join(titles))
+    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+    linesep = as_bytes(os.linesep)
 
     wrappers = [TextWrapper(x - 1).wrap if x > 1 else lambda y: y for x in widths]
 
@@ -211,12 +214,12 @@ def do_list(
         lines = max(map(len, text))
         for l in range(lines):
             for i, field in enumerate(text):
-                ft = text[i][l] if l < len(text[i]) else u''
-                sys.stdout.write(ft.encode('utf-8'))
+                ft = text[i][l] if l < len(text[i]) else ''
+                stdout.write(ft.encode('utf-8'))
                 if i < len(text) - 1:
-                    filler = (u'%*s' % (widths[i] - str_width(ft) - 1, u''))
-                    sys.stdout.write((filler + separator).encode('utf-8'))
-            print()
+                    filler = ('%*s' % (widths[i] - str_width(ft) - 1, ''))
+                    stdout.write((filler + separator).encode('utf-8'))
+            stdout.write(linesep)
 
 
 def option_parser(get_parser, args):
@@ -306,7 +309,7 @@ List the books available in the calibre database.
 def main(opts, args, dbctx):
     afields = set(FIELDS) | {'id'}
     if opts.fields.strip():
-        fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
+        fields = [unicode_type(f.strip().lower()) for f in opts.fields.split(',')]
     else:
         fields = []
 

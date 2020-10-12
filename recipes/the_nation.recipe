@@ -6,6 +6,12 @@ thenation.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Thenation(BasicNewsRecipe):
     title = 'The Nation'
     __author__ = 'Darko Miletic'
@@ -19,7 +25,6 @@ class Thenation(BasicNewsRecipe):
     language = 'en'
     use_embedded_content = False
     delay = 1
-    masthead_url = 'http://www.thenation.com/sites/default/themes/thenation/images/logo-main.gif'
     login_url = 'http://www.thenation.com/user?destination=%3Cfront%3E'
     publication_type = 'magazine'
     needs_subscription = 'optional'
@@ -33,16 +38,16 @@ class Thenation(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(
-        attrs={'class': ['print-title', 'print-created', 'print-content', 'print-links']})]
+    keep_only_tags = [
+        classes('title subtitle byline article-body-inner'),
+    ]
     remove_tags = [
-        dict(name=['link', 'iframe', 'base', 'meta', 'object', 'embed'])]
+        dict(name=['link', 'iframe', 'base', 'meta', 'object', 'embed', 'script']),
+        classes('email-signup-module current-issue related-newarticle related-multi series-modules'),
+    ]
     remove_attributes = ['lang']
 
     feeds = [(u"Articles", u'http://www.thenation.com/rss/articles')]
-
-    def print_version(self, url):
-        return url.replace('.thenation.com/', '.thenation.com/print/')
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)

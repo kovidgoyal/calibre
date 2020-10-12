@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
@@ -6,7 +6,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import hashlib
 import re
 import time
-from Queue import Empty, Queue
+try:
+    from queue import Empty, Queue
+except ImportError:
+    from Queue import Empty, Queue
 
 from calibre import as_unicode
 from calibre.ebooks.chardet import xml_to_unicode
@@ -102,7 +105,8 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     try:
         raw = get_details(browser, id_url, timeout)
         feed = etree.fromstring(
-            xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0]
+            xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
+            parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
         )
         extra = entry(feed)[0]
     except:
@@ -118,7 +122,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     # ISBN
     isbns = []
     for x in identifier(extra):
-        t = str(x.text).strip()
+        t = type('')(x.text).strip()
         if t[:5].upper() in ('ISBN:', 'LCCN:', 'OCLC:'):
             if t[:5].upper() == 'ISBN:':
                 t = check_isbn(t[5:])
@@ -170,7 +174,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 0)
+    version = (1, 0, 1)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
@@ -196,7 +200,10 @@ class GoogleBooks(Source):
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
-        from urllib import urlencode
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
         BASE_URL = 'https://books.google.com/books/feeds/volumes?'
         isbn = check_isbn(identifiers.get('isbn', None))
         q = ''
@@ -214,10 +221,10 @@ class GoogleBooks(Source):
             if author_tokens:
                 q += ('+' if q else '') + build_term('author', author_tokens)
 
-        if isinstance(q, unicode):
-            q = q.encode('utf-8')
         if not q:
             return None
+        if not isinstance(q, bytes):
+            q = q.encode('utf-8')
         return BASE_URL + urlencode({
             'q': q,
             'max-results': 20,
@@ -365,10 +372,9 @@ class GoogleBooks(Source):
             return as_unicode(e)
 
         try:
-            parser = etree.XMLParser(recover=True, no_network=True)
             feed = etree.fromstring(
                 xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
-                parser=parser
+                parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
             )
             entries = entry(feed)
         except Exception as e:

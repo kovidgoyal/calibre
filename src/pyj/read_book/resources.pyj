@@ -5,7 +5,9 @@ from __python__ import hash_literals
 from elementmaker import E
 from encodings import base64decode, utf8_decode
 
-from dom import clear
+from dom import clear, remove_all_attributes
+from read_book.globals import runtime, ui_operations
+from read_book.settings import opts
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
 
@@ -19,19 +21,19 @@ def decode_url(x):
 def create_link_pat(book):
     return RegExp(book.manifest.link_uid + r'\|([^|]+)\|', 'g')
 
-def load_resources(db, book, root_name, previous_resources, proceed):
+def load_resources(book, root_name, previous_resources, proceed):
     ans = Object.create(None)
     pending_resources = v'[root_name]'
     link_pat = create_link_pat(book)
 
     def do_one():
-        if not pending_resources.length:
+        name = pending_resources.shift()
+        if not name:
             for k in previous_resources:
                 v'delete previous_resources[k]'
             if book.manifest.files[root_name].has_maths:
-                return load_mathjax(db, book, ans, proceed)
+                return load_mathjax(book, ans, proceed)
             return proceed(ans)
-        name = pending_resources.shift()
         if ans[name]:
             return setTimeout(do_one, 0)
         if previous_resources[name]:
@@ -39,14 +41,11 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             if jstype(data[0]) is 'string':
                 find_virtualized_resources(data[0])
             return setTimeout(do_one, 0)
-        db.get_file(book, name, got_one)
+        ui_operations.get_file(book, name, got_one)
 
     def got_one(data, name, mimetype):
-        if False and name is book.manifest.title_page_name:
-            # Enable to have cover image not preserve aspect ratio
-            data = data.replace('width: auto; height: auto', 'width: 100vw; height: 100vh')
         ans[name] = v'[data, mimetype]'
-        if jstype(data) is 'string':
+        if jstype(data) is 'string' and book.manifest.files[name]?.is_virtualized:
             find_virtualized_resources(data)
         return setTimeout(do_one, 0)
 
@@ -68,9 +67,9 @@ def load_resources(db, book, root_name, previous_resources, proceed):
 
 mathjax_data = None
 
-def load_mathjax(db, book, resource_data, proceed):
+def load_mathjax(book, resource_data, proceed):
     if mathjax_data is None:
-        db.get_mathjax_files(def(data):
+        ui_operations.get_mathjax_files(def(data):
             nonlocal mathjax_data
             mathjax_data = data
             resource_data['..mathjax-files..'] = data
@@ -163,10 +162,11 @@ def finalize_resources(book, root_name, resource_data):
 
     return root_data, mathjax, blob_url_map
 
-js_types = set('text/javascript text/ecmascript application/javascript application/ecmascript'.split(' '))
+js_types = {k: True for k in 'text/javascript text/ecmascript application/javascript application/ecmascript'.split(' ')}
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
-ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml'}
+ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml', 'http://www.idpf.org/2007/ops': 'epub'}
 ns_count = 0
+hide_tooltips = False
 
 def get_prefix(ns):
     nonlocal ns_count
@@ -185,14 +185,37 @@ def apply_attributes(src, elem, ns_map):
             ns = ns_map[a[2]]
             elem.setAttributeNS(ns, get_prefix(ns) + a[0], a[1])
         else:
-            elem.setAttribute(a[0], a[1])
+            name = a[0]
+            if hide_tooltips and (name is 'title' or name is 'alt'):
+                continue
+            elem.setAttribute(name, a[1])
 
-def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
+
+def is_loadable_link(attributes):
+    for a in attributes:
+        if a[0].toLowerCase() is 'rel' and a[1]:
+            for x in a[1].split(' '):
+                if x.toLowerCase() is 'stylesheet':
+                    return True
+    return False
+
+
+def process_stack(stack, tag_map, ns_map, load_required, onload):
     while stack.length:
         node, parent = stack.pop()
-        src = tag_map[node[0]]
+        if tag_map:
+            tag_id = node[0]
+            src = tag_map[tag_id]
+        else:
+            src = node
+            tag_id = v'process_stack.tag_id++'
         if src.s:
-            elem = document.createElementNS(ns_map[src.s], src.n)
+            if src.n:
+                elem = document.createElementNS(ns_map[src.s], src.n)
+            else:
+                if src.l:
+                    parent.appendChild(document.createTextNode(src.l))
+                continue
         else:
             elem = document.createElement(src.n)
         loadable = False
@@ -200,39 +223,62 @@ def process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls):
         if attr:
             if attr.indexOf(':') != -1:
                 attr = attr.replace('xlink:', '')
-            for a in (src.a or v'[]'):
-                if a[0] is attr:
-                    loadable = a[1].startswith('blob:')
-                    resource_urls[a[1]] = True
-                    break
+            if src.a:
+                for a in src.a:
+                    if a[0] is attr:
+                        loadable = is_loadable_link(src.a) if src.n is 'link' else True
+                        break
         if loadable:
-            load_required.add(node[0])
-            elem.addEventListener('load', onload.bind(node[0]))
-            elem.addEventListener('error', onload.bind(node[0]))
+            load_required.add(tag_id)
+            load_callback = onload.bind(tag_id)
+            elem.addEventListener('load', load_callback)
+            elem.addEventListener('error', load_callback)
 
         apply_attributes(src, elem, ns_map)
         parent.appendChild(elem)
         if src.x:
-            if src.n is 'script' and (elem.getAttribute('type') or 'text/javascript').toLowerCase() in js_types:
+            if src.n is 'script' and js_types[(elem.getAttribute('type') or 'text/javascript').toLowerCase()] is True:
                 elem.text = src.x
             else:
                 elem.appendChild(document.createTextNode(src.x))
         if src.l:
             parent.appendChild(document.createTextNode(src.l))
-        for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
-            stack.push(v'[node[i], elem]')
+        if tag_map:
+            for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
+                stack.push(v'[node[i], elem]')
+        elif node.c:
+            for v'var i = node.c.length; i-- > 0;':  # noqa: unused-local
+                stack.push(v'[node.c[i], elem]')
 
-def unserialize_html(serialized_data, proceed, postprocess_dom):
-    tag_map = serialized_data.tag_map
-    tree = serialized_data.tree
+
+def unserialize_html(serialized_data, proceed, postprocess_dom, root_name):
+    nonlocal hide_tooltips
+    hide_tooltips = opts.hide_tooltips
+    if serialized_data.tag_map:
+        return unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name)
+    html = serialized_data.tree
     ns_map = serialized_data.ns_map
-    html = tag_map[0]
-    apply_attributes(html, document.documentElement, ns_map)
-    head, body = tree[1], tree[2]  # noqa: unused-local
+    remove_all_attributes(document.documentElement, document.head, document.body)
     clear(document.head, document.body)
+    apply_attributes(html, document.documentElement, ns_map)
+    # hide browser scrollbars while loading since they will anyway be hidden
+    # after loading and this prevents extra layouts
+    document.head.appendChild(
+        E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
+    )
+    if runtime.is_standalone_viewer and root_name:
+        if root_name.indexOf('/') > -1:
+            base = window.location.pathname.rpartition('/')[0]
+            base = f'{window.location.protocol}//{window.location.hostname}{base}/' + root_name
+            document.head.appendChild(E.base(href=base))
+
+
     # Default stylesheet
-    document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
-    resource_urls = {}
+    if not runtime.is_standalone_viewer:
+        # for the standalone viewer the default font family is set
+        # in the viewer settings
+        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+
     load_required = set()
     proceeded = False
     hang_timeout = 5
@@ -241,27 +287,42 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
         nonlocal proceeded
         if not proceeded:
             proceeded = True
-            print('WARNING: All resources did not load in {} seconds, proceeding anyway ({} resources left)'.format(hang_timeout, load_required.length))
+            print(f'WARNING: All resources did not load in {hang_timeout} seconds, proceeding anyway ({load_required.length} resources left)')
             proceed()
 
     def onload():
         nonlocal proceeded
         load_required.discard(this)
-        if not load_required.length:
+        if not load_required.length and not proceeded:
             proceeded = True
             proceed()
 
-    stack = v'[]'
-    for v'var i = head.length - 1; i >= 1; i--':
-        stack.push(v'[head[i], document.head]')
-    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
-    bnode = tag_map[body[0]]
-    apply_attributes(bnode, document.body, ns_map)
-    if bnode.x:
-        document.body.appendChild(document.createTextNode(bnode.x))
-    for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
-        stack.push(v'[body[i], document.body]')
-    process_stack(stack, tag_map, ns_map, load_required, onload, resource_urls)
+    def process_children(node, parent):
+        if not node.c:
+            return
+        stack = v'[]'
+        for v'var i = node.c.length; i-- > 0;':  # noqa: unused-local
+            child = v'node.c[i]'
+            if child.n is not 'meta' and child.n is not 'base':
+                stack.push(v'[child, parent]')
+        process_stack(stack, None, ns_map, load_required, onload)
+
+
+    body_done = False
+    process_stack.tag_id = 1
+    for child in html.c:
+        if child.n is 'head':
+            process_children(child, document.head)
+        elif child.n is 'body':
+            if not document.body:
+                document.documentElement.appendChild(document.createElement('body'))
+            if not body_done:
+                body_done = True
+                apply_attributes(child, document.body, ns_map)
+            if child.x:
+                document.body.appendChild(document.createTextNode(child.x))
+            process_children(child, document.body)
+
     if postprocess_dom:
         postprocess_dom()
     ev = document.createEvent('Event')
@@ -272,24 +333,106 @@ def unserialize_html(serialized_data, proceed, postprocess_dom):
     else:
         proceeded = True
         proceed()
-    return resource_urls
+
+
+
+def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name):
+    tag_map = serialized_data.tag_map
+    tree = serialized_data.tree
+    ns_map = serialized_data.ns_map
+    html = tag_map[0]
+    remove_all_attributes(document.documentElement)
+    apply_attributes(html, document.documentElement, ns_map)
+    head, body = tree[1], tree[2]  # noqa: unused-local
+    clear(document.head, document.body)
+    remove_all_attributes(document.head, document.body)
+    # hide browser scrollbars while loading since they will anyway be hidden
+    # after loading and this prevents extra layouts
+    document.head.appendChild(
+        E.style(type='text/css', 'html::-webkit-scrollbar, body::-webkit-scrollbar { display: none !important }')
+    )
+    if runtime.is_standalone_viewer and root_name:
+        if root_name.indexOf('/') > -1:
+            base = window.location.pathname.rpartition('/')[0]
+            base = f'{window.location.protocol}//{window.location.hostname}{base}/' + root_name
+            document.head.appendChild(E.base(href=base))
+
+
+    # Default stylesheet
+    if not runtime.is_standalone_viewer:
+        # for the standalone viewer the default font family is set
+        # in the viewer settings
+        document.head.appendChild(E.style(type='text/css', 'html {{ font-family: {} }}'.format(window.default_font_family or "sans-serif")))
+    load_required = set()
+    proceeded = False
+    hang_timeout = 5
+
+    def hangcheck():
+        nonlocal proceeded
+        if not proceeded:
+            proceeded = True
+            print(f'WARNING: All resources did not load in {hang_timeout} seconds, proceeding anyway ({load_required.length} resources left)')
+            proceed()
+
+    def onload():
+        nonlocal proceeded
+        load_required.discard(this)
+        if not load_required.length and not proceeded:
+            proceeded = True
+            proceed()
+
+    stack = v'[]'
+    for v'var i = head.length - 1; i >= 1; i--':
+        stack.push(v'[head[i], document.head]')
+    process_stack(stack, tag_map, ns_map, load_required, onload)
+    bnode = tag_map[body[0]]
+    apply_attributes(bnode, document.body, ns_map)
+    if bnode.x:
+        document.body.appendChild(document.createTextNode(bnode.x))
+    for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
+        stack.push(v'[body[i], document.body]')
+    process_stack(stack, tag_map, ns_map, load_required, onload)
+    if postprocess_dom:
+        postprocess_dom()
+    ev = document.createEvent('Event')
+    ev.initEvent('DOMContentLoaded', True, True)
+    document.dispatchEvent(ev)
+    if load_required.length:
+        setTimeout(hangcheck, hang_timeout * 1000)
+    else:
+        proceeded = True
+        proceed()
 
 def text_from_serialized_html(data):
     serialized_data = JSON.parse(data)
     tag_map = serialized_data.tag_map
     ans = v'[]'
-    stack = v'[serialized_data.tree[2]]'
-    ignore_text = {'script':True, 'style':True}
+    if tag_map:
+        stack = v'[serialized_data.tree[2]]'
+    else:
+        stack = v'[]'
+        for child in serialized_data.tree.c:
+            if child.n is 'body':
+                stack.push(child)
+    ignore_text = {'script':True, 'style':True, 'title': True}
     while stack.length:
         node = stack.pop()
         if jstype(node) is 'string':
             ans.push(node)
             continue
-        src = tag_map[node[0]]
-        if not ignore_text[src.n] and src.x:
+        if tag_map:
+            src = tag_map[node[0]]
+        else:
+            src = node
+        if src.n and not ignore_text[src.n] and src.x:
             ans.push(src.x)
         if src.l:
             stack.push(src.l)
-        for v'var i = node.length - 1; i >= 1; i--':
-            stack.push(node[i])
+        if tag_map:
+            for v'var i = node.length - 1; i >= 1; i--':
+                stack.push(node[i])
+        else:
+            if src.c:
+                for v'var i = src.c.length; i-- > 0;':
+                    stack.push(v'src.c[i]')
     return ans.join('')

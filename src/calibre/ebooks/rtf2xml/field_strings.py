@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -219,7 +220,7 @@ class FieldStrings:
             sys.stderr.write(msg)
             if self.__run_level > 3:
                 msg = 'no key for "%s" "%s"\n' % (field_name, changed_string)
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
             the_list = self.__fall_back_func(field_name, line)
             return the_list
         return the_list
@@ -411,8 +412,6 @@ class FieldStrings:
             line -- the string to be parse
         Retuns:
             The name of the field
-        Logic:
-        self.__link_switch = re.compile(r'\\l\s{1,}(.*?)\s')
         """
         self.__link_switch = re.compile(r'\\l\s{1,}"{0,1}(.*?)"{0,1}\s')
         the_string = name

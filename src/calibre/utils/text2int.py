@@ -1,4 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
+
+
 __author__ = "stackoverflow community"
 __docformat__ = 'restructuredtext en'
 """

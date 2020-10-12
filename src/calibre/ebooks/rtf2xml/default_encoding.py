@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #   copyright 2002 Paul Henry Tremblay                                  #
@@ -56,6 +57,7 @@ Codepages as to RTF 1.9.1:
     57011	Punjabi
 '''
 import re
+from . import open_for_read
 
 
 class DefaultEncoding:
@@ -124,7 +126,7 @@ class DefaultEncoding:
         return self.__platform
 
     def _encoding(self):
-        with open(self.__file, 'r') as read_obj:
+        with open_for_read(self.__file) as read_obj:
             cpfound = False
             if not self.__fetchraw:
                 for line in read_obj:
@@ -174,6 +176,7 @@ class DefaultEncoding:
                     elif enc == 'pca':
                         self.__code_page = '850'
 
+
 if __name__ == '__main__':
     import sys
     encode_obj = DefaultEncoding(
@@ -182,4 +185,4 @@ if __name__ == '__main__':
             bug_handler=Exception,
             check_raw=True,
             )
-    print encode_obj.get_codepage()
+    print(encode_obj.get_codepage())

@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib
 from contextlib import closing
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 from lxml import html, etree
 
@@ -23,7 +26,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
-    url = 'https://www.kobobooks.com/search/search.html?q=' + urllib.quote_plus(query)
+    url = 'https://www.kobobooks.com/search/search.html?q=' + quote_plus(query)
 
     br = browser()
 
@@ -46,7 +49,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 cover_url = None
 
             for p in select('p.title', item):
-                title = etree.tostring(p, method='text', encoding=unicode).strip()
+                title = etree.tostring(p, method='text', encoding='unicode').strip()
                 for a in select('a[href]', p):
                     url = a.get('href')
                     break
@@ -58,11 +61,11 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
 
             authors = []
             for a in select('p.contributor-list a.contributor-name', item):
-                authors.append(etree.tostring(a, method='text', encoding=unicode).strip())
+                authors.append(etree.tostring(a, method='text', encoding='unicode').strip())
             authors = authors_to_string(authors)
 
             for p in select('p.price', item):
-                price = etree.tostring(p, method='text', encoding=unicode).strip()
+                price = etree.tostring(p, method='text', encoding='unicode').strip()
                 break
             else:
                 price = None
@@ -89,7 +92,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
         murl = 'https://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=280046.1&type=10&tmpid=9310&RD_PARM1=http%%3A%%2F%%2Fkobo.com' % pub_id
 
         if detail_item:
-            purl = 'https://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, urllib.quote_plus(detail_item))
+            purl = 'https://click.linksynergy.com/link?id=%s&offerid=280046&type=2&murl=%s' % (pub_id, quote_plus(detail_item))
             url = purl
         else:
             purl = None
@@ -125,4 +128,4 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 if __name__ == '__main__':
     import sys
     for result in search_kobo(' '.join(sys.argv[1:]), write_html_to='/t/kobo.html'):
-        print (result)
+        print(result)

@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 from calibre import replace_entities
 from calibre.spell.break_iterator import split_into_words, index_of
@@ -16,6 +15,8 @@ from calibre.ebooks.oeb.base import barename
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_nav_toc
+from calibre.utils.icu import ord_string
+from polyglot.builtins import iteritems, unicode_type, filter
 
 _patterns = None
 
@@ -46,6 +47,14 @@ def patterns():
     return _patterns
 
 
+class CharCounter(object):
+
+    def __init__(self):
+        self.counter = Counter()
+        self.chars = defaultdict(set)
+        self.update = self.counter.update
+
+
 class Location(object):
 
     __slots__ = ('file_name', 'sourceline', 'original_word', 'location_node', 'node_item', 'elided_prefix')
@@ -73,10 +82,10 @@ def filter_words(word):
 
 def get_words(text, lang):
     try:
-        ans = split_into_words(unicode(text), lang)
+        ans = split_into_words(unicode_type(text), lang)
     except (TypeError, ValueError):
         return ()
-    return filter(filter_words, ans)
+    return list(filter(filter_words, ans))
 
 
 def add_words(text, node, words, file_name, locale, node_item):
@@ -85,7 +94,7 @@ def add_words(text, node, words, file_name, locale, node_item):
         p = patterns()
         is_fr = locale.langcode == 'fra'
         for word in candidates:
-            sword = p.sanitize_invisible_pat.sub('', word)
+            sword = p.sanitize_invisible_pat.sub('', word).strip()
             elided_prefix = ''
             if is_fr:
                 m = p.fr_elision_pat.match(sword)
@@ -97,14 +106,34 @@ def add_words(text, node, words, file_name, locale, node_item):
             words[None] += 1
 
 
+def add_chars(text, counter, file_name):
+    if text:
+        if isinstance(text, bytes):
+            text = text.decode('utf-8', 'ignore')
+        counts = Counter(ord_string(text))
+        counter.update(counts)
+        for codepoint in counts:
+            counter.chars[codepoint].add(file_name)
+
+
 def add_words_from_attr(node, attr, words, file_name, locale):
     text = node.get(attr, None)
     if text:
         add_words(text, node, words, file_name, locale, (True, attr))
 
 
+def count_chars_in_attr(node, attr, counter, file_name, locale):
+    text = node.get(attr, None)
+    if text:
+        add_chars(text, counter, file_name)
+
+
 def add_words_from_text(node, attr, words, file_name, locale):
     add_words(getattr(node, attr), node, words, file_name, locale, (False, attr))
+
+
+def count_chars_in_text(node, attr, counter, file_name, locale):
+    add_chars(getattr(node, attr), counter, file_name)
 
 
 def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
@@ -114,10 +143,16 @@ def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
     ewords[None] = 0
     read_words_from_html(root, ewords, file_name, locale)
     words[None] += ewords.pop(None)
-    for k, locs in ewords.iteritems():
+    for k, locs in iteritems(ewords):
         for loc in locs:
             loc.location_node, loc.node_item = node, (False, attr)
         words[k].extend(locs)
+
+
+def count_chars_in_escaped_html(text, counter, file_name, node, attr, locale):
+    text = replace_entities(text)
+    root = parse('<html><body><div>%s</div></body></html>' % text, decoder=lambda x:x.decode('utf-8'))
+    count_chars_in_html(root, counter, file_name, locale)
 
 
 _opf_file_as = '{%s}file-as' % OPF_NAMESPACES['opf']
@@ -137,6 +172,16 @@ def read_words_from_opf(root, words, file_name, book_locale):
         add_words_from_attr(tag, _opf_file_as, words, file_name, book_locale)
 
 
+def count_chars_in_opf(root, counter, file_name, book_locale):
+    for tag in root.iterdescendants('*'):
+        if tag.text is not None and barename(tag.tag) in opf_spell_tags:
+            if barename(tag.tag) == 'description':
+                count_chars_in_escaped_html(tag.text, counter, file_name, tag, 'text', book_locale)
+            else:
+                count_chars_in_text(tag, 'text', counter, file_name, book_locale)
+        count_chars_in_attr(tag, _opf_file_as, counter, file_name, book_locale)
+
+
 ncx_spell_tags = {'text'}
 xml_spell_tags = opf_spell_tags | ncx_spell_tags
 
@@ -145,6 +190,12 @@ def read_words_from_ncx(root, words, file_name, book_locale):
     for tag in root.xpath('//*[local-name()="text"]'):
         if tag.text is not None:
             add_words_from_text(tag, 'text', words, file_name, book_locale)
+
+
+def count_chars_in_ncx(root, counter, file_name, book_locale):
+    for tag in root.xpath('//*[local-name()="text"]'):
+        if tag.text is not None:
+            count_chars_in_text(tag, 'text', counter, file_name, book_locale)
 
 
 html_spell_tags = {'script', 'style', 'link'}
@@ -157,6 +208,15 @@ def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
         add_words_from_attr(tag, attr, words, file_name, locale)
     if tag.tail is not None and tag.getparent() is not None and barename(tag.getparent().tag) not in html_spell_tags:
         add_words_from_text(tag, 'tail', words, file_name, parent_locale)
+
+
+def count_chars_in_html_tag(tag, counter, file_name, parent_locale, locale):
+    if tag.text is not None and barename(tag.tag) not in html_spell_tags:
+        count_chars_in_text(tag, 'text', counter, file_name, locale)
+    for attr in {'alt', 'title'}:
+        count_chars_in_attr(tag, attr, counter, file_name, locale)
+    if tag.tail is not None and tag.getparent() is not None and barename(tag.getparent().tag) not in html_spell_tags:
+        count_chars_in_text(tag, 'tail', counter, file_name, parent_locale)
 
 
 def locale_from_tag(tag):
@@ -182,6 +242,15 @@ def read_words_from_html(root, words, file_name, book_locale):
         parent, parent_locale = stack.pop()
         locale = locale_from_tag(parent) or parent_locale
         read_words_from_html_tag(parent, words, file_name, parent_locale, locale)
+        stack.extend((tag, locale) for tag in parent.iterchildren('*'))
+
+
+def count_chars_in_html(root, counter, file_name, book_locale):
+    stack = [(root, book_locale)]
+    while stack:
+        parent, parent_locale = stack.pop()
+        locale = locale_from_tag(parent) or parent_locale
+        count_chars_in_html_tag(parent, counter, file_name, parent_locale, locale)
         stack.extend((tag, locale) for tag in parent.iterchildren('*'))
 
 
@@ -217,9 +286,25 @@ def get_all_words(container, book_locale, get_word_count=False):
         elif hasattr(root, 'xpath'):
             read_words_from_html(root, words, file_name, book_locale)
     count = words.pop(None)
-    ans = {k:group_sort(v) for k, v in words.iteritems()}
+    ans = {k:group_sort(v) for k, v in iteritems(words)}
     if get_word_count:
         return count, ans
+    return ans
+
+
+def count_all_chars(container, book_locale):
+    ans = CharCounter()
+    file_names, toc = get_checkable_file_names(container)
+    for file_name in file_names:
+        if not container.exists(file_name):
+            continue
+        root = container.parsed(file_name)
+        if file_name == container.opf_name:
+            count_chars_in_opf(root, ans, file_name, book_locale)
+        elif file_name == toc:
+            count_chars_in_ncx(root, ans, file_name, book_locale)
+        elif hasattr(root, 'xpath'):
+            count_chars_in_html(root, ans, file_name, book_locale)
     return ans
 
 
@@ -229,7 +314,7 @@ def merge_locations(locs1, locs2):
 
 def replace(text, original_word, new_word, lang):
     indices = []
-    original_word, new_word, text = unicode(original_word), unicode(new_word), unicode(text)
+    original_word, new_word, text = unicode_type(original_word), unicode_type(new_word), unicode_type(text)
     q = text
     offset = 0
     while True:
@@ -269,7 +354,7 @@ def replace_word(container, new_word, locations, locale, undo_cache=None):
 
 def undo_replace_word(container, undo_cache):
     changed = set()
-    for (file_name, node, is_attr, attr), text in undo_cache.iteritems():
+    for (file_name, node, is_attr, attr), text in iteritems(undo_cache):
         node.set(attr, text) if is_attr else setattr(node, attr, text)
         container.replace(file_name, node.getroottree().getroot())
         changed.add(file_name)

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -17,7 +16,7 @@ sources = {'library':j(imgsrc, 'calibre.svg'), 'ebook-edit':j(imgsrc, 'tweak.svg
 if sys.argv[-1] == 'only-logo':
     sources = {'library':sources['library']}
 
-for name, src in sources.iteritems():
+for name, src in sources.items():
     os.mkdir('ico_temp')
     try:
         names = []

@@ -1,10 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 from collections import deque
+
+from polyglot.builtins import filter, unicode_type
 
 
 def compile_pat(pat):
@@ -81,6 +82,10 @@ def apply_rules(tag, rules):
                 if ac == 'capitalize':
                     ans.append(tag.capitalize())
                     break
+                if ac == 'titlecase':
+                    from calibre.utils.titlecase import titlecase
+                    ans.append(titlecase(tag))
+                    break
                 if ac == 'lower':
                     ans.append(icu_lower(tag))
                     break
@@ -88,7 +93,7 @@ def apply_rules(tag, rules):
                     ans.append(icu_upper(tag))
                     break
                 if ac == 'split':
-                    stags = filter(None, [x.strip() for x in tag.split(rule['replace'])])
+                    stags = list(filter(None, (x.strip() for x in tag.split(rule['replace']))))
                     if stags:
                         if stags[0] == tag:
                             ans.append(tag)
@@ -121,7 +126,7 @@ def map_tags(tags, rules=()):
     ans = []
     for t in tags:
         ans.extend(apply_rules(t, rules))
-    return uniq(filter(None, ans))
+    return uniq(list(filter(None, ans)))
 
 
 def find_tests():
@@ -140,14 +145,15 @@ def find_tests():
             def run(rules, tags, expected):
                 if isinstance(rules, dict):
                     rules = [rules]
-                if isinstance(tags, type('')):
+                if isinstance(tags, unicode_type):
                     tags = [x.strip() for x in tags.split(',')]
-                if isinstance(expected, type('')):
+                if isinstance(expected, unicode_type):
                     expected = [x.strip() for x in expected.split(',')]
                 ans = map_tags(tags, rules)
                 self.assertEqual(ans, expected)
 
             run(rule('capitalize', 't1,t2'), 't1,x1', 'T1,x1')
+            run(rule('titlecase', 'some tag'), 'some tag,x1', 'Some Tag,x1')
             run(rule('upper', 'ta,t2'), 'ta,x1', 'TA,x1')
             run(rule('lower', 'ta,x1'), 'TA,X1', 'ta,x1')
             run(rule('replace', 't1', 't2'), 't1,x1', 't2,x1')
@@ -166,6 +172,7 @@ def find_tests():
             run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
             run(rule('split', 'a b', ' ', 'has'), 'a b', 'a,b')
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTagMapper)
+
 
 if __name__ == '__main__':
     from calibre.utils.run_tests import run_cli

@@ -1,57 +1,46 @@
-# -*- coding: utf-8 -*-
-
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-
-__license__ = 'GPL 3'
-__copyright__ = '2011, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
-
-from PyQt5.Qt import QDialog, QUrl
-
-from calibre import url_slash_cleaner
-from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-class WebStoreDialog(QDialog, Ui_Dialog):
+import json
+from base64 import standard_b64encode
+from itertools import count
 
-    def __init__(self, gui, base_url, parent=None, detail_url=None, create_browser=None):
-        QDialog.__init__(self, parent=parent)
-        self.setupUi(self)
+counter = count()
 
+
+class WebStoreDialog(object):
+
+    def __init__(
+        self, gui, base_url, parent=None, detail_url=None, create_browser=None
+    ):
+        self.id = next(counter)
         self.gui = gui
         self.base_url = base_url
+        self.detail_url = detail_url
+        self.window_title = None
+        self.tags = None
 
-        self.view.set_gui(self.gui)
-        self.view.create_browser = create_browser
-        self.view.loadStarted.connect(self.load_started)
-        self.view.loadProgress.connect(self.load_progress)
-        self.view.loadFinished.connect(self.load_finished)
-        self.home.clicked.connect(self.go_home)
-        self.reload.clicked.connect(self.view.reload)
-        self.back.clicked.connect(self.view.back)
-
-        self.go_home(detail_url=detail_url)
+    def setWindowTitle(self, title):
+        self.window_title = title
 
     def set_tags(self, tags):
-        self.view.set_tags(tags)
+        self.tags = tags
 
-    def load_started(self):
-        self.progress.setValue(0)
-
-    def load_progress(self, val):
-        self.progress.setValue(val)
-
-    def load_finished(self, ok=True):
-        self.progress.setValue(100)
-
-    def go_home(self, checked=False, detail_url=None):
-        if detail_url:
-            url = detail_url
-        else:
-            url = self.base_url
-
-        # Reduce redundant /'s because some stores
-        # (Feedbooks) and server frameworks (cherrypy)
-        # choke on them.
-        url = url_slash_cleaner(url)
-        self.view.load(QUrl(url))
+    def exec_(self):
+        data = {
+            'base_url': self.base_url,
+            'detail_url': self.detail_url,
+            'window_title': self.window_title,
+            'tags': self.tags,
+            'id': self.id
+        }
+        data = json.dumps(data)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        data = standard_b64encode(data)
+        if isinstance(data, bytes):
+            data = data.decode('ascii')
+        args = ['store-dialog', data]
+        self.gui.job_manager.launch_gui_app(args[0], kwargs={'args': args})

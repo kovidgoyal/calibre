@@ -1,13 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict
 from operator import attrgetter
+
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 LIST_STYLES = frozenset(
     'disc circle square decimal decimal-leading-zero lower-roman upper-roman'
@@ -62,7 +63,7 @@ class NumberingDefinition(object):
         items_for_level = defaultdict(list)
         container_for_level = {}
         type_for_level = {}
-        for ilvl, items in self.level_map.iteritems():
+        for ilvl, items in iteritems(self.level_map):
             for container, list_tag, block, list_type, tag_style in items:
                 items_for_level[ilvl].append(list_tag)
                 container_for_level[ilvl] = container
@@ -76,13 +77,13 @@ class NumberingDefinition(object):
         return hash(self.levels)
 
     def link_blocks(self):
-        for ilvl, items in self.level_map.iteritems():
+        for ilvl, items in iteritems(self.level_map):
             for container, list_tag, block, list_type, tag_style in items:
                 block.numbering_id = (self.num_id + 1, ilvl)
 
     def serialize(self, parent):
         makeelement = self.namespace.makeelement
-        an = makeelement(parent, 'w:abstractNum', w_abstractNumId=str(self.num_id))
+        an = makeelement(parent, 'w:abstractNum', w_abstractNumId=unicode_type(self.num_id))
         makeelement(an, 'w:multiLevelType', w_val='hybridMultilevel')
         makeelement(an, 'w:name', w_val='List %d' % (self.num_id + 1))
         for level in self.levels:
@@ -113,12 +114,12 @@ class Level(object):
         return hash((self.start, self.num_fmt, self.lvl_text))
 
     def serialize(self, parent, makeelement):
-        lvl = makeelement(parent, 'w:lvl', w_ilvl=str(self.ilvl))
-        makeelement(lvl, 'w:start', w_val=str(self.start))
+        lvl = makeelement(parent, 'w:lvl', w_ilvl=unicode_type(self.ilvl))
+        makeelement(lvl, 'w:start', w_val=unicode_type(self.start))
         makeelement(lvl, 'w:numFmt', w_val=self.num_fmt)
         makeelement(lvl, 'w:lvlText', w_val=self.lvl_text)
         makeelement(lvl, 'w:lvlJc', w_val='left')
-        makeelement(makeelement(lvl, 'w:pPr'), 'w:ind', w_hanging='360', w_left=str(1152 + self.ilvl * 360))
+        makeelement(makeelement(lvl, 'w:pPr'), 'w:ind', w_hanging='360', w_left=unicode_type(1152 + self.ilvl * 360))
         if self.num_fmt == 'bullet':
             ff = {'\uf0b7':'Symbol', '\uf0a7':'Wingdings'}.get(self.lvl_text, 'Courier New')
             makeelement(makeelement(lvl, 'w:rPr'), 'w:rFonts', w_ascii=ff, w_hAnsi=ff, w_hint="default")
@@ -148,21 +149,21 @@ class ListsManager(object):
                 ilvl = len(container_tags) - 1
                 l.level_map[ilvl].append((container_tags[0], list_tag, block, list_type, tag_style))
 
-        [nd.finalize() for nd in lists.itervalues()]
+        [nd.finalize() for nd in itervalues(lists)]
         definitions = {}
-        for defn in lists.itervalues():
+        for defn in itervalues(lists):
             try:
                 defn = definitions[defn]
             except KeyError:
                 definitions[defn] = defn
                 defn.num_id = len(definitions) - 1
             defn.link_blocks()
-        self.definitions = sorted(definitions.itervalues(), key=attrgetter('num_id'))
+        self.definitions = sorted(itervalues(definitions), key=attrgetter('num_id'))
 
     def serialize(self, parent):
         for defn in self.definitions:
             defn.serialize(parent)
         makeelement = self.namespace.makeelement
         for defn in self.definitions:
-            n = makeelement(parent, 'w:num', w_numId=str(defn.num_id + 1))
-            makeelement(n, 'w:abstractNumId', w_val=str(defn.num_id))
+            n = makeelement(parent, 'w:num', w_numId=unicode_type(defn.num_id + 1))
+            makeelement(n, 'w:abstractNumId', w_val=unicode_type(defn.num_id))

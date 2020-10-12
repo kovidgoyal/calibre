@@ -1,14 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, time, shutil
-from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (QIcon, QDialog,
@@ -19,6 +17,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
+from polyglot.builtins import iteritems
 
 # Start download {{{
 
@@ -45,10 +44,11 @@ class Job(ThreadedJob):
         return open(self.download_debug_log, 'rb')
 
 
-def show_config(gui, parent):
+def show_config(parent):
     from calibre.gui2.preferences import show_config_widget
+    from calibre.gui2.ui import get_gui
     show_config_widget('Sharing', 'Metadata download', parent=parent,
-            gui=gui, never_shutdown=True)
+            gui=get_gui(), never_shutdown=True)
 
 
 class ConfirmDialog(QDialog):
@@ -95,7 +95,7 @@ class ConfirmDialog(QDialog):
         b.setIcon(QIcon(I('default_cover.png')))
         b = self.b = self.bb.addButton(_('&Configure download'), self.bb.ActionRole)
         b.setIcon(QIcon(I('config.png')))
-        b.clicked.connect(partial(show_config, parent, self))
+        connect_lambda(b.clicked, self, lambda self: show_config(self))
         l.addWidget(self.bb, 1, 0, 1, 2)
         b = self.bb.addButton(_('Download &both'),
                 self.bb.AcceptRole)
@@ -244,7 +244,7 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
                 title_map[i] = metadata[i].title
                 lm_map[i] = metadata[i].last_modified
             metadata = {i:metadata_to_opf(mi, default_lang='und') for i, mi in
-                    metadata.iteritems()}
+                    iteritems(metadata)}
             try:
                 ret = fork_job('calibre.ebooks.metadata.sources.worker', 'main',
                         (do_identify, covers, metadata, ensure_fields, tdir),

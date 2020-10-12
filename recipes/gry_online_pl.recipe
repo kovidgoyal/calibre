@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
@@ -37,7 +38,7 @@ class GryOnlinePl(BasicNewsRecipe):
                         soup2 = self.index_to_soup(finalurl)
                         break
                     except:
-                        print 'retrying in 0.5s'
+                        print('retrying in 0.5s')
                         time.sleep(0.5)
                 pagetext = soup2.find(attrs={'class': 'gc660'})
                 for r in pagetext.findAll(name='header'):
@@ -73,7 +74,7 @@ class GryOnlinePl(BasicNewsRecipe):
                             soup2 = self.index_to_soup(finalurl)
                             break
                         except:
-                            print 'retrying in 0.5s'
+                            print('retrying in 0.5s')
                             time.sleep(0.5)
                     tag = soup2.find('div', attrs={'class': 'S018stronyr'})
                     pagetext = soup2.find(attrs={'class': 'gc660'})

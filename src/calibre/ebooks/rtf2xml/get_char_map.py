@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -36,7 +37,7 @@ class GetCharMap:
 
     def get_char_map(self, map):
         # if map == 'ansicpg10000':
-            # map = 'mac_roman'
+        #   map = 'mac_roman'
         found_map = False
         map_dict = {}
         self.__char_file.seek(0)
@@ -57,6 +58,5 @@ class GetCharMap:
 
         if not found_map:
             msg = 'no map found\nmap is "%s"\n'%(map,)
-            raise self.__bug_handler, msg
+            raise self.__bug_handler(msg)
         return map_dict
-

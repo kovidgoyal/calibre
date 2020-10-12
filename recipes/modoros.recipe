@@ -3,7 +3,10 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.constants import config_dir, CONFIG_DIR_MODE
 import os
 import os.path
-import urllib
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 from hashlib import md5
 
 
@@ -62,12 +65,12 @@ class ModorosBlogHu(BasicNewsRecipe):
         feeds = BasicNewsRecipe.parse_feeds(self)
 
         for feed in feeds:
-            feed_hash = urllib.quote(feed.title.encode('utf-8'), safe='')
+            feed_hash = quote(feed.title.encode('utf-8'), safe='')
             feed_fn = os.path.join(feed_dir, feed_hash)
 
             past_items = set()
             if os.path.exists(feed_fn):
-                with file(feed_fn) as f:
+                with open(feed_fn) as f:
                     for h in f:
                         past_items.add(h.strip())
 
@@ -84,7 +87,7 @@ class ModorosBlogHu(BasicNewsRecipe):
                 cur_items.add(item_hash)
                 if item_hash in past_items:
                     feed.articles.remove(article)
-            with file(feed_fn, 'w') as f:
+            with open(feed_fn, 'w') as f:
                 for h in cur_items:
                     f.write(h + '\n')
 

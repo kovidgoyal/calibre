@@ -1,8 +1,17 @@
-/* 
+/*
  * Reset CSS to suppress cross-browser differences
 */
 
-html, body, div, span, object, iframe,
+html, body {
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    vertical-align:baseline;
+    background:transparent;
+}
+
+div, span, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 abbr, address, cite, code,
 del, dfn, em, img, ins, kbd, q, samp,
@@ -11,7 +20,7 @@ b, i,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, figcaption, figure, 
+article, aside, canvas, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section, summary,
 time, mark, audio, video {
     margin:0;
@@ -25,11 +34,10 @@ time, mark, audio, video {
 
 body {
     line-height:1.2;
-    font-family:sans-serif;
 }
 
 article,aside,details,figcaption,figure,
-footer,header,hgroup,menu,nav,section { 
+footer,header,hgroup,menu,nav,section {
     display:block;
 }
 
@@ -69,7 +77,7 @@ table {
 hr {
     display:block;
     height:1px;
-    border:0;   
+    border:0;
     border-top:1px solid currentColor;
     margin:1em 0;
     padding:0;
@@ -81,4 +89,8 @@ input, select {
 
 input[type=radio] {
     margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0.25em
+}
+
+textarea {
+    font-family: inherit;
 }

@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 from PyQt5.Qt import (
     QApplication, QBrush, QColor, QFont, QFontMetrics, QPen, QPixmap, QSplashScreen,
@@ -11,6 +10,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import __appname__, numeric_version
 from calibre.utils.monotonic import monotonic
+from polyglot.builtins import unicode_type
 
 
 class SplashScreen(QSplashScreen):
@@ -36,7 +36,7 @@ class SplashScreen(QSplashScreen):
         f.setPixelSize(self.total_height)
         f.setItalic(True), f.setBold(True)
         f = QFontMetrics(f)
-        self.num_ch = str(max(3, numeric_version[0]))
+        self.num_ch = unicode_type(max(3, numeric_version[0]))
         self.footer_font = f = QFont()
         f.setPointSize(self.FOOTER_SIZE)
         f.setItalic(True)
@@ -46,7 +46,7 @@ class SplashScreen(QSplashScreen):
         self.pmap = self.pmap.scaled(int(self.dpr * self.LOGO_SIZE), int(self.dpr * self.LOGO_SIZE), transformMode=Qt.SmoothTransformation)
         self.light_brush = QBrush(QColor('#F6F3E9'))
         self.dark_brush = QBrush(QColor('#39322B'))
-        pmap = QPixmap(int(self.WIDTH * self.dpr), int(self.WIDTH * self.dpr))
+        pmap = QPixmap(int(self.WIDTH * self.dpr), int(self.total_height * self.dpr))
         pmap.setDevicePixelRatio(self.dpr)
         pmap.fill(Qt.transparent)
         QSplashScreen.__init__(self, pmap)

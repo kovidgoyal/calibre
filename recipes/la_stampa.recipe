@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __author__ = 'Gabriele Marini, based on Darko Miletic'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
@@ -35,8 +35,8 @@ class LaStampa(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(attrs={'class': ['boxocchiello2', 'titoloRub', 'titologir', 'autore-girata', 'luogo-girata', 'catenaccio', 'sezione', 'articologirata', 'bodytext', 'news-single-img', 'ls-articoloCorpo', 'ls-blog-list-1col']}),  # noqa
-                      dict(name='div', attrs={'id': 'corpoarticolo'})
-                      ]
+        dict(name='div', attrs={'id': 'corpoarticolo'})
+    ]
 
     remove_tags = [dict(name='div', attrs={'id': ['menutop', 'fwnetblocco']}),
                    dict(

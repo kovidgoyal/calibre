@@ -1,62 +1,111 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
-__copyright__ = u'2011, Vroo <vroobelek@iq.pl>'
-__author__ = u'Vroo'
+__copyright__ = u'2020, Tomasz Jozwiak <tjozwiakgm@gmail.com>'
+__author__ = u'Tomasz Jozwiak'
 '''
 gazetaprawna.pl
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class gazetaprawna(BasicNewsRecipe):
-    version = 1
+    version = 2
     title = u'Gazeta Prawna'
-    __author__ = u'Vroo'
+    __author__ = u'Tomasz Jozwiak'
     publisher = u'Infor Biznes'
-    oldest_article = 1
-    max_articles_per_feed = 20
+    max_articles_per_feed = 30
     no_stylesheets = True
     remove_javascript = True
+    remove_empty_feeds = True
+    category = 'newspaper'
+    publication_type = 'newspaper'
     description = 'Polski dziennik gospodarczy'
     language = 'pl'
     encoding = 'utf-8'
     ignore_duplicate_articles = {'title', 'url'}
+    use_embedded_content = False
+    oldest_article = 1
+
+    extra_css = '''
+        .psavBigImgTitle {font-size:50%;}
+        .psavImgContent {font-size:50%;}
+        .leadDiv {font-weight: bold;}
+        .date {font-size:50%;}
+        .articleGate {font-style: italic; font-weight: normal; font-size:50%;}
+    '''
+
+    remove_tags_before = [
+        dict(name='div', attrs={'class': ['article']}),
+        dict(name='div', attrs={'itemprop': ['breadcrumb']})
+    ]
 
     remove_tags_after = [
-        dict(name='div', attrs={'class': ['data-art']})
+       dict(name='div', attrs={'class': ['articleBody', 'artPayWall', 'contentGalBottom', 'komentarze-forum']}),
     ]
+
     remove_tags = [
-        dict(name='div', attrs={'class': ['dodatki_artykulu', 'data-art']})
+        dict(name='span', attrs={'class': ['psav_bigphoto', 'psav_speclinkarea', 'psav_video_target']}),
+        dict(name='div', attrs={'class': ['shareArticleButtons nowe2', 'artPayWall', 'contentGalBottom', 'contentGalTop', 'video-target', 'komentarze-forum']}),
+        dict(name=['link', 'meta', 'style']),
+        dict(name='div', attrs={'itemprop': ['breadcrumb']}),
+        dict(name='section', attrs={'class': ['videoSection']})
     ]
 
     feeds = [
         (u'Z ostatniej chwili', u'http://rss.gazetaprawna.pl/GazetaPrawna'),
-        (u'Biznes i prawo gospodarcze', u'http://biznes.gazetaprawna.pl/rss.xml'),
-        (u'Prawo i wymiar sprawiedliwo\u015bci',
-            u'http://prawo.gazetaprawna.pl/rss.xml'),
-        (u'Praca i ubezpieczenia', u'http://praca.gazetaprawna.pl/rss.xml'),
-        (u'Podatki i rachunkowo\u015b\u0107',
-            u'http://podatki.gazetaprawna.pl/rss.xml')
+        (u'Biznes i prawo gospodarcze', u'http://rss.gazetaprawna.pl/GazetaPrawna-Biznes'),
+        (u'Prawo i wymiar sprawiedliwo\u015bci', u'http://rss.gazetaprawna.pl/GazetaPrawna-Prawo'),
+        (u'Praca i ubezpieczenia', u'http://rss.gazetaprawna.pl/GazetaPrawna-Praca'),
+        (u'Podatki i rachunkowo\u015b\u0107', u'http://rss.gazetaprawna.pl/GazetaPrawna-Podatki'),
+        (u'Finanse - waluty i notowania', u'http://rss.gazetaprawna.pl/GazetaPrawna-Finanse'),
     ]
 
-    def print_version(self, url):
-        url = url.replace('wiadomosci/artykuly', 'drukowanie')
-        url = url.replace('artykuly', 'drukowanie')
-        url = url.replace('porady', 'drukowanie')
-        url = url.replace('wywiady', 'drukowanie')
-        url = url.replace('orzeczenia', 'drukowanie')
-        url = url.replace('galeria', 'drukowanie')
-        url = url.replace('komentarze', 'drukowanie')
-        url = url.replace('biznes.gazetaprawna', 'www.gazetaprawna')
-        url = url.replace('podatki.gazetaprawna', 'www.gazetaprawna')
-        url = url.replace('prawo.gazetaprawna', 'www.gazetaprawna')
-        url = url.replace('praca.gazetaprawna', 'www.gazetaprawna')
-        return url
+    def parse_feeds(self):
+        self.log(_('Gazeta Prawna overrided parse_feeds()'))
+        parsed_feeds = BasicNewsRecipe.parse_feeds(self)
+        for n, feed in enumerate(parsed_feeds):
+            for a, article in enumerate(feed):
+                article.text_summary = re.sub(r'<\!\[CDATA\[', "", article.text_summary)
+                article.text_summary = re.sub(r'\]\]', "", article.text_summary)
+                article.summary = article.text_summary
+
+        return parsed_feeds
+
+    def preprocess_html(self, soup):
+        for Img in soup.findAll(name='div', attrs={'class': ['psavBigImg']}):
+            for img_tag in Img.findAll(name='img', attrs={'data-src': True}):
+                img_tag['src'] = img_tag['data-src']
+                del img_tag['data-src']
+                # print(Img.prettify())
+
+        for span in soup.findAll(name='span'):
+            if len(self.tag_to_string(span)) > 1:
+                span.append(" ")
+
+        for locked in soup.findAll(name='div', attrs={'class': ['articleGate']}):
+            locked.append(u"Przejd\u017a do artyku\u0142u na GazetaPrawna.pl aby zalogowa\u0107 si\u0119 lub wykupi\u0107 dost\u0119p")
+
+        return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        Img = soup.find(name='div', attrs={'class': ['psavBigImg']})
+        if Img:
+            img_tag = Img.find(name='img', attrs={'src': True})
+            if img_tag:
+                self.add_toc_thumbnail(article, img_tag['src'])
+                self.log(_('adding thumbnail: %s to Article') % (img_tag['src']))
+                article.author = 'Gazeta prawna.pl'
+                if len(article.title) > 80:
+                    title = article.title[:80]
+                    title = title.rsplit(None, 1)
+                    article.title = title[0]
+                    self.log(_('The title cuting in %s to keep the thumbnail visible') % (article.url))
 
     def get_cover_url(self):
         soup = self.index_to_soup(
             'http://www.egazety.pl/infor/e-wydanie-dziennik-gazeta-prawna.html')
-        self.cover_url = soup.find('p', attrs={'class': 'covr'}).a['href']
+        self.cover_url = soup.find("a", {"class": "image cover-preview"}).img['src']
         return getattr(self, 'cover_url', self.cover_url)

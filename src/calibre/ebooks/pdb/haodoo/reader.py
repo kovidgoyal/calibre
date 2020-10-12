@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read content from Haodoo.net pdb file.
 '''
@@ -16,6 +17,7 @@ from calibre import prepare_string_for_xml
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.txt.processor import opf_writer, HTML_TEMPLATE
+from polyglot.builtins import range, map
 
 BPDB_IDENT = b'BOOKMTIT'
 UPDB_IDENT = b'BOOKMTIU'
@@ -62,9 +64,9 @@ class LegacyHeaderRecord(object):
         fields = raw.lstrip().replace(b'\x1b\x1b\x1b', b'\x1b').split(b'\x1b')
         self.title = fix_punct(fields[0].decode('cp950', 'replace'))
         self.num_records = int(fields[1])
-        self.chapter_titles = map(
-            lambda x: fix_punct(x.decode('cp950', 'replace').rstrip(b'\x00')),
-            fields[2:])
+        self.chapter_titles = list(map(
+            lambda x: fix_punct(x.decode('cp950', 'replace').rstrip('\x00')),
+            fields[2:]))
 
 
 class UnicodeHeaderRecord(object):
@@ -74,9 +76,9 @@ class UnicodeHeaderRecord(object):
                 b'\x1b\x00').split(b'\x1b\x00')
         self.title = fix_punct(fields[0].decode('utf_16_le', 'ignore'))
         self.num_records = int(fields[1])
-        self.chapter_titles = map(
-            lambda x: fix_punct(x.decode('utf_16_le', 'replace').rstrip(b'\x00')),
-            fields[2].split(b'\r\x00\n\x00'))
+        self.chapter_titles = list(map(
+            lambda x: fix_punct(x.decode('utf_16_le', 'replace').rstrip('\x00')),
+            fields[2].split(b'\r\x00\n\x00')))
 
 
 class Reader(FormatReader):
@@ -98,18 +100,18 @@ class Reader(FormatReader):
 
     def author(self):
         self.stream.seek(35)
-        version = struct.unpack(b'>b', self.stream.read(1))[0]
+        version = struct.unpack('>b', self.stream.read(1))[0]
         if version == 2:
             self.stream.seek(0)
             author = self.stream.read(35).rstrip(b'\x00').decode(self.encoding, 'replace')
             return author
         else:
-            return u'Unknown'
+            return 'Unknown'
 
     def get_metadata(self):
         mi = MetaInformation(self.header_record.title,
                              [self.author()])
-        mi.language = u'zh-tw'
+        mi.language = 'zh-tw'
 
         return mi
 
@@ -118,10 +120,10 @@ class Reader(FormatReader):
 
     def decompress_text(self, number):
         return self.section_data(number).decode(self.encoding,
-                'replace').rstrip(b'\x00')
+                'replace').rstrip('\x00')
 
     def extract_content(self, output_dir):
-        txt = u''
+        txt = ''
 
         self.log.info(u'Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
@@ -133,23 +135,23 @@ class Reader(FormatReader):
                 line = fix_punct(line)
                 line = line.strip()
                 if not title_added and title in line:
-                    line = u'<h1 class="chapter">' + line + u'</h1>\n'
+                    line = '<h1 class="chapter">' + line + '</h1>\n'
                     title_added = True
                 else:
                     line = prepare_string_for_xml(line)
-                lines.append(u'<p>%s</p>' % line)
+                lines.append('<p>%s</p>' % line)
             if not title_added:
-                lines.insert(0, u'<h1 class="chapter">' + title + u'</h1>\n')
-            txt += u'\n'.join(lines)
+                lines.insert(0, '<h1 class="chapter">' + title + '</h1>\n')
+            txt += '\n'.join(lines)
 
         self.log.info(u'Converting text to OEB...')
         html = HTML_TEMPLATE % (self.header_record.title, txt)
-        with open(os.path.join(output_dir, u'index.html'), 'wb') as index:
+        with open(os.path.join(output_dir, 'index.html'), 'wb') as index:
             index.write(html.encode('utf-8'))
 
         mi = self.get_metadata()
-        manifest = [(u'index.html', None)]
-        spine = [u'index.html']
-        opf_writer(output_dir, u'metadata.opf', manifest, spine, mi)
+        manifest = [('index.html', None)]
+        spine = ['index.html']
+        opf_writer(output_dir, 'metadata.opf', manifest, spine, mi)
 
-        return os.path.join(output_dir, u'metadata.opf')
+        return os.path.join(output_dir, 'metadata.opf')

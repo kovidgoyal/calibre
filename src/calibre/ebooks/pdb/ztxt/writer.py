@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Writer content to ztxt pdb file.
 '''
@@ -67,7 +68,7 @@ class Writer(FormatWriter):
         return txt_records, txt_length
 
     def _header_record(self, txt_length, record_count, crc32):
-        record = ''
+        record = b''
 
         record += struct.pack('>H', 0x012c)             # [0:2], version. 0x012c = 1.44
         record += struct.pack('>H', record_count)       # [2:4], Number of PDB records used for the text of the book.
@@ -83,4 +84,3 @@ class Writer(FormatWriter):
         record += struct.pack('>LL', 0, 0)              # [24:32], padding
 
         return record
-

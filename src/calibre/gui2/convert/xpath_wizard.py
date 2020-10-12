@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,6 +11,7 @@ from PyQt5.Qt import QDialog, QWidget, Qt, QDialogButtonBox, QVBoxLayout
 from calibre.gui2.convert.xpath_wizard_ui import Ui_Form
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
 from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import unicode_type, map
 
 
 class WizardWidget(QWidget, Ui_Form):
@@ -26,10 +27,10 @@ class WizardWidget(QWidget, Ui_Form):
 
     @property
     def xpath(self):
-        tag = unicode(self.tag.currentText()).strip()
+        tag = unicode_type(self.tag.currentText()).strip()
         if tag != '*':
             tag = 'h:'+tag
-        attr, val = map(unicode, (self.attribute.text(), self.value.text()))
+        attr, val = map(unicode_type, (self.attribute.text(), self.value.text()))
         attr, val = attr.strip(), val.strip()
         q = ''
         if attr:
@@ -80,14 +81,14 @@ class XPathEdit(QWidget, Ui_Edit):
     def setObjectName(self, *args):
         QWidget.setObjectName(self, *args)
         if hasattr(self, 'edit'):
-            self.edit.initialize('xpath_edit_'+unicode(self.objectName()))
+            self.edit.initialize('xpath_edit_'+unicode_type(self.objectName()))
 
     def set_msg(self, msg):
         self.msg.setText(msg)
 
     @property
     def text(self):
-        return unicode(self.edit.text())
+        return unicode_type(self.edit.text())
 
     @property
     def xpath(self):
@@ -113,4 +114,4 @@ if __name__ == '__main__':
     w.setObjectName('test')
     w.show()
     app.exec_()
-    print w.xpath
+    print(w.xpath)

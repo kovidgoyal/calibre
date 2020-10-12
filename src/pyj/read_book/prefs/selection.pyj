@@ -1,0 +1,216 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from dom import clear, svgicon, unique_id
+from read_book.globals import is_dark_theme
+from read_book.highlights import all_styles
+from read_book.prefs.utils import create_button_box
+from read_book.selection_bar import all_actions
+from session import defaults
+
+CONTAINER = unique_id('selection-settings')
+
+
+def set_actions(use_defaults):
+    c = get_container()
+    adef = all_actions()
+    sd = get_session_data()
+    actions = defaults.selection_bar_actions if use_defaults else sd.get('selection_bar_actions')
+    current = [x for x in actions if adef[x]]
+    c.querySelector('.current-actions').dataset.actions = JSON.stringify(current)
+    available_actions = [x for x in adef if current.indexOf(x) is -1]
+    c.querySelector('.available-actions').dataset.actions = JSON.stringify(available_actions)
+    update_action_tables()
+    quick_actions = defaults.selection_bar_quick_highlights if use_defaults else sd.get('selection_bar_quick_highlights')
+    c.querySelector('.quick-actions').dataset.actions = JSON.stringify(quick_actions)
+    update_quick_action_table()
+
+
+def restore_defaults():
+    container = get_container()
+    for control in container.querySelectorAll('input[name]'):
+        val = defaults[control.getAttribute('name')]
+        if control.type is 'checkbox':
+            control.checked = val
+        elif control.type is 'number':
+            control.valueAsNumber = val
+        else:
+            control.value = val
+    set_actions(True)
+
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+
+def transfer(name, frm, to_):
+    c = get_container().querySelector('.' + frm)
+    actions = JSON.parse(c.dataset.actions)
+    idx = actions.indexOf(name)
+    actions.splice(idx, 1)
+    c.dataset.actions = JSON.stringify(actions)
+    c = get_container().querySelector('.' + to_)
+    actions = JSON.parse(c.dataset.actions)
+    if to_ is 'current-actions':
+        actions.unshift(name)
+    else:
+        actions.push(name)
+    c.dataset.actions = JSON.stringify(actions)
+    update_action_tables()
+
+
+def add_action(name):
+    transfer(name, 'available-actions', 'current-actions')
+
+
+def remove_action(name):
+    transfer(name, 'current-actions', 'available-actions')
+
+
+def move_action(name, up):
+    c = get_container().querySelector('.current-actions')
+    actions = JSON.parse(c.dataset.actions)
+    idx = actions.indexOf(name)
+    delta = -1 if up else 1
+    new_idx = (idx + delta + len(actions)) % len(actions)
+    a, b = actions[idx], actions[new_idx]
+    actions[new_idx], actions[idx] = a, b
+    c.dataset.actions = JSON.stringify(actions)
+    update_action_tables()
+
+
+def build_action_table(container, is_current):
+    clear(container)
+    adef = all_actions()
+    table = E.table(style='margin-left: 2rem')
+    container.appendChild(table)
+    for action_name in JSON.parse(container.dataset.actions):
+        ac = adef[action_name]
+        if is_current:
+            buttons = E.td(
+                E.span(_('Remove'), class_='simple-link', onclick=remove_action.bind(None, action_name)),
+                E.span('\xa0', style='min-width: 2rem; display: inline-block'),
+                E.span(_('Up'), class_='simple-link', onclick=move_action.bind(None, action_name, True)),
+                E.span('\xa0', style='min-width: 2rem; display: inline-block'),
+                E.span(_('Down'), class_='simple-link', onclick=move_action.bind(None, action_name, False)),
+            )
+        else:
+            buttons = E.td(
+                E.span(_('Add'), class_='simple-link', onclick=add_action.bind(None, action_name)),
+            )
+        buttons.style.paddingLeft = '2rem'
+        if ac.icon_function:
+            icon = ac.icon_function('#add8ff')
+        else:
+            icon = svgicon(ac.icon)
+        table.appendChild(E.tr(E.td(style='padding: 1ex', icon), E.td(ac.text), buttons))
+
+
+def update_action_tables():
+    c = get_container()
+    current = c.querySelector('.current-actions')
+    build_action_table(current, True)
+    current = c.querySelector('.available-actions')
+    build_action_table(current, False)
+
+
+def update_quick_action_table():
+    c = get_container().querySelector('.quick-actions')
+    clear(c)
+    c.style.display = 'flex'
+    c.style.flexWrap = 'wrap'
+    current = {x: True for x in JSON.parse(c.dataset.actions)}
+    for hs in all_styles():
+        c.appendChild(E.label(
+            style='margin: 1ex; display: flex; align-contents: center',
+            hs.make_swatch(E.span(), is_dark_theme()),
+            '\xa0',
+            hs.friendly_name,
+            '\xa0',
+            E.input(type='checkbox', value=hs.key, checked=current[hs.key]),
+        ))
+
+
+def selected_quick_actions():
+    ans = v'[]'
+    c = get_container().querySelector('.quick-actions')
+    for inp in c.querySelectorAll('input:checked'):
+        if inp.value:
+            ans.push(inp.value)
+    return ans
+
+
+def create_selection_panel(container, apply_func, cancel_func):
+    container.appendChild(E.div(id=CONTAINER, style='margin: 1rem'))
+    container = container.lastChild
+    sd = get_session_data()
+
+    def cb(name, text):
+        ans = E.input(type='checkbox', name=name)
+        if sd.get(name):
+            ans.checked = True
+        return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
+
+    def url(name, text, title):
+        ans = E.input(type='url', name=name, value=sd.get(name), size='50', title=title or '', style='margin-top: 1ex')
+        return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
+
+    container.appendChild(cb(
+        'show_selection_bar', _('Show a popup bar with common actions next to selected text')))
+    container.appendChild(url(
+        'net_search_url', _('URL to query when searching the internet'),
+    _('The {q} in the URL is replaced by the selected text')))
+
+    container.appendChild(E.div(
+        style='margin-top: 2ex; border-top: solid 1px; padding-top: 1ex;',
+        _('Customize which actions are shown in the selection popup bar')
+    ))
+    container.appendChild(E.div(style='padding: 1ex; border-bottom: solid 1px; margin-bottom: 1ex',
+        E.h3(_('Current actions')),
+        E.div(class_='current-actions'),
+        E.h3(_('Available actions')),
+        E.div(class_='available-actions')
+    ))
+    container.appendChild(E.div(style='padding: 1ex; border-bottom: solid 1px; margin-bottom: 1ex',
+        E.h3(_('Quick highlight actions')),
+        E.div(_('Choose highlight styles that will have dedicated buttons in the selection bar to create highlights with a single click')),
+        E.div(class_='quick-actions'),
+    ))
+    set_actions()
+
+    container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
+
+
+develop = create_selection_panel
+
+
+def commit_selection(onchange):
+    sd = get_session_data()
+    container = get_container()
+    changed = False
+    for control in container.querySelectorAll('input[name]'):
+        name = control.getAttribute('name')
+        if control.type is 'checkbox':
+            val = control.checked
+        elif control.type is 'number':
+            val = control.valueAsNumber
+        else:
+            val = control.value
+        if val is not sd.get(name) and control.validity.valid:
+            sd.set(name, val)
+            changed = True
+    actions = JSON.parse(container.querySelector('.current-actions').dataset.actions)
+    if list(actions) != list(sd.get('selection_bar_actions')):
+        changed = True
+        sd.set('selection_bar_actions', actions)
+    quick_highlights = selected_quick_actions()
+    if list(quick_highlights) != list(sd.get('selection_bar_quick_highlights')):
+        changed = True
+        sd.set('selection_bar_quick_highlights', quick_highlights)
+    if changed:
+        onchange()

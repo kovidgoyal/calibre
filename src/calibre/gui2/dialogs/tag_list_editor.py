@@ -1,23 +1,37 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
+
+
+from functools import partial
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
-                      QDialogButtonBox, QTableWidget, QItemDelegate)
+                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
+                      pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu)
 
+from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
+from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
-from calibre.utils.icu import sort_key
+from calibre.gui2.widgets import EnLineEdit
+from calibre.gui2 import question_dialog, error_dialog, gprefs
+from calibre.utils.config import prefs
+from calibre.utils.icu import contains, primary_contains, primary_startswith, capitalize
+from calibre.utils.titlecase import titlecase
+from polyglot.builtins import unicode_type
+
+QT_HIDDEN_CLEAR_ACTION = '_q_qlineeditclearaction'
 
 
 class NameTableWidgetItem(QTableWidgetItem):
 
-    def __init__(self, txt):
-        QTableWidgetItem.__init__(self, txt)
-        self.initial_value = txt
-        self.current_value = txt
-        self.previous_value = txt
+    def __init__(self, sort_key):
+        QTableWidgetItem.__init__(self)
+        self.initial_value = ''
+        self.current_value = ''
         self.is_deleted = False
+        self.is_placeholder = False
+        self.sort_key = sort_key
 
     def data(self, role):
         if role == Qt.DisplayRole:
@@ -34,39 +48,54 @@ class NameTableWidgetItem(QTableWidgetItem):
             self.setIcon(QIcon(I('trash.png')))
         else:
             self.setIcon(QIcon(None))
-            self.current_value = self.previous_value = self.initial_value
+            self.current_value = self.initial_value
         self.is_deleted = to_what
 
     def setData(self, role, data):
         if role == Qt.EditRole:
-            self.previous_value = self.current_value
             self.current_value = data
         QTableWidgetItem.setData(self, role, data)
 
-    def text(self):
-        return self.current_value
+    def set_initial_text(self, txt):
+        self.initial_value = txt
 
     def initial_text(self):
         return self.initial_value
 
-    def previous_text(self):
-        return self.previous_value
+    def text(self):
+        return self.current_value
 
     def setText(self, txt):
+        self.is_placeholder = False
         self.current_value = txt
         QTableWidgetItem.setText(self, txt)
 
+    # Before this method is called, signals should be blocked for the
+    # table containing this item
+    def set_placeholder(self, txt):
+        self.text_before_placeholder = self.current_value
+        self.setText(txt)
+        self.is_placeholder = True
+
+    # Before this method is called, signals should be blocked for the
+    # table containing this item
+    def reset_placeholder(self):
+        if self.is_placeholder:
+            self.setText(self.text_before_placeholder)
+
     def __ge__(self, other):
-        return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
+        return (self.sort_key(unicode_type(self.text())) >=
+                    self.sort_key(unicode_type(other.text())))
 
     def __lt__(self, other):
-        return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
+        return (self.sort_key(unicode_type(self.text())) <
+                    self.sort_key(unicode_type(other.text())))
 
 
 class CountTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, count):
-        QTableWidgetItem.__init__(self, str(count))
+        QTableWidgetItem.__init__(self, unicode_type(count))
         self._count = count
 
     def __ge__(self, other):
@@ -77,38 +106,51 @@ class CountTableWidgetItem(QTableWidgetItem):
 
 
 class EditColumnDelegate(QItemDelegate):
+    editing_finished = pyqtSignal(int)
+    editing_started  = pyqtSignal(int)
 
     def __init__(self, table):
         QItemDelegate.__init__(self)
         self.table = table
+        self.completion_data = None
+
+    def set_completion_data(self, data):
+        self.completion_data = data
 
     def createEditor(self, parent, option, index):
-        item = self.table.item(index.row(), 0)
+        self.editing_started.emit(index.row())
         if index.column() == 0:
-            item = self.table.item(index.row(), 0)
-            if item.is_deleted:
+            self.item = self.table.itemFromIndex(index)
+            if self.item.is_deleted:
                 return None
-            return QItemDelegate.createEditor(self, parent, option, index)
-        if not confirm(
-                _('Do you want to undo your changes?'),
-                'tag_list_editor_undo'):
-                return
-        item.setText(item.initial_text())
-        self.table.blockSignals(True)
-        self.table.item(index.row(), 2).setData(Qt.DisplayRole, '')
-        self.table.blockSignals(False)
+            if self.completion_data:
+                editor = EditWithComplete(parent)
+                editor.set_separator(None)
+                editor.update_items_cache(self.completion_data)
+            else:
+                editor = EnLineEdit(parent)
+            return editor
+        return None
+
+    def destroyEditor(self, editor, index):
+        self.editing_finished.emit(index.row())
+        QItemDelegate.destroyEditor(self, editor, index)
 
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
-    def __init__(self, window, cat_name, tag_to_match, data, sorter):
+    def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
+                 ttm_is_first_letter=False, category=None):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
+        self.verticalLayout_2.setAlignment(Qt.AlignCenter)
         self.search_box.setMinimumContentsLength(25)
 
         # Put the category name into the title bar
         t = self.windowTitle()
+        self.category_name = cat_name
+        self.category = category
         self.setWindowTitle(t + ' (' + cat_name + ')')
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -124,68 +166,41 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         # initialization
         self.to_rename = {}
-        self.to_delete = set([])
-        self.original_names = {}
+        self.to_delete = set()
         self.all_tags = {}
-        self.counts = {}
+        self.original_names = {}
 
-        for k,v,count in data:
-            self.all_tags[v] = k
-            self.counts[v] = count
-            self.original_names[k] = v
-
-        # Set up the column headings
-        self.down_arrow_icon = QIcon(I('arrow-down.png'))
-        self.up_arrow_icon = QIcon(I('arrow-up.png'))
-        self.blank_icon = QIcon(I('blank.png'))
-
-        self.table.setColumnCount(3)
-        self.name_col = QTableWidgetItem(_('Tag'))
-        self.table.setHorizontalHeaderItem(0, self.name_col)
-        self.name_col.setIcon(self.up_arrow_icon)
-        self.count_col = QTableWidgetItem(_('Count'))
-        self.table.setHorizontalHeaderItem(1, self.count_col)
-        self.count_col.setIcon(self.blank_icon)
-        self.was_col = QTableWidgetItem(_('Was'))
-        self.table.setHorizontalHeaderItem(2, self.was_col)
-        self.count_col.setIcon(self.blank_icon)
+        self.ordered_tags = []
+        self.sorter = sorter
+        self.get_book_ids = get_book_ids
+        self.text_before_editing = ''
 
         # Capture clicks on the horizontal header to sort the table columns
         hh = self.table.horizontalHeader()
-        hh.setSectionsClickable(True)
-        hh.sectionClicked.connect(self.header_clicked)
         hh.sectionResized.connect(self.table_column_resized)
+        hh.setSectionsClickable(True)
+        hh.sectionClicked.connect(self.do_sort)
+        hh.setSortIndicatorShown(True)
+
+        self.last_sorted_by = 'name'
         self.name_order = 0
         self.count_order = 1
         self.was_order = 1
 
-        self.table.setItemDelegate(EditColumnDelegate(self.table))
+        self.edit_delegate = EditColumnDelegate(self.table)
+        self.edit_delegate.editing_finished.connect(self.stop_editing)
+        self.edit_delegate.editing_started.connect(self.start_editing)
+        self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
-        # Add the data
-        select_item = None
-        self.table.setRowCount(len(self.all_tags))
-        for row,tag in enumerate(sorted(self.all_tags.keys(), key=sorter)):
-            item = NameTableWidgetItem(tag)
-            item.setData(Qt.UserRole, self.all_tags[tag])
-            item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
-            self.table.setItem(row, 0, item)
-            if tag == tag_to_match:
-                select_item = item
-            item = CountTableWidgetItem(self.counts[tag])
-            # only the name column can be selected
-            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
-            self.table.setItem(row, 1, item)
-            item = QTableWidgetItem()
-#             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
-            item.setFlags((item.flags() | Qt.ItemIsEditable) & ~Qt.ItemIsSelectable)
-            self.table.setItem(row, 2, item)
-
-        # Scroll to the selected item if there is one
-        if select_item is not None:
-            self.table.setCurrentItem(select_item)
+        if prefs['use_primary_find_in_search']:
+            self.string_contains = primary_contains
+        else:
+            self.string_contains = contains
 
         self.delete_button.clicked.connect(self.delete_tags)
+        self.table.delete_pressed.connect(self.delete_pressed)
         self.rename_button.clicked.connect(self.rename_tag)
+        self.undo_button.clicked.connect(self.undo_edit)
         self.table.itemDoubleClicked.connect(self._rename_tag)
         self.table.itemChanged.connect(self.finish_editing)
 
@@ -194,42 +209,245 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.buttonBox.accepted.connect(self.accepted)
 
         self.search_box.initialize('tag_list_search_box_' + cat_name)
-        self.search_box.editTextChanged.connect(self.find_text_changed)
-        self.search_button.clicked.connect(self.search_clicked)
+        le = self.search_box.lineEdit()
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.clear_search)
+        self.search_box.textChanged.connect(self.search_text_changed)
+        self.search_button.clicked.connect(self.do_search)
         self.search_button.setDefault(True)
+        l = QLabel(self.table)
+        self.not_found_label = l
+        l.setFrameStyle(QFrame.StyledPanel)
+        l.setAutoFillBackground(True)
+        l.setText(_('No matches found'))
+        l.setAlignment(Qt.AlignVCenter)
+        l.resize(l.sizeHint())
+        l.move(10, 0)
+        l.setVisible(False)
+        self.not_found_label_timer = QTimer()
+        self.not_found_label_timer.setSingleShot(True)
+        self.not_found_label_timer.timeout.connect(
+                self.not_found_label_timer_event, type=Qt.QueuedConnection)
+
+        self.filter_box.initialize('tag_list_filter_box_' + cat_name)
+        le = self.filter_box.lineEdit()
+        ac = le.findChild(QAction, QT_HIDDEN_CLEAR_ACTION)
+        if ac is not None:
+            ac.triggered.connect(self.clear_filter)
+        le.returnPressed.connect(self.do_filter)
+        self.filter_button.clicked.connect(self.do_filter)
+
+        self.apply_vl_checkbox.clicked.connect(self.vl_box_changed)
 
         self.table.setEditTriggers(QTableWidget.EditKeyPressed)
-
-        self.start_find_pos = -1
 
         try:
             geom = gprefs.get('tag_list_editor_dialog_geometry', None)
             if geom is not None:
-                self.restoreGeometry(QByteArray(geom))
+                QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
             else:
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:
             pass
+        # Add the data
+        self.search_item_row = -1
+        self.fill_in_table(None, tag_to_match, ttm_is_first_letter)
 
-    def find_text_changed(self):
-        self.start_find_pos = -1
+        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.customContextMenuRequested.connect(self.show_context_menu)
 
-    def search_clicked(self):
-        search_for = icu_lower(unicode(self.search_box.text()))
-        if not search_for:
-            error_dialog(self, _('Find'), _('You must enter some text to search for'),
-                         show=True, show_copy_button=False)
+    def show_context_menu(self, point):
+        idx = self.table.indexAt(point)
+        if idx.column() != 0:
             return
-        rows = self.table.rowCount()
-        for i in range(0, rows):
-            self.start_find_pos += 1
-            if self.start_find_pos >= rows:
-                self.start_find_pos = 0
-            item = self.table.item(self.start_find_pos, 0)
-            if search_for in icu_lower(unicode(item.text())):
-                self.table.setCurrentItem(item)
+        m = self.au_context_menu = QMenu(self)
+
+        item = self.table.itemAt(point)
+        disable_copy_paste_search = len(self.table.selectedItems()) != 1 or item.is_deleted
+        ca = m.addAction(_('Copy'))
+        ca.triggered.connect(partial(self.copy_to_clipboard, item))
+        if disable_copy_paste_search:
+            ca.setEnabled(False)
+        ca = m.addAction(_('Paste'))
+        ca.triggered.connect(partial(self.paste_from_clipboard, item))
+        if disable_copy_paste_search:
+            ca.setEnabled(False)
+        ca = m.addAction(_('Undo'))
+        ca.triggered.connect(self.undo_edit)
+        ca.setEnabled(False)
+        for item in self.table.selectedItems():
+            if (item.text() != self.original_names[int(item.data(Qt.UserRole))] or item.is_deleted):
+                ca.setEnabled(True)
+                break
+        ca = m.addAction(_('Edit'))
+        ca.triggered.connect(self.rename_tag)
+        ca = m.addAction(_('Delete'))
+        ca.triggered.connect(self.delete_tags)
+        if self.category is not None:
+            ca = m.addAction(_("Search the library for '{0}'").format(
+                                   unicode_type(item.text())))
+            ca.triggered.connect(partial(self.search_for_books, item))
+            if disable_copy_paste_search:
+                ca.setEnabled(False)
+        m.addSeparator()
+        case_menu = QMenu(_('Change case'))
+        action_upper_case = case_menu.addAction(_('Upper case'))
+        action_lower_case = case_menu.addAction(_('Lower case'))
+        action_swap_case = case_menu.addAction(_('Swap case'))
+        action_title_case = case_menu.addAction(_('Title case'))
+        action_capitalize = case_menu.addAction(_('Capitalize'))
+        action_upper_case.triggered.connect(partial(self.do_case, icu_upper))
+        action_lower_case.triggered.connect(partial(self.do_case, icu_lower))
+        action_swap_case.triggered.connect(partial(self.do_case, self.swap_case))
+        action_title_case.triggered.connect(partial(self.do_case, titlecase))
+        action_capitalize.triggered.connect(partial(self.do_case, capitalize))
+        m.addMenu(case_menu)
+        m.exec_(self.table.mapToGlobal(point))
+
+    def search_for_books(self, item):
+        from calibre.gui2.ui import get_gui
+        get_gui().search.set_search_string('{0}:"{1}"'.format(self.category,
+                                   unicode_type(item.text()).replace(r'"', r'\"')))
+
+        qv = get_quickview_action_plugin()
+        if qv:
+            view = get_gui().library_view
+            rows = view.selectionModel().selectedRows()
+            if len(rows) > 0:
+                current_row = rows[0].row()
+                current_col = view.column_map.index(self.category)
+                index = view.model().index(current_row, current_col)
+                qv.change_quickview_column(index)
+
+    def copy_to_clipboard(self, item):
+        cb = QApplication.clipboard()
+        cb.setText(unicode_type(item.text()))
+
+    def paste_from_clipboard(self, item):
+        cb = QApplication.clipboard()
+        item.setText(cb.text())
+
+    def do_case(self, func):
+        items = self.table.selectedItems()
+        # block signals to avoid the "edit one changes all" behavior
+        self.table.blockSignals(True)
+        for item in items:
+            item.setText(func(unicode_type(item.text())))
+        self.table.blockSignals(False)
+
+    def swap_case(self, txt):
+        return txt.swapcase()
+
+    def vl_box_changed(self):
+        self.search_item_row = -1
+        self.fill_in_table(None, None, False)
+
+    def do_search(self):
+        self.not_found_label.setVisible(False)
+        find_text = icu_lower(unicode_type(self.search_box.currentText()))
+        if not find_text:
+            return
+        for _ in range(0, self.table.rowCount()):
+            r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
+            if self.string_contains(find_text,
+                        self.table.item(r, 0).text()):
+                self.table.setCurrentItem(self.table.item(r, 0))
+                self.table.setFocus(True)
                 return
-        info_dialog(self, _('Find'), _('No tag found'), show=True, show_copy_button=False)
+        # Nothing found. Pop up the little dialog for 1.5 seconds
+        self.not_found_label.setVisible(True)
+        self.not_found_label_timer.start(1500)
+
+    def search_text_changed(self):
+        self.search_item_row = -1
+
+    def clear_search(self):
+        self.search_item_row = -1
+        self.search_box.setText('')
+
+    def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
+        data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
+        self.all_tags = {}
+        filter_text = icu_lower(unicode_type(self.filter_box.text()))
+        for k,v,count in data:
+            if not filter_text or self.string_contains(filter_text, icu_lower(v)):
+                self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
+                                   'is_deleted': k in self.to_delete}
+                self.original_names[k] = v
+        self.edit_delegate.set_completion_data(self.original_names.values())
+
+        self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
+        if tags is None:
+            tags = self.ordered_tags
+
+        select_item = None
+        self.table.blockSignals(True)
+        self.table.clear()
+        self.table.setColumnCount(3)
+        self.name_col = QTableWidgetItem(self.category_name)
+        self.table.setHorizontalHeaderItem(0, self.name_col)
+        self.count_col = QTableWidgetItem(_('Count'))
+        self.table.setHorizontalHeaderItem(1, self.count_col)
+        self.was_col = QTableWidgetItem(_('Was'))
+        self.table.setHorizontalHeaderItem(2, self.was_col)
+
+        self.table.setRowCount(len(tags))
+        for row,tag in enumerate(tags):
+            item = NameTableWidgetItem(self.sorter)
+            item.set_is_deleted(self.all_tags[tag]['is_deleted'])
+            _id = self.all_tags[tag]['key']
+            item.setData(Qt.UserRole, _id)
+            item.set_initial_text(tag)
+            if _id in self.to_rename:
+                item.setText(self.to_rename[_id])
+            else:
+                item.setText(tag)
+            item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            self.table.setItem(row, 0, item)
+            if select_item is None:
+                if ttm_is_first_letter:
+                    if primary_startswith(tag, tag_to_match):
+                        select_item = item
+                elif tag == tag_to_match:
+                    select_item = item
+            item = CountTableWidgetItem(self.all_tags[tag]['count'])
+            # only the name column can be selected
+            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            self.table.setItem(row, 1, item)
+
+            item = QTableWidgetItem()
+            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            if _id in self.to_rename or _id in self.to_delete:
+                item.setData(Qt.DisplayRole, tag)
+            self.table.setItem(row, 2, item)
+
+        if self.last_sorted_by == 'name':
+            self.table.sortByColumn(0, self.name_order)
+        elif self.last_sorted_by == 'count':
+            self.table.sortByColumn(1, self.count_order)
+        else:
+            self.table.sortByColumn(2, self.was_order)
+
+        if select_item is not None:
+            self.table.setCurrentItem(select_item)
+            self.table.setFocus(True)
+            self.start_find_pos = select_item.row()
+        else:
+            self.table.setCurrentCell(0, 0)
+            self.search_box.setFocus()
+            self.start_find_pos = -1
+        self.table.blockSignals(False)
+
+    def not_found_label_timer_event(self):
+        self.not_found_label.setVisible(False)
+
+    def clear_filter(self):
+        self.filter_box.setText('')
+        self.fill_in_table(None, None, False)
+
+    def do_filter(self):
+        self.fill_in_table(None, None, False)
 
     def table_column_resized(self, col, old, new):
         self.table_column_widths = []
@@ -246,7 +464,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # have a width. Assume 25. Not a problem because user-changed column
             # widths will be remembered
             w = self.table.width() - 25 - self.table.verticalHeader().width()
-            w /= self.table.columnCount()
+            w //= self.table.columnCount()
             for c in range(0, self.table.columnCount()):
                 self.table.setColumnWidth(c, w)
 
@@ -254,19 +472,63 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         gprefs['tag_list_editor_table_widths'] = self.table_column_widths
         gprefs['tag_list_editor_dialog_geometry'] = bytearray(self.saveGeometry())
 
-    def finish_editing(self, item):
-        if not item.text():
-                error_dialog(self, _('Item is blank'),
-                             _('An item cannot be set to nothing. Delete it instead.')).exec_()
-                item.setText(item.initial_text())
-                return
-        if item.text() != item.initial_text():
-            id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode(item.text())
-            orig = self.table.item(item.row(), 2)
+    def start_editing(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row:
+                item.set_placeholder(_('Editing...'))
+            else:
+                self.text_before_editing = item.text()
+        self.table.blockSignals(False)
+
+    def stop_editing(self, on_row):
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            if item.row() != on_row and item.is_placeholder:
+                item.reset_placeholder()
+        self.table.blockSignals(False)
+
+    def finish_editing(self, edited_item):
+        if not edited_item.text():
+            error_dialog(self, _('Item is blank'), _(
+                'An item cannot be set to nothing. Delete it instead.'), show=True)
             self.table.blockSignals(True)
-            orig.setData(Qt.DisplayRole, item.initial_text())
+            edited_item.setText(self.text_before_editing)
             self.table.blockSignals(False)
+            return
+        items = self.table.selectedItems()
+        self.table.blockSignals(True)
+        for item in items:
+            id_ = int(item.data(Qt.UserRole))
+            self.to_rename[id_] = unicode_type(edited_item.text())
+            orig = self.table.item(item.row(), 2)
+            item.setText(edited_item.text())
+            orig.setData(Qt.DisplayRole, item.initial_text())
+        self.table.blockSignals(False)
+
+    def undo_edit(self):
+        indexes = self.table.selectionModel().selectedRows()
+        if not indexes:
+            error_dialog(self, _('No item selected'),
+                         _('You must select one item from the list of Available items.')).exec_()
+            return
+
+        if not confirm(
+            _('Do you really want to undo your changes?'),
+            'tag_list_editor_undo'):
+            return
+        self.table.blockSignals(True)
+        for idx in indexes:
+            row = idx.row()
+            item = self.table.item(row, 0)
+            item.setText(item.initial_text())
+            item.set_is_deleted(False)
+            self.to_delete.discard(int(item.data(Qt.UserRole)))
+            self.to_rename.pop(int(item.data(Qt.UserRole)), None)
+            self.table.item(row, 2).setData(Qt.DisplayRole, '')
+        self.table.blockSignals(False)
 
     def rename_tag(self):
         item = self.table.item(self.table.currentRow(), 0)
@@ -277,19 +539,26 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             error_dialog(self, _('No item selected'),
                          _('You must select one item from the list of Available items.')).exec_()
             return
-        col_zero_item = self.table.item(item.row(), 0)
-        if col_zero_item.is_deleted:
-            if not question_dialog(self, _('Undelete item?'),
-                   '<p>'+_('That item is deleted. Do you want to undelete it?')+'<br>'):
-                return
-            col_zero_item.set_is_deleted(False)
-            self.to_delete.discard(int(col_zero_item.data(Qt.UserRole)))
-            orig = self.table.item(col_zero_item.row(), 2)
-            self.table.blockSignals(True)
-            orig.setData(Qt.DisplayRole, '')
-            self.table.blockSignals(False)
-        else:
-            self.table.editItem(item)
+        for col_zero_item in self.table.selectedItems():
+            if col_zero_item.is_deleted:
+                if not question_dialog(self, _('Undelete items?'),
+                       '<p>'+_('Items must be undeleted to continue. Do you want '
+                               'to do this?')+'<br>'):
+                    return
+        self.table.blockSignals(True)
+        for col_zero_item in self.table.selectedItems():
+            # undelete any deleted items
+            if col_zero_item.is_deleted:
+                col_zero_item.set_is_deleted(False)
+                self.to_delete.discard(int(col_zero_item.data(Qt.UserRole)))
+                orig = self.table.item(col_zero_item.row(), 2)
+                orig.setData(Qt.DisplayRole, '')
+        self.table.blockSignals(False)
+        self.table.editItem(item)
+
+    def delete_pressed(self):
+        if self.table.currentColumn() == 0:
+            self.delete_tags()
 
     def delete_tags(self):
         deletes = self.table.selectedItems()
@@ -299,77 +568,48 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             return
 
         to_del = []
-        to_undel = []
         for item in deletes:
-            if item.is_deleted:
-                to_undel.append(item)
-            else:
+            if not item.is_deleted:
                 to_del.append(item)
+
         if to_del:
-            ct = ', '.join([unicode(item.text()) for item in to_del])
+            ct = ', '.join([unicode_type(item.text()) for item in to_del])
             if not confirm(
                 '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct,
                 'tag_list_editor_delete'):
                 return
-        if to_undel:
-            ct = ', '.join([unicode(item.text()) for item in to_undel])
-            if not confirm(
-                '<p>'+_('Are you sure you want to undelete the following items?')+'<br>'+ct,
-                'tag_list_editor_undelete'):
-                return
+
         row = self.table.row(deletes[0])
+        self.table.blockSignals(True)
         for item in deletes:
-            if item.is_deleted:
-                item.set_is_deleted(False)
-                self.to_delete.discard(int(item.data(Qt.UserRole)))
-                orig = self.table.item(item.row(), 2)
-                self.table.blockSignals(True)
-                orig.setData(Qt.DisplayRole, '')
-                self.table.blockSignals(False)
-            else:
-                id = int(item.data(Qt.UserRole))
-                self.to_delete.add(id)
-                item.set_is_deleted(True)
-                orig = self.table.item(item.row(), 2)
-                self.table.blockSignals(True)
-                orig.setData(Qt.DisplayRole, item.initial_text())
-                self.table.blockSignals(False)
+            id_ = int(item.data(Qt.UserRole))
+            self.to_delete.add(id_)
+            item.set_is_deleted(True)
+            orig = self.table.item(item.row(), 2)
+            orig.setData(Qt.DisplayRole, item.initial_text())
+        self.table.blockSignals(False)
         if row >= self.table.rowCount():
             row = self.table.rowCount() - 1
         if row >= 0:
             self.table.scrollToItem(self.table.item(row, 0))
 
-    def header_clicked(self, idx):
-        if idx == 0:
-            self.do_sort_by_name()
-        elif idx == 1:
-            self.do_sort_by_count()
-        else:
-            self.do_sort_by_was()
+    def do_sort(self, section):
+        (self.do_sort_by_name, self.do_sort_by_count, self.do_sort_by_was)[section]()
 
     def do_sort_by_name(self):
-        self.name_order = 1 if self.name_order == 0 else 0
+        self.name_order = 1 - self.name_order
+        self.last_sorted_by = 'name'
         self.table.sortByColumn(0, self.name_order)
-        self.name_col.setIcon(self.down_arrow_icon if self.name_order
-                                                    else self.up_arrow_icon)
-        self.count_col.setIcon(self.blank_icon)
-        self.was_col.setIcon(self.blank_icon)
 
     def do_sort_by_count(self):
-        self.count_order = 1 if self.count_order == 0 else 0
+        self.count_order = 1 - self.count_order
+        self.last_sorted_by = 'count'
         self.table.sortByColumn(1, self.count_order)
-        self.count_col.setIcon(self.down_arrow_icon if self.count_order
-                                                    else self.up_arrow_icon)
-        self.name_col.setIcon(self.blank_icon)
-        self.was_col.setIcon(self.blank_icon)
 
     def do_sort_by_was(self):
-        self.was_order = 1 if self.was_order == 0 else 0
+        self.was_order = 1 - self.was_order
+        self.last_sorted_by = 'count'
         self.table.sortByColumn(2, self.was_order)
-        self.was_col.setIcon(self.down_arrow_icon if self.was_order
-                                                    else self.up_arrow_icon)
-        self.name_col.setIcon(self.blank_icon)
-        self.count_col.setIcon(self.blank_icon)
 
     def accepted(self):
         self.save_geometry()

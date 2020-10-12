@@ -6,155 +6,257 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>798</width>
-    <height>672</height>
+    <width>788</width>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="2">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="0" column="0">
+    <widget class="ScrollingTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>&amp;Function:</string>
-         </property>
-         <property name="buddy">
-          <cstring>function_name</cstring>
-         </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>&amp;Stored Templates</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0" colspan="2" stretch="0">
+        <widget class="QTextBrowser" name="st_textBrowser"/>
+       </item>
+       <item row="3" column="1" stretch="1">
+        <widget class="EmbeddedTemplateDialog" name="template_editor">
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QComboBox" name="function_name">
-         <property name="toolTip">
-          <string>Enter the name of the function to create.</string>
-         </property>
-         <property name="editable">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="text">
-          <string>Argument &amp;count:</string>
-         </property>
-         <property name="buddy">
-          <cstring>argument_count</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="argument_count">
-         <property name="toolTip">
-          <string>Set this to -1 if the function takes a variable number of arguments</string>
-         </property>
-         <property name="minimum">
-          <number>-1</number>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QTextEdit" name="documentation"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>&amp;Documentation:</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
-         <property name="buddy">
-          <cstring>documentation</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item row="3" column="0">
+        <layout class="QVBoxLayout" name="st_button_layout">
          <item>
-          <widget class="QPushButton" name="clear_button">
+          <widget class="QPushButton" name="st_clear_button">
            <property name="text">
             <string>&amp;Clear</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="delete_button">
+          <widget class="QPushButton" name="st_delete_button">
            <property name="text">
-            <string>&amp;Delete</string>
+            <string>D&amp;elete</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="replace_button">
+          <widget class="QPushButton" name="st_replace_button">
            <property name="text">
             <string>&amp;Replace</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="create_button">
+          <widget class="QPushButton" name="st_create_button">
            <property name="text">
             <string>C&amp;reate</string>
            </property>
           </widget>
          </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QVBoxLayout" name="horizontalLayout1">
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>&amp;Program code (Follow Python indenting rules):</string>
+       <item row="5" column="0">
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <property name="buddy">
-          <cstring>program</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPlainTextEdit" name="program">
-         <property name="minimumSize">
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>400</width>
-           <height>0</height>
+           <width>20</width>
+           <height>400</height>
           </size>
          </property>
-         <property name="documentTitle">
-          <string notr="true"/>
-         </property>
-         <property name="tabStopWidth">
-          <number>30</number>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>&amp;Template Functions</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="1" column="0" colspan="2">
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
         </widget>
        </item>
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>F&amp;unction:</string>
+             </property>
+             <property name="buddy">
+              <cstring>function_name</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QComboBox" name="function_name">
+             <property name="toolTip">
+              <string>Enter the name of the function to create.</string>
+             </property>
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Argument &amp;count:</string>
+             </property>
+             <property name="buddy">
+              <cstring>argument_count</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="argument_count">
+             <property name="toolTip">
+              <string>Set this to -1 if the function takes a variable number of arguments</string>
+             </property>
+             <property name="minimum">
+              <number>-1</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QTextEdit" name="documentation"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>D&amp;ocumentation:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="buddy">
+              <cstring>documentation</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QPushButton" name="clear_button">
+               <property name="text">
+                <string>Clear</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="delete_button">
+               <property name="text">
+                <string>Delete</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="replace_button">
+               <property name="text">
+                <string>Replace</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="create_button">
+               <property name="text">
+                <string>C&amp;reate</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="horizontalLayout1">
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>P&amp;rogram code (Follow Python indenting rules):</string>
+             </property>
+             <property name="buddy">
+              <cstring>program</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="program">
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="documentTitle">
+              <string notr="true"/>
+             </property>
+             <property name="tabStopWidth">
+              <number>30</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0">
+        <widget class="QTextBrowser" name="textBrowser"/>
+       </item>
       </layout>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="0">
-    <widget class="QTextBrowser" name="textBrowser"/>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>
- <resources/>
- <connections/>
+ <customwidgets>
+  <customwidget>
+   <class>EmbeddedTemplateDialog</class>
+   <extends>TemplateDialog</extends>
+   <header>calibre/gui2/dialogs/template_dialog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TemplateDialog</class>
+   <extends>QDialog</extends>
+   <header>calibre/gui2/dialogs/template_dialog.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ScrollingTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>calibre/gui2/widgets2.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
 </ui>

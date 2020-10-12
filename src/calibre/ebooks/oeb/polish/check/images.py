@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -12,6 +11,7 @@ from PIL import Image
 from calibre import as_unicode
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.check.parsing import EmptyFile
+from polyglot.builtins import error_message
 
 
 class InvalidImage(BaseError):
@@ -59,7 +59,7 @@ def check_raster_images(name, mt, raw):
     try:
         i = Image.open(BytesIO(raw))
     except Exception as e:
-        errors.append(InvalidImage(as_unicode(e.message), name))
+        errors.append(InvalidImage(as_unicode(error_message(e)), name))
     else:
         if i.mode == 'CMYK':
             errors.append(CMYKImage(_('Image is in the CMYK colorspace'), name))

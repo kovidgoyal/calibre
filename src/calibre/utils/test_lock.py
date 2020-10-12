@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 import shutil
@@ -13,8 +12,13 @@ import time
 import unittest
 from threading import Thread
 
-from calibre.constants import fcntl, iswindows
-from calibre.utils.lock import ExclusiveFile, unix_open, create_single_instance_mutex
+from calibre.constants import cache_dir, fcntl, iswindows
+from calibre.utils.lock import ExclusiveFile, create_single_instance_mutex, unix_open
+from calibre.utils.tdir_in_cache import (
+    clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
+    unlock_file
+)
+from polyglot.builtins import iteritems, getcwd, native_string_type
 
 
 def FastFailEF(name):
@@ -48,8 +52,8 @@ def run_worker(mod, func, **kw):
     if iswindows:
         import win32process
         kw['creationflags'] = win32process.CREATE_NO_WINDOW
-    kw['env'] = {str(k): str(v)
-                 for k, v in env.iteritems()}  # windows needs bytes in env
+    kw['env'] = {native_string_type(k): native_string_type(v)
+                 for k, v in iteritems(env)}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
 
 
@@ -59,8 +63,11 @@ class IPCLockTest(unittest.TestCase):
         self.cwd = os.getcwd()
         self.tdir = tempfile.mkdtemp()
         os.chdir(self.tdir)
+        self.original_cache_dir = cache_dir()
+        cache_dir.ans = self.tdir
 
     def tearDown(self):
+        cache_dir.ans = self.original_cache_dir
         os.chdir(self.cwd)
         for i in range(100):
             try:
@@ -127,6 +134,27 @@ class IPCLockTest(unittest.TestCase):
         self.assertIsNotNone(release_mutex)
         release_mutex()
 
+    def test_tdir_in_cache_dir(self):
+        child = run_worker('calibre.utils.test_lock', 'other4')
+        tdirs = []
+        while not tdirs:
+            time.sleep(0.05)
+            gl = retry_lock_tdir('t', sleep=0.05)
+            try:
+                tdirs = list(tdirs_in('t'))
+            finally:
+                unlock_file(gl)
+        self.assertTrue(is_tdir_locked(tdirs[0]))
+        c2 = run_worker('calibre.utils.test_lock', 'other5')
+        self.assertEqual(c2.wait(), 0)
+        self.assertTrue(is_tdir_locked(tdirs[0]))
+        child.kill(), child.wait()
+        self.assertTrue(os.path.exists(tdirs[0]))
+        self.assertFalse(is_tdir_locked(tdirs[0]))
+        clean_tdirs_in('t')
+        self.assertFalse(os.path.exists(tdirs[0]))
+        self.assertEqual(os.listdir('t'), [u'tdir-lock'])
+
 
 def other1():
     e = ExclusiveFile('test')
@@ -147,10 +175,26 @@ def other3():
     time.sleep(30)
 
 
+def other4():
+    cache_dir.ans = getcwd()
+    tdir_in_cache('t')
+    time.sleep(30)
+
+
+def other5():
+    cache_dir.ans = getcwd()
+    if not os.path.isdir(tdir_in_cache('t')):
+        raise SystemExit(1)
+
+
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(IPCLockTest)
 
 
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
+
+
 if __name__ == '__main__':
-    suite = find_tests()
-    unittest.TextTestRunner(verbosity=4).run(suite)
+    run_tests()

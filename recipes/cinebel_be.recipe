@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2008-2011, Lionel Bergeret <lbergeret at gmail.com>'
@@ -36,10 +36,9 @@ class Cinebel(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
-        for alink in soup.findAll('a'):
-            if alink.has_key('href'):  # noqa
-                tstr = "Site officiel: " + alink['href']
-                alink.replaceWith(tstr)
+        for alink in soup.findAll('a', href=True):
+            tstr = "Site officiel: " + alink['href']
+            alink.replaceWith(tstr)
         return soup
 
     def get_cover_url(self):

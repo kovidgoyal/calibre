@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -13,6 +12,7 @@ from PyQt5.Qt import QIcon, QSize
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.utils.localization import localize_user_manual_link
 
 
 class StoreAction(InterfaceAction):
@@ -146,8 +146,9 @@ class StoreAction(InterfaceAction):
             'buying from. Be sure to double check that any books you get '
             'will work with your e-book reader, especially if the book you '
             'are buying has '
-            '<a href="https://drmfree.calibre-ebook.com/about#drm">DRM</a>.'
-            )), 'about_get_books_msg',
+            '<a href="{}">DRM</a>.'
+            ).format(localize_user_manual_link(
+                'https://manual.calibre-ebook.com/drm.html'))), 'about_get_books_msg',
             parent=self.gui, show_cancel_button=False,
             confirm_msg=_('Show this message again'),
             pixmap='dialog_information.png', title=_('About Get books'))

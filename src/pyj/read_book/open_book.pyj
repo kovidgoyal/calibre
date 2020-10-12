@@ -1,0 +1,64 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from book_list.item_list import create_item, create_item_list
+from dom import unique_id
+from read_book.globals import ui_operations
+from widgets import create_button
+
+
+def create_open_book(container, book):
+    container.appendChild(E.div(style='margin: 1rem'))
+    container = container.lastChild
+    container.appendChild(create_button(_('Open a book from your computer'), action=ui_operations.ask_for_open.bind(None, None)))
+    sd = get_session_data()
+    rl = sd.get('standalone_recently_opened')
+    if rl.length:
+        container.appendChild(E.div(id=unique_id()))
+        c = container.lastChild
+        items = []
+        c.appendChild(E.h2(style='margin-top: 1rem', _('Recently viewed books')))
+        c.appendChild(E.div())
+        for entry in rl:
+            if book and book.manifest.pathtoebook is entry.pathtoebook:
+                continue
+            if jstype(entry.pathtoebook) is not 'string':
+                continue
+            fname = entry.pathtoebook.replace(/\\/g, '/')
+            if '/' in fname:
+                fname = fname.rpartition('/')[-1]
+            items.push(create_item(entry.title or _('Unknown'), ui_operations.ask_for_open.bind(None, entry.pathtoebook), fname))
+        create_item_list(c.lastChild, items)
+
+        c.appendChild(E.div(style='margin: 1rem'))
+        c.lastChild.appendChild(
+            create_button(_('Clear recent list'), action=clear_recent_list.bind(None, c.id)))
+
+
+def clear_recent_list(container_id):
+    sd = get_session_data()
+    sd.set('standalone_recently_opened', v'[]')
+    document.getElementById(container_id).style.display = 'none'
+
+
+def add_book_to_recently_viewed(book):
+    sd = get_session_data()
+    rl = sd.get('standalone_recently_opened')
+    key = book.manifest.pathtoebook
+    new_entry = {
+        'key': key, 'pathtoebook': book.manifest.pathtoebook,
+        'title': book.metadata.title, 'authors': book.metadata.authors,
+        'timestamp': Date().toISOString(),
+    }
+    ans = v'[]'
+    ans.push(new_entry)
+    for entry in rl:
+        if entry.key is not key:
+            ans.push(entry)
+    sd.set('standalone_recently_opened', ans.slice(0, 25))
+    return ans

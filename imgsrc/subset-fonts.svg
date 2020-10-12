@@ -15,7 +15,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="subset-fonts.svg">
   <defs
      id="defs4">
@@ -58,17 +58,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="7.919596"
      inkscape:cx="19.843024"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -150,13 +150,14 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-weight:normal;font-size:15px;line-height:125%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#2271d5;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="text4168"
        transform="matrix(6.2282516,0,0,6.2282516,316.6379,-5191.6428)">
       <path
          d="m -37.300713,996.73718 q -0.255,-0.675 -0.48,-1.32 -0.225,-0.66 -0.465,-1.335 l -4.71,0 -0.945,2.655 -1.515,0 q 0.6,-1.65 1.125,-3.045 0.525,-1.41 1.02,-2.67 0.51,-1.26 1.005,-2.4 0.495,-1.155 1.035,-2.28 l 1.335,0 q 0.54,1.125 1.035,2.28 0.495,1.14 0.99,2.4 0.51,1.26 1.035,2.67 0.525,1.395 1.125,3.045 l -1.59,0 z m -1.365,-3.855 q -0.48,-1.305 -0.96,-2.52 -0.465,-1.23 -0.975,-2.355 -0.525,1.125 -1.005,2.355 -0.465,1.215 -0.93,2.52 l 3.87,0 z"
          id="path4173"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         style="fill:#2271d5;fill-opacity:1" />
     </g>
   </g>
 </svg>

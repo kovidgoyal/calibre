@@ -1,3 +1,5 @@
+
+
 import re
 
 from lxml.html import tostring
@@ -5,6 +7,7 @@ import lxml.html
 
 from calibre.ebooks.readability.cleaners import normalize_spaces, clean_attributes
 from calibre.ebooks.chardet import xml_to_unicode
+from polyglot.builtins import iteritems, unicode_type
 
 
 def build_doc(page):
@@ -19,16 +22,16 @@ def js_re(src, pattern, flags, repl):
 
 def normalize_entities(cur_title):
     entities = {
-        u'\u2014':'-',
-        u'\u2013':'-',
-        u'&mdash;': '-',
-        u'&ndash;': '-',
-        u'\u00A0': ' ',
-        u'\u00AB': '"',
-        u'\u00BB': '"',
-        u'&quot;': '"',
+        '\u2014':'-',
+        '\u2013':'-',
+        '&mdash;': '-',
+        '&ndash;': '-',
+        '\u00A0': ' ',
+        '\u00AB': '"',
+        '\u00BB': '"',
+        '&quot;': '"',
     }
-    for c, r in entities.iteritems():
+    for c, r in iteritems(entities):
         if c in cur_title:
             cur_title = cur_title.replace(c, r)
 
@@ -119,6 +122,5 @@ def shorten_title(doc):
 
 def get_body(doc):
     [elem.drop_tree() for elem in doc.xpath('.//script | .//link | .//style')]
-    raw_html = unicode(tostring(doc.body or doc))
+    raw_html = unicode_type(tostring(doc.body or doc))
     return clean_attributes(raw_html)
-

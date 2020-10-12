@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__ = 'GPL 3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -12,6 +13,7 @@ import re
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.rb import unique_name
+from polyglot.builtins import string_or_bytes
 
 TAGS = [
     'b',
@@ -69,19 +71,19 @@ class RBMLizer(object):
 
     def mlize_spine(self):
         self.link_hrefs = {}
-        output = [u'<HTML><HEAD><TITLE></TITLE></HEAD><BODY>']
+        output = ['<HTML><HEAD><TITLE></TITLE></HEAD><BODY>']
         output.append(self.get_cover_page())
-        output.append(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk')
+        output.append('ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk')
         output.append(self.get_text())
-        output.append(u'</BODY></HTML>')
-        output = ''.join(output).replace(u'ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
+        output.append('</BODY></HTML>')
+        output = ''.join(output).replace('ghji87yhjko0Caliblre-toc-placeholder-for-insertion-later8ujko0987yjk', self.get_toc())
         output = self.clean_text(output)
         return output
 
     def get_cover_page(self):
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
-        output = u''
+        output = ''
         if 'cover' in self.oeb_book.guide:
             if self.name_map.get(self.oeb_book.guide['cover'].href, None):
                 output += '<IMG SRC="%s">' % self.name_map[self.oeb_book.guide['cover'].href]
@@ -96,10 +98,10 @@ class RBMLizer(object):
         return output
 
     def get_toc(self):
-        toc = [u'']
+        toc = ['']
         if self.opts.inline_toc:
             self.log.debug('Generating table of contents...')
-            toc.append(u'<H1>%s</H1><UL>\n' % _('Table of Contents:'))
+            toc.append('<H1>%s</H1><UL>\n' % _('Table of Contents:'))
             for item in self.oeb_book.toc:
                 if item.href in self.link_hrefs.keys():
                     toc.append('<LI><A HREF="#%s">%s</A></LI>\n' % (self.link_hrefs[item.href], item.title))
@@ -112,7 +114,7 @@ class RBMLizer(object):
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.ebooks.oeb.base import XHTML
 
-        output = [u'']
+        output = ['']
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to RocketBook HTML...' % item.href)
             stylizer = Stylizer(item.data, item.href, self.oeb_book, self.opts, self.opts.output_profile)
@@ -128,7 +130,7 @@ class RBMLizer(object):
         if aid not in self.link_hrefs.keys():
             self.link_hrefs[aid] = 'calibre_link-%s' % len(self.link_hrefs.keys())
         aid = self.link_hrefs[aid]
-        return u'<A NAME="%s"></A>' % aid
+        return '<A NAME="%s"></A>' % aid
 
     def clean_text(self, text):
         # Remove anchors that do not have links
@@ -142,21 +144,21 @@ class RBMLizer(object):
     def dump_text(self, elem, stylizer, page, tag_stack=[]):
         from calibre.ebooks.oeb.base import XHTML_NS, barename, namespace
 
-        if not isinstance(elem.tag, basestring) or namespace(elem.tag) != XHTML_NS:
+        if not isinstance(elem.tag, string_or_bytes) or namespace(elem.tag) != XHTML_NS:
             p = elem.getparent()
-            if p is not None and isinstance(p.tag, basestring) and namespace(p.tag) == XHTML_NS \
+            if p is not None and isinstance(p.tag, string_or_bytes) and namespace(p.tag) == XHTML_NS \
                     and elem.tail:
                 return [elem.tail]
-            return [u'']
+            return ['']
 
-        text = [u'']
+        text = ['']
         style = stylizer.style(elem)
 
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
             if hasattr(elem, 'tail') and elem.tail:
                 return [elem.tail]
-            return [u'']
+            return ['']
 
         tag = barename(elem.tag)
         tag_count = 0

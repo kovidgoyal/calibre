@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -36,11 +37,11 @@ class FixLineEndings:
 
     def fix_endings(self):
         # read
-        with open(self.__file, 'r') as read_obj:
+        with open(self.__file, 'rb') as read_obj:
             input_file = read_obj.read()
         # calibre go from win and mac to unix
-        input_file = input_file.replace('\r\n', '\n')
-        input_file = input_file.replace('\r', '\n')
+        input_file = input_file.replace(b'\r\n', b'\n')
+        input_file = input_file.replace(b'\r', b'\n')
         # remove ASCII invalid chars : 0 to 8 and 11-14 to 24-26-27
         if self.__replace_illegals:
             input_file = clean_ascii_chars(input_file)

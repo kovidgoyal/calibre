@@ -1,117 +1,39 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-
-import json
-from mechanize import Request
-from urllib import quote
+# License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-class Barrons(BasicNewsRecipe):
-
-    title = 'Barron\'s'
-    max_articles_per_feed = 50
-    needs_subscription = True
+class BarronsMagazine(BasicNewsRecipe):
+    title = 'Barron\'s Magazine'
+    __author__ = 'Kovid Goyal'
+    description = 'Financial news from the publisher of the WSJ'
     language = 'en'
 
-    __author__ = 'Kovid Goyal'
-    description = 'Weekly publication for investors from the publisher of the Wall Street Journal'
-    timefmt = ' [%a, %b %d, %Y]'
-    use_embedded_content = False
-    no_stylesheets = True
-    match_regexps = ['http://online.barrons.com/.*?html\?mod=.*?|file:.*']
-    conversion_options = {'linearize_tables': True}
-
-    # Don't grab articles more than 7 days old
-    oldest_article = 7
-    requires_version = (0, 9, 16)
-
-    keep_only_tags = [dict(attrs={'class': lambda x: x and (
-        x.startswith('sector one column') or x.startswith('sector two column'))})]
-    remove_tags = [
-        dict(name='div', attrs={'class': [
-             'sTools sTools-t', 'tabContainer artTabbedNav', 'rssToolBox hidden', 'articleToolbox']}),
-        dict(attrs={'class': ['insetButton', 'insettipBox', 'insetClose']}),
-        dict(attrs={'data-module-name': [
-             'resp.module.trendingNow.BarronsDesktop', 'resp.module.share_tools.ShareTools']}),
-        dict(name='span', attrs={
-             'data-country-code': True, 'data-ticker-code': True}),
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(id='js-article__body'),
     ]
 
-    def get_browser(self):
-        # To understand the signin logic read signin.js from
-        # https://id.barrons.com/access/pages/barrons/us/login_standalone.html?mg=com-barrons
-        # This is the same login servie as used by WSJ
-        br = BasicNewsRecipe.get_browser(self, user_agent=USER_AGENT)
-        url = 'https://id.barrons.com/access/pages/barrons/us/login_standalone.html?mg=com-barrons'
-        # br.set_debug_http(True)
-        br.open(url).read()
-        rurl = 'https://id.barrons.com/auth/submitlogin.json'
-        rq = Request(rurl, headers={
-            'Accept': 'application/json, text/javascript, */*; q=0.01',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Content-Type': 'application/json',
-            'Referer': url,
-            'X-HTTP-Method-Override': 'POST',
-            'X-Requested-With': 'XMLHttpRequest',
-        }, data=json.dumps({
-            'username': self.username,
-            'password': self.password,
-            'realm': 'default',
-            'savelogin': 'true',
-            'template': 'default',
-            'url': quote('http://online.barrons.com'),
-        }))
-        r = br.open(rq)
-        if r.code != 200:
-            raise ValueError('Failed to login, check username and password')
-        data = json.loads(r.read())
-        # from pprint import pprint
-        # pprint(data)
-        if data.get('result') != 'success':
-            raise ValueError(
-                'Failed to login (XHR failed), check username and password')
-        br.set_cookie('m', data['username'], '.barrons.com')
-        br.open(data['url']).read()
-        # open('/t/raw.html', 'wb').write(raw)
-        # if b'>Logout<' not in raw:
-        #     raise ValueError(
-        #         'Failed to login (auth URL failed), check username and password')
-        return br
-
-    # Use the print version of a page when available.
-    def print_version(self, url):
-        main, sep, rest = url.rpartition('?')
-        return main + '#text.print'
-
-    def preprocess_html(self, soup):
-        # Remove thumbnail for zoomable images
-        for div in soup.findAll('div', attrs={'class': lambda x: x and 'insetZoomTargetBox' in x.split()}):
-            img = div.find('img')
-            if img is not None:
-                img.extract()
-
-        return soup
-
-# Comment out the feeds you don't want retrieved.
-# Because these feeds are sorted alphabetically when converted to LRF, you
-# may want to number them to put them in the order you desire
-
-    feeds = [
-        ('This Week\'s Magazine', 'http://online.barrons.com/xml/rss/3_7510.xml'),
-        ('Online Exclusives', 'http://online.barrons.com/xml/rss/3_7515.xml'),
-        ('Companies', 'http://online.barrons.com/xml/rss/3_7516.xml'),
-        ('Markets', 'http://online.barrons.com/xml/rss/3_7517.xml'),
-        ('Technology', 'http://online.barrons.com/xml/rss/3_7518.xml'),
-        ('Funds/Q&A', 'http://online.barrons.com/xml/rss/3_7519.xml'),
-    ]
-
-    def get_article_url(self, article):
-        return article.get('link', None)
+    def parse_index(self):
+        soup = self.index_to_soup('https://www.barrons.com/magazine')
+        articles = []
+        for art in soup.findAll('article'):
+            h = art.find(['h2', 'h3'])
+            a = h.find('a')
+            title = self.tag_to_string(a)
+            url = a['href']
+            desc = ''
+            p = art.find('p', attrs={'class': lambda x: x and ('_summary_' in x or '_byline_' in x)})
+            if p:
+                desc += self.tag_to_string(p)
+            articles.append({'title': title, 'url': url, 'description': desc})
+        return [('Articles', articles)]

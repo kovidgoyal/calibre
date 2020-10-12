@@ -4,6 +4,7 @@ __copyright__ = 'zotzot'
 __docformat__ = 'restructuredtext en'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import date
 
 
 class Oregonian(BasicNewsRecipe):
@@ -15,7 +16,7 @@ class Oregonian(BasicNewsRecipe):
     description = 'Portland, Oregon local newspaper'
     publisher = 'Advance Publications'
     category = 'news, Portland'
-    cover_url = 'http://bit.ly/gUgxGd'
+    cover_url = 'http://img.kiosko.net/{}/us/oregonian.750.jpg'.format(date.today().strftime('%Y/%m/%d'))
     no_stylesheets = True
     masthead_url = 'http://bit.ly/eocL70'
     remove_tags = [dict(name='div', attrs={'class': ['footer', 'content']})]

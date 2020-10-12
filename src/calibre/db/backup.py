@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -32,6 +31,7 @@ class MetadataBackup(Thread):
         self.stop_running = Event()
         self.interval = interval
         self.scheduling_interval = scheduling_interval
+        self.check_dirtied_annotations = 0
 
     @property
     def db(self):
@@ -56,6 +56,15 @@ class MetadataBackup(Thread):
                 break
 
     def do_one(self):
+        self.check_dirtied_annotations += 1
+        if self.check_dirtied_annotations > 2:
+            self.check_dirtied_annotations = 0
+            try:
+                self.db.check_dirtied_annotations()
+            except Exception:
+                if self.stop_running.is_set() or self.db.is_closed:
+                    return
+                traceback.print_exc()
         try:
             book_id = self.db.get_a_dirtied_book()
             if book_id is None:
@@ -118,4 +127,3 @@ class MetadataBackup(Thread):
     def break_cycles(self):
         # Legacy compatibility
         pass
-

@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
+from polyglot.builtins import unicode_type
 
 
 def remove_html_cover(oeb, log):
@@ -41,8 +42,10 @@ class MOBIOutput(OutputFormatPlugin):
     name = 'MOBI Output'
     author = 'Kovid Goyal'
     file_type = 'mobi'
+    commit_name = 'mobi_output'
+    ui_data = {'file_types': ['old', 'both', 'new']}
 
-    options = set([
+    options = {
         OptionRecommendation(name='prefer_author_sort',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('When present, use author sort field as author.')
@@ -95,8 +98,7 @@ class MOBIOutput(OutputFormatPlugin):
                 'formats. This option tells calibre not to do this. '
                 'Useful if your document contains lots of GIF/PNG images that '
                 'become very large when converted to JPEG.')),
-        OptionRecommendation(name='mobi_file_type', choices=['old', 'both',
-            'new'], recommended_value='old',
+        OptionRecommendation(name='mobi_file_type', choices=ui_data['file_types'], recommended_value='old',
             help=_('By default calibre generates MOBI files that contain the '
                 'old MOBI 6 format. This format is compatible with all '
                 'devices. However, by changing this setting, you can tell '
@@ -105,7 +107,7 @@ class MOBIOutput(OutputFormatPlugin):
                 'more features than MOBI 6, but only works with newer Kindles. '
                 'Allowed values: {}').format('old, both, new')),
 
-    ])
+    }
 
     def check_for_periodical(self):
         if self.is_periodical:
@@ -120,7 +122,7 @@ class MOBIOutput(OutputFormatPlugin):
         if not found:
             from calibre.ebooks import generate_masthead
             self.oeb.log.debug('No masthead found in manifest, generating default mastheadImage...')
-            raw = generate_masthead(unicode(self.oeb.metadata['title'][0]))
+            raw = generate_masthead(unicode_type(self.oeb.metadata['title'][0]))
             id, href = self.oeb.manifest.generate('masthead', 'masthead')
             self.oeb.manifest.add(id, href, 'image/gif', data=raw)
             self.oeb.guide.add('masthead', 'Masthead Image', href)
@@ -164,7 +166,7 @@ class MOBIOutput(OutputFormatPlugin):
                     sec.nodes.remove(a)
 
             root = TOC(klass='periodical', href=self.oeb.spine[0].href,
-                    title=unicode(self.oeb.metadata.title[0]))
+                    title=unicode_type(self.oeb.metadata.title[0]))
 
             for s in sections:
                 if articles[id(s)]:
@@ -271,8 +273,9 @@ class AZW3Output(OutputFormatPlugin):
     name = 'AZW3 Output'
     author = 'Kovid Goyal'
     file_type = 'azw3'
+    commit_name = 'azw3_output'
 
-    options = set([
+    options = {
         OptionRecommendation(name='prefer_author_sort',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('When present, use author sort field as author.')
@@ -303,7 +306,7 @@ class AZW3Output(OutputFormatPlugin):
                 ' the book will not auto sync its last read position '
                 ' on multiple devices. Complain to Amazon.')
         ),
-    ])
+    }
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         from calibre.ebooks.mobi.writer2.resources import Resources

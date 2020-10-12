@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2019, Jose Ortiz <jlortiz84 at gmail.com>
+
+from __future__ import (unicode_literals, division, absolute_import, print_function)
+from calibre.web.feeds.recipes import BasicNewsRecipe
+from pprint import pformat
+
+INDEX = 'https://www.ainonline.com/'
+
+
+def absurl(url):
+    if url.startswith('/'):
+        url = INDEX + url[1:]
+    return url
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
+class AINOnline(BasicNewsRecipe):
+    title = 'Aviation International News'
+    __author__ = 'Jose Ortiz'
+    description = (
+        'Aviation International News covers all sectors of the aviation'
+        ' industry, from business aviation to air transport to defense and'
+        ' unmanned aerial vehicles.'
+    )
+    language = 'en'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    remove_javascript = True
+    masthead_url = 'https://www.ainonline.com/sites/ainonline.com/themes/ain30/images/ainlogo-small.jpg'
+    keep_only_tags = [classes('main-content')]
+    remove_tags = [
+        dict(name=['button', 'input']),
+        dict(attrs={'class': lambda x: x and 'comments' in x})
+    ]
+
+    def parse_index(self):
+
+        soup = self.index_to_soup(INDEX)
+
+        # css selectors for articles
+        #     .view-content [class *= 'featured-story']
+        #     .view-content .views-row
+        article_attrs = {
+            'class':
+            lambda x: x and (
+                'featured-story' in x or frozenset(['views-row']).
+                intersection(frozenset(x.split()))
+            )
+        }
+
+        ans = []
+
+        for section in soup.findAll(**classes('view-content')):
+
+            if section.findParent(attrs=dict(id='featured')) is not None:
+                current_section = 'Featured'
+            elif section.findParent(attrs=dict(id='home-top-stories')) is not None:
+                current_section = 'Top Stories'
+            elif section.findParent(
+                attrs=dict(id='quicktabs-container-latest_trending')
+            ) is not None:
+                current_section = 'Latest/Trending'
+            else:
+                current_section = 'Articles'
+
+            articles = []
+            for div in section.findAll(attrs=article_attrs):
+                if 'views-row' in div['class']:
+                    a = div.find(**classes('title')).a
+                elif 'featured-story' in div['class']:
+                    a = div.find(
+                        lambda tag: tag.name == 'a' and tag.
+                        find(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']) is not None
+                    )
+                else:
+                    continue
+                title = self.tag_to_string(a)
+                url = absurl(a['href'])
+                desc = ''
+                r = div.find(**classes('teaser'))
+                if r is not None:
+                    desc = self.tag_to_string(r)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                for title, articles_ in ans:
+                    if current_section == title:
+                        articles_.extend(articles)
+                        break
+                else:
+                    ans.append((current_section, articles))
+
+        self.log(pformat(ans))
+        return ans

@@ -1,0 +1,1077 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+import traceback
+from elementmaker import E
+from gettext import gettext as _
+
+from ajax import ajax_send
+from book_list.book_details import (
+    add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book,
+    report_load_failure
+)
+from book_list.comments_editor import (
+    create_comments_editor, focus_comments_editor, get_comments_html,
+    set_comments_html
+)
+from book_list.globals import get_current_query
+from book_list.library_data import (
+    book_metadata, cover_url, current_library_id, field_names_for, library_data,
+    load_status, loaded_book_ids, set_book_metadata
+)
+from book_list.router import back
+from book_list.theme import get_color
+from book_list.top_bar import create_top_bar, set_title
+from book_list.ui import set_panel_handler, show_panel
+from date import UNDEFINED_DATE_ISO, format_date
+from dom import add_extra_css, build_rule, clear, svgicon
+from file_uploads import (
+    update_status_widget, upload_files_widget, upload_status_widget
+)
+from modals import error_dialog
+from session import get_interface_data
+from utils import (
+    conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
+)
+from widgets import create_button
+
+CLASS_NAME = 'edit-metadata-panel'
+IGNORED_FIELDS = {'sort', 'uuid', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified', 'path', 'marked', 'size', 'ondevice', 'cover', 'au_map', 'isbn'}
+def identity(x):
+    return x
+value_to_json = identity
+changes = {}
+has_changes = False
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = basic_table_rules(sel)
+    style += build_rule(sel + 'table.metadata', margin_left='1rem')
+    style += build_rule(sel + 'table.metadata td', padding_bottom='0.5ex', padding_top='0.5ex', cursor='pointer')
+    style += build_rule(sel + 'table.metadata tr:hover', color='red')
+    style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
+
+    style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center')
+    style += build_rule(sel + '.completions > div', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
+    style += build_rule(sel + '.completions > div:active', transform='scale(1.5)')
+    style += build_rule(sel + '.completions > div:hover', background=get_color('window-foreground'), color=get_color('window-background'))
+
+    style += build_rule(sel + '.rating-edit-container', display='flex', flex_wrap='wrap', align_items='center', list_style_type='none')
+    style += build_rule(sel + '.rating-edit-container > li', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
+    style += build_rule(sel + '.rating-edit-container > li.current-rating', color=get_color('window-background'), background=get_color('window-foreground'))
+    return style
+)
+
+
+def resolved_metadata(mi, field):
+    if Object.prototype.hasOwnProperty.call(changes, field):
+        return changes[field]
+    return mi[field]
+
+
+def resolved_formats(val):
+    val = list(val or v'[]')
+    if changes.added_formats:
+        for data in changes.added_formats:
+            ext = data.ext.toUpperCase()
+            if ext and ext not in val:
+                val.push(ext)
+    if changes.removed_formats:
+        for fmt in changes.removed_formats:
+            fmt = fmt.toUpperCase()
+            if fmt in val:
+                val.remove(fmt)
+    val.sort()
+    return val
+
+
+def truncated_html(val):
+    ans = val.replace(/<[^>]+>/g, '')
+    if ans.length > 40:
+        ans = ans[:40] + '…'
+    return ans
+
+
+def onsubmit_field2(container_id, book_id, field, value):
+    nonlocal has_changes
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    d = c.querySelector('div[data-ctype="edit"]')
+    if not d:
+        return
+    is_series = value.series_index is not undefined
+    if is_series:
+        unchanged = value.series_name is book_metadata(book_id)[field] and value.series_index is book_metadata(book_id)[field + '_index']
+    else:
+        unchanged = value is book_metadata(book_id)[field]
+    if unchanged:
+        on_close(container_id)
+        return
+
+    clear(d)
+    d.appendChild(E.div(style='margin: 1ex 1rem', _('Contacting server, please wait') + '…'))
+    if is_series:
+        changes[field] = value_to_json(value.series_name)
+        changes[field + '_index'] = float(value.series_index)
+    else:
+        changes[field] = value_to_json(value)
+    has_changes = True
+    show_book(container_id, book_id)
+    on_close(container_id)
+
+
+def onsubmit_field(get_value, container_id, book_id, field):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    d = c.querySelector('div[data-ctype="edit"]')
+    if not d:
+        return
+    if get_value is html_edit_get_value:
+        html_edit_get_value(d, onsubmit_field2.bind(None, container_id, book_id, field))
+    else:
+        ok, value = get_value(d)
+        if not ok:
+            return
+        # needed to avoid console error about form submission failing because form is removed from DOM in onsubmit handler
+        window.setTimeout(onsubmit_field2, 0, container_id, book_id, field, value)
+
+
+def create_form(widget, get_value, container_id, book_id, field):
+    submit_action = onsubmit_field.bind(None, get_value, container_id, book_id, field)
+    button = create_button(_('OK'), action=submit_action)
+    widget.classList.add('metadata-editor')
+    form = E.form(
+        action='javascript: void(0)', onsubmit=submit_action, style='margin: 1ex auto',
+        E.div(widget, style='margin-bottom: 1ex'),
+        E.div(class_='edit-form-button-container', button), E.input(type='submit', style='display:none'),
+    )
+    return form
+
+
+# Simple line edit {{{
+
+def line_edit_get_value(container):
+    return True, container.querySelector('input[type="text"]').value
+
+
+def simple_line_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.input(type='text', name=name.replace('#', '_c_'), autocomplete=True, style='width: 100%')
+    le.value = resolved_metadata(mi, field) or ''
+    form = create_form(le, line_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus(), le.select()
+    value_to_json = identity
+# }}}
+
+# Text edit {{{
+
+def text_edit_get_value(container):
+    return True, container.querySelector('textarea').value
+
+
+def text_edit(container_id, book_id, field, fm, div, mi, get_name):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.textarea(name=name.replace('#', '_c_'), spellcheck='true', wrap='soft', style='width: 100%; min-height: 70vh')
+    le.value = resolved_metadata(mi, get_name or field) or ''
+    form = create_form(le, text_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus()
+
+
+def html_edit_get_value(container, proceed):
+    get_comments_html(container, proceed)
+
+
+def html_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    value_to_json = identity
+    val = resolved_metadata(mi, field) or ''
+    name = fm.name or field
+    c = E.div(style='width: 100%; min-height: 75vh')
+    form = create_form(c, html_edit_get_value, container_id, book_id, field)
+    editor = create_comments_editor(c)
+    set_comments_html(c, val)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    focus_comments_editor(c)
+    value_to_json = identity
+    editor.init()
+# }}}
+
+# Number edit {{{
+
+def number_edit_get_value(container):
+    return True, container.querySelector('input[type="number"]').value
+
+
+def number_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.input(type='number', name=name.replace('#', '_c_'), step='any' if fm.datatype is 'float' else '1')
+    val = resolved_metadata(mi, field)
+    if val?:
+        le.value = val
+    else:
+        le.value = ''
+    form = create_form(le, number_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus(), le.select()
+
+    def safe_parse(x):
+        f = parseFloat if fm.datatype is 'float' else parseInt
+        ans = f(x)
+        if isNaN(ans):
+            ans = None
+        return ans
+    value_to_json = safe_parse
+# }}}
+
+# Line edit with completions {{{
+
+def add_completion(container_id, name):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    le = c.querySelector('[data-ctype="edit"] input')
+    val = le.value or ''
+    val = value_to_json(val)
+    if jstype(val) is 'string':
+        le.value = name
+    elif val:
+        if val.length:
+            val[-1] = name
+        else:
+            val.push(name)
+        le.value = val.join(update_completions.list_to_ui) + update_completions.list_to_ui
+    le.focus()
+
+
+def show_completions(container_id, div, field, prefix, names):
+    clear(div)
+    completions = E.div(class_='completions')
+    div.appendChild(completions)
+    for i, name in enumerate(names):
+        completions.appendChild(E.div(name, onclick=add_completion.bind(None, container_id, name)))
+        if i >= 50:
+            break
+
+
+def query_contains(haystack, needle):
+    return haystack.toLowerCase().indexOf(needle) is not -1
+
+
+def query_startswitch(haystack, needle):
+    return haystack.toLowerCase().indexOf(needle) is 0
+
+
+def update_completions(container_id, ok, field, names):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    d = c.querySelector('div[data-ctype="edit"]')
+    if not d or d.style.display is not 'block':
+        return
+    div = d.lastChild
+    clear(div)
+    if not ok:
+        err = E.div()
+        safe_set_inner_html(err, names)
+        div.appendChild(E.div(
+            _('Failed to download items for completion, with error:'), err
+        ))
+        return
+    val = d.querySelector('input').value or ''
+    val = value_to_json(val)
+    if jstype(val) is 'string':
+        prefix = val
+    else:
+        prefix = val[-1] if val.length else ''
+    if prefix is update_completions.prefix:
+        return
+    needle = prefix.toLowerCase().strip()
+
+    if needle:
+        interface_data = get_interface_data()
+        universe = update_completions.names if update_completions.prefix and needle.startswith(update_completions.prefix.toLowerCase()) else names
+        q = query_contains if interface_data.completion_mode is 'contains' else query_startswitch
+        matching_names = [x for x in universe if q(x, needle)]
+    else:
+        matching_names = []
+    update_completions.prefix = prefix
+    update_completions.names = matching_names
+    show_completions(container_id, div, field, prefix, matching_names)
+
+
+update_completions.list_to_ui = None
+update_completions.names = v'[]'
+update_completions.prefix = ''
+
+
+def line_edit_updated(container_id, field):
+    field_names_for(field, update_completions.bind(None, container_id))
+
+
+def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    update_completions.list_to_ui = list_to_ui
+    name = fm.name or field
+    le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
+    val = (resolved_metadata(mi, field) or v'[]')
+    if field is 'languages':
+        val = [mi.lang_names[l] or l for l in val]
+    if list_to_ui:
+        val = val.join(list_to_ui)
+    le.value = val
+    form = create_form(le, line_edit_get_value, container_id, book_id, field)
+    if list_to_ui:
+        div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
+            'Edit the "{0}" below. Multiple items can be separated by "{1}".').format(name, list_to_ui.strip())))
+    else:
+        div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
+            'Edit the "{0}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
+    le.focus(), le.select()
+    if list_to_ui:
+        value_to_json = def(raw):
+            seen = {}
+            ans = v'[]'
+            for x in [a.strip() for a in raw.split(ui_to_list) if a.strip()]:
+                if not seen[x]:
+                    seen[x] = True
+                    ans.push(x)
+            return ans
+    else:
+        value_to_json = identity
+    field_names_for(field, update_completions.bind(None, container_id))
+# }}}
+
+# Series edit {{{
+
+def series_edit_get_value(container):
+    val = {
+        'series_name': container.querySelector('input[type="text"]').value,
+        'series_index': parseFloat(parseFloat(container.querySelector('input[type="number"]').value).toFixed(2)),
+    }
+    return True, val
+
+
+def series_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
+    le.value = resolved_metadata(mi, field) or ''
+    value_to_json = identity
+    ne = E.input(type='number', step='any', name=name.replace('#', '_c_') + '_index')
+    ne.value = parseFloat(parseFloat(resolved_metadata(mi, field + '_index')).toFixed(2))
+    table = E.table(style='width: 100%',
+        E.tr(E.td(_('Name:') + '\xa0'), E.td(le, style='width: 99%; padding-bottom: 1ex')),
+        E.tr(E.td(_('Number:') + '\xa0'), E.td(ne))
+    )
+    form = create_form(table, series_edit_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
+    le.focus(), le.select()
+    field_names_for(field, update_completions.bind(None, container_id))
+# }}}
+
+# Date edit {{{
+
+def date_edit_get_value(container):
+    return True, container.querySelector('input[type="date"]').value
+
+def date_to_datetime(raw):
+    if not raw:
+        return UNDEFINED_DATE_ISO
+    return raw + 'T12:00:00+00:00'  # we use 12 so that the date is the same in most timezones
+
+
+def date_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    value_to_json = date_to_datetime
+    name = fm.name or field
+    le = E.input(type='date', name=name.replace('#', '_c_'), min=UNDEFINED_DATE_ISO.split('T')[0], pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}")
+    val = resolved_metadata(mi, field) or ''
+    if val:
+        val = format_date(val, 'yyyy-MM-dd')
+    le.value = val or ''
+    form = create_form(le, date_edit_get_value, container_id, book_id, field)
+
+    def clear(ev):
+        ev.currentTarget.closest('form').querySelector('input').value = ''
+
+    def today(ev):
+        ev.currentTarget.closest('form').querySelector('input').value = Date().toISOString().substr(0, 10)
+
+    form.firstChild.appendChild(
+        E.span(
+        '\xa0',
+        create_button(_('Clear'), action=clear),
+        '\xa0',
+        create_button(_('Today'), action=today),
+    ))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    le.focus(), le.select()
+
+# }}}
+
+# Identifiers edit {{{
+
+def remove_identifier(evt):
+    li = evt.currentTarget.closest('li')
+    li.parentNode.removeChild(li)
+
+
+def add_identifier(container_id, name, val):
+    c = document.getElementById(container_id)?.querySelector('.identifiers-edit')
+    if not c:
+        return
+    b = create_button(_('Remove'), action=remove_identifier)
+    c.appendChild(E.li(style='padding-bottom: 1ex; margin-bottom: 1ex; border-bottom: solid 1px currentColor',
+        E.table(style='width: 100%',
+            E.tr(E.td(_('Type:') + '\xa0'), E.td(style='padding-bottom: 1ex; width: 99%', E.input(type='text', style='width:100%', autocomplete=True, value=name or '')), E.td(rowspan='2', style='padding: 0.5ex 1rem; vertical-align: middle', b)),
+
+            E.tr(E.td(_('Value:') + '\xa0'), E.td(E.input(type='text', style='width: 100%', autocomplete=True, value=val or ''))),
+    )))
+
+
+def identifiers_get_value(container):
+    ans = {}
+    for li in container.querySelectorAll('.identifiers-edit > li'):
+        n, v = li.querySelectorAll('input')
+        n, v = n.value, v.value
+        if n and v:
+            ans[n] = v
+    return True, ans
+
+
+def identifiers_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    name = fm.name or field
+    val = resolved_metadata(mi, 'identifiers') or {}
+    c = E.ul(class_='identifiers-edit', style='list-style-type: none')
+    form = create_form(c, identifiers_get_value, container_id, book_id, field)
+    bc = form.querySelector('.edit-form-button-container')
+    bc.insertBefore(create_button(_('Add identifier'), None, add_identifier.bind(None, container_id, '', '')), bc.firstChild)
+    bc.insertBefore(document.createTextNode('\xa0'), bc.lastChild)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    for k in Object.keys(val):
+        add_identifier(container_id, k, val[k])
+    value_to_json = identity
+# }}}
+
+# Rating edit {{{
+
+def rating_get_value(container):
+    return True, parseInt(container.querySelector('.current-rating[data-rating]').getAttribute('data-rating'))
+
+
+def set_rating(evt):
+    li = evt.currentTarget
+    for nli in li.closest('ul').childNodes:
+        nli.classList.remove('current-rating')
+    li.classList.add('current-rating')
+
+
+def rating_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    val = resolved_metadata(mi, field) or 0
+    numbers = list(range(11)) if fm.display?.allow_half_stars else list(range(0, 11, 2))
+    name = fm.name or field
+    c = E.ul(class_='rating-edit-container')
+    for n in numbers:
+        s = E.li(data_rating=n + '', onclick=set_rating)
+        c.appendChild(s)
+        if n is val:
+            s.classList.add('current-rating')
+        if n:
+            add_stars_to(s, n, numbers.length > 6)
+        else:
+            s.appendChild(document.createTextNode(_('Unrated')))
+    form = create_form(c, rating_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    value_to_json = identity
+# }}}
+
+# Enum edit {{{
+
+def enum_get_value(container):
+    return True, container.querySelector('.current-rating[data-rating]').getAttribute('data-rating')
+
+
+def enum_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    val = resolved_metadata(mi, field) or ''
+    name = fm.name or field
+    c = E.ul(class_='rating-edit-container')
+    for n in v'[""]'.concat(fm.display.enum_values):
+        s = E.li(data_rating=n + '', onclick=set_rating)
+        c.appendChild(s)
+        if n is val:
+            s.classList.add('current-rating')
+        s.appendChild(document.createTextNode(n or _('Blank')))
+    form = create_form(c, enum_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    value_to_json = identity
+# }}}
+
+# Bool edit {{{
+
+def bool_edit(container_id, book_id, field, fm, div, mi):
+    nonlocal value_to_json
+    val = resolved_metadata(mi, field)
+    if val:
+        val = 'y'
+    else:
+        if val is False:
+            val = 'n'
+        else:
+            val = ''
+    name = fm.name or field
+    c = E.ul(class_='rating-edit-container')
+    names = {'': _('Blank'), 'y': _('Yes'), 'n': _('No')}
+    for n in v"['', 'y', 'n']":
+        s = E.li(data_rating=n + '', onclick=set_rating)
+        c.appendChild(s)
+        if n is val:
+            s.classList.add('current-rating')
+        s.appendChild(document.createTextNode(names[n]))
+    form = create_form(c, enum_get_value, container_id, book_id, field)
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Choose the "{}" below').format(name)))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    val_map = {'': None, 'y': True, 'n': False}
+    value_to_json = def(x):
+        return val_map[x]
+# }}}
+
+# Cover edit {{{
+
+def cover_chosen(top_container_id, book_id, container_id, files):
+    nonlocal has_changes
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    if not files[0]:
+        return
+    file = files[0]
+    changes.cover = file
+    has_changes = True
+    on_close(top_container_id)
+cover_chosen.counter = 0
+
+
+def remove_cover(top_container_id, book_id):
+    nonlocal has_changes
+    changes.cover = '--remove--'
+    has_changes = True
+    on_close(top_container_id)
+
+
+def cover_edit(container_id, book_id, field, fm, div, mi):
+    upload_files_widget(div, cover_chosen.bind(None, container_id, book_id), _(
+        'Change the cover by <a>selecting the cover image</a> or drag and drop of the cover image here.'),
+    single_file=True, accept_extensions='png jpeg jpg')
+    div.appendChild(E.div(
+        style='padding: 1rem',
+        create_button(_('Remove existing cover'), action=remove_cover.bind(None, container_id, book_id))))
+
+# }}}
+
+# Formats edit {{{
+
+def format_added(top_container_id, book_id, container_id, files):
+    nonlocal has_changes
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    if not files[0]:
+        return
+    added = changes.added_formats or v'[]'
+    for file in files:
+        ext = file.name.rpartition('.')[-1]
+        data = {'name': file.name, 'size': file.size, 'type': file.type, 'data_url': None, 'ext': ext}
+        added.push(data)
+        r = FileReader()
+        r.onload = def(evt):
+            data.data_url = evt.target.result
+        r.readAsDataURL(file)
+    changes.added_formats = added
+    has_changes = True
+    on_close(top_container_id)
+
+
+def remove_format(top_container_id, book_id, fmt):
+    nonlocal has_changes
+    has_changes = True
+    removed_formats = changes.removed_formats or v'[]'
+    removed_formats.push(fmt.toUpperCase())
+    changes.removed_formats = removed_formats
+    on_close(top_container_id)
+
+
+def formats_edit(container_id, book_id, field, fm, div, mi):
+    upload_files_widget(div, format_added.bind(None, container_id, book_id), _(
+        'Add a format by <a>selecting the book file</a> or drag and drop of the book file here.'),
+    single_file=True)
+    remove_buttons = E.div(style='padding: 1rem; display: flex; flex-wrap: wrap; align-content: flex-start')
+    formats = resolved_formats(mi.formats)
+    for i, fmt in enumerate(formats):
+        remove_buttons.appendChild(create_button(
+            _('Remove {}').format(fmt.upper()), action=remove_format.bind(None, container_id, book_id, fmt.upper())))
+        remove_buttons.lastChild.style.marginBottom = '1ex'
+        remove_buttons.lastChild.style.marginRight = '1rem'
+
+    div.appendChild(remove_buttons)
+
+# }}}
+
+def edit_field(container_id, book_id, field):
+    nonlocal value_to_json
+    fm = library_data.field_metadata[field]
+    c = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not c or not fm or not mi:
+        return
+    d = c.querySelector('div[data-ctype="edit"]')
+    d.style.display = 'block'
+    d.previousSibling.style.display = 'none'
+    clear(d)
+    update_completions.ui_to_list = None
+    update_completions.list_to_ui = None
+    update_completions.names = v'[]'
+    update_completions.prefix = ''
+    if field is 'authors':
+        multiple_line_edit(' & ', '&', container_id, book_id, field, fm, d, mi)
+    elif field is 'cover':
+        cover_edit(container_id, book_id, field, fm, d, mi)
+    elif field is 'formats':
+        formats_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'series':
+        series_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'datetime':
+        date_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'rating':
+        rating_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'enumeration':
+        enum_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'bool':
+        bool_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'int' or fm.datatype is 'float':
+        number_edit(container_id, book_id, field, fm, d, mi)
+    elif field is 'identifiers':
+        identifiers_edit(container_id, book_id, field, fm, d, mi)
+    elif fm.datatype is 'comments' or field is 'comments':
+        ias = fm.display?.interpret_as
+        if ias is 'short-text':
+            simple_line_edit(container_id, book_id, field, fm, d, mi)
+        elif ias is 'long-text':
+            text_edit(container_id, book_id, field, fm, d, mi)
+        elif ias is 'markdown':
+            text_edit(container_id, book_id, field, fm, d, mi, field + '#markdown#')
+        else:
+            html_edit(container_id, book_id, field, fm, d, mi)
+    else:
+        if fm.link_column:
+            multiple_line_edit(fm.is_multiple?.list_to_ui, fm.is_multiple?.ui_to_list, container_id, book_id, field, fm, d, mi)
+        else:
+            simple_line_edit(container_id, book_id, field, fm, d, mi)
+    if field is 'title':
+        value_to_json = def(x):
+            return x or _('Untitled')
+    elif field is 'authors':
+        value_to_json = def(x):
+            ans = [a.strip() for a in x.split('&') if a.strip()]
+            if not ans.length:
+                ans = [_('Unknown')]
+            return ans
+
+
+def render_metadata(mi, table, container_id, book_id):  # {{{
+    field_metadata = library_data.field_metadata
+    interface_data = get_interface_data()
+    current_edit_action = None
+
+    def allowed_fields(field):
+        fm = field_metadata[field]
+        if not fm:
+            return False
+        if field.endswith('_index'):
+            pfm = field_metadata[field[:-len('_index')]]
+            if pfm and pfm.datatype is 'series':
+                return False
+        if fm.datatype is 'composite':
+            return False
+        if field.startswith('#'):
+            return True
+        if field in IGNORED_FIELDS or field.endswith('_sort') or field[0] is '@':
+            return False
+        return True
+
+    fields = library_data.book_display_fields
+    if not fields or not fields.length:
+        fields = sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
+    else:
+        fields = filter(allowed_fields, fields)
+    fields = list(fields)
+    added_fields = {f:True for f in fields}
+    if not added_fields.title:
+        added_fields.title = True
+        fields.insert(0, 'title')
+    for other_field in Object.keys(library_data.field_metadata):
+        if not added_fields[other_field] and allowed_fields(other_field) and other_field not in IGNORED_FIELDS:
+            fields.push(other_field)
+
+    def add_row(name, val, is_html=False, join=None):
+        if val is undefined or val is None:
+            val = v'[" "]' if join else '\xa0'
+        def add_val(v):
+            if not v.appendChild:
+                v += ''
+            if v.appendChild:
+                table.lastChild.lastChild.appendChild(v)
+            else:
+                table.lastChild.lastChild.appendChild(document.createTextNode(v))
+
+        table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+        if is_html:
+            table.lastChild.lastChild.appendChild(document.createTextNode(truncated_html(val + '')))
+        else:
+            if not join:
+                add_val(val)
+            else:
+                for v in val:
+                    add_val(v)
+                    if v is not val[-1]:
+                        table.lastChild.lastChild.appendChild(document.createTextNode(join))
+        return table.lastChild.lastChild
+
+    def process_composite(field, fm, name, val):
+        if fm.display and fm.display.contains_html:
+            add_row(name, val, is_html=True)
+        elif fm.is_multiple and fm.is_multiple.list_to_ui:
+            all_vals = filter(None, map(str.strip, val.split(fm.is_multiple.list_to_ui)))
+            add_row(name, all_vals, join=fm.is_multiple.list_to_ui)
+        else:
+            add_row(name, val)
+
+    def process_authors(field, fm, name, val):
+        add_row(name, val, join=' & ')
+
+    def process_publisher(field, fm, name, val):
+        add_row(name, val)
+
+    def process_rating(field, fm, name, val):
+        stars = E.span()
+        val = int(val or 0)
+        if val > 0:
+            for i in range(val // 2):
+                stars.appendChild(svgicon('star'))
+            if fm.display.allow_half_stars and (val % 2):
+                stars.appendChild(svgicon('star-half'))
+            add_row(name, stars)
+        else:
+            add_row(name, None)
+
+    def process_identifiers(field, fm, name, val):
+        if val:
+            keys = Object.keys(val)
+            if keys.length:
+                table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+                td = table.lastChild.lastChild
+                for k in keys:
+                    if td.childNodes.length:
+                        td.appendChild(document.createTextNode(', '))
+                    td.appendChild(document.createTextNode(k))
+                return
+        add_row(name, None)
+
+    def process_languages(field, fm, name, val):
+        if val and val.length:
+            table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+            td = table.lastChild.lastChild
+            for k in val:
+                lang = mi.lang_names[k] or k
+                td.appendChild(document.createTextNode(lang))
+                if k is not val[-1]:
+                    td.appendChild(document.createTextNode(', '))
+            return
+        add_row(name, None)
+
+    def process_datetime(field, fm, name, val):
+        if val:
+            fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
+            add_row(name, format_date(val, fmt))
+        else:
+            add_row(name, None)
+
+    def process_series(field, fm, name, val):
+        if val:
+            ifield = field + '_index'
+            try:
+                ival = float(resolved_metadata(mi, ifield))
+            except Exception:
+                ival = 1.0
+            ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+            table.appendChild(E.tr(onclick=current_edit_action, E.td(name + ':'), E.td()))
+            s = safe_set_inner_html(E.span(), _('{0} of <i>{1}</i>').format(ival, val))
+            table.lastChild.lastChild.appendChild(s)
+        else:
+            add_row(name, None)
+
+    def process_formats(field, fm, name, val):
+        val = resolved_formats(val)
+        if val.length:
+            join = fm.is_multiple.list_to_ui if fm.is_multiple else None
+            add_row(name, val, join=join)
+        else:
+            add_row(name, None)
+
+    def process_field(field, fm):
+        name = fm.name or field
+        datatype = fm.datatype
+        val = resolved_metadata(mi, field)
+        if field is 'comments' or datatype is 'comments':
+            add_row(name, truncated_html(val or ''))
+            return
+        func = None
+        if datatype is 'composite':
+            func = process_composite
+        elif datatype is 'rating':
+            func = process_rating
+        elif field is 'identifiers':
+            func = process_identifiers
+        elif field is 'authors':
+            func = process_authors
+        elif field is 'publisher':
+            func = process_publisher
+        elif field is 'languages':
+            func = process_languages
+        elif field is 'formats':
+            func = process_formats
+        elif datatype is 'datetime':
+            func = process_datetime
+        elif datatype is 'series':
+            func = process_series
+        if func:
+            func(field, fm, name, val)
+        else:
+            if datatype is 'text' or datatype is 'enumeration':
+                if val is not undefined and val is not None:
+                    join = fm.is_multiple.list_to_ui if fm.is_multiple else None
+                    add_row(name, val, join=join)
+                else:
+                    add_row(name, None)
+            elif datatype is 'bool':
+                add_row(name, _('Yes') if val else (_('No') if val? else ''))
+            elif datatype is 'int' or datatype is 'float':
+                if val is not undefined and val is not None:
+                    fmt = (fm.display or {}).number_format
+                    if fmt:
+                        val = fmt.format(val)
+                    else:
+                        val += ''
+                    add_row(name, val)
+                else:
+                    add_row(name, None)
+
+    for field in fields:
+        fm = field_metadata[field]
+        if not fm:
+            continue
+        current_edit_action = edit_field.bind(None, container_id, book_id, field)
+        try:
+            process_field(field, fm)
+        except Exception:
+            print('Failed to render metadata field: ' + field)
+            traceback.print_exc()
+
+    current_edit_action = edit_field.bind(None, container_id, book_id, 'cover')
+    table.appendChild(E.tr(onclick=current_edit_action, E.td(_('Cover') + ':'), E.td()))
+    img = E.img(
+        style='max-width: 300px; max-height: 400px',
+    )
+    if changes.cover:
+        if changes.cover is '--remove--':
+            img.removeAttribute('src')
+            changes.cover = None
+        else:
+            r = FileReader()
+            r.onload = def(evt):
+                img.src = evt.target.result
+                changes.cover = evt.target.result
+            r.readAsDataURL(changes.cover)
+            v'delete changes.cover'
+    else:
+        img.src = cover_url(book_id)
+    table.lastChild.lastChild.appendChild(img)
+# }}}
+
+
+def changes_submitted(container_id, book_id, end_type, xhr, ev):
+    nonlocal changes, has_changes
+    changes = {}
+    has_changes = False
+    if end_type is 'abort':
+        on_close(container_id)
+        return
+    if end_type is not 'load':
+        error_dialog(_('Failed to update metadata on server'), _(
+            'Updating metadata for the book: {} failed.').format(book_id), xhr.error_html)
+        return
+    try:
+        dirtied = JSON.parse(xhr.responseText)
+    except Exception as err:
+        error_dialog(_('Could not update metadata for book'), _('Server returned an invalid response'), err.toString())
+        return
+
+    cq = get_current_query()
+    if cq.from_read_book:
+        window.parent.postMessage(
+            {'type': 'update_cached_book_metadata', 'library_id': cq.library_id, 'book_id': cq.book_id, 'metadata': dirtied[book_id], 'from_read_book': cq.from_read_book},
+            document.location.protocol + '//' + document.location.host
+        )
+    else:
+        for bid in dirtied:
+            set_book_metadata(bid, dirtied[bid])
+    on_close(container_id)
+
+
+def on_progress(container_id, book_id, loaded, total, xhr):
+    container = document.getElementById(container_id)
+    if container and total:
+        update_status_widget(container, loaded, total)
+
+
+def submit_changes(container_id, book_id):
+    c = document.getElementById(container_id)
+    d = c.querySelector('div[data-ctype="show"]')
+    clear(d)
+    d.appendChild(E.div(style='margin: 1ex 1rem', _('Uploading changes to server, please wait...')))
+    data = {'changes': changes, 'loaded_book_ids': loaded_book_ids()}
+    w = upload_status_widget()
+    d.appendChild(w)
+    ajax_send(
+        f'cdb/set-fields/{book_id}/{current_library_id()}', data, changes_submitted.bind(None, container_id, book_id), on_progress.bind(None, container_id, book_id))
+
+
+def show_book(container_id, book_id):
+    container = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not container or not mi:
+        return
+    div = container.querySelector('div[data-ctype="show"]')
+    if not div:
+        return
+    clear(div)
+    if has_changes:
+        b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
+        div.appendChild(E.div(style='margin: 1ex 1rem', b))
+    else:
+        div.appendChild(E.div(style='margin: 1ex 1rem', _(
+            'Tap any field below to edit it')))
+    div.appendChild(E.table(class_='metadata'))
+    render_metadata(mi, div.lastChild, container_id, book_id)
+    if has_changes:
+        b = create_button(_('Apply changes'), action=submit_changes.bind(None, container_id, book_id))
+        div.appendChild(E.div(style='margin: 1ex 1rem', b))
+
+
+def on_close(container_id):
+    c = document.getElementById(container_id)
+    if c:
+        d = c.querySelector('div[data-ctype="edit"]')
+        if d:
+            if d.style.display is 'block':
+                d.style.display = 'none'
+                d.previousSibling.style.display = 'block'
+                clear(d), clear(d.previousSibling)
+                q = parse_url_params()
+                show_book(container_id, int(q.book_id))
+                return
+        cq = get_current_query()
+        if cq.from_read_book:
+            window.parent.postMessage(
+                {'type': 'edit_metadata_closed', 'from_read_book': cq.from_read_book},
+                document.location.protocol + '//' + document.location.host
+            )
+        else:
+            back()
+
+
+def proceed_after_succesful_fetch_metadata(container_id, book_id):
+    nonlocal changes, has_changes
+    changes = {}
+    has_changes = False
+    container = document.getElementById(container_id)
+    mi = book_metadata(book_id)
+    if not mi or not container:
+        if get_current_query().from_read_book:
+            container.textContent = _('Failed to read metadata for book')
+            return
+        show_panel('book_details', query=parse_url_params(), replace=True)
+        return
+    set_title(container, _('Edit metadata for {}').format(mi.title))
+    clear(container.lastChild)
+    container.lastChild.appendChild(E.div(data_ctype='show', style='display:block'))
+    container.lastChild.appendChild(E.div(data_ctype='edit', style='display:none'))
+    show_book(container_id, book_id)
+
+
+def create_edit_metadata(container):
+    q = parse_url_params()
+    current_book_id = q.book_id
+    if not current_book_id:
+        no_book(container)
+        return
+    current_book_id = int(current_book_id)
+    container_id = container.parentNode.id
+    if not book_metadata(current_book_id):
+        fetch_metadata(container_id, current_book_id, proceed_after_succesful_fetch_metadata)
+    else:
+        proceed_after_succesful_fetch_metadata(container_id, current_book_id)
+
+
+def check_for_books_loaded():
+    container = this
+    if load_status.loading:
+        conditional_timeout(container.id, 5, check_for_books_loaded)
+        return
+    container = container.lastChild
+    clear(container)
+    if not load_status.ok:
+        report_load_failure(container)
+        return
+    create_edit_metadata(container)
+
+
+def handle_keypress(container_id, ev):
+    if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+        if ev.key is 'Escape':
+            ev.preventDefault(), ev.stopPropagation()
+            on_close(container_id)
+
+
+def init(container_id):
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Edit metadata'), action=on_close.bind(None, container_id), icon='close')
+    container.appendChild(E.div(class_=CLASS_NAME, tabindex='0', onkeydown=handle_keypress.bind(None, container_id)))
+    container.lastChild.focus()
+    container.lastChild.appendChild(E.div(_('Loading books from the calibre library, please wait...'), style='margin: 1ex 1em'))
+    conditional_timeout(container_id, 5, check_for_books_loaded)
+
+
+set_panel_handler('edit_metadata', init)

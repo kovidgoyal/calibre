@@ -1,36 +1,83 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+country = 'us'
+country_defs = {
+    'us': ('www.reuters.com', {
+        'Business': 'finance',
+        'Markets': 'finance/markets',
+        'World': 'news/world',
+        'Politics': 'politics',
+        'Tech': 'news/technology',
+        'Wealth': 'finance/wealth',
+    })
+}
+
+
+def prefixed_classes(classes):
+    q = frozenset(classes.split(' '))
+
+    def matcher(x):
+        if x:
+            for candidate in frozenset(x.split()):
+                for x in q:
+                    if candidate.startswith(x):
+                        return True
+        return False
+    return {'attrs': {'class': matcher}}
 
 
 class Reuters(BasicNewsRecipe):
-
     title = 'Reuters'
-    description = 'Global news'
-    __author__ = 'Kovid Goyal and Sujata Raman'
-    use_embedded_content = False
+    description = 'News from all over'
+    __author__ = 'Kovid Goyal'
     language = 'en'
 
-    max_articles_per_feed = 10
-    no_stylesheets = True
-    remove_javascript = True
-    auto_cleanup = True
-    auto_cleanup_keep = '//div[@class="relatedPhoto landscape"]'
+    keep_only_tags = [
+        prefixed_classes('ArticlePage-article-header ArticlePage-article-body'),
+    ]
+    remove_tags = [
+        prefixed_classes('ArticleBody-read-time-and-social Slideshow-expand-button- TwoColumnsLayout-footer-'),
+        dict(name=['button', 'link']),
+    ]
 
-    extra_css      = '''
-                        body{font-family:arial,helvetica,sans;}
-                        h1{ font-size:larger ; font-weight:bold;  }
-                        .byline{color:#006E97;font-size:x-small; font-weight:bold;}
-                        .location{font-size:x-small; font-weight:bold;}
-                        .timestamp{font-size:x-small; }
-                     '''
+    def preprocess_html(self, soup, *a):
+        meta = soup.find(attrs={'name': "sailthru.image.full"})
+        if meta is not None:
+            url = meta['content']
+            body = soup.find(**prefixed_classes('ArticlePage-article-body'))
+            if body is not None:
+                div = soup.new_tag('div')
+                div.append(soup.new_tag('img', src=url))
+                body.insert(0, div)
+        return soup
 
-    feeds = [('Top Stories', 'http://feeds.reuters.com/reuters/topNews?format=xml'),
-             ('US News', 'http://feeds.reuters.com/reuters/domesticNews?format=xml'),
-             ('World News', 'http://feeds.reuters.com/reuters/worldNews?format=xml'),
-             ('Politics News', 'http://feeds.reuters.com/reuters/politicsNews?format=xml'),
-             ('Science News', 'http://feeds.reuters.com/reuters/scienceNews?format=xml'),
-             ('Environment News', 'http://feeds.reuters.com/reuters/Environment?format=xml'),
-             ('Technology News',
-              'http://feeds.reuters.com/reuters/technologyNews?format=xml'),
-             ('Oddly Enough News',
-              'http://feeds.reuters.com/reuters/oddlyEnoughNews?format=xml')
-             ]
+    def parse_index(self):
+        base, sections = country_defs[country]
+        ans = []
+
+        for section_title in sorted(sections):
+            slug = sections[section_title]
+            self.log(section_title)
+            articles = list(self.parse_reuters_section(base, slug))
+            if articles:
+                ans.append((section_title, articles))
+            if self.test and len(ans) >= self.test[0]:
+                break
+        return ans
+
+    def parse_reuters_section(self, base, slug):
+        url = 'https://' + base + '/' + slug
+        soup = self.index_to_soup(url)
+        for div in soup.findAll(**classes('news-headline-list')):
+            h3 = div.find(**classes('story-title'))
+            a = h3.parent
+            title = self.tag_to_string(h3)
+            url = 'https://{}{}'.format(base, a['href'])
+            self.log('\t', title, url)
+            yield {'title': title, 'url': url}

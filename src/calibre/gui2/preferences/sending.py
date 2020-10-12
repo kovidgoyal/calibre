@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -57,8 +58,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_template.save_settings(self.proxy, 'send_template')
         return ConfigWidgetBase.commit(self)
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Sending')
-

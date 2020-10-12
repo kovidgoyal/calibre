@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,7 +15,7 @@ class EditCollectionsAction(InterfaceAction):
     name = 'Edit Collections'
     action_spec = (_('Manage collections'), None,
             _('Manage the collections on this device'), ())
-    dont_add_to = frozenset(['menubar', 'toolbar', 'context-menu', 'toolbar-child'])
+    dont_add_to = frozenset(('menubar', 'toolbar', 'context-menu', 'toolbar-child'))
     action_type = 'current'
 
     def genesis(self):
@@ -23,6 +24,7 @@ class EditCollectionsAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc != 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def edit_collections(self, *args):
         oncard = None

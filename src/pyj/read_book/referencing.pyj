@@ -1,0 +1,41 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+# noqa: eol-semicolon
+from __python__ import bound_methods, hash_literals
+
+from read_book.globals import get_boss
+
+
+def elem_for_ref(refnum):
+    refnum = int(refnum)
+    p = document.getElementsByTagName('p')[refnum - 1]
+    return p
+
+
+def on_mouse_over(ev):
+    p = this
+    if p.dataset.calibreRefNum:
+        refnum = int(p.dataset.calibreRefNum)
+        get_boss().reference_item_changed(refnum)
+
+
+def on_mouse_out(ev):
+    get_boss().reference_item_changed(None)
+
+
+def start_reference_mode():
+    i = 0
+    for p in document.getElementsByTagName('p'):
+        i += 1
+        if not p.dataset.calibreRefNum:
+            p.dataset.calibreRefNum = i + ''
+            p.addEventListener('mouseover', on_mouse_over, {'passive': True})
+            p.addEventListener('mouseout', on_mouse_out, {'passive': True})
+
+
+def end_reference_mode():
+    for p in document.getElementsByTagName('p'):
+        if p.dataset.calibreRefNum:
+            p.removeEventListener('mouseover', on_mouse_over, {'passive': True})
+            p.removeEventListener('mouseout', on_mouse_out, {'passive': True})
+            v'delete p.dataset.calibreRefNum'

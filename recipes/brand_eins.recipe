@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals
 
@@ -112,7 +112,7 @@ class BrandEins(BasicNewsRecipe):
                 {'title': title, 'url': url, 'description': desc})
             self.log('Found article:', title, 'at', url)
 
-        return [(st, articles) for st, articles in feeds.iteritems() if articles]
+        return [(st, articles) for st, articles in feeds.items() if articles]
 
     def get_cover_url(self):
         # the index does not contain a usable cover, but the 'Welt in

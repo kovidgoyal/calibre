@@ -25,10 +25,11 @@ def set_default_panel_handler(handler):
     default_panel_handler = handler
 
 
-def develop_panel(container):
+def develop_panel(container_id):
     # To use, go to URL:
-    # http://localhost:8080/?panel=develop-widgets&widget_module=<module name>
+    # http://localhost:8080/#panel=develop-widgets&widget_module=<module name>
     # Implement the develop(container) method in that module.
+    container = document.getElementById(container_id)
     q = get_current_query()
     m = q.widget_module
     if m:

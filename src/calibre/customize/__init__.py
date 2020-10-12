@@ -1,17 +1,19 @@
-from __future__ import with_statement
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, zipfile, importlib
 
-from calibre.constants import numeric_version, iswindows, isosx
+from calibre.constants import numeric_version, iswindows, ismacos
 from calibre.ptempfile import PersistentTemporaryFile
+from polyglot.builtins import unicode_type
 
-platform = 'linux'
 if iswindows:
     platform = 'windows'
-elif isosx:
+elif ismacos:
     platform = 'osx'
+else:
+    platform = 'linux'
 
 
 class PluginNotFound(ValueError):
@@ -64,7 +66,7 @@ class Plugin(object):  # {{{
     #: When more than one plugin exists for a filetype,
     #: the plugins are run in order of decreasing priority.
     #: Plugins with higher priority will be run first.
-    #: The highest possible priority is ``sys.maxint``.
+    #: The highest possible priority is ``sys.maxsize``.
     #: Default priority is 1.
     priority = 1
 
@@ -146,7 +148,8 @@ class Plugin(object):  # {{{
             if geom is None:
                 config_dialog.resize(config_dialog.sizeHint())
             else:
-                config_dialog.restoreGeometry(geom)
+                from PyQt5.Qt import QApplication
+                QApplication.instance().safe_restore_geometry(config_dialog, geom)
 
         button_box.accepted.connect(config_dialog.accept)
         button_box.rejected.connect(config_dialog.reject)
@@ -194,7 +197,7 @@ class Plugin(object):  # {{{
             config_dialog.exec_()
 
             if config_dialog.result() == QDialog.Accepted:
-                sc = unicode(sc.text()).strip()
+                sc = unicode_type(sc.text()).strip()
                 customize_plugin(self, sc)
 
         geom = bytearray(config_dialog.saveGeometry())
@@ -210,7 +213,7 @@ class Plugin(object):  # {{{
         For example to load an image::
 
             pixmap = QPixmap()
-            pixmap.loadFromData(self.load_resources(['images/icon.png']).itervalues().next())
+            pixmap.loadFromData(self.load_resources(['images/icon.png'])['images/icon.png'])
             icon = QIcon(pixmap)
 
         :param names: List of paths to resources in the ZIP file using / as separator
@@ -246,7 +249,7 @@ class Plugin(object):  # {{{
         :param gui: If True return HTML help, otherwise return plain text help.
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def temporary_file(self, suffix):
         '''
@@ -276,8 +279,8 @@ class Plugin(object):  # {{{
         if self.plugin_path is not None:
             from calibre.utils.zipfile import ZipFile
             zf = ZipFile(self.plugin_path)
-            extensions = set([x.rpartition('.')[-1].lower() for x in
-                zf.namelist()])
+            extensions = {x.rpartition('.')[-1].lower() for x in
+                zf.namelist()}
             zip_safe = True
             for ext in ('pyd', 'so', 'dll', 'dylib'):
                 if ext in extensions:
@@ -404,7 +407,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
     '''
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set([])
+    file_types     = set()
 
     supported_platforms = ['windows', 'osx', 'linux']
     version = numeric_version
@@ -436,7 +439,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
     '''
     #: Set of file types for which this plugin should be run.
     #: For example: ``set(['lit', 'mobi', 'prc'])``
-    file_types     = set([])
+    file_types     = set()
 
     supported_platforms = ['windows', 'osx', 'linux']
     version = numeric_version
@@ -472,20 +475,18 @@ class CatalogPlugin(Plugin):  # {{{
 
     #: Output file type for which this plugin should be run.
     #: For example: 'epub' or 'xml'
-    file_types = set([])
+    file_types = set()
 
     type = _('Catalog generator')
 
-    #: CLI parser options specific to this plugin, declared as namedtuple Option::
+    #: CLI parser options specific to this plugin, declared as namedtuple Option:
     #:
-    #:  from collections import namedtuple
-    #:  Option = namedtuple('Option', 'option, default, dest, help')
-    #:  cli_options = [Option('--catalog-title',
-    #:                       default = 'My Catalog',
-    #:                       dest = 'catalog_title',
-    #:                       help = (_('Title of generated catalog. \nDefault:') + " '" +
-    #:                       '%default' + "'"))]
-    #:  cli_options parsed in calibre.db.cli.cmd_catalog:option_parser()
+    #:   from collections import namedtuple
+    #:   Option = namedtuple('Option', 'option, default, dest, help')
+    #:   cli_options = [Option('--catalog-title', default = 'My Catalog',
+    #:   dest = 'catalog_title', help = (_('Title of generated catalog. \nDefault:') + " '" + '%default' + "'"))]
+    #:   cli_options parsed in calibre.db.cli.cmd_catalog:option_parser()
+    #:
     cli_options = []
 
     def _field_sorter(self, key):
@@ -508,11 +509,10 @@ class CatalogPlugin(Plugin):  # {{{
 
     def get_output_fields(self, db, opts):
         # Return a list of requested fields
-        all_std_fields = set(
-                          ['author_sort','authors','comments','cover','formats',
+        all_std_fields = {'author_sort','authors','comments','cover','formats',
                            'id','isbn','library_name','ondevice','pubdate','publisher',
                            'rating','series_index','series','size','tags','timestamp',
-                           'title_sort','title','uuid','languages','identifiers'])
+                           'title_sort','title','uuid','languages','identifiers'}
         all_custom_fields = set(db.custom_field_keys())
         for field in list(all_custom_fields):
             fm = db.field_metadata[field]
@@ -565,7 +565,7 @@ class CatalogPlugin(Plugin):  # {{{
                 try:
                     resources.extract(file, self.resources_path)
                 except:
-                    print " customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path))
+                    print(" customize:__init__.initialize(): %s not found in %s" % (file, os.path.basename(self.plugin_path)))
                     continue
             resources.close()
 
@@ -725,66 +725,6 @@ class StoreBase(Plugin):  # {{{
         if getattr(self, 'actual_plugin_object', None) is not None:
             return self.actual_plugin_object.save_settings(config_widget)
         raise NotImplementedError()
-
-# }}}
-
-
-class ViewerPlugin(Plugin):  # {{{
-
-    type = _('Viewer')
-
-    '''
-    These plugins are used to add functionality to the calibre E-book viewer.
-    '''
-
-    def load_fonts(self):
-        '''
-        This method is called once at viewer startup. It should load any fonts
-        it wants to make available. For example::
-
-            def load_fonts():
-                from PyQt5.Qt import QFontDatabase
-                font_data = get_resources(['myfont1.ttf', 'myfont2.ttf'])
-                for raw in font_data.itervalues():
-                    QFontDatabase.addApplicationFontFromData(raw)
-        '''
-        pass
-
-    def load_javascript(self, evaljs):
-        '''
-        This method is called every time a new HTML document is loaded in the
-        viewer. Use it to load javascript libraries into the viewer. For
-        example::
-
-            def load_javascript(self, evaljs):
-                js = get_resources('myjavascript.js')
-                evaljs(js)
-        '''
-        pass
-
-    def run_javascript(self, evaljs):
-        '''
-        This method is called every time a document has finished loading. Use
-        it in the same way as load_javascript().
-        '''
-        pass
-
-    def customize_ui(self, ui):
-        '''
-        This method is called once when the viewer is created. Use it to make
-        any customizations you want to the viewer's user interface. For
-        example, you can modify the toolbars via ui.tool_bar and ui.tool_bar2.
-        '''
-        pass
-
-    def customize_context_menu(self, menu, event, hit_test_result):
-        '''
-        This method is called every time the context (right-click) menu is
-        shown. You can use it to customize the context menu. ``event`` is the
-        context menu event and hit_test_result is the QWebHitTestResult for this
-        event in the currently loaded document.
-        '''
-        pass
 
 # }}}
 

@@ -148,7 +148,7 @@
       <item row="4" column="0">
        <widget class="QLabel" name="label_21">
         <property name="text">
-         <string>&amp;Encryption:</string>
+         <string>Encr&amp;yption:</string>
         </property>
         <property name="buddy">
          <cstring>relay_tls</cstring>
@@ -174,7 +174,7 @@
          <string>Use SSL encryption when connecting to the mail server.</string>
         </property>
         <property name="text">
-         <string>&amp;SSL</string>
+         <string>SS&amp;L</string>
         </property>
        </widget>
       </item>
@@ -208,6 +208,12 @@
     <layout class="QVBoxLayout" name="verticalLayout_9">
      <item>
       <widget class="QToolButton" name="relay_use_gmx">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Use &amp;GMX</string>
        </property>
@@ -228,6 +234,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="relay_use_hotmail">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Use &amp;Hotmail</string>
        </property>

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -15,6 +14,7 @@ from lxml.html.builder import OL, UL, SPAN
 from calibre.ebooks.docx.block_styles import ParagraphStyle
 from calibre.ebooks.docx.char_styles import RunStyle, inherit
 from calibre.ebooks.metadata import roman
+from polyglot.builtins import iteritems, unicode_type
 
 STYLE_MAP = {
     'aiueo': 'hiragana',
@@ -35,6 +35,7 @@ STYLE_MAP = {
 def alphabet(val, lower=True):
     x = string.ascii_lowercase if lower else string.ascii_uppercase
     return x[(abs(val - 1)) % len(x)]
+
 
 alphabet_map = {
     'lower-alpha':alphabet, 'upper-alpha':partial(alphabet, lower=False),
@@ -168,7 +169,7 @@ class NumberingDefinition(object):
 
     def copy(self):
         ans = NumberingDefinition(self.namespace, an_id=self.abstract_numbering_definition_id)
-        for l, lvl in self.levels.iteritems():
+        for l, lvl in iteritems(self.levels):
             ans.levels[l] = lvl.copy()
         return ans
 
@@ -224,7 +225,7 @@ class Numbering(object):
                     if alvl is None:
                         alvl = Level(self.namespace)
                     alvl.read_from_xml(lvl, override=True)
-            for ilvl, so in start_overrides.iteritems():
+            for ilvl, so in iteritems(start_overrides):
                 try:
                     nd.levels[ilvl].start = start_override
                 except KeyError:
@@ -244,22 +245,22 @@ class Numbering(object):
             self.instances[num_id] = create_instance(n, d)
 
         numbering_links = styles.numbering_style_links
-        for an_id, style_link in lazy_load.iteritems():
+        for an_id, style_link in iteritems(lazy_load):
             num_id = numbering_links[style_link]
             self.definitions[an_id] = self.instances[num_id].copy()
 
-        for num_id, (an_id, n) in next_pass.iteritems():
+        for num_id, (an_id, n) in iteritems(next_pass):
             d = self.definitions.get(an_id, None)
             if d is not None:
                 self.instances[num_id] = create_instance(n, d)
 
-        for num_id, d in self.instances.iteritems():
+        for num_id, d in iteritems(self.instances):
             self.starts[num_id] = {lvl:d.levels[lvl].start for lvl in d.levels}
 
     def get_pstyle(self, num_id, style_id):
         d = self.instances.get(num_id, None)
         if d is not None:
-            for ilvl, lvl in d.levels.iteritems():
+            for ilvl, lvl in iteritems(d.levels):
                 if lvl.para_link == style_id:
                     return ilvl
 
@@ -271,7 +272,7 @@ class Numbering(object):
 
     def update_counter(self, counter, levelnum, levels):
         counter[levelnum] += 1
-        for ilvl, lvl in levels.iteritems():
+        for ilvl, lvl in iteritems(levels):
             restart = lvl.restart
             if (restart is None and ilvl == levelnum + 1) or restart == levelnum + 1:
                 counter[ilvl] = lvl.start
@@ -290,7 +291,7 @@ class Numbering(object):
                     seen_instances.add(num_id)
                     p.tag = 'li'
                     p.set('value', '%s' % counter[ilvl])
-                    p.set('list-lvl', str(ilvl))
+                    p.set('list-lvl', unicode_type(ilvl))
                     p.set('list-id', num_id)
                     if lvl.num_template is not None:
                         val = lvl.format_template(counter, ilvl, lvl.num_template)

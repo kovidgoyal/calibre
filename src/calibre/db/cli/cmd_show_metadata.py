@@ -1,14 +1,13 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
 import sys
 
 from calibre import prints
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from polyglot.builtins import unicode_type, getcwd
 
 readonly = True
 version = 0  # change this if you change signature of implementation()
@@ -49,9 +48,10 @@ def main(opts, args, dbctx):
     if mi is None:
         raise SystemExit('Id #%d is not present in database.' % id)
     if opts.as_opf:
-        mi = OPFCreator(os.getcwdu(), mi)
-        mi.render(sys.stdout)
+        stdout = getattr(sys.stdout, 'buffer', sys.stdout)
+        mi = OPFCreator(getcwd(), mi)
+        mi.render(stdout)
     else:
-        prints(unicode(mi))
+        prints(unicode_type(mi))
 
     return 0

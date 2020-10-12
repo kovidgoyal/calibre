@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
@@ -65,6 +65,6 @@ class Liberation(BasicNewsRecipe):
         encoding = {'0B': '.', '0C': '/', '0A': '0', '0F': '=', '0G': '&',
                     '0D': '?', '0E': '-', '0N': '.com', '0L': 'http://', '0S':
                     'www.', '0I': '_'}
-        for k, v in encoding.iteritems():
+        for k, v in encoding.items():
             url = url.replace(k, v)
         return url.partition('?')[0]

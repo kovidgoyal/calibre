@@ -1,16 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 from collections import defaultdict
 from io import BytesIO
 import unittest
 
-from lxml import etree
-
 from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
+from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
@@ -38,7 +36,7 @@ class TestOPF3(unittest.TestCase):
     ae = unittest.TestCase.assertEqual
 
     def get_opf(self, metadata='', manifest=''):
-        return etree.fromstring(TEMPLATE.format(metadata=metadata, manifest=manifest))
+        return safe_xml_fromstring(TEMPLATE.format(metadata=metadata, manifest=manifest))
 
     def test_prefix_parsing(self):  # {{{
         self.ae(parse_prefixes('foaf: http://xmlns.com/foaf/spec/\n dbp: http://dbpedia.org/ontology/'),
@@ -175,11 +173,13 @@ class TestOPF3(unittest.TestCase):
         from calibre.utils.date import utcnow
 
         def rl(root):
-            return read_pubdate(root, read_prefixes(root), read_refines(root)), read_timestamp(root, read_prefixes(root), read_refines(root))
+            p, r = read_prefixes(root), read_refines(root)
+            return read_pubdate(root, p, r), read_timestamp(root, p, r)
 
         def st(root, pd, ts):
-            set_pubdate(root, read_prefixes(root), read_refines(root), pd)
-            set_timestamp(root, read_prefixes(root), read_refines(root), ts)
+            p, r = read_prefixes(root), read_refines(root)
+            set_pubdate(root, p, r, pd)
+            set_timestamp(root, p, r, ts)
             return rl(root)
 
         def ae(root, y1=None, y2=None):
@@ -192,7 +192,8 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<dc:date>1999-3-2</dc:date><meta property="calibre:timestamp" scheme="dcterms:W3CDTF">2001</meta>''')
         ae(root, 1999, 2001)
         n = utcnow()
-        self.ae(st(root, n, n), (n, n))
+        q = n.replace(microsecond=0)
+        self.ae(st(root, n, n), (n, q))
         root = self.get_opf('''<dc:date>1999-3-2</dc:date><meta name="calibre:timestamp" content="2001-1-1"/>''')
         ae(root, 1999, 2001)
         root = self.get_opf('''<meta property="dcterms:modified">2003</meta>''')
@@ -373,7 +374,7 @@ class TestOPF3(unittest.TestCase):
         &quot;value&quot;, &quot;#value#&quot;:
         &quot;&lt;div&gt;&lt;b&gt;&lt;i&gt;Testing&lt;/i&gt;&lt;/b&gt; extra
         &lt;font
-        color=\&quot;#aa0000\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
+        color=\\&quot;#aa0000\\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
         &quot;is_custom&quot;: true, &quot;label&quot;: &quot;commetns&quot;,
         &quot;table&quot;: &quot;custom_column_13&quot;,
         &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>
@@ -521,7 +522,7 @@ class TestOPF3(unittest.TestCase):
                     self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
 
         mi2 = OPF(BytesIO(raw.encode('utf-8'))).to_book_metadata()
-        root = etree.fromstring(raw)
+        root = safe_xml_fromstring(raw)
         root.set('version', '3.0')
         mi3, _, raster_cover, first_spine_item  = read_metadata(root, return_extra_data=True)
         self.assertIsNone(raster_cover)

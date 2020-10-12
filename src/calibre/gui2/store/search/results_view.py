@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -65,7 +64,7 @@ class ResultsView(QTreeView):
 
         result = self.model().get_result(index)
 
-        menu = QMenu()
+        menu = QMenu(self)
         da = menu.addAction(_('Download...'), partial(self.download_requested.emit, result))
         if not result.downloads:
             da.setEnabled(False)

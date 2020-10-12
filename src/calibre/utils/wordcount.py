@@ -1,5 +1,7 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
+
 """
 Get word, character, and Asian character counts
 
@@ -44,7 +46,7 @@ def filter_jchars(c):
 
 
 def nonj_len(word):
-    u"""Returns number of non-Asian words in {word}
+    """Returns number of non-Asian words in {word}
     - 日本語AアジアンB -> 2
     - hello -> 1
     @param word: A word, possibly containing Asian characters
@@ -56,7 +58,7 @@ def nonj_len(word):
     # -> ['spam', 'eggs']
     # The length of which is 2!
     chars = [filter_jchars(c) for c in word]
-    return len(u''.join(chars).split())
+    return len(''.join(chars).split())
 
 
 def get_wordcount(text):
@@ -66,8 +68,8 @@ def get_wordcount(text):
     """
 
     characters = len(text)
-    chars_no_spaces = sum([not x.isspace() for x in text])
-    asian_chars =  sum([is_asian(x) for x in text])
+    chars_no_spaces = sum(not x.isspace() for x in text)
+    asian_chars =  sum(is_asian(x) for x in text)
     non_asian_words = nonj_len(text)
     words = non_asian_words + asian_chars
 

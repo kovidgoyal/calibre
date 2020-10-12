@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -7,13 +8,15 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
+from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox, QApplication,
     QLineEdit, QComboBox, Qt, QIcon, QDialog, QVBoxLayout,
     QDialogButtonBox)
 
 from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
 from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.widgets import HistoryLineEdit
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 class AbortCommit(Exception):
@@ -107,9 +110,11 @@ class Setting(object):
         elif isinstance(self.gui_obj, QAbstractSpinBox):
             self.datatype = 'number'
             self.gui_obj.valueChanged.connect(self.changed)
-        elif isinstance(self.gui_obj, QLineEdit):
+        elif isinstance(self.gui_obj, (QLineEdit, HistoryLineEdit)):
             self.datatype = 'string'
             self.gui_obj.textChanged.connect(self.changed)
+            if isinstance(self.gui_obj, HistoryLineEdit):
+                self.gui_obj.initialize('preferences_setting_' + self.name)
         elif isinstance(self.gui_obj, QComboBox):
             self.datatype = 'choice'
             self.gui_obj.editTextChanged.connect(self.changed)
@@ -118,15 +123,15 @@ class Setting(object):
             raise ValueError('Unknown data type %s' % self.gui_obj.__class__)
 
         if isinstance(self.config_obj, ConfigProxy) and \
-                not unicode(self.gui_obj.toolTip()):
+                not unicode_type(self.gui_obj.toolTip()):
             h = self.config_obj.help(self.name)
             if h:
                 self.gui_obj.setToolTip(h)
-        tt = unicode(self.gui_obj.toolTip())
+        tt = unicode_type(self.gui_obj.toolTip())
         if tt:
-            if not unicode(self.gui_obj.whatsThis()):
+            if not unicode_type(self.gui_obj.whatsThis()):
                 self.gui_obj.setWhatsThis(tt)
-            if not unicode(self.gui_obj.statusTip()):
+            if not unicode_type(self.gui_obj.statusTip()):
                 self.gui_obj.setStatusTip(tt)
             tt = '\n'.join(textwrap.wrap(tt, 70))
             self.gui_obj.setToolTip(tt)
@@ -143,7 +148,7 @@ class Setting(object):
             else:
                 self.gui_obj.clear()
                 for x in choices:
-                    if isinstance(x, basestring):
+                    if isinstance(x, string_or_bytes):
                         x = (x, x)
                     self.gui_obj.addItem(x[0], (x[1]))
         self.set_gui_val(self.get_config_val(default=False))
@@ -194,17 +199,17 @@ class Setting(object):
         elif self.datatype == 'number':
             val = self.gui_obj.value()
         elif self.datatype == 'string':
-            val = unicode(self.gui_obj.text()).strip()
+            val = unicode_type(self.gui_obj.text()).strip()
             if self.empty_string_is_None and not val:
                 val = None
         elif self.datatype == 'choice':
             if isinstance(self.gui_obj, EditWithComplete):
-                val = unicode(self.gui_obj.text())
+                val = unicode_type(self.gui_obj.text())
             else:
                 idx = self.gui_obj.currentIndex()
                 if idx < 0:
                     idx = 0
-                val = unicode(self.gui_obj.itemData(idx) or '')
+                val = unicode_type(self.gui_obj.itemData(idx) or '')
         return val
 
 
@@ -213,11 +218,11 @@ class CommaSeparatedList(Setting):
     def set_gui_val(self, val):
         x = ''
         if val:
-            x = u', '.join(val)
+            x = ', '.join(val)
         self.gui_obj.setText(x)
 
     def get_gui_val(self):
-        val = unicode(self.gui_obj.text()).strip()
+        val = unicode_type(self.gui_obj.text()).strip()
         ans = []
         if val:
             ans = [x.strip() for x in val.split(',')]
@@ -380,7 +385,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     w.genesis(gui)
     w.initialize()
     if geom is not None:
-        d.restoreGeometry(geom)
+        QApplication.instance().safe_restore_geometry(d, geom)
     d.exec_()
     geom = bytearray(d.saveGeometry())
     gprefs[conf_name] = geom

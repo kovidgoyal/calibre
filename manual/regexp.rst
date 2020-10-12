@@ -21,8 +21,10 @@ Where in calibre can you use regular expressions?
 There are a few places calibre uses regular expressions. There's the
 :guilabel:`Search & replace` in conversion options, metadata detection from filenames in the import
 settings and Search & replace when editing the metadata of books in bulk. The
-calibre book editor can also use regular expressions in its search and replace
-feature.
+calibre book editor can also use regular expressions in its :guilabel:`Search and replace`
+feature. Finally, you can use regular expressions when searching the calibre
+book list and when searching inside the calibre E-book viewer.
+
 
 What on earth *is* a regular expression?
 ------------------------------------------------
@@ -34,7 +36,7 @@ A regular expression is a way to describe sets of strings. A single regular expr
 Care to explain?
 --------------------
 
-Well, that's why we're here. First, this is the most important concept in regular expressions: *A string by itself is a regular expression that matches itself*. That is to say, if I wanted to match the string ``"Hello, World!"`` using a regular expression, the regular expression to use would be ``Hello, World!``. And yes, it really is that simple. You'll notice, though, that this *only* matches the exact string ``"Hello, World!"``, not e.g. ``"Hello, wOrld!"`` or ``"hello, world!"`` or any other such variation. 
+Well, that's why we're here. First, this is the most important concept in regular expressions: *A string by itself is a regular expression that matches itself*. That is to say, if I wanted to match the string ``"Hello, World!"`` using a regular expression, the regular expression to use would be ``Hello, World!``. And yes, it really is that simple. You'll notice, though, that this *only* matches the exact string ``"Hello, World!"``, not e.g. ``"Hello, wOrld!"`` or ``"hello, world!"`` or any other such variation.
 
 That doesn't sound too bad. What's next?
 ------------------------------------------
@@ -58,15 +60,15 @@ You can of course do that: Just put a backslash in front of any special characte
 So, what are the most useful sets?
 ------------------------------------
 
-Knew you'd ask. Some useful sets are ``[0-9]`` matching a single number, ``[a-z]`` matching a single lowercase letter, ``[A-Z]`` matching a single uppercase letter, ``[a-zA-Z]`` matching a single letter and ``[a-zA-Z0-9]`` matching a single letter or number. You can also use an escape sequence as shorthand:: 
+Knew you'd ask. Some useful sets are ``[0-9]`` matching a single number, ``[a-z]`` matching a single lowercase letter, ``[A-Z]`` matching a single uppercase letter, ``[a-zA-Z]`` matching a single letter and ``[a-zA-Z0-9]`` matching a single letter or number. You can also use an escape sequence as shorthand::
 
     \d is equivalent to [0-9]
     \w is equivalent to [a-zA-Z0-9_]
     \s is equivalent to any whitespace
-    
+
 .. note::
-    "Whitespace" is a term for anything that won't be printed. These characters include space, tabulator, line feed, form feed and carriage return. 
-    
+    "Whitespace" is a term for anything that won't be printed. These characters include space, tabulator, line feed, form feed and carriage return.
+
 As a last note on sets, you can also define a set as any character *but* those in the set. You do that by including the character ``"^"`` as the *very first character in the set*. Thus, ``[^a]`` would match any character excluding "a". That's called complementing the set. Those escape sequence shorthands we saw earlier can also be complemented: ``"\D"`` means any non-number character, thus being equivalent to ``[^0-9]``. The other shorthands can be complemented by, you guessed it, using the respective uppercase letter instead of the lowercase one. So, going back to the example ``<p[^>]*>`` from the previous section, now you can see that the character set it's using tries to match any character except for a closing angle bracket.
 
 But if I had a few varying strings I wanted to match, things get complicated?
@@ -87,7 +89,7 @@ In the beginning, you said there was a way to make a regular expression case ins
 
 Yes, I did, thanks for paying attention and reminding me. You can tell calibre how you want certain things handled by using something called flags. You include flags in your expression by using the special construct ``(?flags go here)`` where, obviously, you'd replace "flags go here" with the specific flags you want. For ignoring case, the flag is ``i``, thus you include ``(?i)`` in your expression. Thus, ``(?i)test`` would match "Test", "tEst", "TEst" and any case variation you could think of.
 
-Another useful flag lets the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above. 
+Another useful flag lets the dot match any character at all, *including* the newline, the flag ``s``. If you want to use multiple flags in an expression, just put them in the same statement: ``(?is)`` would ignore case and make the dot match all. It doesn't matter which flag you state first, ``(?si)`` would be equivalent to the above.
 
 I think I'm beginning to understand these regular expressions now... how do I use them in calibre?
 -----------------------------------------------------------------------------------------------------
@@ -104,7 +106,7 @@ Let's begin with the conversion settings, which is really neat. In the :guilabel
     http://www.processtext.com/abclit.html</a></b></p>
     <p class="calibre4"> It had only been two years since Addison v. Clark.
     The court case gave us a revised version of what life was
-    
+
 (shamelessly ripped out of `this thread <https://www.mobileread.com/forums/showthread.php?t=75594">`_). You'd have to remove some of the tags as well. In this example, I'd recommend beginning with the tag ``<b class="calibre2">``, now you have to end with the corresponding closing tag (opening tags are ``<tag>``, closing tags are ``</tag>``), which is simply the next ``</b>`` in this case. (Refer to a good HTML manual or ask in the forum if you are unclear on this point.) The opening tag can be described using ``<b.*?>``, the closing tag using ``</b>``, thus we could remove everything between those tags using ``<b.*?>.*?</b>``. But using this expression would be a bad idea, because it removes everything enclosed by <b>- tags (which, by the way, render the enclosed text in bold print), and it's a fair bet that we'll remove portions of the book in this way. Instead, include the beginning of the enclosed string as well, making the regular expression ``<b.*?>\s*Generated\s+by\s+ABC\s+Amber\s+LIT.*?</b>`` The ``\s`` with quantifiers are included here instead of explicitly using the spaces as seen in the string to catch any variations of the string that might occur. Remember to check what calibre will remove to make sure you don't remove any portions you want to keep if you test a new expression. If you only check one occurrence, you might miss a mismatch somewhere else in the text. Also note that should you accidentally remove more or fewer tags than you actually wanted to, calibre tries to repair the damaged code after doing the removal.
 
 Adding books
@@ -116,14 +118,14 @@ Another thing you can use regular expressions for is to extract metadata from fi
 Bulk editing metadata
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The last part is regular expression search and replace in metadata fields. You can access this by selecting multiple books in the library and using bulk metadata edit. Be very careful when using this last feature, as it can do **Very Bad Things** to your library! Doublecheck that your expressions do what you want them to using the test fields, and only mark the books you really want to change! In the regular expression search mode, you can search in one field, replace the text with something and even write the result into another field. A practical example: Say your library contained the books of Frank Herbert's Dune series, named after the fashion ``Dune 1 - Dune``, ``Dune 2 - Dune Messiah`` and so on. Now you want to get ``Dune`` into the series field. You can do that by searching for ``(.*?) \d+ - .*`` in the title field and replacing it with ``\1`` in the series field. See what I did there? That's a reference to the first group you're replacing the series field with. Now that you have the series all set, you only need to do another search for ``.*? -`` in the title field and replace it with ``""`` (an empty string), again in the title field, and your metadata is all neat and tidy. Isn't that great? By the way, instead of replacing the entire field, you can also append or prepend to the field, so, if you *wanted* the book title to be prepended with series info, you could do that as well. As you by now have undoubtedly noticed, there's a checkbox labeled :guilabel:`Case sensitive`, so you won't have to use flags to select behaviour here.
+The last part is regular expression :guilabel:`Search and replace` in metadata fields. You can access this by selecting multiple books in the library and using bulk metadata edit. Be very careful when using this last feature, as it can do **Very Bad Things** to your library! Doublecheck that your expressions do what you want them to using the test fields, and only mark the books you really want to change! In the regular expression search mode, you can search in one field, replace the text with something and even write the result into another field. A practical example: Say your library contained the books of Frank Herbert's Dune series, named after the fashion ``Dune 1 - Dune``, ``Dune 2 - Dune Messiah`` and so on. Now you want to get ``Dune`` into the series field. You can do that by searching for ``(.*?) \d+ - .*`` in the title field and replacing it with ``\1`` in the series field. See what I did there? That's a reference to the first group you're replacing the series field with. Now that you have the series all set, you only need to do another search for ``.*? -`` in the title field and replace it with ``""`` (an empty string), again in the title field, and your metadata is all neat and tidy. Isn't that great? By the way, instead of replacing the entire field, you can also append or prepend to the field, so, if you *wanted* the book title to be prepended with series info, you could do that as well. As you by now have undoubtedly noticed, there's a checkbox labeled :guilabel:`Case sensitive`, so you won't have to use flags to select behaviour here.
 
-Well, that just about concludes the very short introduction to regular expressions. Hopefully I'll have shown you enough to at least get you started and to enable you to continue learning by yourself- a good starting point would be the `Python documentation for regexps <https://docs.python.org/2/library/re.html>`_.
+Well, that just about concludes the very short introduction to regular expressions. Hopefully I'll have shown you enough to at least get you started and to enable you to continue learning by yourself- a good starting point would be the `Python documentation for regexps <https://docs.python.org/library/re.html>`_.
 
 One last word of warning, though: Regexps are powerful, but also really easy to get wrong. calibre provides really great testing possibilities to see if your expressions behave as you expect them to. Use them. Try not to shoot yourself in the foot. (God, I love that expression...) But should you, despite the warning, injure your foot (or any other body parts), try to learn from it.
 
 
-Quick Reference
+Quick reference
 -------------------
 
 .. toctree::
@@ -144,5 +146,7 @@ Thanks for helping with tips, corrections and such:
     * Starson17
     * Orpheu
 
-For more about regexps see `The Python User Manual <https://docs.python.org/2/library/re.html>`_.
-
+For more about regexps see `The Python User Manual <https://docs.python.org/library/re.html>`_.
+The actual regular expression library used by calibre is:
+`regex <https://bitbucket.org/mrabarnett/mrab-regex/src/hg/>`_ which supports
+several useful enhancements over the python standard library one.

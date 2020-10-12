@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>397</width>
+    <width>676</width>
     <height>335</height>
    </rect>
   </property>
@@ -18,53 +18,130 @@
     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
   </property>
   <layout class="QGridLayout">
-   <item row="0" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_11">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>&amp;Search for:</string>
-       </property>
-       <property name="buddy">
-        <cstring>search_box</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="HistoryLineEdit" name="search_box">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>100</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Search for an item in the Tag column</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="search_button">
-       <property name="toolTip">
-        <string>Find the first/next matching item</string>
-       </property>
-       <property name="text">
-        <string>&amp;Find</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&amp;Search for:</string>
+     </property>
+     <property name="buddy">
+      <cstring>search_box</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="HistoryLineEdit" name="search_box">
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Search for an item in the first column</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="search_button">
+     <property name="toolTip">
+      <string>Find items containing the search string</string>
+     </property>
+     <property name="text">
+      <string>S&amp;earch</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="4">
+    <widget class="QCheckBox" name="apply_vl_checkbox">
+     <property name="toolTip">
+      <string>&lt;p&gt;Show items only if they appear in the
+          current Virtual library. Edits already done may be hidden but will
+          not be forgotten.&lt;/p&gt;</string>
+     </property>
+     <property name="text">
+      <string>Only show items in the current &amp;Virtual library</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&amp;Filter by:</string>
+     </property>
+     <property name="buddy">
+      <cstring>filter_box</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="HistoryLineEdit" name="filter_box">
+     <property name="minimumSize">
+      <size>
+       <width>200</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="toolTip">
+      <string>Filter items using the text in this box</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="filter_button">
+     <property name="toolTip">
+      <string>Show only items containing this text</string>
+     </property>
+     <property name="text">
+      <string>F&amp;ilter</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../../../resources/images.qrc">
+       <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <spacer name="verticalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QToolButton" name="delete_button">
        <property name="toolTip">
-        <string>Delete item from database. This will unapply the item from all books and then remove it from the database.</string>
+        <string>Delete selected items from the database. This will unapply the items from all books and then remove them from the database.</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -79,12 +156,28 @@
          <height>32</height>
         </size>
        </property>
+       <property name="shortcut">
+        <string>Ctrl+D</string>
+       </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QToolButton" name="rename_button">
        <property name="toolTip">
-        <string>Rename the item in every book where it is used.</string>
+        <string>Rename the items in every book where they are used</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -100,14 +193,63 @@
         </size>
        </property>
        <property name="shortcut">
-        <string>Ctrl+S</string>
+        <string>Ctrl+R</string>
        </property>
       </widget>
      </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="undo_button">
+       <property name="toolTip">
+        <string>Undo any deletes or edits on the selected lines</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../../resources/images.qrc">
+         <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>32</width>
+         <height>32</height>
+        </size>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+U</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_4">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
     </layout>
    </item>
-   <item row="1" column="1">
-    <widget class="QTableWidget" name="table">
+   <item row="2" column="1" colspan="4">
+    <widget class="TleTableWidget" name="table">
      <property name="alternatingRowColors">
       <bool>true</bool>
      </property>
@@ -119,16 +261,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="3" column="0" colspan="5">
     <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -139,6 +275,12 @@
    <class>HistoryLineEdit</class>
    <extends>QLineEdit</extends>
    <header>calibre/gui2/widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TleTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>calibre/gui2/dialogs/tag_list_editor_table_widget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

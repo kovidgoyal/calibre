@@ -42,7 +42,7 @@ class GrantLand(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
-        seen_urls = set([])
+        seen_urls = set()
 
         for category in self.CATEGORIES:
 

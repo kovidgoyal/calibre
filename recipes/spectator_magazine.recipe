@@ -1,10 +1,24 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+import re
+
+from mechanize import Request
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
-def class_sel(cls):
-    def f(x):
-        return x and cls in x.split()
-    return f
+
+def absolutize(url):
+    return 'https://spectator.co.uk' + url
 
 
 class Spectator(BasicNewsRecipe):
@@ -15,52 +29,100 @@ class Spectator(BasicNewsRecipe):
     language = 'en'
 
     no_stylesheets = True
-
-    keep_only_tags = dict(name='div', attrs={
-                          'class': ['article-header__text', 'featured-image', 'article-content']})
-    remove_tags = [
-        dict(name='div', attrs={'id': ['disqus_thread']}),
-        dict(attrs={'class': ['middle-promo',
-                              'sharing', 'mejs-player-holder']}),
-        dict(name='a', onclick=lambda x: x and '__gaTracker' in x and 'outbound-article' in x),
-    ]
-    remove_tags_after = [
-        dict(name='hr', attrs={'class': 'sticky-clear'}),
-    ]
-
-    def parse_spec_section(self, div):
-        h2 = div.find('h2')
-        sectitle = self.tag_to_string(h2)
-        self.log('Section:', sectitle)
-        articles = []
-        for div in div.findAll('div', id=lambda x: x and x.startswith('post-')):
-            h2 = div.find('h2', attrs={'class': class_sel('term-item__title')})
-            if h2 is None:
-                h2 = div.find(attrs={'class': class_sel('news-listing__title')})
-            title = self.tag_to_string(h2)
-            a = h2.find('a')
-            url = a['href']
-            desc = ''
-            self.log('\tArticle:', title)
-            p = div.find(attrs={'class': class_sel('term-item__excerpt')})
-            if p is not None:
-                desc = self.tag_to_string(p)
-            articles.append({'title': title, 'url': url, 'description': desc})
-        return sectitle, articles
+    use_embedded_content = True
 
     def parse_index(self):
-        soup = self.index_to_soup('https://www.spectator.co.uk/magazine/')
-        a = soup.find('a', attrs={'class': 'issue-details__cover-link'})
-        self.timefmt = ' [%s]' % a['title']
-        self.cover_url = a['href']
-        if self.cover_url.startswith('//'):
-            self.cover_url = 'http:' + self.cover_url
+        br = self.get_browser()
+        main_js = br.open_novisit('https://spectator.co.uk/main.js').read().decode('utf-8')
+        data = {}
+        fields = ('apiKey', 'apiSecret', 'contentEnvironment', 'siteUrl', 'magazineIssueContentUrl', 'contentUrl')
+        pat = r'this.({})\s*=\s*"(.+?)"'.format('|'.join(fields))
+        for m in re.finditer(pat, main_js):
+            data[m.group(1)] = m.group(2)
+        self.log('Got Spectator data:', data)
+        headers = {
+            'api_key': data['apiKey'],
+            'origin': data['siteUrl'],
+            'access_token': data['apiSecret'],
+            'Accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+            'Accept-encoding': 'gzip, deflate',
+            'Accept': '*/*',
+        }
 
-        feeds = []
+        def make_url(utype, query, includes=(), limit=None):
+            ans = data[utype] + '/entries?environment=' + data['contentEnvironment']
+            if limit is not None:
+                ans += '&limit={}'.format(limit)
+            for inc in includes:
+                ans += '&include[]=' + inc
+            ans += '&query=' + quote(json.dumps(query))
+            return ans
 
-        div = soup.find(attrs={'class': class_sel('content-area')})
-        for x in div.findAll(attrs={'class': class_sel('magazine-section-holder')}):
-            title, articles = self.parse_spec_section(x)
-            if articles:
-                feeds.append((title, articles))
-        return feeds
+        def get_result(url):
+            self.log('Fetching:', url)
+            req = Request(url, headers=headers)
+            raw = br.open_novisit(req).read().decode('utf-8')
+            return json.loads(raw)['entries']
+
+        # Get current issue
+        url = data['magazineIssueContentUrl'] + '/entries?environment=' + data['contentEnvironment'] + "&desc=issue_date&limit=1&only[BASE][]=url"
+        result = get_result(url)
+        slug = result[0]['url']
+        uid = result[0]['uid']  # noqa
+        date = slug.split('/')[-1]
+        self.log('Downloading issue:', date)
+
+        # Cover information
+        url = make_url(
+            'magazineIssueContentUrl',
+            {'url': slug},
+            limit=1
+        )
+        self.cover_url = get_result(url)[0]['magazine_cover']['url']
+        self.log('Found cover:', self.cover_url)
+
+        # List of articles
+        url = make_url(
+            'contentUrl',
+            {
+                "magazine_content_production_only.magazine_issue": {
+                    "$in_query": {"url": slug},
+                    "_content_type_uid": "magazine_issue"
+                },
+                "_content_type_uid": "article"
+            },
+            includes=(
+                'topic', 'magazine_content_production_only.magazine_issue',
+                'magazine_content_production_only.magazine_subsection', 'author'
+            )
+        )
+        result = get_result(url)
+        articles = {}
+        for entry in result:
+            title = entry['title']
+            url = absolutize(entry['url'])
+            blocks = []
+            a = blocks.append
+            byline = entry.get('byline') or ''
+            if byline:
+                a('<h3>{}</h3>'.format(byline))
+            if entry.get('author'):
+                for au in reversed(entry['author']):
+                    au = entry['author'][0]
+                    cac = ''
+                    if au.get('caricature'):
+                        cac = '<img src="{}">'.format(au['caricature']['url'])
+                    a('<div>{} <a href="{}>{}</a></div>'.format(cac, absolutize(au['url']), au['title']))
+            if entry.get('hero_image'):
+                hi = entry['hero_image'][0]
+                a('<div style="text-align: center"><img src="{}"></div>'.format(hi['url']))
+                if hi.get('description'):
+                    a('<div style="text-align: center; font-size: smaller">{}</div>'.format(hi['description']))
+            a(entry['text_body'])
+            section = 'Unknown'
+            if entry.get('topic'):
+                topic = entry['topic'][0]
+                section = topic['title']
+            articles.setdefault(section, []).append({
+                'title': title, 'url': url, 'description': byline, 'content': '\n\n'.join(blocks)})
+        return [(sec, articles[sec]) for sec in sorted(articles)]

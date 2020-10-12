@@ -25,20 +25,16 @@ class AlJazeera(BasicNewsRecipe):
     use_embedded_content = False
     extra_css              = """
                                 body{font-family: Arial,sans-serif}
-                                #ctl00_cphBody_dvSummary{font-weight: bold}
-                                #dvArticleDate{font-size: small; color: #999999}
                              """
     conversion_options = {
         'comment': description, 'tags': category,
         'publisher': publisher, 'language': language
     }
     keep_only_tags = [
-        dict(id='main-story'),
+        dict(id='article-page'),
     ]
 
     remove_tags = [
-        has_cls('MoreOnTheStory'), has_cls(
-            'ArticleBottomToolbar'), dict(smtitle="ShowMore"),
         dict(name=['object', 'link', 'table',
                    'meta', 'base', 'iframe', 'embed']),
     ]
@@ -48,21 +44,13 @@ class AlJazeera(BasicNewsRecipe):
 
     def get_article_url(self, article):
         artlurl = article.get('link',  None)
-        return artlurl.replace('http://english.aljazeera.net//', 'http://english.aljazeera.net/')
+        return artlurl
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         for item in soup.findAll(face=True):
             del item['face']
-        td = soup.find('td', attrs={'class': 'DetailedSummary'})
-        if td:
-            td.name = 'div'
-        spn = soup.find('span', attrs={'id': 'DetailedTitle'})
-        if spn:
-            spn.name = 'h1'
-        for itm in soup.findAll('span', attrs={'id': ['dvArticleDate', 'ctl00_cphBody_lblDate']}):
-            itm.name = 'div'
         for alink in soup.findAll('a'):
             if alink.string is not None:
                 tstr = alink.string

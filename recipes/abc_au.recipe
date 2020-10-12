@@ -1,55 +1,95 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+
 __license__ = 'GPL v3'
-__copyright__ = '2011, Pat Stapleton <pat.stapleton at gmail.com>'
+__copyright__ = '2020, Pat Stapleton <pat.stapleton at gmail.com>'
 '''
-abc.net.au/news
+Recipe for ABC News Australia (online)
 '''
-import re
-from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class ABCNews(BasicNewsRecipe):
-    title = 'ABC News'
-    __author__ = 'Pat Stapleton, Dean Cording'
-    description = 'News from Australia'
-    masthead_url = 'http://www.abc.net.au/news/assets/v5/images/common/logo-news.png'
-    cover_url = 'http://www.abc.net.au/news/assets/v5/images/common/logo-news.png'
-
-    oldest_article = 2
+    title          = 'ABC News'
+    language       = 'en_AU'
+    __author__     = 'Pat Stapleton'
+    description = 'From the Australian Broadcasting Corporation. The ABC is owned and funded by the Australian Government, but is editorially independent.'
+    masthead_url = 'https://www.abc.net.au/cm/lb/8212706/data/news-logo-2017---desktop-print-data.png'
+    cover_url = 'https://www.abc.net.au/news/linkableblob/8413676/data/abc-news-og-data.jpg'
+    cover_margins = (0,20,'#000000')
+    scale_news_images_to_device = True
+    oldest_article = 2  # days
+    simultaneous_downloads = 10
     max_articles_per_feed = 100
-    no_stylesheets = False
-    use_embedded_content = False
-    encoding = 'utf8'
-    publisher = 'ABC News'
-    category = 'News, Australia, World'
-    language = 'en_AU'
-    publication_type = 'newsportal'
-#    preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
-# Remove annoying map links (inline-caption class is also used for some
-# image captions! hence regex to match maps.google)
-    preprocess_regexps = [(re.compile(
-        r'<a class="inline-caption" href="http://maps\.google\.com.*?/a>', re.DOTALL), lambda m: '')]
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': False
-    }
+    publication_type = 'newspaper'
 
-    keep_only_tags = [dict(attrs={'class': ['article section']})]
+#    auto_cleanup   = True # enable this as a backup option if recipe stops working
 
-    remove_tags = [dict(attrs={'class': ['related', 'tags', 'tools', 'attached-content ready',
-                                         'inline-content story left', 'inline-content map left contracted', 'published',
-                                         'story-map', 'statepromo', 'topics', ]})]
+#    use_embedded_content = False # if set to true will assume that all the article content is within the feed (i.e. won't try to fetch more data)
 
-    remove_attributes = ['width', 'height']
+    no_stylesheets = True
+    remove_javascript = True
 
-    feeds = [
-        ('Top Stories', 'http://www.abc.net.au/news/feed/45910/rss.xml'),
-        ('Canberra', 'http://www.abc.net.au/news/feed/6910/rss.xml'),
-        ('Sydney', 'http://www.abc.net.au/news/feed/10232/rss.xml'),
-        ('Melbourne', 'http://www.abc.net.au/news/feed/21708/rss.xml'),
-        ('Brisbane', 'http://www.abc.net.au/news/feed/12858/rss.xml'),
-        ('Perth', 'feed://www.abc.net.au/news/feed/24886/rss.xml'),
-        ('Australia', 'http://www.abc.net.au/news/feed/46182/rss.xml'),
-        ('World', 'http://www.abc.net.au/news/feed/52278/rss.xml'),
-        ('Business', 'http://www.abc.net.au/news/feed/51892/rss.xml'),
-        ('Science and Technology',
-         'http://www.abc.net.au/news/feed/2298/rss.xml'),
+    keep_only_tags = [dict(id='content')]  # the article content is contained in <main id="content" /> tag
+
+    # ************************************
+    # Regular expressions for remove_tags:
+    # ************************************
+    # remove aside tag - used for overlapping boxes within article
+    # aside_reg_exp = '^.*aside.*$'
+
+    # ************************************
+    # Clear out all the unwanted html tags:
+    # ************************************
+    remove_tags = [
+#        dict(name='aside', attrs={'name': re.compile(aside_reg_exp, re.IGNORECASE)})
+        {
+            'name': ['meta', 'link', 'noscript', 'aside']
+        },
+        {
+            'attrs': {
+                'data-component': ['Ticker', 'PublishedDate', 'Timestamp', 'Link', 'ShareLink', 'ShareUtility',
+                'RelatedStories', 'ArticleTopStories', 'ArticleTopStoriesCard', 'ArticleJustInStories',
+                'RelatedTopics', 'Player', 'ArticleSidebar', 'TopStoriesSidebar', 'UtilityBar']
+            }
+        }
+    ]
+
+    # ************************************
+    # Tidy up the output to look neat for reading
+    # ************************************
+    remove_attributes = ['width', 'height', 'style']
+    extra_css = '.byline{font-size:smaller;margin-bottom:10px;}.inline-caption{display:block;font-size:smaller;text-decoration: none;}'
+
+    # ************************************
+    # Fix images (dynamically generated by ABC news)
+    # ************************************
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            for x in img['data-src'].split():
+                if '/' in x:
+                    img['src'] = x
+        return soup
+    compress_news_images = True
+
+    feeds          = [
+        ('Top Stories', 'https://www.abc.net.au/news/feed/45910/rss.xml'),
+        ('Politics', 'https://www.abc.net.au/news/feed/1534/rss.xml'),
+        ('World', 'https://www.abc.net.au/news/feed/4405318/rss.xml'),
+        ('Business', 'https://www.abc.net.au/news/feed/51892/rss.xml'),
+        ('Analysis', 'https://www.abc.net.au/news/feed/7571268/rss.xml'),
+        ('Sport', 'https://www.abc.net.au/news/feed/2942460/rss.xml'),
+        ('Science', 'https://www.abc.net.au/news/feed/8132426/rss.xml'),
+        ('Health', 'https://www.abc.net.au/news/feed/9167762/rss.xml'),
+        ('Arts and Entertainment', 'https://www.abc.net.au/news/feed/472/rss.xml'),
+        ('Fact Check', 'https://www.abc.net.au/news/feed/5306468/rss.xml'),
+#        ('Adelaide', 'https://www.abc.net.au/news/feed/8057540/rss.xml'), #enable by removing # at start of line
+#        ('Brisbane', 'https://www.abc.net.au/news/feed/8053540/rss.xml'), #enable by removing # at start of line
+#        ('Canberra', 'https://www.abc.net.au/news/feed/8057234/rss.xml'), #enable by removing # at start of line
+#        ('Darwin', 'https://www.abc.net.au/news/feed/8057648/rss.xml'), #enable by removing # at start of line
+#        ('Hobart', 'https://www.abc.net.au/news/feed/8054562/rss.xml'), #enable by removing # at start of line
+#        ('Melbourne', 'https://www.abc.net.au/news/feed/8057136/rss.xml'), #enable by removing # at start of line
+#        ('Perth', 'https://www.abc.net.au/news/feed/8057096/rss.xml'), #enable by removing # at start of line
+#        ('Sydney', 'https://www.abc.net.au/news/feed/8055316/rss.xml'), #enable by removing # at start of line
     ]

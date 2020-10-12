@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -58,6 +58,8 @@ class GUI(Command):
                 for s in sources:
                     files.append('<file>%s</file>'%s)
                 manifest = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(sorted(files))
+                if not isinstance(manifest, bytes):
+                    manifest = manifest.encode('utf-8')
                 with open('images.qrc', 'wb') as f:
                     f.write(manifest)
         finally:

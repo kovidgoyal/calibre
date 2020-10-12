@@ -1,4 +1,5 @@
-from __future__ import with_statement
+
+
 __license__ = 'GPL 3'
 __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'

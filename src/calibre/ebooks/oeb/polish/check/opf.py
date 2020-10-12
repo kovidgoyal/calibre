@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc, parse_nav
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS, XHTML_MIME
+from polyglot.builtins import iteritems
 
 
 class MissingSection(BaseError):
@@ -21,6 +21,14 @@ class MissingSection(BaseError):
         BaseError.__init__(self, _('The <%s> section is missing from the OPF') % section_name, name)
         self.HELP = xml(_(
             'The <%s> section is required in the OPF file. You have to create one.') % section_name)
+
+
+class EmptyID(BaseError):
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('Empty id attributes are invalid'), name, lnum)
+        self.HELP = xml(_(
+            'Empty ID attributes are invalid in OPF files.'))
 
 
 class IncorrectIdref(BaseError):
@@ -292,6 +300,10 @@ def check_opf(container):
             errors.append(MissingSection(container.opf_name, tag))
 
     all_ids = set(container.opf_xpath('//*/@id'))
+    if '' in all_ids:
+        for empty_id_tag in container.opf_xpath('//*[@id=""]'):
+            errors.append(EmptyID(container.opf_name, empty_id_tag.sourceline))
+    all_ids.discard('')
     for elem in container.opf_xpath('//*[@idref]'):
         if elem.get('idref') not in all_ids:
             errors.append(IncorrectIdref(container.opf_name, elem.get('idref'), elem.sourceline))
@@ -315,7 +327,7 @@ def check_opf(container):
                 dups[href].append(item.sourceline)
             else:
                 seen[href] = item.sourceline
-    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in dups.iteritems())
+    errors.extend(DuplicateHref(container.opf_name, eid, locs) for eid, locs in iteritems(dups))
 
     seen, dups = {}, {}
     for item in container.opf_xpath('/opf:package/opf:spine/opf:itemref[@idref]'):
@@ -326,7 +338,7 @@ def check_opf(container):
             dups[ref].append(item.sourceline)
         else:
             seen[ref] = item.sourceline
-    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in dups.iteritems())
+    errors.extend(DuplicateHref(container.opf_name, eid, locs, for_spine=True) for eid, locs in iteritems(dups))
 
     spine = container.opf_xpath('/opf:package/opf:spine[@toc]')
     if spine:
@@ -345,7 +357,7 @@ def check_opf(container):
             ncx = container.manifest_type_map.get(guess_type('a.ncx'))
             if ncx:
                 ncx_name = ncx[0]
-                rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+                rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
                 ncx_id = rmap.get(ncx_name)
                 if ncx_id:
                     errors.append(MissingNCXRef(container.opf_name, spine.sourceline, ncx_id))
@@ -369,7 +381,7 @@ def check_opf(container):
                 errors.append(IncorrectCover(container.opf_name, cover.sourceline, cover.get('content', '')))
             raw = etree.tostring(cover)
             try:
-                n, c = raw.index('name="'), raw.index('content="')
+                n, c = raw.index(b'name="'), raw.index(b'content="')
             except ValueError:
                 n = c = -1
             if n > -1 and c > -1 and n > c:

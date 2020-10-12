@@ -1,5 +1,6 @@
 # vim:fileencoding=UTF-8
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import re
 
@@ -65,7 +66,7 @@ class AdvancedUserRecipe1390132023(BasicNewsRecipe):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
             for article in feed.articles[:]:
-                print 'article.title is: ', article.title
+                print('article.title is: ', article.title)
                 if 'WATCH:' in article.title.upper():
                     feed.articles.remove(article)
 
@@ -77,7 +78,7 @@ class AdvancedUserRecipe1390132023(BasicNewsRecipe):
             'http://cdn.images.express.co.uk/img/covers/')})
         cov = str(cov)
         cov2 = re.findall(
-            'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
+            'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
 
         cov = str(cov2)
         cov = cov[2:len(cov) - 2]

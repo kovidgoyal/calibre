@@ -17,12 +17,42 @@ def update_visible_toc_nodes(visible_anchors):
 update_visible_toc_nodes.data = {}
 
 
-def iter_toc_nodes(node, callback):
-    if callback(node):
-        return
+def iter_toc_descendants(node, callback):
     for child in node.children:
         if callback(child):
             return
+        iter_toc_descendants(child, callback)
+
+
+def get_toc_nodes_bordering_spine_item(toc, csi):
+    # Find the ToC entries that point to the closest files on either side of the
+    # spine item
+    toc = toc or current_book().manifest.toc
+    csi = csi or current_spine_item()
+    spine = current_book().manifest.spine
+    spine_before, spine_after = {}, {}
+    which = spine_before
+    before = after = prev = None
+    for name in spine:
+        if name is csi:
+            which = spine_after
+        else:
+            which[name] = True
+    iter_toc_descendants(toc, def(node):
+        nonlocal prev, before, after
+        if node.dest:
+            if spine_before[node.dest]:
+                prev = node
+            elif spine_after[node.dest]:
+                if not before:
+                    before = prev
+                if not after:
+                    after = node
+                return True
+    )
+    if not before and prev is not None:
+        before = prev
+    return before, after
 
 
 def get_border_nodes(toc, id_map):
@@ -35,31 +65,45 @@ def get_border_nodes(toc, id_map):
     if before and after:
         # Both border nodes are in the current spine item
         return before, after
-    # Find the ToC entries that point to the closest files on either side of the
-    # current spine item
-    spine = current_book().manifest.spine
-    spine_before, spine_after = {}, {}
-    which = spine_before
-    csi = current_spine_item()
-    for name in spine:
-        if name is csi:
-            which = spine_after
-        else:
-            which[name] = True
-    prev = None
-    iter_toc_nodes(toc, def(node):
-        nonlocal prev, before, after
-        if node.dest:
-            if spine_before[node.dest]:
-                prev = node
-            elif spine_after[node.dest]:
-                if not before:
-                    before = prev
-                if not after:
-                    after = node
-                return True
-    )
+    sb, sa = get_toc_nodes_bordering_spine_item(toc)
+    before = before or sb
+    after = after or sa
     return before, after
+
+
+def family_for_toc_node(toc_node_id, parent_map, id_map):
+    if not id_map or not parent_map:
+        toc = current_book().manifest.toc
+        parent_map, id_map = get_toc_maps(toc)
+    family = v'[]'
+    node = id_map[toc_node_id]
+    while node and node.title:
+        family.unshift(node)
+        parent = parent_map[node.id]
+        node = None
+        if parent:
+            node = id_map[parent.id]
+    return family
+
+
+def get_current_toc_nodes():
+    toc = current_book().manifest.toc
+    parent_map, id_map = get_toc_maps(toc)
+    data = update_visible_toc_nodes.data
+    ans = {}
+    if data.has_visible:
+        ans = data.visible_anchors
+    else:
+        if data.before:
+            ans[data.before] = True
+        else:
+            before = get_border_nodes(toc, id_map)[0]
+            if before:
+                ans[before.id] = True
+    ans = Object.keys(ans)
+    if ans.length:
+        return family_for_toc_node(ans[0], parent_map, id_map)
+    return v'[]'
 
 
 def get_highlighted_toc_nodes(toc, parent_map, id_map):
@@ -75,10 +119,10 @@ def get_highlighted_toc_nodes(toc, parent_map, id_map):
             if before:
                 ans[before.id] = True
     for node_id in Object.keys(ans):
-        pid = parent_map[node_id]
-        while pid:
-            ans[pid] = True
-            pid = parent_map[pid]
+        p = parent_map[node_id]
+        while p and p.title:
+            ans[p.id] = True
+            p = parent_map[p.id]
     return ans
 
 def get_toc_maps(toc):
@@ -133,7 +177,7 @@ def create_toc_panel(book, container, onclick):
     t = _('Search Table of Contents')
     search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
     set_css(search_bar, flex_grow='10', margin_right='1em')
-    container.appendChild(E.div(style='margin: 1ex 1em; display: flex;', search_bar, search_button))
+    container.appendChild(E.div(style='margin: 1ex 1em; display: flex; align-items: center', search_bar, search_button))
 
 
 def current_toc_anchor_map(tam, anchor_funcs):
@@ -155,7 +199,7 @@ def current_toc_anchor_map(tam, anchor_funcs):
         # stable sort by position in document
         anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
-        current_map = {'layout_mode': current_layout_mode, 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
+        current_map = {'layout_mode': current_layout_mode(), 'width': scroll_viewport.width(), 'height': scroll_viewport.height(), 'pos_map': am, 'sorted_anchors':anchors}
         set_toc_anchor_map(current_map)
     return current_map
 
@@ -179,3 +223,27 @@ def update_visible_toc_anchors(toc_anchor_map, anchor_funcs):
             break
 
     return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}
+
+
+def find_anchor_before_range(r, toc_anchor_map, anchor_funcs):
+    name = current_spine_item().name
+    prev_anchor = None
+    tam = current_toc_anchor_map(toc_anchor_map, anchor_funcs)
+    anchors = toc_anchor_map[name]
+    if anchors:
+        amap = {x.id: x for x in anchors}
+        for anchor_id in tam.sorted_anchors:
+            anchor = amap[anchor_id]
+            is_before = True
+            if anchor.frag:
+                elem = document.getElementById(anchor.frag)
+                if elem:
+                    q = document.createRange()
+                    q.selectNode(elem)
+                    if q.compareBoundaryPoints(window.Range.START_TO_START, r) > 0:
+                        is_before = False
+            if is_before:
+                prev_anchor = anchor
+            else:
+                break
+    return prev_anchor

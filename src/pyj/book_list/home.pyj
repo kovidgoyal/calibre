@@ -8,11 +8,11 @@ from gettext import gettext as _
 from ajax import ajax_send
 from book_list.cover_grid import BORDER_RADIUS
 from book_list.globals import get_db
-from book_list.library_data import last_virtual_library_for, sync_library_books
+from book_list.library_data import last_virtual_library_for, sync_library_books, all_libraries
 from book_list.router import open_book, update_window_title
 from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_default_panel_handler, show_panel
-from dom import add_extra_css, build_rule, clear, ensure_id, unique_id, set_css
+from dom import add_extra_css, build_rule, clear, ensure_id, set_css, unique_id
 from modals import create_custom_dialog
 from session import get_device_uuid, get_interface_data
 from utils import conditional_timeout, safe_set_inner_html, username_key
@@ -62,20 +62,29 @@ def sync_data_received(library_id, lrmap, load_type, xhr, ev):
         print('Failed to get book sync data')
         return
     data = JSON.parse(xhr.responseText)
+
+    db = get_db()
     for key in data:
+        new_vals = data[key]
+        entry = {'last_read': None, 'last_read_position': None, 'annotations_map': None}
         prev_last_read = lrmap[key]
-        if not prev_last_read:
-            continue
-        last_read_positions = data[key]
-        new_last_read = get_last_read_position(last_read_positions, prev_last_read)
-        if not new_last_read:
-            continue
-        last_read = new Date(new_last_read.epoch * 1000)
-        cfi = new_last_read.cfi
-        if cfi:
-            db = get_db()
+        if prev_last_read:
+            last_read_positions = new_vals.last_read_positions
+            new_last_read = get_last_read_position(last_read_positions, prev_last_read)
+            if new_last_read:
+                last_read = new Date(new_last_read.epoch * 1000)
+                cfi = new_last_read.cfi
+                if cfi:
+                    entry.last_read = last_read
+                    entry.last_read_position = cfi
+        new_amap = new_vals.annotations_map or {}
+        is_empty = True
+        v'for(var ikey in new_amap) { is_empty = false; break; }'
+        if !is_empty:
+            entry.annotations_map = new_amap
+        if entry.last_read_position or entry.annotations_map:
             book_id, fmt = key.partition(':')[::2]
-            db.update_last_read_data_from_key(library_id, int(book_id), fmt, last_read, cfi)
+            db.update_annotations_data_from_key(library_id, int(book_id), fmt, entry)
 
 
 def start_sync(to_sync):
@@ -104,7 +113,7 @@ def show_recent_stage2(books):
     to_sync = v'[]'
     username = get_interface_data().username
     for book in books:
-        if username and to_sync.length < 10:
+        if to_sync.length < 10:
             lr = book.last_read[username_key(username)] or new Date(0)  # noqa: unused-local
             to_sync.push(v'[book.key, lr]')
         authors = book.metadata.authors.join(' & ') if book.metadata.authors else _('Unknown')
@@ -119,8 +128,7 @@ def show_recent_stage2(books):
         ))
         if book.cover_name:
             db.get_file(book, book.cover_name, show_cover.bind(img_id))
-    if username:
-        start_sync(to_sync)
+    start_sync(to_sync)
     container.appendChild(E.div(style='margin: 1rem 1rem',
         create_button(
             _('Browse all downloaded books…'),
@@ -240,8 +248,7 @@ def init(container_id):
     container.appendChild(E.h2(_('Choose the calibre library to browse…')))
     container.appendChild(E.div(style='display: flex; flex-wrap: wrap'))
     cl = container.lastChild
-    lids = sorted(interface_data.library_map, key=def(x): return interface_data.library_map[x];)
-    for library_id in lids:
+    for library_id, library_name in all_libraries():
         library_name = interface_data.library_map[library_id]
         if library_name:
             cl.appendChild(
@@ -255,6 +262,5 @@ def init(container_id):
             ))
             cl.lastChild.style.margin = '1ex 1rem'
             cl.lastChild.dataset.lid = library_id
-
 
 set_default_panel_handler(init)

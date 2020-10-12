@@ -93,7 +93,7 @@ class CompletionPopup:
     def set_all_items(self, items):
         self.items = list(items)
         self.matches = []
-        self.applied_query = ''
+        self.applied_query = None
 
     def add_associated_widget(self, widget_or_id):
         if jstype(widget_or_id) is not 'string':
@@ -128,14 +128,15 @@ class CompletionPopup:
         if c:
             c.classList.remove(self.CURRENT_ITEM_CLASS)
 
-    def handle_keydown(self, key):
-        if key is 'escape':
+    def handle_keydown(self, event):
+        key = event.key
+        if key is 'Escape' or key is 'Esc':
             self.hide()
             return True
-        if key is 'up':
+        if key is 'ArrowUp':
             self.move_highlight(True)
             return True
-        if key is 'down':
+        if key is 'ArrowDown':
             self.move_highlight(False)
             return True
         return False

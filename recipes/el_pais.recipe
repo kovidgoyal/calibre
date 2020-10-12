@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'GPL v3'
 __author__ = 'Jordi Balcells, based on an earlier version by Lorenzo Vigentini & Kovid Goyal'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
@@ -64,7 +64,7 @@ class ElPais(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', srcset=True):
             try:
-                img['src'] = filter(None, img['srcset'].split())[0]
+                img['src'] = list(filter(None, img['srcset'].split()))[0]
             except IndexError:
                 continue
         return soup

@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import sys, os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class Paragraphs:
@@ -31,11 +33,11 @@ class Paragraphs:
     In order to make paragraphs out of this limited info, the parser starts in the
     body of the documents and assumes it is not in a paragraph. It looks for clues
     to begin a paragraph. Text starts a paragraph; so does an inline field or
-    list-text. If an end of paragraph marker (\par) is found, then this indicates
+    list-text. If an end of paragraph marker (\\par) is found, then this indicates
     a blank paragraph.
     Once a paragraph is found, the state changes to 'paragraph.' In this state,
     clues are looked to for the end of a paragraph. The end of a paragraph marker
-    (\par) marks the end of a paragraph. So does the end of a footnote or heading;
+    (\\par) marks the end of a paragraph. So does the end of a footnote or heading;
     a paragraph definition; the end of a field-block; and the beginning of a
     section. (How about the end of a section or the end of a field-block?)
     """
@@ -224,7 +226,7 @@ class Paragraphs:
         Returns:
             nothing
         Logic:
-            if a \pard occurs in a paragraph, I want to ignore it. (I believe)
+            if a \\pard occurs in a paragraph, I want to ignore it. (I believe)
         """
         self.__write_obj.write('mi<mk<bogus-pard\n')
 
@@ -242,8 +244,8 @@ class Paragraphs:
             only other state is 'paragraph'.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)

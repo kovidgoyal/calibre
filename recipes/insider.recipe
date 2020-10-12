@@ -29,7 +29,7 @@ class insider(BasicNewsRecipe):
         br['login-password'] = self.password
         res = br.submit()
         raw = res.read()
-        if u'Odhlásit se' not in raw:
+        if u'Odhlásit se'.encode('utf-8') not in raw:
             raise ValueError('Failed to login to insider.cz'
                              'Check your username and password.')
         return br
@@ -43,7 +43,7 @@ class insider(BasicNewsRecipe):
             raise ValueError('Could not find category content')
 
         articles = []
-        seen_titles = set([])
+        seen_titles = set()
         for title in titles:
             if title.string in seen_titles:
                 continue

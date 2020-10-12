@@ -1,0 +1,882 @@
+[
+    {
+        "name": "nasm",
+        "os": "macos,windows",
+        "unix": {
+            "filename": "nasm-2.14.02.tar.xz",
+            "hash": "sha256:e24ade3e928f7253aa8c14aa44726d1edf3f98643f87c9d72ec1df44b26be8f5",
+            "urls": ["https://www.nasm.us/pub/nasm/releasebuilds/2.14.02/{filename}"]
+        }
+    },
+
+    {
+        "name": "cmake",
+        "os": "macos",
+        "unix": {
+            "filename": "cmake-3.14.4.tar.gz",
+            "hash": "sha256:00b4dc9b0066079d10f16eed32ec592963a44e7967371d2f5077fd1670ff36d9",
+            "urls": ["https://github.com/Kitware/CMake/releases/download/v3.14.4/{filename}"]
+        }
+    },
+
+    {
+        "name": "autoconf",
+        "os": "macos",
+        "unix": {
+            "filename": "autoconf-2.69.tar.xz",
+            "hash": "sha256:64ebcec9f8ac5b2487125a86a7760d2591ac9e1d3dbd59489633f9de62a57684",
+            "urls": ["ftp://ftp.gnu.org/gnu/autoconf/{filename}"]
+        }
+    },
+
+    {
+        "name": "automake",
+        "os": "macos",
+        "unix": {
+            "filename": "automake-1.16.tar.xz",
+            "hash": "sha256:f98f2d97b11851cbe7c2d4b4eaef498ae9d17a3c2ef1401609b7b4ca66655b8a",
+            "urls": ["ftp://ftp.gnu.org/gnu/automake/{filename}"]
+        }
+    },
+
+    {
+        "name": "libtool",
+        "os": "macos",
+        "unix": {
+            "filename": "libtool-2.4.6.tar.xz",
+            "hash": "sha256:7c87a8c2c8c0fc9cd5019e402bed4292462d00a718a7cd5f11218153bf28b26f",
+            "urls": ["ftp://ftp.gnu.org/gnu/libtool/{filename}"]
+        }
+    },
+
+    {
+        "name": "easylzma",
+        "os": "windows",
+        "windows": {
+            "filename": "easylzma-1753f61f673abdebc08fcf4a37eedd6da8a67ba1.tar.gz",
+            "hash": "sha256:7664240898fe09bce8b39cd428407dd24ac3b87200e6b40d4007c78f2c725254",
+            "urls": ["github:lloyd/easylzma"]
+        }
+    },
+
+    {
+        "name": "zlib",
+        "unix": {
+            "filename": "zlib-1.2.11.tar.xz",
+            "hash": "sha256:4ff941449631ace0d4d203e3483be9dbc9da454084111f97ea0a2114e19bf066",
+            "urls": ["https://zlib.net/{filename}"]
+        }
+    },
+
+    {
+        "name": "bzip2",
+        "os": "linux",
+        "unix": {
+            "filename": "bzip2-1.0.8.tar.gz",
+            "hash": "sha256:ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269",
+            "urls": ["https://sourceware.org/pub/bzip2/{filename}"]
+        }
+    },
+
+    {
+        "name": "xz",
+        "os": "macos,linux",
+        "unix": {
+            "filename": "xz-5.2.5.tar.gz",
+            "hash": "md5:0d270c997aff29708c74d53f599ef717",
+            "urls": ["https://tukaani.org/xz/{filename}"]
+        }
+    },
+
+    {
+        "name": "unrar",
+        "unix": {
+            "filename": "unrarsrc-5.9.4.tar.gz",
+            "hash": "sha256:3d010d14223e0c7a385ed740e8f046edcbe885e5c22c5ad5733d009596865300",
+            "urls": ["https://www.rarlab.com/rar/{filename}"]
+        }
+    },
+
+    {
+        "name": "expat",
+        "unix": {
+            "filename": "expat-2.2.9.tar.bz2",
+            "hash": "sha256:f1063084dc4302a427dabcca499c8312b3a32a29b7d2506653ecc8f950a9a237",
+            "urls": ["https://github.com/libexpat/libexpat/releases/download/R_2_2_9/{filename}"]
+        }
+    },
+
+    {
+        "name": "sqlite",
+        "unix": {
+            "filename": "sqlite-autoconf-3330000.tar.gz",
+            "hash": "sha256:106a2c48c7f75a298a7557bcc0d5f4f454e5b43811cc738b7ca294d6956bbb15",
+            "urls": ["https://www.sqlite.org/2020/{filename}"]
+        }
+    },
+
+    {
+        "name": "libffi",
+        "os": "linux",
+        "unix": {
+            "filename": "libffi-3.3.tar.gz",
+            "hash": "sha256:72fba7922703ddfa7a028d513ac15a85c8d54c8d67f55fa5a4802885dc652056",
+            "urls": ["ftp://sourceware.org/pub/libffi/{filename}"]
+        }
+    },
+
+    {
+        "name": "hyphen",
+        "unix": {
+            "filename": "hyphen-2.8.8.tar.gz",
+            "hash": "sha1:0556c392beb59433e577e3517575801212201df6",
+            "urls": ["https://downloads.sourceforge.net/hunspell/{filename}"]
+        }
+    },
+
+    {
+        "name": "openssl",
+        "unix": {
+            "filename": "openssl-1.1.1g.tar.gz",
+            "hash": "sha256:ddb04774f1e32f0c49751e21b67216ac87852ceb056b75209af2443400636d46",
+            "urls": ["https://www.openssl.org/source/{filename}"]
+        }
+    },
+
+    {
+        "name": "ncurses",
+        "os": "linux",
+        "unix": {
+            "filename": "ncurses-6.2.tar.gz",
+            "hash": "md5:e812da327b1c2214ac1aed440ea3ae8d",
+            "urls": ["ftp://ftp.gnu.org/gnu/ncurses/{filename}"]
+        }
+    },
+
+    {
+        "name": "readline",
+        "os": "linux",
+        "unix": {
+            "filename": "readline-8.0.tar.gz",
+            "hash": "sha256:e339f51971478d369f8a053a330a190781acb9864cf4c541060f12078948e461",
+            "urls": ["http://ftp.gnu.org/gnu/readline/{filename}"]
+        }
+    },
+
+    {
+        "name": "python",
+        "unix": {
+            "filename": "Python-3.8.5.tar.xz",
+            "hash": "sha512:460cee65d7df7150694590575502d7f22e548ebfc99c8f8b363eef8bf30ee72e58d8ffacb1d607824f877f880eb9fd6775a508388029583e1e1df3380f3f9587",
+            "urls": ["https://www.python.org/ftp/python/3.8.5/{filename}"]
+        }
+    },
+
+    {
+        "name": "icu",
+        "unix": {
+            "filename": "icu4c-67_1-src.tgz",
+            "hash": "sha256:94a80cd6f251a53bd2a997f6f1b5ac6653fe791dfab66e1eb0227740fb86d5dc",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-67-1/{filename}"]
+        },
+        "windows": {
+            "filename": "icu4c-67_1-src.zip",
+            "hash": "sha256:b45ad9292490781d04daf08d13a41554b7b46223462baff2bbd1e479aaac2968",
+            "urls": ["https://github.com/unicode-org/icu/releases/download/release-67-1/{filename}"]
+        }
+
+    },
+
+    {
+        "name": "libjpeg",
+        "unix": {
+            "filename": "libjpeg-turbo-2.0.5.tar.gz",
+            "hash": "sha256:16f8f6f2715b3a38ab562a84357c793dd56ae9899ce130563c72cd93d8357b5d",
+            "urls": ["http://downloads.sourceforge.net/project/libjpeg-turbo/2.0.5/{filename}"]
+        }
+    },
+
+    {
+        "name": "libpng",
+        "unix": {
+            "filename": "libpng-1.6.37.tar.xz",
+            "hash": "sha256:505e70834d35383537b6491e7ae8641f1a4bed1876dbfe361201fc80868d88ca",
+            "urls": ["http://downloads.sourceforge.net/sourceforge/libpng/{filename}"]
+        }
+    },
+
+    {
+        "name": "libwebp",
+        "unix": {
+            "filename": "libwebp-1.1.0.tar.gz",
+            "hash": "md5:7e047f2cbaf584dff7a8a7e0f8572f18",
+            "urls": ["http://downloads.webmproject.org/releases/webp/{filename}"]
+        }
+    },
+
+    {
+        "name": "jxrlib",
+        "unix": {
+            "filename": "jxrlib-0.2.4.tar.gz",
+            "hash": "sha256:324af02e341bcb9e3b31a6d6892f47231f95f9f87ab4fe7645be619dcaf965a7",
+            "urls": ["https://github.com/glencoesoftware/jxrlib/archive/v0.2.4.tar.gz"]
+        }
+    },
+
+    {
+        "name": "freetype",
+        "os": "macos,windows",
+        "unix": {
+            "filename": "freetype-2.10.2.tar.xz",
+            "hash": "sha1:b074d5c34dc0e3cc150be6e7aa6b07c9ec4ed875",
+            "urls": ["https://download.savannah.gnu.org/releases/freetype/{filename}"]
+        }
+    },
+
+    {
+        "name": "fontconfig",
+        "os": "macos",
+        "unix": {
+            "filename": "fontconfig-2.13.1.tar.bz2",
+            "hash": "sha256:f655dd2a986d7aa97e052261b36aa67b0a64989496361eca8d604e6414006741",
+            "urls": ["https://www.fontconfig.org/release/{filename}"]
+        }
+    },
+
+
+    {
+        "name": "iconv",
+        "unix": {
+            "filename": "libiconv-1.16.tar.gz",
+            "hash": "sha256:e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04",
+            "urls": ["https://ftp.gnu.org/pub/gnu/libiconv/{filename}"]
+        },
+        "windows": {
+            "filename": "libiconv-for-Windows-1.16.zip",
+            "hash": "sha256:d542e635cad954a62a2b451b5644e855b848398917e93adf46d8da4c9cc88b6d",
+            "urls": ["https://github.com/pffang/libiconv-for-Windows/archive/v1.16.zip"]
+        }
+    },
+
+    {
+        "name": "libxml2",
+        "unix": {
+            "filename": "libxml2-2.9.10.tar.gz",
+            "hash": "sha256:aafee193ffb8fe0c82d4afef6ef91972cbaf5feea100edc2f262750611b4be1f",
+            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
+        }
+    },
+
+    {
+        "name": "libxslt",
+        "unix": {
+            "filename": "libxslt-1.1.34.tar.gz",
+            "hash": "sha256:98b1bd46d6792925ad2dfe9a87452ea2adebf69dcb9919ffd55bf926a7f93f7f",
+            "urls": ["ftp://xmlsoft.org/libxml2/{filename}"]
+        }
+    },
+
+    {
+        "name": "chmlib",
+        "unix": {
+            "filename": "chmlib-0.40.tar.bz2",
+            "hash": "sha1:5231d7531e8808420d7f89fd1e4fdbac1ed7a167",
+            "urls": ["http://www.jedrea.com/chmlib/{filename}"]
+        }
+    },
+
+    {
+        "name": "optipng",
+        "unix": {
+            "filename": "optipng-0.7.7.tar.gz",
+            "hash": "sha256:4f32f233cef870b3f95d3ad6428bfe4224ef34908f1b42b0badf858216654452",
+            "urls": ["https://downloads.sourceforge.net/sourceforge/optipng/{filename}"]
+        }
+    },
+
+    {
+        "name": "mozjpeg",
+        "unix": {
+            "filename": "mozjpeg-3.3.1.tar.gz",
+            "hash": "sha256:aebbea60ea038a84a2d1ed3de38fdbca34027e2e54ee2b7d08a97578be72599d",
+            "urls": ["https://github.com/mozilla/mozjpeg/archive/v3.3.1.tar.gz"]
+        }
+    },
+
+    {
+        "name": "libusb",
+        "os": "macos, linux",
+        "unix": {
+            "filename": "libusb-1.0.23.tar.bz2",
+            "hash": "sha256:db11c06e958a82dac52cf3c65cb4dd2c3f339c8a988665110e0d24d19312ad8d",
+            "urls": ["https://github.com/libusb/libusb/releases/download/v1.0.23/{filename}"]
+        }
+    },
+
+    {
+        "name": "libmtp",
+        "os": "macos, linux",
+        "unix": {
+            "filename": "libmtp-1.1.17.tar.gz",
+            "hash": "sha256:f8a34cf52d9f9b9cb8c7f26b12da347d4af7eb904c13189602e4c6b62d1a79dc",
+            "urls": ["https://downloads.sourceforge.net/libmtp/{filename}"]
+        }
+    },
+
+    {
+        "name": "openjpeg",
+        "unix": {
+            "filename": "openjpeg-2.3.1.tar.gz",
+            "hash": "sha256:63f5a4713ecafc86de51bfad89cc07bb788e9bba24ebbf0c4ca637621aadb6a9",
+            "urls": ["https://github.com/uclouvain/openjpeg/archive/v2.3.1/{filename}"]
+        }
+    },
+
+    {
+        "name": "poppler",
+        "unix": {
+            "filename": "poppler-20.08.0.tar.xz",
+            "hash": "sha256:ae65fef04bbf63259a6352e7b620719115d4fb97f5079b0b8b00a8eb0c86eca5",
+            "urls": ["https://poppler.freedesktop.org/{filename}"]
+        }
+    },
+
+    {
+        "name": "podofo",
+        "unix": {
+            "filename": "podofo-0.9.6.tar.gz",
+            "hash": "md5:46336fc4c4ce4be814bb5fbb4d918334",
+            "urls": ["https://downloads.sourceforge.net/podofo/{filename}"]
+        }
+    },
+
+    {
+        "name": "libgpg-error",
+        "os": "linux",
+        "unix": {
+            "filename": "libgpg-error-1.38.tar.bz2",
+            "hash": "sha1:cb50ade98f8ba088f8bb9b910ca8f00abaac5d0a",
+            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgpg-error/{filename}"]
+        }
+    },
+
+    {
+        "name": "libgcrypt",
+        "os": "linux",
+        "unix": {
+            "filename": "libgcrypt-1.8.6.tar.bz2",
+            "hash": "sha1:406b02873833427898d16bcc8483bc5c91c73d4a",
+            "urls": ["ftp://ftp.gnupg.org/gcrypt/libgcrypt/{filename}"]
+        }
+    },
+
+    {
+        "name": "glib",
+        "os": "linux",
+        "unix": {
+            "filename": "glib-2.65.1.tar.xz",
+            "hash": "sha256:bc63bf6c32713e0ee1dddc28e03f23b4a20c78bcb9a2c5b0f4eea41e46fb9cee",
+            "urls": ["https://ftp.gnome.org/pub/GNOME/sources/glib/2.65/{filename}"]
+        }
+    },
+
+    {
+        "name": "dbus",
+        "os": "linux",
+        "unix": {
+            "filename": "dbus-1.12.20.tar.gz",
+            "hash": "md5:dfe8a71f412e0b53be26ed4fbfdc91c4",
+            "urls": ["https://dbus.freedesktop.org/releases/dbus/{filename}"]
+        }
+    },
+
+    {
+        "name": "dbusglib",
+        "os": "linux",
+        "unix": {
+            "filename": "dbus-glib-0.110.tar.gz",
+            "hash": "sha256:7ce4760cf66c69148f6bd6c92feaabb8812dee30846b24cd0f7395c436d7e825",
+            "urls": ["https://dbus.freedesktop.org/releases/dbus-glib/{filename}"]
+        }
+    },
+
+    {
+        "name": "gnuwin32",
+        "os": "windows",
+		"windows": {
+			"filename": "gnuwin32.zip",
+			"hash": "sha256:4a9dc893cc0a1695a16102a42ef47ef2e228652891f4afea67fadd452b63656b",
+			"urls": ["http://download.qt.io/development_releases/gnuwin32/{filename}"]
+		}
+    },
+
+    {
+        "name": "hunspell",
+        "unix": {
+            "filename": "hunspell-1.7.0.tar.gz",
+            "hash": "sha256:57be4e03ae9dd62c3471f667a0d81a14513e314d4d92081292b90435944ff951",
+            "urls": ["https://github.com/hunspell/hunspell/files/2573619/{filename}"]
+        },
+        "windows": {
+            "filename": "hunspell-1.7.0.zip",
+            "hash": "sha256:7089cc01ffd9122c960e1f8c7930a75be989ca4e9468773cef1b0a655bfb4368",
+            "urls": ["https://github.com/hunspell/hunspell/archive/v1.7.0.zip"]
+        }
+    },
+
+    {
+        "name": "qt-base",
+        "version": "5.15.1",
+        "hashes": {
+            "unix": "sha256:33960404d579675b7210de103ed06a72613bfc4305443e278e2d32a3eb1f3d8c"
+        }
+    },
+
+    {
+        "name": "qt-svg",
+        "hashes": {
+            "unix": "sha256:308160223c0bd7492d56fb5d7b7f705bfb130947ac065bf39280ec6d7cbe4f6a"
+        }
+    },
+
+    {
+        "name": "qt-declarative",
+        "hashes": {
+            "unix": "sha256:7e30f0ccba61f9d71720b91d7f7523c23677f23cd96065cb71df1b0df329d768"
+        }
+    },
+
+    {
+        "name": "qt-imageformats",
+        "hashes": {
+            "unix": "sha256:75e72b4c11df97af3ff64ed26df16864ce1220a1cc730e49074ab9d72f658568"
+        }
+    },
+
+    {
+        "name": "qt-webchannel",
+        "hashes": {
+            "unix": "sha256:7f3ef8e626d932bbc121810661a62ece3955ab982340676a19001417e2faf9fc"
+        }
+    },
+
+    {
+        "name": "qt-location",
+        "hashes": {
+            "unix": "sha256:093af763a70d126c4b9f6a22ebf8218fe95dc0151e40666b2389fdf55c9f1a2c"
+        }
+    },
+
+    {
+        "name": "qt-x11extras",
+        "os": "linux",
+        "hashes": {
+            "unix": "sha256:f7cd7c475a41840209808bf8b1de1c6587c3c74e5ae3b0969760b9ed35159e59"
+        }
+    },
+
+    {
+        "name": "qt-wayland",
+        "os": "linux",
+        "hashes": {
+            "unix": "sha256:e2ff47b874f283a952efd6a8aaf5e8cdc462b5216dda1051b60fc6e80ac657b6"
+        }
+    },
+
+    {
+        "name": "qt-sensors",
+        "hashes": {
+            "unix": "sha256:8096b9ffe737434f9564432048f622f6be795619da4e1ed362ce26dddb2cea00"
+        }
+    },
+
+    {
+        "name": "qt-macextras",
+        "os": "macos",
+        "hashes": {
+            "unix": "sha256:6bbcbb95bd854fc5325257c797379bd66cd5f0601ccca2ab6a2af5610d113f62"
+        }
+    },
+
+    {
+        "name": "qt-winextras",
+        "os": "windows",
+        "hashes": {
+            "unix": "sha256:c378b112de1b54dbd39b07b7e181250b99ea2ec4d1d710909bb3384665528e8b"
+        }
+    },
+
+
+    {
+        "name": "qt-webengine",
+        "hashes": {
+            "unix": "sha256:f903e98fe3cd717161252710125fce011cf882ced96c24968b0c38811fbefdf2"
+        }
+    },
+
+    {
+        "name": "setuptools",
+        "unix": {
+            "filename": "setuptools-49.6.0.zip",
+            "hash": "sha256:46bd862894ed22c2edff033c758c2dc026324788d758e96788e8f7c11f4e9707",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "six",
+        "unix": {
+            "filename": "six-1.15.0.tar.gz",
+            "hash": "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pywin32",
+        "os": "windows",
+        "python": 2,
+        "windows": {
+            "filename":"pywin32-228.zip",
+            "hash":"sha256:f82946fb29d55a27b3abcd0b527ef2e8da6ea05b01dfcc40bfc14847b7673e8e",
+            "urls":["https://github.com/mhammond/pywin32/archive/b227.zip"]
+        }
+    },
+
+    {
+        "name": "unrardll",
+        "unix": {
+            "filename": "unrardll-0.1.3.tar.gz",
+            "hash": "sha256:5f214ab1ec24208c6ee353f2d836e536968d5379b7140129f04aa3a52bc56a5e",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "lxml",
+        "unix": {
+            "filename": "lxml-4.5.2.tar.gz",
+            "hash": "sha256:cdc13a1682b2a6241080745b1953719e7fe0850b40a5c71ca574f090a1391df6",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pychm",
+        "unix": {
+            "filename": "pychm-0.8.6.tar.gz",
+            "hash": "sha256:26606fec1e30cf7506c7afa943460c31e8dac87f35b7f178f437574d654cf672",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "html5-parser",
+        "unix": {
+            "filename": "html5-parser-0.4.9.tar.gz",
+            "hash": "sha256:25fe8f6848cbc15187f6748c0695df32bcf1b37df6420b6a01b4ebe1ec1ed48f",
+            "urls": ["pypi"]
+        }
+    },
+
+
+    {
+        "name": "css-parser",
+        "unix": {
+            "filename": "css-parser-1.0.4.tar.gz",
+            "hash": "sha256:c7ab355512ae51334ba6791a7e4d553f87bef17ba2026f1cc9bf3b17a7779d44",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "dateutil",
+        "unix": {
+            "filename": "python-dateutil-2.8.1.tar.gz",
+            "hash": "sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "dbuspython",
+        "python": 2,
+        "os": "linux",
+        "unix": {
+            "filename": "dbus-python-1.2.16.tar.gz",
+            "hash": "sha256:11238f1d86c995d8aed2e22f04a1e3779f0d70e587caffeab4857f3c662ed5a4",
+            "urls": ["https://dbus.freedesktop.org/releases/dbus-python/{filename}"]
+        }
+    },
+
+    {
+        "name": "dnspython",
+        "unix": {
+            "filename": "dnspython-2.0.0.zip",
+            "hash": "sha256:044af09374469c3a39eeea1a146e8cac27daec951f1f1f157b1962fc7cb9d1b7",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "mechanize",
+        "unix": {
+            "filename": "mechanize-0.4.5.tar.gz",
+            "hash": "sha256:6355c11141f6d4b54a17fc2106944806b5db2711e60b120d15d83db438c333fd",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "feedparser",
+        "unix": {
+            "filename": "feedparser-5.2.1.tar.bz2",
+            "hash": "sha256:ce875495c90ebd74b179855449040003a1beb40cd13d5f037a0654251e260b02",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "markdown",
+        "unix": {
+            "filename": "Markdown-3.2.2.tar.gz",
+            "hash": "sha256:1fafe3f1ecabfb514a5285fca634a53c1b32a81cb0feb154264d55bf2ff22c17",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "html2text",
+        "unix": {
+            "filename": "html2text-2020.1.16.tar.gz",
+            "hash": "sha256:e296318e16b059ddb97f7a8a1d6a5c1d7af4544049a01e261731d2d5cc277bbb",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "soupsieve",
+        "unix": {
+            "filename": "soupsieve-2.0.1.tar.gz",
+            "hash": "sha256:a59dc181727e95d25f781f0eb4fd1825ff45590ec8ff49eadfd7f1a537cc0232",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "beautifulsoup4",
+        "unix": {
+            "filename": "beautifulsoup4-4.9.1.tar.gz",
+            "hash": "sha256:73cc4d115b96f79c7d77c1c7f7a0a8d4c57860d1041df407dd1aae7f07a77fd7",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "regex",
+        "unix": {
+            "filename": "regex-2020.07.14.tar.gz",
+            "hash": "sha256:3a3af27a8d23143c49a3420efe5b3f8cf1a48c6fc8bc6856b03f638abc1833bb",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "chardet",
+        "unix": {
+            "filename": "chardet-3.0.4.tar.gz",
+            "hash": "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "msgpack",
+        "unix": {
+            "filename": "msgpack-1.0.0.tar.gz",
+            "hash": "sha256:9534d5cc480d4aff720233411a1f765be90885750b07df772380b34c10ecb5c0",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pygments",
+        "unix": {
+            "filename": "Pygments-2.6.1.tar.gz",
+            "hash": "sha256:647344a061c249a3b74e230c739f434d7ea4d8b1d5f3721bc0f3558049b38f44",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pycryptodome",
+        "unix": {
+            "filename": "pycryptodome-3.9.8.tar.gz",
+            "hash": "sha256:0e24171cf01021bc5dc17d6a9d4f33a048f09d62cc3f62541e95ef104588bda4",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "apsw",
+        "unix": {
+            "filename": "apsw-3.32.2-r1.zip",
+            "hash": "sha256:38b7e35193a7943992853f9b819cb6d9b7766ae30dd1fdc069da98cfff9f200c",
+            "urls": ["https://github.com/rogerbinns/apsw/releases/download/3.32.2-r1/{filename}"]
+        }
+    },
+
+    {
+        "name": "webencodings",
+        "unix": {
+            "filename": "webencodings-0.5.1.tar.gz",
+            "hash": "sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "html5lib",
+        "unix": {
+            "filename": "html5lib-1.1.tar.gz",
+            "hash": "sha256:b2e5b40261e20f354d198eae92afc10d750afb487ed5e50f9c4eaf07c184146f",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pillow",
+        "unix": {
+            "filename": "Pillow-7.2.0.tar.gz",
+            "hash": "sha256:97f9e7953a77d5a70f49b9a48da7776dc51e9b738151b22dacf101641594a626",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "netifaces",
+        "unix": {
+            "filename": "netifaces-0.10.9.tar.gz",
+            "hash": "sha256:2dee9ffdd16292878336a58d04a20f0ffe95555465fee7c9bd23b3490ef2abf3",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "psutil",
+        "unix": {
+            "filename": "psutil-5.7.2.tar.gz",
+            "hash": "sha256:90990af1c3c67195c44c9a889184f84f5b2320dce3ee3acbd054e3ba0b4a7beb",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "ifaddr",
+		"python": 3,
+        "unix": {
+            "filename": "ifaddr-0.1.7.tar.gz",
+            "hash": "sha256:1f9e8a6ca6f16db5a37d3356f07b6e52344f6f9f7e806d618537731669eb1a94",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "zeroconf",
+		"python": 3,
+        "unix": {
+            "filename": "zeroconf-0.28.1.tar.gz",
+            "hash": "sha256:902e6c3ca4cc752577d650d05a3e7102a897b647fe76da7c0d322cd493cbd1a3",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "toml",
+		"comment": "Needed for sip (build time dependency)",
+        "unix": {
+            "filename": "toml-0.10.1.tar.gz",
+            "hash": "sha256:926b612be1e5ce0634a2ca03470f95169cf16f939018233a670519cb4ac58b0f",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyparsing",
+		"comment": "Needed for packaging (build time dependency)",
+        "unix": {
+            "filename": "pyparsing-2.4.7.tar.gz",
+            "hash": "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "packaging",
+		"comment": "Needed for sip (build time dependency)",
+        "unix": {
+            "filename": "packaging-20.4.tar.gz",
+            "hash": "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "sip",
+		"comment": "build time dependency",
+        "unix": {
+            "filename": "sip-5.4.0.tar.gz",
+            "hash": "sha256:4282ab45948674f5ef74278a8e70d1302f65c95b519a0af19409002f5715d641",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyqt-builder",
+		"comment": "build time dependency",
+        "unix": {
+            "filename": "PyQt-builder-1.5.0.tar.gz",
+            "hash": "sha256:11bbe26e8e3d5ffec6d2ef2f50596b1670eb2d8b49aee0f859821922d8282841",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyqt-sip",
+		"comment": "runtime sip module for PyQt",
+        "unix": {
+            "filename": "PyQt5_sip-12.8.1.tar.gz",
+            "hash": "sha256:30e944db9abee9cc757aea16906d4198129558533eb7fadbe48c5da2bd18e0bd",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyqt",
+        "unix": {
+            "filename": "PyQt5-5.15.1.tar.gz",
+            "hash": "sha256:d9a76b850246d08da9863189ecb98f6c2aa9b4d97a3e85e29330a264aed0f9a1",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "pyqt-webengine",
+        "unix": {
+            "filename": "PyQtWebEngine-5.15.1.tar.gz",
+            "hash": "sha256:f0ca7915ee206ba5d703168c6ca40b0aad62c67360328fae4af5359cdbcee439",
+            "urls": ["pypi"]
+        }
+    },
+
+
+    {
+        "name": "macfsevents",
+        "os": "macos",
+        "unix": {
+            "filename": "MacFSEvents-0.8.1.tar.gz",
+            "hash": "sha256:1324b66b356051de662ba87d84f73ada062acd42b047ed1246e60a449f833e10",
+            "urls": ["pypi"]
+        }
+    }
+]

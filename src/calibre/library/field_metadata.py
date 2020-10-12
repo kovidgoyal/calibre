@@ -1,12 +1,16 @@
+
+
 '''
 Created on 25 May 2010
 
 @author: charles
 '''
+
 import traceback
 from collections import OrderedDict
 
 from calibre.utils.config_base import tweaks
+from polyglot.builtins import iteritems, itervalues
 
 category_icon_map = {
                     'authors'    : 'user_profile.png',
@@ -380,7 +384,7 @@ class FieldMetadata(object):
                 'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
 
     # search labels that are not db columns
-    search_items = ['all', 'search', 'vl']
+    search_items = ['all', 'search', 'vl', 'template']
     __calibre_serializable__ = True
 
     def __init__(self):
@@ -428,7 +432,7 @@ class FieldMetadata(object):
         return key in self
 
     def keys(self):
-        return self._tb_cats.keys()
+        return list(self._tb_cats.keys())
 
     def __eq__(self, other):
         if not isinstance(other, FieldMetadata):
@@ -484,21 +488,22 @@ class FieldMetadata(object):
             yield key
 
     def itervalues(self):
-        return self._tb_cats.itervalues()
+        return itervalues(self._tb_cats)
 
     def values(self):
-        return self._tb_cats.values()
+        return list(self._tb_cats.values())
 
     def iteritems(self):
         for key in self._tb_cats:
             yield (key, self._tb_cats[key])
+    iter_items = iteritems
 
     def custom_iteritems(self):
-        for key, meta in self._tb_custom_fields.iteritems():
+        for key, meta in iteritems(self._tb_custom_fields):
             yield (key, meta)
 
     def items(self):
-        return list(self.iteritems())
+        return list(self.iter_items())
 
     def is_custom_field(self, key):
         return key.startswith(self.custom_field_prefix)
@@ -508,7 +513,7 @@ class FieldMetadata(object):
         return self.is_custom_field(key) or key.startswith('@')
 
     def ignorable_field_keys(self):
-        return [k for k in self._tb_cats.iterkeys() if self.is_ignorable_field(k)]
+        return [k for k in self._tb_cats if self.is_ignorable_field(k)]
 
     def is_series_index(self, key):
         try:
@@ -681,8 +686,8 @@ def fm_as_dict(self):
         'custom_fields': self._tb_custom_fields,
         'search_term_map': self._search_term_map,
         'custom_label_to_key_map': self.custom_label_to_key_map,
-        'user_categories': {k:v for k, v in self._tb_cats.iteritems() if v['kind'] == 'user'},
-        'search_categories': {k:v for k, v in self._tb_cats.iteritems() if v['kind'] == 'search'},
+        'user_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'user'},
+        'search_categories': {k:v for k, v in iteritems(self._tb_cats) if v['kind'] == 'search'},
     }
 
 
@@ -692,6 +697,6 @@ def fm_from_dict(src):
     ans._search_term_map = src['search_term_map']
     ans.custom_label_to_key_map = src['custom_label_to_key_map']
     for q in ('custom_fields', 'user_categories', 'search_categories'):
-        for k, v in src[q].iteritems():
+        for k, v in iteritems(src[q]):
             ans._tb_cats[k] = v
     return ans

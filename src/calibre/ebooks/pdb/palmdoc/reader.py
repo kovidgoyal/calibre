@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read content from palmdoc pdb file.
 '''
@@ -8,9 +9,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import struct
+import struct, io
 
-from cStringIO import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 
@@ -50,10 +50,10 @@ class Reader(FormatReader):
         if self.header_record.compression == 2 or self.header_record.compression == 258:
             from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(self.section_data(number))
-        return ''
+        return b''
 
     def extract_content(self, output_dir):
-        raw_txt = ''
+        raw_txt = b''
 
         self.log.info('Decompressing text...')
         for i in range(1, self.header_record.num_records + 1):
@@ -61,7 +61,7 @@ class Reader(FormatReader):
             raw_txt += self.decompress_text(i)
 
         self.log.info('Converting text to OEB...')
-        stream = StringIO(raw_txt)
+        stream = io.BytesIO(raw_txt)
 
         from calibre.customize.ui import plugin_for_input_format
 

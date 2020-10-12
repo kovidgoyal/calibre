@@ -1,11 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
 
 import os
+from polyglot.builtins import range, unicode_type
 
 
 class ReadOnlyFileBuffer(object):
@@ -54,35 +53,40 @@ def svg_path_to_painter_path(d):
     from PyQt5.Qt import QPainterPath
     cmd = last_cmd = b''
     path = QPainterPath()
-    moveto_abs, moveto_rel = b'Mm'
-    closepath1, closepath2 = b'Zz'
-    lineto_abs, lineto_rel = b'Ll'
-    hline_abs, hline_rel = b'Hh'
-    vline_abs, vline_rel = b'Vv'
-    curveto_abs, curveto_rel = b'Cc'
-    smoothcurveto_abs, smoothcurveto_rel = b'Ss'
-    quadcurveto_abs, quadcurveto_rel = b'Qq'
-    smoothquadcurveto_abs, smoothquadcurveto_rel = b'Tt'
+    moveto_abs, moveto_rel = b'M', b'm'
+    closepath1, closepath2 = b'Z', b'z'
+    lineto_abs, lineto_rel = b'L', b'l'
+    hline_abs, hline_rel = b'H', b'h'
+    vline_abs, vline_rel = b'V', b'v'
+    curveto_abs, curveto_rel = b'C', b'c'
+    smoothcurveto_abs, smoothcurveto_rel = b'S', b's'
+    quadcurveto_abs, quadcurveto_rel = b'Q', b'q'
+    smoothquadcurveto_abs, smoothquadcurveto_rel = b'T', b't'
 
     # Store the last parsed values
     # x/y = end position
     # x1/y1 and x2/y2 = bezier control points
     x = y = x1 = y1 = x2 = y2 = 0
 
-    data = d.replace(b',', b' ').replace(b'\n', b' ')
-    if isinstance(data, type('')):
-        data = data.encode('ascii')
-    end = len(data)
-    data = ReadOnlyFileBuffer(data)
+    if isinstance(d, unicode_type):
+        d = d.encode('ascii')
+    d = d.replace(b',', b' ').replace(b'\n', b' ')
+    end = len(d)
+    pos = [0]
+
+    def read_byte():
+        p = pos[0]
+        pos[0] += 1
+        return d[p:p+1]
 
     def parse_float():
         chars = []
-        while data.tell() < end:
-            c = data.read(1)
+        while pos[0] < end:
+            c = read_byte()
             if c == b' ' and not chars:
                 continue
-            if c == b'-' or b'0' <= c[0] <= b'9' or c == b'.':
-                chars.append(c[0])
+            if c in b'-.0123456789':
+                chars.append(c)
             else:
                 break
         if not chars:
@@ -90,20 +94,20 @@ def svg_path_to_painter_path(d):
         return float(b''.join(chars))
 
     def parse_floats(num, x_offset=0, y_offset=0):
-        for i in xrange(num):
+        for i in range(num):
             val = parse_float()
             yield val + (x_offset if i % 2 == 0 else y_offset)
 
     repeated_command = None
 
-    while data.tell() < end:
+    while pos[0] < end:
         last_cmd = cmd
-        cmd = data.read(1) if repeated_command is None else repeated_command
+        cmd = read_byte() if repeated_command is None else repeated_command
         repeated_command = None
 
         if cmd == b' ':
             continue
-        elif cmd == moveto_abs:
+        if cmd == moveto_abs:
             x, y = parse_float(), parse_float()
             path.moveTo(x, y)
         elif cmd == moveto_rel:
@@ -175,11 +179,11 @@ def svg_path_to_painter_path(d):
                 x1, y1 = x, y
             x, y = parse_floats(2, x, y)
             path.quadTo(x1, y1, x, y)
-        elif cmd[0] in b'-.' or b'0' <= cmd[0] <= b'9':
+        elif cmd in b'-.0123456789':
             # A new number begins
             # In this case, multiple parameters tuples are specified for the last command
             # We rewind to reparse data correctly
-            data.seek(-1, os.SEEK_CUR)
+            pos[0] -= 1
 
             # Handle extra parameters
             if last_cmd == moveto_abs:

@@ -1,14 +1,14 @@
-a { 
+body, td {
+    background-color: transparent;
+}
+
+body.horizontal table td.title { white-space: nowrap }
+
+a {
     text-decoration: none;
-    /* LINK_COLOR below will be replaced with the link color defined by the current color theme */
-    color: LINK_COLOR
 }
 
-a:hover {
-    color: red
-}
-
-.comments { 
+.comments {
     margin-top: 0;
     padding-top: 0;
     text-indent: 0
@@ -19,12 +19,12 @@ a:hover {
     font-weight: bold
 }
 
-table.fields { 
+table.fields {
     margin-bottom: 0;
     padding-bottom: 0;
 }
 
-table.fields td { 
+table.fields td {
     vertical-align: top
 }
 
@@ -52,4 +52,3 @@ The HTML that this stylesheet applies to looks like this:
 <h3 class="comments-heading">Custom comments column heading</h3>
 <div id="_customcolname" class="comments">...</div>
 */
-

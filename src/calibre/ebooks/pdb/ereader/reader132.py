@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read content from ereader pdb file with a 132 byte header created by Dropbook.
 '''
@@ -18,6 +19,7 @@ from calibre.ebooks import DRMError
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
+from polyglot.builtins import unicode_type, range
 
 
 class HeaderRecord(object):
@@ -86,9 +88,9 @@ class Reader132(FormatReader):
 
     def get_image(self, number):
         if number < self.header_record.image_data_offset or number > self.header_record.image_data_offset + self.header_record.num_image_pages - 1:
-            return 'empty', ''
+            return 'empty', b''
         data = self.section_data(number)
-        name = data[4:4 + 32].strip('\x00')
+        name = data[4:4 + 32].strip(b'\x00').decode(self.encoding or 'cp1252')
         img = data[62:]
         return name, img
 
@@ -98,7 +100,7 @@ class Reader132(FormatReader):
         assumed to be encoded as Windows-1252. The encoding is part of
         the eReader file spec and should always be this encoding.
         '''
-        if number not in range(1, self.header_record.num_text_pages + 1):
+        if not (1 <= number <= self.header_record.num_text_pages):
             return ''
 
         return self.decompress_text(number)
@@ -113,11 +115,11 @@ class Reader132(FormatReader):
             os.makedirs(output_dir)
 
         title = self.mi.title
-        if not isinstance(title, unicode):
+        if not isinstance(title, unicode_type):
             title = title.decode('utf-8', 'replace')
-        html = u'<html><head><title>%s</title></head><body>' % title
+        html = '<html><head><title>%s</title></head><body>' % title
 
-        pml = u''
+        pml = ''
         for i in range(1, self.header_record.num_text_pages + 1):
             self.log.debug('Extracting text page %i' % i)
             pml += self.get_text_page(i)
@@ -128,7 +130,7 @@ class Reader132(FormatReader):
         if self.header_record.footnote_count > 0:
             html += '<br /><h1>%s</h1>' % _('Footnotes')
             footnoteids = re.findall(
-                '\w+(?=\x00)', self.section_data(self.header_record.footnote_offset).decode('cp1252' if self.encoding is None else self.encoding))
+                '\\w+(?=\x00)', self.section_data(self.header_record.footnote_offset).decode('cp1252' if self.encoding is None else self.encoding))
             for fid, i in enumerate(range(self.header_record.footnote_offset + 1, self.header_record.footnote_offset + self.header_record.footnote_count)):
                 self.log.debug('Extracting footnote page %i' % i)
                 if fid < len(footnoteids):
@@ -140,7 +142,7 @@ class Reader132(FormatReader):
         if self.header_record.sidebar_count > 0:
             html += '<br /><h1>%s</h1>' % _('Sidebar')
             sidebarids = re.findall(
-                '\w+(?=\x00)', self.section_data(self.header_record.sidebar_offset).decode('cp1252' if self.encoding is None else self.encoding))
+                '\\w+(?=\x00)', self.section_data(self.header_record.sidebar_offset).decode('cp1252' if self.encoding is None else self.encoding))
             for sid, i in enumerate(range(self.header_record.sidebar_offset + 1, self.header_record.sidebar_offset + self.header_record.sidebar_count)):
                 self.log.debug('Extracting sidebar page %i' % i)
                 if sid < len(sidebarids):
@@ -217,4 +219,3 @@ class Reader132(FormatReader):
                 name, img = self.get_image(self.header_record.image_data_offset + i)
                 with open(name, 'wb') as imgf:
                     imgf.write(img)
-

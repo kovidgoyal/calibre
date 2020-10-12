@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -13,6 +12,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
+from polyglot.builtins import iteritems, unicode_type
 
 
 def get_cache():
@@ -24,7 +24,7 @@ def get_cache():
 
 
 def needs_recompile(obj, srcs):
-    if isinstance(srcs, type('')):
+    if isinstance(srcs, unicode_type):
         srcs = [srcs]
     try:
         obj_mtime = os.stat(obj).st_mtime
@@ -42,7 +42,7 @@ def build_book(src, dest, args=()):
 
 
 def add_resources(raw, rmap):
-    for placeholder, path in rmap.iteritems():
+    for placeholder, path in iteritems(rmap):
         fname = os.path.basename(path)
         shutil.copy2(path, '.')
         raw = raw.replace(placeholder, fname)
@@ -88,6 +88,7 @@ def get_split_book(fmt='epub'):
             os.remove(x)
     return ans
 
+
 devnull = DevNull()
 
 
@@ -110,4 +111,3 @@ class BaseTest(unittest.TestCase):
                 dest = container.href_to_name(link, name)
                 if dest:
                     self.assertTrue(container.exists(dest), 'The link %s in %s does not exist' % (link, name))
-

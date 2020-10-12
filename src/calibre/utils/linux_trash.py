@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 # Copyright 2010 Hardcoded Software (http://www.hardcoded.net)
 
@@ -22,7 +21,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os, stat
 import os.path as op
 from datetime import datetime
-from urllib import quote
+import shutil
+
+from polyglot.builtins import unicode_type
+from polyglot.urllib import quote
 
 FILES_DIR = 'files'
 INFO_DIR = 'info'
@@ -38,9 +40,9 @@ TOPDIR_FALLBACK = '.Trash-%s'%uid
 
 
 def uniquote(raw):
-    if isinstance(raw, unicode):
+    if isinstance(raw, unicode_type):
         raw = raw.encode('utf-8')
-    return quote(raw).decode('utf-8')
+    return unicode_type(quote(raw))
 
 
 def is_parent(parent, path):
@@ -88,9 +90,12 @@ def trash_move(src, dst, topdir=None):
     check_create(filespath)
     check_create(infopath)
 
-    os.rename(src, op.join(filespath, destname))
+    shutil.move(src, op.join(filespath, destname))
     with open(op.join(infopath, destname + INFO_SUFFIX), 'wb') as f:
-        f.write(info_for(src, topdir))
+        data = info_for(src, topdir)
+        if not isinstance(data, bytes):
+            data = data.encode('utf-8')
+        f.write(data)
 
 
 def find_mount_point(path):
@@ -115,7 +120,7 @@ def find_ext_volume_global_trash(volume_root):
     if not op.isdir(trash_dir) or op.islink(trash_dir) or not (mode & stat.S_ISVTX):
         return None
 
-    trash_dir = op.join(trash_dir, str(uid))
+    trash_dir = op.join(trash_dir, unicode_type(uid))
     try:
         check_create(trash_dir)
     except OSError:

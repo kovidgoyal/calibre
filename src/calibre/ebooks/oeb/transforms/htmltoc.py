@@ -1,7 +1,7 @@
+
 '''
 HTML-TOC-adding transform.
 '''
-from __future__ import with_statement
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
@@ -9,6 +9,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 from calibre.ebooks.oeb.base import XML, XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import XHTML_MIME, CSS_MIME
 from calibre.ebooks.oeb.base import element, XPath
+from polyglot.builtins import unicode_type
 
 __all__ = ['HTMLTOCAdder']
 
@@ -94,7 +95,7 @@ class HTMLTOCAdder(object):
             style = 'nested'
         id, css_href = oeb.manifest.generate('tocstyle', 'tocstyle.css')
         oeb.manifest.add(id, css_href, CSS_MIME, data=STYLE_CSS[style])
-        language = str(oeb.metadata.language[0])
+        language = unicode_type(oeb.metadata.language[0])
         contents = element(None, XHTML('html'), nsmap={None: XHTML_NS},
                            attrib={XML('lang'): language})
         head = element(contents, XHTML('head'))

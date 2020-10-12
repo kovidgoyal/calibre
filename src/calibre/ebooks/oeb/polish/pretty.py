@@ -1,13 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap
-from future_builtins import map
+from polyglot.builtins import iteritems, map
 
 # from lxml.etree import Element
 
@@ -89,14 +88,14 @@ def pretty_opf(root):
         for x in reversed(children):
             manifest.insert(0, x)
 
-SVG_TAG = SVG('svg')
 
+SVG_TAG = SVG('svg')
 BLOCK_TAGS = frozenset(map(XHTML, (
-    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'dd',
+    'address', 'article', 'aside', 'audio', 'blockquote', 'body', 'canvas', 'col', 'colgroup', 'dd',
     'div', 'dl', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li',
     'noscript', 'ol', 'output', 'p', 'pre', 'script', 'section', 'style', 'table', 'tbody', 'td',
-    'tfoot', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
+    'tfoot', 'th', 'thead', 'tr', 'ul', 'video', 'img'))) | {SVG_TAG}
 
 
 def isblock(x):
@@ -183,8 +182,8 @@ def pretty_html_tree(container, root):
         # Special case the handling of a body that contains a single block tag
         # with all content. In this case we prettify the containing block tag
         # even if it has non block children.
-        if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and
-                not has_only_blocks(body[0]) and barename(body[0].tag) not in (
+        if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and not has_only_blocks(
+            body[0]) and barename(body[0].tag) not in (
                     'pre', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6') and len(body[0]) > 0):
             pretty_block(body[0], level=2)
 
@@ -224,7 +223,7 @@ def pretty_xml(container, name, raw):
 
 def fix_all_html(container):
     ' Fix any parsing errors in all HTML files in the container. Fixing is done using the HTML5 parsing algorithm. '
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS:
             container.parsed(name)
             container.dirty(name)
@@ -232,7 +231,8 @@ def fix_all_html(container):
 
 def pretty_all(container):
     ' Pretty print all HTML/CSS/XML files in the container '
-    for name, mt in container.mime_map.iteritems():
+    xml_types = {guess_type('a.ncx'), guess_type('a.xml'), guess_type('a.svg')}
+    for name, mt in iteritems(container.mime_map):
         prettied = False
         if mt in OEB_DOCS:
             pretty_html_tree(container, container.parsed(name))
@@ -245,10 +245,8 @@ def pretty_all(container):
             pretty_opf(root)
             pretty_xml_tree(root)
             prettied = True
-        elif mt in {guess_type('a.ncx'), guess_type('a.xml')}:
+        elif mt in xml_types:
             pretty_xml_tree(container.parsed(name))
             prettied = True
         if prettied:
             container.dirty(name)
-
-

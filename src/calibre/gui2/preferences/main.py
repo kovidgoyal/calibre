@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -21,6 +22,7 @@ from calibre.gui2 import (gprefs, min_available_height, available_width,
 from calibre.gui2.dialogs.message_box import Icon
 from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
+from polyglot.builtins import unicode_type
 
 ICON_SIZE = 32
 
@@ -170,7 +172,7 @@ class Browser(QScrollArea):  # {{{
         self.category_names = category_names
 
         categories = list(category_map.keys())
-        categories.sort(cmp=lambda x, y: cmp(category_map[x], category_map[y]))
+        categories.sort(key=lambda x: category_map[x])
 
         self.category_map = OrderedDict()
         for c in categories:
@@ -180,7 +182,7 @@ class Browser(QScrollArea):  # {{{
             self.category_map[plugin.category].append(plugin)
 
         for plugins in self.category_map.values():
-            plugins.sort(cmp=lambda x, y: cmp(x.name_order, y.name_order))
+            plugins.sort(key=lambda x: x.name_order)
 
         self.widgets = []
         self._layout = QVBoxLayout()
@@ -222,7 +224,7 @@ class Preferences(QDialog):
 
         geom = gprefs.get('preferences dialog geometry', None)
         if geom is not None:
-            self.restoreGeometry(geom)
+            QApplication.instance().safe_restore_geometry(self, geom)
 
         # Center
         if islinux:
@@ -239,7 +241,7 @@ class Preferences(QDialog):
         self.bb.button(self.bb.Discard).clicked.connect(self.reject)
         self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
         self.bb.button(self.bb.RestoreDefaults).clicked.connect(self.restore_defaults)
-        self.wizard_button = self.bb.addButton(_('Run welcome &wizard'), self.bb.ActionRole)
+        self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), self.bb.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
@@ -293,8 +295,8 @@ class Preferences(QDialog):
                 if isinstance(g, QLabel):
                     buddy = g.buddy()
                     if buddy is not None and hasattr(buddy, 'toolTip'):
-                        htext = unicode(buddy.toolTip()).strip()
-                        etext = unicode(g.toolTip()).strip()
+                        htext = unicode_type(buddy.toolTip()).strip()
+                        etext = unicode_type(g.toolTip()).strip()
                         if htext and not etext:
                             g.setToolTip(htext)
                             g.setWhatsThis(htext)
@@ -311,8 +313,7 @@ class Preferences(QDialog):
         self.scroll_area.setWidget(self.showing_widget)
         self.stack.setCurrentIndex(1)
         self.showing_widget.show()
-        self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' +
-                plugin.gui_name)
+        self.setWindowTitle(__appname__ + ' - ' + _('Preferences') + ' - ' + plugin.gui_name)
         self.showing_widget.restart_now.connect(self.restart_now)
         self.title_bar.show_plugin(plugin)
         self.setWindowIcon(QIcon(plugin.icon))

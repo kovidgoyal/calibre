@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -17,16 +18,16 @@ from PyQt5.Qt import (
     QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget, QSize)
 
 from calibre import as_unicode
-from calibre.constants import isosx
-from calibre.db.utils import find_identical_books
+from calibre.constants import ismacos
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
         info_dialog, choose_dir)
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.config import prefs, tweaks
-from calibre.utils.date import now
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key, numeric_sort_key
+from calibre.db.copy_to_library import copy_one_book
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
@@ -133,24 +134,18 @@ class Worker(Thread):  # {{{
         except Exception as err:
             import traceback
             try:
-                err = unicode(err)
+                err = unicode_type(err)
             except:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
 
         self.done()
 
-    def add_formats(self, id_, paths, newdb, replace=True):
-        for path in paths:
-            fmt = os.path.splitext(path)[-1].replace('.', '').upper()
-            with lopen(path, 'rb') as f:
-                newdb.add_format(id_, fmt, f, index_is_id=True,
-                        notify=False, replace=replace)
-
     def doit(self):
         from calibre.gui2.ui import get_gui
         library_broker = get_gui().library_broker
         newdb = library_broker.get_library(self.loc)
+        self.find_identical_books_data = None
         try:
             if self.check_for_duplicates:
                 self.find_identical_books_data = newdb.new_api.data_for_find_identical_books()
@@ -171,101 +166,24 @@ class Worker(Thread):  # {{{
                 self.failed_books[x] = (err, as_unicode(traceback.format_exc()))
 
     def do_one(self, num, book_id, newdb):
-        mi = self.db.get_metadata(book_id, index_is_id=True, get_cover=True, cover_as_data=True)
-        if not gprefs['preserve_date_on_ctl']:
-            mi.timestamp = now()
-        self.progress(num, mi.title)
-        fmts = self.db.formats(book_id, index_is_id=True)
-        if not fmts:
-            fmts = []
-        else:
-            fmts = fmts.split(',')
-        identical_book_list = set()
-        paths = []
-        for fmt in fmts:
-            p = self.db.format(book_id, fmt, index_is_id=True,
-                as_path=True)
-            if p:
-                paths.append(p)
-        try:
-            if self.check_for_duplicates:
-                # Scanning for dupes can be slow on a large library so
-                # only do it if the option is set
-                identical_book_list = find_identical_books(mi, self.find_identical_books_data)
-                if identical_book_list:  # books with same author and nearly same title exist in newdb
-                    if prefs['add_formats_to_existing']:
-                        self.automerge_book(book_id, mi, identical_book_list, paths, newdb)
-                    else:  # Report duplicates for later processing
-                        self.duplicate_ids[book_id] = (mi.title, mi.authors)
-                    return
-
-            new_authors = {k for k, v in newdb.new_api.get_item_ids('authors', mi.authors).iteritems() if v is None}
-            new_book_id = newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-                preserve_uuid=self.delete_after)
-            if new_authors:
-                author_id_map = self.db.new_api.get_item_ids('authors', new_authors)
-                sort_map, link_map = {}, {}
-                for author, aid in author_id_map.iteritems():
-                    if aid is not None:
-                        adata = self.db.new_api.author_data((aid,)).get(aid)
-                        if adata is not None:
-                            aid = newdb.new_api.get_item_id('authors', author)
-                            if aid is not None:
-                                asv = adata.get('sort')
-                                if asv:
-                                    sort_map[aid] = asv
-                                alv = adata.get('link')
-                                if alv:
-                                    link_map[aid] = alv
-                if sort_map:
-                    newdb.new_api.set_sort_for_authors(sort_map, update_books=False)
-                if link_map:
-                    newdb.new_api.set_link_for_authors(link_map)
-
-            co = self.db.conversion_options(book_id, 'PIPE')
-            if co is not None:
-                newdb.set_conversion_options(new_book_id, 'PIPE', co)
-            if self.check_for_duplicates:
-                newdb.new_api.update_data_for_find_identical_books(new_book_id, self.find_identical_books_data)
-            self.processed.add(book_id)
-        finally:
-            for path in paths:
-                try:
-                    os.remove(path)
-                except:
-                    pass
-
-    def automerge_book(self, book_id, mi, identical_book_list, paths, newdb):
-        self.auto_merged_ids[book_id] = _('%(title)s by %(author)s') % dict(title=mi.title, author=mi.format_field('authors')[1])
-        seen_fmts = set()
+        duplicate_action = 'add'
+        if self.check_for_duplicates:
+            duplicate_action = 'add_formats_to_existing' if prefs['add_formats_to_existing'] else 'ignore'
+        rdata = copy_one_book(
+                book_id, self.db, newdb,
+                preserve_date=gprefs['preserve_date_on_ctl'],
+                duplicate_action=duplicate_action, automerge_action=gprefs['automerge'],
+                identical_books_data=self.find_identical_books_data,
+                preserve_uuid=self.delete_after
+        )
+        self.progress(num, rdata['title'])
+        if rdata['action'] == 'automerge':
+            self.auto_merged_ids[book_id] = _('%(title)s by %(author)s') % dict(title=rdata['title'], author=rdata['author'])
+        elif rdata['action'] == 'duplicate':
+            self.duplicate_ids[book_id] = (rdata['title'], rdata['authors'])
         self.processed.add(book_id)
-        for identical_book in identical_book_list:
-            ib_fmts = newdb.formats(identical_book, index_is_id=True)
-            if ib_fmts:
-                seen_fmts |= set(ib_fmts.split(','))
-            replace = gprefs['automerge'] == 'overwrite'
-            self.add_formats(identical_book, paths, newdb,
-                    replace=replace)
-
-        if gprefs['automerge'] == 'new record':
-            incoming_fmts = \
-                set([os.path.splitext(path)[-1].replace('.',
-                    '').upper() for path in paths])
-
-            if incoming_fmts.intersection(seen_fmts):
-                # There was at least one duplicate format
-                # so create a new record and put the
-                # incoming formats into it
-                # We should arguably put only the duplicate
-                # formats, but no real harm is done by having
-                # all formats
-                newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                    apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-                    preserve_uuid=False)
-
-
 # }}}
+
 
 class ChooseLibrary(Dialog):  # {{{
 
@@ -277,7 +195,7 @@ class ChooseLibrary(Dialog):  # {{{
 
     def resort(self):
         if self.sort_alphabetically.isChecked():
-            sorted_locations = sorted(self.locations, key=lambda (name, loc): numeric_sort_key(name))
+            sorted_locations = sorted(self.locations, key=lambda name_loc: numeric_sort_key(name_loc[0]))
         else:
             sorted_locations = self.locations
         self.items.clear()
@@ -298,7 +216,10 @@ class ChooseLibrary(Dialog):  # {{{
         v.addWidget(sa)
         sa.setChecked(bool(gprefs.get('copy_to_library_choose_library_sort_alphabetically', True)))
         sa.stateChanged.connect(self.resort)
-        sa.stateChanged.connect(lambda: gprefs.set('copy_to_library_choose_library_sort_alphabetically', bool(self.sort_alphabetically.isChecked())))
+
+        connect_lambda(sa.stateChanged, self, lambda self:
+                gprefs.set('copy_to_library_choose_library_sort_alphabetically',
+                bool(self.sort_alphabetically.isChecked())))
         la = self.la = QLabel(_('Library &path:'))
         v.addWidget(la)
         le = self.le = QLineEdit(self)
@@ -318,7 +239,7 @@ class ChooseLibrary(Dialog):  # {{{
         b.setIcon(QIcon(I('edit-copy.png')))
         b.setToolTip(_('Copy to the specified library'))
         b2 = bb.addButton(_('&Move'), bb.AcceptRole)
-        b2.clicked.connect(lambda: setattr(self, 'delete_after_copy', True))
+        connect_lambda(b2.clicked, self, lambda self: setattr(self, 'delete_after_copy', True))
         b2.setIcon(QIcon(I('edit-cut.png')))
         b2.setToolTip(_('Copy to the specified library and delete from the current library'))
         b.setDefault(True)
@@ -330,18 +251,19 @@ class ChooseLibrary(Dialog):  # {{{
 
     def current_changed(self):
         i = self.items.currentItem() or self.items.item(0)
-        loc = i.data(Qt.UserRole)
-        self.le.setText(loc)
+        if i is not None:
+            loc = i.data(Qt.UserRole)
+            self.le.setText(loc)
 
     def browse(self):
         d = choose_dir(self, 'choose_library_for_copy',
-                       _('Choose Library'))
+                       _('Choose library'))
         if d:
             self.le.setText(d)
 
     @property
     def args(self):
-        return (unicode(self.le.text()), self.delete_after_copy)
+        return (unicode_type(self.le.text()), self.delete_after_copy)
 # }}}
 
 
@@ -359,7 +281,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.setWindowTitle(_('Duplicate books'))
         self.books = QListWidget(self)
         self.items = []
-        for book_id, (title, authors) in duplicates.iteritems():
+        for book_id, (title, authors) in iteritems(duplicates):
             i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
             i.setData(Qt.UserRole, book_id)
             i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
@@ -379,7 +301,7 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.resize(600, 400)
 
     def copy_to_clipboard(self):
-        items = [('✓' if item.checkState() == Qt.Checked else '✗') + ' ' + unicode(item.text())
+        items = [('✓' if item.checkState() == Qt.Checked else '✗') + ' ' + unicode_type(item.text())
                  for item in self.items]
         QApplication.clipboard().setText('\n'.join(items))
 
@@ -429,6 +351,7 @@ class CopyToLibraryAction(InterfaceAction):
     def location_selected(self, loc):
         enabled = loc == 'library'
         self.qaction.setEnabled(enabled)
+        self.menuless_qaction.setEnabled(enabled)
 
     def build_menus(self):
         self.menu.clear()
@@ -451,7 +374,7 @@ class CopyToLibraryAction(InterfaceAction):
             self.menu.addAction(_('Choose library...'), self.choose_library)
 
         self.qaction.setVisible(bool(locations))
-        if isosx:
+        if ismacos:
             # The cloned action has to have its menu updated
             self.qaction.changed.emit()
 
@@ -563,31 +486,32 @@ class CopyToLibraryAction(InterfaceAction):
             return
 
         if delete_after:
-            donemsg = ngettext('Moved the book to {loc}', 'Moved {num} books to {loc}', len(self.worker.processed))
+            donemsg = _('Moved the book to {loc}') if len(self.worker.processed) == 1 else _(
+                'Moved {num} books to {loc}')
         else:
-            donemsg = ngettext('Copied the book to {loc}', 'Copied {num} books to {loc}', len(self.worker.processed))
+            donemsg = _('Copied the book to {loc}') if len(self.worker.processed) == 1 else _(
+                'Copied {num} books to {loc}')
 
         self.gui.status_bar.show_message(donemsg.format(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:
-            books = '\n'.join(self.worker.auto_merged_ids.itervalues())
+            books = '\n'.join(itervalues(self.worker.auto_merged_ids))
             info_dialog(self.gui, _('Auto merged'),
                     _('Some books were automatically merged into existing '
                         'records in the target library. Click "Show '
                         'details" to see which ones. This behavior is '
                         'controlled by the Auto-merge option in '
-                        'Preferences->Import/export->Adding books.'), det_msg=books,
+                        'Preferences->Import/export->Adding books->Adding actions.'), det_msg=books,
                     show=True)
-        if delete_after and self.worker.processed:
+        done_ids = frozenset(self.worker.processed) - frozenset(self.worker.duplicate_ids)
+        if delete_after and done_ids:
             v = self.gui.library_view
             ci = v.currentIndex()
             row = None
             if ci.isValid():
                 row = ci.row()
 
-            v.model().delete_books_by_id(self.worker.processed,
-                    permanent=True)
-            self.gui.iactions['Remove Books'].library_ids_deleted(
-                    self.worker.processed, row)
+            v.model().delete_books_by_id(done_ids, permanent=True)
+            self.gui.iactions['Remove Books'].library_ids_deleted(done_ids, row)
 
         if self.worker.failed_books:
             def fmt_err(book_id):

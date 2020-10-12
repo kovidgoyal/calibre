@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -12,6 +12,7 @@ from copy import deepcopy, copy
 from lxml import etree
 
 from calibre import guess_type
+from polyglot.builtins import as_bytes, map, unicode_type
 
 
 class Canvas(etree.XSLTExtension):
@@ -21,7 +22,7 @@ class Canvas(etree.XSLTExtension):
         self.styles = styles
         self.text_block = text_block
         self.log = log
-        self.processed = set([])
+        self.processed = set()
 
     def execute(self, context, self_node, input_node, output_parent):
         cid = input_node.get('objid', None)
@@ -69,9 +70,9 @@ class Canvas(etree.XSLTExtension):
         height = self.styles.to_num(block.get("ysize", None))
         img = div.makeelement('img')
         if width is not None:
-            img.set('width', str(int(width)))
+            img.set('width', unicode_type(int(width)))
         if height is not None:
-            img.set('height', str(int(height)))
+            img.set('height', unicode_type(int(height)))
         ref = block.get('refstream', None)
         if ref is not None:
             imstr = self.doc.xpath('//ImageStream[@objid="%s"]'%ref)
@@ -262,13 +263,13 @@ class TextBlock(etree.XSLTExtension):
                 a.set('href', self.char_button_map[oid])
             self.process_container(child, a)
         elif child.tag == 'Plot':
-            xsize = self.styles.to_num(child.get('xsize', None), 166./720)
-            ysize = self.styles.to_num(child.get('ysize', None), 166./720)
+            xsize = self.styles.to_num(child.get('xsize', None), 166/720)
+            ysize = self.styles.to_num(child.get('ysize', None), 166/720)
             img = self.root.makeelement('img')
             if xsize is not None:
-                img.set('width', str(int(xsize)))
+                img.set('width', unicode_type(int(xsize)))
             if ysize is not None:
-                img.set('height', str(int(ysize)))
+                img.set('height', unicode_type(int(ysize)))
             ro = child.get('refobj', None)
             if ro in self.plot_map:
                 img.set('src', self.plot_map[ro])
@@ -298,7 +299,7 @@ class Styles(etree.XSLTExtension):
             return '\n\t'.join(ans)
 
         with open(name, 'wb') as f:
-            f.write(self.CSS)
+            f.write(as_bytes(self.CSS))
             for (w, sel) in [(self.text_styles, 'ts'), (self.block_styles,
                 'bs')]:
                 for i, s in enumerate(w):
@@ -306,7 +307,7 @@ class Styles(etree.XSLTExtension):
                         continue
                     rsel = '.%s%d'%(sel, i)
                     s = join(s)
-                    f.write(rsel + ' {\n\t' + s + '\n}\n\n')
+                    f.write(as_bytes(rsel + ' {\n\t' + s + '\n}\n\n'))
 
     def execute(self, context, self_node, input_node, output_parent):
         if input_node.tag == 'TextStyle':
@@ -319,8 +320,7 @@ class Styles(etree.XSLTExtension):
 
     def px_to_pt(self, px):
         try:
-            px = float(px)
-            return px * 72./166.
+            return px * 72/166
         except:
             return None
 
@@ -400,7 +400,3 @@ class Styles(etree.XSLTExtension):
         if ans not in self.text_styles:
             self.text_styles.append(ans)
         return self.text_styles.index(ans)
-
-
-
-

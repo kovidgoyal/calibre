@@ -100,7 +100,7 @@ if language not in {'en', 'eng'}:
     except IOError:
         pass
     else:
-        title = t.ugettext(title)
+        title = t.gettext(title)
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
@@ -168,7 +168,7 @@ def sort_languages(x):
     lc, name = x
     if lc == language:
         return ''
-    return sort_key(unicode(name))
+    return sort_key(type(u'')(name))
 
 
 html_context['other_languages'].sort(key=sort_languages)

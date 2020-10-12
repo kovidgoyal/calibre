@@ -17,194 +17,168 @@
    <iconset resource="../../../../resources/images.qrc">
     <normaloff>:/images/chapters.png</normaloff>:/images/chapters.png</iconset>
   </property>
-  <layout class="QGridLayout">
-   <item row="0" column="0">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Category &amp;name: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>category_box</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="category_box">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>160</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>145</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="toolTip">
-        <string>Select a category to edit</string>
-       </property>
-       <property name="editable">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="1">
-    <widget class="QToolButton" name="delete_category_button">
-     <property name="toolTip">
-      <string>Delete this selected tag category</string>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../../resources/images.qrc">
-       <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLineEdit" name="input_box">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>60</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="toolTip">
-        <string>Enter a category name, then use the add button or the rename button</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="add_category_button">
-       <property name="toolTip">
-        <string>Add a new category</string>
-       </property>
-       <property name="text">
-        <string>...</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="0" column="3">
-    <widget class="QToolButton" name="rename_category_button">
-     <property name="toolTip">
-      <string>Rename the current category to what is in the box</string>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../../../../resources/images.qrc">
-       <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>&amp;Category filter: </string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-       <property name="buddy">
-        <cstring>category_filter_box</cstring>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="category_filter_box">
-       <property name="toolTip">
-        <string>Select the content kind of the new category</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QCheckBox" name="apply_vl_checkbox">
-     <property name="toolTip">
-      <string>&lt;p&gt;Show items in the Available items box only if they appear in the
-      current virtual library. Applied items not in the VL will be marked
-      &quot;not on any book&quot;.&lt;/p&gt;</string>
-     </property>
-     <property name="text">
-      <string>&amp;Show only available items in current virtual library</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <layout class="QVBoxLayout">
-     <item>
-      <layout class="QHBoxLayout">
-       <item>
-        <widget class="QLabel" name="label">
+  <layout class="QVBoxLayout">
+   <item>
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="0">
+      <layout class="QFormLayout" name="formLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>&amp;Available items</string>
+          <string>Category &amp;name: </string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <property name="buddy">
-          <cstring>available_items_box</cstring>
+          <cstring>category_box</cstring>
          </property>
         </widget>
        </item>
-       <item>
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+       <item row="0" column="1">
+        <widget class="QComboBox" name="category_box">
+         <property name="toolTip">
+          <string>Select a category to edit</string>
          </property>
-         <property name="sizeHint" stdset="0">
+         <property name="editable">
+          <bool>false</bool>
+         </property>
+         <property name="minimumSize">
           <size>
-           <width>40</width>
-           <height>20</height>
+           <width>150</width>
+           <height>0</height>
           </size>
          </property>
-        </spacer>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>&amp;Category filter: </string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>category_filter_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="category_filter_box">
+         <property name="toolTip">
+          <string>Select the content kind of the new category</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_filt">
+         <property name="text">
+          <string>Item &amp;filter: </string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="buddy">
+          <cstring>item_filter_box</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="item_filter_box">
+         <property name="toolTip">
+          <string>Enter text to filter the available items. Case and accents are ignored.</string>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
-     <item>
-      <layout class="QHBoxLayout">
-       <item>
-        <widget class="QListWidget" name="available_items_box">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
+     <item row="0" column="1" colspan="3">
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QToolButton" name="delete_category_button">
+         <property name="toolTip">
+          <string>Delete the current tag category</string>
          </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::MultiSelection</enum>
+         <property name="text">
+          <string>...</string>
          </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/trash.png</normaloff>:/images/trash.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <layout class="QHBoxLayout">
+         <item>
+          <widget class="QLineEdit" name="input_box">
+           <property name="toolTip">
+            <string>Enter a category name, then use the Add button or the Rename button</string>
+           </property>
+           <property name="clearButtonEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="add_category_button">
+           <property name="toolTip">
+            <string>Add a new category</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../../resources/images.qrc">
+             <normaloff>:/images/plus.png</normaloff>:/images/plus.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="2">
+        <widget class="QToolButton" name="rename_category_button">
+         <property name="toolTip">
+          <string>Rename the current category to what is in the box</string>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/edit-undo.png</normaloff>:/images/edit-undo.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="QCheckBox" name="apply_vl_checkbox">
+         <property name="toolTip">
+          <string>&lt;p&gt;Show items in the Available items box only if they appear in the
+            current Virtual library. Applied items not in the Virtual library will be marked
+            &quot;not on any book&quot;.&lt;/p&gt;</string>
+         </property>
+         <property name="text">
+          <string>&amp;Show only available items in current Virtual library</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="blank">
+         <property name="text">
+          <string/>
          </property>
         </widget>
        </item>
@@ -212,22 +186,32 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1">
-    <layout class="QVBoxLayout">
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>&amp;Available items</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
+       <property name="buddy">
+        <cstring>available_items_box</cstring>
        </property>
-      </spacer>
+      </widget>
      </item>
-     <item>
+     <item row="3" column="0">
+      <widget class="QListWidget" name="available_items_box">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
       <widget class="QToolButton" name="apply_button">
        <property name="toolTip">
         <string>Apply tags to current tag category</string>
@@ -241,51 +225,17 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="1" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Applied &amp;items</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
+       <property name="buddy">
+        <cstring>applied_items_box</cstring>
        </property>
-      </spacer>
+      </widget>
      </item>
-    </layout>
-   </item>
-   <item row="2" column="2">
-    <layout class="QVBoxLayout">
-     <item>
-      <layout class="QHBoxLayout">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Applied &amp;items</string>
-         </property>
-         <property name="buddy">
-          <cstring>applied_items_box</cstring>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
+     <item row="3" column="2">
       <widget class="QListWidget" name="applied_items_box">
        <property name="alternatingRowColors">
         <bool>true</bool>
@@ -295,24 +245,7 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item row="2" column="3">
-    <layout class="QVBoxLayout">
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item row="3" column="3">
       <widget class="QToolButton" name="unapply_button">
        <property name="toolTip">
         <string>Unapply (remove) tag from current tag category</string>
@@ -326,33 +259,20 @@
        </property>
       </widget>
      </item>
-     <item>
-      <spacer>
+     <item row="4" column="0" colspan="4">
+      <widget class="QDialogButtonBox" name="buttonBox">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
+       <property name="standardButtons">
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
        </property>
-      </spacer>
+       <property name="centerButtons">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
     </layout>
-   </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-     <property name="centerButtons">
-      <bool>true</bool>
-     </property>
-    </widget>
    </item>
   </layout>
  </widget>

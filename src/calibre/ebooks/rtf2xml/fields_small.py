@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import sys, os, re
 
 from calibre.ebooks.rtf2xml import field_strings, copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class FieldsSmall:
@@ -214,7 +216,7 @@ file.
         see_string = ''
         changed_string = ''
         lines = my_string.split('\n')
-        end_bracket_count = sys.maxint
+        end_bracket_count = sys.maxsize
         for line in lines:
             token_info = line[:16]
             if token_info == 'ob<nu<open-brack':
@@ -248,7 +250,7 @@ file.
         bookmark_string = ''
         index_string = ''
         lines = my_string.split('\n')
-        end_bracket_count = sys.maxint
+        end_bracket_count = sys.maxsize
         for line in lines:
             token_info = line[:16]
             if token_info == 'ob<nu<open-brack':
@@ -335,7 +337,7 @@ file.
         book_type = 0
         toc_string = ''
         lines = my_string.split('\n')
-        end_bracket_count = sys.maxint
+        end_bracket_count = sys.maxsize
         for line in lines:
             token_info = line[:16]
             if token_info == 'ob<nu<open-brack':
@@ -438,8 +440,8 @@ file.
            bookmark.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__token_info = line[:16]
                     if self.__token_info == 'ob<nu<open-brack':

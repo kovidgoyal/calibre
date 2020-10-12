@@ -3,17 +3,17 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, ngettext
 
-from book_list.globals import get_db, get_session_data
+from book_list.globals import get_db
 from book_list.router import home, open_book
-from book_list.top_bar import create_top_bar
+from book_list.top_bar import add_button, create_top_bar
 from book_list.ui import set_panel_handler
-from book_list.views import DEFAULT_MODE, setup_view_mode
+from book_list.views import DEFAULT_MODE, get_view_mode, setup_view_mode
 from dom import clear, ensure_id
 from modals import create_custom_dialog, error_dialog
-from utils import conditional_timeout
-from widgets import create_button
+from utils import conditional_timeout, safe_set_inner_html
+from widgets import create_button, enable_escape_key
 
 CLASS_NAME = 'local-books-list'
 
@@ -47,6 +47,68 @@ def delete_book(book, book_idx):
         books = [book_list_data.book_data[i] for i in book_list_data.books if i is not book_idx]
         show_recent_stage2.call(book_list_data.container_id, books)
     )
+
+
+def confirm_delete_all():
+    num_of_books = book_list_data.books?.length
+    if not num_of_books:
+        return
+    create_custom_dialog(_('Are you sure?'), def(parent, close_modal):
+
+        def action(doit):
+            if doit:
+                clear(parent)
+                delete_all(parent, close_modal)
+            else:
+                close_modal()
+
+        msg = ngettext(
+            'This will remove the downloaded book from local storage. Are you sure?',
+            'This will remove all {} downloaded books from local storage. Are you sure?',
+            num_of_books).format(num_of_books)
+        m = E.div()
+        safe_set_inner_html(m, msg)
+        parent.appendChild(E.div(
+            m,
+            E.div(class_='button-box',
+                create_button(_('OK'), None, action.bind(None, True)),
+                '\xa0',
+                create_button(_('Cancel'), None, action.bind(None, False), highlight=True),
+            )
+        ))
+    )
+
+
+
+def delete_all(msg_parent, close_modal):
+    db = get_db()
+    books = list(book_list_data.books)
+
+    def refresh():
+        show_recent_stage2.call(book_list_data.container_id, [book_list_data.book_data[i] for i in books])
+
+    def delete_one():
+        if not books.length:
+            close_modal()
+            refresh()
+            return
+        clear(msg_parent)
+        safe_set_inner_html(msg_parent, ngettext(
+            'Deleting one book, please wait...',
+            'Deleting {} books, please wait...',
+            books.length or 0).format(books.length)
+        )
+        book_to_delete = books.pop()
+        db.delete_book(book_list_data.book_data[book_to_delete], def(book, err_string):
+            if err_string:
+                close_modal()
+                refresh()
+                error_dialog(_('Failed to delete book'), err_string)
+            else:
+                delete_one()
+    )
+    delete_one()
+
 
 
 def on_select(book, book_idx):
@@ -121,26 +183,28 @@ def apply_view_mode(mode):
 
 
 def create_books_list(container, books):
+    clear(container)
     book_list_data.container_id = ensure_id(container)
     book_list_data.book_data = {i:book for i, book in enumerate(books)}
     book_list_data.books = list(range(books.length))
     book_list_data.mode = None
     book_list_data.thumbnail_cache = {}
-    container.appendChild(E.div(data_component='book_list'))
-    apply_view_mode(get_session_data().get('view_mode'))
-
-def show_recent_stage2(books):
-    container = document.getElementById(this)
-    if not container:
-        return
-    clear(container)
     if not books.length:
         container.appendChild(E.div(
             style='margin: 1rem 1rem',
             _('No downloaded books present')
         ))
+    else:
+        container.appendChild(E.div(data_component='book_list'))
+        apply_view_mode(get_view_mode())
+
+
+def show_recent_stage2(books):
+    container = document.getElementById(this)
+    if not container:
         return
     create_books_list(container, books)
+
 
 def show_recent():
     container = this
@@ -157,16 +221,19 @@ def show_recent():
 
 def init(container_id):
     container = document.getElementById(container_id)
-    create_top_bar(container, title=_('Downloaded books'), action=home, icon='home')
+    on_close = home
+    create_top_bar(container, title=_('Downloaded books'), action=on_close, icon='home')
+    add_button(container, 'trash', confirm_delete_all, _('Delete all downloaded books'))
     # book list
     recent = E.div(class_=CLASS_NAME)
     recent_container_id = ensure_id(recent)
     container.appendChild(recent)
     recent.appendChild(E.div(
         style='margin: 1rem 1rem',
-        _('Loading downloaded books from storage, please wait...')
+        _('Loading downloaded books from local storage, please wait...')
     ))
     conditional_timeout(recent_container_id, 5, show_recent)
+    enable_escape_key(container, on_close)
 
 
 

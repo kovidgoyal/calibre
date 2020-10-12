@@ -8,26 +8,30 @@ class Gameplay_pl(BasicNewsRecipe):
     description = u'gameplay.pl - serwis o naszych zainteresowaniach, grach, filmach, książkach, muzyce, fotografii i konsolach.'
     category = 'games, movies, books, music'
     language = 'pl'
-    index = 'http://gameplay.pl'
-    masthead_url = 'http://gameplay.pl/img/gpy_top_logo.png'
-    cover_url = 'http://gameplay.pl/img/gpy_top_logo.png'
+    index = 'https://gameplay.pl'
+    masthead_url = 'https://gameplay.pl/img/gpy_top_logo.png'
+    cover_url = 'https://gameplay.pl/img/gpy_top_logo.png'
     max_articles_per_feed = 100
     remove_javascript = True
     no_stylesheets = True
     keep_only_tags = [dict(
-        name='div', attrs={'class': ['news_endpage_tit', 'news', 'news_container']})]
-    remove_tags = [dict(name='div', attrs={'class': ['galeria', 'noedit center im', 'news_list', 'news_list_autor', 'stop_bot', 'tagi', 'news_tagi']}), dict(
-        attrs={'usemap': '#map'}), dict(name='a', attrs={'class': ['pin-it-button', 'twitter-share-button']})]
-    feeds = [(u'Wiadomo\u015bci', u'http://gameplay.pl/rss/')]
+        name='div', attrs={'class':'news-container'})]
+    remove_tags = [
+        dict(name='div', attrs={'class': [
+            'galeria', 'noedit center im', 'news_list', 'news_list_autor', 'stop_bot', 'tagi', 'news_tagi', 'social-16']}),
+        dict(attrs={'usemap': '#map'}),
+        dict(name='a', attrs={'class': ['pin-it-button', 'twitter-share-button']})
+    ]
+    feeds = [(u'Wiadomo\u015bci', u'https://gameplay.pl/rss/')]
 
     def image_url_processor(self, baseurl, url):
-        if 'http' not in url:
-            return 'http://gameplay.pl' + url[2:]
+        if 'https' not in url:
+            return 'https://gameplay.pl' + url[2:]
         else:
             return url
 
     def preprocess_html(self, soup):
-        for a in soup('a'):
-            if a.has_key('href') and '../' in a['href']:  # noqa
+        for a in soup('a', href=True):
+            if '../' in a['href']:
                 a['href'] = self.index + a['href'][2:]
         return soup

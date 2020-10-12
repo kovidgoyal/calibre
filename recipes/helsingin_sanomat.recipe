@@ -23,7 +23,7 @@ class AdvancedUserRecipe1298137661(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'Uutiset - HS.fi', u'http://www.hs.fi/uutiset/rss/'),
+        (u'Uutiset - HS.fi', u'https://www.hs.fi/uutiset/rss/'),
     ]
 
     def preprocess_html(self, soup):

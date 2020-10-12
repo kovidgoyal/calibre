@@ -1,15 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-import re
+
+import regex, numbers
 from collections import defaultdict, namedtuple
 from io import BytesIO
 from threading import Thread
 
 from PyQt5.Qt import (
-    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont,
-    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal
+    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar,
+    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal, QApplication
 )
 
 from calibre import prints
@@ -25,13 +26,14 @@ from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
-from calibre.gui2.metadata.basic_widgets import CalendarWidget
-from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
-from calibre.utils.date import qt_to_dt
+from calibre.utils.date import qt_to_dt, internal_iso_format_string
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
 from calibre.gui2.widgets import LineEditECM
+from polyglot.builtins import (
+    error_message, filter, iteritems, itervalues, native_string_type, unicode_type
+)
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
@@ -57,20 +59,54 @@ class Caser(LineEditECM):
 class MyBlockingBusy(QDialog):  # {{{
 
     all_done = pyqtSignal()
+    progress_update = pyqtSignal(int)
+    progress_finished_cur_step = pyqtSignal()
+    progress_next_step_range = pyqtSignal(int)
 
     def __init__(self, args, ids, db, refresh_books, cc_widgets, s_r_func, do_sr, sr_calls, parent=None, window_title=_('Working')):
         QDialog.__init__(self, parent)
 
         self._layout =  l = QVBoxLayout()
         self.setLayout(l)
+        # Every Path that will be taken in do_all
+        options = [
+            args.cover_action == 'fromfmt' or args.read_file_metadata,
+            args.do_swap_ta, args.do_title_case and not
+            args.do_swap_ta, args.do_title_sort, bool(args.au),
+            args.do_auto_author, bool(args.aus) and args.do_aus,
+            args.cover_action == 'remove' or args.cover_action ==
+            'generate' or args.cover_action == 'trim' or
+            args.cover_action == 'clone', args.restore_original,
+            args.rating != -1, args.clear_pub, bool(args.pub),
+            args.clear_series, args.pubdate is not None, args.adddate
+            is not None, args.do_series, bool(args.series) and
+            args.do_autonumber, args.comments is not null,
+            args.do_remove_conv, args.clear_languages, args.remove_all,
+            bool(do_sr)
+        ]
+        self.selected_options = sum(options)
+        if DEBUG:
+            print("Number of steps for bulk metadata: %d" % self.selected_options)
+            print("Optionslist: ")
+            print(options)
 
         self.msg = QLabel(_('Processing %d books, please wait...') % len(ids))
         self.font = QFont()
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
-        self.pi = ProgressIndicator(self)
-        self.pi.setDisplaySize(100)
-        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self.current_step_pb = QProgressBar(self)
+        self.current_step_pb.setFormat(_("Current step progress: %p %"))
+        if self.selected_options > 1:
+            # More than one Option needs to be done! Add Overall ProgressBar
+            self.overall_pb = QProgressBar(self)
+            self.overall_pb.setRange(0, self.selected_options)
+            self.overall_pb.setValue(0)
+            self.overall_pb.setFormat(_("Step %v/%m"))
+            self._layout.addWidget(self.overall_pb)
+            self._layout.addSpacing(15)
+        self.current_option = 0
+        self.current_step_value = 0
+        self._layout.addWidget(self.current_step_pb)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
         self.setWindowTitle(window_title + '...')
@@ -78,6 +114,9 @@ class MyBlockingBusy(QDialog):  # {{{
         self.resize(self.sizeHint())
         self.error = None
         self.all_done.connect(self.on_all_done, type=Qt.QueuedConnection)
+        self.progress_update.connect(self.on_progress_update, type=Qt.QueuedConnection)
+        self.progress_finished_cur_step.connect(self.on_progress_finished_cur_step, type=Qt.QueuedConnection)
+        self.progress_next_step_range.connect(self.on_progress_next_step_range, type=Qt.QueuedConnection)
         self.args, self.ids = args, ids
         self.db, self.cc_widgets = db, cc_widgets
         self.s_r_func = FunctionDispatcher(s_r_func)
@@ -91,6 +130,26 @@ class MyBlockingBusy(QDialog):  # {{{
     def reject(self):
         pass
 
+    def on_progress_update(self, processed_steps):
+        """
+        This signal should be emitted if a step can be traced with numbers.
+        """
+        self.current_step_value += processed_steps
+        self.current_step_pb.setValue(self.current_step_value)
+
+    def on_progress_finished_cur_step(self):
+        if self.selected_options > 1:
+            self.current_option += 1
+            self.overall_pb.setValue(self.current_option)
+
+    def on_progress_next_step_range(self, steps_of_progress):
+        """
+        If steps_of_progress equals 0 results this in a indetermined ProgressBar
+        Otherwise the range is from 0..steps_of_progress
+        """
+        self.current_step_value = 0
+        self.current_step_pb.setRange(0, steps_of_progress)
+
     def on_all_done(self):
         if not self.error:
             # The cc widgets can only be accessed in the GUI thread
@@ -100,13 +159,11 @@ class MyBlockingBusy(QDialog):  # {{{
             except Exception as err:
                 import traceback
                 self.error = (err, traceback.format_exc())
-        self.pi.stopAnimation()
         QDialog.accept(self)
 
     def exec_(self):
         self.thread = Thread(target=self.do_it)
         self.thread.start()
-        self.pi.startAnimation()
         return QDialog.exec_(self)
 
     def do_it(self):
@@ -115,7 +172,7 @@ class MyBlockingBusy(QDialog):  # {{{
         except Exception as err:
             import traceback
             try:
-                err = unicode(err)
+                err = unicode_type(err)
             except:
                 err = repr(err)
             self.error = (err, traceback.format_exc())
@@ -127,9 +184,10 @@ class MyBlockingBusy(QDialog):  # {{{
         db = self.db.new_api
         worker = offload_worker()
         try:
+            self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 fmts = db.formats(book_id, verify_formats=False)
-                paths = filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts])
+                paths = list(filter(None, [db.format_abspath(book_id, fmt) for fmt in fmts]))
                 if paths:
                     ret = worker(
                         'calibre.ebooks.metadata.worker', 'read_metadata_bulk',
@@ -149,6 +207,9 @@ class MyBlockingBusy(QDialog):  # {{{
                                 db.set_metadata(book_id, mi, allow_case_change=True)
                         if cdata is not None:
                             db.set_cover({book_id: cdata})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         finally:
             worker.shutdown()
 
@@ -173,24 +234,33 @@ class MyBlockingBusy(QDialog):  # {{{
 
         # Title and authors
         if args.do_swap_ta:
+            self.progress_next_step_range.emit(3)
             title_map = cache.all_field_for('title', self.ids)
             authors_map = cache.all_field_for('authors', self.ids)
+            self.progress_update.emit(1)
 
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return change_title_casing(ans) if args.do_title_case else ans
-            new_title_map = {bid:new_title(authors) for bid, authors in authors_map.iteritems()}
-            new_authors_map = {bid:string_to_authors(title) for bid, title in title_map.iteritems()}
+            new_title_map = {bid:new_title(authors) for bid, authors in iteritems(authors_map)}
+            new_authors_map = {bid:string_to_authors(title) for bid, title in iteritems(title_map)}
+            self.progress_update.emit(1)
             cache.set_field('authors', new_authors_map)
             cache.set_field('title', new_title_map)
+            self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
 
         if args.do_title_case and not args.do_swap_ta:
+            self.progress_next_step_range.emit(0)
             title_map = cache.all_field_for('title', self.ids)
-            cache.set_field('title', {bid:change_title_casing(title) for bid, title in title_map.iteritems()})
+            cache.set_field('title', {bid:change_title_casing(title) for bid, title in iteritems(title_map)})
+            self.progress_finished_cur_step.emit()
 
         if args.do_title_sort:
+            self.progress_next_step_range.emit(2)
             lang_map = cache.all_field_for('languages', self.ids)
             title_map = cache.all_field_for('title', self.ids)
+            self.progress_update.emit(1)
 
             def get_sort(book_id):
                 if args.languages:
@@ -201,29 +271,47 @@ class MyBlockingBusy(QDialog):  # {{{
                     except (KeyError, IndexError, TypeError, AttributeError):
                         lang = 'eng'
                 return title_sort(title_map[book_id], lang=lang)
+
             cache.set_field('sort', {bid:get_sort(bid) for bid in self.ids})
+            self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
 
         if args.au:
+            self.progress_next_step_range.emit(0)
+            self.processed_books = 0
             authors = string_to_authors(args.au)
-            cache.set_field('authors', {bid:authors for bid in self.ids})
+            cache.set_field('authors', {bid: authors for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.do_auto_author:
+            self.progress_next_step_range.emit(0)
             aus_map = cache.author_sort_strings_for_books(self.ids)
-            cache.set_field('author_sort', {book_id:' & '.join(aus_map[book_id]) for book_id in aus_map})
+            cache.set_field('author_sort', {book_id: ' & '.join(aus_map[book_id]) for book_id in aus_map})
+            self.progress_finished_cur_step.emit()
 
         if args.aus and args.do_aus:
+            self.progress_next_step_range.emit(0)
             cache.set_field('author_sort', {bid:args.aus for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         # Covers
         if args.cover_action == 'remove':
-            cache.set_cover({bid:None for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_cover({bid: None for bid in self.ids})
+            self.progress_finished_cur_step.emit()
+
         elif args.cover_action == 'generate':
+            self.progress_next_step_range.emit(len(self.ids))
             from calibre.ebooks.covers import generate_cover
             for book_id in self.ids:
                 mi = self.db.get_metadata(book_id, index_is_id=True)
                 cdata = generate_cover(mi, prefs=args.generate_cover_settings)
                 cache.set_cover({book_id:cdata})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         elif args.cover_action == 'trim':
+            self.progress_next_step_range.emit(len(self.ids))
             from calibre.utils.img import remove_borders_from_image, image_to_data, image_from_data
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
@@ -233,82 +321,135 @@ class MyBlockingBusy(QDialog):  # {{{
                     if nimg is not img:
                         cdata = image_to_data(nimg)
                         cache.set_cover({book_id:cdata})
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
         elif args.cover_action == 'clone':
+            self.progress_next_step_range.emit(len(self.ids))
             cdata = None
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
                 if cdata:
                     break
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
+
             if cdata:
+                self.progress_next_step_range.emit(0)
                 cache.set_cover({bid:cdata for bid in self.ids if bid != book_id})
+                self.progress_finished_cur_step.emit()
 
         if args.restore_original:
+            self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 formats = cache.formats(book_id)
                 originals = tuple(x.upper() for x in formats if x.upper().startswith('ORIGINAL_'))
                 for ofmt in originals:
                     cache.restore_original_format(book_id, ofmt)
+                self.progress_update.emit(1)
+            self.progress_finished_cur_step.emit()
 
         # Various fields
         if args.rating != -1:
-            cache.set_field('rating', {bid:args.rating for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('rating', {bid: args.rating for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.clear_pub:
-            cache.set_field('publisher', {bid:'' for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('publisher', {bid: '' for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.pub:
-            cache.set_field('publisher', {bid:args.pub for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('publisher', {bid: args.pub for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.clear_series:
-            cache.set_field('series', {bid:'' for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('series', {bid: '' for bid in self.ids})
+            cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.pubdate is not None:
-            cache.set_field('pubdate', {bid:args.pubdate for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('pubdate', {bid: args.pubdate for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.adddate is not None:
-            cache.set_field('timestamp', {bid:args.adddate for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('timestamp', {bid: args.adddate for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.do_series:
+            self.progress_next_step_range.emit(0)
             sval = args.series_start_value if args.do_series_restart else cache.get_next_series_num_for(args.series, current_indices=True)
             cache.set_field('series', {bid:args.series for bid in self.ids})
+            self.progress_finished_cur_step.emit()
             if not args.series:
+                self.progress_next_step_range.emit(0)
                 cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                self.progress_finished_cur_step.emit()
             else:
                 def next_series_num(bid, i):
                     if args.do_series_restart:
                         return sval + (i * args.series_increment)
-                    next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
+                    next_num = _get_next_series_num_for_list(sorted(itervalues(sval)), unwrap=False)
                     sval[bid] = next_num
                     return next_num
 
                 smap = {bid:next_series_num(bid, i) for i, bid in enumerate(self.ids)}
                 if args.do_autonumber:
+                    self.progress_next_step_range.emit(0)
                     cache.set_field('series_index', smap)
+                    self.progress_finished_cur_step.emit()
                 elif tweaks['series_index_auto_increment'] != 'no_change':
+                    self.progress_next_step_range.emit(0)
                     cache.set_field('series_index', {bid:1.0 for bid in self.ids})
+                    self.progress_finished_cur_step.emit()
 
         if args.comments is not null:
-            cache.set_field('comments', {bid:args.comments for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('comments', {bid: args.comments for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.do_remove_conv:
+            self.progress_next_step_range.emit(0)
             cache.delete_conversion_options(self.ids)
+            self.progress_finished_cur_step.emit()
 
         if args.clear_languages:
-            cache.set_field('languages', {bid:() for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('languages', {bid: () for bid in self.ids})
+            self.progress_finished_cur_step.emit()
         elif args.languages:
-            cache.set_field('languages', {bid:args.languages for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('languages', {bid: args.languages for bid in self.ids})
+            self.progress_finished_cur_step.emit()
 
         if args.remove_all:
-            cache.set_field('tags', {bid:() for bid in self.ids})
+            self.progress_next_step_range.emit(0)
+            cache.set_field('tags', {bid: () for bid in self.ids})
+            self.progress_finished_cur_step.emit()
+
         if args.add or args.remove:
+            self.progress_next_step_range.emit(0)
             self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+            self.progress_finished_cur_step.emit()
 
         if self.do_sr:
+            self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
                 self.s_r_func(book_id)
+                self.progress_update.emit(1)
             if self.sr_calls:
-                for field, book_id_val_map in self.sr_calls.iteritems():
+                self.progress_next_step_range.emit(len(self.sr_calls))
+                self.progress_update.emit(0)
+                for field, book_id_val_map in iteritems(self.sr_calls):
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
+                    self.progress_update.emit(1)
+                self.progress_finished_cur_step.emit()
+            self.progress_finished_cur_step.emit()
 
 # }}}
 
@@ -340,10 +481,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.refresh_book_list.toggled.connect(self.save_refresh_booklist)
         self.ids = [self.db.id(r) for r in rows]
         self.first_title = self.db.title(self.ids[0], index_is_id=True)
-        self.cover_clone.setToolTip(unicode(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
-        self.box_title.setText('<p>' +
-                _('Editing meta information for <b>%d books</b>') %
-                len(rows))
+        self.cover_clone.setToolTip(unicode_type(self.cover_clone.toolTip()) + ' (%s)' % self.first_title)
+        self.setWindowTitle(ngettext(
+            'Editing metadata for one book',
+            'Editing metadata for {} books', len(rows)).format(len(rows)))
         self.write_series = False
         self.changed = False
         self.refresh_books = refresh_books
@@ -357,24 +498,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.initialize_combos()
 
         self.series.currentIndexChanged[int].connect(self.series_changed)
-        self.rating.currentIndexChanged.connect(lambda:self.apply_rating.setChecked(True))
+        connect_lambda(self.rating.currentIndexChanged, self, lambda self:self.apply_rating.setChecked(True))
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
-        self.pubdate.setMinimumDateTime(UNDEFINED_QDATETIME)
-        self.pubdate_cw = CalendarWidget(self.pubdate)
-        self.pubdate.setCalendarWidget(self.pubdate_cw)
         pubdate_format = tweaks['gui_pubdate_display_format']
+        if pubdate_format == 'iso':
+            pubdate_format = internal_iso_format_string()
         if pubdate_format is not None:
             self.pubdate.setDisplayFormat(pubdate_format)
         self.pubdate.setSpecialValueText(_('Undefined'))
         self.clear_pubdate_button.clicked.connect(self.clear_pubdate)
         self.pubdate.dateTimeChanged.connect(self.do_apply_pubdate)
         self.adddate.setDateTime(QDateTime.currentDateTime())
-        self.adddate.setMinimumDateTime(UNDEFINED_QDATETIME)
-        self.adddate_cw = CalendarWidget(self.adddate)
-        self.adddate.setCalendarWidget(self.adddate_cw)
         adddate_format = tweaks['gui_timestamp_display_format']
+        if adddate_format == 'iso':
+            adddate_format = internal_iso_format_string()
         if adddate_format is not None:
             self.adddate.setDisplayFormat(adddate_format)
         self.adddate.setSpecialValueText(_('Undefined'))
@@ -388,7 +527,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         idx = max(0, self.casing_map.index(prevca))
         self.casing_algorithm.setCurrentIndex(idx)
         self.casing_algorithm.setEnabled(False)
-        self.change_title_to_title_case.toggled.connect(lambda : self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked()))
+        connect_lambda(
+            self.change_title_to_title_case.toggled, self,
+            lambda self: self.casing_algorithm.setEnabled(self.change_title_to_title_case.isChecked()))
 
         if len(self.db.custom_field_keys(include_composites=False)) == 0:
             self.central_widget.removeTab(1)
@@ -405,7 +546,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.central_widget.setCurrentIndex(tab)
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
-            self.restoreGeometry(bytes(geom))
+            QApplication.instance().safe_restore_geometry(self, bytes(geom))
         else:
             self.resize(self.sizeHint())
         ct = gprefs.get('bulk_metadata_window_tab', 0)
@@ -414,7 +555,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
         self.generate_cover_settings = None
-        self.button_config_cover_gen.setVisible(False)
         self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
         self.exec_()
 
@@ -437,8 +577,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.comments = d.textbox.html
             b = self.comments_button
             b.setStyleSheet('QPushButton { font-weight: bold }')
-            if unicode(b.text())[-1] != '*':
-                b.setText(unicode(b.text()) + ' *')
+            if unicode_type(b.text())[-1] != '*':
+                b.setText(unicode_type(b.text()) + ' *')
 
     def save_refresh_booklist(self, *args):
         gprefs['refresh_book_list_on_bulk_edit'] = bool(self.refresh_book_list.isChecked())
@@ -533,7 +673,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                  'search text. The text is replaced by the specified replacement '
                  'text everywhere it is found in the specified field. After '
                  'replacement is finished, the text can be changed to '
-                 'upper-case, lower-case, or title-case. If the case-sensitive '
+                 'upper-case, lower-case, or title-case. If the Case-sensitive '
                  'check box is checked, the search text must match exactly. If '
                  'it is unchecked, the search text will match both upper- and '
                  'lower-case letters'
@@ -570,10 +710,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.destination_field.currentIndexChanged[int].connect(self.s_r_destination_field_changed)
 
         self.replace_mode.currentIndexChanged[int].connect(self.s_r_paint_results)
-        self.replace_func.currentIndexChanged[str].connect(self.s_r_paint_results)
-        self.search_for.editTextChanged[str].connect(self.s_r_paint_results)
-        self.replace_with.editTextChanged[str].connect(self.s_r_paint_results)
-        self.test_text.editTextChanged[str].connect(self.s_r_paint_results)
+        self.replace_func.currentIndexChanged[native_string_type].connect(self.s_r_paint_results)
+        self.search_for.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.replace_with.editTextChanged[native_string_type].connect(self.s_r_paint_results)
+        self.test_text.editTextChanged[native_string_type].connect(self.s_r_paint_results)
         self.comma_separated.stateChanged.connect(self.s_r_paint_results)
         self.case_sensitive.stateChanged.connect(self.s_r_paint_results)
         self.s_r_src_ident.currentIndexChanged[int].connect(self.s_r_identifier_type_changed)
@@ -598,9 +738,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.queries = JSONConfig("search_replace_queries")
         self.saved_search_name = ''
         self.query_field.addItem("")
-        self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+        self.query_field_values = sorted(self.queries, key=sort_key)
         self.query_field.addItems(self.query_field_values)
-        self.query_field.currentIndexChanged[str].connect(self.s_r_query_change)
+        self.query_field.currentIndexChanged[native_string_type].connect(self.s_r_query_change)
         self.query_field.setCurrentIndex(0)
         self.search_field.setCurrentIndex(0)
         self.s_r_search_field_changed(0)
@@ -608,18 +748,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_sf_itemdata(self, idx):
         if idx is None:
             idx = self.search_field.currentIndex()
-        return unicode(self.search_field.itemData(idx) or '')
+        return unicode_type(self.search_field.itemData(idx) or '')
 
     def s_r_df_itemdata(self, idx):
         if idx is None:
             idx = self.destination_field.currentIndex()
-        return unicode(self.destination_field.itemData(idx) or '')
+        return unicode_type(self.destination_field.itemData(idx) or '')
 
     def s_r_get_field(self, mi, field):
         if field:
             if field == '{template}':
                 v = SafeFormat().safe_format(
-                    unicode(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
+                    unicode_type(self.s_r_template.text()), mi, _('S/R TEMPLATE ERROR'), mi)
                 return [v]
             fm = self.db.metadata_for_field(field)
             if field == 'sort':
@@ -628,15 +768,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 val = mi.format_field(field)[1]
             else:
                 val = mi.get(field, None)
-            if isinstance(val, (int, float, bool)):
-                val = str(val)
+            if isinstance(val, (numbers.Number, bool)):
+                val = unicode_type(val)
             elif fm['is_csp']:
                 # convert the csp dict into a list
-                id_type = unicode(self.s_r_src_ident.currentText())
+                id_type = unicode_type(self.s_r_src_ident.currentText())
                 if id_type:
                     val = [val.get(id_type, '')]
                 else:
-                    val = [u'%s:%s'%(t[0], t[1]) for t in val.iteritems()]
+                    val = ['%s:%s'%(t[0], t[1]) for t in iteritems(val)]
             if val is None:
                 val = [] if fm['is_multiple'] else ['']
             elif not fm['is_multiple']:
@@ -681,7 +821,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if len(t) > 1:
                 t = t[self.starting_from.value()-1:
                       self.starting_from.value()-1 + self.results_count.value()]
-            w.setText(unicode(self.multiple_separator.text()).join(t))
+            w.setText(unicode_type(self.multiple_separator.text()).join(t))
 
         if self.search_mode.currentIndex() == 0:
             self.destination_field.setCurrentIndex(idx)
@@ -739,18 +879,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     def s_r_set_colors(self):
         if self.s_r_error is not None:
-            col = 'rgb(255, 0, 0, 20%)'
-            self.test_result.setText(self.s_r_error.message)
-        else:
-            col = 'rgb(0, 255, 0, 20%)'
-        self.test_result.setStyleSheet('QLineEdit { color: black; '
-                                       'background-color: %s; }'%col)
+            self.test_result.setText(error_message(self.s_r_error))
+        self.test_result.setStyleSheet(
+                QApplication.instance().stylesheet_for_line_edit(self.s_r_error is not None))
         for i in range(0,self.s_r_number_of_books):
             getattr(self, 'book_%d_result'%(i+1)).setText('')
 
     def s_r_func(self, match):
-        rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
-        rtext = unicode(self.replace_with.text())
+        rfunc = self.s_r_functions[unicode_type(self.replace_func.currentText())]
+        rtext = unicode_type(self.replace_with.text())
         rtext = match.expand(rtext)
         return rfunc(rtext)
 
@@ -758,7 +895,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         src_field = self.s_r_sf_itemdata(None)
         src = self.s_r_get_field(mi, src_field)
         result = []
-        rfunc = self.s_r_functions[unicode(self.replace_func.currentText())]
+        rfunc = self.s_r_functions[unicode_type(self.replace_func.currentText())]
         for s in src:
             t = self.s_r_obj.sub(self.s_r_func, s)
             if self.search_mode.currentIndex() == 0:
@@ -792,7 +929,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         dest_mode = self.replace_mode.currentIndex()
 
         if self.destination_field_fm['is_csp']:
-            dest_ident = unicode(self.s_r_dst_ident.text())
+            dest_ident = unicode_type(self.s_r_dst_ident.text())
             if not dest_ident or (src == 'identifiers' and dest_ident == '*'):
                 raise Exception(_('You must specify a destination identifier type'))
 
@@ -809,12 +946,12 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if dest_mode != 0:
             dest_val = mi.get(dest, '')
             if self.db.metadata_for_field(dest)['is_csp']:
-                dst_id_type = unicode(self.s_r_dst_ident.text())
+                dst_id_type = unicode_type(self.s_r_dst_ident.text())
                 if dst_id_type:
                     dest_val = [dest_val.get(dst_id_type, '')]
                 else:
                     # convert the csp dict into a list
-                    dest_val = [u'%s:%s'%(t[0], t[1]) for t in dest_val.iteritems()]
+                    dest_val = ['%s:%s'%(t[0], t[1]) for t in iteritems(dest_val)]
             if dest_val is None:
                 dest_val = []
             elif not isinstance(dest_val, list):
@@ -836,22 +973,22 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def s_r_paint_results(self, txt):
         self.s_r_error = None
         self.s_r_set_colors()
+        flags = regex.FULLCASE | regex.UNICODE
 
         if self.case_sensitive.isChecked():
-            flags = 0
-        else:
-            flags = re.I
-
-        flags |= re.UNICODE
+            flags |= regex.IGNORECASE
 
         try:
-            stext = unicode(self.search_for.text())
+            stext = unicode_type(self.search_for.text())
             if not stext:
                 raise Exception(_('You must specify a search expression in the "Search for" field'))
             if self.search_mode.currentIndex() == 0:
-                self.s_r_obj = re.compile(re.escape(stext), flags)
+                self.s_r_obj = regex.compile(regex.escape(stext), flags | regex.V1)
             else:
-                self.s_r_obj = re.compile(stext, flags)
+                try:
+                    self.s_r_obj = regex.compile(stext, flags | regex.V1)
+                except regex.error:
+                    self.s_r_obj = regex.compile(stext, flags)
         except Exception as e:
             self.s_r_obj = None
             self.s_r_error = e
@@ -860,7 +997,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         try:
             self.test_result.setText(self.s_r_obj.sub(self.s_r_func,
-                                     unicode(self.test_text.text())))
+                                     unicode_type(self.test_text.text())))
         except Exception as e:
             self.s_r_error = e
             self.s_r_set_colors()
@@ -875,7 +1012,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 if len(t) > 1 and self.destination_field_fm['is_multiple']:
                     t = t[self.starting_from.value()-1:
                           self.starting_from.value()-1 + self.results_count.value()]
-                    t = unicode(self.multiple_separator.text()).join(t)
+                    t = unicode_type(self.multiple_separator.text()).join(t)
                 else:
                     t = self.s_r_replace_mode_separator().join(t)
                 wr.setText(t)
@@ -899,7 +1036,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if dfm['is_csp']:
                 # convert the colon-separated pair strings back into a dict,
                 # which is what set_identifiers wants
-                dst_id_type = unicode(self.s_r_dst_ident.text())
+                dst_id_type = unicode_type(self.s_r_dst_ident.text())
                 if dst_id_type and dst_id_type != '*':
                     v = ''.join(val)
                     ids = mi.get(dest)
@@ -928,7 +1065,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     # }}}
 
     def create_custom_column_editors(self):
-        w = self.central_widget.widget(1)
+        w = self.tab
         layout = QGridLayout()
         self.custom_column_widgets, self.__cc_spacers = \
             populate_metadata_page(layout, self.db, self.ids, parent=w,
@@ -1010,7 +1147,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         if self.s_r_error is not None and do_sr:
             error_dialog(self, _('Search/replace invalid'),
-                    _('Search/replace is invalid: %s')%self.s_r_error.message,
+                    _('Search/replace is invalid: %s')%error_message(self.s_r_error),
                     show=True)
             return False
         self.changed = bool(self.ids)
@@ -1022,19 +1159,19 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         remove_all = self.remove_all_tags.isChecked()
         remove = []
         if not remove_all:
-            remove = unicode(self.remove_tags.text()).strip().split(',')
-        add = unicode(self.tags.text()).strip().split(',')
-        au = unicode(self.authors.text())
-        aus = unicode(self.author_sort.text())
+            remove = unicode_type(self.remove_tags.text()).strip().split(',')
+        add = unicode_type(self.tags.text()).strip().split(',')
+        au = unicode_type(self.authors.text())
+        aus = unicode_type(self.author_sort.text())
         do_aus = self.author_sort.isEnabled()
         rating = self.rating.rating_value
         if not self.apply_rating.isChecked():
             rating = -1
-        pub = unicode(self.publisher.text())
+        pub = unicode_type(self.publisher.text())
         do_series = self.write_series
         clear_series = self.clear_series.isChecked()
         clear_pub = self.clear_pub.isChecked()
-        series = unicode(self.series.currentText()).strip()
+        series = unicode_type(self.series.currentText()).strip()
         do_autonumber = self.autonumber_series.isChecked()
         do_series_restart = self.series_numbering_restarts.isChecked()
         series_start_value = self.series_start_number.value()
@@ -1104,7 +1241,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         return QDialog.accept(self)
 
     def series_changed(self, *args):
-        self.write_series = bool(unicode(self.series.currentText()).strip())
+        self.write_series = bool(unicode_type(self.series.currentText()).strip())
         self.autonumber_series.setEnabled(True)
 
     def s_r_remove_query(self, *args):
@@ -1117,14 +1254,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return
 
         item_id = self.query_field.currentIndex()
-        item_name = unicode(self.query_field.currentText())
+        item_name = unicode_type(self.query_field.currentText())
 
         self.query_field.blockSignals(True)
         self.query_field.removeItem(item_id)
         self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(0)
 
-        if item_name in self.queries.keys():
+        if item_name in list(self.queries.keys()):
             del(self.queries[item_name])
             self.queries.commit()
 
@@ -1145,8 +1282,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 error_dialog(self, _("Save search/replace"),
                         _("You must provide a name."), show=True)
         new = True
-        name = unicode(name)
-        if name in self.queries.keys():
+        name = unicode_type(name)
+        if name in list(self.queries.keys()):
             if not question_dialog(self, _("Save search/replace"),
                     _("That saved search/replace already exists and will be overwritten. "
                         "Are you sure?")):
@@ -1155,21 +1292,21 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         query = {}
         query['name'] = name
-        query['search_field'] = unicode(self.search_field.currentText())
-        query['search_mode'] = unicode(self.search_mode.currentText())
-        query['s_r_template'] = unicode(self.s_r_template.text())
-        query['s_r_src_ident'] = unicode(self.s_r_src_ident.currentText())
-        query['search_for'] = unicode(self.search_for.text())
+        query['search_field'] = unicode_type(self.search_field.currentText())
+        query['search_mode'] = unicode_type(self.search_mode.currentText())
+        query['s_r_template'] = unicode_type(self.s_r_template.text())
+        query['s_r_src_ident'] = unicode_type(self.s_r_src_ident.currentText())
+        query['search_for'] = unicode_type(self.search_for.text())
         query['case_sensitive'] = self.case_sensitive.isChecked()
-        query['replace_with'] = unicode(self.replace_with.text())
-        query['replace_func'] = unicode(self.replace_func.currentText())
-        query['destination_field'] = unicode(self.destination_field.currentText())
-        query['s_r_dst_ident'] = unicode(self.s_r_dst_ident.text())
-        query['replace_mode'] = unicode(self.replace_mode.currentText())
+        query['replace_with'] = unicode_type(self.replace_with.text())
+        query['replace_func'] = unicode_type(self.replace_func.currentText())
+        query['destination_field'] = unicode_type(self.destination_field.currentText())
+        query['s_r_dst_ident'] = unicode_type(self.s_r_dst_ident.text())
+        query['replace_mode'] = unicode_type(self.replace_mode.currentText())
         query['comma_separated'] = self.comma_separated.isChecked()
         query['results_count'] = self.results_count.value()
         query['starting_from'] = self.starting_from.value()
-        query['multiple_separator'] = unicode(self.multiple_separator.text())
+        query['multiple_separator'] = unicode_type(self.multiple_separator.text())
 
         self.queries[name] = query
         self.queries.commit()
@@ -1178,7 +1315,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.query_field.blockSignals(True)
             self.query_field.clear()
             self.query_field.addItem('')
-            self.query_field_values = sorted([q for q in self.queries], key=sort_key)
+            self.query_field_values = sorted(self.queries, key=sort_key)
             self.query_field.addItems(self.query_field_values)
             self.query_field.blockSignals(False)
         self.query_field.setCurrentIndex(self.query_field.findText(name))
@@ -1188,7 +1325,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.s_r_reset_query_fields()
             self.saved_search_name = ''
             return
-        item = self.queries.get(unicode(item_name), None)
+        item = self.queries.get(unicode_type(item_name), None)
         if item is None:
             self.s_r_reset_query_fields()
             return

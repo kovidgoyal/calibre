@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,6 +17,7 @@ from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.auto_add import AUTO_ADDED
 from calibre.gui2 import gprefs, choose_dir, error_dialog, question_dialog
+from polyglot.builtins import unicode_type
 
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
@@ -52,8 +54,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_blocked_auto_formats, 'item'+signal)
             signal.connect(self.blocked_auto_formats_changed)
-        self.tag_map_rules = self.add_filter_rules = None
+        self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
         self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
+        self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
         self.tabWidget.setCurrentIndex(0)
         self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
@@ -65,6 +68,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             d.rules = gprefs['tag_map_on_add_rules']
         if d.exec_() == d.Accepted:
             self.tag_map_rules = d.rules
+            self.changed_signal.emit()
+
+    def change_author_map_rules(self):
+        from calibre.gui2.author_mapper import RulesDialog
+        d = RulesDialog(self)
+        if gprefs.get('author_map_on_add_rules'):
+            d.rules = gprefs['author_map_on_add_rules']
+        if d.exec_() == d.Accepted:
+            self.author_map_rules = d.rules
             self.changed_signal.emit()
 
     def change_add_filter_rules(self):
@@ -81,6 +93,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 _('Choose a folder'))
         if path:
             self.opt_auto_add_path.setText(path)
+            self.opt_auto_add_path.save_history()
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -89,7 +102,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.blockSignals(False)
         self.init_blocked_auto_formats()
         self.opt_automerge.setEnabled(self.opt_add_formats_to_existing.isChecked())
-        self.tag_map_rules = self.add_filter_rules = None
+        self.tag_map_rules = self.add_filter_rules = self.author_map_rules = None
 
     # Blocked auto formats {{{
     def blocked_auto_formats_changed(self, *args):
@@ -121,7 +134,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
             if viewer.item(i).checkState() == Qt.Checked:
-                fmts.append(unicode(viewer.item(i).text()))
+                fmts.append(unicode_type(viewer.item(i).text()))
         return fmts
     # }}}
 
@@ -130,13 +143,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.initialize(defaults=True)
         self.init_blocked_auto_formats(defaults=True)
         self.tag_map_rules = []
+        self.author_map_rules = []
         self.add_filter_rules = []
 
     def commit(self):
-        path = unicode(self.opt_auto_add_path.text()).strip()
+        path = unicode_type(self.opt_auto_add_path.text()).strip()
         if path != gprefs['auto_add_path']:
             if path:
                 path = os.path.abspath(path)
+                bname = os.path.basename(path)
                 self.opt_auto_add_path.setText(path)
                 if not os.path.isdir(path):
                     error_dialog(self, _('Invalid folder'),
@@ -149,7 +164,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                             _('You do not have read/write permissions for '
                                 'the folder: %s')%path, show=True)
                     raise AbortCommit('invalid auto-add folder')
-                if os.path.basename(path)[0] in '._':
+                if bname and bname[0] in '._':
                     error_dialog(self, _('Invalid folder'),
                             _('Cannot use folders whose names start with a '
                                 'period or underscore: %s')%os.path.basename(path), show=True)
@@ -171,6 +186,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 gprefs['tag_map_on_add_rules'] = self.tag_map_rules
             else:
                 gprefs.pop('tag_map_on_add_rules', None)
+        if self.author_map_rules is not None:
+            if self.author_map_rules:
+                gprefs['author_map_on_add_rules'] = self.author_map_rules
+            else:
+                gprefs.pop('author_map_on_add_rules', None)
         if self.add_filter_rules is not None:
             if self.add_filter_rules:
                 gprefs['add_filter_rules'] = self.add_filter_rules

@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -18,6 +19,7 @@ from calibre.gui2.bars import BarsManager
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
 from calibre import human_readable
+from polyglot.builtins import unicode_type
 
 
 class LocationManager(QObject):  # {{{
@@ -128,7 +130,7 @@ class LocationManager(QObject):  # {{{
         had_device = self.has_device
         if cp is None:
             cp = (None, None)
-        if isinstance(cp, (str, unicode)):
+        if isinstance(cp, (bytes, unicode_type)):
             cp = (cp, None)
         if len(fs) < 3:
             fs = list(fs) + [0]
@@ -149,7 +151,7 @@ class LocationManager(QObject):  # {{{
         for i, loc in enumerate(('main', 'carda', 'cardb')):
             t = self.tooltips[loc]
             if self.free[i] > -1:
-                t += u'\n\n%s '%human_readable(self.free[i]) + _('available')
+                t += '\n\n%s '%human_readable(self.free[i]) + _('available')
             ac = getattr(self, 'location_'+loc)
             ac.setToolTip(t)
             ac.setWhatsThis(t)
@@ -184,7 +186,7 @@ class SearchBar(QFrame):  # {{{
         x.setPopupMode(x.InstantPopup)
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
-        x.setIcon(QIcon(I('lt.png')))
+        x.setIcon(QIcon(I('vl.png')))
         x.setObjectName("virtual_library")
         x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         l.addWidget(x)
@@ -213,7 +215,7 @@ class SearchBar(QFrame):  # {{{
         sb.setAutoRaise(True)
         sb.setText(_('Sort'))
         sb.setIcon(QIcon(I('sort.png')))
-        sb.setMenu(QMenu())
+        sb.setMenu(QMenu(sb))
         sb.menu().aboutToShow.connect(self.populate_sort_menu)
         sb.setVisible(False)
         l.addWidget(sb)
@@ -246,7 +248,7 @@ class SearchBar(QFrame):  # {{{
                 QSizePolicy.Minimum)
         self.search_button.clicked.connect(parent.do_search_button)
         self.search_button.setToolTip(
-            _('Do Quick Search (you can also press the Enter key)'))
+            _('Do quick search (you can also press the Enter key)'))
 
         x = parent.highlight_only_button = QToolButton(self)
         x.setAutoRaise(True)

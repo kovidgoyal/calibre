@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 
 """
 PyTextile
@@ -62,9 +63,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 import re
 import uuid
-from urlparse import urlparse
 
 from calibre.utils.smartypants import smartyPants
+from polyglot.builtins import unicode_type
+from polyglot.urllib import urlopen, urlparse
 
 
 def _normalize_newlines(string):
@@ -87,22 +89,11 @@ def getimagesize(url):
 
     """
 
-    try:
-        from PIL import ImageFile
-    except ImportError:
-        try:
-            import ImageFile
-        except ImportError:
-            return None
-
-    try:
-        import urllib2
-    except ImportError:
-        return None
+    from PIL import ImageFile
 
     try:
         p = ImageFile.Parser()
-        f = urllib2.urlopen(url)
+        f = urlopen(url)
         while True:
             s = f.read(1024)
             if not s:
@@ -128,11 +119,11 @@ class Textile(object):
 
     pnct = r'[-!"#$%&()*+,/:;<=>?@\'\[\\\]\.^_`{|}~]'
     # urlch = r'[\w"$\-_.+!*\'(),";/?:@=&%#{}|\\^~\[\]`]'
-    urlch = '[\w"$\-_.+*\'(),";\/?:@=&%#{}|\\^~\[\]`]'
+    urlch = r'[\w"$\-_.+*\'(),";\/?:@=&%#{}|\\^~\[\]`]'
 
     url_schemes = ('http', 'https', 'ftp', 'mailto')
 
-    btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', 'fn\d+', 'p')
+    btag = ('bq', 'bc', 'notextile', 'pre', 'h[1-6]', r'fn\d+', 'p')
     btag_lite = ('bq', 'bc', 'p')
 
     macro_defaults = [
@@ -292,7 +283,7 @@ class Textile(object):
         """
         self.html_type = html_type
 
-        # text = unicode(text)
+        # text = type(u'')(text)
         text = _normalize_newlines(text)
 
         if self.restricted:
@@ -699,7 +690,7 @@ class Textile(object):
     def footnoteID(self, match):
         id, t = match.groups()
         if id not in self.fn:
-            self.fn[id] = str(uuid.uuid4())
+            self.fn[id] = unicode_type(uuid.uuid4())
         fnid = self.fn[id]
         if not t:
             t = ''
@@ -804,7 +795,7 @@ class Textile(object):
         return url
 
     def shelve(self, text):
-        id = str(uuid.uuid4()) + 'c'
+        id = unicode_type(uuid.uuid4()) + 'c'
         self.shelf[id] = text
         return id
 

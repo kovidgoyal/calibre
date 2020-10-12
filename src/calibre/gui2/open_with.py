@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -16,12 +15,13 @@ from PyQt5.Qt import (
     QBuffer, QPixmap, QAction, QKeySequence)
 
 from calibre import as_unicode
-from calibre.constants import iswindows, isosx
+from calibre.constants import iswindows, ismacos
 from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars, Application, choose_osx_app
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
+from polyglot.builtins import iteritems, string_or_bytes, range, unicode_type
 
 ENTRY_ROLE = Qt.UserRole
 
@@ -44,7 +44,7 @@ def run_program(entry, path, parent):
     except Exception as err:
         return error_dialog(
             parent, _('Failed to run'), _(
-            'Failed to run program, click "Show Details" for more information'),
+            'Failed to run program, click "Show details" for more information'),
             det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
     t = Thread(name='WaitProgram', target=process.wait)
     t.daemon = True
@@ -104,7 +104,7 @@ if iswindows:
         ans = choose_files(
             parent, 'choose-open-with-program-manually-win',
             _('Choose a program to open %s files') % filetype.upper(),
-            filters=[(_('Executable files'), ['exe', 'bat', 'com'])], select_only_single_file=True)
+            filters=[(_('Executable files'), ['exe', 'bat', 'com', 'cmd'])], select_only_single_file=True)
         if ans:
             ans = os.path.abspath(ans[0])
             if not os.access(ans, os.X_OK):
@@ -123,22 +123,30 @@ if iswindows:
     del run_program
 
     def run_program(entry, path, parent):  # noqa
+        import re
         cmdline = entry_to_cmdline(entry, path)
-        print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
+        flags = win32con.CREATE_DEFAULT_ERROR_MODE | win32con.CREATE_NEW_PROCESS_GROUP
+        if re.match(r'"[^"]+?(.bat|.cmd|.com)"', cmdline, flags=re.I):
+            flags |= win32con.CREATE_NO_WINDOW
+            console = ' (console)'
+        else:
+            flags |= win32con.DETACHED_PROCESS
+            console = ''
+        print('Running Open With commandline%s:' % console, repr(entry['cmdline']), ' |==> ', repr(cmdline))
         try:
             with sanitize_env_vars():
                 process_handle, thread_handle, process_id, thread_id = CreateProcess(
-                    None, cmdline, None, None, False, win32con.CREATE_DEFAULT_ERROR_MODE | win32con.CREATE_NEW_PROCESS_GROUP | win32con.DETACHED_PROCESS,
+                    None, cmdline, None, None, False,  flags,
                     None, None, STARTUPINFO())
             WaitForInputIdle(process_handle, 2000)
         except Exception as err:
             return error_dialog(
                 parent, _('Failed to run'), _(
-                'Failed to run program, click "Show Details" for more information'),
+                'Failed to run program, click "Show details" for more information'),
                 det_msg='Command line: %r\n%s' %(cmdline, as_unicode(err)))
     # }}}
 
-elif isosx:
+elif ismacos:
     # macOS {{{
     oprefs = JSONConfig('osx_open_with')
     from calibre.utils.open_with.osx import find_programs, get_icon, entry_to_cmdline, get_bundle_data
@@ -147,7 +155,7 @@ elif isosx:
         return sort_key(entry.get('name') or '')
 
     def finalize_entry(entry):
-        entry['extensions'] = tuple(entry['extensions'])
+        entry['extensions'] = tuple(entry.get('extensions', ()))
         data = get_icon(entry.pop('icon_file', None), as_data=True, pixmap_to_data=pixmap_to_data)
         if data:
             entry['icon_data'] = data
@@ -170,8 +178,9 @@ elif isosx:
             if os.path.isdir(ans):
                 app = get_bundle_data(ans)
                 if app is None:
-                    return error_dialog(parent, _('Invalid Application'), _(
+                    error_dialog(parent, _('Invalid Application'), _(
                         '%s is not a valid macOS application bundle.') % ans, show=True)
+                    return
                 return app
             if not os.access(ans, os.X_OK):
                 error_dialog(parent, _('Cannot execute'), _(
@@ -189,7 +198,7 @@ else:
 
     def entry_to_item(entry, parent):
         icon_path = entry.get('Icon') or I('blank.png')
-        if not isinstance(icon_path, basestring):
+        if not isinstance(icon_path, string_or_bytes):
             icon_path = I('blank.png')
         ans = QListWidgetItem(QIcon(icon_path), entry.get('Name') or _('Unknown'), parent)
         ans.setData(ENTRY_ROLE, entry)
@@ -316,7 +325,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     entry = choose_manually(file_type, parent) if d.select_manually else d.selected_entry
     if entry is not None:
         entry = finalize_entry(entry)
-        entry['uuid'] = type('')(uuid.uuid4())
+        entry['uuid'] = unicode_type(uuid.uuid4())
         entries = oprefs['entries']
         if oft not in entries:
             entries[oft] = []
@@ -327,7 +336,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     return entry
 
 
-def populate_menu(menu, receiver, file_type):
+def populate_menu(menu, connect_action, file_type):
     file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
         icon, text = entry_to_icon_text(entry)
@@ -336,8 +345,7 @@ def populate_menu(menu, receiver, file_type):
         if sa is not None:
             text += '\t' + sa.shortcut().toString(QKeySequence.NativeText)
         ac = menu.addAction(icon, text)
-
-        ac.triggered.connect(partial(receiver, entry))
+        connect_action(ac, entry)
     return menu
 
 # }}}
@@ -403,7 +411,7 @@ class EditPrograms(Dialog):  # {{{
         register_keyboard_shortcuts(finalize=True)
 
     def update_stored_config(self):
-        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in xrange(self.plist.count())]
+        entries = [self.plist.item(i).data(ENTRY_ROLE) for i in range(self.plist.count())]
         oprefs['entries'][self.file_type] = entries
         oprefs['entries'] = oprefs['entries']
 
@@ -423,20 +431,21 @@ def register_keyboard_shortcuts(gui=None, finalize=False):
         gui = get_gui()
     if gui is None:
         return
-    for unique_name, action in registered_shortcuts.iteritems():
+    for unique_name, action in iteritems(registered_shortcuts):
         gui.keyboard.unregister_shortcut(unique_name)
         gui.removeAction(action)
     registered_shortcuts.clear()
 
-    for filetype, applications in oprefs['entries'].iteritems():
+    for filetype, applications in iteritems(oprefs['entries']):
         for application in applications:
             text = entry_to_icon_text(application, only_text=True)
             t = _('cover image') if filetype.upper() == 'COVER_IMAGE' else filetype.upper()
             name = _('Open {0} files with {1}').format(t, text)
             ac = QAction(gui)
             unique_name = application['uuid']
-            ac.triggered.connect(partial(gui.open_with_action_triggerred, filetype, application))
-            gui.keyboard.register_shortcut(unique_name, name, action=ac, group=_('Open With'))
+            func = partial(gui.open_with_action_triggerred, filetype, application)
+            ac.triggered.connect(func)
+            gui.keyboard.register_shortcut(unique_name, name, action=ac, group=_('Open with'))
             gui.addAction(ac)
             registered_shortcuts[unique_name] = ac
     if finalize:

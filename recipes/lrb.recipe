@@ -1,43 +1,81 @@
-
-__license__ = 'GPL v3'
-__copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
-'''
-lrb.co.uk
-'''
-
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class LondonReviewOfBooks(BasicNewsRecipe):
-    title = 'London Review of Books (free)'
-    __author__ = 'Darko Miletic'
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+def absolutize(href):
+    if href.startswith('/'):
+        href =  'https://www.lrb.co.uk' + href
+    return href
+
+
+class LondonReviewOfBooksPayed(BasicNewsRecipe):
+    title = 'London Review of Books'
+    __author__ = 'Kovid Goyal'
     description = 'Literary review publishing essay-length book reviews and topical articles on politics, literature, history, philosophy, science and the arts by leading writers and thinkers'  # noqa
     category = 'news, literature, UK'
-    publisher = 'LRB ltd.'
-    oldest_article = 15
-    max_articles_per_feed = 100
+    publisher = 'LRB Ltd.'
     language = 'en_GB'
     no_stylesheets = True
-    use_embedded_content = False
+    delay = 1
     encoding = 'utf-8'
+    INDEX = 'https://www.lrb.co.uk'
     publication_type = 'magazine'
-    masthead_url = 'http://www.lrb.co.uk/assets/images/lrb_logo_big.gif'
-    extra_css = ' body{font-family: Georgia,Palatino,"Palatino Linotype",serif} '
-
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
+    needs_subscription = True
+    requires_version = (3, 0, 0)
 
     keep_only_tags = [
-        dict(attrs={'class': ['article-body indent', 'letters', 'article-list']})]
+        classes('article-header--title paperArticle-reviewsHeader article-content letters-content'),
+    ]
+    remove_tags = [
+        classes('social-button article-mask lrb-readmorelink article-send-letter article-share'),
+    ]
     remove_attributes = ['width', 'height']
 
-    feeds = [(u'London Review of Books', u'http://www.lrb.co.uk/lrbrss.xml')]
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username and self.password:
+            br.open('https://www.lrb.co.uk/login')
+            br.select_form(id='login_form')
+            br['_username'] = self.username
+            br['_password'] = self.password
+            raw = br.submit().read()
+            if b'>My Account<' not in raw:
+                raise ValueError('Failed to login check username and password')
+        return br
 
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup('http://www.lrb.co.uk/')
-        cover_item = soup.find('p', attrs={'class': 'cover'})
-        if cover_item:
-            cover_url = cover_item.a.img['src']
-        return cover_url
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            for x in img['data-srcset'].split():
+                if '/' in x:
+                    img['src'] = x
+        return soup
+
+    def parse_index(self):
+        articles = []
+        soup = self.index_to_soup(self.INDEX)
+        container = soup.find(attrs={'class': 'issue-grid'})
+        img = container.find('img')
+        self.cover_url = img['data-srcset'].split()[-2]
+        h3 = container.find('h3')
+        self.timefmt = ' [{}]'.format(self.tag_to_string(h3))
+        a = img.findParent('a')
+        soup = self.index_to_soup(absolutize(a['href']))
+        grid = soup.find(attrs={'class': 'toc-grid-items'})
+        articles = []
+        for a in grid.findAll(**classes('toc-item')):
+            url = absolutize(a['href'])
+            h3 = a.find('h3')
+            h4 = a.find('h4')
+            title = '{}: {}'.format(self.tag_to_string(h3), self.tag_to_string(h4))
+            self.log(title, url)
+            articles.append({'title': title, 'url': url})
+
+        return [('Articles', articles)]

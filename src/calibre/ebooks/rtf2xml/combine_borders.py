@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import os
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class CombineBorders:
@@ -76,8 +78,8 @@ class CombineBorders:
             self.add_to_border_desc(line)
 
     def combine_borders(self):
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as write_obj:
                 for line in read_obj:
                     self.__first_five = line[0:5]
                     if self.__state == 'border':

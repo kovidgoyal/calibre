@@ -1,3 +1,4 @@
+from __future__ import print_function
 # Los primeros comentarios son las dificultades que he tenido con el Piton
 # Cuando da error UTF8 revisa los comentarios (acentos). En notepad++ Search, Goto, posicion y lo ves.
 # Editar con Notepad++ Si pone - donde no debe es que ha indentado mal... Edit - Blank operations - tab to space
@@ -87,7 +88,7 @@ class CIO_Magazine(BasicNewsRecipe):
         if INDEX.startswith('/'):  # protegiendonos de que dejen de usarlos
             INDEX = 'http://www.cio.com' + INDEX
         # Y nos aseguramos en los logs que lo estamos haciendo bien
-        print ("INDEX en parse_index: ", INDEX)
+        print("INDEX en parse_index: ", INDEX)
 
     # Ya sabemos cual es la revista... procesemosla.
         soup = self.index_to_soup(INDEX)
@@ -101,13 +102,13 @@ class CIO_Magazine(BasicNewsRecipe):
         for div in soup.findAll(True,
                                 attrs={'class': ['heading', 'issue_item']}):
 
-            if div['class'] == 'heading':
+            if ''.join(div['class']) == 'heading':
                 key = string.capwords(self.tag_to_string(div.span))
-                print ("Key: ", key)  # Esto es para depurar
+                print("Key: ", key)  # Esto es para depurar
                 articles[key] = []
                 feeds.append(key)
 
-            elif div['class'] == 'issue_item':
+            elif ''.join(div['class']) == 'issue_item':
                 a = div.find('a', href=True)
                 if not a:
                     continue
@@ -126,16 +127,16 @@ class CIO_Magazine(BasicNewsRecipe):
 
                 if summary:
                     description = self.tag_to_string(summary, use_alt=False)
-                    print ("Description = ", description)
+                    print("Description = ", description)
 
                 # Esto esta copiado del NY times
                 feed = key if key is not None else 'Uncategorized'
-                if not articles.has_key(feed):  # noqa
+                if feed not in articles:
                     articles[feed] = []
                 if 'podcasts' not in url:
                     articles[feed].append(
                         dict(title=title, url=url, date=pubdate,
                              description=description,
                              content=''))
-        feeds = [(k, articles[k]) for k in feeds if articles.has_key(k)]  # noqa
+        feeds = [(k, articles[k]) for k in feeds if k in articles]
         return feeds

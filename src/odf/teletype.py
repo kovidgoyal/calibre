@@ -27,9 +27,10 @@ the appropriate <text:s>, <text:tab>, or <text:line-break>
 elements.  This module takes care of that problem.
 """
 
-from odf.element import Node
-import odf.opendocument
-from odf.text import S,LineBreak,Tab
+
+from .element import Node
+from .text import S,LineBreak,Tab
+
 
 class WhitespaceText(object):
 
@@ -63,7 +64,7 @@ class WhitespaceText(object):
                 odfElement.addElement(Tab())
                 i += 1
             elif ch == '\n':
-                self._emitTextBuffer(odfElement);
+                self._emitTextBuffer(odfElement)
                 odfElement.addElement(LineBreak())
                 i += 1
             elif ch == ' ':
@@ -90,7 +91,6 @@ class WhitespaceText(object):
             odfElement.addText(''.join(self.textBuffer))
         self.textBuffer = []
 
-
     def _emitSpaces(self, odfElement):
         """ Creates a <text:s> element for the current spaceCount.
             Side effect: sets spaceCount back to zero
@@ -100,9 +100,11 @@ class WhitespaceText(object):
             odfElement.addElement(spaceElement)
         self.spaceCount = 0
 
+
 def addTextToElement(odfElement, s):
     wst = WhitespaceText()
     wst.addTextToElement(odfElement, s)
+
 
 def extractText(odfElement):
     """ Extract text content from an Element, with whitespace represented
@@ -111,7 +113,7 @@ def extractText(odfElement):
         children of the given element, accumulating text and "unwrapping"
         <text:s>, <text:tab>, and <text:line-break> elements along the way.
     """
-    result = [];
+    result = []
 
     if len(odfElement.childNodes) != 0:
         for child in odfElement.childNodes:
@@ -119,7 +121,7 @@ def extractText(odfElement):
                 result.append(child.data)
             elif child.nodeType == Node.ELEMENT_NODE:
                 subElement = child
-                tagName = subElement.qname;
+                tagName = subElement.qname
                 if tagName == (u"urn:oasis:names:tc:opendocument:xmlns:text:1.0", u"line-break"):
                     result.append("\n")
                 elif tagName == (u"urn:oasis:names:tc:opendocument:xmlns:text:1.0", u"tab"):

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -10,12 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 def base64_decode(raw):
     from io import BytesIO
-    from base64 import b64decode
+    from polyglot.binary import from_base64_bytes
 
     # First try the python implementation as it is faster
     try:
-        return b64decode(raw)
-    except TypeError:
+        return from_base64_bytes(raw)
+    except Exception:
         pass
 
     # Try a more robust version (adapted from FBReader sources)
@@ -49,5 +48,3 @@ def base64_decode(raw):
             tot >>= 8
         out.write(bytes(triple))
     return out.getvalue()
-
-

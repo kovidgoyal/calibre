@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib2
 from contextlib import closing
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 from lxml import html
 
@@ -43,25 +46,23 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + urllib2.quote(query))
+        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + quote(query))
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[contains(@class, "articlecontainer")]'):
+            for data in doc.xpath('//div[@class="articlecontainer"]'):
                 if counter <= 0:
                     break
-
+                id_ = ''.join(data.xpath('.//div[@class="trackArtiId"]/text()'))
+                if not id_:
+                    continue
                 details = data.xpath('./div[contains(@class, "articleinfobox")]')
                 if not details:
                     continue
                 details = details[0]
-                id_ = ''.join(details.xpath('./a/@name')).strip()
-                if not id_:
-                    continue
-                title = ''.join(details.xpath('./h3[@class="title"]/a/text()')).strip()
-
+                title = ''.join(details.xpath('./div[@class="title"]/a/text()')).strip()
                 author = ''.join(details.xpath('.//div[@class="author"]/text()')).strip()
                 if author.startswith('von'):
                     author = author[4:]

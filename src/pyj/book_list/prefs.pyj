@@ -214,7 +214,7 @@ def create_prefs_widget(container, prefs_data):
     if state.widgets.length:
         container.appendChild(
             E.div(
-                style='margin:1ex 1em; padding: 1em; text-align:center',
+                style='margin:1rem;',
                 create_button(_('Restore default settings'), 'refresh', reset_to_defaults)
             )
         )
@@ -225,15 +225,17 @@ def reset_to_defaults():
         w.reset_to_default()
 
 
-def prefs_panel_handler(title, get_prefs_data, on_close=None, icon='close'):
+def prefs_panel_handler(title_func, get_prefs_data, on_close=None, icon='close'):
 
     def close_action():
         if on_close is not None:
             on_close()
         back()
 
-    return def init_prefs_panel(container_id):  # noqa:unused-local
+    def init_prefs_panel(container_id):
         container = document.getElementById(container_id)
-        create_top_bar(container, title, action=close_action, icon=icon)
+        create_top_bar(container, title=title_func(), action=close_action, icon=icon)
         container.appendChild(E.div())
         create_prefs_widget(container.lastChild, get_prefs_data())
+
+    return init_prefs_panel

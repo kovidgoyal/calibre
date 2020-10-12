@@ -1,14 +1,13 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, struct, ctypes
 from collections import namedtuple
-from future_builtins import map
+from polyglot.builtins import map
 
 from PyQt5.Qt import QtWin, Qt, QIcon, QByteArray, QBuffer, QPixmap
 import win32con, win32api, win32gui, pywintypes, winerror
@@ -16,6 +15,7 @@ import win32con, win32api, win32gui, pywintypes, winerror
 from calibre import prints
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
+from polyglot.builtins import filter
 
 ICON_SIZE = 64
 

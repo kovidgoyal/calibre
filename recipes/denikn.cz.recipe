@@ -1,0 +1,107 @@
+#!/usr/bin/env python
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+from datetime import datetime
+
+
+CZ_DAYS = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne']
+CZ_MONTHS = ['led', 'úno', 'bře', 'dub', 'kvě', 'čen', 'čec', 'srp', 'zář', 'říj', 'lis', 'pro']
+
+
+def cz_title_time():
+    """
+    Helper function to return date with czech locale.
+    Uses hardcoded lookup table of day and month names as strftime requires
+    locale change that is not thread safe.
+    """
+    today = datetime.today()
+    weekday = CZ_DAYS[today.weekday()]
+    month = CZ_MONTHS[today.month-1]
+    return '{weekday}, {day} {month} {year}'.format(weekday=weekday,
+                                                    day=today.day,
+                                                    month=month,
+                                                    year=today.year)
+
+
+class DenikNRecipe(BasicNewsRecipe):
+    """
+    Recipe for the RSS feed of https://denikn.cz/
+    """
+
+    title = u'Deník N'
+    __author__ = 'Robert Mihaly'
+    publisher = u'N Media'
+    description = u'Deník N - Nezávislý český deník'
+
+    # For daily feed
+    oldest_article = 1
+    max_articles_per_feed = 20
+
+    # The default 120 seems too long
+    timeout = 30
+
+    # Custom title used in conversion_options below
+    custom_title = u'Deník N - ' + cz_title_time()
+
+    # Select the feeds to process
+    feeds = [
+        # (u'Vše', 'https://denikn.cz/feed'),
+        (u'Česko', 'https://denikn.cz/cesko/feed/'),
+        (u'Svět', 'https://denikn.cz/svet/feed'),
+        (u'Ekonomika', 'https://denikn.cz/ekonomika/feed'),
+        # (u'Komentáře', 'https://denikn.cz/nazory/feed'),
+        (u'Kultura', 'https://denikn.cz/kultura/feed'),
+        (u'Věda a technologie', 'https://denikn.cz/veda/feed'),
+        (u'Sport', 'https://denikn.cz/sport/feed'),
+    ]
+
+    language = 'cs'
+    cover_url = 'https://denikn.cz/wp-content/themes/dn-2-cz/logo.svg'
+    remove_javascript = True
+
+    publication_type = 'newspaper'
+    tags = 'news'
+
+    # This could be 'optional', but there isn't much content if not subscribed
+    needs_subscription = True
+    # None auto-detects, otherwise 'utf8' could be also used
+    encoding = None
+
+    # Full articles are not embedded
+    use_embedded_content = False
+
+    auto_cleanup   = True
+    remove_empty_feeds = True
+
+    ignore_duplicate_articles = {'title', 'url'}
+
+    compress_news_images = True
+    scale_news_images_to_device = True
+
+    resolve_internal_links = True
+
+    # Use gzip transfers
+    handle_gzip = True
+
+    # Add custom title with Czech dates and correctly display publisher
+    conversion_options = {
+        'title'       : custom_title,
+        # 'comments'    : description,
+        # 'tags'        : tags,
+        # 'language'    : language,
+        'publisher'   : publisher,
+        # 'authors'     : publisher,
+        # 'smarten_punctuation' : True
+    }
+
+    # Handle login here
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://predplatne.denikn.cz/sign/in/')
+            br.select_form(id='frm-signInForm')
+            br['username']   = self.username
+            br['password'] = self.password
+            br.submit()
+        return br

@@ -1,0 +1,202 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: NodeFilter, Range
+from __python__ import bound_methods, hash_literals
+
+
+def is_non_empty_text_node(node):
+    return (node.nodeType is Node.TEXT_NODE or node.nodeType is Node.CDATA_SECTION_NODE) and node.nodeValue.length > 0
+
+
+def text_nodes_in_range(r):
+    parent = r.commonAncestorContainer
+    doc = parent.ownerDocument or document
+    iterator = doc.createNodeIterator(parent)
+    in_range = False
+    ans = v'[]'
+    while True:
+        node = iterator.nextNode()
+        if not node:
+            break
+        if not in_range and node.isSameNode(r.startContainer):
+            in_range = True
+        if in_range:
+            if is_non_empty_text_node(node):
+                ans.push(node)
+            if node.isSameNode(r.endContainer):
+                break
+    return ans
+
+
+def first_annot_in_range(r, annot_id_uuid_map):
+    parent = r.commonAncestorContainer
+    doc = parent.ownerDocument or document
+    iterator = doc.createNodeIterator(parent)
+    in_range = False
+    while True:
+        node = iterator.nextNode()
+        if not node:
+            break
+        if not in_range and node.isSameNode(r.startContainer):
+            in_range = True
+        if in_range:
+            if node.dataset and node.dataset.calibreRangeWrapper:
+                annot_id = annot_id_uuid_map[node.dataset.calibreRangeWrapper]
+                if annot_id:
+                    return annot_id
+            if node.isSameNode(r.endContainer):
+                break
+
+
+def remove(node):
+    if node.parentNode:
+        node.parentNode.removeChild(node)
+
+
+def replace_node(replacement, node):
+    remove(replace_node)
+    node.parentNode.insertBefore(replacement, node)
+    remove(node)
+
+
+def unwrap(node):
+    r = (node.ownerDocument or document).createRange()
+    r.selectNodeContents(node)
+    replace_node(r.extractContents(), node)
+    p = node.parentNode
+    if p:
+        p.normalize()
+
+
+def unwrap_crw(crw):
+    for node in document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]'):
+        unwrap(node)
+
+
+def unwrap_all_crw():
+    for node in document.querySelectorAll('span[data-calibre-range-wrapper]'):
+        unwrap(node)
+
+
+def select_crw(crw):
+    nodes = document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]')
+    if nodes and nodes.length:
+        r = document.createRange()
+        r.setStart(nodes[0].firstChild, 0)
+        r.setEnd(nodes[-1].lastChild, nodes[-1].lastChild.nodeValue.length)
+        sel = window.getSelection()
+        sel.removeAllRanges()
+        sel.addRange(r)
+        return True
+    else:
+        print(f'range-wrapper: {crw} does not exist')
+    return False
+
+
+def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers):
+    start_node = r.startContainer
+    end_node = r.endContainer
+    start_offset = r.startOffset
+    end_offset = r.endOffset
+
+    def wrap_node(node):
+        nonlocal start_node, end_node, start_offset, end_offset
+        current_range = (node.ownerDocument or document).createRange()
+        current_wrapper = wrapper_elem.cloneNode()
+        current_range.selectNodeContents(node)
+        # adjust start and end in case the current node is one of the
+        # boundaries of the original range
+        if node.isSameNode(start_node):
+            current_range.setStart(node, start_offset)
+            start_node = current_wrapper
+            start_offset = 0
+        if node.isSameNode(end_node):
+            current_range.setEnd(node, end_offset)
+            end_node = current_wrapper
+            end_offset = 1
+        crw = node.parentNode?.dataset?.calibreRangeWrapper
+        if crw:
+            intersecting_wrappers[crw] = True
+        current_range.surroundContents(current_wrapper)
+        # remove any empty text nodes created by surroundContents() on either
+        # side of the wrapper. This happens for instance on Chrome when
+        # wrapping all text inside <i>some text</i>
+        current_range.commonAncestorContainer.normalize()
+        if process_wrapper:
+            process_wrapper(current_wrapper)
+        all_wrappers.push(current_wrapper)
+        return current_wrapper
+
+    return wrap_node
+
+
+wrapper_counter = 0
+
+
+def wrap_text_in_range(styler, r, class_to_add_to_last, process_wrapper):
+    if not r:
+        sel = window.getSelection()
+        if not sel or not sel.rangeCount:
+            return None, v'[]'
+        r = sel.getRangeAt(0)
+    if r.isCollapsed:
+        return None, v'[]'
+
+    wrapper_elem = document.createElement('span')
+    wrapper_elem.dataset.calibreRangeWrapper = v'++wrapper_counter' + ''
+    if styler:
+        styler(wrapper_elem)
+
+    intersecting_wrappers = {}
+    all_wrappers = v'[]'
+    wrap_node = create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers)
+    text_nodes_in_range(r).map(wrap_node)
+    crw = wrapper_elem.dataset.calibreRangeWrapper
+    v'delete intersecting_wrappers[crw]'
+    if class_to_add_to_last and all_wrappers.length:
+        all_wrappers[-1].classList.add(class_to_add_to_last)
+    return crw, Object.keys(intersecting_wrappers)
+
+
+def last_span_for_crw(crw):
+    nodes = document.querySelectorAll(f'span[data-calibre-range-wrapper="{crw}"]')
+    if nodes and nodes.length:
+        return nodes[-1]
+
+
+def reset_highlight_counter():
+    nonlocal wrapper_counter
+    wrapper_counter = 0
+
+
+def get_annot_id_for(node, offset, annot_id_uuid_map):
+
+    if not node:
+        return
+    if node.nodeType is Node.ELEMENT_NODE:
+        if node.dataset.calibreRangeWrapper:
+            return annot_id_uuid_map[node.dataset.calibreRangeWrapper]
+        if offset is 0:
+
+            if node.firstChild?.nodeType is Node.ELEMENT_NODE and node.firstChild.dataset.calibreRangeWrapper:
+                return annot_id_uuid_map[node.firstChild.dataset.calibreRangeWrapper]
+        elif offset < node.childNodes.length:
+            node = node.childNodes[offset]
+            return get_annot_id_for(node, 0)
+    elif node.nodeType is Node.TEXT_NODE:
+        if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
+            return annot_id_uuid_map[node.parentNode.dataset.calibreRangeWrapper]
+
+
+def highlight_associated_with_selection(sel, annot_id_uuid_map):
+    # Return the annotation id for a highlight intersecting the selection
+    if sel.rangeCount:
+        annot_id = get_annot_id_for(sel.focusNode, sel.focusOffset, annot_id_uuid_map) or get_annot_id_for(sel.anchorNode, sel.anchorOffset, annot_id_uuid_map)
+        if annot_id:
+            return annot_id
+
+        for v'var i = 0; i < sel.rangeCount; i++':
+            r = sel.getRangeAt(i)
+            annot_id = first_annot_in_range(r, annot_id_uuid_map)
+            if annot_id:
+                return annot_id

@@ -1,0 +1,168 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+#
+from __future__ import unicode_literals, division, absolute_import, print_function
+
+__license__ = 'GPL v3'
+__copyright__ = '2020, Pat Stapleton <pat.stapleton at gmail.com>'
+'''
+Recipe for Independent Australia
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.web.feeds import Feed
+
+
+class IndependentAustralia(BasicNewsRecipe):
+    title = 'Independent Australia'
+    language = 'en_AU'
+    __author__ = 'Pat Stapleton'
+    description = (
+        'Independent Australia is a progressive journal focusing on politics, democracy, the environment, Australian history and Australian identity.'
+        ' It contains news and opinion from Australia and around the world.')
+    oldest_article = 7  # days
+    max_articles_per_feed = 100
+
+    feeds = [
+        (
+            'Independent Australia',
+            'https://feeds.feedburner.com/IndependentAustralia'
+        ),
+    ]
+
+    masthead_url = 'https://independentaustralia.net/t/2018/logo-2018-lg-h90.png'
+    cover_url = 'https://independentaustralia.net/t/apple-touch-icon.png'
+    #    cover_margins = (0,20,'#000000')
+    scale_news_images_to_device = True
+    oldest_article = 7  # days
+    max_articles_per_feed = 100
+    publication_type = 'newspaper'
+
+    #    auto_cleanup   = True # enable this as a backup option if recipe stops working
+
+    #    use_embedded_content = False # if set to true will assume that all the article content is within the feed (i.e. won't try to fetch more data)
+
+    no_stylesheets = True
+    remove_javascript = True
+
+    keep_only_tags = [
+        dict(name='div', attrs={'class': "art-display"})
+    ]  # the article content is contained in
+
+    # ************************************
+    # Clear out all the unwanted html tags:
+    # ************************************
+    remove_tags = [{
+        'name': ['meta', 'link', 'noscript', 'script', 'footer']
+    }, {
+        'attrs': {
+            'class': ['tagFooter', 'noshow', 'panelSubscription', 'mt-2']
+        }
+    }]
+
+    # ************************************
+    # Tidy up the output to look neat for reading
+    # ************************************
+    remove_attributes = ['width', 'height', 'style']
+    extra_css = '.byline{font-size:smaller;margin-bottom:10px;}.inline-caption{display:block;font-size:smaller;text-decoration: none;}'
+    compress_news_images = True
+
+    feeds = [
+        (
+            'Independent Australia',
+            'https://feeds.feedburner.com/IndependentAustralia'
+        ),
+    ]
+
+    # ************************************
+    # Break up feed into categories (based on BrianG's code snippet):
+    # ************************************
+    def parse_feeds(self):
+        # Do the "official" parse_feeds first
+        feeds = BasicNewsRecipe.parse_feeds(self)
+
+        politicsArticles = []
+        environmentArticles = []
+        businessArticles = []
+        lifeArticles = []
+        australiaArticles = []
+        # Loop thru the articles in all feeds to find articles with base categories in it
+        for curfeed in feeds:
+            delList = []
+            for a, curarticle in enumerate(curfeed.articles):
+                if curarticle.url.lower(
+                ).find('independentaustralia.net/politics/') >= 0:
+                    politicsArticles.append(curarticle)
+                    delList.append(curarticle)
+                elif curarticle.url.lower(
+                ).find('independentaustralia.net/environment/') >= 0:
+                    environmentArticles.append(curarticle)
+                    delList.append(curarticle)
+                elif curarticle.url.lower(
+                ).find('independentaustralia.net/business/') >= 0:
+                    businessArticles.append(curarticle)
+                    delList.append(curarticle)
+                elif curarticle.url.lower(
+                ).find('independentaustralia.net/life/') >= 0:
+                    lifeArticles.append(curarticle)
+                    delList.append(curarticle)
+                elif curarticle.url.lower(
+                ).find('independentaustralia.net/australia/') >= 0:
+                    australiaArticles.append(curarticle)
+                    delList.append(curarticle)
+            if len(delList) > 0:
+                for d in delList:
+                    index = curfeed.articles.index(d)
+                    curfeed.articles[index:index + 1] = []
+
+        # If there are any of each base category found, create, append a new Feed object
+        if len(politicsArticles) > 0:
+            pfeed = Feed()
+            pfeed.title = 'Politics'
+            pfeed.image_url = None
+            pfeed.oldest_article = 30
+            pfeed.id_counter = len(politicsArticles)
+            # Create a new Feed, add the articles, and append to "official" list of feeds
+            pfeed.articles = politicsArticles[:]
+            feeds.append(pfeed)
+        if len(environmentArticles) > 0:
+            pfeed = Feed()
+            pfeed.title = 'Environment'
+            pfeed.image_url = None
+            pfeed.oldest_article = 30
+            pfeed.id_counter = len(environmentArticles)
+            # Create a new Feed, add the articles, and append to "official" list of feeds
+            pfeed.articles = environmentArticles[:]
+            feeds.append(pfeed)
+        if len(businessArticles) > 0:
+            pfeed = Feed()
+            pfeed.title = 'Business'
+            pfeed.image_url = None
+            pfeed.oldest_article = 30
+            pfeed.id_counter = len(businessArticles)
+            # Create a new Feed, add the articles, and append to "official" list of feeds
+            pfeed.articles = businessArticles[:]
+            feeds.append(pfeed)
+        if len(lifeArticles) > 0:
+            pfeed = Feed()
+            pfeed.title = 'Life'
+            pfeed.image_url = None
+            pfeed.oldest_article = 30
+            pfeed.id_counter = len(lifeArticles)
+            # Create a new Feed, add the articles, and append to "official" list of feeds
+            pfeed.articles = lifeArticles[:]
+            feeds.append(pfeed)
+        if len(australiaArticles) > 0:
+            pfeed = Feed()
+            pfeed.title = 'Australia'
+            pfeed.image_url = None
+            pfeed.oldest_article = 30
+            pfeed.id_counter = len(australiaArticles)
+            # Create a new Feed, add the articles, and append to "official" list of feeds
+            pfeed.articles = australiaArticles[:]
+            feeds.append(pfeed)
+
+        if len(feeds) > 1:  # cleanup empty first feed item
+            if len(feeds[0]) == 0:
+                del feeds[0]
+        return feeds

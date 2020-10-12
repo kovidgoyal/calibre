@@ -1,17 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from urlparse import urlparse
-from urllib2 import unquote
 
 from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String, current_log
+from polyglot.builtins import iteritems
+from polyglot.urllib import unquote, urlparse
 
 
 class Destination(Array):
@@ -46,7 +45,7 @@ class Links(object):
         path = os.path.normcase(os.path.abspath(base_path))
         self.anchors[path] = a = {}
         a[None] = Destination(start_page, self.start, self.pdf.get_pageref)
-        for anchor, pos in anchors.iteritems():
+        for anchor, pos in iteritems(anchors):
             a[anchor] = Destination(start_page, pos, self.pdf.get_pageref)
         for link in links:
             href, page, rect = link

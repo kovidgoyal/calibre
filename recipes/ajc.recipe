@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 __license__ = 'Creative Commons Attribution 4.0 International License'
 __author__ = 'John McDole'
 __copyright__ = ''
@@ -10,6 +10,13 @@ import datetime
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
@@ -112,13 +119,13 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
         for div in soup.findAll('div', attrs={'class': re.compile(self.author_reg_exp, re.IGNORECASE)}):
             div.extract()
             for auth in div.findAll('a'):
-                if (auth.has_key('class') and auth['class'] == 'cm-source-image'):  # noqa
+                if auth.get('class') == 'cm-source-image':
                     continue
                 names = names + comma + auth.contents[0]
                 comma = ', '
         article.author = names
         if len(names) > 0:
-            tag = Tag(soup, 'div', [('class', 'cm-story-author')])
+            tag = new_tag(soup, 'div', [('class', 'cm-story-author')])
             tag.append("by: ")
             tag.append(names)
             meta = soup.find('div', attrs={'class': 'cm-story-meta'})

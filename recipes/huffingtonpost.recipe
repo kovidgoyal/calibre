@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
@@ -61,7 +62,7 @@ class HuffingtonPostRecipe(BasicNewsRecipe):
 
     remove_tags = []
     remove_tags.append(dict(name='a', attrs={'href': re.compile(
-        'http://feedads\.g\.doubleclick.net.*')}))
+        'http://feedads\\.g\\.doubleclick.net.*')}))
     remove_tags.append(dict(name='div', attrs={'class': 'feedflare'}))
     remove_tags.append(dict(name='a', attrs={'class': 'home_pixie'}))
     remove_tags.append(dict(name='div', attrs={'id': [

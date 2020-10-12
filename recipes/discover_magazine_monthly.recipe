@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 from __future__ import unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
@@ -9,7 +9,10 @@ discovermagazine.com
 '''
 import re
 import json
-import cookielib
+try:
+    from http.cookiejar import Cookie
+except ImportError:
+    from cookielib import Cookie
 import mechanize
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -55,7 +58,7 @@ class DiscoverMagazine(BasicNewsRecipe):
         if hasattr(br, 'set_cookie'):
             br.set_cookie('KSERV', session_id, 'discovermagazine.com')
         else:
-            c = cookielib.Cookie(
+            c = Cookie(
                 None, 'KSERV', session_id,
                 None, False,
                 'discovermagazine.com', True, False,
@@ -65,7 +68,7 @@ class DiscoverMagazine(BasicNewsRecipe):
         res = br.open('http://discovermagazine.com')
         br.set_debug_http(False)
         raw = res.read()
-        if '>Logout<' not in raw:
+        if b'>Logout<' not in raw:
             raise ValueError('Failed to login')
         return br
 

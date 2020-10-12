@@ -1,0 +1,79 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
+__license__ = 'GPL v3'
+__copyright__ = '2018, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.cronica.com.ar
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+class Veintitres(BasicNewsRecipe):
+    title = 'Cronica'
+    __author__ = 'Darko Miletic'
+    description = 'Últimas noticias'
+    publisher = 'Grupo Crónica'
+    category = 'politica, noticias generales, Argentina'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    no_stylesheets = False
+    use_embedded_content = False
+    encoding = 'utf-8'
+    masthead_url = 'https://www.cronica.com.ar/export/sites/cronica/arte/logos/logoCronica.svg_799932565.svg'
+    language = 'es_AR'
+    remove_javascript = True
+    publication_type = 'magazine'
+    remove_empty_feeds = True
+    auto_cleanup = True
+    auto_cleanup_keep = '//h1'
+    resolve_internal_links = True
+    INDEX = "https://www.cronica.com.ar"
+    extra_css = """
+                                img{margin-bottom: 0.8em}
+                            """
+
+    conversion_options = {
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
+    }
+
+    feeds = [
+        (u'Policiales', u'https://www.cronica.com.ar/seccion/policiales/'),
+        (u'Politica', u'https://www.cronica.com.ar/seccion/politica/'),
+        (u'General', u'https://www.cronica.com.ar/seccion/info-general/'),
+        (u'Mundo', u'https://www.cronica.com.ar/seccion/mundo/'),
+        (u'Opinion', u'https://www.cronica.com.ar/seccion/opinion/'),
+        (u'Deportes', u'https://www.cronica.com.ar/seccion/deportes/'),
+        (u'Cosa de locos', u'https://www.cronica.com.ar/seccion/cosa-de-locos/'),
+        (u'Espectaculos', u'https://www.diarioshow.com/seccion/espectaculos/'),
+    ]
+
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(
+                0,
+                _('Fetching feed') + ' %s...' %
+                (feedtitle if feedtitle else feedurl)
+            )
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            for item in soup.findAll('a', attrs={'class': 'cover-link'}):
+                url = self.INDEX + item['href']
+                if feedtitle == 'Espectaculos':
+                    url = 'https://www.diarioshow.com' + item['href']
+                title = item['title']
+                articles.append({
+                    'title': title,
+                    'date': '',
+                    'url': url,
+                    'description': ''
+                })
+            totalfeeds.append((feedtitle, articles))
+        return totalfeeds

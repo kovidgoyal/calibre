@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Tag editor</string>
+   <string>Manage items</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -38,7 +38,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>&amp;Add tag:</string>
+        <string>&amp;Add item:</string>
        </property>
        <property name="buddy">
         <cstring>add_tag_input</cstring>
@@ -46,19 +46,12 @@
       </widget>
      </item>
      <item>
-      <widget class="EnLineEdit" name="add_tag_input">
-       <property name="toolTip">
-        <string>If the tag you want is not in the available list, you can add it here. Accepts a comma separated list of tags.</string>
-       </property>
-      </widget>
+      <widget class="EnLineEdit" name="add_tag_input"/>
      </item>
      <item>
       <widget class="QToolButton" name="add_tag_button">
        <property name="toolTip">
-        <string>Add tag to available tags and apply it to current book</string>
-       </property>
-       <property name="text">
-        <string>...</string>
+        <string>Apply item(s) to the current book</string>
        </property>
        <property name="icon">
         <iconset resource="../../../../resources/images.qrc">
@@ -89,39 +82,49 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="available_filter_input">
-         <property name="placeholderText">
-          <string>Filter the available tags</string>
+    <layout class="QGridLayout" name="middleBoxLayout">
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="available_filter_input">
+       <property name="placeholderText">
+        <string>Filter the available items</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QListWidget" name="available_tags">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <layout class="QVBoxLayout" name="buttonverticalLayout">
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vorizontal</enum>
          </property>
-         <property name="clearButtonEnabled">
-          <bool>true</bool>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>20</height>
+          </size>
          </property>
-        </widget>
+        </spacer>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QListWidget" name="available_tags">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::MultiSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QPushButton" name="delete_button">
+       <item>
+        <widget class="QToolButton" name="delete_button">
          <property name="toolTip">
-          <string>Delete tag from database. This will unapply the tag from all books and then remove it from the database.</string>
-         </property>
-         <property name="text">
-          <string>&amp;Delete tag</string>
+          <string>Delete the selected items from database. This will unapply the items from all books and then remove them from the database.</string>
          </property>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
@@ -129,82 +132,115 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Ava&amp;ilable tags</string>
+       <item>
+        <spacer name="verticalSpacer2">
+         <property name="orientation">
+          <enum>Qt::Vorizontal</enum>
          </property>
-         <property name="buddy">
-          <cstring>available_tags</cstring>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>20</height>
+          </size>
          </property>
-        </widget>
+        </spacer>
        </item>
       </layout>
      </item>
-     <item>
-      <widget class="QToolButton" name="apply_button">
-       <property name="toolTip">
-        <string>Apply tag to current book</string>
-       </property>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>...</string>
+        <string>Ava&amp;ilable items</string>
        </property>
-       <property name="icon">
-        <iconset resource="../../../../resources/images.qrc">
-         <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
+       <property name="buddy">
+        <cstring>available_tags</cstring>
        </property>
       </widget>
      </item>
-     <item>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="0">
-        <widget class="QLineEdit" name="applied_filter_input">
-         <property name="placeholderText">
-          <string>Filter the applied tags</string>
+     <item row="2" column="2">
+      <layout class="QVBoxLayout" name="buttonverticalLayout">
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vorizontal</enum>
          </property>
-         <property name="clearButtonEnabled">
-          <bool>true</bool>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>20</height>
+          </size>
          </property>
-        </widget>
+        </spacer>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QListWidget" name="applied_tags">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-         <property name="selectionMode">
-          <enum>QAbstractItemView::MultiSelection</enum>
-         </property>
-         <property name="selectionBehavior">
-          <enum>QAbstractItemView::SelectRows</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Applied &amp;tags</string>
-         </property>
-         <property name="buddy">
-          <cstring>applied_tags</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QPushButton" name="unapply_button">
+       <item>
+        <widget class="QToolButton" name="apply_button">
          <property name="toolTip">
-          <string>Unapply (remove) tag from current book</string>
-         </property>
-         <property name="text">
-          <string>&amp;Unapply tag</string>
+          <string>Apply item to current book</string>
          </property>
          <property name="icon">
           <iconset resource="../../../../resources/images.qrc">
-           <normaloff>:/images/minus.png</normaloff>:/images/minus.png</iconset>
+           <normaloff>:/images/forward.png</normaloff>:/images/forward.png</iconset>
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QToolButton" name="unapply_button">
+         <property name="toolTip">
+          <string>Unapply (remove) the item from current book</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../../../../resources/images.qrc">
+           <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer2">
+         <property name="orientation">
+          <enum>Qt::Vorizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>10</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLineEdit" name="applied_filter_input">
+       <property name="placeholderText">
+        <string>Filter the applied items</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="3">
+      <widget class="QListWidget" name="applied_tags">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::MultiSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Applied &amp;items</string>
+       </property>
+       <property name="buddy">
+        <cstring>applied_tags</cstring>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

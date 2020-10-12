@@ -10,7 +10,7 @@ In the standard *regexp* mode for search and replace, you specify both a
 regular expression to search for as well as a template that is used to replace
 all found matches. In function mode, instead of using a fixed template, you
 specify an arbitrary function, in the
-`Python programming language <https://docs.python.org/2.7/>`_. This allows
+`Python programming language <https://docs.python.org>`_. This allows
 you to do lots of things that are not possible with simple templates.
 
 Techniques for using function mode and the syntax will be described by means of
@@ -57,7 +57,7 @@ Python function named replace, that accepts all the arguments shown above.
 For the moment, we wont worry about all the different arguments to
 ``replace()`` function. Just focus on the ``match`` argument. It represents a
 match when running a search and replace. Its full documentation in available
-`here <https://docs.python.org/2.7/library/re.html#match-objects>`_.
+`here <https://docs.python.org/library/re.html#match-objects>`_.
 ``match.group()`` simply returns all the matched text and all we do is replace
 hyphens in that text with em-dashes, first replacing double hyphens and
 then single hyphens.
@@ -239,7 +239,7 @@ The ``match`` argument
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The ``match`` argument represents the currently found match. It is a
-`Python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
+`Python Match object <https://docs.python.org/library/re.html#match-objects>`_.
 Its most useful method is ``group()`` which can be used to get the matched
 text corresponding to individual capture groups in the search regular
 expression.
@@ -393,7 +393,7 @@ Suppressing the result dialog when performing searches on marked text
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can also suppress the result dialog (which can slow down the repeated
-application of a search/replace on many blocks of text) by setting 
+application of a search/replace on many blocks of text) by setting
 the ``suppress_result_dialog`` attribute on your function, like this:
 
 .. code-block:: python
@@ -408,4 +408,4 @@ More examples
 ----------------
 
 More useful examples, contributed by calibre users, can be found in the
-`calibre Editor forum <https://www.mobileread.com/forums/showthread.php?t=237181>`_.
+`calibre E-book editor forum <https://www.mobileread.com/forums/showthread.php?t=237181>`_.

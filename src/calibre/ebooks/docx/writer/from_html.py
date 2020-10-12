@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -19,6 +18,7 @@ from calibre.ebooks.docx.writer.lists import ListsManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 from calibre.utils.localization import lang_as_iso639_1
+from polyglot.builtins import unicode_type, string_or_bytes
 
 
 def lang_for_tag(tag):
@@ -101,7 +101,7 @@ class TextRun(object):
         for text, preserve_whitespace, bookmark in self.texts:
             if bookmark is not None:
                 bid = links_manager.bookmark_id
-                makeelement(r, 'w:bookmarkStart', w_id=str(bid), w_name=bookmark)
+                makeelement(r, 'w:bookmarkStart', w_id=unicode_type(bid), w_name=bookmark)
             if text is None:
                 makeelement(r, 'w:br', w_clear=preserve_whitespace)
             elif hasattr(text, 'xpath'):
@@ -112,7 +112,7 @@ class TextRun(object):
                 if preserve_whitespace:
                     t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
             if bookmark is not None:
-                makeelement(r, 'w:bookmarkEnd', w_id=str(bid))
+                makeelement(r, 'w:bookmarkEnd', w_id=unicode_type(bid))
 
     def __repr__(self):
         return repr(self.texts)
@@ -128,7 +128,7 @@ class TextRun(object):
     def style_weight(self):
         ans = 0
         for text, preserve_whitespace, bookmark in self.texts:
-            if isinstance(text, type('')):
+            if isinstance(text, unicode_type):
                 ans += len(text)
         return ans
 
@@ -136,6 +136,7 @@ class TextRun(object):
 class Block(object):
 
     def __init__(self, namespace, styles_manager, links_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False, parent_bg=None):
+        self.force_not_empty = False
         self.namespace = namespace
         self.bookmarks = set()
         self.list_tag = (html_block, style) if is_list_item else None
@@ -168,19 +169,19 @@ class Block(object):
                 next_block.list_tag = self.list_tag
 
     def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False, bookmark=None, link=None, lang=None):
-        ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         ws = style['white-space']
+        preserve_whitespace = ws in {'pre', 'pre-wrap', '-o-pre-wrap'}
+        ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link and lang == self.runs[-1].lang:
             run = self.runs[-1]
         else:
             run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent, lang=lang)
             self.runs.append(run)
-        preserve_whitespace = ws in {'pre', 'pre-wrap'}
         if ignore_leading_whitespace and not preserve_whitespace:
             text = text.lstrip()
-        if ws == 'pre-line':
+        if preserve_whitespace or ws == 'pre-line':
             for text in text.splitlines():
-                run.add_text(text, False, bookmark=bookmark, link=link)
+                run.add_text(text, preserve_whitespace, bookmark=bookmark, link=link)
                 bookmark = None
                 run.add_break()
         else:
@@ -207,7 +208,7 @@ class Block(object):
         p = makeelement(body, 'w:p')
         end_bookmarks = []
         for bmark in self.bookmarks:
-            end_bookmarks.append(str(self.links_manager.bookmark_id))
+            end_bookmarks.append(unicode_type(self.links_manager.bookmark_id))
             makeelement(p, 'w:bookmarkStart', w_id=end_bookmarks[-1], w_name=bmark)
         if self.block_lang:
             rpr = makeelement(p, 'w:rPr')
@@ -220,8 +221,8 @@ class Block(object):
             self.float_spec.serialize(self, ppr)
         if self.numbering_id is not None:
             numpr = makeelement(ppr, 'w:numPr')
-            makeelement(numpr, 'w:ilvl', w_val=str(self.numbering_id[1]))
-            makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
+            makeelement(numpr, 'w:ilvl', w_val=unicode_type(self.numbering_id[1]))
+            makeelement(numpr, 'w:numId', w_val=unicode_type(self.numbering_id[0]))
         if self.linked_style is not None:
             makeelement(ppr, 'w:pStyle', w_val=self.linked_style.id)
         elif self.style.id:
@@ -242,6 +243,8 @@ class Block(object):
     __str__ = __repr__
 
     def is_empty(self):
+        if self.force_not_empty:
+            return False
         for run in self.runs:
             if not run.is_empty():
                 return False
@@ -251,6 +254,7 @@ class Block(object):
 class Blocks(object):
 
     def __init__(self, namespace, styles_manager, links_manager):
+        self.top_bookmark = None
         self.namespace = namespace
         self.styles_manager = styles_manager
         self.links_manager = links_manager
@@ -372,6 +376,9 @@ class Blocks(object):
         if self.pos > 0 and self.pos < len(self.all_blocks):
             # Insert a page break corresponding to the start of the html file
             self.all_blocks[self.pos].page_break_before = True
+            if self.top_bookmark is not None:
+                self.all_blocks[self.pos].bookmarks.add(self.top_bookmark)
+        self.top_bookmark = None
         self.block_map = {}
 
     def apply_page_break_after(self):
@@ -435,8 +442,8 @@ class Convert(object):
         if self.add_toc:
             self.links_manager.process_toc_links(self.oeb)
 
-        if self.add_cover and self.oeb.metadata.cover and unicode(self.oeb.metadata.cover[0]) in self.oeb.manifest.ids:
-            cover_id = unicode(self.oeb.metadata.cover[0])
+        if self.add_cover and self.oeb.metadata.cover and unicode_type(self.oeb.metadata.cover[0]) in self.oeb.manifest.ids:
+            cover_id = unicode_type(self.oeb.metadata.cover[0])
             item = self.oeb.manifest.ids[cover_id]
             self.cover_img = self.images_manager.read_image(item.href)
 
@@ -472,7 +479,7 @@ class Convert(object):
         self.current_lang = lang_for_tag(item.data) or self.styles_manager.document_lang
         for i, body in enumerate(XPath('//h:body')(item.data)):
             with self.blocks:
-                self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
+                self.blocks.top_bookmark = self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
 
     def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
@@ -523,7 +530,7 @@ class Convert(object):
                     self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
             for child in html_tag.iterchildren():
-                if isinstance(getattr(child, 'tag', None), basestring):
+                if isinstance(getattr(child, 'tag', None), string_or_bytes):
                     self.process_tag(child, stylizer, float_spec=float_spec)
                 else:  # Comment/PI/etc.
                     tail = getattr(child, 'tail', None)
@@ -567,8 +574,15 @@ class Convert(object):
         if tagname == 'img':
             self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
         else:
-            if html_tag.text:
-                block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link, lang=self.current_lang)
+            text = html_tag.text
+            is_list_item = tagname == 'li'
+            has_sublist = is_list_item and len(html_tag) and barename(html_tag[0].tag) in ('ul', 'ol') and len(html_tag[0])
+            if text and has_sublist and not text.strip():
+                text = ''  # whitespace only, ignore
+            if text:
+                block.add_text(text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link, lang=self.current_lang)
+            elif has_sublist:
+                block.force_not_empty = True
 
     def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
         anchor = html_tag.get('id') or html_tag.get('name') or None

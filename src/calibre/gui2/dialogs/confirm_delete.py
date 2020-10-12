@@ -1,4 +1,6 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -38,9 +40,12 @@ class Dialog(QDialog):
         a.stateChanged.connect(self.toggle)
         l.addWidget(a)
 
-        buttons = QDialogButtonBox.Ok
         if show_cancel_button:
-            buttons |= QDialogButtonBox.Cancel
+            buttons = QDialogButtonBox.Yes | QDialogButtonBox.No
+            standard_button = QDialogButtonBox.Yes
+        else:
+            buttons = QDialogButtonBox.Ok
+            standard_button = QDialogButtonBox.Ok
         self.buttonBox = bb = QDialogButtonBox(buttons, self)
         bb.setObjectName("buttonBox")
         bb.setFocus(Qt.OtherFocusReason)
@@ -51,6 +56,7 @@ class Dialog(QDialog):
         self.config_set = config_set
 
         self.resize(self.sizeHint())
+        bb.button(standard_button).setFocus(Qt.OtherFocusReason)
 
     def toggle(self, *args):
         self.config_set[confirm_config_name(self.name)] = self.again.isChecked()

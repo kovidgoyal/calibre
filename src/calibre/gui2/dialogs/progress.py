@@ -1,21 +1,24 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
-    QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar,
+    QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar, QSize,
     QDialogButtonBox, QApplication, QFontMetrics, QHBoxLayout, QIcon)
 
 from calibre.gui2 import elided_text
 from calibre.gui2.progress_indicator import ProgressIndicator
+from polyglot.builtins import unicode_type
 
 
 class ProgressDialog(QDialog):
 
     canceled_signal = pyqtSignal()
 
-    def __init__(self, title, msg=u'\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None):
+    def __init__(self, title, msg='\u00a0', min=0, max=99, parent=None, cancelable=True, icon=None):
         QDialog.__init__(self, parent)
         if icon is None:
             self.l = l = QVBoxLayout(self)
@@ -63,14 +66,13 @@ class ProgressDialog(QDialog):
     def set_value(self, val):
         self.value = val
 
-    @dynamic_property
+    @property
     def value(self):
-        def fset(self, val):
-            return self.bar.setValue(val)
+        return self.bar.value()
 
-        def fget(self):
-            return self.bar.value()
-        return property(fget=fget, fset=fset)
+    @value.setter
+    def value(self, val):
+        self.bar.setValue(val)
 
     def set_min(self, min):
         self.min = min
@@ -78,42 +80,38 @@ class ProgressDialog(QDialog):
     def set_max(self, max):
         self.max = max
 
-    @dynamic_property
+    @property
     def max(self):
-        def fget(self):
-            return self.bar.maximum()
+        return self.bar.maximum()
 
-        def fset(self, val):
-            self.bar.setMaximum(val)
-        return property(fget=fget, fset=fset)
+    @max.setter
+    def max(self, val):
+        self.bar.setMaximum(val)
 
-    @dynamic_property
+    @property
     def min(self):
-        def fget(self):
-            return self.bar.minimum()
+        return self.bar.minimum()
 
-        def fset(self, val):
-            self.bar.setMinimum(val)
-        return property(fget=fget, fset=fset)
+    @min.setter
+    def min(self, val):
+        self.bar.setMinimum(val)
 
-    @dynamic_property
+    @property
     def title(self):
-        def fget(self):
-            return self.title_label.text()
+        return self.title_label.text()
 
-        def fset(self, val):
-            self.title_label.setText(unicode(val or ''))
-        return property(fget=fget, fset=fset)
+    @title.setter
+    def title(self, val):
+        self.title_label.setText(unicode_type(val or ''))
 
-    @dynamic_property
+    @property
     def msg(self):
-        def fget(self):
-            return self.message.text()
+        return self.message.text()
 
-        def fset(self, val):
-            val = unicode(val or '')
-            self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
-        return property(fget=fget, fset=fset)
+    @msg.setter
+    def msg(self, val):
+        val = unicode_type(val or '')
+        self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
 
     def _canceled(self, *args):
         self.canceled = True
@@ -147,7 +145,7 @@ class BlockingBusy(QDialog):
         self.font.setPointSize(self.font.pointSize() + 8)
         self.msg.setFont(self.font)
         self.pi = ProgressIndicator(self)
-        self.pi.setDisplaySize(100)
+        self.pi.setDisplaySize(QSize(100, 100))
         self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
         self._layout.addSpacing(15)
         self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
@@ -167,6 +165,7 @@ class BlockingBusy(QDialog):
 
     def reject(self):
         pass  # Cannot cancel this dialog
+
 
 if __name__ == '__main__':
     from PyQt5.Qt import QTimer

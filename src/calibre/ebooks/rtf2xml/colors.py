@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -14,6 +15,7 @@ import sys, os, re
 
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class Colors:
@@ -195,7 +197,7 @@ class Colors:
         except ValueError:
             if self.__run_level > 3:
                 msg = 'can\'t make integer from string\n'
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
             else:
                 return 'bdr-color_:no-value'
         hex_num = self.__figure_num(num)
@@ -211,7 +213,7 @@ class Colors:
             if self.__run_level > 3:
                 msg = 'no value in self.__color_dict' \
                 'for key %s at line %d\n' % (num, self.__line)
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
         return hex_num
 
     def __do_nothing_func(self, line):
@@ -236,8 +238,8 @@ class Colors:
             info, and substitute the number with the hex number.
         """
         self.__initiate_values()
-        with open(self.__file, 'r') as read_obj:
-            with open(self.__write_to, 'w') as self.__write_obj:
+        with open_for_read(self.__file) as read_obj:
+            with open_for_write(self.__write_to) as self.__write_obj:
                 for line in read_obj:
                     self.__line+=1
                     self.__token_info = line[:16]

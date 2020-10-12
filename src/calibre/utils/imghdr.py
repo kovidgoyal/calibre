@@ -1,12 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 from struct import unpack, error
 import os
 from calibre.utils.speedups import ReadOnlyFileBuffer
+from polyglot.builtins import string_or_bytes, unicode_type
 
 """ Recognize image file formats and sizes based on their first few bytes."""
 
@@ -16,7 +16,7 @@ HSIZE = 120
 def what(file, h=None):
     ' Recognize image headers '
     if h is None:
-        if isinstance(file, basestring):
+        if isinstance(file, string_or_bytes):
             with lopen(file, 'rb') as f:
                 h = f.read(HSIZE)
         else:
@@ -42,7 +42,7 @@ def identify(src):
     recognized. '''
     width = height = -1
 
-    if isinstance(src, type('')):
+    if isinstance(src, unicode_type):
         stream = lopen(src, 'rb')
     elif isinstance(src, bytes):
         stream = ReadOnlyFileBuffer(src)
@@ -124,16 +124,19 @@ def jpeg_dimensions(stream):
             raise ValueError('Truncated JPEG data')
         return ans
 
-    x = b''
+    def read_byte():
+        return read(1)[0]
+
+    x = None
     while True:
         # Find next marker
-        while x != b'\xff':
-            x = read(1)
+        while x != 0xff:
+            x = read_byte()
         # Soak up padding
-        marker = b'\xff'
-        while marker == b'\xff':
-            marker = read(1)
-        q = ord(marker[0])  # [0] needed for memoryview
+        marker = 0xff
+        while marker == 0xff:
+            marker = read_byte()
+        q = marker
         if 0xc0 <= q <= 0xcf and q != 0xc4 and q != 0xcc:
             # SOFn marker
             stream.seek(3, os.SEEK_CUR)

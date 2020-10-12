@@ -13,7 +13,7 @@
 #include <hunspell.hxx>
 
 typedef struct {
-	PyObject_HEAD 
+	PyObject_HEAD
     Hunspell *handle;
     char *encoding;
 } Dictionary;
@@ -23,15 +23,14 @@ static PyObject *HunspellError = NULL;
 static int
 init_type(Dictionary *self, PyObject *args, PyObject *kwds) {
 	char *dic = NULL, *aff = NULL;
-    Py_ssize_t diclen, afflen;
 
     self->handle = NULL;
     self->encoding = NULL;
 
-	if (!PyArg_ParseTuple(args, "s#s#", &dic, &diclen, &aff, &afflen)) return 1;
+	if (!PyArg_ParseTuple(args, "ss", &dic, &aff)) return 1;
 
     try {
-        self->handle = new (std::nothrow) Hunspell(aff, afflen, dic, diclen);
+        self->handle = new (std::nothrow) Hunspell(aff, dic);
     } catch (const std::exception &ex) {
         PyErr_SetString(HunspellError, ex.what());
         return 1;
@@ -53,40 +52,38 @@ dealloc(Dictionary *self) {
     if (self->handle != NULL) delete self->handle;
     /* We do not free encoding, since it is managed by hunspell */
     self->encoding = NULL; self->handle = NULL;
-	self->ob_type->tp_free((PyObject *)self);
+	Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
 static PyObject *
 recognized(Dictionary *self, PyObject *args) {
-	char *word = NULL;
-	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
+	char *w = NULL;
+	if (!PyArg_ParseTuple(args, "es", self->encoding, &w)) return NULL;
+    std::string word(w);
+    PyMem_Free(w);
 
-    if (self->handle->spell(word) == 0) { PyMem_Free(word); Py_RETURN_FALSE;}
-    PyMem_Free(word);
+    if (!self->handle->spell(word)) { Py_RETURN_FALSE;}
     Py_RETURN_TRUE;
 }
 
 static PyObject *
 suggest(Dictionary *self, PyObject *args) {
-	char *word = NULL, **slist = NULL;
-	int i, num_slist;
+	char *w = NULL;
 	PyObject *ans, *temp;
 
-	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
+	if (!PyArg_ParseTuple(args, "es", self->encoding, &w)) return NULL;
+    const std::string word(w);
+    PyMem_Free(w);
 
-	num_slist = self->handle->suggest(&slist, word);
-	ans = PyTuple_New(num_slist);
+    const std::vector<std::string>& word_list = self->handle->suggest(word);
+	ans = PyTuple_New(word_list.size());
     if (ans == NULL) PyErr_NoMemory();
-    else {
-        for (i = 0; i < num_slist; i++) {
-            temp = PyUnicode_Decode(slist[i], strlen(slist[i]), self->encoding, "strict");
-            if (temp == NULL) { Py_DECREF(ans); ans = NULL; break; }
-            PyTuple_SET_ITEM(ans, i, temp);
-        }
+    Py_ssize_t i = 0;
+    for(auto const& s: word_list) {
+        temp = PyUnicode_Decode(s.c_str(), s.size(), self->encoding, "strict");
+        if (temp == NULL) { Py_DECREF(ans); ans = NULL; break; }
+        PyTuple_SET_ITEM(ans, i++, temp);
     }
-
-    if (slist != NULL) self->handle->free_list(&slist, num_slist);
-    PyMem_Free(word);
 	return ans;
 }
 
@@ -112,9 +109,15 @@ remove_word(Dictionary *self, PyObject *args) {
 
 static PyMethodDef HunSpell_methods[] = {
 	{"recognized", (PyCFunction)recognized, METH_VARARGS,
-	 "Checks the spelling of the given word. The word must be a unicode object. If encoding of the word to the encoding of the dictionary fails, a UnicodeEncodeError is raised. Returns False if the input word is not recognized."},
+	 "Checks the spelling of the given word. The word must be a unicode "
+	 "object. If encoding of the word to the encoding of the dictionary fails, "
+	 "a UnicodeEncodeError is raised. Returns False if the input word is not "
+	 "recognized."},
 	{"suggest", (PyCFunction)suggest, METH_VARARGS,
-	 "Provide suggestions for the given word. The input word must be a unicode object. If encoding of the word to the encoding of the dictionary fails, a UnicodeEncodeError is raised. Returns the list of suggested words as unicode objects."},
+	 "Provide suggestions for the given word. The input word must be a unicode "
+	 "object. If encoding of the word to the encoding of the dictionary fails, "
+	 "a UnicodeEncodeError is raised. Returns the list of suggested words as "
+	 "unicode objects."},
 	{"add", (PyCFunction)add, METH_VARARGS,
 	 "Adds the given word into the runtime dictionary"},
 	{"remove", (PyCFunction)remove_word, METH_VARARGS,
@@ -123,65 +126,72 @@ static PyMethodDef HunSpell_methods[] = {
 };
 
 static PyTypeObject DictionaryType = {
-	PyObject_HEAD_INIT(NULL)
-	0,		/* ob_size */
-	"Dictionary",		/* tp_name */
-	sizeof(Dictionary),	/* tp_basicsize */
-	0,			/* tp_itemsize */
-	(destructor) dealloc,	/* tp_dealloc */
-	0,			/* tp_print */
-	0,			/* tp_getattr */
-	0,			/* tp_setattr */
-	0,			/* tp_compare */
-	0,			/* tp_repr */
-	0,			/* tp_as_number */
-	0,			/* tp_as_sequence */
-	0,			/* tp_as_mapping */
-	0,			/* tp_hash */
-	0,			/* tp_call */
-	0,			/* tp_str */
-	0,			/* tp_getattro */
-	0,			/* tp_setattro */
-	0,			/* tp_as_buffer */
-	Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,	/* tp_flags */
-	"Dictionary object",	/* tp_doc */
-	0,			/* tp_traverse */
-	0,			/* tp_clear */
-	0,			/* tp_richcompare */
-	0,			/* tp_weaklistoffset */
-	0,			/* tp_iter */
-	0,			/* tp_iternext */
-	HunSpell_methods,	/* tp_methods */
-	0,			/* tp_members */
-	0,			/* tp_getset */
-	0,			/* tp_base */
-	0,			/* tp_dict */
-	0,			/* tp_descr_get */
-	0,			/* tp_descr_set */
-	0,			/* tp_dictoffset */
-	(initproc) init_type,	/* tp_init */
-	0,			/* tp_alloc */
-	0,			/* tp_new */
+	PyVarObject_HEAD_INIT(NULL, 0)
+    /* tp_name           */ "Dictionary",
+    /* tp_basicsize      */ sizeof(Dictionary),
+    /* tp_itemsize       */ 0,
+    /* tp_dealloc        */ (destructor) dealloc,
+    /* tp_print          */ 0,
+    /* tp_getattr        */ 0,
+    /* tp_setattr        */ 0,
+    /* tp_compare        */ 0,
+    /* tp_repr           */ 0,
+    /* tp_as_number      */ 0,
+    /* tp_as_sequence    */ 0,
+    /* tp_as_mapping     */ 0,
+    /* tp_hash           */ 0,
+    /* tp_call           */ 0,
+    /* tp_str            */ 0,
+    /* tp_getattro       */ 0,
+    /* tp_setattro       */ 0,
+    /* tp_as_buffer      */ 0,
+    /* tp_flags          */ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    /* tp_doc            */ "Dictionary object",
+    /* tp_traverse       */ 0,
+    /* tp_clear          */ 0,
+    /* tp_richcompare    */ 0,
+    /* tp_weaklistoffset */ 0,
+    /* tp_iter           */ 0,
+    /* tp_iternext       */ 0,
+    /* tp_methods        */ HunSpell_methods,
+    /* tp_members        */ 0,
+    /* tp_getset         */ 0,
+    /* tp_base           */ 0,
+    /* tp_dict           */ 0,
+    /* tp_descr_get      */ 0,
+    /* tp_descr_set      */ 0,
+    /* tp_dictoffset     */ 0,
+    /* tp_init           */ (initproc) init_type,
+    /* tp_alloc          */ 0,
+    /* tp_new            */ 0,
 };
 
+static struct PyModuleDef hunspell_module = {
+    /* m_base     */ PyModuleDef_HEAD_INIT,
+    /* m_name     */ "hunspell",
+    /* m_doc      */ "A wrapper for the hunspell spell checking library",
+    /* m_size     */ -1,
+    /* m_methods  */ 0,
+    /* m_slots    */ 0,
+    /* m_traverse */ 0,
+    /* m_clear    */ 0,
+    /* m_free     */ 0,
+};
 
-CALIBRE_MODINIT_FUNC
-inithunspell(void) {
-    PyObject *mod;
-
-    // Create the module
-    mod = Py_InitModule3("hunspell", NULL,
-                "A wrapper for the hunspell spell checking library");
-    if (mod == NULL) return;
+CALIBRE_MODINIT_FUNC PyInit_hunspell(void) {
+    PyObject *mod = PyModule_Create(&hunspell_module);
+    if (mod == NULL) return NULL;
 
     HunspellError = PyErr_NewException((char*)"hunspell.HunspellError", NULL, NULL);
-    if (HunspellError == NULL) return;
+    if (HunspellError == NULL) return NULL;
     PyModule_AddObject(mod, "HunspellError", HunspellError);
 
     // Fill in some slots in the type, and make it ready
     DictionaryType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&DictionaryType) < 0) return;
+    if (PyType_Ready(&DictionaryType) < 0) return NULL;
     // Add the type to the module.
     Py_INCREF(&DictionaryType);
     PyModule_AddObject(mod, "Dictionary", (PyObject *)&DictionaryType);
+
+    return mod;
 }

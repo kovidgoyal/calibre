@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals, division, absolute_import, print_function
 
@@ -83,5 +83,5 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
                 br.replaceWith(' ')
         # remove all links
         for a in soup.findAll('a'):
-            a.replaceWith(a.renderContents())
+            a.replaceWith(a.renderContents().decode('utf-8'))
         return soup

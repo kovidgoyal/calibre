@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -13,6 +14,7 @@
 import os
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 # note to self. This is the first module in which I use tempfile. A good idea?
 """
@@ -53,8 +55,8 @@ class TableInfo:
     def insert_info(self):
         """
         """
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()
@@ -72,7 +74,7 @@ class TableInfo:
                     # this shouldn't happen!
                     if self.__run_level > 3:
                         msg = 'Not enough data for each table\n'
-                        raise self.__bug_handler, msg
+                        raise self.__bug_handler(msg)
                     self.__write_obj.write('mi<tg<open______<table\n')
             elif line == 'mi<mk<table-end_\n':
                 self.__write_obj.write('mi<tg<close_____<table\n')

@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -14,7 +14,8 @@ class LITInput(InputFormatPlugin):
     name        = 'LIT Input'
     author      = 'Marshall T. Vandegrift'
     description = 'Convert LIT files to HTML'
-    file_types  = set(['lit'])
+    file_types  = {'lit'}
+    commit_name = 'lit_input'
 
     def convert(self, stream, options, file_ext, log,
                 accelerators):
@@ -42,7 +43,7 @@ class LITInput(InputFormatPlugin):
                     from calibre.ebooks.txt.processor import convert_basic, \
                         separate_paragraphs_single_line
                     from calibre.ebooks.chardet import xml_to_unicode
-                    from lxml import etree
+                    from calibre.utils.xml_parse import safe_xml_fromstring
                     import copy
                     self.log('LIT file with all text in singe <pre> tag detected')
                     html = separate_paragraphs_single_line(pre.text)
@@ -54,7 +55,7 @@ class LITInput(InputFormatPlugin):
                         # SmartyPants skips text inside <pre> tags
                         from calibre.ebooks.conversion.preprocess import smarten_punctuation
                         html = smarten_punctuation(html, self.log)
-                    root = etree.fromstring(html)
+                    root = safe_xml_fromstring(html)
                     body = XPath('//h:body')(root)
                     pre.tag = XHTML('div')
                     pre.text = ''

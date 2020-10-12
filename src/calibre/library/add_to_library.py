@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -29,7 +30,7 @@ def find_folders_under(root, db, add_root=True,  # {{{
 
     root = os.path.abspath(root)
 
-    ans = set([])
+    ans = set()
     for dirpath, dirnames, __ in os.walk(root, topdown=True, followlinks=follow_links):
         if cancel_callback():
             break
@@ -105,11 +106,9 @@ class FormatCollection(object):  # {{{
 
 def books_in_folder(folder, one_per_folder,  # {{{
         cancel_callback=lambda : False):
-    assert not isinstance(folder, unicode)
-
     dirpath = os.path.abspath(folder)
     if one_per_folder:
-        formats = set([])
+        formats = set()
         for path in os.listdir(dirpath):
             if cancel_callback():
                 return []
@@ -140,8 +139,8 @@ def books_in_folder(folder, one_per_folder,  # {{{
                 continue
 
             key = os.path.splitext(path)[0]
-            if not books.has_key(key):  # noqa
-                books[key] = set([])
+            if key not in books:
+                books[key] = set()
             books[key].add(path)
 
         return [FormatCollection(folder, x) for x in books.values() if x]

@@ -1,27 +1,27 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, re, os, cPickle, textwrap
+import re, textwrap
 from bisect import bisect
 from functools import partial
-from collections import defaultdict
 
 from PyQt5.Qt import (
-    QAbstractItemModel, QModelIndex, Qt, pyqtSignal, QApplication,
+    QAbstractItemModel, QModelIndex, Qt, pyqtSignal, QApplication, QHBoxLayout,
     QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
     QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
-    QPushButton, QToolButton, QInputMethodEvent)
+    QPushButton, QToolButton, QInputMethodEvent, QCheckBox)
 
-from calibre.constants import plugins, cache_dir
+from calibre.constants import plugins
 from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
-from calibre.utils.icu import safe_chr as chr, icu_unicode_version, character_name_from_code
+from calibre.utils.icu import safe_chr as codepoint_to_chr
+from calibre.utils.unicode_names import character_name_from_code, points_for_word
+from polyglot.builtins import unicode_type, range, map
 
 ROOT = QModelIndex()
 
@@ -33,55 +33,20 @@ non_printing = {
     0x206e: 'nads', 0x206f: 'nods', 0x20: 'sp', 0x7f: 'del', 0x2e3a: '2m', 0x2e3b: '3m', 0xad: 'shy',
 }
 
+
 # Searching {{{
-
-
-def load_search_index():
-    topchar = 0x10ffff
-    ver = (1, topchar, icu_unicode_version or unicodedata.unidata_version)  # Increment this when you make any changes to the index
-    name_map = {}
-    path = os.path.join(cache_dir(), 'unicode-name-index.pickle')
-    if os.path.exists(path):
-        with open(path, 'rb') as f:
-            name_map = cPickle.load(f)
-        if name_map.pop('calibre-nm-version:', None) != ver:
-            name_map = {}
-    if not name_map:
-        name_map = defaultdict(set)
-        for x in xrange(1, topchar + 1):
-            for word in character_name_from_code(x).split():
-                name_map[word.lower()].add(x)
-        from calibre.ebooks.html_entities import html5_entities
-        for name, char in html5_entities.iteritems():
-            try:
-                name_map[name.lower()].add(ord(char))
-            except TypeError:
-                continue
-        name_map['nnbsp'].add(0x202F)
-        name_map['calibre-nm-version:'] = ver
-        cPickle.dump(dict(name_map), open(path, 'wb'), -1)
-        del name_map['calibre-nm-version:']
-    return name_map
-
-
-_index = None
-
-
 def search_for_chars(query, and_tokens=False):
-    global _index
-    if _index is None:
-        _index = load_search_index()
     ans = set()
-    for token in query.split():
+    for i, token in enumerate(query.split()):
         token = token.lower()
         m = re.match(r'(?:[u]\+)([a-f0-9]+)', token)
         if m is not None:
             chars = {int(m.group(1), 16)}
         else:
-            chars = _index.get(token, None)
+            chars = points_for_word(token)
         if chars is not None:
             if and_tokens:
-                ans &= chars
+                ans = chars if i == 0 else (ans & chars)
             else:
                 ans |= chars
     return sorted(ans)
@@ -461,7 +426,7 @@ class CategoryModel(QAbstractItemModel):
                     return (_('Favorites'), list(tprefs['charmap_favorites']))
             else:
                 item = self.categories[pid - 1][1][index.row()]
-                return (item[0], list(xrange(item[1][0], item[1][1] + 1)))
+                return (item[0], list(range(item[1][0], item[1][1] + 1)))
 
     def get_char_info(self, char_code):
         ipos = bisect(self.starts, char_code) - 1
@@ -469,7 +434,7 @@ class CategoryModel(QAbstractItemModel):
             category, subcategory = self.category_map[self.starts[ipos]]
         except IndexError:
             category = subcategory = _('Unknown')
-        return category, subcategory, (character_name_from_code(char_code) or _('Unknown'))
+        return category, subcategory, character_name_from_code(char_code)
 
 
 class CategoryDelegate(QStyledItemDelegate):
@@ -555,7 +520,7 @@ class CharModel(QAbstractListModel):
         return ['application/calibre_charcode_indices']
 
     def mimeData(self, indexes):
-        data = ','.join(str(i.row()) for i in indexes)
+        data = ','.join(unicode_type(i.row()) for i in indexes)
         md = QMimeData()
         md.setData('application/calibre_charcode_indices', data.encode('utf-8'))
         return md
@@ -563,7 +528,7 @@ class CharModel(QAbstractListModel):
     def dropMimeData(self, md, action, row, column, parent):
         if action != Qt.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
             return False
-        indices = map(int, bytes(md.data('application/calibre_charcode_indices')).split(','))
+        indices = list(map(int, bytes(md.data('application/calibre_charcode_indices')).decode('ascii').split(',')))
         codes = [self.chars[x] for x in indices]
         for x in indices:
             self.chars[x] = None
@@ -605,7 +570,7 @@ class CharDelegate(QStyledItemDelegate):
         f = option.font
         f.setPixelSize(option.rect.height() - 8)
         painter.setFont(f)
-        painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, chr(charcode))
+        painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, codepoint_to_chr(charcode))
 
     def paint_non_printing(self, painter, option, charcode):
         text = self.np_pat.sub(r'\n\1', non_printing[charcode])
@@ -647,7 +612,7 @@ class CharView(QListView):
         except (TypeError, ValueError):
             pass
         else:
-            self.char_selected.emit(chr(char_code))
+            self.char_selected.emit(codepoint_to_chr(char_code))
 
     def set_allow_drag_and_drop(self, enabled):
         if not enabled:
@@ -698,9 +663,9 @@ class CharView(QListView):
                 pass
             else:
                 m = QMenu(self)
-                m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % chr(char_code), partial(self.copy_to_clipboard, char_code))
+                m.addAction(QIcon(I('edit-copy.png')), _('Copy %s to clipboard') % codepoint_to_chr(char_code), partial(self.copy_to_clipboard, char_code))
                 m.addAction(QIcon(I('rating.png')),
-                            (_('Remove %s from favorites') if self.showing_favorites else _('Add %s to favorites')) % chr(char_code),
+                            (_('Remove %s from favorites') if self.showing_favorites else _('Add %s to favorites')) % codepoint_to_chr(char_code),
                             partial(self.remove_from_favorites, char_code))
                 if self.showing_favorites:
                     m.addAction(_('Restore favorites to defaults'), self.restore_defaults)
@@ -714,7 +679,7 @@ class CharView(QListView):
 
     def copy_to_clipboard(self, char_code):
         c = QApplication.clipboard()
-        c.setText(chr(char_code))
+        c.setText(codepoint_to_chr(char_code))
 
     def remove_from_favorites(self, char_code):
         existing = tprefs['charmap_favorites']
@@ -790,15 +755,22 @@ class CharSelect(Dialog):
         la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         la.setVisible(False)
         l.addWidget(la, 3, 0, 1, 3)
-        l.addWidget(self.bb, 4, 0, 1, 3)
+        self.h = h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        self.match_any = mm = QCheckBox(_('Match any word'))
+        mm.setToolTip(_('When searching return characters whose names match any of the specified words'))
+        mm.setChecked(tprefs.get('char_select_match_any', True))
+        connect_lambda(mm.stateChanged, self, lambda self: tprefs.set('char_select_match_any', self.match_any.isChecked()))
+        h.addWidget(mm), h.addStretch(), h.addWidget(self.bb)
+        l.addLayout(h, 4, 0, 1, 3)
         self.char_view.setFocus(Qt.OtherFocusReason)
 
     def do_search(self):
-        text = unicode(self.search.text()).strip()
+        text = unicode_type(self.search.text()).strip()
         if not text:
             return self.clear_search()
         with BusyCursor():
-            chars = search_for_chars(text)
+            chars = search_for_chars(text, and_tokens=not self.match_any.isChecked())
         self.show_chars(_('Search'), chars)
 
     def clear_search(self):

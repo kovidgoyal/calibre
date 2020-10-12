@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 from __future__ import unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
@@ -8,6 +8,7 @@ __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 technologyreview.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 
 def absurl(x):
@@ -37,23 +38,40 @@ class MitTechnologyReview(BasicNewsRecipe):
     tags = 'news, technology, science'
     no_stylesheets = True
 
+    """
+    regex for class names
+    """
+    articleHeaderRegex= '^.*contentHeader__wrapper.*$'
+    editorLetterHeaderRegex = "^.*contentHeader--vertical__wrapper.*$"
+    articleContentRegex = "^.*contentbody__wrapper.*$"
+    imagePlaceHolderRegex = "^.*image__placeholder.*$"
+    advertisementRegex = "^.*sliderAd__wrapper.*$"
+
     keep_only_tags = [
-        classes(
-            'article-topper__topic article-topper__title article-topper__media-wrap article-body__content'),
+        dict(name='header',  attrs={'class': re.compile(editorLetterHeaderRegex, re.IGNORECASE)}),
+        dict(name='header',  attrs={'class': re.compile(articleHeaderRegex, re.IGNORECASE)}),
+        dict(name='div',  attrs={'class': re.compile(articleContentRegex, re.IGNORECASE)})
     ]
     remove_tags = [
-        classes('l-article-list'),
+        dict(name="aside"),
+        dict(name="svg"),
+        dict(name="blockquote"),
+        dict(name="img", attrs={'class': re.compile(imagePlaceHolderRegex, re.IGNORECASE)}),
+        dict(name="div", attrs={'class': re.compile(advertisementRegex, re.IGNORECASE)}),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
         # find cover
         self.cover_url = absurl(soup.find(
-            'a', attrs={'class': 'magazine-topper__cover'}).find('img', src=True)['src'])
+            "div", attrs={"class":lambda name: name.startswith("magazineHero__image") if name else False}).find(
+                "img",
+                src=True
+                )['src'])
         # parse articles
         current_articles = []
-        for div in soup.findAll(attrs={'class': lambda x: x in
-                'magazine-topper__title magazine-features-item__top-title magazine-features-item-title author-tz__title feed-tz__title'.split()}):
+        classNamePrefixes = ["magazineHero__letter--", "teaserItem__title", "teaserItem--aside__title"]
+        for div in soup.findAll(attrs={'class': lambda x: any(x.startswith(prefix) for prefix in classNamePrefixes) if x else False}):
             a = div.find('a', href=True)
             title = self.tag_to_string(a).strip()
             href = absurl(a['href'])

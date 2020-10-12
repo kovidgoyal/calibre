@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
@@ -14,8 +15,8 @@ from calibre.devices.usbms.driver import USBMS
 
 
 def is_alex(device_info):
-    return device_info[3] == u'Linux 2.6.28 with pxa3xx_u2d' and \
-            device_info[4] == u'Seleucia Disk'
+    return device_info[3] == 'Linux 2.6.28 with pxa3xx_u2d' and \
+            device_info[4] == 'Seleucia Disk'
 
 
 class N516(USBMS):

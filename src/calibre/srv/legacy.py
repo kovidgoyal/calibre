@@ -1,37 +1,38 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 from functools import partial
+
 from lxml.html import tostring
 from lxml.html.builder import E as E_
-from urllib import urlencode
 
 from calibre import strftime
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import authors_to_string
-from calibre.srv.content import get, book_filename
-from calibre.srv.errors import HTTPRedirect, HTTPBadRequest
+from calibre.srv.content import book_filename, get
+from calibre.srv.errors import HTTPBadRequest, HTTPRedirect
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
-from calibre.utils.date import timestampfromdt, dt_as_local, is_date_undefined
+from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
+from polyglot.builtins import iteritems, string_or_bytes, filter, as_bytes, unicode_type
+from polyglot.urllib import urlencode
 
 # /mobile {{{
 
 
 def clean(x):
-    if isinstance(x, basestring):
+    if isinstance(x, string_or_bytes):
         x = clean_xml_chars(x)
     return x
 
 
 def E(tag, *children, **attribs):
     children = list(map(clean, children))
-    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in attribs.iteritems()}
+    attribs = {k.rstrip('_').replace('_', '-'):clean(v) for k, v in iteritems(attribs)}
     return getattr(E_, tag)(*children, **attribs)
 
 
@@ -61,10 +62,10 @@ def build_search_box(num, search, sort, order, ctx, field_metadata, library_id):
 
     num_select = E.select(name='num')
     for option in (5, 10, 25, 100):
-        kwargs = {'value':str(option)}
+        kwargs = {'value':unicode_type(option)}
         if option == num:
             kwargs['SELECTED'] = 'SELECTED'
-        num_select.append(E.option(str(option), **kwargs))
+        num_select.append(E.option(unicode_type(option), **kwargs))
     num_select.tail = ' books matching '
     form.append(num_select)
 
@@ -123,7 +124,7 @@ def build_navigation(start, num, total, url_base):  # {{{
 
 def build_choose_library(ctx, library_map):
     select = E.select(name='library_id')
-    for library_id, library_name in library_map.iteritems():
+    for library_id, library_name in iteritems(library_map):
         select.append(E.option(library_name, value=library_id))
     return E.div(
         E.form(
@@ -186,11 +187,11 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
             if val:
                 ctext += '%s=[%s] '%(name, val)
 
-        first = E.span(u'\u202f%s %s by %s' % (book.title, series,
+        first = E.span('%s %s by %s' % (book.title, series,
             authors_to_string(book.authors)), class_='first-line')
         div.append(first)
         ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
-        second = E.span(u'%s %s %s' % (ds, tags, ctext), class_='second-line')
+        second = E.span('%s %s %s' % (ds, tags, ctext), class_='second-line')
         div.append(second)
 
         books_table.append(E.tr(thumbnail, data))
@@ -243,9 +244,9 @@ def mobile(ctx, rd):
         books = [db.get_metadata(book_id) for book_id in book_ids[(start-1):(start-1)+num]]
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(db.last_modified()))
     order = 'ascending' if ascending else 'descending'
-    q = {b'search':search.encode('utf-8'), b'order':bytes(order), b'sort':sort_by.encode('utf-8'), b'num':bytes(num), 'library_id':library_id}
+    q = {b'search':search.encode('utf-8'), b'order':order.encode('ascii'), b'sort':sort_by.encode('utf-8'), b'num':as_bytes(num), 'library_id':library_id}
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
-    lm = {k:v for k, v in library_map.iteritems() if k != library_id}
+    lm = {k:v for k, v in iteritems(library_map) if k != library_id}
     return build_index(rd, books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
 # }}}
 

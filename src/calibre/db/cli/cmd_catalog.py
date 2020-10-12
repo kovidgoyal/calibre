@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 
@@ -51,8 +50,10 @@ def option_parser(get_parser, args):  # {{{
 
 Export a catalog in format specified by path/to/destination extension.
 Options control how entries are displayed in the generated catalog output.
-Note that different catalog formats support different sets of options.
-'''
+Note that different catalog formats support different sets of options. To
+see the different options, specify the name of the output file and then the
+{} option.
+'''.format('--help')
         )
     )
 
@@ -108,7 +109,7 @@ def main(opts, args, dbctx):
         raise SystemExit(_('You must specify a catalog output file'))
     if opts.ids:
         opts.ids = list(integers_from_string(opts.ids))
-    fmt = args[0].rpartition('.')[-1]
+    fmt = args[0].rpartition('.')[-1].lower()
     if fmt not in available_catalog_formats():
         raise SystemExit(
             _('Cannot generate a catalog in the {} format').format(fmt.upper())

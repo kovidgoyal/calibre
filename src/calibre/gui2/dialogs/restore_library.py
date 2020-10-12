@@ -1,9 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2011, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (QDialog, QLabel, QVBoxLayout, QDialogButtonBox,
         QProgressBar, QSize, QTimer, pyqtSignal, Qt)
@@ -35,7 +33,7 @@ class DBRestore(QDialog):
         self.msg.setWordWrap(True)
         self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
         self.l.addWidget(self.bb)
-        self.bb.rejected.connect(self.reject)
+        self.bb.rejected.connect(self.confirm_cancel)
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.rejected = False
@@ -57,6 +55,12 @@ class DBRestore(QDialog):
         self.rejected = True
         self.restorer.progress_callback = lambda x, y: x
         QDialog.reject(self)
+
+    def confirm_cancel(self):
+        if question_dialog(self, _('Are you sure?'), _(
+            'The restore has not completed, are you sure you want to cancel?'),
+            default_yes=False, override_icon='dialog_warning.png'):
+            self.reject()
 
     def update(self):
         if self.restorer.is_alive():
@@ -136,4 +140,8 @@ def repair_library_at(library_path, parent=None, wait_time=2):
     return True
 
 
-
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    repair_library_at('/t')
+    del app

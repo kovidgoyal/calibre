@@ -1,3 +1,4 @@
+
 #########################################################################
 #                                                                       #
 #                                                                       #
@@ -13,6 +14,7 @@
 import sys, os
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
+from . import open_for_read, open_for_write
 
 
 class Styles:
@@ -121,7 +123,7 @@ class Styles:
         'list-conti'    : 'list-continue',
         'list-hang_'    : 'list-hang',
         # 'list-tebef'    :	'list-text-before',
-        'list-level'    : 'level',
+        # 'list-level'    : 'level',
         'list-id___'    : 'list-id',
         'list-start'    : 'list-start',
         'nest-level'    : 'nest-level',
@@ -192,7 +194,7 @@ class Styles:
         'bor-cel-to'    : 'border-cell-top',
         'bor-cel-le'    : 'border-cell-left',
         'bor-cel-ri'    : 'border-cell-right',
-        'bor-par-bo'    : 'border-paragraph-bottom',
+        # 'bor-par-bo'    : 'border-paragraph-bottom',
         'bor-par-to'    : 'border-paragraph-top',
         'bor-par-le'    : 'border-paragraph-left',
         'bor-par-ri'    : 'border-paragraph-right',
@@ -301,7 +303,7 @@ class Styles:
                 if info not in self.__ignore_list:
                     if self.__run_level > 3:
                         msg = 'no value for key %s\n' % info
-                        raise self.__bug_handler, msg
+                        raise self.__bug_handler(msg)
             else:
                 value = line[20:-1]
                 self.__enter_dict_entry(att, value)
@@ -346,7 +348,7 @@ class Styles:
         else:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
 
     def __tab_leader_func(self, line):
         """
@@ -371,7 +373,7 @@ class Styles:
         else:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
 
     def __tab_bar_func(self, line):
         """
@@ -438,7 +440,7 @@ class Styles:
         else:
             if self.__run_level > 3:
                 msg = self.__type_of_style + 'error\n'
-                raise self.__bug_handler, msg
+                raise self.__bug_handler(msg)
         smallest_dict = {}
         smallest_dict[att] = value
         type_dict[self.__styles_num] = smallest_dict
@@ -550,7 +552,7 @@ class Styles:
                                 if self.__run_level > 4:
                                     msg = '%s %s is based on %s\n' % (type, key, value)
                                     msg = 'There is no style with %s\n' % value
-                                    raise self.__bug_handler, msg
+                                    raise self.__bug_handler(msg)
                             del self.__styles_dict[type][key][style]
 
     def __print_style_table(self):
@@ -700,8 +702,8 @@ class Styles:
             info, and substitute the number with the name of the style.
         """
         self.__initiate_values()
-        read_obj = open(self.__file, 'r')
-        self.__write_obj = open(self.__write_to, 'w')
+        read_obj = open_for_read(self.__file)
+        self.__write_obj = open_for_write(self.__write_to)
         line_to_read = 1
         while line_to_read:
             line_to_read = read_obj.readline()

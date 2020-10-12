@@ -10,12 +10,11 @@
     :license: BSD, see LICENSE for more details.
 """
 
-from __future__ import unicode_literals
 
-from binascii import unhexlify
 import operator
 import re
-import sys
+
+from polyglot.binary import from_hex_bytes
 
 
 __all__ = ['decode']  # Everything else is implementation detail
@@ -98,13 +97,14 @@ def try_encoding(css_bytes, encoding, fallback=True):
 
 
 def hex2re(hex_data):
-    return re.escape(unhexlify(hex_data.replace(' ', '').encode('ascii')))
+    return re.escape(from_hex_bytes(hex_data.replace(' ', '').encode('ascii')))
 
 
 class Slicer(object):
     """Slice()[start:stop:end] == slice(start, stop, end)"""
     def __getitem__(self, slice_):
         return operator.itemgetter(slice_)
+
 
 Slice = Slicer()
 

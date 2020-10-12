@@ -78,12 +78,12 @@ class TheOnion(BasicNewsRecipe):
                 if limg:
                     item.name = 'div'
                     item.attrs = []
-                    if not limg.has_key('alt'):  # noqa
+                    if not limg.get('alt'):
                         limg['alt'] = 'image'
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)
         for item in soup.findAll('img'):
-            if item.has_key('data-src'):  # noqa
+            if item.get('data-src'):
                 item['src'] = item['data-src']
         return soup

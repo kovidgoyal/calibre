@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2012, watou'
@@ -12,6 +12,13 @@ import codecs
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class TheSouthernStar(BasicNewsRecipe):
@@ -41,7 +48,7 @@ class TheSouthernStar(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
-        seen_titles = set([])
+        seen_titles = set()
 
         articles = self.fetch_ss_articles(self.NEWS_INDEX, seen_titles)
         if articles:
@@ -117,10 +124,10 @@ class TheSouthernStar(BasicNewsRecipe):
             if img is not None:
                 img.extract()
                 caption = self.tag_to_string(table).strip()
-                div = Tag(soup, 'div')
+                div = new_tag(soup, 'div')
                 div['style'] = 'text-align:center'
                 div.insert(0, img)
-                div.insert(1, Tag(soup, 'br'))
+                div.insert(1, new_tag(soup, 'br'))
                 if caption:
                     div.insert(2, NavigableString(caption))
                 table.replaceWith(div)

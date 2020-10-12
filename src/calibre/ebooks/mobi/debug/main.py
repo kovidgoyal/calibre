@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -37,7 +36,7 @@ def inspect_mobi(path_or_stream, ddir=None):  # {{{
     else:
         inspect_mobi8(f, ddir)
 
-    print ('Debug data saved to:', ddir)
+    print('Debug data saved to:', ddir)
 
 # }}}
 
@@ -45,6 +44,6 @@ def inspect_mobi(path_or_stream, ddir=None):  # {{{
 def main():
     inspect_mobi(sys.argv[1])
 
+
 if __name__ == '__main__':
     main()
-

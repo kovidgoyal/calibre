@@ -1,19 +1,17 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, errno
-from binascii import hexlify
 from io import BytesIO
 from threading import Lock
-from future_builtins import map
+from polyglot.builtins import map, unicode_type
 from functools import partial
 
-from calibre import fit_image
+from calibre import fit_image, sanitize_file_name
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover, set_use_roman
@@ -29,6 +27,8 @@ from calibre.utils.date import timestampfromdt
 from calibre.utils.img import scale_image, image_from_data
 from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.shared_file import share_open
+from polyglot.urllib import quote
+from polyglot.binary import as_hex_unicode
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
@@ -110,7 +110,7 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
                 ans.seek(0)
         if ctx.testing:
             rd.outheaders['Used-Cache'] = used_cache
-            rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
+            rd.outheaders['Tempfile'] = as_hex_unicode(fname)
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
 
@@ -156,14 +156,20 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
 
 
-def book_filename(rd, book_id, mi, fmt):
+def book_filename(rd, book_id, mi, fmt, as_encoded_unicode=False):
     au = authors_to_string(mi.authors or [_('Unknown')])
     title = mi.title or _('Unknown')
     ext = (fmt or '').lower()
-    if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
-        ext = 'kepub.epub'
     fname = '%s - %s_%s.%s' % (title[:30], au[:30], book_id, ext)
-    fname = ascii_filename(fname).replace('"', '_')
+    if as_encoded_unicode:
+        # See https://tools.ietf.org/html/rfc6266
+        fname = sanitize_file_name(fname).encode('utf-8')
+        fname = unicode_type(quote(fname))
+    else:
+        fname = ascii_filename(fname).replace('"', '_')
+    if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
+        fname = fname.replace('!', '_')
+        fname += '.epub'
     return fname
 
 
@@ -194,10 +200,15 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
     def copy_func(dest):
         db.copy_format_to(book_id, fmt, dest)
         if update_metadata:
+            if not mi.cover_data or not mi.cover_data[-1]:
+                cdata = db.cover(book_id)
+                if cdata:
+                    mi.cover_data = ('jpeg', cdata)
             set_metadata(dest, mi, fmt)
             dest.seek(0)
 
-    rd.outheaders['Content-Disposition'] = 'attachment; filename="%s"' % book_filename(rd, book_id, mi, fmt)
+    rd.outheaders['Content-Disposition'] = '''attachment; filename="%s"; filename*=utf-8''%s''' % (
+        book_filename(rd, book_id, mi, fmt), book_filename(rd, book_id, mi, fmt, as_encoded_unicode=True))
 
     return create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
 # }}}

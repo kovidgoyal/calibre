@@ -1,10 +1,14 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 import re
 from PyQt5.Qt import QDialog, QLineEdit, Qt
 
 from calibre.gui2.dialogs.password_ui import Ui_Dialog
 from calibre.gui2 import dynamic
+from polyglot.builtins import unicode_type
 
 
 class PasswordDialog(QDialog, Ui_Dialog):
@@ -34,13 +38,12 @@ class PasswordDialog(QDialog, Ui_Dialog):
             self.gui_password.setEchoMode(QLineEdit.Normal)
 
     def username(self):
-        return unicode(self.gui_username.text())
+        return unicode_type(self.gui_username.text())
 
     def password(self):
-        return unicode(self.gui_password.text())
+        return unicode_type(self.gui_password.text())
 
     def accept(self):
-        dynamic.set(self.cfg_key+'__un', unicode(self.gui_username.text()))
-        dynamic.set(self.cfg_key+'__pw', unicode(self.gui_password.text()))
+        dynamic.set(self.cfg_key+'__un', unicode_type(self.gui_username.text()))
+        dynamic.set(self.cfg_key+'__pw', unicode_type(self.gui_password.text()))
         QDialog.accept(self)
-

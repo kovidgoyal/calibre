@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,11 +17,12 @@ from calibre.db.cache import Cache
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring, force_unicode
+from polyglot.builtins import iteritems, filter
 
-NON_EBOOK_EXTENSIONS = frozenset([
-        'jpg', 'jpeg', 'gif', 'png', 'bmp',
-        'opf', 'swp', 'swo'
-        ])
+NON_EBOOK_EXTENSIONS = frozenset((
+    'jpg', 'jpeg', 'gif', 'png', 'bmp',
+    'opf', 'swp', 'swo'
+))
 
 
 class Restorer(Cache):
@@ -123,7 +125,7 @@ class Restore(Thread):
                     self.create_cc_metadata()
                 self.restore_books()
                 if self.successes == 0 and len(self.dirs) > 0:
-                    raise Exception(('Something bad happened'))
+                    raise Exception('Something bad happened')
                 self.replace_db()
         except:
             self.tb = traceback.format_exc()
@@ -183,12 +185,14 @@ class Restore(Thread):
 
     def process_dir(self, dirpath, filenames, book_id):
         book_id = int(book_id)
-        formats = filter(self.is_ebook_file, filenames)
+        formats = list(filter(self.is_ebook_file, filenames))
         fmts    = [os.path.splitext(x)[1][1:].upper() for x in formats]
         sizes   = [os.path.getsize(os.path.join(dirpath, x)) for x in formats]
         names   = [os.path.splitext(x)[0] for x in formats]
         opf = os.path.join(dirpath, 'metadata.opf')
-        mi = OPF(opf, basedir=dirpath).to_book_metadata()
+        parsed_opf = OPF(opf, basedir=dirpath)
+        mi = parsed_opf.to_book_metadata()
+        annotations = tuple(parsed_opf.read_annotations())
         timestamp = os.path.getmtime(opf)
         path = os.path.relpath(dirpath, self.src_library_path).replace(os.sep,
                 '/')
@@ -201,12 +205,13 @@ class Restore(Thread):
                 'id': book_id,
                 'dirpath': dirpath,
                 'path': path,
+                'annotations': annotations
             })
         else:
             self.mismatched_dirs.append(dirpath)
 
         alm = mi.get('author_link_map', {})
-        for author, link in alm.iteritems():
+        for author, link in iteritems(alm):
             existing_link, timestamp = self.authors_links.get(author, (None, None))
             if existing_link is None or existing_link != link and timestamp < mi.timestamp:
                 self.authors_links[author] = (link, mi.timestamp)
@@ -252,14 +257,14 @@ class Restore(Thread):
 
         for i, book in enumerate(self.books):
             try:
-                db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'])
+                db.restore_book(book['id'], book['mi'], utcfromtimestamp(book['timestamp']), book['path'], book['formats'], book['annotations'])
                 self.successes += 1
             except:
                 self.failed_restores.append((book, traceback.format_exc()))
             self.progress_callback(book['mi'].title, i+1)
 
         id_map = db.get_item_ids('authors', [author for author in self.authors_links])
-        link_map = {aid:self.authors_links[name][0] for name, aid in id_map.iteritems() if aid is not None}
+        link_map = {aid:self.authors_links[name][0] for name, aid in iteritems(id_map) if aid is not None}
         if link_map:
             db.set_link_for_authors(link_map)
         db.close()

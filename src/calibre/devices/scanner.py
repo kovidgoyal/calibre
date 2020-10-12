@@ -1,3 +1,4 @@
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -10,8 +11,9 @@ from collections import namedtuple
 from threading import Lock
 
 from calibre import prints, as_unicode
-from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
+from calibre.constants import (iswindows, ismacos, plugins, islinux, isfreebsd,
         isnetbsd)
+from polyglot.builtins import range
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
@@ -21,7 +23,7 @@ if iswindows:
     def drive_is_ok(letter, max_tries=10, debug=False):
         import win32file
         with drive_ok_lock:
-            for i in xrange(max_tries):
+            for i in range(max_tries):
                 try:
                     win32file.GetDiskFreeSpaceEx(letter+':\\')
                     return True
@@ -75,7 +77,7 @@ class LibUSBScanner(object):
             dev = USBDevice(*dev)
             dev.busnum, dev.devnum = fingerprint[:2]
             ans.add(dev)
-        extra = set(self.libusb.cache.iterkeys()) - seen
+        extra = set(self.libusb.cache) - seen
         for x in extra:
             self.libusb.cache.pop(x, None)
         return ans
@@ -86,12 +88,12 @@ class LibUSBScanner(object):
         memory()
         for num in (1, 10, 100):
             start = memory()
-            for i in xrange(num):
+            for i in range(num):
                 self()
-            for i in xrange(3):
+            for i in range(3):
                 gc.collect()
-            print 'Mem consumption increased by:', memory() - start, 'MB',
-            print 'after', num, 'repeats'
+            print('Mem consumption increased by:', memory() - start, 'MB', end=' ')
+            print('after', num, 'repeats')
 
 
 class LinuxScanner(object):
@@ -105,7 +107,7 @@ class LinuxScanner(object):
         self.ok = os.path.exists(self.base)
 
     def __call__(self):
-        ans = set([])
+        ans = set()
         if not self.ok:
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
 
@@ -126,41 +128,41 @@ class LinuxScanner(object):
                 # Ignore USB HUBs
                 if read(os.path.join(base, 'bDeviceClass')) == b'09':
                     continue
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(ven), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(prod), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(int(b'0x'+read(bcd), 16))
-            except:
+            except Exception:
                 continue
             try:
                 dev.append(read(man).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
             try:
                 dev.append(read(prod_string).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
             try:
                 dev.append(read(serial).decode('utf-8'))
-            except:
+            except Exception:
                 dev.append(u'')
 
             dev = USBDevice(*dev)
             try:
                 dev.busnum = int(read(os.path.join(base, 'busnum')))
-            except:
+            except Exception:
                 pass
             try:
                 dev.devnum = int(read(os.path.join(base, 'devnum')))
-            except:
+            except Exception:
                 pass
             ans.add(dev)
         return ans
@@ -170,7 +172,7 @@ if islinux:
     linux_scanner = LinuxScanner()
 
 libusb_scanner = LibUSBScanner()
-if False and isosx:
+if False and ismacos:
     # Apparently libusb causes mem leaks on some Macs and hangs on others and
     # works on a few. OS X users will just have to live without MTP support.
     # See https://bugs.launchpad.net/calibre/+bug/1044706
@@ -194,7 +196,7 @@ class DeviceScanner(object):
     def __init__(self, *args):
         if iswindows:
             from calibre.devices.winusb import scan_usb_devices as win_scanner
-        self.scanner = (win_scanner if iswindows else osx_scanner if isosx else
+        self.scanner = (win_scanner if iswindows else osx_scanner if ismacos else
                 freebsd_scanner if isfreebsd else netbsd_scanner if isnetbsd
                 else linux_scanner if islinux else libusb_scanner)
         if self.scanner is None:
@@ -218,17 +220,17 @@ def test_for_mem_leak():
     scanner = DeviceScanner()
     scanner.scan()
     memory()  # load the psutil library
-    for i in xrange(3):
+    for i in range(3):
         gc.collect()
 
     for reps in (1, 10, 100, 1000):
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         h1 = gc_histogram()
         startmem = memory()
-        for i in xrange(reps):
+        for i in range(reps):
             scanner.scan()
-        for i in xrange(3):
+        for i in range(3):
             gc.collect()
         usedmem = memory(startmem)
         prints('Memory used in %d repetitions of scan(): %.5f KB'%(reps,

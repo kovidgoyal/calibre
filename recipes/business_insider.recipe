@@ -59,7 +59,6 @@ class Business_insider(BasicNewsRecipe):
                 if item.string is not None:
                     tstr = item.string
                     item.replaceWith(tstr)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):  # noqa
-                item['alt'] = 'image'
+        for item in soup.findAll('img', alt=False):
+            item['alt'] = 'image'
         return soup

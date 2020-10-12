@@ -1,3 +1,5 @@
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
@@ -251,6 +253,7 @@ class DevicePlugin(Plugin):
         '''
 
         return True
+    can_handle.is_base_class_implementation = True
 
     def open(self, connected_device, library_uuid):
         '''
@@ -270,7 +273,7 @@ class DevicePlugin(Plugin):
         :param connected_device: The device that we are trying to open. It is
             a tuple of (vendor id, product id, bcd, manufacturer name, product
             name, device serial number). However, some devices have no serial
-            number and on windows only the first three fields are present, the
+            number and on Windows only the first three fields are present, the
             rest are None.
 
         :param library_uuid: The UUID of the current calibre library. Can be
@@ -312,7 +315,7 @@ class DevicePlugin(Plugin):
         """
         Ask device for device information. See L{DeviceInfoQuery}.
 
-        :return: (device name, device version, software version on device, mime type)
+        :return: (device name, device version, software version on device, MIME type)
                  The tuple can optionally have a fifth element, which is a
                  drive information dictionary. See usbms.driver for an example.
 
@@ -422,7 +425,7 @@ class DevicePlugin(Plugin):
                           :meth`books(oncard='cardb')`).
 
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def delete_books(self, paths, end_session=True):
         '''

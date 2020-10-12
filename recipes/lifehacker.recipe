@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -26,11 +26,13 @@ class LifeHacker(BasicNewsRecipe):
     remove_empty_feeds = True
 
     keep_only_tags = [
-        classes('headline author post-content'),
+        dict(name='h1'),
+        classes('headline author post-content js_post-content'),
     ]
     remove_tags = [
-        classes('commerce-inset gmg-avatar js_ad-dynamic'),
+        classes('magnifier commerce-inset gmg-avatar js_ad-dynamic instream-native-video inset--story'),
         dict(id='lifehacker-avatar-svg'),
+        dict(name='aside'),
     ]
     remove_tags_after = classes('post-content')
 

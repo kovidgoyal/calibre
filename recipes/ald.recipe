@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+from __future__ import unicode_literals, division, absolute_import, print_function
+__license__ = 'GPL v3'
+__copyright__ = '2018, PJ Paul'
+'''
+Recipe for Arts and Letters Daily website
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+from datetime import date as dt, timedelta
+from itertools import compress
+from calibre.utils.date import parse_date
+
+
+class ALD(BasicNewsRecipe):
+    title = 'Arts and Letters Daily'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup = True
+    recursions = 0
+    ignore_duplicate_articles = {'url'}
+    index = 'https://www.aldaily.com/alt/'
+    cover_url = 'https://www.aldaily.com/static/images/header.gif'
+    __author__ = 'https://github.com/pjpaulpj'
+    language = 'en'
+    encoding = 'utf-8'
+
+    def parse_index(self):
+        articles_note = []
+        new_books = []
+        essays = []
+        feeds = []
+        soup = self.index_to_soup(self.index)
+        delta = timedelta(days=self.oldest_article)
+        now = dt.today()
+        oldest_date = now - delta
+
+        # Extract a list of dates from the page.
+        # Subset this out to the list of target dates for extraction.
+        date_list = []
+        for div in soup.findAll('div', attrs={'id': "dayheader"}):
+            date_list.append(self.tag_to_string(div))
+        date_list_clean = [re.sub(r'[^\w]', ' ', date) for date in date_list]
+        date_list_bool = [
+            parse_date(date).date() >= oldest_date
+            for date in date_list_clean
+        ]
+        compress_date = list(compress(date_list, date_list_bool))
+
+        # Process each paragraph one by one.
+        # Stop when the text of the previous div is not in the target date list.
+        for div in soup.findAll('div', attrs={'class': "mobile-front"}):
+            for p in div.findAll('p'):
+                if self.tag_to_string(p.findPreviousSibling('div')) in compress_date:
+                    if p.find('a'):
+                        title = self.tag_to_string(p)
+                        link = p.find('a')['href']
+                        if self.tag_to_string(p.findPreviousSibling('h3')
+                                              ) == "Articles of Note":
+                            articles_note.append({
+                                'title': title,
+                                'url': link,
+                                'description': '',
+                                'date': ''
+                            })
+                        elif self.tag_to_string(p.findPreviousSibling('h3')
+                                                ) == "New Books":
+                            new_books.append({
+                                'title': title,
+                                'url': link,
+                                'description': '',
+                                'date': ''
+                            })
+                        else:
+                            essays.append({
+                                'title': title,
+                                'url': link,
+                                'description': '',
+                                'date': ''
+                            })
+                else:
+                    break
+        feeds.append(('Articles of Note', articles_note))
+        feeds.append(('New Books', new_books))
+        feeds.append(('Essays and Opinions', essays))
+        return feeds

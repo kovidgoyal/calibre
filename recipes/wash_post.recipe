@@ -7,6 +7,12 @@ www.washingtonpost.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TheWashingtonPost(BasicNewsRecipe):
     title = 'The Washington Post'
     __author__ = 'Darko Miletic'
@@ -17,12 +23,20 @@ class TheWashingtonPost(BasicNewsRecipe):
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf8'
-    delay = 1
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
     publication_type = 'newspaper'
-    auto_cleanup = True
+
+    keep_only_tags = [
+        dict(name=['h1', 'figure']),
+        classes('byline article-body'),
+    ]
+    remove_tags = [
+        dict(name=['meta', 'link']),
+        classes('inline-video author-tooltip author-image'),
+        dict(attrs={'data-qa': 'article-body-ad'}),
+    ]
 
     feeds = [
         (u'World', u'http://feeds.washingtonpost.com/rss/world'),
@@ -37,3 +51,8 @@ class TheWashingtonPost(BasicNewsRecipe):
         (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
         (u'Redskins', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
     ]
+
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll('img', srcset=True):
+            img['src'] = img['srcset'].split()[0]
+        return soup

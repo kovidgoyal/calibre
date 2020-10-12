@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 '''
 Read meta information from Plucker pdb files.
@@ -17,6 +16,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.plucker.reader import SectionHeader, DATATYPE_METADATA, \
     MIBNUM_TO_NAME
+from polyglot.builtins import range
 
 
 def get_metadata(stream, extract_cover=True):
@@ -44,7 +44,7 @@ def get_metadata(stream, extract_cover=True):
     title = None
     author = None
     pubdate = 0
-    for i in xrange(record_count):
+    for i in range(record_count):
         try:
             type, length = struct.unpack_from('>HH', section_data, 2 + adv)
         except struct.error:

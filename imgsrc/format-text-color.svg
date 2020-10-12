@@ -14,7 +14,7 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
    sodipodi:docname="format-text-color.svg">
   <defs
      id="defs4" />
@@ -25,17 +25,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
+     inkscape:zoom="7.919596"
      inkscape:cx="53.188911"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -93,7 +93,7 @@
        transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)"
        y="732.13635"
        x="-634.40143"
-       style="fill:#0a50a9;fill-opacity:1" />
+       style="fill:#2271d5;fill-opacity:1" />
     <polygon
        id="polygon8"
        points="19.092,13.435 18.385,12.728 13.435,7.778 12.727,7.071 10.605,9.192 16.971,15.557 "

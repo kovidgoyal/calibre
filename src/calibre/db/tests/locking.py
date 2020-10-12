@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -10,6 +9,16 @@ import time, random
 from threading import Thread
 from calibre.db.tests.base import BaseTest
 from calibre.db.locking import SHLock, RWLockWrapper, LockingError
+from polyglot.builtins import range
+
+
+def wait_for(period):
+    # time.sleep() is not useful for very small values on windows because the
+    # default timer has a resolutions of about 16ms see
+    # https://stackoverflow.com/questions/40594587/why-time-sleep-is-so-slow-in-windows
+    deadline = time.perf_counter() + period
+    while time.perf_counter() < deadline:
+        pass
 
 
 class TestLock(BaseTest):
@@ -155,26 +164,40 @@ class TestLock(BaseTest):
         done = []
 
         def lots_of_acquires():
-            for _ in xrange(1000):
+            for _ in range(1000):
                 shared = random.choice([True,False])
                 lock.acquire(shared=shared)
                 lock.acquire(shared=shared)
-                time.sleep(random.random() * 0.0001)
+                wait_for(random.random() * 0.0001)
                 lock.release()
-                time.sleep(random.random() * 0.0001)
+                wait_for(random.random() * 0.0001)
                 lock.acquire(shared=shared)
-                time.sleep(random.random() * 0.0001)
+                wait_for(random.random() * 0.0001)
                 lock.release()
                 lock.release()
             done.append(True)
-        threads = [Thread(target=lots_of_acquires) for _ in xrange(10)]
+        threads = [Thread(target=lots_of_acquires) for _ in range(2)]
         for t in threads:
             t.daemon = True
             t.start()
+        end_at = time.monotonic() + 20
         for t in threads:
-            t.join(20)
+            left = end_at - time.monotonic()
+            if left <= 0:
+                break
+            t.join(left)
         live = [t for t in threads if t.is_alive()]
-        self.assertListEqual(live, [], 'ShLock hung')
+        self.assertEqual(len(live), 0, 'ShLock hung or very slow, {} threads alive'.format(len(live)))
         self.assertEqual(len(done), len(threads), 'SHLock locking failed')
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
+
+
+def find_tests():
+    import unittest
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestLock)
+
+
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)

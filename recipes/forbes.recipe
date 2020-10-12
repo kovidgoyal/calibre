@@ -1,8 +1,4 @@
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
-import html5lib
-import json
-import re
+from __future__ import absolute_import, division, print_function, unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -34,46 +30,36 @@ class Forbes(BasicNewsRecipe):
     }
     '''
     feeds = [
-        (u'Latest', u'http://www.forbes.com/news/index.xml'),
-        (u'Most Popular', u'http://www.forbes.com/feeds/popstories.xml'),
-        (u'Technology', u'http://www.forbes.com/technology/index.xml'),
-        (u'Business', u'http://www.forbes.com/business/index.xml'),
-        (u'Sports Money', u'http://www.forbes.com/sportsmoney/index.xml'),
-        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'),
+        (u'Latest', u'https://www.forbes.com/news/index.xml'),
+        (u'Most Popular', u'https://www.forbes.com/feeds/popstories.xml'),
+        (u'Technology', u'https://www.forbes.com/technology/index.xml'),
+        (u'Business', u'https://www.forbes.com/business/index.xml'),
+        (u'Sports Money', u'https://www.forbes.com/sportsmoney/index.xml'),
+        (u'Leadership', u'https://www.forbes.com/leadership/index.xml'),
     ]
+
+    keep_only_tags = [
+        classes('article-headline-container hero-image-block article-body bottom-contrib-block')
+    ]
+
+    remove_tags = [
+        classes('article-sharing'),
+        dict(name='button'),
+    ]
+
+    def preprocess_html(self, soup):
+        h = soup.find(**classes('hero-image-block'))
+        if h is not None:
+            h1 = soup.find(**classes('article-headline-container'))
+            h.extract()
+            h1.append(h)
+        return soup
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.set_cookie('dailyWelcomeCookie', 'true', '.forbes.com')
         br.set_cookie('welcomeAd', 'true', '.forbes.com')
         return br
-
-    def preprocess_raw_html(self, raw, url):
-        root = html5lib.parse(
-            raw, namespaceHTMLElements=False, treebuilder='lxml')
-        for script in root.xpath('//script'):
-            if script.text and script.text.startswith('try {'):
-                idx = script.text.find('fbs_settings.content = {')
-                if idx > -1:
-                    text = script.text.partition('=')[2].lstrip()
-                    ridx = text.rfind('} catch(err)')
-                    text = text[:ridx].rstrip().rstrip(';')
-                    data = json.loads(text)
-                    # from pprint import pformat
-                    # print(pformat(data), file=open('/t/data.py', 'w'))
-                    break
-        else:
-            raise ValueError('Failed to find serialized JSON content')
-        title = data['brandVoiceTitle']
-        body = data['body']
-
-        def cap(m):
-            val = m.group()
-            if val.startswith('[/'):
-                return '</div>'
-            return '<div class="fb-captioned-img">'
-        body = re.sub(r'\[/?caption[^\]]*\]', cap, body)
-        return '''<html><head><title>{0}</title></head><body><h1>{0}</h1><div>{1}</div></body></html>'''.format(title, body)
 
     # def parse_index(self):
     #     return [('Articles', [{'title':'Test', 'url':

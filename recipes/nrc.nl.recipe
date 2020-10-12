@@ -8,6 +8,13 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
 
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
+
+
 class Pagina12(BasicNewsRecipe):
     title = 'NRC'
     __author__ = 'Darko Miletic'
@@ -42,7 +49,7 @@ class Pagina12(BasicNewsRecipe):
             div = soup.find(
                 'div', attrs={'class': lambda x: x and 'featured-img' in x})
             if div is not None:
-                img = Tag(soup, 'img')
+                img = new_tag(soup, 'img')
                 img['src'] = src
                 div.append(img)
         return soup

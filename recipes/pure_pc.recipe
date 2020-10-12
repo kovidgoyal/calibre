@@ -1,6 +1,4 @@
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Comment
 
 
 class PurePC(BasicNewsRecipe):
@@ -11,35 +9,10 @@ class PurePC(BasicNewsRecipe):
     description = u'Artykuły, aktualności, sprzęt, forum, chłodzenie, modding, urządzenia mobilne - wszystko w jednym miejscu.'
     category = 'IT'
     language = 'pl'
-    masthead_url = 'http://www.purepc.pl/themes/new/images/purepc.jpg'
     cover_url = 'http://www.purepc.pl/themes/new/images/purepc.jpg'
     extra_css = '.wykres_logo {float: left; margin-right: 5px;}'
     no_stylesheets = True
-    keep_only_tags = [dict(id='content')]
-    remove_tags_after = dict(attrs={'class': 'fivestar-widget'})
-    remove_tags = [dict(id='navigator'), dict(
-        attrs={'class': ['box-tools', 'fivestar-widget', 'PageMenuList']})]
+
+    keep_only_tags = [dict(name='div', attrs={'class':'node page0'})]
+    remove_tags = [dict(name='div', attrs={'class':'article-options'})]
     feeds = [(u'Wiadomo\u015bci', u'http://www.purepc.pl/node/feed')]
-
-    def append_page(self, soup, appendtag):
-        lasturl = appendtag.find(attrs={'class': 'pager-last'})
-        if lasturl:
-            regex = re.search('(.+?2C)(\d+)', lasturl.a['href'])
-            baseurl = regex.group(1).replace('?page=0%2C', '?page=1%2C')
-            baseurl = 'http://www.purepc.pl' + baseurl
-            nr = int(regex.group(2))
-            for page_nr in range(1, nr + 1):
-                soup2 = self.index_to_soup(baseurl + str(page_nr))
-                pagetext = soup2.find(attrs={'class': 'article'})
-                pos = len(appendtag.contents)
-                appendtag.insert(pos, pagetext)
-            for r in appendtag.findAll(attrs={'class': ['PageMenuList', 'pager', 'fivestar-widget']}):
-                r.extract()
-            comments = appendtag.findAll(
-                text=lambda text: isinstance(text, Comment))
-            for comment in comments:
-                comment.extract()
-
-    def preprocess_html(self, soup):
-        self.append_page(soup, soup.body)
-        return soup

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 '''
 Read content from palmdoc pdb file.
 '''
@@ -11,6 +12,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import PersistentTemporaryFile
+from polyglot.builtins import range
 
 
 class Reader(FormatReader):
@@ -27,7 +29,7 @@ class Reader(FormatReader):
         pdf = PersistentTemporaryFile('.pdf')
         pdf.close()
         pdf = open(pdf, 'wb')
-        for x in xrange(self.header.section_count()):
+        for x in range(self.header.section_count()):
             pdf.write(self.header.section_data(x))
         pdf.close()
 

@@ -1,3 +1,4 @@
+from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 import mechanize
@@ -26,11 +27,11 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         # look for the block containing the sun button and url
         cov = soup.find(attrs={'height': re.compile(
             '3'), 'alt': re.compile('Post')})
-        print
-        print '%%%%%%%%%%%%%%%', cov
-        print
+        print()
+        print('%%%%%%%%%%%%%%%', cov)
+        print()
         cov2 = str(cov['src'])
-        print '88888888 ', cov2, ' 888888888888'
+        print('88888888 ', cov2, ' 888888888888')
 
         # cover_url=cov2
         # return cover_url

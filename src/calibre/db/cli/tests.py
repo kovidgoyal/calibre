@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __docformat__ = 'restructuredtext en'
@@ -11,16 +10,16 @@ Test the CLI of the calibre database management tool
 '''
 import csv
 import unittest
-from cStringIO import StringIO
-
 
 from calibre.db.cli.cmd_check_library import _print_check_library_results
+from polyglot.builtins import iteritems
+from polyglot.io import PolyglotBytesIO
 
 
 class Checker(object):
 
     def __init__(self, kw):
-        for k, v in kw.iteritems():
+        for k, v in iteritems(kw):
             setattr(self, k, v)
 
 
@@ -32,12 +31,12 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
     check = ('dummy_check', 'Dummy Check')
 
     def test_prints_nothing_if_no_errors(self):
-        stdout = StringIO()
+        stdout = PolyglotBytesIO()
         checker = Checker(dict.fromkeys(self.check))
         _print_check_library_results(checker, self.check, as_csv=False, out=stdout)
-        self.assertEqual(stdout.getvalue(), '')
+        self.assertEqual(stdout.getvalue(), b'')
         _print_check_library_results(checker, self.check, as_csv=True, out=stdout)
-        self.assertEqual(stdout.getvalue(), '')
+        self.assertEqual(stdout.getvalue(), b'')
 
     def test_human_readable_output(self):
         """
@@ -48,10 +47,10 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         data = [['first', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
-        stdout = StringIO()
+        stdout = PolyglotBytesIO()
         _print_check_library_results(checker, self.check, out=stdout, as_csv=False)
 
-        result = stdout.getvalue().split('\n')
+        result = stdout.getvalue().decode('utf-8', 'replace').split('\n')
         self.assertEqual(len(result), len(data)+2)
         self.assertEqual(result[0], self.check[1])
 
@@ -70,10 +69,10 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         data = [['first', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
-        stdout = StringIO()
+        stdout = PolyglotBytesIO()
         _print_check_library_results(checker, self.check, as_csv=True, out=stdout)
 
-        result = stdout.getvalue().split('\n')
+        result = stdout.getvalue().decode('utf-8', 'replace').split('\n')
         parsed_result = [l for l in csv.reader(result) if l]
         self.assertEqual(parsed_result, [[self.check[1], data[0][0], data[0][1]]])
 
@@ -84,10 +83,10 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         data = [['I, Caesar', 'second']]
         checker = Checker(dict.fromkeys(self.check))
         setattr(checker, self.check[0], data)
-        stdout = StringIO()
+        stdout = PolyglotBytesIO()
         _print_check_library_results(checker, self.check, as_csv=True, out=stdout)
 
-        result = stdout.getvalue().split('\n')
+        result = stdout.getvalue().decode('utf-8', 'replace').split('\n')
         parsed_result = [l for l in csv.reader(result) if l]
         self.assertEqual(parsed_result, [[self.check[1], data[0][0], data[0][1]]])
 

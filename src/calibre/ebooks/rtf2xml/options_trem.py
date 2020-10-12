@@ -1,3 +1,5 @@
+
+
 import sys
 
 
@@ -269,6 +271,8 @@ class ParseOptions:
             return options_dict, arguments
         else:
             return 0,0
+
+
 if __name__ == '__main__':
     this_dict = {
         'indents': [0, 'i'],
@@ -279,7 +283,7 @@ if __name__ == '__main__':
                     options_dict=this_dict
             )
     options, the_args = test_obj.parse_options()
-    print options, the_args
+    print(options, the_args)
     """
     this_options = ['--foo', '-o']
     this_opt_with_args = ['--foo']

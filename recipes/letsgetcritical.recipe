@@ -31,7 +31,7 @@ class LetsGetCritical(BasicNewsRecipe):
     def parse_index(self):
         self.cover_url = 'http://www.letsgetcritical.org/wp-content/themes/lets_get_critical/images/lgc.jpg'
         feeds = []
-        seen_urls = set([])
+        seen_urls = set()
         regex = re.compile(r'http://(www\.)?([^/:]+)', re.I)
 
         for category in self.CATEGORIES:
@@ -80,7 +80,7 @@ class LetsGetCritical(BasicNewsRecipe):
                     p = post.previousSibling
                     # navigate up sibling to find date
                     while p:
-                        if hasattr(p, 'class') and p['class'] == 'singledate':
+                        if ''.join(p.get('class') or '') == 'singledate':
                             date = self.tag_to_string(p)
                             break
                         p = p.previousSibling

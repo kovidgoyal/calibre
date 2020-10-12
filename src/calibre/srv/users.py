@@ -1,16 +1,17 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 import os, json, re
 from threading import RLock
 
 import apsw
 
+from calibre import as_unicode
 from calibre.constants import config_dir
 from calibre.utils.config import to_json, from_json
+from polyglot.builtins import iteritems
 
 
 def as_json(data):
@@ -33,7 +34,7 @@ def parse_restriction(raw):
         lr = {}
     r['allowed_library_names'] = frozenset(map(lambda x: x.lower(), r.get('allowed_library_names', ())))
     r['blocked_library_names'] = frozenset(map(lambda x: x.lower(), r.get('blocked_library_names', ())))
-    r['library_restrictions'] = {k.lower(): v or '' for k, v in lr.iteritems()}
+    r['library_restrictions'] = {k.lower(): v or '' for k, v in iteritems(lr)}
     return r
 
 
@@ -43,7 +44,7 @@ def serialize_restriction(r):
         v = r.get(x)
         if v:
             ans[x] = list(v)
-    ans['library_restrictions'] = {l.lower(): v or '' for l, v in r.get('library_restrictions', {}).iteritems()}
+    ans['library_restrictions'] = {l.lower(): v or '' for l, v in iteritems(r.get('library_restrictions', {}))}
     return json.dumps(ans)
 
 
@@ -68,6 +69,23 @@ def create_user_data(pw, readonly=False, restriction=None):
     }
 
 
+def connect(path, exc_class=ValueError):
+    try:
+        return apsw.Connection(path)
+    except apsw.CantOpenError as e:
+        pdir = os.path.dirname(path)
+        if os.path.isdir(pdir):
+            raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
+        try:
+            os.makedirs(pdir)
+        except EnvironmentError as e:
+            raise exc_class('Failed to make directory for userdb database at {} with error: {}'.format(pdir, as_unicode(e)))
+        try:
+            return apsw.Connection(path)
+        except apsw.CantOpenError as e:
+            raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
+
+
 class UserManager(object):
 
     lock = RLock()
@@ -76,14 +94,7 @@ class UserManager(object):
     def conn(self):
         with self.lock:
             if self._conn is None:
-                try:
-                    self._conn = apsw.Connection(self.path)
-                except apsw.CantOpenError:
-                    pdir = os.path.dirname(self.path)
-                    if os.path.isdir(pdir):
-                        raise
-                    os.makedirs(pdir)
-                    self._conn = apsw.Connection(self.path)
+                self._conn = connect(self.path)
                 with self._conn:
                     c = self._conn.cursor()
                     uv = next(c.execute('PRAGMA user_version'))[0]
@@ -187,7 +198,7 @@ class UserManager(object):
             remove = self.all_user_names - set(users)
             if remove:
                 c.executemany('DELETE FROM users WHERE name=?', [(n,) for n in remove])
-            for name, data in users.iteritems():
+            for name, data in iteritems(users):
                 res = serialize_restriction(data['restriction'])
                 r = 'y' if data['readonly'] else 'n'
                 c.execute('UPDATE users SET pw=?, restriction=?, readonly=? WHERE name=?',

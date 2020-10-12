@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>674</width>
-    <height>660</height>
+    <height>645</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,12 +38,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>650</width>
-       <height>575</height>
-      </size>
      </property>
      <property name="currentIndex">
       <number>0</number>

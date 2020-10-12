@@ -2,7 +2,13 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
-class NYTimes(BasicNewsRecipe):
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class NEJM(BasicNewsRecipe):
 
     title = 'New England Journal of Medicine'
     __author__ = 'Kovid Goyal'
@@ -12,12 +18,16 @@ class NYTimes(BasicNewsRecipe):
     language = 'en'
 
     no_stylesheets = True
-    keep_only_tags = dict(id='content')
+    keep_only_tags = [
+            dict(id='content')
+    ]
+    remove_tags_after = dict(id='article_references')
+    remove_attributes = ['width', 'height']
 
     # TO LOGIN
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://www.nejm.org/action/showLogin?uri=http://www.nejm.org/')
+        br.open('https://www.nejm.org/action/showLogin?uri=http%3A%2F%2Fwww.nejm.org%2F')
         br.select_form(name='frmLogin')
         br['login'] = self.username
         br['password'] = self.password
@@ -29,48 +39,36 @@ class NYTimes(BasicNewsRecipe):
 
     # TO GET ARTICLE TOC
     def nejm_get_index(self):
-        return self.index_to_soup('http://content.nejm.org/current.dtl')
+        return self.index_to_soup('https://www.nejm.org/toc/nejm/medical-journal')
 
     # To parse artice toc
     def parse_index(self):
-        parse_soup = self.nejm_get_index()
-
+        soup = self.nejm_get_index()
         feeds = []
-
-        div = parse_soup.find(attrs={'class': 'tocContent'})
-        for group in div.findAll(attrs={'class': 'articleGrouping'}):
-            feed_title = group.find(attrs={'class': 'articleType'})
-            if feed_title is None:
-                continue
-            feed_title = self.tag_to_string(feed_title)
-            articles = []
-            self.log('Found section:', feed_title)
-            for art in group.findAll(attrs={'class': lambda x: x and 'articleEntry'
-                                            in x}):
-                link = art.find(attrs={'class': lambda x: x and 'articleLink' in
-                                       x})
-                if link is None:
-                    continue
-                a = link.find('a', href=True)
+        current_section = None
+        articles = []
+        div = soup.find(**classes('pagefulltext'))
+        for x in div.findAll(name=['h2', 'li']):
+            if x.name == 'h2':
+                if current_section and articles:
+                    feeds.append((current_section, articles))
+                current_section = self.tag_to_string(x).strip()
+                articles = []
+                if current_section:
+                    self.log(current_section)
+            else:
+                a = x.find('a')
                 if a is None:
                     continue
-                url = a.get('href')
-                if url.startswith('/'):
-                    url = 'http://www.nejm.org' + url
-                title = self.tag_to_string(a)
-                self.log.info('\tFound article:', title, 'at', url)
-                article = {'title': title, 'url': url, 'date': ''}
-                au = art.find(attrs={'class': 'articleAuthors'})
-                if au is not None:
-                    article['author'] = self.tag_to_string(au)
-                desc = art.find(attrs={'class': 'hover_text'})
-                if desc is not None:
-                    desc = self.tag_to_string(desc)
-                    if 'author' in article:
-                        desc = ' by ' + article['author'] + ' ' + desc
-                    article['description'] = desc
-                articles.append(article)
-            if articles:
-                feeds.append((feed_title, articles))
+                title = self.tag_to_string(a.find('strong')).strip()
+                blurb = a.find(**classes('f-blurb'))
+                desc = ''
+                if blurb is not None:
+                    desc = self.tag_to_string(blurb)
+                self.log('\t', title)
+                articles.append({'title': title, 'url': 'https://www.nejm.org' + a['href'], 'description': desc})
+
+        if current_section and articles:
+            feeds.append((current_section, articles))
 
         return feeds

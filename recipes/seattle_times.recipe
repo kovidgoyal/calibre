@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
@@ -10,10 +10,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class SeattleTimes(BasicNewsRecipe):
+
     title = 'The Seattle Times'
     __author__ = 'Darko Miletic'
     description = 'News from Seattle and USA'
-    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/WA_ST.jpg'
     publisher = 'The Seattle Times'
     category = 'news, politics, USA'
     oldest_article = 2
@@ -24,52 +24,22 @@ class SeattleTimes(BasicNewsRecipe):
     language = 'en'
     auto_cleanup = True
     auto_cleanup_keep = '//div[@id="PhotoContainer"]'
-    cover_url = 'http://seattletimes.com/PDF/frontpage.pdf'
 
     feeds = [
-        (u'Top Stories',
-         u'http://seattletimes.nwsource.com/rss/home.xml'),
-        # (u'Articles', u'http://seattletimes.nwsource.com/rss/seattletimes.xml')
-        (u'Business & Technology',
-         u'http://seattletimes.nwsource.com/rss/businesstechnology.xml'),
-        (u'Personal Technology',
-         u'http://seattletimes.nwsource.com/rss/personaltechnology.xml'),
-        (u'Entertainment & the Arts',
-         u'http://seattletimes.nwsource.com/rss/artsentertainment.xml'),
-        (u'Health',
-         u'http://seattletimes.nwsource.com/rss/health.xml'),
-        (u'Living',
-         u'http://seattletimes.nwsource.com/rss/living.xml'),
         (u'Local News',
-         u'http://seattletimes.nwsource.com/rss/localnews.xml'),
+         u'https://www.seattletimes.com/seattle-news/feed/'),
         (u'Nation & World',
-         u'http://seattletimes.nwsource.com/rss/nationworld.xml'),
-        (u'Opinion',
-         u'http://seattletimes.nwsource.com/rss/opinion.xml'),
-        (u'Politics',
-         u'http://seattletimes.nwsource.com/rss/politics.xml'),
+         u'https://www.seattletimes.com/nation-world/feed/'),
+        (u'Business',
+         u'https://www.seattletimes.com/business/feed/'),
         (u'Sports',
-         u'http://seattletimes.nwsource.com/rss/sports.xml'),
-        (u'Nicole Brodeur',
-         u'http://seattletimes.nwsource.com/rss/nicolebrodeur.xml'),
-        (u'Danny Westneat',
-         u'http://seattletimes.nwsource.com/rss/dannywestneat.xml'),
-        (u'Jerry Large',
-         u'http://seattletimes.nwsource.com/rss/jerrylarge.xml'),
-        (u'Ron Judd',
-         u'http://seattletimes.nwsource.com/rss/ronjudd.xml'),
-        (u'Education',
-         u'http://seattletimes.nwsource.com/rss/education.xml'),
-        (u'Letters to the Editor',
-         u'http://seattletimes.nwsource.com/rss/northwestvoices.xml'),
-        (u'Travel',
-         u'http://seattletimes.nwsource.com/rss/travel.xml'),
-        (u'Outdoors',
-         u'http://seattletimes.nwsource.com/rss/outdoors.xml'),
-        (u'Steve Kelley',
-         u'http://seattletimes.nwsource.com/rss/stevekelley.xml'),
-        (u'Jerry Brewer',
-         u'http://seattletimes.nwsource.com/rss/jerrybrewer.xml'),
-        (u'Most Read Articles',
-         u'http://seattletimes.nwsource.com/rss/mostreadarticles.xml'),
+         u'https://www.seattletimes.com/sports/feed/'),
+        (u'Entertainment',
+         u'https://www.seattletimes.com/entertainment/feed/'),
+        (u'Life',
+         u'https://www.seattletimes.com/life/feed/'),
+        (u'Opinion',
+         u'https://www.seattletimes.com/opinion/feed/'),
+        (u'Photo and Video',
+         u'https://www.seattletimes.com/photo-video/feed/'),
     ]

@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -16,6 +15,7 @@ if False:
 from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
 from calibre_plugins.interface_demo.config import prefs
+
 
 class DemoDialog(QDialog):
 
@@ -97,7 +97,7 @@ class DemoDialog(QDialog):
         ''' View the most recently added book '''
         most_recent = most_recent_id = None
         db = self.db.new_api
-        for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).iteritems():
+        for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).items():
             if most_recent is None or timestamp > most_recent:
                 most_recent = timestamp
                 most_recent_id = book_id
@@ -152,4 +152,3 @@ class DemoDialog(QDialog):
         self.do_user_config(parent=self)
         # Apply the changes
         self.label.setText(prefs['hello_world_msg'])
-

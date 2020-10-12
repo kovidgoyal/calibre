@@ -1,42 +1,57 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
 DARK = '#39322B'
 LIGHT = '#F6F3E9'
 LIGHT_DARKER = '#b6b3a8'
 LIGHT_GRADIENT = 'linear-gradient(to bottom, {}, {})'.format(LIGHT, LIGHT_DARKER)
+DT_DARK = '#2d2d2d'
+DT_DARK_DARKER = 'black'
+DT_DARK_LIGHTER = '#777'
+DT_LIGHT = '#ddd'
+DARK_GRADIENT = 'linear-gradient(to bottom, {}, {})'.format(DT_DARK_LIGHTER, DT_DARK)
+
+def c(light, dark):
+    return {'light': light, 'dark': dark or light}
+
 
 DEFAULT_COLORS = {
     # General colors
-    'window-background': LIGHT,
-    'window-background2': LIGHT_DARKER,
-    'window-foreground': DARK,
-    'window-error-foreground': 'red',
-    'window-hover-foreground': 'red',
+    'window-background': c(LIGHT, DT_DARK),
+    'window-background2': c(LIGHT_DARKER, DT_DARK_LIGHTER),
+    'window-foreground': c(DARK, DT_LIGHT),
+    'window-error-foreground': c('red', '#C40233'),
+    'window-hover-foreground': c('red', '#C40233'),
+    'link-foreground': c('blue', '#6cb4ee'),
 
     # Top bar specific colors
-    'bar-background': DARK,
-    'bar-foreground': LIGHT,
-    'bar-highlight': 'yellow',
-    'heart': '#B92111',
+    'bar-background': c(DARK, DT_DARK_LIGHTER),
+    'bar-foreground': c(LIGHT, DT_DARK),
+    'bar-highlight': c('yellow'),
+    'heart': c('#B92111'),
 
     # Item list colors
-    'list-hover-background': DARK,
-    'list-hover-foreground': LIGHT,
+    'list-hover-background': c(DARK, DT_DARK_LIGHTER),
+    'list-hover-foreground': c(LIGHT, DT_DARK),
 
     # Tree colors
-    'tree-highlight-item': LIGHT_DARKER,
+    'tree-highlight-item': c(LIGHT_DARKER, DT_DARK_LIGHTER),
 
     # Button colors
-    'button-start': DARK,
-    'button-end': '#49423B',
-    'button-text': LIGHT,
+    'button-start': c(DARK, DT_LIGHT),
+    'button-end': c('#49423B', '#666'),
+    'button-text': c(LIGHT, DT_DARK),
 
     # Dialog colors
-    'dialog-background': LIGHT,
-    'dialog-background-image': LIGHT_GRADIENT,
-    'dialog-foreground': DARK,
+    'dialog-background': c(LIGHT, DT_DARK),
+    'dialog-background-image': c(LIGHT_GRADIENT, DARK_GRADIENT),
+    'dialog-foreground': c(DARK, DT_LIGHT),
+
+    # Native controls
+    'input-background': c('field', DT_DARK_DARKER),
+    'input-foreground': c('fieldtext', DT_LIGHT),
+    'input-focus-outline-color': c('#4D90FE', DT_LIGHT),
 }
 
 DEFAULT_SIZES = {
@@ -49,8 +64,72 @@ DEFAULT_FONTS = {
     'main': 'sans-serif'
 }
 
+
+def set_ui_colors(is_dark_theme):
+    attr = 'dark' if is_dark_theme else 'light'
+    s = document.documentElement.style
+    for k in DEFAULT_COLORS:
+        val = DEFAULT_COLORS[k][attr]
+        s.setProperty('--calibre-color-' + k, val)
+    get_color_as_rgba.cache = {}
+    cached_color_to_rgba.cache = {}
+
+
+def browser_in_dark_mode():
+    return window.matchMedia('(prefers-color-scheme: dark)').matches
+
+
+def css_for_variables():
+    input_css = '''
+        input, textarea {
+            color: var(--calibre-color-input-foreground); \
+            background-color: var(--calibre-color-input-background); \
+        }
+        input:focus, textarea:focus {
+            outline-color: var(--calibre-color-input-focus-outline-color); \
+        }
+    '''
+    is_dark_theme = browser_in_dark_mode()
+    attr = 'dark' if is_dark_theme else 'light'
+    ans = v'[]'
+    for k in DEFAULT_COLORS:
+        val = DEFAULT_COLORS[k][attr]
+        ans.push(f'--calibre-color-{k}: {val};')
+    return ':root { ' + ans.join('\n') + '}\n\n' + input_css
+
+
 def get_color(name):
-    return DEFAULT_COLORS[name]
+    return f'var(--calibre-color-{name})'
+
+
+def color_to_rgba(color):
+    # take an arbitrary color spec and return it as [r, g, b, a]
+    cvs = document.createElement('canvas')
+    cvs.height = 1
+    cvs.width = 1
+    if color.startsWith('var('):
+        color = window.getComputedStyle(document.documentElement).getPropertyValue(color[4:-1])
+    ctx = cvs.getContext('2d')
+    ctx.fillStyle = color
+    ctx.fillRect(0, 0, 1, 1)
+    return ctx.getImageData(0, 0, 1, 1).data
+
+
+def cached_color_to_rgba(color):
+    cache = cached_color_to_rgba.cache
+    if not cache[color]:
+        cache[color] = color_to_rgba(color)
+    return cache[color]
+cached_color_to_rgba.cache = {}
+
+
+def get_color_as_rgba(name):
+    cache = get_color_as_rgba.cache
+    if not cache[name]:
+        cache[name] = color_to_rgba(get_color(name))
+    return cache[name]
+get_color_as_rgba.cache = {}
+
 
 def get_font_size(name):
     return DEFAULT_SIZES[name]

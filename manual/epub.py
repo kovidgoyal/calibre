@@ -1,6 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -15,20 +15,26 @@ from calibre.ebooks.oeb.polish.container import get_container, OEB_DOCS
 from calibre.ebooks.oeb.polish.check.links import check_links, UnreferencedResource
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_opf
 from calibre.utils.imghdr import identify
+from polyglot.builtins import iteritems
 
 
 class EPUBHelpBuilder(EpubBuilder):
     name = 'myepub'
 
-    def build_epub(self, outdir, outname):
-        EpubBuilder.build_epub(self, outdir, outname)
+    def build_epub(self, outdir=None, outname=None):
+        if outdir:
+            EpubBuilder.build_epub(self, outdir, outname)
+        else:
+            EpubBuilder.build_epub(self)
+            outdir = self.outdir
+            outname = self.config.epub_basename + '.epub'
         container = get_container(os.path.join(outdir, outname))
         self.fix_epub(container)
         container.commit()
 
     def fix_epub(self, container):
         ' Fix all the brokenness that sphinx\'s epub builder creates '
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_DOCS:
                 self.workaround_ade_quirks(container, name)
                 pretty_html_tree(container, container.parsed(name))
@@ -49,9 +55,9 @@ class EPUBHelpBuilder(EpubBuilder):
     def fix_opf(self, container):
         spine_names = {n for n, l in container.spine_names}
         spine = container.opf_xpath('//opf:spine')[0]
-        rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
         # Add unreferenced text files to the spine
-        for name, mt in container.mime_map.iteritems():
+        for name, mt in iteritems(container.mime_map):
             if mt in OEB_DOCS and name not in spine_names:
                 spine_names.add(name)
                 container.insert_into_xml(spine, spine.makeelement(OPF('itemref'), idref=rmap[name]))
@@ -71,6 +77,13 @@ class EPUBHelpBuilder(EpubBuilder):
         cover_id = rmap['_static/' + self.config.epub_cover[0]]
         for item in container.opf_xpath('//opf:item[@id="{}"]'.format(cover_id)):
             item.set('properties', 'cover-image')
+        for item in container.opf_xpath('//opf:item[@href="epub-cover.xhtml"]'):
+            item.set('properties', 'svg calibre:title-page')
+        for item in container.opf_xpath('//opf:package'):
+            prefix = item.get('prefix') or ''
+            if prefix:
+                prefix += ' '
+            item.set('prefix', prefix + 'calibre: https://calibre-ebook.com')
 
         # Remove any <meta cover> tag as it is not needed in epub 3
         for meta in container.opf_xpath('//opf:meta[@name="cover"]'):

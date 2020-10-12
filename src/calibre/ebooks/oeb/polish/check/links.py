@@ -1,25 +1,25 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from collections import defaultdict
-from urlparse import urlparse
-from future_builtins import map
 from threading import Thread
-from Queue import Queue, Empty
 
 from calibre import browser
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote, XHTML_MIME
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.parsing import parse_html5
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
+from polyglot.builtins import iteritems, map, range, itervalues
+from polyglot.urllib import urlparse
+from polyglot.queue import Queue, Empty
 
 
 class BadLink(BaseError):
@@ -131,7 +131,7 @@ class UnreferencedDoc(UnreferencedResource):
 
     def __call__(self, container):
         from calibre.ebooks.oeb.base import OPF
-        rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
         if self.name in rmap:
             manifest_id = rmap[self.name]
         else:
@@ -163,7 +163,7 @@ class Unmanifested(BadLink):
         if self.file_action == 'remove':
             container.remove_item(self.name)
         else:
-            rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+            rmap = {v:k for k, v in iteritems(container.manifest_id_map)}
             if self.name not in rmap:
                 container.add_name_to_manifest(self.name)
         return True
@@ -206,17 +206,17 @@ class MimetypeMismatch(BaseError):
     def __init__(self, container, name, opf_mt, ext_mt):
         self.opf_mt, self.ext_mt = opf_mt, ext_mt
         self.file_name = name
-        BaseError.__init__(self, _('The file %s has a mimetype that does not match its extension') % name, container.opf_name)
+        BaseError.__init__(self, _('The file %s has a MIME type that does not match its extension') % name, container.opf_name)
         ext = name.rpartition('.')[-1]
-        self.HELP = _('The file {0} has its mimetype specified as {1} in the OPF file.'
-                      ' The recommended mimetype for files with the extension "{2}" is {3}.'
-                      ' You should change either the file extension or the mimetype in the OPF.').format(
+        self.HELP = _('The file {0} has its MIME type specified as {1} in the OPF file.'
+                      ' The recommended MIME type for files with the extension "{2}" is {3}.'
+                      ' You should change either the file extension or the MIME type in the OPF.').format(
                           name, opf_mt, ext, ext_mt)
         if opf_mt in OEB_DOCS and name in {n for n, l in container.spine_names}:
             self.INDIVIDUAL_FIX = _('Change the file extension to .xhtml')
             self.change_ext_to = 'xhtml'
         else:
-            self.INDIVIDUAL_FIX = _('Change the mimetype for this file in the OPF to %s') % ext_mt
+            self.INDIVIDUAL_FIX = _('Change the MIME type for this file in the OPF to %s') % ext_mt
             self.change_ext_to = None
 
     def __call__(self, container):
@@ -245,7 +245,7 @@ class MimetypeMismatch(BaseError):
 def check_mimetypes(container):
     errors = []
     a = errors.append
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         gt = container.guess_type(name)
         if mt != gt:
             if mt == 'application/oebps-page-map+xml' and name.lower().endswith('.xml'):
@@ -283,7 +283,7 @@ def check_link_destinations(container):
     dest_map = {}
     opf_type = guess_type('a.opf')
     ncx_type = guess_type('a.ncx')
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS:
             for a in container.parsed(name).xpath('//*[local-name()="a" and @href]'):
                 href = a.get('href')
@@ -314,7 +314,7 @@ def check_links(container):
             x = x[1:]
         return x
 
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS or mt in OEB_STYLES or mt in xml_types:
             for href, lnum, col in container.iterlinks(name):
                 if not href:
@@ -363,11 +363,12 @@ def check_links(container):
     unreferenced = set()
 
     cover_name = container.guide_type_map.get('cover', None)
+    nav_items = frozenset(container.manifest_items_with_property('nav'))
 
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_STYLES and name not in spine_styles:
             a(UnreferencedResource(name))
-        elif mt in OEB_DOCS and name not in spine_docs:
+        elif mt in OEB_DOCS and name not in spine_docs and name not in nav_items:
             a(UnreferencedDoc(name))
         elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources and name != cover_name:
             if mt.partition('/')[0] == 'image' and name == get_raster_cover_name(container):
@@ -377,7 +378,7 @@ def check_links(container):
             continue
         unreferenced.add(name)
 
-    manifest_names = set(container.manifest_id_map.itervalues())
+    manifest_names = set(itervalues(container.manifest_id_map))
     for name in container.mime_map:
         if name not in manifest_names and not container.ok_to_be_unmanifested(name):
             a(Unmanifested(name, unreferenced=name in unreferenced))
@@ -387,40 +388,63 @@ def check_links(container):
     return errors
 
 
-def check_external_links(container, progress_callback=lambda num, total:None):
+def get_html_ids(raw_data):
+    ans = set()
+    root = parse_html5(raw_data, discard_namespaces=True, line_numbers=False, fix_newlines=False)
+    for body in root.xpath('//body'):
+        ans.update(set(body.xpath('descendant-or-self::*/@id')))
+        ans.update(set(body.xpath('descendant::a/@name')))
+    return ans
+
+
+def check_external_links(container, progress_callback=(lambda num, total:None), check_anchors=True):
     progress_callback(0, 0)
     external_links = defaultdict(list)
-    for name, mt in container.mime_map.iteritems():
+    for name, mt in iteritems(container.mime_map):
         if mt in OEB_DOCS or mt in OEB_STYLES:
             for href, lnum, col in container.iterlinks(name):
                 purl = urlparse(href)
                 if purl.scheme in ('http', 'https'):
-                    key = href.partition('#')[0]
-                    external_links[key].append((name, href, lnum, col))
+                    external_links[href].append((name, href, lnum, col))
     if not external_links:
         return []
     items = Queue()
     ans = []
-    tuple(map(items.put, external_links.iteritems()))
+    tuple(map(items.put, iteritems(external_links)))
     progress_callback(0, len(external_links))
     done = []
+    downloaded_html_ids = {}
 
     def check_links():
         br = browser(honor_time=False, verify_ssl_certificates=False)
         while True:
             try:
-                href, locations = items.get_nowait()
+                full_href, locations = items.get_nowait()
             except Empty:
                 return
+            href, frag = full_href.partition('#')[::2]
             try:
-                br.open(href, timeout=10).close()
+                res = br.open(href, timeout=10)
             except Exception as e:
-                ans.append((locations, e, href))
+                ans.append((locations, e, full_href))
+            else:
+                if frag and check_anchors:
+                    ct = res.info().get('Content-Type')
+                    if ct and ct.split(';')[0].lower() in {'text/html', XHTML_MIME}:
+                        ids = downloaded_html_ids.get(href)
+                        if ids is None:
+                            try:
+                                ids = downloaded_html_ids[href] = get_html_ids(res.read())
+                            except Exception:
+                                ids = downloaded_html_ids[href] = frozenset()
+                        if frag not in ids:
+                            ans.append((locations, ValueError('HTML anchor {} not found on the page'.format(frag)), full_href))
+                res.close()
             finally:
                 done.append(None)
                 progress_callback(len(done), len(external_links))
 
-    workers = [Thread(name="CheckLinks", target=check_links) for i in xrange(min(10, len(external_links)))]
+    workers = [Thread(name="CheckLinks", target=check_links) for i in range(min(10, len(external_links)))]
     for w in workers:
         w.daemon = True
         w.start()

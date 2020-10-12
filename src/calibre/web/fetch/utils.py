@@ -1,9 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 from calibre.utils.img import image_from_data, scale_image, image_to_data, blend_on_canvas
 
 
@@ -46,6 +45,7 @@ def prepare_masthead_image(path_to_image, out_path, mi_width, mi_height):
     img = blend_on_canvas(img, mi_width, mi_height)
     with lopen(out_path, 'wb') as f:
         f.write(image_to_data(img))
+
 
 if __name__ == '__main__':
     import sys

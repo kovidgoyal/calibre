@@ -1,0 +1,198 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.globals import get_session_data
+from book_list.item_list import create_item, create_item_list
+from dom import clear, svgicon, unique_id
+from read_book.shortcuts import (
+    key_as_text, keyevent_as_shortcut, shortcut_differs, shortcuts_definition,
+    shortcuts_group_desc
+)
+from widgets import create_button
+
+
+def get_container():
+    return document.getElementById(get_container.id)
+
+
+def restore_defaults(close_func):
+    get_container().dataset.changed = 'true'
+    for item in get_container().querySelectorAll('[data-user-data]'):
+        q = JSON.parse(item.dataset.userData)
+        q.shortcuts = shortcuts_definition()[q.name].shortcuts
+        item.dataset.userData = JSON.stringify(q)
+    close_func()
+
+
+def as_groups(shortcuts):
+    ans = {}
+    for sc_name in Object.keys(shortcuts):
+        sc = shortcuts[sc_name]
+        if not ans[sc.group]:
+            ans[sc.group] = {}
+        ans[sc.group][sc_name] = sc
+    return ans
+
+
+def sort_group_key(group, sc_name):
+    return group[sc_name].short.toLowerCase()
+
+
+def sc_as_item(sc_name, sc, shortcuts):
+    cuts = shortcuts or sc.shortcuts
+    return create_item(sc.short, action=customize_shortcut.bind(None, sc_name), subtitle=sc.long, data=JSON.stringify({'name': sc_name, 'shortcuts': cuts}))
+
+
+
+def remove_key(evt):
+    key_container = evt.currentTarget.parentNode.parentNode
+    key_container.parentNode.removeChild(key_container)
+
+
+def key_widget(key):
+    return E.tr(
+        data_shortcut=JSON.stringify(keyevent_as_shortcut(key)),
+        E.td(style="padding: 0.5rem; border-right: solid 3px; margin-right: 0.5rem; margin-top: 0.5rem", key_as_text(key)),
+        E.td(E.a(class_='simple-link', '\xa0', svgicon('remove'), ' ', _('Remove'), onclick=remove_key)),
+    )
+
+
+def close_customize_shortcut(apply_changes):
+    container = get_container()
+    container.firstChild.style.display = 'block'
+    container.lastChild.style.display = 'none'
+    if close_customize_shortcut.shortcut_being_customized:
+        for item in container.firstChild.querySelectorAll('[data-user-data]'):
+            q = JSON.parse(item.dataset.userData)
+            if q.name is close_customize_shortcut.shortcut_being_customized:
+                item.scrollIntoView()
+                break
+    if apply_changes:
+        shortcuts = v'[]'
+        for x in container.lastChild.querySelectorAll('[data-shortcut]'):
+            sc = JSON.parse(x.dataset.shortcut)
+            shortcuts.push(sc)
+        sc_name = container.lastChild.dataset.scName
+        for item in container.querySelectorAll('[data-user-data]'):
+            q = JSON.parse(item.dataset.userData)
+            if q.name is sc_name:
+                q.shortcuts = shortcuts
+                item.dataset.userData = JSON.stringify(q)
+                break
+        get_container().dataset.changed = 'true'
+        commit_keyboard(create_keyboard_panel.onchange, None)
+
+
+def add_key_widget():
+    uid = unique_id('add-new-shortcut')
+    return E.div(style='margin-top: 1ex; margin-bottom: 1ex',
+        id=uid,
+        E.div(create_button(_('Add a new shortcut'), icon="plus", action=def (evt):
+            div = document.getElementById(uid)
+            div.firstChild.style.display = 'none'
+            div.lastChild.style.display = 'block'
+            div.lastChild.querySelector('input').focus()
+        )),
+        E.div(style='display:none',
+            E.input(readonly='readonly',
+                value=_('Press the key combination to use as a shortcut'),
+                style='width: 90vw',
+                onkeydown=def (evt):
+                    evt.preventDefault()
+                    evt.stopPropagation()
+                    if evt.key not in v"['Control', 'Meta', 'Alt', 'Shift']":
+                        key_con = get_container().querySelector('.key-container')
+                        key_con.appendChild(key_widget(evt))
+                        div = document.getElementById(uid)
+                        div.firstChild.style.display = 'block'
+                        div.lastChild.style.display = 'none'
+        ))
+    )
+
+
+def customize_shortcut(sc_name):
+    container = get_container()
+    container.firstChild.style.display = 'none'
+    container.lastChild.style.display = 'block'
+    close_customize_shortcut.shortcut_being_customized = sc_name
+    shortcuts = v'[]'
+    for item in container.querySelectorAll('[data-user-data]'):
+        q = JSON.parse(item.dataset.userData)
+        if q.name is sc_name:
+            shortcuts = q.shortcuts
+            break
+    container = container.lastChild
+    clear(container)
+    container.dataset.scName = sc_name
+    sc = shortcuts_definition()[sc_name]
+    container.appendChild(E.h4(sc.short))
+    if sc.long:
+        container.appendChild(E.div(sc.long, style='font-style: italic; font-size: smaller; margin-top: 1ex'))
+    container.appendChild(E.div(style='margin-top: 1rem', _('Existing shortcuts:')))
+    key_con = container.appendChild(E.table(class_="key-container"))
+    for key in shortcuts:
+        key_con.appendChild(key_widget(key))
+    container.appendChild(E.div(style='margin-top:1ex;', add_key_widget()))
+    container.appendChild(E.div(style='margin-top:1ex; display:flex; justify-content: flex-end',
+        create_button(_('OK'), action=close_customize_shortcut.bind(None, True)),
+        E.span('\xa0'),
+        create_button(_('Cancel'), action=close_customize_shortcut.bind(None, False)),
+    ))
+
+
+
+def create_keyboard_panel(container, apply_func, cancel_func, onchange):
+    create_keyboard_panel.onchange = onchange
+    container.appendChild(E.div(id=unique_id('keyboard-settings'), style='margin: 1rem'))
+    container = container.lastChild
+    container.dataset.changed = 'false'
+    get_container.id = container.id
+    container.appendChild(E.div())
+    container.appendChild(E.div(style='display: none'))
+    container = container.firstChild
+    sd = get_session_data()
+    custom_shortcuts = sd.get('keyboard_shortcuts')
+    groups = as_groups(shortcuts_definition())
+    for group_name in Object.keys(groups):
+        container.appendChild(E.h3(style='margin-top: 1ex', shortcuts_group_desc()[group_name]))
+        group = groups[group_name]
+        items = []
+        for sc_name in sorted(Object.keys(group), key=sort_group_key.bind(None, group)):
+            sc = group[sc_name]
+            items.push(sc_as_item(sc_name, sc, custom_shortcuts[sc_name]))
+        container.appendChild(E.div())
+        create_item_list(container.lastChild, items)
+
+    container.appendChild(E.div(
+        style='margin-top: 1rem', create_button(_('Restore defaults'), action=restore_defaults.bind(None, apply_func))
+    ))
+
+
+develop = create_keyboard_panel
+
+
+def shortcuts_differ(a, b):
+    if a.length is not b.length:
+        return True
+    for x, y in zip(a, b):
+        if shortcut_differs(x, y):
+            return True
+    return False
+
+
+def commit_keyboard(onchange, container):
+    sd = get_session_data()
+    vals = {}
+    for item in get_container().querySelectorAll('[data-user-data]'):
+        q = JSON.parse(item.dataset.userData)
+        if shortcuts_differ(q.shortcuts, shortcuts_definition()[q.name].shortcuts):
+            vals[q.name] = q.shortcuts
+    sd.set('keyboard_shortcuts', vals)
+    if container is not None:
+        create_keyboard_panel.onchange = None
+    if get_container().dataset.changed is 'true':
+        onchange()

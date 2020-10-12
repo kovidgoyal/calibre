@@ -1,7 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
@@ -9,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 
 from calibre.ebooks.docx.index import process_index, polish_index_markup
+from polyglot.builtins import iteritems, native_string_type
 
 
 class Field(object):
@@ -22,7 +22,9 @@ class Field(object):
         self.name = None
 
     def add_instr(self, elem):
-        raw = elem.text
+        self.add_raw(elem.text)
+
+    def add_raw(self, raw):
         if not raw:
             return
         if self.name is None:
@@ -37,6 +39,7 @@ class Field(object):
     def finalize(self):
         self.instructions = ''.join(self.buf)
         del self.buf
+
 
 WORD, FLAG = 0, 1
 scanner = re.Scanner([
@@ -72,9 +75,10 @@ def parser(name, field_map, default_field_name=None):
         ans.pop(null, None)
         return ans
 
-    parse.__name__ = str('parse_' + name)
+    parse.__name__ = native_string_type('parse_' + name)
 
     return parse
+
 
 parse_hyperlink = parser('hyperlink',
     'l:anchor m:image-map n:target o:title t:target', 'url')
@@ -110,7 +114,10 @@ class Fields(object):
             self.index_bookmark_prefix = self.index_bookmark_prefix.replace('-', '%d-' % c)
         stack = []
         for elem in self.namespace.XPath(
-            '//*[name()="w:p" or name()="w:r" or name()="w:instrText" or (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end"))]')(doc):
+            '//*[name()="w:p" or name()="w:r" or'
+            ' name()="w:instrText" or'
+            ' (name()="w:fldChar" and (@w:fldCharType="begin" or @w:fldCharType="end") or'
+            ' name()="w:fldSimple")]')(doc):
             if elem.tag.endswith('}fldChar'):
                 typ = self.namespace.get(elem, 'w:fldCharType')
                 if typ == 'begin':
@@ -124,6 +131,14 @@ class Fields(object):
             elif elem.tag.endswith('}instrText'):
                 if stack:
                     stack[-1].add_instr(elem)
+            elif elem.tag.endswith('}fldSimple'):
+                field = Field(elem)
+                instr = self.namespace.get(elem, 'w:instr')
+                if instr:
+                    field.add_raw(instr)
+                    self.fields.append(field)
+                    for r in self.namespace.XPath('descendant::w:r')(elem):
+                        field.contents.append(r)
             else:
                 if stack:
                     stack[-1].contents.append(elem)
@@ -222,7 +237,7 @@ class Fields(object):
     def polish_markup(self, object_map):
         if not self.index_fields:
             return
-        rmap = {v:k for k, v in object_map.iteritems()}
+        rmap = {v:k for k, v in iteritems(object_map)}
         for idx, blocks in self.index_fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
 
@@ -255,6 +270,7 @@ def test_parse_fields(return_tests=False):
     if return_tests:
         return suite
     unittest.TextTestRunner(verbosity=4).run(suite)
+
 
 if __name__ == '__main__':
     test_parse_fields()

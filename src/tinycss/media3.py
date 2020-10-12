@@ -1,13 +1,14 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from tinycss.css21 import CSS21Parser
 from tinycss.parsing import remove_whitespace, split_on_comma, ParseError
+from polyglot.builtins import error_message
+
 
 class MediaQuery(object):
 
@@ -27,11 +28,13 @@ class MediaQuery(object):
             self.negated == getattr(other, 'negated', None) and \
             self.expressions == getattr(other, 'expressions', None)
 
+
 class MalformedExpression(Exception):
 
     def __init__(self, tok, msg):
         Exception.__init__(self, msg)
         self.tok = tok
+
 
 class CSSMedia3Parser(CSS21Parser):
 
@@ -96,9 +99,8 @@ class CSSMedia3Parser(CSS21Parser):
 
                     expressions.append((media_feature, expr))
             except MalformedExpression as err:
-                errors.extend(ParseError(err.tok, err.message))
+                errors.append(ParseError(err.tok, error_message(err)))
                 media_type, negated, expressions = 'all', True, ()
             queries.append(MediaQuery(media_type or 'all', expressions=tuple(expressions), negated=negated))
 
         return queries
-

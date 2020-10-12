@@ -15,8 +15,9 @@
    viewBox="0 0 128 128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="font.svg">
+   inkscape:version="0.92.4 5da689c313, 2019-01-14"
+   sodipodi:docname="font.svg"
+   enable-background="new">
   <defs
      id="defs4">
     <linearGradient
@@ -72,6 +73,16 @@
          result="composite2"
          id="feComposite4298" />
     </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter1038">
+      <feBlend
+         inkscape:collect="always"
+         mode="overlay"
+         in2="BackgroundImage"
+         id="feBlend1040" />
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -80,17 +91,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="19.843024"
+     inkscape:zoom="7.919596"
+     inkscape:cx="-12.10305"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
-     inkscape:window-width="3840"
-     inkscape:window-height="2128"
+     inkscape:window-width="2560"
+     inkscape:window-height="1400"
      inkscape:window-x="0"
-     inkscape:window-y="32"
+     inkscape:window-y="40"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -163,22 +174,22 @@
        id="polyline14" />
     <g
        id="g4167"
-       style="fill:#6d0b0b;fill-opacity:1;filter:url(#filter4288)">
+       style="fill:#dd8808;fill-opacity:1;filter:url(#filter1038)">
       <path
          id="path4"
          d="m 17.470144,999.2509 -7.005639,0 0,-4.98468 20.050489,0 0,4.98468 -7.12241,0 0,21.2627 -5.92244,0 0,-21.2627 z"
          inkscape:connector-curvature="0"
-         style="fill:#6d0b0b;fill-opacity:1" />
+         style="fill:#dd8808;fill-opacity:1" />
       <path
          id="path6"
          d="m 58.629806,994.26622 15.947361,0 0,4.86785 -10.024922,0 0,5.99723 9.367518,0 0,4.8276 -9.367518,0 0,10.5541 -5.922439,0 0,-26.24678 z"
          inkscape:connector-curvature="0"
-         style="fill:#6d0b0b;fill-opacity:1" />
+         style="fill:#dd8808;fill-opacity:1" />
       <path
          id="path16"
          d="m 41.341832,999.2509 -7.005639,0 0,-4.98468 20.050488,0 0,4.98468 -7.12241,0 0,21.2627 -5.922439,0 0,-21.2627 z"
          inkscape:connector-curvature="0"
-         style="fill:#6d0b0b;fill-opacity:1" />
+         style="fill:#dd8808;fill-opacity:1" />
     </g>
   </g>
 </svg>

@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
@@ -28,12 +28,12 @@ class DN_se(BasicNewsRecipe):
 
     feeds = [
 
-    (u'Nyheter', u'http://www.dn.se/m/rss/toppnyheter'),
-    (u'Ekonomi', u'http://www.dn.se/ekonomi-rss'),
-    (u'Sport', u'http://www.dn.se/sport-rss'),
-    (u'Debatt', u'http://www.dn.se/debatt-rss'),
-    (u'Ledare', u'http://www.dn.se/ledare-rss'),
-    (u'Kultur', u'http://www.dn.se/kultur-rss')
+    (u'Nyheter', u'https://www.dn.se/m/rss/toppnyheter'),
+    (u'Ekonomi', u'https://www.dn.se/ekonomi-rss'),
+    (u'Sport', u'https://www.dn.se/sport-rss'),
+    (u'Debatt', u'https://www.dn.se/debatt-rss'),
+    (u'Ledare', u'https://www.dn.se/ledare-rss'),
+    (u'Kultur', u'https://www.dn.se/kultur-rss')
     ]
 
     keep_only_tags = [dict(name='div', attrs={'id': 'article-content'})]

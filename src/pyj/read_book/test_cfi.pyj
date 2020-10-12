@@ -1,0 +1,108 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from read_book.cfi import encode, decode, escape_for_cfi, unescape_from_cfi
+from testing import assert_equal, test
+
+
+@test
+def cfi_escaping():
+    t = 'a^!,1'
+    assert_equal(t, unescape_from_cfi(escape_for_cfi(t)))
+
+
+@test
+def cfi_roundtripping():
+    idc = 0
+    def nid():
+        nonlocal idc
+        idc += 1
+        return idc + ''
+
+    document.body.appendChild(E.p('abc'))
+    p = document.body.firstChild
+    path_to_p = '/2/4/2'
+    assert_equal(encode(document, p), path_to_p)
+    assert_equal(decode(path_to_p), {'node': p})
+
+    assert_equal(encode(document, p.firstChild), f'{path_to_p}/1:0')
+    assert_equal(decode(f'{path_to_p}/1:0'), {'node': p.firstChild, 'offset': 0})
+
+    assert_equal(encode(document, p.firstChild, 1), f'{path_to_p}/1:1')
+    assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
+
+    p.appendChild(document.createTextNode('def'))
+    assert_equal(encode(document, p.firstChild, 5), f'{path_to_p}/1:5')
+    assert_equal(p.childNodes.length, 2)
+    assert_equal(encode(document, p.lastChild, 1), f'{path_to_p}/1:4')
+    assert_equal(decode(f'{path_to_p}/1:5'), {'node': p.lastChild, 'offset': 2})
+    assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
+
+    p.appendChild(E.span('123', id=nid()))
+    span = p.lastChild
+    path_to_span = f'{path_to_p}/2[{span.id}]'
+    p.appendChild(document.createTextNode('456'))
+    assert_equal(encode(document, p.lastChild, 1), f'{path_to_p}/1:7')
+    assert_equal(decode(f'{path_to_p}/1:7'), {'node': p.lastChild, 'offset': 1})
+    assert_equal(encode(document, span), path_to_span)
+    assert_equal(decode(path_to_span), {'node': span})
+    assert_equal(encode(document, span.firstChild, 1), f'{path_to_span}/1:1')
+    assert_equal(decode(f'{path_to_span}/1:1'), {'node': span.firstChild, 'offset': 1})
+
+
+@test
+def cfi_with_range_wrappers():
+    document.body.appendChild(E.p('abc', E.span('def', data_calibre_range_wrapper='1'), '123'))
+    p = document.body.firstChild
+    path_to_p = encode(document, p)
+    rw1 = p.querySelector('span')
+    assert_equal(encode(document, p.firstChild, 1), f'{path_to_p}/1:1')
+    assert_equal(decode(f'{path_to_p}/1:1'), {'node': p.firstChild, 'offset': 1})
+    assert_equal(encode(document, rw1), f'{path_to_p}/1:3')
+    assert_equal(decode(f'{path_to_p}/1:3'), {'node': p.firstChild, 'offset': 3})
+    assert_equal(encode(document, rw1.firstChild, 1), f'{path_to_p}/1:4')
+    assert_equal(decode(f'{path_to_p}/1:4'), {'node': rw1.firstChild, 'offset': 1})
+    assert_equal(encode(document, p.lastChild, 1), f'{path_to_p}/1:7')
+    assert_equal(decode(f'{path_to_p}/1:7'), {'node': p.lastChild, 'offset': 1})
+
+    p.appendChild(E.span('456', E.i('789'), data_calibre_range_wrapper='2'))
+    itag = p.querySelector('i')
+    assert_equal(encode(document, p.lastChild.firstChild, 1), f'{path_to_p}/1:10')
+    assert_equal(decode(f'{path_to_p}/1:10'), {'node': p.lastChild.firstChild, 'offset': 1})
+    assert_equal(encode(document, itag), f'{path_to_p}/2')
+    assert_equal(decode(f'{path_to_p}/2'), {'node': itag})
+    assert_equal(encode(document, itag.firstChild, 2), f'{path_to_p}/2/1:2')
+    assert_equal(decode(f'{path_to_p}/2/1:2'), {'node': itag.firstChild, 'offset': 2})
+
+    document.body.appendChild(E.p('abc'))
+    p = document.body.lastChild
+    path_to_p = encode(document, p)
+    p.appendChild(document.createTextNode('def'))
+    assert_equal(decode(f'{path_to_p}/1:2'), {'node': p.firstChild, 'offset': 2})
+    assert_equal(decode(f'{path_to_p}/3:2'), {'node': p.lastChild, 'offset': 2})
+
+    document.body.appendChild(E.p('abc'))
+    p = document.body.lastChild
+    path_to_p = encode(document, p)
+    without_wrapper = encode(document, p.firstChild, 0)
+    assert_equal(without_wrapper, f'{path_to_p}/1:0')
+    p.removeChild(p.firstChild)
+    p.appendChild(E.span('abc', data_calibre_range_wrapper='7'))
+    with_wrapper = encode(document, p.firstChild.firstChild, 0)
+    assert_equal(without_wrapper, with_wrapper)
+    p.appendChild(document.createTextNode('def'))
+    after_wrapper = encode(document, p.lastChild, 1)
+    assert_equal(after_wrapper, f'{path_to_p}/1:4')
+
+    document.body.appendChild(
+        E.p(E.span('abc', data_calibre_range_wrapper='8'), 'def', E.span('123', data_calibre_range_wrapper='9'), '456'))
+    p = document.body.lastChild
+    path_to_p = encode(document, p)
+    rw = p.querySelectorAll('span')[-1]
+    assert_equal(decode(f'{path_to_p}/1:0'), {'node': p.firstChild.firstChild, 'offset': 0})
+    assert_equal(decode(f'{path_to_p}/1:5'), {'node': p.firstChild.nextSibling, 'offset': 2})
+    assert_equal(decode(f'{path_to_p}/1:7'), {'node': rw.firstChild, 'offset': 1})
+    assert_equal(decode(f'{path_to_p}/1:11'), {'node': rw.nextSibling, 'offset': 2})

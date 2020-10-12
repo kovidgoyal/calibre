@@ -1,14 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import cPickle, os, sys
+import os, sys
 from threading import Thread, Event, RLock
-from Queue import Queue
 from contextlib import closing
 from collections import namedtuple
 
@@ -16,6 +14,8 @@ from calibre.constants import iswindows
 from calibre.gui2.tweak_book.completion.basic import Request
 from calibre.gui2.tweak_book.completion.utils import DataError
 from calibre.utils.ipc import eintr_retry_call
+from calibre.utils.serialize import msgpack_loads, msgpack_dumps
+from polyglot.queue import Queue
 
 COMPLETION_REQUEST = 'completion request'
 CLEAR_REQUEST = 'clear request'
@@ -46,7 +46,7 @@ class CompletionWorker(Thread):
             'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, self.worker_entry_point))
         auth_key = os.urandom(32)
         address, self.listener = create_listener(auth_key)
-        eintr_retry_call(p.stdin.write, cPickle.dumps((address, auth_key), -1))
+        eintr_retry_call(p.stdin.write, msgpack_dumps((address, auth_key)))
         p.stdin.flush(), p.stdin.close()
         self.control_conn = eintr_retry_call(self.listener.accept)
         self.data_conn = eintr_retry_call(self.listener.accept)
@@ -172,7 +172,8 @@ def completion_worker():
 
 def run_main(func):
     from multiprocessing.connection import Client
-    address, key = cPickle.loads(eintr_retry_call(sys.stdin.read))
+    stdin = getattr(sys.stdin, 'buffer', sys.stdin)
+    address, key = msgpack_loads(eintr_retry_call(stdin.read))
     with closing(Client(address, authkey=key)) as control_conn, closing(Client(address, authkey=key)) as data_conn:
         func(control_conn, data_conn)
 
@@ -213,5 +214,5 @@ def test():
     w = CompletionWorker(worker_entry_point='test_main')
     w.wait_for_connection()
     w.send('Hello World!')
-    print (w.recv())
+    print(w.recv())
     w.shutdown(), w.join()

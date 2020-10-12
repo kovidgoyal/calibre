@@ -1,5 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -11,7 +12,7 @@ from collections import Counter
 
 from PyQt5.Qt import QObject, QTimer, QModelIndex
 
-from calibre.constants import isosx
+from calibre.constants import ismacos
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.dialogs.delete_matching_from_device import DeleteMatchingFromDeviceDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -73,8 +74,7 @@ class MultiDeleter(QObject):  # {{{
         self.pd = None
         self.model.db.commit()
         self.model.db.clean()
-        self.model.books_deleted()
-        self.gui.tags_view.recount()
+        self.model.books_deleted()  # calls recount on the tag browser
         self.callback(self.deleted_ids)
         if self.failures:
             msg = ['==> '+x[1]+'\n'+x[2] for x in self.failures]
@@ -87,7 +87,7 @@ class MultiDeleter(QObject):  # {{{
 class DeleteAction(InterfaceAction):
 
     name = 'Remove Books'
-    action_spec = (_('Remove books'), 'remove_books.png', _('Delete books'), 'Backspace' if isosx else 'Del')
+    action_spec = (_('Remove books'), 'remove_books.png', _('Delete books'), 'Backspace' if ismacos else 'Del')
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = _('Remove selected books')
@@ -107,7 +107,7 @@ class DeleteAction(InterfaceAction):
     def drop_event(self, event, mime_data):
         mime = 'application/calibre+from_library'
         if mime_data.hasFormat(mime):
-            self.dropped_ids = tuple(map(int, str(mime_data.data(mime)).split()))
+            self.dropped_ids = tuple(map(int, mime_data.data(mime).data().split()))
             QTimer.singleShot(1, self.do_drop)
             return True
         return False
@@ -128,6 +128,7 @@ class DeleteAction(InterfaceAction):
         m('delete-except',
                 _('Remove all formats from selected books, except...'),
                 triggered=self.delete_all_but_selected_formats)
+        self.delete_menu.addSeparator()
         m('delete-all',
                 _('Remove all formats from selected books'),
                 triggered=self.delete_all_formats)
@@ -166,7 +167,7 @@ class DeleteAction(InterfaceAction):
         if not rows or len(rows) == 0:
             d = error_dialog(self.gui, err_title, _('No book selected'))
             d.exec_()
-            return set([])
+            return set()
         return set(map(self.gui.library_view.model().id, rows))
 
     def remove_format_by_id(self, book_id, fmt):
@@ -182,14 +183,14 @@ class DeleteAction(InterfaceAction):
         self.gui.library_view.model().refresh_ids([book_id])
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
-        self.gui.tags_view.recount()
+        self.gui.tags_view.recount_with_position_based_index()
 
     def restore_format(self, book_id, original_fmt):
         self.gui.current_db.restore_original_format(book_id, original_fmt)
         self.gui.library_view.model().refresh_ids([book_id])
         self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
-        self.gui.tags_view.recount()
+        self.gui.tags_view.recount_with_position_based_index()
 
     def delete_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -205,7 +206,7 @@ class DeleteAction(InterfaceAction):
         m.current_changed(self.gui.library_view.currentIndex(),
                 self.gui.library_view.currentIndex())
         if ids:
-            self.gui.tags_view.recount()
+            self.gui.tags_view.recount_with_position_based_index()
 
     def delete_all_but_selected_formats(self, *args):
         ids = self._get_selected_ids()
@@ -223,7 +224,7 @@ class DeleteAction(InterfaceAction):
             bfmts = m.db.formats(id, index_is_id=True)
             if bfmts is None:
                 continue
-            bfmts = set([x.lower() for x in bfmts.split(',')])
+            bfmts = {x.lower() for x in bfmts.split(',')}
             rfmts = bfmts - set(fmts)
             if bfmts - rfmts:
                 # Do not delete if it will leave the book with no
@@ -235,7 +236,7 @@ class DeleteAction(InterfaceAction):
             m.current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
             if ids:
-                self.gui.tags_view.recount()
+                self.gui.tags_view.recount_with_position_based_index()
 
     def delete_all_formats(self, *args):
         ids = self._get_selected_ids()
@@ -258,7 +259,7 @@ class DeleteAction(InterfaceAction):
             self.gui.library_view.model().current_changed(self.gui.library_view.currentIndex(),
                     self.gui.library_view.currentIndex())
             if ids:
-                self.gui.tags_view.recount()
+                self.gui.tags_view.recount_with_position_based_index()
 
     def remove_matching_books_from_device(self, *args):
         if not self.gui.device_manager.is_device_present:
@@ -274,8 +275,8 @@ class DeleteAction(InterfaceAction):
         to_delete = {}
         some_to_delete = False
         for model,name in ((self.gui.memory_view.model(), _('Main memory')),
-                           (self.gui.card_a_view.model(), _('Storage Card A')),
-                           (self.gui.card_b_view.model(), _('Storage Card B'))):
+                           (self.gui.card_a_view.model(), _('Storage card A')),
+                           (self.gui.card_b_view.model(), _('Storage card B'))):
             to_delete[name] = (model, model.paths_for_db_ids(ids))
             if len(to_delete[name][1]) > 0:
                 some_to_delete = True

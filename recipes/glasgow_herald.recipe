@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -15,10 +21,12 @@ class GlasgowHerald(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        (u'News', u'http://www.heraldscotland.com/cmlink/1.758'),
-        (u'Sport', u'http://www.heraldscotland.com/cmlink/1.761'),
-        (u'Business', u'http://www.heraldscotland.com/cmlink/1.763'),
-        (u'Life & Style', u'http://www.heraldscotland.com/cmlink/1.770'),
-        (u'Arts & Entertainment',
-         u'http://www.heraldscotland.com/cmlink/1.768',),
-        (u'Columnists', u'http://www.heraldscotland.com/cmlink/1.658574')]
+        (u'News', u'https://www.heraldscotland.com/news/rss/'),
+        (u'Sport', u'https://www.heraldscotland.com/sport/rss/'),
+        (u'Business', u'https://www.heraldscotland.com/business_hq/rss/'),
+        (u'Lifestyle', u'https://www.heraldscotland.com/life_style/rss/'),
+        (u'Arts & Entertainment', u'https://www.heraldscotland.com/arts_ents/rss/',),
+        (u'Politics', u'https://www.heraldscotland.com/politics/rss/'),
+        (u'Columnists', u'https://www.heraldscotland.com/opinion/columnists/rss/')
+
+        ]

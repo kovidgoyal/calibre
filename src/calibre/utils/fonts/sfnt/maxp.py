@@ -1,17 +1,16 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
-from __future__ import (unicode_literals, division, absolute_import,
-                        print_function)
+
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from itertools import izip
 from struct import unpack_from, pack
 
 from calibre.utils.fonts.sfnt import UnknownTable, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
+from polyglot.builtins import zip
 
 
 class MaxpTable(UnknownTable):
@@ -39,12 +38,9 @@ class MaxpTable(UnknownTable):
             self._fmt = b'>lH' + b'H'*(len(self.fields)-2)
 
             vals = unpack_from(self._fmt, self.raw)
-            for f, val in izip(self.fields, vals):
+            for f, val in zip(self.fields, vals):
                 setattr(self, f, val)
 
     def update(self):
-        vals = [getattr(self, f) for f in self._fields]
+        vals = [getattr(self, f) for f in self.fields]
         self.raw = pack(self._fmt, *vals)
-
-
-

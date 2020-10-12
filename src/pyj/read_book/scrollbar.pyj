@@ -1,0 +1,126 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.globals import get_session_data
+from book_list.theme import cached_color_to_rgba
+from dom import unique_id
+from read_book.globals import ui_operations
+
+SIZE = 10
+
+
+class BookScrollbar:
+
+    def __init__(self, view):
+        self.view = view
+        self.container_id = unique_id('book-scrollbar')
+        self.sync_to_contents_timer = 0
+        self.sync_contents_timer = 0
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    def create(self):
+        self.on_bob_mousedown = self.on_bob_mouse_event.bind(None, 'down')
+        self.on_bob_mousemove = self.on_bob_mouse_event.bind(None, 'move')
+        self.on_bob_mouseup = self.on_bob_mouse_event.bind(None, 'up')
+        return E.div(
+            id=self.container_id,
+            style=f'height: 100vh; background-color: #aaa; width: {SIZE}px; border-radius: 5px',
+            onclick=self.bar_clicked, oncontextmenu=self.context_menu,
+            E.div(
+                style=f'position: relative; width: 100%; height: {int(2.2*SIZE)}px; background-color: #444; border-radius: 5px',
+                onmousedown=self.on_bob_mousedown,
+            ),
+            E.div(
+                style='position: absolute; z-index: 2147483647; width: 100vw; height: 100vh; left: 0; top: 0; display: none;'
+            )
+        )
+
+    def context_menu(self, ev):
+        if ui_operations.scrollbar_context_menu:
+            ev.preventDefault(), ev.stopPropagation()
+            c = self.container
+            bob = c.firstChild
+            height = c.clientHeight - bob.clientHeight
+            top = max(0, min(ev.clientY - bob.clientHeight, height))
+            frac = max(0, min(top / height, 1))
+            ui_operations.scrollbar_context_menu(ev.screenX, ev.screenY, frac)
+
+    def bar_clicked(self, evt):
+        if evt.button is 0:
+            c = self.container
+            b = c.firstChild
+            bob_top = b.offsetTop
+            bob_bottom = bob_top + b.offsetHeight
+            if evt.clientY < bob_top:
+                self.view.left_margin_clicked(evt)
+            elif evt.clientY > bob_bottom:
+                self.view.right_margin_clicked(evt)
+
+    def on_bob_mouse_event(self, which, evt):
+        c = self.container
+        bob = c.firstChild
+        mouse_grab = bob.nextSibling
+        if which is 'move':
+            top = evt.pageY - self.down_y
+            height = c.clientHeight - bob.clientHeight
+            top = max(0, min(top, height))
+            bob.style.top = f'{top}px'
+            evt.preventDefault(), evt.stopPropagation()
+            frac = bob.offsetTop / height
+            if self.sync_contents_timer:
+                window.clearTimeout(self.sync_contents_timer)
+            self.sync_contents_timer = window.setTimeout(self.view.goto_frac.bind(None, frac), 2)
+        elif which is 'down':
+            if evt.button is not 0:
+                return
+            evt.preventDefault(), evt.stopPropagation()
+            self.down_y = evt.clientY - bob.getBoundingClientRect().top
+            mouse_grab.style.display = 'block'
+            window.addEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
+            window.addEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
+        elif which is 'up':
+            self.down_y = 0
+            window.removeEventListener('mousemove', self.on_bob_mousemove, {'capture': True, 'passive': False})
+            window.removeEventListener('mouseup', self.on_bob_mouseup, {'capture': True, 'passive': False})
+            window.setTimeout(def(): self.container.firstChild.nextSibling.style.display = 'none';, 10)
+            evt.preventDefault(), evt.stopPropagation()
+
+    def apply_visibility(self):
+        sd = get_session_data()
+        self.container.style.display = 'block' if sd.get('book_scrollbar') else 'none'
+
+    @property
+    def effective_width(self):
+        return SIZE if self.container.style.display is 'block' else 0
+
+    def set_position(self, frac):
+        c = self.container
+        frac = max(0, min(frac, 1))
+        c.firstChild.style.top = f'{frac * (c.clientHeight - c.firstChild.clientHeight)}px'
+
+    def sync_to_contents(self, frac):
+        if self.sync_to_contents_timer:
+            window.clearTimeout(self.sync_to_contents_timer)
+        self.sync_to_contents_timer = window.setTimeout(self.set_position.bind(None, frac), 100)
+
+    def apply_color_scheme(self, colors):
+        fg = cached_color_to_rgba(colors.foreground)
+        bg = cached_color_to_rgba(colors.background)
+
+        def mix(fg, bg, frac):
+            def m(x):  # noqa: unused-local
+                return frac * fg[x] + (1-frac) * bg[x]
+            return v'[m[0], m[1], m[2]]'
+
+        rbg = mix(fg, bg, 0.3)
+        rfg = mix(fg, bg, 0.7)
+
+        c = self.container
+        c.style.backgroundColor = f'rgb({rbg[0]}, {rbg[1]}, {rbg[2]})'
+        c.firstChild.style.backgroundColor = f'rgb({rfg[0]}, {rfg[1]}, {rfg[2]})'

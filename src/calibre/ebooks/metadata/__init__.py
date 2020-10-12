@@ -1,5 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # vim:fileencoding=utf-8
+
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -9,15 +11,15 @@ Provides abstraction for metadata reading.writing from a variety of ebook format
 """
 import os, sys, re
 
-from urlparse import urlparse
-
-from calibre import relpath, guess_type, remove_bracketed_text, prints, force_unicode
-
+from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, itervalues, as_unicode
+from polyglot.urllib import quote, unquote, urlparse
+
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])
-except:
+except Exception:
     prints('Author split regexp:', tweaks['authors_split_regex'],
             'is invalid, using default')
     _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
@@ -26,9 +28,9 @@ except:
 def string_to_authors(raw):
     if not raw:
         return []
-    raw = raw.replace('&&', u'\uffff')
+    raw = raw.replace('&&', '\uffff')
     raw = _author_pat.sub('&', raw)
-    authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
+    authors = [a.strip().replace('\uffff', '&') for a in raw.split('&')]
     return [a for a in authors if a]
 
 
@@ -39,9 +41,29 @@ def authors_to_string(authors):
         return ''
 
 
+def remove_bracketed_text(src, brackets=None):
+    if brackets is None:
+        brackets = {'(': ')', '[': ']', '{': '}'}
+    from collections import Counter
+    counts = Counter()
+    buf = []
+    src = force_unicode(src)
+    rmap = {v: k for k, v in iteritems(brackets)}
+    for char in src:
+        if char in brackets:
+            counts[char] += 1
+        elif char in rmap:
+            idx = rmap[char]
+            if counts[idx] > 0:
+                counts[idx] -= 1
+        elif sum(itervalues(counts)) < 1:
+            buf.append(char)
+    return ''.join(buf)
+
+
 def author_to_author_sort(author, method=None):
     if not author:
-        return u''
+        return ''
     sauthor = remove_bracketed_text(author).strip()
     tokens = sauthor.split()
     if len(tokens) < 2:
@@ -52,13 +74,13 @@ def author_to_author_sort(author, method=None):
     ltoks = frozenset(x.lower() for x in tokens)
     copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
     if ltoks.intersection(copy_words):
-        method = u'copy'
+        method = 'copy'
 
-    if method == u'copy':
+    if method == 'copy':
         return author
 
     prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
-    prefixes |= {y+u'.' for y in prefixes}
+    prefixes |= {y+'.' for y in prefixes}
     while True:
         if not tokens:
             return author
@@ -69,9 +91,9 @@ def author_to_author_sort(author, method=None):
             break
 
     suffixes = {force_unicode(y).lower() for y in tweaks['author_name_suffixes']}
-    suffixes |= {y+u'.' for y in suffixes}
+    suffixes |= {y+'.' for y in suffixes}
 
-    suffix = u''
+    suffix = ''
     while True:
         if not tokens:
             return author
@@ -83,7 +105,7 @@ def author_to_author_sort(author, method=None):
             break
     suffix = suffix.strip()
 
-    if method == u'comma' and u',' in u''.join(tokens):
+    if method == 'comma' and ',' in ''.join(tokens):
         return author
 
     atokens = tokens[-1:] + tokens[:-1]
@@ -91,10 +113,10 @@ def author_to_author_sort(author, method=None):
     if suffix:
         atokens.append(suffix)
 
-    if method != u'nocomma' and num_toks > 1:
-        atokens[0] += u','
+    if method != 'nocomma' and num_toks > 1:
+        atokens[0] += ','
 
-    return u' '.join(atokens)
+    return ' '.join(atokens)
 
 
 def authors_to_sort_string(authors):
@@ -134,8 +156,8 @@ def get_title_sort_pat(lang=None):
     return ans
 
 
-_ignore_starts = u'\'"'+u''.join(unichr(x) for x in
-        range(0x2018, 0x201e)+[0x2032, 0x2033])
+_ignore_starts = '\'"'+''.join(codepoint_to_chr(x) for x in
+        list(range(0x2018, 0x201e))+[0x2032, 0x2033])
 
 
 def title_sort(title, order=None, lang=None):
@@ -159,15 +181,15 @@ def title_sort(title, order=None, lang=None):
     return title.strip()
 
 
-coding = zip(
+coding = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],
 ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
-)
+))
 
 
 def roman(num):
     if num <= 0 or num >= 4000 or int(num) != num:
-        return str(num)
+        return unicode_type(num)
     result = []
     for d, r in coding:
         while num >= d:
@@ -182,7 +204,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
     try:
         i = float(i)
     except TypeError:
-        return str(i)
+        return unicode_type(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
     return fmt%i
@@ -202,8 +224,7 @@ class Resource(object):
 
     '''
 
-    def __init__(self, href_or_path, basedir=os.getcwdu(), is_path=True):
-        from urllib import unquote
+    def __init__(self, href_or_path, basedir=getcwd(), is_path=True):
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -218,7 +239,7 @@ class Resource(object):
             path = href_or_path
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(basedir, path))
-            if isinstance(path, str):
+            if isinstance(path, bytes):
                 path = path.decode(sys.getfilesystemencoding())
             self.path = path
         else:
@@ -227,7 +248,7 @@ class Resource(object):
                 self._href = href_or_path
             else:
                 pc = url[2]
-                if isinstance(pc, unicode):
+                if isinstance(pc, unicode_type):
                     pc = pc.encode('utf-8')
                 pc = unquote(pc).decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
@@ -241,25 +262,24 @@ class Resource(object):
         `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
         If this resource has no basedir, then the current working directory is used as the basedir.
         '''
-        from urllib import quote
         if basedir is None:
             if self._basedir:
                 basedir = self._basedir
             else:
-                basedir = os.getcwdu()
+                basedir = getcwd()
         if self.path is None:
             return self._href
-        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
-        frag = '#'+quote(f) if self.fragment else ''
+        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode_type) else self.fragment
+        frag = '#'+as_unicode(quote(f)) if self.fragment else ''
         if self.path == basedir:
             return ''+frag
         try:
             rpath = relpath(self.path, basedir)
         except OSError:  # On windows path and basedir could be on different drives
             rpath = self.path
-        if isinstance(rpath, unicode):
+        if isinstance(rpath, unicode_type):
             rpath = rpath.encode('utf-8')
-        return quote(rpath.replace(os.sep, '/'))+frag
+        return as_unicode(quote(rpath.replace(os.sep, '/')))+frag
 
     def set_basedir(self, path):
         self._basedir = path
@@ -294,7 +314,7 @@ class ResourceCollection(object):
         return '[%s]'%', '.join(resources)
 
     def __repr__(self):
-        return str(self)
+        return unicode_type(self)
 
     def append(self, resource):
         if not isinstance(resource, Resource):
@@ -339,26 +359,26 @@ def MetaInformation(title, authors=(_('Unknown'),)):
 
 def check_isbn10(isbn):
     try:
-        digits = map(int, isbn[:9])
+        digits = tuple(map(int, isbn[:9]))
         products = [(i+1)*digits[i] for i in range(9)]
         check = sum(products)%11
         if (check == 10 and isbn[9] == 'X') or check == int(isbn[9]):
             return isbn
-    except:
+    except Exception:
         pass
     return None
 
 
 def check_isbn13(isbn):
     try:
-        digits = map(int, isbn[:12])
+        digits = tuple(map(int, isbn[:12]))
         products = [(1 if i%2 ==0 else 3)*digits[i] for i in range(12)]
         check = 10 - (sum(products)%10)
         if check == 10:
             check = 0
-        if str(check) == isbn[12]:
+        if unicode_type(check) == isbn[12]:
             return isbn
-    except:
+    except Exception:
         pass
     return None
 
@@ -382,7 +402,7 @@ def check_issn(issn):
         return None
     issn = re.sub(r'[^0-9X]', '', issn.upper())
     try:
-        digits = map(int, issn[:7])
+        digits = tuple(map(int, issn[:7]))
         products = [(8 - i) * d for i, d in enumerate(digits)]
         check = 11 - sum(products) % 11
         if (check == 10 and issn[7] == 'X') or check == int(issn[7]):
@@ -412,12 +432,9 @@ def check_doi(doi):
     return None
 
 
-def rating_to_stars(value, allow_half_stars=False, star=u'★', half=u'½'):
+def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     r = max(0, min(int(value or 0), 10))
-    if allow_half_stars:
-        ans = star * (r // 2)
-        if r % 2:
-            ans += half
-    else:
-        ans = star * int(r/2.0)
+    ans = star * (r // 2)
+    if allow_half_stars and r % 2:
+        ans += half
     return ans

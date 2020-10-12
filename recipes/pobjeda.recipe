@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python
 
 __license__ = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
@@ -11,6 +11,13 @@ import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
+
+
+def new_tag(soup, name, attrs=()):
+    impl = getattr(soup, 'new_tag', None)
+    if impl is not None:
+        return impl(name, attrs=dict(attrs))
+    return Tag(soup, name, attrs=attrs or None)
 
 
 class Pobjeda(BasicNewsRecipe):
@@ -59,9 +66,9 @@ class Pobjeda(BasicNewsRecipe):
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
         soup.html['lang'] = self.lang
-        mlang = Tag(soup, 'meta', [
+        mlang = new_tag(soup, 'meta', [
                     ("http-equiv", "Content-Language"), ("content", self.lang)])
-        mcharset = Tag(soup, 'meta', [
+        mcharset = new_tag(soup, 'meta', [
                        ("http-equiv", "Content-Type"), ("content", "text/html; charset=UTF-8")])
         soup.head.insert(0, mlang)
         soup.head.insert(1, mcharset)
@@ -86,8 +93,8 @@ class Pobjeda(BasicNewsRecipe):
             soup = self.index_to_soup(feedurl)
             for item in soup.findAll('div', attrs={'class': 'vijest'}):
                 description = self.tag_to_string(item.h2)
-                atag = item.h1.find('a')
-                if atag and atag.has_key('href'):  # noqa
+                atag = item.h1.find('a', href=True)
+                if atag is not None:
                     url = self.INDEX + '/' + atag['href']
                     title = self.tag_to_string(atag)
                     date = strftime(self.timefmt)
