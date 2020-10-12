@@ -195,7 +195,8 @@ The syntax of the language is shown by the following grammar. For a discussion o
     function        ::= identifier '(' expression [ ',' expression ]* ')'
     compare         ::= expression compare_op expression
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
-    if_expression   ::= 'if' expression 'then' expression_list ['else' statement] 'fi'
+    if_expression   ::= 'if' expression 'then' expression_list [elif_expression] ['else' expression_list] 'fi'
+    elif_expression ::= 'elif' expression 'then' expression_list elif_expression | ''
     assignment      ::= identifier '=' expression
     constant        ::= " string " | ' string ' | number
     identifier      ::= sequence of letters or ``_`` characters

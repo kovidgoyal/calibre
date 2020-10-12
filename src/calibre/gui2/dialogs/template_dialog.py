@@ -44,7 +44,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
     Formats = {}
     BN_FACTOR = 1000
 
-    KEYWORDS = ["program", 'if', 'then', 'else', 'fi']
+    KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi']
 
     def __init__(self, parent=None):
         super(TemplateHighlighter, self).__init__(parent)
