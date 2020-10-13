@@ -573,6 +573,7 @@ class TagsView(QTreeView):  # {{{
 
         index = self.indexAt(point)
         self.context_menu = QMenu(self)
+        parent_index = None
 
         if index.isValid():
             item = index.data(Qt.UserRole)
@@ -794,6 +795,18 @@ class TagsView(QTreeView):  # {{{
                             partial(self.context_menu_handler, action='manage_categories',
                                     category=None))
 
+                node_name = tag_item.tag.name
+                parent = tag_item.parent
+                if parent.type != TagTreeItem.ROOT:
+                    # We have an internal node. Find its immediate parent
+                    parent_index = self._model.parent(index)
+                    parent_node = parent
+                    parent_name = parent.tag.name
+                else:
+                    # We have a top-level node.
+                    parent_index = index
+                    parent_node = tag_item
+                    parent_name = tag_item.name
         if self.hidden_categories:
             if not self.context_menu.isEmpty():
                 self.context_menu.addSeparator()
@@ -826,15 +839,39 @@ class TagsView(QTreeView):  # {{{
             da.setToolTip('*')
             pa.setToolTip('*')
 
+        self.context_menu.addSeparator()
         if index.isValid() and self.model().rowCount(index) > 0:
-            self.context_menu.addSeparator()
-            self.context_menu.addAction(_('E&xpand all children'), partial(self.expand_node_and_descendants, index))
-
-        self.context_menu.addAction(_('Collapse all levels'), self.collapseAll)
+            self.context_menu.addAction(_('Expand {0}').format(node_name),
+                                        partial(self.expand_node_and_descendants, index))
+            if self.isExpanded(index):
+                self.context_menu.addAction(_("Collapse {0}").format(node_name),
+                                            partial(self.collapse_node, index))
+        if parent_index is not None:
+            if self.isExpanded(parent_index):
+                # Don't bother to collapse if it isn't expanded
+                self.context_menu.addAction(_("Collapse {0}").format(parent_name),
+                                            partial(self.collapse_node, parent_index))
+            if parent_node.parent.type != TagTreeItem.ROOT:
+                # Add the top level node if the current parent is an internal node
+                while parent_node.parent.type != TagTreeItem.ROOT:
+                    parent_node = parent_node.parent
+                idx = self._model.index_for_category(parent_node.category_key)
+                self.context_menu.addAction(_("Collapse {0}").format(parent_node.name),
+                                            partial(self.collapse_node, idx))
+        self.context_menu.addAction(_('Collapse all'), self.collapseAll)
 
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
+
+    def collapse_node(self, idx):
+        def collapse_node_and_children(idx):
+            self.collapse(idx)
+            for r in range(self.model().rowCount(idx)):
+                collapse_node_and_children(idx.child(r, 0))
+        collapse_node_and_children(idx)
+        self.setCurrentIndex(idx)
+        self.scrollTo(idx)
 
     def expand_node_and_descendants(self, index):
         if not index.isValid():
