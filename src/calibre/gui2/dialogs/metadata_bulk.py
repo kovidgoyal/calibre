@@ -491,7 +491,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.comments = null
         self.comments_button.clicked.connect(self.set_comments)
 
-        all_tags = self.db.all_tags()
+        all_tags = self.db.new_api.all_field_names('tags')
         self.tags.update_items_cache(all_tags)
         self.remove_tags.update_items_cache(all_tags)
 
@@ -1094,21 +1094,16 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.authors.set_separator('&')
         self.authors.set_space_before_sep(True)
         self.authors.set_add_separator(tweaks['authors_completer_append_separator'])
-        self.authors.update_items_cache(self.db.all_author_names())
+        self.authors.update_items_cache(self.db.new_api.all_field_names('authors'))
         self.authors.show_initial_value('')
 
     def initialize_series(self):
-        all_series = self.db.all_series()
-        all_series.sort(key=lambda x : sort_key(x[1]))
         self.series.set_separator(None)
-        self.series.update_items_cache([x[1] for x in all_series])
+        self.series.update_items_cache(self.db.new_api.all_field_names('series'))
         self.series.show_initial_value('')
 
     def initialize_publisher(self):
-        all_publishers = self.db.all_publishers()
-        all_publishers.sort(key=lambda x : sort_key(x[1]))
-        self.publisher.set_separator(None)
-        self.publisher.update_items_cache([x[1] for x in all_publishers])
+        self.publisher.update_items_cache(self.db.new_api.all_field_names('publisher'))
         self.publisher.show_initial_value('')
 
     def tag_editor(self, *args):
@@ -1117,8 +1112,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         if d.result() == QDialog.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
-            self.tags.update_items_cache(self.db.all_tags())
-            self.remove_tags.update_items_cache(self.db.all_tags())
+            all_tags = self.db.new_api.all_field_names('tags')
+            self.tags.update_items_cache(all_tags)
+            self.remove_tags.update_items_cache(all_tags)
 
     def auto_number_changed(self, state):
         self.series_start_number.setEnabled(bool(state))

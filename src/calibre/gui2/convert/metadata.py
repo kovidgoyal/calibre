@@ -92,7 +92,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.author_sort.setText(mi.author_sort if mi.author_sort else '')
         self.author_sort.home(False)
         self.tags.setText(', '.join(mi.tags if mi.tags else []))
-        self.tags.update_items_cache(self.db.all_tags())
+        self.tags.update_items_cache(self.db.new_api.all_field_names('tags'))
         self.tags.home(False)
         self.comment.html = comments_to_html(mi.comments) if mi.comments else ''
         self.series.show_initial_value(mi.series if mi.series else '')
@@ -141,7 +141,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.author.set_separator('&')
         self.author.set_space_before_sep(True)
         self.author.set_add_separator(tweaks['authors_completer_append_separator'])
-        self.author.update_items_cache(self.db.all_author_names())
+        self.author.update_items_cache(self.db.new_api.all_field_names('authors'))
 
         au = self.db.authors(self.book_id, True)
         if not au:
@@ -151,16 +151,12 @@ class MetadataWidget(Widget, Ui_Form):
         self.author.home(False)
 
     def initialize_series(self):
-        all_series = self.db.all_series()
-        all_series.sort(key=lambda x : sort_key(x[1]))
         self.series.set_separator(None)
-        self.series.update_items_cache([x[1] for x in all_series])
+        self.series.update_items_cache(self.db.new_api.all_field_names('series'))
 
     def initialize_publisher(self):
-        all_publishers = self.db.all_publishers()
-        all_publishers.sort(key=lambda x : sort_key(x[1]))
         self.publisher.set_separator(None)
-        self.publisher.update_items_cache([x[1] for x in all_publishers])
+        self.publisher.update_items_cache(self.db.new_api.all_field_names('publisher'))
 
     def get_title_and_authors(self):
         title = unicode_type(self.title.text()).strip()

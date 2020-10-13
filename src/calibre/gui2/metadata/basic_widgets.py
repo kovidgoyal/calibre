@@ -1377,7 +1377,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         tags = db.tags(id_, index_is_id=True)
         tags = tags.split(',') if tags else []
         self.current_val = tags
-        self.all_items = db.all_tag_names()
+        self.update_items_cache(db.new_api.all_field_names('tags'))
         self.original_val = self.current_val
 
     @property
@@ -1401,7 +1401,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         d = TagEditor(self, db, id_)
         if d.exec_() == TagEditor.Accepted:
             self.current_val = d.tags
-            self.all_items = db.all_tags()
+            self.update_items_cache(db.new_api.all_field_names('tags'))
 
     def commit(self, db, id_):
         self.books_to_refresh |= db.set_tags(
