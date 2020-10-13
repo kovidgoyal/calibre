@@ -510,7 +510,7 @@ class Cache(object):
             return frozenset(self.fields[field].table.col_book_map)
 
         try:
-            return frozenset(itervalues(self.fields[field].table.id_map))
+            return frozenset(self.fields[field].table.id_map.values())
         except AttributeError:
             raise ValueError('%s is not a many-one or many-many field' % field)
 

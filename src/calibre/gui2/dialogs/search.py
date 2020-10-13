@@ -127,22 +127,21 @@ def create_simple_tab(self, db):
     le.set_separator('&')
     le.set_space_before_sep(True)
     le.set_add_separator(tweaks['authors_completer_append_separator'])
-    le.update_items_cache(db.all_author_names())
+    le.update_items_cache(db.new_api.all_field_names('authors'))
     l.addRow(_('&Author:'), le)
 
     self.series_box = le = EditWithComplete(self)
     le.lineEdit().setPlaceholderText(_('The series to search for'))
     le.setObjectName('series_box')
-    all_series = sorted((x[1] for x in db.all_series()), key=sort_key)
     le.set_separator(None)
-    le.update_items_cache(all_series)
+    le.update_items_cache(db.new_api.all_field_names('series'))
     le.show_initial_value('')
     l.addRow(_('&Series:'), le)
 
     self.tags_box = le = EditWithComplete(self)
     le.setObjectName('tags_box')
     le.lineEdit().setPlaceholderText(_('The tags to search for'))
-    self.tags_box.update_items_cache(db.all_tags())
+    self.tags_box.update_items_cache(db.new_api.all_field_names('tags'))
     l.addRow(_('Ta&gs:'), le)
 
     searchables = sorted(db.field_metadata.searchable_fields(),
@@ -490,4 +489,5 @@ if __name__ == '__main__':
     app = Application([])
     d = SearchDialog(None, db)
     d.exec_()
+
     print(d.search_string())

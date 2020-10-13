@@ -36,8 +36,10 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.current_prefix = ''
 
     def set_items(self, items):
-        items = [unicode_type(x).strip() if self.strip_completion_entries else unicode_type(x) for x in items]
-        items = [x for x in items if x]
+        if self.strip_completion_entries:
+            items = (str(x).strip() for x in items if x)
+        else:
+            items = (str(x) for x in items if x)
         items = tuple(sorted(items, key=self.sort_func))
         self.beginResetModel()
         self.all_items = self.current_items = items
