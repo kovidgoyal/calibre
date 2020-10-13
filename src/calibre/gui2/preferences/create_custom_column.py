@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 )
 
 from calibre.gui2 import error_dialog
+from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import parse_date, UNDEFINED_DATE
 from polyglot.builtins import iteritems, unicode_type, range, map
 
@@ -326,7 +327,7 @@ class CreateCustomColumn(QDialog):
         self.format_label = add_row('', h)
 
         # Template
-        self.composite_box = cb = QLineEdit(self)
+        self.composite_box = cb = TemplateLineEditor(self)
         self.composite_default_label = cdl = QLabel(_("Default: (nothing)"))
         cb.setToolTip(_("Field template. Uses the same syntax as save templates."))
         cdl.setToolTip(_("Similar to save templates. For example, %s") % "{title} {isbn}")
