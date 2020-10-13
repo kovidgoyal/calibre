@@ -388,7 +388,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         self.set_separator('&')
         self.set_space_before_sep(True)
         self.set_add_separator(tweaks['authors_completer_append_separator'])
-        self.update_items_cache(db.all_author_names())
+        self.update_items_cache(db.new_api.all_field_names('authors'))
 
         au = db.authors(id_, index_is_id=True)
         if not au:
@@ -612,17 +612,9 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
     def initialize(self, db, id_):
         self.books_to_refresh = set()
-        all_series = db.all_series()
-        all_series.sort(key=lambda x: sort_key(x[1]))
-        self.update_items_cache([x[1] for x in all_series])
-        series_id = db.series_id(id_, index_is_id=True)
-        inval = ''
-        for i in all_series:
-            if i[0] == series_id:
-                inval = i[1]
-                break
-        self.current_val = inval
-        self.original_val = self.current_val
+        self.update_items_cache(db.new_api.all_field_names('series'))
+        series = db.new_api.field_for('series', id_)
+        self.current_val = self.original_val = series or ''
 
     def commit(self, db, id_):
         series = self.current_val
@@ -1775,16 +1767,8 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def initialize(self, db, id_):
         self.books_to_refresh = set()
-        all_publishers = db.all_publishers()
-        all_publishers.sort(key=lambda x: sort_key(x[1]))
-        self.update_items_cache([x[1] for x in all_publishers])
-        publisher_id = db.publisher_id(id_, index_is_id=True)
-        inval = ''
-        for pid, name in all_publishers:
-            if pid == publisher_id:
-                inval = name
-                break
-        self.original_val = self.current_val = inval
+        self.update_items_cache(db.new_api.all_field_names('publisher'))
+        self.original_val = self.current_val = db.new_api.field_for('publisher', id_)
 
     def commit(self, db, id_):
         self.books_to_refresh |= db.set_publisher(id_, self.current_val,
