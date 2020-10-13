@@ -55,6 +55,11 @@ Handle_as_int(Handle * self) {
 	return PyLong_FromVoidPtr(self->handle);
 }
 
+static int
+Handle_as_bool(Handle *self) {
+	return self->handle != NULL;
+}
+
 static PyObject*
 Handle_repr(Handle * self) {
 	const char* name = "UNKNOWN";
@@ -736,7 +741,7 @@ get_process_times(PyObject *self, PyObject *pid) {
     }
     FILETIME creation, exit, kernel, user;
     BOOL ok = GetProcessTimes(h, &creation, &exit, &kernel, &user);
-    int ec = GetLastError();
+    DWORD ec = GetLastError();
     CloseHandle(h);
     if (!ok) return PyErr_SetFromWindowsErr(ec);
 #define T(ft) ((unsigned long long)(ft.dwHighDateTime) << 32 | ft.dwLowDateTime)
@@ -763,7 +768,7 @@ get_handle_information(PyObject *self, PyObject *args) {
 
 static PyObject*
 get_last_error(PyObject *self, PyObject *args) {
-	return PyLong_FromLong(GetLastError());
+	return PyLong_FromUnsignedLong(GetLastError());
 }
 
 static PyObject*
@@ -774,6 +779,92 @@ load_library(PyObject *self, PyObject *args) {
 	HMODULE h = LoadLibraryEx(path.ptr(), NULL, flags);
 	if (h == NULL) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
 	return (PyObject*)Handle_create(h, ModuleHandle, PyTuple_GET_ITEM(args, 0));
+}
+
+typedef struct {
+	int count;
+	const wchar_t *resource_id;
+} ResourceData;
+
+
+BOOL CALLBACK
+EnumResProc(HMODULE handle, LPWSTR type, LPWSTR name, ResourceData *data) {
+	if (data->count-- > 0) return TRUE;
+	data->resource_id = name;
+	return FALSE;
+}
+
+static const wchar_t*
+get_resource_id_for_index(HMODULE handle, const int index, LPCWSTR type = RT_GROUP_ICON) {
+	ResourceData data = {index, NULL};
+	int count = index;
+	EnumResourceNamesW(handle, type, reinterpret_cast<ENUMRESNAMEPROC>(EnumResProc), reinterpret_cast<LONG_PTR>(&data));
+	return data.resource_id;
+}
+
+struct GRPICONDIRENTRY {
+    BYTE bWidth;
+    BYTE bHeight;
+    BYTE bColorCount;
+    BYTE bReserved;
+    WORD wPlanes;
+    WORD wBitCount;
+    DWORD dwBytesInRes;
+    WORD nID;
+  };
+
+static PyObject*
+load_icon(PyObject *args, HMODULE handle, GRPICONDIRENTRY *entry) {
+	HRSRC res = FindResourceExW(handle, RT_ICON, MAKEINTRESOURCEW(entry->nID), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+	if (!res) {
+		DWORD ec = GetLastError();
+		if (ec == ERROR_RESOURCE_TYPE_NOT_FOUND || ec == ERROR_RESOURCE_NAME_NOT_FOUND || ec == ERROR_RESOURCE_LANG_NOT_FOUND) return NULL;
+		return set_error_from_handle(args, ec);
+	}
+	HGLOBAL hglob = LoadResource(handle, res);
+	if (hglob == NULL) return set_error_from_handle(args);
+	BYTE* data = (BYTE*)LockResource(hglob);
+	if (!data) return NULL;
+	DWORD sz = SizeofResource(handle, res);
+	if (!sz) return NULL;
+	HICON icon = CreateIconFromResourceEx(data, sz, TRUE, 0x00030000, entry->bWidth, entry->bHeight, LR_DEFAULTCOLOR);
+	return Py_BuildValue("y#N", data, sz, Handle_create(icon, IconHandle));
+}
+
+struct GRPICONDIR {
+    WORD idReserved;
+    WORD idType;
+    WORD idCount;
+    GRPICONDIRENTRY idEntries[1];
+};
+
+static PyObject*
+load_icons(PyObject *self, PyObject *args) {
+	HMODULE handle;
+	int index;
+	if (!PyArg_ParseTuple(args, "O&i", convert_handle, &handle, &index)) return NULL;
+
+	LPCWSTR resource_id = index < 0 ? MAKEINTRESOURCEW(-index) : get_resource_id_for_index(handle, index);
+	if (resource_id == NULL) { PyErr_Format(PyExc_IndexError, "no resource found with index: %d in handle: %S", index, PyTuple_GET_ITEM(args, 0)); return NULL; }
+	HRSRC res = FindResourceExW(handle, RT_GROUP_ICON, resource_id, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+	if (res == NULL) return set_error_from_handle(args);
+	DWORD size = SizeofResource(handle, res);
+	if (!size) { PyErr_SetString(PyExc_ValueError, "the icon group resource at the specified index is empty"); return NULL; }
+	HGLOBAL hglob = LoadResource(handle, res);
+	if (hglob == NULL) return set_error_from_handle(args);
+	GRPICONDIR *grp_icon_dir = (GRPICONDIR*)LockResource(hglob);
+	if (!grp_icon_dir) { PyErr_SetString(PyExc_RuntimeError, "failed to lock icon group resource"); return NULL; }
+	PyObject *ans = PyList_New(0);
+	if (!ans) return NULL;
+	for (size_t i = 0; i < grp_icon_dir->idCount; i++) {
+		PyObject *hicon = load_icon(args, handle, grp_icon_dir->idEntries + i);
+		if (hicon) {
+			int ret = PyList_Append(ans, hicon);
+			Py_CLEAR(hicon);
+			if (ret != 0) { Py_CLEAR(ans); return NULL; }
+		} else if (PyErr_Occurred()) { Py_CLEAR(ans); return NULL; }
+	}
+	return ans;
 }
 
 // Boilerplate  {{{
@@ -790,6 +881,7 @@ static PyMethodDef winutil_methods[] = {
 	M(get_handle_information, METH_VARARGS),
 	M(get_last_error, METH_NOARGS),
 	M(load_library, METH_VARARGS),
+	M(load_icons, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -930,6 +1022,7 @@ extern "C" {
 
 CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
 	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
+	HandleNumberMethods.nb_bool = (inquiry)Handle_as_bool;
     HandleType.tp_name = "winutil.Handle";
     HandleType.tp_doc = "Wrappers for Win32 handles that free the handle on delete automatically";
     HandleType.tp_basicsize = sizeof(Handle);
