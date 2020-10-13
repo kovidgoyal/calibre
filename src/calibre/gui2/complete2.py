@@ -94,6 +94,7 @@ class Completer(QListView):  # {{{
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
+        self.setUniformItemSizes(True)
         self.setAlternatingRowColors(True)
         self.setModel(CompleteModel(self, sort_func=sort_func, strip_completion_entries=strip_completion_entries))
         self.setMouseTracking(True)
