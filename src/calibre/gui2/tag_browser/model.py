@@ -290,7 +290,8 @@ class TagTreeItem(object):  # {{{
     # }}}
 
 
-FL_Interval = namedtuple('FL_Interval', ['first_chr', 'last_chr', 'length'])
+FL_Interval = namedtuple('FL_Interval', ('first_chr', 'last_chr', 'length'))
+
 
 class TagsModel(QAbstractItemModel):  # {{{
 
@@ -529,7 +530,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 # first letter can actually be more than one letter long.
                 fl_collapse_when = self.prefs['tags_browser_collapse_fl_at']
                 fl_collapse = True if fl_collapse_when > 1 else False
-                intervals = list()
+                intervals = []
                 cl_list = [None] * len(data[key])
                 last_ordnum = 0
                 last_c = ' '
