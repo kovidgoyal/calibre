@@ -89,8 +89,8 @@ def load_icon_for_file(path: str, as_data=False, size=ICON_SIZE):
         return pixmap_to_data(pmap) if as_data else pmap
 
 
-def load_icon_for_cmdline(cmdline: str):
-    return load_icon_for_cmdline(split_commandline(cmdline)[0])
+def load_icon_for_cmdline(cmdline: str, as_data=False, size=ICON_SIZE):
+    return load_icon_for_file(split_commandline(cmdline)[0], as_data=as_data, size=size)
 
 
 def display_image(png_data):

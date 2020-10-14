@@ -124,7 +124,7 @@ if iswindows:
                 return
             qans = ans.replace('"', r'\"')
             name = friendly_app_name(exe=ans) or os.path.splitext(os.path.basename(ans))[0]
-            return {'cmdline':'"%s" "%%1"' % qans, 'name':name, 'icon_resource':ans + ',0'}
+            return {'cmdline':'"%s" "%%1"' % qans, 'name':name}
 
     def entry_to_cmdline(entry, path):
         cmdline = entry['cmdline']
