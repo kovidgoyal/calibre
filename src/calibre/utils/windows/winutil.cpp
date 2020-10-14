@@ -819,6 +819,22 @@ parse_cmdline(PyObject *self, PyObject *args) {
 	return ans;
 }
 
+static PyObject*
+run_cmdline(PyObject *self, PyObject *args) {
+	wchar_raii cmdline;
+	unsigned long flags;
+	unsigned long wait_for = 0;
+	if (!PyArg_ParseTuple(args, "O&k|k", py_to_wchar_no_none, &cmdline, &flags, &wait_for)) return NULL;
+	STARTUPINFO si = {0};
+	si.cb = sizeof(si);
+	PROCESS_INFORMATION pi = {0};
+	if (!CreateProcessW(NULL, cmdline.ptr(), NULL, NULL, FALSE, flags, NULL, NULL, &si, &pi)) return PyErr_SetFromWindowsErr(0);
+	if (wait_for) WaitForInputIdle(pi.hProcess, wait_for);
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	Py_RETURN_NONE;
+}
+
 // Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
@@ -952,6 +968,7 @@ static const char winutil_doc[] = "Defines utility methods to interface with win
 
 #define M(name, args) { #name, name, args, ""}
 static PyMethodDef winutil_methods[] = {
+	M(run_cmdline, METH_VARARGS),
     M(get_dll_directory, METH_NOARGS),
     M(create_mutex, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
@@ -1206,6 +1223,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "DONT_RESOLVE_DLL_REFERENCES", DONT_RESOLVE_DLL_REFERENCES);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+    PyModule_AddIntConstant(m, "INFINITE", INFINITE);
 
     return m;
 }
