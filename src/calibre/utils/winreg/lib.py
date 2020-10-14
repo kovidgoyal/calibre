@@ -253,7 +253,7 @@ class Key(object):
             except KeyError:
                 return default
             except OSError as err:
-                if fallback and err.winerror == winerror.ERROR_BAD_COMMAND:
+                if fallback and err.winerror in (winerror.ERROR_BAD_COMMAND, winerror.ERROR_INVALID_DATA):
                     return self.get(value_name=value_name, default=default)
                 raise
         return data_buf.value
