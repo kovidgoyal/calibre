@@ -6,6 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+import sys
 from PyQt5.Qt import QBuffer, QByteArray, QPixmap, Qt, QtWin
 
 from calibre.constants import plugins
@@ -75,8 +76,24 @@ def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
     return ans
 
 
+def load_icon_for_file(path: str, as_data=False, size=ICON_SIZE):
+    try:
+        hicon = winutil.get_icon_for_file(path)
+    except Exception:
+        return
+    must_use_qt()
+    pmap = hicon_to_pixmap(hicon)
+    if not pmap.isNull():
+        if pmap.width() != size:
+            pmap = pmap.scaled(size, size, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
+        return pixmap_to_data(pmap) if as_data else pmap
+
+
+def load_icon_for_cmdline(cmdline: str):
+    return load_icon_for_cmdline(split_commandline(cmdline)[0])
+
+
 def display_image(png_data):
-    import sys
     from base64 import standard_b64encode
 
     def serialize_gr_command(cmd, payload=None):
@@ -105,6 +122,10 @@ def display_image(png_data):
 
 
 def test():
-    import sys
     png_data = load_icon_resource(sys.argv[-1], as_data=True)
+    display_image(png_data)
+
+
+def test_shell():
+    png_data = load_icon_for_file(sys.argv[-1], as_data=True)
     display_image(png_data)

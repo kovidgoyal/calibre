@@ -14,7 +14,12 @@
 #include <combaseapi.h>
 #include <locale.h>
 #include <shlobj.h>
+#include <shlguid.h>
+#include <shellapi.h>
 #include <shlwapi.h>
+#include <commoncontrols.h>
+#include <comip.h>
+#include <comdef.h>
 #include <atlbase.h>  // for CComPtr
 #include <Python.h>
 #include <versionhelpers.h>
@@ -781,6 +786,7 @@ load_library(PyObject *self, PyObject *args) {
 	return (PyObject*)Handle_create(h, ModuleHandle, PyTuple_GET_ITEM(args, 0));
 }
 
+// Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
 typedef struct {
@@ -873,6 +879,41 @@ load_icons(PyObject *self, PyObject *args) {
 	return ans;
 }
 
+_COM_SMARTPTR_TYPEDEF(IImageList, __uuidof(IImageList));
+
+static HICON
+get_icon_at_index(int shilsize, int index) {
+	IImageListPtr spiml;
+	HRESULT hr = SHGetImageList(shilsize, IID_PPV_ARGS(&spiml));
+	HICON hico = NULL;
+	if (SUCCEEDED(hr)) spiml->GetIcon(index, ILD_TRANSPARENT, &hico);
+	return hico;
+}
+
+static PyObject*
+get_icon_for_file(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+	scoped_com_initializer com;
+	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+	SHFILEINFO fi = {0};
+	DWORD_PTR res;
+	Py_BEGIN_ALLOW_THREADS
+	res = SHGetFileInfoW(path.ptr(), 0, &fi, sizeof(fi), SHGFI_SYSICONINDEX);
+	Py_END_ALLOW_THREADS
+	if (!res) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
+	HICON icon;
+#define R(shil) { \
+	Py_BEGIN_ALLOW_THREADS \
+	icon = get_icon_at_index(SHIL_JUMBO, fi.iIcon); \
+	Py_END_ALLOW_THREADS \
+	if (icon) return (PyObject*)Handle_create(icon, IconHandle); \
+}
+	R(SHIL_JUMBO); R(SHIL_EXTRALARGE); R(SHIL_LARGE); R(SHIL_SYSSMALL); R(SHIL_SMALL);
+#undef R
+	return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
+} // }}}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
@@ -888,6 +929,7 @@ static PyMethodDef winutil_methods[] = {
 	M(get_last_error, METH_NOARGS),
 	M(load_library, METH_VARARGS),
 	M(load_icons, METH_VARARGS),
+	M(get_icon_for_file, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"

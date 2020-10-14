@@ -67,7 +67,7 @@ def entry_to_icon_text(entry, only_text=False):
 if iswindows:
     # Windows {{{
     from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
-    from calibre.utils.open_with.windows import load_icon_resource
+    from calibre.utils.open_with.windows import load_icon_resource, load_icon_for_cmdline
     from win32process import CreateProcess, STARTUPINFO
     from win32event import WaitForInputIdle
     import win32con
@@ -76,9 +76,20 @@ if iswindows:
     def entry_sort_key(entry):
         return sort_key(entry.get('name') or '')
 
+    def icon_for_entry(entry, delete_icon_resource=False, as_data=False):
+        res = entry.pop('icon_resource', None) if delete_icon_resource else entry.get('icon_resource')
+        if res is None:
+            return load_icon_for_cmdline(entry['cmdline'], as_data=as_data)
+        try:
+            return load_icon_resource(res, as_data=as_data)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        return load_icon_for_cmdline(entry['cmdline'], as_data=as_data)
+
     def finalize_entry(entry):
         try:
-            data = load_icon_resource(entry.pop('icon_resource', None), as_data=True)
+            data = icon_for_entry(entry, delete_icon_resource=True, as_data=True)
         except Exception:
             data = None
             import traceback
@@ -89,7 +100,7 @@ if iswindows:
 
     def entry_to_item(entry, parent):
         try:
-            icon = load_icon_resource(entry.get('icon_resource'))
+            icon = icon_for_entry(entry)
         except Exception:
             icon = None
             import traceback
