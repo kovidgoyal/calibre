@@ -7,7 +7,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import traceback, copy, os
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
@@ -290,6 +290,8 @@ class TagTreeItem(object):  # {{{
     # }}}
 
 
+FL_Interval = namedtuple('FL_Interval', ['first_chr', 'last_chr', 'length'])
+
 class TagsModel(QAbstractItemModel):  # {{{
 
     search_item_renamed = pyqtSignal()
@@ -525,18 +527,72 @@ class TagsModel(QAbstractItemModel):  # {{{
                 # Build a list of 'equal' first letters by noticing changes
                 # in ICU's 'ordinal' for the first letter. In this case, the
                 # first letter can actually be more than one letter long.
+                fl_collapse_when = self.prefs['tags_browser_collapse_fl_at']
+                fl_collapse = True if fl_collapse_when > 1 else False
+                intervals = list()
                 cl_list = [None] * len(data[key])
                 last_ordnum = 0
                 last_c = ' '
+                last_idx = 0
                 for idx,tag in enumerate(data[key]):
                     # Deal with items that don't have sorts, such as formats
                     t = tag.sort if tag.sort else tag.name
                     c = icu_upper(t) if t else ' '
                     ordnum, ordlen = collation_order(c)
                     if last_ordnum != ordnum:
+                        if fl_collapse and idx > 0:
+                            intervals.append(FL_Interval(last_c, last_c, idx-last_idx))
+                            last_idx = idx
                         last_c = c[0:ordlen]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
+                if fl_collapse:
+                    intervals.append(FL_Interval(last_c, last_c, len(cl_list)-last_idx))
+                    # Combine together first letter categories that are smaller
+                    # than the specified option. We choose which item to combine
+                    # by the size of the items before and after, privileging making
+                    # smaller categories. Loop through the intervals doing the combine
+                    # until nothing changes. Multiple iterations are required because
+                    # we might need to combine categories that are already combined.
+                    fl_intervals_changed = True
+                    null_interval = FL_Interval('', '', 100000000)
+                    while fl_intervals_changed and len(intervals) > 1:
+                        fl_intervals_changed = False
+                        for idx,interval in enumerate(intervals):
+                            if interval.length >= fl_collapse_when:
+                                continue
+                            prev = next_ = null_interval
+                            if idx == 0:
+                                next_ = intervals[idx+1]
+                            else:
+                                prev = intervals[idx-1]
+                                if idx < len(intervals) - 1:
+                                    next_ = intervals[idx+1]
+                            if prev.length < next_.length:
+                                intervals[idx-1] = FL_Interval(prev.first_chr,
+                                                               interval.last_chr,
+                                                               prev.length + interval.length)
+                            else:
+                                intervals[idx+1] = FL_Interval(interval.first_chr,
+                                                               next_.last_chr,
+                                                               next_.length + interval.length)
+                            del intervals[idx]
+                            fl_intervals_changed = True
+                            break
+                    # Now correct the first letter list, entering either the letter
+                    # or the range for each item in the category. If we ended up
+                    # with only one 'first letter' category then don't combine
+                    # letters and revert to basic 'by first letter'
+                    if len(intervals) > 1:
+                        cur_idx = 0
+                        for interval in intervals:
+                            first_chr, last_chr, length = interval
+                            for i in range(0, length):
+                                if first_chr == last_chr:
+                                    cl_list[cur_idx] = first_chr
+                                else:
+                                    cl_list[cur_idx] = '{0} - {1}'.format(first_chr, last_chr)
+                                cur_idx += 1
             top_level_component = 'z' + data[key][0].original_name
 
             last_idx = -collapse
