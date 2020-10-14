@@ -786,6 +786,20 @@ load_library(PyObject *self, PyObject *args) {
 	return (PyObject*)Handle_create(h, ModuleHandle, PyTuple_GET_ITEM(args, 0));
 }
 
+static PyObject*
+create_mutex(PyObject *self, PyObject *args) {
+	int initial_owner = 0, allow_existing = 1;
+	wchar_raii name;
+	if (!PyArg_ParseTuple(args, "O&|pp", py_to_wchar, &name, &allow_existing, &initial_owner)) return NULL;
+	HANDLE h = CreateMutexW(NULL, initial_owner, name.ptr());
+	if (h == NULL) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	if (!allow_existing && GetLastError() == ERROR_ALREADY_EXISTS) {
+		CloseHandle(h);
+		return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_FileExistsError, ERROR_ALREADY_EXISTS, PyTuple_GET_ITEM(args, 0));
+	}
+	return (PyObject*)Handle_create(h);
+}
+
 // Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
@@ -920,6 +934,7 @@ static const char winutil_doc[] = "Defines utility methods to interface with win
 #define M(name, args) { #name, name, args, ""}
 static PyMethodDef winutil_methods[] = {
     M(get_dll_directory, METH_NOARGS),
+    M(create_mutex, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
     M(create_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),

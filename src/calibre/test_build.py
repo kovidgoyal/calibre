@@ -247,6 +247,9 @@ class BuildTest(unittest.TestCase):
         os.rmdir(dpath)
         del h
         shutil.rmtree(tdir)
+        m = winutil.create_mutex("test-mutex", False)
+        self.assertRaises(OSError, winutil.create_mutex, 'test-mutex', False)
+        m.close()
 
     def test_sqlite(self):
         import sqlite3
