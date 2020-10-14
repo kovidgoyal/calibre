@@ -202,7 +202,10 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
         else:
             text = format_pos(pos.file_progress_frac, pos.chapter_length)
     elif field is 'pages-progress':
-        text = f'{pos.page_counts.current + 1} / {pos.page_counts.total}'
+        if pos.page_counts:
+            text = f'{pos.page_counts.current + 1} / {pos.page_counts.total}'
+        else:
+            text = _('Unknown')
     if not text:
         text = '\xa0'
     if text is not div.textContent:

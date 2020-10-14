@@ -1143,6 +1143,7 @@ class View:
                 'file_progress_frac': data.file_progress_frac,
                 'selected_text': data.selected_text,
                 'selection_bounds': data.selection_bounds,
+                'page_counts': data.page_counts
             })
             v'delete self.report_cfi_callbacks[data.request_id]'
 
