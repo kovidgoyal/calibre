@@ -487,6 +487,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                    (_('Partitioned'), 'partition')]
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
+        r('tags_browser_collapse_fl_at', gprefs)
         r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList)
 
         choices = {k for k in db.field_metadata.all_field_keys()
