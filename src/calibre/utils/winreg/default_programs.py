@@ -5,8 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, time, ctypes, traceback
-from ctypes.wintypes import HLOCAL, LPCWSTR
+import os, sys, time, traceback
 from threading import Thread
 
 import winerror
@@ -225,26 +224,11 @@ def get_open_data(base, prog_id):
         return cmd, k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
 
 
-CommandLineToArgvW = ctypes.windll.shell32.CommandLineToArgvW
-CommandLineToArgvW.arg_types = [LPCWSTR, ctypes.POINTER(ctypes.c_int)]
-CommandLineToArgvW.restype = ctypes.POINTER(LPCWSTR)
-LocalFree = ctypes.windll.kernel32.LocalFree
-LocalFree.res_type = HLOCAL
-LocalFree.arg_types = [HLOCAL]
-
-
 def split_commandline(commandline):
     # CommandLineToArgvW returns path to executable if called with empty string.
     if not commandline.strip():
         return []
-    num = ctypes.c_int(0)
-    result_pointer = CommandLineToArgvW(commandline.lstrip(), ctypes.byref(num))
-    if not result_pointer:
-        raise ctypes.WinError()
-    result_array_type = LPCWSTR * num.value
-    result = [arg for arg in result_array_type.from_address(ctypes.addressof(result_pointer.contents))]
-    LocalFree(result_pointer)
-    return result
+    return list(plugins['winutil'][0].parse_cmdline(commandline))
 
 
 def friendly_app_name(prog_id=None, exe=None):

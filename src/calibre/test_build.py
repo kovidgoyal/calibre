@@ -250,6 +250,7 @@ class BuildTest(unittest.TestCase):
         m = winutil.create_mutex("test-mutex", False)
         self.assertRaises(OSError, winutil.create_mutex, 'test-mutex', False)
         m.close()
+        self.assertEqual(winutil.parse_cmdline('"c:\\test exe.exe" "some arg" 2'), ('c:\\test exe.exe', 'some arg', '2'))
 
     def test_sqlite(self):
         import sqlite3

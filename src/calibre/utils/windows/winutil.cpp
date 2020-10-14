@@ -800,6 +800,25 @@ create_mutex(PyObject *self, PyObject *args) {
 	return (PyObject*)Handle_create(h);
 }
 
+
+static PyObject*
+parse_cmdline(PyObject *self, PyObject *args) {
+	wchar_raii cmdline;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &cmdline)) return NULL;
+	int num;
+	LPWSTR *data = CommandLineToArgvW(cmdline.ptr(), &num);
+	if (data == NULL) return PyErr_SetFromWindowsErr(0);
+	PyObject *ans = PyTuple_New(num);
+	if (!ans) { LocalFree(data); return NULL; }
+	for (int i = 0; i < num; i++) {
+		PyObject *temp = PyUnicode_FromWideChar(data[i], -1);
+		if (!temp) { Py_CLEAR(ans); LocalFree(data); return NULL; }
+		PyTuple_SET_ITEM(ans, i, temp);
+	}
+	LocalFree(data);
+	return ans;
+}
+
 // Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
@@ -945,6 +964,7 @@ static PyMethodDef winutil_methods[] = {
 	M(load_library, METH_VARARGS),
 	M(load_icons, METH_VARARGS),
 	M(get_icon_for_file, METH_VARARGS),
+	M(parse_cmdline, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
