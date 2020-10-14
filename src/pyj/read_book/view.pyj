@@ -205,6 +205,7 @@ class View:
         self.reference_mode_enabled = False
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
+        self.current_page_counts = {'current': 0, 'total': 0, 'pages_per_screen': 1}
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.current_toc_family = v'[]'
         self.report_cfi_callbacks = {}
@@ -1127,7 +1128,7 @@ class View:
             if not self.book.last_read_position:
                 self.book.last_read_position = {}
             self.book.last_read_position[unkey] = data.cfi
-            self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+            self.set_progress_frac(data.progress_frac, data.file_progress_frac, data.page_counts)
             self.update_header_footer()
             if ui_operations.update_last_read_time:
                 ui_operations.update_last_read_time(self.book)
@@ -1146,7 +1147,7 @@ class View:
             v'delete self.report_cfi_callbacks[data.request_id]'
 
     def on_update_progress_frac(self, data):
-        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac, data.page_counts)
         self.update_header_footer()
 
     def on_update_cfi(self, data):
@@ -1181,7 +1182,8 @@ class View:
             'progress_frac': self.current_progress_frac,
             'book_length': book_length, 'chapter_length': chapter_length,
             'file_progress_frac': self.current_file_progress_frac,
-            'cfi': self.currently_showing?.bookpos
+            'cfi': self.currently_showing?.bookpos,
+            'page_counts': self.current_page_counts,
         }
         return pos
 
@@ -1260,7 +1262,7 @@ class View:
         self.processing_spine_item_display = False
         self.currently_showing.loading = False
         self.hide_loading()
-        self.set_progress_frac(data.progress_frac, data.file_progress_frac)
+        self.set_progress_frac(data.progress_frac, data.file_progress_frac, data.page_counts)
         self.update_header_footer()
         self.on_reference_item_changed()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
@@ -1271,9 +1273,10 @@ class View:
         if ui_operations.content_file_changed:
             ui_operations.content_file_changed(self.currently_showing.name)
 
-    def set_progress_frac(self, progress_frac, file_progress_frac):
+    def set_progress_frac(self, progress_frac, file_progress_frac, page_counts):
         self.current_progress_frac = progress_frac or 0
         self.current_file_progress_frac = file_progress_frac or 0
+        self.current_page_counts = page_counts
         self.book_scrollbar.sync_to_contents(self.current_progress_frac)
 
     def update_font_size(self):

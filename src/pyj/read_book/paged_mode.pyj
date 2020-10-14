@@ -618,6 +618,19 @@ def progress_frac(frac):
     return Math.max(0, Math.min(scroll_viewport.block_pos() / limit, 1))
 
 
+def page_counts():
+    if in_paged_mode():
+        return {'current': column_at_current_scroll_offset(), 'total': number_of_cols, 'pages_per_screen': cols_per_screen}
+    doc_size = scroll_viewport.document_block_size()
+    screen_size = scroll_viewport.block_size()
+    pos = scroll_viewport.block_pos()
+    return {
+        'current': (pos + 10) // screen_size,
+        'total': doc_size // screen_size,
+        'pages_per_screen': 1
+    }
+
+
 def next_spine_item(backward):
     if not backward:
         csi = current_spine_item()
