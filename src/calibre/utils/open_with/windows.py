@@ -13,7 +13,7 @@ from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
 from polyglot.builtins import filter
 
-ICON_SIZE = 64
+ICON_SIZE = 256
 winutil = plugins['winutil'][0]
 
 
@@ -61,7 +61,7 @@ def load_icon_resource_as_pixmap(icon_resource, size=ICON_SIZE):
     q = size * size
     for pmap in pixmaps:
         if area(pmap) >= q:
-            if area(pmap) == size:
+            if area(pmap) == q:
                 return pmap
             return pmap.scaled(size, size, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
     return pixmaps[-1].scaled(size, size, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
@@ -97,9 +97,10 @@ def display_image(png_data):
             m = 1 if data else 0
             cmd['m'] = m
             sys.stdout.buffer.write(serialize_gr_command(cmd, chunk))
-            sys.stdout.flush()
+            sys.stdout.buffer.flush()
             cmd.clear()
 
+    sys.stdout.flush()
     write_chunked({'a': 'T', 'f': 100}, png_data)
 
 

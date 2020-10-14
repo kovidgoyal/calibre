@@ -781,10 +781,13 @@ load_library(PyObject *self, PyObject *args) {
 	return (PyObject*)Handle_create(h, ModuleHandle, PyTuple_GET_ITEM(args, 0));
 }
 
+#pragma pack( push )
+#pragma pack( 2 )
 typedef struct {
 	int count;
 	const wchar_t *resource_id;
 } ResourceData;
+#pragma pack( pop )
 
 
 BOOL CALLBACK
@@ -802,6 +805,8 @@ get_resource_id_for_index(HMODULE handle, const int index, LPCWSTR type = RT_GRO
 	return data.resource_id;
 }
 
+#pragma pack( push )
+#pragma pack( 2 )
 struct GRPICONDIRENTRY {
     BYTE bWidth;
     BYTE bHeight;
@@ -812,6 +817,7 @@ struct GRPICONDIRENTRY {
     DWORD dwBytesInRes;
     WORD nID;
   };
+#pragma pack( pop )
 
 static PyObject*
 load_icon(PyObject *args, HMODULE handle, GRPICONDIRENTRY *entry) {
@@ -827,7 +833,7 @@ load_icon(PyObject *args, HMODULE handle, GRPICONDIRENTRY *entry) {
 	if (!data) return NULL;
 	DWORD sz = SizeofResource(handle, res);
 	if (!sz) return NULL;
-	HICON icon = CreateIconFromResourceEx(data, sz, TRUE, 0x00030000, entry->bWidth, entry->bHeight, LR_DEFAULTCOLOR);
+	HICON icon = CreateIconFromResourceEx(data, sz, TRUE, 0x00030000, 0, 0, LR_DEFAULTCOLOR);
 	return Py_BuildValue("y#N", data, sz, Handle_create(icon, IconHandle));
 }
 
