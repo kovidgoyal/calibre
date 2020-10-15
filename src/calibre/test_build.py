@@ -190,6 +190,12 @@ class BuildTest(unittest.TestCase):
         sz = 23
         data = os.urandom(sz)
         open(path, 'wb').write(data)
+        h = winutil.Handle(0, winutil.ModuleHandle, 'moo')
+        r = repr(h)
+        h2 = winutil.Handle(h.detach(), winutil.ModuleHandle, 'moo')
+        self.assertEqual(r, repr(h2))
+        h2.close()
+
         h = winutil.create_file(
             path, winutil.GENERIC_READ | winutil.GENERIC_WRITE, 0, winutil.OPEN_ALWAYS, winutil.FILE_ATTRIBUTE_NORMAL)
         self.assertEqual(winutil.get_file_size(h), sz)
@@ -238,7 +244,7 @@ class BuildTest(unittest.TestCase):
         t.start()
         testp = os.path.join(dpath, 'test')
         open(testp, 'w').close()
-        t.join(2)
+        t.join(4)
         self.assertTrue(events)
         for actions, path in events:
             self.assertEqual(os.path.join(dpath, path), testp)

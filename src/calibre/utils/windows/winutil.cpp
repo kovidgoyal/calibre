@@ -103,6 +103,29 @@ Handle_create(void *handle, WinHandleType handle_type = NormalHandle, PyObject *
 	return self;
 }
 
+static PyObject *
+Handle_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+	PyObject *h = NULL, *name = NULL;
+	int htype = NormalHandle;
+    if (!PyArg_ParseTuple(args, "|O!iU", &PyLong_Type, &h, &htype, &name)) return NULL;
+	switch(htype) {
+		case NormalHandle:
+		case IconHandle:
+		case ModuleHandle:
+			break;
+		default:
+			PyErr_Format(PyExc_TypeError, "unknown handle type: %d", type);
+			return NULL;
+	}
+	Handle *self = (Handle *) HandleType.tp_alloc(type, 0);
+	if (self) {
+		self->handle = h ? PyLong_AsVoidPtr(h) : NULL;
+		self->handle_type = static_cast<WinHandleType>(htype);
+		self->associated_name = name;
+	}
+	return (PyObject*)self;
+}
+
 static int
 convert_handle(Handle *obj, void **output) {
 	if (Py_TYPE(obj) != &HandleType) {
@@ -1160,7 +1183,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
 	HandleType.tp_repr = (reprfunc)Handle_repr;
 	HandleType.tp_as_number = &HandleNumberMethods;
 	HandleType.tp_str = (reprfunc)Handle_repr;
-    HandleType.tp_new = PyType_GenericNew;
+    HandleType.tp_new = Handle_new;
     HandleType.tp_methods = Handle_methods;
 	HandleType.tp_dealloc = (destructor)Handle_dealloc;
 	if (PyType_Ready(&HandleType) < 0) return NULL;
@@ -1265,6 +1288,9 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "ERROR_LOCK_VIOLATION", ERROR_LOCK_VIOLATION);
     PyModule_AddIntConstant(m, "ERROR_ALREADY_EXISTS", ERROR_ALREADY_EXISTS);
     PyModule_AddIntConstant(m, "ERROR_BROKEN_PIPE", ERROR_BROKEN_PIPE);
+    PyModule_AddIntConstant(m, "NormalHandle", NormalHandle);
+    PyModule_AddIntConstant(m, "ModuleHandle", ModuleHandle);
+    PyModule_AddIntConstant(m, "IconHandle", IconHandle);
 
     return m;
 }
