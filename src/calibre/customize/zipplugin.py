@@ -138,6 +138,9 @@ class CalibrePluginLoader:
             self.fullname_in_plugin == other.fullname_in_plugin
         )
 
+    def get_resource_reader(self, fullname=None):
+        return self
+
     def __hash__(self):
         return hash(self.name) ^ hash(self.plugin_name) ^ hash(self.fullname_in_plugin)
 
