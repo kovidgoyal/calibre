@@ -1232,6 +1232,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
     PyModule_AddIntConstant(m, "INFINITE", INFINITE);
+    PyModule_AddIntConstant(m, "REG_QWORD", REG_QWORD);
 
     return m;
 }
