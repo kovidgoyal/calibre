@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv, as_unicode, native_string_type
+from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv
 import sys, locale, codecs, os, importlib, collections
 
 __appname__   = 'calibre'
@@ -177,76 +177,32 @@ plugins_loc = sys.extensions_location
 
 class Plugins(collections.Mapping):
 
-    def __init__(self):
-        self._plugins = {}
-        plugins = [
-                'pictureflow',
-                'lzx',
-                'msdes',
-                'podofo',
-                'cPalmdoc',
-                'progress_indicator',
-                'icu',
-                'speedup',
-                'html_as_json',
-                'unicode_names',
-                'html_syntax_highlighter',
-                'hyphen',
-                'freetype',
-                'imageops',
-                'hunspell',
-                '_patiencediff_c',
-                'bzzdec',
-                'matcher',
-                'tokenizer',
-                'certgen',
-            ]
-        if iswindows:
-            plugins.extend(['winutil', 'wpd', 'winfonts'])
-        if ismacos:
-            plugins.append('usbobserver')
-            plugins.append('cocoa')
-        if isfreebsd or ishaiku or islinux or ismacos:
-            plugins.append('libusb')
-            plugins.append('libmtp')
-        self.plugins = frozenset(plugins)
-
-    def load_plugin(self, name):
-        if name in self._plugins:
-            return
-        if not isfrozen:
-            sys.path.insert(0, plugins_loc)
-        try:
-            del sys.modules[name]
-        except KeyError:
-            pass
-        plugin_err = ''
-        try:
-            p = importlib.import_module(name)
-        except Exception as err:
-            p = None
-            try:
-                plugin_err = unicode_type(err)
-            except Exception:
-                plugin_err = as_unicode(native_string_type(err), encoding=preferred_encoding, errors='replace')
-        self._plugins[name] = p, plugin_err
-        if not isfrozen:
-            sys.path.remove(plugins_loc)
-
     def __iter__(self):
-        return iter(self.plugins)
+        from importlib.resources import contents
+        return contents('calibre_extensions')
 
     def __len__(self):
-        return len(self.plugins)
+        from importlib.resources import contents
+        ans = 0
+        for x in contents('calibre_extensions'):
+            ans += 1
+        return ans
 
     def __contains__(self, name):
-        return name in self.plugins
+        from importlib.resources import contents
+        for x in contents('calibre_extensions'):
+            if x == name:
+                return True
+        return False
 
     def __getitem__(self, name):
-        if name not in self.plugins:
+        from importlib import import_module
+        try:
+            return import_module('calibre_extensions.' + name), None
+        except ModuleNotFoundError:
             raise KeyError('No plugin named %r'%name)
-        self.load_plugin(name)
-        return self._plugins[name]
+        except Exception as err:
+            return None, str(err)
 
 
 plugins = None
