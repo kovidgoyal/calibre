@@ -1233,6 +1233,16 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
     PyModule_AddIntConstant(m, "INFINITE", INFINITE);
     PyModule_AddIntConstant(m, "REG_QWORD", REG_QWORD);
+    PyModule_AddIntConstant(m, "ERROR_SUCCESS", ERROR_SUCCESS);
+    PyModule_AddIntConstant(m, "ERROR_MORE_DATA", ERROR_MORE_DATA);
+    PyModule_AddIntConstant(m, "ERROR_NO_MORE_ITEMS", ERROR_NO_MORE_ITEMS);
+    PyModule_AddIntConstant(m, "ERROR_FILE_NOT_FOUND", ERROR_FILE_NOT_FOUND);
+    PyModule_AddIntConstant(m, "ERROR_BAD_COMMAND", ERROR_BAD_COMMAND);
+    PyModule_AddIntConstant(m, "ERROR_INVALID_DATA", ERROR_INVALID_DATA);
+    PyModule_AddIntConstant(m, "ERROR_NOT_READY", ERROR_NOT_READY);
+    PyModule_AddIntConstant(m, "ERROR_SHARING_VIOLATION", ERROR_SHARING_VIOLATION);
+    PyModule_AddIntConstant(m, "ERROR_LOCK_VIOLATION", ERROR_LOCK_VIOLATION);
+    PyModule_AddIntConstant(m, "ERROR_ALREADY_EXISTS", ERROR_ALREADY_EXISTS);
 
     return m;
 }
