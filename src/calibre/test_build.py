@@ -114,7 +114,7 @@ class BuildTest(unittest.TestCase):
                     ctypes.CDLL(os.path.join(plugins_loc, name + ('.dylib' if ismacos else '.so')))
                 continue
             mod, err = plugins[name]
-            self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
+            self.assertTrue(mod, f'Failed to load plugin: {name} with error: {err}')
 
     def test_lxml(self):
         from calibre.utils.cleantext import test_clean_xml_chars

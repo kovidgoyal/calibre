@@ -316,7 +316,7 @@ class Plugins(collections.Mapping):
     def __getitem__(self, name):
         from importlib import import_module
         try:
-            return import_module('calibre_extensions.' + name), None
+            return import_module('calibre_extensions.' + name), ''
         except ModuleNotFoundError:
             raise KeyError('No plugin named %r'%name)
         except Exception as err:
