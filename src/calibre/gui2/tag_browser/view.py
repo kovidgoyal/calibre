@@ -574,6 +574,20 @@ class TagsView(QTreeView):  # {{{
         index = self.indexAt(point)
         self.context_menu = QMenu(self)
         parent_index = None
+        added_show_hidden_categories = False
+
+        def add_show_hidden_categories():
+            nonlocal added_show_hidden_categories
+            if self.hidden_categories and not added_show_hidden_categories:
+                added_show_hidden_categories = True
+                m = self.context_menu.addMenu(_('Show category'))
+                for col in sorted(self.hidden_categories,
+                        key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
+                    m.addAction(self.db.field_metadata[col]['name'],
+                        partial(self.context_menu_handler, action='show', category=col))
+                m.addSeparator()
+                m.addAction(_('All categories'),
+                        partial(self.context_menu_handler, action='defaults'))
 
         if index.isValid():
             item = index.data(Qt.UserRole)
@@ -722,12 +736,7 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addAction(_('Hide category %s') % category,
                     partial(self.context_menu_handler, action='hide',
                             category=key))
-                if self.hidden_categories:
-                    m = self.context_menu.addMenu(_('Show category'))
-                    for col in sorted(self.hidden_categories,
-                            key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
-                        m.addAction(self.db.field_metadata[col]['name'],
-                            partial(self.context_menu_handler, action='show', category=col))
+                add_show_hidden_categories()
 
                 # search by category. Some categories are not searchable, such
                 # as search and news
@@ -810,8 +819,7 @@ class TagsView(QTreeView):  # {{{
         if self.hidden_categories:
             if not self.context_menu.isEmpty():
                 self.context_menu.addSeparator()
-            self.context_menu.addAction(_('Show all categories'),
-                        partial(self.context_menu_handler, action='defaults'))
+            add_show_hidden_categories()
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
         da = m.addAction(_('Disable'),
