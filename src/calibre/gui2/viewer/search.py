@@ -480,7 +480,8 @@ class Results(QTreeWidget):  # {{{
         item.setData(0, Qt.UserRole, result)
         item.setData(0, Qt.UserRole + 1, len(self.search_results))
         if isinstance(result, SearchResult):
-            tt = '<p>' + escape(result.before, False) + '<b>' + escape(result.text, False) + '</b>' + escape(result.after, False)
+            tt = '<p>…' + escape(result.before, False) + '<b>' + escape(
+                result.text, False) + '</b>' + escape(result.after, False) + '…'
             item.setData(0, Qt.ToolTipRole, tt)
         item.setIcon(0, self.blank_icon)
         self.item_map[len(self.search_results)] = item
