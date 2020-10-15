@@ -19,8 +19,7 @@ def run_calibre_debug(*args, **kw):
     import subprocess
     creationflags = 0
     if iswindows:
-        import win32process
-        creationflags = win32process.CREATE_NO_WINDOW
+        creationflags = subprocess.CREATE_NO_WINDOW
     cmd = get_debug_executable() + list(args)
     kw['creationflags'] = creationflags
     return subprocess.Popen(cmd, **kw)

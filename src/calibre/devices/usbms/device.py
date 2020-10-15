@@ -845,8 +845,7 @@ class Device(DeviceConfig, DevicePlugin):
                 drives.append(x[0].upper())
 
         def do_it(drives):
-            import win32process
-            subprocess.Popen([eject_exe()] + drives, creationflags=win32process.CREATE_NO_WINDOW).wait()
+            subprocess.Popen([eject_exe()] + drives, creationflags=subprocess.CREATE_NO_WINDOW).wait()
 
         t = Thread(target=do_it, args=[drives])
         t.daemon = True

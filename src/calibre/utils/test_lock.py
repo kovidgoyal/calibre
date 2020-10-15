@@ -50,8 +50,7 @@ def run_worker(mod, func, **kw):
     env = kw.get('env', os.environ.copy())
     env['CALIBRE_SIMPLE_WORKER'] = mod + ':' + func
     if iswindows:
-        import win32process
-        kw['creationflags'] = win32process.CREATE_NO_WINDOW
+        kw['creationflags'] = subprocess.CREATE_NO_WINDOW
     kw['env'] = {native_string_type(k): native_string_type(v)
                  for k, v in iteritems(env)}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)

@@ -15,7 +15,6 @@ from polyglot.builtins import string_or_bytes, environ_item, native_string_type,
 from polyglot.binary import as_hex_unicode
 
 if iswindows:
-    import win32process
     try:
         windows_null_file = open(os.devnull, 'wb')
     except:
@@ -160,10 +159,10 @@ class Worker(object):
                 }
         if iswindows:
             priority = {
-                    'high'   : win32process.HIGH_PRIORITY_CLASS,
-                    'normal' : win32process.NORMAL_PRIORITY_CLASS,
-                    'low'    : win32process.IDLE_PRIORITY_CLASS}[priority]
-            args['creationflags'] = win32process.CREATE_NO_WINDOW|priority
+                    'high'   : subprocess.HIGH_PRIORITY_CLASS,
+                    'normal' : subprocess.NORMAL_PRIORITY_CLASS,
+                    'low'    : subprocess.IDLE_PRIORITY_CLASS}[priority]
+            args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
         else:
             niceness = {
                     'normal' : 0,
