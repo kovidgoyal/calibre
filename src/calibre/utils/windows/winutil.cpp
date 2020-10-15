@@ -835,6 +835,13 @@ run_cmdline(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject*
+is_wow64_process(PyObject *self, PyObject *args) {
+	BOOL ans;
+	if (!IsWow64Process(GetCurrentProcess(), &ans)) return PyErr_SetFromWindowsErr(0);
+	return Py_BuildValue("O", ans ? Py_True : Py_False);
+}
+
 // Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
@@ -969,6 +976,7 @@ static const char winutil_doc[] = "Defines utility methods to interface with win
 #define M(name, args) { #name, name, args, ""}
 static PyMethodDef winutil_methods[] = {
 	M(run_cmdline, METH_VARARGS),
+	M(is_wow64_process, METH_NOARGS),
     M(get_dll_directory, METH_NOARGS),
     M(create_mutex, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
