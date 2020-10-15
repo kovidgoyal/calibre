@@ -711,7 +711,7 @@ connect_named_pipe(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O&", convert_handle, &handle)) return NULL;
 	BOOL ok;
 	Py_BEGIN_ALLOW_THREADS;
-	ok = ConnectNamedPipe(handle, NULL)
+	ok = ConnectNamedPipe(handle, NULL);
 	Py_END_ALLOW_THREADS;
 	if (!ok) return set_error_from_handle(args);
 	Py_RETURN_NONE;
