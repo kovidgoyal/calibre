@@ -706,6 +706,14 @@ create_named_pipe(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
+connect_named_pipe(PyObject *self, PyObject *args) {
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&", convert_handle, &handle)) return NULL;
+	if (!ConnectNamedPipe(handle, NULL)) return set_error_from_handle(args);
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 set_handle_information(PyObject *self, PyObject *args) {
     unsigned long mask, flags;
 	HANDLE handle;
@@ -981,6 +989,7 @@ static PyMethodDef winutil_methods[] = {
     M(create_mutex, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
     M(create_named_pipe, METH_VARARGS),
+    M(connect_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),
     M(get_long_path_name, METH_VARARGS),
     M(get_process_times, METH_O),
