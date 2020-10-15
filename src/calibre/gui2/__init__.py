@@ -134,7 +134,7 @@ def create_defs():
     defs['font'] = None
     defs['tags_browser_partition_method'] = 'first letter'
     defs['tags_browser_collapse_at'] = 100
-    defs['tags_browser_collapse_fl_at'] = 0
+    defs['tags_browser_collapse_fl_at'] = 5
     defs['tag_browser_dont_collapse'] = []
     defs['edit_metadata_single_layout'] = 'default'
     defs['preserve_date_on_ctl'] = True
