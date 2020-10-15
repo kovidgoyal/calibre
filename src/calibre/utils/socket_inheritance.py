@@ -11,29 +11,20 @@ Code taken from https://mail.python.org/pipermail/python-dev/2007-June/073745.ht
 modified to make it work
 '''
 
-from calibre.constants import iswindows
 
-
-def get_socket_inherit(socket):
+def get_socket_inherit(s):
     '''
     Returns True if the socket has been set to allow inheritance across
     forks and execs to child processes, otherwise False
     '''
     try:
-        if iswindows:
-            import win32api, win32con
-            flags = win32api.GetHandleInformation(socket.fileno())
-            return bool(flags & win32con.HANDLE_FLAG_INHERIT)
-        else:
-            import fcntl
-            flags = fcntl.fcntl(socket.fileno(), fcntl.F_GETFD)
-            return not bool(flags & fcntl.FD_CLOEXEC)
-    except:
+        return s.get_inheritable()
+    except Exception:
         import traceback
         traceback.print_exc()
 
 
-def set_socket_inherit(sock, inherit):
+def set_socket_inherit(s, inherit=False):
     '''
     Mark a socket as inheritable or non-inheritable to child processes.
 
@@ -45,24 +36,8 @@ def set_socket_inherit(sock, inherit):
     set_socket_inherit for the new socket as well.
     '''
     try:
-        if iswindows:
-            import win32api, win32con
-
-            if inherit:
-                flags = win32con.HANDLE_FLAG_INHERIT
-            else:
-                flags = 0
-            win32api.SetHandleInformation(sock.fileno(),
-                                  win32con.HANDLE_FLAG_INHERIT, flags)
-        else:
-            import fcntl
-
-            fd = sock.fileno()
-            flags = fcntl.fcntl(fd, fcntl.F_GETFD) & ~fcntl.FD_CLOEXEC
-            if not inherit:
-                flags = flags | fcntl.FD_CLOEXEC
-            fcntl.fcntl(fd, fcntl.F_SETFD, flags)
-    except:
+        s.set_inheritable(inherit)
+    except Exception:
         import traceback
         traceback.print_exc()
 
