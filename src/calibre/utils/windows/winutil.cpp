@@ -56,6 +56,13 @@ Handle_dealloc(Handle *self) {
 }
 
 static PyObject*
+Handle_detach(Handle *self) {
+	void *h = self->handle;
+	self->handle = NULL;
+	return PyLong_FromVoidPtr(h);
+}
+
+static PyObject*
 Handle_as_int(Handle * self) {
 	return PyLong_FromVoidPtr(self->handle);
 }
@@ -128,6 +135,7 @@ Handle_close(Handle *self) {
 #define M(name, args) {#name, (PyCFunction)Handle_##name, args, ""}
 static PyMethodDef Handle_methods[] = {
 	M(close, METH_NOARGS),
+	M(detach, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
