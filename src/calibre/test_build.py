@@ -104,7 +104,7 @@ class BuildTest(unittest.TestCase):
 
     def test_plugins(self):
         exclusions = set()
-        if islinux and (not os.path.exists('/dev/bus/usb') and not os.path.exists('/proc/bus/usb')):
+        if islinux and not os.path.exists('/dev/bus/usb'):
             # libusb fails to initialize in containers without USB subsystems
             exclusions.update(set('libusb libmtp'.split()))
         for name in plugins:
