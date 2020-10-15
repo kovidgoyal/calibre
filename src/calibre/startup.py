@@ -21,7 +21,7 @@ builtins.__dict__['__'] = lambda s: s
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
 
-from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, DEBUG, isfreebsd
+from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, ishaiku, DEBUG, isfreebsd, plugins_loc
 
 _run_once = False
 winutil = winutilerror = None
@@ -49,7 +49,7 @@ def get_debug_executable():
 
 if not _run_once:
     _run_once = True
-    from importlib.machinery import ModuleSpec
+    from importlib.machinery import ModuleSpec, EXTENSION_SUFFIXES, ExtensionFileLoader
     from importlib.util import find_spec
     from importlib import import_module
 
@@ -80,6 +80,89 @@ if not _run_once:
                 return ModuleSpec(fullname, DeVendorLoader(fullname[len('calibre.ebooks.'):]))
 
     sys.meta_path.insert(0, DeVendor())
+
+    class ExtensionsPackageLoader:
+
+        def __init__(self, calibre_extensions):
+            self.calibre_extensions = calibre_extensions
+
+        def is_package(self, fullname=None):
+            return True
+
+        def get_resource_reader(self, fullname=None):
+            return self
+
+        def get_source(self, fullname=None):
+            return ''
+
+        def contents(self):
+            return iter(self.calibre_extensions)
+
+        def create_module(self, spec):
+            pass
+
+        def exec_module(self, spec):
+            pass
+
+    class ExtensionsImporter:
+
+        def __init__(self):
+            extensions = (
+                'pictureflow',
+                'lzx',
+                'msdes',
+                'podofo',
+                'cPalmdoc',
+                'progress_indicator',
+                'icu',
+                'speedup',
+                'html_as_json',
+                'unicode_names',
+                'html_syntax_highlighter',
+                'hyphen',
+                'freetype',
+                'imageops',
+                'hunspell',
+                '_patiencediff_c',
+                'bzzdec',
+                'matcher',
+                'tokenizer',
+                'certgen',
+            )
+            if iswindows:
+                extra = ('winutil', 'wpd', 'winfonts')
+            elif ismacos:
+                extra = ('usbobserver', 'cocoa')
+            elif isfreebsd or ishaiku or islinux or ismacos:
+                extra = ('libusb', 'libmtp')
+            else:
+                extra = ()
+            self.calibre_extensions = frozenset(extensions + extra)
+
+        def find_spec(self, fullname, path=None, target=None):
+            if not fullname.startswith('calibre_extensions'):
+                return
+            parts = fullname.split('.')
+            if parts[0] != 'calibre_extensions':
+                return
+            if len(parts) > 2:
+                return
+            is_package = len(parts) == 1
+            extension_name = None if is_package else parts[1]
+            path = os.path.join(plugins_loc, '__init__.py')
+            if extension_name:
+                if extension_name not in self.calibre_extensions:
+                    return
+                for suffix in EXTENSION_SUFFIXES:
+                    path = os.path.join(plugins_loc, extension_name + suffix)
+                    if os.path.exists(path):
+                        break
+                else:
+                    return
+                return ModuleSpec(fullname, ExtensionFileLoader(fullname, path), is_package=is_package, origin=path)
+            return ModuleSpec(fullname, ExtensionsPackageLoader(self.calibre_extensions), is_package=is_package, origin=path)
+
+    sys.meta_path.append(ExtensionsImporter())
 
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
