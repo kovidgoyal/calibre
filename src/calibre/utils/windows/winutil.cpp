@@ -1252,6 +1252,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "ERROR_SHARING_VIOLATION", ERROR_SHARING_VIOLATION);
     PyModule_AddIntConstant(m, "ERROR_LOCK_VIOLATION", ERROR_LOCK_VIOLATION);
     PyModule_AddIntConstant(m, "ERROR_ALREADY_EXISTS", ERROR_ALREADY_EXISTS);
+    PyModule_AddIntConstant(m, "ERROR_BROKEN_PIPE", ERROR_BROKEN_PIPE);
 
     return m;
 }
