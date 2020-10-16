@@ -12,7 +12,7 @@ import time
 import unittest
 from threading import Thread
 
-from calibre.constants import cache_dir, fcntl, iswindows
+from calibre.constants import cache_dir, iswindows
 from calibre.utils.lock import ExclusiveFile, create_single_instance_mutex, unix_open
 from calibre.utils.tdir_in_cache import (
     clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
@@ -84,6 +84,7 @@ class IPCLockTest(unittest.TestCase):
             t.start(), t.join()
             self.assertIs(t.locked, False)
         if not iswindows:
+            import fcntl
             with unix_open(fname) as f:
                 self.assertEqual(
                     1, fcntl.fcntl(f.fileno(), fcntl.F_GETFD) & fcntl.FD_CLOEXEC

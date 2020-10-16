@@ -11,7 +11,7 @@ import time
 from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, islinux, ismacos, iswindows
+    __appname__, filesystem_encoding, islinux, ismacos, iswindows
 )
 from calibre_extensions import speedup
 from calibre.utils.monotonic import monotonic
@@ -23,6 +23,7 @@ if iswindows:
     excl_file_mode = stat.S_IREAD | stat.S_IWRITE
 else:
     excl_file_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+    import fcntl
 
 
 def unix_open(path):
