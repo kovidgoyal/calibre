@@ -355,7 +355,7 @@ class GuiRunner(QObject):
 
 def set_restarting_env_var():
     if iswindows:
-        ctime = plugins['winutil'][0].get_process_times(None)[0]
+        ctime = winutil.get_process_times(None)[0]
         os.environ['CALIBRE_RESTARTING_FROM_GUI'] = str(ctime)
     else:
         os.environ['CALIBRE_RESTARTING_FROM_GUI'] = str(os.getpid())
@@ -525,11 +525,10 @@ def create_listener():
 def wait_for_parent_to_die(ppid, max_wait=10):
     ppid = int(ppid)
     if iswindows:
-        get_process_times = plugins['winutil'][0].get_process_times
 
         def parent_done():
             try:
-                ctime = get_process_times(os.getppid())[0]
+                ctime = winutil.get_process_times(os.getppid())[0]
             except Exception:
                 return True
             return ctime > ppid
