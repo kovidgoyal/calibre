@@ -21,6 +21,67 @@
 #     - title:
 #       author:
 
+- version: 5.3.0
+  date: 2020-10-16
+
+  new features:
+    - title: "Tag browser: When grouping items by first letter if adjacent letters have few entries combine them into a single group."
+      description: "Can be controlled via an option in Preferences->Look & fee->Tag browser to combine 'first letters' together if there are a small number of items under adjacent letters"
+
+    - title: "Viewer: Allow displaying the current page / total pages in the header/footer. Useful in paged mode to see exactly how many pages are left."
+      tickets: [1899163]
+
+    - title: "Viewer search panel: Show more result context in a tooltip when hovering over a search result."
+      tickets: [1899834]
+
+    - title: "DOCX Input: Add support for Word controls used to rotate or flip images"
+      description: "Only works with output formats such as EPUB that support CSS transforms"
+
+    - title: "Viewer image pop-up: Allow maximizing/minimizing the window."
+      tickets: [1899762]
+
+    - title: "Edit metadata dialog: Use only a single line for custom column date fields"
+
+    - title: "Add an item to search for categories to the category editor context menu."
+      tickets: [1899341]
+
+    - title: "Category editor: Add a right click menu to change case of the selected entries."
+      tickets: [1899316]
+
+  bug fixes:
+    - title: "Fix a regression in 5.0 that caused performance of dialogs that contain title/series/tags edit fields to be very poor with large libraries."
+      tickets: [1898221]
+
+    - title: "Fix a regression in 5.0 that caused some pop-up menus to appear on the wrong monitor in multi-monitor setups"
+
+    - title: "macOS: Fix a long standing bug that prevented drag and drop of multiple items"
+
+    - title: "Windows: Fix a regression that broke scanning scanning for default programs for the Open with action"
+
+    - title: "Windows: Fix a regression in 5.0 causing some MOBI files with non-BMP characters not being processed correctly."
+      tickets: [1898894]
+
+    - title: "E-book viewer: Fix scrolling past the end of chapter boundaries not working in books that have negative margins"
+
+    - title: "Edit metadata dialog: fix incorrect rendering of custom column names that start with emoji."
+      tickets: [1899466]
+
+    - title: "Quickview: Fix nothing shown after clearing the search."
+      tickets: [1899318]
+
+    - title: "Dark mode: Fix radio buttons having no outline."
+      tickets: [1900022]
+
+    - title: "Annotations browser: When showing a book in the calibre library that is not currently visible, display an error."
+      tickets: [1900066]
+
+  improved recipes:
+    - Reuters
+
+  new recipes:
+    - title: Deutsche Welle
+      author: VoHe
+
 
 - version: 5.2.0
   date: 2020-10-07
