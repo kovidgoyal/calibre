@@ -511,6 +511,18 @@ winutil_delete_file(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
+supports_hardlinks(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+	UINT dt = GetDriveType(path.ptr());
+	if (dt == DRIVE_REMOTE || dt == DRIVE_CDROM) Py_RETURN_FALSE;
+	DWORD max_component_length, flags;
+	if (!GetVolumeInformationW(path.ptr(), NULL, 0, NULL, &max_component_length, &flags, NULL, 0)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	if (flags & FILE_SUPPORTS_HARD_LINKS) Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
+static PyObject*
 winutil_create_hard_link(PyObject *self, PyObject *args) {
 	wchar_raii path, existing_path;
 	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar_no_none, &path, py_to_wchar_no_none, &existing_path)) return NULL;
@@ -550,8 +562,8 @@ winutil_nlinks(PyObject *self, PyObject *args) {
 
 static PyObject*
 winutil_set_file_attributes(PyObject *self, PyObject *args) {
-	wchar_raii path; unsigned long attrs;
-	if (!PyArg_ParseTuple(args, "O&k", py_to_wchar_no_none, &path, &attrs)) return NULL;
+	wchar_raii path; unsigned long attrs = FILE_ATTRIBUTE_NORMAL;
+	if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar_no_none, &path, &attrs)) return NULL;
     if (!SetFileAttributes(path.ptr(), attrs)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
     Py_RETURN_NONE;
 }
@@ -1026,6 +1038,7 @@ static PyMethodDef winutil_methods[] = {
 	M(is_wow64_process, METH_NOARGS),
     M(get_dll_directory, METH_NOARGS),
     M(create_mutex, METH_VARARGS),
+    M(supports_hardlinks, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
     M(create_named_pipe, METH_VARARGS),
     M(connect_named_pipe, METH_VARARGS),
@@ -1125,7 +1138,7 @@ static PyMethodDef winutil_methods[] = {
     },
 
     {"read_file", (PyCFunction)winutil_read_file, METH_VARARGS,
-        "set_file_pointer(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
+        "read_file(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
     },
 
     {"get_disk_free_space", (PyCFunction)winutil_get_disk_free_space, METH_VARARGS,
