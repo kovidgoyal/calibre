@@ -226,11 +226,13 @@ class BuildTest(unittest.TestCase):
         dh = winutil.create_file(
             dpath, winutil.FILE_LIST_DIRECTORY, winutil.FILE_SHARE_READ, winutil.OPEN_EXISTING, winutil.FILE_FLAG_BACKUP_SEMANTICS,
         )
-        from threading import Thread
+        from threading import Thread, Event
+        started = Event()
         events = []
 
         def read_changes():
             buffer = b'0' * 8192
+            started.set()
             events.extend(winutil.read_directory_changes(
                 dh, buffer, True,
                 winutil.FILE_NOTIFY_CHANGE_FILE_NAME |
@@ -242,6 +244,8 @@ class BuildTest(unittest.TestCase):
             ))
         t = Thread(target=read_changes, daemon=True)
         t.start()
+        started.wait(1)
+        t.join(0.1)
         testp = os.path.join(dpath, 'test')
         open(testp, 'w').close()
         t.join(4)
