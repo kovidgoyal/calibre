@@ -24,7 +24,6 @@ builtins.__dict__['dynamic_property'] = lambda func: func(None)
 from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, DEBUG, isfreebsd
 
 _run_once = False
-winutil = winutilerror = None
 
 
 def get_debug_executable():
@@ -69,8 +68,8 @@ if not _run_once:
     # Ensure that the max number of open files is at least 1024
     if iswindows:
         # See https://msdn.microsoft.com/en-us/library/6e3b887c.aspx
-        if hasattr(winutil, 'setmaxstdio'):
-            winutil.setmaxstdio(max(1024, winutil.getmaxstdio()))
+        from calibre_extensions import winutil
+        winutil.setmaxstdio(max(1024, winutil.getmaxstdio()))
     else:
         import resource
         soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
