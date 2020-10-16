@@ -31,8 +31,6 @@ class BuildTest(unittest.TestCase):
                     self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
         from Crypto.Cipher import AES
         del AES
-        from pywintypes import error
-        del error
 
     @unittest.skipUnless(islinux, 'DBUS only used on linux')
     def test_dbus(self):
