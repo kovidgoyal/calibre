@@ -408,7 +408,11 @@ winutil_get_disk_free_space(PyObject *self, PyObject *args) {
 	wchar_raii path;
 	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
     ULARGE_INTEGER bytes_available_to_caller, total_bytes, total_free_bytes;
-    if (!GetDiskFreeSpaceEx(path.ptr(), &bytes_available_to_caller, &total_bytes, &total_free_bytes)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	BOOL ok;
+	Py_BEGIN_ALLOW_THREADS
+	ok = GetDiskFreeSpaceEx(path.ptr(), &bytes_available_to_caller, &total_bytes, &total_free_bytes);
+	Py_END_ALLOW_THREADS
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
     return Py_BuildValue("KKK", bytes_available_to_caller.QuadPart, total_bytes.QuadPart, total_free_bytes.QuadPart);
 }
 
@@ -1281,6 +1285,8 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "ERROR_MORE_DATA", ERROR_MORE_DATA);
     PyModule_AddIntConstant(m, "ERROR_NO_MORE_ITEMS", ERROR_NO_MORE_ITEMS);
     PyModule_AddIntConstant(m, "ERROR_FILE_NOT_FOUND", ERROR_FILE_NOT_FOUND);
+    PyModule_AddIntConstant(m, "ERROR_GEN_FAILURE ", ERROR_GEN_FAILURE);
+    PyModule_AddIntConstant(m, "ERROR_INSUFFICIENT_BUFFER", ERROR_INSUFFICIENT_BUFFER);
     PyModule_AddIntConstant(m, "ERROR_BAD_COMMAND", ERROR_BAD_COMMAND);
     PyModule_AddIntConstant(m, "ERROR_INVALID_DATA", ERROR_INVALID_DATA);
     PyModule_AddIntConstant(m, "ERROR_NOT_READY", ERROR_NOT_READY);

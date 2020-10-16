@@ -146,20 +146,17 @@ class Device(DeviceConfig, DevicePlugin):
         if not prefix:
             return 0, 0
         prefix = prefix[:-1]
-        import win32file, winerror
+        from calibre_extensions import winutil
         try:
-            sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                win32file.GetDiskFreeSpace(prefix)
-        except Exception as err:
-            if getattr(err, 'args', [None])[0] == winerror.ERROR_NOT_READY:
+            available_space, total_space, free_space = winutil.get_disk_free_space(prefix)
+        except OSError as err:
+            if err.winerror == winutil.ERROR_NOT_READY:
                 # Disk not ready
                 time.sleep(3)
-                sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                    win32file.GetDiskFreeSpace(prefix)
+                available_space, total_space, free_space = winutil.get_disk_free_space(prefix)
             else:
                 raise
-        mult = sectors_per_cluster * bytes_per_sector
-        return total_clusters * mult, free_clusters * mult
+        return total_space, available_space
 
     def total_space(self, end_session=True):
         msz = casz = cbsz = 0
