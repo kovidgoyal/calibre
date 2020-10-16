@@ -54,7 +54,7 @@ For example, assume you want to use the template::
 
         {series} - {series_index} - {title}
 
-If the book has no series, the answer will be ``- - title``. Many people would rather the result be simply ``title``, without the hyphens. To do this, use the extended syntax ``{field:|prefix_text|suffix_text}``. When you use this syntax, if field has the value SERIES then the result will be ``prefix_textSERIESsuffix_text``. If field has no value, then the result will be the empty string (nothing); the prefix and suffix are ignored. The prefix and suffix can contain blanks. **Do not use subtemplates (`{ ... }`) or functions (see below) as the prefix or the suffix.**
+If the book has no series, the answer will be ``- - title``. Most people would rather the result be simply ``title``, without the hyphens. To do this, use the extended syntax ``{field:|prefix_text|suffix_text}``. When you use this syntax, if field has the value SERIES then the result will be ``prefix_textSERIESsuffix_text``. If field has no value, then the result will be the empty string (nothing); the prefix and suffix are ignored. The prefix and suffix can contain blanks. **Do not use subtemplates (`{ ... }`) or functions (see below) as the prefix or the suffix.**
 
 Using this syntax, we can solve the above series problem with the template::
 
@@ -94,7 +94,7 @@ Sometimes you want to display metadata in the book list that calibre does not no
 
 Composite columns can use any template option, including formatting.
 
-You cannot edit the data displayed in a composite column. If you edit a composite column, for example by double-clicking it, on any item, you will open the template for editing, not the underlying data. Editing the template on the GUI is a quick way of testing and changing composite columns.
+You cannot edit the data displayed in a composite column. If you edit a composite column, for example by double-clicking it, you will open the template for editing, not the underlying data. Editing the template on the GUI is a quick way of testing and changing composite columns.
 
 Using functions in templates - Single Function Mode
 ---------------------------------------------------
@@ -107,7 +107,7 @@ Functions are always applied before format specifications. See further down for 
 
 The syntax for using functions is ``{field:function(arguments)}``, or ``{field:function(arguments)|prefix|suffix}``. Arguments are separated by commas. Commas inside arguments must be preceded by a backslash ( ``\`` ). The last (or only) argument cannot contain a closing parenthesis ( ``)`` ). Functions return the value of the field used in the template, suitably modified.
 
-Important: If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. **Do not use subtemplates (`{ ... }`) as function arguments.** Instead, use :ref:`template program mode <template_mode>` and :ref:`general program mode <general_mode>`.
+Important: If you have programming experience, please note that the syntax in this mode (single function) is not what you might expect. Strings are not quoted. Spaces are significant. All arguments must be constants; there is no sub-evaluation. **Do not use subtemplates (`{ ... }`) as function arguments.** Instead, use :ref:`Template Program Mode <template_mode>` and :ref:`General Program Mode <general_mode>`.
 
 Many functions use regular expressions. In all cases, regular expression matching is case-insensitive.
 
@@ -167,17 +167,17 @@ Note that you can use the prefix and suffix as well. If you want the number to a
 More complex functions in templates - Template Program Mode
 -------------------------------------------------------------
 
-The template language program mode differs from single-function mode in that it permits writing template expressions that refer to other metadata fields, use nested functions, modify values, and do arithmetic. It is a reasonably complete programming language.
+Template Program Mode differs from Single Function Mode in that it permits writing template expressions that refer to other metadata fields, use nested functions, modify values, and do arithmetic. It is a reasonably complete programming language.
 
-You can use the functions documented above in template program mode. See below for details.
+You can use the functions documented above in Template Program Mode. See below for details.
 
-Beginning with an example, assume you want your template to show the series for a book if it has one, otherwise show the value of a custom field #genre. You cannot do this in the basic template language because you cannot make reference to another metadata field within a template expression. In program mode, you can. The following expression works::
+Beginning with an example, assume you want your template to show the series for a book if it has one, otherwise show the value of a custom field #genre. You cannot do this in the basic template language because you cannot make reference to another metadata field within a template expression. In Template Program Mode, you can. The following expression works::
 
     {#series:'ifempty($, field('#genre'))'}
 
 The example shows several things:
 
-    * template program mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be in single function mode.
+    * Template Program Mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be in single function mode.
     * the variable ``$`` stands for the field the expression is operating upon, ``#series`` in this case.
     * functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
     * white space is ignored and can be used anywhere within the expression.
@@ -233,14 +233,14 @@ For various values of series_index, the program returns:
     * series_index == 2, result = ``prefix 2->eq suffix``
     * series_index == 3, result = ``prefix 3->gt suffix``
 
-**All the functions listed under single-function mode can be used in program mode**. To do so, you must supply the value that the function is to act upon as the first parameter, in addition to the parameters documented above. For example, in program mode the parameters of the `test` function are ``test(x, text_if_not_empty, text_if_empty)``. The `x` parameter, which is the value to be tested, will almost always be a variable or a function call, often `field()`.
+**All the functions listed under single-function mode can be used in program mode**. To do so, you must supply the value that the function is to act upon as the first parameter in addition to the parameters documented above. For example, in program mode the parameters of the `test` function are ``test(x, text_if_not_empty, text_if_empty)``. The `x` parameter, which is the value to be tested, will almost always be a variable or a function call, often `field()`.
 
 The following functions are available in addition to those described in single-function mode. Remember from the example above that the single-function mode functions require an additional first parameter specifying the field to operate on. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions). Note that the definitive documentation for functions is available in the section :ref:`Function reference <template_functions_reference>`:
 
     * ``and(value, value, ...)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
-    * ``approximate_formats()`` -- return a comma-separated list of formats that at one point were associated with the book. There is no guarantee that the list is correct, although it probably is. This function can be called in template program mode using the template ``{:'approximate_formats()'}``. Note that format names are always uppercase, as in EPUB.
+    * ``approximate_formats()`` -- return a comma-separated list of formats that at one point were associated with the book. There is no guarantee that the list is correct, although it probably is. This function can be called in Template Program Mode using the template ``{:'approximate_formats()'}``. Note that format names are always uppercase, as in EPUB.
     * ``author_links(val_separator, pair_separator)`` -- returns a string containing a list of authors and that author's link values in the form ``author1 val_separator author1link pair_separator author2 val_separator author2link`` etc. An author is separated from its link value by the ``val_separator`` string with no added spaces. ``author:linkvalue`` pairs are separated by the ``pair_separator`` string argument with no added spaces. It is up to you to choose separator strings that do not occur in author names or links. An author is included even if the author link is empty.
     * ``author_sorts(val_separator)`` -- returns a string containing a list of author's sort values for the authors of the book. The sort is the one in the author metadata (different from the author_sort in books). The returned list has the form author sort 1 ``val_separator`` author sort 2 etc. The author sort values in this list are in the same order as the authors of the book. If you want spaces around ``val_separator`` then include them in the separator string
     * ``booksize()`` -- returns the value of the calibre 'size' field. Returns '' if there are no formats.
@@ -252,17 +252,17 @@ The following functions are available in addition to those described in single-f
     * ``ceiling(x)`` -- returns the smallest integer greater than or equal to x. Throws an exception if x is not a number.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``connected_device_name(storage_location)`` -- if a device is connected then return the device name, otherwise return the empty string. Each storage location on a device can have a different name. The location names are 'main', 'carda' and 'cardb'. This function works only in the GUI.
-    * ``current_library_name()`` -- return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
-    * ``current_library_path()`` -- return the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_path()'}``.
+    * ``current_library_name()`` -- return the last name on the path to the current calibre library. This function can be called in Template Program Mode using the template ``{:'current_library_name()'}``.
+    * ``current_library_path()`` -- return the path to the current calibre library. This function can be called in Template Program Mode using the template ``{:'current_library_path()'}``.
     * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
-    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
+    * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using Template Program Mode.
     * ``field(name)`` -- returns the metadata field named by ``name``.
     * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
       prefix, and suffix to a value in the same way as done in a template like
       ``{series_index:05.2f| - |- }``. This function is provided to ease
       conversion of complex single-function- or template-program-mode templates
-      to :ref:`general program mode <general_mode>` (see below) to take
+      to :ref:`General Program Mode <general_mode>` (see below) to take
       advantage of GPM template compilation. For example, the following program
       produces the same output as the above template::
 
@@ -312,7 +312,7 @@ The following functions are available in addition to those described in single-f
             iso  : the date with time and timezone. Must be the only format present.
 
 
-      You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain ``MMMM``. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using template program mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
+      You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain ``MMMM``. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using Template Program Mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
     * ``formats_modtimes(format_string)`` -- return a comma-separated list of colon-separated items representing modification times for the formats of a book. The format_string parameter specifies how the date is to be formatted. See the `format_date()` function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_paths()`` -- return a comma-separated list of colon-separated items representing full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_sizes()`` -- return a comma-separated list of colon-separated items representing sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
@@ -333,7 +333,7 @@ The following functions are available in addition to those described in single-f
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
     * ``raw_list(name, separator)`` -- returns the metadata list named by name without applying any formatting or sorting and with items separated by separator.
-    * ``re_group(val, pattern, template_for_group_1, for_group_2, ...)`` --  return a string made by applying the regular expression pattern to the val and replacing each matched instance with the string computed by replacing each matched group by the value returned by the corresponding template. The original matched value for the group is available as $. In template program mode, like for the template and the eval functions, you use [[ for { and ]] for }. The following example in template program mode looks for series with more than one word and uppercases the first word::
+    * ``re_group(val, pattern, template_for_group_1, for_group_2, ...)`` --  return a string made by applying the regular expression pattern to the val and replacing each matched instance with the string computed by replacing each matched group by the value returned by the corresponding template. The original matched value for the group is available as $. In Template Program Mode, like for the template and the eval functions, you use [[ for { and ]] for }. The following example in Template Program Mode looks for series with more than one word and uppercases the first word::
 
         {series:'re_group($, "(\S* )(.*)", "[[$:uppercase()]]", "[[$]]")'}
 
@@ -346,24 +346,24 @@ The following functions are available in addition to those described in single-f
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
     * ``subtract(x, y)`` -- returns x - y. Throws an exception if either x or y are not numbers.
     * ``today()`` -- return a date string for today. This value is designed for use in format_date or days_between, but can be manipulated like any other string. The date is in ISO format.
-    * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
+    * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using Template Program Mode.
 
 .. _general_mode:
 
 Using General Program Mode
 -----------------------------------
 
-For more complicated template programs, it is often easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classic-looking program. You can do this in calibre by beginning the template with `program:`. The template program is compiled and executed. No template processing (e.g., formatting, prefixes, suffixes) is done. The special variable `$` is not set.
+For more complicated template programs it is often easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classic-looking program. You can do this by beginning the template with `program:`. The template program is compiled and executed. No template processing (e.g., formatting, prefixes, suffixes) is done. The special variable `$` is not set.
 
 One advantage of `program:` mode is that braces are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is readability.
 
 Both General and Template Program Modes support ``if`` expressions with the following syntax::
 
-    ``if`` <<expression>> ``then``
+    if <<expression>> then
         <<expression_list>>
-    [``elif`` <<expression>> then <<expression_list>>]*
-    [ ``else`` <<expression_list>> ]
-    ``fi``
+    [elif <<expression>> then <<expression_list>>]*
+    [else <<expression_list>> ]
+    fi
 
 The elif and else parts are optional. The words ``if``, ``then``, ``elif``, ``else``, and ``fi`` are reserved; you cannot use them as identifier names. You can put newlines and white space wherever they make sense. <<expression>> is one template language expression;  semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
 
@@ -391,14 +391,14 @@ An ``if`` produces a value like any other language expression. This means that a
     * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
     * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
 
-TPM and GPM support classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive string comparison using lexical order. Examples:
+Template Program Mode and General Program Mode support classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive string comparison using lexical order. Examples:
 
     * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
     * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
     * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
     * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
 
-GPM supports saving General Program Mode templates and calling those templates from another template. You save
+General Program Mode supports saving templates and calling those templates from another template. You save
 templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
 a template the same way you call a function, passing positional arguments if desired. An argument can be any expression.
 Examples of calling a template, assuming the stored template is named ``foo``:
@@ -427,7 +427,7 @@ shortcut will help switching more rapidly between the tester and editing the sto
 Notes on the difference between modes
 -----------------------------------------
 
-The three template program modes, Single Function Mode (SFM), Template Program Mode (TPM), and
+The three program modes, Single Function Mode (SFM), Template Program Mode (TPM), and
 General Program Mode (GPM), work differently. SFM is intended to be 'simple' so it hides a lot
 of programming language bits. For example, the value of the column is always passed as an 'invisible' first argument
 to a function included in the template. SFM also doesn't support the difference between variables
@@ -443,7 +443,7 @@ The equivalent templates in TPM and GPM are::
     GPM: ``program: ifempty(field('series'), 'no series')``
 
 The first argument to ifempty is the value of the field ``series`` and the second argument
-is the string ``no series``. In SFM thfirst argument, the value, is automatically passed (the invisible argument).
+is the string ``no series``. In SFM the first argument, the value, is automatically passed (the invisible argument).
 
 Several template functions, for example ``booksize()`` and ``current_library_name()``, take no arguments.
 Because of the 'invisible argument' you cannot use these functions in SFM.
@@ -453,9 +453,7 @@ For example this template, intended to return the the first 5 characters of the 
 
     {series:uppercase(substr(0,5))}
 
-In fact the above template won't work for two reasons, function nesting and series_sort() taking no arguments.
-
-TPM and GPM do support nested functions. The above template in TPM would be::
+TPM and GPM support nested functions. The above template in TPM would be::
 
     {series:'uppercase(substr($, 0,5))'}
 
