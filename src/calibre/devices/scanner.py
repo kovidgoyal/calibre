@@ -21,11 +21,11 @@ if iswindows:
     drive_ok_lock = Lock()
 
     def drive_is_ok(letter, max_tries=10, debug=False):
-        import win32file
+        from calibre_extensions import winutil
         with drive_ok_lock:
             for i in range(max_tries):
                 try:
-                    win32file.GetDiskFreeSpaceEx(letter+':\\')
+                    winutil.get_disk_free_space(letter+':\\')
                     return True
                 except Exception as e:
                     if i >= max_tries - 1 and debug:
