@@ -11,6 +11,12 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Guardian(BasicNewsRecipe):
 
     title = u'The Guardian and The Observer'
@@ -47,6 +53,7 @@ class Guardian(BasicNewsRecipe):
         dict(attrs={'data-link-name': 'block share'}),
         dict(attrs={'class': lambda x: x and 'inline-expand-image' in x}),
         dict(attrs={'class': lambda x: x and 'modern-visible' in x.split()}),
+        classes('badge-slot reveal-caption__checkbox mobile-only element-rich-link'),
         dict(name=['link', 'meta', 'style']),
     ]
     remove_tags_after = [
