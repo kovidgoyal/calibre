@@ -9,6 +9,7 @@
 #include <QStyleOptionToolButton>
 #include <QFormLayout>
 #include <QDialogButtonBox>
+#include <QPainterPath>
 #include <algorithm>
 #include <qdrawutil.h>
 
@@ -251,6 +252,39 @@ class CalibreStyle: public QProxyStyle {
 						painter->restore();
 						return;
 					}
+					break; // }}}
+
+				case PE_IndicatorRadioButton: // {{{
+					// Fix color used to draw radiobutton outline in dark mode
+					if (is_color_dark(option->palette.color(QPalette::Window))) {
+						painter->save();
+						painter->setBrush((option->state & State_Sunken) ? option->palette.base().color().lighter(320) : option->palette.base().color());
+						painter->setRenderHint(QPainter::Antialiasing, true);
+						QPainterPath circle;
+						const QPointF circleCenter = option->rect.center() + QPoint(1, 1);
+						const qreal outlineRadius = (option->rect.width() + (option->rect.width() + 1) % 2) / 2.0 - 1;
+						circle.addEllipse(circleCenter, outlineRadius, outlineRadius);
+						painter->setPen(QPen(option->palette.window().color().lighter(320)));
+						if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange) {
+							QColor highlightedOutline = option->palette.color(QPalette::Highlight).lighter(125);
+							painter->setPen(QPen(highlightedOutline));
+						}
+						painter->drawPath(circle);
+
+						if (option->state & (State_On )) {
+							circle = QPainterPath();
+							const qreal checkmarkRadius = outlineRadius / 2.32;
+							circle.addEllipse(circleCenter, checkmarkRadius, checkmarkRadius);
+							QColor checkMarkColor = option->palette.text().color().lighter(120);
+							checkMarkColor.setAlpha(200);
+							painter->setPen(checkMarkColor);
+							checkMarkColor.setAlpha(180);
+							painter->setBrush(checkMarkColor);
+							painter->drawPath(circle);
+						}
+						painter->restore();
+						return;
+					} else { baseStyle()->drawPrimitive(element, option, painter, widget); }
 					break; // }}}
 
                 case PE_PanelItemViewItem:  // {{{
