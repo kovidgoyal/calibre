@@ -154,7 +154,7 @@ class InterfaceAction(QObject):
             bn = self.interface_action_base_plugin.name
         return 'Interface Action: %s (%s)'%(bn, self.name)
 
-    def create_action(self, spec=None, attr='qaction', shortcut_name=None):
+    def create_action(self, spec=None, attr='qaction', shortcut_name=None, persist_shortcut=False):
         if spec is None:
             spec = self.action_spec
         text, icon, tooltip, shortcut = spec
@@ -191,7 +191,8 @@ class InterfaceAction(QObject):
                     self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
                         shortcut_name, default_keys=keys,
                         action=shortcut_action, description=desc,
-                        group=self.action_spec[0])
+                        group=self.action_spec[0],
+                        persist_shortcut=persist_shortcut)
                 except NameConflict as e:
                     try:
                         prints(unicode_type(e))
@@ -216,7 +217,7 @@ class InterfaceAction(QObject):
         return action
 
     def create_menu_action(self, menu, unique_name, text, icon=None, shortcut=None,
-            description=None, triggered=None, shortcut_name=None):
+            description=None, triggered=None, shortcut_name=None, persist_shortcut=False):
         '''
         Convenience method to easily add actions to a QMenu.
         Returns the created QAction. This action has one extra attribute
@@ -242,6 +243,10 @@ class InterfaceAction(QObject):
         :param shortcut_name: The text displayed to the user when customizing
             the keyboard shortcuts for this action. By default it is set to the
             value of ``text``.
+        :param persist_shortcut: Shortcuts for actions that don't
+            always appear, or are library dependent, may disappear
+            when other keyboard shortcuts are edited unless
+            ```persist_shortcut``` is set True.
 
         '''
         if shortcut_name is None:
@@ -265,7 +270,8 @@ class InterfaceAction(QObject):
         if shortcut is not False:
             self.gui.keyboard.register_shortcut(unique_name,
                 shortcut_name, default_keys=keys,
-                action=ac, description=description, group=self.action_spec[0])
+                action=ac, description=description, group=self.action_spec[0],
+                persist_shortcut=persist_shortcut)
             # In Qt 5 keyboard shortcuts dont work unless the
             # action is explicitly added to the main window and on OSX and
             # Unity since the menu might be exported, the shortcuts wont work
