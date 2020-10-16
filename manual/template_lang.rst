@@ -6,7 +6,7 @@ The calibre template language
 The calibre template language is used in various places. It is used to control the folder structure and file name when saving files from the calibre library to the disk or e-book reader.
 It is also used to define "virtual" columns that contain data from other columns and so on.
 
-The basic template language is very simple, but has very powerful advanced features. The basic idea is that a template consists of text and names in curly brackets that are then replaced by the corresponding metadata from the book being processed. So, for example, the default template used for saving books to device in calibre is::
+The basic template language is simple but has  powerful advanced features. A template consists of text and names in curly brackets that are then replaced by the corresponding metadata from the book being processed. For example, the default template used for saving books to device in calibre is::
 
     {author_sort}/{title}/{title} - {authors}
 
@@ -22,14 +22,14 @@ For the book "The Foundation" by "Isaac Asimov" it will become::
 
     Asimov, Isaac Some Important Text The Foundation/The Foundation - Isaac Asimov
 
-You can use all the various metadata fields available in calibre in a template, including any custom columns you have created yourself. To find out the template name for a column simply hover your mouse over the column header. Names for custom fields (columns you have created yourself) always have a # as the first character. For series type custom fields, there is always an additional field named ``#seriesname_index`` that becomes the series index for that series. So if you have a custom series field named ``#myseries``, there will also be a field named ``#myseries_index``.
+You can use all the metadata fields available in calibre in a template, including any custom columns you have created, by using its 'lookup name'. To find the lookup name for a column (field) hover your mouse over the column header. Names for custom columns (columns you have created yourself) always have a # as the first character. For series type custom columns there is always an additional field named ``#seriesname_index`` that is the series index for that series. So if you have a custom series field named ``#myseries``, there will also be a field named ``#myseries_index``.
 
 In addition to the column based fields, you also can use::
 
     {formats} - A list of formats available in the calibre library for a book
     {identifiers:select(isbn)} - The ISBN of the book
 
-If a particular book does not have a particular piece of metadata, the field in the template is automatically removed for that book. Consider, for example::
+If a book does not have a particular piece of metadata, the field in the template is replaced by the empty string for that book. Consider, for example::
 
     {author_sort}/{series}/{title} {series_index}
 
@@ -86,24 +86,22 @@ If you want only the first two letters of the data, use::
 
 The calibre template language comes from Python and for more details on the syntax of these advanced formatting operations, look at the `Python documentation <https://docs.python.org/library/string.html#format-string-syntax>`_.
 
-Advanced features
-------------------
 
 Using templates in custom columns
 ----------------------------------
 
-There are sometimes cases where you want to display metadata that calibre does not normally display, or to display data in a way different from how calibre normally does. For example, you might want to display the ISBN, a field that calibre does not display. You can use custom columns for this by creating a column with the type 'column built from other columns' (hereafter called composite columns), and entering a template. Result: calibre will display a column showing the result of evaluating that template. To display the ISBN, create the column and enter ``{identifiers:select(isbn)}`` into the template box. To display a column containing the values of two series custom columns separated by a comma, use ``{#series1:||,}{#series2}``.
+Sometimes you want to display metadata in the book list that calibre does not normally display, or to display data in a way different from how calibre normally does. For example, you might want to display the ISBN, a field that calibre does not display. You can use custom columns for this by creating a column with the type 'column built from other columns' (hereafter called composite columns), and entering a template. Result: calibre will display a column showing the result of evaluating that template. To display the ISBN, create the column and enter ``{identifiers:select(isbn)}`` into the template box. To display a column containing the values of two series custom columns separated by a comma, use ``{#series1:||,}{#series2}``.
 
 Composite columns can use any template option, including formatting.
 
-You cannot change the data contained in a composite column. If you edit a composite column by double-clicking on any item, you will open the template for editing, not the underlying data. Editing the template on the GUI is a quick way of testing and changing composite columns.
+You cannot edit the data displayed in a composite column. If you edit a composite column, for example by double-clicking it, on any item, you will open the template for editing, not the underlying data. Editing the template on the GUI is a quick way of testing and changing composite columns.
 
-Using functions in templates - single-function mode
+Using functions in templates - Single Function Mode
 ---------------------------------------------------
 
 Suppose you want to display the value of a field in upper case, when that field is normally in title case. You can do this (and many more things) using the functions available for templates. For example, to display the title in upper case, use ``{title:uppercase()}``. To display it in title case, use ``{title:titlecase()}``.
 
-Function references appear in the format part, going after the ``:`` and before the first ``|`` or the closing ``}``. If you have both a format and a function reference, the function comes after another ``:``. Functions must always end with ``()``. Some functions take extra values (arguments), and these go inside the ``()``.
+Functions appear in the format part, going after the ``:`` and before the first ``|`` or the closing ``}``. If you have both a format and a function reference, the function comes after another ``:``. Functions must always end with ``()``. Some functions take extra values (arguments), and these go inside the ``()``.
 
 Functions are always applied before format specifications. See further down for an example of using both a format and a function, where this order is demonstrated.
 
@@ -113,7 +111,7 @@ Important: If you have programming experience, please note that the syntax in th
 
 Many functions use regular expressions. In all cases, regular expression matching is case-insensitive.
 
-The functions available are listed below. Note that the definitive documentation for functions is available in the section :ref:`Function classification <template_functions_reference>`:
+The functions available are listed below. Note that the definitive documentation for functions is available in the section :ref:`Function reference <template_functions_reference>`:
 
     * ``lowercase()``	-- return value of the field in lower case.
     * ``uppercase()``	-- return the value of the field in upper case.
@@ -166,26 +164,24 @@ Note that you can use the prefix and suffix as well. If you want the number to a
 
 .. _template_mode:
 
-Using functions in templates - template program mode
-----------------------------------------------------
+More complex functions in templates - Template Program Mode
+-------------------------------------------------------------
 
-The template language program mode differs from single-function mode in that it permits you to write template expressions that refer to other metadata fields, modify values, and do arithmetic. It is a reasonably complete programming language.
+The template language program mode differs from single-function mode in that it permits writing template expressions that refer to other metadata fields, use nested functions, modify values, and do arithmetic. It is a reasonably complete programming language.
 
 You can use the functions documented above in template program mode. See below for details.
 
-Beginning with an example, assume that you want your template to show the series for a book if it has one, otherwise show the value of a custom field #genre. You cannot do this in the basic language because you cannot make reference to another metadata field within a template expression. In program mode, you can. The following expression works::
+Beginning with an example, assume you want your template to show the series for a book if it has one, otherwise show the value of a custom field #genre. You cannot do this in the basic template language because you cannot make reference to another metadata field within a template expression. In program mode, you can. The following expression works::
 
     {#series:'ifempty($, field('#genre'))'}
 
 The example shows several things:
 
-    * program mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be single-function.
+    * template program mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be in single function mode.
     * the variable ``$`` stands for the field the expression is operating upon, ``#series`` in this case.
     * functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
-
-The language is similar to ``functional`` languages in that it is built almost entirely from functions. An expression is generally a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
 
 The syntax of the language is shown by the following grammar. For a discussion of 'compare','if_expression', and 'template_call' see :ref:`General Program Mode <general_mode>`:::
 
@@ -222,7 +218,7 @@ Another example of a complex but rather silly program might help make things cle
 
 This program does the following:
 
-    * specify that the field being looked at is series_index. This sets the value of the variable ``$``.
+    * specify that the field being looked at is series_index. The variable ``$`` is set to its value.
     * calls the ``substr`` function, which takes 3 parameters ``(str, start, end)``. It returns a string formed by extracting the start through end characters from string, zero-based (the first character is character zero). In this case the string will be computed by the ``strcat`` function, the start is 0, and the end is 6. In this case it will return the first 6 characters of the string returned by ``strcat``, which must be evaluated before substr can return.
     * calls the ``strcat`` (string concatenation) function. Strcat accepts 1 or more arguments, and returns a string formed by concatenating all the values. In this case there are three arguments. The first parameter is the value in ``$``, which here is the value of ``series_index``. The second paremeter is the constant string ``'->'``. The third parameter is the value returned by the ``cmp`` function, which must be fully evaluated before ``strcat`` can return.
     * The ``cmp`` function takes 5 arguments ``(x, y, lt, eq, gt)``. It compares x and y and returns the third argument ``lt`` if x < y, the fourth argument ``eq`` if x == y, and the fifth argument ``gt`` if x > y. As with all functions, all of the parameters can be statements. In this case the first parameter (the value for ``x``) is the result of dividing the series_index by 2. The second parameter ``y`` is the constant ``1``. The third parameter ``lt`` is a statement (more later). The fourth parameter ``eq`` is the constant string ``'eq'``. The fifth parameter is the constant string ``'gt'``.
@@ -239,7 +235,7 @@ For various values of series_index, the program returns:
 
 **All the functions listed under single-function mode can be used in program mode**. To do so, you must supply the value that the function is to act upon as the first parameter, in addition to the parameters documented above. For example, in program mode the parameters of the `test` function are ``test(x, text_if_not_empty, text_if_empty)``. The `x` parameter, which is the value to be tested, will almost always be a variable or a function call, often `field()`.
 
-The following functions are available in addition to those described in single-function mode. Remember from the example above that the single-function mode functions require an additional first parameter specifying the field to operate on. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions). Note that the definitive documentation for functions is available in the section :ref:`Function classification <template_functions_reference>`:
+The following functions are available in addition to those described in single-function mode. Remember from the example above that the single-function mode functions require an additional first parameter specifying the field to operate on. With the exception of the ``id`` parameter of assign, all parameters can be statements (sequences of expressions). Note that the definitive documentation for functions is available in the section :ref:`Function reference <template_functions_reference>`:
 
     * ``and(value, value, ...)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
@@ -352,29 +348,25 @@ The following functions are available in addition to those described in single-f
     * ``today()`` -- return a date string for today. This value is designed for use in format_date or days_between, but can be manipulated like any other string. The date is in ISO format.
     * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
 
-.. _template_functions_reference:
-
-Function classification
----------------------------
-
-.. toctree::
-    :maxdepth: 3
-
-    generated/en/template_ref
-
-
 .. _general_mode:
 
-Using general program mode
+Using General Program Mode
 -----------------------------------
 
-For more complicated template programs, it is sometimes easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classical-looking program. You can do this in calibre by beginning the template with `program:`. In this case, no template processing is done. The special variable `$` is not set. It is up to your program to produce the correct results.
+For more complicated template programs, it is often easier to avoid template syntax (all the `{` and `}` characters), instead writing a more classic-looking program. You can do this in calibre by beginning the template with `program:`. The template program is compiled and executed. No template processing (e.g., formatting, prefixes, suffixes) is done. The special variable `$` is not set.
 
-One advantage of `program:` mode is that the brackets are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is readability.
+One advantage of `program:` mode is that braces are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is readability.
 
-Both General and Template Program Modes support if tests with the following syntax:
-    * ``if`` <<expression>> ``then`` <<expression_list>> [ ``else`` <<expression_list>> ] ``fi``.
-The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are reserved. You cannot use them as identifier names. You can put newlines and white space wherever they make sense. <<expression>> is one template language expression. Semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
+Both General and Template Program Modes support ``if`` expressions with the following syntax::
+
+    ``if`` <<expression>> ``then``
+        <<expression_list>>
+    [``elif`` <<expression>> then <<expression_list>>]* 
+    [ ``else`` <<expression_list>> ]
+    ``fi``
+    
+The elif and else parts are optional. The words ``if``, ``then``, ``elif``, ``else``, and ``fi`` are reserved; you cannot use them as identifier names. You can put newlines and white space wherever they make sense. <<expression>> is one template language expression;  semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
+
     * ``program: if field('series') then 'yes' else 'no' fi``
     * ``program: if field('series') then a = 'yes'; b = 'no' else a = 'no'; b='yes' fi; strcat(a, '-', b)``
     * Nested ``if`` example::
@@ -393,18 +385,20 @@ The else part is optional. The words ``if``, ``then``, ``else``, and ``fi`` are 
             fi
 
 An ``if`` produces a value like any other language expression. This means that all the following are valid:
+
     * ``program: if field('series') then 'foo' else 'bar' fi``
     * ``program: if field('series') then a = 'foo' else a = 'bar' fi; a``
     * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
     * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
 
-Program mode also supports the classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, '' otherwise. They do case-insensitive string comparison using lexical order. Examples:
+TPM and GPM support classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive string comparison using lexical order. Examples:
+
     * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
     * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
     * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
     * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
 
-General Program Mode supports saving General Program Mode templates and calling those templates from another template. You save
+GPM supports saving General Program Mode templates and calling those templates from another template. You save
 templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
 a template the same way you call a function, passing positional arguments if desired. An argument can be any expression.
 Examples of calling a template, assuming the stored template is named ``foo``:
@@ -414,10 +408,11 @@ Examples of calling a template, assuming the stored template is named ``foo``:
     * ``foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the             ``series_index``, otherwise pass the value ``0``.
 
 In the stored template you retrieve the arguments passed in the call using the ``arguments`` function. It both declares and
-initializes local variables. The variables are positional; they get the value of the value given in the call in the same position.
-If the corresponding parameter is not provided in the call then ``arguments`` gives that parameter the provided default value. If there is no default value then the argument is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
+initializes local variables, effectively parameters. The variables are positional; they get the value of the value given in 
+the call in the same position.
+If the corresponding parameter is not provided in the call then ``arguments`` assigns that variable the provided default value. If there is no default value then the variable is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
 
-            ``arguments(key, alternate='series')
+            arguments(key, alternate='series')
 
 Examples, again assuming the stored template is named ``foo``:
 
@@ -429,94 +424,53 @@ An easy way to test stored templates is using the ``Template tester`` dialog. Gi
 :guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a
 shortcut will help switching more rapidly between the tester and editing the stored template's source code.
 
-The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
+Notes on the difference between modes
+-----------------------------------------
 
-The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view::
+The three template program modes, Single Function Mode (SFM), Template Program Mode (TPM), and 
+General Program Mode (GPM), work differently. SFM is intended to be 'simple' so it hides a lot
+of programming language bits. For example, the value of the column is always passed as an 'invisible' first argument
+to a function included in the template. SFM also doesn't support the difference between variables
+and strings; all values are strings.
 
-    First column:
-    Name: #stripped_series.
-    Template: {series:re(^(A|The|An)\s+,)||}
+Example: the following SFM template returns either the series name of the string "no series"::
 
-    Second column (the shortened form):
-    Name: #shortened.
-    Template: {#stripped_series:shorten(4,-,4)}
+    {series:ifempty(no series)}
 
-    Third column (the initials form):
-    Name: #initials.
-    Template: {#stripped_series:re(([^\s])[^\s]+(\s|$),\1)}
+The equivalent templates in TPM and GPM are::
 
-    Plugboard expression:
-    Template:{#stripped_series:lookup(.\s,#initials,.,#shortened,series)}{series_index:0>2.0f| [|] }{title}
-    Destination field: title
+    TPM: ``{series:'ifempty($, 'no series')'}
+    GPM: ``program: ifempty(field('series'), 'no series')``
 
-    This set of fields and plugboard produces:
-    Series: The Lord of the Rings
-    Series index: 2
-    Title: The Two Towers
-    Output: LotR [02] The Two Towers
+The first argument to ifempty is the value of the field ``series`` and the second argument
+is the string ``no series``. In SFM thfirst argument, the value, is automatically passed (the invisible argument).
 
-    Series: Dahak
-    Series index: 1
-    Title: Mutineers Moon
-    Output: Dahak [01] Mutineers Moon
+Several template functions, for example ``booksize()`` and ``current_library_name()``, take no arguments.
+Because of the 'invisible argument' you cannot use these functions in SFM.
 
-    Series: Berserkers
-    Series Index: 4
-    Title: Berserker Throne
-    Output: Bers-kers [04] Berserker Throne
+Nested functions, where a function calls another function to compute an argument, cannot be used in SFM.
+For example this template, intended to return the the first 5 characters of the series value uppercased, won't work in SFM::
 
-    Series: Meg Langslow Mysteries
-    Series Index: 3
-    Title: Revenge of the Wrought-Iron Flamingos
-    Output: MLM [03] Revenge of the Wrought-Iron Flamingos
+    {series:uppercase(substr(0,5))}
 
-The following program produces the same results as the original recipe, using only one custom column to hold the results of a program that computes the special title value::
+In fact the above template won't work for two reasons, function nesting and series_sort() taking no arguments.
 
-    Custom column:
-    Name: #special_title
-    Template: (the following with all leading spaces removed)
-        program:
-        #	compute the equivalent of the composite fields and store them in local variables
-            stripped = re(field('series'), '^(A|The|An)\s+', '');
-            shortened = shorten(stripped, 4, '-' ,4);
-            initials = re(stripped, '[^\w]*(\w?)[^\s]+(\s|$)', '\1');
+TPM and GPM do support nested functions. The above template in TPM would be::
 
-        #	Format the series index. Ends up as empty if there is no series index.
-        #	Note that leading and trailing spaces will be removed by the formatter,
-        #	so we cannot add them here. We will do that in the strcat below.
-        #	Also note that because we are in 'program' mode, we can freely use
-        #	curly brackets in strings, something we cannot do in template mode.
-            s_index = template('{series_index:0>2.0f}');
+    {series:'uppercase(substr($, 0,5))'}
 
-        #	print(stripped, shortened, initials, s_index);
+In TPM it would be::
 
-        #	Now concatenate all the bits together. The switch picks between
-        #	initials and shortened, depending on whether there is a space
-        #	in stripped. We then add the brackets around s_index if it is
-        #	not empty. Finally, add the title. As this is the last function in
-        #	the program, its value will be returned.
-            strcat(
-                switch(	stripped,
-                        '.\s', initials,
-                        '.', shortened,
-                        field('series')),
-                test(s_index, strcat(' [', s_index, '] '), ''),
-                field('title'));
-
-    Plugboard expression:
-    Template:{#special_title}
-    Destination field: title
-
-It would be possible to do the above with no custom columns by putting the program into the template box of the plugboard. However, to do so, all comments must be removed because the plugboard text box does not support multi-line editing. It is debatable whether the gain of not having the custom column is worth the vast increase in difficulty caused by the program being one giant line.
-
+    program: uppercase(substr(field('series'), 0,5))
+    
 
 User-defined Python template functions
 ------------------------------------------
 
-You can add your own Python functions to the template processor. Such functions are written in Python, and can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
+You can add your own Python functions to the template processor. Such functions can be used in any of the three template programming modes. The functions are added by going to :guilabel:`Preferences -> Advanced -> Template functions`. Instructions are shown in that dialog.
 
 Special notes for save/send templates
--------------------------------------
+---------------------------------------
 
 Special processing is applied when a template is used in a `save to disk` or `send to device` template. The values of the fields are cleaned, replacing characters that are special to file systems with underscores, including slashes. This means that field text cannot be used to create folders. However, slashes are not changed in prefix or suffix strings, so slashes in these strings will cause folders to be created. Because of this, you can create variable-depth folder structure.
 
@@ -534,7 +488,7 @@ To accomplish this, we:
     3. Set the save template to ``{series:lookup(.,#AA,#BB)}``. This template chooses composite field #AA if series is not empty, and composite field #BB if series is empty. We therefore have two completely different save paths, depending on whether or not `series` is empty.
 
 Templates and plugboards
-------------------------
+---------------------------
 
 Plugboards are used for changing the metadata written into books during send-to-device and save-to-disk operations. A plugboard permits you to specify a template to provide the data to write into the book's metadata. You can use plugboards to modify the following fields: authors, author_sort, language, publisher, tags, title, title_sort. This feature helps people who want to use different metadata in books on devices to solve sorting or display issues.
 
@@ -553,15 +507,26 @@ The same thing happens for authors, but using a different character for the cut,
 
 Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
 
-Helpful tips
+Tips
 ------------
 
 You might find the following tips useful.
 
-    * Create a custom composite column to test templates. Once you have the column, you can change its template simply by double-clicking on the column. Hide the column when you are not testing.
-    * Templates can use other templates by referencing a composite custom column.
+    * Use the Template Tester to test templates. Add the tester to the context menu for books in the library and/or give it a keyboard shortcut.
+    * Templates can use other templates by referencing composite columns built with the desired template. Alternatively, you could
+    use Stored Templates.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
+
+.. _template_functions_reference:
+
+Function reference
+---------------------------
+
+.. toctree::
+    :maxdepth: 3
+
+    generated/en/template_ref
 
 .. toctree::
   :hidden:
