@@ -9,7 +9,7 @@ import signal
 import sys
 
 from calibre import as_unicode
-from calibre.constants import is_running_from_develop, ismacos, iswindows, plugins
+from calibre.constants import is_running_from_develop, ismacos, iswindows
 from calibre.db.delete_service import shutdown as shutdown_delete_service
 from calibre.db.legacy import LibraryDatabase
 from calibre.srv.bonjour import BonJour
@@ -25,6 +25,7 @@ from calibre.utils.config import prefs
 from calibre.utils.localization import localize_user_manual_link
 from calibre.utils.lock import singleinstance
 from polyglot.builtins import error_message, unicode_type
+from calibre_extensions import speedup
 
 
 def daemonize():  # {{{
@@ -51,7 +52,7 @@ def daemonize():  # {{{
         raise SystemExit('fork #2 failed: %s' % as_unicode(e))
 
     # Redirect standard file descriptors.
-    plugins['speedup'][0].detach(os.devnull)
+    speedup.detach(os.devnull)
 
 
 # }}}

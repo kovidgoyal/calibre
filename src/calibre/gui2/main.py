@@ -13,7 +13,7 @@ import traceback
 import apsw
 from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 
-from calibre import force_unicode, plugins, prints
+from calibre import force_unicode, prints
 from calibre.constants import (
     DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base,
     islinux, ismacos, iswindows
@@ -32,7 +32,7 @@ from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
 after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False}
 if iswindows:
-    winutil = plugins['winutil'][0]
+    from calibre_extensions import winutil
 
 
 class AbortInit(Exception):
