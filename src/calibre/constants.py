@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv
-import sys, locale, codecs, os, importlib, collections
+import sys, locale, codecs, os, collections
 
 __appname__   = 'calibre'
 numeric_version = (5, 3, 0)
@@ -50,10 +50,6 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
-win32event = importlib.import_module('win32event') if iswindows else None
-winerror   = importlib.import_module('winerror') if iswindows else None
-win32api   = importlib.import_module('win32api') if iswindows else None
-fcntl      = None if iswindows else importlib.import_module('fcntl')
 dark_link_color = '#6cb4ee'
 builtin_colors_light = {
     'yellow': '#ffeb6b',
