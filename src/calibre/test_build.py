@@ -185,6 +185,7 @@ class BuildTest(unittest.TestCase):
         self.assertRaises(OSError, winutil.delete_file, path)
         self.assertRaises(OSError, winutil.create_file,
             os.path.join(path, 'cannot'), winutil.GENERIC_READ, 0, winutil.OPEN_ALWAYS, winutil.FILE_ATTRIBUTE_NORMAL)
+        self.assertTrue(winutil.supports_hardlinks(os.path.abspath(os.getcwd())[0] + ':\\'))
         sz = 23
         data = os.urandom(sz)
         open(path, 'wb').write(data)
