@@ -526,7 +526,11 @@ static PyObject*
 winutil_create_hard_link(PyObject *self, PyObject *args) {
 	wchar_raii path, existing_path;
 	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar_no_none, &path, py_to_wchar_no_none, &existing_path)) return NULL;
-    if (!CreateHardLinkW(path.ptr(), existing_path.ptr(), NULL)) return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1));
+	BOOL ok;
+	Py_BEGIN_ALLOW_THREADS
+	ok = CreateHardLinkW(path.ptr(), existing_path.ptr(), NULL);
+	Py_END_ALLOW_THREADS
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1));
     Py_RETURN_NONE;
 }
 
