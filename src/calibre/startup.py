@@ -20,10 +20,7 @@ builtins.__dict__['__'] = lambda s: s
 # For backwards compat with some third party plugins
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
-
-from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, DEBUG, isfreebsd
-
-_run_once = False
+from calibre.constants import iswindows, plugins, ismacos, islinux, DEBUG, isfreebsd
 
 
 def get_debug_executable():
@@ -46,23 +43,17 @@ def get_debug_executable():
     return [exe_name]
 
 
-if not _run_once:
-    _run_once = True
+def initialize_calibre():
+    if hasattr(initialize_calibre, 'initialized'):
+        return
+    initialize_calibre.initialized = True
+
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
     try:
         base_dir()
     except EnvironmentError:
         pass  # Ignore this error during startup, so we can show a better error message to the user later.
-
-    #
-    # Convert command line arguments to unicode
-    enc = preferred_encoding
-    if ismacos:
-        enc = 'utf-8'
-    for i in range(1, len(sys.argv)):
-        if not isinstance(sys.argv[i], unicode_type):
-            sys.argv[i] = sys.argv[i].decode(enc, 'replace')
 
     #
     # Ensure that the max number of open files is at least 1024
@@ -130,10 +121,7 @@ if not _run_once:
         except:
             pass
 
-    # local_open() opens a file that wont be inherited by child processes
-    local_open = open  # PEP 446
-    builtins.__dict__['lopen'] = local_open
-
+    builtins.__dict__['lopen'] = open  # legacy compatibility
     from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
     builtins.__dict__['icu_lower'] = icu_lower
     builtins.__dict__['icu_upper'] = icu_upper
