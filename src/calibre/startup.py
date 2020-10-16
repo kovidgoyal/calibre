@@ -21,7 +21,7 @@ builtins.__dict__['__'] = lambda s: s
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
 
-from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, ishaiku, DEBUG, isfreebsd, plugins_loc
+from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, DEBUG, isfreebsd
 
 _run_once = False
 winutil = winutilerror = None
