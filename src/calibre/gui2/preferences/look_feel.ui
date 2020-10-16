@@ -929,7 +929,7 @@ up into subcategories. If the partition method is set to disable, this value is 
          <property name="toolTip">
           <string>If collapsing by first letter, combine adjacent letters together if
 there are fewer items under a letter than specified here. If the partition method is
-not set to first letter, this value is ignored.</string>
+not set to first letter, this value is ignored. Set to zero to disable.</string>
          <property name="minimum">
           <number>1</number>
          </property>
