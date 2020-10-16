@@ -361,10 +361,10 @@ Both General and Template Program Modes support ``if`` expressions with the foll
 
     ``if`` <<expression>> ``then``
         <<expression_list>>
-    [``elif`` <<expression>> then <<expression_list>>]* 
+    [``elif`` <<expression>> then <<expression_list>>]*
     [ ``else`` <<expression_list>> ]
     ``fi``
-    
+
 The elif and else parts are optional. The words ``if``, ``then``, ``elif``, ``else``, and ``fi`` are reserved; you cannot use them as identifier names. You can put newlines and white space wherever they make sense. <<expression>> is one template language expression;  semicolons are not allowed. <<expression_list>> is a semicolon-separated sequence of template language expressions, including nested ifs. Examples:
 
     * ``program: if field('series') then 'yes' else 'no' fi``
@@ -408,7 +408,7 @@ Examples of calling a template, assuming the stored template is named ``foo``:
     * ``foo(if field('series') then field('series_index') else 0 fi)`` -- if the book has a ``series`` then pass the             ``series_index``, otherwise pass the value ``0``.
 
 In the stored template you retrieve the arguments passed in the call using the ``arguments`` function. It both declares and
-initializes local variables, effectively parameters. The variables are positional; they get the value of the value given in 
+initializes local variables, effectively parameters. The variables are positional; they get the value of the value given in
 the call in the same position.
 If the corresponding parameter is not provided in the call then ``arguments`` assigns that variable the provided default value. If there is no default value then the variable is set to the empty string. For example, the following ``arguments`` function declares 2 variables, ``key``, ``alternate``::
 
@@ -427,7 +427,7 @@ shortcut will help switching more rapidly between the tester and editing the sto
 Notes on the difference between modes
 -----------------------------------------
 
-The three template program modes, Single Function Mode (SFM), Template Program Mode (TPM), and 
+The three template program modes, Single Function Mode (SFM), Template Program Mode (TPM), and
 General Program Mode (GPM), work differently. SFM is intended to be 'simple' so it hides a lot
 of programming language bits. For example, the value of the column is always passed as an 'invisible' first argument
 to a function included in the template. SFM also doesn't support the difference between variables
@@ -462,7 +462,7 @@ TPM and GPM do support nested functions. The above template in TPM would be::
 In TPM it would be::
 
     program: uppercase(substr(field('series'), 0,5))
-    
+
 
 User-defined Python template functions
 ------------------------------------------
@@ -514,7 +514,7 @@ You might find the following tips useful.
 
     * Use the Template Tester to test templates. Add the tester to the context menu for books in the library and/or give it a keyboard shortcut.
     * Templates can use other templates by referencing composite columns built with the desired template. Alternatively, you could
-    use Stored Templates.
+      use Stored Templates.
     * In a plugboard, you can set a field to empty (or whatever is equivalent to empty) by using the special template ``{}``. This template will always evaluate to an empty string.
     * The technique described above to show numbers even if they have a zero value works with the standard field series_index.
 
