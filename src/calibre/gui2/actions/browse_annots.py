@@ -49,7 +49,7 @@ class BrowseAnnotationsAction(InterfaceAction):
             title = db.field_for('title', book_id)
             return error_dialog(self._browser or self.gui, _('Not visible'), _(
                 'The book "{}" is not currently visible in the calibre library.'
-                ' If you have a search or a Virtual librry applied, first clear'
+                ' If you have a search or a Virtual library applied, first clear'
                 ' it.').format(title), show=True)
 
     def open_annotation(self, book_id, fmt, cfi):

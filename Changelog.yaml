@@ -56,7 +56,7 @@
 
     - title: "macOS: Fix a long standing bug that prevented drag and drop of multiple items"
 
-    - title: "Windows: Fix a regression that broke scanning scanning for default programs for the Open with action"
+    - title: "Windows: Fix a regression that broke scanning for default programs for the Open with action"
 
     - title: "Windows: Fix a regression in 5.0 causing some MOBI files with non-BMP characters not being processed correctly."
       tickets: [1898894]
