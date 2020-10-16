@@ -20,7 +20,7 @@ builtins.__dict__['__'] = lambda s: s
 # For backwards compat with some third party plugins
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
-from calibre.constants import iswindows, plugins, ismacos, islinux, DEBUG, isfreebsd
+from calibre.constants import iswindows, ismacos, islinux, DEBUG, isfreebsd
 
 
 def get_debug_executable():
@@ -149,6 +149,7 @@ def initialize_calibre():
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500
         import threading
+        from calibre_extensions import speedup
 
         orig_start = threading.Thread.start
 
@@ -163,7 +164,7 @@ def initialize_calibre():
                 if name:
                     if isinstance(name, unicode_type):
                         name = name.encode('ascii', 'replace').decode('ascii')
-                    plugins['speedup'][0].set_thread_name(name[:15])
+                    speedup.set_thread_name(name[:15])
             except Exception:
                 pass  # Don't care about failure to set name
         threading.Thread.start = new_start
