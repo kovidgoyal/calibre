@@ -1101,9 +1101,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.series.set_separator(None)
         self.series.update_items_cache(self.db.new_api.all_field_names('series'))
         self.series.show_initial_value('')
+        self.publisher.set_add_separator(False)
 
     def initialize_publisher(self):
         self.publisher.update_items_cache(self.db.new_api.all_field_names('publisher'))
+        self.publisher.set_add_separator(False)
         self.publisher.show_initial_value('')
 
     def tag_editor(self, *args):
