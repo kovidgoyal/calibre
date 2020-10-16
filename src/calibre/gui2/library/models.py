@@ -769,11 +769,21 @@ class BooksModel(QAbstractTableModel):  # {{{
                 bn = self.bool_no_icon
                 by = self.bool_yes_icon
 
-                def func(idx):
-                    val = force_to_bool(fffunc(field_obj, idfunc(idx)))
-                    if val is None:
-                        return None if bt else bn
-                    return by if val else bn
+                if dt != 'bool':
+                    def func(idx):
+                        val = fffunc(field_obj, idfunc(idx))
+                        if val is None:
+                            return None
+                        val = force_to_bool(val)
+                        if val is None:
+                            return None
+                        return by if val else bn
+                else:
+                    def func(idx):
+                        val = force_to_bool(fffunc(field_obj, idfunc(idx)))
+                        if val is None:
+                            return None if bt else bn
+                        return by if val else bn
             elif field == 'size':
                 sz_mult = 1/(1024**2)
 
