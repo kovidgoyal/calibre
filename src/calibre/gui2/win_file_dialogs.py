@@ -332,6 +332,28 @@ class PipeServer(Thread):
             self.pipe_handle = None
 
 
+def test(helper=HELPER):
+    pipename = '\\\\.\\pipe\\%s' % uuid4()
+    echo = '\U0001f431 Hello world!'
+    secret = os.urandom(32).replace(b'\0', b' ')
+    data = serialize_string('PIPENAME', pipename) +  serialize_string('ECHO', echo) + serialize_secret(secret)
+    server = PipeServer(pipename)
+    server.start()
+    p = subprocess.Popen([helper], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate(data)
+    if p.wait() != 0:
+        raise Exception('File dialog failed: ' + stdout.decode('utf-8') + ' ' + stderr.decode('utf-8'))
+    if server.err_msg is not None:
+        raise RuntimeError(server.err_msg)
+    server.join(2)
+    parts = list(filter(None, server.data.split(b'\0')))
+    if parts[0] != secret:
+        raise RuntimeError('Did not get back secret: %r != %r' % (secret, parts[0]))
+    q = parts[1].decode('utf-8')
+    if q != echo:
+        raise RuntimeError('Unexpected response: %r' % server.data)
+
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
