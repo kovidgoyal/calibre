@@ -26,7 +26,7 @@ from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc import RC, gui_socket_address
-from calibre.utils.lock import singleinstance
+from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
@@ -373,16 +373,20 @@ def run_in_debug_mode():
 
 
 def run_gui(opts, args, listener, app, gui_debug=None):
-    si = singleinstance('db')
-    if not si:
-        ext = '.exe' if iswindows else ''
-        error_dialog(None, _('Cannot start calibre'), _(
-            'Another calibre program that can modify calibre libraries, such as,'
-            ' {} or {} is already running. You must first shut it down, before'
-            ' starting the main calibre program. If you are sure no such'
-            ' program is running, try restarting your computer.').format(
-                'calibre-server' + ext, 'calibredb' + ext), show=True)
-        return 1
+    with SingleInstance('db') as si:
+        if not si:
+            ext = '.exe' if iswindows else ''
+            error_dialog(None, _('Cannot start calibre'), _(
+                'Another calibre program that can modify calibre libraries, such as,'
+                ' {0} or {1} is already running. You must first shut it down, before'
+                ' starting the main calibre program. If you are sure no such'
+                ' program is running, try restarting your computer.').format(
+                    'calibre-server' + ext, 'calibredb' + ext), show=True)
+            return 1
+        run_gui_(opts, args, listener, app, gui_debug)
+
+
+def run_gui_(opts, args, listener, app, gui_debug=None):
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
@@ -494,8 +498,9 @@ def shutdown_other(rc=None):
     rc.conn.send(b'shutdown:')
     prints(_('Shutdown command sent, waiting for shutdown...'))
     for i in range(50):
-        if singleinstance(singleinstance_name):
-            return
+        with SingleInstance(singleinstance_name) as si:
+            if si:
+                return
         time.sleep(0.1)
     prints(_('Failed to shutdown running calibre instance'))
     raise SystemExit(1)
@@ -558,15 +563,13 @@ def main(args=sys.argv):
         app, opts, args = init_qt(args)
     except AbortInit:
         return 1
-    try:
-        si = singleinstance(singleinstance_name)
-    except Exception:
-        error_dialog(None, _('Cannot start calibre'), _(
-            'Failed to start calibre, single instance locking failed. Click "Show Details" for more information'),
-                     det_msg=traceback.format_exc(), show=True)
-        return 1
-    if si and opts.shutdown_running_calibre:
-        return 0
+    with SingleInstance(singleinstance_name) as si:
+        if si and opts.shutdown_running_calibre:
+            return 0
+        run_main(app, opts, args, gui_debug, si)
+
+
+def run_main(app, opts, args, gui_debug, si):
     if si:
         try:
             listener = create_listener()
