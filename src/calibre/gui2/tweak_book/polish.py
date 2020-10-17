@@ -47,7 +47,7 @@ def customize_remove_unused_css(name, parent, ans):
     l.addWidget(c)
     d.la2 = label('<span style="font-size:small; font-style: italic">' + _(
         'Remove all class attributes from the HTML that do not match any existing CSS rules'))
-    d.m = m = QCheckBox(_('Merge identical CSS rules'))
+    d.m = m = QCheckBox(_('Merge CSS rules with identical selectors'))
     m.setChecked(tprefs['merge_identical_selectors'])
     l.addWidget(m)
     d.la3 = label('<span style="font-size:small; font-style: italic">' + _(
