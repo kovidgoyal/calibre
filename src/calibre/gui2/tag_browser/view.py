@@ -851,11 +851,12 @@ class TagsView(QTreeView):  # {{{
 
         self.context_menu.addSeparator()
         if index.isValid() and self.model().rowCount(index) > 0:
-            self.context_menu.addAction(_('Expand {0}').format(node_name),
-                                        partial(self.expand_node_and_descendants, index))
             if self.isExpanded(index):
                 self.context_menu.addAction(_("Collapse {0}").format(node_name),
                                             partial(self.collapse_node, index))
+            else:
+                self.context_menu.addAction(_('Expand {0}').format(node_name),
+                                            partial(self.expand_node_and_descendants, index))
         if parent_index is not None and parent_index != index:
             if self.isExpanded(parent_index):
                 # Don't bother to collapse if it isn't expanded
