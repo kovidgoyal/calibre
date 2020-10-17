@@ -788,11 +788,11 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 if label_width == 0:
                     font_metrics = wij.fontMetrics()
                     if bulk:
-                        label_width = font_metrics.width('n' *
-                                     tweaks['metadata_edit_bulk_cc_label_length'])
+                        label_width = (font_metrics.averageCharWidth() *
+                                       tweaks['metadata_edit_bulk_cc_label_length'])
                     else:
-                        label_width = font_metrics.width('n' *
-                                     tweaks['metadata_edit_single_cc_label_length'])
+                        label_width = (font_metrics.averageCharWidth() *
+                                       tweaks['metadata_edit_single_cc_label_length'])
                 wij.setMaximumWidth(label_width)
                 if c == 0:
                     wij.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)

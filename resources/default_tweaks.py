@@ -404,6 +404,13 @@ metadata_single_use_2_cols_for_custom_fields = True
 # metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']
 metadata_edit_custom_column_order = []
 
+#: Edit metadata custom column label width
+# Set the width of custom column labels shown in the edit metadata dialogs.
+# Labels longer than this length will be elided. The width is computed by
+# multiplying the average width of characters in the font by the number provided.
+metadata_edit_bulk_cc_label_width = 25
+metadata_edit_single_cc_label_width = 12
+
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
 # public email server like GMX/Hotmail/Gmail. Default is: 5 minutes
@@ -543,9 +550,3 @@ exclude_fields_on_paste = []
 # Useful if for some reason your operating systems network checking
 # facilities are not reliable (for example NetworkManager on Linux).
 skip_network_check = False
-
-#: Edit metadata custom column label width
-# Set the width of custom column labels shown in the edit metadata dialogs.
-# Labels longer than this length will be elided. The length is in 'n'self
-metadata_edit_bulk_cc_label_length = 25
-metadata_edit_single_cc_label_length = 10
