@@ -7,6 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict
 from functools import partial
+from operator import itemgetter
 
 from css_parser.css import CSSRule, CSSStyleDeclaration
 from css_selectors import parse, SelectorSyntaxError
@@ -72,6 +73,37 @@ def merge_identical_selectors(sheet):
     for rule in remove:
         sheet.cssRules.remove(rule)
     return len(remove)
+
+
+def merge_identical_properties(sheet):
+    ' Merge rules having identical properties '
+    properties_map = defaultdict(list)
+
+    def declaration_key(declaration):
+        items = []
+        for prop in declaration.getProperties():
+            val = prop.propertyValue.value
+            name = prop.name
+            items.append((name, val))
+        items.sort(key=itemgetter(0))
+        return tuple(items)
+
+    for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        properties_map[declaration_key(rule.style)].append(rule)
+
+    for rule_group in properties_map.values():
+        if len(rule_group) < 2:
+            continue
+        selectors = rule_group[0].selectorList
+        seen = {s.selectorText for s in selectors}
+        rules = iter(rule_group)
+        next(rules)
+        for rule in rules:
+            for s in rule.selectorList:
+                q = s.selectorText
+                if q not in seen:
+                    seen.add(q)
+                    selectors.append(s)
 
 
 def remove_unused_css(container, report=None, remove_unused_classes=False, merge_rules=False):

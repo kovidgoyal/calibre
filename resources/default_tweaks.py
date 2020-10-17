@@ -404,6 +404,13 @@ metadata_single_use_2_cols_for_custom_fields = True
 # metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']
 metadata_edit_custom_column_order = []
 
+#: Edit metadata custom column label length
+# Set the length of custom column labels shown in the edit metadata dialogs.
+# Labels longer than this length will be elided. The length is computed by
+# multiplying the average width of characters in the font by the number below.
+metadata_edit_bulk_cc_label_length = 25
+metadata_edit_single_cc_label_length = 12
+
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
 # public email server like GMX/Hotmail/Gmail. Default is: 5 minutes

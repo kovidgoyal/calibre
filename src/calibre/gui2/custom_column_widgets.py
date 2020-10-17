@@ -9,15 +9,15 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
+from PyQt5.Qt import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, QUrl,
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
-        QPushButton, QMessageBox, QToolButton, QPlainTextEdit)
+        QMessageBox, QToolButton, QPlainTextEdit)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.comments_editor import Editor as CommentsEditor
-from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog
+from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, elided_text
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
@@ -161,31 +161,21 @@ class Bool(Base):
         self.combobox = QComboBox(parent)
         l.addWidget(self.combobox)
 
-        t = _('Yes')
-        c = QPushButton(t, parent)
-        width = c.fontMetrics().boundingRect(t).width() + 7
-        c.setMaximumWidth(width)
+        c = QToolButton(parent)
+        c.setText(_('Yes'))
         l.addWidget(c)
         c.clicked.connect(self.set_to_yes)
 
-        t = _('No')
-        c = QPushButton(t, parent)
-        width = c.fontMetrics().boundingRect(t).width() + 7
-        c.setMaximumWidth(width)
+        c = QToolButton(parent)
+        c.setText(_('No'))
         l.addWidget(c)
         c.clicked.connect(self.set_to_no)
 
         if self.db.new_api.pref('bools_are_tristate'):
-            t = _('Clear')
-            c = QPushButton(t, parent)
-            width = c.fontMetrics().boundingRect(t).width() + 7
-            c.setMaximumWidth(width)
+            c = QToolButton(parent)
+            c.setText(_('Clear'))
             l.addWidget(c)
             c.clicked.connect(self.set_to_cleared)
-
-        c = QLabel('', parent)
-        c.setMaximumWidth(1)
-        l.addWidget(c, 1)
 
         w = self.combobox
         items = [_('Yes'), _('No'), _('Undefined')]
@@ -326,15 +316,16 @@ class DateTime(Base):
         dte.setMinimumDateTime(UNDEFINED_QDATETIME)
         dte.setSpecialValueText(_('Undefined'))
         l.addWidget(dte)
+
         self.today_button = QToolButton(parent)
         self.today_button.setText(_('Today'))
         self.today_button.clicked.connect(dte.set_to_today)
         l.addWidget(self.today_button)
+
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
         self.clear_button.clicked.connect(dte.set_to_clear)
         l.addWidget(self.clear_button)
-        l.addStretch(1)
 
     def setter(self, val):
         if val is None:
@@ -755,7 +746,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         turnover_point = count + 1000
     ans = []
     column = row = base_row = max_row = 0
-    minimum_label = 0
+    label_width = 0
     for key in cols:
         if not fm[key]['is_editable']:
             continue  # this almost never happens
@@ -780,6 +771,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 comments_not_in_tweak = 0
 
         l = QGridLayout()
+        l.setHorizontalSpacing(0)
         if is_comments:
             layout.addLayout(l, row, column, layout_rows_for_comments, 1)
             layout.setColumnStretch(column, 100)
@@ -790,33 +782,28 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             row += 1
         for c in range(0, len(w.widgets), 2):
             if not is_comments:
-                w.widgets[c].setWordWrap(True)
-                '''
-                It seems that there is something strange with wordwrapped labels
-                with some fonts. Apparently one part of QT thinks it is showing
-                a single line and sizes the line vertically accordingly. Another
-                part thinks there isn't enough space and wraps the label. The
-                result is two lines in a single line space, cutting off parts of
-                the lines. It doesn't happen with every font, nor with every
-                "long" label.
-
-                This change works around the problem by setting the maximum
-                display width and telling QT to respect that width.
-
-                While here I implemented an arbitrary minimum label length so
-                that there is a better chance that the field edit boxes line up.
-                '''
-                if minimum_label == 0:
-                    minimum_label = w.widgets[c].fontMetrics().boundingRect('smallLabel').width()
-                label_width = w.widgets[c].fontMetrics().boundingRect(w.widgets[c].text()).width()
+                # Set the label column width to a fixed size. Elide labels that
+                # don't fit
+                wij = w.widgets[c]
+                if label_width == 0:
+                    font_metrics = wij.fontMetrics()
+                    if bulk:
+                        label_width = (font_metrics.averageCharWidth() *
+                                       tweaks['metadata_edit_bulk_cc_label_length'])
+                    else:
+                        label_width = (font_metrics.averageCharWidth() *
+                                       tweaks['metadata_edit_single_cc_label_length'])
+                wij.setMaximumWidth(label_width)
                 if c == 0:
-                    w.widgets[0].setMaximumWidth(label_width)
-                    w.widgets[0].setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
-                    l.setColumnMinimumWidth(0, minimum_label)
-                else:
-                    w.widgets[0].setMaximumWidth(max(w.widgets[0].maximumWidth(), label_width))
-                w.widgets[c].setBuddy(w.widgets[c+1])
-                l.addWidget(w.widgets[c], c, 0)
+                    wij.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+                    l.setColumnMinimumWidth(0, label_width)
+                wij.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
+                t = unicode_type(wij.text())
+                wij.setToolTip(t[1:-1] if t.startswith('&') else t[:-1])
+                wij.setText(elided_text(t+' ', font=font_metrics,
+                                        width=label_width, pos='right'))
+                wij.setBuddy(w.widgets[c+1])
+                l.addWidget(wij, c, 0)
                 l.addWidget(w.widgets[c+1], c, 1)
             else:
                 l.addWidget(w.widgets[0], 0, 0, 1, 2)
@@ -1306,7 +1293,7 @@ class BulkText(BulkBase):
                 w = RemoveTags(parent, values)
                 w.remove_tags_button.clicked.connect(self.edit_remove)
                 self.widgets.append(QLabel(label_string(self.col_metadata['name'])+': ' +
-                                           _('tags to remove'), parent))
+                                           _('tags to remove') + ':', parent))
                 self.widgets.append(w)
                 self.removing_widget = w
                 self.main_widget.set_separator(',')
