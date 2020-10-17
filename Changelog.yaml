@@ -26,7 +26,7 @@
 
   new features:
     - title: "Tag browser: When grouping items by first letter if adjacent letters have few entries combine them into a single group."
-      description: "Can be controlled via an option in Preferences->Look & fee->Tag browser to combine 'first letters' together if there are a small number of items under adjacent letters"
+      description: "Can be controlled via an option in Preferences->Look & feel->Tag browser to combine 'first letters' together if there are a small number of items under adjacent letters"
 
     - title: "Viewer: Allow displaying the current page / total pages in the header/footer. Useful in paged mode to see exactly how many pages are left."
       tickets: [1899163]

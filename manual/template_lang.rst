@@ -433,7 +433,7 @@ of programming language bits. For example, the value of the column is always pas
 to a function included in the template. SFM also doesn't support the difference between variables
 and strings; all values are strings.
 
-Example: the following SFM template returns either the series name of the string "no series"::
+Example: the following SFM template returns either the series name or the string "no series"::
 
     {series:ifempty(no series)}
 
@@ -442,14 +442,15 @@ The equivalent templates in TPM and GPM are::
     TPM: ``{series:'ifempty($, 'no series')'}
     GPM: ``program: ifempty(field('series'), 'no series')``
 
-The first argument to ifempty is the value of the field ``series`` and the second argument
-is the string ``no series``. In SFM the first argument, the value, is automatically passed (the invisible argument).
+The first argument to ``ifempty`` is the value of the field ``series`` and the second argument
+is the string ``no series``. In SFM the first argument, the value,
+is automatically passed (the invisible argument).
 
 Several template functions, for example ``booksize()`` and ``current_library_name()``, take no arguments.
 Because of the 'invisible argument' you cannot use these functions in SFM.
 
 Nested functions, where a function calls another function to compute an argument, cannot be used in SFM.
-For example this template, intended to return the the first 5 characters of the series value uppercased, won't work in SFM::
+For example this template, intended to return the first 5 characters of the series value uppercased, won't work in SFM::
 
     {series:uppercase(substr(0,5))}
 
