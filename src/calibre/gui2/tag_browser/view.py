@@ -701,6 +701,7 @@ class TagsView(QTreeView):  # {{{
                                     key=key, index=tag_item))
                     if tag.is_searchable:
                         # Add the search for value items. All leaf nodes are searchable
+                        self.context_menu.addSeparator()
                         self.context_menu.addAction(self.search_icon,
                                 _('Search for %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='search',
