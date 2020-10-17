@@ -901,12 +901,13 @@ class TagsView(QTreeView):  # {{{
 
     def has_unexpanded_children(self, index):
         if not index.isValid():
-            return
-        if self.has_children(index) and not self.isExpanded(index):
-            return True
-        for r in range(self.model().rowCount(index)):
-            if self.has_unexpanded_children(index.child(r, 0)):
-                return True
+            return False
+        for r in range(self._model.rowCount(index)):
+            dex = index.child(r, 0)
+            if self._model.rowCount(dex) > 0:
+                if not self.isExpanded(dex):
+                    return True
+                return self.has_unexpanded_children(dex)
         return False
 
     def collapse_menu_hovered(self, action):
