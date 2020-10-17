@@ -182,6 +182,10 @@ class TagsView(QTreeView):  # {{{
         self.edit_metadata_icon = QIcon(I('edit_input.png'))
         self.delete_icon = QIcon(I('list_remove.png'))
         self.rename_icon = QIcon(I('edit-undo.png'))
+        self.up_arrow_icon = QIcon(I('arrow-up.png'))
+        self.down_arrow_icon = QIcon(I('arrow-down.png'))
+        self.plus_icon = QIcon(I('plus.png'))
+        self.minus_icon = QIcon(I('minus.png'))
 
         self._model = TagsModel(self)
         self._model.search_item_renamed.connect(self.search_item_renamed)
@@ -676,10 +680,10 @@ class TagsView(QTreeView):  # {{{
                         if fm['datatype'] != 'rating':
                             m = self.context_menu.addMenu(self.edit_metadata_icon,
                                             _('Apply %s to selected books')%display_name(tag))
-                            m.addAction(QIcon(I('plus.png')),
+                            m.addAction(self.plus_icon,
                                 _('Add %s to selected books') % display_name(tag),
                                 partial(self.context_menu_handler, action='add_tag', index=index))
-                            m.addAction(QIcon(I('minus.png')),
+                            m.addAction(self.minus_icon,
                                 _('Remove %s from selected books') % display_name(tag),
                                 partial(self.context_menu_handler, action='remove_tag', index=index))
 
@@ -838,13 +842,15 @@ class TagsView(QTreeView):  # {{{
             pa.setToolTip('*')
 
         # Add expand menu items
-        node_name = self._model.get_node(index).tag.name
         self.context_menu.addSeparator()
+        m = self.context_menu.addMenu(_('Expand and collapse'))
+        node_name = self._model.get_node(index).tag.name
         if self.has_children(index) and not self.isExpanded(index):
-            self.context_menu.addAction(_('Expand {0}').format(node_name),
-                                        partial(self.expand, index))
+            m.addAction(self.down_arrow_icon,
+                        _('Expand {0}').format(node_name), partial(self.expand, index))
         if self.has_unexpanded_children(index):
-            self.context_menu.addAction(_('Expand {0} and all children').format(node_name),
+            m.addAction(self.down_arrow_icon,
+                        _('Expand {0} and its children').format(node_name),
                                         partial(self.expand_node_and_children, index))
 
         # Add menu items to collapse parent nodes
@@ -856,15 +862,16 @@ class TagsView(QTreeView):  # {{{
             node = self._model.get_node(idx)
             if node.type == TagTreeItem.ROOT:
                 break
-            if self.has_children(idx):
+            if self.has_children(idx) and self.isExpanded(idx):
                 # leaf nodes don't have children so can't be expanded.
+                # Also the leaf node might be collapsed
                 paths.append((node.tag.name, idx))
             idx = self._model.parent(idx)
         for p in paths:
             # Now add the menu items
-            self.context_menu.addAction(_("Collapse {0}").format(p[0]),
-                                                 partial(self.collapse_node, p[1]))
-        self.context_menu.addAction(_('Collapse all'), self.collapseAll)
+            m.addAction(self.up_arrow_icon,
+                        _("Collapse {0}").format(p[0]), partial(self.collapse_node, p[1]))
+        m.addAction(_('Collapse all'), self.collapseAll)
 
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
