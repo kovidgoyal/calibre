@@ -123,8 +123,11 @@ if islinux:
             # shutdown() not close(). This is needed to allow calibre to
             # restart using the same socket address.
             import socket
-            self._listener._socket.shutdown(socket.SHUT_RDWR)
-            self._listener._socket.close()
+            listener = self._listener
+            if listener is not None:
+                self._listener = None
+                listener._socket.shutdown(socket.SHUT_RDWR)
+                listener._socket.close()
 
         def accept(self, *args, **kwargs):
             ans = Listener.accept(self, *args, **kwargs)
