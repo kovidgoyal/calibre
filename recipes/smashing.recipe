@@ -25,7 +25,7 @@ class SmashingMagazine (BasicNewsRecipe):
         if not self.extra_css:
             br = self.get_browser()
             self.extra_css = br.open_novisit(
-                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().decode('utf-8').replace('@charset "UTF-8";', '')
         return self.extra_css
 
     feeds = [
