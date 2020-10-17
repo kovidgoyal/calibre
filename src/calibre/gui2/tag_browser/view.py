@@ -840,7 +840,7 @@ class TagsView(QTreeView):  # {{{
 
         # Add expand menu items
         self.context_menu.addSeparator()
-        m = self.context_menu.addMenu(_('Expand and collapse'))
+        m = self.context_menu.addMenu(_('Expand or collapse'))
         node_name = self._model.get_node(index).tag.name
         if self.has_children(index) and not self.isExpanded(index):
             m.addAction(self.plus_icon,
