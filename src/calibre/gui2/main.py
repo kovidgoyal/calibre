@@ -30,6 +30,7 @@ from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
+after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False}
 if iswindows:
     winutil = plugins['winutil'][0]
 
@@ -353,27 +354,18 @@ class GuiRunner(QObject):
         self.initialize_db()
 
 
-def set_restarting_env_var():
-    if iswindows:
-        ctime = winutil.get_process_times(None)[0]
-        os.environ['CALIBRE_RESTARTING_FROM_GUI'] = str(ctime)
-    else:
-        os.environ['CALIBRE_RESTARTING_FROM_GUI'] = str(os.getpid())
-
-
 def run_in_debug_mode():
     from calibre.debug import run_calibre_debug
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
-    set_restarting_env_var()
     run_calibre_debug(
         '--gui-debug', logpath, stdout=lopen(logpath, 'wb'),
         stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
 
 
 def run_gui(opts, args, listener, app, gui_debug=None):
-    with SingleInstance('db') as si:
+    with listener, SingleInstance('db') as si:
         if not si:
             ext = '.exe' if iswindows else ''
             error_dialog(None, _('Cannot start calibre'), _(
@@ -404,31 +396,8 @@ def run_gui_(opts, args, listener, app, gui_debug=None):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
     if getattr(runner.main, 'restart_after_quit', False):
-        e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-        if getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None:
-            run_in_debug_mode()
-        else:
-            if hasattr(sys, 'frameworks_dir'):
-                app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
-                from calibre.debug import run_calibre_debug
-                prints('Restarting with:', app)
-                run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", "open", sys.argv[-1])', app)
-            else:
-                import subprocess
-                set_restarting_env_var()
-                if iswindows:
-                    winutil.prepare_for_restart()
-                if hasattr(sys, 'run_local'):
-                    cmd = [sys.run_local]
-                    if DEBUG:
-                        cmd += ['calibre-debug', '-g']
-                    else:
-                        cmd.append('calibre')
-                else:
-                    args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
-                    cmd = [e] + args
-                prints('Restarting with:', ' '.join(cmd))
-                subprocess.Popen(cmd)
+        after_quit_actions['restart_after_quit'] = True
+        after_quit_actions['debug_on_restart'] = getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None
     else:
         if iswindows:
             try:
@@ -436,7 +405,6 @@ def run_gui_(opts, args, listener, app, gui_debug=None):
             except:
                 pass
     if getattr(runner.main, 'gui_debug', None) is not None:
-        e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
         debugfile = runner.main.gui_debug
         from calibre.gui2 import open_local_file
         if iswindows:
@@ -527,30 +495,36 @@ def create_listener():
     return Listener(address=gui_socket_address())
 
 
-def wait_for_parent_to_die(ppid, max_wait=10):
-    ppid = int(ppid)
+def restart_after_quit():
     if iswindows:
-
-        def parent_done():
-            try:
-                ctime = winutil.get_process_times(os.getppid())[0]
-            except Exception:
-                return True
-            return ctime > ppid
-
+        # detach the stdout/stderr/stdin handles
+        winutil.prepare_for_restart()
+    if after_quit_actions['debug_on_restart']:
+        run_in_debug_mode()
+        return
+    if hasattr(sys, 'frameworks_dir'):
+        app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
+        from calibre.debug import run_calibre_debug
+        prints('Restarting with:', app)
+        run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", "open", sys.argv[-1])', app)
     else:
-        def parent_done():
-            return os.getppid() != ppid
-
-    st = time.monotonic()
-    while not parent_done() and time.monotonic() - st < max_wait:
-        time.sleep(0.1)
+        import subprocess
+        if hasattr(sys, 'run_local'):
+            cmd = [sys.run_local]
+            if DEBUG:
+                cmd += ['calibre-debug', '-g']
+            else:
+                cmd.append('calibre')
+        else:
+            e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+            cmd = [e]
+            if os.path.splitext(e)[0].endswith('-debug'):
+                cmd.append('-g')
+        prints('Restarting with:', ' '.join(cmd))
+        subprocess.Popen(cmd)
 
 
 def main(args=sys.argv):
-    ppid = os.environ.pop('CALIBRE_RESTARTING_FROM_GUI', None)
-    if ppid is not None:
-        wait_for_parent_to_die(ppid)
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()
         return 0
@@ -567,6 +541,8 @@ def main(args=sys.argv):
         if si and opts.shutdown_running_calibre:
             return 0
         run_main(app, opts, args, gui_debug, si)
+    if after_quit_actions['restart_after_quit']:
+        restart_after_quit()
 
 
 def run_main(app, opts, args, gui_debug, si):
