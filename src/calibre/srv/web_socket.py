@@ -6,13 +6,13 @@
 import os
 import socket
 import weakref
+from calibre_extensions.speedup import utf8_decode, websocket_mask as fast_mask
 from collections import deque
 from hashlib import sha1
 from struct import error as struct_error, pack, unpack_from
 from threading import Lock
 
 from calibre import as_unicode
-from calibre.constants import plugins
 from calibre.srv.http_response import HTTPConnection, create_http_handler
 from calibre.srv.loop import (
     RDWR, READ, WRITE, Connection, HandleInterrupt, ServerLoop
@@ -20,15 +20,9 @@ from calibre.srv.loop import (
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client
-from polyglot.builtins import unicode_type
 from polyglot.binary import as_base64_unicode
+from polyglot.builtins import unicode_type
 from polyglot.queue import Empty, Queue
-
-speedup, err = plugins['speedup']
-if not speedup:
-    raise RuntimeError('Failed to load speedup module with error: ' + err)
-fast_mask, utf8_decode = speedup.websocket_mask, speedup.utf8_decode
-del speedup, err
 
 HANDSHAKE_STR = (
     "HTTP/1.1 101 Switching Protocols\r\n"

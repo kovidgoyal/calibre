@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, tempfile, shutil, errno, time, atexit
 from threading import Thread
 
-from calibre.constants import ismacos, plugins
+from calibre.constants import ismacos
 from calibre.ptempfile import remove_dir
 from calibre.utils.filenames import remove_dir_if_empty
 from calibre.utils.recycle_bin import delete_tree, delete_file
@@ -35,7 +35,8 @@ class DeleteService(Thread):
         Thread.__init__(self)
         self.requests = Queue()
         if ismacos:
-            plugins['cocoa'][0].enable_cocoa_multithreading()
+            from calibre_extensions.cocoa import enable_cocoa_multithreading
+            enable_cocoa_multithreading()
 
     def shutdown(self, timeout=20):
         self.requests.put(None)

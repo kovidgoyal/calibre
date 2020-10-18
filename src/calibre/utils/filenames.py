@@ -13,7 +13,7 @@ from contextlib import suppress, closing
 
 from calibre import force_unicode, isbytestring, prints, sanitize_file_name
 from calibre.constants import (
-    filesystem_encoding, iswindows, plugins, preferred_encoding, ismacos
+    filesystem_encoding, iswindows, preferred_encoding, ismacos
 )
 from calibre.utils.localization import get_udc
 from polyglot.builtins import iteritems, itervalues, unicode_type, range
@@ -222,7 +222,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
 def windows_get_fileid(path):
     ''' The fileid uniquely identifies actual file contents (it is the same for
     all hardlinks to a file). Similar to inode number on linux. '''
-    get_file_id = plugins['winutil'][0].get_file_id
+    from calibre_extensions.winutil import get_file_id
     if isbytestring(path):
         path = path.decode(filesystem_encoding)
     with suppress(OSError):
@@ -456,8 +456,9 @@ def nlinks_file(path):
 
 
 if iswindows:
+    from calibre_extensions.winutil import move_file
+
     def rename_file(a, b):
-        move_file = plugins['winutil'][0].move_file
         if isinstance(a, bytes):
             a = os.fsdecode(a)
         if isinstance(b, bytes):

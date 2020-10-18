@@ -7,7 +7,6 @@ import os
 
 import regex
 
-from calibre.constants import plugins
 from calibre.utils.hyphenation.dictionaries import (
     dictionary_name_for_locale, path_to_dictionary
 )
@@ -15,19 +14,14 @@ from polyglot.builtins import unicode_type
 from polyglot.functools import lru_cache
 
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.UNICODE
-hyphen = None
 
 
 @lru_cache()
 def dictionary_for_locale(locale):
-    global hyphen
     name = dictionary_name_for_locale(locale)
     if name is not None:
+        from calibre_extensions import hyphen
         path = path_to_dictionary(name)
-        if hyphen is None:
-            hyphen, hyphen_err = plugins['hyphen']
-            if hyphen_err:
-                raise RuntimeError('Failed to load the hyphen plugin with error: {}'.format(hyphen_err))
         fd = os.open(path, getattr(os, 'O_BINARY', 0) | os.O_RDONLY)
         return hyphen.load_dictionary(fd)
 
@@ -41,6 +35,7 @@ def add_soft_hyphens(word, dictionary, hyphen_char='\u00ad'):
     if len(q) < 4:
         return word
     lq = q.lower()  # the hyphen library needs lowercase words to work
+    from calibre_extensions import hyphen
     try:
         ans = hyphen.simple_hyphenate(dictionary, lq)
     except ValueError:
