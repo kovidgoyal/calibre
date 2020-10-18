@@ -17,7 +17,7 @@ from PyQt5.Qt import (
     QPixmap, QRect, QPlainTextEdit, QMimeData)
 
 from calibre import prepare_string_for_xml, human_readable
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
@@ -1230,7 +1230,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
             return True
 
     def windows_ignore_altgr_shortcut(self, ev):
-        winutil = plugins['winutil'][0]
+        from calibre_extensions import winutil
         s = winutil.get_async_key_state(winutil.VK_RMENU)  # VK_RMENU == R_ALT
         return s & 0x8000
 

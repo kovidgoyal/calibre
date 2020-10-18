@@ -33,8 +33,8 @@ class LinuxNetworkStatus(object):
 class WindowsNetworkStatus(object):
 
     def __init__(self):
-        from calibre.constants import plugins
-        self.winutil = plugins['winutil'][0]
+        from calibre_extensions import winutil
+        self.winutil = winutil
 
     def __call__(self):
         if self.winutil is None:

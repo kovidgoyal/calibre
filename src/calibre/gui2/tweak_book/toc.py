@@ -6,16 +6,17 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
-    QDialog, pyqtSignal, QIcon, QVBoxLayout, QDialogButtonBox, QStackedWidget,
-    QAction, QMenu, QTreeWidget, QTreeWidgetItem, QGridLayout, QWidget, Qt,
-    QSize, QStyledItemDelegate, QApplication, QTimer)
+    QAction, QApplication, QDialog, QDialogButtonBox, QGridLayout, QIcon, QMenu,
+    QSize, QStackedWidget, QStyledItemDelegate, Qt, QTimer, QTreeWidget,
+    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from calibre.constants import plugins
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import error_dialog, make_view_use_window_background
-from calibre.gui2.toc.main import TOCView, ItemEdit
-from calibre.gui2.tweak_book import current_container, TOP, actions, tprefs
-from polyglot.builtins import unicode_type, range
+from calibre.gui2.toc.main import ItemEdit, TOCView
+from calibre.gui2.tweak_book import TOP, actions, current_container, tprefs
+from calibre_extensions.progress_indicator import set_no_activate_on_click
+from polyglot.builtins import range, unicode_type
 
 
 class TOCEditor(QDialog):
@@ -137,9 +138,7 @@ class TOCViewer(QWidget):
         self.view.customContextMenuRequested.connect(self.show_context_menu, type=Qt.QueuedConnection)
         self.view.itemActivated.connect(self.emit_navigate)
         self.view.itemPressed.connect(self.item_pressed)
-        pi = plugins['progress_indicator'][0]
-        if hasattr(pi, 'set_no_activate_on_click'):
-            pi.set_no_activate_on_click(self.view)
+        set_no_activate_on_click(self.view)
         self.view.itemDoubleClicked.connect(self.emit_navigate)
         l.addWidget(self.view)
 

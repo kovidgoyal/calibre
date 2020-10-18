@@ -6,21 +6,24 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from functools import partial
 from collections import namedtuple
-
+from functools import partial
 from PyQt5.Qt import QFont, QTextBlockUserData, QTextCharFormat
 
-from calibre.ebooks.oeb.polish.spell import html_spell_tags, xml_spell_tags, patterns
-from calibre.spell.dictionary import parse_lang_code
-from calibre.spell.break_iterator import split_into_words_and_positions
+from calibre.ebooks.oeb.polish.spell import html_spell_tags, patterns, xml_spell_tags
 from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
 from calibre.gui2.tweak_book.editor import (
-    syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY,
-    store_locale, LINK_PROPERTY, TAG_NAME_PROPERTY, CLASS_ATTRIBUTE_PROPERTY)
+    CLASS_ATTRIBUTE_PROPERTY, LINK_PROPERTY, SPELL_LOCALE_PROPERTY, SPELL_PROPERTY,
+    TAG_NAME_PROPERTY, store_locale, syntax_text_char_format
+)
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
-    create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
+    CSSState, CSSUserData, create_formats as create_css_formats,
+    state_map as css_state_map
+)
+from calibre.spell.break_iterator import split_into_words_and_positions
+from calibre.spell.dictionary import parse_lang_code
+from calibre_extensions import html_syntax_highlighter as _speedup
 from polyglot.builtins import iteritems
 
 cdata_tags = frozenset(['title', 'textarea', 'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes', 'noscript'])
@@ -62,9 +65,6 @@ def refresh_spell_check_status():
     do_spell_check = tprefs['inline_spell_check'] and hasattr(dictionaries, 'active_user_dictionaries')
 
 
-from calibre.constants import plugins
-
-_speedup = plugins['html_syntax_highlighter'][0]
 Tag = _speedup.Tag
 bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags
 State = _speedup.State
@@ -522,6 +522,7 @@ class XMLHighlighter(Highlighter):
 def profile():
     import sys
     from PyQt5.Qt import QTextDocument
+
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book import set_book_locale
     from calibre.gui2.tweak_book.editor.themes import get_theme
