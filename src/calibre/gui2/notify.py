@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import time
 from calibre import prints
-from calibre.constants import islinux, ismacos, get_osx_version, DEBUG, plugins
+from calibre.constants import islinux, ismacos, get_osx_version, DEBUG
 from polyglot.builtins import unicode_type
 
 
@@ -132,8 +132,9 @@ class DummyNotifier(Notifier):
 class AppleNotifier(Notifier):
 
     def __init__(self):
-        self.cocoa, err = plugins['cocoa']
-        self.ok = not err
+        from calibre_extensions import cocoa
+        self.cocoa = cocoa
+        self.ok = True
 
     def notify(self, body, summary):
         if summary:
