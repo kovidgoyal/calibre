@@ -661,6 +661,13 @@ class TagBrowserWidget(QFrame):  # {{{
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_item)
 
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser set focus',
+                _("Give the Tag browser keyboard focus"), default_keys=(),
+                action=ac, group=_('Tag browser'))
+        ac.triggered.connect(self.give_tb_focus)
+
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
@@ -670,6 +677,15 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def toggle_item(self):
         self.tags_view.toggle_current_index()
+
+    def give_tb_focus(self, *args):
+        if gprefs['tag_browser_allow_keyboard_focus']:
+            tb = self.tags_view
+            idx = tb.currentIndex()
+            if not idx.isValid:
+                idx = tb.model().createIndex(0, 0)
+            tb.setCurrentIndex(idx)
+            tb.setFocus(Qt.OtherFocusReason)
 
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)

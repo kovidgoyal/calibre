@@ -195,9 +195,8 @@ class TagsView(QTreeView):  # {{{
                 type=Qt.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
         self.set_look_and_feel()
-        # Allowing keyboard focus looks bad in the Qt Fusion style and is useless
-        # anyway since the enter/spacebar keys do nothing
-        self.setFocusPolicy(Qt.NoFocus)
+        if not gprefs['tag_browser_allow_keyboard_focus']:
+            self.setFocusPolicy(Qt.NoFocus)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
 
     def set_style_sheet(self):
@@ -291,6 +290,15 @@ class TagsView(QTreeView):  # {{{
         self.refresh_signal_processed = True
         db.add_listener(self.database_changed)
         self.expanded.connect(self.item_expanded)
+        self.collapsed.connect(self.collapse_node_and_children)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Return:
+            # I don't see how it can ever not be valid, but ...
+            if self.currentIndex().isValid():
+                self.toggle_current_index()
+            return
+        QTreeView.keyPressEvent(self, event)
 
     def database_changed(self, event, ids):
         if self.refresh_signal_processed:

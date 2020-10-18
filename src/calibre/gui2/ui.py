@@ -449,6 +449,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 prints('Starting QuickView')
             qv.qv_button.restore_state()
         self.save_layout_state()
+        self.library_view.setFocus(Qt.OtherFocusReason)
 
     def show_gui_debug_msg(self):
         info_dialog(self, _('Debug mode'), '<p>' +

@@ -893,6 +893,27 @@ A value of zero means calculate automatically.</string>
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::ExpandingFieldsGrow</enum>
        </property>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="opt_tags_browser_partition_method">
+         <property name="toolTip">
+          <string>Choose how Tag browser subcategories are displayed when
+there are more items than the limit. Select by first
+letter to see an A, B, C list. Choose partitioned to
+have a list of fixed-sized groups. Set to disabled
+if you never want subcategories</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_9">
+         <property name="text">
+          <string>&amp;Category partitioning method:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tags_browser_partition_method</cstring>
+         </property>
+        </widget>
+       </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_10">
          <property name="text">
@@ -936,6 +957,38 @@ not set to first letter, this value is ignored. Set to zero to disable.</string>
          </property>
          <property name="maximum">
           <number>10000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Spacing between &amp;items:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_tag_browser_item_padding</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QDoubleSpinBox" name="opt_tag_browser_item_padding">
+         <property name="toolTip">
+          <string>The spacing between consecutive items in the Tag browser. In units of (ex) which is the approximate height of the letter 'x' in the currently used font. </string>
+         </property>
+         <property name="suffix">
+          <string> ex</string>
+         </property>
+         <property name="decimals">
+          <number>1</number>
+         </property>
+         <property name="minimum">
+          <double>-1.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>2.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -994,6 +1047,35 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </widget>
        </item>
+       <item row="8" column="0">
+        <widget class="QCheckBox" name="opt_tag_browser_show_tooltips">
+         <property name="text">
+          <string>Show &amp;tooltips</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0">
+        <widget class="QCheckBox" name="opt_show_avg_rating">
+         <property name="text">
+          <string>Show &amp;average ratings</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_tag_browser_show_counts">
+         <property name="toolTip">
+          <string>Show counts for items in the Tag browser. Such as the number of books
+by each author, the number of authors, etc. If you turn it off, you can still
+see the counts by hovering your mouse over any item.</string>
+         </property>
+         <property name="text">
+          <string>Show &amp;counts</string>
+         </property>
+        </widget>
+       </item>
        <item row="11" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_old_look">
          <property name="text">
@@ -1026,85 +1108,17 @@ then the tags will be displayed each on their own line.</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QComboBox" name="opt_tags_browser_partition_method">
+       <item row="14" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_tag_browser_allow_keyboard_focus">
+         <property name="text">
+          <string>Allow the Tag browser to have keyboard focus (needs restart)</string>
+         </property>
          <property name="toolTip">
-          <string>Choose how Tag browser subcategories are displayed when
-there are more items than the limit. Select by first
-letter to see an A, B, C list. Choose partitioned to
-have a list of fixed-sized groups. Set to disabled
-if you never want subcategories</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_9">
-         <property name="text">
-          <string>&amp;Category partitioning method:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_tags_browser_partition_method</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0">
-        <widget class="QCheckBox" name="opt_show_avg_rating">
-         <property name="text">
-          <string>Show &amp;average ratings</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="10" column="0" colspan="2">
-        <widget class="QCheckBox" name="opt_tag_browser_show_counts">
-         <property name="toolTip">
-          <string>Show counts for items in the Tag browser. Such as the number of books
-by each author, the number of authors, etc. If you turn it off, you can still
-see the counts by hovering your mouse over any item.</string>
-         </property>
-         <property name="text">
-          <string>Show &amp;counts</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Spacing between &amp;items:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_tag_browser_item_padding</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="1">
-        <widget class="QDoubleSpinBox" name="opt_tag_browser_item_padding">
-         <property name="toolTip">
-          <string>The spacing between consecutive items in the Tag browser. In units of (ex) which is the approximate height of the letter 'x' in the currently used font. </string>
-         </property>
-         <property name="suffix">
-          <string> ex</string>
-         </property>
-         <property name="decimals">
-          <number>1</number>
-         </property>
-         <property name="minimum">
-          <double>-1.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>2.000000000000000</double>
-         </property>
-         <property name="singleStep">
-          <double>0.100000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item row="8" column="0">
-        <widget class="QCheckBox" name="opt_tag_browser_show_tooltips">
-         <property name="text">
-          <string>Show &amp;tooltips</string>
+          <string>&lt;p&gt;When checked, the Tag browser can get keyboard focus, allowing
+use of the keyboard to navigate the tree using the arrow keys. The RETURN key simulates
+a click on the selected item. The keyboard shortcut 'Tag browser /
+Give the Tag browser keyboard focus' changes the keyboard focus without
+using the mouse.&lt;/p&gt;</string>
          </property>
         </widget>
        </item>
