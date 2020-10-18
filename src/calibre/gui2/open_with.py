@@ -55,7 +55,7 @@ def entry_to_icon_text(entry, only_text=False):
     if only_text:
         return entry.get('name', entry.get('Name')) or _('Unknown')
     data = entry.get('icon_data')
-    if data is None:
+    if not isinstance(data, (bytearray, bytes)):
         icon = QIcon(I('blank.png'))
     else:
         pmap = QPixmap()
