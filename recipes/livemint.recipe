@@ -31,6 +31,6 @@ class LiveMint(BasicNewsRecipe):
          'http://www.livemint.com/rss/economy_politics'),
         ('Lounge',
          'http://www.livemint.com/rss/lounge'),
-         ('Sports',
+        ('Sports',
          'http://www.livemint.com/rss/sports'),
     ]
