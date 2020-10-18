@@ -287,6 +287,8 @@ class ExtensionsImporter:
 
 sys.meta_path.insert(0, DeVendor())
 sys.meta_path.append(ExtensionsImporter())
+if iswindows:
+    from calibre_extensions import winutil
 
 
 class Plugins(collections.Mapping):
@@ -332,7 +334,6 @@ cconfd = getenv('CALIBRE_CONFIG_DIRECTORY')
 if cconfd is not None:
     config_dir = os.path.abspath(cconfd)
 elif iswindows:
-    from calibre_extensions import winutil
     try:
         config_dir = winutil.special_folder_path(winutil.CSIDL_APPDATA)
     except ValueError:
