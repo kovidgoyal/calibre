@@ -10,7 +10,7 @@ from threading import Thread
 
 
 from calibre import guess_type, prints
-from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG, plugins
+from calibre.constants import is64bit, isportable, isfrozen, __version__, DEBUG
 from calibre.utils.winreg.lib import Key, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE
 from calibre.utils.lock import singleinstance
 from polyglot.builtins import iteritems, itervalues
@@ -131,7 +131,6 @@ def register():
         with Key(r'Software\RegisteredApplications') as key:
             key.set(data['name'], capabilities_path)
 
-    winutil = plugins['winutil'][0]
     winutil.notify_associations_changed()
 
 
@@ -228,12 +227,12 @@ def split_commandline(commandline):
     # CommandLineToArgvW returns path to executable if called with empty string.
     if not commandline.strip():
         return []
-    return list(plugins['winutil'][0].parse_cmdline(commandline))
+    return list(winutil.parse_cmdline(commandline))
 
 
 def friendly_app_name(prog_id=None, exe=None):
     try:
-        return plugins['winutil'][0].friendly_name(prog_id, exe)
+        return winutil.friendly_name(prog_id, exe)
     except Exception:
         traceback.print_exc()
 

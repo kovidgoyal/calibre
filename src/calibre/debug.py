@@ -182,14 +182,15 @@ def print_basic_debug_info(out=None):
     import platform
     from contextlib import suppress
     from calibre.constants import (__appname__, get_version, isportable, ismacos,
-                                   isfrozen, is64bit, plugins)
+                                   isfrozen, is64bit)
     from calibre.utils.localization import set_translators
     out(__appname__, get_version(), 'Portable' if isportable else '',
         'embedded-python:', isfrozen, 'is64bit:', is64bit)
     out(platform.platform(), platform.system(), platform.architecture())
     if iswindows and not is64bit:
+        from calibre_extensions.winutil import is_wow64_process
         with suppress(Exception):
-            if plugins['winutil'][0].is_wow64_process():
+            if is_wow64_process():
                 out('32bit process running on 64bit windows')
     out(platform.system_alias(platform.system(), platform.release(),
             platform.version()))

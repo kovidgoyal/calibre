@@ -334,7 +334,7 @@ if cconfd is not None:
 elif iswindows:
     from calibre_extensions import winutil
     try:
-        config_dir = winutil.special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
+        config_dir = winutil.special_folder_path(winutil.CSIDL_APPDATA)
     except ValueError:
         config_dir = None
     if not config_dir or not os.access(config_dir, os.W_OK|os.X_OK):

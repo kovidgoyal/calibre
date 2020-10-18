@@ -1524,9 +1524,8 @@ class KOBOTOUCH(KOBO):
         # Wrap some debugging output in a try/except so that it is unlikely to break things completely.
         try:
             if DEBUG:
-                from calibre.constants import plugins
-                usbobserver, usbobserver_err = plugins['usbobserver']
-                mount_map = usbobserver.get_mounted_filesystems()
+                from calibre_extensions.usbobserver import get_mounted_filesystems
+                mount_map = get_mounted_filesystems()
                 debug_print('KoboTouch::open_osx - mount_map=', mount_map)
                 debug_print('KoboTouch::open_osx - self._main_prefix=', self._main_prefix)
                 debug_print('KoboTouch::open_osx - self._card_a_prefix=', self._card_a_prefix)

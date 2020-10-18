@@ -5,13 +5,13 @@
 
 from collections import defaultdict
 
-from calibre.constants import plugins
 from calibre.utils.icu import ord_string
 from polyglot.builtins import iteritems
 
 
 def character_name_from_code(code):
-    return plugins['unicode_names'][0].name_for_codepoint(code) or 'U+{:X}'.format(code)
+    from calibre_extensions.unicode_names import name_for_codepoint
+    return name_for_codepoint(code) or 'U+{:X}'.format(code)
 
 
 def html_entities():
@@ -35,7 +35,8 @@ def points_for_word(w):
     w = w.lower()
     ans = points_for_word.cache.get(w)
     if ans is None:
-        ans = plugins['unicode_names'][0].codepoints_for_word(w) | html_entities().get(w, set())
+        from calibre_extensions.unicode_names import codepoints_for_word
+        ans = codepoints_for_word(w) | html_entities().get(w, set())
         points_for_word.cache[w] = ans
     return ans
 

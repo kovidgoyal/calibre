@@ -21,12 +21,11 @@ from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.constants import iswindows, islinux, ismacos, isfreebsd, plugins
+from calibre.constants import iswindows, islinux, ismacos, isfreebsd
 from calibre.utils.filenames import ascii_filename as sanitize
 from polyglot.builtins import iteritems, string_or_bytes, map
 
 if ismacos:
-    usbobserver, usbobserver_err = plugins['usbobserver']
     osx_sanitize_name_pat = re.compile(r'[.-]')
 
 if iswindows:
@@ -314,9 +313,8 @@ class Device(DeviceConfig, DevicePlugin):
 
     @classmethod
     def osx_get_usb_drives(cls):
-        if usbobserver_err:
-            raise RuntimeError('Failed to load usbobserver: '+usbobserver_err)
-        return usbobserver.get_usb_drives()
+        from calibre_extensions.usbobserver import get_usb_drives
+        return get_usb_drives()
 
     def _osx_bsd_names(self):
         drives = self.osx_get_usb_drives()
@@ -390,9 +388,10 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def open_osx(self):
+        from calibre_extensions.usbobserver import get_mounted_filesystems
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
-        mount_map = usbobserver.get_mounted_filesystems()
+        mount_map = get_mounted_filesystems()
         drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
         if DEBUG:
             print()
