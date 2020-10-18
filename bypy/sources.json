@@ -533,17 +533,6 @@
     },
 
     {
-        "name": "pywin32",
-        "os": "windows",
-        "python": 2,
-        "windows": {
-            "filename":"pywin32-228.zip",
-            "hash":"sha256:f82946fb29d55a27b3abcd0b527ef2e8da6ea05b01dfcc40bfc14847b7673e8e",
-            "urls":["https://github.com/mhammond/pywin32/archive/b227.zip"]
-        }
-    },
-
-    {
         "name": "unrardll",
         "unix": {
             "filename": "unrardll-0.1.3.tar.gz",
