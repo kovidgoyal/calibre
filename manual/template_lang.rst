@@ -437,13 +437,16 @@ Example: the following SFM template returns either the series name or the string
 
     {series:ifempty(no series)}
 
-The equivalent templates in TPM and GPM are::
+The equivalent template in TPM is ::
 
-    TPM: ``{series:'ifempty($, 'no series')'}
-    GPM: ``program: ifempty(field('series'), 'no series')``
+    ``{series:'ifempty($, 'no series')'}``
+    
+The equivalent template in GPM is::
 
-The first argument to ``ifempty`` is the value of the field ``series`` and the second argument
-is the string ``no series``. In SFM the first argument, the value,
+    ``program: ifempty(field('series'), 'no series')``
+
+The first argument to ``ifempty`` is the value of the field ``series``. The second argument
+is the string ``no series``. In SFM the first argument, the value of the field,
 is automatically passed (the invisible argument).
 
 Several template functions, for example ``booksize()`` and ``current_library_name()``, take no arguments.
@@ -452,15 +455,15 @@ Because of the 'invisible argument' you cannot use these functions in SFM.
 Nested functions, where a function calls another function to compute an argument, cannot be used in SFM.
 For example this template, intended to return the first 5 characters of the series value uppercased, won't work in SFM::
 
-    {series:uppercase(substr(0,5))}
+    ``{series:uppercase(substr(0,5))}``
 
 TPM and GPM support nested functions. The above template in TPM would be::
 
-    {series:'uppercase(substr($, 0,5))'}
+    ``{series:'uppercase(substr($, 0,5))'}``
 
-In TPM it would be::
+In GPM it would be::
 
-    program: uppercase(substr(field('series'), 0,5))
+    ``program: uppercase(substr(field('series'), 0,5))``
 
 
 User-defined Python template functions
