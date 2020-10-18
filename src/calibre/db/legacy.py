@@ -153,6 +153,13 @@ class ThreadSafePrefs(MutableMapping):
         prefs = self.db().backend.prefs
         return prefs.to_raw(val)
 
+    def raw_to_object(self, raw):
+        if isinstance(raw, bytes):
+            raw = raw.decode(preferred_encoding)
+        import json
+        from calibre.utils.config import from_json
+        return json.loads(raw, object_hook=from_json)
+
 
 class LibraryDatabase(object):
 
