@@ -254,8 +254,8 @@ class ExtensionsImporter:
         if iswindows:
             extra = ('winutil', 'wpd', 'winfonts')
         elif ismacos:
-            extra = ('usbobserver', 'cocoa')
-        elif isfreebsd or ishaiku or islinux or ismacos:
+            extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
+        elif isfreebsd or ishaiku or islinux:
             extra = ('libusb', 'libmtp')
         else:
             extra = ()

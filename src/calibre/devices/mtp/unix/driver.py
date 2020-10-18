@@ -11,7 +11,7 @@ from collections import namedtuple
 from functools import partial
 
 from calibre import prints, as_unicode, force_unicode
-from calibre.constants import plugins, islinux, ismacos
+from calibre.constants import islinux, ismacos
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.devices.errors import OpenFailed, DeviceError, BlacklistedDevice, OpenActionNeeded
 from calibre.devices.mtp.base import MTPDeviceBase, synchronous, debug
@@ -52,9 +52,8 @@ class MTP_DEVICE(MTPDeviceBase):
             from calibre.devices.mtp.unix.sysfs import MTPDetect
             self._is_device_mtp = MTPDetect()
         if ismacos and 'osx' in self.supported_platforms:
-            self.usbobserver, err = plugins['usbobserver']
-            if err:
-                raise RuntimeError(err)
+            from calibre_extensions import usbobserver
+            self.usbobserver = usbobserver
             self._is_device_mtp = self.osx_is_device_mtp
 
     def is_device_mtp(self, d, debug=None):
@@ -128,9 +127,7 @@ class MTP_DEVICE(MTPDeviceBase):
             return True
         p = partial(prints, file=output)
         if self.libmtp is None:
-            err = plugins['libmtp'][1]
-            if not err:
-                err = 'startup() not called on this device driver'
+            err = 'startup() not called on this device driver'
             p(err)
             return False
         devs = [d for d in devices_on_system if
@@ -190,12 +187,14 @@ class MTP_DEVICE(MTPDeviceBase):
 
     @synchronous
     def startup(self):
-        p = plugins['libmtp']
-        self.libmtp = p[0]
-        if self.libmtp is None:
+        try:
+            from calibre_extensions import libmtp
+        except Exception as err:
             print('Failed to load libmtp, MTP device detection disabled')
-            print(p[1])
+            print(err)
+            self.libmtp = None
         else:
+            self.libmtp = libmtp
             self.known_devices = frozenset(self.libmtp.known_devices())
 
             for x in vars(self.libmtp):
