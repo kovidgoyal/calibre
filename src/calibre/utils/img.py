@@ -10,26 +10,24 @@ import subprocess
 import sys
 import tempfile
 from io import BytesIO
-from threading import Thread
-
 # We use explicit module imports so tracebacks when importing are more useful
 from PyQt5.QtCore import QBuffer, QByteArray, Qt
-from PyQt5.QtGui import QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
+from PyQt5.QtGui import (
+    QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
+)
+from threading import Thread
 
 from calibre import fit_image, force_unicode
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.imghdr import what
+from calibre_extensions import imageops
 from polyglot.builtins import string_or_bytes, unicode_type
 
+
 # Utilities {{{
-imageops, imageops_err = plugins['imageops']
-if imageops is None:
-    raise RuntimeError(imageops_err)
-
-
 class NotImage(ValueError):
     pass
 
@@ -619,9 +617,10 @@ def encode_jpeg(file_path, quality=80):
 
 
 def test():  # {{{
-    from calibre.ptempfile import TemporaryDirectory
-    from calibre import CurrentDir
     from glob import glob
+
+    from calibre import CurrentDir
+    from calibre.ptempfile import TemporaryDirectory
     img = image_from_data(I('lt.png', data=True, allow_user_override=False))
     with TemporaryDirectory() as tdir, CurrentDir(tdir):
         save_image(img, 'test.jpg')

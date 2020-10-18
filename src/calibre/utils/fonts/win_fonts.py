@@ -10,7 +10,7 @@ import os, sys, atexit
 from itertools import product
 
 from calibre import prints, isbytestring
-from calibre.constants import plugins, filesystem_encoding
+from calibre.constants import filesystem_encoding
 from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)
 from polyglot.builtins import iteritems, unicode_type
@@ -140,10 +140,8 @@ class WinFonts(object):
 
 
 def load_winfonts():
-    w, err = plugins['winfonts']
-    if w is None:
-        raise RuntimeError('Failed to load the winfonts module: %s'%err)
-    return WinFonts(w)
+    from calibre_extensions import winfonts
+    return WinFonts(winfonts)
 
 
 def test_ttf_reading():

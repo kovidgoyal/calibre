@@ -11,8 +11,8 @@ from polyglot.builtins import unicode_type
 class TestWinutil(unittest.TestCase):
 
     def setUp(self):
-        from calibre.constants import plugins
-        self.winutil = plugins['winutil'][0]
+        from calibre_extensions import winutil
+        self.winutil = winutil
 
     def tearDown(self):
         del self.winutil

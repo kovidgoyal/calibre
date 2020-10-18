@@ -1,32 +1,25 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 
-
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys
-from polyglot.builtins import filter
-
 # Setup code {{{
 import codecs
+import sys
 
-from calibre.constants import plugins
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import unicode_type, cmp
+from calibre_extensions import icu as _icu
+from polyglot.builtins import cmp, filter, unicode_type
 
 _locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
 cmp
 
-_none = u''
+_none = ''
 _none2 = b''
 _cmap = {}
 
-_icu, err = plugins['icu']
-if _icu is None:
-    raise RuntimeError('Failed to load icu with error: %s' % err)
-del err
 icu_unicode_version = getattr(_icu, 'unicode_version', None)
 _nmodes = {m:getattr(_icu, m) for m in ('NFC', 'NFD', 'NFKC', 'NFKD')}
 

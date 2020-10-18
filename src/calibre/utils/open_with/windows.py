@@ -9,13 +9,12 @@ import re
 import sys
 from PyQt5.Qt import QBuffer, QByteArray, QPixmap, Qt, QtWin
 
-from calibre.constants import plugins
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
+from calibre_extensions import winutil
 from polyglot.builtins import filter
 
 ICON_SIZE = 256
-winutil = plugins['winutil'][0]
 
 
 def hicon_to_pixmap(hicon):

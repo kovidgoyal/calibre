@@ -12,7 +12,7 @@ import time
 from functools import partial
 from PyQt5.Qt import QAction, QIcon, Qt, pyqtSignal
 
-from calibre.constants import ismacos, iswindows, plugins
+from calibre.constants import ismacos, iswindows
 from calibre.gui2 import (
     Dispatcher, config, elided_text, error_dialog, info_dialog, open_local_file,
     question_dialog
@@ -166,7 +166,7 @@ class ViewAction(InterfaceAction):
                         kwargs=dict(args=args))
             else:
                 if iswindows:
-                    winutil = plugins['winutil'][0]
+                    from calibre_extensions import winutil
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:
