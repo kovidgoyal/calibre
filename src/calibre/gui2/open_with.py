@@ -68,7 +68,7 @@ if iswindows:
     # Windows {{{
     from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
     from calibre.utils.open_with.windows import load_icon_resource, load_icon_for_cmdline
-    from calibre.constants import plugins
+    from calibre_extensions import winutil
     import subprocess
     oprefs = JSONConfig('windows_open_with')
 
@@ -145,7 +145,7 @@ if iswindows:
         print('Running Open With commandline%s:' % console, repr(entry['cmdline']), ' |==> ', repr(cmdline))
         try:
             with sanitize_env_vars():
-                plugins['winutil'][0].run_cmdline(cmdline, flags, 2000)
+                winutil.run_cmdline(cmdline, flags, 2000)
         except Exception as err:
             return error_dialog(
                 parent, _('Failed to run'), _(

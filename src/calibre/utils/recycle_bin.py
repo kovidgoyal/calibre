@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, time, sys
 
 from calibre import isbytestring
-from calibre.constants import (iswindows, ismacos, plugins, filesystem_encoding,
+from calibre.constants import (iswindows, ismacos, filesystem_encoding,
         islinux)
 from polyglot.builtins import unicode_type
 
@@ -18,6 +18,7 @@ recycle = None
 if iswindows:
     from calibre.utils.ipc import eintr_retry_call
     from threading import Lock
+    from calibre_extensions import winutil
     recycler = None
     rlock = Lock()
 
@@ -28,7 +29,7 @@ if iswindows:
             recycler = start_pipe_worker('from calibre.utils.recycle_bin import recycler_main; recycler_main()')
 
     def recycle_path(path):
-        plugins['winutil'][0].move_to_trash(unicode_type(path))
+        winutil.move_to_trash(unicode_type(path))
 
     def recycler_main():
         stdin = getattr(sys.stdin, 'buffer', sys.stdin)
@@ -86,13 +87,13 @@ if iswindows:
         return delegate_recycle(path)
 
 elif ismacos:
-    u = plugins['cocoa'][0]
-    if hasattr(u, 'send2trash'):
-        def osx_recycle(path):
-            if isbytestring(path):
-                path = path.decode(filesystem_encoding)
-            u.send2trash(path)
-        recycle = osx_recycle
+    from calibre_extensions.cocoa import send2trash
+
+    def osx_recycle(path):
+        if isbytestring(path):
+            path = path.decode(filesystem_encoding)
+        send2trash(path)
+    recycle = osx_recycle
 elif islinux:
     from calibre.utils.linux_trash import send2trash
 

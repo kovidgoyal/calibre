@@ -11,7 +11,7 @@ from collections import defaultdict
 from threading import Thread
 
 from calibre import walk, prints, as_unicode
-from calibre.constants import (config_dir, iswindows, ismacos, plugins, DEBUG,
+from calibre.constants import (config_dir, iswindows, ismacos, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
@@ -100,9 +100,7 @@ def fc_list():
 
 def font_dirs():
     if iswindows:
-        winutil, err = plugins['winutil']
-        if err:
-            raise RuntimeError('Failed to load winutil: %s'%err)
+        from calibre_extensions import winutil
         paths = {os.path.normcase(r'C:\Windows\Fonts')}
         for which in (winutil.CSIDL_FONTS, winutil.CSIDL_LOCAL_APPDATA, winutil.CSIDL_APPDATA):
             try:

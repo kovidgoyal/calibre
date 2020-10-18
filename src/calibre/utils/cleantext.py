@@ -4,11 +4,11 @@
 
 
 import re
-from polyglot.builtins import codepoint_to_chr, map, range, filter
-from polyglot.html_entities import name2codepoint
-from calibre.constants import plugins, preferred_encoding
 
-_ncxc = plugins['speedup'][0].clean_xml_chars
+from calibre.constants import preferred_encoding
+from calibre_extensions.speedup import clean_xml_chars as _ncxc
+from polyglot.builtins import codepoint_to_chr, filter, map, range
+from polyglot.html_entities import name2codepoint
 
 
 def native_clean_xml_chars(x):

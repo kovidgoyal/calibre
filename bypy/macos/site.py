@@ -21,8 +21,8 @@ def read_user_env_vars():
 
 def nuke_stdout():
     # Redirect stdout, stdin and stderr to /dev/null
-    from calibre.constants import plugins
-    plugins['speedup'][0].detach(os.devnull)
+    from calibre_extensions.speedup import detach
+    detach(os.devnull)
 
 
 def set_helper():

@@ -7,15 +7,11 @@ from PyQt5.Qt import (
     QWidget
 )
 
-from calibre.constants import plugins
+from calibre_extensions.progress_indicator import (
+    QProgressIndicator as ProgressIndicator, draw_snake_spinner
+)
 
-pi, err = plugins['progress_indicator']
-if err:
-    raise RuntimeError('Failed to import the progress_indicator plugin with error: {}'.format(err))
-
-
-ProgressIndicator = pi.QProgressIndicator
-draw_snake_spinner = pi.draw_snake_spinner
+draw_snake_spinner
 
 
 class WaitPanel(QWidget):

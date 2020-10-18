@@ -7,7 +7,7 @@ import os
 import shutil
 import sys
 
-from calibre.constants import plugins, preferred_encoding
+from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
@@ -15,9 +15,7 @@ from polyglot.builtins import unicode_type
 
 
 def get_podofo():
-    podofo, podofo_err = plugins['podofo']
-    if podofo is None:
-        raise RuntimeError('Failed to load podofo: %s'%podofo_err)
+    from calibre_extensions import podofo
     return podofo
 
 
