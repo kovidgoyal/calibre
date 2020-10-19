@@ -5,23 +5,28 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, uuid
-from threading import Thread
+import os
+import uuid
+from contextlib import suppress
 from functools import partial
-
 from PyQt5.Qt import (
-    QStackedLayout, QVBoxLayout, QWidget, QLabel, Qt,
-    QListWidget, QSize, pyqtSignal, QListWidgetItem, QIcon, QByteArray,
-    QBuffer, QPixmap, QAction, QKeySequence)
+    QAction, QBuffer, QByteArray, QIcon, QKeySequence, QLabel, QListWidget,
+    QListWidgetItem, QPixmap, QSize, QStackedLayout, Qt, QVBoxLayout, QWidget,
+    pyqtSignal
+)
+from threading import Thread
 
 from calibre import as_unicode
-from calibre.constants import iswindows, ismacos
-from calibre.gui2 import error_dialog, choose_files, choose_images, elided_text, sanitize_env_vars, Application, choose_osx_app
-from calibre.gui2.widgets2 import Dialog
+from calibre.constants import ismacos, iswindows
+from calibre.gui2 import (
+    Application, choose_files, choose_images, choose_osx_app, elided_text,
+    error_dialog, sanitize_env_vars
+)
 from calibre.gui2.progress_indicator import ProgressIndicator
+from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
-from polyglot.builtins import iteritems, string_or_bytes, range, unicode_type
+from polyglot.builtins import iteritems, range, string_or_bytes, unicode_type
 
 ENTRY_ROLE = Qt.UserRole
 
@@ -55,21 +60,33 @@ def entry_to_icon_text(entry, only_text=False):
     if only_text:
         return entry.get('name', entry.get('Name')) or _('Unknown')
     data = entry.get('icon_data')
+    if isinstance(data, str):
+        with suppress(Exception):
+            from base64 import standard_b64decode
+            data = bytearray(standard_b64decode(data))
     if not isinstance(data, (bytearray, bytes)):
         icon = QIcon(I('blank.png'))
     else:
         pmap = QPixmap()
         pmap.loadFromData(bytes(data))
-        icon = QIcon(pmap)
+        if pmap.isNull():
+            icon = QIcon(I('blank.png'))
+        else:
+            icon = QIcon(pmap)
     return icon, entry.get('name', entry.get('Name')) or _('Unknown')
 
 
 if iswindows:
     # Windows {{{
-    from calibre.utils.winreg.default_programs import find_programs, friendly_app_name
-    from calibre.utils.open_with.windows import load_icon_resource, load_icon_for_cmdline
-    from calibre_extensions import winutil
     import subprocess
+
+    from calibre.utils.open_with.windows import (
+        load_icon_for_cmdline, load_icon_resource
+    )
+    from calibre.utils.winreg.default_programs import (
+        find_programs, friendly_app_name
+    )
+    from calibre_extensions import winutil
     oprefs = JSONConfig('windows_open_with')
 
     def entry_sort_key(entry):
@@ -156,7 +173,9 @@ if iswindows:
 elif ismacos:
     # macOS {{{
     oprefs = JSONConfig('osx_open_with')
-    from calibre.utils.open_with.osx import find_programs, get_icon, entry_to_cmdline, get_bundle_data
+    from calibre.utils.open_with.osx import (
+        entry_to_cmdline, find_programs, get_bundle_data, get_icon
+    )
 
     def entry_sort_key(entry):
         return sort_key(entry.get('name') or '')
@@ -201,7 +220,9 @@ elif ismacos:
 else:
     # XDG {{{
     oprefs = JSONConfig('xdg_open_with')
-    from calibre.utils.open_with.linux import entry_to_cmdline, find_programs, entry_sort_key
+    from calibre.utils.open_with.linux import (
+        entry_sort_key, entry_to_cmdline, find_programs
+    )
 
     def entry_to_item(entry, parent):
         icon_path = entry.get('Icon') or I('blank.png')
