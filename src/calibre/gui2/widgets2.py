@@ -74,11 +74,18 @@ class HistoryLineEdit2(LineEdit, HistoryMixin):
     def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:b''):
         LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
 
+    def set_uniform_item_sizes(self, on=False):
+        if hasattr(self.mcompleter, 'setUniformItemSizes'):
+            self.mcompleter.setUniformItemSizes(on)
+
 
 class HistoryComboBox(EditWithComplete, HistoryMixin):
 
     def __init__(self, parent=None, strip_completion_entries=True):
         EditWithComplete.__init__(self, parent, sort_func=lambda x:b'', strip_completion_entries=strip_completion_entries)
+
+    def set_uniform_item_sizes(self, on=False):
+        self.lineEdit().mcompleter.setUniformItemSizes(on)
 
 
 class ColorButton(QPushButton):
