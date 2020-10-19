@@ -604,6 +604,7 @@ class Editor(QMainWindow):
 
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None):
+    from calibre.gui2 import Application
     from calibre.gui2.tweak_book import dictionaries
     from calibre.gui2.tweak_book.main import option_parser
     from calibre.gui2.tweak_book.ui import Main
@@ -611,7 +612,7 @@ def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None)
     dictionaries.initialize()
     refresh_spell_check_status()
     opts = option_parser().parse_args([])
-    app = QApplication([])
+    app = Application([])
     # Create the actions that are placed into the editors toolbars
     main = Main(opts)  # noqa
     if path_is_raw:
