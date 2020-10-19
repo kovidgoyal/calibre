@@ -278,6 +278,7 @@ class Container(ContainerBase):  # {{{
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
         opfpath = os.path.abspath(os.path.realpath(opfpath))
+        all_opf_files = []
         for dirpath, _dirnames, filenames in os.walk(self.root):
             for f in filenames:
                 path = join(dirpath, f)
@@ -289,6 +290,12 @@ class Container(ContainerBase):  # {{{
                     self.opf_name = name
                     self.opf_dir = os.path.dirname(path)
                     self.mime_map[name] = guess_type('a.opf')
+                if path.lower().endswith('.opf'):
+                    all_opf_files.append((name, os.path.dirname(path)))
+
+        if not hasattr(self, 'opf_name') and all_opf_files:
+            self.opf_name, self.opf_dir = all_opf_files[0]
+            self.mime_map[self.opf_name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
             raise InvalidBook('Could not locate opf file: %r'%opfpath)
