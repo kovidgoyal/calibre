@@ -905,6 +905,34 @@ is_wow64_process(PyObject *self, PyObject *args) {
 	return Py_BuildValue("O", ans ? Py_True : Py_False);
 }
 
+static PyObject*
+write_file(PyObject *self, PyObject *args) {
+    int size, offset = 0;
+    const char *data;
+    HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&y#|i", convert_handle, &handle, &data, &size, &offset)) return NULL;
+    DWORD written = 0;
+    BOOL ok;
+    Py_BEGIN_ALLOW_THREADS
+    ok = WriteFile(handle, data + offset, size - offset, &written, NULL);
+    Py_END_ALLOW_THREADS
+    if (!ok) return set_error_from_handle(args);
+    return PyLong_FromUnsignedLong(written);
+}
+
+static PyObject*
+wait_named_pipe(PyObject *self, PyObject *args) {
+    wchar_raii path;
+    unsigned long timeout = 0;
+    if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar_no_none, &path, &timeout)) return NULL;
+    BOOL ok;
+    Py_BEGIN_ALLOW_THREADS
+    ok = WaitNamedPipeW(path.ptr(), timeout);
+    Py_END_ALLOW_THREADS
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    Py_RETURN_TRUE;
+}
+
 // Icon loading {{{
 #pragma pack( push )
 #pragma pack( 2 )
@@ -1055,6 +1083,8 @@ static PyMethodDef winutil_methods[] = {
 	M(load_icons, METH_VARARGS),
 	M(get_icon_for_file, METH_VARARGS),
 	M(parse_cmdline, METH_VARARGS),
+	M(write_file, METH_VARARGS),
+	M(wait_named_pipe, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -1311,6 +1341,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
     PyModule_AddIntConstant(m, "ERROR_LOCK_VIOLATION", ERROR_LOCK_VIOLATION);
     PyModule_AddIntConstant(m, "ERROR_ALREADY_EXISTS", ERROR_ALREADY_EXISTS);
     PyModule_AddIntConstant(m, "ERROR_BROKEN_PIPE", ERROR_BROKEN_PIPE);
+    PyModule_AddIntConstant(m, "ERROR_PIPE_BUSY", ERROR_PIPE_BUSY);
     PyModule_AddIntConstant(m, "NormalHandle", NormalHandle);
     PyModule_AddIntConstant(m, "ModuleHandle", ModuleHandle);
     PyModule_AddIntConstant(m, "IconHandle", IconHandle);
