@@ -1320,6 +1320,8 @@ class View:
         spine = self.book.manifest.spine
         spine_index = self.annotations_manager.spine_index_for_highlight(uuid, spine)
         if spine_index < 0 or spine_index >= spine.length:
+            if which is 'edit':
+                self.selection_bar.report_failed_edit_highlight(uuid)
             return
         if which is 'edit':
             if self.currently_showing.spine_index is spine_index:

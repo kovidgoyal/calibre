@@ -780,6 +780,8 @@ class IframeBoss:
                 window.setTimeout(def():
                     self.send_message('annotations', type='edit-highlight')
                 , 50)
+            else:
+                self.send_message('annotations', type='edit-highlight-failed', uuid=data.uuid)
         elif dtype is 'notes-edited':
             cls = 'crw-has-dot'
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
