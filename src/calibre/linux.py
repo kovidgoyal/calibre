@@ -1200,8 +1200,16 @@ def write_appdata(key, entry, base, translators):
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
         E.summary(entry['summary']),
+        E.content_rating(
+            # Information Sharing: Using any online API, e.g. a user-counter
+            # Details at https://calibre-ebook.com/dynamic/calibre-usage .
+            E.content_attribute('mild', id='social-info'),
+            # In-App Purchases: Users are encouraged to donate real money, e.g. using Patreon
+            E.content_attribute('mild', id='money-purchasing'),
+            type='oars-1.1'
+        ),
         description,
-        E.url('https://calibre-ebook.com', type='homepage'),
+        E.url('https://calibre-ebook.com/', type='homepage'),
         screenshots,
         type='desktop'
     )
