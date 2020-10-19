@@ -110,7 +110,7 @@ if iswindows:
             data = None
             import traceback
             traceback.print_exc()
-        if data:
+        if isinstance(data, (bytes, bytearray)) or data is None:
             entry['icon_data'] = data
         return entry
 
