@@ -76,7 +76,7 @@ class Listener(QLocalServer):
         self.message_received.emit(self.pending_messages.pop(connection_id, b''))
 
 
-def send_message_implementation(msg, address=None, timeout=5):
+def send_message_in_process(msg, address=None, timeout=5):
     address = address or gui_socket_address()
     if isinstance(msg, str):
         msg = msg.encode('utf-8')
@@ -89,7 +89,7 @@ def send_message_implementation(msg, address=None, timeout=5):
     else:
         s.connectToServer(address)
         if not s.waitForConnected(qt_timeout):
-            raise OSError(f'Failed to connect to Listener at: {address}')
+            raise OSError(f'Failed to connect to Listener at: {address} with error: {s.errorString()}')
     data = QByteArray(msg)
     while True:
         written = s.write(data)
@@ -100,9 +100,9 @@ def send_message_implementation(msg, address=None, timeout=5):
         data = data.right(len(data) - written)
 
 
-def send_message(msg, address=None, timeout=5, wait_till_sent=False):
-    # On Windows sending a message in a process that does anything non-trivial
-    # like running a Qt Event loop deadlocks, so we do the actual sending in
+def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=False):
+    # On Windows sending a message in a process that also is listening on the
+    # same named pipe in a different thread deadlocks, so we do the actual sending in
     # a simple worker process
     import json
     import subprocess
@@ -132,7 +132,7 @@ def test():
         l.setText(msg.decode('utf-8'))
 
     def send():
-        send_message('hello!', wait_till_sent=False)
+        send_message_via_worker('hello!', wait_till_sent=False)
 
     QTimer.singleShot(1000, send)
     s = Listener(parent=l)
