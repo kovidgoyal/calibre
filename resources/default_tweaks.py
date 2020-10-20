@@ -410,7 +410,7 @@ metadata_edit_custom_column_order = []
 # will be elided, otherwise they will be word wrapped. The maximum width is
 # computed by multiplying the average width of characters in the font by the
 # appropriate number.
-# Set the elision point to 'middle' to put the elipsis (…) in the middle of
+# Set the elision point to 'middle' to put the ellipsis (…) in the middle of
 # the label, 'right' to put it at the right end of the label, and 'left' to
 # put it at the left end.
 metadata_edit_elide_labels = True
