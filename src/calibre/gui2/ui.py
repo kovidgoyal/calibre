@@ -9,83 +9,60 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import collections, os, sys, textwrap, time, gc, errno, re
-from threading import Thread
+import apsw
+import collections
+import errno
+import gc
+import os
+import re
+import sys
+import textwrap
+import time
 from collections import OrderedDict
 from io import BytesIO
-
-import apsw
 from PyQt5.Qt import (
-    Qt, QTimer, QAction, QMenu, QIcon, pyqtSignal, QUrl, QFont, QDialog,
-    QApplication, QSystemTrayIcon)
+    QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
+    QUrl, pyqtSignal
+)
 
-from calibre import prints, force_unicode, detect_ncpus
+from calibre import detect_ncpus, force_unicode, prints
 from calibre.constants import (
-        __appname__, ismacos, iswindows, filesystem_encoding, DEBUG, config_dir)
-from calibre.utils.config import prefs, dynamic
-from calibre.utils.ipc.pool import Pool
+    DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
+)
+from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
-from calibre.customize.ui import interface_actions, available_store_plugins
-from calibre.gui2 import (error_dialog, GetMetadata, open_url,
-        gprefs, max_available_height, config, info_dialog, Dispatcher,
-        question_dialog, warning_dialog)
-from calibre.gui2.cover_flow import CoverFlowMixin
+from calibre.gui2 import (
+    Dispatcher, GetMetadata, config, error_dialog, gprefs, info_dialog,
+    max_available_height, open_url, question_dialog, warning_dialog
+)
+from calibre.gui2.auto_add import AutoAdder
 from calibre.gui2.changes import handle_changes
-from calibre.gui2.widgets import ProgressIndicator
-from calibre.gui2.update import UpdateMixin
-from calibre.gui2.main_window import MainWindow
-from calibre.gui2.layout import MainWindowMixin
+from calibre.gui2.cover_flow import CoverFlowMixin
+from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.device import DeviceMixin
-from calibre.gui2.email import EmailMixin
+from calibre.gui2.dialogs.message_box import JobError
 from calibre.gui2.ebook_download import EbookDownloadMixin
-from calibre.gui2.jobs import JobManager, JobsDialog, JobsButton
-from calibre.gui2.init import LibraryViewMixin, LayoutMixin
-from calibre.gui2.search_box import SearchBoxMixin, SavedSearchBoxMixin
+from calibre.gui2.email import EmailMixin
+from calibre.gui2.init import LayoutMixin, LibraryViewMixin
+from calibre.gui2.job_indicator import Pointer
+from calibre.gui2.jobs import JobManager, JobsButton, JobsDialog
+from calibre.gui2.keyboard import Manager
+from calibre.gui2.layout import MainWindowMixin
+from calibre.gui2.listener import Listener
+from calibre.gui2.main_window import MainWindow
+from calibre.gui2.open_with import register_keyboard_shortcuts
+from calibre.gui2.proceed import ProceedQuestion
+from calibre.gui2.search_box import SavedSearchBoxMixin, SearchBoxMixin
 from calibre.gui2.search_restriction_mixin import SearchRestrictionMixin
 from calibre.gui2.tag_browser.ui import TagBrowserMixin
-from calibre.gui2.keyboard import Manager
-from calibre.gui2.auto_add import AutoAdder
-from calibre.gui2.proceed import ProceedQuestion
-from calibre.gui2.dialogs.message_box import JobError
-from calibre.gui2.job_indicator import Pointer
-from calibre.gui2.dbus_export.widgets import factory
-from calibre.gui2.open_with import register_keyboard_shortcuts
+from calibre.gui2.update import UpdateMixin
+from calibre.gui2.widgets import ProgressIndicator
 from calibre.library import current_library_name
 from calibre.srv.library_broker import GuiLibraryBroker
-from polyglot.builtins import unicode_type, string_or_bytes
-from polyglot.queue import Queue, Empty
-
-
-class Listener(Thread):  # {{{
-
-    def __init__(self, listener):
-        Thread.__init__(self)
-        self.daemon = True
-        self.listener, self.queue = listener, Queue()
-        self._run = True
-        self.start()
-
-    def run(self):
-        if self.listener is None:
-            return
-        while self._run:
-            try:
-                conn = self.listener.accept()
-                msg = conn.recv()
-                self.queue.put(msg)
-            except:
-                continue
-
-    def close(self):
-        self._run = False
-        try:
-            if self.listener is not None:
-                self.listener.close()
-        except:
-            import traceback
-            traceback.print_exc()
-
-# }}}
+from calibre.utils.config import dynamic, prefs
+from calibre.utils.ipc.pool import Pool
+from polyglot.builtins import string_or_bytes, unicode_type
+from polyglot.queue import Empty, Queue
 
 
 def get_gui():
@@ -93,11 +70,11 @@ def get_gui():
 
 
 def add_quick_start_guide(library_view, refresh_cover_browser=None):
-    from calibre.ebooks.metadata.meta import get_metadata
     from calibre.ebooks.covers import calibre_cover2
-    from calibre.utils.zipfile import safe_replace
-    from calibre.utils.localization import get_lang, canonicalize_lang
+    from calibre.ebooks.metadata.meta import get_metadata
     from calibre.ptempfile import PersistentTemporaryFile
+    from calibre.utils.localization import canonicalize_lang, get_lang
+    from calibre.utils.zipfile import safe_replace
     l = canonicalize_lang(get_lang()) or 'eng'
     gprefs['quick_start_guide_added'] = True
     imgbuf = BytesIO(calibre_cover2(_('Quick Start Guide'), ''))
@@ -215,7 +192,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         else:
             stmap[st.name] = st
 
-    def initialize(self, library_path, db, listener, actions, show_gui=True):
+    def initialize(self, library_path, db, actions, show_gui=True):
         opts = self.opts
         self.preferences_action, self.quit_action = actions
         self.library_path = library_path
@@ -226,10 +203,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         t.setInterval(1000), t.timeout.connect(self.handle_changes_from_server_debounced), t.setSingleShot(True)
         self._spare_pool = None
         self.must_restart_before_config = False
-        self.listener = Listener(listener)
-        self.check_messages_timer = QTimer()
-        self.check_messages_timer.timeout.connect(self.another_instance_wants_to_talk)
-        self.check_messages_timer.start(1000)
 
         for ac in self.iactions.values():
             try:
@@ -423,6 +396,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
+
+        self.listener = Listener(parent=self)
+        self.listener.message_received.connect(self.message_from_another_instance)
+        QTimer.singleShot(0, self.listener.start_listening)
 
         # Collect cycles now
         gc.collect()
@@ -626,11 +603,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if files:
             self.iactions['Add Books'].add_filesystem_book(files)
 
-    def another_instance_wants_to_talk(self):
-        try:
-            msg = self.listener.queue.get_nowait()
-        except Empty:
-            return
+    def message_from_another_instance(self, msg):
         if isinstance(msg, bytes):
             msg = msg.decode('utf-8', 'replace')
         if msg.startswith('launched:'):
@@ -651,10 +624,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.show_windows()
             self.raise_()
             self.activateWindow()
-        elif msg.startswith('refreshdb:'):
-            m = self.library_view.model()
-            m.db.new_api.reload_from_db()
-            self.refresh_all()
         elif msg.startswith('shutdown:'):
             self.quit(confirm_quit=False)
         elif msg.startswith('bookedited:'):
@@ -735,7 +704,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                             det_msg=traceback.format_exc()
                             )
                     if repair:
-                        from calibre.gui2.dialogs.restore_library import repair_library_at
+                        from calibre.gui2.dialogs.restore_library import (
+                            repair_library_at
+                        )
                         if repair_library_at(newloc, parent=self):
                             db = LibraryDatabase(newloc, default_prefs=default_prefs)
                         else:
@@ -1005,7 +976,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             action.shutting_down()
         if write_settings:
             self.write_settings()
-        self.check_messages_timer.stop()
         if getattr(self, 'update_checker', None):
             self.update_checker.shutdown()
         self.listener.close()

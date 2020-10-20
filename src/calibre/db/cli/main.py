@@ -34,24 +34,11 @@ def option_parser_for(cmd, args=()):
     return cmd_option_parser
 
 
-def send_message(msg=''):
-    prints('Notifying calibre of the change')
-    from calibre.utils.ipc import RC
-    t = RC(print_error=False)
-    t.start()
-    t.join(3)
-    if t.done:
-        t.conn.send('refreshdb:' + msg)
-        t.conn.close()
-
-
 def run_cmd(cmd, opts, args, dbctx):
     m = module_for_cmd(cmd)
     if dbctx.is_remote and getattr(m, 'no_remote', False):
         raise SystemExit(_('The {} command is not supported with remote (server based) libraries').format(cmd))
     ret = m.main(opts, args, dbctx)
-    # if not dbctx.is_remote and not opts.dont_notify_gui and not getattr(m, 'readonly', False):
-    #     send_message()
     return ret
 
 

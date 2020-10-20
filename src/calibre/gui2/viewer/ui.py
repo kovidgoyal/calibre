@@ -248,13 +248,17 @@ class EbookViewer(MainWindow):
             else:
                 prints('Cannot read from:', arg, file=sys.stderr)
 
-    def another_instance_wants_to_talk(self, msg):
+    def message_from_other_instance(self, msg):
         try:
+            msg = json.loads(msg)
             path, open_at = msg
-        except Exception:
+        except Exception as err:
+            print('Invalid message from other instance', file=sys.stderr)
+            print(err, file=sys.stderr)
             return
         self.load_ebook(path, open_at=open_at)
         self.raise_()
+        self.activateWindow()
     # }}}
 
     # Fullscreen {{{
