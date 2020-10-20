@@ -481,10 +481,11 @@ class BrowsePanel(QWidget):
                     ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None
                 )
             else:
+                q2 = q.copy()
+                q2['restrict_to_book_ids'] = q.get('restrict_to_book_ids') or None
                 results = db.search_annotations(
                     highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-                    ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None,
-                    **q
+                    ignore_removed=True, **q2
                 )
             self.results_list.set_results(results, bool(q['fts_engine_query']))
             self.current_query = q
