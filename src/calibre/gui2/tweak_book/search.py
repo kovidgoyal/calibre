@@ -97,6 +97,7 @@ class HistoryBox(HistoryComboBox):
         self.clear_msg = clear_msg
         self.ignore_snip_expansion = False
         self.lineEdit().setClearButtonEnabled(True)
+        self.set_uniform_item_sizes(False)
 
     def event(self, ev):
         if ev.type() in (ev.ShortcutOverride, ev.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
