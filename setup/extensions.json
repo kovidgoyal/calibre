@@ -145,6 +145,14 @@
         "cflags": "/X"
     },
     {
+        "name": "winsapi",
+        "only": "windows",
+        "headers": "calibre/utils/windows/common.h",
+        "sources": "calibre/utils/windows/winsapi.cpp",
+        "libraries": "SAPI Ole32",
+        "cflags": "/X"
+    },
+    {
         "name": "wpd",
         "only": "windows",
         "sources": "calibre/devices/mtp/windows/utils.cpp calibre/devices/mtp/windows/device_enumeration.cpp calibre/devices/mtp/windows/content_enumeration.cpp calibre/devices/mtp/windows/device.cpp calibre/devices/mtp/windows/wpd.cpp",

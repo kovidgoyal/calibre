@@ -249,7 +249,7 @@ class ExtensionsImporter:
             'certgen',
         )
         if iswindows:
-            extra = ('winutil', 'wpd', 'winfonts')
+            extra = ('winutil', 'wpd', 'winfonts', 'winsapi')
         elif ismacos:
             extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
         elif isfreebsd or ishaiku or islinux:

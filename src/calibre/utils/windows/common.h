@@ -7,8 +7,21 @@
 #pragma once
 #define PY_SSIZE_T_CLEAN
 #define UNICODE
+#define _UNICODE
 #include <Windows.h>
 #include <Python.h>
+#include <comdef.h>
+
+static inline PyObject*
+set_error_from_hresult(const char *file, const int line, const HRESULT hr, const char *prefix="") {
+    _com_error err(hr);
+    LPCWSTR msg = err.ErrorMessage();
+    PyObject *pmsg = PyUnicode_FromWideChar(msg, -1);
+    PyObject *ans = PyErr_Format(PyExc_OSError, "%s:%d:%s:%V", file, line, prefix, pmsg, "Out of memory");
+    Py_CLEAR(pmsg);
+    return ans;
+}
+#define error_from_hresult(hr, ...) set_error_from_hresult(__FILE__, __LINE__, hr, __VA_ARGS__)
 
 class wchar_raii {
 	private:
@@ -29,6 +42,48 @@ class wchar_raii {
 		wchar_t *ptr() { return handle; }
 		void set_ptr(wchar_t *val) { handle = val; }
 };
+
+
+class com_wchar_raii {
+	private:
+		wchar_t *handle;
+		com_wchar_raii( const com_wchar_raii & ) ;
+		com_wchar_raii & operator=( const com_wchar_raii & ) ;
+
+	public:
+		com_wchar_raii() : handle(NULL) {}
+
+		~com_wchar_raii() {
+			if (handle) {
+                CoTaskMemFree(handle);
+				handle = NULL;
+			}
+		}
+
+		wchar_t *ptr() { return handle; }
+		wchar_t **address() { return &handle; }
+		explicit operator bool() const { return handle != NULL; }
+};
+
+class pyobject_raii {
+	private:
+		PyObject *handle;
+		pyobject_raii( const pyobject_raii & ) ;
+		pyobject_raii & operator=( const pyobject_raii & ) ;
+
+	public:
+		pyobject_raii() : handle(NULL) {}
+		pyobject_raii(PyObject* h) : handle(h) {}
+
+		~pyobject_raii() { Py_CLEAR(handle); }
+
+		PyObject *ptr() { return handle; }
+		void set_ptr(PyObject *val) { handle = val; }
+		PyObject **address() { return &handle; }
+		explicit operator bool() const { return handle != NULL; }
+        PyObject *detach() { PyObject *ans = handle; handle = NULL; return ans; }
+};
+
 
 class handle_raii {
 	private:
