@@ -24,13 +24,14 @@ class LifeHacker(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_empty_feeds = True
+    remove_attributes = ['style']
 
     keep_only_tags = [
         dict(name='h1'),
         classes('headline author post-content js_post-content'),
     ]
     remove_tags = [
-        classes('magnifier commerce-inset gmg-avatar js_ad-dynamic instream-native-video inset--story'),
+        classes('magnifier commerce-inset gmg-avatar js_ad-dynamic instream-native-video inset--story js_commerce-inset-permalink'),
         dict(id='lifehacker-avatar-svg'),
         dict(name='aside'),
     ]
@@ -38,8 +39,14 @@ class LifeHacker(BasicNewsRecipe):
 
     feeds = [(u'Articles', u'https://lifehacker.com/rss')]
 
-    def preprocess_soup(self, soup):
-        for source in soup.findAll('source', attrs={'data-srcset':True}):
-            for img in source.findAll('img'):
-                img['src'] = source['data-srcset']
+    def preprocess_html(self, soup):
+
+        def choose_from_srcset(raw):
+            parts = raw.split()
+            if len(parts) > 2:
+                return parts[2]
+            return parts[0]
+
+        for img in soup.findAll(attrs={'data-srcset':True}):
+            img['src'] = choose_from_srcset(img['data-srcset'])
         return soup
