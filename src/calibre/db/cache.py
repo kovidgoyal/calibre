@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, random, shutil, operator
+import os, traceback, random, shutil, operator, sys
 from io import BytesIO
 from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
@@ -975,8 +975,12 @@ class Cache(object):
         fields = uniq(fields, operator.itemgetter(0))
 
         if len(fields) == 1:
-            return sorted(ids_to_sort, key=sort_key_func(fields[0][0]),
-                          reverse=not fields[0][1])
+            try:
+                return sorted(ids_to_sort, key=sort_key_func(fields[0][0]),
+                            reverse=not fields[0][1])
+            except Exception as err:
+                print('Failed to sort database on field:', fields[0][0], 'with error:', err, file=sys.stderr)
+                return sorted(ids_to_sort, reverse=not fields[0][1])
         sort_key_funcs = tuple(sort_key_func(field) for field, order in fields)
         orders = tuple(1 if order else -1 for _, order in fields)
         Lazy = object()  # Lazy load the sort keys for sub-sort fields
