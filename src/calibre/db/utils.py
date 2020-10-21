@@ -405,3 +405,25 @@ def atof(string):
                 d = d.decode('utf-8', 'ignore') or '.'
             number_separators = t, d
     return float(string.replace(number_separators[1], '.').replace(number_separators[0], ''))
+
+
+def type_safe_sort_key_function(keyfunc=None):
+    if keyfunc is None:
+        keyfunc = lambda x: x
+    sentinel = object()
+    first_value = sentinel
+
+    def key(x):
+        nonlocal first_value
+        ans = keyfunc(x)
+        if first_value is sentinel:
+            first_value = ans
+        else:
+            try:
+                ans < first_value
+                first_value < ans
+            except TypeError:
+                ans = first_value
+        return ans
+
+    return key
