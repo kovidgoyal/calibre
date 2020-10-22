@@ -157,6 +157,7 @@ class TagsView(QTreeView):  # {{{
     restriction_error       = pyqtSignal()
     tag_item_delete         = pyqtSignal(object, object, object, object, object)
     apply_tag_to_selected   = pyqtSignal(object, object, object)
+    edit_enum_values        = pyqtSignal(object, object, object)
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
@@ -550,6 +551,9 @@ class TagsView(QTreeView):  # {{{
                 if item is not None:
                     self.apply_to_selected_books(item, True)
                 return
+            elif action == 'edit_enum':
+                self.edit_enum_values.emit(self, self.db, key)
+                return
             self.db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
             if reset_filter_categories:
                 self._model.set_categories_filter(None)
@@ -625,15 +629,16 @@ class TagsView(QTreeView):  # {{{
                     # the possibility of renaming that item.
                     if tag.is_editable or tag.is_hierarchical:
                         # Add the 'rename' items to both interior and leaf nodes
-                        if self.model().get_in_vl():
+                        if fm['datatype'] != 'enumeration':
+                            if self.model().get_in_vl():
+                                self.context_menu.addAction(self.rename_icon,
+                                        _('Rename %s in Virtual library')%display_name(tag),
+                                        partial(self.context_menu_handler, action='edit_item_in_vl',
+                                                index=index, category=key))
                             self.context_menu.addAction(self.rename_icon,
-                                                    _('Rename %s in Virtual library')%display_name(tag),
-                                    partial(self.context_menu_handler, action='edit_item_in_vl',
-                                            index=index, category=key))
-                        self.context_menu.addAction(self.rename_icon,
-                                                _('Rename %s')%display_name(tag),
-                                partial(self.context_menu_handler, action='edit_item_no_vl',
-                                        index=index, category=key))
+                                        _('Rename %s')%display_name(tag),
+                                        partial(self.context_menu_handler, action='edit_item_no_vl',
+                                                index=index, category=key))
                         if key in ('tags', 'series', 'publisher') or \
                                 self._model.db.field_metadata.is_custom_field(key):
                             if self.model().get_in_vl():
@@ -766,7 +771,7 @@ class TagsView(QTreeView):  # {{{
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or (
-                        self.db.field_metadata[key]['is_custom'] and self.db.field_metadata[key]['datatype'] != 'composite'):
+                        fm['is_custom'] and fm['datatype'] != 'composite'):
                     if tag_item.type == TagTreeItem.CATEGORY and tag_item.temporary:
                         self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
@@ -776,6 +781,10 @@ class TagsView(QTreeView):  # {{{
                         self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
                                     category=tag.original_name if tag else None,
+                                    key=key))
+                    if fm['datatype'] == 'enumeration':
+                        self.context_menu.addAction(_('Edit permissable values for %s')%category,
+                            partial(self.context_menu_handler, action='edit_enum',
                                     key=key))
                 elif key == 'authors':
                     if tag_item.type == TagTreeItem.CATEGORY:
