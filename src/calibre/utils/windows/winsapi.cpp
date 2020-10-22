@@ -85,6 +85,37 @@ Voice_get_all_sound_outputs(Voice *self, PyObject *args) {
 }
 
 static PyObject*
+Voice_get_current_sound_output(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    CComPtr<ISpObjectToken> token = NULL;
+    if (FAILED(hr = self->voice->GetOutputObjectToken(&token))) return error_from_hresult(hr, "Failed to get current output object token");
+    if (hr == S_FALSE) Py_RETURN_NONE;
+    com_wchar_raii id;
+    if (FAILED(hr = token->GetId(id.address()))) return error_from_hresult(hr, "Failed to get ID for current audio output token");
+    return PyUnicode_FromWideChar(id.ptr(), -1);
+}
+
+static PyObject*
+Voice_set_current_sound_output(Voice *self, PyObject *args) {
+    wchar_raii id;
+    int allow_format_changes = 1;
+    if (!PyArg_ParseTuple(args, "|O&p", py_to_wchar, &id, &allow_format_changes)) return NULL;
+    HRESULT hr = S_OK;
+    if (id) {
+        CComPtr<ISpObjectToken> token = NULL;
+        if (FAILED(hr = SpGetTokenFromId(id.ptr(), &token))) {
+            return error_from_hresult(hr, "Failed to find sound output with id", PyTuple_GET_ITEM(args, 0));
+        }
+        if (FAILED(hr = self->voice->SetOutput(token, allow_format_changes))) return error_from_hresult(hr, "Failed to set sound output to", PyTuple_GET_ITEM(args, 0));
+
+    } else {
+        if (FAILED(hr = self->voice->SetOutput(NULL, allow_format_changes))) return error_from_hresult(hr, "Failed to set sound output to default");
+    }
+    Py_RETURN_NONE;
+}
+
+
+static PyObject*
 Voice_get_current_voice(Voice *self, PyObject *args) {
     HRESULT hr = S_OK;
     CComPtr<ISpObjectToken> token = NULL;
@@ -106,7 +137,7 @@ Voice_set_current_voice(Voice *self, PyObject *args) {
         if (FAILED(hr = SpGetTokenFromId(id.ptr(), &token))) {
             return error_from_hresult(hr, "Failed to find voice with id", PyTuple_GET_ITEM(args, 0));
         }
-        if (FAILED(hr = self->voice->SetVoice(token))) return error_from_hresult(hr, "Failed to set voice to default");
+        if (FAILED(hr = self->voice->SetVoice(token))) return error_from_hresult(hr, "Failed to set voice to", PyTuple_GET_ITEM(args, 0));
     } else {
         if (FAILED(hr = self->voice->SetVoice(NULL))) return error_from_hresult(hr, "Failed to set voice to default");
     }
@@ -168,7 +199,9 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
 static PyMethodDef Voice_methods[] = {
     M(get_all_voices, METH_NOARGS),
     M(get_current_voice, METH_NOARGS),
+    M(get_current_sound_output, METH_NOARGS),
     M(set_current_voice, METH_VARARGS),
+    M(set_current_sound_output, METH_VARARGS),
     M(get_all_sound_outputs, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };

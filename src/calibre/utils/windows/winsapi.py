@@ -32,12 +32,26 @@ def find_tests():
             self.assertTrue(all_voices)
             self.assertIn(default_voice, {x['id'] for x in all_voices})
             for voice in all_voices:
-                for key in ('name', 'gender', 'age', 'language'):
+                for key in ('name', 'gender', 'age', 'language', 'description'):
                     self.assertIn(key, voice)
                 self.sapi.set_current_voice(voice['id'])
                 self.assertEqual(self.sapi.get_current_voice(), voice['id'])
             self.sapi.set_current_voice()
             self.assertEqual(self.sapi.get_current_voice(), default_voice)
+
+        def test_enumeration_of_sound_outputs(self):
+            default_output = self.sapi.get_current_sound_output()
+            self.assertTrue(default_output)
+            all_outputs = self.sapi.get_all_sound_outputs()
+            self.assertTrue(all_outputs)
+            self.assertIn(default_output, {x['id'] for x in all_outputs})
+            for output in all_outputs:
+                for key in ('id', 'description',):
+                    self.assertIn(key, output)
+                self.sapi.set_current_voice(output['id'])
+                self.assertEqual(self.sapi.get_current_sound_output(), output['id'])
+            self.sapi.set_current_sound_output()
+            self.assertEqual(self.sapi.get_current_sound_output(), default_output)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSAPI)
 
