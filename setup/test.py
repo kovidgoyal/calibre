@@ -146,6 +146,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         if iswindows:
             from calibre.utils.windows.wintest import find_tests
             a(find_tests())
+            from calibre.utils.windows.winsapi import find_tests
+            a(find_tests())
         a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
     if ok('dbcli'):
         from calibre.db.cli.tests import find_tests
