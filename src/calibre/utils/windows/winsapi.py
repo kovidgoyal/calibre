@@ -16,6 +16,8 @@ def develop():
 
 def find_tests():
     import unittest
+    import os
+    is_ci = os.environ.get('CI', '').lower() == 'true'
 
     class TestSAPI(unittest.TestCase):
 
@@ -39,6 +41,7 @@ def find_tests():
             self.sapi.set_current_voice()
             self.assertEqual(self.sapi.get_current_voice(), default_voice)
 
+        @unittest.skipIf(is_ci, 'No sound output on CI')
         def test_enumeration_of_sound_outputs(self):
             default_output = self.sapi.get_current_sound_output()
             self.assertTrue(default_output)
@@ -52,6 +55,19 @@ def find_tests():
                 self.assertEqual(self.sapi.get_current_sound_output(), output['id'])
             self.sapi.set_current_sound_output()
             self.assertEqual(self.sapi.get_current_sound_output(), default_output)
+
+        def test_volume_and_rate(self):
+            dr = self.sapi.get_current_rate()
+            new_rate = dr // 2 + 1
+            self.sapi.set_current_rate(new_rate)
+            self.assertEqual(self.sapi.get_current_rate(), new_rate)
+            self.sapi.set_current_rate(dr)
+
+            dv = self.sapi.get_current_volume()
+            new_vol = dv // 2 + 3
+            self.sapi.set_current_volume(new_vol)
+            self.assertEqual(self.sapi.get_current_volume(), new_vol)
+            self.sapi.set_current_volume(dv)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSAPI)
 

@@ -54,6 +54,8 @@ Voice_dealloc(Voice *self) {
     CoUninitialize();
 }
 
+
+// Enumeration {{{
 static PyObject*
 Voice_get_all_sound_outputs(Voice *self, PyObject *args) {
     HRESULT hr = S_OK;
@@ -193,16 +195,59 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
     }
     return PyList_AsTuple(ans.ptr());
 }
+// }}}
 
+
+// Volume and rate {{{
+static PyObject*
+Voice_get_current_volume(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    USHORT volume;
+    if (FAILED(hr = self->voice->GetVolume(&volume))) return error_from_hresult(hr);
+    return PyLong_FromUnsignedLong((unsigned long)volume);
+}
+
+static PyObject*
+Voice_get_current_rate(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    long rate;
+    if (FAILED(hr = self->voice->GetRate(&rate))) return error_from_hresult(hr);
+    return PyLong_FromLong(rate);
+}
+
+static PyObject*
+Voice_set_current_rate(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    long rate;
+    if (!PyArg_ParseTuple(args, "l", &rate)) return NULL;
+    if (rate < -10 || rate > 10) { PyErr_SetString(PyExc_ValueError, "rate must be between -10 and 10"); return NULL; }
+    if (FAILED(hr = self->voice->SetRate(rate))) return error_from_hresult(hr);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+Voice_set_current_volume(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    unsigned short volume;
+    if (!PyArg_ParseTuple(args, "H", &volume)) return NULL;
+    if (FAILED(hr = self->voice->SetVolume(volume))) return error_from_hresult(hr);
+    Py_RETURN_NONE;
+}
+// }}}
 
 #define M(name, args) { #name, (PyCFunction)Voice_##name, args, ""}
 static PyMethodDef Voice_methods[] = {
     M(get_all_voices, METH_NOARGS),
+    M(get_all_sound_outputs, METH_NOARGS),
+
+    M(get_current_rate, METH_NOARGS),
+    M(get_current_volume, METH_NOARGS),
     M(get_current_voice, METH_NOARGS),
     M(get_current_sound_output, METH_NOARGS),
     M(set_current_voice, METH_VARARGS),
+    M(set_current_rate, METH_VARARGS),
+    M(set_current_volume, METH_VARARGS),
     M(set_current_sound_output, METH_VARARGS),
-    M(get_all_sound_outputs, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
