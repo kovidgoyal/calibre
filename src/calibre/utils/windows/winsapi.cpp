@@ -18,6 +18,7 @@ extern CComModule _Module;
 #include <sphelper.h>
 #pragma warning( pop )
 
+// Structures {{{
 typedef struct {
     PyObject_HEAD
     ISpVoice *voice;
@@ -53,7 +54,7 @@ Voice_dealloc(Voice *self) {
     if (self->voice) { self->voice->Release(); self->voice = NULL; }
     CoUninitialize();
 }
-
+// }}}
 
 // Enumeration {{{
 static PyObject*
@@ -197,7 +198,6 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
 }
 // }}}
 
-
 // Volume and rate {{{
 static PyObject*
 Voice_get_current_volume(Voice *self, PyObject *args) {
@@ -235,10 +235,51 @@ Voice_set_current_volume(Voice *self, PyObject *args) {
 }
 // }}}
 
+static PyObject*
+Voice_speak(Voice *self, PyObject *args) {
+    wchar_raii text_or_path;
+    unsigned long flags = SPF_DEFAULT;
+    if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar, &text_or_path, &flags)) return NULL;
+    ULONG stream_number;
+    HRESULT hr = S_OK;
+    if (FAILED(hr = self->voice->Speak(text_or_path.ptr(), flags, &stream_number))) return error_from_hresult(hr, "Failed to speak", PyTuple_GET_ITEM(args, 0));
+    return PyLong_FromLong(stream_number);
+}
+
+static PyObject*
+Voice_wait_until_done(Voice *self, PyObject *args) {
+    unsigned long timeout = INFINITE;
+    if (!PyArg_ParseTuple(args, "|k", &timeout)) return NULL;
+    HRESULT hr = self->voice->WaitUntilDone(timeout);
+    if (hr == S_OK) Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
+static PyObject*
+Voice_pause(Voice *self, PyObject *args) {
+    HRESULT hr = self->voice->Pause();
+    if (FAILED(hr)) return error_from_hresult(hr);
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+Voice_resume(Voice *self, PyObject *args) {
+    HRESULT hr = self->voice->Resume();
+    if (FAILED(hr)) return error_from_hresult(hr);
+    Py_RETURN_NONE;
+}
+
+
+// Boilerplate {{{
 #define M(name, args) { #name, (PyCFunction)Voice_##name, args, ""}
 static PyMethodDef Voice_methods[] = {
     M(get_all_voices, METH_NOARGS),
     M(get_all_sound_outputs, METH_NOARGS),
+
+    M(speak, METH_VARARGS),
+    M(wait_until_done, METH_VARARGS),
+    M(pause, METH_NOARGS),
+    M(resume, METH_NOARGS),
 
     M(get_current_rate, METH_NOARGS),
     M(get_current_volume, METH_NOARGS),
@@ -294,8 +335,25 @@ CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
         Py_DECREF(m);
         return NULL;
     }
+#define AI(name) if (PyModule_AddIntMacro(m, name) != 0) { Py_DECREF(m); Py_DECREF(&VoiceType); return NULL; }
+    AI(SPF_DEFAULT);
+    AI(SPF_ASYNC);
+    AI(SPF_PURGEBEFORESPEAK);
+    AI(SPF_IS_FILENAME);
+    AI(SPF_IS_XML);
+    AI(SPF_IS_NOT_XML);
+    AI(SPF_PERSIST_XML);
+    AI(SPF_NLP_SPEAK_PUNC);
+    AI(SPF_PARSE_SSML);
+    AI(SPF_PARSE_AUTODETECT);
+    AI(SPF_NLP_MASK);
+    AI(SPF_PARSE_MASK);
+    AI(SPF_VOICE_MASK);
+    AI(SPF_UNUSED_FLAGS);
+    AI(INFINITE);
+#undef AI
 
     return m;
 }
 
-}
+} // }}}
