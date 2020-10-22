@@ -54,6 +54,35 @@ Voice_dealloc(Voice *self) {
     CoUninitialize();
 }
 
+static PyObject*
+Voice_get_all_sound_outputs(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    CComPtr<IEnumSpObjectTokens> iterator = NULL;
+    if (FAILED(hr = SpEnumTokens(SPCAT_AUDIOOUT, NULL, NULL, &iterator))) {
+        return error_from_hresult(hr, "Failed to create audio output category iterator");
+    }
+    pyobject_raii ans(PyList_New(0));
+    if (!ans) return NULL;
+    while (true) {
+        CComPtr<ISpObjectToken> token = NULL;
+        if (FAILED(hr = iterator->Next(1, &token, NULL)) || hr == S_FALSE || !token) break;
+        pyobject_raii dict(PyDict_New());
+        if (!dict) return NULL;
+        com_wchar_raii id, description;
+        if (FAILED(hr = token->GetId(id.address()))) continue;
+        pyobject_raii idpy(PyUnicode_FromWideChar(id.ptr(), -1));
+        if (!idpy) return NULL;
+        if (PyDict_SetItemString(dict.ptr(), "id", idpy.ptr()) != 0) return NULL;
+
+        if (FAILED(hr = SpGetDescription(token, description.address(), NULL))) continue;
+        pyobject_raii descriptionpy(PyUnicode_FromWideChar(description.ptr(), -1));
+        if (!descriptionpy) return NULL;
+        if (PyDict_SetItemString(dict.ptr(), "description", descriptionpy.ptr()) != 0) return NULL;
+
+        if (PyList_Append(ans.ptr(), dict.ptr()) != 0) return NULL;
+    }
+    return ans.detach();
+}
 
 static PyObject*
 Voice_get_all_voices(Voice *self, PyObject *args) {
@@ -61,7 +90,6 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
     CComPtr<IEnumSpObjectTokens> iterator = NULL;
     if (FAILED(hr = SpEnumTokens(SPCAT_VOICES, NULL, NULL, &iterator))) {
         return error_from_hresult(hr, "Failed to create voice category iterator");
-        return NULL;
     }
     pyobject_raii ans(PyList_New(0));
     if (!ans) return NULL;
@@ -110,6 +138,7 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
 #define M(name, args) { #name, (PyCFunction)Voice_##name, args, ""}
 static PyMethodDef Voice_methods[] = {
     M(get_all_voices, METH_NOARGS),
+    M(get_all_sound_outputs, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
