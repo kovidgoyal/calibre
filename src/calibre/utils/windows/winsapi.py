@@ -3,10 +3,8 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from calibre_extensions.winsapi import ISpVoice
-
-
 def develop():
+    from calibre_extensions.winsapi import ISpVoice
     from pprint import pprint
     spv = ISpVoice()
     voices = spv.get_all_voices()
@@ -17,6 +15,7 @@ def develop():
 
 def find_tests():
     import unittest
+    from calibre_extensions.winsapi import ISpVoice
 
     class TestSAPI(unittest.TestCase):
 
