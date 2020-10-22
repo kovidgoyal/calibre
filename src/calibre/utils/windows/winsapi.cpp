@@ -20,7 +20,7 @@ extern CComModule _Module;
 
 typedef struct {
     PyObject_HEAD
-        ISpVoice *voice;
+    ISpVoice *voice;
 } Voice;
 
 
@@ -81,7 +81,36 @@ Voice_get_all_sound_outputs(Voice *self, PyObject *args) {
 
         if (PyList_Append(ans.ptr(), dict.ptr()) != 0) return NULL;
     }
-    return ans.detach();
+    return PyList_AsTuple(ans.ptr());
+}
+
+static PyObject*
+Voice_get_current_voice(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    CComPtr<ISpObjectToken> token = NULL;
+    if (FAILED(hr = self->voice->GetVoice(&token))) {
+        return error_from_hresult(hr, "Failed to get current voice");
+    }
+    com_wchar_raii id;
+    if (FAILED(hr = token->GetId(id.address()))) return error_from_hresult(hr, "Failed to get ID for current voice");
+    return PyUnicode_FromWideChar(id.ptr(), -1);
+}
+
+static PyObject*
+Voice_set_current_voice(Voice *self, PyObject *args) {
+    wchar_raii id;
+    if (!PyArg_ParseTuple(args, "|O&", py_to_wchar, &id)) return NULL;
+    HRESULT hr = S_OK;
+    if (id) {
+        CComPtr<ISpObjectToken> token = NULL;
+        if (FAILED(hr = SpGetTokenFromId(id.ptr(), &token))) {
+            return error_from_hresult(hr, "Failed to find voice with id", PyTuple_GET_ITEM(args, 0));
+        }
+        if (FAILED(hr = self->voice->SetVoice(token))) return error_from_hresult(hr, "Failed to set voice to default");
+    } else {
+        if (FAILED(hr = self->voice->SetVoice(NULL))) return error_from_hresult(hr, "Failed to set voice to default");
+    }
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -131,13 +160,15 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
         }
         if (PyList_Append(ans.ptr(), dict.ptr()) != 0) return NULL;
     }
-    return ans.detach();
+    return PyList_AsTuple(ans.ptr());
 }
 
 
 #define M(name, args) { #name, (PyCFunction)Voice_##name, args, ""}
 static PyMethodDef Voice_methods[] = {
     M(get_all_voices, METH_NOARGS),
+    M(get_current_voice, METH_NOARGS),
+    M(set_current_voice, METH_VARARGS),
     M(get_all_sound_outputs, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };
@@ -166,7 +197,7 @@ static struct PyModuleDef winsapi_module = {
 extern "C" {
 
 CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
-    VoiceType.tp_name = "winsapi.Voice";
+    VoiceType.tp_name = "winsapi.ISpVoice";
     VoiceType.tp_doc = "Wrapper for ISpVoice";
     VoiceType.tp_basicsize = sizeof(Voice);
     VoiceType.tp_itemsize = 0;
@@ -180,7 +211,7 @@ CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
     if (m == NULL) return NULL;
 
 	Py_INCREF(&VoiceType);
-    if (PyModule_AddObject(m, "Voice", (PyObject *) &VoiceType) < 0) {
+    if (PyModule_AddObject(m, "ISpVoice", (PyObject *) &VoiceType) < 0) {
         Py_DECREF(&VoiceType);
         Py_DECREF(m);
         return NULL;

@@ -13,11 +13,13 @@
 #include <comdef.h>
 
 static inline PyObject*
-set_error_from_hresult(const char *file, const int line, const HRESULT hr, const char *prefix="") {
+set_error_from_hresult(const char *file, const int line, const HRESULT hr, const char *prefix="", PyObject *name=NULL) {
     _com_error err(hr);
     LPCWSTR msg = err.ErrorMessage();
     PyObject *pmsg = PyUnicode_FromWideChar(msg, -1);
-    PyObject *ans = PyErr_Format(PyExc_OSError, "%s:%d:%s:%V", file, line, prefix, pmsg, "Out of memory");
+    PyObject *ans;
+    if (name) ans = PyErr_Format(PyExc_OSError, "%s:%d:%s:%V: %S", file, line, prefix, pmsg, "Out of memory", name);
+    else ans = PyErr_Format(PyExc_OSError, "%s:%d:%s:%V", file, line, prefix, pmsg, "Out of memory");
     Py_CLEAR(pmsg);
     return ans;
 }
@@ -41,6 +43,7 @@ class wchar_raii {
 
 		wchar_t *ptr() { return handle; }
 		void set_ptr(wchar_t *val) { handle = val; }
+		explicit operator bool() const { return handle != NULL; }
 };
 
 
