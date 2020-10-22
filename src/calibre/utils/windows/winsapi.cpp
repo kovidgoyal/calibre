@@ -300,6 +300,7 @@ Voice_create_recording_wav(Voice *self, PyObject *args) {
     hr = self->voice->Speak(text.ptr(), SPF_DEFAULT, NULL);
     Py_END_ALLOW_THREADS;
     stream->Close();
+    self->voice->SetOutput(uses_default_output ? NULL: token, TRUE);
     if (FAILED(hr)) return error_from_hresult(hr, "Failed to speak into wav file", PyTuple_GET_ITEM(args, 0));
     Py_RETURN_NONE;
 }

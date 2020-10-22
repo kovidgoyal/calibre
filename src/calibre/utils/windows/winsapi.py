@@ -65,7 +65,7 @@ def find_tests():
             self.assertEqual(self.sapi.get_current_volume(), new_vol)
             self.sapi.set_current_volume(dv)
 
-        def test_record_as_wav(self):
+        def test_record_as_audio_file(self):
             import tempfile
             with tempfile.TemporaryDirectory() as tdir:
                 wav_path = os.path.join(tdir, 'test.wav')
