@@ -6,12 +6,8 @@ from calibre_extensions.winsapi import ISpVoice
 
 
 def develop():
-    from pprint import pprint
     spv = ISpVoice()
-    voices = spv.get_all_voices()
-    pprint(voices)
-    for voice in voices:
-        spv.set_current_voice(voice['id'])
+    spv.create_recording_wav('test.wav', 'Hello, world!')
 
 
 def find_tests():
@@ -68,6 +64,13 @@ def find_tests():
             self.sapi.set_current_volume(new_vol)
             self.assertEqual(self.sapi.get_current_volume(), new_vol)
             self.sapi.set_current_volume(dv)
+
+        def test_record_as_wav(self):
+            import tempfile
+            with tempfile.TemporaryDirectory() as tdir:
+                wav_path = os.path.join(tdir, 'test.wav')
+                self.sapi.create_recording_wav(wav_path, 'testing microsoft voices')
+                self.assertGreater(os.path.getsize(wav_path), 256)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestSAPI)
 

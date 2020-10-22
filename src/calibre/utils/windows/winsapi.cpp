@@ -242,7 +242,10 @@ Voice_speak(Voice *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar, &text_or_path, &flags)) return NULL;
     ULONG stream_number;
     HRESULT hr = S_OK;
-    if (FAILED(hr = self->voice->Speak(text_or_path.ptr(), flags, &stream_number))) return error_from_hresult(hr, "Failed to speak", PyTuple_GET_ITEM(args, 0));
+    Py_BEGIN_ALLOW_THREADS;
+    hr = self->voice->Speak(text_or_path.ptr(), flags, &stream_number);
+    Py_END_ALLOW_THREADS;
+    if (FAILED(hr)) return error_from_hresult(hr, "Failed to speak", PyTuple_GET_ITEM(args, 0));
     return PyLong_FromLong(stream_number);
 }
 
@@ -250,7 +253,10 @@ static PyObject*
 Voice_wait_until_done(Voice *self, PyObject *args) {
     unsigned long timeout = INFINITE;
     if (!PyArg_ParseTuple(args, "|k", &timeout)) return NULL;
-    HRESULT hr = self->voice->WaitUntilDone(timeout);
+    HRESULT hr ;
+    Py_BEGIN_ALLOW_THREADS;
+    hr = self->voice->WaitUntilDone(timeout);
+    Py_END_ALLOW_THREADS;
     if (hr == S_OK) Py_RETURN_TRUE;
     Py_RETURN_FALSE;
 }
@@ -269,6 +275,34 @@ Voice_resume(Voice *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static PyObject*
+Voice_create_recording_wav(Voice *self, PyObject *args) {
+    HRESULT hr = S_OK;
+    wchar_raii path, text;
+    int do_events = 0;
+    SPSTREAMFORMAT format = SPSF_22kHz16BitMono;
+    if (!PyArg_ParseTuple(args, "O&O&|ip", py_to_wchar_no_none, &path, py_to_wchar_no_none, &text, &format, &do_events)) return NULL;
+    CComPtr <ISpStream> stream = NULL;
+    CSpStreamFormat audio_fmt;
+    if (FAILED(hr = audio_fmt.AssignFormat(format))) return error_from_hresult(hr, "Invalid Audio format");
+    CComPtr<ISpObjectToken> token = NULL;
+    if (FAILED(hr = self->voice->GetOutputObjectToken(&token))) return error_from_hresult(hr, "Failed to get current output object token");
+    bool uses_default_output = hr == S_FALSE;
+
+    if (FAILED(hr = SPBindToFile(path.ptr(), SPFM_CREATE_ALWAYS, &stream, &audio_fmt.FormatId(), audio_fmt.WaveFormatExPtr())))
+        return error_from_hresult(hr, "Failed to open file", PyTuple_GET_ITEM(args, 0));
+
+    if (FAILED(hr = self->voice->SetOutput(stream, TRUE))) {
+        stream->Close();
+        return error_from_hresult(hr, "Failed to set output to wav file", PyTuple_GET_ITEM(args, 0));
+    }
+    Py_BEGIN_ALLOW_THREADS;
+    hr = self->voice->Speak(text.ptr(), SPF_DEFAULT, NULL);
+    Py_END_ALLOW_THREADS;
+    stream->Close();
+    if (FAILED(hr)) return error_from_hresult(hr, "Failed to speak into wav file", PyTuple_GET_ITEM(args, 0));
+    Py_RETURN_NONE;
+}
 
 // Boilerplate {{{
 #define M(name, args) { #name, (PyCFunction)Voice_##name, args, ""}
@@ -280,6 +314,7 @@ static PyMethodDef Voice_methods[] = {
     M(wait_until_done, METH_VARARGS),
     M(pause, METH_NOARGS),
     M(resume, METH_NOARGS),
+    M(create_recording_wav, METH_VARARGS),
 
     M(get_current_rate, METH_NOARGS),
     M(get_current_volume, METH_NOARGS),
@@ -289,6 +324,7 @@ static PyMethodDef Voice_methods[] = {
     M(set_current_rate, METH_VARARGS),
     M(set_current_volume, METH_VARARGS),
     M(set_current_sound_output, METH_VARARGS),
+
     {NULL, NULL, 0, NULL}
 };
 #undef M
@@ -350,7 +386,138 @@ CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
     AI(SPF_PARSE_MASK);
     AI(SPF_VOICE_MASK);
     AI(SPF_UNUSED_FLAGS);
+
     AI(INFINITE);
+
+    AI(SPSF_Default);
+    AI(SPSF_NoAssignedFormat);
+    AI(SPSF_Text);
+    AI(SPSF_NonStandardFormat);
+    AI(SPSF_ExtendedAudioFormat);
+
+    // Standard PCM wave formats
+    AI(SPSF_8kHz8BitMono);
+    AI(SPSF_8kHz8BitStereo);
+    AI(SPSF_8kHz16BitMono);
+    AI(SPSF_8kHz16BitStereo);
+    AI(SPSF_11kHz8BitMono);
+    AI(SPSF_11kHz8BitStereo);
+    AI(SPSF_11kHz16BitMono);
+    AI(SPSF_11kHz16BitStereo);
+    AI(SPSF_12kHz8BitMono);
+    AI(SPSF_12kHz8BitStereo);
+    AI(SPSF_12kHz16BitMono);
+    AI(SPSF_12kHz16BitStereo);
+    AI(SPSF_16kHz8BitMono);
+    AI(SPSF_16kHz8BitStereo);
+    AI(SPSF_16kHz16BitMono);
+    AI(SPSF_16kHz16BitStereo);
+    AI(SPSF_22kHz8BitMono);
+    AI(SPSF_22kHz8BitStereo);
+    AI(SPSF_22kHz16BitMono);
+    AI(SPSF_22kHz16BitStereo);
+    AI(SPSF_24kHz8BitMono);
+    AI(SPSF_24kHz8BitStereo);
+    AI(SPSF_24kHz16BitMono);
+    AI(SPSF_24kHz16BitStereo);
+    AI(SPSF_32kHz8BitMono);
+    AI(SPSF_32kHz8BitStereo);
+    AI(SPSF_32kHz16BitMono);
+    AI(SPSF_32kHz16BitStereo);
+    AI(SPSF_44kHz8BitMono);
+    AI(SPSF_44kHz8BitStereo);
+    AI(SPSF_44kHz16BitMono);
+    AI(SPSF_44kHz16BitStereo);
+    AI(SPSF_48kHz8BitMono);
+    AI(SPSF_48kHz8BitStereo);
+    AI(SPSF_48kHz16BitMono);
+    AI(SPSF_48kHz16BitStereo);
+
+    // TrueSpeech format
+    AI(SPSF_TrueSpeech_8kHz1BitMono);
+
+    // A-Law formats
+    AI(SPSF_CCITT_ALaw_8kHzMono);
+    AI(SPSF_CCITT_ALaw_8kHzStereo);
+    AI(SPSF_CCITT_ALaw_11kHzMono);
+    AI(SPSF_CCITT_ALaw_11kHzStereo);
+    AI(SPSF_CCITT_ALaw_22kHzMono);
+    AI(SPSF_CCITT_ALaw_22kHzStereo);
+    AI(SPSF_CCITT_ALaw_44kHzMono);
+    AI(SPSF_CCITT_ALaw_44kHzStereo);
+
+    // u-Law formats
+    AI(SPSF_CCITT_uLaw_8kHzMono);
+    AI(SPSF_CCITT_uLaw_8kHzStereo);
+    AI(SPSF_CCITT_uLaw_11kHzMono);
+    AI(SPSF_CCITT_uLaw_11kHzStereo);
+    AI(SPSF_CCITT_uLaw_22kHzMono);
+    AI(SPSF_CCITT_uLaw_22kHzStereo);
+    AI(SPSF_CCITT_uLaw_44kHzMono);
+    AI(SPSF_CCITT_uLaw_44kHzStereo);
+
+    // ADPCM formats
+    AI(SPSF_ADPCM_8kHzMono);
+    AI(SPSF_ADPCM_8kHzStereo);
+    AI(SPSF_ADPCM_11kHzMono);
+    AI(SPSF_ADPCM_11kHzStereo);
+    AI(SPSF_ADPCM_22kHzMono);
+    AI(SPSF_ADPCM_22kHzStereo);
+    AI(SPSF_ADPCM_44kHzMono);
+    AI(SPSF_ADPCM_44kHzStereo);
+
+    // GSM 6.10 formats
+    AI(SPSF_GSM610_8kHzMono);
+    AI(SPSF_GSM610_11kHzMono);
+    AI(SPSF_GSM610_22kHzMono);
+    AI(SPSF_GSM610_44kHzMono);
+
+    AI(SPEI_UNDEFINED);
+
+    //--- TTS engine
+    AI(SPEI_START_INPUT_STREAM);
+    AI(SPEI_END_INPUT_STREAM);
+    AI(SPEI_VOICE_CHANGE);
+    AI(SPEI_TTS_BOOKMARK);
+    AI(SPEI_WORD_BOUNDARY);
+    AI(SPEI_PHONEME);
+    AI(SPEI_SENTENCE_BOUNDARY);
+    AI(SPEI_VISEME);
+    AI(SPEI_TTS_AUDIO_LEVEL);
+
+    //--- Engine vendors use these reserved bits
+    AI(SPEI_TTS_PRIVATE);
+    AI(SPEI_MIN_TTS);
+    AI(SPEI_MAX_TTS);
+
+    //--- Speech Recognition
+    AI(SPEI_END_SR_STREAM);
+    AI(SPEI_SOUND_START);
+    AI(SPEI_SOUND_END);
+    AI(SPEI_PHRASE_START);
+    AI(SPEI_RECOGNITION);
+    AI(SPEI_HYPOTHESIS);
+    AI(SPEI_SR_BOOKMARK);
+    AI(SPEI_PROPERTY_NUM_CHANGE);
+    AI(SPEI_PROPERTY_STRING_CHANGE);
+    AI(SPEI_FALSE_RECOGNITION);
+    AI(SPEI_INTERFERENCE);
+    AI(SPEI_REQUEST_UI);
+    AI(SPEI_RECO_STATE_CHANGE);
+    AI(SPEI_ADAPTATION);
+    AI(SPEI_START_SR_STREAM);
+    AI(SPEI_RECO_OTHER_CONTEXT);
+    AI(SPEI_SR_AUDIO_LEVEL);
+    AI(SPEI_SR_RETAINEDAUDIO);
+
+    //--- Engine vendors use these reserved bits
+    AI(SPEI_SR_PRIVATE);
+    AI(SPEI_MIN_SR);
+    AI(SPEI_MAX_SR);
+
+    //--- Reserved: Do not use
+    AI(SPEI_RESERVED1);
+    AI(SPEI_RESERVED2);
 #undef AI
 
     return m;
