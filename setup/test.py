@@ -41,7 +41,7 @@ class TestImports(unittest.TestCase):
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
         if not iswindows:
             exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
-            exclude_packages |= {'calibre.utils.winreg'}
+            exclude_packages |= {'calibre.utils.winreg', 'calibre.utils.windows'}
         if not ismacos:
             exclude_modules.add('calibre.utils.open_with.osx')
         if not islinux:
