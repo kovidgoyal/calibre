@@ -16,10 +16,6 @@ class EnumValuesEdit(QDialog):
     def __init__(self, parent, db, key):
         QDialog.__init__(self, parent)
 
-        geom = gprefs.get('enum-values-edit-geometry', None)
-        if geom is not None:
-            QApplication.instance().safe_restore_geometry(self, geom)
-
         self.setWindowTitle(_('Edit permissible values for {0}').format(key))
         self.db = db
         l = QGridLayout()
@@ -28,8 +24,10 @@ class EnumValuesEdit(QDialog):
         bbox.addStretch(10)
         self.del_button = QToolButton()
         self.del_button.setIcon(QIcon(I('trash.png')))
+        self.del_button.setToolTip(_('Remove the currently selected value'))
         self.ins_button = QToolButton()
         self.ins_button.setIcon(QIcon(I('plus.png')))
+        self.ins_button.setToolTip(_('Add a new permissible value'))
         self.move_up_button= QToolButton()
         self.move_up_button.setIcon(QIcon(I('arrow-up.png')))
         self.move_down_button= QToolButton()
@@ -81,6 +79,15 @@ class EnumValuesEdit(QDialog):
         self.ins_button.clicked.connect(self.ins_button_clicked)
         self.move_down_button.clicked.connect(self.move_down_clicked)
         self.move_up_button.clicked.connect(self.move_up_clicked)
+        geom = gprefs.get('enum-values-edit-geometry')
+        if geom is not None:
+            QApplication.instance().safe_restore_geometry(self, geom)
+
+    def sizeHint(self):
+        sz = QDialog.sizeHint(self)
+        sz.setWidth(max(sz.width(), 600))
+        sz.setHeight(max(sz.height(), 400))
+        return sz
 
     def make_color_combobox(self, row, dex):
         c = QComboBox(self)
@@ -122,7 +129,6 @@ class EnumValuesEdit(QDialog):
         self.move_row(row, 1)
 
     def del_line(self):
-        print(self.table.currentRow())
         if self.table.currentRow() >= 0:
             self.table.removeRow(self.table.currentRow())
 
@@ -180,5 +186,3 @@ class EnumValuesEdit(QDialog):
 
     def reject(self):
         return QDialog.reject(self)
-
-
