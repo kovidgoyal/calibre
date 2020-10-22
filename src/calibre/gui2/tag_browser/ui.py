@@ -93,6 +93,7 @@ class TagBrowserMixin(object):  # {{{
                 type=Qt.QueuedConnection)
         self.tags_view.model().user_category_added.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
+        self.tags_view.edit_enum_values.connect(self.edit_enum_values)
 
     def user_categories_edited(self):
         self.library_view.model().refresh()
@@ -261,7 +262,8 @@ class TagBrowserMixin(object):  # {{{
                           cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag,
                           get_book_ids=partial(self.get_book_ids, db=db, category=category),
-                          sorter=key, ttm_is_first_letter=is_first_letter)
+                          sorter=key, ttm_is_first_letter=is_first_letter,
+                          fm=db.field_metadata[category])
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
@@ -377,6 +379,11 @@ class TagBrowserMixin(object):  # {{{
                     db.set_field(series_index_field, {book_id: si})
             self.library_view.model().refresh_ids(set(changes), current_row=self.library_view.currentIndex().row())
             self.tags_view.recount_with_position_based_index()
+
+    def edit_enum_values(self, parent, db, key):
+        from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
+        d = EnumValuesEdit(parent, db, key)
+        d.exec_()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
