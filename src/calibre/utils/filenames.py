@@ -592,3 +592,14 @@ def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile)
 
 
 rmtree = shutil.rmtree
+
+
+if iswindows:
+    def make_long_path_useable(path):
+        if len(path) > 200:
+            from calibre_extensions.winutil import canonicalize_path
+            path = canonicalize_path(path)
+        return path
+else:
+    def make_long_path_useable(path):
+        return path

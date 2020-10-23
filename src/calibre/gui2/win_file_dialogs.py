@@ -222,7 +222,14 @@ def run_file_dialog(
         return ()
     if parts[0] != secret:
         raise Exception('File dialog failed, incorrect secret received: ' + get_errors())
-    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in parts[1:]))
+
+    from calibre_extensions.winutil import get_long_path_name
+
+    def fix_path(x):
+        u = os.path.abspath(x.decode('utf-8'))
+        return get_long_path_name(u)
+
+    ans = tuple(map(fix_path, parts[1:]))
     return ans
 
 

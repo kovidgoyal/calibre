@@ -5,29 +5,34 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import shutil, os, weakref, traceback, tempfile, time
-from threading import Thread
+import os
+import shutil
+import tempfile
+import time
+import traceback
+import weakref
 from collections import OrderedDict
 from io import BytesIO
-from polyglot.builtins import iteritems, map, unicode_type, string_or_bytes
-
 from PyQt5.Qt import QObject, Qt, pyqtSignal
+from threading import Thread
 
-from calibre import prints, as_unicode
-from calibre.constants import DEBUG, iswindows, ismacos, filesystem_encoding
-from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
-from calibre.db.adding import find_books_in_directory, compile_rule
+from calibre import as_unicode, prints
+from calibre.constants import DEBUG, filesystem_encoding, ismacos, iswindows
+from calibre.customize.ui import run_plugins_on_postadd, run_plugins_on_postimport
+from calibre.db.adding import compile_rule, find_books_in_directory
 from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata import authors_to_sort_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import error_dialog, warning_dialog, gprefs
+from calibre.gui2 import error_dialog, gprefs, warning_dialog
 from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs
-from calibre.utils.ipc.pool import Pool, Failure
+from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.ipc.pool import Failure, Pool
+from polyglot.builtins import iteritems, map, string_or_bytes, unicode_type
 from polyglot.queue import Empty
 
 
@@ -61,6 +66,10 @@ class Adder(QObject):
     do_one_signal = pyqtSignal()
 
     def __init__(self, source, single_book_per_directory=True, db=None, parent=None, callback=None, pool=None, list_of_archives=False):
+        if isinstance(source, str):
+            source = make_long_path_useable(source)
+        else:
+            source = list(map(make_long_path_useable, source))
         if not validate_source(source, parent):
             return
         QObject.__init__(self, parent)
