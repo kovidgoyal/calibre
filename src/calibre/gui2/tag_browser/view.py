@@ -783,7 +783,7 @@ class TagsView(QTreeView):  # {{{
                                     category=tag.original_name if tag else None,
                                     key=key))
                     if fm['datatype'] == 'enumeration':
-                        self.context_menu.addAction(_('Edit permissable values for %s')%category,
+                        self.context_menu.addAction(_('Edit permissible values for %s')%category,
                             partial(self.context_menu_handler, action='edit_enum',
                                     key=key))
                 elif key == 'authors':
