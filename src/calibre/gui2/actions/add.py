@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.config_base import tweaks
-from calibre.utils.filenames import ascii_filename
+from calibre.utils.filenames import ascii_filename, make_long_path_useable
 from calibre.utils.icu import sort_key
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import question_dialog
@@ -151,6 +151,7 @@ class AddAction(InterfaceAction):
                   ' files to all %d books? If the format'
                   ' already exists for a book, it will be replaced.')%len(ids)):
             return
+        paths = list(map(make_long_path_useable, paths))
 
         db = self.gui.current_db
         if len(ids) == 1:
