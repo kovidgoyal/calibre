@@ -261,6 +261,8 @@ class BuildTest(unittest.TestCase):
         self.assertRaises(OSError, winutil.create_mutex, 'test-mutex', False)
         m.close()
         self.assertEqual(winutil.parse_cmdline('"c:\\test exe.exe" "some arg" 2'), ('c:\\test exe.exe', 'some arg', '2'))
+        q = 'c:/hello/{}.txt'.format('a' * 400)
+        self.assertEqual(winutil.canonicalize_path(q), '\\\\?\\' + q)
 
     def test_sqlite(self):
         import sqlite3
