@@ -595,10 +595,11 @@ rmtree = shutil.rmtree
 
 
 if iswindows:
+    long_path_prefix = '\\\\?\\'
+
     def make_long_path_useable(path):
-        if len(path) > 200:
-            from calibre_extensions.winutil import canonicalize_path
-            path = canonicalize_path(path)
+        if len(path) > 200 and os.path.isabs(path) and not path.startswith(long_path_prefix):
+            path = long_path_prefix + os.path.normpath(path)
         return path
 else:
     def make_long_path_useable(path):

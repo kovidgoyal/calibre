@@ -15,7 +15,6 @@
 #include <shlguid.h>
 #include <shellapi.h>
 #include <shlwapi.h>
-#include <pathcch.h>
 #include <commoncontrols.h>
 #include <comip.h>
 #include <comdef.h>
@@ -726,24 +725,6 @@ get_long_path_name(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
-canonicalize_path(PyObject *self, PyObject *args) {
-    wchar_raii path;
-    if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
-	size_t path_len = 0;
-	wchar_t *p = path.ptr();
-	while (p[path_len]) {
-		if (p[path_len] == '/') p[path_len] = '\\';
-		path_len++;
-	}
-	wchar_t *ans;
-	HRESULT hr = PathAllocCanonicalize(p, PATHCCH_ENSURE_IS_EXTENDED_LENGTH_PATH, &ans);
-	if (FAILED(hr)) return error_from_hresult(hr, "Failed to canonicalize path", PyTuple_GET_ITEM(args, 0));
-	PyObject *r = PyUnicode_FromWideChar(ans, -1);
-	LocalFree(ans);
-	return r;
-}
-
-static PyObject *
 get_process_times(PyObject *self, PyObject *pid) {
     HANDLE h = INVALID_HANDLE_VALUE;
     if (pid == Py_None) {
@@ -1025,7 +1006,6 @@ static PyMethodDef winutil_methods[] = {
     M(set_handle_information, METH_VARARGS),
     M(get_long_path_name, METH_VARARGS),
     M(get_process_times, METH_O),
-    M(canonicalize_path, METH_VARARGS),
 	M(get_handle_information, METH_VARARGS),
 	M(get_last_error, METH_NOARGS),
 	M(load_library, METH_VARARGS),
