@@ -499,10 +499,6 @@ class View:
             self.toggle_reference_mode()
         elif data.name is 'reload_book':
             ui_operations.reload_book()
-        elif data.name is 'search_for_selection':
-            if self.currently_showing.selection.text:
-                self.search_overlay.set_text(self.currently_showing.selection.text)
-                self.search_overlay.find_next()
         elif data.name is 'next_section':
             self.on_next_section({'forward': True})
         elif data.name is 'previous_section':
