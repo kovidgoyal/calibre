@@ -1157,7 +1157,7 @@ class Cover(ImageView):  # {{{
             return
         _file = files[0]
         if _file:
-            _file = os.path.abspath(_file)
+            _file = make_long_path_useable(os.path.abspath(_file))
             if not os.access(_file, os.R_OK):
                 d = error_dialog(self, _('Cannot read'),
                         _('You do not have permission to read the file: ') + _file)
