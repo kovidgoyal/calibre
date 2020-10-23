@@ -6,41 +6,50 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re, os, shutil, weakref
+import os
+import re
+import shutil
+import textwrap
+import weakref
 from datetime import date, datetime
-
 from PyQt5.Qt import (
-    Qt, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
-    QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
-    QPixmap, QDialog, QMenu, QLineEdit, QSizePolicy, QKeySequence,
-    QDialogButtonBox, QAction, QDateTime, QUndoCommand,
-    QUndoStack, QVBoxLayout, QPlainTextEdit, QUrl)
+    QAction, QApplication, QDateTime, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QGridLayout, QIcon, QKeySequence, QLabel, QLineEdit, QListWidgetItem, QMenu,
+    QMessageBox, QPixmap, QPlainTextEdit, QSize, QSizePolicy, Qt, QToolButton,
+    QUndoCommand, QUndoStack, QUrl, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog, RatingEditor, DateTimeEdit
-from calibre.utils.icu import sort_key
-from calibre.utils.config import tweaks, prefs
-from calibre.ebooks.metadata import (
-    title_sort, string_to_authors, check_isbn, authors_to_sort_string)
-from calibre.ebooks.metadata.meta import get_metadata
-from calibre.gui2 import (file_icon_provider,
-        choose_files, error_dialog, choose_images, gprefs)
-from calibre.gui2.complete2 import EditWithComplete
-from calibre.utils.date import (
-    local_tz, qt_to_dt, as_local_time, UNDEFINED_DATE, is_date_undefined,
-    utcfromtimestamp, parse_only_date, internal_iso_format_string)
 from calibre import strftime
-from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.customize.ui import run_plugins_on_import
-from calibre.gui2.comments_editor import Editor
-from calibre.library.comments import comments_to_html
-from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.utils.icu import strcmp
-from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
-from calibre.gui2.languages import LanguagesEdit as LE
 from calibre.db import SPOOL_SIZE
+from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ebooks.metadata import (
+    authors_to_sort_string, check_isbn, string_to_authors, title_sort
+)
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.oeb.polish.main import SUPPORTED as EDIT_SUPPORTED
-from polyglot.builtins import iteritems, unicode_type, range
+from calibre.gui2 import (
+    choose_files, choose_images, error_dialog, file_icon_provider, gprefs
+)
+from calibre.gui2.comments_editor import Editor
+from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.dialogs.tag_editor import TagEditor
+from calibre.gui2.languages import LanguagesEdit as LE
+from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
+from calibre.gui2.widgets2 import (
+    DateTimeEdit, Dialog, RatingEditor, RightClickButton, access_key,
+    populate_standard_spinbox_context_menu
+)
+from calibre.library.comments import comments_to_html
+from calibre.ptempfile import PersistentTemporaryFile, SpooledTemporaryFile
+from calibre.utils.config import prefs, tweaks
+from calibre.utils.date import (
+    UNDEFINED_DATE, as_local_time, internal_iso_format_string, is_date_undefined,
+    local_tz, parse_only_date, qt_to_dt, utcfromtimestamp
+)
+from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.icu import sort_key, strcmp
+from polyglot.builtins import iteritems, range, unicode_type
 
 
 def save_dialog(parent, title, msg, det_msg=''):
@@ -963,14 +972,14 @@ class FormatsManager(QWidget):
             return added
         bad_perms = []
         for _file in paths:
-            _file = os.path.abspath(_file)
+            _file = make_long_path_useable(os.path.abspath(_file))
             if not os.access(_file, os.R_OK):
                 bad_perms.append(_file)
                 continue
 
             nfile = run_plugins_on_import(_file)
             if nfile is not None:
-                _file = nfile
+                _file = make_long_path_useable(nfile)
             stat = os.stat(_file)
             size = stat.st_size
             ext = os.path.splitext(_file)[1].lower().replace('.', '')
@@ -1179,7 +1188,9 @@ class Cover(ImageView):  # {{{
         cdata = self.current_val
         if not cdata:
             return
-        from calibre.utils.img import remove_borders_from_image, image_to_data, image_from_data
+        from calibre.utils.img import (
+            image_from_data, image_to_data, remove_borders_from_image
+        )
         img = image_from_data(cdata)
         nimg = remove_borders_from_image(img)
         if nimg is not img:
