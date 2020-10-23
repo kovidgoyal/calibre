@@ -24,7 +24,7 @@ from calibre.gui2.library.annotations import (
 )
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
-from calibre.gui2.viewer.shortcuts import index_to_key_sequence
+from calibre.gui2.viewer.shortcuts import get_shortcut_for, index_to_key_sequence
 from calibre.gui2.widgets2 import Dialog
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.builtins import range
@@ -398,6 +398,7 @@ class HighlightsPanel(QWidget):
     jump_to_cfi = pyqtSignal(object)
     request_highlight_action = pyqtSignal(object, object)
     web_action = pyqtSignal(object, object)
+    toggle_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -514,3 +515,9 @@ class HighlightsPanel(QWidget):
     def selected_text_changed(self, text, annot_id):
         if annot_id:
             self.highlights.find_annot_id(annot_id)
+
+    def keyPressEvent(self, ev):
+        sc = get_shortcut_for(self, ev)
+        if sc == 'toggle_highlights' or ev.key() == Qt.Key_Escape:
+            self.toggle_requested.emit()
+        return super().keyPressEvent(ev)

@@ -156,6 +156,7 @@ class EbookViewer(MainWindow):
 
         self.highlights_widget = w = HighlightsPanel(self)
         self.highlights_dock.setWidget(w)
+        w.toggle_requested.connect(self.toggle_highlights)
 
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
