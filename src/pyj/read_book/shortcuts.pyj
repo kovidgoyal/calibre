@@ -292,12 +292,6 @@ def shortcuts_definition():
         _('Reload book'),
     ),
 
-    'search_for_selection': desc(
-        v"['Ctrl+s']",
-        'ui',
-        _('Search for next occurrence of selected text'),
-    ),
-
     'extend_selection_by_word': desc(
         v"['Ctrl+Shift+ArrowRight']",
         'ui',
