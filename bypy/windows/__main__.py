@@ -66,7 +66,7 @@ SUPPORTED_OS = {
 
 EXE_MANIFEST = '''\
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-  <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
     <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
         <security>
             <requestedPrivileges>
@@ -75,14 +75,17 @@ EXE_MANIFEST = '''\
         </security>
     </trustInfo>
     <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
-      <application>
-          <supportedOS Id="{w7}"/>
-          <supportedOS Id="{w8}"/>
-          <supportedOS Id="{w81}"/>
-          <supportedOS Id="{w10}"/>
-      </application>
+        <application xmlns="urn:schemas-microsoft-com:asm.v3">
+            <supportedOS Id="{w7}"/>
+            <supportedOS Id="{w8}"/>
+            <supportedOS Id="{w81}"/>
+            <supportedOS Id="{w10}"/>
+            <windowsSettings xmlns:ws2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
+                <ws2:longPathAware>true</ws2:longPathAware>
+            </windowsSettings>
+        </application>
     </compatibility>
-  </assembly>
+</assembly>
 '''.format(**SUPPORTED_OS)
 
 

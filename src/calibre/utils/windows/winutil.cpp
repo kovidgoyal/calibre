@@ -351,12 +351,9 @@ winutil_username(PyObject *self) {
 
 static PyObject *
 winutil_temp_path(PyObject *self) {
-    wchar_t buf[MAX_PATH + 1] = {0};
+    wchar_t buf[MAX_PATH + 8] = {0};
     DWORD sz = sizeof(buf)/sizeof(buf[0]);
-    if (!GetTempPath(sz, buf)) {
-        PyErr_SetFromWindowsErr(0);
-        return NULL;
-    }
+    if (!GetTempPathW(sz, buf)) return PyErr_SetFromWindowsErr(0);
     return PyUnicode_FromWideChar(buf, -1);
 }
 
