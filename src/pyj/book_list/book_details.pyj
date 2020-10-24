@@ -654,19 +654,19 @@ def init(container_id):
 
 def show_subsequent_panel(name, replace=False):
     q = parse_url_params()
-    q.book_id = (read_book.book_id or q.book_id) + ''
+    q.book_id = (render_book.book_id or q.book_id) + ''
     show_panel('book_details^' + name, query=q, replace=replace)
 
 
 def edit_metadata():
     q = parse_url_params()
-    q.book_id = (read_book.book_id or q.book_id) + ''
+    q.book_id = (render_book.book_id or q.book_id) + ''
     show_panel('edit_metadata', query=q, replace=False)
 
 
 def convert_book():
     q = parse_url_params()
-    q.book_id = (read_book.book_id or q.book_id) + ''
+    q.book_id = (render_book.book_id or q.book_id) + ''
     show_panel('convert_book', query=q, replace=False)
 
 
