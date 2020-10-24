@@ -711,34 +711,13 @@ static PyMethodDef libmtp_methods[] = {
 
     {NULL, NULL, 0, NULL}
 };
-
-
-static struct PyModuleDef libmtp_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "libmtp",
-    /* m_doc      */ libmtp_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ libmtp_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-CALIBRE_MODINIT_FUNC PyInit_libmtp(void) {
+static int
+exec_module(PyObject *m) {
     DeviceType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&DeviceType) < 0) {
-        return NULL;
-    }
-
-    PyObject *m = PyModule_Create(&libmtp_module);
-    if (m == NULL) {
-        return NULL;
-    }
+    if (PyType_Ready(&DeviceType) < 0) return -1;
 
     MTPError = PyErr_NewException("libmtp.MTPError", NULL, NULL);
-    if (MTPError == NULL) {
-        return NULL;
-    }
+    if (MTPError == NULL) return -1;
     PyModule_AddObject(m, "MTPError", MTPError);
 
     // Redirect stdout to get rid of the annoying message about mtpz. Really,
@@ -769,5 +748,17 @@ CALIBRE_MODINIT_FUNC PyInit_libmtp(void) {
     PyModule_AddIntMacro(m, LIBMTP_DEBUG_DATA);
     PyModule_AddIntMacro(m, LIBMTP_DEBUG_ALL);
 
-    return m;
+	return 0;
 }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "libmtp",
+    .m_doc      = libmtp_doc,
+    .m_methods  = libmtp_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_libmtp(void) { return PyModuleDef_Init(&module_def); }

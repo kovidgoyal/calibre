@@ -234,27 +234,8 @@ static PyMethodDef winfonts_methods[] = {
 
     {NULL, NULL, 0, NULL}
 };
-
-
-static struct PyModuleDef winfonts_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "winfonts",
-    /* m_doc      */ winfonts_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ winfonts_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
-    PyObject *m;
-    m = PyModule_Create(&winfonts_module);
-    if (m == NULL) {
-        return NULL;
-    }
-
+static int
+exec_module(PyObject *m) {
     PyModule_AddIntMacro(m, FW_DONTCARE);
     PyModule_AddIntMacro(m, FW_THIN);
     PyModule_AddIntMacro(m, FW_EXTRALIGHT);
@@ -271,5 +252,17 @@ CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
     PyModule_AddIntMacro(m, FW_HEAVY);
     PyModule_AddIntMacro(m, FW_BLACK);
 
-    return m;
+	return 0;
+}
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
+
+CALIBRE_MODINIT_FUNC PyInit_winfonts(void) {
+	module_def.m_name = "winfonts";
+	module_def.m_slots = slots;
+	module_def.m_doc = winfonts_doc;
+	module_def.m_methods = winfonts_methods;
+	return PyModuleDef_Init(&module_def);
 }

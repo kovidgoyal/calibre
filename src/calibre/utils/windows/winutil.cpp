@@ -1395,10 +1395,9 @@ exec_module(PyObject *m) {
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
-static struct PyModuleDef module_def = {0};
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
 CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
-    module_def.m_base     = PyModuleDef_HEAD_INIT;
     module_def.m_name     = "winutil";
     module_def.m_doc      = winutil_doc;
     module_def.m_methods  = winutil_methods;
