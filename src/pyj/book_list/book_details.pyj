@@ -527,7 +527,9 @@ def add_top_bar_buttons(container_id):
         add_button(container, 'trash', action=delete_book, tooltip=_('Delete this book'))
         book_id = parse_url_params().book_id
         if book_id is '0':
-            add_button(container, 'random', def(): fetch_metadata(container_id, 0, proceed_after_succesful_fetch_metadata);)
+            add_button(container, 'random', tooltip=_('Show a random book'), action=def():
+                fetch_metadata(container_id, 0, proceed_after_succesful_fetch_metadata)
+            )
         add_button(container, 'ellipsis-v', action=show_subsequent_panel.bind(None, 'more_actions'), tooltip=_('More actions'))
 
 
