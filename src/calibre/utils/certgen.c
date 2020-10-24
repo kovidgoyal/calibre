@@ -379,25 +379,21 @@ static PyMethodDef certgen_methods[] = {
 };
 
 
-static struct PyModuleDef certgen_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "certgen",
-    /* m_doc      */ "OpenSSL bindings to easily create certificates/certificate authorities.",
-    /* m_size     */ -1,
-    /* m_methods  */ certgen_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_certgen(void) {
-    PyObject *mod = PyModule_Create(&certgen_module);
-    if (mod == NULL) return NULL;
-
+static int
+exec_module(PyObject *module) {
     OpenSSL_add_all_algorithms();
     ERR_load_crypto_strings();
     ERR_load_BIO_strings();
-
-    return mod;
+	return 0;
 }
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "certgen",
+    .m_doc      = "OpenSSL bindings to easily create certificates/certificate authorities.",
+    .m_methods  = certgen_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_certgen(void) { return PyModuleDef_Init(&module_def); }
