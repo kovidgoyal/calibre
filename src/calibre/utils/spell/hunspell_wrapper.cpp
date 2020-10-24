@@ -184,10 +184,11 @@ exec_module(PyObject *mod) {
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
-static struct PyModuleDef module_def = {
-	.m_base = PyModuleDef_HEAD_INIT,
-	.m_name = "hunspell",
-	.m_slots = slots
-};
+static struct PyModuleDef module_def = {0};
 
-CALIBRE_MODINIT_FUNC PyInit_hunspell(void) { return PyModuleDef_Init(&module_def); }
+CALIBRE_MODINIT_FUNC PyInit_hunspell(void) {
+	module_def.m_base = PyModuleDef_HEAD_INIT;
+	module_def.m_name = "hunspell";
+	module_def.m_slots = slots;
+	return PyModuleDef_Init(&module_def);
+}
