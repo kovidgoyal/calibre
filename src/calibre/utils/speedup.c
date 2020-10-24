@@ -580,7 +580,9 @@ static PyMethodDef speedup_methods[] = {
 static int
 exec_module(PyObject *module) {
     PyDateTime_IMPORT;
+#ifndef _WIN32
     PyModule_AddIntConstant(module, "O_CLOEXEC", O_CLOEXEC);
+#endif
     return 0;
 }
 
