@@ -309,10 +309,9 @@ exec_module(PyObject *m) {
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
-static struct PyModuleDef module_def = {0};
+static struct PyModuleDef module_def = {{0}};
 
 CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
-
 	module_def.m_base = PyModuleDef_HEAD_INIT;
 	module_def.m_name = "freetype";
 	module_def.m_doc = freetype_doc;
