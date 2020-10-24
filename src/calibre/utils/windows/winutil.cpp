@@ -1197,32 +1197,15 @@ static PyMethodDef winutil_methods[] = {
 };
 #undef M
 
-static struct PyModuleDef winutil_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "winutil",
-    /* m_doc      */ winutil_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ winutil_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-
-
-extern "C" {
-
-CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+static int
+exec_module(PyObject *m) {
 #define add_type(name, doc, obj) obj##Type.tp_name = "winutil." #name; obj##Type.tp_doc = doc; obj##Type.tp_basicsize = sizeof(obj); \
 	obj##Type.tp_itemsize = 0; obj##Type.tp_flags = Py_TPFLAGS_DEFAULT; obj##Type.tp_repr = (reprfunc)obj##_repr; \
 	obj##Type.tp_str = (reprfunc)obj##_repr; obj##Type.tp_new = obj##_new; obj##Type.tp_dealloc = (destructor)obj##_dealloc; \
 	obj##Type.tp_methods = obj##_methods; \
-	if (PyType_Ready(&obj##Type) < 0) { Py_CLEAR(m); return NULL; } \
-	Py_INCREF(&obj##Type); if (PyModule_AddObject(m, #name, (PyObject*) &obj##Type) < 0) { Py_CLEAR(m); Py_DECREF(&obj##Type); return NULL; }
+	if (PyType_Ready(&obj##Type) < 0) { return -1; } \
+	Py_INCREF(&obj##Type); if (PyModule_AddObject(m, #name, (PyObject*) &obj##Type) < 0) { Py_DECREF(&obj##Type); return -1; }
 
-    PyObject *m = PyModule_Create(&winutil_module);
-    if (m == NULL) return NULL;
 
 	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
 	HandleNumberMethods.nb_bool = (inquiry)Handle_as_bool;
@@ -1231,7 +1214,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
 	add_type(GUID, "Wrapper for Win32 GUID", PyGUID);
 #undef add_type
 
-#define A(name) { PyObject *g = create_guid(FOLDERID_##name); if (!g) { Py_CLEAR(m); return NULL; } if (PyModule_AddObject(m, "FOLDERID_" #name, g) < 0) { Py_DECREF(g); Py_CLEAR(m); return NULL; } }
+#define A(name) { PyObject *g = create_guid(FOLDERID_##name); if (!g) { return -1; } if (PyModule_AddObject(m, "FOLDERID_" #name, g) < 0) { Py_DECREF(g); return -1; } }
 	A(AdminTools);
 	A(Startup);
 	A(RoamingAppData);
@@ -1291,7 +1274,7 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
 
 #undef A
 
-#define A(name) if (PyModule_AddIntConstant(m, #name, name) != 0) { Py_CLEAR(m); return NULL; }
+#define A(name) if (PyModule_AddIntConstant(m, #name, name) != 0) { return -1; }
 
     A(CSIDL_ADMINTOOLS);
     A(CSIDL_APPDATA);
@@ -1407,6 +1390,18 @@ CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
 	A(KF_FLAG_SIMPLE_IDLIST);
 	A(KF_FLAG_ALIAS_ONLY);
 #undef A
-    return m;
+    return 0;
 }
-} // end extern "C" }}}
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "winutil",
+    .m_doc      = winutil_doc,
+    .m_methods  = winutil_methods,
+    .m_slots    = slots,
+};
+
+
+CALIBRE_MODINIT_FUNC PyInit_winutil(void) {return PyModuleDef_Init(&module_def); }

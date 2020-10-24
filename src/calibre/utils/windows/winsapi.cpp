@@ -336,23 +336,8 @@ static PyMethodDef winsapi_methods[] = {
 };
 #undef M
 
-static struct PyModuleDef winsapi_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "winsapi",
-    /* m_doc      */ "SAPI wrapper",
-    /* m_size     */ -1,
-    /* m_methods  */ winsapi_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-
-
-extern "C" {
-
-CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
+static int
+exec_module(PyObject *m) {
     VoiceType.tp_name = "winsapi.ISpVoice";
     VoiceType.tp_doc = "Wrapper for ISpVoice";
     VoiceType.tp_basicsize = sizeof(Voice);
@@ -361,18 +346,14 @@ CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
     VoiceType.tp_new = Voice_new;
     VoiceType.tp_methods = Voice_methods;
 	VoiceType.tp_dealloc = (destructor)Voice_dealloc;
-	if (PyType_Ready(&VoiceType) < 0) return NULL;
-
-    PyObject *m = PyModule_Create(&winsapi_module);
-    if (m == NULL) return NULL;
+	if (PyType_Ready(&VoiceType) < 0) return -1;
 
 	Py_INCREF(&VoiceType);
     if (PyModule_AddObject(m, "ISpVoice", (PyObject *) &VoiceType) < 0) {
         Py_DECREF(&VoiceType);
-        Py_DECREF(m);
-        return NULL;
+        return -1;
     }
-#define AI(name) if (PyModule_AddIntMacro(m, name) != 0) { Py_DECREF(m); Py_DECREF(&VoiceType); return NULL; }
+#define AI(name) if (PyModule_AddIntMacro(m, name) != 0) { Py_DECREF(&VoiceType); return -1; }
     AI(SPF_DEFAULT);
     AI(SPF_ASYNC);
     AI(SPF_PURGEBEFORESPEAK);
@@ -521,7 +502,17 @@ CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
     AI(SPEI_RESERVED2);
 #undef AI
 
-    return m;
 }
 
-} // }}}
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "winsapi",
+    .m_doc      = "SAPI wrapper",
+    .m_methods  = winsapi_methods,
+    .m_slots    = slots,
+};
+
+
+CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {return PyModuleDef_Init(&module_def); }
