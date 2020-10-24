@@ -1395,13 +1395,13 @@ exec_module(PyObject *m) {
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
-static struct PyModuleDef module_def = {
-    .m_base     = PyModuleDef_HEAD_INIT,
-    .m_name     = "winutil",
-    .m_doc      = winutil_doc,
-    .m_methods  = winutil_methods,
-    .m_slots    = slots,
-};
+static struct PyModuleDef module_def = {0};
 
-
-CALIBRE_MODINIT_FUNC PyInit_winutil(void) {return PyModuleDef_Init(&module_def); }
+CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
+    module_def.m_base     = PyModuleDef_HEAD_INIT;
+    module_def.m_name     = "winutil";
+    module_def.m_doc      = winutil_doc;
+    module_def.m_methods  = winutil_methods;
+    module_def.m_slots    = slots;
+	return PyModuleDef_Init(&module_def);
+}

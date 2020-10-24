@@ -506,13 +506,13 @@ exec_module(PyObject *m) {
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
-static struct PyModuleDef module_def = {
-    .m_base     = PyModuleDef_HEAD_INIT,
-    .m_name     = "winsapi",
-    .m_doc      = "SAPI wrapper",
-    .m_methods  = winsapi_methods,
-    .m_slots    = slots,
-};
+static struct PyModuleDef module_def = {0};
 
-
-CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {return PyModuleDef_Init(&module_def); }
+CALIBRE_MODINIT_FUNC PyInit_winsapi(void) {
+    module_def.m_base     = PyModuleDef_HEAD_INIT;
+    module_def.m_name     = "winsapi";
+    module_def.m_doc      = "SAPI wrapper";
+    module_def.m_methods  = winsapi_methods;
+    module_def.m_slots    = slots;
+	return PyModuleDef_Init(&module_def);
+}
