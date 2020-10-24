@@ -203,27 +203,9 @@ static PyMethodDef lzx_methods[] = {
     { NULL }
 };
 
-static struct PyModuleDef lzx_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "lzx",
-    /* m_doc      */ lzx_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ lzx_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_lzx(void) {
-    if (PyType_Ready(&CompressorType) < 0) {
-        return NULL;
-    }
-
-    PyObject *m = PyModule_Create(&lzx_module);
-    if (m == NULL) {
-        return NULL;
-    }
+static int
+exec_module(PyObject *m) {
+    if (PyType_Ready(&CompressorType) < 0) return -1;
 
     LZXError = PyErr_NewException("lzx.LZXError", NULL, NULL);
     Py_INCREF(LZXError);
@@ -232,5 +214,17 @@ CALIBRE_MODINIT_FUNC PyInit_lzx(void) {
     Py_INCREF(&CompressorType);
     PyModule_AddObject(m, "Compressor", (PyObject *)&CompressorType);
 
-    return m;
+	return 0;
 }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "lzx",
+    .m_doc      = lzx_doc,
+    .m_methods  = lzx_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_lzx(void) { return PyModuleDef_Init(&module_def); }
