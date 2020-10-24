@@ -26,7 +26,9 @@ class TheWashingtonPost(BasicNewsRecipe):
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'url'}
     publication_type = 'newspaper'
+    remove_attributes = ['style', 'width', 'height']
 
     keep_only_tags = [
         dict(name=['h1', 'figure']),
@@ -34,8 +36,8 @@ class TheWashingtonPost(BasicNewsRecipe):
     ]
     remove_tags = [
         dict(name=['meta', 'link']),
-        classes('inline-video author-tooltip author-image'),
-        dict(attrs={'data-qa': 'article-body-ad'}),
+        classes('inline-video author-tooltip author-image powa-wrapper'),
+        dict(attrs={'data-qa': ['article-body-ad', 'subscribe-promo', 'interstitial-link-wrapper']}),
     ]
 
     feeds = [
@@ -53,6 +55,8 @@ class TheWashingtonPost(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup, *a):
-        for img in soup.findAll('img', srcset=True):
-            img['src'] = img['srcset'].split()[0]
+        for img in soup.findAll('img', src=True):
+            src = img['src']
+            if src.endswith('&w=32'):
+                img['src'] = src[:-2] + '440'
         return soup
