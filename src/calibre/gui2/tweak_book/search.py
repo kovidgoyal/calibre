@@ -5,19 +5,23 @@
 
 import copy
 import json
-from collections import OrderedDict, Counter
+import regex
+import time
+from collections import Counter, OrderedDict
 from functools import partial
-
 from PyQt5.Qt import (
-    QAbstractListModel, QApplication, QCheckBox, QComboBox, QFont, QFrame,
-    QGridLayout, QHBoxLayout, QIcon, QItemSelection, QLabel, QLineEdit, QListView,
-    QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QSizePolicy,
-    QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal, QAction, QKeySequence
+    QAbstractListModel, QAction, QApplication, QCheckBox, QComboBox, QFont, QFrame,
+    QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
+    QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
+    QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar,
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
-import regex
 from calibre import prepare_string_for_xml
+from calibre.constants import iswindows
+from calibre.ebooks.conversion.search_replace import (
+    REGEX_FLAGS, compile_regular_expression
+)
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.message_box import MessageBox
@@ -33,9 +37,9 @@ from calibre.gui2.tweak_book.function_replace import (
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
-from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
-from polyglot.builtins import iteritems, unicode_type, range, error_message, filter, map
-
+from polyglot.builtins import (
+    error_message, filter, iteritems, map, range, unicode_type
+)
 
 # The search panel {{{
 
@@ -1523,8 +1527,16 @@ def run_search(
             if n in editors:
                 editors[n].replace_data(raw)
             else:
-                with current_container().open(n, 'wb') as f:
-                    f.write(raw.encode('utf-8'))
+                try:
+                    with current_container().open(n, 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+                except PermissionError:
+                    if not iswindows:
+                        raise
+                    time.sleep(2)
+                    with current_container().open(n, 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+
         QApplication.restoreOverrideCursor()
         count_message(replace, count, show_diff=replace, count_map=count_map)
         return count
