@@ -21,6 +21,59 @@
 #include <atlbase.h>  // for CComPtr
 #include <versionhelpers.h>
 
+// GUID {{{
+typedef struct {
+    PyObject_HEAD
+	GUID guid;
+} PyGUID;
+
+static PyTypeObject PyGUIDType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+};
+
+static PyObject*
+create_guid(const wchar_t *str) {
+	PyGUID *self = (PyGUID *) PyGUIDType.tp_alloc(&PyGUIDType, 0);
+	if (self) {
+		HRESULT hr = IIDFromString(str, &self->guid);
+		if (FAILED(hr)) return error_from_hresult(hr);
+	}
+	return (PyObject*)self;
+}
+
+static PyObject*
+create_guid(const GUID &g) {
+	PyGUID *self = (PyGUID *) PyGUIDType.tp_alloc(&PyGUIDType, 0);
+	if (self) self->guid = g;
+	return (PyObject*)self;
+}
+
+static PyObject*
+PyGUID_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+	wchar_raii s;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &s)) return NULL;
+	return create_guid(s.ptr());
+}
+
+static void
+PyGUID_dealloc(PyGUID *self) { }
+
+static PyObject*
+PyGUID_repr(PyGUID *self) {
+	com_wchar_raii s;
+	HRESULT hr = StringFromIID(self->guid, s.address());
+	if (FAILED(hr)) return error_from_hresult(hr);
+	return PyUnicode_FromWideChar(s.ptr(), -1);
+}
+
+#define M(name, args) {#name, (PyCFunction)Handle_##name, args, ""}
+static PyMethodDef PyGUID_methods[] = {
+    {NULL, NULL, 0, NULL}
+};
+#undef M
+
+// }}}
+
 // Handle {{{
 typedef enum { NormalHandle, ModuleHandle, IconHandle } WinHandleType;
 
@@ -241,6 +294,16 @@ winutil_folder_path(PyObject *self, PyObject *args) {
         return NULL;
     }
     return PyUnicode_FromWideChar(wbuf, -1);
+}
+
+static PyObject*
+known_folder_path(PyObject *self, PyObject *args) {
+	PyGUID *id;
+	DWORD flags = KF_FLAG_DEFAULT;
+	if (!PyArg_ParseTuple(args, "O!|k", &PyGUIDType, &id, &flags)) return NULL;
+	com_wchar_raii path;
+	HRESULT hr = SHGetKnownFolderPath(id->guid, flags, NULL, path.address());
+	return PyUnicode_FromWideChar(path.ptr(), -1);
 }
 
 static PyObject *
@@ -1014,6 +1077,7 @@ static PyMethodDef winutil_methods[] = {
 	M(parse_cmdline, METH_VARARGS),
 	M(write_file, METH_VARARGS),
 	M(wait_named_pipe, METH_VARARGS),
+	M(known_folder_path, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -1153,129 +1217,199 @@ static struct PyModuleDef winutil_module = {
 extern "C" {
 
 CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
-	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
-	HandleNumberMethods.nb_bool = (inquiry)Handle_as_bool;
-    HandleType.tp_name = "winutil.Handle";
-    HandleType.tp_doc = "Wrappers for Win32 handles that free the handle on delete automatically";
-    HandleType.tp_basicsize = sizeof(Handle);
-    HandleType.tp_itemsize = 0;
-    HandleType.tp_flags = Py_TPFLAGS_DEFAULT;
-	HandleType.tp_repr = (reprfunc)Handle_repr;
-	HandleType.tp_as_number = &HandleNumberMethods;
-	HandleType.tp_str = (reprfunc)Handle_repr;
-    HandleType.tp_new = Handle_new;
-    HandleType.tp_methods = Handle_methods;
-	HandleType.tp_dealloc = (destructor)Handle_dealloc;
-	if (PyType_Ready(&HandleType) < 0) return NULL;
+#define add_type(name, doc, obj) obj##Type.tp_name = "winutil." #name; obj##Type.tp_doc = doc; obj##Type.tp_basicsize = sizeof(obj); \
+	obj##Type.tp_itemsize = 0; obj##Type.tp_flags = Py_TPFLAGS_DEFAULT; obj##Type.tp_repr = (reprfunc)obj##_repr; \
+	obj##Type.tp_str = (reprfunc)obj##_repr; obj##Type.tp_new = obj##_new; obj##Type.tp_dealloc = (destructor)obj##_dealloc; \
+	obj##Type.tp_methods = obj##_methods; \
+	if (PyType_Ready(&obj##Type) < 0) { Py_CLEAR(m); return NULL; } \
+	Py_INCREF(&obj##Type); if (PyModule_AddObject(m, #name, (PyObject*) &obj##Type) < 0) { Py_CLEAR(m); Py_DECREF(&obj##Type); return NULL; }
 
     PyObject *m = PyModule_Create(&winutil_module);
-
     if (m == NULL) return NULL;
 
-	Py_INCREF(&HandleType);
-    if (PyModule_AddObject(m, "Handle", (PyObject *) &HandleType) < 0) {
-        Py_DECREF(&HandleType);
-        Py_DECREF(m);
-        return NULL;
-    }
-    PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
-    PyModule_AddIntConstant(m, "CSIDL_APPDATA", CSIDL_APPDATA);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_ADMINTOOLS", CSIDL_COMMON_ADMINTOOLS);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_APPDATA", CSIDL_COMMON_APPDATA);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_DOCUMENTS", CSIDL_COMMON_DOCUMENTS);
-    PyModule_AddIntConstant(m, "CSIDL_COOKIES", CSIDL_COOKIES);
-    PyModule_AddIntConstant(m, "CSIDL_FLAG_CREATE", CSIDL_FLAG_CREATE);
-    PyModule_AddIntConstant(m, "CSIDL_FLAG_DONT_VERIFY", CSIDL_FLAG_DONT_VERIFY);
-    PyModule_AddIntConstant(m, "CSIDL_FONTS", CSIDL_FONTS);
-    PyModule_AddIntConstant(m, "CSIDL_HISTORY", CSIDL_HISTORY);
-    PyModule_AddIntConstant(m, "CSIDL_INTERNET_CACHE", CSIDL_INTERNET_CACHE);
-    PyModule_AddIntConstant(m, "CSIDL_LOCAL_APPDATA", CSIDL_LOCAL_APPDATA);
-    PyModule_AddIntConstant(m, "CSIDL_MYPICTURES", CSIDL_MYPICTURES);
-    PyModule_AddIntConstant(m, "CSIDL_PERSONAL", CSIDL_PERSONAL);
-    PyModule_AddIntConstant(m, "CSIDL_PROGRAM_FILES", CSIDL_PROGRAM_FILES);
-    PyModule_AddIntConstant(m, "CSIDL_PROGRAM_FILES_COMMON", CSIDL_PROGRAM_FILES_COMMON);
-    PyModule_AddIntConstant(m, "CSIDL_SYSTEM", CSIDL_SYSTEM);
-    PyModule_AddIntConstant(m, "CSIDL_WINDOWS", CSIDL_WINDOWS);
-    PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
-    PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
-    PyModule_AddIntConstant(m, "CREATE_NEW", CREATE_NEW);
-    PyModule_AddIntConstant(m, "CREATE_ALWAYS", CREATE_ALWAYS);
-    PyModule_AddIntConstant(m, "OPEN_EXISTING", OPEN_EXISTING);
-    PyModule_AddIntConstant(m, "OPEN_ALWAYS", OPEN_ALWAYS);
-    PyModule_AddIntConstant(m, "TRUNCATE_EXISTING", TRUNCATE_EXISTING);
-    PyModule_AddIntConstant(m, "FILE_SHARE_READ", FILE_SHARE_READ);
-    PyModule_AddIntConstant(m, "FILE_SHARE_WRITE", FILE_SHARE_WRITE);
-    PyModule_AddIntConstant(m, "FILE_SHARE_DELETE", FILE_SHARE_DELETE);
-    PyModule_AddIntConstant(m, "FILE_SHARE_VALID_FLAGS", FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE);
-    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_READONLY", FILE_ATTRIBUTE_READONLY);
-    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_NORMAL", FILE_ATTRIBUTE_NORMAL);
-    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_TEMPORARY", FILE_ATTRIBUTE_TEMPORARY);
-    PyModule_AddIntConstant(m, "FILE_FLAG_DELETE_ON_CLOSE", FILE_FLAG_DELETE_ON_CLOSE);
-    PyModule_AddIntConstant(m, "FILE_FLAG_SEQUENTIAL_SCAN", FILE_FLAG_SEQUENTIAL_SCAN);
-    PyModule_AddIntConstant(m, "FILE_FLAG_RANDOM_ACCESS", FILE_FLAG_RANDOM_ACCESS);
-    PyModule_AddIntConstant(m, "GENERIC_READ", GENERIC_READ);
-    PyModule_AddIntConstant(m, "GENERIC_WRITE", GENERIC_WRITE);
-    PyModule_AddIntConstant(m, "DELETE", DELETE);
-    PyModule_AddIntConstant(m, "FILE_BEGIN", FILE_BEGIN);
-    PyModule_AddIntConstant(m, "FILE_CURRENT", FILE_CURRENT);
-    PyModule_AddIntConstant(m, "FILE_END", FILE_END);
-    PyModule_AddIntConstant(m, "MOVEFILE_COPY_ALLOWED", MOVEFILE_COPY_ALLOWED);
-    PyModule_AddIntConstant(m, "MOVEFILE_CREATE_HARDLINK", MOVEFILE_CREATE_HARDLINK);
-    PyModule_AddIntConstant(m, "MOVEFILE_DELAY_UNTIL_REBOOT", MOVEFILE_DELAY_UNTIL_REBOOT);
-    PyModule_AddIntConstant(m, "MOVEFILE_FAIL_IF_NOT_TRACKABLE", MOVEFILE_FAIL_IF_NOT_TRACKABLE);
-    PyModule_AddIntConstant(m, "MOVEFILE_REPLACE_EXISTING", MOVEFILE_REPLACE_EXISTING);
-    PyModule_AddIntConstant(m, "MOVEFILE_WRITE_THROUGH", MOVEFILE_WRITE_THROUGH);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_FILE_NAME", FILE_NOTIFY_CHANGE_FILE_NAME);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_DIR_NAME", FILE_NOTIFY_CHANGE_DIR_NAME);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_ATTRIBUTES", FILE_NOTIFY_CHANGE_ATTRIBUTES);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_SIZE", FILE_NOTIFY_CHANGE_SIZE);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_LAST_WRITE", FILE_NOTIFY_CHANGE_LAST_WRITE);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_LAST_ACCESS", FILE_NOTIFY_CHANGE_LAST_ACCESS);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_CREATION", FILE_NOTIFY_CHANGE_CREATION);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_SECURITY", FILE_NOTIFY_CHANGE_SECURITY);
-    PyModule_AddIntConstant(m, "FILE_ACTION_ADDED", FILE_ACTION_ADDED);
-    PyModule_AddIntConstant(m, "FILE_ACTION_REMOVED", FILE_ACTION_REMOVED);
-    PyModule_AddIntConstant(m, "FILE_ACTION_MODIFIED", FILE_ACTION_MODIFIED);
-    PyModule_AddIntConstant(m, "FILE_ACTION_RENAMED_OLD_NAME", FILE_ACTION_RENAMED_OLD_NAME);
-    PyModule_AddIntConstant(m, "FILE_ACTION_RENAMED_NEW_NAME", FILE_ACTION_RENAMED_NEW_NAME);
-    PyModule_AddIntConstant(m, "FILE_LIST_DIRECTORY", FILE_LIST_DIRECTORY);
-    PyModule_AddIntConstant(m, "FILE_FLAG_BACKUP_SEMANTICS", FILE_FLAG_BACKUP_SEMANTICS);
-    PyModule_AddIntConstant(m, "SHGFP_TYPE_CURRENT", SHGFP_TYPE_CURRENT);
-    PyModule_AddIntConstant(m, "SHGFP_TYPE_DEFAULT", SHGFP_TYPE_DEFAULT);
-    PyModule_AddIntConstant(m, "PIPE_ACCESS_INBOUND", PIPE_ACCESS_INBOUND);
-    PyModule_AddIntConstant(m, "FILE_FLAG_FIRST_PIPE_INSTANCE", FILE_FLAG_FIRST_PIPE_INSTANCE);
-    PyModule_AddIntConstant(m, "PIPE_TYPE_BYTE", PIPE_TYPE_BYTE);
-    PyModule_AddIntConstant(m, "PIPE_READMODE_BYTE", PIPE_READMODE_BYTE);
-    PyModule_AddIntConstant(m, "PIPE_WAIT", PIPE_WAIT);
-    PyModule_AddIntConstant(m, "PIPE_REJECT_REMOTE_CLIENTS", PIPE_REJECT_REMOTE_CLIENTS);
-    PyModule_AddIntConstant(m, "HANDLE_FLAG_INHERIT", HANDLE_FLAG_INHERIT);
-    PyModule_AddIntConstant(m, "HANDLE_FLAG_PROTECT_FROM_CLOSE", HANDLE_FLAG_PROTECT_FROM_CLOSE);
-    PyModule_AddIntConstant(m, "VK_RMENU", VK_RMENU);
-    PyModule_AddIntConstant(m, "DONT_RESOLVE_DLL_REFERENCES", DONT_RESOLVE_DLL_REFERENCES);
-    PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
-    PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-    PyModule_AddIntConstant(m, "INFINITE", INFINITE);
-    PyModule_AddIntConstant(m, "REG_QWORD", REG_QWORD);
-    PyModule_AddIntConstant(m, "ERROR_SUCCESS", ERROR_SUCCESS);
-    PyModule_AddIntConstant(m, "ERROR_MORE_DATA", ERROR_MORE_DATA);
-    PyModule_AddIntConstant(m, "ERROR_NO_MORE_ITEMS", ERROR_NO_MORE_ITEMS);
-    PyModule_AddIntConstant(m, "ERROR_FILE_NOT_FOUND", ERROR_FILE_NOT_FOUND);
-    PyModule_AddIntConstant(m, "ERROR_GEN_FAILURE ", ERROR_GEN_FAILURE);
-    PyModule_AddIntConstant(m, "ERROR_INSUFFICIENT_BUFFER", ERROR_INSUFFICIENT_BUFFER);
-    PyModule_AddIntConstant(m, "ERROR_BAD_COMMAND", ERROR_BAD_COMMAND);
-    PyModule_AddIntConstant(m, "ERROR_INVALID_DATA", ERROR_INVALID_DATA);
-    PyModule_AddIntConstant(m, "ERROR_NOT_READY", ERROR_NOT_READY);
-    PyModule_AddIntConstant(m, "ERROR_SHARING_VIOLATION", ERROR_SHARING_VIOLATION);
-    PyModule_AddIntConstant(m, "ERROR_LOCK_VIOLATION", ERROR_LOCK_VIOLATION);
-    PyModule_AddIntConstant(m, "ERROR_ALREADY_EXISTS", ERROR_ALREADY_EXISTS);
-    PyModule_AddIntConstant(m, "ERROR_BROKEN_PIPE", ERROR_BROKEN_PIPE);
-    PyModule_AddIntConstant(m, "ERROR_PIPE_BUSY", ERROR_PIPE_BUSY);
-    PyModule_AddIntConstant(m, "NormalHandle", NormalHandle);
-    PyModule_AddIntConstant(m, "ModuleHandle", ModuleHandle);
-    PyModule_AddIntConstant(m, "IconHandle", IconHandle);
+	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
+	HandleNumberMethods.nb_bool = (inquiry)Handle_as_bool;
+	HandleType.tp_as_number = &HandleNumberMethods;
+	add_type(Handle, "Wrappers for Win32 handles that free the handle on delete automatically", Handle);
+	add_type(GUID, "Wrapper for Win32 GUID", PyGUID);
+#undef add_type
 
+#define A(name) { PyObject *g = create_guid(FOLDERID_##name); if (!g) { Py_CLEAR(m); return NULL; } if (PyModule_AddObject(m, "FOLDERID_" #name, g) < 0) { Py_DECREF(g); Py_CLEAR(m); return NULL; } }
+	A(AdminTools);
+	A(Startup);
+	A(RoamingAppData);
+	A(RecycleBinFolder);
+	A(CDBurning);
+	A(CommonAdminTools);
+	A(CommonStartup);
+	A(ProgramData);
+	A(PublicDesktop);
+	A(PublicDocuments);
+	A(Favorites);
+	A(PublicMusic);
+	A(CommonOEMLinks);
+	A(PublicPictures);
+	A(CommonPrograms);
+	A(CommonStartMenu);
+	A(CommonStartup);
+	A(CommonTemplates);
+	A(PublicVideos);
+	A(NetworkFolder);
+	A(ConnectionsFolder);
+	A(ControlPanelFolder);
+	A(Cookies);
+	A(Desktop);
+	A(ComputerFolder);
+	A(Favorites);
+	A(Fonts);
+	A(History);
+	A(InternetFolder);
+	A(InternetCache);
+	A(LocalAppData);
+	A(Documents);
+	A(Music);
+	A(Pictures);
+	A(Videos);
+	A(NetHood);
+	A(NetworkFolder);
+	A(Documents);
+	A(PrintersFolder);
+	A(PrintHood);
+	A(Profile);
+	A(ProgramFiles);
+	A(ProgramFilesX86);
+	A(ProgramFilesCommon);
+	A(ProgramFilesCommonX86);
+	A(Programs);
+	A(Recent);
+	A(ResourceDir);
+	A(LocalizedResourcesDir);
+	A(SendTo);
+	A(StartMenu);
+	A(Startup);
+	A(System);
+	A(SystemX86);
+	A(Templates);
+	A(Windows);
+
+#undef A
+
+#define A(name) if (PyModule_AddIntConstant(m, #name, name) != 0) { Py_CLEAR(m); return NULL; }
+
+    A(CSIDL_ADMINTOOLS);
+    A(CSIDL_APPDATA);
+    A(CSIDL_COMMON_ADMINTOOLS);
+    A(CSIDL_COMMON_APPDATA);
+    A(CSIDL_COMMON_DOCUMENTS);
+    A(CSIDL_COOKIES);
+    A(CSIDL_FLAG_CREATE);
+    A(CSIDL_FLAG_DONT_VERIFY);
+    A(CSIDL_FONTS);
+    A(CSIDL_HISTORY);
+    A(CSIDL_INTERNET_CACHE);
+    A(CSIDL_LOCAL_APPDATA);
+    A(CSIDL_MYPICTURES);
+    A(CSIDL_PERSONAL);
+    A(CSIDL_PROGRAM_FILES);
+    A(CSIDL_PROGRAM_FILES_COMMON);
+    A(CSIDL_SYSTEM);
+    A(CSIDL_WINDOWS);
+    A(CSIDL_PROFILE);
+    A(CSIDL_STARTUP);
+    A(CSIDL_COMMON_STARTUP);
+    A(CREATE_NEW);
+    A(CREATE_ALWAYS);
+    A(OPEN_EXISTING);
+    A(OPEN_ALWAYS);
+    A(TRUNCATE_EXISTING);
+    A(FILE_SHARE_READ);
+    A(FILE_SHARE_WRITE);
+    A(FILE_SHARE_DELETE);
+    PyModule_AddIntConstant(m, "FILE_SHARE_VALID_FLAGS", FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE);
+    A(FILE_ATTRIBUTE_READONLY);
+    A(FILE_ATTRIBUTE_NORMAL);
+    A(FILE_ATTRIBUTE_TEMPORARY);
+    A(FILE_FLAG_DELETE_ON_CLOSE);
+    A(FILE_FLAG_SEQUENTIAL_SCAN);
+    A(FILE_FLAG_RANDOM_ACCESS);
+    A(GENERIC_READ);
+    A(GENERIC_WRITE);
+    A(DELETE);
+    A(FILE_BEGIN);
+    A(FILE_CURRENT);
+    A(FILE_END);
+    A(MOVEFILE_COPY_ALLOWED);
+    A(MOVEFILE_CREATE_HARDLINK);
+    A(MOVEFILE_DELAY_UNTIL_REBOOT);
+    A(MOVEFILE_FAIL_IF_NOT_TRACKABLE);
+    A(MOVEFILE_REPLACE_EXISTING);
+    A(MOVEFILE_WRITE_THROUGH);
+    A(FILE_NOTIFY_CHANGE_FILE_NAME);
+    A(FILE_NOTIFY_CHANGE_DIR_NAME);
+    A(FILE_NOTIFY_CHANGE_ATTRIBUTES);
+    A(FILE_NOTIFY_CHANGE_SIZE);
+    A(FILE_NOTIFY_CHANGE_LAST_WRITE);
+    A(FILE_NOTIFY_CHANGE_LAST_ACCESS);
+    A(FILE_NOTIFY_CHANGE_CREATION);
+    A(FILE_NOTIFY_CHANGE_SECURITY);
+    A(FILE_ACTION_ADDED);
+    A(FILE_ACTION_REMOVED);
+    A(FILE_ACTION_MODIFIED);
+    A(FILE_ACTION_RENAMED_OLD_NAME);
+    A(FILE_ACTION_RENAMED_NEW_NAME);
+    A(FILE_LIST_DIRECTORY);
+    A(FILE_FLAG_BACKUP_SEMANTICS);
+    A(SHGFP_TYPE_CURRENT);
+    A(SHGFP_TYPE_DEFAULT);
+    A(PIPE_ACCESS_INBOUND);
+    A(FILE_FLAG_FIRST_PIPE_INSTANCE);
+    A(PIPE_TYPE_BYTE);
+    A(PIPE_READMODE_BYTE);
+    A(PIPE_WAIT);
+    A(PIPE_REJECT_REMOTE_CLIENTS);
+    A(HANDLE_FLAG_INHERIT);
+    A(HANDLE_FLAG_PROTECT_FROM_CLOSE);
+    A(VK_RMENU);
+    A(DONT_RESOLVE_DLL_REFERENCES);
+    A(LOAD_LIBRARY_AS_DATAFILE);
+    A(LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+    A(INFINITE);
+    A(REG_QWORD);
+    A(ERROR_SUCCESS);
+    A(ERROR_MORE_DATA);
+    A(ERROR_NO_MORE_ITEMS);
+    A(ERROR_FILE_NOT_FOUND);
+    A(ERROR_GEN_FAILURE);
+    A(ERROR_INSUFFICIENT_BUFFER);
+    A(ERROR_BAD_COMMAND);
+    A(ERROR_INVALID_DATA);
+    A(ERROR_NOT_READY);
+    A(ERROR_SHARING_VIOLATION);
+    A(ERROR_LOCK_VIOLATION);
+    A(ERROR_ALREADY_EXISTS);
+    A(ERROR_BROKEN_PIPE);
+    A(ERROR_PIPE_BUSY);
+    A(NormalHandle);
+    A(ModuleHandle);
+    A(IconHandle);
+
+	A(KF_FLAG_DEFAULT);
+	A(KF_FLAG_FORCE_APP_DATA_REDIRECTION);
+	A(KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET);
+	A(KF_FLAG_FORCE_PACKAGE_REDIRECTION);
+	A(KF_FLAG_NO_PACKAGE_REDIRECTION);
+	A(KF_FLAG_FORCE_APPCONTAINER_REDIRECTION);
+	A(KF_FLAG_NO_APPCONTAINER_REDIRECTION);
+	A(KF_FLAG_CREATE);
+	A(KF_FLAG_DONT_VERIFY);
+	A(KF_FLAG_DONT_UNEXPAND);
+	A(KF_FLAG_NO_ALIAS);
+	A(KF_FLAG_INIT);
+	A(KF_FLAG_DEFAULT_PATH);
+	A(KF_FLAG_NOT_PARENT_RELATIVE);
+	A(KF_FLAG_SIMPLE_IDLIST);
+	A(KF_FLAG_ALIAS_ONLY);
+#undef A
     return m;
 }
-// end extern "C"
-} // }}}
+} // end extern "C" }}}

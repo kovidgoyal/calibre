@@ -151,6 +151,10 @@ class BuildTest(unittest.TestCase):
         import tempfile
         from calibre import strftime
         from calibre_extensions import winutil
+        self.assertEqual(winutil.special_folder_path(winutil.CSIDL_APPDATA), winutil.known_folder_path(winutil.FOLDERID_RoamingAppData))
+        self.assertEqual(winutil.special_folder_path(winutil.CSIDL_LOCAL_APPDATA), winutil.known_folder_path(winutil.FOLDERID_LocalAppData))
+        self.assertEqual(winutil.special_folder_path(winutil.CSIDL_FONTS), winutil.known_folder_path(winutil.FOLDERID_Fonts))
+        self.assertEqual(winutil.special_folder_path(winutil.CSIDL_PROFILE), winutil.known_folder_path(winutil.FOLDERID_Profile))
 
         def au(x, name):
             self.assertTrue(
