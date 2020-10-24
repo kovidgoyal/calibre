@@ -501,31 +501,24 @@ static PyTypeObject MatcherType = { // {{{
     /* tp_new            */ PyType_GenericNew,
 }; // }}}
 
-static struct PyModuleDef matcher_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "matcher",
-    /* m_doc      */ "Find subsequence matches.",
-    /* m_size     */ -1,
-    /* m_methods  */ 0,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_matcher(void) {
-    PyObject *mod = PyModule_Create(&matcher_module);
-    if (mod == NULL) return NULL;
-
-    if (PyType_Ready(&MatcherType) < 0) {
-        return NULL;
-    }
-
+static int
+exec_module(PyObject *mod) {
+    if (PyType_Ready(&MatcherType) < 0) return -1;
     Py_INCREF(&MatcherType);
     if(PyModule_AddObject(mod, "Matcher", (PyObject *)&MatcherType) < 0) {
         Py_DECREF(&MatcherType);
-        return NULL;
+        return -1;
     }
-
-    return mod;
+	return 0;
 }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "matcher",
+    .m_doc      = "Find subsequence matches.",
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_matcher(void) { return PyModuleDef_Init(&module_def); }

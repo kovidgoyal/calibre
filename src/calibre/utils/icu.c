@@ -1222,19 +1222,8 @@ static PyMethodDef icu_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static struct PyModuleDef icu_module = {
-        /* m_base     */ PyModuleDef_HEAD_INIT,
-        /* m_name     */ "icu",
-        /* m_doc      */ "Wrapper for the ICU internationalization library",
-        /* m_size     */ -1,
-        /* m_methods  */ icu_methods,
-        /* m_slots    */ 0,
-        /* m_traverse */ 0,
-        /* m_clear    */ 0,
-        /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_icu(void) {
+static int
+exec_module(PyObject *mod) {
     UVersionInfo ver, uver;
     UErrorCode status = U_ZERO_ERROR;
     char version[U_MAX_VERSION_STRING_LENGTH+1] = {0}, uversion[U_MAX_VERSION_STRING_LENGTH+5] = {0};
@@ -1242,7 +1231,7 @@ CALIBRE_MODINIT_FUNC PyInit_icu(void) {
     u_init(&status);
     if (U_FAILURE(status)) {
         PyErr_Format(PyExc_RuntimeError, "u_init() failed with error: %s", u_errorName(status));
-        return NULL;
+        return -1;
     }
     u_getVersion(ver);
     u_versionToString(ver, version);
@@ -1250,13 +1239,9 @@ CALIBRE_MODINIT_FUNC PyInit_icu(void) {
     u_versionToString(uver, uversion);
 
     if (PyType_Ready(&icu_CollatorType) < 0)
-        return NULL;
+        return -1;
     if (PyType_Ready(&icu_BreakIteratorType) < 0)
-        return NULL;
-
-    PyObject *mod = PyModule_Create(&icu_module);
-
-    if (mod == NULL) return NULL;
+        return -1;
 
     Py_INCREF(&icu_CollatorType); Py_INCREF(&icu_BreakIteratorType);
     PyModule_AddObject(mod, "Collator", (PyObject *)&icu_CollatorType);
@@ -1298,6 +1283,19 @@ CALIBRE_MODINIT_FUNC PyInit_icu(void) {
     ADDUCONST(UBRK_LINE);
     ADDUCONST(UBRK_SENTENCE);
 
-    return mod;
+	return 0;
 }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "icu",
+    .m_doc      =  "Wrapper for the ICU internationalization library",
+    .m_methods  = icu_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_icu(void) { return PyModuleDef_Init(&module_def); }
+
 // }}}
