@@ -392,7 +392,7 @@ class EditPrograms(Dialog):  # {{{
 
     def __init__(self, file_type='jpeg', parent=None):
         self.file_type = file_type.lower()
-        Dialog.__init__(self, _('Edit the applications for %s files') % file_type.upper(), 'edit-open-with-programs', parent=parent)
+        Dialog.__init__(self, _('Edit the applications used for %s files') % file_type.upper(), 'edit-open-with-programs', parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
