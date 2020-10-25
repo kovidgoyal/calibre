@@ -176,12 +176,14 @@ def localize_string(data):
 
     def key_matches(key):
         if key is None:
-            return True
+            return False
         base = re.split(r'[_.@]', key)[0]
         return canonicalize_lang(base) == lang
 
     matches = tuple(filter(key_matches, data))
-    return data[matches[0]] if matches else ''
+    if matches:
+        return data[matches[0]]
+    return data.get(None) or ''
 
 
 def process_desktop_file(data):
