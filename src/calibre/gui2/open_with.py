@@ -10,9 +10,9 @@ import uuid
 from contextlib import suppress
 from functools import partial
 from PyQt5.Qt import (
-    QAction, QBuffer, QByteArray, QIcon, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QPixmap, QSize, QStackedLayout, Qt, QVBoxLayout, QWidget,
-    pyqtSignal
+    QAction, QBuffer, QByteArray, QIcon, QInputDialog, QKeySequence, QLabel,
+    QListWidget, QListWidgetItem, QPixmap, QSize, QStackedLayout, Qt, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 from threading import Thread
 
@@ -114,6 +114,9 @@ if iswindows:
             entry['icon_data'] = data
         return entry
 
+    def change_name_in_entry(entry, newname):
+        entry['name'] = newname
+
     def entry_to_item(entry, parent):
         try:
             icon = icon_for_entry(entry)
@@ -187,6 +190,9 @@ elif ismacos:
             entry['icon_data'] = data
         return entry
 
+    def change_name_in_entry(entry, newname):
+        entry['name'] = newname
+
     def entry_to_item(entry, parent):
         icon = get_icon(entry.get('icon_file'), as_data=False)
         if icon is None:
@@ -223,6 +229,9 @@ else:
     from calibre.utils.open_with.linux import (
         entry_sort_key, entry_to_cmdline, find_programs
     )
+
+    def change_name_in_entry(entry, newname):
+        entry['Name'] = newname
 
     def entry_to_item(entry, parent):
         icon_path = entry.get('Icon') or I('blank.png')
@@ -396,6 +405,8 @@ class EditPrograms(Dialog):  # {{{
         b.clicked.connect(self.remove), b.setIcon(QIcon(I('list_remove.png')))
         self.cb = b = self.bb.addButton(_('Change &icon'), self.bb.ActionRole)
         b.clicked.connect(self.change_icon), b.setIcon(QIcon(I('icon_choose.png')))
+        self.cb = b = self.bb.addButton(_('Change &name'), self.bb.ActionRole)
+        b.clicked.connect(self.change_name), b.setIcon(QIcon(I('modified.png')))
         l.addWidget(self.bb)
 
         self.populate()
@@ -427,6 +438,19 @@ class EditPrograms(Dialog):  # {{{
                 ci.setData(ENTRY_ROLE, entry)
                 self.update_stored_config()
                 ci.setIcon(ic)
+
+    def change_name(self):
+        ci = self.plist.currentItem()
+        if ci is None:
+            return error_dialog(self, _('No selection'), _(
+                'No application selected'), show=True)
+        name, ok = QInputDialog.getText(self, _('Enter new name'), _('New name for {}').format(ci.data(Qt.DisplayRole)))
+        if ok and name:
+            entry = ci.data(ENTRY_ROLE)
+            change_name_in_entry(entry, name)
+            ci.setData(ENTRY_ROLE, entry)
+            self.update_stored_config()
+            ci.setData(Qt.DisplayRole, name)
 
     def remove(self):
         ci = self.plist.currentItem()
