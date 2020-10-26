@@ -1023,7 +1023,7 @@ class TOCEditor(QDialog):  # {{{
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
         self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
 
-        self.resize(950, 630)
+        self.resize(self.sizeHint())
         geom = self.prefs.get('toc_editor_window_geom', None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, bytes(geom))
