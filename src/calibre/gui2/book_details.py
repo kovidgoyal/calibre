@@ -341,7 +341,7 @@ def create_open_cover_with_menu(self, parent_menu):
         parent_menu.addAction(_('Open cover with...'), self.choose_open_with)
     else:
         m.addSeparator()
-        m.addAction(_('Add another application to open cover...'), self.choose_open_with)
+        m.addAction(_('Add another application to open cover with...'), self.choose_open_with)
         m.addAction(_('Edit Open with applications...'), partial(edit_programs, 'cover_image', self))
         parent_menu.ocw = m
         parent_menu.addMenu(m)
