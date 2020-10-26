@@ -7,14 +7,13 @@ import os
 import sys
 import textwrap
 from functools import partial
-from threading import Thread
-
 from PyQt5.Qt import (
-    QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon, QApplication,
-    QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu, QPushButton,
-    QSize, QSizePolicy, QStackedWidget, Qt, QToolButton, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
+    QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
+    QPushButton, QSize, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QToolButton,
+    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
+from threading import Thread
 
 from calibre.constants import TOC_DIALOG_APP_UID, islinux, iswindows
 from calibre.ebooks.oeb.polish.container import AZW3Container, get_container
@@ -149,15 +148,12 @@ class ItemView(QFrame):  # {{{
         self.prefs = prefs
         self.setFrameShape(QFrame.StyledPanel)
         self.setMinimumWidth(250)
-        self.stack = s = QStackedWidget(self)
-        self.l = l = QVBoxLayout()
-        self.setLayout(l)
-        l.addWidget(s)
+        self.stacked_layout = l = QStackedLayout(self)
         self.root_pane = rp = QWidget(self)
         self.item_pane = ip = QWidget(self)
         self.current_item = None
-        s.addWidget(rp)
-        s.addWidget(ip)
+        l.addWidget(rp)
+        l.addWidget(ip)
 
         self.l1 = la = QLabel('<p>'+_(
             'You can edit existing entries in the Table of Contents by clicking them'
@@ -345,10 +341,10 @@ class ItemView(QFrame):  # {{{
     def __call__(self, item):
         if item is None:
             self.current_item = None
-            self.stack.setCurrentIndex(0)
+            self.stacked_layout.setCurrentIndex(0)
         else:
             self.current_item = item
-            self.stack.setCurrentIndex(1)
+            self.stacked_layout.setCurrentIndex(1)
             self.populate_item_pane()
 
     def populate_item_pane(self):
