@@ -10,8 +10,8 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
     QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
-    QPushButton, QSize, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QToolButton,
-    QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt,
+    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Thread
 
@@ -132,7 +132,7 @@ class XPathDialog(QDialog):  # {{{
 # }}}
 
 
-class ItemView(QFrame):  # {{{
+class ItemView(QStackedWidget):  # {{{
 
     add_new_item = pyqtSignal(object, object)
     delete_item = pyqtSignal()
@@ -144,16 +144,20 @@ class ItemView(QFrame):  # {{{
     flatten_toc = pyqtSignal()
 
     def __init__(self, parent, prefs):
-        QFrame.__init__(self, parent)
+        QStackedWidget.__init__(self, parent)
         self.prefs = prefs
-        self.setFrameShape(QFrame.StyledPanel)
         self.setMinimumWidth(250)
-        self.stacked_layout = l = QStackedLayout(self)
         self.root_pane = rp = QWidget(self)
         self.item_pane = ip = QWidget(self)
         self.current_item = None
-        l.addWidget(rp)
-        l.addWidget(ip)
+        sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        sa.setWidget(rp)
+        self.addWidget(sa)
+        sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        sa.setWidget(ip)
+        self.addWidget(sa)
 
         self.l1 = la = QLabel('<p>'+_(
             'You can edit existing entries in the Table of Contents by clicking them'
@@ -341,10 +345,10 @@ class ItemView(QFrame):  # {{{
     def __call__(self, item):
         if item is None:
             self.current_item = None
-            self.stacked_layout.setCurrentIndex(0)
+            self.setCurrentIndex(0)
         else:
             self.current_item = item
-            self.stacked_layout.setCurrentIndex(1)
+            self.setCurrentIndex(1)
             self.populate_item_pane()
 
     def populate_item_pane(self):
@@ -1023,7 +1027,8 @@ class TOCEditor(QDialog):  # {{{
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
         self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
 
-        self.resize(self.sizeHint())
+        r = QApplication.desktop().availableGeometry(self)
+        self.resize(r.width() - 100, r.height() - 100)
         geom = self.prefs.get('toc_editor_window_geom', None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, bytes(geom))
