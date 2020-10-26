@@ -1678,14 +1678,13 @@ class BasicNewsRecipe(Recipe):
                     if purl.username and purl.password:
                         br.add_password(url, purl.username, purl.password)
                 with closing(br.open_novisit(url)) as f:
-                    parsed_feeds.append(feed_from_xml(f.read(),
-                                          title=title,
-                                          log=self.log,
-                                          oldest_article=self.oldest_article,
-                                          max_articles_per_feed=self.max_articles_per_feed,
-                                          get_article_url=self.get_article_url))
-                    if (self.delay > 0):
-                        time.sleep(self.delay)
+                    raw = f.read()
+                parsed_feeds.append(feed_from_xml(
+                    raw, title=title, log=self.log,
+                    oldest_article=self.oldest_article,
+                    max_articles_per_feed=self.max_articles_per_feed,
+                    get_article_url=self.get_article_url
+                ))
             except Exception as err:
                 feed = Feed()
                 msg = 'Failed feed: %s'%(title if title else url)
@@ -1693,6 +1692,8 @@ class BasicNewsRecipe(Recipe):
                 feed.description = as_unicode(err)
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
+            if self.delay > 0:
+                time.sleep(self.delay)
 
         remove = [fl for fl in parsed_feeds if len(fl) == 0 and self.remove_empty_feeds]
         for f in remove:
