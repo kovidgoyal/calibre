@@ -1352,12 +1352,12 @@ class DeviceMixin(object):  # {{{
                 return
             metadata = self.library_view.model().metadata_for(ids)
             names = []
-            for mi in metadata:
+            for book_id, mi in zip(ids, metadata):
                 prefix = ascii_filename(mi.title)
                 if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
-                names.append('%s_%d%s'%(prefix, id,
+                names.append('%s_%d%s'%(prefix, book_id,
                     os.path.splitext(files[-1])[1]))
                 self.update_thumbnail(mi)
             dynamic.set('catalogs_to_be_synced', set())
