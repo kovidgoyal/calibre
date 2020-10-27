@@ -6,24 +6,30 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, copy, os
+import copy
+import os
+import traceback
 from collections import OrderedDict, namedtuple
-
-from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
-        QMimeData, QModelIndex, pyqtSignal, QObject)
+from functools import partial
+from PyQt5.Qt import (
+    QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt, QTimer,
+    pyqtSignal
+)
 
 from calibre.constants import config_dir
-from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
-from calibre.utils.config import tweaks, prefs
-from calibre.utils.icu import sort_key, lower, strcmp, collation_order, primary_strcmp, primary_contains, contains
-from calibre.library.field_metadata import category_icon_map
+from calibre.ebooks.metadata import rating_to_stars
+from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.library.field_metadata import category_icon_map
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.icu import (
+    collation_order, contains, lower, primary_contains, primary_strcmp, sort_key,
+    strcmp
+)
 from calibre.utils.serialize import json_dumps, json_loads
 from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
-
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -1253,8 +1259,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 return False
         if key == 'search':
             if val in self.db.saved_search_names():
-                error_dialog(self.gui_parent, _('Duplicate search name'),
-                    _('The saved search name %s is already used.')%val).exec_()
+                QTimer.singleShot(0, partial(self.show_duplicate_saved_search_error, val))
                 return False
             self.use_position_based_index_on_next_recount = True
             self.db.saved_search_rename(unicode_type(item.data(role) or ''), val)
@@ -1263,6 +1268,10 @@ class TagsModel(QAbstractItemModel):  # {{{
         else:
             self.rename_item(item, key, val)
         return True
+
+    def show_duplicate_saved_search_error(self, val):
+        error_dialog(self.gui_parent, _('Duplicate search name'),
+            _('The saved search name %s is already used.')%val).exec_()
 
     def rename_item(self, item, key, to_what):
         def do_one_item(lookup_key, an_item, original_name, new_name, restrict_to_books):
