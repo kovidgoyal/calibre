@@ -426,10 +426,12 @@ class VLTabs(QTabBar):  # {{{
     def enable_bar(self):
         gprefs['show_vl_tabs'] = True
         self.setVisible(True)
+        self.gui.set_number_of_books_shown()
 
     def disable_bar(self):
         gprefs['show_vl_tabs'] = False
         self.setVisible(False)
+        self.gui.set_number_of_books_shown()
 
     def lock_tab(self):
         gprefs['vl_tabs_closable'] = False
