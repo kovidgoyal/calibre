@@ -294,7 +294,7 @@ class TagsView(QTreeView):  # {{{
         self.collapsed.connect(self.collapse_node_and_children)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return:
+        if event.key() == Qt.Key_Return and self.state() != self.EditingState:
             # I don't see how it can ever not be valid, but ...
             if self.currentIndex().isValid():
                 self.toggle_current_index()
