@@ -49,24 +49,6 @@ class DBUSNotifier(Notifier):
             prints(server, 'found' if self.ok else 'not found', 'in', '%.1f' % (time.time() - start), 'seconds')
 
 
-class KDENotifier(DBUSNotifier):
-
-    SERVICE = 'org.kde.VisualNotifications', '/VisualNotifications', 'org.kde.VisualNotifications'
-
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
-        if replaces_id is None:
-            replaces_id = self.dbus.UInt32()
-        event_id = ''
-        timeout, body, summary = self.get_msg_parms(timeout, body, summary)
-        try:
-            self._notify.Notify('calibre', replaces_id, event_id, self.ICON, summary, body,
-                self.dbus.Array(signature='s'), self.dbus.Dictionary(signature='sv'),
-                timeout)
-        except:
-            import traceback
-            traceback.print_exc()
-
-
 class FDONotifier(DBUSNotifier):
 
     SERVICE = 'org.freedesktop.Notifications', '/org/freedesktop/Notifications', 'org.freedesktop.Notifications'
@@ -88,7 +70,7 @@ def get_dbus_notifier():
     import dbus
     session_bus = dbus.SessionBus()
     names = frozenset(session_bus.list_names())
-    for srv in KDENotifier, FDONotifier:
+    for srv in (FDONotifier,):
         if srv.SERVICE[0] in names:
             ans = srv(session_bus)
             if ans.ok:
