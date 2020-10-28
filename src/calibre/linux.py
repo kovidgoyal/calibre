@@ -1145,6 +1145,8 @@ def get_appdata():
                 (1408, 792, 'https://lh4.googleusercontent.com/-Zu2httSKABE/UvHMYK30JJI/AAAAAAAAATg/dQTQUjBvV5s/w1408-h792-no/main-grid.png'),
                 (1408, 792, 'https://lh3.googleusercontent.com/-_trYUjU_BaY/UvHMYSdKhlI/AAAAAAAAATc/auPA3gyXc6o/w1408-h792-no/main-flow.png'),
             ),
+            'desktop-id': 'calibre-gui.desktop',
+            'include-releases': True,
         },
 
         'calibre-ebook-edit': {
@@ -1159,6 +1161,7 @@ def get_appdata():
                 (1408, 792, 'https://lh4.googleusercontent.com/-WhoMxuRb34c/UvHMWqN8aGI/AAAAAAAAATI/8SDBYWXb7-8/w1408-h792-no/edit-check.png'),
                 (887, 575, 'https://lh6.googleusercontent.com/-KwaOwHabnBs/UvHMWidjyXI/AAAAAAAAAS8/H6xmCeLnSpk/w887-h575-no/edit-toc.png'),
             ),
+            'desktop-id': 'calibre-ebook-edit.desktop',
         },
 
         'calibre-ebook-viewer': {
@@ -1172,14 +1175,75 @@ def get_appdata():
                 (1408, 792, 'https://lh5.googleusercontent.com/-dzSO82BPpaE/UvHMYY5SpNI/AAAAAAAAATk/I_kF9fYWrZM/w1408-h792-no/viewer-default.png',),
                 (1920, 1080, 'https://lh6.googleusercontent.com/-n32Ae5RytAk/UvHMY0QD94I/AAAAAAAAATs/Zw8Yz08HIKk/w1920-h1080-no/viewer-fs.png'),
             ),
+            'desktop-id': 'calibre-ebook-viewer.desktop',
         },
     }
+
+
+def changelog_bullet_to_text(bullet):
+    # It would be great if we could use any fancier formatting here, but the
+    # only allowed inline formattings within the AppData description bullet
+    # points are emphasis (italics) and code (monospaced font)
+    text = [bullet['title']]
+    if 'author' in bullet:
+        text.append(' by ')
+        text.append(bullet['author'])
+    if 'description' in bullet or 'tickets' in bullet:
+        text.append(' (')
+        if 'description' in bullet:
+            text.append(bullet['description'])
+        if 'tickets' in bullet:
+            if 'description' in bullet:
+                text.append(' – ')
+            text.append('Closes tickets: ')
+            text.append(', '.join(map(str, bullet['tickets'])))
+        text.append(')')
+    return ''.join(text)
+
+
+def make_appdata_releases():
+    from lxml.builder import E
+    import json
+    changelog = json.loads(P('changelog.json', data=True))
+
+    releases = E.releases()
+    for revision in changelog:
+        # Formatting of release description tries to resemble that of
+        # https://calibre-ebook.com/whats-new while taking into account the limits imposed by
+        # https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-description
+        description = E.description('{http://www.w3.org/XML/1998/namespace}lang', 'en')
+        if 'new features' in revision:
+            description.append(E.p('New features:'))
+            description.append(E.ol(
+                *(E.li(changelog_bullet_to_text(bullet)) for bullet in revision['new features'])
+            ))
+        if 'bug fixes' in revision:
+            description.append(E.p('Bug fixes:'))
+            description.append(E.ol(
+                *(E.li(changelog_bullet_to_text(bullet)) for bullet in revision['bug fixes'])
+            ))
+        if 'new recipes' in revision:
+            description.append(E.p('New news sources:'))
+            description.append(E.ol(
+                *(E.li(changelog_bullet_to_text(bullet)) for bullet in revision['new recipes'])
+            ))
+        if 'improved recipes' in revision:
+            description.append(E.p('Improved news sources:'))
+            description.append(E.ol(
+                *(E.li(name) for name in revision['improved recipes'])
+            ))
+        releases.append(E.release(
+            description,
+            version=revision['version'],
+            date=revision['date']
+        ))
+    return releases
 
 
 def write_appdata(key, entry, base, translators):
     from lxml.etree import tostring
     from lxml.builder import E
-    fpath = os.path.join(base, '%s.appdata.xml' % key)
+    fpath = os.path.join(base, '%s.metainfo.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
         s = E.screenshot(E.image(url, width=unicode_type(w), height=unicode_type(h)))
@@ -1211,13 +1275,16 @@ def write_appdata(key, entry, base, translators):
         description,
         E.url('https://calibre-ebook.com/', type='homepage'),
         screenshots,
-        type='desktop'
+        E.launchable(entry['desktop-id'], type='desktop-id'),
+        type='desktop-application'
     )
     for lang, t in iteritems(translators):
         tp = t.gettext(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp))
             root[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+    if entry.get('include-releases', False):
+        root.append(make_appdata_releases())
     with open(fpath, 'wb') as f:
         f.write(tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True))
     return fpath
