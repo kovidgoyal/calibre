@@ -30,7 +30,13 @@ class Notifier(object):
 
 class DBUSNotifier(Notifier):
 
+    #XXX: Really, this should instead just send the themable icon name
+    #
+    # Doing that however, requires Calibre to first be converted to use
+    # its AppID everywhere and then we still need a fallback for portable
+    # installations.
     ICON = I('lt.png')
+    ICON_DATA = I('lt.png', data=True)
 
     def __init__(self, session_bus):
         self.ok, self.err = True, None
@@ -66,11 +72,38 @@ class FDONotifier(DBUSNotifier):
             traceback.print_exc()
 
 
+class XDPNotifier(DBUSNotifier):
+
+    SERVICE = 'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop', 'org.freedesktop.portal.Notification'
+
+    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+        if replaces_id is None:
+            replaces_id = self.dbus.UInt32()
+        _, body, summary = self.get_msg_parms(timeout, body, summary)
+        # Note: This backend does not natively support the notion of timeouts
+        #
+        # While the effect may be emulated by manually withdrawing the notifi-
+        # cation from the Calibre side, this resulted in a less than optimal
+        # User Experience. Based on this, KG decided it to be better to not
+        # support timeouts at all for this backend.
+        #
+        # See discussion at https://github.com/kovidgoyal/calibre/pull/1268.
+        try:
+            self._notify.AddNotification(str(replaces_id), self.dbus.Dictionary({
+                "title": self.dbus.String(summary),
+                "body": self.dbus.String(body),
+                "icon": self.dbus.Struct(("bytes", self.dbus.ByteArray(self.ICON_DATA, variant_level=1)), signature='sv'),
+            }, signature='sv'))
+        except:
+            import traceback
+            traceback.print_exc()
+
+
 def get_dbus_notifier():
     import dbus
     session_bus = dbus.SessionBus()
     names = frozenset(session_bus.list_names())
-    for srv in (FDONotifier,):
+    for srv in (FDONotifier, XDPNotifier):
         if srv.SERVICE[0] in names:
             ans = srv(session_bus)
             if ans.ok:
