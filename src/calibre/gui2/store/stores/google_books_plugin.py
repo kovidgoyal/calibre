@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -47,7 +47,7 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
         if write_html_to is not None:
             praw = html.tostring(doc, encoding='utf-8')
             open(write_html_to, 'wb').write(praw)
-        for data in doc.xpath('//div[@id="rso"]//div[@class="g"]'):
+        for data in doc.xpath('//div[@id="rso"]/div'):
             if counter <= 0:
                 break
             h3 = data.xpath('descendant::h3')
@@ -59,8 +59,8 @@ def search_google(query, max_results=10, timeout=60, write_html_to=None):
             if not id:
                 continue
 
-            title = ''.join(data.xpath('.//h3//text()'))
-            authors = data.xpath('descendant::div[@class="s"]//a[@class="fl" and @href]//text()')
+            title = ''.join(data.xpath('.//h3//text()')).strip()
+            authors = data.xpath('descendant::a[@class="fl" and @href]//text()')
             while authors and authors[-1].strip().lower() in ('preview', 'read', 'more editions'):
                 authors = authors[:-1]
             if not authors:
