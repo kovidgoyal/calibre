@@ -8,8 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 
 import time
+from functools import lru_cache
+
 from calibre import prints
-from calibre.constants import islinux, ismacos, get_osx_version, DEBUG
+from calibre.constants import DEBUG, get_osx_version, islinux, ismacos
 from polyglot.builtins import unicode_type
 
 
@@ -28,15 +30,12 @@ class Notifier(object):
         raise NotImplementedError
 
 
-class DBUSNotifier(Notifier):
+@lru_cache(maxsize=2)
+def icon(data=False):
+    return I('lt.png', data=data)
 
-    #XXX: Really, this should instead just send the themable icon name
-    #
-    # Doing that however, requires Calibre to first be converted to use
-    # its AppID everywhere and then we still need a fallback for portable
-    # installations.
-    ICON = I('lt.png')
-    ICON_DATA = I('lt.png', data=True)
+
+class DBUSNotifier(Notifier):
 
     def __init__(self, session_bus):
         self.ok, self.err = True, None
@@ -64,7 +63,7 @@ class FDONotifier(DBUSNotifier):
             replaces_id = self.dbus.UInt32()
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         try:
-            self._notify.Notify('calibre', replaces_id, self.ICON, summary, body,
+            self._notify.Notify('calibre', replaces_id, icon(), summary, body,
                 self.dbus.Array(signature='s'), self.dbus.Dictionary({"desktop-entry": "calibre-gui"}, signature='sv'),
                 timeout)
         except:
@@ -88,11 +87,18 @@ class XDPNotifier(DBUSNotifier):
         # support timeouts at all for this backend.
         #
         # See discussion at https://github.com/kovidgoyal/calibre/pull/1268.
+
+        # For the icon: This should instead just send the themable icon name
+        #
+        # Doing that however, requires Calibre to first be converted to use
+        # its AppID everywhere and then we still need a fallback for portable
+        # installations.
+
         try:
             self._notify.AddNotification(str(replaces_id), self.dbus.Dictionary({
                 "title": self.dbus.String(summary),
                 "body": self.dbus.String(body),
-                "icon": self.dbus.Struct(("bytes", self.dbus.ByteArray(self.ICON_DATA, variant_level=1)), signature='sv'),
+                "icon": self.dbus.Struct(("bytes", self.dbus.ByteArray(icon(data=True), variant_level=1)), signature='sv'),
             }, signature='sv'))
         except:
             import traceback
