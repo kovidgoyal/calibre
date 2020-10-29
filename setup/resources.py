@@ -313,7 +313,7 @@ class Resources(Command):  # {{{
         src = self.j(self.SRC, '..', 'Changelog.txt')
         dest = self.j(self.RESOURCES, 'changelog.json')
         if self.newer(dest, [src]):
-            self.info('\tCreating changelog.calibre_msgpack')
+            self.info('\tCreating changelog.json')
             from setup.changelog import parse
             with open(src) as f:
                 dump_json(parse(f.read(), parse_dates=False), dest)
