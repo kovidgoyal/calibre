@@ -27,7 +27,7 @@ class Notifier(object):
         return timeout, body, summary
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
-        raise NotImplementedError
+        raise NotImplementedError('implement in subclass')
 
 
 @lru_cache(maxsize=2)
@@ -66,7 +66,7 @@ class FDONotifier(DBUSNotifier):
             self._notify.Notify('calibre', replaces_id, icon(), summary, body,
                 self.dbus.Array(signature='s'), self.dbus.Dictionary({"desktop-entry": "calibre-gui"}, signature='sv'),
                 timeout)
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -100,7 +100,7 @@ class XDPNotifier(DBUSNotifier):
                 "body": self.dbus.String(body),
                 "icon": self.dbus.Struct(("bytes", self.dbus.ByteArray(icon(data=True), variant_level=1)), signature='sv'),
             }, signature='sv'))
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -138,7 +138,7 @@ class QtNotifier(Notifier):
                 finally:
                     if hide:
                         self.systray.hide()
-            except:
+            except Exception:
                 pass
 
 
@@ -169,7 +169,7 @@ class AppleNotifier(Notifier):
         if self.ok:
             try:
                 self.notify(body, summary)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 
