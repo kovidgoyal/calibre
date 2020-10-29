@@ -5,7 +5,7 @@
 from datetime import date
 
 
-def parse(raw):
+def parse(raw, parse_dates=True):
     entries = []
     current_entry = None
     current_section = 'new features'
@@ -21,7 +21,10 @@ def parse(raw):
             if current_entry is not None:
                 raise ValueError(f'Start of entry while previous entry is still active at line: {linenum}')
             version, draw = parts
-            d = date(*map(int, draw.split('-')))
+            if parse_dates:
+                d = date(*map(int, draw.split('-')))
+            else:
+                d = draw
             current_entry = {'version': version, 'date': d, 'new features': [], 'bug fixes': [], 'improved recipes': [], 'new recipes': []}
             current_section = 'new features'
             return in_entry
