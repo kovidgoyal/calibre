@@ -13,9 +13,9 @@ import struct
 
 from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
-from polyglot.builtins import unicode_type, range
+from calibre.ebooks.pdb.formatreader import FormatReader
+from polyglot.builtins import as_unicode, range, unicode_type
 
 
 class HeaderRecord(object):
@@ -116,6 +116,7 @@ class Reader202(FormatReader):
             for i in range(self.header_record.non_text_offset, len(self.sections)):
                 name, img = self.get_image(i)
                 if name:
+                    name = as_unicode(name)
                     images.append(name)
                     with open(name, 'wb') as imgf:
                         self.log.debug('Writing image %s to images/' % name)
