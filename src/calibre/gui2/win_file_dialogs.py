@@ -9,6 +9,7 @@ import subprocess
 import sys
 from threading import Thread
 from uuid import uuid4
+from contextlib import suppress
 
 
 from polyglot.builtins import filter, string_or_bytes, unicode_type
@@ -227,11 +228,13 @@ def run_file_dialog(
 
     def fix_path(x):
         u = os.path.abspath(x.decode('utf-8'))
-        try:
-            return get_long_path_name(u)
-        except FileNotFoundError:
-            base, fn = os.path.split(u)
-            return os.path.join(get_long_path_name(base), fn)
+        with suppress(Exception):
+            try:
+                return get_long_path_name(u)
+            except FileNotFoundError:
+                base, fn = os.path.split(u)
+                return os.path.join(get_long_path_name(base), fn)
+        return u
 
     ans = tuple(map(fix_path, parts[1:]))
     return ans
