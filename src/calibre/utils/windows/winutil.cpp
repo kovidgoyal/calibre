@@ -770,18 +770,24 @@ static PyObject *
 get_long_path_name(PyObject *self, PyObject *args) {
     wchar_raii path;
     if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
-    DWORD sz = GetLongPathNameW(path.ptr(), NULL, 0) * 2;
-    if (!sz) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
-    wchar_t *buf = (wchar_t*) PyMem_Malloc(sz);
+    DWORD current_size = 4096;
+    wchar_raii buf((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
     if (!buf) return PyErr_NoMemory();
-    if (!GetLongPathNameW(path.ptr(), buf, sz-1)) {
-        PyMem_Free(buf);
-        return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    DWORD needed_size = GetLongPathNameW(path.ptr(), buf.ptr(), current_size);
+    if (needed_size >= current_size - 32) {
+        current_size = needed_size + 32;
+        PyMem_Free(buf.ptr());
+        buf.set_ptr((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
+        if (!buf) return PyErr_NoMemory();
+        needed_size = GetLongPathNameW(path.ptr(), buf.ptr(), current_size);
     }
-    buf[sz-1] = 0;
-    PyObject *ans = PyUnicode_FromWideChar(buf, -1);
-    PyMem_Free(buf);
-    return ans;
+    if (!needed_size) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    if (needed_size >= current_size - 2) {
+        PyErr_SetString(PyExc_OSError, "filename length changed between calls");
+        return NULL;
+    }
+    buf.ptr()[current_size-1] = 0;
+    return PyUnicode_FromWideChar(buf.ptr(), -1);
 }
 
 static PyObject *

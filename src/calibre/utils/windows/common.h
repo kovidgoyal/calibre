@@ -33,6 +33,7 @@ class wchar_raii {
 
 	public:
 		wchar_raii() : handle(NULL) {}
+		wchar_raii(wchar_t *h) : handle(h) {}
 
 		~wchar_raii() {
 			if (handle) {
