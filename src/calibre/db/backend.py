@@ -1797,7 +1797,7 @@ class DB(object):
         data = [fts_engine_query]
         if restrict_to_user:
             query += ' AND annotations.user_type = ? AND annotations.user = ?'
-            data += list(*restrict_to_user)
+            data += list(restrict_to_user)
         if annotation_type:
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
