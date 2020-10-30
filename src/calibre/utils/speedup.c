@@ -121,9 +121,9 @@ static PyObject*
 speedup_detach(PyObject *self, PyObject *args) {
     char *devnull = NULL;
     if (!PyArg_ParseTuple(args, "s", &devnull)) return NULL;
-    if (freopen(devnull, "r", stdin) == NULL) return PyErr_SetFromErrno(PyExc_EnvironmentError);
-    if (freopen(devnull, "w", stdout) == NULL) return PyErr_SetFromErrno(PyExc_EnvironmentError);
-    if (freopen(devnull, "w", stderr) == NULL)  return PyErr_SetFromErrno(PyExc_EnvironmentError);
+    if (freopen(devnull, "r", stdin) == NULL) return PyErr_SetFromErrnoWithFilename(PyExc_OSError, devnull);
+    if (freopen(devnull, "w", stdout) == NULL) return PyErr_SetFromErrnoWithFilename(PyExc_OSError, devnull);
+    if (freopen(devnull, "w", stderr) == NULL)  return PyErr_SetFromErrnoWithFilename(PyExc_OSError, devnull);
     Py_RETURN_NONE;
 }
 
