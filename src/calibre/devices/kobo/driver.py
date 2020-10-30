@@ -3171,7 +3171,7 @@ class KOBOTOUCH(KOBO):
         else:
             new_series = None
             new_series_number = None
-            
+
         series_changed = not (new_series == kobo_metadata.series)
         series_number_changed = not (new_series_number == book.kobo_series_number)
         if show_debug:
@@ -3190,7 +3190,7 @@ class KOBOTOUCH(KOBO):
             try:
                 kobo_series_id = book.kobo_series_id
                 kobo_series_number_float = book.kobo_series_number_float
-            except: # This should mean the book was sent to the device during the current session.
+            except Exception:  # This should mean the book was sent to the device during the current session.
                 kobo_series_id = None
                 kobo_series_number_float = None
 
