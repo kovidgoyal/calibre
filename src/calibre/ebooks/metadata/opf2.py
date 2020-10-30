@@ -1315,7 +1315,7 @@ class OPF(object):  # {{{
             val = getattr(mi, attr, None)
             if attr == 'rating' and val:
                 val = float(val)
-            is_null = val is None or val in ((), [], (None, None), {}) or (attr == 'rating' and val < 0.1)
+            is_null = val is None or val in ((), [], (None, None), {}) or (attr == 'rating' and (not val or val < 0.1))
             if is_null:
                 if apply_null and attr in {'series', 'tags', 'isbn', 'comments', 'publisher', 'rating'}:
                     setattr(self, attr, ([] if attr == 'tags' else None))
