@@ -227,7 +227,11 @@ def run_file_dialog(
 
     def fix_path(x):
         u = os.path.abspath(x.decode('utf-8'))
-        return get_long_path_name(u)
+        try:
+            return get_long_path_name(u)
+        except FileNotFoundError:
+            base, fn = os.path.split(u)
+            return os.path.join(get_long_path_name(base), fn)
 
     ans = tuple(map(fix_path, parts[1:]))
     return ans
