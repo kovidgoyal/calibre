@@ -219,7 +219,7 @@ Only works with output formats such as EPUB that support CSS transforms
 
 - [1897356] Fix User category based searches unreliable dues to caching issues
 
-- PDF Output: Dont fail if the input document has an html file identified as the cover
+- PDF Output: Don't fail if the input document has an html file identified as the cover
 
 - [1897467] Catalog generation: Fix a regression that broke generating catalogs if books with no comments are present.
 
@@ -285,7 +285,7 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 - [1889973] Fix unable to delete default value for custom columns of boolean type, once set
 
-- EPUB Output: When splitting dont consider files with only a single character empty
+- EPUB Output: When splitting don't consider files with only a single character empty
 
 - Comments editor: Fix syntax coloring for HTML view in dark mode
 
@@ -444,7 +444,7 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 - [1882436] Edit book: Fix Check book spuriously reporting incorrect mime type warnings for fonts after upgrading a book from EPUB 2 to EPUB 3.
 
-- [1882469] Book details panel: Dont show sizes less than 0.01MB as zero.
+- [1882469] Book details panel: Don't show sizes less than 0.01MB as zero.
 
 - Viewer: Fix jump to previous section not working when viewer is on last section
 
@@ -611,7 +611,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - [1874877] Viewer: Fix a regression that broke searching in flow mode.
 
-- [1876302] BibTeX Catalog: Dont output comment describing the catalog as Zotero fails to process it.
+- [1876302] BibTeX Catalog: Don't output comment describing the catalog as Zotero fails to process it.
 
 - [1876164] Linux: Fix uninstaller not working on Linux distros that have no python symlink.
 
@@ -623,7 +623,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - MOBI metadata: When reading author sort from MOBI files, construct the final value from all author fields
 
-- macOS: hide accelerator key underlines since they dont work anyway as Apple does not believe in them
+- macOS: hide accelerator key underlines since they don't work anyway as Apple does not believe in them
 
 - [1874499] macOS: Fix keyboard shortcuts for select all, copy and paste not working in file dialogs.
 
@@ -671,7 +671,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - [1869471] Windows: Fix drag and drop from SMB shares to the edit metadata dialog formats list not working.
 
-- Comments editor: Dont insert blank lines between list elements
+- Comments editor: Don't insert blank lines between list elements
 
 - [1869550] Allow using Quick view from the Book grid view.
 
@@ -723,7 +723,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - MOBI Input: Upshift non-animated GIF to PNG as it is a more widely supported format
 
-- MOBI Input: Dont auto-convert images in PNG/GIF formats to JPEG
+- MOBI Input: Don't auto-convert images in PNG/GIF formats to JPEG
 
 - MOBI Output: Improve conversion of PNG images with transparency to GIF
 
@@ -1005,7 +1005,7 @@ Now all matches are displayed when searching in a side bar with a few words of c
 
 - [1856395] ToC editor: Fix generate from links not working correctly when links have no fragments.
 
-- [1856564] PDF Output: Dont dedup images that cannot be uncompressed
+- [1856564] PDF Output: Don't dedup images that cannot be uncompressed
 
 - Advanced search dialog: Fix an error when closing dialog if on the second tab and no field is focused
 
@@ -1227,7 +1227,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - [1847571] macOS: Various improvements to dark mode support
 
-- Viewer: Dont generate covers for books that dont have a cover. Note that because of this all previously opened books will again be prepared for first time reading.
+- Viewer: Don't generate covers for books that don't have a cover. Note that because of this all previously opened books will again be prepared for first time reading.
 
 - Viewer: Restore print to PDF functionality
 
@@ -1294,7 +1294,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - Viewer: restrict max size of margin page turn indicators to 25px rather than 75px
 
-- Viewer: Dont flash the home page before loading a book if a book has been specified
+- Viewer: Don't flash the home page before loading a book if a book has been specified
 
 - Viewer: Fix ctrl+m shortcut not working on Windows
 

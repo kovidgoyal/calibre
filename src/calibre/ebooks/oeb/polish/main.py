@@ -109,7 +109,7 @@ when single quotes at the start of contractions are involved.</p>
 'remove_unused_css': _('''\
 <p>Remove all unused CSS rules from stylesheets and &lt;style&gt; tags. Some books
 created from production templates can have a large number of extra CSS rules
-that dont match any actual content. These extra rules can slow down readers
+that don't match any actual content. These extra rules can slow down readers
 that need to parse them all.</p>
 '''),
 
