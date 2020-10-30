@@ -24,6 +24,83 @@
 # }}}
 
 
+{{{ 5.4.0 2020-10-30
+
+:: new features
+
+- [1900761] Windows: Allow adding of books to calibre from directories whose path length is larger than 260 characters
+
+- Tag browser: Add an option in Preferences->Look & feel->Tag browser to allow the tag browser to get keyboard focus
+
+- Tag browser: Allow editing the set of permissible values and colors for a custom column with fixed values, by right clicking on it.
+
+- Edit metadata dialog: Make most custom metadata controls use only a single line.
+
+  Elide the names of custom columns that are longer than a fixed width, instead of using multiple lines.
+  Configurable via Preferences->Tweaks->Edit metadata custom column label length
+
+- Edit book: Remove unused CSS: Add an option to merge CSS rules that have identical properties
+
+- [1901379] Book details window: Double clicking on the cover now shows it in the default system image viewer.
+
+- [1900874] News download: Allow passing username/password in feed URLs.
+
+- [1900890] Open with: Allow renaming Open with applications.
+
+:: bug fixes
+
+- [1900868] Viewer: Fix jumping to search result not always working in flow mode.
+
+- Get Books: Update Google and Gutenberg plugins for website changes
+
+- [1900946] Viewer: Fix keyboard shortcuts using ctrl+alt+letter key not working on windows.
+
+- [1900942] Viewer: Fix keyboard shortcuts to shrink/grow selection not working.
+
+- [1900938] Viewer: Fix keyboard shortcut to toggle highlights panel not working when the highlights panel is itself focused.
+
+- [1900358] Viewer: handle editing of missing highlights more gracefully
+
+
+- [1901289] Drivers: Fix regression in calibre 5 that broke connecting to SONY devices
+
+- [1901276] Open with: On Linux when reading names from .desktop files, use the first matching language
+
+- [1901593] Conversion: Fix a regression in calibre 5 that broke conversion of some malformed CSS stylesheets.
+
+- [1901957] Conversion: Fix a regression in calibre 5 that broke processing of some PDB files with images.
+
+- [1901278] Conversion: Fix regression in calibre 5 in the handling of @import() rules in stylesheets that import from directories above themselves.
+
+- [1901232 1901230] Content server: Fix various controls on the book details page not working when viewing a random book.
+
+- [1901273] Tag browser: Fix a crash when renaming a saved search to a value that already exists.
+
+- [1900921] Tag browser: Fix renaming of custom column with fixed set of values not working.
+
+- [1901630] Fix a regression in calibre 5 that broke auto-sync of generated catalogs to devices.
+
+- [1901113] Fix setting rating via ebook-meta command line tool broken in calibre 5.
+
+- [1900099]: When boolean columns are set to bistate, checking "show checkmarks" results in all non-boolean values being shown as false
+
+- Spell check: Fix using non UTF-8 dictionaries broken in calibre 5
+
+- Fix a rare issue where restarting calibre from within the program would fail.
+
+:: improved recipes
+
+- Psychology Today
+- Washington Post
+- LifeHacker
+- The Atlantic
+- New York Review of Books
+
+:: new recipes
+- title by author
+}}}
+
+
 {{{ 5.3.0 2020-10-16
 :: new features
 
