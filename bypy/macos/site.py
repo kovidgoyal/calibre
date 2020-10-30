@@ -48,12 +48,14 @@ def main():
 
     set_helper()
     set_quit()
+    mod = __import__(sys.calibre_module, fromlist=[1])
+    func = getattr(mod, sys.calibre_function)
     if sys.gui_app and not (
         sys.stdout.isatty() or sys.stderr.isatty() or sys.stdin.isatty()
     ):
+        # this has to be done after calibre is imported and therefore
+        # calibre_extensions is available.
         nuke_stdout()
-    mod = __import__(sys.calibre_module, fromlist=[1])
-    func = getattr(mod, sys.calibre_function)
     return func()
 
 
