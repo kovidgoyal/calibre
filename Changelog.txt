@@ -96,8 +96,6 @@
 - The Atlantic
 - New York Review of Books
 
-:: new recipes
-- title by author
 }}}
 
 
