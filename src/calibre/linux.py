@@ -1284,7 +1284,11 @@ def write_appdata(key, entry, base, translators):
             root.append(E.summary(tp))
             root[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
     if entry.get('include-releases', False):
-        root.append(make_appdata_releases())
+        try:
+            root.append(make_appdata_releases())
+        except Exception:
+            import traceback
+            traceback.print_exc()
     with open(fpath, 'wb') as f:
         f.write(tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True))
     return fpath
