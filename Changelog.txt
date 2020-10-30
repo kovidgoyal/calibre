@@ -24,7 +24,7 @@
 # }}}
 
 
-{{{ 5.4.1 2020-10-30
+{{{ 5.4.2 2020-10-30
 
 :: new features
 
@@ -87,6 +87,8 @@
 - Spell check: Fix using non UTF-8 dictionaries broken in calibre 5
 
 - Fix a rare issue where restarting calibre from within the program would fail.
+
+- Version 5.4.2 fixes bugs in 5.4.0 that prevented calibre from starting on macOS and from choosing save file names on Windows.
 
 :: improved recipes
 
