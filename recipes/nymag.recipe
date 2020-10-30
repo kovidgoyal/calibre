@@ -23,8 +23,6 @@ class NewYorkMagazine(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
-    recursions = 1
-    match_regexps = [r'http://nymag.com/.+/index[0-9]{1,2}.html$']
     keep_only_tags = [
         classes('lede-text headline-primary article-timestamp by-authors'),
         dict(id='main'),
@@ -35,50 +33,41 @@ class NewYorkMagazine(BasicNewsRecipe):
         dict(id=['minibrowserbox', 'article-related', 'article-tools'])
     ]
     remove_attributes = ['srcset']
-    handle_gzip = True
-
-    PREFIX = 'http://nymag.com'
 
     def nymag_get_index(self):
-        return self.index_to_soup('http://nymag.com/includes/tableofcontents.htm')
+        return self.index_to_soup('https://nymag.com/includes/tableofcontents.htm')
 
     def parse_index(self):
         soup = self.nymag_get_index()
-        self.cover_url = soup.find(attrs={'class': 'cover'}).find('img',
-                                                                  src=True).get('src')
+        cdiv = soup.find(**classes('magazine-toc-cover-image-wrap'))
+        if cdiv is not None:
+            for source in cdiv.findAll('source', srcset=True):
+                self.cover_url = source['srcset'].split()[0]
+                self.log('Cover:', self.cover_url)
+                break
         feeds = []
-        current_section = 'Cover Story'
-        current_articles = []
-        for h in soup.findAll(['h4', 'h5']):
-            if h.name == 'h4':
-                if current_section and current_articles:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(h)
-                self.log('\tFound section:', current_section)
-                current_articles = []
-            elif h.name == 'h5':
-                title = self.tag_to_string(h)
-                a = h.find('a', href=True)
-                if a is not None:
-                    url = a.get('href')
-                    if url.startswith('/'):
-                        url = self.PREFIX + url
-                    if title and url:
-                        self.log('\t\tFound article:', title)
-                        self.log('\t\t\t', url)
-                        desc = ''
-                        p = h.findNextSibling('p')
-                        if p is not None:
-                            desc = self.tag_to_string(p)
-                            self.log('\t\t\t', desc)
-                        current_articles.append({'title': title, 'url': url,
-                                                 'date': '', 'description': desc})
+        for div in soup.findAll(attrs={'data-editable': 'settingTitle'}):
+            section = self.tag_to_string(div).strip().capitalize()
+            articles = []
+            self.log(section)
+            ul = div.findNextSibling('ul')
+            for li in ul.findAll('li'):
+                a = li.find(**classes('article-link'))
+                url = a['href']
+                h3 = li.find('h3')
+                title = self.tag_to_string(h3)
+                desc = ''
+                teaser = h3.findNextSibling(**classes('teaser'))
+                if teaser is not None:
+                    desc = self.tag_to_string(teaser)
+                self.log('\t', title, url)
+                articles.append({'title': title, 'url': url, 'description': desc})
+            if articles:
+                feeds.append((section, articles))
+
         return feeds
 
-    def postprocess_html(self, soup, first):
-        for x in soup.findAll(attrs={'class': 'page-navigation'}):
-            x.extract()
-        if not first:
-            for x in soup.findAll(attrs={'class': 'header-spacing'}):
-                x.extract()
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup
