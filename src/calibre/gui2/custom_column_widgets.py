@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, QUrl,
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
-        QMessageBox, QToolButton, QPlainTextEdit)
+        QMessageBox, QToolButton, QPlainTextEdit, QApplication, QStyle)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
 from calibre.gui2.complete2 import EditWithComplete
@@ -756,6 +756,9 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     do_elision = tweaks['metadata_edit_elide_labels']
     elide_pos = tweaks['metadata_edit_elision_point']
     elide_pos = elide_pos if elide_pos in {'left', 'middle', 'right'} else 'right'
+    # make room on the right side for the scrollbar
+    sb_width = QApplication.instance().style().pixelMetric(QStyle.PM_ScrollBarExtent)
+    layout.setContentsMargins(0, 0, sb_width, 0)
     for key in cols:
         if not fm[key]['is_editable']:
             continue  # The job spy plugin can change is_editable
@@ -820,7 +823,6 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 l.addWidget(w.widgets[c+1], c, 1)
             else:
                 l.addWidget(w.widgets[0], 0, 0, 1, 2)
-        l.addItem(QSpacerItem(0, 0, vPolicy=QSizePolicy.Expanding), c, 0, 1, 1)
         max_row = max(max_row, row)
         if row >= turnover_point:
             column = 1
