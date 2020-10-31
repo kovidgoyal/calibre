@@ -279,6 +279,21 @@ class scoped_com_initializer {  // {{{
 		scoped_com_initializer & operator=( const scoped_com_initializer & ) ;
 }; // }}}
 
+static PyObject*
+get_computer_name(PyObject *self, PyObject *args) {
+    COMPUTER_NAME_FORMAT fmt = ComputerNameDnsFullyQualified;
+    if (!PyArg_ParseTuple(args, "|i", &fmt)) return NULL;
+    DWORD sz = 0;
+    GetComputerNameExW(fmt, NULL, &sz);
+    sz *= 4;
+    wchar_t *buf = (wchar_t*) PyMem_Malloc(sz * sizeof(wchar_t));
+    if (!buf) return PyErr_NoMemory();
+    PyObject *ans = NULL;
+    if (GetComputerNameExW(fmt, buf, &sz)) ans = PyUnicode_FromWideChar(buf, -1);
+    else PyErr_SetFromWindowsErr(0);
+    PyMem_Free(buf);
+    return ans;
+}
 
 static PyObject *
 winutil_folder_path(PyObject *self, PyObject *args) {
@@ -1086,6 +1101,7 @@ static PyMethodDef winutil_methods[] = {
 	M(write_file, METH_VARARGS),
 	M(wait_named_pipe, METH_VARARGS),
 	M(known_folder_path, METH_VARARGS),
+    M(get_computer_name, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -1400,6 +1416,14 @@ exec_module(PyObject *m) {
 	A(KF_FLAG_NOT_PARENT_RELATIVE);
 	A(KF_FLAG_SIMPLE_IDLIST);
 	A(KF_FLAG_ALIAS_ONLY);
+    A(ComputerNameDnsDomain);
+    A(ComputerNameDnsFullyQualified);
+    A(ComputerNameDnsHostname);
+    A(ComputerNameNetBIOS);
+    A(ComputerNamePhysicalDnsDomain);
+    A(ComputerNamePhysicalDnsFullyQualified);
+    A(ComputerNamePhysicalDnsHostname);
+    A(ComputerNamePhysicalNetBIOS);
 #undef A
     return 0;
 }
