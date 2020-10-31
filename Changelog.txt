@@ -53,7 +53,7 @@
 
 - Get Books: Update Google and Gutenberg plugins for website changes
 
-- [1900946] Viewer: Fix keyboard shortcuts using ctrl+alt+letter key not working on windows.
+- [1900946] Viewer: Fix keyboard shortcuts using ctrl+alt+letter key not working on Windows.
 
 - [1900942] Viewer: Fix keyboard shortcuts to shrink/grow selection not working.
 
