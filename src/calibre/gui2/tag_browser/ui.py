@@ -688,22 +688,27 @@ class TagBrowserWidget(QFrame):  # {{{
     def give_tb_focus(self, *args):
         if gprefs['tag_browser_allow_keyboard_focus']:
             tb = self.tags_view
-            idx = tb.currentIndex()
-            if not idx.isValid:
-                idx = tb.model().createIndex(0, 0)
-            tb.setCurrentIndex(idx)
-            tb.setFocus(Qt.OtherFocusReason)
+            if tb.hasFocus():
+                self._parent.shift_esc()
+            elif self._parent.current_view() == self._parent.library_view:
+                tb.setFocus()
+                idx = tb.currentIndex()
+                if not idx.isValid():
+                    idx = tb.model().createIndex(0, 0)
+                    tb.setCurrentIndex(idx)
 
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
+        if not to_what:
+            self._parent.shift_esc()
 
-    def find_text_changed(self, str):
+    def find_text_changed(self, str_):
         self.current_find_position = None
 
     def set_focus_to_find_box(self):
         self.tb_bar.set_focus_to_find_box()
 
-    def do_find(self, str=None):
+    def do_find(self, str_=None):
         self.current_find_position = None
         self.find()
 
