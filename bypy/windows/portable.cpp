@@ -165,7 +165,6 @@ launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
     DWORD dwFlags=0;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
-    BOOL fSuccess;
     if (cmd_line.length() > BUFSIZE - 4) {
         show_error(L"Path to executable in portable folder too long.");
         ExitProcess(1);
@@ -189,7 +188,7 @@ launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
     static wchar_t mutable_cmdline[BUFSIZE] = {0};
     cmd_line.copy(mutable_cmdline, BUFSIZE-1);
 
-    fSuccess = CreateProcess(NULL, mutable_cmdline,
+    if (!CreateProcess(NULL, mutable_cmdline,
         NULL,           // Process handle not inheritable
         NULL,           // Thread handle not inheritable
         FALSE,          // Set handle inheritance to FALSE
@@ -198,10 +197,10 @@ launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
         NULL,           // Use parent's starting directory
         &si,            // Pointer to STARTUPINFO structure
         &pi             // Pointer to PROCESS_INFORMATION structure
-    );
-
-    if (fSuccess == 0) {
-        show_last_error(_T("Failed to launch the calibre program"));
+    )) {
+        std::wstring message(L"Failed to launch: ");
+        message.append(mutable_cmdline);
+        show_last_error(message.c_str());
     }
 
     // Close process and thread handles.
