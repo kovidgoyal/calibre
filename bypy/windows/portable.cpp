@@ -24,26 +24,29 @@
 
 
 // error handling {{{
-void show_error(LPCWSTR msg) {
+static void
+show_error(LPCWSTR msg) {
     MessageBeep(MB_ICONERROR);
     MessageBoxW(NULL, msg, L"Error", MB_OK|MB_ICONERROR);
 }
 
-void show_detailed_error(LPCTSTR preamble, LPCTSTR msg, int code) {
+static void
+show_detailed_error(LPCWSTR preamble, LPCWSTR msg, int code) {
     LPTSTR buf;
     buf = (LPTSTR)LocalAlloc(LMEM_ZEROINIT, sizeof(TCHAR)*
             (_tcslen(msg) + _tcslen(preamble) + 80));
 
-    _sntprintf_s(buf,
+    _snwprintf_s(buf,
         LocalSize(buf) / sizeof(TCHAR), _TRUNCATE,
-        _T("%s\r\n  %s (Error Code: %d)\r\n"),
+        L"%s\r\n  %s (Error Code: %d)\r\n",
         preamble, msg, code);
 
     show_error(buf);
     LocalFree(buf);
 }
 
-void show_last_error_crt(LPCTSTR preamble) {
+static void
+show_last_error_crt(LPCWSTR preamble) {
     TCHAR buf[BUFSIZE];
     int err = 0;
 
@@ -52,7 +55,8 @@ void show_last_error_crt(LPCTSTR preamble) {
     show_detailed_error(preamble, buf, err);
 }
 
-void show_last_error(LPCTSTR preamble) {
+static void
+show_last_error(LPCWSTR preamble) {
     TCHAR *msg = NULL;
     DWORD dw = GetLastError();
 
@@ -160,24 +164,24 @@ quote_argv(const std::wstring& arg, std::wstring& cmd_line) {
     cmd_line.push_back (L'"');
 }
 
-void
+static int
 launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
     DWORD dwFlags=0;
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     if (cmd_line.length() > BUFSIZE - 4) {
         show_error(L"Path to executable in portable folder too long.");
-        ExitProcess(1);
+        return 1;
     }
 
-    if (!SetEnvironmentVariable(_T("CALIBRE_CONFIG_DIRECTORY"), config_dir)) {
-        show_last_error(_T("Failed to set environment variables"));
-        ExitProcess(1);
+    if (!SetEnvironmentVariableW(L"CALIBRE_CONFIG_DIRECTORY", config_dir)) {
+        show_last_error(L"Failed to set environment variables");
+        return 1;
     }
 
-    if (!SetEnvironmentVariable(_T("CALIBRE_PORTABLE_BUILD"), exe_path)) {
-        show_last_error(_T("Failed to set environment variables"));
-        ExitProcess(1);
+    if (!SetEnvironmentVariableW(L"CALIBRE_PORTABLE_BUILD", exe_path)) {
+        show_last_error(L"Failed to set environment variables");
+        return 1;
     }
 
     dwFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP;
@@ -206,6 +210,7 @@ launch_exe(LPCWSTR exe_path, const std::wstring &cmd_line, LPCWSTR config_dir) {
     // Close process and thread handles.
     CloseHandle( pi.hProcess );
     CloseHandle( pi.hThread );
+    return 0;
 }
 
 
@@ -231,7 +236,5 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR orig_cmd_line, int 
         quote_argv(arg, cmd_line);
     }
     LocalFree(argv);
-    launch_exe(exe.c_str(), cmd_line.c_str(), config_dir.c_str());
-
-    return 0;
+    return launch_exe(exe.c_str(), cmd_line.c_str(), config_dir.c_str());
 }
