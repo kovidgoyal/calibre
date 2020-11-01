@@ -1128,8 +1128,8 @@ using the mouse.&lt;/p&gt;</string>
           <string notr="true">margin-left: 1.5em</string>
          </property>
          <property name="text">
-          <string>&lt;p&gt;If you check this box then you probably want to define the
-keyboard shortcut 'Tag browser / Give the tag browser keyboard focus'&lt;/p&gt;</string>
+          <string>&lt;p&gt;If you enable this option then you should set the
+keyboard shortcut 'Tag browser-&gt;Give the tag browser keyboard focus'&lt;/p&gt;</string>
          </property>
         </widget>
        </item>
