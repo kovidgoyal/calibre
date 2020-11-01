@@ -229,7 +229,7 @@ def dragEnterEvent(self, event):
 def dropEvent(self, event):
     md = event.mimeData()
     if dnd_merge_ok(md):
-        ids = set(map(int, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' ')))
+        ids = set(map(int, filter(None, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' '))))
         row = self.indexAt(event.pos()).row()
         if row > -1 and ids:
             book_id = self.model().id(row)
