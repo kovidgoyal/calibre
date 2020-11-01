@@ -35,7 +35,7 @@ class NewYorkMagazine(BasicNewsRecipe):
     remove_attributes = ['srcset']
 
     def nymag_get_index(self):
-        return self.index_to_soup('https://nymag.com/includes/tableofcontents.htm')
+        return self.index_to_soup('https://nymag.com/maglinks/nym-home-05')
 
     def parse_index(self):
         soup = self.nymag_get_index()
