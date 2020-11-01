@@ -23,7 +23,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
-                          rating_font, empty_index, is_dark_theme)
+                          rating_font, empty_index)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import unicode_type, range, zip
@@ -213,7 +213,7 @@ class TagsView(QTreeView):  # {{{
                     border: none;
                 }
         '''
-        self.setStyleSheet(('''
+        self.setStyleSheet('''
                 QTreeView::item {
                     border: 1px solid transparent;
                     padding-top:PADex;
@@ -225,13 +225,8 @@ class TagsView(QTreeView):  # {{{
                     border: 1px solid #bfcde4;
                     border-radius: 6px;
                 }
-                QTreeView::item:focus
-                {
-                    background-color:FOCUS_COLOR;
-                }
-        '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding']))
-           .replace('FOCUS_COLOR', '#027524' if is_dark_theme() else '#b4ecb4')
-           + ('' if gprefs['tag_browser_old_look'] else stylish_tb)))
+        '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding'])) + (
+            '' if gprefs['tag_browser_old_look'] else stylish_tb))
 
     def set_look_and_feel(self):
         self.set_style_sheet()
