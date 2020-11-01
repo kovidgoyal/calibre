@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <qdrawutil.h>
 
+extern int qt_defaultDpiX();
+
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size, int interval)
         : QWidget(parent),
         m_angle(0),
@@ -141,6 +143,17 @@ is_color_dark(const QColor &col) {
 	return r < 115 && g < 155 && b < 115;
 }
 
+static qreal
+dpiScaled(qreal value) {
+#ifdef Q_OS_MAC
+    // On mac the DPI is always 72 so we should not scale it
+    return value;
+#else
+    static const qreal scale = qreal(qt_defaultDpiX()) / 96.0;
+    return value * scale;
+#endif
+}
+
 class CalibreStyle: public QProxyStyle {
     private:
         QHash<int, QString> icon_map;
@@ -198,7 +211,7 @@ class CalibreStyle: public QProxyStyle {
                 case PM_TabBarTabVSpace:
                     return 8;  // Make tab bars a little narrower, the value for the Fusion style is 12
 				case PM_TreeViewIndentation:
-					return 10;  // Reduce indentation in tree views
+					return int(dpiScaled(12));  // Reduce indentation in tree views
                 default:
                     break;
             }
