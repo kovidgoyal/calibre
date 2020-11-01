@@ -538,7 +538,7 @@ def website_languages():
     stats = getattr(website_languages, 'stats', None)
     if stats is None:
         try:
-            stats = frozenset(P('localization/website-languages.txt', allow_user_override=False, data=True).split())
+            stats = frozenset(P('localization/website-languages.txt', allow_user_override=False, data=True).decode('utf-8').split())
         except EnvironmentError:
             stats = frozenset()
         website_languages.stats = stats
