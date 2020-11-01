@@ -210,7 +210,7 @@ elif ismacos:
             if os.path.isdir(ans):
                 app = get_bundle_data(ans)
                 if app is None:
-                    error_dialog(parent, _('Invalid Application'), _(
+                    error_dialog(parent, _('Invalid application'), _(
                         '%s is not a valid macOS application bundle.') % ans, show=True)
                     return
                 return app
