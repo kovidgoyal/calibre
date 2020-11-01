@@ -1181,6 +1181,26 @@ class BuiltinOndevice(BuiltinFormatterFunction):
         return _('This function can be used only in the GUI')
 
 
+class BuiltinAnnotationCount(BuiltinFormatterFunction):
+    name = 'annotation_count'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _('annotation_count() -- return the total number of annotations '
+                      'of all types attached to the current book. '
+                      'This function works only in the GUI.')
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if hasattr(mi, '_proxy_metadata'):
+            try:
+                from calibre.gui2.ui import get_gui
+                c = get_gui().current_db.new_api.annotation_count_for_book(mi.id)
+                return '' if c == 0 else unicode_type(c)
+            except:
+                return _('Failed to fetch annotation count')
+            return ''
+        return _('This function can be used only in the GUI')
+
+
 class BuiltinSeriesSort(BuiltinFormatterFunction):
     name = 'series_sort'
     arg_count = 0
@@ -1808,7 +1828,7 @@ _formatter_builtins = [
     BuiltinSwapAroundComma(), BuiltinSwitch(),
     BuiltinTemplate(), BuiltinTest(), BuiltinTitlecase(),
     BuiltinToday(), BuiltinTransliterate(), BuiltinUppercase(),
-    BuiltinUserCategories(), BuiltinVirtualLibraries()
+    BuiltinUserCategories(), BuiltinVirtualLibraries(), BuiltinAnnotationCount()
 ]
 
 

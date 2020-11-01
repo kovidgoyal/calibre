@@ -2330,6 +2330,10 @@ class Cache(object):
         return tuple(self.backend.all_annotations_for_book(book_id))
 
     @read_api
+    def annotation_count_for_book(self, book_id):
+        return self.backend.annotation_count_for_book(book_id)
+
+    @read_api
     def all_annotation_users(self):
         return tuple(self.backend.all_annotation_users())
 
