@@ -23,7 +23,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
-                          rating_font, empty_index)
+                          rating_font, empty_index, question_dialog)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import unicode_type, range, zip
@@ -31,12 +31,13 @@ from polyglot.builtins import unicode_type, range, zip
 
 class TagDelegate(QStyledItemDelegate):  # {{{
 
-    def __init__(self, *args, **kwargs):
-        QStyledItemDelegate.__init__(self, *args, **kwargs)
+    def __init__(self, tags_view):
+        QStyledItemDelegate.__init__(self, tags_view)
         self.old_look = False
         self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
         self.rating_font = QFont(rating_font())
         self.completion_data = None
+        self.tags_view = tags_view
 
     def draw_average_rating(self, item, style, painter, option, widget):
         rating = item.average_rating
@@ -128,6 +129,15 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.completion_data = data
 
     def createEditor(self, parent, option, index):
+        item = self.tags_view.model().get_node(index)
+        item.use_vl = False
+        if self.tags_view.model().get_in_vl():
+            if question_dialog(self.tags_view, _('Rename in Virtual library'), '<p>' +
+                               _('Do you want this rename to apply only to books '
+                                 'in the current Virtual library?') + '</p>',
+                               yes_text=_('Yes, apply only in VL'),
+                               no_text=_('No, apply in entire library')):
+                item.use_vl = True
         if self.completion_data:
             editor = EditWithComplete(parent)
             editor.set_separator(None)
@@ -170,7 +180,7 @@ class TagsView(QTreeView):  # {{{
         self.setTabKeyNavigation(True)
         self.setAnimated(True)
         self.setHeaderHidden(True)
-        self.setItemDelegate(TagDelegate(self))
+        self.setItemDelegate(TagDelegate(tags_view=self))
         self.made_connections = False
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
@@ -199,10 +209,6 @@ class TagsView(QTreeView):  # {{{
         self.set_look_and_feel()
         if not gprefs['tag_browser_allow_keyboard_focus']:
             self.setFocusPolicy(Qt.NoFocus)
-        else:
-            # This is necessary because the context menu sets things up. F2
-            # and company don't.
-            self.setEditTriggers(QTreeView.NoEditTriggers)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
 
     def set_style_sheet(self):
@@ -299,10 +305,9 @@ class TagsView(QTreeView):  # {{{
         self.collapsed.connect(self.collapse_node_and_children)
 
     def keyPressEvent(self, event):
-        if (gprefs['tag_browser_allow_keyboard_focus'] and event.key() == Qt.Key_Return
-                and self.state() != self.EditingState
+        if (gprefs['tag_browser_allow_keyboard_focus'] and event.key() == Qt.Key_Return and self.state() != self.EditingState and
                 # I don't see how current_index can ever be not valid, but ...
-                and self.currentIndex().isValid()):
+                self.currentIndex().isValid()):
             self.toggle_current_index()
             # Reset the focus to the TB. Use the singleshot in case
             # some of of searching is done using queued signals.
