@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
     QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
-    QLinearGradient, QPalette, QColor, QPen, QBrush, QFont
+    QLinearGradient, QPalette, QColor, QPen, QBrush, QFont, QTimer
 )
 
 from calibre import sanitize_file_name
@@ -22,7 +22,8 @@ from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
+from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
+                          rating_font, empty_index)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
 from polyglot.builtins import unicode_type, range, zip
@@ -198,6 +199,10 @@ class TagsView(QTreeView):  # {{{
         self.set_look_and_feel()
         if not gprefs['tag_browser_allow_keyboard_focus']:
             self.setFocusPolicy(Qt.NoFocus)
+        else:
+            # This is necessary because the context menu sets things up. F2
+            # and company don't.
+            self.setEditTriggers(QTreeView.NoEditTriggers)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
 
     def set_style_sheet(self):
@@ -294,10 +299,14 @@ class TagsView(QTreeView):  # {{{
         self.collapsed.connect(self.collapse_node_and_children)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return and self.state() != self.EditingState:
-            # I don't see how it can ever not be valid, but ...
-            if self.currentIndex().isValid():
-                self.toggle_current_index()
+        if (gprefs['tag_browser_allow_keyboard_focus'] and event.key() == Qt.Key_Return
+                and self.state() != self.EditingState
+                # I don't see how current_index can ever be not valid, but ...
+                and self.currentIndex().isValid()):
+            self.toggle_current_index()
+            # Reset the focus to the TB. Use the singleshot in case
+            # some of of searching is done using queued signals.
+            QTimer.singleShot(0, lambda: self.setFocus())
             return
         QTreeView.keyPressEvent(self, event)
 
