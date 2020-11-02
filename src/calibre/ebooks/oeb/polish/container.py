@@ -10,14 +10,12 @@ import os
 import re
 import shutil
 import sys
-import time
 import unicodedata
 import uuid
 from collections import defaultdict
+from css_parser import getUrls, replaceUrls
 from io import BytesIO
 from itertools import count
-
-from css_parser import getUrls, replaceUrls
 
 from calibre import CurrentDir, walk
 from calibre.constants import iswindows
@@ -48,7 +46,7 @@ from calibre.ebooks.oeb.polish.utils import (
     CommentFinder, PositionFinder, guess_type, parse_css
 )
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
-from calibre.utils.filenames import hardlink_file, nlinks_file
+from calibre.utils.filenames import hardlink_file, nlinks_file, retry_on_fail
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -1057,12 +1055,9 @@ class Container(ContainerBase):  # {{{
                 # Decouple this file from its links
                 temp = path + 'xxx'
                 shutil.copyfile(path, temp)
-                try:
-                    os.unlink(path)
-                except EnvironmentError:
-                    if not iswindows:
-                        raise
-                    time.sleep(1)  # Wait for whatever has locked the file to release it
+                if iswindows:
+                    retry_on_fail(os.unlink, path)
+                else:
                     os.unlink(path)
                 os.rename(temp, path)
         return path
