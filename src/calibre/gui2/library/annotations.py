@@ -5,9 +5,10 @@
 import codecs
 import json
 import os
+from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QPalette, QPlainTextEdit, QSize,
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
     QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget, pyqtSignal
 )
@@ -196,12 +197,17 @@ class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    show_book = pyqtSignal(object, object)
     delete_requested = pyqtSignal()
+    export_requested = pyqtSignal()
+    edit_annotation = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
         self.setSelectionMode(self.ExtendedSelection)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.delegate = AnnotsResultsDelegate(self)
         self.setItemDelegate(self.delegate)
         self.section_font = QFont(self.font())
@@ -210,6 +216,35 @@ class ResultsList(QTreeWidget):
         self.currentItemChanged.connect(self.current_item_changed)
         self.number_of_results = 0
         self.item_map = []
+
+    def show_context_menu(self, pos):
+        item = self.itemAt(pos)
+        result = item.data(0, Qt.UserRole)
+        items = self.selectedItems()
+        m = QMenu(self)
+        if isinstance(result, dict):
+            m.addAction(_('Open in viewer'), partial(self.item_activated, item))
+            m.addAction(_('Show in calibre'), partial(self.show_in_calibre, item))
+            if result.get('annotation', {}).get('type') == 'highlight':
+                m.addAction(_('Edit notes'), partial(self.edit_notes, item))
+        if items:
+            m.addSeparator()
+            m.addAction(ngettext('Export selected item', 'Export {} selected items', len(items)).format(len(items)), self.export_requested.emit)
+            m.addAction(ngettext('Delete selected item', 'Delete {} selected items', len(items)).format(len(items)), self.delete_requested.emit)
+        m.addSeparator()
+        m.addAction(_('Expand all'), self.expandAll)
+        m.addAction(_('Collapse all'), self.collapseAll)
+        m.exec_(self.mapToGlobal(pos))
+
+    def edit_notes(self, item):
+        r = item.data(0, Qt.UserRole)
+        if isinstance(r, dict):
+            self.edit_annotation.emit(r['id'], r['annotation'])
+
+    def show_in_calibre(self, item):
+        r = item.data(0, Qt.UserRole)
+        if isinstance(r, dict):
+            self.show_book.emit(r['book_id'], r['format'])
 
     def item_activated(self, item):
         r = item.data(0, Qt.UserRole)
@@ -393,7 +428,10 @@ class BrowsePanel(QWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    show_book = pyqtSignal(object, object)
     delete_requested = pyqtSignal()
+    export_requested = pyqtSignal()
+    edit_annotation = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -432,7 +470,10 @@ class BrowsePanel(QWidget):
         self.results_list = rl = ResultsList(self)
         rl.current_result_changed.connect(self.current_result_changed)
         rl.open_annotation.connect(self.open_annotation)
+        rl.show_book.connect(self.show_book)
+        rl.edit_annotation.connect(self.edit_annotation)
         rl.delete_requested.connect(self.delete_requested)
+        rl.export_requested.connect(self.export_requested)
         l.addWidget(rl)
 
     def re_initialize(self, restrict_to_book_ids=None):
@@ -711,7 +752,10 @@ class AnnotationsBrowser(Dialog):
 
         self.browse_panel = bp = BrowsePanel(self)
         bp.open_annotation.connect(self.do_open_annotation)
+        bp.show_book.connect(self.show_book)
         bp.delete_requested.connect(self.delete_selected)
+        bp.export_requested.connect(self.export_selected)
+        bp.edit_annotation.connect(self.edit_annotation)
         s.addWidget(bp)
 
         self.details_panel = dp = DetailsPanel(self)
