@@ -450,6 +450,13 @@ class SearchWidget(QWidget):
         self.find = text
         self.find_text.lineEdit().setSelection(0, len(text)+10)
 
+    def paste_saved_search(self, s):
+        self.case_sensitive = s.get('case_sensitive') or False
+        self.dot_all = s.get('dot_all') or False
+        self.wrap = s.get('wrap') or False
+        self.mode = s.get('mode') or 'normal'
+        self.find = s.get('find') or ''
+        self.replace = s.get('replace') or ''
 # }}}
 
 
@@ -480,6 +487,9 @@ class SearchPanel(QWidget):  # {{{
         self.widget.save_search.connect(self.save_search)
         self.widget.show_saved_searches.connect(self.show_saved_searches)
         self.pre_fill = self.widget.pre_fill
+
+    def paste_saved_search(self, s):
+        self.widget.paste_saved_search(s)
 
     def hide_panel(self):
         self.setVisible(False)
@@ -865,6 +875,7 @@ class SearchDelegate(QStyledItemDelegate):
 class SavedSearches(QWidget):
 
     run_saved_searches = pyqtSignal(object, object)
+    copy_search_to_search_panel = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -1003,6 +1014,7 @@ class SavedSearches(QWidget):
         self.em = m = QMenu(_('Export'))
         m.addAction(_('Export all'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=True)))
         m.addAction(_('Export selected'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=False)))
+        m.addAction(_('Copy to search panel'), lambda : QTimer.singleShot(0, self.copy_to_search_panel))
         b.setMenu(m)
 
         self.searches.setFocus(Qt.OtherFocusReason)
@@ -1227,6 +1239,12 @@ class SavedSearches(QWidget):
                 top, bottom = self.model.index(self.model.rowCount() - count), self.model.index(self.model.rowCount() - 1)
                 sm.select(QItemSelection(top, bottom), sm.ClearAndSelect)
                 self.searches.scrollTo(bottom)
+
+    def copy_to_search_panel(self):
+        ci = self.searches.selectionModel().currentIndex()
+        if ci and ci.isValid():
+            search = ci.data(Qt.UserRole)[-1]
+            self.copy_search_to_search_panel.emit(search)
 
     def export_searches(self, all=True):
         if all:

@@ -161,6 +161,7 @@ class Boss(QObject):
         self.gui.checkpoints.revert_requested.connect(self.revert_requested)
         self.gui.checkpoints.compare_requested.connect(self.compare_requested)
         self.gui.saved_searches.run_saved_searches.connect(self.run_saved_searches)
+        self.gui.saved_searches.copy_search_to_search_panel.connect(self.gui.central.search_panel.paste_saved_search)
         self.gui.central.search_panel.save_search.connect(self.save_search)
         self.gui.central.search_panel.show_saved_searches.connect(self.show_saved_searches)
         self.gui.spell_check.find_word.connect(self.find_word)
