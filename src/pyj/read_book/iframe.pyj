@@ -611,6 +611,8 @@ class IframeBoss:
         drag_mouse_position.x = drag_mouse_position.y = None
         # ensure selection bar is updated
         self.onselectionchange()
+        if evt.button is 3 or evt.button is 4:
+            self.send_message('handle_shortcut', name='back' if evt.button is 3 else 'forward')
 
     def ondoubleclick(self, evt):
         self.send_message('annotations', type='double-click')
