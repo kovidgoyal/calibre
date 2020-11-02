@@ -307,8 +307,8 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
         self.setWhatsThis(tt)
 
     def auto_generate(self, *args):
-        self.current_val = title_sort(self.title_edit.current_val,
-                lang=self.book_lang)
+        self.set_value(title_sort(self.title_edit.current_val,
+                lang=self.book_lang))
 
     def break_cycles(self):
         try:
@@ -361,7 +361,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         from calibre.gui2.dialogs.authors_edit import AuthorsEdit
         d = AuthorsEdit(all_authors, current_authors, self)
         if d.exec_() == d.Accepted:
-            self.current_val = d.authors
+            self.set_value(d.authors)
 
     def manage_authors(self):
         if self.original_val != self.current_val:
@@ -529,24 +529,24 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
                     if meth in ('invert', 'nocomma', 'comma'):
                         one = rest.strip() + ' ' + ln.strip()
                 ans.append(one)
-            self.authors_edit.current_val = ans
+            self.authors_edit.set_value(ans)
 
     def auto_generate(self, *args):
         au = unicode_type(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
-        self.current_val = self.author_sort_from_authors(authors)
+        self.set_value(self.author_sort_from_authors(authors))
 
     def author_to_sort(self, *args):
         au = unicode_type(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         if au:
-            self.current_val = au
+            self.set_value(au)
 
     def sort_to_author(self, *args):
         aus = self.current_val
         if aus:
-            self.authors_edit.current_val = [aus]
+            self.authors_edit.set_value([aus])
 
     def initialize(self, db, id_):
         self.current_val = db.author_sort(id_, index_is_id=True)
