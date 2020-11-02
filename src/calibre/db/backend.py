@@ -1949,10 +1949,9 @@ class DB(object):
         return changed
 
     def annotation_count_for_book(self, book_id):
-        with self.conn:
-            c = self.execute('SELECT count(id) FROM annotations WHERE book=?', (book_id,))
-            r = c.fetchone()[0]
-        return r
+        for (count,) in self.execute('SELECT count(id) FROM annotations WHERE book=?', (book_id,)):
+            return count
+        return 0
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):
