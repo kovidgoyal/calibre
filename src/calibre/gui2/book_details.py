@@ -247,6 +247,10 @@ def add_item_specific_entries(menu, data, book_info):
     search_internet_added = False
     find_action = book_info.find_in_tag_browser_action
     dt = data['type']
+
+    def add_copy_action(name):
+        menu.addAction(QIcon(I('edit-copy.png')), _('Copy {} to clipboard').format(name), lambda: QApplication.instance().clipboard().setText(name))
+
     if dt == 'format':
         add_format_entries(menu, data, book_info)
     elif dt == 'author':
@@ -256,7 +260,7 @@ def add_item_specific_entries(menu, data, book_info):
             ac.current_url = data['url']
             ac.setText(_('&Copy author link'))
             menu.addAction(ac)
-        menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
+        add_copy_action(author)
         init_find_in_tag_browser(menu, find_action, 'authors', author)
         if hasattr(book_info, 'search_internet'):
             menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
@@ -288,6 +292,7 @@ def add_item_specific_entries(menu, data, book_info):
                 init_find_in_tag_browser(menu, find_action, field, remove_value)
                 menu.addAction(book_info.edit_identifiers_action)
             elif field in ('tags', 'series', 'publisher') or is_category(field):
+                add_copy_action(value)
                 init_find_in_tag_browser(menu, find_action, field, value)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
             elif field == 'languages':
@@ -302,8 +307,8 @@ def add_item_specific_entries(menu, data, book_info):
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     url = view.anchorAt(ev.pos())
-    menu = view.createStandardContextMenu()
-    menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, view))
+    menu = QMenu(view)
+    menu.addAction(QIcon(I('edit-copy.png')), _('Copy all book details'), partial(copy_all, view))
     search_internet_added = False
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
