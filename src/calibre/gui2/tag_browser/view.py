@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import os, re, traceback
 from functools import partial
 
 from PyQt5.Qt import (
@@ -206,9 +206,7 @@ class TagsView(QTreeView):  # {{{
         self._model.user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
-        self.set_look_and_feel()
-        if not gprefs['tag_browser_allow_keyboard_focus']:
-            self.setFocusPolicy(Qt.NoFocus)
+        self.set_look_and_feel(first=True)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
 
     def set_style_sheet(self):
@@ -234,10 +232,26 @@ class TagsView(QTreeView):  # {{{
         '''.replace('PAD', unicode_type(gprefs['tag_browser_item_padding'])) + (
             '' if gprefs['tag_browser_old_look'] else stylish_tb))
 
-    def set_look_and_feel(self):
+    def set_look_and_feel(self, first=False):
         self.set_style_sheet()
         self.setAlternatingRowColors(gprefs['tag_browser_old_look'])
         self.itemDelegate().old_look = gprefs['tag_browser_old_look']
+
+        if gprefs['tag_browser_allow_keyboard_focus']:
+            self.setFocusPolicy(Qt.StrongFocus)
+        else:
+            self.setFocusPolicy(Qt.NoFocus)
+        # Ensure the TB doesn't keep the focus it might already have. When this
+        # method is first called during GUI initialization not everything is
+        # set up, in which case don't try to change the focus.
+        # Note: this process has the side effect of moving the focus to the
+        # library view whenever a look & feel preference is changed.
+        if not first:
+            try:
+                from calibre.gui2.ui import get_gui
+                get_gui().shift_esc()
+            except:
+                traceback.print_exc()
 
     @property
     def hidden_categories(self):
@@ -309,9 +323,6 @@ class TagsView(QTreeView):  # {{{
                 # I don't see how current_index can ever be not valid, but ...
                 self.currentIndex().isValid()):
             self.toggle_current_index()
-            # Reset the focus to the TB. Use the singleshot in case
-            # some of of searching is done using queued signals.
-            QTimer.singleShot(0, lambda: self.setFocus())
             return
         QTreeView.keyPressEvent(self, event)
 
@@ -414,7 +425,15 @@ class TagsView(QTreeView):  # {{{
         modifiers = int(QApplication.keyboardModifiers())
         exclusive = modifiers not in (Qt.CTRL, Qt.SHIFT)
         if self._model.toggle(index, exclusive, set_to=set_to):
+            # Reset the focus back to TB if it has it before the toggle
+            # Must ask this question before starting the search because
+            # it changes the focus
+            has_focus = self.hasFocus()
             self.tags_marked.emit(self.search_string)
+            if has_focus and gprefs['tag_browser_allow_keyboard_focus']:
+                # Reset the focus to the TB. Use the singleshot in case
+                # some of searching is done using queued signals.
+                QTimer.singleShot(0, lambda: self.setFocus())
 
     def conditional_clear(self, search_string):
         if search_string != self.search_string:
@@ -444,7 +463,6 @@ class TagsView(QTreeView):  # {{{
                         self._model.set_custom_category_icon(key, unicode_type(path))
                         self.recount()
                 except:
-                    import traceback
                     traceback.print_exc()
                 return
             if action == 'clear_icon':
@@ -573,7 +591,6 @@ class TagsView(QTreeView):  # {{{
                 self._model.set_categories_filter(None)
             self._model.rebuild_node_tree()
         except Exception:
-            import traceback
             traceback.print_exc()
             return
 
