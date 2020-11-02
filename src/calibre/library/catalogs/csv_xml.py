@@ -224,6 +224,9 @@ class CSV_XML(CatalogPlugin):
                     record.append(E.series(r['series'],
                         index=unicode_type(r['series_index'])))
 
+                if 'languages' in fields and r['languages']:
+                    record.append(E.languages(r['languages']))
+
                 if 'cover' in fields and r['cover']:
                     record.append(E.cover(r['cover'].replace(os.sep, '/')))
 
