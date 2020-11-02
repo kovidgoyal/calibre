@@ -352,7 +352,22 @@ class CalibreStyle: public QProxyStyle {
 						}
 					}
 					return; // }}}
-
+                case PE_FrameFocusRect:  // }}}
+                    if (!widget || !widget->property("frame_for_focus").toBool())
+                        break;
+                    if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(option)) {
+                        if (!(fropt->state & State_KeyboardFocusChange))
+                            break;
+                        painter->save();
+                        painter->setRenderHint(QPainter::Antialiasing, true);
+                        painter->translate(0.5, 0.5);
+                        painter->setPen(option->palette.color(QPalette::Text));
+                        painter->setBrush(Qt::transparent);
+                        painter->drawRoundedRect(option->rect.adjusted(0, 0, -1, -1), 4, 4);
+                        painter->restore();
+                        return;
+                    }
+                    break; // }}}
                 default:
                     break;
             }

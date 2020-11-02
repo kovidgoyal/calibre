@@ -172,6 +172,7 @@ class TagsView(QTreeView):  # {{{
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
+        self.setProperty('frame_for_focus', True)
         self.setMouseTracking(True)
         self.alter_tb = None
         self.disable_recounting = False
