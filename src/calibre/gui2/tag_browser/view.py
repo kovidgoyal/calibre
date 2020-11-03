@@ -634,6 +634,7 @@ class TagsView(QTreeView):  # {{{
                 m.addAction(_('All categories'),
                         partial(self.context_menu_handler, action='defaults'))
 
+        search_submenu = None
         if index.isValid():
             item = index.data(Qt.UserRole)
             tag = None
@@ -748,17 +749,18 @@ class TagsView(QTreeView):  # {{{
                     if tag.is_searchable:
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addSeparator()
-                        self.context_menu.addAction(self.search_icon,
+                        search_submenu = self.context_menu.addMenu(_('Search'))
+                        search_submenu.addAction(self.search_icon,
                                 _('Search for %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='search',
                                         search_state=TAG_SEARCH_STATES['mark_plus'],
                                         index=index))
-                        self.context_menu.addAction(self.search_icon,
+                        search_submenu.addAction(self.search_icon,
                                 _('Search for everything but %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='search',
                                         search_state=TAG_SEARCH_STATES['mark_minus'],
                                         index=index))
-                        self.context_menu.addAction(self.search_copy_icon,
+                        search_submenu.addAction(self.search_copy_icon,
                                 _('Search using saved search expression'),
                                 partial(self.context_menu_handler, action='raw_search',
                                         key=tag.name))
@@ -779,27 +781,25 @@ class TagsView(QTreeView):  # {{{
                             partial(self.context_menu_handler,
                                     action='delete_user_category', key=key))
                     self.context_menu.addSeparator()
-                # Hide/Show/Restore categories
-                self.context_menu.addAction(_('Hide category %s') % category,
-                    partial(self.context_menu_handler, action='hide',
-                            category=key))
-                add_show_hidden_categories()
-
                 # search by category. Some categories are not searchable, such
                 # as search and news
                 if item.tag.is_searchable:
-                    self.context_menu.addAction(self.search_icon,
+                    if search_submenu is None:
+                        search_submenu = self.context_menu.addMenu(_('Search'))
+                        self.context_menu.addSeparator()
+                    search_submenu.addAction(self.search_icon,
                             _('Search for books in category %s')%category,
                             partial(self.context_menu_handler,
                                     action='search_category',
                                     index=self._model.createIndex(item.row(), 0, item),
                                     search_state=TAG_SEARCH_STATES['mark_plus']))
-                    self.context_menu.addAction(self.search_icon,
+                    search_submenu.addAction(self.search_icon,
                             _('Search for books not in category %s')%category,
                             partial(self.context_menu_handler,
                                     action='search_category',
                                     index=self._model.createIndex(item.row(), 0, item),
                                     search_state=TAG_SEARCH_STATES['mark_minus']))
+
                 # Offer specific editors for tags/series/publishers/saved searches
                 self.context_menu.addSeparator()
                 if key in ['tags', 'publisher', 'series'] or (
@@ -835,6 +835,13 @@ class TagsView(QTreeView):  # {{{
                     self.context_menu.addAction(_('Manage Saved searches'),
                         partial(self.context_menu_handler, action='manage_searches',
                                 category=tag.name if tag else None))
+
+                # Hide/Show/Restore categories
+                self.context_menu.addSeparator()                
+                self.context_menu.addAction(_('Hide category %s') % category,
+                    partial(self.context_menu_handler, action='hide',
+                            category=key))
+                add_show_hidden_categories()
 
                 if tag is None:
                     self.context_menu.addSeparator()
