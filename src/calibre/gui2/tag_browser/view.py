@@ -760,11 +760,11 @@ class TagsView(QTreeView):  # {{{
                                 partial(self.context_menu_handler, action='search',
                                         search_state=TAG_SEARCH_STATES['mark_minus'],
                                         index=index))
-                        search_submenu.addAction(self.search_copy_icon,
-                                _('Search using saved search expression'),
-                                partial(self.context_menu_handler, action='raw_search',
-                                        key=tag.name))
-
+                        if key == 'search':
+                            search_submenu.addAction(self.search_copy_icon,
+                                     _('Search using saved search expression'),
+                                     partial(self.context_menu_handler, action='raw_search',
+                                             key=tag.name))
                     self.context_menu.addSeparator()
                 elif key.startswith('@') and not item.is_gst:
                     if item.can_be_edited:
@@ -837,7 +837,7 @@ class TagsView(QTreeView):  # {{{
                                 category=tag.name if tag else None))
 
                 # Hide/Show/Restore categories
-                self.context_menu.addSeparator()                
+                self.context_menu.addSeparator()
                 self.context_menu.addAction(_('Hide category %s') % category,
                     partial(self.context_menu_handler, action='hide',
                             category=key))
