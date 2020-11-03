@@ -212,7 +212,7 @@ class Central(QStackedWidget):  # {{{
             menu.addAction(actions['close-current-tab'].icon(), _('Close tab'), partial(self.close_requested.emit, ed))
             menu.addSeparator()
             menu.addAction(actions['close-all-but-current-tab'].icon(), _('Close other tabs'), partial(self.close_all_but, ed))
-            menu.addAction(actions['close-tabs-to-right-of'].icon(), _('Close tabs to right of this tab'), partial(self.close_to_right, ed))
+            menu.addAction(actions['close-tabs-to-right-of'].icon(), _('Close tabs to the right of this tab'), partial(self.close_to_right, ed))
             menu.exec_(self.editor_tabs.tabBar().mapToGlobal(event.pos()))
 
         return True
