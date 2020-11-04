@@ -164,7 +164,11 @@ class CalibrePluginLoader:
         return src
 
     def get_source(self, fullname=None):
-        return self.get_source_as_bytes(fullname).decode('utf-8-sig').replace('\r\n', '\n')
+        raw = self.get_source_as_bytes(fullname)
+        try:
+            return raw.decode('utf-8-sig', 'replace').replace('\r\n', '\n')
+        except Exception:
+            return ''
 
     def get_filename(self, fullname):
         return self.filename
