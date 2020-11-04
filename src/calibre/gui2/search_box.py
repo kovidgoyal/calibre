@@ -156,9 +156,10 @@ class SearchBox2(QComboBox):  # {{{
         self.colorize = colorize
         self.clear()
 
-    def clear_search_history(self):
+    def clear_history(self):
         config[self.opt_name] = []
         self.clear()
+    clear_search_history = clear_history
 
     def hide_completer_popup(self):
         try:
@@ -172,9 +173,6 @@ class SearchBox2(QComboBox):  # {{{
 
     def text(self):
         return self.currentText()
-
-    def clear_history(self, *args):
-        QComboBox.clear(self)
 
     def clear(self, emit_search=True):
         self.normalize_state()
