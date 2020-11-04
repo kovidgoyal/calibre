@@ -170,7 +170,10 @@ class CSV_XML(CatalogPlugin):
         elif self.fmt == 'xml':
             from lxml.builder import E
 
-            root = E.calibredb()
+            if getattr(opts, 'catalog_title', None):
+                root = E.calibredb(title=opts.catalog_title)
+            else:
+                root = E.calibredb()
             for r in data:
                 record = E.record()
                 root.append(record)
