@@ -135,7 +135,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except:
                 # Ignore errors in loading user supplied plugins
                 import traceback
-                traceback.print_exc()
+                try:
+                    traceback.print_exc()
+                except Exception:
+                    if action.plugin_path:
+                        print('Failed to load Interface Action plugin:', action.plugin_path, file=sys.stderr)
                 if action.plugin_path is None:
                     raise
                 continue
