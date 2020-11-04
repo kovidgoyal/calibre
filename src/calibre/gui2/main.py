@@ -291,10 +291,13 @@ class GuiRunner(QObject):
         try:
             self.start_gui(db)
         except Exception:
+            try:
+                details = traceback.format_exc()
+            except Exception:
+                details = ''
             self.show_error(_('Startup error'), _(
                 'There was an error during {0} startup. Parts of {0} may not function.'
-                ' Click Show details to learn more.').format(__appname__),
-                         det_msg=traceback.format_exc())
+                ' Click Show details to learn more.').format(__appname__), det_msg=details)
 
     def initialize_db(self):
         from calibre.db.legacy import LibraryDatabase
