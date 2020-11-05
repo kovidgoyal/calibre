@@ -431,7 +431,7 @@ def send_message(msg):
         print(err, file=sys.stderr, flush=True)
         error_dialog(None, _('Contacting calibre failed'), _(
             'Failed to contact running instance of calibre, try restarting calibre'),
-            det_msg=str(err), show=True)
+            det_msg=str(err) + '\n\n' + repr(msg), show=True)
         return False
     return True
 
