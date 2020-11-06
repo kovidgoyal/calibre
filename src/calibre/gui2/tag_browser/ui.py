@@ -718,6 +718,7 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def reset_find(self):
         model = self.tags_view.model()
+        model.clear_boxed()
         if model.get_categories_filter():
             model.set_categories_filter(None)
             self.tags_view.recount()
