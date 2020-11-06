@@ -502,7 +502,7 @@ class ManageDictionaries(Dialog):  # {{{
                 if countrycode == best_country:
                     j.setData(0, Qt.FontRole, bf)
                 pd = get_dictionary(DictionaryLocale(lc, countrycode))
-                for dictionary in sorted(languages[lc][countrycode], key=lambda d:d.name):
+                for dictionary in sorted(languages[lc][countrycode], key=lambda d:(d.name or '')):
                     k = QTreeWidgetItem(j, DICTIONARY)
                     pl = calibre_langcode_to_name(dictionary.primary_locale.langcode)
                     if dictionary.primary_locale.countrycode:
