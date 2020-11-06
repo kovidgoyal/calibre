@@ -10,7 +10,7 @@ from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog
-from calibre import prints, as_unicode
+from calibre import prints, as_unicode, prepare_string_for_xml
 from polyglot.io import PolyglotStringIO
 
 
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
             if getattr(value, 'locking_debug_msg', None):
                 prints(value.locking_debug_msg, file=sio)
             fe = sio.getvalue()
-            msg = '<b>%s</b>:'%exc_type.__name__ + as_unicode(value)
+            msg = '<b>%s</b>:'%exc_type.__name__ + prepare_string_for_xml(as_unicode(value))
             error_dialog(self, _('Unhandled exception'), msg, det_msg=fe,
                     show=True)
             prints(fe, file=sys.stderr)
