@@ -446,7 +446,7 @@ class MTPConfig(QTabWidget):
 
     def get_pref(self, key):
         p = self.device.prefs.get(self.current_device_key, {})
-        if not p:
+        if not p and self.current_device_key is not None:
             self.device.prefs[self.current_device_key] = p
         return self.device.get_pref(key)
 
@@ -490,7 +490,8 @@ class MTPConfig(QTabWidget):
             if self.current_ignored_folders != self.initial_ignored_folders:
                 p['ignored_folders'] = self.current_ignored_folders
 
-            self.device.prefs[self.current_device_key] = p
+            if self.current_device_key is not None:
+                self.device.prefs[self.current_device_key] = p
 
 
 class SendError(QDialog):
