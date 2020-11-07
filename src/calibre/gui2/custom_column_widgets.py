@@ -216,50 +216,60 @@ class Bool(Base):
 class Int(Base):
 
     def setup_ui(self, parent):
+        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
+        self.finish_ui_setup(parent, ClearingSpinBox)
+        self.editor.setRange(-1000000, 100000000)
+
+    def finish_ui_setup(self, parent, edit_widget):
         self.was_none = False
-        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent),
-                ClearingSpinBox(parent)]
-        w = self.widgets[1]
-        w.setRange(-1000000, 100000000)
-        w.setSpecialValueText(_('Undefined'))
-        w.setSingleStep(1)
-        w.valueChanged.connect(self.valueChanged)
+        w = QWidget(parent)
+        self.widgets.append(w)
+        l = QHBoxLayout()
+        l.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(l)
+        self.editor = editor = edit_widget(parent)
+        editor.setRange(-1000000, 100000000)
+        editor.setSpecialValueText(_('Undefined'))
+        editor.setSingleStep(1)
+        editor.valueChanged.connect(self.valueChanged)
+        l.addWidget(editor)
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.clicked.connect(self.set_to_undefined)
+        l.addWidget(self.clear_button)
 
     def setter(self, val):
         if val is None:
-            val = self.widgets[1].minimum()
-        self.widgets[1].setValue(val)
-        self.was_none = val == self.widgets[1].minimum()
+            val = self.editor.minimum()
+        self.editor.setValue(val)
+        self.was_none = val == self.editor.minimum()
 
     def getter(self):
-        val = self.widgets[1].value()
-        if val == self.widgets[1].minimum():
+        val = self.editor.value()
+        if val == self.editor.minimum():
             val = None
         return val
 
     def valueChanged(self, to_what):
         if self.was_none and to_what == -999999:
             self.setter(0)
-        self.was_none = to_what == self.widgets[1].minimum()
+        self.was_none = to_what == self.editor.minimum()
 
     def connect_data_changed(self, slot):
-        self.widgets[1].valueChanged.connect(slot)
-        self.signals_to_disconnect.append(self.widgets[1].valueChanged)
+        self.editor.valueChanged.connect(slot)
+        self.signals_to_disconnect.append(self.editor.valueChanged)
+
+    def set_to_undefined(self):
+        self.editor.setValue(-1000000)
 
 
 class Float(Int):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent),
-                ClearingDoubleSpinBox(parent)]
-        w = self.widgets[1]
-        w.setRange(-1000000., float(100000000))
-        w.setDecimals(2)
-        w.setSpecialValueText(_('Undefined'))
-        w.setSingleStep(1)
-        self.was_none = False
-        w.valueChanged.connect(self.valueChanged)
-
+        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
+        self.finish_ui_setup(parent, ClearingDoubleSpinBox)
+        self.editor.setRange(-1000000., float(100000000))
+        self.editor.setDecimals(2)
 
 class Rating(Base):
 
@@ -974,12 +984,21 @@ class BulkBool(BulkBase, Bool):
 class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
-        self.was_none = False
         self.make_widgets(parent, QSpinBox)
         self.main_widget.setRange(-1000000, 100000000)
+        self.finish_ui_setup(parent)
+
+    def finish_ui_setup(self, parent):
+        self.was_none = False
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
         self.main_widget.valueChanged.connect(self.valueChanged)
+        l = self.widgets[1].layout()
+        self.clear_button = QToolButton(parent)
+        self.clear_button.setIcon(QIcon(I('trash.png')))
+        l.insertWidget(1, self.clear_button)
+        l.insertStretch(2)
+        self.clear_button.clicked.connect(self.set_to_undefined)
 
     def setter(self, val):
         if val is None:
@@ -999,6 +1018,8 @@ class BulkInt(BulkBase):
             self.setter(0)
         self.was_none = to_what == self.main_widget.minimum()
 
+    def set_to_undefined(self):
+        self.main_widget.setValue(-1000000)
 
 class BulkFloat(BulkInt):
 
@@ -1006,10 +1027,10 @@ class BulkFloat(BulkInt):
         self.make_widgets(parent, QDoubleSpinBox)
         self.main_widget.setRange(-1000000., float(100000000))
         self.main_widget.setDecimals(2)
-        self.main_widget.setSpecialValueText(_('Undefined'))
-        self.main_widget.setSingleStep(1)
-        self.was_none = False
-        self.main_widget.valueChanged.connect(self.valueChanged)
+        self.finish_ui_setup(parent)
+
+    def set_to_undefined(self):
+        self.main_widget.setValue(-1000000.)
 
 
 class BulkRating(BulkBase):
