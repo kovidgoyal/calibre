@@ -236,6 +236,7 @@ class Int(Base):
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
         self.clear_button.clicked.connect(self.set_to_undefined)
+        self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
         l.addWidget(self.clear_button)
 
     def setter(self, val):
@@ -338,6 +339,7 @@ class DateTime(Base):
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
         self.clear_button.clicked.connect(dte.set_to_clear)
+        self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
         l.addWidget(self.clear_button)
 
     def setter(self, val):
@@ -996,6 +998,7 @@ class BulkInt(BulkBase):
         l = self.widgets[1].layout()
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
         l.insertWidget(1, self.clear_button)
         l.insertStretch(2)
         self.clear_button.clicked.connect(self.set_to_undefined)
@@ -1059,6 +1062,7 @@ class BulkDateTime(BulkBase):
         l.insertWidget(1, self.today_button)
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))
+        self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
         l.insertWidget(2, self.clear_button)
         l.insertStretch(3)
 
