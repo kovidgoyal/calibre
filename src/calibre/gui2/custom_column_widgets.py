@@ -280,6 +280,7 @@ class Float(Int):
         self.editor.setRange(-1000000., float(100000000))
         self.editor.setDecimals(2)
 
+
 class Rating(Base):
 
     def setup_ui(self, parent):
@@ -1054,6 +1055,7 @@ class BulkInt(BulkBase):
 
     def set_to_undefined(self):
         self.main_widget.setValue(-1000000)
+
 
 class BulkFloat(BulkInt):
 

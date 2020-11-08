@@ -12,7 +12,6 @@ from PyQt5.Qt import (
     QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget, pyqtSignal
 )
-from textwrap import fill
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
