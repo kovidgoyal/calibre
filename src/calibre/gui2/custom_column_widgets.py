@@ -154,7 +154,8 @@ class LongText(Base):
 class Bool(Base):
 
     def setup_ui(self, parent):
-        self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
+        name = self.col_metadata['name']
+        self.widgets = [QLabel(label_string(name), parent)]
         w = QWidget(parent)
         self.widgets.append(w)
 
@@ -166,17 +167,20 @@ class Bool(Base):
 
         c = QToolButton(parent)
         c.setText(_('Yes'))
+        c.setToolTip(_('Set {} to yes').format(name))
         l.addWidget(c)
         c.clicked.connect(self.set_to_yes)
 
         c = QToolButton(parent)
         c.setText(_('No'))
+        c.setToolTip(_('Set {} to no').format(name))
         l.addWidget(c)
         c.clicked.connect(self.set_to_no)
 
         if self.db.new_api.pref('bools_are_tristate'):
             c = QToolButton(parent)
             c.setText(_('Clear'))
+            c.setToolTip(_('Clear {}').format(name))
             l.addWidget(c)
             c.clicked.connect(self.set_to_cleared)
 
@@ -271,6 +275,7 @@ class Float(Int):
         self.finish_ui_setup(parent, ClearingDoubleSpinBox)
         self.editor.setRange(-1000000., float(100000000))
         self.editor.setDecimals(2)
+
 
 class Rating(Base):
 
@@ -1023,6 +1028,7 @@ class BulkInt(BulkBase):
 
     def set_to_undefined(self):
         self.main_widget.setValue(-1000000)
+
 
 class BulkFloat(BulkInt):
 
