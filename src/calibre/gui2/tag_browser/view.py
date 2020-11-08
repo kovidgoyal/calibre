@@ -722,7 +722,7 @@ class TagsView(QTreeView):  # {{{
                         # from selected books
                         if fm['datatype'] != 'rating':
                             m = self.context_menu.addMenu(self.edit_metadata_icon,
-                                            _('Apply %s to selected books')%display_name(tag))
+                                            _('Add/remove %s to selected books')%display_name(tag))
                             m.addAction(self.plus_icon,
                                 _('Add %s to selected books') % display_name(tag),
                                 partial(self.context_menu_handler, action='add_tag', index=index))
