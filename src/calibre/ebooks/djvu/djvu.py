@@ -20,8 +20,8 @@ class DjvuChunk(object):
 
     def __init__(self, buf, start, end, align=True, bigendian=True,
             inclheader=False, verbose=0):
-        from calibre_extensions import speedup
-        self.speedup = speedup
+        from calibre_extensions import bzzdec
+        self.speedup = bzzdec
         self.subtype = None
         self._subchunks = []
         self.buf = buf
