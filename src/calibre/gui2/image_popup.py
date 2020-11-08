@@ -47,7 +47,7 @@ class ImageView(QDialog):
         self.geom_name = geom_name
 
         self.label = l = QLabel(self)
-        l.setBackgroundRole(QPalette.Base)
+        l.setBackgroundRole(QPalette.Text if QApplication.instance().is_dark_theme else QPalette.Base)
         l.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         l.setScaledContents(True)
 
