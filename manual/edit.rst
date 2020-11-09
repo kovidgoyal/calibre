@@ -682,7 +682,7 @@ Spanish languages. You can install your own dictionaries via
 :guilabel:`Preferences->Editor->Manage spelling dictionaries`. The spell
 checker can use dictionaries from the LibreOffice program (in the .oxt
 format). You can download these dictionaries from
-`The LibreOffice Extensions repository <https://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings>`_.
+`The LibreOffice Extensions repository <https://extensions.libreoffice.org/?Tags%5B%5D=50>`_.
 
 
 Inserting special characters
