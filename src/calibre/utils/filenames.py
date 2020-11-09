@@ -126,7 +126,7 @@ def is_case_sensitive(path):
         name1, name2 = ('calibre_test_case_sensitivity.txt',
                         'calibre_TesT_CaSe_sensitiVitY.Txt')
         f1, f2 = os.path.join(path, name1), os.path.join(path, name2)
-        if os.path.exists(f1):
+        with suppress(OSError):
             os.remove(f1)
         open(f1, 'w').close()
         is_case_sensitive = not os.path.exists(f2)
