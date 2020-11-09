@@ -82,7 +82,7 @@
 
 - [1901113] Fix setting rating via ebook-meta command line tool broken in calibre 5.
 
-- [1900099]: When boolean columns are set to bistate, checking "show checkmarks" results in all non-boolean values being shown as false
+- [1900099] When boolean columns are set to bistate, checking "show checkmarks" results in all non-boolean values being shown as false
 
 - Spell check: Fix using non UTF-8 dictionaries broken in calibre 5
 
