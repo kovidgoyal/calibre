@@ -189,7 +189,7 @@ def shortcuts_definition():
     ),
 
     'copy_to_clipboard': desc(
-        'Ctrl+c',
+        v"['Ctrl+c', 'Meta+c']",
         'ui',
         _('Copy to clipboard'),
     ),
