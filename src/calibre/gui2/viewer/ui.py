@@ -537,7 +537,7 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
         highlights = self.current_book_data['annotations_map']['highlight']
         self.highlights_widget.load(highlights)
-        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights)
+        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights, current_book_data=self.current_book_data)
 
     def load_book_data(self, calibre_book_data=None):
         self.current_book_data['book_library_details'] = get_book_library_details(self.current_book_data['pathtoebook'])
@@ -545,6 +545,7 @@ class EbookViewer(MainWindow):
             self.current_book_data['calibre_book_id'] = calibre_book_data['book_id']
             self.current_book_data['calibre_book_uuid'] = calibre_book_data['uuid']
             self.current_book_data['calibre_book_fmt'] = calibre_book_data['fmt']
+            self.current_book_data['calibre_library_id'] = calibre_book_data['library_id']
         self.load_book_annotations(calibre_book_data)
         path = os.path.join(self.current_book_data['base'], 'calibre-book-manifest.json')
         with open(path, 'rb') as f:

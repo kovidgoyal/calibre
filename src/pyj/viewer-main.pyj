@@ -91,7 +91,7 @@ def show_error(title, msg, details):
     to_python.show_error(title, msg, details)
 
 
-def manifest_received(key, initial_position, pathtoebook, highlights, end_type, xhr, ev):
+def manifest_received(key, initial_position, pathtoebook, highlights, book_url, end_type, xhr, ev):
     nonlocal book
     end_type = workaround_qt_bug(xhr, end_type)
     if end_type is 'load':
@@ -102,6 +102,7 @@ def manifest_received(key, initial_position, pathtoebook, highlights, end_type, 
         book.manifest.pathtoebook = pathtoebook
         book.highlights = highlights
         book.stored_files = {}
+        book.calibre_book_url = book_url
         book.is_complete = True
         v'delete book.manifest["metadata"]'
         v'delete book.manifest["last_read_positions"]'
@@ -210,8 +211,8 @@ def show_home_page():
 
 
 @from_python
-def start_book_load(key, initial_position, pathtoebook, highlights):
-    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook, highlights), ok_code=0)
+def start_book_load(key, initial_position, pathtoebook, highlights, book_url):
+    xhr = ajax('manifest', manifest_received.bind(None, key, initial_position, pathtoebook, highlights, book_url), ok_code=0)
     xhr.responseType = 'json'
     xhr.send()
 

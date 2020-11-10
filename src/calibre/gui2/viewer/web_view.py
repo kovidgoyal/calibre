@@ -598,9 +598,14 @@ class WebView(RestartingWebEngineView):
     def on_content_file_changed(self, data):
         self.current_content_file = data
 
-    def start_book_load(self, initial_position=None, highlights=None):
+    def start_book_load(self, initial_position=None, highlights=None, current_book_data=None):
         key = (set_book_path.path,)
-        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [])
+        cbd = current_book_data or {}
+        book_url = None
+        if 'calibre_library_id' in cbd:
+            lid = cbd['calibre_library_id'].encode('utf-8').hex()
+            book_url = f'calibre://view-book/_hex_-{lid}/{cbd["calibre_book_id"]}/{cbd["calibre_book_fmt"]}'
+        self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url)
 
     def execute_when_ready(self, action, *args):
         if self.bridge.ready:

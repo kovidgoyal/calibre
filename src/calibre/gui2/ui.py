@@ -635,8 +635,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         def decode_library_id(x):
             if x == '_':
                 return getattr(self.current_db.new_api, 'server_library_id', None) or '_'
-            if x.startswith('hex-'):
-                return bytes.fromhex(x[4:]).decode('utf-8')
+            if x.startswith('_hex_-'):
+                return bytes.fromhex(x[6:]).decode('utf-8')
             return x
 
         if action == 'switch-library':
