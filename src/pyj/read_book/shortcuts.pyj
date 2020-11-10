@@ -35,8 +35,11 @@ def desc(sc, group, short, long):
 
 
 def keyevent_as_shortcut(evt):
+    key = evt.key
+    if capital_letters[key] and evt.shiftKey:
+        key = key.toLowerCase()
     return {
-        'key': evt.key, 'altKey': evt.altKey, 'ctrlKey': evt.ctrlKey,
+        'key': key, 'altKey': evt.altKey, 'ctrlKey': evt.ctrlKey,
         'metaKey': evt.metaKey, 'shiftKey': evt.shiftKey
     }
 
@@ -52,7 +55,7 @@ def get_key_text(evt):
     key = evt.key
     if key:
         # on Windows pressing ctrl+alt+ascii char gives capital letters. On all
-        # platforms shift+key gives capital letters # we define shortcuts using
+        # platforms shift+key gives capital letters we define shortcuts using
         # lowercase letters, so lowercase them here.
         if evt.code and key.toLowerCase() is not key and evt.code.startsWith('Key') and capital_letters[key]:
             key = key.toLowerCase()
