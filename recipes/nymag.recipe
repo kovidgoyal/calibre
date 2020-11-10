@@ -52,7 +52,9 @@ class NewYorkMagazine(BasicNewsRecipe):
             self.log(section)
             ul = div.findNextSibling('ul')
             for li in ul.findAll('li'):
-                a = li.find(**classes('article-link'))
+                a = li.find(href=True, **classes('article-link'))
+                if a is None:
+                    continue
                 url = a['href']
                 h3 = li.find('h3')
                 title = self.tag_to_string(h3)

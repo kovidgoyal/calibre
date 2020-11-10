@@ -35,7 +35,7 @@ class TheWashingtonPost(BasicNewsRecipe):
         classes('byline article-body'),
     ]
     remove_tags = [
-        dict(name=['meta', 'link']),
+        dict(name=['meta', 'link', 'svg']),
         classes('inline-video author-tooltip author-image powa-wrapper'),
         dict(attrs={'data-qa': ['article-body-ad', 'subscribe-promo', 'interstitial-link-wrapper']}),
     ]
