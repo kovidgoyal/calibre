@@ -457,6 +457,7 @@ def next_book(book_id, delta):
 
 def render_book(container_id, book_id):
     render_book.book_id = book_id
+    is_random = parse_url_params().book_id is '0'
     c = document.getElementById(container_id)
     if not c:
         return
@@ -469,6 +470,8 @@ def render_book(container_id, book_id):
     button_style = f'cursor: pointer; border-radius: {border_radius//5}px;'
     button_style += 'color: #ccc; background-color:rgba(0, 0, 0, 0.75);'
     button_style += 'display: flex; justify-content: center; align-items: center; padding: 2px;'
+    if is_random:
+        button_style += 'display: none;'
 
     def prev_next_button(is_prev):
         return E.div(
