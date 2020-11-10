@@ -243,7 +243,7 @@ def shortcuts_definition():
     ),
 
     'toggle_full_screen': desc(
-        v"['F11', 'Ctrl+Shift+F']",
+        v"['F11', 'Ctrl+Shift+f']",
         'ui',
         _('Toggle full screen'),
     ),
