@@ -631,8 +631,16 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def handle_url_action(self, action, path, query):
         import posixpath
+
+        def decode_library_id(x):
+            if x == '_':
+                return getattr(self.current_db.new_api, 'server_library_id', None) or '_'
+            if x.startswith('hex-'):
+                return bytes.fromhex(x[4:]).decode('utf-8')
+            return x
+
         if action == 'switch-library':
-            library_id = posixpath.basename(path)
+            library_id = decode_library_id(posixpath.basename(path))
             library_path = self.library_broker.path_for_library_id(library_id)
             if library_path is not None and library_id != getattr(self.current_db.new_api, 'server_library_id', None):
                 self.library_moved(library_path)
@@ -641,6 +649,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if len(parts) != 2:
                 return
             library_id, book_id = parts
+            library_id = decode_library_id(library_id)
             try:
                 book_id = int(book_id)
             except Exception:
@@ -664,6 +673,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             if len(parts) != 3:
                 return
             library_id, book_id, fmt = parts
+            library_id = decode_library_id(library_id)
             try:
                 book_id = int(book_id)
             except Exception:
