@@ -3,10 +3,10 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import re, os
+import os
+import re
 from collections import namedtuple
 from functools import partial
-
 from PyQt5.Qt import (
     QAction, QApplication, QColor, QEasingCurve, QIcon, QLayout, QMenu, QMimeData,
     QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl,
@@ -25,6 +25,7 @@ from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
     pixmap_to_data, rating_font, safe_open_url
 )
+from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 )
@@ -215,7 +216,7 @@ def add_format_entries(menu, data, book_info):
         ac.setText(t)
         menu.addAction(ac)
     if not fmt.upper().startswith('ORIGINAL_'):
-        from calibre.gui2.open_with import populate_menu, edit_programs
+        from calibre.gui2.open_with import edit_programs, populate_menu
         m = QMenu(_('Open %s with...') % fmt.upper())
 
         def connect_action(ac, entry):
@@ -335,7 +336,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False):
 
 
 def create_open_cover_with_menu(self, parent_menu):
-    from calibre.gui2.open_with import populate_menu, edit_programs
+    from calibre.gui2.open_with import edit_programs, populate_menu
     m = QMenu(_('Open cover with...'))
 
     def connect_action(ac, entry):
@@ -542,6 +543,10 @@ class CoverView(QWidget):  # {{{
             self.update_cover(cdata=cdata)
 
     def remove_cover(self):
+        if not confirm_delete(
+            _('Are you sure you want to delete the cover permanently?'),
+                'book-details-confirm-cover-remove', parent=self):
+            return
         id_ = self.data.get('id', None)
         self.pixmap = self.default_pixmap
         self.do_layout()
