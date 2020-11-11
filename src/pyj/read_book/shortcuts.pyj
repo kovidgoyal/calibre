@@ -212,6 +212,12 @@ def shortcuts_definition():
         _('Find previous'),
     ),
 
+    'follow_link': desc(
+        'Enter',
+        'ui',
+        _('Follow link'),
+    ),
+
     'increase_font_size': desc(
         v"['Ctrl+=', 'Ctrl++', 'Ctrl+Shift++', 'Ctrl+Shift+=', 'Meta++', 'Meta+Shift++', 'Meta+Shift+=']",
         'ui',

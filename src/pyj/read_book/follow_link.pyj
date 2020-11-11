@@ -1,0 +1,86 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+from gettext import gettext as _
+
+from book_list.theme import get_color
+from dom import add_extra_css, build_rule, svgicon
+from read_book.globals import ui_operations
+from read_book.resources import text_from_serialized_html  # TODO check if needed
+from read_book.shortcuts import shortcut_for_key_event
+
+CLASS_NAME = 'follow-link-container'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME
+    style = build_rule(sel, text_align='right', user_select='none')
+    sel += ' > div '
+    style += build_rule(sel, display='inline-flex', align_items='center', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
+    return style
+)
+
+
+class FollowLinkOverlay:
+
+    def __init__(self, view):
+        self.view = view
+        c = self.container
+        c.classList.add(CLASS_NAME)
+
+        # was built partially like create_search_bar() and EditWithComplete (without completion)
+        parent = E.div(style="display:flex")
+        input = E.input(type='text', name='follow-link-bar', title='', placeholder=_('Enter link number...'))
+        parent.appendChild(input)
+        parent.lastChild.style.width = '100%'
+
+        follow_button = E.div(class_='simple-link', svgicon('chevron-down'), title=_('Follow'))
+
+        # We cannot use simple link for the close button as it causes the
+        # button to remain red when the search panel is re-opened
+        close_button = E.div(style='cursor:pointer', svgicon('close'), title=_('Close Search bar'))
+        close_button.addEventListener('click', def(ev): window.setTimeout(self.hide, 0);)
+
+        c.appendChild(E.div(
+            parent, '\xa0', follow_button, '\xa0', close_button
+        ))
+        c.firstChild.addEventListener('keydown', self.onkeydown, {'passive': False})
+
+    def onkeydown(self, event):
+        if event.key is 'Escape' or event.key is 'Esc':
+            self.hide()
+            event.preventDefault(), event.stopPropagation()
+            return
+        sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
+        if sc_name is 'follow_link':
+            # TODO follow link code/method
+
+            self.hide()
+            event.preventDefault(), event.stopPropagation()
+            return
+
+    @property
+    def container(self):
+        return document.getElementById('follow-link-overlay')
+
+    @property
+    def search_text(self):
+        return self.container.querySelector('input').value
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def set_text(self, text):
+        self.container.querySelector('input').value = text or ''
+
+    def hide(self):
+        self.container.style.display = 'none'
+        ui_operations.focus_iframe()
+
+    def show(self):
+        c = self.container
+        c.style.display = 'block'
+        inp = c.querySelector('input')
+        inp.focus(), inp.select()

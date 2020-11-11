@@ -47,6 +47,7 @@ def all_actions():
             'copy': Action('edit-copy.png', _('Copy to clipboard'), 'copy_to_clipboard'),
             'increase_font_size': Action('font_size_larger.png', _('Increase font size'), 'increase_font_size'),
             'decrease_font_size': Action('font_size_smaller.png', _('Decrease font size'), 'decrease_font_size'),
+            'follow_link': Action('reference.png', _('Follow link on page'), 'toggle_follow_link'),
             'fullscreen': Action('page.png', _('Toggle full screen'), 'toggle_full_screen'),
             'next': Action('next.png', _('Next page'), 'next'),
             'previous': Action('previous.png', _('Previous page'), 'previous'),
@@ -72,7 +73,7 @@ def all_actions():
 
 DEFAULT_ACTIONS = (
     'back', 'forward', None, 'open', 'copy', 'increase_font_size', 'decrease_font_size', 'fullscreen', 'color_scheme',
-    None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'toggle_highlights', 'chrome', None,
+    None, 'previous', 'next', None, 'toc', 'search', 'bookmarks', 'lookup', 'toggle_highlights', 'chrome', 'follow_link', None,
     'mode', 'print', 'preferences', 'metadata', 'inspector'
 )
 
@@ -162,6 +163,9 @@ class ActionsToolBar(ToolBar):
 
         self.search_action = a = toggle_search_action
         a.setText(aa.search.text), a.setIcon(aa.search.icon)
+        self.follow_link_action = a = shortcut_action('follow_link')
+        # TODO should it be checkable?
+        # a.setCheckable(True)
         self.toc_action = a = shortcut_action('toc')
         a.setCheckable(True)
         self.bookmarks_action = a = shortcut_action('bookmarks')
