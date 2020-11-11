@@ -51,11 +51,17 @@ class BookmarksList(QListWidget):
         return QListWidget.keyPressEvent(self, ev)
 
     def activate_related_bookmark(self, delta=1):
-        if self.count() > 0:
-            row = self.currentRow()
-            nrow = (row + delta + self.count()) % self.count()
-            self.setCurrentRow(nrow)
-            self.bookmark_activated.emit(self.currentItem())
+        if not self.count():
+            return
+        items = [self.item(r) for r in range(self.count())]
+        row = self.currentRow()
+        current_item = items[row]
+        items = [i for i in items if not i.isHidden()]
+        count = len(items)
+        row = items.index(current_item)
+        nrow = (row + delta + count) % count
+        self.setCurrentItem(items[nrow])
+        self.bookmark_activated.emit(self.currentItem())
 
     def next_bookmark(self):
         self.activate_related_bookmark()
