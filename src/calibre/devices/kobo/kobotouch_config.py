@@ -519,7 +519,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                              _("Update metadata on Book Details pages"),
                              _('This will update the metadata in the device database when the device is connected. '
                                'The metadata updated is displayed on the device in the library and the book details page. '
-                               'This is the Title, Authors, Comments/Synopsis, Series name and number, Publisher and Published Date, ISBN and Language. '
+                               'This is the title, authors, comments/synopsis, series name and number, publisher and published Date, ISBN and language. '
                                'If a metadata plugboard exists for the device and book format, this will be used to set the metadata.'
                                ),
                              device.get_pref('update_core_metadata')
