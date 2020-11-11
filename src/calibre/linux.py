@@ -850,115 +850,121 @@ class PostInstall:
     def setup_desktop_integration(self):  # {{{
         try:
             self.info('Setting up desktop integration...')
-
-            env = os.environ.copy()
-            cc = check_call
-            if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
-                paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
-                paths = [x for x in paths if x]
-                npaths = [x for x in paths if x != sys.frozen_path+'/lib']
-                env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-                cc = partial(check_call, env=env)
-
-            if getattr(self.opts, 'staged_install', False):
-                for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
-                    try:
-                        os.makedirs(os.path.join(self.opts.staging_root, 'share', d))
-                    except OSError:
-                        # python2 does not have exist_ok=True, failure will be reported by xdg-utils
-                        pass
-
-            with TemporaryDirectory() as tdir, CurrentDir(tdir), PreserveMIMEDefaults():
-
-                def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
-                    filename = '%s-%s.png' % (basename, size)
-                    render_img(iconsrc, filename, width=int(size), height=int(size))
-                    cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', unicode_type(size), filename, basename]
-                    if is_last_icon:
-                        del cmd[2]
-                    cc(cmd)
-                    self.icon_resources.append((context, basename, unicode_type(size)))
-
-                def install_icons(iconsrc, basename, context, is_last_icon=False):
-                    sizes = (16, 32, 48, 64, 128, 256)
-                    for size in sizes:
-                        install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
-
-                icons = [x.strip() for x in '''\
-                    mimetypes/lrf.png application-lrf mimetypes
-                    mimetypes/lrf.png text-lrs mimetypes
-                    mimetypes/mobi.png application-x-mobipocket-ebook mimetypes
-                    mimetypes/tpz.png application-x-topaz-ebook mimetypes
-                    mimetypes/azw2.png application-x-kindle-application mimetypes
-                    mimetypes/azw3.png application-x-mobi8-ebook mimetypes
-                    lt.png calibre-gui apps
-                    viewer.png calibre-viewer apps
-                    tweak.png calibre-ebook-edit apps
-                    '''.splitlines() if x.strip()]
-                for line in icons:
-                    iconsrc, basename, context = line.split()
-                    install_icons(iconsrc, basename, context, is_last_icon=line is icons[-1])
-
-                mimetypes = set()
-                for x in all_input_formats():
-                    mt = guess_type('dummy.'+x)[0]
-                    if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
-                        mimetypes.add(mt)
-                mimetypes.discard('application/octet-stream')
-
-                def write_mimetypes(f):
-                    f.write(('MimeType=%s;\n'%';'.join(mimetypes)).encode('utf-8'))
-
-                from calibre.ebooks.oeb.polish.main import SUPPORTED
-                from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
-                with open('calibre-lrfviewer.desktop', 'wb') as f:
-                    f.write(VIEWER.encode('utf-8'))
-                with open('calibre-ebook-viewer.desktop', 'wb') as f:
-                    f.write(EVIEWER.encode('utf-8'))
-                    write_mimetypes(f)
-                with open('calibre-ebook-edit.desktop', 'wb') as f:
-                    f.write(ETWEAK.encode('utf-8'))
-                    mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
-                    f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
-                with open('calibre-gui.desktop', 'wb') as f:
-                    f.write(GUI.encode('utf-8'))
-                    write_mimetypes(f)
-                des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
-                        'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
-                appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
-                if not os.path.exists(appdata):
-                    try:
-                        os.mkdir(appdata)
-                    except:
-                        self.warning('Failed to create %s not installing appdata files' % appdata)
-                if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
-                    self.warning('Do not have write permissions for %s not installing appdata files' % appdata)
-                else:
-                    from calibre.utils.localization import get_all_translators
-                    translators = dict(get_all_translators())
-
-                APPDATA = get_appdata()
-                for x in des:
-                    cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
-                    cc(' '.join(cmd), shell=True)
-                    self.menu_resources.append(x)
-                    ak = x.partition('.')[0]
-                    if ak in APPDATA and os.access(appdata, os.W_OK):
-                        self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
-                MIME_BASE = 'calibre-mimetypes.xml'
-                MIME = P(MIME_BASE)
-                self.mime_resources.append(MIME_BASE)
-                if not getattr(self.opts, 'staged_install', False):
-                    cc(['xdg-mime', 'install', MIME])
-                    cc(['xdg-desktop-menu', 'forceupdate'])
-                else:
-                    from shutil import copyfile
-                    copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', MIME_BASE))
+            self.do_setup_desktop_integration()
         except Exception:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up desktop integration failed')
 
+    def do_setup_desktop_integration(self):
+        env = os.environ.copy()
+        cc = check_call
+        if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
+            paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
+            paths = [x for x in paths if x]
+            npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+            env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+            cc = partial(check_call, env=env)
+
+        if getattr(self.opts, 'staged_install', False):
+            for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
+                os.makedirs(os.path.join(self.opts.staging_root, 'share', d), exist_ok=True)
+
+        with TemporaryDirectory() as tdir, CurrentDir(tdir):
+            with PreserveMIMEDefaults():
+                self.install_xdg_junk(cc, env)
+
+    def install_xdg_junk(self, cc, env):
+
+        def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
+            filename = '%s-%s.png' % (basename, size)
+            render_img(iconsrc, filename, width=int(size), height=int(size))
+            cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', unicode_type(size), filename, basename]
+            if is_last_icon:
+                del cmd[2]
+            cc(cmd)
+            self.icon_resources.append((context, basename, unicode_type(size)))
+
+        def install_icons(iconsrc, basename, context, is_last_icon=False):
+            sizes = (16, 32, 48, 64, 128, 256)
+            for size in sizes:
+                install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
+
+        icons = [x.strip() for x in '''\
+            mimetypes/lrf.png application-lrf mimetypes
+            mimetypes/lrf.png text-lrs mimetypes
+            mimetypes/mobi.png application-x-mobipocket-ebook mimetypes
+            mimetypes/tpz.png application-x-topaz-ebook mimetypes
+            mimetypes/azw2.png application-x-kindle-application mimetypes
+            mimetypes/azw3.png application-x-mobi8-ebook mimetypes
+            lt.png calibre-gui apps
+            viewer.png calibre-viewer apps
+            tweak.png calibre-ebook-edit apps
+            '''.splitlines() if x.strip()]
+        for line in icons:
+            iconsrc, basename, context = line.split()
+            install_icons(iconsrc, basename, context, is_last_icon=line is icons[-1])
+
+        mimetypes = set()
+        for x in all_input_formats():
+            mt = guess_type('dummy.'+x)[0]
+            if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
+                mimetypes.add(mt)
+        mimetypes.discard('application/octet-stream')
+
+        def write_mimetypes(f, extra=''):
+            line = 'MimeType={};'.format(';'.join(mimetypes))
+            if extra:
+                line += extra + ';'
+            f.write(line.encode('utf-8') + b'\n')
+
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
+        from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        with open('calibre-lrfviewer.desktop', 'wb') as f:
+            f.write(VIEWER.encode('utf-8'))
+        with open('calibre-ebook-viewer.desktop', 'wb') as f:
+            f.write(EVIEWER.encode('utf-8'))
+            write_mimetypes(f)
+        with open('calibre-ebook-edit.desktop', 'wb') as f:
+            f.write(ETWEAK.encode('utf-8'))
+            mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
+            f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
+        with open('calibre-gui.desktop', 'wb') as f:
+            f.write(GUI.encode('utf-8'))
+            write_mimetypes(f, 'x-scheme-handler/calibre')
+        des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
+                'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
+        appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
+        translators = None
+        if not os.path.exists(appdata):
+            try:
+                os.mkdir(appdata)
+            except:
+                self.warning('Failed to create %s not installing appdata files' % appdata)
+        if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
+            self.warning('Do not have write permissions for %s not installing appdata files' % appdata)
+        else:
+            from calibre.utils.localization import get_all_translators
+            translators = dict(get_all_translators())
+
+        APPDATA = get_appdata()
+        for x in des:
+            cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
+            cc(' '.join(cmd), shell=True)
+            self.menu_resources.append(x)
+            ak = x.partition('.')[0]
+            if ak in APPDATA and translators is not None and os.access(appdata, os.W_OK):
+                self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
+
+        MIME_BASE = 'calibre-mimetypes.xml'
+        MIME = P(MIME_BASE)
+        self.mime_resources.append(MIME_BASE)
+        if not getattr(self.opts, 'staged_install', False):
+            cc(['xdg-mime', 'install', MIME])
+            cc(['xdg-desktop-menu', 'forceupdate'])
+        else:
+            from shutil import copyfile
+            copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', MIME_BASE))
     # }}}
 
 
