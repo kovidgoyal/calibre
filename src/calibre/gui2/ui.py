@@ -601,12 +601,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tags_view.recount()
 
     def handle_cli_args(self, args):
+        from urllib.parse import unquote, urlparse, parse_qs
         if isinstance(args, string_or_bytes):
             args = [args]
         files, urls = [], []
         for p in args:
             if p.startswith('calibre://'):
-                from urllib.parse import unquote, urlparse, parse_qs
                 try:
                     purl = urlparse(p)
                     if purl.scheme == 'calibre':
@@ -614,6 +614,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         path = unquote(purl.path)
                         query = parse_qs(unquote(purl.query))
                         urls.append((action, path, query))
+                except Exception:
+                    prints('Ignoring malformed URL:', p, file=sys.stderr)
+                    continue
+            elif p.startswith('file://'):
+                try:
+                    purl = urlparse(p)
+                    if purl.scheme == 'file':
+                        path = unquote(purl.path)
+                        a = os.path.abspath(path)
+                        if not os.path.isdir(a) and os.access(a, os.R_OK):
+                            files.append(a)
                 except Exception:
                     prints('Ignoring malformed URL:', p, file=sys.stderr)
                     continue
