@@ -690,7 +690,7 @@ class InsertLink(Dialog):
             in the template, they will be replaced by the source filename, the destination
             filename and the anchor, respectively.
         ''').format(
-            '_TITLE_', '_TARGET', '_SOURCE_FILENAME_', '_DEST_FILENAME_', '_ANCHOR_'))
+            '_TEXT_', '_TARGET_', '_SOURCE_FILENAME_', '_DEST_FILENAME_', '_ANCHOR_'))
 
         l.addWidget(self.bb)
 
