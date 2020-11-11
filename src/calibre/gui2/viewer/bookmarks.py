@@ -101,7 +101,7 @@ class BookmarkManager(QWidget):
         b.clicked.connect(self.delete_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 
-        self.button_prev = b = QPushButton(QIcon(I('back.png')), _('P&revious'), self)
+        self.button_prev = b = QPushButton(QIcon(I('back.png')), _('Pre&vious'), self)
         b.clicked.connect(self.bookmarks_list.previous_bookmark)
         l.addWidget(b)
 
