@@ -79,6 +79,10 @@ books when discussing it with friends or referring to it in other works. You
 can enter these locations under :guilabel:`Go to->Location` in the viewer
 controls.
 
+There is a URL you can copy to the clipboard and paste into other programs
+or documents. Clicking on this URL will open the book in the calibre viewer at
+the current location.
+
 If you click on links inside the e-book to take you to different parts of the
 book, such as an endnote, you can use the :guilabel:`Back` and
 :guilabel:`Forward` buttons in the top left corner of the viewer controls.

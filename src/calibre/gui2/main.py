@@ -40,10 +40,18 @@ class AbortInit(Exception):
 
 def option_parser():
     parser = _option_parser(_('''\
-%prog [options] [path_to_ebook]
+%prog [options] [path_to_ebook or calibre url ...]
 
 Launch the main calibre Graphical User Interface and optionally add the e-book at
-path_to_ebook to the database.
+path_to_ebook to the database. You can also specify calibre URLs to perform various
+different actions, than just adding books. For example:
+
+calibre://view-book/test_library/1842/epub
+
+Will open the book with id 1842 in the EPUB format from the library
+"test_library" in the calibre viewer. Library names are the folder names of the
+libraries with spaces replaced by underscores. A full description of the
+various URL based actions is in the User Manual.
 '''))
     parser.add_option('--with-library', default=None, action='store',
                       help=_('Use the library located at the specified path.'))
