@@ -13,6 +13,10 @@ the folder name of the library folder with spaces replaced by underscores. The
 special value ``_`` means the current library.
 The various types of URLs are documented below.
 
+You can even place these links inside HTML files or Word documents or similar
+and the operating system will automatically run calibre to perform the
+specified action.
+
 
 .. contents::
     :depth: 1
