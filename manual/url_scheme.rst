@@ -27,7 +27,7 @@ The URL syntax is::
 
 Library names are the folder name of the library with spaces replaced by
 underscores. The special value ``_`` means the current library. You can also
-use hex encoding for the library names, useful if the library names have
+use :ref:`hex encoding <hex_encoding>` for the library names, useful if the library names have
 special characters that would otherwise require URL encoding. Hex encoded
 library names look like::
 
@@ -62,3 +62,28 @@ Here, ``book_format`` is the format of the book, for example, ``EPUB`` or
 easiest way to get these links is to open a book in the viewer, then in the
 viewer controls select :guilabel:`Go to->Location` and there such a link
 will be given that you can copy/paste elsewhere.
+
+
+Searching for books
+------------------------------
+
+The URL syntax is::
+
+    calibre://search/Library_Name?q=query
+    calibre://search/Library_Name?eq=hex_encoded_query
+
+Here query is any valid :ref:`search expression <search_interface>`. If the
+search expression is complicated, :ref:`encode it as a hex string <hex_encoding>`
+and use ``eq`` instead. Leaving out the query will cause the current search to
+be cleared.
+
+
+.. _hex_encoding:
+
+Hex encoding of URL parameters
+----------------------------------
+
+Hex encoding of URL parameters is done by first encoding the parameter as UTF-8
+bytes, and then replacing each byte by two hexadecimal characters representing
+the byte. For example, the string ``abc`` is the bytes ``0x61 0x62 and 0x63`` in
+UTF-8, so the encoded version is the string: ``616263``.

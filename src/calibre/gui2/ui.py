@@ -707,6 +707,24 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             else:
                 doit()
 
+        elif action == 'search':
+            parts = tuple(filter(None, path.split('/')))
+            if len(parts) != 1:
+                return
+            library_id = decode_library_id(parts[0])
+            library_path = self.library_broker.path_for_library_id(library_id)
+            if library_path is None:
+                return
+            sq = query.get('eq')
+            if sq:
+                sq = bytes.fromhex(sq[0]).decode('utf-8')
+            else:
+                sq = query.get('q')
+                if sq:
+                    sq = sq[0]
+            sq = sq or ''
+            self.search.set_search_string(sq)
+
     def message_from_another_instance(self, msg):
         if isinstance(msg, bytes):
             msg = msg.decode('utf-8', 'replace')
