@@ -23,6 +23,65 @@
 # - title by author
 # }}}
 
+{{{ 5.5.0 2020-11-13
+
+:: new features
+
+- Support the calibre:// URL scheme
+
+  Clicking on calibre:// URLs can be used to have calibre perform various actions.
+  For details, see: https://manual.calibre-ebook.com/url_scheme.html
+
+- Viewer: Show calibre:// URL for current book in the Goto->Location panel
+
+- [1902518] Edit book: Add an action to the right click menu for tabs to close tabs to the right of the current tab.
+
+- [1902413] Add ability to copy tag, publisher and author in Book details panel by right-clicking
+
+- [1902326] Annotations browser: Add a context menu for common actions.
+
+- [1899839] Annotations browser: Show a dot for highlights with notes.
+
+- [1902227] Edit book: Saved searches panel: Allow copying the current saved search to the regular search panel by clicking the Export button.
+
+- Windows: Fix command line arguments not working for the portable.exe launchers
+
+- Viewer: back and forward buttons on the mouse now trigger the back and forward actions
+
+- [1902313] Option to mark all books with annotations/bookmarks
+
+- Various minor improvements to how keyboard focus is handled in the Tag browser
+
+:: bug fixes
+
+- [1903294] Edit book: Fix regression in calibre 5 that caused an error when managing user dictionaries.
+
+- [1903831] Viewer: Fix previous/next buttons iterating over removed bookmarks
+
+- [1903825] Welcome wizard: Fix changing the language causing a empty folder to be created.
+
+- [1903699] Viewer: Fix regression causing custom shortcuts with shift key pressed not working
+
+- [1903423] Viewer: In dark mode when showing images with transparency in the popup use a light background color as most images are designed with a light background color in mind.
+
+- [1903428] Fix a regression in the previous release that broke conversion of DJVU files
+
+- [1903363] Metadata edit: "Set to Undefined" button missing on integer columns.
+
+- [1903086] Entry remains underlined in Tag Browser after clearing filter
+
+- [1902126] XML Catalogs: Fix languages field missing
+
+- Fix a regression that broke loading of third party plugins that are encoded in an encoding other than UTF-8
+
+- macOS: Fix viewer not responding to cmd+c to copy text by default
+
+- Windows: Fix sending email on computers with non-ASCII computer names
+
+:: improved recipes
+- Spectator Magazine
+
+}}}
 
 {{{ 5.4.2 2020-10-30
 
