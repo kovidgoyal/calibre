@@ -678,7 +678,7 @@ class DetailsPanel(QWidget):
             <span>\xa0\xa0\xa0</span>
             <a title="{sictt}" href="calibre://show_in_library">{sic}</a>
         </div>
-        <h2 style="text-align: left">{atype}</h2>
+        <h3 style="text-align: left">{atype}</h3>
         {text}
         '''.format(
             title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
