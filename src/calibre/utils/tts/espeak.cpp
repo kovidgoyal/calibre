@@ -135,6 +135,30 @@ synchronize(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
+static PyObject*
+set_parameter(PyObject *self, PyObject *args) {
+	espeak_PARAMETER param;
+	int value, relative = 0;
+	if (!PyArg_ParseTuple(args, "ii|i", &param, &value, &relative)) return NULL;
+	espeak_ERROR err;
+	Py_BEGIN_ALLOW_THREADS;
+	err = espeak_SetParameter(param, value, relative);
+	Py_END_ALLOW_THREADS;
+	if (err != EE_OK) return espeak_error("Failed to set set parameter", err);
+	Py_RETURN_NONE;
+}
+
+static PyObject*
+get_parameter(PyObject *self, PyObject *args) {
+	espeak_PARAMETER param;
+	int current = 1;
+	if (!PyArg_ParseTuple(args, "i|i", &param, &current)) return NULL;
+	long ans;
+	Py_BEGIN_ALLOW_THREADS;
+	ans = espeak_GetParameter(param, current);
+	Py_END_ALLOW_THREADS;
+	return PyLong_FromLong(ans);
+}
 
 // Boilerplate {{{
 #define M(name, args, doc) { #name, (PyCFunction)name, args, ""}
@@ -143,6 +167,8 @@ static PyMethodDef methods[] = {
 	M(cancel, METH_NOARGS, "cancel all ongoing speech activity"),
 	M(synchronize, METH_NOARGS, "synchronize all ongoing speech activity"),
 	M(is_playing, METH_NOARGS, "True iff speech is happening"),
+	M(set_parameter, METH_VARARGS, "set speech parameter"),
+	M(get_parameter, METH_VARARGS, "get speech parameter"),
 	M(list_voices, METH_VARARGS | METH_KEYWORDS, "list available voices"),
 	M(set_voice_by_properties, METH_VARARGS | METH_KEYWORDS, "set voice by properties"),
     {NULL, NULL, 0, NULL}
@@ -151,7 +177,14 @@ static PyMethodDef methods[] = {
 
 static int
 exec_module(PyObject *m) {
-#define AI(name) if (PyModule_AddIntMacro(m, name) != 0) { return -1; }
+#define AI(name) if (PyModule_AddIntConstant(m, #name, espeak##name) != 0) { return -1; }
+	AI(RATE);
+	AI(VOLUME);
+	AI(PITCH);
+	AI(RANGE);
+	AI(PUNCTUATION);
+	AI(CAPITALS);
+	AI(WORDGAP);
 #undef AI
     EspeakError = PyErr_NewException("espeak.EspeakError", NULL, NULL);
     if (EspeakError == NULL) return -1;
