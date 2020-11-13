@@ -82,6 +82,8 @@ def parse(raw, parse_dates=True):
     def finalize_item(item):
         if 'description' in item and not item['description']:
             del item['description']
+        if 'description' in item:
+            item['description'] = item['description'].strip()
         return item
 
     def in_item(linenum, line, stripped_line):
@@ -99,7 +101,7 @@ def parse(raw, parse_dates=True):
                 item['description'] = ''
             return in_item
         if 'description' in item:
-            item['description'] += stripped_line
+            item['description'] += stripped_line + ' '
         else:
             item['title'] += stripped_line
         return in_item
