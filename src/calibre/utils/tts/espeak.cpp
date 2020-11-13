@@ -12,6 +12,8 @@
 #include <Python.h>
 #include <espeak-ng/speak_lib.h>
 
+static PyObject *EspeakError = NULL;
+
 class pyobject_raii {
 	private:
 		PyObject *handle;
@@ -75,11 +77,58 @@ list_voices(PyObject *self, PyObject *args, PyObject *kw) {
 	return ans.detach();
 }
 
+static PyObject*
+set_espeak_error(const char *prefix, espeak_ERROR err, const char *file, const int line) {
+	const char *m = "Unknown error";
+	switch(err) {
+		case EE_OK:
+			m = "No error"; break;
+		case EE_INTERNAL_ERROR:
+			m = "Internal error"; break;
+		case EE_BUFFER_FULL:
+			m = "Buffer full"; break;
+		case EE_NOT_FOUND:
+			m = "Not found"; break;
+	}
+	PyErr_Format(EspeakError, "[%s:%d] %s: %s", file, line, prefix, m);
+	return NULL;
+}
+#define espeak_error(prefix, err) set_espeak_error(prefix, err, __FILE__, __LINE__)
+
+static PyObject*
+set_voice_by_properties(PyObject *self, PyObject *args, PyObject *kw) {
+	espeak_VOICE q = {0};
+	static const char* kwds[] = {"name", "language", "gender", "age", "variant", NULL};
+	if (!PyArg_ParseTupleAndKeywords(args, kw, "|$ssBBB", (char**)kwds, &q.name, &q.languages, &q.gender, &q.age, &q.variant)) return NULL;
+	espeak_ERROR err = espeak_SetVoiceByProperties(&q);
+	if (err != EE_OK) return espeak_error("Failed to set voice by properties", err);
+	Py_RETURN_NONE;
+}
+
+static PyObject*
+cancel(PyObject *self, PyObject *args) {
+	espeak_ERROR err;
+	Py_BEGIN_ALLOW_THREADS;
+	err = espeak_Cancel();
+	Py_END_ALLOW_THREADS;
+	if (err != EE_OK) return espeak_error("Failed to cancel speech", err);
+	Py_RETURN_NONE;
+}
+
+static PyObject*
+is_playing(PyObject *self, PyObject *args) {
+	return Py_BuildValue("O", espeak_IsPlaying() ? Py_True : Py_False);
+
+}
+
 // Boilerplate {{{
 #define M(name, args, doc) { #name, (PyCFunction)name, args, ""}
 static PyMethodDef methods[] = {
-	M(info, METH_VARARGS, "version and path"),
+	M(info, METH_NOARGS, "version and path"),
+	M(cancel, METH_NOARGS, "cancel all ongoing speech activity"),
+	M(is_playing, METH_NOARGS, "True iff speech is happening"),
 	M(list_voices, METH_VARARGS | METH_KEYWORDS, "list available voices"),
+	M(set_voice_by_properties, METH_VARARGS | METH_KEYWORDS, "set voice by properties"),
     {NULL, NULL, 0, NULL}
 };
 #undef M
@@ -88,6 +137,10 @@ static int
 exec_module(PyObject *m) {
 #define AI(name) if (PyModule_AddIntMacro(m, name) != 0) { return -1; }
 #undef AI
+    EspeakError = PyErr_NewException("espeak.EspeakError", NULL, NULL);
+    if (EspeakError == NULL) return -1;
+    PyModule_AddObject(m, "EspeakError", EspeakError);
+
     int sample_rate = espeak_Initialize(AUDIO_OUTPUT_SYNCH_PLAYBACK, 0, NULL, espeakINITIALIZE_DONT_EXIT);
     if (sample_rate == -1) {
         PyErr_SetString(PyExc_OSError, "Failed to initialize espeak library, are the data files missing?");
