@@ -14,6 +14,24 @@
 
 static PyObject *EspeakError = NULL;
 
+typedef struct {
+	PyThreadState *thread_state;
+	PyObject *data_callback, *err_type, *err_value, *err_traceback;
+} CallbackData;
+
+class ScopedGILAcquire {
+public:
+    inline ScopedGILAcquire(CallbackData *cbd) : data(cbd) {
+		if (data && data->thread_state) {
+			PyEval_RestoreThread(data->thread_state);
+			data->thread_state = NULL;
+		}
+	}
+    inline ~ScopedGILAcquire() { if (data) data->thread_state = PyEval_SaveThread(); }
+private:
+    CallbackData *data;
+};
+
 class pyobject_raii {
 	private:
 		PyObject *handle;
@@ -160,6 +178,70 @@ get_parameter(PyObject *self, PyObject *args) {
 	return PyLong_FromLong(ans);
 }
 
+static int
+synth_callback(short* wav_data, int num_samples, espeak_EVENT *evt) {
+	if (wav_data == NULL) return 0;
+	CallbackData *cbdata = static_cast<CallbackData*>(evt->user_data);
+	if (cbdata->data_callback) {
+		ScopedGILAcquire sga(cbdata);
+		PyObject *ret = PyObject_CallFunction(cbdata->data_callback, "y#", wav_data, num_samples * 2);
+		if (!ret) {
+			PyErr_Fetch(&cbdata->err_type, &cbdata->err_value, &cbdata->err_traceback);
+			return 1;
+		}
+		int r = PyObject_IsTrue(ret) ? 1 : 0;
+		Py_DECREF(ret);
+		return r;
+	}
+	return 0;
+}
+
+
+static inline void
+int_as_four_bytes(int32_t value, unsigned char *output) {
+	output[0] = value & 0xff;
+	output[1] = (value >> 8) & 0xff;
+	output[2] = (value >> 16) & 0xff;
+	output[3] = (value >> 24) & 0xff;
+}
+
+
+static PyObject*
+create_recording_wav(PyObject *self, PyObject *args) {
+	int buflength = 1000;
+	unsigned int flags = 0;
+	const char *text;
+	Py_ssize_t text_len;
+	CallbackData cbdata = {0};
+	if (!PyArg_ParseTuple(args, "s#O|iI", &text, &text_len, &cbdata.data_callback, &buflength, &flags)) return NULL;
+	espeak_Cancel();
+	int rate = espeak_Initialize(AUDIO_OUTPUT_SYNCHRONOUS, buflength, NULL, espeakINITIALIZE_DONT_EXIT);
+	if (rate == -1) return espeak_error("Initialization failed", EE_INTERNAL_ERROR);
+	espeak_SetSynthCallback(synth_callback);
+	unsigned char wave_hdr[44] = {
+		'R', 'I', 'F', 'F', 0x24, 0xf0, 0xff, 0x7f, 'W', 'A', 'V', 'E', 'f', 'm', 't', ' ',
+		0x10, 0, 0, 0, 1, 0, 1, 0,  9, 0x3d, 0, 0, 0x12, 0x7a, 0, 0,
+		2, 0, 0x10, 0, 'd', 'a', 't', 'a', 0x00, 0xf0, 0xff, 0x7f
+	};
+	int_as_four_bytes(rate, wave_hdr + 24);
+	int_as_four_bytes(rate * 2, wave_hdr + 28);
+	PyObject *ret = PyObject_CallFunction(cbdata.data_callback, "s#", wave_hdr, sizeof(wave_hdr));
+	if (!ret) return NULL;
+	Py_DECREF(ret);
+
+	espeak_ERROR err;
+	cbdata.thread_state = PyEval_SaveThread();
+	err = espeak_Synth(text, text_len, 0, POS_CHARACTER, 0, flags | espeakCHARS_UTF8, NULL, &cbdata);
+	if (cbdata.thread_state) PyEval_RestoreThread(cbdata.thread_state);
+	if (cbdata.err_type) {
+		PyErr_Restore(cbdata.err_type, cbdata.err_value, cbdata.err_traceback);
+		return NULL;
+	}
+	if (err != EE_OK) return espeak_error("Failed to synthesize text", err);
+	Py_RETURN_NONE;
+}
+
+
 // Boilerplate {{{
 #define M(name, args, doc) { #name, (PyCFunction)name, args, ""}
 static PyMethodDef methods[] = {
@@ -169,6 +251,7 @@ static PyMethodDef methods[] = {
 	M(is_playing, METH_NOARGS, "True iff speech is happening"),
 	M(set_parameter, METH_VARARGS, "set speech parameter"),
 	M(get_parameter, METH_VARARGS, "get speech parameter"),
+	M(create_recording_wav, METH_VARARGS, "save tts output as WAV"),
 	M(list_voices, METH_VARARGS | METH_KEYWORDS, "list available voices"),
 	M(set_voice_by_properties, METH_VARARGS | METH_KEYWORDS, "set voice by properties"),
     {NULL, NULL, 0, NULL}
@@ -178,13 +261,8 @@ static PyMethodDef methods[] = {
 static int
 exec_module(PyObject *m) {
 #define AI(name) if (PyModule_AddIntConstant(m, #name, espeak##name) != 0) { return -1; }
-	AI(RATE);
-	AI(VOLUME);
-	AI(PITCH);
-	AI(RANGE);
-	AI(PUNCTUATION);
-	AI(CAPITALS);
-	AI(WORDGAP);
+	AI(RATE); AI(VOLUME); AI(PITCH); AI(RANGE); AI(PUNCTUATION); AI(CAPITALS); AI(WORDGAP);
+	AI(SSML); AI(PHONEMES); AI(ENDPAUSE);
 #undef AI
     EspeakError = PyErr_NewException("espeak.EspeakError", NULL, NULL);
     if (EspeakError == NULL) return -1;
