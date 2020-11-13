@@ -117,15 +117,31 @@ cancel(PyObject *self, PyObject *args) {
 
 static PyObject*
 is_playing(PyObject *self, PyObject *args) {
-	return Py_BuildValue("O", espeak_IsPlaying() ? Py_True : Py_False);
+	int ans;
+	Py_BEGIN_ALLOW_THREADS
+	ans = espeak_IsPlaying();
+	Py_END_ALLOW_THREADS
+	return Py_BuildValue("O", ans ? Py_True : Py_False);
 
 }
+
+static PyObject*
+synchronize(PyObject *self, PyObject *args) {
+	espeak_ERROR err;
+	Py_BEGIN_ALLOW_THREADS;
+	err = espeak_Synchronize();
+	Py_END_ALLOW_THREADS;
+	if (err != EE_OK) return espeak_error("Failed to synchronize speech", err);
+	Py_RETURN_NONE;
+}
+
 
 // Boilerplate {{{
 #define M(name, args, doc) { #name, (PyCFunction)name, args, ""}
 static PyMethodDef methods[] = {
 	M(info, METH_NOARGS, "version and path"),
 	M(cancel, METH_NOARGS, "cancel all ongoing speech activity"),
+	M(synchronize, METH_NOARGS, "synchronize all ongoing speech activity"),
 	M(is_playing, METH_NOARGS, "True iff speech is happening"),
 	M(list_voices, METH_VARARGS | METH_KEYWORDS, "list available voices"),
 	M(set_voice_by_properties, METH_VARARGS | METH_KEYWORDS, "set voice by properties"),
