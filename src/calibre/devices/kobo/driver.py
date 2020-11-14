@@ -950,7 +950,7 @@ class KOBO(USBMS):
     def sync_booklists(self, booklists, end_session=True):
         debug_print('KOBO:sync_booklists - start')
         paths = self.get_device_paths()
-        debug_print('KOBO:sync_booklists - booklists:', booklists)
+#         debug_print('KOBO:sync_booklists - booklists:', booklists)
 
         blists = {}
         for i in paths:
@@ -1363,7 +1363,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 24, 15672)
+    max_supported_fwversion         = (4, 25, 15821)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1524,9 +1524,8 @@ class KOBOTOUCH(KOBO):
         # Wrap some debugging output in a try/except so that it is unlikely to break things completely.
         try:
             if DEBUG:
-                from calibre.constants import plugins
-                usbobserver, usbobserver_err = plugins['usbobserver']
-                mount_map = usbobserver.get_mounted_filesystems()
+                from calibre_extensions.usbobserver import get_mounted_filesystems
+                mount_map = get_mounted_filesystems()
                 debug_print('KoboTouch::open_osx - mount_map=', mount_map)
                 debug_print('KoboTouch::open_osx - self._main_prefix=', self._main_prefix)
                 debug_print('KoboTouch::open_osx - self._card_a_prefix=', self._card_a_prefix)
@@ -1759,6 +1758,7 @@ class KOBOTOUCH(KOBO):
                     bl[idx].kobo_series         = series
                     bl[idx].kobo_series_number  = seriesnumber
                     bl[idx].kobo_series_id      = SeriesID
+                    bl[idx].kobo_series_number_float = SeriesNumberFloat
                     bl[idx].kobo_subtitle       = Subtitle
                     bl[idx].can_put_on_shelves  = allow_shelves
                     bl[idx].mime                = MimeType
@@ -1818,6 +1818,7 @@ class KOBOTOUCH(KOBO):
                     book.kobo_series        = series
                     book.kobo_series_number = seriesnumber
                     book.kobo_series_id     = SeriesID
+                    book.kobo_series_number_float = SeriesNumberFloat
                     book.kobo_subtitle      = Subtitle
                     book.can_put_on_shelves = allow_shelves
 #                    debug_print('KoboTouch:update_booklist - title=', title, 'book.device_collections', book.device_collections)
@@ -3154,14 +3155,12 @@ class KOBOTOUCH(KOBO):
         changes_found = False
         kobo_metadata = book.kobo_metadata
 
-        series_changed = not (newmi.series == kobo_metadata.series)
-        series_number_changed = False
-        if kobo_metadata.series_index is not None:
-            try:
-                kobo_series_number = float(book.kobo_series_number)
-            except:
-                kobo_series_number = None
-            series_number_changed = not (kobo_series_number == newmi.series_index)
+        if show_debug:
+            debug_print('KoboTouch:set_core_metadata newmi.series="%s"' % (newmi.series, ))
+            debug_print('KoboTouch:set_core_metadata kobo_metadata.series="%s"' % (kobo_metadata.series, ))
+            debug_print('KoboTouch:set_core_metadata newmi.series_index="%s"' % (newmi.series_index, ))
+            debug_print('KoboTouch:set_core_metadata kobo_metadata.series_index="%s"' % (kobo_metadata.series_index, ))
+            debug_print('KoboTouch:set_core_metadata book.kobo_series_number="%s"' % (book.kobo_series_number, ))
 
         if newmi.series is not None:
             new_series = newmi.series
@@ -3173,6 +3172,14 @@ class KOBOTOUCH(KOBO):
             new_series = None
             new_series_number = None
 
+        series_changed = not (new_series == kobo_metadata.series)
+        series_number_changed = not (new_series_number == book.kobo_series_number)
+        if show_debug:
+            debug_print('KoboTouch:set_core_metadata new_series="%s"' % (new_series, ))
+            debug_print('KoboTouch:set_core_metadata new_series_number="%s"' % (new_series_number, ))
+            debug_print('KoboTouch:set_core_metadata series_number_changed="%s"' % (series_number_changed, ))
+            debug_print('KoboTouch:set_core_metadata series_changed="%s"' % (series_changed, ))
+
         if series_changed or series_number_changed:
             update_values.append(new_series)
             set_clause += ', Series = ? '
@@ -3180,12 +3187,22 @@ class KOBOTOUCH(KOBO):
             set_clause += ', SeriesNumber = ? '
         if self.supports_series_list and book.is_sideloaded:
             series_id = self.kobo_series_dict.get(new_series, new_series)
-            if not book.kobo_series_id == series_id or series_changed or series_number_changed:
+            try:
+                kobo_series_id = book.kobo_series_id
+                kobo_series_number_float = book.kobo_series_number_float
+            except Exception:  # This should mean the book was sent to the device during the current session.
+                kobo_series_id = None
+                kobo_series_number_float = None
+
+            if series_changed or series_number_changed \
+               or not kobo_series_id == series_id \
+               or not kobo_series_number_float == newmi.series_index:
                 update_values.append(series_id)
                 set_clause += ', SeriesID = ? '
-                update_values.append(new_series_number)
+                update_values.append(newmi.series_index)
                 set_clause += ', SeriesNumberFloat = ? '
-                debug_print("KoboTouch:set_core_metadata Setting SeriesID - new_series='%s', series_id='%s'" % (new_series, series_id))
+                if show_debug:
+                    debug_print("KoboTouch:set_core_metadata Setting SeriesID - new_series='%s', series_id='%s'" % (new_series, series_id))
 
         if not series_only:
             if not (newmi.title == kobo_metadata.title):

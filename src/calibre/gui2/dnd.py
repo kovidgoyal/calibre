@@ -6,20 +6,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import posixpath, os, re
+import os
+import posixpath
+import re
+from PyQt5.Qt import (
+    QDialog, QDialogButtonBox, QImageReader, QLabel, QPixmap, QProgressBar, Qt,
+    QTimer, QUrl, QVBoxLayout
+)
 from threading import Thread
 
-from PyQt5.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
-        QDialogButtonBox, QProgressBar, QTimer, QUrl, QImageReader
-
-from calibre.constants import DEBUG
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre import browser, as_unicode, prints
+from calibre import as_unicode, browser, prints
+from calibre.constants import DEBUG, iswindows
 from calibre.gui2 import error_dialog
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.imghdr import what
 from polyglot.builtins import unicode_type
+from polyglot.queue import Empty, Queue
 from polyglot.urllib import unquote, urlparse
-from polyglot.queue import Queue, Empty
 
 
 def image_extensions():
@@ -163,6 +167,10 @@ def urls_from_md(md):
 def path_from_qurl(qurl, allow_remote=False):
     lf = qurl.toLocalFile()
     if lf:
+        if iswindows:
+            from calibre_extensions.winutil import get_long_path_name
+            lf = get_long_path_name(lf)
+            lf = make_long_path_useable(lf)
         return lf
     if not allow_remote:
         return ''

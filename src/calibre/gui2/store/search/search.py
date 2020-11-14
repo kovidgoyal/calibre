@@ -33,6 +33,8 @@ class SearchDialog(QDialog, Ui_Dialog):
     def __init__(self, gui, parent=None, query=''):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+        s = self.style()
+        self.close.setIcon(s.standardIcon(s.SP_DialogCloseButton))
 
         self.config = JSONConfig('store/search')
         self.search_title.initialize('store_search_search_title')

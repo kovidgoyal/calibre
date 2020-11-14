@@ -156,6 +156,7 @@ class EbookViewer(MainWindow):
 
         self.highlights_widget = w = HighlightsPanel(self)
         self.highlights_dock.setWidget(w)
+        w.toggle_requested.connect(self.toggle_highlights)
 
         self.web_view = WebView(self)
         self.web_view.cfi_changed.connect(self.cfi_changed)
@@ -248,13 +249,17 @@ class EbookViewer(MainWindow):
             else:
                 prints('Cannot read from:', arg, file=sys.stderr)
 
-    def another_instance_wants_to_talk(self, msg):
+    def message_from_other_instance(self, msg):
         try:
+            msg = json.loads(msg)
             path, open_at = msg
-        except Exception:
+        except Exception as err:
+            print('Invalid message from other instance', file=sys.stderr)
+            print(err, file=sys.stderr)
             return
         self.load_ebook(path, open_at=open_at)
         self.raise_()
+        self.activateWindow()
     # }}}
 
     # Fullscreen {{{
@@ -532,7 +537,7 @@ class EbookViewer(MainWindow):
                 initial_position = {'type': 'bookpos', 'data': float(open_at)}
         highlights = self.current_book_data['annotations_map']['highlight']
         self.highlights_widget.load(highlights)
-        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights)
+        self.web_view.start_book_load(initial_position=initial_position, highlights=highlights, current_book_data=self.current_book_data)
 
     def load_book_data(self, calibre_book_data=None):
         self.current_book_data['book_library_details'] = get_book_library_details(self.current_book_data['pathtoebook'])
@@ -540,6 +545,7 @@ class EbookViewer(MainWindow):
             self.current_book_data['calibre_book_id'] = calibre_book_data['book_id']
             self.current_book_data['calibre_book_uuid'] = calibre_book_data['uuid']
             self.current_book_data['calibre_book_fmt'] = calibre_book_data['fmt']
+            self.current_book_data['calibre_library_id'] = calibre_book_data['library_id']
         self.load_book_annotations(calibre_book_data)
         path = os.path.join(self.current_book_data['base'], 'calibre-book-manifest.json')
         with open(path, 'rb') as f:

@@ -6,28 +6,27 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, traceback, re
-from contextlib import closing
+import os
+import re
+import traceback
+from contextlib import closing, suppress
+from PyQt5.Qt import (
+    QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt,
+    QWizard, QWizardPage, pyqtSignal
+)
 
-from PyQt5.Qt import (QWizard, QWizardPage, QIcon, Qt, QAbstractListModel,
-    QItemSelectionModel, pyqtSignal, QItemSelection, QDir)
 from calibre import __appname__
-from calibre.constants import (filesystem_encoding, iswindows, plugins,
-        isportable)
-from calibre.gui2.wizard.send_email import smtp_prefs
+from calibre.constants import filesystem_encoding, isportable, iswindows
+from calibre.gui2 import choose_dir, error_dialog
 from calibre.gui2.wizard.device_ui import Ui_WizardPage as DeviceUI
-from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
 from calibre.gui2.wizard.finish_ui import Ui_WizardPage as FinishUI
 from calibre.gui2.wizard.kindle_ui import Ui_WizardPage as KindleUI
+from calibre.gui2.wizard.library_ui import Ui_WizardPage as LibraryUI
+from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
-from calibre.utils.localization import localize_user_manual_link
-
 from calibre.utils.config import dynamic, prefs
-from calibre.gui2 import choose_dir, error_dialog
-from polyglot.builtins import iteritems, unicode_type, map
-
-if iswindows:
-    winutil = plugins['winutil'][0]
+from calibre.utils.localization import localize_user_manual_link
+from polyglot.builtins import iteritems, map, unicode_type
 
 # Devices {{{
 
@@ -656,6 +655,7 @@ class LibraryPage(QWizardPage, LibraryUI):
 
     def __init__(self):
         QWizardPage.__init__(self)
+        self.made_dirs = []
         self.initial_library_location = None
         self.setupUi(self)
         self.registerField('library_location', self.location)
@@ -664,6 +664,10 @@ class LibraryPage(QWizardPage, LibraryUI):
         self.language.currentIndexChanged[int].connect(self.change_language)
         self.location.textChanged.connect(self.location_text_changed)
         self.set_move_lib_label_text()
+
+    def makedirs(self, x):
+        self.made_dirs.append(x)
+        os.makedirs(x)
 
     def location_text_changed(self, newtext):
         self.completeChanged.emit()
@@ -682,8 +686,9 @@ class LibraryPage(QWizardPage, LibraryUI):
     def init_languages(self):
         self.language.blockSignals(True)
         self.language.clear()
-        from calibre.utils.localization import (available_translations,
-            get_language, get_lang, get_lc_messages_path)
+        from calibre.utils.localization import (
+            available_translations, get_lang, get_language, get_lc_messages_path
+        )
         lang = get_lang()
         lang = get_lc_messages_path(lang) if lang else lang
         if lang is None or lang not in available_translations():
@@ -709,9 +714,9 @@ class LibraryPage(QWizardPage, LibraryUI):
         prefs['language'] = unicode_type(self.language.itemData(self.language.currentIndex()) or '')
         from polyglot.builtins import builtins
         builtins.__dict__['_'] = lambda x: x
-        from calibre.utils.localization import set_translators
-        from calibre.gui2 import qt_app
         from calibre.ebooks.metadata.book.base import reset_field_metadata
+        from calibre.gui2 import qt_app
+        from calibre.utils.localization import set_translators
         set_translators()
         qt_app.load_translations()
         self.retranslate.emit()
@@ -759,7 +764,7 @@ class LibraryPage(QWizardPage, LibraryUI):
                     show=True)
             if not os.path.exists(x):
                 try:
-                    os.makedirs(x)
+                    self.makedirs(x)
                 except:
                     return error_dialog(self, _('Bad location'),
                             _('Failed to create a folder at %s')%x,
@@ -794,7 +799,7 @@ class LibraryPage(QWizardPage, LibraryUI):
             self.default_library_name = lp
             if not os.path.exists(lp):
                 try:
-                    os.makedirs(lp)
+                    self.makedirs(lp)
                 except:
                     traceback.print_exc()
                     try:
@@ -828,6 +833,10 @@ class LibraryPage(QWizardPage, LibraryUI):
                 os.rmdir(dln)
         except Exception:
             pass
+        # dont leave behind any empty dirs
+        for x in self.made_dirs:
+            with suppress(OSError):
+                os.rmdir(x)
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         prefs['library_path'] = newloc

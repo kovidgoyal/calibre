@@ -73,6 +73,18 @@
         <Component Id="RememberInstallDir" Guid="*">
             <RegistryValue Root="HKLM" Key="Software\{app}{x64}\Installer" Name="InstallPath" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes"/>
         </Component>
+		<Component Id="calibreProtocol" Guid="*">
+			<RegistryKey Root="HKCR" Key="calibre" ForceDeleteOnUninstall="yes"> 
+				<RegistryValue Type="string" Value="URL:calibre Protocol" KeyPath="yes"/>
+				<RegistryValue Type="string" Name="URL Protocol" Value=""/>
+				<RegistryKey Key="DefaultIcon">
+					<RegistryValue Type="string" Value="[APPLICATIONFOLDER]calibre.exe" />
+				</RegistryKey>
+				<RegistryKey Key="shell\open\command">
+					<RegistryValue Type="string" Value="&quot;[APPLICATIONFOLDER]calibre.exe&quot; &quot;%1&quot;" />
+				</RegistryKey>
+			</RegistryKey>
+        </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="ApplicationProgramsFolder">
@@ -138,6 +150,11 @@
             Description="Add installation directory to PATH. Makes using command line tools easier">
             <ComponentRef Id="AddToPath"/>
         </Feature>
+
+		<Feature Id="FcalibreProtocol" Title="Register calibre:// URLs" Level="1"
+			Description="Register to handle URLs starting with calibre://">
+			<ComponentRef Id="calibreProtocol"/>
+		</Feature>
     </Feature>
 
     <!-- Add icon to entry in Add/Remove programs -->

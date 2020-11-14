@@ -105,7 +105,7 @@ class Manager(QObject):  # {{{
         self.groups = {}
 
     def register_shortcut(self, unique_name, name, default_keys=(),
-            description=None, action=None, group=None):
+            description=None, action=None, group=None, persist_shortcut=False):
         '''
         Register a shortcut with calibre. calibre will manage the shortcut,
         automatically resolving conflicts and allowing the user to customize
@@ -124,13 +124,18 @@ class Manager(QObject):  # {{{
         :param group: A string describing what "group" this shortcut belongs
         to. This is used to organize the list of shortcuts when the user is
         customizing them.
+        :persist_shortcut: Shortcuts for actions that don't always
+        appear, or are library dependent, may disappear when other
+        keyboard shortcuts are edited unless ```persist_shortcut``` is
+        set True.
         '''
         if unique_name in self.shortcuts:
             name = self.shortcuts[unique_name]['name']
             raise NameConflict('Shortcut for %r already registered by %s'%(
                     unique_name, name))
         shortcut = {'name':name, 'desc':description, 'action': action,
-                'default_keys':tuple(default_keys)}
+                'default_keys':tuple(default_keys),
+                'persist_shortcut':persist_shortcut}
         self.shortcuts[unique_name] = shortcut
         group = group if group else _('Miscellaneous')
         self.groups[group] = self.groups.get(group, []) + [unique_name]
@@ -278,13 +283,31 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
     def commit(self):
         kmap = {}
+        # persist flags not in map for back compat
+        # not *just* persist flag for forward compat
+        options_map = {}
+        options_map.update(self.keyboard.config.get('options_map', {}))
+        # keep mapped keys that are marked persistent.
+        for un, keys in iteritems(self.keyboard.config.get('map', {})):
+            if options_map.get(un, {}).get('persist_shortcut',False):
+                kmap[un] = keys
         for node in self.all_shortcuts:
             sc = node.data
+            un = sc['unique_name']
             if sc['set_to_default']:
-                continue
-            keys = [unicode_type(k.toString(k.PortableText)) for k in sc['keys']]
-            kmap[sc['unique_name']] = keys
-        self.keyboard.config['map'] = kmap
+                if un in kmap:
+                    del kmap[un]
+                if un in options_map:
+                    del options_map[un]
+            else:
+                if sc['persist_shortcut']:
+                    options_map[un] = options_map.get(un, {})
+                    options_map[un]['persist_shortcut'] = sc['persist_shortcut']
+                keys = [unicode_type(k.toString(k.PortableText)) for k in sc['keys']]
+                kmap[un] = keys
+        with self.keyboard.config:
+            self.keyboard.config['map'] = kmap
+            self.keyboard.config['options_map'] = options_map
 
     def universal_set(self):
         ans = set()

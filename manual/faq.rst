@@ -836,7 +836,7 @@ There are several possible things I know of, that can cause this:
       these, uninstall them and you will be fine. You can also use the `NirSoft
       Shell Extension Viewer <https://www.nirsoft.net/utils/shexview.html>`_ to
       see what shell extensions are installed on your system and disable them
-      individually, if you dont want to uninstall the full program.  Remember
+      individually, if you don't want to uninstall the full program.  Remember
       to use "Restart Explorer" or reboot your computer after disabling the
       shell extensions.
 

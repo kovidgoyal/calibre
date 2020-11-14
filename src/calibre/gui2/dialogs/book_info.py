@@ -39,6 +39,10 @@ class Cover(CoverView):
     def choose_open_with(self):
         self.choose_open_with_requested.emit()
 
+    def mouseDoubleClickEvent(self, ev):
+        ev.accept()
+        self.open_with_requested.emit(None)
+
 
 class Configure(Dialog):
 

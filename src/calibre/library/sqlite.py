@@ -19,8 +19,9 @@ from functools import partial
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.date import parse_date, isoformat, local_tz, UNDEFINED_DATE
 from calibre import isbytestring, force_unicode
-from calibre.constants import iswindows, DEBUG, plugins, plugins_loc
+from calibre.constants import iswindows, DEBUG, plugins_loc
 from calibre.utils.icu import sort_key
+from calibre_extensions import speedup as _c_speedup
 from calibre import prints
 from polyglot.builtins import cmp, native_string_type, unicode_type
 from polyglot import reprlib
@@ -29,8 +30,6 @@ from polyglot.queue import Queue
 from dateutil.tz import tzoffset
 
 global_lock = RLock()
-
-_c_speedup = plugins['speedup'][0]
 
 
 def _c_convert_timestamp(val):

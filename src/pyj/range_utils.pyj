@@ -93,6 +93,14 @@ def select_crw(crw):
     return False
 
 
+def wrap_range(r, wrapper):
+    r.surroundContents(wrapper)
+    # remove any empty text nodes created by surroundContents() on either
+    # side of the wrapper. This happens for instance on Chrome when
+    # wrapping all text inside <i>some text</i>
+    r.commonAncestorContainer.normalize()
+
+
 def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrapper, all_wrappers):
     start_node = r.startContainer
     end_node = r.endContainer
@@ -117,11 +125,7 @@ def create_wrapper_function(wrapper_elem, r, intersecting_wrappers, process_wrap
         crw = node.parentNode?.dataset?.calibreRangeWrapper
         if crw:
             intersecting_wrappers[crw] = True
-        current_range.surroundContents(current_wrapper)
-        # remove any empty text nodes created by surroundContents() on either
-        # side of the wrapper. This happens for instance on Chrome when
-        # wrapping all text inside <i>some text</i>
-        current_range.commonAncestorContainer.normalize()
+        wrap_range(current_range, current_wrapper)
         if process_wrapper:
             process_wrapper(current_wrapper)
         all_wrappers.push(current_wrapper)

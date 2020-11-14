@@ -6,12 +6,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import socket
-from calibre.constants import plugins
 from polyglot.builtins import unicode_type
-
-certgen, err = plugins['certgen']
-if err:
-    raise ImportError('Failed to load the certgen module with error: %s' % err)
+from calibre_extensions import certgen
 
 
 def create_key_pair(size=2048):

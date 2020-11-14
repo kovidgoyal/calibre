@@ -5,23 +5,24 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, textwrap
+import re
+import textwrap
 from bisect import bisect
 from functools import partial
-
 from PyQt5.Qt import (
-    QAbstractItemModel, QModelIndex, Qt, pyqtSignal, QApplication, QHBoxLayout,
-    QTreeView, QSize, QGridLayout, QAbstractListModel, QListView, QPen, QMenu,
-    QStyledItemDelegate, QSplitter, QLabel, QSizePolicy, QIcon, QMimeData,
-    QPushButton, QToolButton, QInputMethodEvent, QCheckBox)
+    QAbstractItemModel, QAbstractListModel, QApplication, QCheckBox, QGridLayout,
+    QHBoxLayout, QIcon, QInputMethodEvent, QLabel, QListView, QMenu, QMimeData,
+    QModelIndex, QPen, QPushButton, QSize, QSizePolicy, QSplitter,
+    QStyledItemDelegate, Qt, QToolButton, QTreeView, pyqtSignal
+)
 
-from calibre.constants import plugins
-from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
+from calibre.gui2.tweak_book.widgets import BusyCursor, Dialog
+from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.icu import safe_chr as codepoint_to_chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
-from polyglot.builtins import unicode_type, range, map
+from calibre_extensions.progress_indicator import set_no_activate_on_click
+from polyglot.builtins import map, range, unicode_type
 
 ROOT = QModelIndex()
 
@@ -459,9 +460,7 @@ class CategoryView(QTreeView):
         self.setAnimated(True)
         self.activated.connect(self.item_activated)
         self.clicked.connect(self.item_activated)
-        pi = plugins['progress_indicator'][0]
-        if hasattr(pi, 'set_no_activate_on_click'):
-            pi.set_no_activate_on_click(self)
+        set_no_activate_on_click(self)
         self.initialized = False
         self.setExpandsOnDoubleClick(False)
 
@@ -600,9 +599,7 @@ class CharView(QListView):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
         self.showing_favorites = False
-        pi = plugins['progress_indicator'][0]
-        if hasattr(pi, 'set_no_activate_on_click'):
-            pi.set_no_activate_on_click(self)
+        set_no_activate_on_click(self)
         self.activated.connect(self.item_activated)
         self.clicked.connect(self.item_activated)
 

@@ -108,16 +108,14 @@ class Spectator(BasicNewsRecipe):
                 a('<h3>{}</h3>'.format(byline))
             if entry.get('author'):
                 for au in reversed(entry['author']):
-                    au = entry['author'][0]
                     cac = ''
                     if au.get('caricature'):
-                        cac = '<img src="{}">'.format(au['caricature']['url'])
-                    a('<div>{} <a href="{}>{}</a></div>'.format(cac, absolutize(au['url']), au['title']))
+                        cac = '<div><img style="max-width: 80px" src="{}"></div>'.format(au['caricature']['url'])
+                    a('<div>{} <a href="{}">{}</a></div>'.format(cac, absolutize(au['url']), au['title']))
+
             if entry.get('hero_image'):
                 hi = entry['hero_image'][0]
                 a('<div style="text-align: center"><img src="{}"></div>'.format(hi['url']))
-                if hi.get('description'):
-                    a('<div style="text-align: center; font-size: smaller">{}</div>'.format(hi['description']))
             a(entry['text_body'])
             section = 'Unknown'
             if entry.get('topic'):

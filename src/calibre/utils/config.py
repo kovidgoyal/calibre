@@ -362,6 +362,9 @@ class XMLConfig(dict):
             self.clear()
         self.update(d)
 
+    def has_key(self, key):
+        return dict.__contains__(self, key)
+
     def __getitem__(self, key):
         try:
             return dict.__getitem__(self, key)

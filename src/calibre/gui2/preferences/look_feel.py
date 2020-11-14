@@ -414,6 +414,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tag_browser_hide_empty_categories', gprefs)
         r('tag_browser_always_autocollapse', gprefs)
         r('tag_browser_show_tooltips', gprefs)
+        r('tag_browser_allow_keyboard_focus', gprefs)
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)
         r('cover_grid_width', gprefs)
@@ -487,6 +488,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                    (_('Partitioned'), 'partition')]
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
+        r('tags_browser_collapse_fl_at', gprefs)
         r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList)
 
         choices = {k for k in db.field_metadata.all_field_keys()
@@ -655,6 +657,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_book_details_css.blockSignals(True)
         self.opt_book_details_css.setPlainText(P('templates/book_details.css', data=True).decode('utf-8'))
         self.opt_book_details_css.blockSignals(False)
+        self.tb_focus_label.setVisible(self.opt_tag_browser_allow_keyboard_focus.isChecked())
 
     def open_cg_cache(self):
         open_local_file(self.gui.grid_view.thumbnail_cache.location)

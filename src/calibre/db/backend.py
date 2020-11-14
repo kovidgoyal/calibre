@@ -1797,7 +1797,7 @@ class DB(object):
         data = [fts_engine_query]
         if restrict_to_user:
             query += ' AND annotations.user_type = ? AND annotations.user = ?'
-            data += list(*restrict_to_user)
+            data += list(restrict_to_user)
         if annotation_type:
             query += ' AND annotations.annot_type = ? '
             data.append(annotation_type)
@@ -1947,6 +1947,11 @@ class DB(object):
             if changed:
                 self.execute('DELETE FROM annotations_dirtied')
         return changed
+
+    def annotation_count_for_book(self, book_id):
+        for (count,) in self.execute('SELECT count(id) FROM annotations WHERE book=?', (book_id,)):
+            return count
+        return 0
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):

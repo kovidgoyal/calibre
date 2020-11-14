@@ -17,12 +17,9 @@ import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
-from calibre.constants import plugins
 from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, itervalues
 from polyglot.urllib import unquote as urlunquote, urldefrag
-
-lzx, lxzerror = plugins['lzx']
-msdes, msdeserror = plugins['msdes']
+from calibre_extensions import lzx, msdes
 
 __all__ = ["LitReader"]
 

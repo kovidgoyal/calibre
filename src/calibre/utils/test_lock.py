@@ -12,7 +12,7 @@ import time
 import unittest
 from threading import Thread
 
-from calibre.constants import cache_dir, fcntl, iswindows
+from calibre.constants import cache_dir, iswindows
 from calibre.utils.lock import ExclusiveFile, create_single_instance_mutex, unix_open
 from calibre.utils.tdir_in_cache import (
     clean_tdirs_in, is_tdir_locked, retry_lock_tdir, tdir_in_cache, tdirs_in,
@@ -50,8 +50,7 @@ def run_worker(mod, func, **kw):
     env = kw.get('env', os.environ.copy())
     env['CALIBRE_SIMPLE_WORKER'] = mod + ':' + func
     if iswindows:
-        import win32process
-        kw['creationflags'] = win32process.CREATE_NO_WINDOW
+        kw['creationflags'] = subprocess.CREATE_NO_WINDOW
     kw['env'] = {native_string_type(k): native_string_type(v)
                  for k, v in iteritems(env)}  # windows needs bytes in env
     return subprocess.Popen(exe, **kw)
@@ -85,6 +84,7 @@ class IPCLockTest(unittest.TestCase):
             t.start(), t.join()
             self.assertIs(t.locked, False)
         if not iswindows:
+            import fcntl
             with unix_open(fname) as f:
                 self.assertEqual(
                     1, fcntl.fcntl(f.fileno(), fcntl.F_GETFD) & fcntl.FD_CLOEXEC

@@ -7,14 +7,13 @@ import os
 import sys
 import textwrap
 from functools import partial
-from threading import Thread
-
 from PyQt5.Qt import (
-    QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout, QIcon, QApplication,
-    QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu, QPushButton,
-    QSize, QSizePolicy, QStackedWidget, Qt, QToolButton, QTreeWidget,
-    QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
+    QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
+    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt,
+    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
+from threading import Thread
 
 from calibre.constants import TOC_DIALOG_APP_UID, islinux, iswindows
 from calibre.ebooks.oeb.polish.container import AZW3Container, get_container
@@ -133,7 +132,7 @@ class XPathDialog(QDialog):  # {{{
 # }}}
 
 
-class ItemView(QFrame):  # {{{
+class ItemView(QStackedWidget):  # {{{
 
     add_new_item = pyqtSignal(object, object)
     delete_item = pyqtSignal()
@@ -145,19 +144,20 @@ class ItemView(QFrame):  # {{{
     flatten_toc = pyqtSignal()
 
     def __init__(self, parent, prefs):
-        QFrame.__init__(self, parent)
+        QStackedWidget.__init__(self, parent)
         self.prefs = prefs
-        self.setFrameShape(QFrame.StyledPanel)
         self.setMinimumWidth(250)
-        self.stack = s = QStackedWidget(self)
-        self.l = l = QVBoxLayout()
-        self.setLayout(l)
-        l.addWidget(s)
         self.root_pane = rp = QWidget(self)
         self.item_pane = ip = QWidget(self)
         self.current_item = None
-        s.addWidget(rp)
-        s.addWidget(ip)
+        sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        sa.setWidget(rp)
+        self.addWidget(sa)
+        sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        sa.setWidget(ip)
+        self.addWidget(sa)
 
         self.l1 = la = QLabel('<p>'+_(
             'You can edit existing entries in the Table of Contents by clicking them'
@@ -345,10 +345,10 @@ class ItemView(QFrame):  # {{{
     def __call__(self, item):
         if item is None:
             self.current_item = None
-            self.stack.setCurrentIndex(0)
+            self.setCurrentIndex(0)
         else:
             self.current_item = item
-            self.stack.setCurrentIndex(1)
+            self.setCurrentIndex(1)
             self.populate_item_pane()
 
     def populate_item_pane(self):
@@ -1027,7 +1027,8 @@ class TOCEditor(QDialog):  # {{{
         self.explode_done.connect(self.read_toc, type=Qt.QueuedConnection)
         self.writing_done.connect(self.really_accept, type=Qt.QueuedConnection)
 
-        self.resize(950, 630)
+        r = QApplication.desktop().availableGeometry(self)
+        self.resize(r.width() - 100, r.height() - 100)
         geom = self.prefs.get('toc_editor_window_geom', None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, bytes(geom))

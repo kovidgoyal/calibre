@@ -15,219 +15,215 @@ from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
         QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication)
 
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.constants import islinux, plugins
+from calibre.constants import islinux
 from calibre.gui2 import (config, available_height, available_width, gprefs,
         rating_font)
+from calibre_extensions import pictureflow
 
-pictureflow, pictureflowerror = plugins['pictureflow']
 
-if pictureflow is not None:
+class EmptyImageList(pictureflow.FlowImages):
 
-    class EmptyImageList(pictureflow.FlowImages):
+    def __init__(self):
+        pictureflow.FlowImages.__init__(self)
 
-        def __init__(self):
-            pictureflow.FlowImages.__init__(self)
 
-    class FileSystemImages(pictureflow.FlowImages):
+class FileSystemImages(pictureflow.FlowImages):
 
-        def __init__(self, dirpath):
-            pictureflow.FlowImages.__init__(self)
-            self.images = []
-            self.captions = []
-            self.subtitles = []
-            for f in os.listdir(dirpath):
-                f = os.path.join(dirpath, f)
-                img = QImage(f)
-                if not img.isNull():
-                    self.images.append(img)
-                    self.captions.append(os.path.basename(f))
-                    self.subtitles.append('%d bytes'%os.stat(f).st_size)
+    def __init__(self, dirpath):
+        pictureflow.FlowImages.__init__(self)
+        self.images = []
+        self.captions = []
+        self.subtitles = []
+        for f in os.listdir(dirpath):
+            f = os.path.join(dirpath, f)
+            img = QImage(f)
+            if not img.isNull():
+                self.images.append(img)
+                self.captions.append(os.path.basename(f))
+                self.subtitles.append('%d bytes'%os.stat(f).st_size)
 
-        def count(self):
-            return len(self.images)
+    def count(self):
+        return len(self.images)
 
-        def image(self, index):
-            return self.images[index]
+    def image(self, index):
+        return self.images[index]
 
-        def caption(self, index):
-            return self.captions[index]
+    def caption(self, index):
+        return self.captions[index]
 
-        def subtitle(self, index):
-            return self.subtitles[index]
+    def subtitle(self, index):
+        return self.subtitles[index]
 
-        def currentChanged(self, index):
-            print('current changed:', index)
+    def currentChanged(self, index):
+        print('current changed:', index)
 
-    class DummyImageList(pictureflow.FlowImages):
 
-        def __init__(self):
-            pictureflow.FlowImages.__init__(self)
-            self.num = 40000
-            i1, i2 = QImage(300, 400, QImage.Format_RGB32), QImage(300, 400, QImage.Format_RGB32)
-            i1.fill(Qt.green), i2.fill(Qt.blue)
-            self.images = [i1, i2]
+class DummyImageList(pictureflow.FlowImages):
 
-        def count(self):
-            return self.num
+    def __init__(self):
+        pictureflow.FlowImages.__init__(self)
+        self.num = 40000
+        i1, i2 = QImage(300, 400, QImage.Format_RGB32), QImage(300, 400, QImage.Format_RGB32)
+        i1.fill(Qt.green), i2.fill(Qt.blue)
+        self.images = [i1, i2]
 
-        def image(self, index):
-            return self.images[index%2]
+    def count(self):
+        return self.num
 
-        def caption(self, index):
-            return 'Number: %d'%index
+    def image(self, index):
+        return self.images[index%2]
 
-        def subtitle(self, index):
+    def caption(self, index):
+        return 'Number: %d'%index
+
+    def subtitle(self, index):
+        return ''
+
+
+class DatabaseImages(pictureflow.FlowImages):
+
+    def __init__(self, model, is_cover_browser_visible):
+        pictureflow.FlowImages.__init__(self)
+        self.model = model
+        self.is_cover_browser_visible = is_cover_browser_visible
+        self.model.modelReset.connect(self.reset, type=Qt.QueuedConnection)
+        self.ignore_image_requests = True
+        self.template_inited = False
+        self.subtitle_error_reported = False
+
+    def init_template(self, db):
+        self.template_cache = {}
+        self.template_error_reported = False
+        self.template = db.pref('cover_browser_title_template', '{title}')
+        self.template_is_title = self.template == '{title}'
+        self.template_is_empty = not self.template.strip()
+
+    def count(self):
+        return self.model.count()
+
+    def render_template(self, template, index, db):
+        book_id = self.model.id(index)
+        mi = db.get_proxy_metadata(book_id)
+        return mi.formatter.safe_format(template, mi, _('TEMPLATE ERROR'), mi, template_cache=self.template_cache)
+
+    def caption(self, index):
+        if self.ignore_image_requests:
             return ''
-
-    class DatabaseImages(pictureflow.FlowImages):
-
-        def __init__(self, model, is_cover_browser_visible):
-            pictureflow.FlowImages.__init__(self)
-            self.model = model
-            self.is_cover_browser_visible = is_cover_browser_visible
-            self.model.modelReset.connect(self.reset, type=Qt.QueuedConnection)
-            self.ignore_image_requests = True
-            self.template_inited = False
-            self.subtitle_error_reported = False
-
-        def init_template(self, db):
-            self.template_cache = {}
-            self.template_error_reported = False
-            self.template = db.pref('cover_browser_title_template', '{title}')
-            self.template_is_title = self.template == '{title}'
-            self.template_is_empty = not self.template.strip()
-
-        def count(self):
-            return self.model.count()
-
-        def render_template(self, template, index, db):
-            book_id = self.model.id(index)
-            mi = db.get_proxy_metadata(book_id)
-            return mi.formatter.safe_format(template, mi, _('TEMPLATE ERROR'), mi, template_cache=self.template_cache)
-
-        def caption(self, index):
-            if self.ignore_image_requests:
-                return ''
-            ans = ''
-            try:
-                db = self.model.db.new_api
-                if not self.template_inited:
-                    self.init_template(db)
-                if self.template_is_title:
-                    ans = self.model.title(index)
-                elif self.template_is_empty:
-                    ans = ''
-                else:
-                    try:
-                        ans = self.render_template(self.template, index, db)
-                    except Exception:
-                        if not self.template_error_reported:
-                            self.template_error_reported = True
-                            import traceback
-                            traceback.print_exc()
-                        ans = ''
-                ans = (ans or '').replace('&', '&&')
-            except Exception:
-                return ''
-            return ans
-
-        def subtitle(self, index):
-            try:
-                db = self.model.db.new_api
-                if not self.template_inited:
-                    self.init_template(db)
-                field = db.pref('cover_browser_subtitle_field', 'rating')
-                if field and field != 'none':
-                    book_id = self.model.id(index)
-                    fm = db.field_metadata[field]
-                    if fm['datatype'] == 'rating':
-                        val = db.field_for(field, book_id, default_value=0)
-                        if val:
-                            return rating_to_stars(val, allow_half_stars=db.field_metadata[field]['display'].get('allow_half_stars'))
-                    else:
-                        return self.render_template('{%s}' % field, index, db).replace('&', '&&')
-            except Exception:
-                if not self.subtitle_error_reported:
-                    self.subtitle_error_reported = True
-                    import traceback
-                    traceback.print_exc()
-            return ''
-
-        def reset(self):
-            self.beginResetModel(), self.endResetModel()
-
-        def beginResetModel(self):
-            if self.is_cover_browser_visible():
-                self.dataChanged.emit()
-
-        def endResetModel(self):
-            pass
-
-        def image(self, index):
-            if self.ignore_image_requests:
-                return QImage()
-            return self.model.cover(index)
-
-    class CoverFlow(pictureflow.PictureFlow):
-
-        dc_signal = pyqtSignal()
-        context_menu_requested = pyqtSignal()
-
-        def __init__(self, parent=None):
-            pictureflow.PictureFlow.__init__(self, parent,
-                                config['cover_flow_queue_length']+1)
-            self.setMinimumSize(QSize(300, 150))
-            self.setFocusPolicy(Qt.WheelFocus)
-            self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
-                QSizePolicy.Expanding))
-            self.dc_signal.connect(self._data_changed,
-                    type=Qt.QueuedConnection)
-            self.context_menu = None
-            self.setContextMenuPolicy(Qt.DefaultContextMenu)
-            self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
-            if not gprefs['cover_browser_reflections']:
-                self.setShowReflections(False)
-
-        def set_subtitle_font(self, for_ratings=True):
-            if for_ratings:
-                self.setSubtitleFont(QFont(rating_font()))
+        ans = ''
+        try:
+            db = self.model.db.new_api
+            if not self.template_inited:
+                self.init_template(db)
+            if self.template_is_title:
+                ans = self.model.title(index)
+            elif self.template_is_empty:
+                ans = ''
             else:
-                self.setSubtitleFont(self.font())
+                try:
+                    ans = self.render_template(self.template, index, db)
+                except Exception:
+                    if not self.template_error_reported:
+                        self.template_error_reported = True
+                        import traceback
+                        traceback.print_exc()
+                    ans = ''
+            ans = (ans or '').replace('&', '&&')
+        except Exception:
+            return ''
+        return ans
 
-        def set_context_menu(self, cm):
-            self.context_menu = cm
+    def subtitle(self, index):
+        try:
+            db = self.model.db.new_api
+            if not self.template_inited:
+                self.init_template(db)
+            field = db.pref('cover_browser_subtitle_field', 'rating')
+            if field and field != 'none':
+                book_id = self.model.id(index)
+                fm = db.field_metadata[field]
+                if fm['datatype'] == 'rating':
+                    val = db.field_for(field, book_id, default_value=0)
+                    if val:
+                        return rating_to_stars(val, allow_half_stars=db.field_metadata[field]['display'].get('allow_half_stars'))
+                else:
+                    return self.render_template('{%s}' % field, index, db).replace('&', '&&')
+        except Exception:
+            if not self.subtitle_error_reported:
+                self.subtitle_error_reported = True
+                import traceback
+                traceback.print_exc()
+        return ''
 
-        def contextMenuEvent(self, event):
-            if self.context_menu is not None:
-                from calibre.gui2.main_window import clone_menu
-                self.context_menu_requested.emit()
-                m = clone_menu(self.context_menu) if islinux else self.context_menu
-                m.popup(event.globalPos())
-                event.accept()
+    def reset(self):
+        self.beginResetModel(), self.endResetModel()
 
-        def sizeHint(self):
-            return self.minimumSize()
+    def beginResetModel(self):
+        if self.is_cover_browser_visible():
+            self.dataChanged.emit()
 
-        def wheelEvent(self, ev):
-            d = ev.angleDelta().y()
-            if abs(d) > 0:
-                ev.accept()
-                (self.showNext if d < 0 else self.showPrevious)()
+    def endResetModel(self):
+        pass
 
-        def dataChanged(self):
-            self.dc_signal.emit()
-
-        def _data_changed(self):
-            pictureflow.PictureFlow.dataChanged(self)
-
-        def setCurrentSlide(self, num):
-            pictureflow.PictureFlow.setCurrentSlide(self, num)
+    def image(self, index):
+        if self.ignore_image_requests:
+            return QImage()
+        return self.model.cover(index)
 
 
-else:
-    CoverFlow = None
-    DatabaseImages = None
-    FileSystemImages = None
+class CoverFlow(pictureflow.PictureFlow):
+
+    dc_signal = pyqtSignal()
+    context_menu_requested = pyqtSignal()
+
+    def __init__(self, parent=None):
+        pictureflow.PictureFlow.__init__(self, parent,
+                            config['cover_flow_queue_length']+1)
+        self.setMinimumSize(QSize(300, 150))
+        self.setFocusPolicy(Qt.WheelFocus)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+            QSizePolicy.Expanding))
+        self.dc_signal.connect(self._data_changed,
+                type=Qt.QueuedConnection)
+        self.context_menu = None
+        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+        if not gprefs['cover_browser_reflections']:
+            self.setShowReflections(False)
+
+    def set_subtitle_font(self, for_ratings=True):
+        if for_ratings:
+            self.setSubtitleFont(QFont(rating_font()))
+        else:
+            self.setSubtitleFont(self.font())
+
+    def set_context_menu(self, cm):
+        self.context_menu = cm
+
+    def contextMenuEvent(self, event):
+        if self.context_menu is not None:
+            from calibre.gui2.main_window import clone_menu
+            self.context_menu_requested.emit()
+            m = clone_menu(self.context_menu) if islinux else self.context_menu
+            m.popup(event.globalPos())
+            event.accept()
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def wheelEvent(self, ev):
+        d = ev.angleDelta().y()
+        if abs(d) > 0:
+            ev.accept()
+            (self.showNext if d < 0 else self.showPrevious)()
+
+    def dataChanged(self):
+        self.dc_signal.emit()
+
+    def _data_changed(self):
+        pictureflow.PictureFlow.dataChanged(self)
+
+    def setCurrentSlide(self, num):
+        pictureflow.PictureFlow.setCurrentSlide(self, num)
 
 
 class CBDialog(QDialog):
@@ -301,22 +297,17 @@ class CoverFlowMixin(object):
 
     def init_cover_flow_mixin(self):
         self.cover_flow = None
-        if CoverFlow is not None:
-            self.cf_last_updated_at = None
-            self.cover_flow_syncing_enabled = False
-            self.cover_flow_sync_flag = True
-            self.cover_flow = CoverFlow(parent=self)
-            self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
-            self.cover_flow.context_menu_requested.connect(self.cf_context_menu_requested)
-            self.library_view.selectionModel().currentRowChanged.connect(self.sync_cf_to_listview)
-            self.db_images = DatabaseImages(self.library_view.model(), self.is_cover_browser_visible)
-            self.cover_flow.setImages(self.db_images)
-            self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
-            self.update_cover_flow_subtitle_font()
-        else:
-            self.cover_flow = QLabel('<p>'+_('Cover browser could not be loaded') +
-                                     '<br>'+pictureflowerror)
-            self.cover_flow.setWordWrap(True)
+        self.cf_last_updated_at = None
+        self.cover_flow_syncing_enabled = False
+        self.cover_flow_sync_flag = True
+        self.cover_flow = CoverFlow(parent=self)
+        self.cover_flow.currentChanged.connect(self.sync_listview_to_cf)
+        self.cover_flow.context_menu_requested.connect(self.cf_context_menu_requested)
+        self.library_view.selectionModel().currentRowChanged.connect(self.sync_cf_to_listview)
+        self.db_images = DatabaseImages(self.library_view.model(), self.is_cover_browser_visible)
+        self.cover_flow.setImages(self.db_images)
+        self.cover_flow.itemActivated.connect(self.iactions['View'].view_specific_book)
+        self.update_cover_flow_subtitle_font()
         if config['separate_cover_flow']:
             self.separate_cover_browser = True
             self.cb_splitter.button.clicked.connect(self.toggle_cover_browser)

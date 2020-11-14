@@ -66,7 +66,7 @@ SUPPORTED_OS = {
 
 EXE_MANIFEST = '''\
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-  <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
     <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
         <security>
             <requestedPrivileges>
@@ -75,14 +75,17 @@ EXE_MANIFEST = '''\
         </security>
     </trustInfo>
     <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
-      <application>
-          <supportedOS Id="{w7}"/>
-          <supportedOS Id="{w8}"/>
-          <supportedOS Id="{w81}"/>
-          <supportedOS Id="{w10}"/>
-      </application>
+        <application xmlns="urn:schemas-microsoft-com:asm.v3">
+            <supportedOS Id="{w7}"/>
+            <supportedOS Id="{w8}"/>
+            <supportedOS Id="{w81}"/>
+            <supportedOS Id="{w10}"/>
+            <windowsSettings xmlns:ws2="http://schemas.microsoft.com/SMI/2016/WindowsSettings">
+                <ws2:longPathAware>true</ws2:longPathAware>
+            </windowsSettings>
+        </application>
     </compatibility>
-  </assembly>
+</assembly>
 '''.format(**SUPPORTED_OS)
 
 
@@ -333,14 +336,14 @@ def build_portable(env):
         shutil.rmtree(base)
     os.makedirs(base)
     root = d(a(__file__))
-    src = j(root, 'portable.c')
+    src = j(root, 'portable.cpp')
     obj = j(env.obj_dir, b(src) + '.obj')
     cflags = '/c /EHsc /MT /W3 /Ox /nologo /D_UNICODE /DUNICODE'.split()
 
     for exe_name in ('calibre.exe', 'ebook-viewer.exe', 'ebook-edit.exe'):
         exe = j(base, exe_name.replace('.exe', '-portable.exe'))
         printf('Compiling', exe)
-        cmd = [CL] + cflags + ['/DEXE_NAME="%s"' % exe_name, '/Fo' + obj, '/Tc' + src]
+        cmd = [CL] + cflags + ['/Fo' + obj, '/Tp' + src]
         run_compiler(env, *cmd)
         printf('Linking', exe)
         desc = {
@@ -354,7 +357,7 @@ def build_portable(env):
             '/RELEASE',
             '/ENTRY:wWinMainCRTStartup',
             '/OUT:' + exe, embed_resources(env, exe, desc=desc, product_description=desc),
-            obj, 'User32.lib']
+            obj, 'User32.lib', 'Shell32.lib']
         run(*cmd)
 
     printf('Creating portable installer')

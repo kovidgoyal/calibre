@@ -21,12 +21,11 @@ from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.constants import iswindows, islinux, ismacos, isfreebsd, plugins
+from calibre.constants import iswindows, islinux, ismacos, isfreebsd
 from calibre.utils.filenames import ascii_filename as sanitize
 from polyglot.builtins import iteritems, string_or_bytes, map
 
 if ismacos:
-    usbobserver, usbobserver_err = plugins['usbobserver']
     osx_sanitize_name_pat = re.compile(r'[.-]')
 
 if iswindows:
@@ -146,20 +145,17 @@ class Device(DeviceConfig, DevicePlugin):
         if not prefix:
             return 0, 0
         prefix = prefix[:-1]
-        import win32file, winerror
+        from calibre_extensions import winutil
         try:
-            sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                win32file.GetDiskFreeSpace(prefix)
-        except Exception as err:
-            if getattr(err, 'args', [None])[0] == winerror.ERROR_NOT_READY:
+            available_space, total_space, free_space = winutil.get_disk_free_space(prefix)
+        except OSError as err:
+            if err.winerror == winutil.ERROR_NOT_READY:
                 # Disk not ready
                 time.sleep(3)
-                sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
-                    win32file.GetDiskFreeSpace(prefix)
+                available_space, total_space, free_space = winutil.get_disk_free_space(prefix)
             else:
                 raise
-        mult = sectors_per_cluster * bytes_per_sector
-        return total_clusters * mult, free_clusters * mult
+        return total_space, available_space
 
     def total_space(self, end_session=True):
         msz = casz = cbsz = 0
@@ -317,9 +313,8 @@ class Device(DeviceConfig, DevicePlugin):
 
     @classmethod
     def osx_get_usb_drives(cls):
-        if usbobserver_err:
-            raise RuntimeError('Failed to load usbobserver: '+usbobserver_err)
-        return usbobserver.get_usb_drives()
+        from calibre_extensions.usbobserver import get_usb_drives
+        return get_usb_drives()
 
     def _osx_bsd_names(self):
         drives = self.osx_get_usb_drives()
@@ -393,9 +388,10 @@ class Device(DeviceConfig, DevicePlugin):
         return drives
 
     def open_osx(self):
+        from calibre_extensions.usbobserver import get_mounted_filesystems
         bsd_drives = self.osx_bsd_names()
         drives = self.osx_sort_names(bsd_drives.copy())
-        mount_map = usbobserver.get_mounted_filesystems()
+        mount_map = get_mounted_filesystems()
         drives = {k: mount_map.get(v) for k, v in iteritems(drives)}
         if DEBUG:
             print()
@@ -845,8 +841,7 @@ class Device(DeviceConfig, DevicePlugin):
                 drives.append(x[0].upper())
 
         def do_it(drives):
-            import win32process
-            subprocess.Popen([eject_exe()] + drives, creationflags=win32process.CREATE_NO_WINDOW).wait()
+            subprocess.Popen([eject_exe()] + drives, creationflags=subprocess.CREATE_NO_WINDOW).wait()
 
         t = Thread(target=do_it, args=[drives])
         t.daemon = True

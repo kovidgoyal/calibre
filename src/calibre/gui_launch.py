@@ -25,8 +25,8 @@ def do_detach(fork=True, setsid=True, redirect=True):
     if setsid:
         os.setsid()
     if redirect:
-        from calibre.constants import plugins
-        plugins['speedup'][0].detach(os.devnull)
+        from calibre_extensions.speedup import detach
+        detach(os.devnull)
     is_detached = True
 
 

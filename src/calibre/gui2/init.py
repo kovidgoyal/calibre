@@ -7,16 +7,17 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import functools
-
 from PyQt5.Qt import (
-    QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy,
-    QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
+    QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy, QSplitter,
+    QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
     QToolButton, QVBoxLayout, QWidget
 )
 
 from calibre.constants import __appname__, get_version, ismacos
 from calibre.customize.ui import find_plugin
-from calibre.gui2 import config, error_dialog, gprefs, is_widescreen, open_url
+from calibre.gui2 import (
+    config, error_dialog, gprefs, is_widescreen, open_local_file, open_url
+)
 from calibre.gui2.book_details import BookDetails
 from calibre.gui2.layout_menu import LayoutMenu
 from calibre.gui2.library.alternate_views import GridView
@@ -425,10 +426,12 @@ class VLTabs(QTabBar):  # {{{
     def enable_bar(self):
         gprefs['show_vl_tabs'] = True
         self.setVisible(True)
+        self.gui.set_number_of_books_shown()
 
     def disable_bar(self):
         gprefs['show_vl_tabs'] = False
         self.setVisible(False)
+        self.gui.set_number_of_books_shown()
 
     def lock_tab(self):
         gprefs['vl_tabs_closable'] = False
@@ -731,6 +734,9 @@ class LayoutMixin(object):  # {{{
     def bd_open_cover_with(self, book_id, entry):
         cpath = self.current_db.new_api.format_abspath(book_id, '__COVER_INTERNAL__')
         if cpath:
+            if entry is None:
+                open_local_file(cpath)
+                return
             from calibre.gui2.open_with import run_program
             run_program(entry, cpath, self)
 

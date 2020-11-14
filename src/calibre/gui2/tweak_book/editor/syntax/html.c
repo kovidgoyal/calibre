@@ -482,35 +482,21 @@ static PyMethodDef html_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef html_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "html_syntax_highlighter",
-    /* m_doc      */ "Speedups for the html syntax highlighter",
-    /* m_size     */ -1,
-    /* m_methods  */ html_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_html_syntax_highlighter(void) {
-    PyObject *temp, *mod = PyModule_Create(&html_module);
-    if (mod == NULL) return NULL;
-
+static int
+exec_module(PyObject *mod) {
     if (PyType_Ready(&html_TagType) < 0)
-        return NULL;
+        return -1;
     if (PyType_Ready(&html_StateType) < 0)
-        return NULL;
+        return -1;
 
-    temp = Py_BuildValue("ssssssss", "b", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7");
-    if (temp == NULL) return NULL;
+    PyObject *temp = Py_BuildValue("ssssssss", "b", "strong", "h1", "h2", "h3", "h4", "h5", "h6", "h7");
+    if (temp == NULL) return -1;
     bold_tags = PyFrozenSet_New(temp);
     Py_DECREF(temp);
     temp = NULL;
 
     temp = Py_BuildValue("ss", "i", "em");
-    if (temp == NULL) return NULL;
+    if (temp == NULL) return -1;
     italic_tags = PyFrozenSet_New(temp);
     Py_DECREF(temp);
     temp = NULL;
@@ -521,7 +507,7 @@ CALIBRE_MODINIT_FUNC PyInit_html_syntax_highlighter(void) {
         Py_XDECREF(bold_tags);
         Py_XDECREF(italic_tags);
         Py_XDECREF(zero);
-        return NULL;
+        return -1;
     }
 
     Py_INCREF(&html_TagType);
@@ -530,6 +516,17 @@ CALIBRE_MODINIT_FUNC PyInit_html_syntax_highlighter(void) {
     PyModule_AddObject(mod, "State", (PyObject *)&html_StateType);
     PyModule_AddObject(mod, "bold_tags", bold_tags);
     PyModule_AddObject(mod, "italic_tags", italic_tags);
-
-    return mod;
+	return 0;
 }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "html_syntax_highlighter",
+    .m_doc      =  "Speedups for the html syntax highlighter",
+    .m_methods  = html_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_html_syntax_highlighter(void) { return PyModuleDef_Init(&module_def); }

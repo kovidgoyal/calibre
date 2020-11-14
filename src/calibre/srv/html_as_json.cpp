@@ -430,23 +430,17 @@ static PyMethodDef methods[] = {
     },
     {NULL}  /* Sentinel */
 };
+static int
+exec_module(PyObject *mod) { return 0; }
 
-static struct PyModuleDef hmod = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "html_as_json",
-    /* m_doc      */ doc,
-    /* m_size     */ -1,
-    /* m_methods  */ methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
+
 CALIBRE_MODINIT_FUNC PyInit_html_as_json(void) {
-    PyObject* m = PyModule_Create(&hmod);
-    if (m == NULL) {
-        return NULL;
-    }
-    return m;
+	module_def.m_name = "html_as_json";
+	module_def.m_slots = slots;
+	module_def.m_doc = doc;
+	module_def.m_methods = methods;
+	return PyModuleDef_Init(&module_def);
 }
-// }}}

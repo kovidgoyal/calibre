@@ -25,6 +25,10 @@ def bool_sort_key(bools_are_tristate):
     return (lambda x:{True: 1, False: 2, None: 3}.get(x, 3)) if bools_are_tristate else lambda x:{True: 1, False: 2, None: 2}.get(x, 2)
 
 
+def numeric_sort_key(x):
+    return x or 0
+
+
 IDENTITY = lambda x: x
 
 
@@ -56,6 +60,7 @@ class Field(object):
 
         if dt in {'int', 'float', 'rating'}:
             self._default_sort_key = 0
+            self._sort_key = numeric_sort_key
         elif dt == 'bool':
             self._default_sort_key = None
             self._sort_key = bool_sort_key(bools_are_tristate)

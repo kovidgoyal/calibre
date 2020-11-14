@@ -149,6 +149,9 @@ class Central(QStackedWidget):  # {{{
     def close_all_but_current_editor(self):
         self.close_all_but(self.current_editor)
 
+    def close_to_right_of_current_editor(self):
+        self.close_to_right(self.current_editor)
+
     def close_all_but(self, ed):
         close = []
         if ed is not None:
@@ -156,6 +159,19 @@ class Central(QStackedWidget):  # {{{
                 q = self.editor_tabs.widget(i)
                 if q is not None and q is not ed:
                     close.append(q)
+        for q in close:
+            self.close_requested.emit(q)
+
+    def close_to_right(self, ed):
+        close = []
+        if ed is not None:
+            found = False
+            for i in range(self.editor_tabs.count()):
+                q = self.editor_tabs.widget(i)
+                if found:
+                    close.append(q)
+                elif q is ed:
+                    found = True
         for q in close:
             self.close_requested.emit(q)
 
@@ -196,6 +212,7 @@ class Central(QStackedWidget):  # {{{
             menu.addAction(actions['close-current-tab'].icon(), _('Close tab'), partial(self.close_requested.emit, ed))
             menu.addSeparator()
             menu.addAction(actions['close-all-but-current-tab'].icon(), _('Close other tabs'), partial(self.close_all_but, ed))
+            menu.addAction(actions['close-tabs-to-right-of'].icon(), _('Close tabs to the right of this tab'), partial(self.close_to_right, ed))
             menu.exec_(self.editor_tabs.tabBar().mapToGlobal(event.pos()))
 
         return True
@@ -510,6 +527,9 @@ class Main(MainWindow):
         self.action_close_all_but_current_tab = reg(
             'edit-clear.png', _('C&lose other tabs'), self.central.close_all_but_current_editor, 'close-all-but-current-tab', 'Ctrl+Alt+W', _(
                 'Close all tabs except the current tab'))
+        self.action_close_to_right = reg(
+            'edit-clear.png', _('Close tabs to the &right'), self.central.close_to_right_of_current_editor, 'close-tabs-to-right-of', 'Ctrl+Shift+W', _(
+                'Close tabs to the right of the current tab'))
         self.action_help = treg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl(localize_user_manual_link(
                 'https://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(

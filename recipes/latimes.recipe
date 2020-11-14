@@ -53,6 +53,8 @@ class LATimes(BasicNewsRecipe):
     no_stylesheets = True
     encoding = 'utf8'
     use_embedded_content = False
+    compress_news_images = True
+    compress_news_images_auto_size = 5
     language = 'en'
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}

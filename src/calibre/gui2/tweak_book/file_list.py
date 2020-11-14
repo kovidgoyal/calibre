@@ -9,7 +9,6 @@ import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
-
 from PyQt5.Qt import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout,
     QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget,
@@ -18,7 +17,7 @@ from PyQt5.Qt import (
     QVBoxLayout, QWidget, pyqtSignal
 )
 
-from calibre import human_readable, plugins, sanitize_file_name
+from calibre import human_readable, sanitize_file_name
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS, guess_type
 from calibre.ebooks.oeb.polish.cover import (
@@ -39,6 +38,7 @@ from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
+from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import filter, iteritems, itervalues, map, range, unicode_type
 
@@ -191,7 +191,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 class OpenWithHandler(object):  # {{{
 
     def add_open_with_actions(self, menu, file_name):
-        from calibre.gui2.open_with import populate_menu, edit_programs
+        from calibre.gui2.open_with import edit_programs, populate_menu
         fmt = file_name.rpartition('.')[-1].lower()
         if not fmt:
             return
@@ -242,9 +242,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         make_view_use_window_background(self)
         self.categories = {}
         self.ordered_selected_indexes = False
-        pi = plugins['progress_indicator'][0]
-        if hasattr(pi, 'set_no_activate_on_click'):
-            pi.set_no_activate_on_click(self)
+        set_no_activate_on_click(self)
         self.current_edited_name = None
         self.delegate = ItemDelegate(self)
         self.delegate.rename_requested.connect(self.rename_requested)

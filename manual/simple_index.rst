@@ -38,6 +38,7 @@ available <https://calibre-ebook.com/help>`_.
    metadata
    faq
    tutorials
+   url_scheme
    customize
    generated/en/cli-index
    develop

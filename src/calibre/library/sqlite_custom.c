@@ -273,22 +273,17 @@ static PyMethodDef sqlite_custom_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef sqlite_custom_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "sqlite_custom",
-    /* m_doc      */ sqlite_custom_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ sqlite_custom_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
+static int
+exec_module(PyObject *module) { return 0; }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "sqlite_custom",
+    .m_doc      = sqlite_custom_doc,
+    .m_methods  = sqlite_custom_methods,
+    .m_slots    = slots,
 };
-CALIBRE_MODINIT_FUNC PyInit_sqlite_custom(void) {
-    PyObject *m;
-    m = PyModule_Create(&sqlite_custom_module);
-    if (m == NULL) {
-        return NULL;
-    }
-    return m;
-}
+
+CALIBRE_MODINIT_FUNC PyInit_sqlite_custom(void) { return PyModuleDef_Init(&module_def); }

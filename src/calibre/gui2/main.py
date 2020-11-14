@@ -5,7 +5,6 @@
 
 import os
 import re
-import socket
 import sys
 import time
 import traceback
@@ -13,7 +12,7 @@ import traceback
 import apsw
 from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 
-from calibre import force_unicode, plugins, prints
+from calibre import force_unicode, prints
 from calibre.constants import (
     DEBUG, MAIN_APP_UID, __appname__, filesystem_encoding, get_portable_base,
     islinux, ismacos, iswindows
@@ -22,16 +21,17 @@ from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
     question_dialog, setup_gui_option_parser
 )
+from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
-from calibre.utils.ipc import RC, gui_socket_address
-from calibre.utils.lock import singleinstance
+from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
+after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False}
 if iswindows:
-    winutil = plugins['winutil'][0]
+    from calibre_extensions import winutil
 
 
 class AbortInit(Exception):
@@ -40,10 +40,18 @@ class AbortInit(Exception):
 
 def option_parser():
     parser = _option_parser(_('''\
-%prog [options] [path_to_ebook]
+%prog [options] [path_to_ebook or calibre url ...]
 
 Launch the main calibre Graphical User Interface and optionally add the e-book at
-path_to_ebook to the database.
+path_to_ebook to the database. You can also specify calibre URLs to perform various
+different actions, than just adding books. For example:
+
+calibre://view-book/test_library/1842/epub
+
+Will open the book with id 1842 in the EPUB format from the library
+"test_library" in the calibre viewer. Library names are the folder names of the
+libraries with spaces replaced by underscores. A full description of the
+various URL based actions is in the User Manual.
 '''))
     parser.add_option('--with-library', default=None, action='store',
                       help=_('Use the library located at the specified path.'))
@@ -210,10 +218,10 @@ class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
     initialization'''
 
-    def __init__(self, opts, args, actions, listener, app, gui_debug=None):
+    def __init__(self, opts, args, actions, app, gui_debug=None):
         self.startup_time = monotonic()
         self.timed_print('Starting up...')
-        self.opts, self.args, self.listener, self.app = opts, args, listener, app
+        self.opts, self.args, self.app = opts, args, app
         self.gui_debug = gui_debug
         self.actions = actions
         self.main = None
@@ -233,7 +241,7 @@ class GuiRunner(QObject):
             self.splash_screen.show_message(_('Initializing user interface...'))
         try:
             with gprefs:  # Only write gui.json after initialization is complete
-                main.initialize(self.library_path, db, self.listener, self.actions)
+                main.initialize(self.library_path, db, self.actions)
         finally:
             self.timed_print('main UI initialized...')
             if self.splash_screen is not None:
@@ -291,10 +299,13 @@ class GuiRunner(QObject):
         try:
             self.start_gui(db)
         except Exception:
+            try:
+                details = traceback.format_exc()
+            except Exception:
+                details = ''
             self.show_error(_('Startup error'), _(
                 'There was an error during {0} startup. Parts of {0} may not function.'
-                ' Click Show details to learn more.').format(__appname__),
-                         det_msg=traceback.format_exc())
+                ' Click Show details to learn more.').format(__appname__), det_msg=details)
 
     def initialize_db(self):
         from calibre.db.legacy import LibraryDatabase
@@ -353,36 +364,31 @@ class GuiRunner(QObject):
         self.initialize_db()
 
 
-def set_restarting_env_var():
-    if iswindows:
-        ctime = plugins['winutil'][0].get_process_times(None)[0]
-        os.environ['CALIBRE_RESTARTING_FROM_GUI'] = str(ctime)
-    else:
-        os.environ['CALIBRE_RESTARTING_FROM_GUI'] = str(os.getpid())
-
-
 def run_in_debug_mode():
     from calibre.debug import run_calibre_debug
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
     os.close(fd)
-    set_restarting_env_var()
     run_calibre_debug(
         '--gui-debug', logpath, stdout=lopen(logpath, 'wb'),
         stderr=subprocess.STDOUT, stdin=lopen(os.devnull, 'rb'))
 
 
-def run_gui(opts, args, listener, app, gui_debug=None):
-    si = singleinstance('db')
-    if not si:
-        ext = '.exe' if iswindows else ''
-        error_dialog(None, _('Cannot start calibre'), _(
-            'Another calibre program that can modify calibre libraries, such as,'
-            ' {} or {} is already running. You must first shut it down, before'
-            ' starting the main calibre program. If you are sure no such'
-            ' program is running, try restarting your computer.').format(
-                'calibre-server' + ext, 'calibredb' + ext), show=True)
-        return 1
+def run_gui(opts, args, app, gui_debug=None):
+    with SingleInstance('db') as si:
+        if not si:
+            ext = '.exe' if iswindows else ''
+            error_dialog(None, _('Cannot start calibre'), _(
+                'Another calibre program that can modify calibre libraries, such as,'
+                ' {0} or {1} is already running. You must first shut it down, before'
+                ' starting the main calibre program. If you are sure no such'
+                ' program is running, try restarting your computer.').format(
+                    'calibre-server' + ext, 'calibredb' + ext), show=True)
+            return 1
+        run_gui_(opts, args, app, gui_debug)
+
+
+def run_gui_(opts, args, app, gui_debug=None):
     initialize_file_icon_provider()
     app.load_builtin_fonts(scan_for_fonts=True)
     if not dynamic.get('welcome_wizard_was_run', False):
@@ -394,37 +400,14 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         actions = tuple(Main.create_application_menubar())
     else:
         actions = tuple(Main.get_menubar_actions())
-    runner = GuiRunner(opts, args, actions, listener, app, gui_debug=gui_debug)
+    runner = GuiRunner(opts, args, actions, app, gui_debug=gui_debug)
     ret = app.exec_()
     if getattr(runner.main, 'run_wizard_b4_shutdown', False):
         from calibre.gui2.wizard import wizard
         wizard().exec_()
     if getattr(runner.main, 'restart_after_quit', False):
-        e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
-        if getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None:
-            run_in_debug_mode()
-        else:
-            if hasattr(sys, 'frameworks_dir'):
-                app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
-                from calibre.debug import run_calibre_debug
-                prints('Restarting with:', app)
-                run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", "open", sys.argv[-1])', app)
-            else:
-                import subprocess
-                set_restarting_env_var()
-                if iswindows:
-                    winutil.prepare_for_restart()
-                if hasattr(sys, 'run_local'):
-                    cmd = [sys.run_local]
-                    if DEBUG:
-                        cmd += ['calibre-debug', '-g']
-                    else:
-                        cmd.append('calibre')
-                else:
-                    args = ['-g'] if os.path.splitext(e)[0].endswith('-debug') else []
-                    cmd = [e] + args
-                prints('Restarting with:', ' '.join(cmd))
-                subprocess.Popen(cmd)
+        after_quit_actions['restart_after_quit'] = True
+        after_quit_actions['debug_on_restart'] = getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None
     else:
         if iswindows:
             try:
@@ -432,7 +415,6 @@ def run_gui(opts, args, listener, app, gui_debug=None):
             except:
                 pass
     if getattr(runner.main, 'gui_debug', None) is not None:
-        e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
         debugfile = runner.main.gui_debug
         from calibre.gui2 import open_local_file
         if iswindows:
@@ -449,104 +431,72 @@ def run_gui(opts, args, listener, app, gui_debug=None):
 singleinstance_name = 'GUI'
 
 
-def cant_start(msg=_('If you are sure it is not running')+', ',
-               det_msg=_('Timed out waiting for response from running calibre'),
-               listener_failed=False):
-    base = '<p>%s</p><p>%s %s'
-    where = __appname__ + ' '+_('may be running in the system tray, in the')+' '
-    if ismacos:
-        where += _('upper right region of the screen.')
-    else:
-        where += _('lower right region of the screen.')
-    if iswindows or islinux:
-        what = _('try rebooting your computer.')
-    else:
-        if listener_failed:
-            path = gui_socket_address()
-        else:
-            from calibre.utils.lock import singleinstance_path
-            path = singleinstance_path(singleinstance_name)
-        what = _('try deleting the file: "%s"') % path
-
-    info = base%(where, msg, what)
-    error_dialog(None, _('Cannot start ')+__appname__,
-        '<p>'+(_('%s is already running.')%__appname__)+'</p>'+info, det_msg=det_msg, show=True)
-
-    raise SystemExit(1)
+def send_message(msg):
+    try:
+        send_message_in_process(msg)
+    except Exception as err:
+        print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
+        print(err, file=sys.stderr, flush=True)
+        error_dialog(None, _('Contacting calibre failed'), _(
+            'Failed to contact running instance of calibre, try restarting calibre'),
+            det_msg=str(err) + '\n\n' + repr(msg), show=True)
+        return False
+    return True
 
 
-def build_pipe(print_error=True):
-    t = RC(print_error=print_error)
-    t.start()
-    t.join(3.0)
-    if t.is_alive():
-        cant_start()
-        raise SystemExit(1)
-    return t
-
-
-def shutdown_other(rc=None):
-    if rc is None:
-        rc = build_pipe(print_error=False)
-        if rc.conn is None:
-            prints(_('No running calibre found'))
-            return  # No running instance found
-    rc.conn.send(b'shutdown:')
-    prints(_('Shutdown command sent, waiting for shutdown...'))
-    for i in range(50):
-        if singleinstance(singleinstance_name):
-            return
-        time.sleep(0.1)
-    prints(_('Failed to shutdown running calibre instance'))
-    raise SystemExit(1)
+def shutdown_other():
+    if send_message('shutdown:'):
+        print(_('Shutdown command sent, waiting for shutdown...'), flush=True)
+        for i in range(50):
+            with SingleInstance(singleinstance_name) as si:
+                if si:
+                    return
+            time.sleep(0.1)
+        raise SystemExit(_('Failed to shutdown running calibre instance'))
 
 
 def communicate(opts, args):
-    t = build_pipe()
     if opts.shutdown_running_calibre:
-        shutdown_other(t)
+        shutdown_other()
     else:
         if len(args) > 1:
             args[1:] = [os.path.abspath(x) if os.path.exists(x) else x for x in args[1:]]
         import json
-        t.conn.send(b'launched:'+as_bytes(json.dumps(args)))
-    t.conn.close()
+        if not send_message(b'launched:'+as_bytes(json.dumps(args))):
+            raise SystemExit(_('Failed to contact running instance of calibre'))
     raise SystemExit(0)
 
 
-def create_listener():
-    if islinux:
-        from calibre.utils.ipc.server import LinuxListener as Listener
-    else:
-        from multiprocessing.connection import Listener
-    return Listener(address=gui_socket_address())
-
-
-def wait_for_parent_to_die(ppid, max_wait=10):
-    ppid = int(ppid)
+def restart_after_quit():
     if iswindows:
-        get_process_times = plugins['winutil'][0].get_process_times
-
-        def parent_done():
-            try:
-                ctime = get_process_times(os.getppid())[0]
-            except Exception:
-                return True
-            return ctime > ppid
-
+        # detach the stdout/stderr/stdin handles
+        winutil.prepare_for_restart()
+    if after_quit_actions['debug_on_restart']:
+        run_in_debug_mode()
+        return
+    if hasattr(sys, 'frameworks_dir'):
+        app = os.path.dirname(os.path.dirname(os.path.realpath(sys.frameworks_dir)))
+        from calibre.debug import run_calibre_debug
+        prints('Restarting with:', app)
+        run_calibre_debug('-c', 'import sys, os, time; time.sleep(3); os.execlp("open", "open", sys.argv[-1])', app)
     else:
-        def parent_done():
-            return os.getppid() != ppid
-
-    st = time.monotonic()
-    while not parent_done() and time.monotonic() - st < max_wait:
-        time.sleep(0.1)
+        import subprocess
+        if hasattr(sys, 'run_local'):
+            cmd = [sys.run_local]
+            if DEBUG:
+                cmd += ['calibre-debug', '-g']
+            else:
+                cmd.append('calibre')
+        else:
+            e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+            cmd = [e]
+            if os.path.splitext(e)[0].endswith('-debug'):
+                cmd.append('-g')
+        prints('Restarting with:', ' '.join(cmd))
+        subprocess.Popen(cmd)
 
 
 def main(args=sys.argv):
-    ppid = os.environ.pop('CALIBRE_RESTARTING_FROM_GUI', None)
-    if ppid is not None:
-        wait_for_parent_to_die(ppid)
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
         windows_repair()
         return 0
@@ -559,46 +509,18 @@ def main(args=sys.argv):
         app, opts, args = init_qt(args)
     except AbortInit:
         return 1
-    try:
-        si = singleinstance(singleinstance_name)
-    except Exception:
-        error_dialog(None, _('Cannot start calibre'), _(
-            'Failed to start calibre, single instance locking failed. Click "Show Details" for more information'),
-                     det_msg=traceback.format_exc(), show=True)
-        return 1
-    if si and opts.shutdown_running_calibre:
-        return 0
+    with SingleInstance(singleinstance_name) as si:
+        if si and opts.shutdown_running_calibre:
+            return 0
+        run_main(app, opts, args, gui_debug, si)
+    if after_quit_actions['restart_after_quit']:
+        restart_after_quit()
+
+
+def run_main(app, opts, args, gui_debug, si):
     if si:
-        try:
-            listener = create_listener()
-        except socket.error:
-            if iswindows or islinux:
-                cant_start(det_msg=traceback.format_exc(), listener_failed=True)
-            if os.path.exists(gui_socket_address()):
-                os.remove(gui_socket_address())
-            try:
-                listener = create_listener()
-            except socket.error:
-                cant_start(det_msg=traceback.format_exc(), listener_failed=True)
-            else:
-                return run_gui(opts, args, listener, app,
-                        gui_debug=gui_debug)
-        else:
-            return run_gui(opts, args, listener, app,
-                    gui_debug=gui_debug)
-    otherinstance = False
-    try:
-        listener = create_listener()
-    except socket.error:  # Good singleinstance is correct (on UNIX)
-        otherinstance = True
-    else:
-        # On windows only singleinstance can be trusted
-        otherinstance = True if iswindows else False
-    if not otherinstance and not opts.shutdown_running_calibre:
-        return run_gui(opts, args, listener, app, gui_debug=gui_debug)
-
+        return run_gui(opts, args, app, gui_debug=gui_debug)
     communicate(opts, args)
-
     return 0
 
 

@@ -79,7 +79,7 @@ class LocaTable(UnknownTable):
 
         if sys.byteorder != "big":
             vals.byteswap()
-        self.raw = vals.tostring()
+        self.raw = vals.tobytes()
     subset = update
 
     def dump_glyphs(self, sfnt):

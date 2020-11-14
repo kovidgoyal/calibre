@@ -310,7 +310,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
 class SearchRestrictionMixin(object):
 
-    no_restriction = _('<None>')
+    no_restriction = '<' + _('None') + '>'
 
     def __init__(self, *args, **kwargs):
         pass

@@ -11,18 +11,19 @@ import time
 from functools import partial
 
 from calibre.constants import (
-    __appname__, fcntl, filesystem_encoding, islinux, ismacos, iswindows, plugins
+    __appname__, filesystem_encoding, islinux, ismacos, iswindows
 )
+from calibre_extensions import speedup
 from calibre.utils.monotonic import monotonic
-from calibre.utils.shared_file import raise_winerror
 
-speedup = plugins['speedup'][0]
 if iswindows:
-    import msvcrt, win32file, pywintypes, winerror, win32api, win32event
+    import msvcrt
     from calibre.constants import get_windows_username
+    from calibre_extensions import winutil
     excl_file_mode = stat.S_IREAD | stat.S_IWRITE
 else:
     excl_file_mode = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+    import fcntl
 
 
 def unix_open(path):
@@ -50,26 +51,23 @@ def unix_retry(err):
 def windows_open(path):
     if isinstance(path, bytes):
         path = os.fsdecode(path)
-    try:
-        h = win32file.CreateFileW(
-            path,
-            win32file.GENERIC_READ |
-            win32file.GENERIC_WRITE,  # Open for reading and writing
-            0,  # Open exclusive
-            None,  # No security attributes, ensures handle is not inherited by children
-            win32file.OPEN_ALWAYS,  # If file does not exist, create it
-            win32file.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
-            None,  # No template file
-        )
-    except pywintypes.error as err:
-        raise_winerror(err)
-    fd = msvcrt.open_osfhandle(h.Detach(), 0)
-    return os.fdopen(fd, 'r+b')
+    h = winutil.create_file(
+        path,
+        winutil.GENERIC_READ |
+        winutil.GENERIC_WRITE,  # Open for reading and writing
+        0,  # Open exclusive
+        winutil.OPEN_ALWAYS,  # If file does not exist, create it
+        winutil.FILE_ATTRIBUTE_NORMAL,  # Normal attributes
+    )
+    fd = msvcrt.open_osfhandle(int(h), 0)
+    ans = os.fdopen(fd, 'r+b')
+    h.detach()
+    return ans
 
 
 def windows_retry(err):
     return err.winerror in (
-        winerror.ERROR_SHARING_VIOLATION, winerror.ERROR_LOCK_VIOLATION
+        winutil.ERROR_SHARING_VIOLATION, winutil.ERROR_LOCK_VIOLATION
     )
 
 
@@ -126,21 +124,15 @@ def _clean_lock_file(file_obj):
 
 
 if iswindows:
-
     def create_single_instance_mutex(name, per_user=True):
         mutexname = '{}-singleinstance-{}-{}'.format(
             __appname__, (get_windows_username() if per_user else ''), name
         )
-        mutex = win32event.CreateMutex(None, False, mutexname)
-        if not mutex:
+        try:
+            mutex = winutil.create_mutex(mutexname, False)
+        except FileExistsError:
             return
-        err = win32api.GetLastError()
-        if err == winerror.ERROR_ALREADY_EXISTS:
-            # Close this handle other wise this handle will prevent the mutex
-            # from being deleted when the process that created it exits.
-            win32api.CloseHandle(mutex)
-            return
-        return partial(win32api.CloseHandle, mutex)
+        return mutex.close
 
 elif islinux:
 
@@ -191,6 +183,22 @@ else:
         except EnvironmentError as err:
             if err.errno not in (errno.EAGAIN, errno.EACCES):
                 raise
+
+
+class SingleInstance:
+
+    def __init__(self, name):
+        self.name = name
+        self.release_mutex = None
+
+    def __enter__(self):
+        self.release_mutex = create_single_instance_mutex(self.name)
+        return self.release_mutex is not None
+
+    def __exit__(self, *a):
+        if self.release_mutex is not None:
+            self.release_mutex()
+            self.release_mutex = None
 
 
 def singleinstance(name):

@@ -93,24 +93,18 @@ static PyMethodDef methods[] = {
     {NULL}  /* Sentinel */
 };
 
-static struct PyModuleDef module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "hyphen",
-    /* m_doc      */ doc,
-    /* m_size     */ -1,
-    /* m_methods  */ methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
+static int
+exec_module(PyObject *module) { return 0; }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "hyphen",
+    .m_doc      = doc,
+    .m_methods  = methods,
+    .m_slots    = slots,
 };
-CALIBRE_MODINIT_FUNC PyInit_hyphen(void) {
 
-    PyObject* m = PyModule_Create(&module);
-    if (m == NULL) {
-        return NULL;
-    }
-
-    return m;
-}
+CALIBRE_MODINIT_FUNC PyInit_hyphen(void) { return PyModuleDef_Init(&module_def); }
 // }}}

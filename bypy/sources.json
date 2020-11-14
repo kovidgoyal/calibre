@@ -533,17 +533,6 @@
     },
 
     {
-        "name": "pywin32",
-        "os": "windows",
-        "python": 2,
-        "windows": {
-            "filename":"pywin32-228.zip",
-            "hash":"sha256:f82946fb29d55a27b3abcd0b527ef2e8da6ea05b01dfcc40bfc14847b7673e8e",
-            "urls":["https://github.com/mhammond/pywin32/archive/b227.zip"]
-        }
-    },
-
-    {
         "name": "unrardll",
         "unix": {
             "filename": "unrardll-0.1.3.tar.gz",
@@ -583,8 +572,8 @@
     {
         "name": "css-parser",
         "unix": {
-            "filename": "css-parser-1.0.4.tar.gz",
-            "hash": "sha256:c7ab355512ae51334ba6791a7e4d553f87bef17ba2026f1cc9bf3b17a7779d44",
+            "filename": "css-parser-1.0.6.tar.gz",
+            "hash": "sha256:4ed448a8a5622edb1d30d616bbc4bd3d30f11be922343d7a92d7e418e324af2e",
             "urls": ["pypi"]
         }
     },

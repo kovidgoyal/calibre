@@ -37,6 +37,8 @@ class ImageView(QDialog):
 
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
         QDialog.__init__(self)
+        self.setWindowFlag(Qt.WindowMinimizeButtonHint)
+        self.setWindowFlag(Qt.WindowMaximizeButtonHint)
         dw = QApplication.instance().desktop()
         self.avail_geom = dw.availableGeometry(parent if parent is not None else self)
         self.current_img = current_img
@@ -45,7 +47,7 @@ class ImageView(QDialog):
         self.geom_name = geom_name
 
         self.label = l = QLabel(self)
-        l.setBackgroundRole(QPalette.Base)
+        l.setBackgroundRole(QPalette.Text if QApplication.instance().is_dark_theme else QPalette.Base)
         l.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         l.setScaledContents(True)
 

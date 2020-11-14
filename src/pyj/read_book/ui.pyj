@@ -84,6 +84,28 @@ class ReadUI:
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text, html):
+            # try using document.execCommand which on chrome allows the
+            # copy on non-secure origin if this is close to a user
+            # interaction event
+            active_elem = document.activeElement
+            ta = document.createElement("textarea")
+            ta.value = text
+            ta.style.position = 'absolute'
+            ta.style.top = window.innerHeight + 'px'
+            ta.style.left = window.innerWidth + 'px'
+            document.body.appendChild(ta)
+            ta.focus()
+            ta.select()
+            ok = False
+            try:
+                ok = document.execCommand('copy')
+            except:
+                pass
+            document.body.removeChild(ta)
+            if active_elem:
+                active_elem.focus()
+            if ok:
+                return
             if not window.navigator.clipboard:
                 return error_dialog(_('No clipboard access'), _(
                     'Your browser requires you to access the Content server over an HTTPS connection'

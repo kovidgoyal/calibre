@@ -9,8 +9,8 @@ import subprocess
 import sys
 from threading import Thread
 from uuid import uuid4
+from contextlib import suppress
 
-from PyQt5.Qt import QEventLoop, Qt, pyqtSignal
 
 from polyglot.builtins import filter, string_or_bytes, unicode_type
 
@@ -90,22 +90,15 @@ class Helper(Thread):
         self.callback = callback
         self.data = data
         self.daemon = True
-        self.rc = 0
+        self.rc = 1
         self.stdoutdata = self.stderrdata = b''
 
     def run(self):
-        self.stdoutdata, self.stderrdata = self.process.communicate(b''.join(self.data))
-        self.rc = self.process.wait()
-        self.callback()
-
-
-class Loop(QEventLoop):
-
-    dialog_closed = pyqtSignal()
-
-    def __init__(self):
-        QEventLoop.__init__(self)
-        self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
+        try:
+            self.stdoutdata, self.stderrdata = self.process.communicate(b''.join(self.data))
+            self.rc = self.process.wait()
+        finally:
+            self.callback()
 
 
 def process_path(x):
@@ -178,8 +171,20 @@ def run_file_dialog(
     app_uid = app_uid or current_app_uid
     if app_uid:
         data.append(serialize_string('APP_UID', app_uid))
+
+    from PyQt5.Qt import QEventLoop, Qt, pyqtSignal
+
+    class Loop(QEventLoop):
+
+        dialog_closed = pyqtSignal()
+
+        def __init__(self):
+            QEventLoop.__init__(self)
+            self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
+
     loop = Loop()
     server = PipeServer(pipename)
+    server.start()
     with sanitize_env_vars():
         h = Helper(subprocess.Popen(
             [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -218,7 +223,20 @@ def run_file_dialog(
         return ()
     if parts[0] != secret:
         raise Exception('File dialog failed, incorrect secret received: ' + get_errors())
-    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in parts[1:]))
+
+    from calibre_extensions.winutil import get_long_path_name
+
+    def fix_path(x):
+        u = os.path.abspath(x.decode('utf-8'))
+        with suppress(Exception):
+            try:
+                return get_long_path_name(u)
+            except FileNotFoundError:
+                base, fn = os.path.split(u)
+                return os.path.join(get_long_path_name(base), fn)
+        return u
+
+    ans = tuple(map(fix_path, parts[1:]))
     return ans
 
 
@@ -293,55 +311,38 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
 class PipeServer(Thread):
 
     def __init__(self, pipename):
-        Thread.__init__(self, name='PipeServer')
-        self.daemon = True
-        import win32pipe, win32api, win32con
-        FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000
-        PIPE_REJECT_REMOTE_CLIENTS = 0x00000008
-        self.pipe_handle = win32pipe.CreateNamedPipe(
-            pipename, win32pipe.PIPE_ACCESS_INBOUND | FILE_FLAG_FIRST_PIPE_INSTANCE,
-            win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_READMODE_BYTE | win32pipe.PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
-            1, 8192, 8192, 0, None)
-        win32api.SetHandleInformation(self.pipe_handle, win32con.HANDLE_FLAG_INHERIT, 0)
+        Thread.__init__(self, name='PipeServer', daemon=True)
+        from calibre_extensions import winutil
+        self.client_connected = False
+        self.pipe_handle = winutil.create_named_pipe(
+            pipename, winutil.PIPE_ACCESS_INBOUND | winutil.FILE_FLAG_FIRST_PIPE_INSTANCE,
+            winutil.PIPE_TYPE_BYTE | winutil.PIPE_READMODE_BYTE | winutil.PIPE_WAIT | winutil.PIPE_REJECT_REMOTE_CLIENTS,
+            1, 8192, 8192, 0)
+        winutil.set_handle_information(self.pipe_handle, winutil.HANDLE_FLAG_INHERIT, 0)
         self.err_msg = None
         self.data = b''
-        self.start()
 
     def run(self):
-        import win32pipe, win32file, winerror, win32api
-
-        def as_unicode(err):
-            try:
-                self.err_msg = unicode_type(err)
-            except Exception:
-                self.err_msg = repr(err)
+        from calibre_extensions import winutil
         try:
             try:
-                rc = win32pipe.ConnectNamedPipe(self.pipe_handle)
+                winutil.connect_named_pipe(self.pipe_handle)
             except Exception as err:
-                as_unicode(err)
+                self.err_msg = f'ConnectNamedPipe failed: {err}'
                 return
 
-            if rc != 0:
-                self.err_msg = 'Failed to connect to client over named pipe: 0x%x' % rc
-                return
-
+            self.client_connected = True
             while True:
                 try:
-                    hr, data = win32file.ReadFile(self.pipe_handle, 1024 * 50, None)
-                except Exception as err:
-                    if getattr(err, 'winerror', None) == winerror.ERROR_BROKEN_PIPE:
+                    data = winutil.read_file(self.pipe_handle, 64 * 1024)
+                except OSError as err:
+                    if err.winerror == winutil.ERROR_BROKEN_PIPE:
                         break  # pipe was closed at the other end
-                    as_unicode(err)
-                    break
-                if hr not in (winerror.ERROR_MORE_DATA, 0):
-                    self.err_msg = 'ReadFile on pipe failed with hr=%d' % hr
-                    break
+                    self.err_msg = f'ReadFile on pipe failed: {err}'
                 if not data:
                     break
                 self.data += data
         finally:
-            win32api.CloseHandle(self.pipe_handle)
             self.pipe_handle = None
 
 
@@ -351,6 +352,7 @@ def test(helper=HELPER):
     secret = os.urandom(32).replace(b'\0', b' ')
     data = serialize_string('PIPENAME', pipename) +  serialize_string('ECHO', echo) + serialize_secret(secret)
     server = PipeServer(pipename)
+    server.start()
     p = subprocess.Popen([helper], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate(data)
     if p.wait() != 0:
@@ -367,5 +369,7 @@ def test(helper=HELPER):
 
 
 if __name__ == '__main__':
-    choose_save_file(None, 'xxx', 'yyy')
-    test(sys.argv[-1])
+    from calibre.gui2 import Application
+    app = Application([])
+    print(choose_save_file(None, 'xxx', 'yyy'))
+    del app

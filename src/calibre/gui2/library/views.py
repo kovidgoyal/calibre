@@ -1236,6 +1236,7 @@ class BooksView(QTableView):  # {{{
             sel.merge(QItemSelection(m.index(min(group), 0),
                 m.index(max(group), max_col)), sm.Select)
         sm.select(sel, sm.ClearAndSelect)
+        return rows
 
     def get_selected_ids(self, as_set=False):
         ans = []

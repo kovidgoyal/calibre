@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 from gettext import gettext as _
 
+from ajax import encode_query_component
 from book_list.item_list import build_list, create_item
 from dom import ensure_id, set_css
 from modals import error_dialog
@@ -58,22 +59,18 @@ def create_goto_panel(current_position_data, book, container, onclick):
     container.appendChild(panel)
 
 
-def create_location_overlay(current_position_data, overlay, container):
+def create_location_overlay(current_position_data, book, overlay, container):
     container_id = ensure_id(container)
     container.appendChild(E.div(style='margin: 0 1rem'))
     container = container.lastChild
     current_cfi = current_position_data.cfi
-    if current_cfi:
-        container.appendChild(E.div(
-            style='margin: 1rem; margin-bottom: calc(1rem - 1ex); display: flex; align-items: baseline; flex-wrap: wrap',
-            E.div(
-                _('Current location: {}').format(current_cfi),
-                style='flex-grow: 10; text-overflow: ellipsis; margin-bottom: 1ex'
-            ),
-            create_button(_('Copy'), action=def():
+    calibre_book_url = book?.calibre_book_url
+
+    def copy_button(text_to_copy):
+        return create_button(_('Copy'), action=def():
                 src = document.querySelector(f'#{container_id} input')
                 orig = src.value
-                src.value = current_cfi
+                src.value = text_to_copy
                 src.focus()
                 src.select()
                 try:
@@ -81,7 +78,17 @@ def create_location_overlay(current_position_data, overlay, container):
                 finally:
                     src.value = orig
             )
+
+    def display_and_copy(label, text):
+        container.appendChild(E.div(
+            style='margin: 1rem; margin-bottom: calc(1rem - 1ex); display: flex; align-items: baseline; flex-wrap: wrap',
+            E.div(style='flex-grow: 10; text-overflow: ellipsis; margin-bottom: 1ex',
+                  label, ' ', E.span(text, style='font-size: smaller; font-family: monospace')),
+            copy_button(text)
         ))
+
+    if current_cfi:
+        display_and_copy(_('Current location:'), current_cfi)
 
     def goto_cfi(cfi):
         if ui_operations.goto_cfi(cfi):
@@ -134,4 +141,11 @@ def create_location_overlay(current_position_data, overlay, container):
             create_button(_('Go'), action=goto_pos)
         )
     ))
+
+    if calibre_book_url:
+        if current_cfi:
+            calibre_book_url += '?open_at=' + encode_query_component(current_cfi)
+        display_and_copy(_('URL for this position:'), calibre_book_url)
+    elif not runtime.is_standalone_viewer:
+        display_and_copy(_('URL for this position:'), window.top.location.toString())
     container.querySelector('[name=newpos]').focus()

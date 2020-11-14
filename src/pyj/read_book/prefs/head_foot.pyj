@@ -34,13 +34,15 @@ def create_item(region, label):
             opt(_('Top level section'), 'top-section'),
             opt(_('Current section'), 'section'),
             sep(),
+            opt(_('Clock'), 'clock'),
+            sep(),
             opt(_('Progress'), 'progress'),
             opt(_('Time to read book'), 'time-book'),
             opt(_('Time to read chapter'), 'time-chapter'),
             opt(_('Time to read chapter and book'), 'time-chapter-book'),
             opt(_('Position in book'), 'pos-book'),
             opt(_('Position in chapter'), 'pos-chapter'),
-            opt(_('Clock'), 'clock'),
+            opt(_('Pages in chapter'), 'pages-progress'),
         ))
     )
 
@@ -199,6 +201,11 @@ def render_head_foot(div, which, region, metadata, current_toc_node, current_toc
             text = format_pos(pos.progress_frac, pos.book_length)
         else:
             text = format_pos(pos.file_progress_frac, pos.chapter_length)
+    elif field is 'pages-progress':
+        if pos.page_counts:
+            text = f'{pos.page_counts.current + 1} / {pos.page_counts.total}'
+        else:
+            text = _('Unknown')
     if not text:
         text = '\xa0'
     if text is not div.textContent:

@@ -10,14 +10,12 @@ import os
 import re
 import shutil
 import sys
-import time
 import unicodedata
 import uuid
 from collections import defaultdict
+from css_parser import getUrls, replaceUrls
 from io import BytesIO
 from itertools import count
-
-from css_parser import getUrls, replaceUrls
 
 from calibre import CurrentDir, walk
 from calibre.constants import iswindows
@@ -48,7 +46,7 @@ from calibre.ebooks.oeb.polish.utils import (
     CommentFinder, PositionFinder, guess_type, parse_css
 )
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
-from calibre.utils.filenames import hardlink_file, nlinks_file
+from calibre.utils.filenames import hardlink_file, nlinks_file, retry_on_fail
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
 from calibre.utils.logging import default_log
 from calibre.utils.xml_parse import safe_xml_fromstring
@@ -278,6 +276,7 @@ class Container(ContainerBase):  # {{{
         # Map of relative paths with '/' separators from root of unzipped ePub
         # to absolute paths on filesystem with os-specific separators
         opfpath = os.path.abspath(os.path.realpath(opfpath))
+        all_opf_files = []
         for dirpath, _dirnames, filenames in os.walk(self.root):
             for f in filenames:
                 path = join(dirpath, f)
@@ -289,6 +288,12 @@ class Container(ContainerBase):  # {{{
                     self.opf_name = name
                     self.opf_dir = os.path.dirname(path)
                     self.mime_map[name] = guess_type('a.opf')
+                if path.lower().endswith('.opf'):
+                    all_opf_files.append((name, os.path.dirname(path)))
+
+        if not hasattr(self, 'opf_name') and all_opf_files:
+            self.opf_name, self.opf_dir = all_opf_files[0]
+            self.mime_map[self.opf_name] = guess_type('a.opf')
 
         if not hasattr(self, 'opf_name'):
             raise InvalidBook('Could not locate opf file: %r'%opfpath)
@@ -1050,12 +1055,9 @@ class Container(ContainerBase):  # {{{
                 # Decouple this file from its links
                 temp = path + 'xxx'
                 shutil.copyfile(path, temp)
-                try:
-                    os.unlink(path)
-                except EnvironmentError:
-                    if not iswindows:
-                        raise
-                    time.sleep(1)  # Wait for whatever has locked the file to release it
+                if iswindows:
+                    retry_on_fail(os.unlink, path)
+                else:
                     os.unlink(path)
                 os.rename(temp, path)
         return path

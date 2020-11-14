@@ -6,16 +6,23 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, zipfile, posixpath, importlib, threading, re, sys
+import importlib
+import os
+import posixpath
+import re
+import sys
+import threading
+import zipfile
 from collections import OrderedDict
 from functools import partial
 from importlib.machinery import ModuleSpec
+from importlib.util import decode_source
 
 from calibre import as_unicode
-from calibre.customize import (Plugin, numeric_version, platform,
-        InvalidPlugin, PluginNotFound)
-from polyglot.builtins import (itervalues, map, string_or_bytes,
-        unicode_type, reload)
+from calibre.customize import (
+    InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
+)
+from polyglot.builtins import itervalues, map, reload, string_or_bytes, unicode_type
 
 # PEP 302 based plugin loading mechanism, works around the bug in zipimport in
 # python 2.x that prevents importing from zip files in locations whose paths
@@ -138,6 +145,9 @@ class CalibrePluginLoader:
             self.fullname_in_plugin == other.fullname_in_plugin
         )
 
+    def get_resource_reader(self, fullname=None):
+        return self
+
     def __hash__(self):
         return hash(self.name) ^ hash(self.plugin_name) ^ hash(self.fullname_in_plugin)
 
@@ -161,7 +171,8 @@ class CalibrePluginLoader:
         return src
 
     def get_source(self, fullname=None):
-        return self.get_source_as_bytes(fullname).decode('utf-8-sig').replace('\r\n', '\n')
+        raw = self.get_source_as_bytes(fullname)
+        return decode_source(raw)
 
     def get_filename(self, fullname):
         return self.filename
@@ -381,8 +392,9 @@ sys.meta_path.append(loader)
 
 if __name__ == '__main__':
     from tempfile import NamedTemporaryFile
-    from calibre.customize.ui import add_plugin
+
     from calibre import CurrentDir
+    from calibre.customize.ui import add_plugin
     path = sys.argv[-1]
     with NamedTemporaryFile(suffix='.zip') as f:
         with zipfile.ZipFile(f, 'w') as zf:

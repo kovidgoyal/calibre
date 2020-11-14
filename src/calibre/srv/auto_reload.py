@@ -15,7 +15,7 @@ import sys
 import time
 from threading import Lock, Thread
 
-from calibre.constants import islinux, ismacos, iswindows, plugins
+from calibre.constants import islinux, ismacos, iswindows
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.loop import ServerLoop
 from calibre.srv.opts import Options
@@ -102,6 +102,7 @@ if islinux:
 
 elif iswindows:
     from calibre.srv.utils import HandleInterrupt
+    from calibre_extensions import winutil
 
     class TreeWatcher(Thread):
 
@@ -111,7 +112,6 @@ elif iswindows:
             self.path_to_watch = path_to_watch
 
         def run(self):
-            winutil = plugins['winutil'][0]
             dir_handle = winutil.create_file(
                 self.path_to_watch,
                 winutil.FILE_LIST_DIRECTORY,

@@ -5,28 +5,28 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os
+import os
+import sys
 from functools import partial
-
 from PyQt5.Qt import (
-    QGridLayout, QSize, QListView, QStyledItemDelegate, QLabel, QPixmap,
-    QApplication, QSizePolicy, QAbstractListModel, Qt, QRect, QCheckBox,
-    QPainter, QSortFilterProxyModel, QLineEdit, QToolButton,
-    QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QMenu, QInputDialog, QHBoxLayout)
+    QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout,
+    QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListView, QMenu, QPainter,
+    QPixmap, QRect, QSize, QSizePolicy, QSortFilterProxyModel, QStyledItemDelegate,
+    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal
+)
 
 from calibre import fit_image
-from calibre.constants import plugins
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import choose_files, error_dialog, pixmap_to_data, empty_index
+from calibre.gui2 import choose_files, empty_index, error_dialog, pixmap_to_data
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.tweak_book import current_container, tprefs
-from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.tweak_book.file_list import name_is_ok
+from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre.utils.icu import numeric_sort_key
+from calibre.utils.localization import canonicalize_lang, get_lang
+from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.builtins import unicode_type
 
 
@@ -219,9 +219,7 @@ class InsertImage(Dialog):
         v.setSpacing(4)
         v.setResizeMode(v.Adjust)
         v.setUniformItemSizes(True)
-        pi = plugins['progress_indicator'][0]
-        if hasattr(pi, 'set_no_activate_on_click'):
-            pi.set_no_activate_on_click(v)
+        set_no_activate_on_click(v)
         v.activated.connect(self.activated)
         v.doubleClicked.connect(self.activated)
         self.d = ImageDelegate(v)

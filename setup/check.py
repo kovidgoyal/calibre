@@ -48,7 +48,7 @@ class Check(Command):
                 if f.endswith('.pyj'):
                     yield f
         if self.has_changelog_check:
-            yield self.j(self.d(self.SRC), 'Changelog.yaml')
+            yield self.j(self.d(self.SRC), 'Changelog.txt')
 
     def read_file(self, f):
         with open(f, 'rb') as f:

@@ -16,7 +16,7 @@ from calibre.srv.errors import HTTPNotFound
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
-from calibre.utils.shared_file import share_open, raise_winerror
+from calibre.utils.shared_file import share_open
 from polyglot.builtins import iteritems, map, range
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
@@ -334,11 +334,8 @@ class RotatingStream(object):
     def rename(self, src, dest):
         try:
             if iswindows:
-                import win32file, pywintypes
-                try:
-                    win32file.MoveFileEx(src, dest, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
-                except pywintypes.error as e:
-                    raise_winerror(e)
+                from calibre_extensions import winutil
+                winutil.move_file(src, dest)
             else:
                 os.rename(src, dest)
         except EnvironmentError as e:

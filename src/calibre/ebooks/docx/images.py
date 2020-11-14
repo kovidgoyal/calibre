@@ -60,6 +60,26 @@ def get_image_properties(parent, XPath, get):
         title = docPr.get('title') or title
         if docPr.get('hidden', None) in {'true', 'on', '1'}:
             ans['display'] = 'none'
+    transforms = []
+    for graphic in XPath('./a:graphic')(parent):
+        for xfrm in XPath('descendant::a:xfrm')(graphic):
+            rot = xfrm.get('rot')
+            if rot:
+                try:
+                    rot = int(rot) / 60000
+                except Exception:
+                    rot = None
+            if rot:
+                transforms.append(f'rotate({rot:g}deg)')
+            fliph = xfrm.get('flipH')
+            if fliph in ('1', 'true'):
+                transforms.append('scaleX(-1)')
+            flipv = xfrm.get('flipV')
+            if flipv in ('1', 'true'):
+                transforms.append('scaleY(-1)')
+
+    if transforms:
+        ans['transform'] = ' '.join(transforms)
 
     return ans, alt, title
 

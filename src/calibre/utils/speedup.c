@@ -121,9 +121,9 @@ static PyObject*
 speedup_detach(PyObject *self, PyObject *args) {
     char *devnull = NULL;
     if (!PyArg_ParseTuple(args, "s", &devnull)) return NULL;
-    if (freopen(devnull, "r", stdin) == NULL) return PyErr_SetFromErrno(PyExc_EnvironmentError);
-    if (freopen(devnull, "w", stdout) == NULL) return PyErr_SetFromErrno(PyExc_EnvironmentError);
-    if (freopen(devnull, "w", stderr) == NULL)  return PyErr_SetFromErrno(PyExc_EnvironmentError);
+    if (freopen(devnull, "r", stdin) == NULL) return PyErr_SetFromErrnoWithFilename(PyExc_OSError, devnull);
+    if (freopen(devnull, "w", stdout) == NULL) return PyErr_SetFromErrnoWithFilename(PyExc_OSError, devnull);
+    if (freopen(devnull, "w", stderr) == NULL)  return PyErr_SetFromErrnoWithFilename(PyExc_OSError, devnull);
     Py_RETURN_NONE;
 }
 
@@ -577,25 +577,23 @@ static PyMethodDef speedup_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+static int
+exec_module(PyObject *module) {
+    PyDateTime_IMPORT;
+#ifndef _WIN32
+    PyModule_AddIntConstant(module, "O_CLOEXEC", O_CLOEXEC);
+#endif
+    return 0;
+}
 
-static struct PyModuleDef speedup_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "speedup",
-    /* m_doc      */ "Implementation of methods in C for speed.",
-    /* m_size     */ -1,
-    /* m_methods  */ speedup_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "speedup",
+    .m_doc      = "Implementation of methods in C for speed.",
+    .m_methods  = speedup_methods,
+    .m_slots    = slots,
 };
 
-CALIBRE_MODINIT_FUNC PyInit_speedup(void) {
-    PyObject *mod = PyModule_Create(&speedup_module);
-    if (mod == NULL) return NULL;
-    PyDateTime_IMPORT;
-#ifdef O_CLOEXEC
-    PyModule_AddIntConstant(mod, "O_CLOEXEC", O_CLOEXEC);
-#endif
-    return mod;
-}
+CALIBRE_MODINIT_FUNC PyInit_speedup(void) { return PyModuleDef_Init(&module_def); }

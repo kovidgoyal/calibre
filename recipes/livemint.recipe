@@ -13,12 +13,14 @@ class LiveMint(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
+        ('News',
+         'http://www.livemint.com/rss/news'),
+        ('Technology',
+         'http://www.livemint.com/rss/technology'),
         ('Companies',
          'http://www.livemint.com/rss/companies'),
         ('Consumer',
          'http://www.livemint.com/rss/consumer'),
-        ('Top Stories',
-         'http://www.livemint.com/rss/homepage'),
         ('Opinion',
          'http://www.livemint.com/rss/opinion'),
         ('Money',
@@ -29,4 +31,6 @@ class LiveMint(BasicNewsRecipe):
          'http://www.livemint.com/rss/economy_politics'),
         ('Lounge',
          'http://www.livemint.com/rss/lounge'),
+        ('Sports',
+         'http://www.livemint.com/rss/sports'),
     ]

@@ -135,6 +135,10 @@ class LibraryBroker(object):
                                 for lid, path in iteritems(self.lmap)
                                 if basename(path) in allowed_names))
 
+    def path_for_library_id(self, library_id):
+        with self:
+            return self.original_path_map.get(self.lmap.get(library_id))
+
     def __enter__(self):
         self.lock.acquire()
 

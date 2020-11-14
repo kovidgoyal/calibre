@@ -288,47 +288,32 @@ static PyTypeObject FreeTypeType = { // {{{
 
 static char freetype_doc[] = "Interface to freetype";
 
-static PyMethodDef freetype_methods[] = {
-    {NULL, NULL, 0, NULL}
-};
-
-static struct PyModuleDef freetype_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "freetype",
-    /* m_doc      */ freetype_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ freetype_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
-    PyObject *m;
-
+static int
+exec_module(PyObject *m) {
     FreeTypeType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&FreeTypeType) < 0) {
-        return NULL;
-    }
+    if (PyType_Ready(&FreeTypeType) < 0) return -1;
 
     FaceType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&FaceType) < 0) {
-        return NULL;
-    }
-
-    m = PyModule_Create(&freetype_module);
-    if (m == NULL) {
-        return NULL;
-    }
+    if (PyType_Ready(&FaceType) < 0) return -1;
 
     FreeTypeError = PyErr_NewException((char*)"freetype.FreeTypeError", NULL, NULL);
-    if (FreeTypeError == NULL) {
-        return NULL;
-    }
+    if (FreeTypeError == NULL) return -1;
     PyModule_AddObject(m, "FreeTypeError", FreeTypeError);
 
     Py_INCREF(&FreeTypeType);
     PyModule_AddObject(m, "FreeType", (PyObject *)&FreeTypeType);
+    Py_INCREF(&FaceType);
     PyModule_AddObject(m, "Face", (PyObject *)&FaceType);
-    return m;
+	return 0;
+}
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
+
+CALIBRE_MODINIT_FUNC PyInit_freetype(void) {
+	module_def.m_name = "freetype";
+	module_def.m_doc = freetype_doc;
+	module_def.m_slots = slots;
+	return PyModuleDef_Init(&module_def);
 }

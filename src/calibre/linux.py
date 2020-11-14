@@ -850,115 +850,121 @@ class PostInstall:
     def setup_desktop_integration(self):  # {{{
         try:
             self.info('Setting up desktop integration...')
-
-            env = os.environ.copy()
-            cc = check_call
-            if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
-                paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
-                paths = [x for x in paths if x]
-                npaths = [x for x in paths if x != sys.frozen_path+'/lib']
-                env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
-                cc = partial(check_call, env=env)
-
-            if getattr(self.opts, 'staged_install', False):
-                for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
-                    try:
-                        os.makedirs(os.path.join(self.opts.staging_root, 'share', d))
-                    except OSError:
-                        # python2 does not have exist_ok=True, failure will be reported by xdg-utils
-                        pass
-
-            with TemporaryDirectory() as tdir, CurrentDir(tdir), PreserveMIMEDefaults():
-
-                def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
-                    filename = '%s-%s.png' % (basename, size)
-                    render_img(iconsrc, filename, width=int(size), height=int(size))
-                    cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', unicode_type(size), filename, basename]
-                    if is_last_icon:
-                        del cmd[2]
-                    cc(cmd)
-                    self.icon_resources.append((context, basename, unicode_type(size)))
-
-                def install_icons(iconsrc, basename, context, is_last_icon=False):
-                    sizes = (16, 32, 48, 64, 128, 256)
-                    for size in sizes:
-                        install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
-
-                icons = [x.strip() for x in '''\
-                    mimetypes/lrf.png application-lrf mimetypes
-                    mimetypes/lrf.png text-lrs mimetypes
-                    mimetypes/mobi.png application-x-mobipocket-ebook mimetypes
-                    mimetypes/tpz.png application-x-topaz-ebook mimetypes
-                    mimetypes/azw2.png application-x-kindle-application mimetypes
-                    mimetypes/azw3.png application-x-mobi8-ebook mimetypes
-                    lt.png calibre-gui apps
-                    viewer.png calibre-viewer apps
-                    tweak.png calibre-ebook-edit apps
-                    '''.splitlines() if x.strip()]
-                for line in icons:
-                    iconsrc, basename, context = line.split()
-                    install_icons(iconsrc, basename, context, is_last_icon=line is icons[-1])
-
-                mimetypes = set()
-                for x in all_input_formats():
-                    mt = guess_type('dummy.'+x)[0]
-                    if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
-                        mimetypes.add(mt)
-                mimetypes.discard('application/octet-stream')
-
-                def write_mimetypes(f):
-                    f.write(('MimeType=%s;\n'%';'.join(mimetypes)).encode('utf-8'))
-
-                from calibre.ebooks.oeb.polish.main import SUPPORTED
-                from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
-                with open('calibre-lrfviewer.desktop', 'wb') as f:
-                    f.write(VIEWER.encode('utf-8'))
-                with open('calibre-ebook-viewer.desktop', 'wb') as f:
-                    f.write(EVIEWER.encode('utf-8'))
-                    write_mimetypes(f)
-                with open('calibre-ebook-edit.desktop', 'wb') as f:
-                    f.write(ETWEAK.encode('utf-8'))
-                    mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
-                    f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
-                with open('calibre-gui.desktop', 'wb') as f:
-                    f.write(GUI.encode('utf-8'))
-                    write_mimetypes(f)
-                des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
-                        'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
-                appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
-                if not os.path.exists(appdata):
-                    try:
-                        os.mkdir(appdata)
-                    except:
-                        self.warning('Failed to create %s not installing appdata files' % appdata)
-                if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
-                    self.warning('Do not have write permissions for %s not installing appdata files' % appdata)
-                else:
-                    from calibre.utils.localization import get_all_translators
-                    translators = dict(get_all_translators())
-
-                APPDATA = get_appdata()
-                for x in des:
-                    cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
-                    cc(' '.join(cmd), shell=True)
-                    self.menu_resources.append(x)
-                    ak = x.partition('.')[0]
-                    if ak in APPDATA and os.access(appdata, os.W_OK):
-                        self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
-                MIME_BASE = 'calibre-mimetypes.xml'
-                MIME = P(MIME_BASE)
-                self.mime_resources.append(MIME_BASE)
-                if not getattr(self.opts, 'staged_install', False):
-                    cc(['xdg-mime', 'install', MIME])
-                    cc(['xdg-desktop-menu', 'forceupdate'])
-                else:
-                    from shutil import copyfile
-                    copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', MIME_BASE))
+            self.do_setup_desktop_integration()
         except Exception:
             if self.opts.fatal_errors:
                 raise
             self.task_failed('Setting up desktop integration failed')
 
+    def do_setup_desktop_integration(self):
+        env = os.environ.copy()
+        cc = check_call
+        if getattr(sys, 'frozen_path', False) and 'LD_LIBRARY_PATH' in env:
+            paths = env.get('LD_LIBRARY_PATH', '').split(os.pathsep)
+            paths = [x for x in paths if x]
+            npaths = [x for x in paths if x != sys.frozen_path+'/lib']
+            env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
+            cc = partial(check_call, env=env)
+
+        if getattr(self.opts, 'staged_install', False):
+            for d in {'applications', 'desktop-directories', 'icons/hicolor', 'mime/packages'}:
+                os.makedirs(os.path.join(self.opts.staging_root, 'share', d), exist_ok=True)
+
+        with TemporaryDirectory() as tdir, CurrentDir(tdir):
+            with PreserveMIMEDefaults():
+                self.install_xdg_junk(cc, env)
+
+    def install_xdg_junk(self, cc, env):
+
+        def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
+            filename = '%s-%s.png' % (basename, size)
+            render_img(iconsrc, filename, width=int(size), height=int(size))
+            cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', unicode_type(size), filename, basename]
+            if is_last_icon:
+                del cmd[2]
+            cc(cmd)
+            self.icon_resources.append((context, basename, unicode_type(size)))
+
+        def install_icons(iconsrc, basename, context, is_last_icon=False):
+            sizes = (16, 32, 48, 64, 128, 256)
+            for size in sizes:
+                install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
+
+        icons = [x.strip() for x in '''\
+            mimetypes/lrf.png application-lrf mimetypes
+            mimetypes/lrf.png text-lrs mimetypes
+            mimetypes/mobi.png application-x-mobipocket-ebook mimetypes
+            mimetypes/tpz.png application-x-topaz-ebook mimetypes
+            mimetypes/azw2.png application-x-kindle-application mimetypes
+            mimetypes/azw3.png application-x-mobi8-ebook mimetypes
+            lt.png calibre-gui apps
+            viewer.png calibre-viewer apps
+            tweak.png calibre-ebook-edit apps
+            '''.splitlines() if x.strip()]
+        for line in icons:
+            iconsrc, basename, context = line.split()
+            install_icons(iconsrc, basename, context, is_last_icon=line is icons[-1])
+
+        mimetypes = set()
+        for x in all_input_formats():
+            mt = guess_type('dummy.'+x)[0]
+            if mt and 'chemical' not in mt and 'ctc-posml' not in mt:
+                mimetypes.add(mt)
+        mimetypes.discard('application/octet-stream')
+
+        def write_mimetypes(f, extra=''):
+            line = 'MimeType={};'.format(';'.join(mimetypes))
+            if extra:
+                line += extra + ';'
+            f.write(line.encode('utf-8') + b'\n')
+
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
+        from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
+        with open('calibre-lrfviewer.desktop', 'wb') as f:
+            f.write(VIEWER.encode('utf-8'))
+        with open('calibre-ebook-viewer.desktop', 'wb') as f:
+            f.write(EVIEWER.encode('utf-8'))
+            write_mimetypes(f)
+        with open('calibre-ebook-edit.desktop', 'wb') as f:
+            f.write(ETWEAK.encode('utf-8'))
+            mt = {guess_type('a.' + x.lower())[0] for x in (SUPPORTED|IMPORTABLE)} - {None, 'application/octet-stream'}
+            f.write(('MimeType=%s;\n'%';'.join(mt)).encode('utf-8'))
+        with open('calibre-gui.desktop', 'wb') as f:
+            f.write(GUI.encode('utf-8'))
+            write_mimetypes(f, 'x-scheme-handler/calibre')
+        des = ('calibre-gui.desktop', 'calibre-lrfviewer.desktop',
+                'calibre-ebook-viewer.desktop', 'calibre-ebook-edit.desktop')
+        appdata = os.path.join(os.path.dirname(self.opts.staging_sharedir), 'metainfo')
+        translators = None
+        if not os.path.exists(appdata):
+            try:
+                os.mkdir(appdata)
+            except:
+                self.warning('Failed to create %s not installing appdata files' % appdata)
+        if os.path.exists(appdata) and not os.access(appdata, os.W_OK):
+            self.warning('Do not have write permissions for %s not installing appdata files' % appdata)
+        else:
+            from calibre.utils.localization import get_all_translators
+            translators = dict(get_all_translators())
+
+        APPDATA = get_appdata()
+        for x in des:
+            cmd = ['xdg-desktop-menu', 'install', '--noupdate', './'+x]
+            cc(' '.join(cmd), shell=True)
+            self.menu_resources.append(x)
+            ak = x.partition('.')[0]
+            if ak in APPDATA and translators is not None and os.access(appdata, os.W_OK):
+                self.appdata_resources.append(write_appdata(ak, APPDATA[ak], appdata, translators))
+
+        MIME_BASE = 'calibre-mimetypes.xml'
+        MIME = P(MIME_BASE)
+        self.mime_resources.append(MIME_BASE)
+        if not getattr(self.opts, 'staged_install', False):
+            cc(['xdg-mime', 'install', MIME])
+            cc(['xdg-desktop-menu', 'forceupdate'])
+        else:
+            from shutil import copyfile
+            copyfile(MIME, os.path.join(env['XDG_DATA_DIRS'], 'mime', 'packages', MIME_BASE))
     # }}}
 
 
@@ -1123,7 +1129,7 @@ Name=calibre
 GenericName=E-book library management
 Comment=E-book library management: Convert, view, share, catalogue all your e-books
 TryExec=calibre
-Exec=calibre --detach %F
+Exec=calibre --detach %U
 Icon=calibre-gui
 Categories=Office;
 X-GNOME-UsesNotifications=true
@@ -1145,6 +1151,8 @@ def get_appdata():
                 (1408, 792, 'https://lh4.googleusercontent.com/-Zu2httSKABE/UvHMYK30JJI/AAAAAAAAATg/dQTQUjBvV5s/w1408-h792-no/main-grid.png'),
                 (1408, 792, 'https://lh3.googleusercontent.com/-_trYUjU_BaY/UvHMYSdKhlI/AAAAAAAAATc/auPA3gyXc6o/w1408-h792-no/main-flow.png'),
             ),
+            'desktop-id': 'calibre-gui.desktop',
+            'include-releases': True,
         },
 
         'calibre-ebook-edit': {
@@ -1159,6 +1167,7 @@ def get_appdata():
                 (1408, 792, 'https://lh4.googleusercontent.com/-WhoMxuRb34c/UvHMWqN8aGI/AAAAAAAAATI/8SDBYWXb7-8/w1408-h792-no/edit-check.png'),
                 (887, 575, 'https://lh6.googleusercontent.com/-KwaOwHabnBs/UvHMWidjyXI/AAAAAAAAAS8/H6xmCeLnSpk/w887-h575-no/edit-toc.png'),
             ),
+            'desktop-id': 'calibre-ebook-edit.desktop',
         },
 
         'calibre-ebook-viewer': {
@@ -1172,14 +1181,75 @@ def get_appdata():
                 (1408, 792, 'https://lh5.googleusercontent.com/-dzSO82BPpaE/UvHMYY5SpNI/AAAAAAAAATk/I_kF9fYWrZM/w1408-h792-no/viewer-default.png',),
                 (1920, 1080, 'https://lh6.googleusercontent.com/-n32Ae5RytAk/UvHMY0QD94I/AAAAAAAAATs/Zw8Yz08HIKk/w1920-h1080-no/viewer-fs.png'),
             ),
+            'desktop-id': 'calibre-ebook-viewer.desktop',
         },
     }
+
+
+def changelog_bullet_to_text(bullet):
+    # It would be great if we could use any fancier formatting here, but the
+    # only allowed inline formattings within the AppData description bullet
+    # points are emphasis (italics) and code (monospaced font)
+    text = [bullet['title']]
+    if 'author' in bullet:
+        text.append(' by ')
+        text.append(bullet['author'])
+    if 'description' in bullet or 'tickets' in bullet:
+        text.append(' (')
+        if 'description' in bullet:
+            text.append(bullet['description'])
+        if 'tickets' in bullet:
+            if 'description' in bullet:
+                text.append(' – ')
+            text.append('Closes tickets: ')
+            text.append(', '.join(map(str, bullet['tickets'])))
+        text.append(')')
+    return ''.join(text)
+
+
+def make_appdata_releases():
+    from lxml.builder import E
+    import json
+    changelog = json.loads(P('changelog.json', data=True))
+
+    releases = E.releases()
+    for revision in changelog:
+        # Formatting of release description tries to resemble that of
+        # https://calibre-ebook.com/whats-new while taking into account the limits imposed by
+        # https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-description
+        description = E.description('{http://www.w3.org/XML/1998/namespace}lang', 'en')
+        if 'new features' in revision:
+            description.append(E.p('New features:'))
+            description.append(E.ol(
+                *(E.li(changelog_bullet_to_text(bullet)) for bullet in revision['new features'])
+            ))
+        if 'bug fixes' in revision:
+            description.append(E.p('Bug fixes:'))
+            description.append(E.ol(
+                *(E.li(changelog_bullet_to_text(bullet)) for bullet in revision['bug fixes'])
+            ))
+        if 'new recipes' in revision:
+            description.append(E.p('New news sources:'))
+            description.append(E.ol(
+                *(E.li(changelog_bullet_to_text(bullet)) for bullet in revision['new recipes'])
+            ))
+        if 'improved recipes' in revision:
+            description.append(E.p('Improved news sources:'))
+            description.append(E.ol(
+                *(E.li(name) for name in revision['improved recipes'])
+            ))
+        releases.append(E.release(
+            description,
+            version=revision['version'],
+            date=revision['date']
+        ))
+    return releases
 
 
 def write_appdata(key, entry, base, translators):
     from lxml.etree import tostring
     from lxml.builder import E
-    fpath = os.path.join(base, '%s.appdata.xml' % key)
+    fpath = os.path.join(base, '%s.metainfo.xml' % key)
     screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
         s = E.screenshot(E.image(url, width=unicode_type(w), height=unicode_type(h)))
@@ -1200,16 +1270,31 @@ def write_appdata(key, entry, base, translators):
         E.metadata_license('CC0-1.0'),
         E.project_license('GPL-3.0'),
         E.summary(entry['summary']),
+        E.content_rating(
+            # Information Sharing: Using any online API, e.g. a user-counter
+            # Details at https://calibre-ebook.com/dynamic/calibre-usage .
+            E.content_attribute('mild', id='social-info'),
+            # In-App Purchases: Users are encouraged to donate real money, e.g. using Patreon
+            E.content_attribute('mild', id='money-purchasing'),
+            type='oars-1.1'
+        ),
         description,
-        E.url('https://calibre-ebook.com', type='homepage'),
+        E.url('https://calibre-ebook.com/', type='homepage'),
         screenshots,
-        type='desktop'
+        E.launchable(entry['desktop-id'], type='desktop-id'),
+        type='desktop-application'
     )
     for lang, t in iteritems(translators):
         tp = t.gettext(entry['summary'])
         if tp != entry['summary']:
             root.append(E.summary(tp))
             root[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+    if entry.get('include-releases', False):
+        try:
+            root.append(make_appdata_releases())
+        except Exception:
+            import traceback
+            traceback.print_exc()
     with open(fpath, 'wb') as f:
         f.write(tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True))
     return fpath

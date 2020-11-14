@@ -13,21 +13,23 @@ from calibre.constants import filesystem_encoding, cache_dir
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
-from polyglot.builtins import iteritems, itervalues, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 
 
 def parse_localized_key(key):
     name, rest = key.partition('[')[0::2]
     if not rest:
         return name, None
-    rest = rest[:-1]
-    lang = re.split(r'[_.@]', rest)[0]
-    return name, canonicalize_lang(lang)
+    return name, rest[:-1]
 
 
 def unquote_exec(val):
     val = val.replace(r'\\', '\\')
     return shlex.split(val)
+
+
+def known_localized_items():
+    return {'Name': {}, 'GenericName': {}, 'Comment': {}, 'Icon': {}}
 
 
 def parse_desktop_file(path):
@@ -41,6 +43,7 @@ def parse_desktop_file(path):
     group = None
     ans = {}
     ans['desktop_file_path'] = path
+    localized_items = known_localized_items()
     for line in raw.splitlines():
         m = gpat.match(line)
         if m is not None:
@@ -62,15 +65,17 @@ def parse_desktop_file(path):
                         ans[k] = cmdline
                 elif k == 'MimeType':
                     ans[k] = frozenset(x.strip() for x in v.split(';'))
-                elif k in {'Name', 'GenericName', 'Comment', 'Icon'} or '[' in k:
+                elif k in localized_items or '[' in k:
                     name, lang = parse_localized_key(k)
-                    if name not in ans:
-                        ans[name] = {}
-                    if isinstance(ans[name], unicode_type):
-                        ans[name] = {None:ans[name]}
-                    ans[name][lang] = v
+                    vals = localized_items.setdefault(name, {})
+                    vals[lang] = v
+                    if name in ans:
+                        vals[None] = ans.pop(name)
                 else:
                     ans[k] = v
+    for k, vals in localized_items.items():
+        if vals:
+            ans[k] = dict(vals)
     if 'Exec' in ans and 'MimeType' in ans and 'Name' in ans:
         return ans
 
@@ -168,7 +173,34 @@ def find_icons():
 
 def localize_string(data):
     lang = canonicalize_lang(get_lang())
-    return data.get(lang, data.get(None)) or ''
+
+    def key_matches(key):
+        if key is None:
+            return False
+        base = re.split(r'[_.@]', key)[0]
+        return canonicalize_lang(base) == lang
+
+    matches = tuple(filter(key_matches, data))
+    if matches:
+        return data[matches[0]]
+    return data.get(None) or ''
+
+
+def process_desktop_file(data):
+    icon = data.get('Icon', {}).get(None)
+    if icon and not os.path.isabs(icon):
+        icon = find_icons().get(icon)
+        if icon:
+            data['Icon'] = icon
+        else:
+            data.pop('Icon')
+    if not isinstance(data.get('Icon'), string_or_bytes):
+        data.pop('Icon', None)
+    for k in ('Name', 'GenericName', 'Comment'):
+        val = data.get(k)
+        if val:
+            data[k] = localize_string(val)
+    return data
 
 
 def find_programs(extensions):
@@ -194,20 +226,7 @@ def find_programs(extensions):
             traceback.print_exc()
             continue
         if data is not None and mime_types.intersection(data['MimeType']):
-            icon = data.get('Icon', {}).get(None)
-            if icon and not os.path.isabs(icon):
-                icon = find_icons().get(icon)
-                if icon:
-                    data['Icon'] = icon
-                else:
-                    data.pop('Icon')
-            if not isinstance(data.get('Icon'), string_or_bytes):
-                data.pop('Icon', None)
-            for k in ('Name', 'GenericName', 'Comment'):
-                val = data.get(k)
-                if val:
-                    data[k] = localize_string(val)
-            ans.append(data)
+            ans.append(process_desktop_file(data))
     ans.sort(key=lambda d:sort_key(d.get('Name')))
     return ans
 

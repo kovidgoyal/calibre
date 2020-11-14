@@ -77,29 +77,25 @@ static PyMethodDef msdes_methods[] = {
     { NULL, NULL }
 };
 
-static struct PyModuleDef msdes_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "msdes",
-    /* m_doc      */ msdes_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ msdes_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_msdes(void) {
-    PyObject *m = PyModule_Create(&msdes_module);
-    if (m == NULL) {
-        return NULL;
-    }
-
+static int
+exec_module(PyObject *m) {
     MsDesError = PyErr_NewException("msdes.MsDesError", NULL, NULL);
     Py_INCREF(MsDesError);
     PyModule_AddObject(m, "MsDesError", MsDesError);
     PyModule_AddObject(m, "EN0", PyLong_FromLong(EN0));
     PyModule_AddObject(m, "DE1", PyLong_FromLong(DE1));
 
-    return m;
+	return 0;
 }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "msdes",
+    .m_doc      = msdes_doc,
+    .m_methods  = msdes_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_msdes(void) { return PyModuleDef_Init(&module_def); }

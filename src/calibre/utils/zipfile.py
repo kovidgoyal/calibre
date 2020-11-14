@@ -748,7 +748,6 @@ class ZipFile:
         self.debug = 0  # Level of printing: 0 through 3
         self.NameToInfo = {}    # Find file info given name
         self.filelist = []      # List of ZipInfo instances for archive
-        self.extract_mapping = {}
         self.compression = compression  # Method of compression
         self.mode = key = mode.replace('b', '')[0]
         self.pwd = None
@@ -1155,8 +1154,11 @@ class ZipFile:
 
         if member.filename[-1] == '/':
             if not os.path.isdir(targetpath):
-                os.mkdir(targetpath)
-            self.extract_mapping[member.filename] = targetpath
+                try:
+                    os.mkdir(targetpath)
+                except Exception:  # Added by Kovid
+                    targetpath = os.path.join(base_target, sanitize_file_name(fname))
+                    os.mkdir(targetpath)
             return targetpath
 
         if not os.path.exists(targetpath):
@@ -1180,7 +1182,6 @@ class ZipFile:
             os.utime(targetpath, (mtime, mtime))
         except:
             pass
-        self.extract_mapping[member.filename] = targetpath
         return targetpath
 
     def _writecheck(self, zinfo):

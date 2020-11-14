@@ -55,7 +55,7 @@ class TestHyphenation(unittest.TestCase):
         t('en', 'en_US')
         t('en_IN', 'en_GB')
         t('de', 'de_DE')
-        t('es', 'es_ANY')
+        t('es', 'es')
         t('nl', 'nl_NL')
         t('fr', 'fr')
         t('XXX')

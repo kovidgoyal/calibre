@@ -20,11 +20,7 @@ builtins.__dict__['__'] = lambda s: s
 # For backwards compat with some third party plugins
 builtins.__dict__['dynamic_property'] = lambda func: func(None)
 
-
-from calibre.constants import iswindows, preferred_encoding, plugins, ismacos, islinux, DEBUG, isfreebsd
-
-_run_once = False
-winutil = winutilerror = None
+from calibre.constants import iswindows, ismacos, islinux, DEBUG, isfreebsd
 
 
 def get_debug_executable():
@@ -47,39 +43,10 @@ def get_debug_executable():
     return [exe_name]
 
 
-if not _run_once:
-    _run_once = True
-    from importlib.machinery import ModuleSpec
-    from importlib.util import find_spec
-    from importlib import import_module
-
-    class DeVendorLoader:
-
-        def __init__(self, aliased_name):
-            self.aliased_module = import_module(aliased_name)
-            try:
-                self.path = self.aliased_module.__loader__.path
-            except Exception:
-                self.path = aliased_name
-
-        def create_module(self, spec):
-            return self.aliased_module
-
-        def exec_module(self, module):
-            return module
-
-        def __repr__(self):
-            return repr(self.path)
-
-    class DeVendor:
-
-        def find_spec(self, fullname, path=None, target=None):
-            if fullname == 'calibre.web.feeds.feedparser':
-                return find_spec('feedparser')
-            if fullname.startswith('calibre.ebooks.markdown'):
-                return ModuleSpec(fullname, DeVendorLoader(fullname[len('calibre.ebooks.'):]))
-
-    sys.meta_path.insert(0, DeVendor())
+def initialize_calibre():
+    if hasattr(initialize_calibre, 'initialized'):
+        return
+    initialize_calibre.initialized = True
 
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
@@ -89,20 +56,11 @@ if not _run_once:
         pass  # Ignore this error during startup, so we can show a better error message to the user later.
 
     #
-    # Convert command line arguments to unicode
-    enc = preferred_encoding
-    if ismacos:
-        enc = 'utf-8'
-    for i in range(1, len(sys.argv)):
-        if not isinstance(sys.argv[i], unicode_type):
-            sys.argv[i] = sys.argv[i].decode(enc, 'replace')
-
-    #
     # Ensure that the max number of open files is at least 1024
     if iswindows:
         # See https://msdn.microsoft.com/en-us/library/6e3b887c.aspx
-        if hasattr(winutil, 'setmaxstdio'):
-            winutil.setmaxstdio(max(1024, winutil.getmaxstdio()))
+        from calibre_extensions import winutil
+        winutil.setmaxstdio(max(1024, winutil.getmaxstdio()))
     else:
         import resource
         soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
@@ -163,10 +121,7 @@ if not _run_once:
         except:
             pass
 
-    # local_open() opens a file that wont be inherited by child processes
-    local_open = open  # PEP 446
-    builtins.__dict__['lopen'] = local_open
-
+    builtins.__dict__['lopen'] = open  # legacy compatibility
     from calibre.utils.icu import title_case, lower as icu_lower, upper as icu_upper
     builtins.__dict__['icu_lower'] = icu_lower
     builtins.__dict__['icu_upper'] = icu_upper
@@ -194,6 +149,7 @@ if not _run_once:
         # Name all threads at the OS level created using the threading module, see
         # http://bugs.python.org/issue15500
         import threading
+        from calibre_extensions import speedup
 
         orig_start = threading.Thread.start
 
@@ -208,7 +164,7 @@ if not _run_once:
                 if name:
                     if isinstance(name, unicode_type):
                         name = name.encode('ascii', 'replace').decode('ascii')
-                    plugins['speedup'][0].set_thread_name(name[:15])
+                    speedup.set_thread_name(name[:15])
             except Exception:
                 pass  # Don't care about failure to set name
         threading.Thread.start = new_start

@@ -87,8 +87,7 @@ def page_images(pdfpath, outputdir='.', first=1, last=1, image_format='jpeg', pr
     outputdir = os.path.abspath(outputdir)
     args = {}
     if iswindows:
-        import win32process as w
-        args['creationflags'] = w.HIGH_PRIORITY_CLASS | w.CREATE_NO_WINDOW
+        args['creationflags'] = subprocess.HIGH_PRIORITY_CLASS | subprocess.CREATE_NO_WINDOW
     try:
         subprocess.check_call([
             pdftoppm, '-cropbox', '-' + image_format, '-f', unicode_type(first),

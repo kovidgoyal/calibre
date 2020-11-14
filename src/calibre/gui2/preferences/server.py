@@ -18,7 +18,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import as_unicode
-from calibre.constants import isportable, iswindows, plugins
+from calibre.constants import isportable, iswindows
 from calibre.gui2 import (
     choose_files, choose_save_file, config, error_dialog, gprefs, info_dialog,
     open_url, warning_dialog
@@ -44,6 +44,8 @@ except ImportError:
 
 
 if iswindows and not isportable:
+    from calibre_extensions import winutil
+
     def get_exe():
         exe_base = os.path.abspath(os.path.dirname(sys.executable))
         exe = os.path.join(exe_base, 'calibre.exe')
@@ -52,7 +54,6 @@ if iswindows and not isportable:
         return exe
 
     def startup_shortcut_path():
-        winutil = plugins['winutil'][0]
         startup_path = winutil.special_folder_path(winutil.CSIDL_STARTUP)
         return os.path.join(startup_path, "calibre.lnk")
 
@@ -63,12 +64,12 @@ if iswindows and not isportable:
             for arg in args:
                 quoted_args.append('"{}"'.format(arg))
             quoted_args = ' '.join(quoted_args)
-        plugins['winutil'][0].manage_shortcut(shortcut_path, target, description, quoted_args)
+        winutil.manage_shortcut(shortcut_path, target, description, quoted_args)
 
     def shortcut_exists_at(shortcut_path, target):
         if not os.access(shortcut_path, os.R_OK):
             return False
-        name = plugins['winutil'][0].manage_shortcut(shortcut_path, None, None, None)
+        name = winutil.manage_shortcut(shortcut_path, None, None, None)
         if name is None:
             return False
         return os.path.normcase(os.path.abspath(name)) == os.path.normcase(os.path.abspath(target))

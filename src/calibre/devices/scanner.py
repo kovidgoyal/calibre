@@ -11,7 +11,7 @@ from collections import namedtuple
 from threading import Lock
 
 from calibre import prints, as_unicode
-from calibre.constants import (iswindows, ismacos, plugins, islinux, isfreebsd,
+from calibre.constants import (iswindows, ismacos, islinux, isfreebsd,
         isnetbsd)
 from polyglot.builtins import range
 
@@ -21,11 +21,11 @@ if iswindows:
     drive_ok_lock = Lock()
 
     def drive_is_ok(letter, max_tries=10, debug=False):
-        import win32file
+        from calibre_extensions import winutil
         with drive_ok_lock:
             for i in range(max_tries):
                 try:
-                    win32file.GetDiskFreeSpaceEx(letter+':\\')
+                    winutil.get_disk_free_space(letter+':\\')
                     return True
                 except Exception as e:
                     if i >= max_tries - 1 and debug:
@@ -60,11 +60,8 @@ class LibUSBScanner(object):
 
     def __call__(self):
         if not hasattr(self, 'libusb'):
-            self.libusb, self.libusb_err = plugins['libusb']
-            if self.libusb is None:
-                raise ValueError(
-                    'DeviceScanner needs libusb to work. Error: %s'%
-                    self.libusb_err)
+            from calibre_extensions import libusb
+            self.libusb = libusb
 
         ans = set()
         seen = set()
@@ -172,16 +169,6 @@ if islinux:
     linux_scanner = LinuxScanner()
 
 libusb_scanner = LibUSBScanner()
-if False and ismacos:
-    # Apparently libusb causes mem leaks on some Macs and hangs on others and
-    # works on a few. OS X users will just have to live without MTP support.
-    # See https://bugs.launchpad.net/calibre/+bug/1044706
-    # See https://bugs.launchpad.net/calibre/+bug/1044758
-    # osx_scanner = libusb_scanner
-    usbobserver, usbobserver_err = plugins['usbobserver']
-    if usbobserver is None:
-        raise RuntimeError('Failed to load usbobserver: %s'%usbobserver_err)
-    osx_scanner = usbobserver.get_usb_devices
 
 if isfreebsd:
     freebsd_scanner = libusb_scanner

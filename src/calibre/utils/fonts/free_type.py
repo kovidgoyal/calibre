@@ -8,9 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 import threading
 from functools import wraps
-from polyglot.builtins import map, unicode_type
 
-from calibre.constants import plugins
+from calibre_extensions.freetype import FreeType as _FreeType
+from polyglot.builtins import map, unicode_type
 
 
 class ThreadingViolation(Exception):
@@ -28,9 +28,6 @@ def same_thread(func):
             raise ThreadingViolation()
         return func(self, *args, **kwargs)
     return check_thread
-
-
-FreeTypeError = getattr(plugins['freetype'][0], 'FreeTypeError', Exception)
 
 
 class Face(object):
@@ -71,11 +68,7 @@ class FreeType(object):
 
     def __init__(self):
         self.start_thread = threading.current_thread()
-        ft, ft_err = plugins['freetype']
-        if ft_err:
-            raise RuntimeError('Failed to load FreeType module with error: %s'
-                    % ft_err)
-        self.ft = ft.FreeType()
+        self.ft = _FreeType()
 
     @same_thread
     def load_font(self, data):

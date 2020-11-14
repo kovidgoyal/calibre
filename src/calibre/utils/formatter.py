@@ -30,6 +30,7 @@ class Node(object):
     NODE_RAW_FIELD = 9
     NODE_CALL = 10
     NODE_ARGUMENTS = 11
+    NODE_FIRST_NON_EMPTY = 12
 
 
 class IfNode(Node):
@@ -116,6 +117,13 @@ class RawFieldNode(Node):
         Node.__init__(self)
         self.node_type = self.NODE_RAW_FIELD
         self.expression = expression
+
+
+class FirstNonEmptyNode(Node):
+    def __init__(self, expression_list):
+        Node.__init__(self)
+        self.node_type = self.NODE_FIRST_NON_EMPTY
+        self.expression_list = expression_list
 
 
 class _Parser(object):
@@ -359,6 +367,8 @@ class _Parser(object):
                 return RawFieldNode(arguments[0])
             if id_ == 'test' and len(arguments) == 3:
                 return IfNode(arguments[0], (arguments[1],), (arguments[2],))
+            if id_ == 'first_non_empty' and len(arguments) > 0:
+                return FirstNonEmptyNode(arguments)
             if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
                 return AssignNode(arguments[0].name, arguments[1])
             if id_ == 'arguments':
@@ -524,18 +534,24 @@ class _Interpreter(object):
         self.locals[prog.left] = t
         return t
 
+    def do_node_first_non_empty(self, prog):
+        for expr in prog.expression_list:
+            if v := self.expr(expr):
+                return v
+
     NODE_OPS = {
-        Node.NODE_IF:            do_node_if,
-        Node.NODE_ASSIGN:        do_node_assign,
-        Node.NODE_CONSTANT:      do_node_constant,
-        Node.NODE_RVALUE:        do_node_rvalue,
-        Node.NODE_FUNC:          do_node_func,
-        Node.NODE_FIELD:         do_node_field,
-        Node.NODE_RAW_FIELD:     do_node_raw_field,
-        Node.NODE_STRING_INFIX:  do_node_string_infix,
-        Node.NODE_NUMERIC_INFIX: do_node_numeric_infix,
-        Node.NODE_ARGUMENTS:     do_node_arguments,
-        Node.NODE_CALL:          do_node_call,
+        Node.NODE_IF:             do_node_if,
+        Node.NODE_ASSIGN:         do_node_assign,
+        Node.NODE_CONSTANT:       do_node_constant,
+        Node.NODE_RVALUE:         do_node_rvalue,
+        Node.NODE_FUNC:           do_node_func,
+        Node.NODE_FIELD:          do_node_field,
+        Node.NODE_RAW_FIELD:      do_node_raw_field,
+        Node.NODE_STRING_INFIX:   do_node_string_infix,
+        Node.NODE_NUMERIC_INFIX:  do_node_numeric_infix,
+        Node.NODE_ARGUMENTS:      do_node_arguments,
+        Node.NODE_CALL:           do_node_call,
+        Node.NODE_FIRST_NON_EMPTY:do_node_first_non_empty,
         }
 
     def expr(self, prog):

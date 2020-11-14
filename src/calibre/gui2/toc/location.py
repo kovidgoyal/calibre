@@ -89,7 +89,7 @@ class WebView(QWebEngineView):  # {{{
         self.setUrl(QUrl.fromLocalFile(path))
 
     def sizeHint(self):
-        return QSize(1500, 300)
+        return QSize(300, 300)
 
     def contextMenuEvent(self, ev):
         pass

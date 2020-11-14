@@ -6,19 +6,18 @@
 import json
 import os
 import sys
-from threading import Thread
-
 from PyQt5.Qt import QIcon, QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
+from contextlib import closing
 
-from calibre import as_unicode, prints
-from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux, iswindows
+from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux
 from calibre.gui2 import Application, error_dialog, setup_gui_option_parser
-from calibre.gui2.viewer.ui import EbookViewer, is_float
 from calibre.gui2.viewer.config import get_session_pref, vprefs
+from calibre.gui2.viewer.ui import EbookViewer, is_float
+from calibre.gui2.listener import send_message_in_process
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
-from calibre.utils.ipc import RC, viewer_socket_address
+from calibre.utils.ipc import viewer_socket_address
 
 singleinstance_name = 'calibre_viewer'
 
@@ -97,62 +96,16 @@ class EventAccumulator(QObject):
             self.events = []
 
 
-def listen(listener, msg_from_anotherinstance):
-    while True:
+def send_message_to_viewer_instance(args, open_at):
+    if len(args) > 1:
+        msg = json.dumps((os.path.abspath(args[1]), open_at))
         try:
-            conn = listener.accept()
-        except Exception:
-            break
-        try:
-            msg_from_anotherinstance.emit(conn.recv())
-            conn.close()
-        except Exception as e:
-            prints('Failed to read message from other instance with error: %s' % as_unicode(e))
-
-
-def create_listener():
-    addr = viewer_socket_address()
-    if islinux:
-        from calibre.utils.ipc.server import LinuxListener as Listener
-    else:
-        from multiprocessing.connection import Listener
-        if not iswindows:
-            # On macOS (and BSDs, I am guessing), following a crash, the
-            # listener socket file sticks around and needs to be explicitly
-            # removed. It is safe to do this since we are already guaranteed to
-            # be the owner of the socket by singleinstance()
-            try:
-                os.remove(addr)
-            except Exception:
-                pass
-    return Listener(address=addr)
-
-
-def ensure_single_instance(args, open_at):
-    try:
-        from calibre.utils.lock import singleinstance
-        si = singleinstance(singleinstance_name)
-    except Exception:
-        import traceback
-        error_dialog(None, _('Cannot start viewer'), _(
-            'Failed to start viewer, could not insure only a single instance of the viewer is running. Click "Show Details" for more information'),
-                    det_msg=traceback.format_exc(), show=True)
-        raise SystemExit(1)
-    if not si:
-        if len(args) > 1:
-            t = RC(print_error=True, socket_address=viewer_socket_address())
-            t.start()
-            t.join(3.0)
-            if t.is_alive() or t.conn is None:
-                error_dialog(None, _('Connect to viewer failed'), _(
-                    'Unable to connect to existing E-book viewer window, try restarting the viewer.'), show=True)
-                raise SystemExit(1)
-            t.conn.send((os.path.abspath(args[1]), open_at))
-            t.conn.close()
-            prints('Opened book in existing viewer instance')
-        raise SystemExit(0)
-    listener = create_listener()
-    return listener
+            send_message_in_process(msg, address=viewer_socket_address())
+        except Exception as err:
+            error_dialog(None, _('Connect to viewer failed'), _(
+                'Unable to connect to existing E-book viewer window, try restarting the viewer.'), det_msg=str(err), show=True)
+            raise SystemExit(1)
+        print('Opened book in existing viewer instance')
 
 
 def option_parser():
@@ -185,6 +138,31 @@ View an e-book.
 
     setup_gui_option_parser(parser)
     return parser
+
+
+def run_gui(app, opts, args, internal_book_data, listener=None):
+    acc = EventAccumulator(app)
+    app.file_event_hook = acc
+    app.load_builtin_fonts()
+    app.setWindowIcon(QIcon(I('viewer.png')))
+    migrate_previous_viewer_prefs()
+    main = EbookViewer(
+        open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,
+        calibre_book_data=internal_book_data)
+    main.set_exception_handler()
+    if len(args) > 1:
+        acc.events.append(os.path.abspath(args[-1]))
+    acc.got_file.connect(main.handle_commandline_arg)
+    main.show()
+    if listener is not None:
+        listener.message_received.connect(main.message_from_other_instance, type=Qt.QueuedConnection)
+    QTimer.singleShot(0, acc.flush)
+    if opts.raise_window:
+        main.raise_()
+    if opts.full_screen:
+        main.set_full_screen(True)
+
+    app.exec_()
 
 
 def main(args=sys.argv):
@@ -223,42 +201,25 @@ def main(args=sys.argv):
             oat.startswith('epubcfi(/') or is_float(oat) or oat.startswith('ref:')):
         raise SystemExit('Not a valid --open-at value: {}'.format(opts.open_at))
 
-    listener = None
     if get_session_pref('singleinstance', False):
-        try:
-            listener = ensure_single_instance(args, opts.open_at)
-        except Exception as e:
-            import traceback
-            error_dialog(None, _('Failed to start viewer'), as_unicode(e), det_msg=traceback.format_exc(), show=True)
-            raise SystemExit(1)
-
-    acc = EventAccumulator(app)
-    app.file_event_hook = acc
-    app.load_builtin_fonts()
-    app.setWindowIcon(QIcon(I('viewer.png')))
-    migrate_previous_viewer_prefs()
-    main = EbookViewer(
-        open_at=opts.open_at, continue_reading=opts.continue_reading, force_reload=opts.force_reload,
-        calibre_book_data=internal_book_data)
-    main.set_exception_handler()
-    if len(args) > 1:
-        acc.events.append(os.path.abspath(args[-1]))
-    acc.got_file.connect(main.handle_commandline_arg)
-    main.show()
-    main.msg_from_anotherinstance.connect(main.another_instance_wants_to_talk, type=Qt.QueuedConnection)
-    if listener is not None:
-        t = Thread(name='ConnListener', target=listen, args=(listener, main.msg_from_anotherinstance))
-        t.daemon = True
-        t.start()
-    QTimer.singleShot(0, acc.flush)
-    if opts.raise_window:
-        main.raise_()
-    if opts.full_screen:
-        main.set_full_screen(True)
-
-    app.exec_()
-    if listener is not None:
-        listener.close()
+        from calibre.utils.lock import SingleInstance
+        from calibre.gui2.listener import Listener
+        with SingleInstance(singleinstance_name) as si:
+            if si:
+                try:
+                    listener = Listener(address=viewer_socket_address(), parent=app)
+                    listener.start_listening()
+                except Exception as err:
+                    error_dialog(None, _('Failed to start listener'), _(
+                        'Could not start the listener used for single instance viewers. Try rebooting your computer.'),
+                                        det_msg=str(err), show=True)
+                else:
+                    with closing(listener):
+                        run_gui(app, opts, args, internal_book_data, listener=listener)
+            else:
+                send_message_to_viewer_instance(args, opts.open_at)
+    else:
+        run_gui(app, opts, args, internal_book_data)
 
 
 if __name__ == '__main__':

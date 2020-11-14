@@ -6,18 +6,21 @@ __docformat__ = 'restructuredtext en'
 '''
 nybooks.com
 '''
-import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-def find_header(tag):
-    return tag.name == 'header' and ''.join(tag.parent['class']) == 'article'
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 def absurl(url):
-    if url.startswith('/'):
-        url = 'http://www.nybooks.com' + url
+    if url.startswith('//'):
+        url = 'https:' + url
+    elif url.startswith('/'):
+        url = 'https://www.nybooks.com' + url
     return url
 
 
@@ -34,80 +37,57 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
     needs_subscription = True
 
     keep_only_tags = [
-        dict(name='section', attrs={'class': 'article_body'}),
-        dict(name=find_header),
-        dict(name='div', attrs={
-             'class': ['footnotes', 'for-subscribers-only']}),
+        dict(name='h1'),
+        classes('author article-col article-main-content'),
     ]
-
-    preprocess_regexps = [(re.compile(r'<head>.*?</head>', re.DOTALL), lambda
-                           m:'<head></head>')]
-
-    def print_version(self, url):
-        if '?' in url:
-            url = url.rpartition('?')[0]
-        return url + '?pagination=false'
+    remove_tags = [
+        classes('inline-ad'),
+    ]
+    remove_tags_after = classes('article-main-content')
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://www.nybooks.com/account/signin/')
-        br.select_form(nr=2)
-        br['user_login'] = self.username
-        br['user_password'] = self.password
+        br.open('https://www.nybooks.com/account/signin/')
+        br.select_form(id='loginform')
+        br['log'] = self.username
+        br['pwd'] = self.password
         br.submit()
         return br
 
-    def preprocess_html(self, soup):
-        header = soup.find('header')
-        body = soup.find('body')
-        body.insert(0, header)
-        header.find('div', attrs={'class': 'details'}).extract()
-        for i in soup.findAll('input'):
-            i.extract()
-        return soup
-
-    def postprocess_html(self, soup, first):
-        for img in soup.findAll('img', srcset=True):
-            del img['srcset']
-        return soup
-
     def parse_index(self):
-        soup = self.index_to_soup('http://www.nybooks.com/current-issue')
+        soup = self.index_to_soup('https://www.nybooks.com/current-issue')
+        # from calibre.utils.ipython import ipython
+        # ipython({'soup': soup})
 
         # Find cover
-        sidebar = soup.find('div', attrs={'class': 'issue_cover'})
-        if sidebar is not None:
-            img = sidebar.find('img', src=True)
-            self.cover_url = absurl(img['src'])
+        cover = soup.find('img', attrs={'class':'border-light-gray'})
+        if cover is not None:
+            self.cover_url = absurl(cover['src'])
             self.log('Found cover at:', self.cover_url)
 
         # Find date
-        div = soup.find('time', pubdate='pubdate')
+        div = soup.find('p', **classes('h2'))
         if div is not None:
             text = self.tag_to_string(div)
-            date = text.partition(u'\u2022')[0].strip()
-            self.timefmt = u' [%s]' % date
-            self.log('Issue date:', date)
+            self.timefmt = text
+            self.log('Issue date:', text)
 
         # Find TOC
-        tocs = soup.find('div', attrs={'class': 'current_issue'}).findAll(
-            'div', attrs={'class': 'articles_list'})
         articles = []
-        for toc in tocs:
-            for div in toc.findAll('div', attrs={'class': 'row'}):
-                h2 = div.find('h2')
-                title = self.tag_to_string(h2).strip()
-                author = self.tag_to_string(
-                    div.find('div', attrs={'class': 'author'})).strip()
-                title = title + u' (%s)' % author
-                url = absurl(h2.find('a', href=True)['href'])
-                desc = ''
-                for p in div.findAll('p', attrs={'class': lambda x: x and 'quiet' in x}):
-                    desc += self.tag_to_string(p)
-                self.log('Found article:', title)
-                self.log('\t', url)
-                self.log('\t', desc)
-                articles.append({'title': title, 'url': url, 'date': '',
-                                 'description': desc})
+        for h4 in soup.findAll('h4'):
+            title = self.tag_to_string(h4).strip()
+            url = absurl(h4.find('a')['href'])
+            author = self.tag_to_string(h4.parent.parent.find('a'))
+            title = title + ' (%s)' % author
+            desc = ''
+            div = h4
+            while div.next_sibling:
+                div = div.next_sibling
+                desc += self.tag_to_string(div).strip()
+            self.log('Found article:', title)
+            self.log('\t', url)
+            self.log('\t', desc)
+            articles.append({'title': title, 'url': url, 'date': '',
+                                'description': desc})
 
         return [('Current Issue', articles)]

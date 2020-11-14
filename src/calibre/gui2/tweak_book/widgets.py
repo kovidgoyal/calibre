@@ -690,7 +690,7 @@ class InsertLink(Dialog):
             in the template, they will be replaced by the source filename, the destination
             filename and the anchor, respectively.
         ''').format(
-            '_TITLE_', '_TARGET', '_SOURCE_FILENAME_', '_DEST_FILENAME_', '_ANCHOR_'))
+            '_TEXT_', '_TARGET_', '_SOURCE_FILENAME_', '_DEST_FILENAME_', '_ANCHOR_'))
 
         l.addWidget(self.bb)
 
@@ -1230,8 +1230,8 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
             return True
 
     def windows_ignore_altgr_shortcut(self, ev):
-        import win32api, win32con
-        s = win32api.GetAsyncKeyState(win32con.VK_RMENU) & 0xffff  # VK_RMENU == R_ALT
+        from calibre_extensions import winutil
+        s = winutil.get_async_key_state(winutil.VK_RMENU)  # VK_RMENU == R_ALT
         return s & 0x8000
 
     def event(self, ev):

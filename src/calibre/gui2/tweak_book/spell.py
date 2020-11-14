@@ -5,38 +5,48 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
-from collections import defaultdict, OrderedDict
-from itertools import chain
-from threading import Thread
+import os
+import sys
+from collections import OrderedDict, defaultdict
 from functools import partial
-
+from itertools import chain
 from PyQt5.Qt import (
-    QGridLayout, QApplication, QTreeWidget, QTreeWidgetItem, Qt, QFont, QSize,
-    QStackedLayout, QLabel, QVBoxLayout, QWidget, QPushButton, QIcon, QMenu,
-    QDialogButtonBox, QLineEdit, QDialog, QToolButton, QFormLayout, QHBoxLayout,
-    pyqtSignal, QAbstractTableModel, QModelIndex, QTimer, QTableView, QCheckBox,
-    QComboBox, QListWidget, QListWidgetItem, QInputDialog, QPlainTextEdit, QKeySequence,
-    QT_VERSION_STR)
+    QT_VERSION_STR, QAbstractTableModel, QApplication, QCheckBox, QComboBox, QDialog,
+    QDialogButtonBox, QFont, QFormLayout, QGridLayout, QHBoxLayout, QIcon,
+    QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize, QStackedLayout, Qt,
+    QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
+)
+from threading import Thread
 
-from calibre.constants import __appname__, plugins
-from calibre.ebooks.oeb.polish.spell import replace_word, get_all_words, merge_locations, get_checkable_file_names, undo_replace_word
+from calibre.constants import __appname__
+from calibre.ebooks.oeb.polish.spell import (
+    get_all_words, get_checkable_file_names, merge_locations, replace_word,
+    undo_replace_word
+)
 from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.complete2 import LineEdit
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs, editors
+from calibre.gui2.tweak_book import (
+    current_container, dictionaries, editors, set_book_locale, tprefs
+)
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.widgets2 import FlowLayout
 from calibre.spell import DictionaryLocale
-from calibre.spell.dictionary import (
-    builtin_dictionaries, custom_dictionaries, best_locale_for_language,
-    get_dictionary, dprefs, remove_dictionary, rename_dictionary)
-from calibre.spell.import_from import import_from_oxt
 from calibre.spell.break_iterator import split_into_words
-from calibre.utils.localization import calibre_langcode_to_name, get_language, get_lang, canonicalize_lang
-from calibre.utils.icu import sort_key, primary_sort_key, primary_contains, contains
-from polyglot.builtins import iteritems, unicode_type, range, filter
+from calibre.spell.dictionary import (
+    best_locale_for_language, builtin_dictionaries, custom_dictionaries, dprefs,
+    get_dictionary, remove_dictionary, rename_dictionary
+)
+from calibre.spell.import_from import import_from_oxt
+from calibre.utils.icu import contains, primary_contains, primary_sort_key, sort_key
+from calibre.utils.localization import (
+    calibre_langcode_to_name, canonicalize_lang, get_lang, get_language
+)
+from calibre_extensions.progress_indicator import set_no_activate_on_click
+from polyglot.builtins import filter, iteritems, range, unicode_type
 
 LANG = 0
 COUNTRY = 1
@@ -492,7 +502,7 @@ class ManageDictionaries(Dialog):  # {{{
                 if countrycode == best_country:
                     j.setData(0, Qt.FontRole, bf)
                 pd = get_dictionary(DictionaryLocale(lc, countrycode))
-                for dictionary in sorted(languages[lc][countrycode], key=lambda d:d.name):
+                for dictionary in sorted(languages[lc][countrycode], key=lambda d:(d.name or '')):
                     k = QTreeWidgetItem(j, DICTIONARY)
                     pl = calibre_langcode_to_name(dictionary.primary_locale.langcode)
                     if dictionary.primary_locale.countrycode:
@@ -923,7 +933,6 @@ class SpellCheck(Dialog):
 
     def setup_ui(self):
         self.state_name = 'spell-check-table-state-' + QT_VERSION_STR.partition('.')[0]
-        set_no_activate_on_click = plugins['progress_indicator'][0].set_no_activate_on_click
         self.setWindowIcon(QIcon(I('spell-check.png')))
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)

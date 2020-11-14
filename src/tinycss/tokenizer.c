@@ -451,24 +451,21 @@ static PyMethodDef tokenizer_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef tokenizer_module = {
-        /* m_base     */ PyModuleDef_HEAD_INIT,
-        /* m_name     */ "tokenizer",
-        /* m_doc      */ "Implementation of tokenizer in C for speed.",
-        /* m_size     */ -1,
-        /* m_methods  */ tokenizer_methods,
-        /* m_slots    */ 0,
-        /* m_traverse */ 0,
-        /* m_clear    */ 0,
-        /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_tokenizer(void) {
-    if (PyType_Ready(&tokenizer_TokenType) < 0) return NULL;
-
-    PyObject *mod = PyModule_Create(&tokenizer_module);
-    if (mod == NULL) return NULL;
+static int
+exec_module(PyObject *mod) {
+    if (PyType_Ready(&tokenizer_TokenType) < 0) return -1;
     Py_INCREF(&tokenizer_TokenType);
     PyModule_AddObject(mod, "Token", (PyObject *) &tokenizer_TokenType);
-    return mod;
+	return 0;
 }
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "tokenizer",
+    .m_doc      = "Implementation of tokenizer in C for speed.",
+    .m_methods  = tokenizer_methods,
+    .m_slots    = slots,
+};
+
+CALIBRE_MODINIT_FUNC PyInit_tokenizer(void) { return PyModuleDef_Init(&module_def); }

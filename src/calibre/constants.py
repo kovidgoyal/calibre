@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv, as_unicode, native_string_type
-import sys, locale, codecs, os, importlib, collections
+from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv
+import sys, locale, codecs, os, collections
 
 __appname__   = 'calibre'
-numeric_version = (5, 2, 0)
+numeric_version = (5, 5, 0)
 __version__   = '.'.join(map(unicode_type, numeric_version))
 git_version   = None
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
@@ -50,10 +50,6 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
-win32event = importlib.import_module('win32event') if iswindows else None
-winerror   = importlib.import_module('winerror') if iswindows else None
-win32api   = importlib.import_module('win32api') if iswindows else None
-fcntl      = None if iswindows else importlib.import_module('fcntl')
 dark_link_color = '#6cb4ee'
 builtin_colors_light = {
     'yellow': '#ffeb6b',
@@ -138,9 +134,8 @@ def _get_cache_dir():
                 return ans
 
     if iswindows:
-        w = plugins['winutil'][0]
         try:
-            candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), '%s-cache'%__appname__)
+            candidate = os.path.join(winutil.special_folder_path(winutil.CSIDL_LOCAL_APPDATA), '%s-cache'%__appname__)
         except ValueError:
             return confcache
     elif ismacos:
@@ -169,84 +164,158 @@ def cache_dir():
     return ans
 
 
-plugins_loc = sys.extensions_location
-
-
 # plugins {{{
+plugins_loc = sys.extensions_location
+from importlib.machinery import ModuleSpec, EXTENSION_SUFFIXES, ExtensionFileLoader
+from importlib.util import find_spec
+from importlib import import_module
+
+
+class DeVendorLoader:
+
+    def __init__(self, aliased_name):
+        self.aliased_module = import_module(aliased_name)
+        try:
+            self.path = self.aliased_module.__loader__.path
+        except Exception:
+            self.path = aliased_name
+
+    def create_module(self, spec):
+        return self.aliased_module
+
+    def exec_module(self, module):
+        return module
+
+    def __repr__(self):
+        return repr(self.path)
+
+
+class DeVendor:
+
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname == 'calibre.web.feeds.feedparser':
+            return find_spec('feedparser')
+        if fullname.startswith('calibre.ebooks.markdown'):
+            return ModuleSpec(fullname, DeVendorLoader(fullname[len('calibre.ebooks.'):]))
+
+
+class ExtensionsPackageLoader:
+
+    def __init__(self, calibre_extensions):
+        self.calibre_extensions = calibre_extensions
+
+    def is_package(self, fullname=None):
+        return True
+
+    def get_resource_reader(self, fullname=None):
+        return self
+
+    def get_source(self, fullname=None):
+        return ''
+
+    def contents(self):
+        return iter(self.calibre_extensions)
+
+    def create_module(self, spec):
+        pass
+
+    def exec_module(self, spec):
+        pass
+
+
+class ExtensionsImporter:
+
+    def __init__(self):
+        extensions = (
+            'pictureflow',
+            'lzx',
+            'msdes',
+            'podofo',
+            'cPalmdoc',
+            'progress_indicator',
+            'icu',
+            'speedup',
+            'html_as_json',
+            'unicode_names',
+            'html_syntax_highlighter',
+            'hyphen',
+            'freetype',
+            'imageops',
+            'hunspell',
+            '_patiencediff_c',
+            'bzzdec',
+            'matcher',
+            'tokenizer',
+            'certgen',
+        )
+        if iswindows:
+            extra = ('winutil', 'wpd', 'winfonts', 'winsapi')
+        elif ismacos:
+            extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
+        elif isfreebsd or ishaiku or islinux:
+            extra = ('libusb', 'libmtp', 'espeak')
+        else:
+            extra = ()
+        self.calibre_extensions = frozenset(extensions + extra)
+
+    def find_spec(self, fullname, path=None, target=None):
+        if not fullname.startswith('calibre_extensions'):
+            return
+        parts = fullname.split('.')
+        if parts[0] != 'calibre_extensions':
+            return
+        if len(parts) > 2:
+            return
+        is_package = len(parts) == 1
+        extension_name = None if is_package else parts[1]
+        path = os.path.join(plugins_loc, '__init__.py')
+        if extension_name:
+            if extension_name not in self.calibre_extensions:
+                return
+            for suffix in EXTENSION_SUFFIXES:
+                path = os.path.join(plugins_loc, extension_name + suffix)
+                if os.path.exists(path):
+                    break
+            else:
+                return
+            return ModuleSpec(fullname, ExtensionFileLoader(fullname, path), is_package=is_package, origin=path)
+        return ModuleSpec(fullname, ExtensionsPackageLoader(self.calibre_extensions), is_package=is_package, origin=path)
+
+
+sys.meta_path.insert(0, DeVendor())
+sys.meta_path.append(ExtensionsImporter())
+if iswindows:
+    from calibre_extensions import winutil
 
 
 class Plugins(collections.Mapping):
 
-    def __init__(self):
-        self._plugins = {}
-        plugins = [
-                'pictureflow',
-                'lzx',
-                'msdes',
-                'podofo',
-                'cPalmdoc',
-                'progress_indicator',
-                'icu',
-                'speedup',
-                'html_as_json',
-                'unicode_names',
-                'html_syntax_highlighter',
-                'hyphen',
-                'freetype',
-                'imageops',
-                'hunspell',
-                '_patiencediff_c',
-                'bzzdec',
-                'matcher',
-                'tokenizer',
-                'certgen',
-            ]
-        if iswindows:
-            plugins.extend(['winutil', 'wpd', 'winfonts'])
-        if ismacos:
-            plugins.append('usbobserver')
-            plugins.append('cocoa')
-        if isfreebsd or ishaiku or islinux or ismacos:
-            plugins.append('libusb')
-            plugins.append('libmtp')
-        self.plugins = frozenset(plugins)
-
-    def load_plugin(self, name):
-        if name in self._plugins:
-            return
-        if not isfrozen:
-            sys.path.insert(0, plugins_loc)
-        try:
-            del sys.modules[name]
-        except KeyError:
-            pass
-        plugin_err = ''
-        try:
-            p = importlib.import_module(name)
-        except Exception as err:
-            p = None
-            try:
-                plugin_err = unicode_type(err)
-            except Exception:
-                plugin_err = as_unicode(native_string_type(err), encoding=preferred_encoding, errors='replace')
-        self._plugins[name] = p, plugin_err
-        if not isfrozen:
-            sys.path.remove(plugins_loc)
-
     def __iter__(self):
-        return iter(self.plugins)
+        from importlib.resources import contents
+        return contents('calibre_extensions')
 
     def __len__(self):
-        return len(self.plugins)
+        from importlib.resources import contents
+        ans = 0
+        for x in contents('calibre_extensions'):
+            ans += 1
+        return ans
 
     def __contains__(self, name):
-        return name in self.plugins
+        from importlib.resources import contents
+        for x in contents('calibre_extensions'):
+            if x == name:
+                return True
+        return False
 
     def __getitem__(self, name):
-        if name not in self.plugins:
+        from importlib import import_module
+        try:
+            return import_module('calibre_extensions.' + name), ''
+        except ModuleNotFoundError:
             raise KeyError('No plugin named %r'%name)
-        self.load_plugin(name)
-        return self._plugins[name]
+        except Exception as err:
+            return None, str(err)
 
 
 plugins = None
@@ -262,10 +331,8 @@ cconfd = getenv('CALIBRE_CONFIG_DIRECTORY')
 if cconfd is not None:
     config_dir = os.path.abspath(cconfd)
 elif iswindows:
-    if plugins['winutil'][0] is None:
-        raise Exception(plugins['winutil'][1])
     try:
-        config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
+        config_dir = winutil.special_folder_path(winutil.CSIDL_APPDATA)
     except ValueError:
         config_dir = None
     if not config_dir or not os.access(config_dir, os.W_OK|os.X_OK):
@@ -337,25 +404,21 @@ def get_windows_username():
     Note that usernames on windows are case insensitive, the case of the value
     returned depends on what the user typed into the login box at login time.
     '''
-    username = plugins['winutil'][0].username
-    return username()
+    return winutil.username()
 
 
 def get_windows_temp_path():
-    temp_path = plugins['winutil'][0].temp_path
-    return temp_path()
+    return winutil.temp_path()
 
 
 def get_windows_user_locale_name():
-    locale_name = plugins['winutil'][0].locale_name
-    return locale_name()
+    return winutil.locale_name()
 
 
 def get_windows_number_formats():
     ans = getattr(get_windows_number_formats, 'ans', None)
     if ans is None:
-        localeconv = plugins['winutil'][0].localeconv
-        d = localeconv()
+        d = winutil.localeconv()
         thousands_sep, decimal_point = d['thousands_sep'], d['decimal_point']
         ans = get_windows_number_formats.ans = thousands_sep, decimal_point
     return ans

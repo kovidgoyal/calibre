@@ -5,13 +5,13 @@
 import codecs
 import json
 import os
+from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QPalette, QPlainTextEdit, QSize,
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
     QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget, pyqtSignal
 )
-from textwrap import fill
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
@@ -75,7 +75,7 @@ def annotation_title(atype, singular=False):
 class AnnotsResultsDelegate(ResultsDelegate):
 
     add_ellipsis = False
-    emphasize_text = True
+    emphasize_text = False
 
     def result_data(self, result):
         if not isinstance(result, dict):
@@ -90,6 +90,8 @@ class AnnotsResultsDelegate(ResultsDelegate):
             before, text = parts
         else:
             text = parts[0]
+        if result.get('annotation', {}).get('notes'):
+            before = '•' + (before or '')
         return False, before, text, after
 
 
@@ -194,12 +196,17 @@ class ResultsList(QTreeWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    show_book = pyqtSignal(object, object)
     delete_requested = pyqtSignal()
+    export_requested = pyqtSignal()
+    edit_annotation = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
         self.setSelectionMode(self.ExtendedSelection)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
         self.delegate = AnnotsResultsDelegate(self)
         self.setItemDelegate(self.delegate)
         self.section_font = QFont(self.font())
@@ -208,6 +215,35 @@ class ResultsList(QTreeWidget):
         self.currentItemChanged.connect(self.current_item_changed)
         self.number_of_results = 0
         self.item_map = []
+
+    def show_context_menu(self, pos):
+        item = self.itemAt(pos)
+        result = item.data(0, Qt.UserRole)
+        items = self.selectedItems()
+        m = QMenu(self)
+        if isinstance(result, dict):
+            m.addAction(_('Open in viewer'), partial(self.item_activated, item))
+            m.addAction(_('Show in calibre'), partial(self.show_in_calibre, item))
+            if result.get('annotation', {}).get('type') == 'highlight':
+                m.addAction(_('Edit notes'), partial(self.edit_notes, item))
+        if items:
+            m.addSeparator()
+            m.addAction(ngettext('Export selected item', 'Export {} selected items', len(items)).format(len(items)), self.export_requested.emit)
+            m.addAction(ngettext('Delete selected item', 'Delete {} selected items', len(items)).format(len(items)), self.delete_requested.emit)
+        m.addSeparator()
+        m.addAction(_('Expand all'), self.expandAll)
+        m.addAction(_('Collapse all'), self.collapseAll)
+        m.exec_(self.mapToGlobal(pos))
+
+    def edit_notes(self, item):
+        r = item.data(0, Qt.UserRole)
+        if isinstance(r, dict):
+            self.edit_annotation.emit(r['id'], r['annotation'])
+
+    def show_in_calibre(self, item):
+        r = item.data(0, Qt.UserRole)
+        if isinstance(r, dict):
+            self.show_book.emit(r['book_id'], r['format'])
 
     def item_activated(self, item):
         r = item.data(0, Qt.UserRole)
@@ -391,7 +427,10 @@ class BrowsePanel(QWidget):
 
     current_result_changed = pyqtSignal(object)
     open_annotation = pyqtSignal(object, object, object)
+    show_book = pyqtSignal(object, object)
     delete_requested = pyqtSignal()
+    export_requested = pyqtSignal()
+    edit_annotation = pyqtSignal(object, object)
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -430,7 +469,10 @@ class BrowsePanel(QWidget):
         self.results_list = rl = ResultsList(self)
         rl.current_result_changed.connect(self.current_result_changed)
         rl.open_annotation.connect(self.open_annotation)
+        rl.show_book.connect(self.show_book)
+        rl.edit_annotation.connect(self.edit_annotation)
         rl.delete_requested.connect(self.delete_requested)
+        rl.export_requested.connect(self.export_requested)
         l.addWidget(rl)
 
     def re_initialize(self, restrict_to_book_ids=None):
@@ -481,10 +523,11 @@ class BrowsePanel(QWidget):
                     ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None
                 )
             else:
+                q2 = q.copy()
+                q2['restrict_to_book_ids'] = q.get('restrict_to_book_ids') or None
                 results = db.search_annotations(
                     highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-                    ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None,
-                    **q
+                    ignore_removed=True, **q2
                 )
             self.results_list.set_results(results, bool(q['fts_engine_query']))
             self.current_query = q
@@ -635,7 +678,7 @@ class DetailsPanel(QWidget):
             <span>\xa0\xa0\xa0</span>
             <a title="{sictt}" href="calibre://show_in_library">{sic}</a>
         </div>
-        <h2 style="text-align: left">{atype}</h2>
+        <h3 style="text-align: left">{atype}</h3>
         {text}
         '''.format(
             title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
@@ -695,9 +738,9 @@ class AnnotationsBrowser(Dialog):
     def setup_ui(self):
         self.use_stemmer = us = QCheckBox(_('Match on related English words'))
         us.setChecked(gprefs['browse_annots_use_stemmer'])
-        us.setToolTip(fill(_(
+        us.setToolTip('<p>' + _(
             'With this option searching for words will also match on any related English words. For'
-            ' example: correction matches correcting and corrected as well')))
+            ' example: <i>correction</i> matches <i>correcting</i> and <i>corrected</i> as well'))
         us.stateChanged.connect(lambda state: gprefs.set('browse_annots_use_stemmer', state != Qt.Unchecked))
 
         l = QVBoxLayout(self)
@@ -708,7 +751,10 @@ class AnnotationsBrowser(Dialog):
 
         self.browse_panel = bp = BrowsePanel(self)
         bp.open_annotation.connect(self.do_open_annotation)
+        bp.show_book.connect(self.show_book)
         bp.delete_requested.connect(self.delete_selected)
+        bp.export_requested.connect(self.export_selected)
+        bp.edit_annotation.connect(self.edit_annotation)
         s.addWidget(bp)
 
         self.details_panel = dp = DetailsPanel(self)

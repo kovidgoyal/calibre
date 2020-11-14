@@ -170,7 +170,10 @@ class CSV_XML(CatalogPlugin):
         elif self.fmt == 'xml':
             from lxml.builder import E
 
-            root = E.calibredb()
+            if getattr(opts, 'catalog_title', None):
+                root = E.calibredb(title=opts.catalog_title)
+            else:
+                root = E.calibredb()
             for r in data:
                 record = E.record()
                 root.append(record)
@@ -223,6 +226,9 @@ class CSV_XML(CatalogPlugin):
                 if 'series' in fields and r['series']:
                     record.append(E.series(r['series'],
                         index=unicode_type(r['series_index'])))
+
+                if 'languages' in fields and r['languages']:
+                    record.append(E.languages(r['languages']))
 
                 if 'cover' in fields and r['cover']:
                     record.append(E.cover(r['cover'].replace(os.sep, '/')))

@@ -41,7 +41,7 @@ class TestImports(unittest.TestCase):
         exclude_packages = {'calibre.devices.mtp.unix.upstream'}
         if not iswindows:
             exclude_modules |= {'calibre.utils.iphlpapi', 'calibre.utils.open_with.windows', 'calibre.devices.winusb'}
-            exclude_packages |= {'calibre.utils.winreg'}
+            exclude_packages |= {'calibre.utils.winreg', 'calibre.utils.windows'}
         if not ismacos:
             exclude_modules.add('calibre.utils.open_with.osx')
         if not islinux:
@@ -145,6 +145,8 @@ def find_tests(which_tests=None, exclude_tests=None):
         a(find_tests())
         if iswindows:
             from calibre.utils.windows.wintest import find_tests
+            a(find_tests())
+            from calibre.utils.windows.winsapi import find_tests
             a(find_tests())
         a(unittest.defaultTestLoader.loadTestsFromTestCase(TestImports))
     if ok('dbcli'):

@@ -196,6 +196,8 @@ class Feed(object):
         self.added_articles.append(id)
 
         title = item.get('title', _('Untitled article'))
+        if title.startswith('<'):
+            title = re.sub(r'<.+?>', '', title)
         try:
             link  = self.get_article_url(item)
         except:

@@ -81,19 +81,17 @@ static PyMethodDef unicode_names_methods[] = {
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
-static struct PyModuleDef unicode_names_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "unicode_names",
-    /* m_doc      */ "A library to assist with selecting special characters",
-    /* m_size     */ -1,
-    /* m_methods  */ unicode_names_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
+static int
+exec_module(PyObject *module) { return 0; }
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {
+    .m_base     = PyModuleDef_HEAD_INIT,
+    .m_name     = "unicode_names",
+    .m_doc      = "A library to assist with selecting special characters",
+    .m_methods  = unicode_names_methods,
+    .m_slots    = slots,
 };
 
-CALIBRE_MODINIT_FUNC PyInit_unicode_names(void) {
-    // Create the module
-    return PyModule_Create(&unicode_names_module);
-}
+CALIBRE_MODINIT_FUNC PyInit_unicode_names(void) { return PyModuleDef_Init(&module_def); }

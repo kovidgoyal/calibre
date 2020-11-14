@@ -5,29 +5,33 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import itertools, operator, os, math
-from threading import Event, Thread
+import itertools
+import math
+import operator
+import os
 from functools import wraps
-from textwrap import wrap
-
 from PyQt5.Qt import (
-    QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QTimer, QColor, QItemSelection, QPixmap, QApplication,
-    QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
-    QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
-    QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, qRed, qGreen,
-    qBlue, QItemSelectionModel, QIcon, QFont, QTableView, QTreeView)
+    QAbstractItemView, QApplication, QBuffer, QByteArray, QColor, QDrag,
+    QEasingCurve, QEvent, QFont, QHelpEvent, QIcon, QImage, QItemSelection,
+    QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPixmap,
+    QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate,
+    QStyleOptionViewItem, Qt, QTableView, QTimer, QToolTip, QTreeView, QUrl,
+    pyqtProperty, pyqtSignal, pyqtSlot, qBlue, qGreen, qRed
+)
+from textwrap import wrap
+from threading import Event, Thread
 
-from calibre import fit_image, prints, prepare_string_for_xml, human_readable
+from calibre import fit_image, human_readable, prepare_string_for_xml, prints
 from calibre.constants import DEBUG, config_dir, islinux
-from calibre.gui2.pin_columns import PinContainer
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
-from calibre.utils import join_with_timeout
-from calibre.gui2 import gprefs, config, rating_font, empty_index
+from calibre.gui2 import config, empty_index, gprefs, rating_font
+from calibre.gui2.dnd import path_from_qurl
 from calibre.gui2.gestures import GestureManager
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
+from calibre.gui2.pin_columns import PinContainer
+from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
-from polyglot.builtins import itervalues, unicode_type, range
+from polyglot.builtins import itervalues, range, unicode_type
 from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701
@@ -225,7 +229,7 @@ def dragEnterEvent(self, event):
 def dropEvent(self, event):
     md = event.mimeData()
     if dnd_merge_ok(md):
-        ids = set(map(int, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' ')))
+        ids = set(map(int, filter(None, bytes(md.data('application/calibre+from_library')).decode('utf-8').split(' '))))
         row = self.indexAt(event.pos()).row()
         if row > -1 and ids:
             book_id = self.model().id(row)
@@ -246,10 +250,9 @@ def paths_from_event(self, event):
     and represent files with extensions.
     '''
     md = event.mimeData()
-    if md.hasFormat('text/uri-list') and not \
-            md.hasFormat('application/calibre+from_library'):
-        urls = [unicode_type(u.toLocalFile()) for u in md.urls()]
-        return [u for u in urls if os.path.splitext(u)[1] and os.path.exists(u)]
+    if md.hasFormat('text/uri-list') and not md.hasFormat('application/calibre+from_library'):
+        urls = map(path_from_qurl, md.urls())
+        return [u for u in urls if u and os.path.splitext(u)[1] and os.path.exists(u)]
 
 
 def setup_dnd_interface(cls_or_self):

@@ -18,17 +18,16 @@ except EnvironmentError:
 
 from calibre.constants import (iswindows, ismacos, islinux, isfrozen,
         isbsd, preferred_encoding, __appname__, __version__, __author__,
-        win32event, win32api, winerror, fcntl, plugins,
-        filesystem_encoding, config_dir)
-from calibre.startup import winutil, winutilerror
+        plugins, filesystem_encoding, config_dir)
+from calibre.startup import initialize_calibre
+initialize_calibre()
 from calibre.utils.icu import safe_chr
 from calibre.prints import prints
 
 if False:
     # Prevent pyflakes from complaining
-    winutil, winutilerror, __appname__, islinux, __version__
-    fcntl, win32event, isfrozen, __author__
-    winerror, win32api, isbsd, config_dir, plugins
+    __appname__, islinux, __version__
+    isfrozen, __author__, isbsd, config_dir, plugins
 
 _mt_inited = False
 

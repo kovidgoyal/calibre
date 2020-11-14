@@ -5,19 +5,23 @@
 
 import copy
 import json
-from collections import OrderedDict, Counter
+import regex
+import time
+from collections import Counter, OrderedDict
 from functools import partial
-
 from PyQt5.Qt import (
-    QAbstractListModel, QApplication, QCheckBox, QComboBox, QFont, QFrame,
-    QGridLayout, QHBoxLayout, QIcon, QItemSelection, QLabel, QLineEdit, QListView,
-    QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QSizePolicy,
-    QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal, QAction, QKeySequence
+    QAbstractListModel, QAction, QApplication, QCheckBox, QComboBox, QFont, QFrame,
+    QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
+    QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
+    QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar,
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal
 )
 
-import regex
 from calibre import prepare_string_for_xml
+from calibre.constants import iswindows
+from calibre.ebooks.conversion.search_replace import (
+    REGEX_FLAGS, compile_regular_expression
+)
 from calibre.gui2 import choose_files, choose_save_file, error_dialog, info_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.message_box import MessageBox
@@ -33,9 +37,9 @@ from calibre.gui2.tweak_book.function_replace import (
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
-from calibre.ebooks.conversion.search_replace import REGEX_FLAGS, compile_regular_expression
-from polyglot.builtins import iteritems, unicode_type, range, error_message, filter, map
-
+from polyglot.builtins import (
+    error_message, filter, iteritems, map, range, unicode_type
+)
 
 # The search panel {{{
 
@@ -97,6 +101,7 @@ class HistoryBox(HistoryComboBox):
         self.clear_msg = clear_msg
         self.ignore_snip_expansion = False
         self.lineEdit().setClearButtonEnabled(True)
+        self.set_uniform_item_sizes(False)
 
     def event(self, ev):
         if ev.type() in (ev.ShortcutOverride, ev.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
@@ -445,6 +450,13 @@ class SearchWidget(QWidget):
         self.find = text
         self.find_text.lineEdit().setSelection(0, len(text)+10)
 
+    def paste_saved_search(self, s):
+        self.case_sensitive = s.get('case_sensitive') or False
+        self.dot_all = s.get('dot_all') or False
+        self.wrap = s.get('wrap') or False
+        self.mode = s.get('mode') or 'normal'
+        self.find = s.get('find') or ''
+        self.replace = s.get('replace') or ''
 # }}}
 
 
@@ -475,6 +487,9 @@ class SearchPanel(QWidget):  # {{{
         self.widget.save_search.connect(self.save_search)
         self.widget.show_saved_searches.connect(self.show_saved_searches)
         self.pre_fill = self.widget.pre_fill
+
+    def paste_saved_search(self, s):
+        self.widget.paste_saved_search(s)
 
     def hide_panel(self):
         self.setVisible(False)
@@ -860,6 +875,7 @@ class SearchDelegate(QStyledItemDelegate):
 class SavedSearches(QWidget):
 
     run_saved_searches = pyqtSignal(object, object)
+    copy_search_to_search_panel = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -998,6 +1014,7 @@ class SavedSearches(QWidget):
         self.em = m = QMenu(_('Export'))
         m.addAction(_('Export all'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=True)))
         m.addAction(_('Export selected'), lambda : QTimer.singleShot(0, partial(self.export_searches, all=False)))
+        m.addAction(_('Copy to search panel'), lambda : QTimer.singleShot(0, self.copy_to_search_panel))
         b.setMenu(m)
 
         self.searches.setFocus(Qt.OtherFocusReason)
@@ -1222,6 +1239,12 @@ class SavedSearches(QWidget):
                 top, bottom = self.model.index(self.model.rowCount() - count), self.model.index(self.model.rowCount() - 1)
                 sm.select(QItemSelection(top, bottom), sm.ClearAndSelect)
                 self.searches.scrollTo(bottom)
+
+    def copy_to_search_panel(self):
+        ci = self.searches.selectionModel().currentIndex()
+        if ci and ci.isValid():
+            search = ci.data(Qt.UserRole)[-1]
+            self.copy_search_to_search_panel.emit(search)
 
     def export_searches(self, all=True):
         if all:
@@ -1522,8 +1545,16 @@ def run_search(
             if n in editors:
                 editors[n].replace_data(raw)
             else:
-                with current_container().open(n, 'wb') as f:
-                    f.write(raw.encode('utf-8'))
+                try:
+                    with current_container().open(n, 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+                except PermissionError:
+                    if not iswindows:
+                        raise
+                    time.sleep(2)
+                    with current_container().open(n, 'wb') as f:
+                        f.write(raw.encode('utf-8'))
+
         QApplication.restoreOverrideCursor()
         count_message(replace, count, show_diff=replace, count_map=count_map)
         return count

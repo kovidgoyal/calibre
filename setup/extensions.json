@@ -139,8 +139,17 @@
     {
         "name": "winutil",
         "only": "windows",
+        "headers": "calibre/utils/windows/common.h",
         "sources": "calibre/utils/windows/winutil.cpp",
         "libraries": "shell32 wininet advapi32",
+        "cflags": "/X"
+    },
+    {
+        "name": "winsapi",
+        "only": "windows",
+        "headers": "calibre/utils/windows/common.h",
+        "sources": "calibre/utils/windows/winsapi.cpp",
+        "libraries": "SAPI Ole32",
         "cflags": "/X"
     },
     {
@@ -169,6 +178,12 @@
         "only": "macos",
         "sources": "calibre/utils/cocoa.m calibre/utils/cocoa_wrapper.c",
         "ldflags": "-framework Cocoa"
+    },
+    {
+        "name": "espeak",
+        "only": "linux haiku",
+        "sources": "calibre/utils/tts/espeak.cpp",
+        "libraries": "espeak-ng"
     },
     {
         "name": "libusb",

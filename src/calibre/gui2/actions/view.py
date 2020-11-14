@@ -12,7 +12,7 @@ import time
 from functools import partial
 from PyQt5.Qt import QAction, QIcon, Qt, pyqtSignal
 
-from calibre.constants import ismacos, iswindows, plugins
+from calibre.constants import ismacos, iswindows
 from calibre.gui2 import (
     Dispatcher, config, elided_text, error_dialog, info_dialog, open_local_file,
     question_dialog
@@ -128,7 +128,7 @@ class ViewAction(InterfaceAction):
                 merge_annotations(other_annotations_map, annotations_map, merge_last_read=False)
         return {
             'book_id': book_id, 'uuid': db.field_for('uuid', book_id), 'fmt': fmt.upper(),
-            'annotations_map': annotations_map,
+            'annotations_map': annotations_map, 'library_id': getattr(self.gui.current_db.new_api, 'server_library_id', None)
         }
 
     def view_format_by_id(self, id_, format, open_at=None):
@@ -166,7 +166,7 @@ class ViewAction(InterfaceAction):
                         kwargs=dict(args=args))
             else:
                 if iswindows:
-                    winutil = plugins['winutil'][0]
+                    from calibre_extensions import winutil
                     ext = name.rpartition('.')[-1]
                     if ext:
                         try:

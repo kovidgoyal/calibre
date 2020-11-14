@@ -32,7 +32,7 @@ fun! CalibreLog()
     nnoremap <silent> <buffer> n :call cursor(1+search('\V:::\$', 'n'), 0)<CR>
     nnoremap <silent> <buffer> yb v/#<CR>t<Space>y:nohl<CR>
     normal! gg2j
-    edit Changelog.yaml
+    edit Changelog.txt
     edit src/calibre/constants.py
 endfun
 

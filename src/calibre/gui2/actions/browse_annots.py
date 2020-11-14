@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from PyQt5.Qt import Qt
 
+from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 
 
@@ -43,7 +44,13 @@ class BrowseAnnotationsAction(InterfaceAction):
             self._browser.selection_changed()
 
     def open_book(self, book_id, fmt):
-        self.gui.library_view.select_rows({book_id})
+        if not self.gui.library_view.select_rows({book_id}):
+            db = self.gui.current_db.new_api
+            title = db.field_for('title', book_id)
+            return error_dialog(self._browser or self.gui, _('Not visible'), _(
+                'The book "{}" is not currently visible in the calibre library.'
+                ' If you have a search or a Virtual library applied, first clear'
+                ' it.').format(title), show=True)
 
     def open_annotation(self, book_id, fmt, cfi):
         self.gui.iactions['View'].view_format_by_id(book_id, fmt, open_at=cfi)

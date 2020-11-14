@@ -47,13 +47,21 @@ def customize_remove_unused_css(name, parent, ans):
     l.addWidget(c)
     d.la2 = label('<span style="font-size:small; font-style: italic">' + _(
         'Remove all class attributes from the HTML that do not match any existing CSS rules'))
-    d.m = m = QCheckBox(_('Merge identical CSS rules'))
+    d.m = m = QCheckBox(_('Merge CSS rules with identical selectors'))
     m.setChecked(tprefs['merge_identical_selectors'])
     l.addWidget(m)
     d.la3 = label('<span style="font-size:small; font-style: italic">' + _(
         'Merge CSS rules in the same stylesheet that have identical selectors.'
     ' Note that in rare cases merging can result in a change to the effective styling'
     ' of the book, so use with care.'))
+    d.p = p = QCheckBox(_('Merge CSS rules with identical properties'))
+    p.setChecked(tprefs['merge_rules_with_identical_properties'])
+    l.addWidget(p)
+    d.la4 = label('<span style="font-size:small; font-style: italic">' + _(
+        'Merge CSS rules in the same stylesheet that have identical properties.'
+    ' Note that in rare cases merging can result in a change to the effective styling'
+    ' of the book, so use with care.'))
+
     d.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
@@ -62,6 +70,7 @@ def customize_remove_unused_css(name, parent, ans):
         raise Abort()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
+    ans['merge_rules_with_identical_properties'] = tprefs['merge_rules_with_identical_properties'] = p.isChecked()
 
 
 def get_customization(action, name, parent):

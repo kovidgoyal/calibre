@@ -35,8 +35,11 @@ def desc(sc, group, short, long):
 
 
 def keyevent_as_shortcut(evt):
+    key = evt.key
+    if capital_letters[key] and evt.shiftKey:
+        key = key.toLowerCase()
     return {
-        'key': evt.key, 'altKey': evt.altKey, 'ctrlKey': evt.ctrlKey,
+        'key': key, 'altKey': evt.altKey, 'ctrlKey': evt.ctrlKey,
         'metaKey': evt.metaKey, 'shiftKey': evt.shiftKey
     }
 
@@ -45,22 +48,17 @@ def shortcut_differs(a, b):
     return not (a.key is b.key and a.altKey is b.altKey and a.ctrlKey is b.ctrlKey and a.metaKey is b.metaKey and a.shiftKey is b.shiftKey)
 
 
+capital_letters = {x: True for x in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'}
+
+
 def get_key_text(evt):
     key = evt.key
     if key:
-        cc = key.charCodeAt(0)
-        # on windows in webengine pressing ctrl+ascii char gives us an ascii
-        # control code
-        # see https://bugreports.qt.io/browse/QTBUG-81783
-        if (0 < cc < 32 or key is 'Enter' or key is 'Tab') and evt.ctrlKey and not evt.metaKey and not evt.altKey:
-            if key is 'Enter':
-                if evt.code and evt.code is not 'Enter':
-                    key = 'm'
-            elif key is 'Tab':
-                if evt.code and evt.code is not 'Tab':
-                    key = 'i'
-            else:
-                key = chr(96 + cc)
+        # on Windows pressing ctrl+alt+ascii char gives capital letters. On all
+        # platforms shift+key gives capital letters we define shortcuts using
+        # lowercase letters, so lowercase them here.
+        if evt.code and key.toLowerCase() is not key and evt.code.startsWith('Key') and capital_letters[key]:
+            key = key.toLowerCase()
     return key
 
 
@@ -191,7 +189,7 @@ def shortcuts_definition():
     ),
 
     'copy_to_clipboard': desc(
-        'Ctrl+C',
+        v"['Ctrl+c', 'Meta+c']",
         'ui',
         _('Copy to clipboard'),
     ),
@@ -245,7 +243,7 @@ def shortcuts_definition():
     ),
 
     'toggle_full_screen': desc(
-        v"['F11', 'Ctrl+Shift+F']",
+        v"['F11', 'Ctrl+Shift+f']",
         'ui',
         _('Toggle full screen'),
     ),
@@ -290,12 +288,6 @@ def shortcuts_definition():
         v"['F5', 'Ctrl+r']",
         'ui',
         _('Reload book'),
-    ),
-
-    'search_for_selection': desc(
-        v"['Ctrl+s']",
-        'ui',
-        _('Search for next occurrence of selected text'),
     ),
 
     'extend_selection_by_word': desc(

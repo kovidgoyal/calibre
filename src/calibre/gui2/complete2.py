@@ -36,8 +36,10 @@ class CompleteModel(QAbstractListModel):  # {{{
         self.current_prefix = ''
 
     def set_items(self, items):
-        items = [unicode_type(x).strip() if self.strip_completion_entries else unicode_type(x) for x in items]
-        items = [x for x in items if x]
+        if self.strip_completion_entries:
+            items = (str(x).strip() for x in items if x)
+        else:
+            items = (str(x) for x in items if x)
         items = tuple(sorted(items, key=self.sort_func))
         self.beginResetModel()
         self.all_items = self.current_items = items
@@ -92,6 +94,7 @@ class Completer(QListView):  # {{{
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setSelectionBehavior(self.SelectRows)
         self.setSelectionMode(self.SingleSelection)
+        self.setUniformItemSizes(True)
         self.setAlternatingRowColors(True)
         self.setModel(CompleteModel(self, sort_func=sort_func, strip_completion_entries=strip_completion_entries))
         self.setMouseTracking(True)

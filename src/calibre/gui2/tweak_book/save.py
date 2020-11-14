@@ -15,7 +15,6 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
-from calibre.utils.ipc import RC
 from polyglot.queue import LifoQueue, Empty
 
 
@@ -78,12 +77,8 @@ def save_container(container, path):
 
 def send_message(msg=''):
     if msg:
-        t = RC(print_error=False)
-        t.start()
-        t.join(3)
-        if t.done:
-            t.conn.send('bookedited:'+msg)
-            t.conn.close()
+        from calibre.gui2.listener import send_message_in_process
+        send_message_in_process('bookedited:'+msg)
 
 
 def find_first_existing_ancestor(path):

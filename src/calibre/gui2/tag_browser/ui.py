@@ -93,6 +93,7 @@ class TagBrowserMixin(object):  # {{{
                 type=Qt.QueuedConnection)
         self.tags_view.model().user_category_added.connect(self.user_categories_edited,
                 type=Qt.QueuedConnection)
+        self.tags_view.edit_enum_values.connect(self.edit_enum_values)
 
     def user_categories_edited(self):
         self.library_view.model().refresh()
@@ -261,7 +262,8 @@ class TagBrowserMixin(object):  # {{{
                           cat_name=db.field_metadata[category]['name'],
                           tag_to_match=tag,
                           get_book_ids=partial(self.get_book_ids, db=db, category=category),
-                          sorter=key, ttm_is_first_letter=is_first_letter)
+                          sorter=key, ttm_is_first_letter=is_first_letter,
+                          fm=db.field_metadata[category])
         d.exec_()
         if d.result() == d.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
@@ -377,6 +379,11 @@ class TagBrowserMixin(object):  # {{{
                     db.set_field(series_index_field, {book_id: si})
             self.library_view.model().refresh_ids(set(changes), current_row=self.library_view.currentIndex().row())
             self.tags_view.recount_with_position_based_index()
+
+    def edit_enum_values(self, parent, db, key):
+        from calibre.gui2.dialogs.enum_values_edit import EnumValuesEdit
+        d = EnumValuesEdit(parent, db, key)
+        d.exec_()
 
     def do_tag_item_renamed(self):
         # Clean up library view and search
@@ -661,6 +668,13 @@ class TagBrowserWidget(QFrame):  # {{{
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(self.toggle_item)
 
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser set focus',
+                _("Give the Tag browser keyboard focus"), default_keys=(),
+                action=ac, group=_('Tag browser'))
+        ac.triggered.connect(self.give_tb_focus)
+
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
@@ -671,16 +685,30 @@ class TagBrowserWidget(QFrame):  # {{{
     def toggle_item(self):
         self.tags_view.toggle_current_index()
 
+    def give_tb_focus(self, *args):
+        if gprefs['tag_browser_allow_keyboard_focus']:
+            tb = self.tags_view
+            if tb.hasFocus():
+                self._parent.shift_esc()
+            elif self._parent.current_view() == self._parent.library_view:
+                tb.setFocus()
+                idx = tb.currentIndex()
+                if not idx.isValid():
+                    idx = tb.model().createIndex(0, 0)
+                    tb.setCurrentIndex(idx)
+
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)
+        if not to_what:
+            self._parent.shift_esc()
 
-    def find_text_changed(self, str):
+    def find_text_changed(self, str_):
         self.current_find_position = None
 
     def set_focus_to_find_box(self):
         self.tb_bar.set_focus_to_find_box()
 
-    def do_find(self, str=None):
+    def do_find(self, str_=None):
         self.current_find_position = None
         self.find()
 
@@ -690,6 +718,7 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def reset_find(self):
         model = self.tags_view.model()
+        model.clear_boxed()
         if model.get_categories_filter():
             model.set_categories_filter(None)
             self.tags_view.recount()

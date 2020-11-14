@@ -14,16 +14,14 @@ import sys
 import struct
 
 from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
-from calibre.constants import plugins
 
 
 class DjvuChunk(object):
 
     def __init__(self, buf, start, end, align=True, bigendian=True,
             inclheader=False, verbose=0):
-        self.speedup, err = plugins['bzzdec']
-        if self.speedup is None:
-            raise RuntimeError('Failed to load bzzdec plugin: %s' % err)
+        from calibre_extensions import bzzdec
+        self.speedup = bzzdec
         self.subtype = None
         self._subchunks = []
         self.buf = buf

@@ -166,32 +166,28 @@ static PyTypeObject DictionaryType = {
     /* tp_new            */ 0,
 };
 
-static struct PyModuleDef hunspell_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "hunspell",
-    /* m_doc      */ "A wrapper for the hunspell spell checking library",
-    /* m_size     */ -1,
-    /* m_methods  */ 0,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
-
-CALIBRE_MODINIT_FUNC PyInit_hunspell(void) {
-    PyObject *mod = PyModule_Create(&hunspell_module);
-    if (mod == NULL) return NULL;
-
+static int
+exec_module(PyObject *mod) {
     HunspellError = PyErr_NewException((char*)"hunspell.HunspellError", NULL, NULL);
-    if (HunspellError == NULL) return NULL;
+    if (HunspellError == NULL) return -1;
     PyModule_AddObject(mod, "HunspellError", HunspellError);
 
     // Fill in some slots in the type, and make it ready
     DictionaryType.tp_new = PyType_GenericNew;
-    if (PyType_Ready(&DictionaryType) < 0) return NULL;
+    if (PyType_Ready(&DictionaryType) < 0) return -1;
     // Add the type to the module.
     Py_INCREF(&DictionaryType);
-    PyModule_AddObject(mod, "Dictionary", (PyObject *)&DictionaryType);
+    if (PyModule_AddObject(mod, "Dictionary", (PyObject *)&DictionaryType) != 0) return -1;
 
-    return mod;
+    return 0;
+}
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
+
+CALIBRE_MODINIT_FUNC PyInit_hunspell(void) {
+	module_def.m_name = "hunspell";
+	module_def.m_slots = slots;
+	return PyModuleDef_Init(&module_def);
 }

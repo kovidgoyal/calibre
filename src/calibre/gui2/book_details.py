@@ -3,10 +3,10 @@
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import re, os
+import os
+import re
 from collections import namedtuple
 from functools import partial
-
 from PyQt5.Qt import (
     QAction, QApplication, QColor, QEasingCurve, QIcon, QLayout, QMenu, QMimeData,
     QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl,
@@ -25,6 +25,7 @@ from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
     pixmap_to_data, rating_font, safe_open_url
 )
+from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 )
@@ -215,7 +216,7 @@ def add_format_entries(menu, data, book_info):
         ac.setText(t)
         menu.addAction(ac)
     if not fmt.upper().startswith('ORIGINAL_'):
-        from calibre.gui2.open_with import populate_menu, edit_programs
+        from calibre.gui2.open_with import edit_programs, populate_menu
         m = QMenu(_('Open %s with...') % fmt.upper())
 
         def connect_action(ac, entry):
@@ -247,6 +248,10 @@ def add_item_specific_entries(menu, data, book_info):
     search_internet_added = False
     find_action = book_info.find_in_tag_browser_action
     dt = data['type']
+
+    def add_copy_action(name):
+        menu.addAction(QIcon(I('edit-copy.png')), _('Copy {} to clipboard').format(name), lambda: QApplication.instance().clipboard().setText(name))
+
     if dt == 'format':
         add_format_entries(menu, data, book_info)
     elif dt == 'author':
@@ -256,7 +261,7 @@ def add_item_specific_entries(menu, data, book_info):
             ac.current_url = data['url']
             ac.setText(_('&Copy author link'))
             menu.addAction(ac)
-        menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
+        add_copy_action(author)
         init_find_in_tag_browser(menu, find_action, 'authors', author)
         if hasattr(book_info, 'search_internet'):
             menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
@@ -288,6 +293,7 @@ def add_item_specific_entries(menu, data, book_info):
                 init_find_in_tag_browser(menu, find_action, field, remove_value)
                 menu.addAction(book_info.edit_identifiers_action)
             elif field in ('tags', 'series', 'publisher') or is_category(field):
+                add_copy_action(value)
                 init_find_in_tag_browser(menu, find_action, field, value)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
             elif field == 'languages':
@@ -302,8 +308,8 @@ def add_item_specific_entries(menu, data, book_info):
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     url = view.anchorAt(ev.pos())
-    menu = view.createStandardContextMenu()
-    menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, view))
+    menu = QMenu(view)
+    menu.addAction(QIcon(I('edit-copy.png')), _('Copy all book details'), partial(copy_all, view))
     search_internet_added = False
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
@@ -330,7 +336,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False):
 
 
 def create_open_cover_with_menu(self, parent_menu):
-    from calibre.gui2.open_with import populate_menu, edit_programs
+    from calibre.gui2.open_with import edit_programs, populate_menu
     m = QMenu(_('Open cover with...'))
 
     def connect_action(ac, entry):
@@ -341,7 +347,7 @@ def create_open_cover_with_menu(self, parent_menu):
         parent_menu.addAction(_('Open cover with...'), self.choose_open_with)
     else:
         m.addSeparator()
-        m.addAction(_('Add another application to open cover...'), self.choose_open_with)
+        m.addAction(_('Add another application to open cover with...'), self.choose_open_with)
         m.addAction(_('Edit Open with applications...'), partial(edit_programs, 'cover_image', self))
         parent_menu.ocw = m
         parent_menu.addMenu(m)
@@ -537,6 +543,10 @@ class CoverView(QWidget):  # {{{
             self.update_cover(cdata=cdata)
 
     def remove_cover(self):
+        if not confirm_delete(
+            _('Are you sure you want to delete the cover permanently?'),
+                'book-details-confirm-cover-remove', parent=self):
+            return
         id_ = self.data.get('id', None)
         self.pixmap = self.default_pixmap
         self.do_layout()

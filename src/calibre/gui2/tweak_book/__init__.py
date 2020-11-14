@@ -53,6 +53,8 @@ d['inline_spell_check'] = True
 d['custom_themes'] = {}
 d['remove_unused_classes'] = False
 d['merge_identical_selectors'] = False
+d['merge_identical_selectors'] = False
+d['merge_rules_with_identical_properties'] = False
 d['global_book_toolbar'] = [
 'new-file', 'open-book',  'save-book', None, 'global-undo', 'global-redo', 'create-checkpoint', None, 'donate', 'user-manual']
 d['global_tools_toolbar'] = [

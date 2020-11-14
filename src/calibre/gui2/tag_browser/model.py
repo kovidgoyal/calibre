@@ -6,24 +6,29 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, copy, os
-from collections import OrderedDict
-
-from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
-        QMimeData, QModelIndex, pyqtSignal, QObject)
+import copy
+import os
+import traceback
+from collections import OrderedDict, namedtuple
+from PyQt5.Qt import (
+    QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt,
+    pyqtSignal
+)
 
 from calibre.constants import config_dir
-from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
-from calibre.utils.config import tweaks, prefs
-from calibre.utils.icu import sort_key, lower, strcmp, collation_order, primary_strcmp, primary_contains, contains
-from calibre.library.field_metadata import category_icon_map
+from calibre.ebooks.metadata import rating_to_stars
+from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.library.field_metadata import category_icon_map
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.icu import (
+    collation_order, contains, lower, primary_contains, primary_strcmp, sort_key,
+    strcmp
+)
 from calibre.utils.serialize import json_dumps, json_loads
 from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
-
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
@@ -290,6 +295,9 @@ class TagTreeItem(object):  # {{{
     # }}}
 
 
+FL_Interval = namedtuple('FL_Interval', ('first_chr', 'last_chr', 'length'))
+
+
 class TagsModel(QAbstractItemModel):  # {{{
 
     search_item_renamed = pyqtSignal()
@@ -299,6 +307,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     drag_drop_finished = pyqtSignal(object)
     user_categories_edited = pyqtSignal(object, object)
     user_category_added = pyqtSignal()
+    show_error_after_event_loop_tick_signal = pyqtSignal(object, object, object)
 
     def __init__(self, parent, prefs=gprefs):
         QAbstractItemModel.__init__(self, parent)
@@ -324,6 +333,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.db = None
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
+        self.show_error_after_event_loop_tick_signal.connect(self.on_show_error_after_event_loop_tick, type=Qt.QueuedConnection)
 
     @property
     def gui_parent(self):
@@ -525,18 +535,72 @@ class TagsModel(QAbstractItemModel):  # {{{
                 # Build a list of 'equal' first letters by noticing changes
                 # in ICU's 'ordinal' for the first letter. In this case, the
                 # first letter can actually be more than one letter long.
+                fl_collapse_when = self.prefs['tags_browser_collapse_fl_at']
+                fl_collapse = True if fl_collapse_when > 1 else False
+                intervals = []
                 cl_list = [None] * len(data[key])
                 last_ordnum = 0
                 last_c = ' '
+                last_idx = 0
                 for idx,tag in enumerate(data[key]):
                     # Deal with items that don't have sorts, such as formats
                     t = tag.sort if tag.sort else tag.name
                     c = icu_upper(t) if t else ' '
                     ordnum, ordlen = collation_order(c)
                     if last_ordnum != ordnum:
+                        if fl_collapse and idx > 0:
+                            intervals.append(FL_Interval(last_c, last_c, idx-last_idx))
+                            last_idx = idx
                         last_c = c[0:ordlen]
                         last_ordnum = ordnum
                     cl_list[idx] = last_c
+                if fl_collapse:
+                    intervals.append(FL_Interval(last_c, last_c, len(cl_list)-last_idx))
+                    # Combine together first letter categories that are smaller
+                    # than the specified option. We choose which item to combine
+                    # by the size of the items before and after, privileging making
+                    # smaller categories. Loop through the intervals doing the combine
+                    # until nothing changes. Multiple iterations are required because
+                    # we might need to combine categories that are already combined.
+                    fl_intervals_changed = True
+                    null_interval = FL_Interval('', '', 100000000)
+                    while fl_intervals_changed and len(intervals) > 1:
+                        fl_intervals_changed = False
+                        for idx,interval in enumerate(intervals):
+                            if interval.length >= fl_collapse_when:
+                                continue
+                            prev = next_ = null_interval
+                            if idx == 0:
+                                next_ = intervals[idx+1]
+                            else:
+                                prev = intervals[idx-1]
+                                if idx < len(intervals) - 1:
+                                    next_ = intervals[idx+1]
+                            if prev.length < next_.length:
+                                intervals[idx-1] = FL_Interval(prev.first_chr,
+                                                               interval.last_chr,
+                                                               prev.length + interval.length)
+                            else:
+                                intervals[idx+1] = FL_Interval(interval.first_chr,
+                                                               next_.last_chr,
+                                                               next_.length + interval.length)
+                            del intervals[idx]
+                            fl_intervals_changed = True
+                            break
+                    # Now correct the first letter list, entering either the letter
+                    # or the range for each item in the category. If we ended up
+                    # with only one 'first letter' category then don't combine
+                    # letters and revert to basic 'by first letter'
+                    if len(intervals) > 1:
+                        cur_idx = 0
+                        for interval in intervals:
+                            first_chr, last_chr, length = interval
+                            for i in range(0, length):
+                                if first_chr == last_chr:
+                                    cl_list[cur_idx] = first_chr
+                                else:
+                                    cl_list[cur_idx] = '{0} - {1}'.format(first_chr, last_chr)
+                                cur_idx += 1
             top_level_component = 'z' + data[key][0].original_name
 
             last_idx = -collapse
@@ -1136,16 +1200,14 @@ class TagsModel(QAbstractItemModel):  # {{{
         # we position at the parent label
         val = unicode_type(value or '').strip()
         if not val:
-            error_dialog(self.gui_parent, _('Item is blank'),
-                        _('An item cannot be set to nothing. Delete it instead.')).exec_()
-            return False
+            return self.show_error_after_event_loop_tick(_('Item is blank'),
+                        _('An item cannot be set to nothing. Delete it instead.'))
         item = self.get_node(index)
         if item.type == TagTreeItem.CATEGORY and item.category_key.startswith('@'):
             if val.find('.') >= 0:
-                error_dialog(self.gui_parent, _('Rename User category'),
+                return self.show_error_after_event_loop_tick(_('Rename User category'),
                     _('You cannot use periods in the name when '
-                      'renaming User categories'), show=True)
-                return False
+                      'renaming User categories'))
 
             user_cats = self.db.new_api.pref('user_categories', {})
             user_cat_keys_lower = [icu_lower(k) for k in user_cats]
@@ -1167,18 +1229,16 @@ class TagsModel(QAbstractItemModel):  # {{{
                     if len(c) == len(ckey):
                         if strcmp(ckey, nkey) != 0 and \
                                 nkey_lower in user_cat_keys_lower:
-                            error_dialog(self.gui_parent, _('Rename User category'),
-                                _('The name %s is already used')%nkey, show=True)
-                            return False
+                            return self.show_error_after_event_loop_tick(_('Rename User category'),
+                                _('The name %s is already used')%nkey)
                         user_cats[nkey] = user_cats[ckey]
                         del user_cats[ckey]
                     elif c[len(ckey)] == '.':
                         rest = c[len(ckey):]
                         if strcmp(ckey, nkey) != 0 and \
                                     icu_lower(nkey + rest) in user_cat_keys_lower:
-                            error_dialog(self.gui_parent, _('Rename User category'),
-                                _('The name %s is already used')%(nkey+rest), show=True)
-                            return False
+                            return self.show_error_after_event_loop_tick(_('Rename User category'),
+                                _('The name %s is already used')%(nkey+rest))
                         user_cats[nkey + rest] = user_cats[ckey + rest]
                         del user_cats[ckey + rest]
             self.user_categories_edited.emit(user_cats, nkey)  # Does a refresh
@@ -1191,14 +1251,13 @@ class TagsModel(QAbstractItemModel):  # {{{
             return False
         if key == 'authors':
             if val.find('&') >= 0:
-                error_dialog(self.gui_parent, _('Invalid author name'),
-                        _('Author names cannot contain & characters.')).exec_()
+                return self.show_error_after_event_loop_tick(_('Invalid author name'),
+                        _('Author names cannot contain & characters.'))
                 return False
         if key == 'search':
             if val in self.db.saved_search_names():
-                error_dialog(self.gui_parent, _('Duplicate search name'),
-                    _('The saved search name %s is already used.')%val).exec_()
-                return False
+                return self.show_error_after_event_loop_tick(
+                    _('Duplicate search name'), _('The saved search name %s is already used.')%val)
             self.use_position_based_index_on_next_recount = True
             self.db.saved_search_rename(unicode_type(item.data(role) or ''), val)
             item.tag.name = val
@@ -1206,6 +1265,13 @@ class TagsModel(QAbstractItemModel):  # {{{
         else:
             self.rename_item(item, key, val)
         return True
+
+    def show_error_after_event_loop_tick(self, title, msg, det_msg=''):
+        self.show_error_after_event_loop_tick_signal.emit(title, msg, det_msg)
+        return False
+
+    def on_show_error_after_event_loop_tick(self, title, msg, details):
+        error_dialog(self.gui_parent, title, msg, det_msg=details, show=True)
 
     def rename_item(self, item, key, to_what):
         def do_one_item(lookup_key, an_item, original_name, new_name, restrict_to_books):

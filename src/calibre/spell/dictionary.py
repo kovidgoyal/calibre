@@ -8,14 +8,13 @@ import os
 import re
 import shutil
 import sys
+from calibre_extensions import hunspell
 from collections import defaultdict, namedtuple
 from functools import partial
 from itertools import chain
 
 from calibre import prints
-from calibre.constants import (
-    config_dir, filesystem_encoding, iswindows, plugins
-)
+from calibre.constants import config_dir, filesystem_encoding, iswindows
 from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import capitalize
@@ -24,9 +23,6 @@ from polyglot.builtins import filter, iteritems, itervalues, map, unicode_type
 
 Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath builtin name id')
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
-hunspell = plugins['hunspell'][0]
-if hunspell is None:
-    raise RuntimeError('Failed to load hunspell: %s' % plugins['hunspell'][1])
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}

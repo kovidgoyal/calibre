@@ -17,6 +17,7 @@ docs
 resources/localization
 resources/hyphenation
 resources/scripts.calibre_msgpack
+resources/changelog.json
 resources/ebook-convert-complete.calibre_msgpack
 resources/builtin_recipes.xml
 resources/builtin_recipes.zip

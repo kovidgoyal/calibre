@@ -5,19 +5,74 @@
  * Distributed under terms of the GPL3 license.
  */
 
-#define PY_SSIZE_T_CLEAN
-#define UNICODE
-#include <Windows.h>
+#include "common.h"
 #include <processthreadsapi.h>
 #include <wininet.h>
 #include <Lmcons.h>
 #include <combaseapi.h>
 #include <locale.h>
 #include <shlobj.h>
+#include <shlguid.h>
+#include <shellapi.h>
 #include <shlwapi.h>
+#include <commoncontrols.h>
+#include <comip.h>
+#include <comdef.h>
 #include <atlbase.h>  // for CComPtr
-#include <Python.h>
 #include <versionhelpers.h>
+
+// GUID {{{
+typedef struct {
+    PyObject_HEAD
+	GUID guid;
+} PyGUID;
+
+static PyTypeObject PyGUIDType = {
+    PyVarObject_HEAD_INIT(NULL, 0)
+};
+
+static PyObject*
+create_guid(const wchar_t *str) {
+	PyGUID *self = (PyGUID *) PyGUIDType.tp_alloc(&PyGUIDType, 0);
+	if (self) {
+		HRESULT hr = IIDFromString(str, &self->guid);
+		if (FAILED(hr)) return error_from_hresult(hr);
+	}
+	return (PyObject*)self;
+}
+
+static PyObject*
+create_guid(const GUID &g) {
+	PyGUID *self = (PyGUID *) PyGUIDType.tp_alloc(&PyGUIDType, 0);
+	if (self) self->guid = g;
+	return (PyObject*)self;
+}
+
+static PyObject*
+PyGUID_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+	wchar_raii s;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &s)) return NULL;
+	return create_guid(s.ptr());
+}
+
+static void
+PyGUID_dealloc(PyGUID *self) { }
+
+static PyObject*
+PyGUID_repr(PyGUID *self) {
+	com_wchar_raii s;
+	HRESULT hr = StringFromIID(self->guid, s.address());
+	if (FAILED(hr)) return error_from_hresult(hr);
+	return PyUnicode_FromWideChar(s.ptr(), -1);
+}
+
+#define M(name, args) {#name, (PyCFunction)Handle_##name, args, ""}
+static PyMethodDef PyGUID_methods[] = {
+    {NULL, NULL, 0, NULL}
+};
+#undef M
+
+// }}}
 
 // Handle {{{
 typedef enum { NormalHandle, ModuleHandle, IconHandle } WinHandleType;
@@ -51,8 +106,20 @@ Handle_dealloc(Handle *self) {
 }
 
 static PyObject*
+Handle_detach(Handle *self) {
+	void *h = self->handle;
+	self->handle = NULL;
+	return PyLong_FromVoidPtr(h);
+}
+
+static PyObject*
 Handle_as_int(Handle * self) {
 	return PyLong_FromVoidPtr(self->handle);
+}
+
+static int
+Handle_as_bool(Handle *self) {
+	return self->handle != NULL;
 }
 
 static PyObject*
@@ -84,6 +151,29 @@ Handle_create(void *handle, WinHandleType handle_type = NormalHandle, PyObject *
 		if (associated_name) { self->associated_name = associated_name; Py_INCREF(associated_name); }
 	}
 	return self;
+}
+
+static PyObject *
+Handle_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+	PyObject *h = NULL, *name = NULL;
+	int htype = NormalHandle;
+    if (!PyArg_ParseTuple(args, "|O!iU", &PyLong_Type, &h, &htype, &name)) return NULL;
+	switch(htype) {
+		case NormalHandle:
+		case IconHandle:
+		case ModuleHandle:
+			break;
+		default:
+			PyErr_Format(PyExc_TypeError, "unknown handle type: %d", type);
+			return NULL;
+	}
+	Handle *self = (Handle *) HandleType.tp_alloc(type, 0);
+	if (self) {
+		self->handle = h ? PyLong_AsVoidPtr(h) : NULL;
+		self->handle_type = static_cast<WinHandleType>(htype);
+		self->associated_name = name;
+	}
+	return (PyObject*)self;
 }
 
 static int
@@ -118,6 +208,7 @@ Handle_close(Handle *self) {
 #define M(name, args) {#name, (PyCFunction)Handle_##name, args, ""}
 static PyMethodDef Handle_methods[] = {
 	M(close, METH_NOARGS),
+	M(detach, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
@@ -177,49 +268,6 @@ class DeleteFileProgressSink : public IFileOperationProgressSink {  // {{{
   ULONG m_cRef;
 }; // }}}
 
-class wchar_raii {  // {{{
-	private:
-		wchar_t *handle;
-		wchar_raii( const wchar_raii & ) ;
-		wchar_raii & operator=( const wchar_raii & ) ;
-
-	public:
-		wchar_raii() : handle(NULL) {}
-
-		~wchar_raii() {
-			if (handle) {
-				PyMem_Free(handle);
-				handle = NULL;
-			}
-		}
-
-		wchar_t *ptr() { return handle; }
-		void set_ptr(wchar_t *val) { handle = val; }
-}; // }}}
-
-class handle_raii {  // {{{
-	private:
-		HANDLE handle;
-		handle_raii( const handle_raii & ) ;
-		handle_raii & operator=( const handle_raii & ) ;
-
-	public:
-		handle_raii() : handle(INVALID_HANDLE_VALUE) {}
-		handle_raii(HANDLE h) : handle(h) {}
-
-		~handle_raii() {
-			if (handle != INVALID_HANDLE_VALUE) {
-				CloseHandle(handle);
-				handle = INVALID_HANDLE_VALUE;
-			}
-		}
-
-		HANDLE ptr() const { return handle; }
-		void set_ptr(HANDLE val) { handle = val; }
-		explicit operator bool() const { return handle != INVALID_HANDLE_VALUE; }
-
-}; // }}}
-
 class scoped_com_initializer {  // {{{
 	public:
 		scoped_com_initializer() : m_succeded(false) { if (SUCCEEDED(CoInitialize(NULL))) m_succeded = true; }
@@ -231,31 +279,21 @@ class scoped_com_initializer {  // {{{
 		scoped_com_initializer & operator=( const scoped_com_initializer & ) ;
 }; // }}}
 
-// py_to_wchar {{{
-static int
-py_to_wchar(PyObject *obj, wchar_raii *output) {
-	if (!PyUnicode_Check(obj)) {
-		if (obj == Py_None) { return 1; }
-		PyErr_SetString(PyExc_TypeError, "unicode object expected");
-		return 0;
-	}
-    wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
-    if (!buf) { PyErr_NoMemory(); return 0; }
-	output->set_ptr(buf);
-	return 1;
+static PyObject*
+get_computer_name(PyObject *self, PyObject *args) {
+    COMPUTER_NAME_FORMAT fmt = ComputerNameDnsFullyQualified;
+    if (!PyArg_ParseTuple(args, "|i", &fmt)) return NULL;
+    DWORD sz = 0;
+    GetComputerNameExW(fmt, NULL, &sz);
+    sz *= 4;
+    wchar_t *buf = (wchar_t*) PyMem_Malloc(sz * sizeof(wchar_t));
+    if (!buf) return PyErr_NoMemory();
+    PyObject *ans = NULL;
+    if (GetComputerNameExW(fmt, buf, &sz)) ans = PyUnicode_FromWideChar(buf, -1);
+    else PyErr_SetFromWindowsErr(0);
+    PyMem_Free(buf);
+    return ans;
 }
-
-static int
-py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
-	if (!PyUnicode_Check(obj)) {
-		PyErr_SetString(PyExc_TypeError, "unicode object expected");
-		return 0;
-	}
-    wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
-    if (!buf) { PyErr_NoMemory(); return 0; }
-	output->set_ptr(buf);
-	return 1;
-} // }}}
 
 static PyObject *
 winutil_folder_path(PyObject *self, PyObject *args) {
@@ -271,6 +309,16 @@ winutil_folder_path(PyObject *self, PyObject *args) {
         return NULL;
     }
     return PyUnicode_FromWideChar(wbuf, -1);
+}
+
+static PyObject*
+known_folder_path(PyObject *self, PyObject *args) {
+	PyGUID *id;
+	DWORD flags = KF_FLAG_DEFAULT;
+	if (!PyArg_ParseTuple(args, "O!|k", &PyGUIDType, &id, &flags)) return NULL;
+	com_wchar_raii path;
+	HRESULT hr = SHGetKnownFolderPath(id->guid, flags, NULL, path.address());
+	return PyUnicode_FromWideChar(path.ptr(), -1);
 }
 
 static PyObject *
@@ -318,12 +366,9 @@ winutil_username(PyObject *self) {
 
 static PyObject *
 winutil_temp_path(PyObject *self) {
-    wchar_t buf[MAX_PATH + 1] = {0};
+    wchar_t buf[MAX_PATH + 8] = {0};
     DWORD sz = sizeof(buf)/sizeof(buf[0]);
-    if (!GetTempPath(sz, buf)) {
-        PyErr_SetFromWindowsErr(0);
-        return NULL;
-    }
+    if (!GetTempPathW(sz, buf)) return PyErr_SetFromWindowsErr(0);
     return PyUnicode_FromWideChar(buf, -1);
 }
 
@@ -367,7 +412,11 @@ winutil_get_disk_free_space(PyObject *self, PyObject *args) {
 	wchar_raii path;
 	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
     ULARGE_INTEGER bytes_available_to_caller, total_bytes, total_free_bytes;
-    if (!GetDiskFreeSpaceEx(path.ptr(), &bytes_available_to_caller, &total_bytes, &total_free_bytes)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	BOOL ok;
+	Py_BEGIN_ALLOW_THREADS
+	ok = GetDiskFreeSpaceEx(path.ptr(), &bytes_available_to_caller, &total_bytes, &total_free_bytes);
+	Py_END_ALLOW_THREADS
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
     return Py_BuildValue("KKK", bytes_available_to_caller.QuadPart, total_bytes.QuadPart, total_free_bytes.QuadPart);
 }
 
@@ -466,10 +515,26 @@ winutil_delete_file(PyObject *self, PyObject *args) {
 }
 
 static PyObject*
+supports_hardlinks(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+	UINT dt = GetDriveType(path.ptr());
+	if (dt == DRIVE_REMOTE || dt == DRIVE_CDROM) Py_RETURN_FALSE;
+	DWORD max_component_length, flags;
+	if (!GetVolumeInformationW(path.ptr(), NULL, 0, NULL, &max_component_length, &flags, NULL, 0)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	if (flags & FILE_SUPPORTS_HARD_LINKS) Py_RETURN_TRUE;
+	Py_RETURN_FALSE;
+}
+
+static PyObject*
 winutil_create_hard_link(PyObject *self, PyObject *args) {
 	wchar_raii path, existing_path;
 	if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar_no_none, &path, py_to_wchar_no_none, &existing_path)) return NULL;
-    if (!CreateHardLinkW(path.ptr(), existing_path.ptr(), NULL)) return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1));
+	BOOL ok;
+	Py_BEGIN_ALLOW_THREADS
+	ok = CreateHardLinkW(path.ptr(), existing_path.ptr(), NULL);
+	Py_END_ALLOW_THREADS
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObjects(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0), PyTuple_GET_ITEM(args, 1));
     Py_RETURN_NONE;
 }
 
@@ -505,8 +570,8 @@ winutil_nlinks(PyObject *self, PyObject *args) {
 
 static PyObject*
 winutil_set_file_attributes(PyObject *self, PyObject *args) {
-	wchar_raii path; unsigned long attrs;
-	if (!PyArg_ParseTuple(args, "O&k", py_to_wchar_no_none, &path, &attrs)) return NULL;
+	wchar_raii path; unsigned long attrs = FILE_ATTRIBUTE_NORMAL;
+	if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar_no_none, &path, &attrs)) return NULL;
     if (!SetFileAttributes(path.ptr(), attrs)) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
     Py_RETURN_NONE;
 }
@@ -696,6 +761,18 @@ create_named_pipe(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
+connect_named_pipe(PyObject *self, PyObject *args) {
+	HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&", convert_handle, &handle)) return NULL;
+	BOOL ok;
+	Py_BEGIN_ALLOW_THREADS;
+	ok = ConnectNamedPipe(handle, NULL);
+	Py_END_ALLOW_THREADS;
+	if (!ok) return set_error_from_handle(args);
+	Py_RETURN_NONE;
+}
+
+static PyObject *
 set_handle_information(PyObject *self, PyObject *args) {
     unsigned long mask, flags;
 	HANDLE handle;
@@ -708,18 +785,29 @@ static PyObject *
 get_long_path_name(PyObject *self, PyObject *args) {
     wchar_raii path;
     if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
-    DWORD sz = GetLongPathNameW(path.ptr(), NULL, 0) * 2;
-    if (!sz) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
-    wchar_t *buf = (wchar_t*) PyMem_Malloc(sz);
+    DWORD current_size = 4096;
+    wchar_raii buf((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
     if (!buf) return PyErr_NoMemory();
-    if (!GetLongPathNameW(path.ptr(), buf, sz-1)) {
-        PyMem_Free(buf);
-        return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    DWORD needed_size;
+    Py_BEGIN_ALLOW_THREADS
+    needed_size = GetLongPathNameW(path.ptr(), buf.ptr(), current_size);
+    Py_END_ALLOW_THREADS
+    if (needed_size >= current_size - 32) {
+        current_size = needed_size + 32;
+        PyMem_Free(buf.ptr());
+        buf.set_ptr((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
+        if (!buf) return PyErr_NoMemory();
+        Py_BEGIN_ALLOW_THREADS
+        needed_size = GetLongPathNameW(path.ptr(), buf.ptr(), current_size);
+        Py_END_ALLOW_THREADS
     }
-    buf[sz-1] = 0;
-    PyObject *ans = PyUnicode_FromWideChar(buf, -1);
-    PyMem_Free(buf);
-    return ans;
+    if (!needed_size) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    if (needed_size >= current_size - 2) {
+        PyErr_SetString(PyExc_OSError, "filename length changed between calls");
+        return NULL;
+    }
+    buf.ptr()[current_size-1] = 0;
+    return PyUnicode_FromWideChar(buf.ptr(), -1);
 }
 
 static PyObject *
@@ -736,7 +824,7 @@ get_process_times(PyObject *self, PyObject *pid) {
     }
     FILETIME creation, exit, kernel, user;
     BOOL ok = GetProcessTimes(h, &creation, &exit, &kernel, &user);
-    int ec = GetLastError();
+    DWORD ec = GetLastError();
     CloseHandle(h);
     if (!ok) return PyErr_SetFromWindowsErr(ec);
 #define T(ft) ((unsigned long long)(ft.dwHighDateTime) << 32 | ft.dwLowDateTime)
@@ -763,7 +851,7 @@ get_handle_information(PyObject *self, PyObject *args) {
 
 static PyObject*
 get_last_error(PyObject *self, PyObject *args) {
-	return PyLong_FromLong(GetLastError());
+	return PyLong_FromUnsignedLong(GetLastError());
 }
 
 static PyObject*
@@ -776,20 +864,244 @@ load_library(PyObject *self, PyObject *args) {
 	return (PyObject*)Handle_create(h, ModuleHandle, PyTuple_GET_ITEM(args, 0));
 }
 
+static PyObject*
+create_mutex(PyObject *self, PyObject *args) {
+	int initial_owner = 0, allow_existing = 1;
+	wchar_raii name;
+	if (!PyArg_ParseTuple(args, "O&|pp", py_to_wchar, &name, &allow_existing, &initial_owner)) return NULL;
+	HANDLE h = CreateMutexW(NULL, initial_owner, name.ptr());
+	if (h == NULL) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+	if (!allow_existing && GetLastError() == ERROR_ALREADY_EXISTS) {
+		CloseHandle(h);
+		return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_FileExistsError, ERROR_ALREADY_EXISTS, PyTuple_GET_ITEM(args, 0));
+	}
+	return (PyObject*)Handle_create(h);
+}
+
+
+static PyObject*
+parse_cmdline(PyObject *self, PyObject *args) {
+	wchar_raii cmdline;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &cmdline)) return NULL;
+	int num;
+	LPWSTR *data = CommandLineToArgvW(cmdline.ptr(), &num);
+	if (data == NULL) return PyErr_SetFromWindowsErr(0);
+	PyObject *ans = PyTuple_New(num);
+	if (!ans) { LocalFree(data); return NULL; }
+	for (int i = 0; i < num; i++) {
+		PyObject *temp = PyUnicode_FromWideChar(data[i], -1);
+		if (!temp) { Py_CLEAR(ans); LocalFree(data); return NULL; }
+		PyTuple_SET_ITEM(ans, i, temp);
+	}
+	LocalFree(data);
+	return ans;
+}
+
+static PyObject*
+run_cmdline(PyObject *self, PyObject *args) {
+	wchar_raii cmdline;
+	unsigned long flags;
+	unsigned long wait_for = 0;
+	if (!PyArg_ParseTuple(args, "O&k|k", py_to_wchar_no_none, &cmdline, &flags, &wait_for)) return NULL;
+	STARTUPINFO si = {0};
+	si.cb = sizeof(si);
+	PROCESS_INFORMATION pi = {0};
+	if (!CreateProcessW(NULL, cmdline.ptr(), NULL, NULL, FALSE, flags, NULL, NULL, &si, &pi)) return PyErr_SetFromWindowsErr(0);
+	if (wait_for) WaitForInputIdle(pi.hProcess, wait_for);
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+	Py_RETURN_NONE;
+}
+
+static PyObject*
+is_wow64_process(PyObject *self, PyObject *args) {
+	BOOL ans;
+	if (!IsWow64Process(GetCurrentProcess(), &ans)) return PyErr_SetFromWindowsErr(0);
+	return Py_BuildValue("O", ans ? Py_True : Py_False);
+}
+
+static PyObject*
+write_file(PyObject *self, PyObject *args) {
+    int size, offset = 0;
+    const char *data;
+    HANDLE handle;
+    if (!PyArg_ParseTuple(args, "O&y#|i", convert_handle, &handle, &data, &size, &offset)) return NULL;
+    DWORD written = 0;
+    BOOL ok;
+    Py_BEGIN_ALLOW_THREADS
+    ok = WriteFile(handle, data + offset, size - offset, &written, NULL);
+    Py_END_ALLOW_THREADS
+    if (!ok) return set_error_from_handle(args);
+    return PyLong_FromUnsignedLong(written);
+}
+
+static PyObject*
+wait_named_pipe(PyObject *self, PyObject *args) {
+    wchar_raii path;
+    unsigned long timeout = 0;
+    if (!PyArg_ParseTuple(args, "O&|k", py_to_wchar_no_none, &path, &timeout)) return NULL;
+    BOOL ok;
+    Py_BEGIN_ALLOW_THREADS
+    ok = WaitNamedPipeW(path.ptr(), timeout);
+    Py_END_ALLOW_THREADS
+    if (!ok) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, 0, PyTuple_GET_ITEM(args, 0));
+    Py_RETURN_TRUE;
+}
+
+// Icon loading {{{
+#pragma pack( push )
+#pragma pack( 2 )
+typedef struct {
+	int count;
+	const wchar_t *resource_id;
+} ResourceData;
+#pragma pack( pop )
+
+
+BOOL CALLBACK
+EnumResProc(HMODULE handle, LPWSTR type, LPWSTR name, ResourceData *data) {
+	if (data->count-- > 0) return TRUE;
+	data->resource_id = name;
+	return FALSE;
+}
+
+static const wchar_t*
+get_resource_id_for_index(HMODULE handle, const int index, LPCWSTR type = RT_GROUP_ICON) {
+	ResourceData data = {index, NULL};
+	int count = index;
+	EnumResourceNamesW(handle, type, reinterpret_cast<ENUMRESNAMEPROC>(EnumResProc), reinterpret_cast<LONG_PTR>(&data));
+	return data.resource_id;
+}
+
+#pragma pack( push )
+#pragma pack( 2 )
+struct GRPICONDIRENTRY {
+    BYTE bWidth;
+    BYTE bHeight;
+    BYTE bColorCount;
+    BYTE bReserved;
+    WORD wPlanes;
+    WORD wBitCount;
+    DWORD dwBytesInRes;
+    WORD nID;
+  };
+#pragma pack( pop )
+
+static PyObject*
+load_icon(PyObject *args, HMODULE handle, GRPICONDIRENTRY *entry) {
+	HRSRC res = FindResourceExW(handle, RT_ICON, MAKEINTRESOURCEW(entry->nID), MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+	if (!res) {
+		DWORD ec = GetLastError();
+		if (ec == ERROR_RESOURCE_TYPE_NOT_FOUND || ec == ERROR_RESOURCE_NAME_NOT_FOUND || ec == ERROR_RESOURCE_LANG_NOT_FOUND) return NULL;
+		return set_error_from_handle(args, ec);
+	}
+	HGLOBAL hglob = LoadResource(handle, res);
+	if (hglob == NULL) return set_error_from_handle(args);
+	BYTE* data = (BYTE*)LockResource(hglob);
+	if (!data) return NULL;
+	DWORD sz = SizeofResource(handle, res);
+	if (!sz) return NULL;
+	HICON icon = CreateIconFromResourceEx(data, sz, TRUE, 0x00030000, 0, 0, LR_DEFAULTCOLOR);
+	return Py_BuildValue("y#N", data, sz, Handle_create(icon, IconHandle));
+}
+
+struct GRPICONDIR {
+    WORD idReserved;
+    WORD idType;
+    WORD idCount;
+    GRPICONDIRENTRY idEntries[1];
+};
+
+static PyObject*
+load_icons(PyObject *self, PyObject *args) {
+	HMODULE handle;
+	int index;
+	if (!PyArg_ParseTuple(args, "O&i", convert_handle, &handle, &index)) return NULL;
+
+	LPCWSTR resource_id = index < 0 ? MAKEINTRESOURCEW(-index) : get_resource_id_for_index(handle, index);
+	if (resource_id == NULL) { PyErr_Format(PyExc_IndexError, "no resource found with index: %d in handle: %S", index, PyTuple_GET_ITEM(args, 0)); return NULL; }
+	HRSRC res = FindResourceExW(handle, RT_GROUP_ICON, resource_id, MAKELANGID(LANG_NEUTRAL, SUBLANG_NEUTRAL));
+	if (res == NULL) return set_error_from_handle(args);
+	DWORD size = SizeofResource(handle, res);
+	if (!size) { PyErr_SetString(PyExc_ValueError, "the icon group resource at the specified index is empty"); return NULL; }
+	HGLOBAL hglob = LoadResource(handle, res);
+	if (hglob == NULL) return set_error_from_handle(args);
+	GRPICONDIR *grp_icon_dir = (GRPICONDIR*)LockResource(hglob);
+	if (!grp_icon_dir) { PyErr_SetString(PyExc_RuntimeError, "failed to lock icon group resource"); return NULL; }
+	PyObject *ans = PyList_New(0);
+	if (!ans) return NULL;
+	for (size_t i = 0; i < grp_icon_dir->idCount; i++) {
+		PyObject *hicon = load_icon(args, handle, grp_icon_dir->idEntries + i);
+		if (hicon) {
+			int ret = PyList_Append(ans, hicon);
+			Py_CLEAR(hicon);
+			if (ret != 0) { Py_CLEAR(ans); return NULL; }
+		} else if (PyErr_Occurred()) { Py_CLEAR(ans); return NULL; }
+	}
+	return ans;
+}
+
+_COM_SMARTPTR_TYPEDEF(IImageList, __uuidof(IImageList));
+
+static HICON
+get_icon_at_index(int shilsize, int index) {
+	IImageListPtr spiml;
+	HRESULT hr = SHGetImageList(shilsize, IID_PPV_ARGS(&spiml));
+	HICON hico = NULL;
+	if (SUCCEEDED(hr)) spiml->GetIcon(index, ILD_TRANSPARENT, &hico);
+	return hico;
+}
+
+static PyObject*
+get_icon_for_file(PyObject *self, PyObject *args) {
+	wchar_raii path;
+	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
+	scoped_com_initializer com;
+	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+	SHFILEINFO fi = {0};
+	DWORD_PTR res;
+	Py_BEGIN_ALLOW_THREADS
+	res = SHGetFileInfoW(path.ptr(), 0, &fi, sizeof(fi), SHGFI_SYSICONINDEX);
+	Py_END_ALLOW_THREADS
+	if (!res) return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
+	HICON icon;
+#define R(shil) { \
+	Py_BEGIN_ALLOW_THREADS \
+	icon = get_icon_at_index(SHIL_JUMBO, fi.iIcon); \
+	Py_END_ALLOW_THREADS \
+	if (icon) return (PyObject*)Handle_create(icon, IconHandle); \
+}
+	R(SHIL_JUMBO); R(SHIL_EXTRALARGE); R(SHIL_LARGE); R(SHIL_SYSSMALL); R(SHIL_SMALL);
+#undef R
+	return PyErr_SetExcFromWindowsErrWithFilenameObject(PyExc_OSError, ERROR_RESOURCE_TYPE_NOT_FOUND, PyTuple_GET_ITEM(args, 0));
+} // }}}
+
 // Boilerplate  {{{
 static const char winutil_doc[] = "Defines utility methods to interface with windows.";
 
 #define M(name, args) { #name, name, args, ""}
 static PyMethodDef winutil_methods[] = {
+	M(run_cmdline, METH_VARARGS),
+	M(is_wow64_process, METH_NOARGS),
     M(get_dll_directory, METH_NOARGS),
+    M(create_mutex, METH_VARARGS),
+    M(supports_hardlinks, METH_VARARGS),
     M(get_async_key_state, METH_VARARGS),
     M(create_named_pipe, METH_VARARGS),
+    M(connect_named_pipe, METH_VARARGS),
     M(set_handle_information, METH_VARARGS),
     M(get_long_path_name, METH_VARARGS),
     M(get_process_times, METH_O),
 	M(get_handle_information, METH_VARARGS),
 	M(get_last_error, METH_NOARGS),
 	M(load_library, METH_VARARGS),
+	M(load_icons, METH_VARARGS),
+	M(get_icon_for_file, METH_VARARGS),
+	M(parse_cmdline, METH_VARARGS),
+	M(write_file, METH_VARARGS),
+	M(wait_named_pipe, METH_VARARGS),
+	M(known_folder_path, METH_VARARGS),
+    M(get_computer_name, METH_VARARGS),
 
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
     "special_folder_path(csidl_id) -> path\n\n"
@@ -877,7 +1189,7 @@ static PyMethodDef winutil_methods[] = {
     },
 
     {"read_file", (PyCFunction)winutil_read_file, METH_VARARGS,
-        "set_file_pointer(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
+        "read_file(handle, chunk_size=16KB)\n\nWrapper for ReadFile"
     },
 
     {"get_disk_free_space", (PyCFunction)winutil_get_disk_free_space, METH_VARARGS,
@@ -912,126 +1224,218 @@ static PyMethodDef winutil_methods[] = {
 };
 #undef M
 
-static struct PyModuleDef winutil_module = {
-    /* m_base     */ PyModuleDef_HEAD_INIT,
-    /* m_name     */ "winutil",
-    /* m_doc      */ winutil_doc,
-    /* m_size     */ -1,
-    /* m_methods  */ winutil_methods,
-    /* m_slots    */ 0,
-    /* m_traverse */ 0,
-    /* m_clear    */ 0,
-    /* m_free     */ 0,
-};
+static int
+exec_module(PyObject *m) {
+#define add_type(name, doc, obj) obj##Type.tp_name = "winutil." #name; obj##Type.tp_doc = doc; obj##Type.tp_basicsize = sizeof(obj); \
+	obj##Type.tp_itemsize = 0; obj##Type.tp_flags = Py_TPFLAGS_DEFAULT; obj##Type.tp_repr = (reprfunc)obj##_repr; \
+	obj##Type.tp_str = (reprfunc)obj##_repr; obj##Type.tp_new = obj##_new; obj##Type.tp_dealloc = (destructor)obj##_dealloc; \
+	obj##Type.tp_methods = obj##_methods; \
+	if (PyType_Ready(&obj##Type) < 0) { return -1; } \
+	Py_INCREF(&obj##Type); if (PyModule_AddObject(m, #name, (PyObject*) &obj##Type) < 0) { Py_DECREF(&obj##Type); return -1; }
 
 
+	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
+	HandleNumberMethods.nb_bool = (inquiry)Handle_as_bool;
+	HandleType.tp_as_number = &HandleNumberMethods;
+	add_type(Handle, "Wrappers for Win32 handles that free the handle on delete automatically", Handle);
+	add_type(GUID, "Wrapper for Win32 GUID", PyGUID);
+#undef add_type
 
-extern "C" {
+#define A(name) { PyObject *g = create_guid(FOLDERID_##name); if (!g) { return -1; } if (PyModule_AddObject(m, "FOLDERID_" #name, g) < 0) { Py_DECREF(g); return -1; } }
+	A(AdminTools);
+	A(Startup);
+	A(RoamingAppData);
+	A(RecycleBinFolder);
+	A(CDBurning);
+	A(CommonAdminTools);
+	A(CommonStartup);
+	A(ProgramData);
+	A(PublicDesktop);
+	A(PublicDocuments);
+	A(Favorites);
+	A(PublicMusic);
+	A(CommonOEMLinks);
+	A(PublicPictures);
+	A(CommonPrograms);
+	A(CommonStartMenu);
+	A(CommonStartup);
+	A(CommonTemplates);
+	A(PublicVideos);
+	A(NetworkFolder);
+	A(ConnectionsFolder);
+	A(ControlPanelFolder);
+	A(Cookies);
+	A(Desktop);
+	A(ComputerFolder);
+	A(Favorites);
+	A(Fonts);
+	A(History);
+	A(InternetFolder);
+	A(InternetCache);
+	A(LocalAppData);
+	A(Documents);
+	A(Music);
+	A(Pictures);
+	A(Videos);
+	A(NetHood);
+	A(NetworkFolder);
+	A(Documents);
+	A(PrintersFolder);
+	A(PrintHood);
+	A(Profile);
+	A(ProgramFiles);
+	A(ProgramFilesX86);
+	A(ProgramFilesCommon);
+	A(ProgramFilesCommonX86);
+	A(Programs);
+	A(Recent);
+	A(ResourceDir);
+	A(LocalizedResourcesDir);
+	A(SendTo);
+	A(StartMenu);
+	A(Startup);
+	A(System);
+	A(SystemX86);
+	A(Templates);
+	A(Windows);
+
+#undef A
+
+#define A(name) if (PyModule_AddIntConstant(m, #name, name) != 0) { return -1; }
+
+    A(CSIDL_ADMINTOOLS);
+    A(CSIDL_APPDATA);
+    A(CSIDL_COMMON_ADMINTOOLS);
+    A(CSIDL_COMMON_APPDATA);
+    A(CSIDL_COMMON_DOCUMENTS);
+    A(CSIDL_COOKIES);
+    A(CSIDL_FLAG_CREATE);
+    A(CSIDL_FLAG_DONT_VERIFY);
+    A(CSIDL_FONTS);
+    A(CSIDL_HISTORY);
+    A(CSIDL_INTERNET_CACHE);
+    A(CSIDL_LOCAL_APPDATA);
+    A(CSIDL_MYPICTURES);
+    A(CSIDL_PERSONAL);
+    A(CSIDL_PROGRAM_FILES);
+    A(CSIDL_PROGRAM_FILES_COMMON);
+    A(CSIDL_SYSTEM);
+    A(CSIDL_WINDOWS);
+    A(CSIDL_PROFILE);
+    A(CSIDL_STARTUP);
+    A(CSIDL_COMMON_STARTUP);
+    A(CREATE_NEW);
+    A(CREATE_ALWAYS);
+    A(OPEN_EXISTING);
+    A(OPEN_ALWAYS);
+    A(TRUNCATE_EXISTING);
+    A(FILE_SHARE_READ);
+    A(FILE_SHARE_WRITE);
+    A(FILE_SHARE_DELETE);
+    PyModule_AddIntConstant(m, "FILE_SHARE_VALID_FLAGS", FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE);
+    A(FILE_ATTRIBUTE_READONLY);
+    A(FILE_ATTRIBUTE_NORMAL);
+    A(FILE_ATTRIBUTE_TEMPORARY);
+    A(FILE_FLAG_DELETE_ON_CLOSE);
+    A(FILE_FLAG_SEQUENTIAL_SCAN);
+    A(FILE_FLAG_RANDOM_ACCESS);
+    A(GENERIC_READ);
+    A(GENERIC_WRITE);
+    A(DELETE);
+    A(FILE_BEGIN);
+    A(FILE_CURRENT);
+    A(FILE_END);
+    A(MOVEFILE_COPY_ALLOWED);
+    A(MOVEFILE_CREATE_HARDLINK);
+    A(MOVEFILE_DELAY_UNTIL_REBOOT);
+    A(MOVEFILE_FAIL_IF_NOT_TRACKABLE);
+    A(MOVEFILE_REPLACE_EXISTING);
+    A(MOVEFILE_WRITE_THROUGH);
+    A(FILE_NOTIFY_CHANGE_FILE_NAME);
+    A(FILE_NOTIFY_CHANGE_DIR_NAME);
+    A(FILE_NOTIFY_CHANGE_ATTRIBUTES);
+    A(FILE_NOTIFY_CHANGE_SIZE);
+    A(FILE_NOTIFY_CHANGE_LAST_WRITE);
+    A(FILE_NOTIFY_CHANGE_LAST_ACCESS);
+    A(FILE_NOTIFY_CHANGE_CREATION);
+    A(FILE_NOTIFY_CHANGE_SECURITY);
+    A(FILE_ACTION_ADDED);
+    A(FILE_ACTION_REMOVED);
+    A(FILE_ACTION_MODIFIED);
+    A(FILE_ACTION_RENAMED_OLD_NAME);
+    A(FILE_ACTION_RENAMED_NEW_NAME);
+    A(FILE_LIST_DIRECTORY);
+    A(FILE_FLAG_BACKUP_SEMANTICS);
+    A(SHGFP_TYPE_CURRENT);
+    A(SHGFP_TYPE_DEFAULT);
+    A(PIPE_ACCESS_INBOUND);
+    A(FILE_FLAG_FIRST_PIPE_INSTANCE);
+    A(PIPE_TYPE_BYTE);
+    A(PIPE_READMODE_BYTE);
+    A(PIPE_WAIT);
+    A(PIPE_REJECT_REMOTE_CLIENTS);
+    A(HANDLE_FLAG_INHERIT);
+    A(HANDLE_FLAG_PROTECT_FROM_CLOSE);
+    A(VK_RMENU);
+    A(DONT_RESOLVE_DLL_REFERENCES);
+    A(LOAD_LIBRARY_AS_DATAFILE);
+    A(LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+    A(INFINITE);
+    A(REG_QWORD);
+    A(ERROR_SUCCESS);
+    A(ERROR_MORE_DATA);
+    A(ERROR_NO_MORE_ITEMS);
+    A(ERROR_FILE_NOT_FOUND);
+    A(ERROR_GEN_FAILURE);
+    A(ERROR_INSUFFICIENT_BUFFER);
+    A(ERROR_BAD_COMMAND);
+    A(ERROR_INVALID_DATA);
+    A(ERROR_NOT_READY);
+    A(ERROR_SHARING_VIOLATION);
+    A(ERROR_LOCK_VIOLATION);
+    A(ERROR_ALREADY_EXISTS);
+    A(ERROR_BROKEN_PIPE);
+    A(ERROR_PIPE_BUSY);
+    A(NormalHandle);
+    A(ModuleHandle);
+    A(IconHandle);
+
+	A(KF_FLAG_DEFAULT);
+	A(KF_FLAG_FORCE_APP_DATA_REDIRECTION);
+	A(KF_FLAG_RETURN_FILTER_REDIRECTION_TARGET);
+	A(KF_FLAG_FORCE_PACKAGE_REDIRECTION);
+	A(KF_FLAG_NO_PACKAGE_REDIRECTION);
+	A(KF_FLAG_FORCE_APPCONTAINER_REDIRECTION);
+	A(KF_FLAG_NO_APPCONTAINER_REDIRECTION);
+	A(KF_FLAG_CREATE);
+	A(KF_FLAG_DONT_VERIFY);
+	A(KF_FLAG_DONT_UNEXPAND);
+	A(KF_FLAG_NO_ALIAS);
+	A(KF_FLAG_INIT);
+	A(KF_FLAG_DEFAULT_PATH);
+	A(KF_FLAG_NOT_PARENT_RELATIVE);
+	A(KF_FLAG_SIMPLE_IDLIST);
+	A(KF_FLAG_ALIAS_ONLY);
+    A(ComputerNameDnsDomain);
+    A(ComputerNameDnsFullyQualified);
+    A(ComputerNameDnsHostname);
+    A(ComputerNameNetBIOS);
+    A(ComputerNamePhysicalDnsDomain);
+    A(ComputerNamePhysicalDnsFullyQualified);
+    A(ComputerNamePhysicalDnsHostname);
+    A(ComputerNamePhysicalNetBIOS);
+#undef A
+    return 0;
+}
+
+static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
+
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
 CALIBRE_MODINIT_FUNC PyInit_winutil(void) {
-	HandleNumberMethods.nb_int = (unaryfunc)Handle_as_int;
-    HandleType.tp_name = "winutil.Handle";
-    HandleType.tp_doc = "Wrappers for Win32 handles that free the handle on delete automatically";
-    HandleType.tp_basicsize = sizeof(Handle);
-    HandleType.tp_itemsize = 0;
-    HandleType.tp_flags = Py_TPFLAGS_DEFAULT;
-	HandleType.tp_repr = (reprfunc)Handle_repr;
-	HandleType.tp_as_number = &HandleNumberMethods;
-	HandleType.tp_str = (reprfunc)Handle_repr;
-    HandleType.tp_new = PyType_GenericNew;
-    HandleType.tp_methods = Handle_methods;
-	HandleType.tp_dealloc = (destructor)Handle_dealloc;
-	if (PyType_Ready(&HandleType) < 0) return NULL;
-
-    PyObject *m = PyModule_Create(&winutil_module);
-
-    if (m == NULL) return NULL;
-
-	Py_INCREF(&HandleType);
-    if (PyModule_AddObject(m, "Handle", (PyObject *) &HandleType) < 0) {
-        Py_DECREF(&HandleType);
-        Py_DECREF(m);
-        return NULL;
-    }
-    PyModule_AddIntConstant(m, "CSIDL_ADMINTOOLS", CSIDL_ADMINTOOLS);
-    PyModule_AddIntConstant(m, "CSIDL_APPDATA", CSIDL_APPDATA);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_ADMINTOOLS", CSIDL_COMMON_ADMINTOOLS);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_APPDATA", CSIDL_COMMON_APPDATA);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_DOCUMENTS", CSIDL_COMMON_DOCUMENTS);
-    PyModule_AddIntConstant(m, "CSIDL_COOKIES", CSIDL_COOKIES);
-    PyModule_AddIntConstant(m, "CSIDL_FLAG_CREATE", CSIDL_FLAG_CREATE);
-    PyModule_AddIntConstant(m, "CSIDL_FLAG_DONT_VERIFY", CSIDL_FLAG_DONT_VERIFY);
-    PyModule_AddIntConstant(m, "CSIDL_FONTS", CSIDL_FONTS);
-    PyModule_AddIntConstant(m, "CSIDL_HISTORY", CSIDL_HISTORY);
-    PyModule_AddIntConstant(m, "CSIDL_INTERNET_CACHE", CSIDL_INTERNET_CACHE);
-    PyModule_AddIntConstant(m, "CSIDL_LOCAL_APPDATA", CSIDL_LOCAL_APPDATA);
-    PyModule_AddIntConstant(m, "CSIDL_MYPICTURES", CSIDL_MYPICTURES);
-    PyModule_AddIntConstant(m, "CSIDL_PERSONAL", CSIDL_PERSONAL);
-    PyModule_AddIntConstant(m, "CSIDL_PROGRAM_FILES", CSIDL_PROGRAM_FILES);
-    PyModule_AddIntConstant(m, "CSIDL_PROGRAM_FILES_COMMON", CSIDL_PROGRAM_FILES_COMMON);
-    PyModule_AddIntConstant(m, "CSIDL_SYSTEM", CSIDL_SYSTEM);
-    PyModule_AddIntConstant(m, "CSIDL_WINDOWS", CSIDL_WINDOWS);
-    PyModule_AddIntConstant(m, "CSIDL_PROFILE", CSIDL_PROFILE);
-    PyModule_AddIntConstant(m, "CSIDL_STARTUP", CSIDL_STARTUP);
-    PyModule_AddIntConstant(m, "CSIDL_COMMON_STARTUP", CSIDL_COMMON_STARTUP);
-    PyModule_AddIntConstant(m, "CREATE_NEW", CREATE_NEW);
-    PyModule_AddIntConstant(m, "CREATE_ALWAYS", CREATE_ALWAYS);
-    PyModule_AddIntConstant(m, "OPEN_EXISTING", OPEN_EXISTING);
-    PyModule_AddIntConstant(m, "OPEN_ALWAYS", OPEN_ALWAYS);
-    PyModule_AddIntConstant(m, "TRUNCATE_EXISTING", TRUNCATE_EXISTING);
-    PyModule_AddIntConstant(m, "FILE_SHARE_READ", FILE_SHARE_READ);
-    PyModule_AddIntConstant(m, "FILE_SHARE_WRITE", FILE_SHARE_WRITE);
-    PyModule_AddIntConstant(m, "FILE_SHARE_DELETE", FILE_SHARE_DELETE);
-    PyModule_AddIntConstant(m, "FILE_SHARE_VALID_FLAGS", FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE);
-    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_READONLY", FILE_ATTRIBUTE_READONLY);
-    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_NORMAL", FILE_ATTRIBUTE_NORMAL);
-    PyModule_AddIntConstant(m, "FILE_ATTRIBUTE_TEMPORARY", FILE_ATTRIBUTE_TEMPORARY);
-    PyModule_AddIntConstant(m, "FILE_FLAG_DELETE_ON_CLOSE", FILE_FLAG_DELETE_ON_CLOSE);
-    PyModule_AddIntConstant(m, "FILE_FLAG_SEQUENTIAL_SCAN", FILE_FLAG_SEQUENTIAL_SCAN);
-    PyModule_AddIntConstant(m, "FILE_FLAG_RANDOM_ACCESS", FILE_FLAG_RANDOM_ACCESS);
-    PyModule_AddIntConstant(m, "GENERIC_READ", GENERIC_READ);
-    PyModule_AddIntConstant(m, "GENERIC_WRITE", GENERIC_WRITE);
-    PyModule_AddIntConstant(m, "DELETE", DELETE);
-    PyModule_AddIntConstant(m, "FILE_BEGIN", FILE_BEGIN);
-    PyModule_AddIntConstant(m, "FILE_CURRENT", FILE_CURRENT);
-    PyModule_AddIntConstant(m, "FILE_END", FILE_END);
-    PyModule_AddIntConstant(m, "MOVEFILE_COPY_ALLOWED", MOVEFILE_COPY_ALLOWED);
-    PyModule_AddIntConstant(m, "MOVEFILE_CREATE_HARDLINK", MOVEFILE_CREATE_HARDLINK);
-    PyModule_AddIntConstant(m, "MOVEFILE_DELAY_UNTIL_REBOOT", MOVEFILE_DELAY_UNTIL_REBOOT);
-    PyModule_AddIntConstant(m, "MOVEFILE_FAIL_IF_NOT_TRACKABLE", MOVEFILE_FAIL_IF_NOT_TRACKABLE);
-    PyModule_AddIntConstant(m, "MOVEFILE_REPLACE_EXISTING", MOVEFILE_REPLACE_EXISTING);
-    PyModule_AddIntConstant(m, "MOVEFILE_WRITE_THROUGH", MOVEFILE_WRITE_THROUGH);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_FILE_NAME", FILE_NOTIFY_CHANGE_FILE_NAME);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_DIR_NAME", FILE_NOTIFY_CHANGE_DIR_NAME);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_ATTRIBUTES", FILE_NOTIFY_CHANGE_ATTRIBUTES);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_SIZE", FILE_NOTIFY_CHANGE_SIZE);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_LAST_WRITE", FILE_NOTIFY_CHANGE_LAST_WRITE);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_LAST_ACCESS", FILE_NOTIFY_CHANGE_LAST_ACCESS);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_CREATION", FILE_NOTIFY_CHANGE_CREATION);
-    PyModule_AddIntConstant(m, "FILE_NOTIFY_CHANGE_SECURITY", FILE_NOTIFY_CHANGE_SECURITY);
-    PyModule_AddIntConstant(m, "FILE_ACTION_ADDED", FILE_ACTION_ADDED);
-    PyModule_AddIntConstant(m, "FILE_ACTION_REMOVED", FILE_ACTION_REMOVED);
-    PyModule_AddIntConstant(m, "FILE_ACTION_MODIFIED", FILE_ACTION_MODIFIED);
-    PyModule_AddIntConstant(m, "FILE_ACTION_RENAMED_OLD_NAME", FILE_ACTION_RENAMED_OLD_NAME);
-    PyModule_AddIntConstant(m, "FILE_ACTION_RENAMED_NEW_NAME", FILE_ACTION_RENAMED_NEW_NAME);
-    PyModule_AddIntConstant(m, "FILE_LIST_DIRECTORY", FILE_LIST_DIRECTORY);
-    PyModule_AddIntConstant(m, "FILE_FLAG_BACKUP_SEMANTICS", FILE_FLAG_BACKUP_SEMANTICS);
-    PyModule_AddIntConstant(m, "SHGFP_TYPE_CURRENT", SHGFP_TYPE_CURRENT);
-    PyModule_AddIntConstant(m, "SHGFP_TYPE_DEFAULT", SHGFP_TYPE_DEFAULT);
-    PyModule_AddIntConstant(m, "PIPE_ACCESS_INBOUND", PIPE_ACCESS_INBOUND);
-    PyModule_AddIntConstant(m, "FILE_FLAG_FIRST_PIPE_INSTANCE", FILE_FLAG_FIRST_PIPE_INSTANCE);
-    PyModule_AddIntConstant(m, "PIPE_TYPE_BYTE", PIPE_TYPE_BYTE);
-    PyModule_AddIntConstant(m, "PIPE_READMODE_BYTE", PIPE_READMODE_BYTE);
-    PyModule_AddIntConstant(m, "PIPE_WAIT", PIPE_WAIT);
-    PyModule_AddIntConstant(m, "PIPE_REJECT_REMOTE_CLIENTS", PIPE_REJECT_REMOTE_CLIENTS);
-    PyModule_AddIntConstant(m, "HANDLE_FLAG_INHERIT", HANDLE_FLAG_INHERIT);
-    PyModule_AddIntConstant(m, "HANDLE_FLAG_PROTECT_FROM_CLOSE", HANDLE_FLAG_PROTECT_FROM_CLOSE);
-    PyModule_AddIntConstant(m, "VK_RMENU", VK_RMENU);
-    PyModule_AddIntConstant(m, "DONT_RESOLVE_DLL_REFERENCES", DONT_RESOLVE_DLL_REFERENCES);
-    PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_DATAFILE", LOAD_LIBRARY_AS_DATAFILE);
-    PyModule_AddIntConstant(m, "LOAD_LIBRARY_AS_IMAGE_RESOURCE", LOAD_LIBRARY_AS_IMAGE_RESOURCE);
-
-    return m;
+    module_def.m_name     = "winutil";
+    module_def.m_doc      = winutil_doc;
+    module_def.m_methods  = winutil_methods;
+    module_def.m_slots    = slots;
+	return PyModuleDef_Init(&module_def);
 }
-// end extern "C"
-} // }}}

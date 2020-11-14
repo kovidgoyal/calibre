@@ -6,10 +6,9 @@
 import json
 import os
 import shutil
-
 from PyQt5.Qt import (
-    QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl, QVBoxLayout,
-    QWidget, pyqtSignal, QApplication
+    QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 from PyQt5.QtWebEngineWidgets import QWebEngineProfile, QWebEngineView
 
@@ -20,11 +19,11 @@ from calibre.gui2 import (
     Application, choose_save_file, error_dialog, gprefs, info_dialog, set_app_uid
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.listener import send_message_in_process
 from calibre.gui2.main_window import MainWindow
 from calibre.ptempfile import PersistentTemporaryDirectory, reset_base_dir
-from calibre.utils.ipc import RC
+from polyglot.binary import as_base64_bytes, from_base64_bytes
 from polyglot.builtins import string_or_bytes
-from polyglot.binary import from_base64_bytes, as_base64_bytes
 
 
 class DownloadItem(QWidget):
@@ -207,22 +206,20 @@ class Main(MainWindow):
                 shutil.copyfile(path, name)
                 os.remove(path)
             return
-        t = RC(print_error=False)
-        t.start()
-        t.join(3.0)
-        if t.conn is None:
-            error_dialog(self, _('No running calibre'), _(
-                'No running calibre instance found. Please start calibre before trying to'
-                ' download books.'), show=True)
-            return
         tags = self.data['tags']
         if isinstance(tags, string_or_bytes):
             tags = list(filter(None, [x.strip() for x in tags.split(',')]))
         data = json.dumps({'path': path, 'tags': tags})
         if not isinstance(data, bytes):
             data = data.encode('utf-8')
-        t.conn.send(b'web-store:' + data)
-        t.conn.close()
+
+        try:
+            send_message_in_process(b'web-store:' + data)
+        except Exception as err:
+            error_dialog(self, _('Could not contact calibre'), _(
+                'No running calibre instance found. Please start calibre before trying to'
+                ' download books.'), det_msg=str(err), show=True)
+            return
 
         info_dialog(self, _('Download completed'), _(
             'Download of {0} has been completed, the book was added to'

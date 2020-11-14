@@ -26,7 +26,7 @@ from calibre import as_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__ as APP_UID, __version__, config_dir, filesystem_encoding,
     is_running_from_develop, isbsd, isfrozen, islinux, ismacos, iswindows, isxp,
-    plugins, plugins_loc
+    plugins_loc
 )
 from calibre.ebooks.metadata import MetaInformation
 from calibre.gui2.linux_file_dialogs import (
@@ -134,6 +134,7 @@ def create_defs():
     defs['font'] = None
     defs['tags_browser_partition_method'] = 'first letter'
     defs['tags_browser_collapse_at'] = 100
+    defs['tags_browser_collapse_fl_at'] = 5
     defs['tag_browser_dont_collapse'] = []
     defs['edit_metadata_single_layout'] = 'default'
     defs['preserve_date_on_ctl'] = True
@@ -151,6 +152,7 @@ def create_defs():
     defs['tag_browser_old_look'] = False
     defs['tag_browser_hide_empty_categories'] = False
     defs['tag_browser_always_autocollapse'] = False
+    defs['tag_browser_allow_keyboard_focus'] = False
     defs['book_list_tooltips'] = True
     defs['show_layout_buttons'] = False
     defs['bd_show_cover'] = True
@@ -880,9 +882,8 @@ class Application(QApplication):
             args.extend(['-platformpluginpath', plugins_loc, '-platform', 'headless'])
         self.headless = headless
         qargs = [i.encode('utf-8') if isinstance(i, unicode_type) else i for i in args]
-        self.pi, pi_err = plugins['progress_indicator']
-        if pi_err:
-            raise RuntimeError('Failed to load the progress_indicator C extension, with error: {}'.format(pi_err))
+        from calibre_extensions import progress_indicator
+        self.pi = progress_indicator
         if not ismacos and not headless:
             # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
             setup_hidpi()
@@ -898,7 +899,8 @@ class Application(QApplication):
         if hasattr(sh, 'setShowShortcutsInContextMenus'):
             sh.setShowShortcutsInContextMenus(True)
         if ismacos:
-            plugins['cocoa'][0].disable_cocoa_ui_elements()
+            from calibre_extensions.cocoa import disable_cocoa_ui_elements
+            disable_cocoa_ui_elements()
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         self.setAttribute(Qt.AA_SynthesizeTouchForUnhandledMouseEvents, False)
         try:
@@ -976,10 +978,8 @@ class Application(QApplication):
             self.aboutToQuit.connect(self.flush_clipboard)
 
         if ismacos:
-            cocoa, err = plugins['cocoa']
-            if err:
-                raise RuntimeError('Failed to load cocoa plugin with error: {}'.format(err))
-            cft = cocoa.cursor_blink_time()
+            from calibre_extensions.cocoa import cursor_blink_time
+            cft = cursor_blink_time()
             if cft >= 0:
                 self.setCursorFlashTime(int(cft))
 
@@ -1133,7 +1133,8 @@ class Application(QApplication):
             icon_map[getattr(QStyle, 'SP_'+k)] = v
         transient_scroller = 0
         if ismacos:
-            transient_scroller = plugins['cocoa'][0].transient_scroller()
+            from calibre_extensions.cocoa import transient_scroller
+            transient_scroller = transient_scroller()
         icon_map[QStyle.SP_CustomBase + 1] = I('close-for-light-theme.png')
         icon_map[QStyle.SP_CustomBase + 2] = I('close-for-dark-theme.png')
         self.pi.load_style(icon_map, transient_scroller)
@@ -1490,8 +1491,9 @@ def set_app_uid(val):
 
 
 def add_to_recent_docs(path):
+    from calibre_extensions import winutil
     app = QApplication.instance()
-    plugins['winutil'][0].add_to_recent_docs(unicode_type(path), app.windows_app_uid)
+    winutil.add_to_recent_docs(unicode_type(path), app.windows_app_uid)
 
 
 def windows_is_system_dark_mode_enabled():

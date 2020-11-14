@@ -11,7 +11,7 @@ class IDGse(BasicNewsRecipe):
     oldest_article = 1
     max_articles_per_feed = 256
     no_stylesheets = True
-    encoding = 'ISO-8859-1'
+    encoding = 'utf-8'
     remove_javascript = True
 
     feeds = [(u'Dagens IDG-nyheter', u'http://feeds.idg.se/idg/ETkj?format=xml')]

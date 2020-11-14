@@ -7,7 +7,7 @@ from functools import partial
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
                       QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
-                      pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu)
+                      pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu, QColor)
 
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
 from calibre.gui2.complete2 import EditWithComplete
@@ -140,7 +140,7 @@ class EditColumnDelegate(QItemDelegate):
 class TagListEditor(QDialog, Ui_TagListEditor):
 
     def __init__(self, window, cat_name, tag_to_match, get_book_ids, sorter,
-                 ttm_is_first_letter=False, category=None):
+                 ttm_is_first_letter=False, category=None, fm=None):
         QDialog.__init__(self, window)
         Ui_TagListEditor.__init__(self)
         self.setupUi(self)
@@ -250,6 +250,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.resize(self.sizeHint()+QSize(150, 100))
         except:
             pass
+
+        self.is_enumerated = False
+        if fm:
+            if fm['datatype'] == 'enumeration':
+                self.is_enumerated = True
+                self.enum_permitted_values = fm.get('display', {}).get('enum_values', None)
         # Add the data
         self.search_item_row = -1
         self.fill_in_table(None, tag_to_match, ttm_is_first_letter)
@@ -290,19 +296,20 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             ca.triggered.connect(partial(self.search_for_books, item))
             if disable_copy_paste_search:
                 ca.setEnabled(False)
-        m.addSeparator()
-        case_menu = QMenu(_('Change case'))
-        action_upper_case = case_menu.addAction(_('Upper case'))
-        action_lower_case = case_menu.addAction(_('Lower case'))
-        action_swap_case = case_menu.addAction(_('Swap case'))
-        action_title_case = case_menu.addAction(_('Title case'))
-        action_capitalize = case_menu.addAction(_('Capitalize'))
-        action_upper_case.triggered.connect(partial(self.do_case, icu_upper))
-        action_lower_case.triggered.connect(partial(self.do_case, icu_lower))
-        action_swap_case.triggered.connect(partial(self.do_case, self.swap_case))
-        action_title_case.triggered.connect(partial(self.do_case, titlecase))
-        action_capitalize.triggered.connect(partial(self.do_case, capitalize))
-        m.addMenu(case_menu)
+        if self.table.state() == self.table.EditingState:
+            m.addSeparator()
+            case_menu = QMenu(_('Change case'))
+            action_upper_case = case_menu.addAction(_('Upper case'))
+            action_lower_case = case_menu.addAction(_('Lower case'))
+            action_swap_case = case_menu.addAction(_('Swap case'))
+            action_title_case = case_menu.addAction(_('Title case'))
+            action_capitalize = case_menu.addAction(_('Capitalize'))
+            action_upper_case.triggered.connect(partial(self.do_case, icu_upper))
+            action_lower_case.triggered.connect(partial(self.do_case, icu_lower))
+            action_swap_case.triggered.connect(partial(self.do_case, self.swap_case))
+            action_title_case.triggered.connect(partial(self.do_case, titlecase))
+            action_capitalize.triggered.connect(partial(self.do_case, capitalize))
+            m.addMenu(case_menu)
         m.exec_(self.table.mapToGlobal(point))
 
     def search_for_books(self, item):
@@ -375,7 +382,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 self.all_tags[v] = {'key': k, 'count': count, 'cur_name': v,
                                    'is_deleted': k in self.to_delete}
                 self.original_names[k] = v
-        self.edit_delegate.set_completion_data(self.original_names.values())
+        if self.is_enumerated:
+            self.edit_delegate.set_completion_data(self.enum_permitted_values)
+        else:
+            self.edit_delegate.set_completion_data(self.original_names.values())
 
         self.ordered_tags = sorted(self.all_tags.keys(), key=self.sorter)
         if tags is None:
@@ -403,6 +413,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 item.setText(self.to_rename[_id])
             else:
                 item.setText(tag)
+            if self.is_enumerated and unicode_type(item.text()) not in self.enum_permitted_values:
+                item.setBackground(QColor('#FF2400'))
+                item.setToolTip(
+                    '<p>' +
+                    _("This is not one of this column's permitted values ({0})"
+                      ).format(', '.join(self.enum_permitted_values)) + '</p>')
             item.setFlags(item.flags() | Qt.ItemIsSelectable | Qt.ItemIsEditable)
             self.table.setItem(row, 0, item)
             if select_item is None:
@@ -498,13 +514,24 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             edited_item.setText(self.text_before_editing)
             self.table.blockSignals(False)
             return
+        new_text = unicode_type(edited_item.text())
+        if self.is_enumerated and new_text not in self.enum_permitted_values:
+            error_dialog(self, _('Item is not a permitted value'), '<p>' + _(
+                "This column has a fixed set of permitted values. The entered "
+                "text must be one of ({0}).").format(', '.join(self.enum_permitted_values)) +
+                '</p>', show=True)
+            self.table.blockSignals(True)
+            edited_item.setText(self.text_before_editing)
+            self.table.blockSignals(False)
+            return
+
         items = self.table.selectedItems()
         self.table.blockSignals(True)
         for item in items:
             id_ = int(item.data(Qt.UserRole))
-            self.to_rename[id_] = unicode_type(edited_item.text())
+            self.to_rename[id_] = new_text
             orig = self.table.item(item.row(), 2)
-            item.setText(edited_item.text())
+            item.setText(new_text)
             orig.setData(Qt.DisplayRole, item.initial_text())
         self.table.blockSignals(False)
 

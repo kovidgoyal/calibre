@@ -404,6 +404,20 @@ metadata_single_use_2_cols_for_custom_fields = True
 # metadata_edit_custom_column_order = ['#genre', '#mytags', '#etc']
 metadata_edit_custom_column_order = []
 
+#: Edit metadata custom column label width and elision point
+# Set the width of custom column labels shown in the edit metadata dialogs.
+# If metadata_edit_elide_labels is True then labels wider than the width
+# will be elided, otherwise they will be word wrapped. The maximum width is
+# computed by multiplying the average width of characters in the font by the
+# appropriate number.
+# Set the elision point to 'middle' to put the ellipsis (…) in the middle of
+# the label, 'right' to put it at the right end of the label, and 'left' to
+# put it at the left end.
+metadata_edit_elide_labels = True
+metadata_edit_bulk_cc_label_length = 25
+metadata_edit_single_cc_label_length = 12
+metadata_edit_elision_point = 'right'
+
 #: The number of seconds to wait before sending emails
 # The number of seconds to wait before sending emails when using a
 # public email server like GMX/Hotmail/Gmail. Default is: 5 minutes

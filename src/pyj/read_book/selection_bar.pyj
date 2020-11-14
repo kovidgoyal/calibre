@@ -9,11 +9,12 @@ from uuid import short_uuid
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import change_icon_image, clear, svgicon, unique_id
-from modals import error_dialog, question_dialog
+from modals import error_dialog, question_dialog, create_custom_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import (
     ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles, render_notes
 )
+from widgets import create_button
 from read_book.shortcuts import shortcut_for_key_event
 from read_book.toc import get_toc_nodes_bordering_spine_item, family_for_toc_node
 
@@ -561,6 +562,9 @@ class SelectionBar:
             self.copy_to_clipboard()
             return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if not sc_name:
+            return
+        forwarded = {'toggle_highlights': True, 'extend_selection_by_word': True, 'shrink_selection_by_word': True}
         if sc_name is 'show_chrome':
             self.clear_selection()
         elif sc_name is 'copy_to_clipboard':
@@ -571,8 +575,39 @@ class SelectionBar:
             self.book_search()
         elif sc_name is 'new_bookmark':
             self.new_bookmark()
-        elif sc_name is 'toggle_highlights':
+        elif forwarded[sc_name]:
             self.view.on_handle_shortcut({'name': sc_name})
+
+    def report_failed_edit_highlight(self, annot_id):
+        notes = self.annotations_manager.notes_for_highlight(annot_id)
+        has_notes = bool(notes)
+        title = _('Highlight text missing')
+        text = _(
+            'The text associated with this highlight could not be found in the book.'
+            ' This can happen if the book was modified. This highlight will be automatically removed.'
+        )
+        if runtime.is_standalone_viewer or not has_notes:
+            if has_notes:
+                ui_operations.copy_selection(notes)
+                text += ' ' + _('The notes for this highlight have been copied to the clipboard.')
+            error_dialog(title, text)
+        else:
+            create_custom_dialog(title, def (parent, close_modal):
+                parent.appendChild(E.div(
+                    E.div(text),
+                    E.div(
+                        class_='button-box',
+                        create_button(
+                            _('Copy notes to clipboard'), None, def():
+                                    ui_operations.copy_selection(notes)
+                                    close_modal()
+                            , highlight=True),
+                        '\xa0',
+                        create_button(_('OK'), None, close_modal),
+                    )
+                ))
+            )
+        self.remove_highlight_with_id(annot_id)
     # }}}
 
     # drag scroll {{{
@@ -992,6 +1027,8 @@ class SelectionBar:
         elif msg.type is 'edit-highlight':
             if self.state is WAITING:
                 self.create_highlight()
+        elif msg.type is 'edit-highlight-failed':
+            self.report_failed_edit_highlight(msg.uuid)
         elif msg.type is 'double-click':
             self.last_double_click_at = window.performance.now()
         else:

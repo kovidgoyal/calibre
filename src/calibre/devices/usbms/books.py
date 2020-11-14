@@ -24,7 +24,10 @@ def none_cmp(xx, yy):
     y = yy[1]
     if x is None and y is None:
         # No sort_key needed here, because defaults are ascii
-        return cmp(xx[2], yy[2])
+        try:
+            return cmp(xx[2], yy[2])
+        except TypeError:
+            return 0
     if x is None:
         return 1
     if y is None:

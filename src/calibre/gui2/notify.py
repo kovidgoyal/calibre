@@ -8,8 +8,10 @@ __docformat__ = 'restructuredtext en'
 
 
 import time
+from functools import lru_cache
+
 from calibre import prints
-from calibre.constants import islinux, ismacos, get_osx_version, DEBUG, plugins
+from calibre.constants import DEBUG, get_osx_version, islinux, ismacos
 from polyglot.builtins import unicode_type
 
 
@@ -25,12 +27,15 @@ class Notifier(object):
         return timeout, body, summary
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
-        raise NotImplementedError
+        raise NotImplementedError('implement in subclass')
+
+
+@lru_cache(maxsize=2)
+def icon(data=False):
+    return I('lt.png', data=data)
 
 
 class DBUSNotifier(Notifier):
-
-    ICON = I('lt.png')
 
     def __init__(self, session_bus):
         self.ok, self.err = True, None
@@ -49,24 +54,6 @@ class DBUSNotifier(Notifier):
             prints(server, 'found' if self.ok else 'not found', 'in', '%.1f' % (time.time() - start), 'seconds')
 
 
-class KDENotifier(DBUSNotifier):
-
-    SERVICE = 'org.kde.VisualNotifications', '/VisualNotifications', 'org.kde.VisualNotifications'
-
-    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
-        if replaces_id is None:
-            replaces_id = self.dbus.UInt32()
-        event_id = ''
-        timeout, body, summary = self.get_msg_parms(timeout, body, summary)
-        try:
-            self._notify.Notify('calibre', replaces_id, event_id, self.ICON, summary, body,
-                self.dbus.Array(signature='s'), self.dbus.Dictionary(signature='sv'),
-                timeout)
-        except:
-            import traceback
-            traceback.print_exc()
-
-
 class FDONotifier(DBUSNotifier):
 
     SERVICE = 'org.freedesktop.Notifications', '/org/freedesktop/Notifications', 'org.freedesktop.Notifications'
@@ -76,10 +63,44 @@ class FDONotifier(DBUSNotifier):
             replaces_id = self.dbus.UInt32()
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
         try:
-            self._notify.Notify('calibre', replaces_id, self.ICON, summary, body,
+            self._notify.Notify('calibre', replaces_id, icon(), summary, body,
                 self.dbus.Array(signature='s'), self.dbus.Dictionary({"desktop-entry": "calibre-gui"}, signature='sv'),
                 timeout)
-        except:
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+
+class XDPNotifier(DBUSNotifier):
+
+    SERVICE = 'org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop', 'org.freedesktop.portal.Notification'
+
+    def __call__(self, body, summary=None, replaces_id=None, timeout=0):
+        if replaces_id is None:
+            replaces_id = self.dbus.UInt32()
+        _, body, summary = self.get_msg_parms(timeout, body, summary)
+        # Note: This backend does not natively support the notion of timeouts
+        #
+        # While the effect may be emulated by manually withdrawing the notifi-
+        # cation from the Calibre side, this resulted in a less than optimal
+        # User Experience. Based on this, KG decided it to be better to not
+        # support timeouts at all for this backend.
+        #
+        # See discussion at https://github.com/kovidgoyal/calibre/pull/1268.
+
+        # For the icon: This should instead just send the themable icon name
+        #
+        # Doing that however, requires Calibre to first be converted to use
+        # its AppID everywhere and then we still need a fallback for portable
+        # installations.
+
+        try:
+            self._notify.AddNotification(str(replaces_id), self.dbus.Dictionary({
+                "title": self.dbus.String(summary),
+                "body": self.dbus.String(body),
+                "icon": self.dbus.Struct(("bytes", self.dbus.ByteArray(icon(data=True), variant_level=1)), signature='sv'),
+            }, signature='sv'))
+        except Exception:
             import traceback
             traceback.print_exc()
 
@@ -88,7 +109,7 @@ def get_dbus_notifier():
     import dbus
     session_bus = dbus.SessionBus()
     names = frozenset(session_bus.list_names())
-    for srv in KDENotifier, FDONotifier:
+    for srv in (FDONotifier, XDPNotifier):
         if srv.SERVICE[0] in names:
             ans = srv(session_bus)
             if ans.ok:
@@ -117,7 +138,7 @@ class QtNotifier(Notifier):
                 finally:
                     if hide:
                         self.systray.hide()
-            except:
+            except Exception:
                 pass
 
 
@@ -132,8 +153,9 @@ class DummyNotifier(Notifier):
 class AppleNotifier(Notifier):
 
     def __init__(self):
-        self.cocoa, err = plugins['cocoa']
-        self.ok = not err
+        from calibre_extensions import cocoa
+        self.cocoa = cocoa
+        self.ok = True
 
     def notify(self, body, summary):
         if summary:
@@ -147,7 +169,7 @@ class AppleNotifier(Notifier):
         if self.ok:
             try:
                 self.notify(body, summary)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
 

@@ -6,9 +6,9 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import ctypes, ctypes.wintypes as types, struct, datetime, numbers
-import winerror, win32con
 
 from polyglot.builtins import unicode_type
+from calibre_extensions import winutil
 
 try:
     import winreg
@@ -45,7 +45,7 @@ class FILETIME(ctypes.Structure):
 
 
 def default_errcheck(result, func, args):
-    if result != getattr(winerror, 'ERROR_SUCCESS', 0):  # On shutdown winerror becomes None
+    if result != getattr(winutil, 'ERROR_SUCCESS', 0):  # On shutdown winutil becomes None
         raise ctypes.WinError(result)
     return args
 
@@ -80,11 +80,11 @@ RegCloseKey = cwrap('RegCloseKey', LONG, a('key', HKEY))
 
 
 def enum_value_errcheck(result, func, args):
-    if result == winerror.ERROR_SUCCESS:
+    if result == winutil.ERROR_SUCCESS:
         return args
-    if result == winerror.ERROR_MORE_DATA:
+    if result == winutil.ERROR_MORE_DATA:
         raise ValueError('buffer too small')
-    if result == winerror.ERROR_NO_MORE_ITEMS:
+    if result == winutil.ERROR_NO_MORE_ITEMS:
         raise StopIteration()
     raise ctypes.WinError(result)
 
@@ -123,7 +123,7 @@ def convert_to_registry_data(value, has_expansions=False):
         try:
             raw, dtype = struct.pack('L', value), winreg.REG_DWORD
         except struct.error:
-            raw = struct.pack('Q', value), win32con.REG_QWORD
+            raw = struct.pack('Q', value), winutil.REG_QWORD
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
     if isinstance(value, bytes):
@@ -148,7 +148,7 @@ def convert_registry_data(raw, size, dtype):
         if size == 0:
             return 0
         return ctypes.cast(raw, LPDWORD).contents.value
-    if dtype == win32con.REG_QWORD:
+    if dtype == winutil.REG_QWORD:
         if size == 0:
             return 0
         return ctypes.cast(raw, ctypes.POINTER(ctypes.c_uint64)).contents.value
@@ -165,7 +165,7 @@ except Exception:
 
 
 def delete_value_errcheck(result, func, args):
-    if result == winerror.ERROR_FILE_NOT_FOUND:
+    if result == winutil.ERROR_FILE_NOT_FOUND:
         return args
     if result != 0:
         raise ctypes.WinError(result)
@@ -183,11 +183,11 @@ RegEnumKeyEx = cwrap(
 
 
 def get_value_errcheck(result, func, args):
-    if result == winerror.ERROR_SUCCESS:
+    if result == winutil.ERROR_SUCCESS:
         return args
-    if result == winerror.ERROR_MORE_DATA:
+    if result == winutil.ERROR_MORE_DATA:
         raise ValueError('buffer too small')
-    if result == winerror.ERROR_FILE_NOT_FOUND:
+    if result == winutil.ERROR_FILE_NOT_FOUND:
         raise KeyError('No such value found')
     raise ctypes.WinError(result)
 
@@ -253,7 +253,7 @@ class Key(object):
             except KeyError:
                 return default
             except OSError as err:
-                if fallback and err.winerror == winerror.ERROR_BAD_COMMAND:
+                if fallback and err.winerror in (winutil.ERROR_BAD_COMMAND, winutil.ERROR_INVALID_DATA):
                     return self.get(value_name=value_name, default=default)
                 raise
         return data_buf.value

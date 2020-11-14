@@ -1,5 +1,6 @@
 # Tell git what files are txt
-*.py  text
+*.py  text diff=python
+*.pyj  text diff=python
 *.recipe  text diff=python
 *.coffee  text
 *.js      text

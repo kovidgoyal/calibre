@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import subprocess, sys, os, pprint, signal, time, glob, io
+import subprocess, os, pprint, signal, time, glob, io
 pprint, io
 from polyglot.builtins import environ_item
 
@@ -47,14 +47,6 @@ def main():
         env['CALIBRE_DEVELOP_FROM'] = environ_item(d(d(d(d(d(fp))))))
         subprocess.call(['calibre-debug', '-e', fp], env=env)
         return
-
-    sys.path.insert(0, os.path.dirname(fp))
-    if 'wpd' in sys.modules:
-        del sys.modules['wpd']
-    import wpd
-    from calibre.constants import plugins
-    plugins._plugins['wpd'] = (wpd, '')
-    sys.path.pop(0)
 
     # from calibre.devices.mtp.test import run
     # run()

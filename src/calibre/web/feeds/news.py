@@ -7,30 +7,38 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import os, time, traceback, re, sys, io
+import io
+import os
+import re
+import sys
+import time
+import traceback
 from collections import defaultdict
 from contextlib import closing
+from urllib.parse import urlparse, urlsplit
 
-
-from calibre import (browser, __appname__, iswindows, force_unicode,
-                    strftime, preferred_encoding, as_unicode, random_user_agent)
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
-from calibre.ebooks.metadata.opf2 import OPFCreator
-from calibre.web import Recipe
-from calibre.ebooks.metadata.toc import TOC
+from calibre import (
+    __appname__, as_unicode, browser, force_unicode, iswindows, preferred_encoding,
+    random_user_agent, strftime
+)
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, CData, NavigableString, Tag
 from calibre.ebooks.metadata import MetaInformation
-from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
-from calibre.web.fetch.simple import option_parser as web2disk_option_parser, RecursiveFetcher, AbortArticle
-from calibre.web.fetch.utils import prepare_masthead_image
-from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
+from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.toc import TOC
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to_data
+from calibre.utils.img import add_borders_to_image, image_to_data, save_cover_data_to
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
-from polyglot.builtins import unicode_type, string_or_bytes, getcwd
-from polyglot.urllib import urlparse, urlsplit
+from calibre.utils.threadpool import NoResultsPending, ThreadPool, WorkRequest
+from calibre.web import Recipe
+from calibre.web.feeds import Feed, feed_from_xml, feeds_from_index, templates
+from calibre.web.fetch.simple import (
+    AbortArticle, RecursiveFetcher, option_parser as web2disk_option_parser
+)
+from calibre.web.fetch.utils import prepare_masthead_image
+from polyglot.builtins import getcwd, string_or_bytes, unicode_type
 
 
 def classes(classes):
@@ -704,7 +712,9 @@ class BasicNewsRecipe(Recipe):
                 _raw = self.encoding(_raw)
             else:
                 _raw = _raw.decode(self.encoding, 'replace')
-        from calibre.ebooks.chardet import strip_encoding_declarations, xml_to_unicode
+        from calibre.ebooks.chardet import (
+            strip_encoding_declarations, xml_to_unicode
+        )
         from calibre.utils.cleantext import clean_xml_chars
         if isinstance(_raw, unicode_type):
             _raw = strip_encoding_declarations(_raw)
@@ -724,9 +734,9 @@ class BasicNewsRecipe(Recipe):
         Extracts main article content from 'html', cleans up and returns as a (article_html, extracted_title) tuple.
         Based on the original readability algorithm by Arc90.
         '''
+        from lxml.html import document_fromstring, fragment_fromstring, tostring
+
         from calibre.ebooks.readability import readability
-        from lxml.html import (fragment_fromstring, tostring,
-                document_fromstring)
 
         doc = readability.Document(html, self.log, url=url,
                 keep_elements=self.auto_cleanup_keep)
@@ -1097,6 +1107,7 @@ class BasicNewsRecipe(Recipe):
         ans = src[:npos+1]
         if len(ans) < len(src):
             from calibre.utils.cleantext import clean_xml_chars
+
             # Truncating the string could cause a dangling UTF-16 half-surrogate, which will cause lxml to barf, clean it
             ans = clean_xml_chars(ans) + '\u2026'
         return ans
@@ -1644,6 +1655,7 @@ class BasicNewsRecipe(Recipe):
         '''
         feeds = self.get_feeds()
         parsed_feeds = []
+        br = self.browser
         for obj in feeds:
             if isinstance(obj, string_or_bytes):
                 title, url = None, obj
@@ -1657,15 +1669,22 @@ class BasicNewsRecipe(Recipe):
                 url = 'http'+url[4:]
             self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
             try:
-                with closing(self.browser.open(url)) as f:
-                    parsed_feeds.append(feed_from_xml(f.read(),
-                                          title=title,
-                                          log=self.log,
-                                          oldest_article=self.oldest_article,
-                                          max_articles_per_feed=self.max_articles_per_feed,
-                                          get_article_url=self.get_article_url))
-                    if (self.delay > 0):
-                        time.sleep(self.delay)
+                purl = urlparse(url, allow_fragments=False)
+                if purl.username or purl.password:
+                    hostname = purl.hostname
+                    if purl.port:
+                        hostname += f':{purl.port}'
+                    url = purl._replace(netloc=hostname).geturl()
+                    if purl.username and purl.password:
+                        br.add_password(url, purl.username, purl.password)
+                with closing(br.open_novisit(url)) as f:
+                    raw = f.read()
+                parsed_feeds.append(feed_from_xml(
+                    raw, title=title, log=self.log,
+                    oldest_article=self.oldest_article,
+                    max_articles_per_feed=self.max_articles_per_feed,
+                    get_article_url=self.get_article_url
+                ))
             except Exception as err:
                 feed = Feed()
                 msg = 'Failed feed: %s'%(title if title else url)
@@ -1673,6 +1692,8 @@ class BasicNewsRecipe(Recipe):
                 feed.description = as_unicode(err)
                 parsed_feeds.append(feed)
                 self.log.exception(msg)
+            if self.delay > 0:
+                time.sleep(self.delay)
 
         remove = [fl for fl in parsed_feeds if len(fl) == 0 and self.remove_empty_feeds]
         for f in remove:
@@ -1846,8 +1867,9 @@ class CalibrePeriodical(BasicNewsRecipe):
         zf = ZipFile(f)
         zf.extractall()
         zf.close()
-        from calibre.web.feeds.recipes import compile_recipe
         from glob import glob
+
+        from calibre.web.feeds.recipes import compile_recipe
         try:
             recipe = compile_recipe(open(glob('*.recipe')[0],
                 'rb').read())

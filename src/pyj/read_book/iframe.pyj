@@ -39,7 +39,7 @@ from read_book.paged_mode import (
     get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
     handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
     layout as paged_layout, onwheel as paged_onwheel,
-    prepare_for_resize as paged_prepare_for_resize, progress_frac,
+    prepare_for_resize as paged_prepare_for_resize, progress_frac, page_counts,
     reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_extend_annotation as paged_annotation_scroll,
@@ -441,7 +441,10 @@ class IframeBoss:
                 si = spine[i]
                 if si:
                     self.length_before += files[si]?.length or 0
-        self.send_message('content_loaded', progress_frac=self.calculate_progress_frac(), file_progress_frac=progress_frac())
+        self.send_message(
+            'content_loaded', progress_frac=self.calculate_progress_frac(),
+            file_progress_frac=progress_frac(), page_counts=page_counts()
+        )
         self.last_cfi = None
         self.auto_scroll_action('resume')
         reset_touch_handlers() # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
@@ -480,10 +483,10 @@ class IframeBoss:
                 self.send_message(
                     'report_cfi', cfi=cfi, progress_frac=self.calculate_progress_frac(),
                     file_progress_frac=progress_frac(), request_id=data.request_id,
-                    selected_text=seltext, selection_bounds=selcfi)
+                    selected_text=seltext, selection_bounds=selcfi, page_counts=page_counts())
                 return
         self.send_message(
-            'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, request_id=data.request_id)
+            'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, page_counts=page_counts(), request_id=data.request_id)
 
     def update_cfi(self):
         cfi = current_cfi()
@@ -497,11 +500,11 @@ class IframeBoss:
                     self.last_cfi = cfi
                     self.send_message(
                         'update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
-                        progress_frac=pf, file_progress_frac=fpf)
+                        progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
                     self.replace_history_on_next_cfi_update = True
                 else:
                     self.send_message(
-                        'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
+                        'update_progress_frac', progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
 
     def update_toc_position(self):
         visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs)
@@ -516,7 +519,7 @@ class IframeBoss:
         pf = self.calculate_progress_frac()
         fpf = progress_frac()
         self.send_message(
-            'update_progress_frac', progress_frac=pf, file_progress_frac=fpf)
+            'update_progress_frac', progress_frac=pf, file_progress_frac=fpf, page_counts=page_counts())
         sel = window.getSelection()
         if sel and not sel.isCollapsed:
             self.send_message('update_selection_position', selection_extents=selection_extents(current_layout_mode() is 'flow', True))
@@ -608,6 +611,8 @@ class IframeBoss:
         drag_mouse_position.x = drag_mouse_position.y = None
         # ensure selection bar is updated
         self.onselectionchange()
+        if evt.button is 3 or evt.button is 4:
+            self.send_message('handle_shortcut', name='back' if evt.button is 3 else 'forward')
 
     def ondoubleclick(self, evt):
         self.send_message('annotations', type='double-click')
@@ -777,6 +782,8 @@ class IframeBoss:
                 window.setTimeout(def():
                     self.send_message('annotations', type='edit-highlight')
                 , 50)
+            else:
+                self.send_message('annotations', type='edit-highlight-failed', uuid=data.uuid)
         elif dtype is 'notes-edited':
             cls = 'crw-has-dot'
             crw_ = {v: k for k, v in Object.entries(annot_id_uuid_map)}[data.uuid]
@@ -868,6 +875,13 @@ class IframeBoss:
             select_crw(crw)
 
     def copy_selection(self):
+        if not runtime.is_standalone_viewer:
+            try:
+                if document.execCommand('copy'):
+                    return
+            except:
+                pass
+
         s = window.getSelection()
         text = s.toString()
         if text:

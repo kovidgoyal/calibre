@@ -33,16 +33,20 @@ class TheAtlantic(BasicNewsRecipe):
     encoding = 'utf-8'
 
     keep_only_tags = [
-        dict(id='rubric'),
-        dict(itemprop=['headline', 'image']),
+        dict(itemprop=['headline']),
         classes(
-            'c-article-header__hed article-header c-article-meta lead-img article-cover-extra article-body article-magazine article-cover-content'
+            'c-article-header__hed c-rubric article-header c-article-meta c-lead-media'
+            ' lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
         dict(itemprop='articleBody'),
+        # these are for photos articles
+        dict(id='article-header'),
+        classes('photos'),
     ]
     remove_tags = [
         classes(
-            'c-ad social-kit-top letter-writer-info callout secondary-byline embed-wrapper offset-wrapper boxtop-most-popular'
+            'c-ad c-share-social social-kit-top letter-writer-info callout secondary-byline embed-wrapper'
+            ' offset-wrapper boxtop-most-popular social-icons hints read-more c-article-writer__social'
         ),
         {
             'name': ['meta', 'link', 'noscript', 'aside', 'h3']
@@ -84,6 +88,8 @@ class TheAtlantic(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-srcset': True}):
             img['src'] = img['data-srcset'].split()[0]
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
         return soup
 
     def print_version(self, url):

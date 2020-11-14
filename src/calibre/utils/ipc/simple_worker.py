@@ -147,12 +147,11 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
     args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env}
     args.update(process_args)
     if iswindows:
-        import win32process
         priority = {
-                'high'   : win32process.HIGH_PRIORITY_CLASS,
-                'normal' : win32process.NORMAL_PRIORITY_CLASS,
-                'low'    : win32process.IDLE_PRIORITY_CLASS}[priority]
-        args['creationflags'] = win32process.CREATE_NO_WINDOW|priority
+                'high'   : subprocess.HIGH_PRIORITY_CLASS,
+                'normal' : subprocess.NORMAL_PRIORITY_CLASS,
+                'low'    : subprocess.IDLE_PRIORITY_CLASS}[priority]
+        args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
     else:
         niceness = {'normal' : 0, 'low'    : 10, 'high'   : 20}[priority]
         args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)

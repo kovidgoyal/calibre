@@ -19,7 +19,7 @@ from css_parser.css import CSSRule
 from lxml.etree import Comment
 
 from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows
 from calibre.customize.ui import plugin_for_input_format
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.css_transform_rules import StyleDeclaration
@@ -52,11 +52,11 @@ from polyglot.binary import (
 )
 from polyglot.builtins import as_bytes, iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
+from calibre_extensions import speedup
 
 RENDER_VERSION = 1
 
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa
-speedup = plugins['speedup'][0]
 
 
 def XPath(expr):
@@ -776,17 +776,11 @@ def ensure_body(root):
 
 
 def html_as_json(root):
+    from calibre_extensions.html_as_json import serialize
     ns, name = split_name(root.tag)
     if ns not in (None, XHTML_NS):
         raise ValueError('HTML tag must be in empty or XHTML namespace')
     ensure_body(root)
-    pl, err = plugins['html_as_json']
-    if err:
-        raise SystemExit('Failed to load html_as_json plugin with error: {}'.format(err))
-    try:
-        serialize = pl.serialize
-    except AttributeError:
-        raise SystemExit('You are running calibre from source, you need to also update the main calibre installation to version >=4.3')
     for child in tuple(root.iterchildren('*')):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)

@@ -310,6 +310,14 @@ class Resources(Command):  # {{{
             d[lc] = stats['translated'] / float(total)
         dump_json(d, self.j(self.RESOURCES, 'user-manual-translation-stats.json'))
 
+        src = self.j(self.SRC, '..', 'Changelog.txt')
+        dest = self.j(self.RESOURCES, 'changelog.json')
+        if self.newer(dest, [src]):
+            self.info('\tCreating changelog.json')
+            from setup.changelog import parse
+            with open(src) as f:
+                dump_json(parse(f.read(), parse_dates=False), dest)
+
     def clean(self):
         for x in ('scripts', 'ebook-convert-complete'):
             x = self.j(self.RESOURCES, x+'.pickle')

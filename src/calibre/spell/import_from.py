@@ -46,8 +46,8 @@ def parse_xcu(raw, origin='%origin%'):
 def convert_to_utf8(dic_data, aff_data, errors='strict'):
     m = re.search(br'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
     if m is not None:
-        enc = m.group(1)
-        if enc.upper() not in (b'UTF-8', b'UTF8'):
+        enc = m.group(1).decode('ascii', 'replace')
+        if enc.upper() not in ('UTF-8', 'UTF8'):
             try:
                 codecs.lookup(enc)
             except LookupError:

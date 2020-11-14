@@ -39,7 +39,7 @@ def safe_xml_fromstring(string_or_bytes, recover=True):
 
 def find_tests():
     import unittest, tempfile, os
-    from calibre.constants import iswindows, plugins
+    from calibre.constants import iswindows
 
     class TestXMLParse(unittest.TestCase):
 
@@ -48,7 +48,8 @@ def find_tests():
                 tf.write(b'external')
                 self.temp_file = os.path.abspath(tf.name)
             if iswindows:
-                self.temp_file = plugins['winutil'][0].get_long_path_name(self.temp_file)
+                from calibre_extensions.winutil import get_long_path_name
+                self.temp_file = get_long_path_name(self.temp_file)
 
         def tearDown(self):
             os.remove(self.temp_file)

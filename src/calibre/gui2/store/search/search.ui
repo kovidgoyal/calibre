@@ -333,10 +333,6 @@
        <property name="text">
         <string>&amp;Close</string>
        </property>
-       <property name="icon">
-        <iconset resource="../../../../../resources/images.qrc">
-         <normaloff>:/images/window-close.png</normaloff>:/images/window-close.png</iconset>
-       </property>
       </widget>
      </item>
     </layout>

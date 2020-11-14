@@ -21,6 +21,7 @@ from __python__ import bound_methods, hash_literals
 #  things scroll in the positive block direction.
 
 from dom import set_css
+from range_utils import wrap_range, unwrap
 from read_book.cfi import scroll_to as cfi_scroll_to
 from read_book.globals import current_spine_item, get_boss, rtl_page_progression, ltr_page_progression
 from read_book.settings import opts
@@ -598,16 +599,32 @@ def auto_scroll_action(action):
     return is_auto_scroll_active()
 
 
+def closest_preceding_element(p):
+    while p and not p.scrollIntoView:
+        p = p.previousSibling or p.parentNode
+    return p
+
+
 def ensure_selection_visible():
     s = window.getSelection()
-    if not s.anchorNode:
-        return
     p = s.anchorNode
-    while p:
-        if p.scrollIntoView:
-            p.scrollIntoView()
-            return
-        p = p.parentNode
+    if not p:
+        return
+    p = closest_preceding_element(p)
+    if p?.scrollIntoView:
+        p.scrollIntoView()
+    r = s.getRangeAt(0)
+    if not r:
+        return
+    rect = r.getBoundingClientRect()
+    if not rect:
+        return
+    if rect.top < 0 or rect.top >= window.innerHeight or rect.left < 0 or rect.left >= window.innerWidth:
+        wrapper = document.createElement('span')
+        wrap_range(r, wrapper)
+        wrapper.scrollIntoView()
+        unwrap(wrapper)
+
 
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
