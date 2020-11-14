@@ -54,6 +54,15 @@ class pyobject_raii {
 static bool initialize_called = false;
 
 static PyObject*
+terminate(PyObject *self, PyObject *args) {
+    if (initialize_called) {
+        espeak_Terminate();
+        initialize_called = false;
+    }
+	Py_RETURN_NONE;
+}
+
+static PyObject*
 info(PyObject *self, PyObject *args) {
 	const char *path_data;
 	const char *version = espeak_Info(&path_data);
@@ -208,7 +217,7 @@ int_as_four_bytes(int32_t value, unsigned char *output) {
 
 static PyObject*
 create_recording_wav(PyObject *self, PyObject *args) {
-	int buflength = 1000;
+	int buflength = 0;
 	unsigned int flags = 0;
 	const char *text;
 	Py_ssize_t text_len;
@@ -225,7 +234,7 @@ create_recording_wav(PyObject *self, PyObject *args) {
 	};
 	int_as_four_bytes(rate, wave_hdr + 24);
 	int_as_four_bytes(rate * 2, wave_hdr + 28);
-	PyObject *ret = PyObject_CallFunction(cbdata.data_callback, "s#", wave_hdr, sizeof(wave_hdr));
+	PyObject *ret = PyObject_CallFunction(cbdata.data_callback, "y#", wave_hdr, sizeof(wave_hdr));
 	if (!ret) return NULL;
 	Py_DECREF(ret);
 
@@ -241,11 +250,11 @@ create_recording_wav(PyObject *self, PyObject *args) {
 	Py_RETURN_NONE;
 }
 
-
 // Boilerplate {{{
 #define M(name, args, doc) { #name, (PyCFunction)name, args, ""}
 static PyMethodDef methods[] = {
 	M(info, METH_NOARGS, "version and path"),
+	M(terminate, METH_NOARGS, "terminate the library"),
 	M(cancel, METH_NOARGS, "cancel all ongoing speech activity"),
 	M(synchronize, METH_NOARGS, "synchronize all ongoing speech activity"),
 	M(is_playing, METH_NOARGS, "True iff speech is happening"),
@@ -282,12 +291,7 @@ static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL}
 static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
 static void
-finalize(void*) {
-    if (initialize_called) {
-        espeak_Terminate();
-        initialize_called = false;
-    }
-}
+finalize(void*) { terminate(NULL, NULL); }
 
 CALIBRE_MODINIT_FUNC PyInit_espeak(void) {
     module_def.m_name     = "espeak";
