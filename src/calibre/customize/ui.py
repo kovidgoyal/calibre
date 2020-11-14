@@ -4,14 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, shutil, traceback, functools, sys
 from collections import defaultdict
-from itertools import chain
+from itertools import chain, repeat
 
 from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
                               StoreBase as Store, EditBookToolPlugin,
-                              LibraryClosedPlugin)
+                              LibraryClosedPlugin, PluginInstallationType)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -21,11 +21,15 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import (make_config_dir, Config, ConfigProxy,
                                  plugin_dir, OptionParser)
 from calibre.ebooks.metadata.sources.base import Source
-from calibre.constants import DEBUG, numeric_version
+from calibre.constants import DEBUG, numeric_version, system_plugins_loc
 from polyglot.builtins import iteritems, itervalues, unicode_type
 
 builtin_names = frozenset(p.name for p in builtin_plugins)
 BLACKLISTED_PLUGINS = frozenset({'Marvin XD', 'iOS reader applications'})
+
+
+def zip_value(iterable, value):
+    return zip(iterable, repeat(value))
 
 
 class NameConflict(ValueError):
@@ -341,10 +345,19 @@ def reread_metadata_plugins():
             for ft in plugin.file_types:
                 _metadata_writers[ft].append(plugin)
 
-    # Ensure custom metadata plugins are used in preference to builtin
-    # ones for a given filetype
+    # Ensure the following metadata plugin preference is used:
+    # external > system > builtin
     def key(plugin):
-        return (1 if plugin.plugin_path is None else 0), plugin.name
+        installation_type = plugin.installation_type
+        if installation_type is PluginInstallationType.BUILTIN:
+            order = 2
+        elif installation_type is PluginInstallationType.SYSTEM:
+            order = 1
+        elif installation_type is PluginInstallationType.EXTERNAL:
+            order = 0
+        else:
+            raise ValueError(installation_type)
+        return order, plugin.name
 
     for group in (_metadata_readers, _metadata_writers):
         for plugins in itervalues(group):
@@ -473,7 +486,10 @@ def add_plugin(path_to_zip_file):
     if plugin.name in builtin_names:
         raise NameConflict(
             'A builtin plugin with the name %r already exists' % plugin.name)
-    plugin = initialize_plugin(plugin, path_to_zip_file)
+    if plugin.name in _list_system_plugins():
+        raise NameConflict(
+            'A system plugin with the name %r already exists' % plugin.name)
+    plugin = initialize_plugin(plugin, path_to_zip_file, PluginInstallationType.EXTERNAL)
     plugins = config['plugins']
     zfp = os.path.join(plugin_dir, plugin.name+'.zip')
     if os.path.exists(zfp):
@@ -659,9 +675,10 @@ def all_edit_book_tool_plugins():
 _initialized_plugins = []
 
 
-def initialize_plugin(plugin, path_to_zip_file):
+def initialize_plugin(plugin, path_to_zip_file, installation_type):
     try:
         p = plugin(path_to_zip_file)
+        p.installation_type = installation_type
         p.initialize()
         return p
     except Exception:
@@ -676,36 +693,67 @@ def has_external_plugins():
     return bool(config['plugins'])
 
 
+@functools.lru_cache(maxsize=None)
+def _list_system_plugins():
+    if not system_plugins_loc:
+        return
+
+    try:
+        plugin_file_names = os.listdir(system_plugins_loc)
+    except OSError:
+        return
+
+    for plugin_file_name in plugin_file_names:
+        plugin_path = os.path.join(system_plugins_loc, plugin_file_name)
+        if os.path.isfile(plugin_path) and plugin_file_name.endswith('.zip'):
+            yield (os.path.splitext(plugin_file_name)[0], plugin_path)
+
+
 def initialize_plugins(perf=False):
-    global _initialized_plugins
+    global _initialized_plugins, _system_plugins
     _initialized_plugins = []
+    _system_plugins = []
+    system_plugins = dict(_list_system_plugins())
     conflicts = [name for name in config['plugins'] if name in
-            builtin_names]
+            builtin_names or name in system_plugins]
     for p in conflicts:
         remove_plugin(p)
+    system_conflicts = [name for name in system_plugins if name in
+            builtin_names]
+    for p in system_conflicts:
+        system_plugins.pop(p, None)
     external_plugins = config['plugins'].copy()
     for name in BLACKLISTED_PLUGINS:
         external_plugins.pop(name, None)
+        system_plugins.pop(name, None)
     ostdout, ostderr = sys.stdout, sys.stderr
     if perf:
         from collections import defaultdict
         import time
         times = defaultdict(lambda:0)
-    for zfp in list(external_plugins) + builtin_plugins:
+
+    for zfp, installation_type in chain(
+            zip_value(external_plugins.items(), PluginInstallationType.EXTERNAL),
+            zip_value(system_plugins.items(), PluginInstallationType.SYSTEM),
+            zip_value(builtin_plugins, PluginInstallationType.BUILTIN),
+            ):
         try:
             if not isinstance(zfp, type):
                 # We have a plugin name
-                pname = zfp
-                zfp = os.path.join(plugin_dir, zfp+'.zip')
+                pname, path = zfp
+                zfp = os.path.join(plugin_dir, pname+'.zip')
                 if not os.path.exists(zfp):
-                    zfp = external_plugins[pname]
+                    zfp = path
             try:
                 plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
             except PluginNotFound:
                 continue
             if perf:
                 st = time.time()
-            plugin = initialize_plugin(plugin, None if isinstance(zfp, type) else zfp)
+            plugin = initialize_plugin(
+                    plugin,
+                    None if isinstance(zfp, type) else zfp, installation_type,
+            )
             if perf:
                 times[plugin.name] = time.time() - st
             _initialized_plugins.append(plugin)

@@ -166,6 +166,8 @@ def cache_dir():
 
 # plugins {{{
 plugins_loc = sys.extensions_location
+system_plugins_loc = getattr(sys, 'system_plugins_location', None)
+
 from importlib.machinery import ModuleSpec, EXTENSION_SUFFIXES, ExtensionFileLoader
 from importlib.util import find_spec
 from importlib import import_module

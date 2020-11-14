@@ -20,6 +20,7 @@ from calibre import prints
 from calibre.constants import (
     DEBUG, __appname__, __version__, ismacos, iswindows, numeric_version
 )
+from calibre.customize import PluginInstallationType
 from calibre.customize.ui import (
     NameConflict, add_plugin, disable_plugin, enable_plugin, has_external_plugins,
     initialized_plugins, is_disabled, remove_plugin
@@ -56,7 +57,8 @@ def get_plugin_updates_available(raise_error=False):
 
 
 def filter_upgradeable_plugins(display_plugin):
-    return display_plugin.is_upgrade_available()
+    return display_plugin.installation_type is PluginInstallationType.EXTERNAL \
+            and display_plugin.is_upgrade_available()
 
 
 def filter_not_installed_plugins(display_plugin):
@@ -96,7 +98,8 @@ def get_installed_plugin_status(display_plugin):
     display_plugin.installed_version = None
     display_plugin.plugin = None
     for plugin in initialized_plugins():
-        if plugin.name == display_plugin.qname and plugin.plugin_path is not None:
+        if plugin.name == display_plugin.qname \
+                and plugin.installation_type is not PluginInstallationType.BUILTIN:
             display_plugin.plugin = plugin
             display_plugin.installed_version = plugin.version
             break
@@ -195,6 +198,7 @@ class DisplayPlugin(object):
         self.uninstall_plugins = plugin['uninstall'] or []
         self.has_changelog = plugin['history']
         self.is_deprecated = plugin['deprecated']
+        self.installation_type = plugin['installation_type']
 
     def is_disabled(self):
         if self.plugin is None:
