@@ -76,6 +76,7 @@ d['templates'] = {}
 d['auto_close_tags'] = True
 d['restore_book_state'] = True
 d['editor_accepts_drops'] = True
+d['remove_ncx'] = True
 d['toolbar_icon_size'] = 24
 d['insert_full_screen_image'] = False
 d['preserve_aspect_ratio_when_inserting_image'] = False

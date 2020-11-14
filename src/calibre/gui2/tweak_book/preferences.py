@@ -232,6 +232,12 @@ class EditorSettings(BasicSettings):  # {{{
             ' It can be useful to turn this off if you have a misbehaving touchpad.'))
         l.addRow(lw)
 
+        lw = self('remove_ncx')
+        lw.setText(_('Remove NCX TOC file when upgrading book internals'))
+        lw.setToolTip('<p>' + _(
+            'If you want your book to be backwards compatible, you must keep the NCX TOC file.'))
+        l.addRow(lw)
+
         self.dictionaries = d = QPushButton(_('Manage &spelling dictionaries'), self)
         d.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         d.clicked.connect(self.manage_dictionaries)
