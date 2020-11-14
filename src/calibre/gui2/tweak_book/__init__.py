@@ -80,6 +80,7 @@ d['toolbar_icon_size'] = 24
 d['insert_full_screen_image'] = False
 d['preserve_aspect_ratio_when_inserting_image'] = False
 d['file_list_shows_full_pathname'] = False
+d['remove_ncx'] = True
 d['auto_link_stylesheets'] = True
 d['check_external_link_anchors'] = True
 del d

@@ -337,6 +337,13 @@ class MainWindowSettings(BasicSettings):  # {{{
             ' multiple files with the same file name.'
         ))
         l.addRow(nd)
+
+        nd = self('remove_ncx')
+        nd.setText(_('Remove NCX TOC file when upgrading book internals'))
+        nd.setToolTip('<p>' + _(
+            'If you want your book to be backwards compatible, you must keep the NCX TOC file.'
+        ))
+        l.addRow(nd)
 # }}}
 
 

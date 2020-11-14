@@ -13,6 +13,7 @@ from calibre.ebooks.oeb.polish.opf import get_book_language
 from calibre.ebooks.oeb.polish.toc import (
     commit_nav_toc, find_existing_ncx_toc, get_landmarks, get_toc
 )
+from calibre.gui2.tweak_book import tprefs
 
 
 def add_properties(item, *props):
@@ -120,7 +121,10 @@ def epub_2_to_3(container, report, previous_nav=None):
     toc = get_toc(container)
     toc_name = find_existing_ncx_toc(container)
     if toc_name:
-        container.remove_item(toc_name)
+        if tprefs['remove_ncx']:
+            container.remove_item(toc_name)
+        else:
+            pass
     container.opf_xpath('./opf:spine')[0].attrib.pop('toc', None)
     landmarks = get_landmarks(container)
     for guide in container.opf_xpath('./opf:guide'):
