@@ -17,7 +17,7 @@ from PyQt5.Qt import (
 
 from calibre import human_readable, fit_image, force_unicode
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
-from calibre.gui2 import empty_index
+from calibre.gui2 import empty_index, question_dialog
 from calibre.gui2.tweak_book import tprefs, current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.icu import numeric_sort_key
@@ -78,6 +78,17 @@ def get_customization(action, name, parent):
     try:
         if action == 'remove_unused_css':
             customize_remove_unused_css(name, parent, ans)
+        elif action == 'upgrade_book':
+            ans['remove_ncx'] = question_dialog(
+                parent, _('Remove NCX ToC file'),
+                _('Remove the legacy Table of Contents in NCX form?'),
+                _('This form of Table of Contents is superseded by the new HTML based Table of Contents.'
+                  ' Leaving it behind is useful only if you expect this book to be read on very'
+                  ' old devices that lack proper support for EPUB 3'),
+                skip_dialog_name='edit-book-remove-ncx',
+                skip_dialog_msg=_('Ask this question again in the future'),
+                yes_text=_('Remove NCX'), no_text=_('Keep NCX')
+            )
     except Abort:
         return None
     return ans
