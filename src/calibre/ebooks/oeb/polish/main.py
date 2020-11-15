@@ -44,6 +44,7 @@ CUSTOMIZATION = {
     'remove_unused_classes': False,
     'merge_identical_selectors': False,
     'merge_rules_with_identical_properties': False,
+    'remove_ncx': True,
 }
 
 SUPPORTED = {'EPUB', 'AZW3'}
@@ -250,7 +251,7 @@ def polish_one(ebook, opts, report, customization=None):
 
     if opts.upgrade_book:
         rt(_('Upgrading book, if possible'))
-        if upgrade_book(ebook, report):
+        if upgrade_book(ebook, report, remove_ncx=customization['remove_ncx']):
             changed = True
         report('')
 

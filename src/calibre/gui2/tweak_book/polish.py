@@ -78,6 +78,8 @@ def get_customization(action, name, parent):
     try:
         if action == 'remove_unused_css':
             customize_remove_unused_css(name, parent, ans)
+        elif action == 'upgrade_book':
+            ans['remove_ncx'] = tprefs['remove_ncx']
     except Abort:
         return None
     return ans
