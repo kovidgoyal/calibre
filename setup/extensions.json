@@ -180,12 +180,6 @@
         "ldflags": "-framework Cocoa"
     },
     {
-        "name": "espeak",
-        "only": "linux haiku",
-        "sources": "calibre/utils/tts/espeak.cpp",
-        "libraries": "espeak-ng"
-    },
-    {
         "name": "libusb",
         "only": "macos linux haiku",
         "sources": "calibre/devices/libusb/libusb.c",

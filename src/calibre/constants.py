@@ -253,7 +253,7 @@ class ExtensionsImporter:
         elif ismacos:
             extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
         elif isfreebsd or ishaiku or islinux:
-            extra = ('libusb', 'libmtp', 'espeak')
+            extra = ('libusb', 'libmtp')
         else:
             extra = ()
         self.calibre_extensions = frozenset(extensions + extra)

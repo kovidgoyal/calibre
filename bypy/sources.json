@@ -841,6 +841,16 @@
     },
 
     {
+        "name": "speech-dispatcher-client",
+        "os": "linux",
+        "unix": {
+            "filename": "speech-dispatcher-0.10.1.tar.gz",
+            "hash": "sha256:098c9e56f3226b2d9b98ba23b154bfc54ad29cdd3f2bc3e5cbb9eb55e7775448",
+            "urls": ["https://github.com/brailcom/speechd/releases/download/0.10.1/{filename}"]
+        }
+    },
+
+    {
         "name": "pyqt",
         "unix": {
             "filename": "PyQt5-5.15.1.tar.gz",
