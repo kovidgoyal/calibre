@@ -80,7 +80,7 @@ can enter these locations under :guilabel:`Go to->Location` in the viewer
 controls.
 
 There is a URL you can copy to the clipboard and paste into other programs
-or documents. Clicking on this URL will open the book in the calibre viewer at
+or documents. Clicking on this URL will open the book in the calibre E-book viewer at
 the current location.
 
 If you click on links inside the e-book to take you to different parts of the
