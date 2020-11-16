@@ -129,6 +129,7 @@ class IframeBoss:
             'find': self.find,
             'gesture_from_margin': self.gesture_from_margin,
             'get_current_cfi': self.get_current_cfi,
+            'hide_links': self.hide_links,
             'initialize':self.initialize,
             'modify_selection': self.modify_selection,
             'next_screen': self.on_next_screen,
@@ -140,6 +141,7 @@ class IframeBoss:
             'fake_wheel_event': self.fake_wheel_event,
             'window_size': self.received_window_size,
             'overlay_visibility_changed': self.on_overlay_visibility_changed,
+            'show_links': self.show_links,
             'show_search_result': self.show_search_result,
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
@@ -150,6 +152,7 @@ class IframeBoss:
         self.comm = IframeClient(handlers)
         self.last_window_ypos = 0
         self.length_before = None
+        self.follow_link_els = []
 
     def on_overlay_visibility_changed(self, data):
         cancel_drag_scroll()
@@ -163,6 +166,25 @@ class IframeBoss:
             if self.auto_scroll_active_before_overlay:
                 self.auto_scroll_active_before_overlay = undefined
                 self.auto_scroll_action('start')
+
+    def el_in_viewport(self, el):
+        rect = el.getBoundingClientRect()
+        return rect.top >= 0 \
+               and rect.left >= 0 \
+               and rect.bottom <= (window.innerHeight | document.documentElement.clientHeight) \
+               and rect.right <= (window.innerWidth | document.documentElement.clientWidth)
+
+    def show_links(self):
+        els = [a for a in document.body.querySelectorAll('a') if self.el_in_viewport(a)]
+        for i, a in enumerate(els):
+            self.follow_link_els.append(a)
+            # TODO make dependent on the current color scheme
+            a.style.border = '2px solid yellow'
+
+    def hide_links(self):
+        for link_el in self.follow_link_els:
+            link_el.style.border = ''
+        self.follow_link_els.clear()
 
     def modify_selection(self, data):
         sel = window.getSelection()

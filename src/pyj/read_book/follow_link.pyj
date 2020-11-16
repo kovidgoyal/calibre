@@ -79,8 +79,12 @@ class FollowLinkOverlay:
         self.container.style.display = 'none'
         ui_operations.focus_iframe()
 
+        self.view.iframe_wrapper.send_message('hide_links')
+
     def show(self):
         c = self.container
         c.style.display = 'block'
         inp = c.querySelector('input')
         inp.focus(), inp.select()
+
+        self.view.iframe_wrapper.send_message('show_links')

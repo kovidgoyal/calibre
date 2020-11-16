@@ -268,7 +268,6 @@ class View:
             'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
             'find_in_spine': self.on_find_in_spine,
-            # 'follow_link': self.on_follow_link,
             'invisible_text': self.on_invisible_text,
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'handle_keypress': self.on_handle_keypress,
