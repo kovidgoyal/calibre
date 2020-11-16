@@ -181,9 +181,22 @@ class IframeBoss:
             # TODO make dependent on the current color scheme
             a.style.border = '2px solid yellow'
 
+            numbering_el = a.appendChild(document.createElement('sub'))
+            numbering_el.class = 'follow-link-numbering'
+
+            # TODO move styles out to css
+            numbering_el.style.display = 'inline-block'
+            # numbering_el.style.color = 'red'  # can't set the color here
+            numbering_el.style.margin = '3px'
+            numbering_el.style.text_decoration = ''
+
+            numbering_el.innerHTML = f'{i + 1}'
+
     def hide_links(self):
         for link_el in self.follow_link_els:
             link_el.style.border = ''
+            numbering_el = link_el.lastChild
+            link_el.removeChild(numbering_el)
         self.follow_link_els.clear()
 
     def modify_selection(self, data):
@@ -684,24 +697,24 @@ class IframeBoss:
         if img.dataset.calibreSrc:
             self.send_message('view_image', calibre_src=img.dataset.calibreSrc)
 
-    def link_activated(self, evt):
+    def link_activated_el(self, el):
         link_attr = 'data-' + self.book.manifest.link_uid
         try:
-            data = JSON.parse(evt.currentTarget.getAttribute(link_attr))
+            data = JSON.parse(el.getAttribute(link_attr))
         except:
-            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(link_attr)))
+            print('WARNING: Failed to parse link data {}, ignoring'.format(el?.getAttribute?(link_attr)))
             return
         name, frag = data.name, data.frag
         if not name:
             name = current_spine_item().name
         try:
-            is_popup = is_footnote_link(evt.currentTarget, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
+            is_popup = is_footnote_link(el, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
         except:
             import traceback
             traceback.print_exc()
             is_popup = False
         if is_popup:
-            self.send_message('show_footnote', name=name, frag=frag, title=evt.currentTarget.textContent, cols_per_screen=calc_columns_per_screen())
+            self.send_message('show_footnote', name=name, frag=frag, title=el.textContent, cols_per_screen=calc_columns_per_screen())
             return
         if name is current_spine_item().name:
             self.replace_history_on_next_cfi_update = False
