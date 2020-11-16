@@ -54,9 +54,14 @@ class FollowLinkOverlay:
             return
         sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
         if sc_name is 'follow_link':
-            # TODO follow link code/method
-
-            self.hide()
+            try:
+                link_num = int(self.link_number_text)
+                self.view.iframe_wrapper.send_message('follow_link', link_num=link_num)
+            except ValueError as e:
+                # TODO use usual error popup
+                raise e
+            finally:
+                self.hide()
             event.preventDefault(), event.stopPropagation()
             return
 
@@ -65,7 +70,7 @@ class FollowLinkOverlay:
         return document.getElementById('follow-link-overlay')
 
     @property
-    def search_text(self):
+    def link_number_text(self):
         return self.container.querySelector('input').value
 
     @property

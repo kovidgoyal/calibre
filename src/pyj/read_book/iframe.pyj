@@ -127,6 +127,7 @@ class IframeBoss:
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
             'find': self.find,
+            'follow_link': self.follow_link,
             'gesture_from_margin': self.gesture_from_margin,
             'get_current_cfi': self.get_current_cfi,
             'hide_links': self.hide_links,
@@ -175,7 +176,8 @@ class IframeBoss:
                and rect.right <= (window.innerWidth | document.documentElement.clientWidth)
 
     def show_links(self):
-        els = [a for a in document.body.querySelectorAll('a') if self.el_in_viewport(a)]
+        link_attr = 'data-' + self.book.manifest.link_uid
+        els = [a for a in document.body.querySelectorAll(f'a[{link_attr}]') if self.el_in_viewport(a)]
         for i, a in enumerate(els):
             self.follow_link_els.append(a)
             # TODO make dependent on the current color scheme
@@ -721,6 +723,16 @@ class IframeBoss:
             self.scroll_to_anchor(frag)
         else:
             self.send_message('scroll_to_anchor', name=name, frag=frag)
+
+    def link_activated(self, evt):
+        self.link_activated_el(evt.currentTarget)
+
+    def follow_link(self, data):
+        link_num = data.link_num
+        if not (0 < link_num <= len(self.follow_link_els)):
+            # TODO use usual error popup
+            raise ValueError(f'Please use one of the numbers that are assigned to links')
+        self.link_activated_el(self.follow_link_els[link_num - 1])
 
     def scroll_to_anchor(self, frag):
         if frag:
