@@ -467,6 +467,7 @@ class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
         self._host_widget = None
+        self._tts_client = None
         self.callback_id_counter = count()
         self.callback_map = {}
         self.current_cfi = self.current_content_file = None
@@ -529,9 +530,18 @@ class WebView(RestartingWebEngineView):
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
 
+    @property
+    def tts_client(self):
+        if self._tts_client is None:
+            from calibre.gui2.tts.implementation import Client
+            self._tts_client = Client()
+        return self._tts_client
+
     def speak_simple_text(self, text):
-        from calibre.gui2.tts.implementation import speak_simple_text
-        speak_simple_text(text)
+        self.tts_client.speak_simple_text(text)
+
+    def shutdown(self):
+        self._tts_client = None
 
     def set_shortcut_map(self, smap):
         self.shortcut_map = smap

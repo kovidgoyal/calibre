@@ -2,29 +2,30 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-import atexit
 from .errors import TTSSystemUnavailable
 
 
-def get_client():
-    client = getattr(get_client, 'ans', None)
-    if client is not None:
-        return client
-    from speechd.client import SSIPClient, SpawnError
-    try:
-        client = get_client.ans = SSIPClient('calibre')
-    except SpawnError as err:
-        raise TTSSystemUnavailable(_('Could not find speech-dispatcher on your system. Please install it.'), str(err))
-    atexit.register(client.close)
-    return client
+class Client:
 
+    def __init__(self):
+        self.create_ssip_client()
 
-def speak_simple_text(text):
-    client = get_client()
-    from speechd.client import SSIPCommunicationError
-    try:
-        client.speak(text)
-    except SSIPCommunicationError:
-        get_client.ans = None
-        client = get_client()
-        client.speak(text)
+    def create_ssip_client(self):
+        from speechd.client import SSIPClient, SpawnError
+        try:
+            self.ssip_client = SSIPClient('calibre')
+        except SpawnError as err:
+            raise TTSSystemUnavailable(_('Could not find speech-dispatcher on your system. Please install it.'), str(err))
+
+    def __del__(self):
+        self.ssip_client.close()
+        del self.ssip_client
+
+    def speak_simple_text(self, text):
+        from speechd.client import SSIPCommunicationError
+        try:
+            self.ssip_client.speak(text)
+        except SSIPCommunicationError:
+            self.ssip_client.close()
+            self.create_ssip_client()
+            self.ssip_client.speak(text)
