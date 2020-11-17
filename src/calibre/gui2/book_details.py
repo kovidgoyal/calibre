@@ -263,6 +263,7 @@ def add_item_specific_entries(menu, data, book_info):
             menu.addAction(ac)
         add_copy_action(author)
         init_find_in_tag_browser(menu, find_action, 'authors', author)
+        menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
         if hasattr(book_info, 'search_internet'):
             menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
             menu.addMenu(sia)
