@@ -529,9 +529,9 @@ OptionRecommendation(name='read_metadata_from_opf',
 
 OptionRecommendation(name='asciiize',
         recommended_value=False, level=OptionRecommendation.LOW,
-        help=(_('Transliterate unicode characters to an ASCII '
+        help=(_('Transliterate Unicode characters to an ASCII '
             'representation. Use with care because this will replace '
-            'unicode characters with ASCII. For instance it will replace "%s" '
+            'Unicode characters with ASCII. For instance it will replace "%s" '
             'with "Mikhail Gorbachiov". Also, note that in '
             'cases where there are multiple representations of a character '
             '(characters shared by Chinese and Japanese for instance) the '

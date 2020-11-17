@@ -310,7 +310,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         _('Use this option if you want to force the driver to listen on a '
               'particular IP address. The driver will listen only on the '
               'entered address, and this address will be the one advertized '
-              'over mDNS (bonjour).') + '</p>',
+              'over mDNS (BonJour).') + '</p>',
         _('Replace books with same calibre ID') + ':::<p>' +
         _('Use this option to overwrite a book on the device if that book '
               'has the same calibre identifier as the book being sent. The file name of the '

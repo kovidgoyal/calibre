@@ -251,7 +251,7 @@ Only works with output formats such as EPUB that support CSS transforms
 
 - Fix calibre-server not exiting on Ctrl+c on Windows
 
-- [1897410] Content server OPDS feeds: Fix error if the metadata for a book contains particular unicode characters.
+- [1897410] Content server OPDS feeds: Fix error if the metadata for a book contains particular Unicode characters.
 
 - [1898167] Edit book: Reports tool: Fix a regression that broke sorting.
 
