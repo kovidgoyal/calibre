@@ -268,6 +268,7 @@ class ViewerBridge(Bridge):
     close_prep_finished = from_js(object)
     highlights_changed = from_js(object)
     open_url = from_js(object)
+    speak_simple_text = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -514,6 +515,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.open_url.connect(safe_open_url)
+        self.bridge.speak_simple_text.connect(self.speak_simple_text)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -526,6 +528,10 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+
+    def speak_simple_text(self, text):
+        from calibre.gui2.tts.implementation import speak_simple_text
+        speak_simple_text(text)
 
     def set_shortcut_map(self, smap):
         self.shortcut_map = smap
