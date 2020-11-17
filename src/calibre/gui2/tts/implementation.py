@@ -10,5 +10,4 @@ elif ismacos:
     pass
 else:
     from .linux import speak_simple_text
-
-speak_simple_text
+    speak_simple_text
