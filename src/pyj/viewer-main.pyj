@@ -398,6 +398,8 @@ if window is window.top:
     ui_operations.annots_changed = def(amap):
         if amap.highlight:
             to_python.highlights_changed(amap.highlight)
+    ui_operations.speak_simple_text = def(text):
+        to_python.speak_simple_text(text)
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror

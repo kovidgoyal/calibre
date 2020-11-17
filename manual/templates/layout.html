@@ -159,6 +159,19 @@
 })();
 </script>
 <!-- End Quantcast Choice. Consent Manager Tag v2.0 (for TCF 2.0) -->
+<script data-cfasync="false" type="text/javascript">                                                                                          
+  var freestar = freestar || {};                                                                                                              
+  freestar.hitTime = Date.now();                                                                                                              
+  freestar.queue = freestar.queue || [];                                                                                                      
+  freestar.config = freestar.config || {};                                                                                                    
+  freestar.debug = window.location.search.indexOf('fsdebug') === -1 ? false : true;                                                           
+  freestar.config.enabled_slots = [];                                                                                                         
+  !function(a,b){var                                                                                                                          
+c=b.getElementsByTagName("script")[0],d=b.createElement("script"),e="https://a.pub.network/manual-calibre-ebook-com";e+=freestar.debug?"/qa/pu
+bfig.min.js":"/pubfig.min.js",d.async=!0,d.src=e,c.parentNode.insertBefore(d,c)}(window,document);                                            
+  freestar.initCallback = function () { (freestar.config.enabled_slots.length === 0) ? freestar.initCallbackCalled = false :                  
+freestar.newAdSlots(freestar.config.enabled_slots) }                                                                                          
+</script>                 
 {% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
@@ -174,14 +187,11 @@
       {% if not embedded %}
           <div class="body" role="main">
             <div id="ad-container" style="text-align:center">
-                <script async="async" src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-                <ins class="adsbygoogle"
-                    style="display:inline-block;width:728px;height:90px"
-                    data-ad-client="ca-pub-5939552585043235"
-                    data-ad-slot="7580893187"></ins>
-                <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+                <div align="center" data-freestar-ad="__970x90 __336x280" id="manualcalibre-ebook_leaderboard_atf">    
+                    <script data-cfasync="false" type="text/javascript"> 
+                        freestar.config.enabled_slots.push({ placementName: "manualcalibre-ebook_leaderboard_atf", slotId: "manualcalibre-ebook_leaderboard_atf"});
+                    </script>
+                </div>     
             </div>
         {% endif %}
             {% block body %} {% endblock %}

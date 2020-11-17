@@ -597,7 +597,7 @@ class Quickview(QDialog, Ui_Quickview):
         tt = ('<p>' + _(
               'Double click on a book to change the selection in the library view or '
               'change the column shown in the left-hand panel. '
-              'Shift- or Control- double click to edit the metadata of a book, '
+              'Shift- or Ctrl- double click to edit the metadata of a book, '
               'which also changes the selected book.'
               ) + '</p>')
         for row, b in enumerate(books):

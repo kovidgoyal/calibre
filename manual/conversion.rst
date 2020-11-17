@@ -736,7 +736,7 @@ Some limitations of PDF input are:
     * Extraction of vector images and tables from within the document is also not supported.
     * Some PDFs use special glyphs to represent ll or ff or fi, etc. Conversion of these may or may not work depending on just how they are represented internally in the PDF.
     * Links and Tables of Contents are not supported
-    * PDFs that use embedded non-unicode fonts to represent non-English characters will result in garbled output for those characters
+    * PDFs that use embedded non-Unicode fonts to represent non-English characters will result in garbled output for those characters
     * Some PDFs are made up of photographs of the page with OCRed text behind them. In such cases calibre uses the OCRed text, which can be very different from what you see when you view the PDF file
     * PDFs that are used to display complex text, like right to left languages and math typesetting will not convert correctly
 

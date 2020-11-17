@@ -49,7 +49,7 @@ different actions, than just adding books. For example:
 calibre://view-book/test_library/1842/epub
 
 Will open the book with id 1842 in the EPUB format from the library
-"test_library" in the calibre viewer. Library names are the folder names of the
+"test_library" in the calibre E-book viewer. Library names are the folder names of the
 libraries with spaces replaced by underscores. A full description of the
 various URL based actions is in the User Manual.
 '''))

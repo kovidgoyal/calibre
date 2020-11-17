@@ -689,7 +689,7 @@ Inserting special characters
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can insert characters that are difficult to type by using the
-:guilabel:`Edit->Insert special character` tool. This shows you all unicode
+:guilabel:`Edit->Insert special character` tool. This shows you all Unicode
 characters, simply click on the character you want to type. If you hold Ctrl
 while clicking, the window will close itself after inserting the selected
 character. This tool can be used to insert special characters into the main
@@ -704,7 +704,7 @@ favorites by clicking the :guilabel:`Re-arrange favorites` button and then drag
 and dropping the characters in favorites around.
 
 You can also directly type in special characters using the keyboard. To do
-this, you type the unicode code for the character (in hexadecimal) and then
+this, you type the Unicode code for the character (in hexadecimal) and then
 press the :guilabel:`Alt+X` key which will convert the previously typed code
 into the corresponding character. For example, to type ÿ you would type ff and
 then Alt+X. To type a non-breaking space you would use a0 and then

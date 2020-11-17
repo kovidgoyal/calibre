@@ -222,15 +222,14 @@ wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR orig_cmd_line, int 
     config_dir.append(application_dir); config_dir.append(L"Calibre Settings");
     exe.append(application_dir); exe.append(L"Calibre\\"); exe.append(exe_name);
 
-    // Note that orig_cmd_line does not have argv[0] as the executable name
     int argc;
-    wchar_t **argv = CommandLineToArgvW(orig_cmd_line, &argc);
+    wchar_t **argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if (argv == NULL) {
         show_last_error(L"Failed to convert cmdline to argv array");
         return 1;
     }
     quote_argv(exe, cmd_line);
-    for (int i = 0; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         std::wstring arg(argv[i]);
         cmd_line.push_back(L' ');
         quote_argv(arg, cmd_line);

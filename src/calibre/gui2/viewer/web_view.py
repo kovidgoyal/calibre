@@ -268,6 +268,7 @@ class ViewerBridge(Bridge):
     close_prep_finished = from_js(object)
     highlights_changed = from_js(object)
     open_url = from_js(object)
+    speak_simple_text = from_js(object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -466,6 +467,7 @@ class WebView(RestartingWebEngineView):
 
     def __init__(self, parent=None):
         self._host_widget = None
+        self._tts_client = None
         self.callback_id_counter = count()
         self.callback_map = {}
         self.current_cfi = self.current_content_file = None
@@ -514,6 +516,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.open_url.connect(safe_open_url)
+        self.bridge.speak_simple_text.connect(self.speak_simple_text)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -526,6 +529,19 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+
+    @property
+    def tts_client(self):
+        if self._tts_client is None:
+            from calibre.gui2.tts.implementation import Client
+            self._tts_client = Client()
+        return self._tts_client
+
+    def speak_simple_text(self, text):
+        self.tts_client.speak_simple_text(text)
+
+    def shutdown(self):
+        self._tts_client = None
 
     def set_shortcut_map(self, smap):
         self.shortcut_map = smap

@@ -716,7 +716,7 @@ class CharSelect(Dialog):
 
         self.search = h = HistoryLineEdit2(self)
         h.setToolTip(textwrap.fill(_(
-            'Search for unicode characters by using the English names or nicknames.'
+            'Search for Unicode characters by using the English names or nicknames.'
             ' You can also search directly using a character code. For example, the following'
             ' searches will all yield the no-break space character: U+A0, nbsp, no-break')))
         h.initialize('charmap_search')
