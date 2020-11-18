@@ -14,6 +14,7 @@ extern const char* cocoa_send2trash(const char *utf8_path);
 extern void activate_cocoa_multithreading(void);
 extern void disable_window_tabbing(void);
 extern void remove_cocoa_menu_items(void);
+extern int nsss_init_module(PyObject*);
 
 static PyObject *notification_activated_callback = NULL;
 
@@ -102,7 +103,10 @@ static PyMethodDef module_methods[] = {
 };
 
 static int
-exec_module(PyObject *module) { return 0; }
+exec_module(PyObject *module) {
+	if (nsss_init_module(module) == -1) return -1;
+	return 0;
+}
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, exec_module}, {0, NULL} };
 
