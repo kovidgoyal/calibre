@@ -28,7 +28,7 @@ def option_parser():
             '''\
 %prog [opts] [path_to_ebook] [name_of_file_inside_book ...]
 
-Launch the calibre edit book tool. You can optionally also specify the names of
+Launch the calibre Edit book tool. You can optionally also specify the names of
 files inside the book which will be opened for editing automatically.
 '''
         )

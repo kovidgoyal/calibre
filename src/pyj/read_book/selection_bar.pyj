@@ -192,6 +192,7 @@ def all_actions():
             'search_net': a('global-search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
+            'speak': a('bullhorn', _('Speak aloud'), 'speak_aloud'),
         }
         qh = all_actions.ans.quick_highlight
         qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
@@ -949,6 +950,11 @@ class SelectionBar:
     def clear_selection(self):
         self.view.on_handle_shortcut({'name': 'clear_selection'})
         self.hide()
+
+    def speak_aloud(self):
+        text = self.view.currently_showing.selection.text
+        if text:
+            ui_operations.speak_simple_text(text)
 
     def create_highlight(self):
         cs = self.view.currently_showing.selection

@@ -113,6 +113,12 @@ class ReadUI:
             window.navigator.clipboard.writeText(text or '').then(def (): pass;, def():
                 error_dialog(_('Could not copy to clipboard'), _('No permission to write to clipboard'))
             )
+        ui_operations.speak_simple_text = def (text):
+            if not window.speechSynthesis:
+                return error_dialog(_('No speech support'), _(
+                    'Your browser does not have support for Speech'))
+            ut = new SpeechSynthesisUtterance(text)  # noqa
+            window.speechSynthesis.speak(ut)
 
     def on_resize(self):
         self.view.on_resize()

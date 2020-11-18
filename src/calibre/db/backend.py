@@ -1949,7 +1949,10 @@ class DB(object):
         return changed
 
     def annotation_count_for_book(self, book_id):
-        for (count,) in self.execute('SELECT count(id) FROM annotations WHERE book=?', (book_id,)):
+        for (count,) in self.execute('''
+                 SELECT count(id) FROM annotations
+                 WHERE book=? AND json_extract(annot_data, "$.removed") IS NULL
+                 ''', (book_id,)):
             return count
         return 0
 

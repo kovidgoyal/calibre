@@ -176,14 +176,8 @@
     {
         "name": "cocoa",
         "only": "macos",
-        "sources": "calibre/utils/cocoa.m calibre/utils/cocoa_wrapper.c",
+        "sources": "calibre/utils/cocoa.m calibre/gui2/tts/nsss.m calibre/utils/cocoa_wrapper.c",
         "ldflags": "-framework Cocoa"
-    },
-    {
-        "name": "espeak",
-        "only": "linux haiku",
-        "sources": "calibre/utils/tts/espeak.cpp",
-        "libraries": "espeak-ng"
     },
     {
         "name": "libusb",

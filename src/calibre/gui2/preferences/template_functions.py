@@ -31,7 +31,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         functions are usable. The function must be named <b>evaluate</b>, and
         must have the signature shown below.</p>
         <p><code>evaluate(self, formatter, kwargs, mi, locals, your parameters)
-        &rarr; returning a unicode string</code></p>
+        &rarr; returning a Unicode string</code></p>
         <p>The parameters of the evaluate function are:
         <ul>
         <li><b>formatter</b>: the instance of the formatter being used to

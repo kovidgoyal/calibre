@@ -601,12 +601,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.tags_view.recount()
 
     def handle_cli_args(self, args):
+        from urllib.parse import unquote, urlparse, parse_qs
         if isinstance(args, string_or_bytes):
             args = [args]
         files, urls = [], []
         for p in args:
             if p.startswith('calibre://'):
-                from urllib.parse import unquote, urlparse, parse_qs
                 try:
                     purl = urlparse(p)
                     if purl.scheme == 'calibre':
@@ -614,6 +614,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                         path = unquote(purl.path)
                         query = parse_qs(unquote(purl.query))
                         urls.append((action, path, query))
+                except Exception:
+                    prints('Ignoring malformed URL:', p, file=sys.stderr)
+                    continue
+            elif p.startswith('file://'):
+                try:
+                    purl = urlparse(p)
+                    if purl.scheme == 'file':
+                        path = unquote(purl.path)
+                        a = os.path.abspath(path)
+                        if not os.path.isdir(a) and os.access(a, os.R_OK):
+                            files.append(a)
                 except Exception:
                     prints('Ignoring malformed URL:', p, file=sys.stderr)
                     continue
@@ -695,6 +706,24 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 QTimer.singleShot(0, doit)
             else:
                 doit()
+
+        elif action == 'search':
+            parts = tuple(filter(None, path.split('/')))
+            if len(parts) != 1:
+                return
+            library_id = decode_library_id(parts[0])
+            library_path = self.library_broker.path_for_library_id(library_id)
+            if library_path is None:
+                return
+            sq = query.get('eq')
+            if sq:
+                sq = bytes.fromhex(sq[0]).decode('utf-8')
+            else:
+                sq = query.get('q')
+                if sq:
+                    sq = sq[0]
+            sq = sq or ''
+            self.search.set_search_string(sq)
 
     def message_from_another_instance(self, msg):
         if isinstance(msg, bytes):

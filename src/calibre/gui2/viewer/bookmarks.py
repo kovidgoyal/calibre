@@ -35,15 +35,23 @@ class BookmarksList(QListWidget):
         self.ac_delete = ac = QAction(QIcon(I('trash.png')), _('Remove this bookmark'), self)
         self.addAction(ac)
 
+    @property
+    def current_non_removed_item(self):
+        ans = self.currentItem()
+        if ans is not None:
+            bm = ans.data(Qt.UserRole)
+            if not bm.get('removed'):
+                return ans
+
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
-            i = self.currentItem()
+            i = self.current_non_removed_item
             if i is not None:
                 self.bookmark_activated.emit(i)
                 ev.accept()
                 return
         if ev.key() in (Qt.Key_Delete, Qt.Key_Backspace):
-            i = self.currentItem()
+            i = self.current_non_removed_item
             if i is not None:
                 self.ac_delete.trigger()
                 ev.accept()
@@ -51,11 +59,19 @@ class BookmarksList(QListWidget):
         return QListWidget.keyPressEvent(self, ev)
 
     def activate_related_bookmark(self, delta=1):
-        if self.count() > 0:
-            row = self.currentRow()
-            nrow = (row + delta + self.count()) % self.count()
-            self.setCurrentRow(nrow)
-            self.bookmark_activated.emit(self.currentItem())
+        if not self.count():
+            return
+        items = [self.item(r) for r in range(self.count())]
+        row = self.currentRow()
+        current_item = items[row]
+        items = [i for i in items if not i.isHidden()]
+        count = len(items)
+        if not count:
+            return
+        row = items.index(current_item)
+        nrow = (row + delta + count) % count
+        self.setCurrentItem(items[nrow])
+        self.bookmark_activated.emit(self.currentItem())
 
     def next_bookmark(self):
         self.activate_related_bookmark()
@@ -101,7 +117,7 @@ class BookmarkManager(QWidget):
         b.clicked.connect(self.delete_bookmark)
         l.addWidget(b, l.rowCount() - 1, 1)
 
-        self.button_prev = b = QPushButton(QIcon(I('back.png')), _('P&revious'), self)
+        self.button_prev = b = QPushButton(QIcon(I('back.png')), _('Pre&vious'), self)
         b.clicked.connect(self.bookmarks_list.previous_bookmark)
         l.addWidget(b)
 
@@ -234,7 +250,7 @@ class BookmarkManager(QWidget):
         self.edited.emit(self.get_bookmarks())
 
     def delete_bookmark(self):
-        item = self.bookmarks_list.currentItem()
+        item = self.bookmarks_list.current_non_removed_item
         if item is not None:
             bm = item.data(Qt.UserRole)
             if confirm(
@@ -250,7 +266,7 @@ class BookmarkManager(QWidget):
                 self.edited.emit(self.get_bookmarks())
 
     def edit_bookmark(self):
-        item = self.bookmarks_list.currentItem()
+        item = self.bookmarks_list.current_non_removed_item
         if item is not None:
             self.bookmarks_list.editItem(item)
 

@@ -403,11 +403,18 @@ class Freeze(object):
         BOOK_EXTENSIONS = calibre_constants['book_extensions']
         env = dict(**ENV)
         env['CALIBRE_LAUNCHED_FROM_BUNDLE'] = '1'
-        docs = [{'CFBundleTypeName': 'E-book',
-                 'CFBundleTypeExtensions': list(BOOK_EXTENSIONS),
-                 'CFBundleTypeIconFile': 'book.icns',
-                 'CFBundleTypeRole': 'Viewer',
-                 }]
+        docs = [{
+            'CFBundleTypeName': 'E-book',
+            'CFBundleTypeExtensions': list(BOOK_EXTENSIONS),
+            'CFBundleTypeIconFile': 'book.icns',
+            'CFBundleTypeRole': 'Viewer',
+        }]
+        url_handlers = [dict(
+            CFBundleTypeRole='Viewer',
+            CFBundleURLIconFile='calibre',
+            CFBundleURLName='com.calibre-ebook.calibre-url',
+            CFBundleURLSchemes=['calibre']
+        )]
 
         pl = dict(
             CFBundleDevelopmentRegion='English',
@@ -420,6 +427,7 @@ class Freeze(object):
             CFBundleSignature='????',
             CFBundleExecutable='calibre',
             CFBundleDocumentTypes=docs,
+            CFBundleURLTypes=url_handlers,
             LSMinimumSystemVersion='10.14.0',
             LSRequiresNativeExecution=True,
             NSAppleScriptEnabled=False,

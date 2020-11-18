@@ -247,7 +247,7 @@
        <item row="7" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_asciiize">
          <property name="text">
-          <string>&amp;Transliterate unicode characters to ASCII</string>
+          <string>&amp;Transliterate Unicode characters to ASCII</string>
          </property>
         </widget>
        </item>

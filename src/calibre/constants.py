@@ -5,7 +5,7 @@ from polyglot.builtins import map, unicode_type, environ_item, hasenv, getenv
 import sys, locale, codecs, os, collections
 
 __appname__   = 'calibre'
-numeric_version = (5, 4, 2)
+numeric_version = (5, 5, 0)
 __version__   = '.'.join(map(unicode_type, numeric_version))
 git_version   = None
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
@@ -253,7 +253,7 @@ class ExtensionsImporter:
         elif ismacos:
             extra = ('usbobserver', 'cocoa', 'libusb', 'libmtp')
         elif isfreebsd or ishaiku or islinux:
-            extra = ('libusb', 'libmtp', 'espeak')
+            extra = ('libusb', 'libmtp')
         else:
             extra = ()
         self.calibre_extensions = frozenset(extensions + extra)

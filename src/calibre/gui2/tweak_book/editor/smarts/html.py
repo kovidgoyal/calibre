@@ -425,13 +425,14 @@ class Smarts(NullSmarts):
         template = template or DEFAULT_LINK_TEMPLATE
         template = template.replace('_TARGET_', prepare_string_for_xml(target, True))
         offset = template.find('_TEXT_')
+        template = template.replace('_TEXT_', text or '')
         editor.highlighter.join()
         c = editor.textCursor()
         if c.hasSelection():
             c.insertText('')  # delete any existing selected text
         ensure_not_within_tag_definition(c)
         p = c.position() + offset
-        c.insertText(template.replace('_TEXT_', text or ''))
+        c.insertText(template)
         c.setPosition(p)  # ensure cursor is positioned inside the newly created tag
         editor.setTextCursor(c)
 

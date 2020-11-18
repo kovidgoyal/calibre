@@ -267,7 +267,7 @@ def look_and_feel(container):
     ))
     g.appendChild(checkbox('smarten_punctuation', _('Smarten &punctuation')))
     g.appendChild(checkbox('unsmarten_punctuation', _('&UnSmarten punctuation')))
-    g.appendChild(checkbox('asciiize', _('&Transliterate unicode characters to ASCII')))
+    g.appendChild(checkbox('asciiize', _('&Transliterate Unicode characters to ASCII')))
 
     subhead(_('Lay&out'))
     add_listener('remove_paragraph_spacing', def (name):

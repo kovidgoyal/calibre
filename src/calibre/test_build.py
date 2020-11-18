@@ -96,6 +96,11 @@ class BuildTest(unittest.TestCase):
         import soupsieve, bs4
         del soupsieve, bs4
 
+    @unittest.skipUnless(islinux, 'Speech dispatcher only used on Linux')
+    def test_speech_dispatcher(self):
+        from speechd.client import SSIPClient
+        del SSIPClient
+
     def test_zeroconf(self):
         import zeroconf as z, ifaddr
         del z

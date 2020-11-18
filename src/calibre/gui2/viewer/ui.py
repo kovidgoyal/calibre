@@ -674,6 +674,7 @@ class EbookViewer(MainWindow):
             return
         self.shutting_down = True
         self.search_widget.shutdown()
+        self.web_view.shutdown()
         try:
             self.save_state()
             self.save_annotations()

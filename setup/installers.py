@@ -230,6 +230,7 @@ class ExtDev(Command):
             path = '/cygdrive/c/Program Files/Calibre2/app/bin/{}.pyd'
             bin_dir = '/cygdrive/c/Program Files/Calibre2'
         elif which == 'macos':
+            raise SystemExit("This does not work on macOS because of Apple's stupid code-signing")
             host = 'ox'
             path = '/Applications/calibre.app/Contents/Frameworks/plugins/{}.so'
             bin_dir = '/Applications/calibre.app/Contents/MacOS'

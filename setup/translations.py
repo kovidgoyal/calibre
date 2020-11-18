@@ -151,16 +151,15 @@ class POT(Command):  # {{{
             if needs_import:
                 self.tx(['set', '-r', 'calibre.' + slug, '--source', '-l', 'en', '-t', 'PO', dest])
                 with open(self.j(self.d(tbase), '.tx/config'), 'r+b') as f:
-                    lines = f.read().splitlines()
+                    lines = f.read().decode('utf-8').splitlines()
                     for i in range(len(lines)):
-                        line = lines[i]
+                        line = lines[i].strip()
                         if line == '[calibre.%s]' % slug:
                             lines.insert(i+1, 'file_filter = manual/<lang>/%s.po' % bname)
-                            f.seek(0), f.truncate(), f.write('\n'.join(lines))
+                            f.seek(0), f.truncate(), f.write('\n'.join(lines).encode('utf-8'))
                             break
                     else:
-                        self.info('Failed to add file_filter to config file')
-                        raise SystemExit(1)
+                        raise SystemExit(f'Failed to add file_filter for {slug=} to config file')
                 self.git('add .tx/config')
             self.upload_pot(resource=slug)
             self.git(['add', dest])

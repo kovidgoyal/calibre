@@ -317,9 +317,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 if len(fpb) == 0:
                     del self.current_plugboards[self.current_format]
         else:
-            if comments_in_dests and not question_dialog(self.gui, _('Plugboard modifies Comments'),
-                     _('This plugboard modifies the Comments metadata. '
-                       'If the Comments are set to invalid HTML, it could cause problems on the device. '
+            if comments_in_dests and not question_dialog(self.gui, _('Plugboard modifies comments'),
+                     _('This plugboard modifies the comments metadata. '
+                       'If the comments are set to invalid HTML, it could cause problems on the device. '
                        'Are you sure you wish to save this plugboard?'
                        ),
                         skip_dialog_name='plugboard_comments_in_dests'
