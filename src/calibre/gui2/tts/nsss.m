@@ -38,19 +38,30 @@ NSSS_dealloc(NSSS *self) {
 }
 
 static PyObject*
+as_python(NSObject *x) {
+	if (!x) Py_RETURN_NONE;
+	if ([x isKindOfClass:[NSString class]]) {
+		NSString *s = (NSString*)x;
+		return PyUnicode_FromString([s UTF8String]);
+	}
+	if ([x isKindOfClass:[NSNumber class]]) {
+		NSNumber *n = (NSNumber*)x;
+		return PyFloat_FromDouble([n doubleValue]);
+	}
+	Py_RETURN_NONE;
+}
+
+static PyObject*
 NSSS_get_all_voices(NSSS *self, PyObject *args) {
 	PyObject *ans = PyDict_New();
 	if (!ans) return NULL;
 	for (NSSpeechSynthesizerVoiceName voice_id in [NSSpeechSynthesizer availableVoices]) {
 		NSDictionary *attributes = [NSSpeechSynthesizer attributesForVoice:voice_id];
 		if (attributes) {
-			NSString *name = [attributes objectForKey:NSVoiceName];
-			NSString *age = [attributes objectForKey:NSVoiceAge];
-			NSString *gender = [attributes objectForKey:NSVoiceGender];
-			NSString *demo_text = [attributes objectForKey:NSVoiceDemoText];
-			NSString *locale_id = [attributes objectForKey:NSVoiceLocaleIdentifier];
-#define E(x) #x, (x ? [x UTF8String] : NULL)
-			PyObject *v = Py_BuildValue("{ss ss ss ss ss}", E(name), E(age), E(gender), E(demo_text), E(locale_id));
+#define E(x, y) #x, as_python([attributes objectForKey:y])
+			PyObject *v = Py_BuildValue("{sN sN sN sN sN}",
+					E(name, NSVoiceName), E(age, NSVoiceAge), E(gender, NSVoiceGender),
+					E(demo_text, NSVoiceDemoText), E(locale_id, NSVoiceLocaleIdentifier));
 			if (!v) { Py_DECREF(ans); return NULL; }
 #undef E
 			if (PyDict_SetItemString(ans, [voice_id UTF8String], v) != 0) {
