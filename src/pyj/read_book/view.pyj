@@ -702,7 +702,7 @@ class View:
         else:
             if text:
                 self.search_overlay.set_text(text)
-            self.search_overlay.show(text)  # why show here accepts an argument?
+            self.search_overlay.show(text)
             if trigger and text:
                 self.search_overlay.find_next()
 
