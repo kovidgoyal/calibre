@@ -5,7 +5,7 @@
 from calibre.constants import iswindows, ismacos
 
 if iswindows:
-    pass
+    from .windows import Client
 elif ismacos:
     pass
 else:
