@@ -387,7 +387,7 @@ Voice_wait_for_event(Voice *self, PyObject *args) {
     const HANDLE handles[2] = {self->shutdown_events_thread, self->events_available};
     DWORD ev;
     Py_BEGIN_ALLOW_THREADS;
-    ev = WaitForMultipleObjects(2, handles, true, INFINITE);
+    ev = WaitForMultipleObjects(2, handles, false, INFINITE);
     Py_END_ALLOW_THREADS;
     switch (ev) {
         case WAIT_OBJECT_0:
