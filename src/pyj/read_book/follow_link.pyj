@@ -8,7 +8,6 @@ from gettext import gettext as _
 from book_list.theme import get_color
 from dom import add_extra_css, build_rule, svgicon
 from read_book.globals import ui_operations
-from read_book.resources import text_from_serialized_html  # TODO check if needed
 from read_book.shortcuts import shortcut_for_key_event
 
 CLASS_NAME = 'follow-link-container'
