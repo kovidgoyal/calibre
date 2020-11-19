@@ -1,15 +1,22 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class BasicUserRecipe1257093186(BasicNewsRecipe):
+class Netzpolitik(BasicNewsRecipe):
     title = u'Netzpolitik'
+    publication_type = 'newspaper'
     oldest_article = 14
     language = 'de'
     no_stylesheets = True
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
-    remove_tags = [dict(id=['respond', 'ackt', 'nav', 'commentblock',
-                            'l_sidebar', 'r_sidebar']), dict(attrs={'class': ['widgettitle',
-                                                                              'bt-links', 'navigation']})]
+    use_embedded_content  = True
 
-    feeds = [(u'Netzpolitik.org', u'http://www.netzpolitik.org/feed/')]
+    feeds = [(u'Netzpolitik.org', u'https://netzpolitik.org/feed/')]
+
+    def preprocess_html(self, soup):
+        # Remove the duplicate title image.
+        soup.body.img.decompose()
+        return soup
+
+    def get_cover_url(self):
+        return 'https://netzpolitik.org/wp-upload/2018/11/cropped-np_favicon_004-1-484x484.png'
