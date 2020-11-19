@@ -340,7 +340,7 @@ Voice_shutdown_event_loop(Voice *self, PyObject *args) {
 }
 
 static PyObject*
-get_events(Voice *self, PyObject *args) {
+Voice_get_events(Voice *self, PyObject *args) {
     HRESULT hr;
     const ULONG asz = 32;
     ULONG num_events;
@@ -383,9 +383,9 @@ get_events(Voice *self, PyObject *args) {
 }
 
 static PyObject*
-Voice_wait_for_event(Voice *self, PyObject *callback) {
-    if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback object is not callable"); return NULL; }
+Voice_wait_for_event(Voice *self, PyObject *args) {
     const HANDLE handles[2] = {self->shutdown_events_thread, self->events_available};
+    DWORD ev;
     Py_BEGIN_ALLOW_THREADS;
     ev = WaitForMultipleObjects(2, handles, true, INFINITE);
     Py_END_ALLOW_THREADS;
@@ -420,7 +420,7 @@ static PyMethodDef Voice_methods[] = {
     M(set_current_sound_output, METH_VARARGS),
 
     M(shutdown_event_loop, METH_NOARGS),
-    M(wait_for_event, METH_O),
+    M(wait_for_event, METH_NOARGS),
     M(get_events, METH_NOARGS),
     {NULL, NULL, 0, NULL}
 };

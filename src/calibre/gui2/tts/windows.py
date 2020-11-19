@@ -18,17 +18,19 @@ class Client:
         self.current_callback = None
 
     def __del__(self):
-        self.sp_voice.shutdown_event_loop()
-        self.events_thread.join(5)
-        self.sp_voice = None
+        if self.sp_voice is not None:
+            self.sp_voice.shutdown_event_loop()
+            self.events_thread.join(5)
+            self.sp_voice = None
     shutdown = __del__
 
     def wait_for_events(self):
         while True:
             if self.sp_voice.wait_for_event() is False:
                 break
-            if self.current_callback is not None:
-                self.current_callback()
+            c = self.current_callback
+            if c is not None:
+                c()
 
     def get_events(self):
         from calibre_extensions.winsapi import SPEI_TTS_BOOKMARK, SPEI_START_INPUT_STREAM, SPEI_END_INPUT_STREAM
