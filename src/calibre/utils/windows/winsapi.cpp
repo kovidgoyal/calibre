@@ -22,6 +22,7 @@ extern CComModule _Module;
 typedef struct {
     PyObject_HEAD
     ISpVoice *voice;
+    HANDLE shutdown_events_thread, events_available;
 } Voice;
 
 
@@ -44,6 +45,28 @@ Voice_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
             Py_CLEAR(self);
             return error_from_hresult(hr, "Failed to create ISpVoice instance");
         }
+        if (FAILED(hr = self->voice->SetNotifyWin32Event())) {
+            Py_CLEAR(self);
+            return error_from_hresult(hr, "Failed to set event based notify mechanism");
+        }
+        self->events_available = self->voice->GetNotifyEventHandle();
+        if (self->events_available == INVALID_HANDLE_VALUE) {
+            Py_CLEAR(self);
+            PyErr_SetString(PyExc_OSError, "Failed to get events handle for ISpVoice");
+            return NULL;
+        }
+        self->shutdown_events_thread = CreateEvent(NULL, true, false, NULL);
+        if (self->shutdown_events_thread == INVALID_HANDLE_VALUE) {
+            Py_CLEAR(self);
+            PyErr_SetFromWindowsErr(0);
+            return NULL;
+        }
+        ULONGLONG events = SPFEI(SPEI_START_INPUT_STREAM) | SPFEI(SPEI_END_INPUT_STREAM) | SPFEI(SPEI_TTS_BOOKMARK);
+        if (FAILED(hr = self->voice->SetInterest(events, events))) {
+            CloseHandle(self->shutdown_events_thread);
+            Py_CLEAR(self);
+            return error_from_hresult(hr, "Failed to register event interest");
+        }
 
     }
     return (PyObject*)self;
@@ -52,6 +75,10 @@ Voice_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 static void
 Voice_dealloc(Voice *self) {
     if (self->voice) { self->voice->Release(); self->voice = NULL; }
+    if (self->shutdown_events_thread != INVALID_HANDLE_VALUE) {
+        CloseHandle(self->shutdown_events_thread);
+        self->shutdown_events_thread = INVALID_HANDLE_VALUE;
+    }
     CoUninitialize();
 }
 // }}}
@@ -246,7 +273,7 @@ Voice_speak(Voice *self, PyObject *args) {
     hr = self->voice->Speak(text_or_path.ptr(), flags, &stream_number);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) return error_from_hresult(hr, "Failed to speak", PyTuple_GET_ITEM(args, 0));
-    return PyLong_FromLong(stream_number);
+    return PyLong_FromUnsignedLong(stream_number);
 }
 
 static PyObject*
@@ -305,6 +332,66 @@ Voice_create_recording_wav(Voice *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+
+static PyObject*
+Voice_shutdown_event_loop(Voice *self, PyObject *args) {
+    if (!SetEvent(self->shutdown_events_thread)) return PyErr_SetFromWindowsErr(0);
+    Py_RETURN_NONE;
+}
+
+static inline void
+dispatch_events(Voice *self, PyObject *callback) {
+    HRESULT hr;
+    const ULONG asz = 32;
+    ULONG num_events;
+    SPEVENT events[asz];
+    PyObject *ret;
+    long long val;
+    int etype;
+    while (true) {
+        Py_BEGIN_ALLOW_THREADS;
+        hr = self->voice->GetEvents(asz, events, &num_events);
+        Py_END_ALLOW_THREADS;
+        if (hr != S_OK && hr != S_FALSE) break;
+        if (num_events == 0) break;
+        for (ULONG i = 0; i < num_events; i++) {
+            etype = events[i].eEventId;
+#define CALL(fmt, ...) { ret = PyObject_CallFunction(callback, fmt, __VA_ARGS__); if (ret) Py_DECREF(ret); else PyErr_Print(); } break;
+            switch(etype) {
+                case SPEI_TTS_BOOKMARK:
+                    val = events[i].wParam;
+                    CALL("kiL", events[i].ulStreamNum, etype, val);
+                case SPEI_START_INPUT_STREAM:
+                case SPEI_END_INPUT_STREAM:
+                    CALL("ki", events[i].ulStreamNum, etype);
+            }
+#undef CALL
+        }
+    }
+}
+
+static PyObject*
+Voice_run_event_loop(Voice *self, PyObject *callback) {
+    if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback object is not callable"); return NULL; }
+    HANDLE handles[2] = {self->shutdown_events_thread, self->events_available};
+    bool keep_going = true;
+    DWORD ev;
+    while(keep_going) {
+        Py_BEGIN_ALLOW_THREADS;
+        ev = WaitForMultipleObjects(2, handles, true, INFINITE);
+        Py_END_ALLOW_THREADS;
+        switch (ev) {
+            case WAIT_OBJECT_0:
+                keep_going = false;
+                break;
+            case WAIT_OBJECT_0 + 1:
+                dispatch_events(self, callback);
+                break;
+        }
+    }
+    Py_RETURN_NONE;
+}
+
 // Boilerplate {{{
 #define M(name, args) { #name, (PyCFunction)Voice_##name, args, ""}
 static PyMethodDef Voice_methods[] = {
@@ -326,6 +413,8 @@ static PyMethodDef Voice_methods[] = {
     M(set_current_volume, METH_VARARGS),
     M(set_current_sound_output, METH_VARARGS),
 
+    M(shutdown_event_loop, METH_NOARGS),
+    M(run_event_loop, METH_O),
     {NULL, NULL, 0, NULL}
 };
 #undef M
@@ -501,7 +590,7 @@ exec_module(PyObject *m) {
     AI(SPEI_RESERVED1);
     AI(SPEI_RESERVED2);
 #undef AI
-
+    return 0;
 }
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
