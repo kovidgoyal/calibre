@@ -10,6 +10,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import prepare_string_for_xml
+from calibre.constants import iswindows
 from calibre.gui2 import Application
 
 from .common import EventType
@@ -22,6 +23,10 @@ def add_markup(text):
     counter = count()
     pos_map = {}
     last = None
+    if iswindows:
+        bm = '<bookmark mark="{}"/>'
+    else:
+        bm = '<mark name="{}"/>'
     for m in re.finditer(r'\w+', text):
         start, end = m.start(), m.end()
         if first:
@@ -29,7 +34,7 @@ def add_markup(text):
             if start:
                 buf.append(prepare_string_for_xml(text[:start]))
         num = next(counter)
-        buf.append(f'<mark name="{num}"/>')
+        buf.append(bm.format(num))
         pos_map[num] = start, end
         buf.append(prepare_string_for_xml(m.group()))
         last = end
@@ -40,8 +45,9 @@ def add_markup(text):
     return ''.join(buf), pos_map
 
 
-class TTS(QWidget):
+class TTSWidget(QWidget):
 
+    events_available = pyqtSignal()
     mark_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
@@ -84,6 +90,7 @@ example, which of.
         l.addWidget(bb)
         b.clicked.connect(self.play_clicked)
         self.render_text()
+        self.events_available.connect(self.handle_events, type=Qt.QueuedConnection)
 
     def render_text(self):
         text = self.text
@@ -100,15 +107,16 @@ example, which of.
         self.la.setText('\n'.join(lines))
 
     def play_clicked(self):
-        self.tts.speak_marked_text(self.ssml, self.handle_event)
+        self.tts.speak_marked_text(self.ssml, self.events_available.emit)
 
-    def handle_event(self, event):
-        if event.type is EventType.mark:
-            try:
-                mark = int(event.data)
-            except Exception:
-                return
-            self.mark_changed.emit(mark)
+    def handle_events(self):
+        for event in self.tts.get_events():
+            if event.type is EventType.mark:
+                try:
+                    mark = int(event.data)
+                except Exception:
+                    return
+                self.mark_changed.emit(mark)
 
     def on_mark_change(self, mark):
         self.current_mark = mark
@@ -118,11 +126,13 @@ example, which of.
 def main():
     app = Application([])
     w = QMainWindow()
-    tts = TTS(w)
+    tts = TTSWidget(w)
     w.setCentralWidget(tts)
     w.show()
     app.exec_()
-    del tts.tts
+    tts.events_available.disconnect()
+    tts.mark_changed.disconnect()
+    tts.tts.shutdown()
 
 
 if __name__ == '__main__':

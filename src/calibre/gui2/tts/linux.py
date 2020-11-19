@@ -10,6 +10,7 @@ class Client:
 
     def __init__(self):
         self.create_ssip_client()
+        self.pending_events = []
 
     def create_ssip_client(self):
         from speechd.client import SpawnError, SSIPClient
@@ -19,8 +20,10 @@ class Client:
             raise TTSSystemUnavailable(_('Could not find speech-dispatcher on your system. Please install it.'), str(err))
 
     def __del__(self):
-        self.ssip_client.close()
-        del self.ssip_client
+        if hasattr(self, 'ssip_client'):
+            self.ssip_client.close()
+            del self.ssip_client
+    shutdown = __del__
 
     def set_use_ssml(self, on):
         from speechd.client import DataMode, SSIPCommunicationError
@@ -54,7 +57,13 @@ class Client:
                 event = Event(EventType.resume)
             else:
                 return
-            callback(event)
+            self.pending_events.append(event)
+            callback()
 
         self.set_use_ssml(True)
         self.ssip_client.speak(text, callback=callback_wrapper)
+
+    def get_events(self):
+        events = self.pending_events
+        self.pending_events = []
+        return events

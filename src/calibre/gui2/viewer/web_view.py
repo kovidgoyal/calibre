@@ -541,7 +541,9 @@ class WebView(RestartingWebEngineView):
         self.tts_client.speak_simple_text(text)
 
     def shutdown(self):
-        self._tts_client = None
+        if self._tts_client is not None:
+            self._tts_client.shutdown()
+            self._tts_client = None
 
     def set_shortcut_map(self, smap):
         self.shortcut_map = smap
