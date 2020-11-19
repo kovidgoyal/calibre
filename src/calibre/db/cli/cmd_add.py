@@ -9,6 +9,8 @@ from contextlib import contextmanager
 from optparse import OptionGroup, OptionValueError
 
 from calibre import prints
+from calibre.db.utils import find_identical_books
+from calibre.db.copy_to_library import automerge_book
 from calibre.db.adding import (
     cdb_find_in_dir, cdb_recursive_find, compile_rule, create_format_map,
     run_import_plugins, run_import_plugins_before_metadata
@@ -19,6 +21,7 @@ from calibre.ebooks.metadata.meta import get_metadata, metadata_from_formats
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.changes import books_added
 from calibre.utils.localization import canonicalize_lang
+from calibre.utils.config import tweaks
 from polyglot.builtins import unicode_type
 
 readonly = False
@@ -35,7 +38,7 @@ def empty(db, notify_changes, is_remote, args):
 
 
 def book(db, notify_changes, is_remote, args):
-    data, fname, fmt, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages = args
+    data, fname, fmt, add_duplicates, otitle, oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages, oautomerge = args
     with add_ctx(), TemporaryDirectory('add-single') as tdir, run_import_plugins_before_metadata(tdir):
         if is_remote:
             with lopen(os.path.join(tdir, fname), 'wb') as f:
@@ -65,14 +68,26 @@ def book(db, notify_changes, is_remote, args):
         if ocover:
             mi.cover = None
             mi.cover_data = ocover
-
-        ids, duplicates = db.add_books(
-            [(mi, {fmt: path})], add_duplicates=add_duplicates, run_hooks=False)
+        
+        identical_book_list,added_ids,updated_ids=set(),set(),set()
+        if oautomerge:
+            identical_books_data = identical_books_data = db.data_for_find_identical_books()
+            identical_book_list = find_identical_books(mi, identical_books_data)
+            add_duplicates=True
+        if len(identical_book_list) > 0:
+            for book_id in identical_book_list:
+                db.add_format(book_id, fmt, path, replace='overwrite', run_hooks=False)
+            updated_ids=identical_book_list
+            duplicates=False
+        else:
+            added_ids, duplicates = db.add_books(
+                [(mi, {fmt: path})], add_duplicates=add_duplicates, run_hooks=False)
 
     if is_remote:
-        notify_changes(books_added(ids))
+        notify_changes(books_added(added_ids))
+        notify_changes(books_added(updated_ids))
     db.dump_metadata()
-    return ids, bool(duplicates), mi.title
+    return added_ids,updated_ids, bool(duplicates), mi.title
 
 
 def format_group(db, notify_changes, is_remote, args):
@@ -140,7 +155,7 @@ def add_ctx():
 def do_add(
     dbctx, paths, one_book_per_directory, recurse, add_duplicates, otitle, oauthors,
     oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages,
-    compiled_rules
+    compiled_rules, oautomerge
 ):
     with add_ctx():
         files, dirs = [], []
@@ -154,18 +169,20 @@ def do_add(
                 else:
                     prints(path, 'not found')
 
-        file_duplicates, added_ids = [], set()
+        file_duplicates, added_ids, merged_ids = [], set(), set()
         for book in files:
             fmt = os.path.splitext(book)[1]
             fmt = fmt[1:] if fmt else None
             if not fmt:
                 continue
-            ids, dups, book_title = dbctx.run(
+            aids, mids, dups, book_title = dbctx.run(
                 'add', 'book', dbctx.path(book), os.path.basename(book), fmt, add_duplicates,
                 otitle, oauthors, oisbn, otags, oseries, oseries_index, serialize_cover(ocover) if ocover else None,
-                oidentifiers, olanguages
+                oidentifiers, olanguages, oautomerge
             )
-            added_ids |= set(ids)
+            added_ids |= set(aids)
+            merged_ids |= set(mids)
+
             if dups:
                 file_duplicates.append((book_title, book))
 
@@ -201,7 +218,7 @@ def do_add(
                 _(
                     'The following books were not added as '
                     'they already exist in the database '
-                    '(see --duplicates option):'
+                    '(see --duplicates option or --automerge option):'
                 ),
                 file=sys.stderr
             )
@@ -216,6 +233,8 @@ def do_add(
 
         if added_ids:
             prints(_('Added book ids: %s') % (', '.join(map(unicode_type, added_ids))))
+        if merged_ids:
+            prints(_('Updated book ids: %s') % (', '.join(map(unicode_type, merged_ids))))
 
 
 def option_parser(get_parser, args):
@@ -236,6 +255,15 @@ the directory related options below.
         default=False,
         help=_(
             'Add books to database even if they already exist. Comparison is done based on book titles.'
+        )
+    )
+    parser.add_option(
+        '-m',
+        '--automerge',
+        action='store_true',
+        default=False,
+        help=_(
+            'Add or upgrade existing book(s) to database. Comparison is done based on book titles, autor and language.\nSearch the library for the specified book and decide: \n * To update its format and language on the library if the book is newer than the existing one in the library.\n * To add to the library if the format and language does not exist.\n * To discard action if none of the above.'
         )
     )
     parser.add_option(
@@ -379,6 +407,6 @@ def main(opts, args, dbctx):
     do_add(
         dbctx, args, opts.one_book_per_directory, opts.recurse, opts.duplicates,
         opts.title, aut, opts.isbn, tags, opts.series, opts.series_index, opts.cover,
-        identifiers, lcodes, opts.filters
+        identifiers, lcodes, opts.filters, opts.automerge
     )
     return 0
