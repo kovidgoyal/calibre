@@ -53,7 +53,11 @@ with open(__file__, 'rb') as f:
 script = script[:script.find('# EOF_REMOTE')].replace('if False:', 'if True:', 1)
 
 with tempfile.NamedTemporaryFile(prefix='install-dmg-', suffix='.py') as f:
-    run('./setup.py osx --dont-shutdown')
+    cmd = './setup.py osx --dont-shutdown'
+    if 'develop' in sys.argv:
+        print('Disabling code-signing and notarization')
+        cmd += ' --dont-sign --dont-notarize'
+    run(cmd)
     f.write(script.encode('utf-8'))
     f.flush()
     run(f'scp dist/{dmg} {f.name} {HOST}:/tmp')
