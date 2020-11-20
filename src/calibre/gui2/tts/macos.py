@@ -38,7 +38,7 @@ class Client:
     def speak_simple_text(self, text):
         self.current_callback = None
         self.pending_events = []
-        self.nsss.speak(text.replace('[[', '[').replace(']]', ']'))
+        self.nsss.speak(self.escape_marked_text(text))
 
     def speak_marked_text(self, text, callback):
         self.current_callback = callback
