@@ -6,11 +6,10 @@
 import re
 from itertools import count
 from PyQt5.Qt import (
-    QDialogButtonBox, QLabel, QMainWindow, Qt, QVBoxLayout, QWidget, pyqtSignal
+    QDialogButtonBox, QLabel, QMainWindow, Qt, QTimer, QVBoxLayout, QWidget,
+    pyqtSignal
 )
 
-from calibre import prepare_string_for_xml
-from calibre.constants import iswindows
 from calibre.gui2 import Application
 
 from .common import EventType
@@ -23,25 +22,22 @@ def add_markup(text):
     counter = count()
     pos_map = {}
     last = None
-    if iswindows:
-        bm = '<bookmark mark="{}"/>'
-    else:
-        bm = '<mark name="{}"/>'
+    bm = Client.mark_template
     for m in re.finditer(r'\w+', text):
         start, end = m.start(), m.end()
         if first:
             first = False
             if start:
-                buf.append(prepare_string_for_xml(text[:start]))
+                buf.append(Client.escape_marked_text(text[:start]))
         num = next(counter)
         buf.append(bm.format(num))
         pos_map[num] = start, end
-        buf.append(prepare_string_for_xml(m.group()))
+        buf.append(Client.escape_marked_text(m.group()))
         last = end
     if last is None:
-        buf.append(prepare_string_for_xml(text))
+        buf.append(Client.escape_marked_text(text))
     else:
-        buf.append(prepare_string_for_xml(text[last:]))
+        buf.append(Client.escape_marked_text(text[last:]))
     return ''.join(buf), pos_map
 
 
@@ -133,6 +129,26 @@ def main():
     tts.events_available.disconnect()
     tts.mark_changed.disconnect()
     tts.tts.shutdown()
+
+
+def headless():
+    app = Application([])
+    c = Client()
+    text = '[[sync 0x123456]]very [[sync 0x80]]good [[sync 0x81]]indeed'
+
+    def callback():
+        for ev in c.get_events():
+            if ev.type is EventType.mark:
+                print('mark:', hex(ev.data))
+            if ev.type in (EventType.end, EventType.cancel):
+                print(ev.type)
+                app.quit()
+
+    def run():
+        c.speak_marked_text(text, callback)
+    QTimer.singleShot(10, run)
+    QTimer.singleShot(5000, app.quit)
+    app.exec_()
 
 
 if __name__ == '__main__':

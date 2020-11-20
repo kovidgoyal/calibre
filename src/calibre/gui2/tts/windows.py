@@ -4,10 +4,19 @@
 
 
 from threading import Thread
+
+from calibre import prepare_string_for_xml
+
 from .common import Event, EventType
 
 
 class Client:
+
+    mark_template = '<bookmark mark="{}"/>'
+
+    @classmethod
+    def escape_marked_text(cls, text):
+        return prepare_string_for_xml(text)
 
     def __init__(self):
         from calibre.utils.windows.winsapi import ISpVoice
@@ -33,7 +42,9 @@ class Client:
                 c()
 
     def get_events(self):
-        from calibre_extensions.winsapi import SPEI_TTS_BOOKMARK, SPEI_START_INPUT_STREAM, SPEI_END_INPUT_STREAM
+        from calibre_extensions.winsapi import (
+            SPEI_END_INPUT_STREAM, SPEI_START_INPUT_STREAM, SPEI_TTS_BOOKMARK
+        )
         ans = []
         for (stream_number, event_type, event_data) in self.sp_voice.get_events():
             if stream_number == self.current_stream_number:
@@ -49,11 +60,15 @@ class Client:
         return ans
 
     def speak_simple_text(self, text):
-        from calibre_extensions.winsapi import SPF_ASYNC, SPF_PURGEBEFORESPEAK, SPF_IS_NOT_XML
+        from calibre_extensions.winsapi import (
+            SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK
+        )
         self.current_callback = None
         self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_NOT_XML)
 
     def speak_marked_text(self, text, callback):
-        from calibre_extensions.winsapi import SPF_ASYNC, SPF_PURGEBEFORESPEAK, SPF_IS_XML
+        from calibre_extensions.winsapi import (
+            SPF_ASYNC, SPF_IS_XML, SPF_PURGEBEFORESPEAK
+        )
         self.current_callback = callback
         self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_XML, True)

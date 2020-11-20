@@ -11,30 +11,77 @@
 typedef struct {
     PyObject_HEAD
     NSSpeechSynthesizer *nsss;
+	PyObject *callback;
 } NSSS;
 
+typedef enum { MARK, END } MessageType;
 
 static PyTypeObject NSSSType = {
     PyVarObject_HEAD_INIT(NULL, 0)
 };
+
+static void
+dispatch_message(NSSS *self, MessageType which, unsigned long val) {
+	PyGILState_STATE state = PyGILState_Ensure();
+	PyObject *ret = PyObject_CallFunction(self->callback, "ik", which, val);
+	if (ret) Py_DECREF(ret);
+	else PyErr_Print();
+	PyGILState_Release(state);
+}
+
+@interface SynthesizerDelegate : NSObject <NSSpeechSynthesizerDelegate> {
+	NSSS *parent;
+}
+- (id)initWithNSSS:(NSSS *)x;
+@end
+
+@implementation SynthesizerDelegate
+
+- (id)initWithNSSS:(NSSS *)x {
+    self = [super init];
+    if (self) parent = x;
+    return self;
+}
+
+- (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didFinishSpeaking:(BOOL)success {
+	dispatch_message(parent, END, success);
+}
+
+- (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didEncounterSyncMessage:(NSString *)message {
+	NSError *err = nil;
+	NSNumber *syncProp = (NSNumber*) [sender objectForProperty: NSSpeechRecentSyncProperty error: &err];
+	if (syncProp && !err) dispatch_message(parent, MARK, syncProp.unsignedLongValue);
+}
+
+@end
 // }}}
 
 static PyObject *
 NSSS_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
+	PyObject *callback;
+	if (!PyArg_ParseTuple(args, "O", &callback)) return NULL;
+	if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback must be a callable"); return NULL; }
 	NSSS *self = (NSSS *) type->tp_alloc(type, 0);
 	if (self) {
+		self->callback = callback;
+		Py_INCREF(callback);
 		self->nsss = [[NSSpeechSynthesizer alloc] initWithVoice:nil];
 		if (self->nsss) {
-
-		} else PyErr_NoMemory();
+			self->nsss.delegate = [[SynthesizerDelegate alloc] initWithNSSS:self];
+		} else return PyErr_NoMemory();
 	}
 	return (PyObject*)self;
 }
 
 static void
 NSSS_dealloc(NSSS *self) {
-	if (self->nsss) [self->nsss release];
+	if (self->nsss) {
+		if (self->nsss.delegate) [self->nsss.delegate release];
+		self->nsss.delegate = nil;
+		[self->nsss release];
+	}
 	self->nsss = nil;
+	Py_CLEAR(self->callback);
 }
 
 static PyObject*
@@ -73,6 +120,20 @@ NSSS_get_all_voices(NSSS *self, PyObject *args) {
 	return ans;
 }
 
+static PyObject*
+NSSS_set_command_delimiters(NSSS *self, PyObject *args) {
+	// this function doesn't actually work
+	// https://openradar.appspot.com/6524554
+	const char *left, *right;
+	if (!PyArg_ParseTuple(args, "ss", &left, &right)) return NULL;
+	NSError *err = nil;
+	[self->nsss setObject:@{NSSpeechCommandPrefix:@(left), NSSpeechCommandSuffix:@(right)} forProperty:NSSpeechCommandDelimiterProperty error:&err];
+	if (err) {
+		PyErr_SetString(PyExc_OSError, [[NSString stringWithFormat:@"Failed to set delimiters: %@", err] UTF8String]);
+		return NULL;
+	}
+	Py_RETURN_NONE;
+}
 
 static PyObject*
 NSSS_get_current_voice(NSSS *self, PyObject *args) {
@@ -144,10 +205,33 @@ NSSS_start_saving_to_path(NSSS *self, PyObject *args) {
 	Py_RETURN_FALSE;
 }
 
+static PyObject*
+NSSS_status(NSSS *self, PyObject *args) {
+	NSError *err = nil;
+	NSDictionary *status = [self->nsss objectForProperty:NSSpeechStatusProperty error:&err];
+	if (err) {
+		PyErr_SetString(PyExc_OSError, [[err localizedDescription] UTF8String]);
+		return NULL;
+	}
+	PyObject *ans = PyDict_New();
+	if (ans) {
+		NSNumber *result = [status objectForKey:NSSpeechStatusOutputBusy];
+		if (result) {
+			if (PyDict_SetItemString(ans, "synthesizing", [result boolValue] ? Py_True : Py_False) != 0) { Py_CLEAR(ans); return NULL; }
+		}
+		result = [status objectForKey:NSSpeechStatusOutputPaused];
+		if (result) {
+			if (PyDict_SetItemString(ans, "paused", [result boolValue] ? Py_True : Py_False) != 0) { Py_CLEAR(ans); return NULL; }
+		}
+	}
+	return ans;
+}
+
 // Boilerplate {{{
 #define M(name, args) { #name, (PyCFunction)NSSS_##name, args, ""}
 static PyMethodDef NSSS_methods[] = {
     M(get_all_voices, METH_NOARGS),
+    M(status, METH_NOARGS),
     M(speak, METH_VARARGS),
     M(start_saving_to_path, METH_VARARGS),
     M(speaking, METH_NOARGS),
@@ -159,6 +243,7 @@ static PyMethodDef NSSS_methods[] = {
     M(set_current_volume, METH_VARARGS),
     M(get_current_rate, METH_NOARGS),
     M(set_current_rate, METH_VARARGS),
+	M(set_command_delimiters, METH_VARARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
@@ -180,6 +265,8 @@ nsss_init_module(PyObject *module) {
         Py_DECREF(&NSSSType);
         return -1;
     }
+	PyModule_AddIntMacro(module, MARK);
+	PyModule_AddIntMacro(module, END);
 
 	return 0;
 }
