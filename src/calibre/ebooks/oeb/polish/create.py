@@ -24,7 +24,7 @@ from calibre.utils.logging import DevNull
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from polyglot.builtins import as_bytes
 
-valid_empty_formats = {'epub', 'txt', 'docx', 'azw3'}
+valid_empty_formats = {'epub', 'txt', 'docx', 'azw3', 'md'}
 
 
 def create_toc(mi, opf, html_name, lang):
@@ -44,6 +44,11 @@ def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.
         with open(path, 'wb') as f:
             if not mi.is_null('title'):
                 f.write(as_bytes(mi.title))
+        return
+    if fmt == 'md':
+        with open(path, 'w', encoding='utf-8') as f:
+            if not mi.is_null('title'):
+                print('#', mi.title, file=f)
         return
     if fmt == 'docx':
         from calibre.ebooks.conversion.plumber import Plumber
