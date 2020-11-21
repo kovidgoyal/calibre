@@ -426,44 +426,44 @@
 
     {
         "name": "qt-base",
-        "version": "5.15.1",
+        "version": "5.15.2",
         "hashes": {
-            "unix": "sha256:33960404d579675b7210de103ed06a72613bfc4305443e278e2d32a3eb1f3d8c"
+            "unix": "sha256:909fad2591ee367993a75d7e2ea50ad4db332f05e1c38dd7a5a274e156a4e0f8"
         }
     },
 
     {
         "name": "qt-svg",
         "hashes": {
-            "unix": "sha256:308160223c0bd7492d56fb5d7b7f705bfb130947ac065bf39280ec6d7cbe4f6a"
+            "unix": "sha256:8bc3c2c1bc2671e9c67d4205589a8309b57903721ad14c60ea21a5d06acb585e"
         }
     },
 
     {
         "name": "qt-declarative",
         "hashes": {
-            "unix": "sha256:7e30f0ccba61f9d71720b91d7f7523c23677f23cd96065cb71df1b0df329d768"
+            "unix": "sha256:c600d09716940f75d684f61c5bdaced797f623a86db1627da599027f6c635651"
         }
     },
 
     {
         "name": "qt-imageformats",
         "hashes": {
-            "unix": "sha256:75e72b4c11df97af3ff64ed26df16864ce1220a1cc730e49074ab9d72f658568"
+            "unix": "sha256:bf8285c7ce04284527ab823ddc7cf48a1bb79131db3a7127342167f4814253d7"
         }
     },
 
     {
         "name": "qt-webchannel",
         "hashes": {
-            "unix": "sha256:7f3ef8e626d932bbc121810661a62ece3955ab982340676a19001417e2faf9fc"
+            "unix": "sha256:127fe79c43b386713f151ed7d411cd81e45e29f9c955584f29736f78c9303ec1"
         }
     },
 
     {
         "name": "qt-location",
         "hashes": {
-            "unix": "sha256:093af763a70d126c4b9f6a22ebf8218fe95dc0151e40666b2389fdf55c9f1a2c"
+            "unix": "sha256:984fcb09e108df49a8dac35d5ce6dffc49caafd2acb1c2f8a5173a6a21f392a0"
         }
     },
 
@@ -471,7 +471,7 @@
         "name": "qt-x11extras",
         "os": "linux",
         "hashes": {
-            "unix": "sha256:f7cd7c475a41840209808bf8b1de1c6587c3c74e5ae3b0969760b9ed35159e59"
+            "unix": "sha256:7014702ee9a644a5a93da70848ac47c18851d4f8ed622b29a72eed9282fc6e3e"
         }
     },
 
@@ -479,14 +479,14 @@
         "name": "qt-wayland",
         "os": "linux",
         "hashes": {
-            "unix": "sha256:e2ff47b874f283a952efd6a8aaf5e8cdc462b5216dda1051b60fc6e80ac657b6"
+            "unix": "sha256:193732229ff816f3aaab9a5e2f6bed71ddddbf1988ce003fe8dd84a92ce9aeb5"
         }
     },
 
     {
         "name": "qt-sensors",
         "hashes": {
-            "unix": "sha256:8096b9ffe737434f9564432048f622f6be795619da4e1ed362ce26dddb2cea00"
+            "unix": "sha256:3f0011f9e9942cad119146b54d960438f4568a22a274cdad4fae06bb4e0e4839"
         }
     },
 
@@ -494,7 +494,7 @@
         "name": "qt-macextras",
         "os": "macos",
         "hashes": {
-            "unix": "sha256:6bbcbb95bd854fc5325257c797379bd66cd5f0601ccca2ab6a2af5610d113f62"
+            "unix": "sha256:6959b0f2cec71cd66800f36cab797430860e55fa33c9c23698d6a08fc2b8776e"
         }
     },
 
@@ -502,7 +502,7 @@
         "name": "qt-winextras",
         "os": "windows",
         "hashes": {
-            "unix": "sha256:c378b112de1b54dbd39b07b7e181250b99ea2ec4d1d710909bb3384665528e8b"
+            "unix": "sha256:65b8272005dec00791ab7d81ab266d1e3313a3bbd8e54e546d984cf4c4ab550e"
         }
     },
 
@@ -510,7 +510,7 @@
     {
         "name": "qt-webengine",
         "hashes": {
-            "unix": "sha256:f903e98fe3cd717161252710125fce011cf882ced96c24968b0c38811fbefdf2"
+            "unix": "sha256:c8afca0e43d84f7bd595436fbe4d13a5bbdb81ec5104d605085d07545b6f91e0"
         }
     },
 
