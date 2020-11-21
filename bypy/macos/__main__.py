@@ -653,7 +653,11 @@ class Freeze(object):
             os.rename(join(src, x), join(pydir, x))
         os.rmdir(src)
         py_compile(pydir)
-        freeze_python(pydir, dest, self.inc_dir, self.ext_map, develop_mode_env_var='CALIBRE_DEVELOP_FROM')
+        freeze_python(
+            pydir, dest, self.inc_dir, self.ext_map,
+            develop_mode_env_var='CALIBRE_DEVELOP_FROM',
+            path_to_user_env_vars='~/Library/Preferences/calibre/macos-env.txt'
+        )
         shutil.rmtree(pydir)
 
     def create_app_clone(self, name, specialise_plist, remove_doc_types=False, base_dir=None):

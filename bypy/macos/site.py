@@ -4,21 +4,6 @@ import sys
 import _sitebuiltins
 
 
-def read_user_env_vars():
-    try:
-        with open(os.path.expanduser('~/Library/Preferences/calibre/macos-env.txt'), 'rb') as f:
-            raw = f.read().decode('utf-8', 'replace')
-    except EnvironmentError:
-        return
-    for line in raw.splitlines():
-        if line.startswith('#'):
-            continue
-        parts = line.split('=', 1)
-        if len(parts) == 2:
-            key, val = parts
-            os.environ[key] = os.path.expandvars(os.path.expanduser(val))
-
-
 def nuke_stdout():
     # Redirect stdout, stdin and stderr to /dev/null
     from calibre_extensions.speedup import detach
@@ -37,15 +22,6 @@ def set_quit():
 
 def main():
     sys.argv[0] = sys.calibre_basename
-    try:
-        read_user_env_vars()
-    except Exception as err:
-        try:
-            print('Failed to read user env vars with error:', err, file=sys.stderr)
-            sys.stderr.flush()
-        except Exception:
-            pass
-
     set_helper()
     set_quit()
     mod = __import__(sys.calibre_module, fromlist=[1])
