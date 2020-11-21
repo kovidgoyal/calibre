@@ -673,12 +673,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             def doit():
                 self.library_view.select_rows((book_id,))
 
-            if library_id != getattr(self.current_db.new_api, 'server_library_id', None):
-                self.library_moved(library_path)
-                QTimer.singleShot(0, doit)
-            else:
-                doit()
-
+            self.perform_url_action(library_id, library_path, doit)
         elif action == 'view-book':
             parts = tuple(filter(None, path.split('/')))
             if len(parts) != 3:
@@ -701,12 +696,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     at = at[0]
                 view.view_format_by_id(book_id, fmt.upper(), open_at=at)
 
-            if library_id != getattr(self.current_db.new_api, 'server_library_id', None):
-                self.library_moved(library_path)
-                QTimer.singleShot(0, doit)
-            else:
-                doit()
-
+            self.perform_url_action(library_id, library_path, doit)
         elif action == 'search':
             parts = tuple(filter(None, path.split('/')))
             if len(parts) != 1:
@@ -723,7 +713,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 if sq:
                     sq = sq[0]
             sq = sq or ''
-            self.search.set_search_string(sq)
+
+            def doit():
+                self.search.set_search_string(sq)
+            self.perform_url_action(library_id, library_path, doit)
+
+    def perform_url_action(self, library_id, library_path, func):
+        if library_id != getattr(self.current_db.new_api, 'server_library_id', None):
+            self.library_moved(library_path)
+            QTimer.singleShot(0, func)
+        else:
+            func()
 
     def message_from_another_instance(self, msg):
         if isinstance(msg, bytes):
