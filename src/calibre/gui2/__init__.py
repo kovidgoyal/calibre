@@ -1153,6 +1153,12 @@ class Application(QApplication):
 
     def event(self, e):
         if callable(self.file_event_hook) and e.type() == QEvent.FileOpen:
+            url = e.url().toString(QUrl.FullyEncoded)
+            if url and url.startswith('calibre://'):
+                with self._file_open_lock:
+                    self._file_open_paths.append(url)
+                QTimer.singleShot(1000, self._send_file_open_events)
+                return True
             path = unicode_type(e.file())
             if os.access(path, os.R_OK):
                 with self._file_open_lock:
