@@ -22,16 +22,23 @@ class Client:
         self.create_ssip_client()
         self.status = {'synthesizing': False, 'paused': False}
         self.dispatch_on_main_thread = dispatch_on_main_thread
+        self.current_marked_text = None
+        self.last_mark = None
+        self.next_cancel_is_for_pause = False
+        self.next_begin_is_for_resume = False
+        self.current_callback = None
 
     def create_ssip_client(self):
-        from speechd.client import SpawnError, SSIPClient
+        from speechd.client import Priority, SpawnError, SSIPClient
         try:
             self.ssip_client = SSIPClient('calibre')
         except SpawnError as err:
             raise TTSSystemUnavailable(_('Could not find speech-dispatcher on your system. Please install it.'), str(err))
+        self.ssip_client.set_priority(Priority.TEXT)
 
     def __del__(self):
         if hasattr(self, 'ssip_client'):
+            self.ssip_client.cancel()
             self.ssip_client.close()
             del self.ssip_client
     shutdown = __del__
@@ -47,7 +54,9 @@ class Client:
             self.ssip_client.set_data_mode(mode)
 
     def speak_simple_text(self, text):
+        self.stop()
         self.set_use_ssml(False)
+        self.current_marked_text = self.last_mark = None
 
         def callback(callback_type, index_mark=None):
             self.dispatch_on_main_thread(partial(self.update_status, callback_type, index_mark))
@@ -56,37 +65,34 @@ class Client:
 
     def update_status(self, callback_type, index_mark=None):
         from speechd.client import CallbackType
-        if callback_type is CallbackType.BEGIN:
+        event = None
+        if callback_type is CallbackType.INDEX_MARK:
+            self.last_mark = index_mark
+            event = Event(EventType.mark, index_mark)
+        elif callback_type is CallbackType.BEGIN:
             self.status = {'synthesizing': True, 'paused': False}
+            event = Event(EventType.resume if self.next_begin_is_for_resume else EventType.begin)
+            self.next_begin_is_for_resume = False
         elif callback_type is CallbackType.END:
             self.status = {'synthesizing': False, 'paused': False}
+            event = Event(EventType.end)
         elif callback_type is CallbackType.CANCEL:
-            self.status = {'synthesizing': False, 'paused': False}
-        elif callback_type is CallbackType.PAUSE:
-            self.status = {'synthesizing': True, 'paused': True}
-        elif callback_type is CallbackType.RESUME:
-            self.status = {'synthesizing': True, 'paused': False}
-
-    def msg_as_event(self, callback_type, index_mark=None):
-        from speechd.client import CallbackType
-        if callback_type is CallbackType.INDEX_MARK:
-            return Event(EventType.mark, index_mark)
-        if callback_type is CallbackType.BEGIN:
-            return Event(EventType.begin)
-        if callback_type is CallbackType.END:
-            return Event(EventType.end)
-        if callback_type is CallbackType.CANCEL:
-            return Event(EventType.cancel)
-        if callback_type is CallbackType.PAUSE:
-            return Event(EventType.pause)
-        if callback_type is CallbackType.RESUME:
-            return Event(EventType.resume)
+            if self.next_cancel_is_for_pause:
+                self.status = {'synthesizing': True, 'paused': True}
+                event = Event(EventType.pause)
+            else:
+                self.status = {'synthesizing': False, 'paused': False}
+                event = Event(EventType.cancel)
+            self.next_cancel_is_for_pause = False
+        return event
 
     def speak_marked_text(self, text, callback):
+        self.stop()
+        self.current_marked_text = text
+        self.last_mark = None
 
         def callback_wrapper(callback_type, index_mark=None):
-            self.update_status(callback_type, index_mark)
-            event = self.msg_as_event(callback_type, index_mark)
+            event = self.update_status(callback_type, index_mark)
             if event is not None:
                 try:
                     callback(event)
@@ -96,6 +102,32 @@ class Client:
 
         def cw(callback_type, index_mark=None):
             self.dispatch_on_main_thread(partial(callback_wrapper, callback_type, index_mark))
+        self.current_callback = cw
 
         self.set_use_ssml(True)
-        self.ssip_client.speak(text, callback=cw)
+        self.ssip_client.speak(text, callback=self.current_callback)
+
+    def pause(self):
+        self.next_cancel_is_for_pause = True
+        self.ssip_client.stop()
+
+    def resume(self):
+        if self.current_marked_text is None:
+            return
+        self.next_begin_is_for_resume = True
+        if self.last_mark is None:
+            text = self.current_marked_text
+        else:
+            mark = self.mark_template.format(self.last_mark)
+            idx = self.current_marked_text.find(mark)
+            if idx == -1:
+                text = self.current_marked_text
+            else:
+                text = self.current_marked_text[idx:]
+        self.ssip_client.speak(text, callback=self.current_callback)
+
+    def stop(self):
+        self.current_callback = self.current_marked_text = self.last_mark = None
+        self.next_cancel_is_for_pause = False
+        self.next_begin_is_for_resume = False
+        self.ssip_client.stop()
