@@ -249,7 +249,7 @@ Only works with output formats such as EPUB that support CSS transforms
 
 - Viewer: Fix selection popup bar not always close to mouse when ending select-to-drag
 
-- Fix calibre-server not exiting on Ctrl+c on Windows
+- Fix calibre-server not exiting on Ctrl+C on Windows
 
 - [1897410] Content server OPDS feeds: Fix error if the metadata for a book contains particular Unicode characters.
 
@@ -663,7 +663,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - Viewer: Improve the interface for changing font sizes
 
-- Viewer: Add a keyboard shortcut (Ctrl+Alt+b) for adding a bookmark
+- Viewer: Add a keyboard shortcut (Ctrl+Alt+B) for adding a bookmark
 
 
 :: bug fixes
@@ -767,7 +767,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - Edit book: Allow skipping confirmation dialog when marking non-first file as cover page
 
-- [1866742] Add a shortcut [Ctrl+Alt+p] to switch to the previously opened library.
+- [1866742] Add a shortcut [Ctrl+Alt+P] to switch to the previously opened library.
 
 
 :: bug fixes
@@ -820,11 +820,11 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - [1864305] Content server: Add a button to delete all locally cached books.
 
-- Edit Book: Allow selecting the contents of a tag with Ctrl+Alt+t
+- Edit Book: Allow selecting the contents of a tag with Ctrl+Alt+T
 
 - Viewer: Save current position after 3 seconds of last position change. Useful if the viewer crashes on resume from sleep.
 
-- [1864356] Viewer: Add a keyboard shortcut (Ctrl+w) to toggle the scrollbar.
+- [1864356] Viewer: Add a keyboard shortcut (Ctrl+W) to toggle the scrollbar.
 
 - Viewer: Keyboard shortcuts to change number of columns (Ctrl+[ and Ctrl+])
 
@@ -864,13 +864,13 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - Edit book: Preview panel: Allow right clicking on images to edit them
 
-- Add a new Quick select action to quickly select a virtual library with a few keystrokes. Activated by Ctrl+t or the Virtual library menu
+- Add a new Quick select action to quickly select a virtual library with a few keystrokes. Activated by Ctrl+T or the Virtual library menu
 
 - Viewer: Calculate default column widths based on current font size
 
 - [1862441] Viewer: Add a control to quit the viewer useful on touchscreens.
 
-- [1862432] Viewer: Add shortcut for showing metadata (Ctrl+n)
+- [1862432] Viewer: Add shortcut for showing metadata (Ctrl+N)
 
 
 :: bug fixes
@@ -1357,7 +1357,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - Viewer: Don't flash the home page before loading a book if a book has been specified
 
-- Viewer: Fix Ctrl+m shortcut not working on Windows
+- Viewer: Fix Ctrl+M shortcut not working on Windows
 
 - Content server: Fix regression that caused series name in book details view not not be blue to indicate it is clickable
 

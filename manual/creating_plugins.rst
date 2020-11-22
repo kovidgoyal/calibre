@@ -329,7 +329,7 @@ The first, most important step is to run calibre in debug mode. You can do this 
 
     calibre-debug -g
 
-Or from within calibre by right-clicking the :guilabel:`Preferences` button or using the `Ctrl+Shift+R` keyboard shortcut.
+Or from within calibre by right-clicking the :guilabel:`Preferences` button or using the :kbd:`Ctrl+Shift+R` keyboard shortcut.
 
 When running from the command line, debug output will be printed to the console, when running from within calibre the output will go to a txt file.
 

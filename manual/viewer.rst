@@ -42,7 +42,7 @@ The viewer has two modes, "paged" and "flow". In paged mode the book content
 is presented as pages, similar to a paper book. In flow mode the text is
 presented continuously, like in a web browser. You can switch between them
 using the viewer Preferences under :guilabel:`Page layout` or by pressing the
-:kbd:`Ctrl+m` key.
+:kbd:`Ctrl+M` key.
 
 
 Bookmarks
@@ -51,7 +51,7 @@ Bookmarks
 When you are in the middle of a book and close the E-book viewer, it will remember
 where you stopped reading and return there the next time you open the book. You
 can also set bookmarks in the book by using the :guilabel:`Bookmarks` button in
-the E-book viewer controls or pressing :kbd:`Ctrl+b`.  When viewing EPUB format books,
+the E-book viewer controls or pressing :kbd:`Ctrl+B`.  When viewing EPUB format books,
 these bookmarks are actually saved in the EPUB file itself. You can add
 bookmarks, then send the file to a friend.  When they open the file, they will
 be able to see your bookmarks. You can turn off this behavior in the
