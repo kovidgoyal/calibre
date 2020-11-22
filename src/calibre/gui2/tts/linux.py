@@ -108,11 +108,12 @@ class Client:
         self.ssip_client.speak(text, callback=self.current_callback)
 
     def pause(self):
-        self.next_cancel_is_for_pause = True
-        self.ssip_client.stop()
+        if self.status['synthesizing'] and not self.status['paused']:
+            self.next_cancel_is_for_pause = True
+            self.ssip_client.stop()
 
     def resume(self):
-        if self.current_marked_text is None:
+        if self.current_marked_text is None or not self.status['synthesizing'] or not self.status['paused']:
             return
         self.next_begin_is_for_resume = True
         if self.last_mark is None:

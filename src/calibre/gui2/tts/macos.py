@@ -18,6 +18,7 @@ class Client:
         self.nsss = NSSpeechSynthesizer(self.handle_message)
         self.current_callback = None
         self.dispatch_on_main_thread = dispatch_on_main_thread
+        self.status = {'synthesizing': False, 'paused': False}
 
     def __del__(self):
         self.nsss = None
@@ -29,6 +30,7 @@ class Client:
             event = Event(EventType.mark, data)
         elif message_type == END:
             event = Event(EventType.end if data else EventType.cancel)
+            self.status = {'synthesizing': False, 'paused': False}
         else:
             return
         if self.current_callback is not None:
@@ -41,14 +43,27 @@ class Client:
     def speak_simple_text(self, text):
         self.current_callback = None
         self.nsss.speak(self.escape_marked_text(text))
+        self.status = {'synthesizing': True, 'paused': False}
 
     def speak_marked_text(self, text, callback):
         self.current_callback = callback
         self.nsss.speak(text)
+        self.status = {'synthesizing': True, 'paused': False}
+        self.current_callback(Event(EventType.begin))
 
-    @property
-    def status(self):
-        ans = self.nsss.status()
-        ans['synthesizing'] = ans.get('synthesizing', False)
-        ans['paused'] = ans.get('paused', False)
-        return ans
+    def pause(self):
+        if self.status['synthesizing']:
+            self.nsss.pause()
+            self.status = {'synthesizing': True, 'paused': True}
+            if self.current_callback is not None:
+                self.current_callback(Event(EventType.pause))
+
+    def resume(self):
+        if self.status['paused']:
+            self.nsss.resume()
+            self.status = {'synthesizing': True, 'paused': False}
+            if self.current_callback is not None:
+                self.current_callback(Event(EventType.resume))
+
+    def stop(self):
+        self.nsss.stop()
