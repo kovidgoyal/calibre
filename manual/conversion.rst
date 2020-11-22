@@ -726,7 +726,7 @@ between 0 and 1. The default is 0.45, just under the median line length. Lower t
 text in the unwrapping. Increase to include less. You can adjust this value in the conversion settings under :guilabel:`PDF Input`.
 
 Also, they often have headers and footers as part of the document that will become included with the text.
-Use the Search and Replace panel to remove headers and footers to mitigate this issue. If the headers and footers are not
+Use the :guilabel:`Search and replace` panel to remove headers and footers to mitigate this issue. If the headers and footers are not
 removed from the text it can throw off the paragraph unwrapping. To learn how to use the header and footer removal options, read
 :ref:`regexptutorial`.
 

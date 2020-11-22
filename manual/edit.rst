@@ -258,7 +258,7 @@ click in the Find box and select :guilabel:`Save current search`.
 You can bring up the saved searches via :guilabel:`Search->Saved
 searches`. This will present you with a list of search and replace expressions
 that you can apply. You can even select multiple entries in the list by holding
-down the Ctrl Key while clicking so as to run multiple search and replace
+down the Ctrl key while clicking so as to run multiple search and replace
 expressions in a single operation.
 
 Function mode

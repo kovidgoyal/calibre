@@ -116,7 +116,7 @@ class ReadUI:
         ui_operations.speak_simple_text = def (text):
             if not window.speechSynthesis:
                 return error_dialog(_('No speech support'), _(
-                    'Your browser does not have support for Speech'))
+                    'Your browser does not have support for Text-to-Speech'))
             ut = new SpeechSynthesisUtterance(text)  # noqa
             window.speechSynthesis.speak(ut)
 

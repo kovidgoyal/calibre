@@ -329,7 +329,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         if unkillable:
             names = '\n'.join(as_unicode(j.description) for j in unkillable)
             error_dialog(view, _('Cannot kill job'),
-                    _('Some of the jobs cannot be stopped. Click Show details'
+                    _('Some of the jobs cannot be stopped. Click "Show details"'
                         ' to see the list of unstoppable jobs.'), det_msg=names,
                     show=True)
             jobs = [j for j in jobs if getattr(j, 'killable', True)]

@@ -587,6 +587,16 @@ A value of zero means calculate automatically.</string>
            <string>Caching of covers for improved performance</string>
           </property>
           <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0" colspan="5">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view. A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large, unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache.</string>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
            <item row="2" column="2">
             <widget class="QSpinBox" name="opt_cover_grid_disk_cache_size">
              <property name="specialValueText">
@@ -603,12 +613,45 @@ A value of zero means calculate automatically.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="0">
+            <widget class="QPushButton" name="cover_grid_empty_cache">
+             <property name="text">
+              <string>&amp;Empty disk cache</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
             <widget class="QPushButton" name="cover_grid_open_cache">
              <property name="text">
               <string>&amp;Open cache directory</string>
              </property>
             </widget>
+           </item>
+           <item row="4" column="2" colspan="3">
+            <spacer name="horizontalSpacer_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>310</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="5" column="1">
+            <spacer name="verticalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
            <item row="1" column="3">
             <spacer name="horizontalSpacer_5">
@@ -618,36 +661,6 @@ A value of zero means calculate automatically.</string>
              <property name="sizeHint" stdset="0">
               <size>
                <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item row="0" column="0" colspan="5">
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>There are two kinds of caches that calibre uses to improve performance when rendering covers in the grid view. A disk cache that is kept on your hard disk and stores the cover thumbnails and an in memory cache used to ensure flicker free rendering of covers. For best results, keep the memory cache small and the disk cache large, unless you have a lot of extra RAM in your computer and don't mind it being used by the memory cache.</string>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3" colspan="2">
-            <widget class="QLabel" name="cover_grid_current_disk_cache">
-             <property name="text">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="2" colspan="3">
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>310</width>
                <height>20</height>
               </size>
              </property>
@@ -673,13 +686,6 @@ A value of zero means calculate automatically.</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
-            <widget class="QPushButton" name="cover_grid_empty_cache">
-             <property name="text">
-              <string>&amp;Empty disk cache</string>
-             </property>
-            </widget>
-           </item>
            <item row="1" column="2">
             <widget class="QSpinBox" name="opt_cover_grid_cache_size_multiple">
              <property name="toolTip">
@@ -693,18 +699,12 @@ A value of zero means calculate automatically.</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
-            <spacer name="verticalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
+           <item row="3" column="2">
+            <widget class="QLabel" name="cover_grid_current_disk_cache">
+             <property name="text">
+              <string/>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
           </layout>
          </widget>

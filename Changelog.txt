@@ -60,7 +60,7 @@
 
 - [1903825] Welcome wizard: Fix changing the language causing a empty folder to be created.
 
-- [1903699] Viewer: Fix regression causing custom shortcuts with shift key pressed not working
+- [1903699] Viewer: Fix regression causing custom shortcuts with Shift key pressed not working
 
 - [1903423] Viewer: In dark mode when showing images with transparency in the popup use a light background color as most images are designed with a light background color in mind.
 
@@ -112,7 +112,7 @@
 
 - Get Books: Update Google and Gutenberg plugins for website changes
 
-- [1900946] Viewer: Fix keyboard shortcuts using ctrl+alt+letter key not working on Windows.
+- [1900946] Viewer: Fix keyboard shortcuts using Ctrl+Alt+letter key not working on Windows.
 
 - [1900942] Viewer: Fix keyboard shortcuts to shrink/grow selection not working.
 
@@ -778,7 +778,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - Viewer: Ensure there is no bleed between pages when using single page per screen
 
-- Fix shift click not working reliably in the book list
+- Fix Shift click not working reliably in the book list
 
 - Fix edit open with applications not working from files browser in editor
 
@@ -1357,7 +1357,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - Viewer: Don't flash the home page before loading a book if a book has been specified
 
-- Viewer: Fix ctrl+m shortcut not working on Windows
+- Viewer: Fix Ctrl+m shortcut not working on Windows
 
 - Content server: Fix regression that caused series name in book details view not not be blue to indicate it is clickable
 

@@ -86,7 +86,7 @@ So it looks like to get the print version, we need to prefix every article URL w
 
     newsvote.bbc.co.uk/mpapps/pagetools/print/
 
-Now in the :guilabel:`Advanced Mode` of the Custom  news sources dialog, you should see something like (remember to select *The BBC* recipe before switching to advanced mode):
+Now in the :guilabel:`Advanced mode` of the Custom news sources dialog, you should see something like (remember to select *The BBC* recipe before switching to advanced mode):
 
 .. image:: images/bbc_advanced.png
     :align: center
