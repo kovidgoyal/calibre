@@ -718,8 +718,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 if sq:
                     sq = sq[0]
             sq = sq or ''
+            vl = (query.get('virtual_library') or ['-'])[0]
+            if vl == '-':
+                vl = None
 
             def doit():
+                if vl != '_':
+                    self.apply_virtual_library(vl)
                 self.search.set_search_string(sq)
             self.perform_url_action(library_id, library_path, doit)
 
