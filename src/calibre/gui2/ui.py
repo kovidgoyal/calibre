@@ -671,7 +671,12 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 return
 
             def doit():
-                self.library_view.select_rows((book_id,))
+                rows = self.library_view.select_rows((book_id,))
+                db = self.current_db
+                if not rows and (db.data.get_base_restriction_name() or db.data.get_search_restriction_name()):
+                    self.apply_virtual_library()
+                    self.apply_named_search_restriction()
+                    self.library_view.select_rows((book_id,))
 
             self.perform_url_action(library_id, library_path, doit)
         elif action == 'view-book':

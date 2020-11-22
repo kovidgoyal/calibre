@@ -404,7 +404,7 @@ class SearchRestrictionMixin(object):
 
         current_lib = db.data.get_base_restriction_name()
 
-        if current_lib == '':
+        if not current_lib:
             a = m.addAction(self.checked, self.no_restriction)
         else:
             a = m.addAction(self.empty, self.no_restriction)
@@ -576,7 +576,7 @@ class SearchRestrictionMixin(object):
         self.search_restriction.setCurrentIndex(index)
         self.apply_search_restriction(index)
 
-    def apply_named_search_restriction(self, name):
+    def apply_named_search_restriction(self, name=None):
         if not self.search_restriction_list_built:
             self.build_search_restriction_list()
         if not name:
