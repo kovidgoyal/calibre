@@ -45,6 +45,8 @@ class TTSWidget(QWidget):
 
     dispatch_on_main_thread_signal = pyqtSignal(object)
     mark_changed = pyqtSignal(object)
+    show_message = pyqtSignal(object)
+    show_status = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -83,9 +85,15 @@ example, which of.
         self.current_mark = None
         l.addWidget(la)
         self.bb = bb = QDialogButtonBox(self)
-        self.play_button = b = bb.addButton('Play', bb.ActionRole)
         l.addWidget(bb)
+        self.play_button = b = bb.addButton('Play', bb.ActionRole)
         b.clicked.connect(self.play_clicked)
+        self.pause_button = b = bb.addButton('Pause', bb.ActionRole)
+        b.clicked.connect(self.pause_clicked)
+        self.resume_button = b = bb.addButton('Resume', bb.ActionRole)
+        b.clicked.connect(self.resume_clicked)
+        self.stop_button = b = bb.addButton('Stop', bb.ActionRole)
+        b.clicked.connect(self.stop_clicked)
         self.render_text()
 
     def render_text(self):
@@ -105,6 +113,15 @@ example, which of.
     def play_clicked(self):
         self.tts.speak_marked_text(self.ssml, self.handle_event)
 
+    def pause_clicked(self):
+        self.tts.pause()
+
+    def resume_clicked(self):
+        self.tts.resume()
+
+    def stop_clicked(self):
+        self.tts.stop()
+
     def dispatch_on_main_thread(self, func):
         try:
             func()
@@ -113,12 +130,16 @@ example, which of.
             traceback.print_exc()
 
     def handle_event(self, event):
+        status = str(self.tts.status)
+        self.show_status.emit(str(status))
         if event.type is EventType.mark:
             try:
                 mark = int(event.data)
             except Exception:
                 return
             self.mark_changed.emit(mark)
+        else:
+            self.show_message.emit(f'Got event: {event.type.name}')
 
     def on_mark_change(self, mark):
         self.current_mark = mark
@@ -128,7 +149,12 @@ example, which of.
 def main():
     app = Application([])
     w = QMainWindow()
+    sb = w.statusBar()
+    la = QLabel(sb)
+    sb.addPermanentWidget(la)
     tts = TTSWidget(w)
+    tts.show_message.connect(sb.showMessage)
+    tts.show_status.connect(la.setText)
     w.setCentralWidget(tts)
     w.show()
     app.exec_()
