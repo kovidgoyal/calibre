@@ -18,13 +18,14 @@ class Client:
     def escape_marked_text(cls, text):
         return prepare_string_for_xml(text)
 
-    def __init__(self):
+    def __init__(self, dispatch_on_main_thread):
         from calibre.utils.windows.winsapi import ISpVoice
         self.sp_voice = ISpVoice()
         self.events_thread = Thread(name='SAPIEvents', target=self.wait_for_events, daemon=True)
         self.events_thread.start()
         self.current_stream_number = None
         self.current_callback = None
+        self.dispatch_on_main_thread = dispatch_on_main_thread
 
     def __del__(self):
         if self.sp_voice is not None:
@@ -37,27 +38,24 @@ class Client:
         while True:
             if self.sp_voice.wait_for_event() is False:
                 break
-            c = self.current_callback
-            if c is not None:
-                c()
+            self.dispatch_on_main_thread(self.handle_events)
 
-    def get_events(self):
+    def handle_events(self):
         from calibre_extensions.winsapi import (
             SPEI_END_INPUT_STREAM, SPEI_START_INPUT_STREAM, SPEI_TTS_BOOKMARK
         )
-        ans = []
+        c = self.current_callback
         for (stream_number, event_type, event_data) in self.sp_voice.get_events():
-            if stream_number == self.current_stream_number:
-                if event_type == SPEI_TTS_BOOKMARK:
-                    event = Event(EventType.mark, event_data)
-                elif event_type == SPEI_START_INPUT_STREAM:
-                    event = Event(EventType.begin)
-                elif event_type == SPEI_END_INPUT_STREAM:
-                    event = Event(EventType.end)
-                else:
-                    continue
-                ans.append(event)
-        return ans
+            if event_type == SPEI_TTS_BOOKMARK:
+                event = Event(EventType.mark, event_data)
+            elif event_type == SPEI_START_INPUT_STREAM:
+                event = Event(EventType.begin)
+            elif event_type == SPEI_END_INPUT_STREAM:
+                event = Event(EventType.end)
+            else:
+                continue
+            if c is not None and stream_number == self.current_stream_number:
+                c(event)
 
     def speak_simple_text(self, text):
         from calibre_extensions.winsapi import (

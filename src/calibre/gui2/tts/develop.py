@@ -43,13 +43,14 @@ def add_markup(text):
 
 class TTSWidget(QWidget):
 
-    events_available = pyqtSignal()
+    dispatch_on_main_thread_signal = pyqtSignal(object)
     mark_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.mark_changed.connect(self.on_mark_change)
-        self.tts = Client()
+        self.dispatch_on_main_thread_signal.connect(self.dispatch_on_main_thread, type=Qt.QueuedConnection)
+        self.tts = Client(self.dispatch_on_main_thread_signal.emit)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(self)
         la.setTextFormat(Qt.RichText)
@@ -86,7 +87,6 @@ example, which of.
         l.addWidget(bb)
         b.clicked.connect(self.play_clicked)
         self.render_text()
-        self.events_available.connect(self.handle_events, type=Qt.QueuedConnection)
 
     def render_text(self):
         text = self.text
@@ -103,16 +103,22 @@ example, which of.
         self.la.setText('\n'.join(lines))
 
     def play_clicked(self):
-        self.tts.speak_marked_text(self.ssml, self.events_available.emit)
+        self.tts.speak_marked_text(self.ssml, self.handle_event)
 
-    def handle_events(self):
-        for event in self.tts.get_events():
-            if event.type is EventType.mark:
-                try:
-                    mark = int(event.data)
-                except Exception:
-                    return
-                self.mark_changed.emit(mark)
+    def dispatch_on_main_thread(self, func):
+        try:
+            func()
+        except Exception:
+            import traceback
+            traceback.print_exc()
+
+    def handle_event(self, event):
+        if event.type is EventType.mark:
+            try:
+                mark = int(event.data)
+            except Exception:
+                return
+            self.mark_changed.emit(mark)
 
     def on_mark_change(self, mark):
         self.current_mark = mark
@@ -126,7 +132,7 @@ def main():
     w.setCentralWidget(tts)
     w.show()
     app.exec_()
-    tts.events_available.disconnect()
+    tts.dispatch_on_main_thread_signal.disconnect()
     tts.mark_changed.disconnect()
     tts.tts.shutdown()
 
