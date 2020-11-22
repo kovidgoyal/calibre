@@ -1484,13 +1484,13 @@ def run_search(
                 msg = _('Performed the replacement at {num} occurrences of {query}')
             else:
                 msg = _('Found {num} occurrences of {query}')
-            msg = msg.format(num=count, query=errfind)
+            msg = msg.format(num=count, query=prepare_string_for_xml(errfind))
             det_msg = ''
             if count_map is not None and count > 0 and len(count_map) > 1:
                 for k in sorted(count_map):
                     det_msg += _('{0}: {1} occurrences').format(k, count_map[k]) + '\n'
             if show_diff and count > 0:
-                d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False, det_msg=det_msg)
+                d = MessageBox(MessageBox.INFO, _('Searching done'), '<p>'+msg, parent=gui_parent, show_copy_button=False, det_msg=det_msg)
                 d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
                 d.show_changes = False
                 b.setIcon(QIcon(I('diff.png'))), b.clicked.connect(d.accept)
