@@ -69,7 +69,7 @@ class Client:
             SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK
         )
         self.current_callback = None
-        self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_NOT_XML)
+        self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_NOT_XML, True)
 
     def speak_marked_text(self, text, callback):
         from calibre_extensions.winsapi import (
@@ -77,3 +77,27 @@ class Client:
         )
         self.current_callback = callback
         self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_XML, True)
+
+    def stop(self):
+        from calibre_extensions.winsapi import SPF_PURGEBEFORESPEAK
+        if self.status['paused']:
+            self.sp_voice.resume()
+        self.sp_voice.speak('', SPF_PURGEBEFORESPEAK, False)
+        self.status = {'synthesizing': False, 'paused': False}
+        if self.current_callback is not None:
+            self.current_callback(Event(EventType.cancel))
+        self.current_callback = None
+
+    def pause(self):
+        if self.status['synthesizing'] and not self.status['paused']:
+            self.sp_voice.pause()
+            self.status = {'synthesizing': True, 'paused': True}
+            if self.current_callback is not None:
+                self.current_callback(Event(EventType.pause))
+
+    def resume(self):
+        if self.status['paused']:
+            self.sp_voice.resume()
+            self.status = {'synthesizing': True, 'paused': False}
+            if self.current_callback is not None:
+                self.current_callback(Event(EventType.resume))
