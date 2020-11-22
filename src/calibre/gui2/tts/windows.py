@@ -26,6 +26,7 @@ class Client:
         self.current_stream_number = None
         self.current_callback = None
         self.dispatch_on_main_thread = dispatch_on_main_thread
+        self.status = {'synthesizing': False, 'paused': False}
 
     def __del__(self):
         if self.sp_voice is not None:
@@ -50,12 +51,18 @@ class Client:
                 event = Event(EventType.mark, event_data)
             elif event_type == SPEI_START_INPUT_STREAM:
                 event = Event(EventType.begin)
+                self.status = {'synthesizing': True, 'paused': False}
             elif event_type == SPEI_END_INPUT_STREAM:
                 event = Event(EventType.end)
+                self.status = {'synthesizing': False, 'paused': False}
             else:
                 continue
             if c is not None and stream_number == self.current_stream_number:
-                c(event)
+                try:
+                    c(event)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
 
     def speak_simple_text(self, text):
         from calibre_extensions.winsapi import (

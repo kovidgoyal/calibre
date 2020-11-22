@@ -32,7 +32,11 @@ class Client:
         else:
             return
         if self.current_callback is not None:
-            self.current_callback(event)
+            try:
+                self.current_callback(event)
+            except Exception:
+                import traceback
+                traceback.print_exc()
 
     def speak_simple_text(self, text):
         self.current_callback = None

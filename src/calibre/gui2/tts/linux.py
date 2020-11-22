@@ -88,7 +88,11 @@ class Client:
             self.update_status(callback_type, index_mark)
             event = self.msg_as_event(callback_type, index_mark)
             if event is not None:
-                callback(event)
+                try:
+                    callback(event)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
 
         def cw(callback_type, index_mark=None):
             self.dispatch_on_main_thread(partial(callback_wrapper, callback_type, index_mark))
