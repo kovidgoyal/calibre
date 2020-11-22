@@ -227,11 +227,34 @@ NSSS_status(NSSS *self, PyObject *args) {
 	return ans;
 }
 
+static PyObject*
+NSSS_pause(NSSS *self, PyObject *args) {
+	unsigned int boundary = NSSpeechWordBoundary;
+	if (!PyArg_ParseTuple(args, "|I", &boundary)) return NULL;
+	[self->nsss pauseSpeakingAtBoundary:boundary];
+	Py_RETURN_NONE;
+}
+
+static PyObject*
+NSSS_resume(NSSS *self, PyObject *args) {
+	[self->nsss continueSpeaking];
+	Py_RETURN_NONE;
+}
+
+static PyObject*
+NSSS_stop(NSSS *self, PyObject *args) {
+	[self->nsss stopSpeaking];
+	Py_RETURN_NONE;
+}
+
+
 // Boilerplate {{{
 #define M(name, args) { #name, (PyCFunction)NSSS_##name, args, ""}
 static PyMethodDef NSSS_methods[] = {
     M(get_all_voices, METH_NOARGS),
     M(status, METH_NOARGS),
+    M(resume, METH_NOARGS),
+    M(stop, METH_NOARGS),
     M(speak, METH_VARARGS),
     M(start_saving_to_path, METH_VARARGS),
     M(speaking, METH_NOARGS),
@@ -244,6 +267,7 @@ static PyMethodDef NSSS_methods[] = {
     M(get_current_rate, METH_NOARGS),
     M(set_current_rate, METH_VARARGS),
 	M(set_command_delimiters, METH_VARARGS),
+	M(pause, METH_VARARGS),
     {NULL, NULL, 0, NULL}
 };
 #undef M
@@ -267,6 +291,9 @@ nsss_init_module(PyObject *module) {
     }
 	PyModule_AddIntMacro(module, MARK);
 	PyModule_AddIntMacro(module, END);
+	PyModule_AddIntMacro(module, NSSpeechImmediateBoundary);
+	PyModule_AddIntMacro(module, NSSpeechWordBoundary);
+	PyModule_AddIntMacro(module, NSSpeechSentenceBoundary);
 
 	return 0;
 }
