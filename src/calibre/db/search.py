@@ -265,7 +265,8 @@ class NumericSearch(object):  # {{{
                 cast = lambda x: 0 if x is None else int(x)
                 adjust = lambda x: x // 2
             else:
-                cast = float if dt in ('float', 'composite', 'half-rating') else int
+                # Datatype is empty if the source is a tempate. Assume float
+                cast = float if dt in ('float', 'composite', 'half-rating', '') else int
 
             mult = 1.0
             if len(query) > 1:
