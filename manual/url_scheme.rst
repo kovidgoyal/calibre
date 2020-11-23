@@ -90,6 +90,8 @@ Virtual library, use::
 If you want to switch to a particular Virtual library, use::
 
     calibre://search/Library_Name?virtual_library=Library%20Name
+    or
+    calibre://search/Library_Name?encoded_virtual_library=hex_encoded_virtual_library_name
 
 replacing spaces in the Virtual library name by ``%20``.
 

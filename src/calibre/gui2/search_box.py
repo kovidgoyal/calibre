@@ -35,6 +35,7 @@ class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
     clear_history = pyqtSignal()
     select_on_mouse_press = None
+    as_url = None
 
     def keyPressEvent(self, event):
         self.key_pressed.emit(event)
@@ -59,6 +60,10 @@ class SearchLineEdit(QLineEdit):  # {{{
         else:
             menu.addAction(ac)
         menu.addSeparator()
+        if self.as_url is not None:
+            url = self.as_url(self.text())
+            if url:
+                menu.addAction(_('Copy search as URL'), lambda : QApplication.clipboard().setText(url))
         menu.addAction(_('&Clear search history')).triggered.connect(self.clear_history)
         menu.exec_(ev.globalPos())
 
@@ -109,9 +114,10 @@ class SearchBox2(QComboBox):  # {{{
     changed = pyqtSignal()
     focus_to_library = pyqtSignal()
 
-    def __init__(self, parent=None, add_clear_action=True):
+    def __init__(self, parent=None, add_clear_action=True, as_url=None):
         QComboBox.__init__(self, parent)
         self.line_edit = SearchLineEdit(self)
+        self.line_edit.as_url = as_url
         self.setLineEdit(self.line_edit)
         self.line_edit.clear_history.connect(self.clear_history)
         if add_clear_action:

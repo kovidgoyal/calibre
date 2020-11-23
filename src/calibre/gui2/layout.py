@@ -172,6 +172,21 @@ class LocationManager(QObject):  # {{{
 # }}}
 
 
+def search_as_url(text):
+    if text:
+        from calibre.gui2.ui import get_gui
+        db = get_gui().current_db
+        lid = db.new_api.server_library_id
+        lid = lid.encode('utf-8').hex()
+        eq = text.encode('utf-8').hex()
+        vl = db.data.get_base_restriction_name()
+        ans = f'calibre://search/_hex_-{lid}?eq={eq}'
+        if vl:
+            vl = vl.encode('utf-8').hex()
+            ans += '&encoded_virtual_library=' + vl
+        return ans
+
+
 class SearchBar(QFrame):  # {{{
 
     def __init__(self, parent):
@@ -221,7 +236,7 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(sb)
         l.addWidget(parent.sort_sep)
 
-        x = parent.search = SearchBox2(self)
+        x = parent.search = SearchBox2(self, as_url=search_as_url)
         x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         x.setObjectName("search")
         x.setToolTip(_("<p>Search the list of books by title, author, publisher, "
