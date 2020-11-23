@@ -307,7 +307,7 @@ def add_item_specific_entries(menu, data, book_info):
     return search_internet_added
 
 
-def create_copy_links(menu):
+def create_copy_links(menu, data=None):
     from calibre.gui2.ui import get_gui
     db = get_gui().current_db.new_api
     library_id = getattr(db, 'server_library_id', None)
@@ -322,6 +322,16 @@ def create_copy_links(menu):
         menu.addAction(text, doit)
 
     link(_('Show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
+    if data:
+        field = data.get('field')
+        if data['type'] == 'author':
+            field = 'authors'
+        if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
+            name = data['name' if data['type'] == 'author' else 'value']
+            eq = f'{field}:"={name}"'.encode('utf-8').hex()
+            link(_('Show books matching {} in calibre').format(name),
+                 f'calibre://search/{library_id}?eq={eq}')
+
     for fmt in db.formats(book_id):
         fmt = fmt.upper()
         link(_('View {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
@@ -332,18 +342,24 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     menu = QMenu(view)
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy all book details'), partial(copy_all, view))
     cm = QMenu(_('Copy link to book'), menu)
-    create_copy_links(cm)
-    if list(cm.actions()):
-        menu.addMenu(cm)
+    cm.setIcon(QIcon(I('edit-copy.png')))
+    copy_links_added = False
     search_internet_added = False
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
+        create_copy_links(cm, data)
+        copy_links_added = True
         search_internet_added = add_item_specific_entries(menu, data, book_info)
     elif url and not url.startswith('#'):
         ac = book_info.copy_link_action
         ac.current_url = url
         ac.setText(_('Copy link location'))
         menu.addAction(ac)
+    if not copy_links_added:
+        create_copy_links(cm)
+    if list(cm.actions()):
+        menu.addMenu(cm)
+
     if not search_internet_added and hasattr(book_info, 'search_internet'):
         menu.addSeparator()
         menu.si = create_search_internet_menu(book_info.search_internet)
