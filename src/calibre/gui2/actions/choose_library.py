@@ -208,7 +208,7 @@ class ChooseLibraryAction(InterfaceAction):
             _('Choose calibre library to work with'), None)
     dont_add_to = frozenset(('context-menu-device',))
     action_add_menu = True
-    action_menu_clone_qaction = _('Switch/create library...')
+    action_menu_clone_qaction = _('Switch/create library')
     restore_view_state = pyqtSignal(object)
 
     def genesis(self):
