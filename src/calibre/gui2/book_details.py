@@ -307,10 +307,34 @@ def add_item_specific_entries(menu, data, book_info):
     return search_internet_added
 
 
+def create_copy_links(menu):
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db.new_api
+    library_id = getattr(db, 'server_library_id', None)
+    if not library_id:
+        return
+    library_id = '_hex_-' + library_id.encode('utf-8').hex()
+    book_id = get_gui().library_view.current_id
+
+    def link(text, url):
+        def doit():
+            QApplication.instance().clipboard().setText(url)
+        menu.addAction(text, doit)
+
+    link(_('Show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
+    for fmt in db.formats(book_id):
+        fmt = fmt.upper()
+        link(_('View {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
+
+
 def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     url = view.anchorAt(ev.pos())
     menu = QMenu(view)
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy all book details'), partial(copy_all, view))
+    cm = QMenu(_('Copy link to book'), menu)
+    create_copy_links(cm)
+    if list(cm.actions()):
+        menu.addMenu(cm)
     search_internet_added = False
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
