@@ -10,6 +10,7 @@
         padding-top: 0;
         padding-bottom: 0;
     }
+    div.related { display: none; }
 }
 
 @media screen and (min-width: 876px) {
