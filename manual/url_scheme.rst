@@ -53,6 +53,9 @@ books can be seen in the calibre interface by hovering over the
 :guilabel:`Click to open` link in the book details panel, it is the number in
 brackets at the end of the path to the book folder.
 
+You can copy a link to the current book displayed in calibre by right clicking
+the :guilabel:`Book details panel` and choosing :guilabel:`Copy link to book`.
+
 
 Open a specific book in the viewer at a specific position
 ---------------------------------------------------------------
@@ -94,6 +97,10 @@ If you want to switch to a particular Virtual library, use::
     calibre://search/Library_Name?encoded_virtual_library=hex_encoded_virtual_library_name
 
 replacing spaces in the Virtual library name by ``%20``.
+
+If you perform a search in calibre and want to generate a link for it you can
+do so by right clicking the search bar and choosing :guilabel:`Copy search as
+URL`.
 
 
 .. _hex_encoding:
