@@ -367,10 +367,15 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     for ac in tuple(menu.actions()):
         if not ac.isEnabled():
             menu.removeAction(ac)
+    menu.addSeparator()
     if add_popup_action:
-        menu.addSeparator()
         ac = menu.addAction(_('Open the Book details window'))
         ac.triggered.connect(book_info.show_book_info)
+    else:
+        def open_edit_metadata():
+            from calibre.gui2.ui import get_gui
+            get_gui().iactions['Edit Metadata'].qaction.trigger()
+        menu.addAction(_('Open the Edit metadata window'), open_edit_metadata)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}

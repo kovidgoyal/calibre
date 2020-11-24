@@ -3,12 +3,11 @@
 
 
 import textwrap
-
 from PyQt5.Qt import (
-    QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout, QHBoxLayout, QIcon,
-    QKeySequence, QLabel, QListView, QModelIndex, QPalette, QPixmap, QPushButton,
-    QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal, QApplication
+    QAction, QApplication, QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout,
+    QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette,
+    QPixmap, QPushButton, QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre import fit_image
@@ -51,7 +50,9 @@ class Configure(Dialog):
         Dialog.__init__(self, _('Configure the Book details window'), 'book-details-popup-conf', parent)
 
     def setup_ui(self):
-        from calibre.gui2.preferences.look_feel import DisplayedFields, move_field_up, move_field_down
+        from calibre.gui2.preferences.look_feel import (
+            DisplayedFields, move_field_down, move_field_up
+        )
         self.l = QVBoxLayout(self)
         self.field_display_order = fdo = QListView(self)
         self.model = DisplayedFields(self.db, fdo, pref_name='popup_book_display_fields')
@@ -200,6 +201,12 @@ class BookInfo(QDialog):
                 self.splitter.restoreState(saved_layout[1])
             except Exception:
                 pass
+        from calibre.gui2.ui import get_gui
+        ema = get_gui().iactions['Edit Metadata'].menuless_qaction
+        a = self.ema = QAction('edit metadata', self)
+        a.setShortcut(ema.shortcut())
+        self.addAction(a)
+        a.triggered.connect(ema.trigger)
 
     def configure(self):
         d = Configure(get_gui().current_db, self)
