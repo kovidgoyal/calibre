@@ -223,7 +223,6 @@ class SchedulerDialog(QDialog):
         self.previous_urn = None
 
         self.setWindowIcon(QIcon(I('scheduler.png')))
-        self.setWindowTitle(_("Schedule news download"))
         self.l = l = QGridLayout(self)
 
         # Left panel
@@ -237,14 +236,12 @@ class SchedulerDialog(QDialog):
         b.clicked.connect(self.search.do_search)
         h.addWidget(s), h.addWidget(b)
         self.recipes = RecipesView(self)
-        l.addWidget(self.recipes, 1, 0, 1, 1)
+        l.addWidget(self.recipes, 1, 0, 2, 1)
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
         self.recipes.setModel(self.recipe_model)
         self.recipes.setFocus(Qt.OtherFocusReason)
-        self.count_label = la = QLabel(_('%s news sources') % self.recipe_model.showing_count)
-        la.setAlignment(Qt.AlignCenter)
-        l.addWidget(la, 2, 0, 1, 1)
+        self.setWindowTitle(_("Schedule news download [{} sources]").format(self.recipe_model.showing_count))
         self.search.search.connect(self.recipe_model.search)
         self.recipe_model.searched.connect(self.search.search_done, type=Qt.QueuedConnection)
         self.recipe_model.searched.connect(self.search_done)
