@@ -181,6 +181,7 @@ class BookmarkManager(QWidget):
         self.bookmarks_list.clear()
         for bm in bookmarks:
             i = QListWidgetItem(bm['title'])
+            i.setData(Qt.ToolTipRole, bm['title'])
             i.setData(Qt.UserRole, self.bm_to_item(bm))
             i.setFlags(i.flags() | Qt.ItemIsEditable)
             self.bookmarks_list.addItem(i)
@@ -242,6 +243,7 @@ class BookmarkManager(QWidget):
         title = unicode_type(item.data(Qt.DisplayRole)) or _('Unknown')
         title = self.uniqify_bookmark_title(title)
         item.setData(Qt.DisplayRole, title)
+        item.setData(Qt.ToolTipRole, title)
         bm = item.data(Qt.UserRole)
         bm['title'] = title
         bm['timestamp'] = utcnow().isoformat()
