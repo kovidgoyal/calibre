@@ -11,6 +11,7 @@
         padding-bottom: 0;
     }
     div.related { display: none; }
+    ul { margin-left: 0.75em; } /* fix bullets being displayed outside container */
 }
 
 @media screen and (min-width: 876px) {
