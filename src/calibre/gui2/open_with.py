@@ -444,7 +444,8 @@ class EditPrograms(Dialog):  # {{{
         if ci is None:
             return error_dialog(self, _('No selection'), _(
                 'No application selected'), show=True)
-        name, ok = QInputDialog.getText(self, _('Enter new name'), _('New name for {}').format(ci.data(Qt.DisplayRole)))
+        name = ci.data(Qt.DisplayRole)
+        name, ok = QInputDialog.getText(self, _('Enter new name'), _('New name for {}').format(name), text=name)
         if ok and name:
             entry = ci.data(ENTRY_ROLE)
             change_name_in_entry(entry, name)
