@@ -571,8 +571,8 @@ class AuthorsTable(ManyToManyTable):
 
         return ret
 
-    def remove_items(self, item_ids, db):
-        raise ValueError('Direct removal of authors is not allowed')
+    def remove_items(self, item_ids, db, restrict_to_book_ids=None):
+        raise NotImplementedError('Direct removal of authors is not allowed')
 
 
 class FormatsTable(ManyToManyTable):
