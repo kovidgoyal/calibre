@@ -5,25 +5,30 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata, math
+import math
+import unicodedata
 from functools import partial
-
 from PyQt5.Qt import (
-    QMainWindow, Qt, QApplication, pyqtSignal, QMenu, qDrawShadeRect, QPainter,
-    QImage, QColor, QIcon, QPixmap, QToolButton, QAction, QTextCursor, QSize)
+    QAction, QApplication, QColor, QIcon, QImage, QInputDialog, QMainWindow, QMenu,
+    QPainter, QPixmap, QSize, Qt, QTextCursor, QToolButton, pyqtSignal,
+    qDrawShadeRect
+)
 
 from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.chardet import replace_encoding_declarations
-from calibre.gui2.tweak_book import (
-    actions, current_container, tprefs, dictionaries, editor_toolbar_actions,
-    editor_name, editors, update_mark_text_action)
 from calibre.gui2 import error_dialog, open_url
-from calibre.gui2.tweak_book.editor import SPELL_PROPERTY, LINK_PROPERTY, TAG_NAME_PROPERTY, CSS_PROPERTY
+from calibre.gui2.tweak_book import (
+    actions, current_container, dictionaries, editor_name, editor_toolbar_actions,
+    editors, tprefs, update_mark_text_action
+)
+from calibre.gui2.tweak_book.editor import (
+    CSS_PROPERTY, LINK_PROPERTY, SPELL_PROPERTY, TAG_NAME_PROPERTY
+)
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
-from polyglot.builtins import itervalues, unicode_type, string_or_bytes
+from polyglot.builtins import itervalues, string_or_bytes, unicode_type
 
 
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
@@ -244,8 +249,9 @@ class Editor(QMainWindow):
         names = tprefs['insert_tag_mru']
         for name in names:
             m.addAction(name, partial(self.insert_tag, name))
+        m.addSeparator()
+        m.addAction(_('Add a tag to this menu'), self.add_insert_tag)
         if names:
-            m.addSeparator()
             m = m.addMenu(_('Remove from this menu'))
             for name in names:
                 m.addAction(name, partial(self.remove_insert_tag, name))
@@ -257,6 +263,15 @@ class Editor(QMainWindow):
             mru.remove(name)
         except ValueError:
             pass
+        mru.insert(0, name)
+        tprefs['insert_tag_mru'] = mru
+        self._build_insert_tag_button_menu()
+
+    def add_insert_tag(self):
+        name, ok = QInputDialog.getText(self, _('Name of tag to add'), _(
+            'Enter the name of the tag'))
+        if ok:
+            mru = tprefs['insert_tag_mru']
         mru.insert(0, name)
         tprefs['insert_tag_mru'] = mru
         self._build_insert_tag_button_menu()
@@ -491,7 +506,9 @@ class Editor(QMainWindow):
         return False
 
     def pretty_print(self, name):
-        from calibre.ebooks.oeb.polish.pretty import pretty_html, pretty_css, pretty_xml
+        from calibre.ebooks.oeb.polish.pretty import (
+            pretty_css, pretty_html, pretty_xml
+        )
         if self.syntax in {'css', 'html', 'xml'}:
             func = {'css':pretty_css, 'xml':pretty_xml}.get(self.syntax, pretty_html)
             original_text = unicode_type(self.editor.toPlainText())
@@ -606,9 +623,9 @@ class Editor(QMainWindow):
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None):
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book import dictionaries
+    from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
     from calibre.gui2.tweak_book.main import option_parser
     from calibre.gui2.tweak_book.ui import Main
-    from calibre.gui2.tweak_book.editor.syntax.html import refresh_spell_check_status
     dictionaries.initialize()
     refresh_spell_check_status()
     opts = option_parser().parse_args([])
