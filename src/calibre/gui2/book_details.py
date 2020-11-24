@@ -245,6 +245,7 @@ def add_format_entries(menu, data, book_info):
 
 
 def add_item_specific_entries(menu, data, book_info):
+    from calibre.gui2.ui import get_gui
     search_internet_added = False
     find_action = book_info.find_in_tag_browser_action
     dt = data['type']
@@ -271,8 +272,12 @@ def add_item_specific_entries(menu, data, book_info):
         if hasattr(book_info, 'search_requested'):
             menu.addAction(_('Search calibre for %s') % author,
                             lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
+            ac = book_info.remove_item_action
+            book_id = get_gui().library_view.current_id
+            ac.data = ('authors', author, book_id)
+            ac.setText(_('Remove %s from this book') % escape_for_menu(author))
+            menu.addAction(ac)
     elif dt in ('path', 'devpath'):
-        from calibre.gui2.ui import get_gui
         path = data['loc']
         ac = book_info.copy_link_action
         if isinstance(path, int):

@@ -884,6 +884,11 @@ class EditMetadataAction(InterfaceAction):
             identifiers = db.field_for(field, book_id)
             if identifiers.pop(value, False) is not False:
                 affected_books = db.set_field(field, {book_id:identifiers})
+        elif field == 'authors':
+            authors = db.field_for(field, book_id)
+            new_authors = [x for x in authors if x != value] or [_('Unknown')]
+            if new_authors != authors:
+                affected_books = db.set_field(field, {book_id:new_authors})
         elif fm['is_multiple']:
             item_id = db.get_item_id(field, value)
             if item_id is not None:
