@@ -18,6 +18,11 @@
     div.sphinxsidebar { overflow-y: auto; max-height: calc(100vh - 25px) }
 }
 
+div.document, div.footer {
+    margin-top: 0px;  /* remove whitespace above sidebar and title */
+    width: auto; /* fix horizontal scrollbar if screen is less that 940px */
+}
+
 pre, code {
     white-space: pre-wrap;
 }
@@ -43,7 +48,6 @@ a { color: #006B8B; }  /* increase contrast for links */
 div.sphinxsidebar { user-select: none }
 div.sphinxsidebar a, a.reference { border-bottom: none }
 div.sphinxsidebar a:hover, a.reference:hover { color: red; border-bottom: none }
-div.document { margin-top: 0px; }
 div.related { background-color: #39322b; color: white; font-family: sans-serif; padding: 0.5ex 0; }
 div.related a { text-decoration: none; color: white; }
 div.related a:hover { text-decoration: none; color: red; }
