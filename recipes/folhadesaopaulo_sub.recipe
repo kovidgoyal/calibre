@@ -10,9 +10,9 @@ import datetime
 class FSP(BasicNewsRecipe):
 
     title = u'Folha de S\xE3o Paulo'
-    __author__ = 'Joao Eduardo Bertacchi, lc_addicted '
-    description = u'Printed edition contents. UOL subscription required (Folha subscription currently not supported).' + \
-                  u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes UOL.]'
+    __author__ = 'Joao Eduardo Bertacchi - lc_addicted, 2020 Leonardo Amaral - leleobhz'
+    description = u'Printed edition contents. Folha subscription required (UOL subscription currently not supported).' + \
+                  u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes Folha. N\xE3o suporta assinantes UOL]'
 
     today = datetime.date.today()
 
@@ -88,18 +88,18 @@ img { background: none !important; float: none; margin: 0px; }
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://acesso.uol.com.br/login.html')
-            br.form = list(br.forms())[0]
-            br['user'] = self.username
-            br['pass'] = self.password
-            br.submit().read()
+            br.open('https://login.folha.com.br/login')
+            br.select_form(action="https://login.folha.com.br/login")
+            br['email'] = self.username
+            br['password'] = self.password
+            br.submit()
         return br
 
     # Parsing the index webpage
     def parse_index(self):
 
         # In the last version, the index page has become simpler:
-        INDEX = 'http://www1.folha.uol.com.br/fsp/'
+        INDEX = 'https://www1.folha.uol.com.br/fsp/'
         self.log('--> INDEX set ', INDEX)
         soup = self.index_to_soup(INDEX)
 
@@ -109,7 +109,7 @@ img { background: none !important; float: none; margin: 0px; }
 
         for post in soup.findAll('a'):
             strpost = str(post)
-            if re.match('<a href="http://www1.folha.uol.com.br/.*/"><span.class="', strpost):
+            if re.match('<a href="https://www1.folha.uol.com.br/.*/"><svg aria-hidden="true" class="icon icon--star"', strpost):
                 if articles:
                     feeds.append((section_title, articles))
                     self.log()
@@ -125,7 +125,7 @@ img { background: none !important; float: none; margin: 0px; }
                 break
             elif strpost.startswith('<a href'):
                 url = post['href']
-                if url.startswith('http://www1.folha.uol.com.br/'):
+                if url.startswith('http://www1.folha.uol.com.br/') or url.startswith('https://www1.folha.uol.com.br/') :
                     title = self.tag_to_string(post)
                     self.log()
                     self.log('--> post:  ', post)
