@@ -25,7 +25,16 @@
         <property name="spacing">
          <number>6</number>
         </property>
-        <property name="margin">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
          <number>0</number>
         </property>
         <item>
@@ -43,7 +52,16 @@
           <property name="spacing">
            <number>6</number>
           </property>
-          <property name="margin">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
            <number>0</number>
           </property>
           <item>
@@ -96,7 +114,6 @@
        </layout>
       </item>
      </layout>
-     <zorder>opt_prefer_metadata_cover</zorder>
     </widget>
    </item>
    <item>
@@ -106,7 +123,7 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>&amp;Title: </string>
+          <string>&amp;Title:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -126,7 +143,7 @@
        <item row="1" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>&amp;Author(s): </string>
+          <string>&amp;Author(s):</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -165,7 +182,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>&amp;Publisher: </string>
+          <string>&amp;Publisher:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -178,7 +195,7 @@
        <item row="4" column="0">
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Ta&amp;gs: </string>
+          <string>Ta&amp;gs:</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -239,7 +256,7 @@
           <string>Book </string>
          </property>
          <property name="maximum">
-          <double>9999999999.99</double>
+          <double>9999999999.989999771118164</double>
          </property>
          <property name="value">
           <double>1.000000000000000</double>
