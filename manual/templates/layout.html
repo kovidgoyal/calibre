@@ -181,17 +181,17 @@
       {%- if render_sidebar %}
         <div class="bodywrapper">
       {%- endif %}
-      {% if not embedded %}
-          <div class="body" role="main">
-            <div id="ad-container" style="text-align:center">
-                <div align="center" data-freestar-ad="__970x90 __336x280" id="manualcalibre-ebook_leaderboard_atf">
-                    <script data-cfasync="false" type="text/javascript">
-                        freestar.config.enabled_slots.push({ placementName: "manualcalibre-ebook_leaderboard_atf", slotId: "manualcalibre-ebook_leaderboard_atf" });
-                    </script>
-                </div>
-            </div>
-        {% endif %}
-            {% block body %} {% endblock %}
+		{% if not embedded %}
+			<div class="body" role="main">
+				<div id="ad-container" style="text-align:center">
+					<div align="center" data-freestar-ad="__970x90 __336x280" id="manualcalibre-ebook_leaderboard_atf">
+						<script data-cfasync="false" type="text/javascript">
+							freestar.config.enabled_slots.push({ placementName: "manualcalibre-ebook_leaderboard_atf", slotId: "manualcalibre-ebook_leaderboard_atf" });
+						</script>
+					</div>
+				</div>
+			{% endif %}
+			{% block body %} {% endblock %}
           </div>
       {%- if render_sidebar %}
         </div>
