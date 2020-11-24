@@ -15,13 +15,19 @@
 }
 
 @media screen and (min-width: 876px) {
-    div.related { height: 25px; display: flex; align-items: center; }
+    div.related {
+        height: 3.5ex;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        position: fixed; top: 0
+    }
     div.related > ul { flex-grow: 10; }
     div.sphinxsidebar { overflow-y: auto; max-height: calc(100vh - 25px) }
+    div.document { margin-top: 3.5ex; }
 }
 
 div.document, div.footer {
-    margin-top: 0px;  /* remove whitespace above sidebar and title */
     width: auto; /* fix horizontal scrollbar if screen is less that 940px */
 }
 
