@@ -448,7 +448,6 @@ def plugin_to_index(plugin, count):
         'Version: <b>%s</b>' % escape('.'.join(map(str, plugin['version']))),
         'Released: <b>%s</b>' % escape(released),
         'Author: %s' % escape(plugin['author']),
-        'History: %s' % escape('Yes' if plugin['history'] else 'No'),
         'calibre: %s' % escape('.'.join(map(str, plugin['minimum_calibre_version']))),
         'Platforms: %s' % escape(', '.join(sorted(plugin['supported_platforms']) or ['all'])),
     ]
