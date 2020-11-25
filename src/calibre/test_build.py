@@ -30,6 +30,8 @@ class BuildTest(unittest.TestCase):
                     ctypes.WinDLL(os.path.join(base, x))
                 except Exception as err:
                     self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
+
+    def test_pycryptodome(self):
         from Crypto.Cipher import AES
         del AES
 

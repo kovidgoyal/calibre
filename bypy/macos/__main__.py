@@ -22,7 +22,9 @@ from itertools import repeat
 from bypy.constants import (
     OUTPUT_DIR, PREFIX, PYTHON, SRC as CALIBRE_DIR, python_major_minor_version
 )
-from bypy.freeze import extract_extension_modules, freeze_python, path_to_freeze_dir
+from bypy.freeze import (
+    extract_extension_modules, fix_pycryptodome, freeze_python, path_to_freeze_dir
+)
 from bypy.utils import current_dir, mkdtemp, py_compile, timeit, walk
 
 abspath, join, basename, dirname = os.path.abspath, os.path.join, os.path.basename, os.path.dirname
@@ -545,6 +547,7 @@ class Freeze(object):
             finally:
                 if tdir is not None:
                     shutil.rmtree(tdir)
+        fix_pycryptodome(self.site_packages)
         try:
             shutil.rmtree(join(self.site_packages, 'calibre', 'plugins'))
         except OSError as err:
