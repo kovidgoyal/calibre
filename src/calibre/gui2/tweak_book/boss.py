@@ -429,7 +429,6 @@ class Boss(QObject):
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
-        QApplication.beep()
         self.add_savepoint(_('Before: Delete files'))
         self.commit_dirty_opf()
         c = current_container()

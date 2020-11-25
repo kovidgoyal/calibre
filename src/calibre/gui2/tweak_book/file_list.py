@@ -748,6 +748,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         spine_removals = [(unicode_type(item.data(0, NAME_ROLE) or ''), item.isSelected()) for item in children]
         other_removals = {unicode_type(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()
                           if unicode_type(item.data(0, CATEGORY_ROLE) or '') != 'text'}
+        QApplication.beep()
         self.delete_requested.emit(spine_removals, other_removals)
 
     def delete_done(self, spine_removals, other_removals):
