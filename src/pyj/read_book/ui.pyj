@@ -81,6 +81,8 @@ class ReadUI:
         ui_operations.stop_waiting_for_messages_from = self.stop_waiting_for_messages_from.bind(self)
         ui_operations.update_metadata = self.update_metadata.bind(self)
         ui_operations.close_book = self.close_book.bind(self)
+        ui_operations.copy_image = self.copy_image.bind(self)
+        ui_operations.view_image = self.view_image.bind(self)
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text, html):
@@ -186,6 +188,26 @@ class ReadUI:
 
     def close_book(self):
         self.base_url_data = {}
+
+    def copy_image(self, image_file_name):
+        if not self.view?.book:
+            return
+        ui_operations.get_file(
+            self.view.book, image_file_name, def(blob, name, mimetype):
+                try:
+                    window.navigator.clipboard.write([new ClipboardItem({mimetype: blob})])  # noqa
+                except Exception as err:
+                    error_dialog(_('Could not copy image'), str(err))
+        )
+
+    def view_image(self, image_file_name):
+        if not self.view?.book:
+            return
+        ui_operations.get_file(
+            self.view.book, image_file_name, def(blob, name, mimetype):
+                url = window.URL.createObjectURL(blob)
+                window.open(url)
+        )
 
     def load_book(self, library_id, book_id, fmt, metadata, force_reload):
         self.base_url_data = {'library_id': library_id, 'book_id':book_id, 'fmt':fmt}
