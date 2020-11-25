@@ -29,6 +29,7 @@ from utils import (
     safe_set_inner_html, sandboxed_html
 )
 from widgets import create_button, create_spinner
+from utils import human_readable
 
 bd_counter = 0
 
@@ -255,6 +256,13 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 if td.childNodes.length:
                     table.appendChild(E.tr(E.td(name + ':'), td))
 
+    def process_size(field, fm, name, val):
+        if val:
+            try:
+                add_row(name, human_readable(int(val)))
+            except:
+                add_row(name, val+'')
+
     def process_languages(field, fm, name, val):
         if val and val.length:
             table.appendChild(E.tr(E.td(name + ':'), E.td()))
@@ -341,6 +349,8 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             func = process_publisher
         elif field is 'languages':
             func = process_languages
+        elif field is 'size':
+            func = process_size
         elif datatype is 'datetime':
             func = process_datetime
         elif datatype is 'series':
