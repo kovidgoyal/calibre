@@ -255,12 +255,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self._parent = weakref.ref(parent)
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
 
-        extra_shortcuts = {
-            'bold': 'Bold',
-            'italic': 'Italic',
-            'underline': 'Underline',
-        }
-
         for rec in (
             ('bold', 'format-text-bold', _('Bold'), True),
             ('italic', 'format-text-italic', _('Italic'), True),
@@ -298,9 +292,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             if checkable:
                 ac.setCheckable(checkable)
             setattr(self, 'action_'+name, ac)
-            ss = extra_shortcuts.get(name)
-            if ss is not None:
-                ac.setShortcut(QKeySequence(getattr(QKeySequence, ss)))
             ac.triggered.connect(getattr(self, 'do_' + name))
 
         self.action_block_style = QAction(QIcon(I('format-text-heading.png')),
@@ -340,6 +331,21 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.cursorPositionChanged.connect(self.update_cursor_position_actions)
         self.textChanged.connect(self.data_changed)
         self.update_cursor_position_actions()
+
+    def keyPressEvent(self, ev):
+        if ev.matches(QKeySequence.Bold):
+            ev.accept()
+            self.action_bold.toggle(), self.action_bold.trigger()
+            return
+        if ev.matches(QKeySequence.Italic):
+            ev.accept()
+            self.action_italic.toggle(), self.action_italic.trigger()
+            return
+        if ev.matches(QKeySequence.Underline):
+            ev.accept()
+            self.action_underline.toggle(), self.action_underline.trigger()
+            return
+        return QTextEdit.keyPressEvent(self, ev)
 
     def update_clipboard_actions(self, copy_available):
         self.action_copy.setEnabled(copy_available)
