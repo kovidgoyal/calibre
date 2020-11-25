@@ -306,9 +306,12 @@ class Images(object):
                 except LinkedImageNotFound as err:
                     self.log.warn('Linked image: %s not found, ignoring' % err.fname)
                     continue
-                img = IMG(src='images/%s' % src, style="display:block")
+                style = get(imagedata.getparent(), 'style')
+                img = IMG(src='images/%s' % src)
                 alt = get(imagedata, 'o:title')
                 img.set('alt', alt or 'Image')
+                if 'position:absolute' in style:
+                    img.set('style', 'display: block')
                 yield img
 
     def get_float_properties(self, anchor, style, page):
