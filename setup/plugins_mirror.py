@@ -185,6 +185,8 @@ def convert_node(fields, x, names={}, import_data=None):
     elif name == 'BinOp':
         if x.right.__class__.__name__ == 'Str':
             return x.right.s.decode('utf-8') if isinstance(x.right.s, bytes) else x.right.s
+        if x.right.__class__.__name__ == 'Constant' and isinstance(x.right.value, str):
+            return x.right.value
     elif name == 'Attribute':
         return conv(getattr(conv(x.value), x.attr))
     raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
