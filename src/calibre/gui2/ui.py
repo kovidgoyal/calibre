@@ -430,7 +430,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 prints('Starting QuickView')
             qv.qv_button.restore_state()
         self.save_layout_state()
-        self.library_view.setFocus(Qt.OtherFocusReason)
+        self.focus_library_view()
 
     def show_gui_debug_msg(self):
         info_dialog(self, _('Debug mode'), '<p>' +
@@ -442,12 +442,20 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def esc(self, *args):
         self.search.clear()
 
-    def shift_esc(self):
-        self.current_view().setFocus(Qt.OtherFocusReason)
+    def focus_current_view(self):
+        view = self.current_view()
+        if view is self.library_view:
+            self.focus_library_view()
+        else:
+            view.setFocus(Qt.OtherFocusReason)
+    shift_esc = focus_current_view
+
+    def focus_library_view(self):
+        self.library_view.alternate_views.current_view.setFocus(Qt.OtherFocusReason)
 
     def ctrl_esc(self):
         self.apply_virtual_library()
-        self.current_view().setFocus(Qt.OtherFocusReason)
+        self.focus_current_view()
 
     def start_smartdevice(self):
         message = None
