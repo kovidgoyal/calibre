@@ -273,6 +273,7 @@ class MessagePopup(QLabel):
 
     def __init__(self, parent):
         QLabel.__init__(self, parent)
+        self.setFocusPolicy(Qt.NoFocus)
         if QApplication.instance().is_dark_theme:
             c = builtin_colors_dark['green']
         else:
