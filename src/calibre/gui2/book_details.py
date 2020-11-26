@@ -25,7 +25,7 @@ from calibre.gui2 import (
     NO_URL_FORMATTING, choose_save_file, config, default_author_link, gprefs,
     pixmap_to_data, rating_font, safe_open_url
 )
-from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
+from calibre.gui2.dialogs.confirm_delete import confirm, confirm as confirm_delete
 from calibre.gui2.dnd import (
     dnd_get_files, dnd_get_image, dnd_has_extension, dnd_has_image, image_extensions
 )
@@ -670,7 +670,7 @@ class BookInfo(HTMLDisplay):
 
     def remove_item_triggered(self):
         field, value, book_id = self.remove_item_action.data
-        if field:
+        if field and confirm(_('Are you sure you want to delete <b>{}</b> from the book?').format(value), 'book_details_remove_item'):
             self.remove_item.emit(book_id, field, value)
 
     def context_action_triggered(self, which):
