@@ -8,15 +8,17 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from functools import partial
 from itertools import product
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, range
-
 from PyQt5.Qt import (
-    QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
-    QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
-    QMenu, QHBoxLayout, QTimer, QUrl, QSize)
+    QAction, QApplication, QColor, QDockWidget, QEvent, QHBoxLayout, QIcon, QImage,
+    QLabel, QMenu, QPalette, QPixmap, QSize, QStackedWidget, Qt, QTabWidget, QTimer,
+    QUrl, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from calibre import prints
-from calibre.constants import __appname__, get_version, ismacos, DEBUG
+from calibre import prepare_string_for_xml, prints
+from calibre.constants import (
+    DEBUG, __appname__, builtin_colors_dark, builtin_colors_light, get_version,
+    ismacos
+)
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import elided_text, open_url
 from calibre.gui2.dbus_export.widgets import factory
@@ -24,30 +26,34 @@ from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.tweak_book import (
-    current_container, tprefs, actions, capitalize, toolbar_actions, editors, update_mark_text_action)
-from calibre.gui2.tweak_book.file_list import FileListWidget
-from calibre.gui2.tweak_book.job import BlockingJob
+    actions, capitalize, current_container, editors, toolbar_actions, tprefs,
+    update_mark_text_action
+)
 from calibre.gui2.tweak_book.boss import Boss
-from calibre.gui2.tweak_book.undo import CheckpointView
-from calibre.gui2.tweak_book.preview import Preview
-from calibre.gui2.tweak_book.plugin import create_plugin_actions, install_plugin
-from calibre.gui2.tweak_book.search import SearchPanel
+from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.check_links import CheckExternalLinks
+from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
+from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
+from calibre.gui2.tweak_book.file_list import FileListWidget
+from calibre.gui2.tweak_book.function_replace import DebugOutput
+from calibre.gui2.tweak_book.job import BlockingJob
+from calibre.gui2.tweak_book.live_css import LiveCSS
+from calibre.gui2.tweak_book.manage_fonts import ManageFonts
+from calibre.gui2.tweak_book.plugin import create_plugin_actions, install_plugin
+from calibre.gui2.tweak_book.preview import Preview
+from calibre.gui2.tweak_book.reports import Reports
+from calibre.gui2.tweak_book.search import SavedSearches, SearchPanel
 from calibre.gui2.tweak_book.spell import SpellCheck
-from calibre.gui2.tweak_book.search import SavedSearches
 from calibre.gui2.tweak_book.text_search import TextSearch
 from calibre.gui2.tweak_book.toc import TOCViewer
-from calibre.gui2.tweak_book.char_select import CharSelect
-from calibre.gui2.tweak_book.live_css import LiveCSS
-from calibre.gui2.tweak_book.reports import Reports
-from calibre.gui2.tweak_book.manage_fonts import ManageFonts
-from calibre.gui2.tweak_book.function_replace import DebugOutput
-from calibre.gui2.tweak_book.editor.widget import register_text_editor_actions
-from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
-from calibre.utils.icu import sort_key, ord_string
+from calibre.gui2.tweak_book.undo import CheckpointView
+from calibre.utils.icu import ord_string, sort_key
+from calibre.utils.localization import (
+    localize_user_manual_link, localize_website_link
+)
 from calibre.utils.unicode_names import character_name_from_code
-from calibre.utils.localization import localize_user_manual_link, localize_website_link
+from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
 
 
 def open_donate():
@@ -261,13 +267,67 @@ def install_new_plugins():
         prefs['newly_installed_plugins'] = []
 
 
+class MessagePopup(QLabel):
+
+    undo_requested = pyqtSignal()
+
+    def __init__(self, parent):
+        QLabel.__init__(self, parent)
+        if QApplication.instance().is_dark_theme:
+            c = builtin_colors_dark['green']
+        else:
+            c = builtin_colors_light['green']
+        self.color = self.palette().color(QPalette.WindowText).name()
+        bg = QColor(c).getRgb()
+        self.setStyleSheet(f'''QLabel {{
+            background-color: rgba({bg[0]}, {bg[1]}, {bg[2]}, 0.85);
+            border-radius: 4px;
+            color: {self.color};
+            padding: 0.5em;
+        }}'''
+        )
+        self.linkActivated.connect(self.link_activated)
+        self.close_timer = t = QTimer()
+        t.setSingleShot(True)
+        t.timeout.connect(self.hide)
+        self.setMouseTracking(True)
+
+    def mouseMoveEvent(self, ev):
+        self.close_timer.start()
+        return super().mouseMoveEvent(ev)
+
+    def link_activated(self, link):
+        self.hide()
+        if link.startswith('undo://'):
+            self.undo_requested.emit()
+
+    def __call__(self, text='Testing message popup', show_undo=True, timeout=5000, has_markup=False):
+        text = '<p>' + (text if has_markup else prepare_string_for_xml(text))
+        if show_undo:
+            text += '\xa0\xa0<a style="text-decoration: none" href="undo://me.com">{}</a>'.format(_('Undo'))
+        text += f'\xa0\xa0<a style="text-decoration: none; color: {self.color}" href="close://me.com">✖</a>'
+        self.setText(text)
+        self.resize(self.sizeHint())
+        self.position_in_parent()
+        self.show()
+        self.raise_()
+        self.close_timer.start(timeout)
+
+    def position_in_parent(self):
+        p = self.parent()
+        self.move((p.width() - self.width()) // 2, 25)
+
+
 class Main(MainWindow):
 
     APP_NAME = _('Edit book')
     STATE_VERSION = 0
+    undo_requested = pyqtSignal()
 
     def __init__(self, opts, notify=None):
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
+        self.message_popup = MessagePopup(self)
+        self.message_popup.undo_requested.connect(self.undo_requested)
         try:
             install_new_plugins()
         except Exception:

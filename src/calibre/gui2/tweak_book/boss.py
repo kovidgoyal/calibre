@@ -127,6 +127,7 @@ class Boss(QObject):
 
     def __call__(self, gui):
         self.gui = gui
+        gui.message_popup.undo_requested.connect(self.do_global_undo)
         fl = gui.file_list
         fl.delete_requested.connect(self.delete_requested)
         fl.reorder_spine.connect(self.reorder_spine)
@@ -439,7 +440,8 @@ class Boss(QObject):
         self.gui.file_list.delete_done(spine_items, other_items)
         spine_names = [x for x, remove in spine_items if remove]
         completion_worker().clear_caches('names')
-        for name in spine_names + list(other_items):
+        items = spine_names + list(other_items)
+        for name in items:
             if name in editors:
                 self.close_editor(name)
         if not editors:
@@ -453,6 +455,8 @@ class Boss(QObject):
                     editors[toc].replace_data(c.raw_data(toc))
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
+        self.gui.message_popup(ngettext(
+            'One file deleted', '{} files deleted', len(items)).format(len(items)))
 
     def commit_dirty_opf(self):
         c = current_container()
