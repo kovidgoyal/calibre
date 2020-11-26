@@ -1094,7 +1094,7 @@ class Cover(ImageView):  # {{{
         self.dialog = parent
         self._cdata = None
         self.draw_border = False
-        self.cdata_before_trim = None
+        self.cdata_before_trim = self.cdata_before_generate = None
         self.cover_changed.connect(self.set_pixmap_from_data)
 
         class CB(RightClickButton):
@@ -1128,6 +1128,7 @@ class Cover(ImageView):  # {{{
         b.m = m = QMenu(b)
         b.setMenu(m)
         m.addAction(QIcon(I('config.png')), _('Customize the styles and colors of the generated cover'), self.custom_cover)
+        m.addAction(QIcon(I('edit-undo.png')), _('Undo last Generate cover'), self.undo_generate)
         b.setPopupMode(b.DelayedPopup)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
@@ -1141,6 +1142,11 @@ class Cover(ImageView):  # {{{
         if self.cdata_before_trim:
             self.current_val = self.cdata_before_trim
             self.cdata_before_trim = None
+
+    def undo_generate(self):
+        if self.cdata_before_generate:
+            self.current_val = self.cdata_before_generate
+            self.cdata_before_generate = None
 
     def frame_resized(self, ev):
         sz = ev.size()
@@ -1208,6 +1214,7 @@ class Cover(ImageView):  # {{{
     def generate_cover(self, *args):
         from calibre.ebooks.covers import generate_cover
         mi = self.dialog.to_book_metadata()
+        self.cdata_before_generate = self.current_val
         self.current_val = generate_cover(mi)
 
     def custom_cover(self):
