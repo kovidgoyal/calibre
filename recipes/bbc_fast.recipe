@@ -1,14 +1,115 @@
-__license__ = 'GPL v3'
-__copyright__ = '2010 - 2011, Darko Miletic <darko.miletic at gmail.com>'
-'''
-news.bbc.co.uk
-'''
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+
+import json
+
+from calibre import prepare_string_for_xml
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+# Article JSON parser {{{
+def serialize_image(block):
+    yield '<div>'
+    block = block['model']
+    media = block['media']
+    alt = prepare_string_for_xml(media.get('alt') or '', True)
+    src = prepare_string_for_xml(media['src'])
+    yield '<img src="{}" alt="{}"/>'.format(src, alt)
+    caption = block.get('caption')
+    if caption:
+        yield '<div>{}</div>'.format(prepare_string_for_xml(caption))
+    yield '</div>'
+
+
+def block_tag(name, generator):
+    yield '<' + name + '>'
+    yield from generator
+    yield '</' + name + '>'
+
+
+def serialize_paragraph(block):
+    block = block['model']
+    for x in block['blocks']:
+        xt = x['type']
+        if xt == 'fragment':
+            styles = []
+            model = x['model']
+            for attr in model['attributes']:
+                if attr == 'bold':
+                    styles.append('font-weight: bold')
+                elif attr in ('italic', 'italics'):
+                    styles.append('font-style: italic')
+            if styles:
+                prefix = '<span style="{}">'.format('; '.join(styles))
+                suffix = '</span>'
+            else:
+                prefix = suffix = ''
+            yield prefix + prepare_string_for_xml(model['text']) + suffix
+        elif xt == 'urlLink':
+            model = x['model']
+            yield '<a href="{}">{}</a>'.format(prepare_string_for_xml(model['locator'], True), prepare_string_for_xml(model['text']))
+
+
+def serialize_list(block):
+    for x in block['model']['blocks']:
+        if x['type'] == 'listItem':
+            yield from block_tag('li', serialize_paragraph(x))
+
+
+def serialize_text(block):
+    block = block['model']
+    for x in block['blocks']:
+        xt = x['type']
+        if xt == 'paragraph':
+            yield from block_tag('p', serialize_paragraph(x))
+        elif xt == 'unorderedList':
+            yield from block_tag('ul', serialize_list(x))
+        elif xt == 'orderedList':
+            yield from block_tag('ol', serialize_list(x))
+        else:
+            raise KeyError('Unknown block type: ' + x['type'])
+
+
+def serialize_contributor(contributor):
+    if 'title' in contributor:
+        yield '<h3>' + prepare_string_for_xml(contributor['title']) + '</h3>'
+    if 'subtitle' in contributor:
+        yield '<div>' + prepare_string_for_xml(contributor['subtitle']) + '</div>'
+
+
+def parse_article_json(root, abort_article):
+    data = root['data']
+    has_media_experience = False
+    for key in data:
+        if key.startswith('article?'):
+            article = data[key]['data']
+            break
+        elif key.startswith('media-experience?'):
+            has_media_experience = True
+    else:
+        if has_media_experience:
+            abort_article('Skipping video article')
+            return
+        raise KeyError('No article found in data keys: {}'.format(data.keys()))
+    lines = []
+    if article.get('headline'):
+        lines.append('<h1>{}</h1>'.format(prepare_string_for_xml(article['headline'])))
+    if article.get('contributor'):
+        lines.extend(serialize_contributor(article['contributor']))
+    for block in article['blocks']:
+        bt = block.get('type')
+        if bt == 'image':
+            lines.extend(serialize_image(block))
+        elif bt == 'text':
+            lines.extend(serialize_text(block))
+    return '<html><body id="main-content">' + '\n'.join(lines) + '</body></html>'
+# }}}
 
 
 class BBC(BasicNewsRecipe):
     title = 'BBC News (fast)'
-    __author__ = 'Darko Miletic, Starson17'
+    __author__ = 'Kovid Goyal'
     description = 'Visit BBC News for up-to-the-minute news, breaking news, video, audio and feature stories. BBC News provides trusted World and UK news as well as local and regional perspectives. Also entertainment, business, science, technology and health news.'  # noqa
     oldest_article = 2
     max_articles_per_feed = 100
@@ -18,62 +119,38 @@ class BBC(BasicNewsRecipe):
     publisher = 'BBC'
     category = 'news, UK, world'
     language = 'en_GB'
-    publication_type = 'newsportal'
-    masthead_url = 'http://news.bbcimg.co.uk/img/1_0_1/cream/hi/news/news-blocks.gif'
-    extra_css              = """
-                                 body{ font-family: Verdana,Helvetica,Arial,sans-serif }
-                                 .introduction{font-weight: bold}
-                                 .story-feature{display: block; padding: 0; border: 1px solid; width: 40%; font-size: small}
-                                 .story-feature h2{text-align: center; text-transform: uppercase}
-                             """
+    masthead_url = 'https://news.bbcimg.co.uk/img/1_0_1/cream/hi/news/news-blocks.gif'
     conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher,
     }
 
-    keep_only_tags = [
-        dict(name='div', attrs={'class': ['layout-block-a layout-block']}), dict(attrs={'class': [
-            'story-body', 'storybody']}), dict(attrs={'id': ['meta-information', 'story-body']})
-    ]
-
-    remove_tags = [
-        dict(name='div', attrs={'class': ['story-feature related narrow',
-                                          'share-help', 'embedded-hyper',
-                                          'story-feature wide ',
-                                          'story-feature narrow',
-                                          'hidden', 'story-actions', 'embedded-hyper']}), dict(name=['img', 'meta', 'link', 'object', 'embed', 'iframe', 'base']), dict(attrs={'class': ['hidden', 'videoInStoryC']}), dict(attrs={'id': ['bbccom_sponsor_section', 'toggle-controls', 'toggle-images', 'toggle-title']}) ]  # noqa
-
-    remove_attributes = ['width', 'height', 'xmlns:og', 'lang', 'clear']
-
     feeds = [
-        ('Top Stories', 'http://feeds.bbci.co.uk/news/rss.xml'),
+        ('Top Stories', 'https://feeds.bbci.co.uk/news/rss.xml'),
         ('Science/Environment',
-         'http://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
-        ('Technology', 'http://feeds.bbci.co.uk/news/technology/rss.xml'),
+         'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml'),
+        ('Technology', 'https://feeds.bbci.co.uk/news/technology/rss.xml'),
         ('Entertainment/Arts',
-         'http://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
-        ('Magazine', 'http://feeds.bbci.co.uk/news/magazine/rss.xml'),
-        ('Business', 'http://feeds.bbci.co.uk/news/business/rss.xml'),
-        ('Politics', 'http://feeds.bbci.co.uk/news/politics/rss.xml'),
-        ('Health', 'http://feeds.bbci.co.uk/news/health/rss.xml'),
-        ('US&Canada', 'http://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml'),
-        ('Latin America', 'http://feeds.bbci.co.uk/news/world/latin_america/rss.xml'),
-        ('Europe', 'http://feeds.bbci.co.uk/news/world/europe/rss.xml'),
-        ('South Asia', 'http://feeds.bbci.co.uk/news/world/south_asia/rss.xml'),
-        ('England', 'http://feeds.bbci.co.uk/news/england/rss.xml'),
-        ('Asia-Pacific', 'http://feeds.bbci.co.uk/news/world/asia_pacific/rss.xml'),
-        ('Africa', 'http://feeds.bbci.co.uk/news/world/africa/rss.xml')
+         'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml'),
+        ('Magazine', 'https://feeds.bbci.co.uk/news/magazine/rss.xml'),
+        ('Business', 'https://feeds.bbci.co.uk/news/business/rss.xml'),
+        ('Politics', 'https://feeds.bbci.co.uk/news/politics/rss.xml'),
+        ('Health', 'https://feeds.bbci.co.uk/news/health/rss.xml'),
+        ('US&Canada', 'https://feeds.bbci.co.uk/news/world/us_and_canada/rss.xml'),
+        ('Latin America', 'https://feeds.bbci.co.uk/news/world/latin_america/rss.xml'),
+        ('Europe', 'https://feeds.bbci.co.uk/news/world/europe/rss.xml'),
+        ('South Asia', 'https://feeds.bbci.co.uk/news/world/south_asia/rss.xml'),
+        ('England', 'https://feeds.bbci.co.uk/news/england/rss.xml'),
+        ('Asia-Pacific', 'https://feeds.bbci.co.uk/news/world/asia_pacific/rss.xml'),
+        ('Africa', 'https://feeds.bbci.co.uk/news/world/africa/rss.xml')
     ]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('left'):
-            item.name = 'span'
-        for item in soup.findAll('a'):
-            if item.string is not None:
-                str = item.string
-                item.replaceWith(str)
-            else:
-                str = self.tag_to_string(item)
-                item.replaceWith(str)
-        return soup
+    def preprocess_raw_html(self, raw_html, url):
+        q = '>window.__INITIAL_DATA__={'
+        idx = raw_html.find(q)
+        if idx < 0:
+            raise ValueError('Failed to find JSON')
+        data = raw_html[idx + len(q) - 1:]
+        idx = data.find('};</script>')
+        data = data[:idx+1]
+        root = json.loads(data)
+        return parse_article_json(root, self.abort_article)
