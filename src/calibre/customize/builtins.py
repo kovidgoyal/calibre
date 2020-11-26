@@ -1022,6 +1022,12 @@ class ActionMatchBooks(InterfaceActionBase):
     description = _('Match book on the devices to books in the library')
 
 
+class ActionShowMatchedBooks(InterfaceActionBase):
+    name = 'Show Matched Book In Library'
+    actual_plugin = 'calibre.gui2.actions.match_books:ShowMatchedBookAction'
+    description = _('Show the book in the calibre library that matches this book')
+
+
 class ActionCopyToLibrary(InterfaceActionBase):
     name = 'Copy To Library'
     actual_plugin = 'calibre.gui2.actions.copy_to_library:CopyToLibraryAction'
@@ -1101,7 +1107,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionFetchNews, ActionSaveToDisk, ActionQuickview, ActionPolish,
         ActionShowBookDetails,ActionRestart, ActionOpenFolder, ActionConnectShare,
         ActionSendToDevice, ActionHelp, ActionPreferences, ActionSimilarBooks,
-        ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
+        ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionShowMatchedBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,

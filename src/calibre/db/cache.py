@@ -1906,6 +1906,14 @@ class Cache(object):
         self.clear_composite_caches()
 
     @read_api
+    def books_matching_device_book(self, lpath):
+        ans = set()
+        for book_id, (_, _, _, _, lpaths) in self.fields['ondevice'].cache.items():
+            if lpath in lpaths:
+                ans.add(book_id)
+        return ans
+
+    @read_api
     def tags_older_than(self, tag, delta=None, must_have_tag=None, must_have_authors=None):
         '''
         Return the ids of all books having the tag ``tag`` that are older than

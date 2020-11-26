@@ -808,6 +808,9 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if idx == 3:
             return self.card_b_view
 
+    def show_library_view(self):
+        self.location_manager.library_action.trigger()
+
     def booklists(self):
         return self.memory_view.model().db, self.card_a_view.model().db, self.card_b_view.model().db
 

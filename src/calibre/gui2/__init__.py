@@ -117,7 +117,8 @@ def create_defs():
 
     defs['action-layout-context-menu-device'] = (
             'View', 'Save To Disk', None, 'Remove Books', None,
-            'Add To Library', 'Edit Collections', 'Match Books'
+            'Add To Library', 'Edit Collections', 'Match Books',
+            'Show Matched Book In Library'
             )
 
     defs['action-layout-context-menu-cover-browser'] = (
