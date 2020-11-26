@@ -163,7 +163,7 @@ def create_simple_tab(self, db):
 
 def create_date_tab(self, db):
     self.date_tab = w = QWidget(self.tab_widget)
-    self.tab_widget.addTab(w, _("&Date searches"))
+    self.tab_widget.addTab(w, _("&Date search"))
     w.l = l = QVBoxLayout(w)
 
     def a(w):
