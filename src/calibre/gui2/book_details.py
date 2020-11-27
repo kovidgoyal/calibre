@@ -77,9 +77,10 @@ def create_search_internet_menu(callback, author=None):
         if author is not None else
         _('Search the internet for this book')) + '…'
     )
+    m.menuAction().setIcon(QIcon(I('search.png')))
     items = all_book_searches() if author is None else all_author_searches()
     for k in sorted(items, key=lambda k: name_for(k).lower()):
-        m.addAction(name_for(k), partial(callback, InternetSearch(author, k)))
+        m.addAction(QIcon(I('search.png')), name_for(k), partial(callback, InternetSearch(author, k)))
     return m
 
 
@@ -324,7 +325,7 @@ def create_copy_links(menu, data=None):
     def link(text, url):
         def doit():
             QApplication.instance().clipboard().setText(url)
-        menu.addAction(text, doit)
+        menu.addAction(QIcon(I('edit-copy.png')), text, doit)
 
     link(_('Show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     if data:
