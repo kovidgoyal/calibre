@@ -27,6 +27,7 @@ def merge_truetype_fonts_for_pdf(fonts, log=None):
                     all_glyphs[glyph_id] = glyf.glyph_data(offset, sz, as_raw=True)
                 else:
                     if abs(sz - len(prev_glyph_data)) > 8:
+                        # raise Exception('Size mismatch for glyph id: {} prev_sz: {} sz: {}'.format(glyph_id, len(prev_glyph_data), sz))
                         if log is not None:
                             log('Size mismatch for glyph id: {} prev_sz: {} sz: {}'.format(glyph_id, len(prev_glyph_data), sz))
 
