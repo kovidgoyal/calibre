@@ -909,7 +909,7 @@ def merge_cmaps(cmaps):
 
 def fonts_are_identical(fonts):
     sentinel = object()
-    for key in ('ToUnicode', 'Data'):
+    for key in ('ToUnicode', 'Data', 'W', 'W2'):
         prev_val = sentinel
         for f in fonts:
             val = f[key]
