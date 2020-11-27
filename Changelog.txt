@@ -23,11 +23,64 @@
 # - title by author
 # }}}
 
+{{{ 5.6.0 2020-11-27
+
+:: new features
+
+- Edit book: Show a non-modal popup for a few seconds to allow undoing file delete operations
+
+- [1903418] Device books view: Add an action to the context menu to easily jump to the matching book in the calibre library view
+
+- [1903270] Add ability to undo Generate cover in the Edit metadata screen, by long clicking the Generate cover button
+
+- Edit book: Allow adding tags to the list of tags for the insert tag button
+
+- calibredb add: New option --automerge to automatically merge duplicates
+
+- [1905646] Add an edit notes action to the context menu in the viewer highlights panel
+
+- [1903333] Content server viewer: Allow viewing images in a new window by right clicking them, matches the calibre builtin viewer behavior
+
+- [1903403] Book details window: Allow opening the edit metadata window using either the keyboard shortcut or the context menu
+
+- Allow copying the current search as a calibre:// URL by right clicking the search box
+
+- Book details panel: Add entries to copy calibre:// links for the current book to the context menu
+
+- Edit book: Upgrade book: Ask whether to keep the NCX based Table of Contents
+
+:: bug fixes
+
+- [1904310] Windows: Fix calibre portable launcher not working correctly from root directory in calibre 5.5
+
+- [1904505] macOS: Fix rendering of space after punctuation incorrect in Big Sur
+
+- [1905319] DOCX Input: When converting images placed using the obsolete VML markup default them to being inline rather than block images
+
+- [1905479] Metadata edit dialog: Fix keyboard shortcuts for bold/italic/underline not working when more than one comments editor widget is present on a single tab
+
+- [1905113] When using calibre://show-book URLs and the book is not found, clear any Virtual library or search restriction and then show the book
+
+- macOS: Fix calibre:// URLs not working from other documents
+
+- Fix calibre:// URL search action not changing library if needed
+
+- [1904305] annotation_count() template function displaying value for deleted annotations
+
+- [1905806] Edit book: Fix syntax highlighting not recognizing ends-with selector
+
+:: improved recipes
+- The BBC
+- Folha de Sao Paolo
+- Netzpolitik
+
+}}}
+
 {{{ 5.5.0 2020-11-13
 
 :: new features
 
-- Support the calibre:// URL scheme
+- [major] Support the calibre:// URL scheme
 
   Clicking on calibre:// URLs can be used to have calibre perform various actions.
   For details, see: https://manual.calibre-ebook.com/url_scheme.html
