@@ -8,9 +8,9 @@ import re
 from collections import namedtuple
 from functools import partial
 from PyQt5.Qt import (
-    QAction, QApplication, QColor, QEasingCurve, QIcon, QLayout, QMenu, QMimeData,
-    QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QSizePolicy, Qt, QUrl,
-    QWidget, pyqtProperty, pyqtSignal
+    QAction, QApplication, QColor, QEasingCurve, QIcon, QKeySequence, QLayout, QMenu,
+    QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
+    QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
 )
 
 from calibre import fit_image, sanitize_file_name
@@ -377,10 +377,9 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False):
         ac = menu.addAction(_('Open the Book details window'))
         ac.triggered.connect(book_info.show_book_info)
     else:
-        def open_edit_metadata():
-            from calibre.gui2.ui import get_gui
-            get_gui().iactions['Edit Metadata'].qaction.trigger()
-        menu.addAction(_('Open the Edit metadata window'), open_edit_metadata)
+        from calibre.gui2.ui import get_gui
+        ema = get_gui().iactions['Edit Metadata'].menuless_qaction
+        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.NativeText), ema.trigger)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
