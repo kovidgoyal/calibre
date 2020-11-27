@@ -1,6 +1,7 @@
 {% extends "!layout.html" %}
 
 {%- block extrahead %}
+{% if not embedded %}
 <!-- Quantcast Choice. Consent Manager Tag v2.0 (for TCF 2.0) -->
 <!-- See https://www.quantcast.com/protect/sites username is email -->
 <script type="text/javascript" async=true>
@@ -169,20 +170,64 @@
   !function(a,b){var c=b.getElementsByTagName("script")[0],d=b.createElement("script"),e="https://a.pub.network/manual-calibre-ebook-com";e+=freestar.debug?"/qa/pubfig.min.js":"/pubfig.min.js",d.async=!0,d.src=e,c.parentNode.insertBefore(d,c)}(window,document);
   freestar.initCallback = function () { (freestar.config.enabled_slots.length === 0) ? freestar.initCallbackCalled = false : freestar.newAdSlots(freestar.config.enabled_slots) }
 </script>
+
+<style type="text/css">
+@media screen and (max-width: 875px) {
+    body {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    div.related { display: none; }
+    ul { margin-left: 0.75em; } /* fix bullets being displayed outside container */
+}
+
+@media screen and (min-width: 876px) {
+    body {
+        display: grid;
+        grid-template-rows: [top] 3.5ex [r] auto;
+        grid-template-columns: [left] 220px [c] auto;
+        height: 100vh; width: 100vw;
+        max-height: 100vh; max-width: 100vw;
+    }
+    div.related {
+        height: 3.5ex;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+        grid-row-start: top; grid-row-end: span 1;
+        grid-column-start: left; grid-column-end: span 2;
+    }
+    div.documentwrapper {
+        grid-row-start: r; grid-row-end: span 1;
+        grid-column-start: c; grid-column-end: span 1;
+        overflow: auto;
+    }
+    div.related > ul { flex-grow: 10; }
+    div.sphinxsidebar {
+        overflow-y: auto;
+        grid-row-start: r; grid-row-end: span 1;
+        grid-column-start: left; grid-column-end: span 2;
+        position: static;
+    }
+    div.document { margin-top: 0; }
+}
+
+div.document, div.footer {
+    width: auto; /* fix horizontal scrollbar if screen is less that 940px */
+}
+
+</style>
+{% endif %}
 {% endblock %}
 
 {%- block relbar1 %}{{ relbar() }}{% endblock %}
 
 {%- block content %}
-  <div class="document">
     {{ sidebar() }}
     {%- block document %}
       <div class="documentwrapper">
-      {%- if render_sidebar %}
-        <div class="bodywrapper">
-      {%- endif %}
+		<div class="body" role="main">
 		{% if not embedded %}
-			<div class="body" role="main">
 				<div id="ad-container" style="text-align:center">
 					<div align="center" data-freestar-ad="__970x90 __336x280" id="manualcalibre-ebook_leaderboard_atf">
 						<script data-cfasync="false" type="text/javascript">
@@ -190,16 +235,26 @@
 						</script>
 					</div>
 				</div>
-			{% endif %}
-			{% block body %} {% endblock %}
-          </div>
-      {%- if render_sidebar %}
-        </div>
-      {%- endif %}
-      </div>
-    {%- endblock %}
-    <div class="clearer"></div>
-  </div>
-{%- endblock %}
+		{% endif %}
+		{% block body %} {% endblock %}
+		<div class="footer" role="contentinfo">
+		{%- if show_copyright %}
+		{%- if hasdoc('copyright') %}
+			{% trans path=pathto('copyright'), copyright=copyright|e %}&#169; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+		{%- else %}
+			{% trans copyright=copyright|e %}&#169; Copyright {{ copyright }}.{% endtrans %}
+		{%- endif %}
+		{%- endif %}
+		{%- if last_updated %}
+		{% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
+		{%- endif %}
+		{%- if show_sphinx %}
+		{% trans sphinx_version=sphinx_version|e %}Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+		{%- endif %}
+		</div>  <!-- end content-footer -->
+		</div> <!-- end class="body" -->
+	  </div> <!-- end documentwrapper -->
+    {%- endblock document %}
+{%- endblock content %}
 
-
+{%- block footer -%} {%- endblock footer -%}

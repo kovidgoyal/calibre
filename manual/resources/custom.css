@@ -5,32 +5,6 @@
  * Distributed under terms of the GPLv3 license.
  */
 
-@media screen and (max-width: 875px) {
-    body {
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-    div.related { display: none; }
-    ul { margin-left: 0.75em; } /* fix bullets being displayed outside container */
-}
-
-@media screen and (min-width: 876px) {
-    div.related {
-        height: 3.5ex;
-        display: flex;
-        align-items: center;
-        box-sizing: border-box;
-        position: fixed; top: 0
-    }
-    div.related > ul { flex-grow: 10; }
-    div.sphinxsidebar { overflow-y: auto; max-height: calc(100vh - 25px) }
-    div.document { margin-top: 3.5ex; }
-}
-
-div.document, div.footer {
-    width: auto; /* fix horizontal scrollbar if screen is less that 940px */
-}
-
 pre, code {
     white-space: pre-wrap;
 }
