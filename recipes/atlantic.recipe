@@ -87,7 +87,12 @@ class TheAtlantic(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-srcset': True}):
-            img['src'] = img['data-srcset'].split()[0]
+            #img['src'] = img['data-srcset'].split()[0]
+            data_srcset = img['data-srcset']
+            if ',' in data_srcset:
+                img['src'] = data_srcset.split(',')[0]
+            else:
+                img['src'] = data_srcset.split()[0]
         for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup
