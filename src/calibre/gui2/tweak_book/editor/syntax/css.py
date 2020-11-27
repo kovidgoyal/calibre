@@ -22,7 +22,7 @@ sheet_tokens = [(re.compile(k), v, n) for k, v, n in [
     (r'\#[a-zA-Z0-9_-]+', 'id_selector', 'id-selector'),
     (r'@[a-zA-Z0-9_-]+', 'preproc', 'atrule'),
     (r'[a-zA-Z0-9_-]+', 'tag', 'tag'),
-    (r'[~\^\*!%&\[\]\(\)<>\|+=@:;,./?-]', 'operator', 'operator'),
+    (r'[\$~\^\*!%&\[\]\(\)<>\|+=@:;,./?-]', 'operator', 'operator'),
 ]]
 
 URL_TOKEN = 'url'
