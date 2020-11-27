@@ -145,6 +145,14 @@ class NewYorkTimes(BasicNewsRecipe):
         if h1 is not None:
             h1.extract()
             soup.find('body').contents.insert(0, h1)
+
+        # Find lazy loaded images
+        for div in soup.findAll(itemtype='http://schema.org/ImageObject', itemid=True):
+            if div.find('img') is None:
+                span = div.find('span')
+                if span is not None and self.tag_to_string(span).strip().lower() == 'image':
+                    span.name = 'img'
+                    span['src'] = div['itemid']
         return soup
 
     def read_todays_paper(self):
@@ -301,7 +309,7 @@ class NewYorkTimes(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('All articles', [
-        #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2018/05/31/theater/best-25-plays-how-we-made-the-list.html'},
+        #     {'title': 'XXXXX', 'url': 'https://www.nytimes.com/2020/11/27/world/americas/coronavirus-migrants-venezuela.html'},
         # ])]
         if is_web_edition:
             return self.parse_web_sections()

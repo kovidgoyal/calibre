@@ -145,6 +145,14 @@ class NewYorkTimes(BasicNewsRecipe):
         if h1 is not None:
             h1.extract()
             soup.find('body').contents.insert(0, h1)
+
+        # Find lazy loaded images
+        for div in soup.findAll(itemtype='http://schema.org/ImageObject', itemid=True):
+            if div.find('img') is None:
+                span = div.find('span')
+                if span is not None and self.tag_to_string(span).strip().lower() == 'image':
+                    span.name = 'img'
+                    span['src'] = div['itemid']
         return soup
 
     def read_todays_paper(self):
