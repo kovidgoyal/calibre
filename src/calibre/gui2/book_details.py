@@ -343,7 +343,7 @@ def create_copy_links(menu, data=None):
         link(_('View {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
 
 
-def details_context_menu_event(view, ev, book_info, add_popup_action=False):
+def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
     url = view.anchorAt(ev.pos())
     menu = QMenu(view)
     menu.addAction(QIcon(I('edit-copy.png')), _('Copy all book details'), partial(copy_all, view))
@@ -380,7 +380,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False):
     else:
         from calibre.gui2.ui import get_gui
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
-        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.NativeText), ema.trigger)
+        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.NativeText), edit_metadata)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}

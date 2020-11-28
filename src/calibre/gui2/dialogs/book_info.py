@@ -108,13 +108,14 @@ class Details(HTMLDisplay):
     def __init__(self, book_info, parent=None):
         HTMLDisplay.__init__(self, parent)
         self.book_info = book_info
+        self.edit_metadata = getattr(parent, 'edit_metadata', None)
         self.setDefaultStyleSheet(css())
 
     def sizeHint(self):
         return QSize(350, 350)
 
     def contextMenuEvent(self, ev):
-        details_context_menu_event(self, ev, self.book_info)
+        details_context_menu_event(self, ev, self.book_info, edit_metadata=self.edit_metadata)
 
 
 class BookInfo(QDialog):
@@ -206,7 +207,12 @@ class BookInfo(QDialog):
         a = self.ema = QAction('edit metadata', self)
         a.setShortcut(ema.shortcut())
         self.addAction(a)
-        a.triggered.connect(ema.trigger)
+        a.triggered.connect(self.edit_metadata)
+
+    def edit_metadata(self):
+        if self.current_row is not None:
+            book_id = self.view.model().id(self.current_row)
+            get_gui().iactions['Edit Metadata'].edit_metadata_for([self.current_row], [book_id], bulk=False)
 
     def configure(self):
         d = Configure(get_gui().current_db, self)
