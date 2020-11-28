@@ -538,6 +538,7 @@ class _Interpreter(object):
         for expr in prog.expression_list:
             if v := self.expr(expr):
                 return v
+        return ''
 
     NODE_OPS = {
         Node.NODE_IF:             do_node_if,
