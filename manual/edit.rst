@@ -834,7 +834,7 @@ the correct filename and relative path to the file. The editor has
 auto-complete to make that easier.
 
 As you type a filename, the editor automatically pops up suggestions. Simply
-use the Tab key to select the correct file name. The editor even offers
+use the :kbd:`Tab` key to select the correct file name. The editor even offers
 suggestions for links pointing to an anchor inside another HTML file. After you
 type the ``#`` character, the editor will show you a list of all anchors in the
 target file, with a small snippet of text to help you choose the right anchor.
@@ -843,7 +843,7 @@ Note that unlike most other completion systems, the editor's completion system
 uses subsequence matching. This means that you can type just two or three
 letters from anywhere in the filename to complete the filename. For example,
 say you want the filename ``../images/arrow1.png``, you can simply type ``ia1``
-and press Tab to complete the filename. When searching for matches, the
+and press :kbd:`Tab` to complete the filename. When searching for matches, the
 completion system prioritizes letters that are at the start of a word, or
 immediately after a path separator. Once you get used to this system, you will
 find it saves you a lot of time and effort.
