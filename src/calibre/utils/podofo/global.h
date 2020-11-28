@@ -99,6 +99,7 @@ extern "C" {
 PyObject* py_list_fonts(PDFDoc*, PyObject*);
 PyObject* py_remove_unused_fonts(PDFDoc *self, PyObject *args);
 PyObject* py_merge_fonts(PDFDoc *self, PyObject *args);
+PyObject* py_replace_font_data(PDFDoc *self, PyObject *args);
 PyObject* py_dedup_type3_fonts(PDFDoc *self, PyObject *args);
 PyObject* py_impose(PDFDoc *self, PyObject *args);
 PyObject* py_dedup_images(PDFDoc *self, PyObject *args);

@@ -775,6 +775,9 @@ static PyMethodDef PDFDoc_methods[] = {
     {"merge_fonts", (PyCFunction)py_merge_fonts, METH_VARARGS,
      "merge_fonts() -> Merge the specified fonts."
     },
+    {"replace_font_data", (PyCFunction)py_replace_font_data, METH_VARARGS,
+     "replace_font_data() -> Replace the data stream for the specified font."
+    },
     {"dedup_type3_fonts", (PyCFunction)py_dedup_type3_fonts, METH_VARARGS,
      "dedup_type3_fonts() -> De-duplicate repeated glyphs in Type3 fonts"
     },

@@ -23,7 +23,7 @@ from PyQt5.Qt import (
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
 
-from calibre import detect_ncpus, prepare_string_for_xml
+from calibre import detect_ncpus, prepare_string_for_xml, human_readable
 from calibre.constants import __version__, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, XPath
@@ -38,6 +38,7 @@ from calibre.gui2.webengine import secure_webengine
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
+from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.logging import default_log
 from calibre.utils.monotonic import monotonic
 from calibre.utils.podofo import (
@@ -752,7 +753,7 @@ class Range(object):
         return len(self.widths) == 1
 
 
-def all_glyph_ids_in_w_arrays(arrays):
+def all_glyph_ids_in_w_arrays(arrays, as_set=False):
     ans = set()
     for w in arrays:
         i = 0
@@ -765,7 +766,7 @@ def all_glyph_ids_in_w_arrays(arrays):
             else:
                 ans |= set(range(elem, next_elem + 1))
                 i += 3
-    return sorted(ans)
+    return ans if as_set else sorted(ans)
 
 
 def merge_w_arrays(arrays):
@@ -994,8 +995,25 @@ def test_merge_fonts():
     merge_fonts(pdf_doc)
     out = path.rpartition('.')[0] + '-merged.pdf'
     pdf_doc.save(out)
-    print('Merged PDF writted to', out)
+    print('Merged PDF written to', out)
 
+
+def subset_fonts(pdf_doc, log):
+    all_fonts = pdf_doc.list_fonts(True)
+    for font in all_fonts:
+        if font['Subtype'] != 'Type0' and font['Data']:
+            try:
+                sfnt = Sfnt(font['Data'])
+            except UnsupportedFont:
+                continue
+            if b'glyf' not in sfnt:
+                continue
+            num, gen = font['Reference']
+            glyphs = all_glyph_ids_in_w_arrays((font['W'] or (), font['W2'] or ()), as_set=True)
+            pdf_subset(sfnt, glyphs)
+            data = sfnt()[0]
+            log('Subset embedded font from: {} to {}'.format(human_readable(len(font['Data'])), human_readable(len(data))))
+            pdf_doc.replace_font_data(data, num, gen)
 # }}}
 
 
@@ -1292,6 +1310,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     num_removed = remove_unused_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'unused fonts')
+
+    # Needed because of https://bugreports.qt.io/browse/QTBUG-88976
+    subset_fonts(pdf_doc, log)
 
     num_removed = pdf_doc.dedup_images()
     if num_removed:

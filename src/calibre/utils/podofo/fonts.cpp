@@ -303,6 +303,22 @@ remove_unused_fonts(PDFDoc *self, PyObject *args) {
 }
 
 PyObject*
+replace_font_data(PDFDoc *self, PyObject *args) {
+    const char *data; Py_ssize_t sz;
+    unsigned long num, gen;
+    if (!PyArg_ParseTuple(args, "y#kk", &data, &sz, &num, &gen)) return NULL;
+    const PdfVecObjects &objects = self->doc->GetObjects();
+    PdfObject *font = objects.GetObject(PdfReference(num, static_cast<pdf_gennum>(gen)));
+    if (!font) { PyErr_SetString(PyExc_KeyError, "No font with the specified reference found"); return NULL; }
+    const PdfObject *descriptor = font->GetIndirectKey("FontDescriptor");
+    if (!descriptor) { PyErr_SetString(PyExc_ValueError, "Font does not have a descriptor"); return NULL; }
+    PdfObject *ff = get_font_file(descriptor);
+    PdfStream *stream = ff->GetStream();
+    stream->Set(data, sz);
+    Py_RETURN_NONE;
+}
+
+PyObject*
 merge_fonts(PDFDoc *self, PyObject *args) {
     PyObject *items, *replacements;
     if (!PyArg_ParseTuple(args, "O!O!", &PyTuple_Type, &items, &PyDict_Type, &replacements)) return NULL;
@@ -462,3 +478,4 @@ PYWRAP(list_fonts)
 PYWRAP(merge_fonts)
 PYWRAP(remove_unused_fonts)
 PYWRAP(dedup_type3_fonts)
+PYWRAP(replace_font_data)
