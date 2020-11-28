@@ -3,7 +3,7 @@
     <form class="search" action="{{ pathto('search') }}" method="get">
       <div style="display: flex">
           <input type="text" name="q" placeholder="{{ search_box_text }}" />&nbsp;
-          <input type="submit" value="{{ _('Go') }}" />
+          <input type="submit" title="{{ _('Search') }}" value="{{ '🔍' }}" />
       </div>
     </form>
 </div>
