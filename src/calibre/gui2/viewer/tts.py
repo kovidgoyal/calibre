@@ -42,4 +42,15 @@ class TTS(QObject):
             return error_dialog(self.parent(), _('Text-to-Speech unavailable'), str(err), show=True)
 
     def action(self, action, data):
-        pass
+        from calibre.gui2.tts.errors import TTSSystemUnavailable
+        try:
+            getattr(self, action)(data)
+        except TTSSystemUnavailable as err:
+            return error_dialog(self.parent(), _('Text-to-Speech unavailable'), str(err), show=True)
+
+    def play(self, data):
+        text = data['text']
+        print(11111, text)
+
+    def stop(self, data):
+        self.tts_client.stop()

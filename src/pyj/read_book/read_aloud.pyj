@@ -3,13 +3,14 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 from book_list.theme import get_color
-from dom import clear, unique_id, svgicon
+from dom import clear, svgicon, unique_id
+from gettext import gettext as _
 from read_book.globals import runtime, ui_operations
-from read_book.selection_bar import BUTTON_MARGIN
 from read_book.highlights import ICON_SIZE
+from read_book.selection_bar import BUTTON_MARGIN
+from read_book.shortcuts import shortcut_for_key_event
 
 HIDDEN = 0
 WAITING_FOR_PLAY_TO_START = 1
@@ -33,6 +34,7 @@ class ReadAloud:
             style='position: static; border: solid 1px currentColor; border-radius: 5px;'
             'display: inline-flex; flex-direction: column; margin: 1rem;'
         ))
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})
 
     @property
     def container(self):
@@ -130,11 +132,41 @@ class ReadAloud:
             ui_operations.tts('pause')
             self.state = PAUSED
 
+    def stop(self):
+        if self.state is PLAYING or self.state is PAUSED:
+            ui_operations.tts('stop')
+            self.state = STOPPED
+
     def toggle(self):
         if self.state is PLAYING:
             self.pause()
         elif self.state is PAUSED or self.state is STOPPED:
             self.play()
+
+    def on_keydown(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        if ev.key is 'Escape':
+            self.hide()
+            return
+        if ev.key is ' ' or ev.key is 'MediaPlayPause':
+            self.toggle()
+            return
+        if ev.key is 'Play' or ev.key is 'MediaPlay':
+            self.play()
+            return
+        if ev.key is 'Pause' or ev.key is 'MediaPause':
+            self.pause()
+            return
+        if ev.key is 'MediaStop':
+            self.stop()
+            return
+        sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if not sc_name:
+            return
+        if sc_name is 'show_chrome':
+            self.hide()
+        elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
+            self.send_message('trigger-shortcut', name=sc_name)
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)
