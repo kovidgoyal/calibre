@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from gettext import gettext as _
-from select import move_end_of_selection, selection_extents, word_at_point
+from select import move_end_of_selection, selection_extents, word_at_point, range_for_tts
 
 from fs_images import fix_fullscreen_svg_images
 from iframe_comm import IframeClient
@@ -143,6 +143,7 @@ class IframeBoss:
             'show_search_result': self.show_search_result,
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
+            'tts': self.tts_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
             'clear_selection': def(): window.getSelection().removeAllRanges();,
@@ -546,7 +547,8 @@ class IframeBoss:
             annot_id = highlight_associated_with_selection(sel, annot_id_uuid_map)
             r = sel.getRangeAt(0)
             start_is_anchor = r.startContainer is sel.anchorNode and r.startOffset is sel.anchorOffset
-        by_search = window.performance.now() - self.last_search_at < 1000
+        now = window.performance.now()
+        by_search = now - self.last_search_at < 1000
         self.send_message(
             'selectionchange', text=text, empty=v'!!collapsed', annot_id=annot_id,
             drag_mouse_position=drag_mouse_position, selection_change_caused_by_search=by_search,
@@ -889,6 +891,12 @@ class IframeBoss:
             for i in range(s.rangeCount):
                 container.appendChild(s.getRangeAt(i).cloneContents())
             self.send_message('copy_text_to_clipboard', text=text, html=container.innerHTML)
+
+    def tts_msg_received(self, data):
+        if data.type is 'play':
+            r = range_for_tts()
+            text = r.toString()
+            self.send_message('tts', type='text-extracted', text=text)
 
 def main():
     main.boss = IframeBoss()

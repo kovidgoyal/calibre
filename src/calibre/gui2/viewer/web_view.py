@@ -269,6 +269,7 @@ class ViewerBridge(Bridge):
     highlights_changed = from_js(object)
     open_url = from_js(object)
     speak_simple_text = from_js(object)
+    tts = from_js(object, object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -519,6 +520,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.open_url.connect(safe_open_url)
         self.bridge.speak_simple_text.connect(self.speak_simple_text)
+        self.bridge.tts.connect(self.tts_action)
         self.bridge.export_shortcut_map.connect(self.set_shortcut_map)
         self.shortcut_map = {}
         self.bridge.report_cfi.connect(self.call_callback)
@@ -552,6 +554,9 @@ class WebView(RestartingWebEngineView):
             self.tts_client.speak_simple_text(text)
         except TTSSystemUnavailable as err:
             return error_dialog(self, _('Text-to-Speech unavailable'), str(err), show=True)
+
+    def tts_action(self, action, data):
+        pass
 
     def shutdown(self):
         if self._tts_client is not None:

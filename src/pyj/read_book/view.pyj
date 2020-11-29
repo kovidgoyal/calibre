@@ -294,6 +294,7 @@ class View:
                     ui_operations.search_result_not_found(data.search_result)
             ,
             'annotations': self.on_annotations_message,
+            'tts': self.on_tts_message,
             'copy_text_to_clipboard': def(data):
                 ui_operations.copy_selection(data.text, data.html)
             ,
@@ -344,6 +345,9 @@ class View:
 
     def on_annotations_message(self, data):
         self.selection_bar.handle_message(data)
+
+    def on_tts_message(self, data):
+        self.read_aloud.handle_message(data)
 
     def left_margin_clicked(self, event):
         if event.button is 0:
@@ -501,6 +505,8 @@ class View:
             ui_operations.toggle_full_screen()
         elif data.name is 'toggle_reference_mode':
             self.toggle_reference_mode()
+        elif data.name is 'read_aloud':
+            self.start_read_aloud()
         elif data.name is 'reload_book':
             ui_operations.reload_book()
         elif data.name is 'next_section':
@@ -667,6 +673,10 @@ class View:
             self.read_aloud.focus()
         else:
             self.iframe.contentWindow.focus()
+
+    def start_read_aloud(self):
+        self.selection_bar.hide()
+        self.read_aloud.show()
 
     def show_chrome(self, data):
         elements = {}

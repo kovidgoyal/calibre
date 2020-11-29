@@ -188,6 +188,12 @@ def shortcuts_definition():
         _('Show/hide Table of Contents'),
     ),
 
+    'read_aloud': desc(
+        'Ctrl+s',
+        'ui',
+        _('Read aloud')
+    ),
+
     'copy_to_clipboard': desc(
         v"['Ctrl+c', 'Meta+c']",
         'ui',

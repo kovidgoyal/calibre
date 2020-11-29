@@ -3,29 +3,35 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
+from gettext import gettext as _
 
 from book_list.theme import get_color
-from dom import clear, unique_id
-from read_book.globals import runtime
+from dom import clear, unique_id, svgicon
+from read_book.globals import runtime, ui_operations
+from read_book.selection_bar import BUTTON_MARGIN
+from read_book.highlights import ICON_SIZE
 
 HIDDEN = 0
-PAUSED = 1
-PLAYING = 2
+WAITING_FOR_PLAY_TO_START = 1
+PAUSED = 2
+PLAYING = 3
+STOPPED = 4
 
 
 class ReadAloud:
 
     def __init__(self, view):
         self.view = view
-        self.state = HIDDEN
+        self._state = HIDDEN
         self.bar_id = unique_id('bar')
         container = self.container
         container.setAttribute('tabindex', '0')
         container.style.overflow = 'hidden'
+        container.style.textAlign = 'right'
         container.appendChild(E.div(
             id=self.bar_id,
-            style='position: fixed; border: solid 1px currentColor; border-radius: 5px;'
-            'right: 95vw; top: 0; display: flex; flex-direction: column;'
+            style='position: static; border: solid 1px currentColor; border-radius: 5px;'
+            'display: inline-flex; flex-direction: column; margin: 1rem;'
         ))
 
     @property
@@ -44,21 +50,35 @@ class ReadAloud:
     def is_visible(self):
         return self.container.style.display is not 'none'
 
+    @property
+    def state(self):
+        return self._state
+
+    @state.setter
+    def state(self, val):
+        if val is not self._state:
+            self._state = val
+            self.build_bar()
+
     def hide(self):
-        self.state = HIDDEN
-        self.container.style.display = 'none'
-        self.view.focus_iframe()
+        if self.state is not HIDDEN:
+            ui_operations.tts('stop')
+            self.state = HIDDEN
+            self.container.style.display = 'none'
+            self.view.focus_iframe()
 
     def show(self):
         if self.state is HIDDEN:
             self.container.style.display = 'block'
-            self.state = PAUSED
+            self.state = STOPPED
             self.focus()
 
     def focus(self):
         self.container.focus()
 
     def build_bar(self, annot_id):
+        if self.state is HIDDEN:
+            return
         bar_container = self.bar
         clear(bar_container)
         bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
@@ -76,4 +96,49 @@ class ReadAloud:
         ]:
             bar_container.appendChild(x)
         bar = bar_container.firstChild
-        bar
+
+        def cb(name, icon, text):
+            ans = svgicon(icon, ICON_SIZE, ICON_SIZE, text)
+            if name:
+                ans.addEventListener('click', def(ev):
+                    ev.stopPropagation(), ev.preventDefault()
+                    self[name](ev)
+                    self.view.focus_iframe()
+                )
+            ans.classList.add('simple-link')
+            ans.style.marginLeft = ans.style.marginRight = BUTTON_MARGIN
+            return ans
+
+        if self.state is PLAYING:
+            bar.appendChild(cb('pause', 'pause', _('Pause reading')))
+        elif self.state is WAITING_FOR_PLAY_TO_START:
+            bar.appendChild(cb(None, 'hourglass', _('Pause reading')))
+        else:
+            bar.appendChild(cb('play', 'play', _('Start reading') if self.state is STOPPED else _('Resume reading')))
+        bar.appendChild(cb('hide', 'close', _('Close Read aloud')))
+
+    def play(self):
+        if self.state is PAUSED:
+            ui_operations.tts('resume')
+            self.state = PLAYING
+        elif self.state is STOPPED:
+            self.send_message('play')
+            self.state = WAITING_FOR_PLAY_TO_START
+
+    def pause(self):
+        if self.state is PLAYING:
+            ui_operations.tts('pause')
+            self.state = PAUSED
+
+    def toggle(self):
+        if self.state is PLAYING:
+            self.pause()
+        elif self.state is PAUSED or self.state is STOPPED:
+            self.play()
+
+    def send_message(self, type, **kw):
+        self.view.iframe_wrapper.send_message('tts', type=type, **kw)
+
+    def handle_message(self, msg):
+        if msg.type is 'text-extracted':
+            ui_operations.tts('play', {'text': msg.text})
