@@ -34,6 +34,7 @@ from read_book.resources import load_resources
 from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.selection_bar import SelectionBar
+from read_book.read_aloud import ReadAloud
 from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
@@ -243,6 +244,7 @@ class View:
                         right_margin,
                         self.book_scrollbar.create(),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-selection-bar-overlay'),  # selection bar overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-read-aloud-overlay'),  # read aloud overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
@@ -313,6 +315,7 @@ class View:
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
         self.selection_bar = SelectionBar(self)
+        self.read_aloud = ReadAloud(self)
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {'selection': {'empty': True}}
@@ -444,6 +447,7 @@ class View:
             ui_operations.overlay_visibility_changed(visible)
         if visible:
             self.selection_bar.hide()
+            self.read_aloud.hide()
         else:
             self.selection_bar.update_position()
 
@@ -659,6 +663,8 @@ class View:
     def focus_iframe(self):
         if self.selection_bar.is_visible:
             self.selection_bar.focus()
+        elif self.read_aloud.is_visible:
+            self.read_aloud.focus()
         else:
             self.iframe.contentWindow.focus()
 
@@ -1256,6 +1262,7 @@ class View:
 
     def on_content_loaded(self, data):
         self.selection_bar.hide()
+        self.read_aloud.hide()
         self.processing_spine_item_display = False
         self.currently_showing.loading = False
         self.hide_loading()

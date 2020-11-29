@@ -1,0 +1,79 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from elementmaker import E
+
+from book_list.theme import get_color
+from dom import clear, unique_id
+from read_book.globals import runtime
+
+HIDDEN = 0
+PAUSED = 1
+PLAYING = 2
+
+
+class ReadAloud:
+
+    def __init__(self, view):
+        self.view = view
+        self.state = HIDDEN
+        self.bar_id = unique_id('bar')
+        container = self.container
+        container.setAttribute('tabindex', '0')
+        container.style.overflow = 'hidden'
+        container.appendChild(E.div(
+            id=self.bar_id,
+            style='position: fixed; border: solid 1px currentColor; border-radius: 5px;'
+            'right: 95vw; top: 0; display: flex; flex-direction: column;'
+        ))
+
+    @property
+    def container(self):
+        return document.getElementById('book-read-aloud-overlay')
+
+    @property
+    def supports_css_min_max(self):
+        return not runtime.is_standalone_viewer or runtime.QT_VERSION >= 0x050f00
+
+    @property
+    def bar(self):
+        return document.getElementById(self.bar_id)
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def hide(self):
+        self.state = HIDDEN
+        self.container.style.display = 'none'
+        self.view.focus_iframe()
+
+    def show(self):
+        if self.state is HIDDEN:
+            self.container.style.display = 'block'
+            self.state = PAUSED
+            self.focus()
+
+    def focus(self):
+        self.container.focus()
+
+    def build_bar(self, annot_id):
+        bar_container = self.bar
+        clear(bar_container)
+        bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
+        bar_container.style.backgroundColor = get_color("window-background")
+        notes_container = E.div()
+        for x in [
+            E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
+
+            E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
+
+            E.div(
+                style='display: none; padding: 5px;',
+                notes_container,
+            )
+        ]:
+            bar_container.appendChild(x)
+        bar = bar_container.firstChild
+        bar
