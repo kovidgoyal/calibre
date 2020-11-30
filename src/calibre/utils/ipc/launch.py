@@ -187,9 +187,19 @@ class Worker:
             args['stderr'] = subprocess.STDOUT
 
         args['close_fds'] = True
-        if pass_fds:
-            args['pass_fds'] = pass_fds
-        self.child = subprocess.Popen(cmd, **args)
+        try:
+            if pass_fds:
+                if iswindows:
+                    for fd in pass_fds:
+                        os.set_handle_inheritable(fd, True)
+                    args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list':pass_fds})
+                else:
+                    args['pass_fds'] = pass_fds
+            self.child = subprocess.Popen(cmd, **args)
+        finally:
+            if iswindows and pass_fds:
+                for fd in pass_fds:
+                    os.set_handle_inheritable(fd, False)
         if 'stdin' in args:
             self.child.stdin.close()
 

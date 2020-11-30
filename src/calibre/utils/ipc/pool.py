@@ -387,7 +387,10 @@ def worker_main(conn):
 
 
 def run_main(client_fd, func):
-    from multiprocessing.connection import Connection
+    if iswindows:
+        from multiprocessing.connection import PipeConnection as Connection
+    else:
+        from multiprocessing.connection import Connection
     with Connection(client_fd) as conn:
         raise SystemExit(func(conn))
 

@@ -6,17 +6,23 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, sys, importlib
-from multiprocessing.connection import Connection
+import importlib
+import os
+import sys
 from threading import Thread
 from zipimport import ZipImportError
 
 from calibre import prints
-from calibre.constants import iswindows, ismacos
+from calibre.constants import ismacos, iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.serialize import pickle_dumps
-from polyglot.queue import Queue
 from polyglot.binary import from_hex_unicode
+from polyglot.queue import Queue
+
+if iswindows:
+    from multiprocessing.connection import PipeConnection as Connection
+else:
+    from multiprocessing.connection import Connection
 
 PARALLEL_FUNCS = {
     'lrfviewer'    :

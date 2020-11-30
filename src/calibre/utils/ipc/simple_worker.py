@@ -146,19 +146,30 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
     w = Worker(env or {})
     args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
     args.update(process_args)
-    if iswindows:
-        priority = {
-                'high'   : subprocess.HIGH_PRIORITY_CLASS,
-                'normal' : subprocess.NORMAL_PRIORITY_CLASS,
-                'low'    : subprocess.IDLE_PRIORITY_CLASS}[priority]
-        args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
-    else:
-        niceness = {'normal' : 0, 'low'    : 10, 'high'   : 20}[priority]
-        args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
+    pass_fds = None
+    try:
+        if iswindows:
+            priority = {
+                    'high'   : subprocess.HIGH_PRIORITY_CLASS,
+                    'normal' : subprocess.NORMAL_PRIORITY_CLASS,
+                    'low'    : subprocess.IDLE_PRIORITY_CLASS}[priority]
+            args['creationflags'] = subprocess.CREATE_NO_WINDOW|priority
+            pass_fds = args.pop('pass_fds', None)
+            if pass_fds:
+                for fd in pass_fds:
+                    os.set_handle_inheritable(fd, True)
+                args['startupinfo'] = subprocess.STARTUPINFO(lpAttributeList={'handle_list':pass_fds})
+        else:
+            niceness = {'normal' : 0, 'low'    : 10, 'high'   : 20}[priority]
+            args['env']['CALIBRE_WORKER_NICENESS'] = str(niceness)
 
-    exe = w.executable
-    cmd = [exe] if isinstance(exe, string_or_bytes) else exe
-    p = subprocess.Popen(cmd + ['--pipe-worker', command], **args)
+        exe = w.executable
+        cmd = [exe] if isinstance(exe, string_or_bytes) else exe
+        p = subprocess.Popen(cmd + ['--pipe-worker', command], **args)
+    finally:
+        if iswindows and pass_fds:
+            for fd in pass_fds:
+                os.set_handle_inheritable(fd, False)
     return p
 
 
