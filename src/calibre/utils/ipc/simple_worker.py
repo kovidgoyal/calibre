@@ -144,7 +144,7 @@ def create_worker(env, priority='normal', cwd=None, func='main'):
 def start_pipe_worker(command, env=None, priority='normal', **process_args):
     import subprocess
     w = Worker(env or {})
-    args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env}
+    args = {'stdout':subprocess.PIPE, 'stdin':subprocess.PIPE, 'env':w.env, 'close_fds': True}
     args.update(process_args)
     if iswindows:
         priority = {
