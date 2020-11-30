@@ -6,11 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, errno, sys
-from threading import Thread
+import errno
+import os
 
 from calibre import force_unicode
-from calibre.constants import iswindows, get_windows_username, islinux, filesystem_encoding
+from calibre.constants import (
+    filesystem_encoding, get_windows_username, islinux, iswindows
+)
 from calibre.utils.filenames import ascii_filename
 from polyglot.functools import lru_cache
 
@@ -57,25 +59,3 @@ def gui_socket_address():
 
 def viewer_socket_address():
     return socket_address('Viewer' if iswindows else 'viewer')
-
-
-class RC(Thread):
-
-    def __init__(self, print_error=True, socket_address=None):
-        self.print_error = print_error
-        self.socket_address = socket_address or gui_socket_address()
-        Thread.__init__(self)
-        self.conn = None
-        self.daemon = True
-
-    def run(self):
-        from multiprocessing.connection import Client
-        self.done = False
-        try:
-            self.conn = Client(self.socket_address)
-            self.done = True
-        except Exception:
-            if self.print_error:
-                print('Failed to connect to address {}', file=sys.stderr).format(repr(self.socket_address))
-                import traceback
-                traceback.print_exc()
