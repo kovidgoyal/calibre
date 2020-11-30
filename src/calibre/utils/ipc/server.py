@@ -30,7 +30,8 @@ from polyglot.binary import as_hex_unicode
 from polyglot.builtins import environ_item, string_or_bytes
 from polyglot.queue import Empty, Queue
 
-_counter = 0
+
+server_counter = count()
 
 
 class ConnectedWorker(Thread):
@@ -193,9 +194,7 @@ class Server(Thread):
             limit=sys.maxsize, enforce_cpu_limit=True):
         Thread.__init__(self)
         self.daemon = True
-        global _counter
-        self.id = _counter+1
-        _counter += 1
+        self.id = next(server_counter) + 1
 
         if enforce_cpu_limit:
             limit = min(limit, cpu_count())
