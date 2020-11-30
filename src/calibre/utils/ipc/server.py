@@ -14,9 +14,10 @@ import sys
 import tempfile
 import time
 from collections import deque
+from itertools import count
 from math import ceil
 from multiprocessing.connection import Listener, arbitrary_address
-from threading import RLock, Thread
+from threading import Thread
 
 from calibre import detect_ncpus as cpu_count, force_unicode
 from calibre.constants import DEBUG, cache_dir, islinux, iswindows
@@ -206,16 +207,13 @@ class Server(Thread):
         self.kill_queue = Queue()
         self.waiting_jobs = []
         self.workers = deque()
-        self.launched_worker_count = 0
-        self._worker_launch_lock = RLock()
-
+        self.launched_worker_counter = count()
+        next(self.launched_worker_counter)
         self.start()
 
     def launch_worker(self, gui=False, redirect_output=None, job_name=None):
         start = time.monotonic()
-        with self._worker_launch_lock:
-            self.launched_worker_count += 1
-            id = self.launched_worker_count
+        id = next(self.launched_worker_counter)
         fd, rfile = tempfile.mkstemp(prefix='ipc_result_%d_%d_'%(self.id, id),
                 dir=base_dir(), suffix='.pickle')
         os.close(fd)
@@ -231,7 +229,7 @@ class Server(Thread):
         if isinstance(cw, string_or_bytes):
             raise CriticalError('Failed to launch worker process:\n'+force_unicode(cw))
         if DEBUG:
-            print('Worker Launch took:', time.monotonic() - start)
+            print('Worker Launch took: {:.2f} seconds'.format(time.monotonic() - start))
         return cw
 
     def do_launch(self, env, gui, redirect_output, rfile, job_name=None):
