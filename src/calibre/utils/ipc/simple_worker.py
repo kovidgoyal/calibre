@@ -6,18 +6,23 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, traceback, importlib
-from multiprocessing.connection import Client
+import importlib
+import os
+import time
+import traceback
+from multiprocessing import Pipe
 from threading import Thread
-from contextlib import closing
 
 from calibre.constants import iswindows
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
-from calibre.utils.serialize import msgpack_loads, msgpack_dumps
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import unicode_type, string_or_bytes, environ_item
-from polyglot.binary import as_hex_unicode, from_hex_bytes
+from polyglot.builtins import environ_item, string_or_bytes, unicode_type
+
+if iswindows:
+    from multiprocessing.connection import PipeConnection as Connection
+else:
+    from multiprocessing.connection import Connection
 
 
 class WorkerError(Exception):
@@ -30,25 +35,20 @@ class WorkerError(Exception):
 
 class ConnectedWorker(Thread):
 
-    def __init__(self, listener, args):
+    def __init__(self, conn, args):
         Thread.__init__(self)
         self.daemon = True
 
-        self.listener = listener
+        self.conn = conn
         self.args = args
         self.accepted = False
         self.tb = None
         self.res = None
 
     def run(self):
-        conn = None
-        try:
-            conn = eintr_retry_call(self.listener.accept)
-        except BaseException:
-            self.tb = traceback.format_exc()
-            return
         self.accepted = True
-        with closing(conn):
+        conn = self.conn
+        with conn:
             try:
                 eintr_retry_call(conn.send, self.args)
                 self.res = eintr_retry_call(conn.recv)
@@ -56,18 +56,15 @@ class ConnectedWorker(Thread):
                 self.tb = traceback.format_exc()
 
 
-class OffloadWorker(object):
+class OffloadWorker:
 
-    def __init__(self, listener, worker):
-        self.listener = listener
+    def __init__(self, conn, worker):
+        self.conn = conn
         self.worker = worker
-        self.conn = None
         self.kill_thread = t = Thread(target=self.worker.kill)
         t.daemon = True
 
     def __call__(self, module, func, *args, **kwargs):
-        if self.conn is None:
-            self.conn = eintr_retry_call(self.listener.accept)
         eintr_retry_call(self.conn.send, (module, func, args, kwargs))
         return eintr_retry_call(self.conn.recv)
 
@@ -91,9 +88,9 @@ class OffloadWorker(object):
         return self.worker.is_alive or self.kill_thread.is_alive()
 
 
-def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
+def communicate(ans, worker, conn, args, timeout=300, heartbeat=None,
         abort=None):
-    cw = ConnectedWorker(listener, args)
+    cw = ConnectedWorker(conn, args)
     cw.start()
     st = monotonic()
     check_heartbeat = callable(heartbeat)
@@ -125,20 +122,17 @@ def communicate(ans, worker, listener, args, timeout=300, heartbeat=None,
 
 
 def create_worker(env, priority='normal', cwd=None, func='main'):
-    from calibre.utils.ipc.server import create_listener
-    auth_key = os.urandom(32)
-    address, listener = create_listener(auth_key)
-
     env = dict(env)
-    env.update({
-        'CALIBRE_WORKER_ADDRESS': environ_item(as_hex_unicode(msgpack_dumps(address))),
-        'CALIBRE_WORKER_KEY': environ_item(as_hex_unicode(auth_key)),
-        'CALIBRE_SIMPLE_WORKER': environ_item('calibre.utils.ipc.simple_worker:%s' % func),
-    })
+    a, b = Pipe()
+    with a:
+        env.update({
+            'CALIBRE_WORKER_FD': str(a.fileno()),
+            'CALIBRE_SIMPLE_WORKER': environ_item('calibre.utils.ipc.simple_worker:%s' % func),
+        })
 
-    w = Worker(env)
-    w(cwd=cwd, priority=priority)
-    return listener, w
+        w = Worker(env)
+        w(cwd=cwd, priority=priority, pass_fds=(a.fileno(),))
+    return b, w
 
 
 def start_pipe_worker(command, env=None, priority='normal', **process_args):
@@ -175,7 +169,7 @@ def start_pipe_worker(command, env=None, priority='normal', **process_args):
 
 def two_part_fork_job(env=None, priority='normal', cwd=None):
     env = env or {}
-    listener, w = create_worker(env, priority, cwd)
+    conn, w = create_worker(env, priority, cwd)
 
     def run_job(
         mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
@@ -184,7 +178,7 @@ def two_part_fork_job(env=None, priority='normal', cwd=None):
         ans = {'result':None, 'stdout_stderr':None}
         kwargs = kwargs or {}
         try:
-            communicate(ans, w, listener, (mod_name, func_name, args, kwargs,
+            communicate(ans, w, conn, (mod_name, func_name, args, kwargs,
                 module_is_source_code), timeout=timeout, heartbeat=heartbeat,
                 abort=abort)
         except WorkerError as e:
@@ -267,12 +261,13 @@ def fork_job(mod_name, func_name, args=(), kwargs=None, timeout=300,  # seconds
 
 
 def offload_worker(env={}, priority='normal', cwd=None):
-    listener, w = create_worker(env=env, priority=priority, cwd=cwd, func='offload')
-    return OffloadWorker(listener, w)
+    conn, w = create_worker(env=env, priority=priority, cwd=cwd, func='offload')
+    return OffloadWorker(conn, w)
 
 
 def compile_code(src):
-    import re, io
+    import io
+    import re
     if not isinstance(src, unicode_type):
         match = re.search(br'coding[:=]\s*([-\w.]+)', src[:200])
         enc = match.group(1).decode('utf-8') if match else 'utf-8'
@@ -291,9 +286,7 @@ def compile_code(src):
 
 def main():
     # The entry point for the simple worker process
-    address = msgpack_loads(from_hex_bytes(os.environ['CALIBRE_WORKER_ADDRESS']))
-    key     = from_hex_bytes(os.environ['CALIBRE_WORKER_KEY'])
-    with closing(Client(address, authkey=key)) as conn:
+    with Connection(int(os.environ['CALIBRE_WORKER_FD'])) as conn:
         args = eintr_retry_call(conn.recv)
         try:
             mod, func, args, kwargs, module_is_source_code = args
@@ -321,10 +314,8 @@ def main():
 
 def offload():
     # The entry point for the offload worker process
-    address = msgpack_loads(from_hex_bytes(os.environ['CALIBRE_WORKER_ADDRESS']))
-    key     = from_hex_bytes(os.environ['CALIBRE_WORKER_KEY'])
     func_cache = {}
-    with closing(Client(address, authkey=key)) as conn:
+    with Connection(int(os.environ['CALIBRE_WORKER_FD'])) as conn:
         while True:
             args = eintr_retry_call(conn.recv)
             if args is None:

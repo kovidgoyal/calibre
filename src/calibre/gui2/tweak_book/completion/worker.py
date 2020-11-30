@@ -5,16 +5,14 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys
-from threading import Thread, Event, RLock
-from contextlib import closing
 from collections import namedtuple
+from multiprocessing.connection import Pipe
+from threading import Event, RLock, Thread
 
 from calibre.constants import iswindows
 from calibre.gui2.tweak_book.completion.basic import Request
 from calibre.gui2.tweak_book.completion.utils import DataError
 from calibre.utils.ipc import eintr_retry_call
-from calibre.utils.serialize import msgpack_loads, msgpack_dumps
 from polyglot.queue import Queue
 
 COMPLETION_REQUEST = 'completion request'
@@ -34,22 +32,24 @@ class CompletionWorker(Thread):
         self.reap_thread = None
         self.shutting_down = False
         self.connected = Event()
-        self.current_completion_request = None
         self.latest_completion_request_id = None
         self.request_count = 0
         self.lock = RLock()
 
     def launch_worker_process(self):
-        from calibre.utils.ipc.server import create_listener
         from calibre.utils.ipc.pool import start_worker
-        self.worker_process = p = start_worker(
-            'from {0} import run_main, {1}; run_main({1})'.format(self.__class__.__module__, self.worker_entry_point))
-        auth_key = os.urandom(32)
-        address, self.listener = create_listener(auth_key)
-        eintr_retry_call(p.stdin.write, msgpack_dumps((address, auth_key)))
-        p.stdin.flush(), p.stdin.close()
-        self.control_conn = eintr_retry_call(self.listener.accept)
-        self.data_conn = eintr_retry_call(self.listener.accept)
+        control_a, control_b = Pipe()
+        data_a, data_b = Pipe()
+        with control_a, data_a:
+            pass_fds = control_a.fileno(), data_a.fileno()
+            self.worker_process = p = start_worker(
+                'from {0} import run_main, {1}; run_main({2}, {3}, {1})'.format(
+                    self.__class__.__module__, self.worker_entry_point, *pass_fds),
+                pass_fds
+            )
+            p.stdin.close()
+        self.control_conn = control_b
+        self.data_conn = data_b
         self.data_thread = t = Thread(name='CWData', target=self.handle_data_requests)
         t.daemon = True
         t.start()
@@ -106,10 +106,7 @@ class CompletionWorker(Thread):
             req_type, req_data = obj
             try:
                 if req_type is COMPLETION_REQUEST:
-                    with self.lock:
-                        if self.current_completion_request is not None:
-                            ccr, self.current_completion_request = self.current_completion_request, None
-                            self.send_completion_request(ccr)
+                    self.send_completion_request(req_data)
                 elif req_type is CLEAR_REQUEST:
                     self.send(req_data)
             except EOFError:
@@ -121,7 +118,8 @@ class CompletionWorker(Thread):
     def send_completion_request(self, request):
         self.send(request)
         result = self.recv()
-        if result.request_id == self.latest_completion_request_id:
+        latest_completion_request_id = self.latest_completion_request_id
+        if result is not None and result.request_id == latest_completion_request_id:
             try:
                 self.result_callback(result)
             except Exception:
@@ -133,9 +131,9 @@ class CompletionWorker(Thread):
 
     def queue_completion(self, request_id, completion_type, completion_data, query=None):
         with self.lock:
-            self.current_completion_request = Request(request_id, completion_type, completion_data, query)
-            self.latest_completion_request_id = self.current_completion_request.id
-        self.main_queue.put((COMPLETION_REQUEST, None))
+            ccr = Request(request_id, completion_type, completion_data, query)
+            self.latest_completion_request_id = ccr.id
+        self.main_queue.put((COMPLETION_REQUEST, ccr))
 
     def shutdown(self):
         self.shutting_down = True
@@ -170,11 +168,12 @@ def completion_worker():
     return _completion_worker
 
 
-def run_main(func):
-    from multiprocessing.connection import Client
-    stdin = getattr(sys.stdin, 'buffer', sys.stdin)
-    address, key = msgpack_loads(eintr_retry_call(stdin.read))
-    with closing(Client(address, authkey=key)) as control_conn, closing(Client(address, authkey=key)) as data_conn:
+def run_main(control_fd, data_fd, func):
+    if iswindows:
+        from multiprocessing.connection import PipeConnection as Connection
+    else:
+        from multiprocessing.connection import Connection
+    with Connection(control_fd) as control_conn, Connection(data_fd) as data_conn:
         func(control_conn, data_conn)
 
 
@@ -207,12 +206,14 @@ def main(control_conn, data_conn):
 
 def test_main(control_conn, data_conn):
     obj = control_conn.recv()
-    control_conn.send(obj)
+    dobj = data_conn.recv()
+    control_conn.send((obj, dobj))
 
 
 def test():
     w = CompletionWorker(worker_entry_point='test_main')
     w.wait_for_connection()
+    w.data_conn.send('got the data')
     w.send('Hello World!')
     print(w.recv())
     w.shutdown(), w.join()

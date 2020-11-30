@@ -68,11 +68,11 @@ def get_stdout(process):
             break
 
 
-def start_worker(code, pipe_fd, name=''):
+def start_worker(code, pass_fds, name=''):
     from calibre.utils.ipc.simple_worker import start_pipe_worker
     if name:
         name = '-' + name
-    p = start_pipe_worker(code, pass_fds=(pipe_fd,), **worker_kwargs)
+    p = start_pipe_worker(code, pass_fds=pass_fds, **worker_kwargs)
     if get_stdout_from_child:
         t = Thread(target=get_stdout, name='PoolWorkerGetStdout' + name, args=(p,))
         t.daemon = True
@@ -191,7 +191,7 @@ class Pool(Thread):
         with a:
             cmd = 'from {0} import run_main, {1}; run_main({2!r}, {1})'.format(
                 self.__class__.__module__, 'worker_main', a.fileno())
-            p = start_worker(cmd, a.fileno())
+            p = start_worker(cmd, (a.fileno(),))
         sys.stdout.flush()
         p.stdin.close()
         w = Worker(p, b, self.events, self.name)
