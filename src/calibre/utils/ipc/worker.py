@@ -213,7 +213,8 @@ def main():
             notifier.start()
 
         result = func(*args, **kwargs)
-        if result is not None and os.path.exists(os.path.dirname(resultf)):
+        if result is not None:
+            os.makedirs(os.path.dirname(resultf), exist_ok=True)
             with lopen(resultf, 'wb') as f:
                 f.write(pickle_dumps(result))
 
