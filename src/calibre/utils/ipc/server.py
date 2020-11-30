@@ -212,7 +212,7 @@ class Server(Thread):
         self.start()
 
     def launch_worker(self, gui=False, redirect_output=None, job_name=None):
-        start = time.time()
+        start = time.monotonic()
         with self._worker_launch_lock:
             self.launched_worker_count += 1
             id = self.launched_worker_count
@@ -231,7 +231,7 @@ class Server(Thread):
         if isinstance(cw, string_or_bytes):
             raise CriticalError('Failed to launch worker process:\n'+force_unicode(cw))
         if DEBUG:
-            print('Worker Launch took:', time.time() - start)
+            print('Worker Launch took:', time.monotonic() - start)
         return cw
 
     def do_launch(self, env, gui, redirect_output, rfile, job_name=None):
