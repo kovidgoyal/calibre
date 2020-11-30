@@ -19,16 +19,15 @@ from multiprocessing.connection import Listener, arbitrary_address
 from threading import RLock, Thread
 
 from calibre import detect_ncpus as cpu_count, force_unicode
-from calibre.constants import DEBUG, islinux, iswindows
+from calibre.constants import DEBUG, cache_dir, islinux, iswindows
 from calibre.ptempfile import base_dir
 from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.ipc.launch import Worker
 from calibre.utils.ipc.worker import PARALLEL_FUNCS
 from calibre.utils.serialize import msgpack_dumps, pickle_loads
-from polyglot.builtins import string_or_bytes, environ_item
-from polyglot.queue import Empty, Queue
 from polyglot.binary import as_hex_unicode
-
+from polyglot.builtins import environ_item, string_or_bytes
+from polyglot.queue import Empty, Queue
 
 _counter = 0
 
@@ -158,7 +157,10 @@ elif iswindows:
 else:
 
     def create_listener(authkey, backlog=4):
-        prefix = os.path.join(base_dir(), 'ipc-socket-%d-%%d' % os.getpid())
+        # We use the cache dir rather than the temp dir because
+        # on macOS, there is software that deletes the temp dir after
+        # periods of inactivity
+        prefix = os.path.join(cache_dir(), 'ipc-socket-%d-%%d' % os.getpid())
         max_tries = 20
         while max_tries > 0:
             max_tries -= 1
