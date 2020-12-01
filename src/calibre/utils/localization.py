@@ -240,10 +240,20 @@ def translator_for_lang(lang):
                     pass  # No lcdata
 
     if buf is not None:
-        t = GNUTranslations(buf)
+        try:
+            t = GNUTranslations(buf)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            t = None
         if iso639 is not None:
-            iso639 = GNUTranslations(iso639)
-            t.add_fallback(iso639)
+            try:
+                iso639 = GNUTranslations(iso639)
+            except Exception:
+                iso639 = None
+            else:
+                if t is not None:
+                    t.add_fallback(iso639)
 
     if t is None:
         t = NullTranslations()
