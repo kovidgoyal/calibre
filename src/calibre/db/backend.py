@@ -1338,7 +1338,12 @@ class DB(object):
         except:  # If path contains strange characters this throws an exc
             candidates = []
         if fmt and candidates and os.path.exists(candidates[0]):
-            shutil.copyfile(candidates[0], fmt_path)
+            try:
+                shutil.copyfile(candidates[0], fmt_path)
+            except shutil.SameFileError:
+                # some other process synced in the file since the last
+                # os.path.exists()
+                return candidates[0]
             return fmt_path
 
     def cover_abspath(self, book_id, path):
