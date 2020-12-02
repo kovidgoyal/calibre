@@ -43,9 +43,6 @@ class Guardian(BasicNewsRecipe):
 
     timefmt = ' [%a, %d %b %Y]'
 
-    keep_only_tags = [
-        dict(attrs={'class': lambda x: x and 'content__main-column' in x.split()}),
-    ]
     remove_tags = [
         dict(attrs={'class': lambda x: x and '--twitter' in x}),
         dict(attrs={'class': lambda x: x and 'submeta' in x.split()}),
@@ -71,12 +68,22 @@ class Guardian(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
         return br
 
-    def preprocess_raw_html(self, raw, url):
-        import html5lib
-        from lxml import html
-        return html.tostring(html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml'), encoding='unicode')
-
     def preprocess_html(self, soup):
+        # with open('/t/raw.html', 'w') as f:
+        #     f.write(str(soup))
+        old_body = soup.find('body')
+        if old_body is not None:
+            main_column = soup.find(**classes('content__main-column'))
+            if main_column is None:
+                for section in soup.findAll('section'):
+                    if section.find('h1') is not None:
+                        main_column = section
+                        break
+            if main_column is not None:
+                body = soup.new_tag('body')
+                body.append(main_column)
+                old_body.replaceWith(body)
+
         for img in soup.findAll('img', srcset=True):
             img['src'] = img['srcset'].partition(' ')[0]
             img['srcset'] = ''
@@ -100,6 +107,9 @@ class Guardian(BasicNewsRecipe):
         return feeds
 
     def parse_index(self):
+        # return [('All articles', [
+        #     {'title': 'XXXXX', 'url': 'https://www.theguardian.com/politics/2020/dec/01/uk-likely-to-axe-finance-bill-clauses-if-brexit-trade-deal-made'},
+        # ])]
         feeds = self.parse_section(self.base_url)
         feeds += self.parse_section(
             'https://www.theguardian.com/uk/sport', 'Sport - ')
