@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 import re, os
 
 from calibre.ebooks.chardet import strip_encoding_declarations
-from polyglot.builtins import unicode_type, range
 
 
 def update_internal_links(mobi8_reader, log):
@@ -125,21 +124,25 @@ def update_flow_links(mobi8_reader, resource_map, log):
     font_index_pattern = re.compile(r'''kindle:embed:([0-9|A-V]+)''', re.IGNORECASE)
     url_css_index_pattern = re.compile(r'''kindle:flow:([0-9|A-V]+)\?mime=text/css[^\)]*''', re.IGNORECASE)
 
-    for flow in mr.flows:
-        if flow is None:  # 0th flow is None
-            flows.append(flow)
-            continue
-
-        if not isinstance(flow, unicode_type):
+    def flow_as_unicode(flow):
+        if isinstance(flow, bytes):
             try:
                 flow = flow.decode(mr.header.codec)
             except UnicodeDecodeError:
                 log.error('Flow part has invalid %s encoded bytes'%mr.header.codec)
                 flow = flow.decode(mr.header.codec, 'replace')
+        return flow
+
+    for flow in mr.flows:
+        if flow is None:  # 0th flow is None
+            flows.append(flow)
+            continue
+        flow = flow_as_unicode(flow)
 
         # links to raster image files from image tags
         # image_pattern
         srcpieces = img_pattern.split(flow)
+
         for j in range(1, len(srcpieces), 2):
             tag = srcpieces[j]
             if tag.startswith('<im') or tag.startswith('<svg:image'):
@@ -208,7 +211,7 @@ def update_flow_links(mobi8_reader, resource_map, log):
                         tag = ''
                     else:
                         if fi.format == 'inline':
-                            flowtext = mr.flows[num]
+                            flowtext = flow_as_unicode(mr.flows[num])
                             tag = flowtext
                         else:
                             replacement = '"../' + fi.dir + '/' + fi.fname + '"'
