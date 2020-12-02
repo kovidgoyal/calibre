@@ -52,6 +52,7 @@ class HeaderView(QHeaderView):  # {{{
             self.setSectionsMovable(True)
             self.setSectionsClickable(True)
             self.setContextMenuPolicy(Qt.CustomContextMenu)
+            self.setTextElideMode(Qt.ElideRight)
         self.hover = -1
         self.current_font = QFont(self.font())
         self.current_font.setBold(True)
