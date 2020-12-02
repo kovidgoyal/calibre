@@ -218,7 +218,10 @@ class ResultsList(QTreeWidget):
 
     def show_context_menu(self, pos):
         item = self.itemAt(pos)
-        result = item.data(0, Qt.UserRole)
+        if item is not None:
+            result = item.data(0, Qt.UserRole)
+        else:
+            result = None
         items = self.selectedItems()
         m = QMenu(self)
         if isinstance(result, dict):
