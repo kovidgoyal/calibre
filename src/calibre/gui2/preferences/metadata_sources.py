@@ -7,16 +7,19 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
+from PyQt5.Qt import (
+    QAbstractListModel, QAbstractTableModel, QDialogButtonBox, QFrame, QIcon, QLabel,
+    QScrollArea, Qt, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from PyQt5.Qt import (QAbstractTableModel, Qt, QAbstractListModel, QWidget,
-        pyqtSignal, QVBoxLayout, QDialogButtonBox, QFrame, QLabel, QIcon)
-
+from calibre.customize.ui import (
+    all_metadata_plugins, default_disabled_plugins, disable_plugin, enable_plugin,
+    is_disabled
+)
+from calibre.ebooks.metadata.sources.prefs import msprefs
+from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.metadata_sources_ui import Ui_Form
-from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.customize.ui import (all_metadata_plugins, is_disabled,
-        enable_plugin, disable_plugin, default_disabled_plugins)
-from calibre.gui2 import error_dialog, question_dialog
 from polyglot.builtins import iteritems
 
 
@@ -275,7 +278,10 @@ class PluginConfig(QWidget):  # {{{
         l.addWidget(c)
 
         self.config_widget = plugin.config_widget()
-        self.l.addWidget(self.config_widget)
+        self.sa = sa = QScrollArea(self)
+        sa.setWidgetResizable(True)
+        sa.setWidget(self.config_widget)
+        l.addWidget(sa)
 
         self.bb = QDialogButtonBox(
                 QDialogButtonBox.Save|QDialogButtonBox.Cancel,

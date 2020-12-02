@@ -6,10 +6,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, numbers
-
-from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
-        QDoubleSpinBox, QCheckBox, QLineEdit, QComboBox, QLabel)
+import numbers
+import textwrap
+from PyQt5.Qt import (
+    QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QLabel, QLineEdit,
+    QListView, QSpinBox, Qt, QVBoxLayout, QWidget
+)
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 from calibre.utils.icu import sort_key
@@ -54,35 +56,41 @@ class FieldsModel(FM):  # {{{
 # }}}
 
 
+class FieldsList(QListView):
+
+    def sizeHint(self):
+        return self.minimumSizeHint()
+
+
 class ConfigWidget(QWidget):
 
     def __init__(self, plugin):
         QWidget.__init__(self)
         self.plugin = plugin
 
-        self.l = l = QGridLayout()
-        self.setLayout(l)
-
+        self.overl = l = QVBoxLayout(self)
         self.gb = QGroupBox(_('Metadata fields to download'), self)
         if plugin.config_help_message:
             self.pchm = QLabel(plugin.config_help_message)
             self.pchm.setWordWrap(True)
             self.pchm.setOpenExternalLinks(True)
-            l.addWidget(self.pchm, 0, 0, 1, 2)
-        l.addWidget(self.gb, l.rowCount(), 0, 1, 2)
-        self.gb.l = QGridLayout()
-        self.gb.setLayout(self.gb.l)
-        self.fields_view = v = QListView(self)
-        self.gb.l.addWidget(v, 0, 0)
+            l.addWidget(self.pchm, 10)
+        l.addWidget(self.gb)
+        self.gb.l = g = QVBoxLayout(self.gb)
+        g.setContentsMargins(0, 0, 0, 0)
+        self.fields_view = v = FieldsList(self)
+        g.addWidget(v)
         v.setFlow(v.LeftToRight)
         v.setWrapping(True)
         v.setResizeMode(v.Adjust)
         self.fields_model = FieldsModel(self.plugin)
         self.fields_model.initialize()
         v.setModel(self.fields_model)
-
         self.memory = []
         self.widgets = []
+        self.l = QGridLayout()
+        self.l.setContentsMargins(0, 0, 0, 0)
+        l.addLayout(self.l, 100)
         for opt in plugin.options:
             self.create_widgets(opt)
 
