@@ -3,18 +3,19 @@
 from __python__ import bound_methods, hash_literals
 
 import traceback
-from gettext import gettext as _
-from select import move_end_of_selection, selection_extents, word_at_point, range_for_tts
-
 from fs_images import fix_fullscreen_svg_images
+from gettext import gettext as _
 from iframe_comm import IframeClient
 from range_utils import (
-    highlight_associated_with_selection, last_span_for_crw, reset_highlight_counter,
-    select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
+    first_non_empty_text_node_in_range, highlight_associated_with_selection,
+    last_span_for_crw, reset_highlight_counter, select_crw, unwrap_all_crw,
+    unwrap_crw, wrap_text_in_range
 )
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
-from read_book.find import reset_find_caches, select_search_result
+from read_book.find import (
+    reset_find_caches, select_search_result, select_tts_mark, tts_data
+)
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
     cancel_drag_scroll as cancel_drag_scroll_flow, ensure_selection_visible,
@@ -38,8 +39,8 @@ from read_book.paged_mode import (
     cancel_drag_scroll as cancel_drag_scroll_paged, current_cfi,
     get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
     handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
-    layout as paged_layout, onwheel as paged_onwheel,
-    prepare_for_resize as paged_prepare_for_resize, progress_frac, page_counts,
+    layout as paged_layout, onwheel as paged_onwheel, page_counts,
+    prepare_for_resize as paged_prepare_for_resize, progress_frac,
     reset_paged_mode_globals, resize_done as paged_resize_done,
     scroll_by_page as paged_scroll_by_page, scroll_to_elem,
     scroll_to_extend_annotation as paged_annotation_scroll,
@@ -57,11 +58,14 @@ from read_book.settings import (
 from read_book.shortcuts import (
     create_shortcut_map, keyevent_as_shortcut, shortcut_for_key_event
 )
-from read_book.toc import update_visible_toc_anchors, find_anchor_before_range
+from read_book.toc import find_anchor_before_range, update_visible_toc_anchors
 from read_book.touch import (
     create_handlers as create_touch_handlers, reset_handlers as reset_touch_handlers
 )
 from read_book.viewport import scroll_viewport
+from select import (
+    move_end_of_selection, range_for_tts, selection_extents, word_at_point
+)
 from utils import debounce, is_ios
 
 FORCE_FLOW_MODE = False
@@ -893,10 +897,23 @@ class IframeBoss:
             self.send_message('copy_text_to_clipboard', text=text, html=container.innerHTML)
 
     def tts_msg_received(self, data):
-        if data.type is 'play':
-            r = range_for_tts()
-            text = r.toString()
-            self.send_message('tts', type='text-extracted', text=text)
+        if data.type is 'mark':
+            self.mark_word_being_spoken(data.num)
+        elif data.type is 'play':
+            if data.x? and data.y?:
+                r = range_for_tts(data.x, data.y)
+                text_node, offset = first_non_empty_text_node_in_range(r)
+            else:
+                text_node, offset = None, 0
+            marked_text = tts_data(text_node, offset)
+            sel = window.getSelection()
+            sel.removeAllRanges()
+            self.send_message('tts', type='text-extracted', marked_text=marked_text)
+
+    def mark_word_being_spoken(self, occurrence_number):
+        self.last_search_at = window.performance.now()
+        if select_tts_mark(occurrence_number):
+            self.ensure_selection_visible()
 
 def main():
     main.boss = IframeBoss()

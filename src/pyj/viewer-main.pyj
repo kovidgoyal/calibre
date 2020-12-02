@@ -206,6 +206,11 @@ def generic_action(which, data):
 
 
 @from_python
+def tts_event(which, data):
+    view.read_aloud.handle_tts_event(which, data)
+
+
+@from_python
 def show_home_page():
     view.overlay.open_book(False)
 

@@ -168,9 +168,15 @@ class ReadAloud:
         elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
             self.send_message('trigger-shortcut', name=sc_name)
 
+    def handle_tts_event(self, which, data):
+        if which is 'mark':
+            self.send_message('mark', num=data)
+        elif which is 'begin':
+            self.state = PLAYING
+
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)
 
     def handle_message(self, msg):
         if msg.type is 'text-extracted':
-            ui_operations.tts('play', {'text': msg.text})
+            ui_operations.tts('play', {'marked_text': msg.marked_text})

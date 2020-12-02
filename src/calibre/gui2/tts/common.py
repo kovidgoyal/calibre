@@ -19,3 +19,6 @@ class Event:
     def __init__(self, etype, data=None):
         self.type = etype
         self.data = data
+
+    def __repr__(self):
+        return f'Event(type={self.type}, data={self.data})'

@@ -288,6 +288,7 @@ class ViewerBridge(Bridge):
     show_search_result = to_js()
     prepare_for_close = to_js()
     viewer_font_size_changed = to_js()
+    tts_event = to_js()
 
 
 def apply_font_settings(page_or_view):
@@ -474,6 +475,7 @@ class WebView(RestartingWebEngineView):
         self.current_cfi = self.current_content_file = None
         RestartingWebEngineView.__init__(self, parent)
         self.tts = TTS(self)
+        self.tts.event_received.connect(self.tts_event_received)
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
         w = QApplication.instance().desktop().availableGeometry(self).width()
@@ -709,3 +711,6 @@ class WebView(RestartingWebEngineView):
 
     def generic_action(self, which, data):
         self.execute_when_ready('generic_action', which, data)
+
+    def tts_event_received(self, which, data):
+        self.execute_when_ready('tts_event', which, data)

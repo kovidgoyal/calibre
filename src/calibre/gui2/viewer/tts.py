@@ -3,12 +3,26 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 from PyQt5.Qt import QObject, pyqtSignal
+
 from calibre.gui2 import error_dialog
+
+
+def add_markup(text_parts):
+    from calibre.gui2.tts.implementation import Client
+    buf = []
+    bm = Client.mark_template
+    for x in text_parts:
+        if isinstance(x, int):
+            buf.append(bm.format(x))
+        else:
+            buf.append(Client.escape_marked_text(x))
+    return ''.join(buf)
 
 
 class TTS(QObject):
 
     dispatch_on_main_thread_signal = pyqtSignal(object)
+    event_received = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -49,8 +63,20 @@ class TTS(QObject):
             return error_dialog(self.parent(), _('Text-to-Speech unavailable'), str(err), show=True)
 
     def play(self, data):
-        text = data['text']
-        print(11111, text)
+        marked_text = add_markup(data['marked_text'])
+        self.tts_client.speak_marked_text(marked_text, self.callback)
+
+    def pause(self, data):
+        self.tts_client.pause()
+
+    def resume(self, data):
+        self.tts_client.resume()
+
+    def callback(self, event):
+        data = event.data
+        if event.type is event.type.mark:
+            data = int(data)
+        self.event_received.emit(event.type.name, data)
 
     def stop(self, data):
         self.tts_client.stop()
