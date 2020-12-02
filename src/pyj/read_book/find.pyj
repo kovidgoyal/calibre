@@ -13,12 +13,13 @@ def build_text_map():
 
     def process_node(node):
         nonlocal flat_text
-        if node.nodeType is Node.TEXT_NODE:
+        nt = node.nodeType
+        if nt is Node.TEXT_NODE:
             text = node.nodeValue
             if text and text.length:
-                node_list.push({'node': node, 'offset': flat_text.length, 'length': text.length})
+                node_list.push(v"{node: node, offset: flat_text.length, length: text.length}")
                 flat_text += text
-        elif node.nodeType is Node.ELEMENT_NODE:
+        elif nt is Node.ELEMENT_NODE:
             if not node.hasChildNodes():
                 return
             tag = node.tagName.toLowerCase()
