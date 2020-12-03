@@ -25,7 +25,7 @@ class Pen(QPen):
 
     def __init__(self, color, width):
         QPen.__init__(self, QBrush(Color(color)), width,
-                      (Qt.SolidLine if width > 0 else Qt.NoPen))
+                      (Qt.PenStyle.SolidLine if width > 0 else Qt.PenStyle.NoPen))
 
 
 class ContentObject(object):
@@ -38,7 +38,7 @@ class ContentObject(object):
 
 class RuledLine(QGraphicsLineItem, ContentObject):
 
-    map = {'solid': Qt.SolidLine, 'dashed': Qt.DashLine, 'dotted': Qt.DotLine, 'double': Qt.DashDotLine}
+    map = {'solid': Qt.PenStyle.SolidLine, 'dashed': Qt.PenStyle.DashLine, 'dotted': Qt.PenStyle.DotLine, 'double': Qt.PenStyle.DashDotLine}
 
     def __init__(self, rl):
         QGraphicsLineItem.__init__(self, 0, 0, rl.linelength, 0)
@@ -82,7 +82,7 @@ class _Canvas(QGraphicsRectItem):
         self.current_y, self.max_y, self.max_x = 0, height, width
         self.is_full = False
         pen = QPen()
-        pen.setStyle(Qt.NoPen)
+        pen.setStyle(Qt.PenStyle.NoPen)
         self.setPen(pen)
         if not hasattr(self, 'children'):
             self.children = self.childItems
@@ -156,8 +156,8 @@ class _Canvas(QGraphicsRectItem):
             max_width  = min(br.width(), self.max_x-x)
             if br.height() > max_height or br.width() > max_width:
                 p = ib.pixmap()
-                ib.setPixmap(p.scaled(max_width, max_height, Qt.IgnoreAspectRatio,
-                                      Qt.SmoothTransformation))
+                ib.setPixmap(p.scaled(max_width, max_height, Qt.AspectRatioMode.IgnoreAspectRatio,
+                                      Qt.TransformationMode.SmoothTransformation))
                 br = ib.boundingRect()
             ib.setParentItem(self)
             ib.setPos(x, y)
@@ -220,7 +220,7 @@ class Header(Canvas):
         Canvas.__init__(self, font_loader, header, logger, opts, ruby_tags, link_activated,
                         page_style.textwidth,  page_style.headheight)
         if opts.visual_debug:
-            self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
+            self.setPen(QPen(Qt.GlobalColor.blue, 1, Qt.PenStyle.DashLine))
 
 
 class Footer(Canvas):
@@ -229,7 +229,7 @@ class Footer(Canvas):
         Canvas.__init__(self, font_loader, footer, logger, opts, ruby_tags, link_activated,
                         page_style.textwidth, page_style.footheight)
         if opts.visual_debug:
-            self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
+            self.setPen(QPen(Qt.GlobalColor.blue, 1, Qt.PenStyle.DashLine))
 
 
 class Screen(_Canvas):
@@ -249,7 +249,7 @@ class Screen(_Canvas):
 
         _Canvas.__init__(self, font_loader, logger, opts, width=width, height=self.footer_y+page_style.footheight)
         if opts.visual_debug:
-            self.setPen(QPen(Qt.red, 1, Qt.SolidLine))
+            self.setPen(QPen(Qt.GlobalColor.red, 1, Qt.PenStyle.SolidLine))
         header = footer = None
         if page_style.headheight > 0:
             try:
@@ -289,7 +289,7 @@ class Page(_Canvas):
     def __init__(self, font_loader, logger, opts, width, height):
         _Canvas.__init__(self, font_loader, logger, opts, width, height)
         if opts.visual_debug:
-            self.setPen(QPen(Qt.cyan, 1, Qt.DashLine))
+            self.setPen(QPen(Qt.GlobalColor.cyan, 1, Qt.PenStyle.DashLine))
 
     def id(self):
         for child in self.children():

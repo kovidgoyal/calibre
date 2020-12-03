@@ -34,10 +34,10 @@ class BusyWidget(QWidget):  # {{{
         self.setLayout(l)
         l.addStretch(10)
         self.pi = ProgressIndicator(self, 128)
-        l.addWidget(self.pi, alignment=Qt.AlignHCenter)
+        l.addWidget(self.pi, alignment=Qt.AlignmentFlag.AlignHCenter)
         self.dummy = QLabel('<h2>\xa0')
         l.addSpacing(10)
-        l.addWidget(self.dummy, alignment=Qt.AlignHCenter)
+        l.addWidget(self.dummy, alignment=Qt.AlignmentFlag.AlignHCenter)
         l.addStretch(10)
         self.text = _('Calculating differences, please wait...')
 
@@ -50,9 +50,9 @@ class BusyWidget(QWidget):  # {{{
         f.setBold(True)
         f.setPointSize(20)
         p.setFont(f)
-        p.setPen(Qt.SolidLine)
+        p.setPen(Qt.PenStyle.SolidLine)
         r = QRect(0, self.dummy.geometry().top() + 10, self.geometry().width(), 150)
-        p.drawText(r, Qt.AlignHCenter | Qt.AlignTop | Qt.TextSingleLine, self.text)
+        p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextSingleLine, self.text)
         p.end()
 # }}}
 
@@ -214,9 +214,9 @@ class Diff(Dialog):
         self.show_open_in_editor = show_open_in_editor
         self.revert_button_msg = revert_button_msg
         Dialog.__init__(self, _('Differences between books'), 'diff-dialog', parent=parent)
-        self.setWindowFlags(self.windowFlags() | Qt.WindowMinMaxButtonsHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowMinMaxButtonsHint)
         if show_as_window:
-            self.setWindowFlags(Qt.Window)
+            self.setWindowFlags(Qt.WindowType.Window)
         self.view.line_activated.connect(self.line_activated)
 
     def sizeHint(self):
@@ -242,14 +242,14 @@ class Diff(Dialog):
         b.setIcon(QIcon(I('back.png')))
         connect_lambda(b.clicked, self, lambda self: self.view.next_change(-1))
         b.setToolTip(_('Go to previous change') + ' [p]')
-        b.setText(_('&Previous change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setText(_('&Previous change')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 0)
 
         self.bn = b = QToolButton(self)
         b.setIcon(QIcon(I('forward.png')))
         connect_lambda(b.clicked, self, lambda self: self.view.next_change(1))
         b.setToolTip(_('Go to next change') + ' [n]')
-        b.setText(_('&Next change')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setText(_('&Next change')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 1)
 
         self.search = s = HistoryLineEdit2(self)
@@ -261,13 +261,13 @@ class Diff(Dialog):
         b.setIcon(QIcon(I('arrow-down.png')))
         connect_lambda(b.clicked, self, lambda self: self.do_search(False))
         b.setToolTip(_('Find next match'))
-        b.setText(_('Next &match')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setText(_('Next &match')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 3)
         self.sbp = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
         connect_lambda(b.clicked, self, lambda self: self.do_search(True))
         b.setToolTip(_('Find previous match'))
-        b.setText(_('P&revious match')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setText(_('P&revious match')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(b, r, 4)
         self.lb = b = QRadioButton(_('Left panel'), self)
         b.setToolTip(_('Perform search in the left panel'))
@@ -278,7 +278,7 @@ class Diff(Dialog):
         b.setChecked(True)
         self.pb = b = QToolButton(self)
         b.setIcon(QIcon(I('config.png')))
-        b.setText(_('&Options')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setText(_('&Options')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setToolTip(_('Change how the differences are displayed'))
         b.setPopupMode(b.InstantPopup)
         m = QMenu(b)
@@ -306,7 +306,7 @@ class Diff(Dialog):
         self.bb.button(self.bb.Close).setDefault(True)
         self.hl.addWidget(self.bb, r)
 
-        self.view.setFocus(Qt.OtherFocusReason)
+        self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def break_cycles(self):
         self.view = None
@@ -352,8 +352,8 @@ class Diff(Dialog):
         self.stacks.setCurrentIndex(0)
         self.busy.setVisible(True)
         self.busy.pi.startAnimation()
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
+        QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents | QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
 
     def __exit__(self, *args):
         self.busy.pi.stopAnimation()
@@ -442,19 +442,19 @@ class Diff(Dialog):
 
     def keyPressEvent(self, ev):
         if not self.view.handle_key(ev):
-            if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+            if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
                 return  # The enter key is used by the search box, so prevent it closing the dialog
-            if ev.key() == Qt.Key_Slash:
-                return self.search.setFocus(Qt.OtherFocusReason)
-            if ev.matches(QKeySequence.Copy):
+            if ev.key() == Qt.Key.Key_Slash:
+                return self.search.setFocus(Qt.FocusReason.OtherFocusReason)
+            if ev.matches(QKeySequence.StandardKey.Copy):
                 text = self.view.view.left.selected_text + self.view.view.right.selected_text
                 if text:
                     QApplication.clipboard().setText(text)
                 return
-            if ev.matches(QKeySequence.FindNext):
+            if ev.matches(QKeySequence.StandardKey.FindNext):
                 self.sbn.click()
                 return
-            if ev.matches(QKeySequence.FindPrevious):
+            if ev.matches(QKeySequence.StandardKey.FindPrevious):
                 self.sbp.click()
                 return
             return Dialog.keyPressEvent(self, ev)

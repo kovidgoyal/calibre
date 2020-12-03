@@ -24,7 +24,7 @@ def index_to_key_sequence(idx):
 
 
 def key_to_text(key):
-    return QKeySequence(key).toString(QKeySequence.PortableText).lower()
+    return QKeySequence(key).toString(QKeySequence.SequenceFormat.PortableText).lower()
 
 
 def ev_to_index(ev):

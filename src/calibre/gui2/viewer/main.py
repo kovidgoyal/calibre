@@ -155,7 +155,7 @@ def run_gui(app, opts, args, internal_book_data, listener=None):
     acc.got_file.connect(main.handle_commandline_arg)
     main.show()
     if listener is not None:
-        listener.message_received.connect(main.message_from_other_instance, type=Qt.QueuedConnection)
+        listener.message_received.connect(main.message_from_other_instance, type=Qt.ConnectionType.QueuedConnection)
     QTimer.singleShot(0, acc.flush)
     if opts.raise_window:
         main.raise_()
@@ -171,7 +171,7 @@ def main(args=sys.argv):
     reset_base_dir()
     scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
-    scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+    scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
     QWebEngineUrlScheme.registerScheme(scheme)
     override = 'calibre-ebook-viewer' if islinux else None
     processed_args = []

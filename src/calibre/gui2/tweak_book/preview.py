@@ -280,7 +280,7 @@ def create_profile():
                 document.addEventListener("DOMContentLoaded", apply_css);
             })();
             '''.replace('CSS', json.dumps(dark_mode_css), 1),
-            injection_point=QWebEngineScript.DocumentCreation)
+            injection_point=QWebEngineScript.InjectionPoint.DocumentCreation)
         )
         url_handler = UrlSchemeHandler(ans)
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
@@ -329,9 +329,9 @@ class WebPage(QWebEnginePage):
 
     def runjs(self, src, callback=None):
         if callback is None:
-            self.runJavaScript(src, QWebEngineScript.ApplicationWorld)
+            self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:
-            self.runJavaScript(src, QWebEngineScript.ApplicationWorld, callback)
+            self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
     def go_to_sourceline_address(self, sourceline_address):
         if self.bridge.ready:
@@ -420,7 +420,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
 
     def refresh(self):
         self.update_settings()
-        self.pageAction(QWebEnginePage.ReloadAndBypassCache).trigger()
+        self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache).trigger()
 
     def set_url(self, qurl):
         self.update_settings()
@@ -443,7 +443,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
     def inspect(self):
         self.inspector.parent().show()
         self.inspector.parent().raise_()
-        self.pageAction(QWebEnginePage.InspectElement).trigger()
+        self.pageAction(QWebEnginePage.WebAction.InspectElement).trigger()
 
     def contextMenuEvent(self, ev):
         menu = QMenu(self)
@@ -452,7 +452,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
         url = unicode_type(url.toString(NO_URL_FORMATTING)).strip()
         text = data.selectedText()
         if text:
-            ca = self.pageAction(QWebEnginePage.Copy)
+            ca = self.pageAction(QWebEnginePage.WebAction.Copy)
             if ca.isEnabled():
                 menu.addAction(ca)
         menu.addAction(actions['reload-preview'])
@@ -515,9 +515,9 @@ class Preview(QWidget):
         self.stack.addWidget(self.view)
         self.cover = c = QLabel(_('Loading preview, please wait...'))
         c.setWordWrap(True)
-        c.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        c.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         c.setStyleSheet('QLabel { background-color: palette(window); }')
-        c.setAlignment(Qt.AlignCenter)
+        c.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.stack.addWidget(self.cover)
         self.stack.setCurrentIndex(self.stack.indexOf(self.cover))
         self.bar = QToolBar(self)
@@ -573,7 +573,7 @@ class Preview(QWidget):
     def find(self, direction):
         text = unicode_type(self.search.text())
         self.view._page.findText(text, (
-            QWebEnginePage.FindBackward if direction == 'prev' else QWebEnginePage.FindFlags(0)))
+            QWebEnginePage.FindFlag.FindBackward if direction == 'prev' else QWebEnginePage.FindFlags(0)))
 
     def find_next(self):
         self.find('next')

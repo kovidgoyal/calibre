@@ -125,8 +125,8 @@ class BookInfo(QDialog):
 
     def __init__(self, parent, view, row, link_delegate):
         QDialog.__init__(self, parent)
-        self.normal_brush = QBrush(Qt.white)
-        self.marked_brush = QBrush(Qt.lightGray)
+        self.normal_brush = QBrush(Qt.GlobalColor.white)
+        self.marked_brush = QBrush(Qt.GlobalColor.lightGray)
         self.marked = None
         self.gui = parent
         self.splitter = QSplitter(self)
@@ -146,10 +146,10 @@ class BookInfo(QDialog):
         self.details = Details(parent.book_details.book_info, self)
         self.details.anchor_clicked.connect(self.on_link_clicked)
         self.link_delegate = link_delegate
-        self.details.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        self.details.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
         palette = self.details.palette()
         self.details.setAcceptDrops(False)
-        palette.setBrush(QPalette.Base, Qt.transparent)
+        palette.setBrush(QPalette.ColorRole.Base, Qt.GlobalColor.transparent)
         self.details.setPalette(palette)
 
         self.c = QWidget(self)
@@ -187,9 +187,9 @@ class BookInfo(QDialog):
         self.ps = QShortcut(QKeySequence('Alt+Left'), self)
         self.ps.activated.connect(self.previous)
         self.next_button.setToolTip(_('Next [%s]')%
-                unicode_type(self.ns.key().toString(QKeySequence.NativeText)))
+                unicode_type(self.ns.key().toString(QKeySequence.SequenceFormat.NativeText)))
         self.previous_button.setToolTip(_('Previous [%s]')%
-                unicode_type(self.ps.key().toString(QKeySequence.NativeText)))
+                unicode_type(self.ps.key().toString(QKeySequence.SequenceFormat.NativeText)))
 
         geom = QCoreApplication.instance().desktop().availableGeometry(self)
         screen_height = geom.height() - 100
@@ -287,7 +287,7 @@ class BookInfo(QDialog):
                 except AttributeError:
                     dpr = self.devicePixelRatio()
                 pixmap = pixmap.scaled(int(dpr * new_width), int(dpr * new_height),
-                        Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                 pixmap.setDevicePixelRatio(dpr)
         self.cover.set_pixmap(pixmap)
         self.update_cover_tooltip()

@@ -41,7 +41,7 @@ class FileDialog(QObject):
         parent=None,
         modal=True,
         name='',
-        mode=QFileDialog.ExistingFiles,
+        mode=QFileDialog.FileMode.ExistingFiles,
         default_dir=u'~',
         no_save_dir=False,
         combine_file_and_saved_dir=False
@@ -85,27 +85,27 @@ class FileDialog(QObject):
         if not isinstance(initial_dir, string_or_bytes):
             initial_dir = os.path.expanduser(default_dir)
         if not initial_dir or (not os.path.exists(initial_dir) and not (
-                mode == QFileDialog.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
+                mode == QFileDialog.FileMode.AnyFile and (no_save_dir or combine_file_and_saved_dir))):
             initial_dir = select_initial_dir(initial_dir)
         self.selected_files = []
         use_native_dialog = 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ
         with sanitize_env_vars():
             opts = QFileDialog.Option()
             if not use_native_dialog:
-                opts |= QFileDialog.DontUseNativeDialog
-            if mode == QFileDialog.AnyFile:
+                opts |= QFileDialog.Option.DontUseNativeDialog
+            if mode == QFileDialog.FileMode.AnyFile:
                 with adapt_menubar:
                     f = QFileDialog.getSaveFileName(parent, title,
                         initial_dir, ftext, "", opts)
                 if f and f[0]:
                     self.selected_files.append(f[0])
-            elif mode == QFileDialog.ExistingFile:
+            elif mode == QFileDialog.FileMode.ExistingFile:
                 with adapt_menubar:
                     f = QFileDialog.getOpenFileName(parent, title,
                         initial_dir, ftext, "", opts)
                 if f and f[0] and os.path.exists(f[0]):
                     self.selected_files.append(f[0])
-            elif mode == QFileDialog.ExistingFiles:
+            elif mode == QFileDialog.FileMode.ExistingFiles:
                 with adapt_menubar:
                     fs = QFileDialog.getOpenFileNames(parent, title, initial_dir,
                             ftext, "", opts)
@@ -121,8 +121,8 @@ class FileDialog(QObject):
                         if f and os.path.exists(f):
                             self.selected_files.append(f)
             else:
-                if mode == QFileDialog.Directory:
-                    opts |= QFileDialog.ShowDirsOnly
+                if mode == QFileDialog.FileMode.Directory:
+                    opts |= QFileDialog.Option.ShowDirsOnly
                 with adapt_menubar:
                     f = unicode_type(QFileDialog.getExistingDirectory(parent, title, initial_dir, opts))
                 if os.path.exists(f):
@@ -144,7 +144,7 @@ class FileDialog(QObject):
 
 def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     fd = FileDialog(title=title, filters=[], add_all_files_filter=False,
-            parent=window, name=name, mode=QFileDialog.Directory,
+            parent=window, name=name, mode=QFileDialog.FileMode.Directory,
             default_dir=default_dir, no_save_dir=no_save_dir)
     dir = fd.get_files()
     fd.setParent(None)
@@ -165,7 +165,7 @@ def choose_files(window, name, title,
     :param all_files: If True add All files to filters.
     :param select_only_single_file: If True only one file can be selected
     '''
-    mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
+    mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     fd = FileDialog(title=title, name=name, filters=filters, default_dir=default_dir,
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
@@ -187,7 +187,7 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     :param initial_filename: If specified, the initially selected path is this filename in the previously used directory. Cannot be used with initial_path.
     '''
     kwargs = dict(title=title, name=name, filters=filters,
-                    parent=window, add_all_files_filter=all_files, mode=QFileDialog.AnyFile)
+                    parent=window, add_all_files_filter=all_files, mode=QFileDialog.FileMode.AnyFile)
     if initial_path is not None:
         kwargs['no_save_dir'] = True
         kwargs['default_dir'] = initial_path
@@ -205,7 +205,7 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
 
 
 def choose_images(window, name, title, select_only_single_file=True, formats=None):
-    mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
+    mode = QFileDialog.FileMode.ExistingFile if select_only_single_file else QFileDialog.FileMode.ExistingFiles
     if formats is None:
         formats = image_extensions()
     fd = FileDialog(title=title, name=name,

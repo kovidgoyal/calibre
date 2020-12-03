@@ -90,7 +90,7 @@ class ConfigWidgetInterface(object):
 
 class Setting(object):
 
-    CHOICES_SEARCH_FLAGS = Qt.MatchExactly | Qt.MatchCaseSensitive
+    CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive
 
     def __init__(self, name, config_obj, widget, gui_name=None,
             empty_string_is_None=True, choices=None, restart_required=False):
@@ -187,7 +187,7 @@ class Setting(object):
             if isinstance(self.gui_obj, EditWithComplete):
                 self.gui_obj.setText(val)
             else:
-                idx = self.gui_obj.findData((val), role=Qt.UserRole,
+                idx = self.gui_obj.findData((val), role=Qt.ItemDataRole.UserRole,
                         flags=self.CHOICES_SEARCH_FLAGS)
                 if idx == -1:
                     idx = 0

@@ -17,7 +17,7 @@ class StoreChooserDialog(QDialog):
 
         self.setWindowTitle(_('Choose stores'))
 
-        button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         v = QVBoxLayout(self)

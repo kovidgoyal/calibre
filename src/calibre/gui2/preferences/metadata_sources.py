@@ -48,7 +48,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
         return 2
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             if section == 0:
                 return _('Source')
             if section == 1:
@@ -62,21 +62,21 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return None
         col = index.column()
 
-        if role in (Qt.DisplayRole, Qt.EditRole):
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if col == 0:
                 return plugin.name
             elif col == 1:
                 orig = msprefs['cover_priorities'].get(plugin.name, 1)
                 return self.cover_overrides.get(plugin, orig)
-        elif role == Qt.CheckStateRole and col == 0:
-            orig = Qt.Unchecked if is_disabled(plugin) else Qt.Checked
+        elif role == Qt.ItemDataRole.CheckStateRole and col == 0:
+            orig = Qt.CheckState.Unchecked if is_disabled(plugin) else Qt.CheckState.Checked
             return self.enabled_overrides.get(plugin, orig)
-        elif role == Qt.UserRole:
+        elif role == Qt.ItemDataRole.UserRole:
             return plugin
-        elif (role == Qt.DecorationRole and col == 0 and not
+        elif (role == Qt.ItemDataRole.DecorationRole and col == 0 and not
                     plugin.is_configured()):
             return QIcon(I('list_remove.png'))
-        elif role == Qt.ToolTipRole:
+        elif role == Qt.ItemDataRole.ToolTipRole:
             base = plugin.description + '\n\n'
             if plugin.is_configured():
                 return base + _('This source is configured and ready to go')
@@ -90,8 +90,8 @@ class SourcesModel(QAbstractTableModel):  # {{{
             return False
         col = index.column()
         ret = False
-        if col == 0 and role == Qt.CheckStateRole:
-            if val == Qt.Checked and 'Douban' in plugin.name:
+        if col == 0 and role == Qt.ItemDataRole.CheckStateRole:
+            if val == Qt.CheckState.Checked and 'Douban' in plugin.name:
                 if not question_dialog(self.gui_parent,
                     _('Are you sure?'), '<p>'+
                     _('This plugin is useful only for <b>Chinese</b>'
@@ -102,7 +102,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
                     return ret
             self.enabled_overrides[plugin] = int(val)
             ret = True
-        if col == 1 and role == Qt.EditRole:
+        if col == 1 and role == Qt.ItemDataRole.EditRole:
             try:
                 self.cover_overrides[plugin] = max(1, int(val))
                 ret = True
@@ -116,14 +116,14 @@ class SourcesModel(QAbstractTableModel):  # {{{
         col = index.column()
         ans = QAbstractTableModel.flags(self, index)
         if col == 0:
-            return ans | Qt.ItemIsUserCheckable
-        return Qt.ItemIsEditable | ans
+            return ans | Qt.ItemFlag.ItemIsUserCheckable
+        return Qt.ItemFlag.ItemIsEditable | ans
 
     def commit(self):
         for plugin, val in iteritems(self.enabled_overrides):
-            if val == Qt.Checked:
+            if val == Qt.CheckState.Checked:
                 enable_plugin(plugin)
-            elif val == Qt.Unchecked:
+            elif val == Qt.CheckState.Unchecked:
                 disable_plugin(plugin)
 
         if self.cover_overrides:
@@ -140,8 +140,8 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.enabled_overrides = dict([(p, (Qt.Unchecked if p.name in
-            default_disabled_plugins else Qt.Checked)) for p in self.plugins])
+        self.enabled_overrides = dict([(p, (Qt.CheckState.Unchecked if p.name in
+            default_disabled_plugins else Qt.CheckState.Checked)) for p in self.plugins])
         self.cover_overrides = dict([(p,
             msprefs.defaults['cover_priorities'].get(p.name, 1))
                 for p in self.plugins])
@@ -189,37 +189,37 @@ class FieldsModel(QAbstractListModel):  # {{{
 
     def state(self, field, defaults=False):
         src = msprefs.defaults if defaults else msprefs
-        return (Qt.Unchecked if field in src['ignore_fields']
-                    else Qt.Checked)
+        return (Qt.CheckState.Unchecked if field in src['ignore_fields']
+                    else Qt.CheckState.Checked)
 
     def data(self, index, role):
         try:
             field = self.fields[index.row()]
         except:
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.descs.get(field, field)
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             return self.overrides.get(field, self.state(field))
         return None
 
     def flags(self, index):
         ans = QAbstractListModel.flags(self, index)
-        return ans | Qt.ItemIsUserCheckable
+        return ans | Qt.ItemFlag.ItemIsUserCheckable
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.overrides = dict([(f, self.state(f, Qt.Checked)) for f in self.fields])
+        self.overrides = dict([(f, self.state(f, Qt.CheckState.Checked)) for f in self.fields])
         self.endResetModel()
 
     def select_all(self):
         self.beginResetModel()
-        self.overrides = dict([(f, Qt.Checked) for f in self.fields])
+        self.overrides = dict([(f, Qt.CheckState.Checked) for f in self.fields])
         self.endResetModel()
 
     def clear_all(self):
         self.beginResetModel()
-        self.overrides = dict([(f, Qt.Unchecked) for f in self.fields])
+        self.overrides = dict([(f, Qt.CheckState.Unchecked) for f in self.fields])
         self.endResetModel()
 
     def setData(self, index, val, role):
@@ -228,7 +228,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         except:
             return False
         ret = False
-        if role == Qt.CheckStateRole:
+        if role == Qt.ItemDataRole.CheckStateRole:
             self.overrides[field] = int(val)
             ret = True
         if ret:
@@ -239,12 +239,12 @@ class FieldsModel(QAbstractListModel):  # {{{
         ignored_fields = {x for x in msprefs['ignore_fields'] if x not in
             self.overrides}
         changed = {k for k, v in iteritems(self.overrides) if v ==
-            Qt.Unchecked}
+            Qt.CheckState.Unchecked}
         msprefs['ignore_fields'] = list(ignored_fields.union(changed))
 
     def user_default_state(self, field):
-        return (Qt.Unchecked if field in msprefs.get('user_default_ignore_fields',[])
-                    else Qt.Checked)
+        return (Qt.CheckState.Unchecked if field in msprefs.get('user_default_ignore_fields',[])
+                    else Qt.CheckState.Checked)
 
     def select_user_defaults(self):
         self.beginResetModel()
@@ -255,7 +255,7 @@ class FieldsModel(QAbstractListModel):  # {{{
         default_ignored_fields = {x for x in msprefs['user_default_ignore_fields'] if x not in
             self.overrides}
         changed = {k for k, v in iteritems(self.overrides) if v ==
-            Qt.Unchecked}
+            Qt.CheckState.Unchecked}
         msprefs['user_default_ignore_fields'] = list(default_ignored_fields.union(changed))
 
 # }}}
@@ -274,7 +274,7 @@ class PluginConfig(QWidget):  # {{{
         self.setLayout(l)
         self.c = c = QLabel(_('<b>Configure %(name)s</b><br>%(desc)s') % dict(
             name=plugin.name, desc=plugin.description))
-        c.setAlignment(Qt.AlignHCenter)
+        c.setAlignment(Qt.AlignmentFlag.AlignHCenter)
         l.addWidget(c)
 
         self.config_widget = plugin.config_widget()
@@ -284,7 +284,7 @@ class PluginConfig(QWidget):  # {{{
         l.addWidget(sa)
 
         self.bb = QDialogButtonBox(
-                QDialogButtonBox.Save|QDialogButtonBox.Cancel,
+                QDialogButtonBox.StandardButton.Save|QDialogButtonBox.StandardButton.Cancel,
                 parent=self)
         self.bb.accepted.connect(self.finished)
         self.bb.rejected.connect(self.finished)
@@ -292,7 +292,7 @@ class PluginConfig(QWidget):  # {{{
         l.addWidget(self.bb)
 
         self.f = QFrame(self)
-        self.f.setFrameShape(QFrame.HLine)
+        self.f.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(self.f)
 
     def commit(self):
@@ -338,7 +338,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():
-            plugin = self.sources_model.data(index, Qt.UserRole)
+            plugin = self.sources_model.data(index, Qt.ItemDataRole.UserRole)
             if plugin is not None:
                 return self.do_config(plugin)
         error_dialog(self, _('No source selected'),

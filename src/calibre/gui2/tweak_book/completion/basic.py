@@ -153,7 +153,7 @@ class HandleDataRequest(QObject):
     def __init__(self):
         QObject.__init__(self)
         self.called = Event()
-        self.call.connect(self.run_func, Qt.QueuedConnection)
+        self.call.connect(self.run_func, Qt.ConnectionType.QueuedConnection)
 
     def run_func(self, func, data):
         try:

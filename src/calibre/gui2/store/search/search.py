@@ -53,7 +53,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.cache_pool = CacheUpdateThreadPool(self.cache_thread_count)
         self.results_view.model().cover_pool.set_thread_count(self.cover_thread_count)
         self.results_view.model().details_pool.set_thread_count(self.details_thread_count)
-        self.results_view.setCursor(Qt.PointingHandCursor)
+        self.results_view.setCursor(Qt.CursorShape.PointingHandCursor)
 
         # Check for results and hung threads.
         self.checker = QTimer()
@@ -79,8 +79,8 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Create and add the progress indicator
         self.pi = ProgressIndicator(self, 24)
         self.button_layout.takeAt(0)
-        self.button_layout.setAlignment(Qt.AlignCenter)
-        self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignCenter)
+        self.button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.button_layout.insertWidget(0, self.pi, 0, Qt.AlignmentFlag.AlignCenter)
 
         self.adv_search_button.setIcon(QIcon(I('gear.png')))
         self.adv_search_button.setToolTip(_('Advanced search'))
@@ -139,7 +139,7 @@ class SearchDialog(QDialog, Ui_Dialog):
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
-        if adv.exec_() == QDialog.Accepted:
+        if adv.exec_() == QDialog.DialogCode.Accepted:
             self.search_edit.setText(adv.search_string())
 
     def resize_columns(self):
@@ -289,7 +289,7 @@ class SearchDialog(QDialog, Ui_Dialog):
                     self.store_checks[n].setChecked(store_check[n])
 
         self.results_view.model().sort_col = self.config.get('sort_col', 2)
-        self.results_view.model().sort_order = self.config.get('sort_order', Qt.AscendingOrder)
+        self.results_view.model().sort_order = self.config.get('sort_order', Qt.SortOrder.AscendingOrder)
         self.results_view.header().setSortIndicator(self.results_view.model().sort_col, self.results_view.model().sort_order)
 
     def load_settings(self):
@@ -315,7 +315,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Create the config dialog. It's going to put two config widgets
         # into a QTabWidget for displaying all of the settings.
         d = QDialog(self)
-        button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         v = QVBoxLayout(d)
         button_box.accepted.connect(d.accept)
         button_box.rejected.connect(d.reject)

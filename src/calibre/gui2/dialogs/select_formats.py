@@ -26,13 +26,13 @@ class Formats(QAbstractListModel):
 
     def data(self, index, role):
         row = index.row()
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
             return ('%s [%d]'%(fmt.upper(), count))
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             return (self.fi.icon_from_ext(self.fmts[row].lower()))
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             fmt = self.fmts[row]
             count = self.counts[fmt]
             return _('There is one book with the {} format').format(fmt.upper()) if count == 1 else _(
@@ -41,7 +41,7 @@ class Formats(QAbstractListModel):
         return None
 
     def flags(self, index):
-        return Qt.ItemIsSelectable|Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsSelectable|Qt.ItemFlag.ItemIsEnabled
 
     def fmt(self, idx):
         return self.fmts[idx.row()]
@@ -61,7 +61,7 @@ class SelectFormats(QDialog):
         self.formats = Formats(fmt_count)
         self.fview = QListView(self)
         self.fview.doubleClicked.connect(self.double_clicked,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         if exclude:
             if QApplication.instance().is_dark_theme:
                 sheet = 'background-color: #DAA520; color: black'
@@ -73,8 +73,8 @@ class SelectFormats(QDialog):
         self.fview.setSelectionMode(self.fview.SingleSelection if single else
                 self.fview.MultiSelection)
         self.bbox = \
-        QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
-                Qt.Horizontal, self)
+        QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel,
+                Qt.Orientation.Horizontal, self)
         self._l.addWidget(self.bbox)
         self.bbox.accepted.connect(self.accept)
         self.bbox.rejected.connect(self.reject)

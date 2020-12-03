@@ -29,7 +29,7 @@ class Listener(QLocalServer):
         QLocalServer.__init__(self, parent)
         self.address = address or gui_socket_address()
         self.uses_filesystem = self.address[0] not in '\0\\'
-        self.setSocketOptions(QLocalServer.UserAccessOption)
+        self.setSocketOptions(QLocalServer.SocketOption.UserAccessOption)
         self.newConnection.connect(self.on_new_connection)
         self.connection_id = count()
         self.pending_messages = {}
@@ -43,12 +43,12 @@ class Listener(QLocalServer):
                 raise OSError(f'Could not start Listener for IPC at address @{self.address[1:]} with error: {self.errorString()}')
         else:
             if not self.listen(self.address):
-                if self.serverError() == QAbstractSocket.AddressInUseError and self.uses_filesystem:
+                if self.serverError() == QAbstractSocket.SocketError.AddressInUseError and self.uses_filesystem:
                     self.removeServer(self.address)
                     if self.listen(self.address):
                         return
                 code = self.serverError()
-                if code == QAbstractSocket.AddressInUseError:
+                if code == QAbstractSocket.SocketError.AddressInUseError:
                     raise OSError(errno.EADDRINUSE, os.strerror(errno.EADDRINUSE), self.address)
                 raise OSError(f'Could not start Listener for IPC at address {self.address} with error: {self.errorString()}')
 

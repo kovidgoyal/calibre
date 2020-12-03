@@ -18,16 +18,16 @@ class WaitPanel(QWidget):
 
     def __init__(self, msg, parent=None, size=256, interval=10):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.l = l = QVBoxLayout(self)
         self.spinner = ProgressIndicator(self, size, interval)
         self.start, self.stop = self.spinner.start, self.spinner.stop
-        l.addStretch(), l.addWidget(self.spinner, 0, Qt.AlignCenter)
+        l.addStretch(), l.addWidget(self.spinner, 0, Qt.AlignmentFlag.AlignCenter)
         self.la = QLabel(msg)
         f = self.la.font()
         f.setPointSize(28)
         self.la.setFont(f)
-        l.addWidget(self.la, 0, Qt.AlignCenter), l.addStretch()
+        l.addWidget(self.la, 0, Qt.AlignmentFlag.AlignCenter), l.addStretch()
 
     @property
     def msg(self):

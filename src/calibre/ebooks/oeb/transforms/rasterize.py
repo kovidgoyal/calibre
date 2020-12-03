@@ -89,17 +89,17 @@ class SVGRasterizer(object):
             size.setWidth(sizes[0])
             size.setHeight(sizes[1])
         if width or height:
-            size.scale(width, height, Qt.KeepAspectRatio)
+            size.scale(width, height, Qt.AspectRatioMode.KeepAspectRatio)
         logger.info('Rasterizing %r to %dx%d'
                     % (elem, size.width(), size.height()))
-        image = QImage(size, QImage.Format_ARGB32_Premultiplied)
+        image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
         image.fill(QColor("white").rgb())
         painter = QPainter(image)
         svg.render(painter)
         painter.end()
         array = QByteArray()
         buffer = QBuffer(array)
-        buffer.open(QIODevice.WriteOnly)
+        buffer.open(QIODevice.OpenModeFlag.WriteOnly)
         image.save(buffer, format)
         return array.data()
 
@@ -185,7 +185,7 @@ class SVGRasterizer(object):
         data = QByteArray(svgitem.bytes_representation)
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
-        size.scale(width, height, Qt.KeepAspectRatio)
+        size.scale(width, height, Qt.AspectRatioMode.KeepAspectRatio)
         key = (svgitem.href, size.width(), size.height())
         if key in self.images:
             href = self.images[key]
@@ -193,14 +193,14 @@ class SVGRasterizer(object):
             logger = self.oeb.logger
             logger.info('Rasterizing %r to %dx%d'
                         % (svgitem.href, size.width(), size.height()))
-            image = QImage(size, QImage.Format_ARGB32_Premultiplied)
+            image = QImage(size, QImage.Format.Format_ARGB32_Premultiplied)
             image.fill(QColor("white").rgb())
             painter = QPainter(image)
             svg.render(painter)
             painter.end()
             array = QByteArray()
             buffer = QBuffer(array)
-            buffer.open(QIODevice.WriteOnly)
+            buffer.open(QIODevice.OpenModeFlag.WriteOnly)
             image.save(buffer, 'PNG')
             data = array.data()
             manifest = self.oeb.manifest

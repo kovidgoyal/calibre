@@ -218,7 +218,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
     if state.is_bold or state.is_italic:
         fmt = syntax_text_char_format()
         if state.is_bold:
-            fmt.setFontWeight(QFont.Bold)
+            fmt.setFontWeight(QFont.Weight.Bold)
         if state.is_italic:
             fmt.setFontItalic(True)
     last = 0
@@ -478,7 +478,7 @@ def create_formats(highlighter, add_css=True):
         f = formats[name] = syntax_text_char_format(formats['error'])
         f.setToolTip(msg)
     f = formats['title'] = syntax_text_char_format()
-    f.setFontWeight(QFont.Bold)
+    f.setFontWeight(QFont.Weight.Bold)
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
     formats['spell'].setProperty(SPELL_PROPERTY, True)

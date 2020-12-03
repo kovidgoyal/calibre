@@ -48,7 +48,7 @@ class NewsTreeItem(object):
         return None
 
     def flags(self):
-        return Qt.ItemIsEnabled|Qt.ItemIsSelectable
+        return Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable
 
     def sort(self):
         self.children.sort()
@@ -80,18 +80,18 @@ class NewsCategory(NewsTreeItem):
         self.bold_font = (self.bold_font)
 
     def data(self, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return (self.cdata + ' [%d]'%len(self.children))
-        elif role == Qt.FontRole:
+        elif role == Qt.ItemDataRole.FontRole:
             return self.bold_font
-        elif role == Qt.ForegroundRole and self.category == _('Scheduled'):
+        elif role == Qt.ItemDataRole.ForegroundRole and self.category == _('Scheduled'):
             return (QColor(0, 255, 0))
-        elif role == Qt.UserRole:
+        elif role == Qt.ItemDataRole.UserRole:
             return '::category::{}'.format(self.sortq[0])
         return None
 
     def flags(self):
-        return Qt.ItemIsEnabled
+        return Qt.ItemFlag.ItemIsEnabled
 
     def __eq__(self, other):
         return self.cdata == other.cdata
@@ -117,9 +117,9 @@ class NewsItem(NewsTreeItem):
             self.icon = custom_icon
 
     def data(self, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return (self.title)
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             if self.icon is None:
                 icon = '%s.png'%self.urn[8:]
                 p = QPixmap()
@@ -134,7 +134,7 @@ class NewsItem(NewsTreeItem):
                 else:
                     self.icon = self.default_icon
             return self.icon
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.urn
 
     def __eq__(self, other):
@@ -335,7 +335,7 @@ class RecipeModel(QAbstractItemModel, AdaptSQP):
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.ItemIsEnabled|Qt.ItemIsSelectable
+            return Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable
         item = index.internalPointer()
         return item.flags()
 

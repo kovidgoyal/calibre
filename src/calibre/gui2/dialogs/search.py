@@ -44,8 +44,8 @@ def current_dateop(cb):
 
 def create_msg_label(self):
     self.frame = f = QFrame(self)
-    f.setFrameShape(QFrame.StyledPanel)
-    f.setFrameShadow(QFrame.Raised)
+    f.setFrameShape(QFrame.Shape.StyledPanel)
+    f.setFrameShadow(QFrame.Shadow.Raised)
     f.l = l = QVBoxLayout(f)
     f.um_label = la = QLabel(_(
         "<p>You can also perform other kinds of advanced searches, for example checking"
@@ -74,8 +74,8 @@ def create_match_kind(self):
 
 
 def create_button_box(self):
-    self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-    self.clear_button = bb.addButton(_('&Clear'), QDialogButtonBox.ResetRole)
+    self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+    self.clear_button = bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ResetRole)
     self.clear_button.clicked.connect(self.clear_button_pushed)
     bb.accepted.connect(self.accept)
     bb.rejected.connect(self.reject)
@@ -308,7 +308,7 @@ class SearchDialog(QDialog):
             focused_field = gprefs.get('advanced_search_simple_tab_focused_field', 'title_box')
             w = getattr(self, focused_field, None)
             if w is not None:
-                w.setFocus(Qt.OtherFocusReason)
+                w.setFocus(Qt.FocusReason.OtherFocusReason)
         elif current_tab == 3:
             self.template_program_box.setText(
                       gprefs.get('advanced_search_template_tab_program_field', ''))

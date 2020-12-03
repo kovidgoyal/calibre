@@ -34,7 +34,7 @@ class Model(QStringListModel):
         self.setStringList([w.TITLE for w in widgets])
 
     def data(self, index, role):
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             w = self.widgets[index.row()]
             if w.ICON:
                 return (QIcon(w.ICON))
@@ -47,7 +47,7 @@ class ListView(QListView):
 
     def __init__(self, parent=None):
         QListView.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Expanding)
         f = self.font()
         f.setBold(True)
         self.setFont(f)

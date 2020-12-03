@@ -215,7 +215,7 @@ class RuleEditDialog(Dialog):
             Dialog.accept(self)
 
 
-DATA_ROLE = Qt.UserRole
+DATA_ROLE = Qt.ItemDataRole.UserRole
 RENDER_ROLE = DATA_ROLE + 1
 
 
@@ -256,7 +256,7 @@ class Delegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         pal = option.palette
-        color = pal.color(pal.HighlightedText if option.state & QStyle.State_Selected else pal.Text).name()
+        color = pal.color(pal.HighlightedText if option.state & QStyle.StateFlag.State_Selected else pal.Text).name()
         text = '<div style="color:%s">%s</div>' % (color, index.data(RENDER_ROLE))
         st = QStaticText(text)
         st.setTextWidth(option.rect.width())
@@ -303,7 +303,7 @@ class Rules(QWidget):
         r.viewport().setAcceptDrops(True)
         r.setDropIndicatorShown(True)
         r.setDragDropMode(r.InternalMove)
-        r.setDefaultDropAction(Qt.MoveAction)
+        r.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.l2 = l = QVBoxLayout()
         h.addLayout(l)
         self.up_button = b = QToolButton(self)
@@ -329,7 +329,7 @@ class Rules(QWidget):
         i = self.rule_list.currentItem()
         if i is not None:
             d = self.RuleEditDialogClass(self)
-            d.edit_widget.rule = i.data(Qt.UserRole)
+            d.edit_widget.rule = i.data(Qt.ItemDataRole.UserRole)
             if d.exec_() == d.Accepted:
                 rule = d.edit_widget.rule
                 i.setData(DATA_ROLE, rule)

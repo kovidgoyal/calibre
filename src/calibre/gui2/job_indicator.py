@@ -24,7 +24,7 @@ class Pointer(QWidget):
         self.animation = QPropertyAnimation(self, b"geometry", self)
         self.animation.setDuration(750)
         self.animation.setLoopCount(2)
-        self.animation.setEasingCurve(QEasingCurve.Linear)
+        self.animation.setEasingCurve(QEasingCurve.Type.Linear)
         self.animation.finished.connect(self.hide)
 
         taily, heady = 0, 55
@@ -37,10 +37,10 @@ class Pointer(QWidget):
         self.arrow_path.lineTo(60, taily)
         self.arrow_path.closeSubpath()
 
-        c = self.palette().color(QPalette.Active, QPalette.WindowText)
+        c = self.palette().color(QPalette.ColorGroup.Active, QPalette.ColorRole.WindowText)
         self.color = QColor(c)
         self.color.setAlpha(100)
-        self.brush = QBrush(self.color, Qt.SolidPattern)
+        self.brush = QBrush(self.color, Qt.BrushStyle.SolidPattern)
 
         # from PyQt5.Qt import QTimer
         # QTimer.singleShot(1000, self.start)
@@ -88,6 +88,6 @@ class Pointer(QWidget):
         p = QPainter(self)
         p.setRenderHints(p.Antialiasing)
         p.setBrush(self.brush)
-        p.setPen(Qt.NoPen)
+        p.setPen(Qt.PenStyle.NoPen)
         p.drawPath(self.arrow_path)
         p.end()

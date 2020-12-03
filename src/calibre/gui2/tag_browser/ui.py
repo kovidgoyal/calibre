@@ -85,14 +85,14 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.search_item_renamed.connect(self.saved_searches_changed)
         self.tags_view.drag_drop_finished.connect(self.drag_drop_finished)
         self.tags_view.restriction_error.connect(self.do_restriction_error,
-                                                 type=Qt.QueuedConnection)
+                                                 type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
         self.tags_view.apply_tag_to_selected.connect(self.apply_tag_to_selected)
         self.populate_tb_manage_menu(db)
         self.tags_view.model().user_categories_edited.connect(self.user_categories_edited,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.model().user_category_added.connect(self.user_categories_edited,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.edit_enum_values.connect(self.edit_enum_values)
 
     def user_categories_edited(self):
@@ -442,10 +442,10 @@ class FindBox(HistoryLineEdit):  # {{{
 
     def keyPressEvent(self, event):
         k = event.key()
-        if k not in (Qt.Key_Up, Qt.Key_Down):
+        if k not in (Qt.Key.Key_Up, Qt.Key.Key_Down):
             return HistoryLineEdit.keyPressEvent(self, event)
         self.blockSignals(True)
-        if k == Qt.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
+        if k == Qt.Key.Key_Down and self.currentIndex() == 0 and not self.lineEdit().text():
             self.setCurrentIndex(1), self.setCurrentIndex(0)
             event.accept()
         else:
@@ -460,14 +460,14 @@ class TagBrowserBar(QWidget):  # {{{
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
         parent = parent.parent()
         self.l = l = QHBoxLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.alter_tb = parent.alter_tb = b = QToolButton(self)
         b.setAutoRaise(True)
-        b.setText(_('Configure')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        b.setCursor(Qt.PointingHandCursor)
+        b.setText(_('Configure')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        b.setCursor(Qt.CursorShape.PointingHandCursor)
         b.setPopupMode(b.InstantPopup)
         b.setToolTip(textwrap.fill(_(
             'Change how the Tag browser works, such as,'
@@ -482,7 +482,7 @@ class TagBrowserBar(QWidget):  # {{{
         self.item_search.setMinimumContentsLength(5)
         self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
-        self.item_search.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.item_search.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self.item_search.setToolTip(
             '<p>' +_(
                 'Search for items. If the text begins with equals (=) the search is '
@@ -502,7 +502,7 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.search_button = QToolButton()
         self.search_button.setAutoRaise(True)
-        self.search_button.setCursor(Qt.PointingHandCursor)
+        self.search_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.search_button.setIcon(QIcon(I('search.png')))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         ac = QAction(parent)
@@ -515,8 +515,8 @@ class TagBrowserBar(QWidget):  # {{{
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
         le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.close_find_box)
-        b.setText(_('Find')), b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        b.setCursor(Qt.PointingHandCursor)
+        b.setText(_('Find')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        b.setCursor(Qt.CursorShape.PointingHandCursor)
         b.setIcon(QIcon(I('search.png')))
         b.setCheckable(True)
         b.setChecked(gprefs.get('tag browser search box visible', False))
@@ -544,16 +544,16 @@ class TagBrowserBar(QWidget):  # {{{
         tuple(map(l.removeItem, items))
         if find_shown:
             l.addWidget(self.alter_tb)
-            self.alter_tb.setToolButtonStyle(Qt.ToolButtonIconOnly)
+            self.alter_tb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
             l.addWidget(self.item_search, 10)
             l.addWidget(self.search_button)
-            self.item_search.setFocus(Qt.OtherFocusReason)
+            self.item_search.setFocus(Qt.FocusReason.OtherFocusReason)
             self.toggle_search_button.setVisible(False)
             self.search_button.setVisible(True)
             self.item_search.setVisible(True)
         else:
             l.addWidget(self.alter_tb)
-            self.alter_tb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            self.alter_tb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             l.addStretch(10)
             l.addStretch(10)
             l.addWidget(self.toggle_search_button)
@@ -568,7 +568,7 @@ class TagBrowserWidget(QFrame):  # {{{
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
-        self.setFrameStyle(QFrame.NoFrame if gprefs['tag_browser_old_look'] else QFrame.StyledPanel)
+        self.setFrameStyle(QFrame.Shape.NoFrame if gprefs['tag_browser_old_look'] else QFrame.Shape.StyledPanel)
         self._parent = parent
         self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(0,0,0,0)
@@ -593,10 +593,10 @@ class TagBrowserWidget(QFrame):  # {{{
         # Now the floating 'not found' box
         l = QLabel(self.tags_view)
         self.not_found_label = l
-        l.setFrameStyle(QFrame.StyledPanel)
+        l.setFrameStyle(QFrame.Shape.StyledPanel)
         l.setAutoFillBackground(True)
         l.setText('<p><b>'+_('No more matches.</b><p> Click Find again to go to first match'))
-        l.setAlignment(Qt.AlignVCenter)
+        l.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         l.setWordWrap(True)
         l.resize(l.sizeHint())
         l.move(10,20)
@@ -604,7 +604,7 @@ class TagBrowserWidget(QFrame):  # {{{
         self.not_found_label_timer = QTimer()
         self.not_found_label_timer.setSingleShot(True)
         self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event,
-                                                   type=Qt.QueuedConnection)
+                                                   type=Qt.ConnectionType.QueuedConnection)
         # The Alter Tag Browser button
         l = self.alter_tb
         self.collapse_all_action = ac = QAction(parent)
@@ -798,7 +798,7 @@ class TagBrowserWidget(QFrame):  # {{{
         self.not_found_label.setVisible(False)
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key_Enter, Qt.Key_Return) and self.find_text:
+        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and self.find_text:
             self.find()
             ev.accept()
             return

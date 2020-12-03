@@ -198,7 +198,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                            'Setting it to zero means that this function cannot '
                            'be used in single function mode.'), det_msg='',
                          show=False)
-            box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.Cancel)
+            box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.StandardButton.Cancel)
             box.det_msg_toggle.setVisible(False)
             if not box.exec_():
                 return

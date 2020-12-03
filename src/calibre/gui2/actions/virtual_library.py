@@ -16,7 +16,7 @@ class VirtualLibraryAction(InterfaceAction):
     )
     action_type = 'current'
     action_add_menu = True
-    popup_type = QToolButton.InstantPopup
+    popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     dont_add_to = frozenset(('context-menu-device', 'menubar-device'))
 
     def genesis(self):

@@ -30,7 +30,7 @@ class SortByAction(InterfaceAction):
     name = 'Sort By'
     action_spec = (_('Sort by'), 'sort.png', _('Sort the list of books'), None)
     action_type = 'current'
-    popup_type = QToolButton.InstantPopup
+    popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_add_menu = True
     dont_add_to = frozenset(('context-menu-cover-browser', ))
 

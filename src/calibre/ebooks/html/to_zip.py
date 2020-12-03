@@ -77,7 +77,7 @@ every time you add an HTML file to the library.\
                 QLabel, Qt, QLineEdit, QCheckBox)
 
         config_dialog = QDialog(parent)
-        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         v = QVBoxLayout(config_dialog)
 
         def size_dialog():
@@ -91,7 +91,7 @@ every time you add an HTML file to the library.\
         help_text = self.customization_help(gui=True)
         help_text = QLabel(help_text, config_dialog)
         help_text.setWordWrap(True)
-        help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard)
+        help_text.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse | Qt.TextInteractionFlag.LinksAccessibleByKeyboard)
         help_text.setOpenExternalLinks(True)
         v.addWidget(help_text)
         bf = QCheckBox(_('Add linked files in breadth first order'))
@@ -113,7 +113,7 @@ every time you add an HTML file to the library.\
         size_dialog()
         config_dialog.exec_()
 
-        if config_dialog.result() == QDialog.Accepted:
+        if config_dialog.result() == QDialog.DialogCode.Accepted:
             sc = unicode_type(sc.text()).strip()
             if bf.isChecked():
                 sc += '|bf'

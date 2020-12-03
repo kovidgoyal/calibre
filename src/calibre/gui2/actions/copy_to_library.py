@@ -48,7 +48,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
     d.w.setLayout(l)
     d.setMinimumWidth(600)
     d.setMinimumHeight(500)
-    d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
 
     msg = _('The custom columns in the <i>{0}</i> library are different from the '
         'custom columns in the <i>{1}</i> library. As a result, some metadata might not be copied.').format(
@@ -201,7 +201,7 @@ class ChooseLibrary(Dialog):  # {{{
         self.items.clear()
         for name, loc in sorted_locations:
             i = QListWidgetItem(name, self.items)
-            i.setData(Qt.UserRole, loc)
+            i.setData(Qt.ItemDataRole.UserRole, loc)
         self.items.setCurrentRow(0)
 
     def setup_ui(self):
@@ -233,7 +233,7 @@ class ChooseLibrary(Dialog):  # {{{
         v.addLayout(h)
         v.addStretch(10)
         bb = self.bb
-        bb.setStandardButtons(QDialogButtonBox.Cancel)
+        bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         self.delete_after_copy = False
         b = bb.addButton(_('&Copy'), bb.AcceptRole)
         b.setIcon(QIcon(I('edit-copy.png')))
@@ -244,7 +244,7 @@ class ChooseLibrary(Dialog):  # {{{
         b2.setToolTip(_('Copy to the specified library and delete from the current library'))
         b.setDefault(True)
         l.addWidget(bb, 1, 0, 1, 2)
-        self.items.setFocus(Qt.OtherFocusReason)
+        self.items.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def sizeHint(self):
         return QSize(800, 550)
@@ -252,7 +252,7 @@ class ChooseLibrary(Dialog):  # {{{
     def current_changed(self):
         i = self.items.currentItem() or self.items.item(0)
         if i is not None:
-            loc = i.data(Qt.UserRole)
+            loc = i.data(Qt.ItemDataRole.UserRole)
             self.le.setText(loc)
 
     def browse(self):
@@ -283,12 +283,12 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.items = []
         for book_id, (title, authors) in iteritems(duplicates):
             i = QListWidgetItem(_('{0} by {1}').format(title, ' & '.join(authors[:3])), self.books)
-            i.setData(Qt.UserRole, book_id)
-            i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-            i.setCheckState(Qt.Checked)
+            i.setData(Qt.ItemDataRole.UserRole, book_id)
+            i.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            i.setCheckState(Qt.CheckState.Checked)
             self.items.append(i)
         l.addWidget(self.books)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.a = b = bb.addButton(_('Select &all'), bb.ActionRole)
@@ -301,21 +301,21 @@ class DuplicatesQuestion(QDialog):  # {{{
         self.resize(600, 400)
 
     def copy_to_clipboard(self):
-        items = [('✓' if item.checkState() == Qt.Checked else '✗') + ' ' + unicode_type(item.text())
+        items = [('✓' if item.checkState() == Qt.CheckState.Checked else '✗') + ' ' + unicode_type(item.text())
                  for item in self.items]
         QApplication.clipboard().setText('\n'.join(items))
 
     def select_all(self):
         for i in self.items:
-            i.setCheckState(Qt.Checked)
+            i.setCheckState(Qt.CheckState.Checked)
 
     def select_none(self):
         for i in self.items:
-            i.setCheckState(Qt.Unchecked)
+            i.setCheckState(Qt.CheckState.Unchecked)
 
     @property
     def ids(self):
-        return {int(i.data(Qt.UserRole)) for i in self.items if i.checkState() == Qt.Checked}
+        return {int(i.data(Qt.ItemDataRole.UserRole)) for i in self.items if i.checkState() == Qt.CheckState.Checked}
 
 # }}}
 
@@ -330,7 +330,7 @@ class CopyToLibraryAction(InterfaceAction):
     name = 'Copy To Library'
     action_spec = (_('Copy to library'), 'copy-to-library.png',
             _('Copy selected books to the specified library'), None)
-    popup_type = QToolButton.InstantPopup
+    popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
     action_add_menu = True

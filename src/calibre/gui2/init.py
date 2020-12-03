@@ -45,11 +45,11 @@ class LibraryViewMixin(object):  # {{{
         pass
 
     def init_library_view_mixin(self, db):
-        self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.QueuedConnection)
-        self.library_view.books_dropped.connect(self.iactions['Edit Metadata'].books_dropped, type=Qt.QueuedConnection)
+        self.library_view.files_dropped.connect(self.iactions['Add Books'].files_dropped, type=Qt.ConnectionType.QueuedConnection)
+        self.library_view.books_dropped.connect(self.iactions['Edit Metadata'].books_dropped, type=Qt.ConnectionType.QueuedConnection)
         self.library_view.add_column_signal.connect(partial(self.iactions['Preferences'].do_config,
             initial_plugin=('Interface', 'Custom Columns')),
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         for func, args in [
                              ('connect_to_search_box', (self.search,
                                  self.search_done)),
@@ -116,7 +116,7 @@ class LibraryViewMixin(object):  # {{{
 
 class QuickviewSplitter(QSplitter):  # {{{
 
-    def __init__(self, parent=None, orientation=Qt.Vertical, qv_widget=None):
+    def __init__(self, parent=None, orientation=Qt.Orientation.Vertical, qv_widget=None):
         QSplitter.__init__(self, parent=parent, orientation=orientation)
         self.splitterMoved.connect(self.splitter_moved)
         self.setChildrenCollapsible(False)
@@ -149,11 +149,11 @@ class QuickviewSplitter(QSplitter):  # {{{
 class LibraryWidget(Splitter):  # {{{
 
     def __init__(self, parent):
-        orientation = Qt.Vertical
+        orientation = Qt.Orientation.Vertical
         if config['gui_layout'] == 'narrow':
-            orientation = Qt.Horizontal if is_widescreen() else Qt.Vertical
-        idx = 0 if orientation == Qt.Vertical else 1
-        size = 300 if orientation == Qt.Vertical else 550
+            orientation = Qt.Orientation.Horizontal if is_widescreen() else Qt.Orientation.Vertical
+        idx = 0 if orientation == Qt.Orientation.Vertical else 1
+        size = 300 if orientation == Qt.Orientation.Vertical else 550
         Splitter.__init__(self, 'cover_browser_splitter', _('Cover browser'),
                 I('cover_flow.png'),
                 orientation=orientation, parent=parent,
@@ -163,7 +163,7 @@ class LibraryWidget(Splitter):  # {{{
 
         quickview_widget = QWidget()
         parent.quickview_splitter = QuickviewSplitter(
-                parent=self, orientation=Qt.Vertical, qv_widget=quickview_widget)
+                parent=self, orientation=Qt.Orientation.Vertical, qv_widget=quickview_widget)
         parent.library_view = BooksView(parent)
         parent.library_view.setObjectName('library_view')
         stack = QStackedWidget(self)
@@ -196,7 +196,7 @@ class Stack(QStackedWidget):  # {{{
                 parent=parent, side_index=0, initial_side_size=200,
                 shortcut='Shift+Alt+T')
         parent.tb_splitter.state_changed.connect(
-                        self.tb_widget.set_pane_is_visible, Qt.QueuedConnection)
+                        self.tb_widget.set_pane_is_visible, Qt.ConnectionType.QueuedConnection)
         parent.tb_splitter.addWidget(self.tb_widget)
         parent.tb_splitter.addWidget(parent.cb_splitter)
         parent.tb_splitter.setCollapsible(parent.tb_splitter.other_index, False)
@@ -216,7 +216,7 @@ class UpdateLabel(QLabel):  # {{{
 
     def __init__(self, *args, **kwargs):
         QLabel.__init__(self, *args, **kwargs)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def contextMenuEvent(self, e):
         pass
@@ -228,7 +228,7 @@ class VersionLabel(QLabel):  # {{{
     def __init__(self, parent):
         QLabel.__init__(self, parent)
         self.mouse_over = False
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setToolTip(_('See what\'s new in this calibre release'))
 
     def mouseReleaseEvent(self, ev):
@@ -253,9 +253,9 @@ class VersionLabel(QLabel):  # {{{
             p = QPainter(self)
             tool = QStyleOption()
             tool.rect = self.rect()
-            tool.state = QStyle.State_Raised | QStyle.State_Active | QStyle.State_MouseOver
+            tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             s = self.style()
-            s.drawPrimitive(QStyle.PE_PanelButtonTool, tool, p, self)
+            s.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool, p, self)
             p.end()
         return QLabel.paintEvent(self, ev)
 # }}}
@@ -400,7 +400,7 @@ class VLTabs(QTabBar):  # {{{
         self.gui = parent
         self.ignore_tab_changed = False
         self.currentChanged.connect(self.tab_changed)
-        self.tabMoved.connect(self.tab_moved, type=Qt.QueuedConnection)
+        self.tabMoved.connect(self.tab_moved, type=Qt.ConnectionType.QueuedConnection)
         self.tabCloseRequested.connect(self.tab_close)
         self.setVisible(gprefs['show_vl_tabs'])
         self.next_action = a = QAction(self)
@@ -569,7 +569,7 @@ class LayoutMixin(object):  # {{{
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book details'), I('book.png'),
-                    orientation=Qt.Vertical, parent=self, side_index=1,
+                    orientation=Qt.Orientation.Vertical, parent=self, side_index=1,
                     shortcut='Shift+Alt+D')
             self.bd_splitter.addWidget(self.stack)
             self.bd_splitter.addWidget(self.book_details)
@@ -580,15 +580,15 @@ class LayoutMixin(object):  # {{{
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
                     _('Book details'), I('book.png'), initial_side_size=200,
-                    orientation=Qt.Horizontal, parent=self, side_index=1,
+                    orientation=Qt.Orientation.Horizontal, parent=self, side_index=1,
                     shortcut='Shift+Alt+D')
             self.stack = Stack(self)
             self.bd_splitter.addWidget(self.stack)
             self.book_details = BookDetails(True, self)
             self.bd_splitter.addWidget(self.book_details)
             self.bd_splitter.setCollapsible(self.bd_splitter.other_index, False)
-            self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
-                QSizePolicy.Expanding))
+            self.bd_splitter.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Expanding))
             self.centralwidget.layout().addWidget(self.bd_splitter)
             button_order = ('sb', 'tb', 'cb', 'gv', 'qv', 'bd')
         # }}}
@@ -633,9 +633,9 @@ class LayoutMixin(object):  # {{{
                 self.status_bar.addPermanentWidget(b)
         else:
             self.layout_button = b = QToolButton(self)
-            b.setAutoRaise(True), b.setCursor(Qt.PointingHandCursor)
+            b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
             b.setPopupMode(b.InstantPopup)
-            b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             b.setText(_('Layout')), b.setIcon(QIcon(I('config.png')))
             b.setMenu(LayoutMenu(self))
             b.setToolTip(_(
@@ -650,18 +650,18 @@ class LayoutMixin(object):  # {{{
         self.book_details.show_book_info.connect(self.iactions['Show Book Details'].show_book_info)
         self.book_details.files_dropped.connect(self.iactions['Add Books'].files_dropped_on_book)
         self.book_details.cover_changed.connect(self.bd_cover_changed,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.open_cover_with.connect(self.bd_open_cover_with,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.open_fmt_with.connect(self.bd_open_fmt_with,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.edit_book.connect(self.bd_edit_book,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.cover_removed.connect(self.bd_cover_removed,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.remote_file_dropped.connect(
                 self.iactions['Add Books'].remote_file_dropped_on_book,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
         self.book_details.search_requested.connect(self.search.set_search_string)
@@ -676,7 +676,7 @@ class LayoutMixin(object):  # {{{
         self.book_details.set_cover_from_format.connect(
             self.iactions['Edit Metadata'].set_cover_from_format)
         self.book_details.copy_link.connect(self.bd_copy_link,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.book_details.view_device_book.connect(
                 self.iactions['View'].view_device_book)
         self.book_details.manage_category.connect(self.manage_category_triggerred)
@@ -689,7 +689,7 @@ class LayoutMixin(object):  # {{{
             QTimer.singleShot(0, self.library_view.set_current_row)
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
-        self.library_view.setFocus(Qt.OtherFocusReason)
+        self.library_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def edit_identifiers_triggerred(self):
         book_id = self.library_view.current_book
@@ -725,7 +725,7 @@ class LayoutMixin(object):  # {{{
     def toggle_search_bar(self, show):
         self.search_bar.setVisible(show)
         if show:
-            self.search.setFocus(Qt.OtherFocusReason)
+            self.search.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def bd_cover_changed(self, id_, cdata):
         self.library_view.model().db.set_cover(id_, cdata)

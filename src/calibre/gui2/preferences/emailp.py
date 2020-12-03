@@ -71,8 +71,8 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                 return numeric_sort_key(self.tags.get(account_key) or '')
         self.account_order.sort(key=key, reverse=not self.sorted_on[1])
 
-    def sort(self, column, order=Qt.AscendingOrder):
-        nsort = (column, order == Qt.AscendingOrder)
+    def sort(self, column, order=Qt.SortOrder.AscendingOrder):
+        nsort = (column, order == Qt.SortOrder.AscendingOrder)
         if nsort != self.sorted_on:
             self.sorted_on = nsort
             self.beginResetModel()
@@ -88,7 +88,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         return len(self.headers)
 
     def headerData(self, section, orientation, role):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.headers[section]
         return None
 
@@ -99,11 +99,11 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         account = self.account_order[row]
         if account not in self.accounts:
             return None
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return (account, self.accounts[account])
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             return self.tooltips[col]
-        if role in [Qt.DisplayRole, Qt.EditRole]:
+        if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole]:
             if col == 0:
                 return (account)
             if col ==  1:
@@ -114,17 +114,17 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                 return (self.aliases.get(account, ''))
             if col == 5:
                 return (self.tags.get(account, ''))
-        if role == Qt.FontRole and self.accounts[account][2]:
+        if role == Qt.ItemDataRole.FontRole and self.accounts[account][2]:
             return self.default_font
-        if role == Qt.CheckStateRole and col == 3:
-            return (Qt.Checked if self.accounts[account][1] else Qt.Unchecked)
+        if role == Qt.ItemDataRole.CheckStateRole and col == 3:
+            return (Qt.CheckState.Checked if self.accounts[account][1] else Qt.CheckState.Unchecked)
         return None
 
     def flags(self, index):
         if index.column() == 3:
-            return QAbstractTableModel.flags(self, index)|Qt.ItemIsUserCheckable
+            return QAbstractTableModel.flags(self, index)|Qt.ItemFlag.ItemIsUserCheckable
         else:
-            return QAbstractTableModel.flags(self, index)|Qt.ItemIsEditable
+            return QAbstractTableModel.flags(self, index)|Qt.ItemFlag.ItemIsEditable
 
     def setData(self, index, value, role):
         if not index.isValid():
@@ -224,7 +224,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 opts.aliases, opts.tags)
         connect_lambda(self._email_accounts.dataChanged, self, lambda self: self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
-        self.email_view.sortByColumn(0, Qt.AscendingOrder)
+        self.email_view.sortByColumn(0, Qt.SortOrder.AscendingOrder)
         self.email_view.setSortingEnabled(True)
 
         self.email_add.clicked.connect(self.add_email_account)
@@ -248,7 +248,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if self.email_view.state() == self.email_view.EditingState:
             # Ensure that the cell being edited is committed by switching focus
             # to some other widget, which automatically closes the open editor
-            self.send_email_widget.setFocus(Qt.OtherFocusReason)
+            self.send_email_widget.setFocus(Qt.FocusReason.OtherFocusReason)
         to_set = bool(self._email_accounts.accounts)
         if not self.send_email_widget.set_email_settings(to_set):
             raise AbortCommit('abort')

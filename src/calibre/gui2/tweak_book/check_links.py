@@ -42,7 +42,7 @@ class CheckExternalLinks(Dialog):
 
     def __init__(self, parent=None):
         Dialog.__init__(self, _('Check external links'), 'check-external-links-dialog', parent)
-        self.progress_made.connect(self.on_progress_made, type=Qt.QueuedConnection)
+        self.progress_made.connect(self.on_progress_made, type=Qt.ConnectionType.QueuedConnection)
 
     def show(self):
         if self.rb.isEnabled():
@@ -59,14 +59,14 @@ class CheckExternalLinks(Dialog):
     def setup_ui(self):
         self.pb = pb = QProgressBar(self)
         pb.setTextVisible(True)
-        pb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        pb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         pb.setRange(0, 0)
         self.w = w = QWidget(self)
         self.w.l = l = QVBoxLayout(w)
         l.addStretch(), l.addWidget(pb)
         self.w.la = la = QLabel(_('Checking external links, please wait...'))
         la.setStyleSheet('QLabel { font-size: 20px; font-weight: bold }')
-        l.addWidget(la, 0, Qt.AlignCenter), l.addStretch()
+        l.addWidget(la, 0, Qt.AlignmentFlag.AlignCenter), l.addStretch()
 
         self.l = l = QVBoxLayout(self)
         self.results = QTextBrowser(self)

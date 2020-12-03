@@ -380,7 +380,7 @@ def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit
     else:
         from calibre.gui2.ui import get_gui
         ema = get_gui().iactions['Edit Metadata'].menuless_qaction
-        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.NativeText), edit_metadata)
+        menu.addAction(_('Open the Edit metadata window') + '\t' + ema.shortcut().toString(QKeySequence.SequenceFormat.NativeText), edit_metadata)
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
@@ -418,14 +418,14 @@ class CoverView(QWidget):  # {{{
         self.vertical = vertical
 
         self.animation = QPropertyAnimation(self, b'current_pixmap_size', self)
-        self.animation.setEasingCurve(QEasingCurve(QEasingCurve.OutExpo))
+        self.animation.setEasingCurve(QEasingCurve(QEasingCurve.Type.OutExpo))
         self.animation.setDuration(1000)
         self.animation.setStartValue(QSize(0, 0))
         self.animation.valueChanged.connect(self.value_changed)
 
         self.setSizePolicy(
-                QSizePolicy.Expanding if vertical else QSizePolicy.Minimum,
-                QSizePolicy.Expanding)
+                QSizePolicy.Policy.Expanding if vertical else QSizePolicy.Policy.Minimum,
+                QSizePolicy.Policy.Expanding)
 
         self.default_pixmap = QPixmap(I('default_cover.png'))
         self.pixmap = self.default_pixmap
@@ -485,12 +485,12 @@ class CoverView(QWidget):  # {{{
         y = int(extray//2)
         target = QRect(x, y, width, height)
         p = QPainter(self)
-        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         try:
             dpr = self.devicePixelRatioF()
         except AttributeError:
             dpr = self.devicePixelRatio()
-        spmap = self.pixmap.scaled(target.size() * dpr, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        spmap = self.pixmap.scaled(target.size() * dpr, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
         spmap.setDevicePixelRatio(dpr)
         p.drawPixmap(target, spmap)
         if gprefs['bd_overlay_cover_size']:
@@ -499,7 +499,7 @@ class CoverView(QWidget):  # {{{
             f.setBold(True)
             p.setFont(f)
             sz = '\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
-            flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+            flags = Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
             p.setPen(QPen(QColor(255,255,255)))
@@ -662,7 +662,7 @@ class BookInfo(HTMLDisplay):
         self.remove_item_action = ac = QAction(QIcon(I('minus.png')), '...', self)
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setDefaultStyleSheet(css())
 
     def refresh_css(self):
@@ -867,7 +867,7 @@ class BookDetails(QWidget):  # {{{
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        event.setDropAction(Qt.CopyAction)
+        event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
 
         image_exts = set(image_extensions()) - set(tweaks['cover_drop_exclude'])
@@ -936,7 +936,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.manage_category.connect(self.manage_category)
         self.book_info.find_in_tag_browser.connect(self.find_in_tag_browser)
         self.book_info.edit_identifiers.connect(self.edit_identifiers)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
     def search_internet(self, data):
         if self.last_data:
@@ -954,7 +954,7 @@ class BookDetails(QWidget):  # {{{
 
         def browse(url):
             try:
-                safe_open_url(QUrl(url, QUrl.TolerantMode))
+                safe_open_url(QUrl(url, QUrl.ParsingMode.TolerantMode))
             except Exception:
                 import traceback
                 traceback.print_exc()

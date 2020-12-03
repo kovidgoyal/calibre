@@ -223,7 +223,7 @@ class SelectRecipients(QDialog):  # {{{
         b.clicked.connect(self.add_recipient)
         l.addWidget(b, l.rowCount(), 0, 1, -1)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb, l.rowCount(), 0, 1, -1)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -261,9 +261,9 @@ class SelectRecipients(QDialog):  # {{{
 
     def create_item(self, alias, key, checked=False):
         i = QListWidgetItem(alias, self.recipients)
-        i.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
-        i.setCheckState(Qt.Checked if checked else Qt.Unchecked)
-        i.setData(Qt.UserRole, key)
+        i.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
+        i.setCheckState(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
+        i.setData(Qt.ItemDataRole.UserRole, key)
         self.items.append(i)
 
     def init_list(self):
@@ -287,8 +287,8 @@ class SelectRecipients(QDialog):  # {{{
         opts = email_config().parse()
         ans = []
         for i in self.items:
-            if i.checkState() == Qt.Checked:
-                to = unicode_type(i.data(Qt.UserRole) or '')
+            if i.checkState() == Qt.CheckState.Checked:
+                to = unicode_type(i.data(Qt.ItemDataRole.UserRole) or '')
                 fmts = tuple(x.strip().upper() for x in (opts.accounts[to][0] or '').split(','))
                 subject = opts.subjects.get(to, '')
                 ans.append((to, fmts, subject))

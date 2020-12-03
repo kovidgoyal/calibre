@@ -107,7 +107,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             if col:
                 format.setForeground(QColor(col))
             if Config["%sfontbold" % name]:
-                format.setFontWeight(QFont.Bold)
+                format.setFontWeight(QFont.Weight.Bold)
             format.setFontItalic(Config["%sfontitalic" % name])
             self.Formats[name] = format
 
@@ -166,7 +166,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 i += 1
 
     def rehighlight(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
 
@@ -308,7 +308,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         self.last_text = ''
@@ -327,8 +327,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.textbox.clear()
             else:
                 self.textbox.setPlainText(text)
-        self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
-        self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
         self.color_copy_button.clicked.connect(self.color_to_clipboard)
         self.filename_button.clicked.connect(self.filename_button_clicked)
         self.icon_copy_button.clicked.connect(self.icon_to_clipboard)
@@ -498,7 +498,7 @@ class EmbeddedTemplateDialog(TemplateDialog):
         TemplateDialog.__init__(self, parent, _('A General Program Mode Template'), text_is_placeholder=True,
                                 dialog_is_st_editor=True)
         self.setParent(parent)
-        self.setWindowFlags(Qt.Widget)
+        self.setWindowFlags(Qt.WindowType.Widget)
 
 
 if __name__ == '__main__':

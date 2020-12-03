@@ -50,14 +50,14 @@ class BlockingJob(QWidget):
         self.setLayout(l)
         l.addStretch(10)
         self.pi = ProgressIndicator(self, 128)
-        l.addWidget(self.pi, alignment=Qt.AlignHCenter)
+        l.addWidget(self.pi, alignment=Qt.AlignmentFlag.AlignHCenter)
         self.dummy = QLabel('<h2>\xa0')
         l.addSpacing(10)
-        l.addWidget(self.dummy, alignment=Qt.AlignHCenter)
+        l.addWidget(self.dummy, alignment=Qt.AlignmentFlag.AlignHCenter)
         l.addStretch(10)
         self.setVisible(False)
         self.text = ''
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
     def start(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
@@ -65,9 +65,9 @@ class BlockingJob(QWidget):
         # Prevent any actions from being triggerred by key presses
         self.parent().setEnabled(False)
         self.raise_()
-        self.setFocus(Qt.OtherFocusReason)
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
         self.pi.startAnimation()
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
     def stop(self):
         QApplication.restoreOverrideCursor()
@@ -77,7 +77,7 @@ class BlockingJob(QWidget):
         # The following line is needed on OS X, because of this bug:
         # https://bugreports.qt-project.org/browse/QTBUG-34371 it causes
         # keyboard events to no longer work
-        self.parent().setFocus(Qt.OtherFocusReason)
+        self.parent().setFocus(Qt.FocusReason.OtherFocusReason)
 
     def job_done(self, callback, job):
         del job.callback
@@ -97,9 +97,9 @@ class BlockingJob(QWidget):
         f.setBold(True)
         f.setPointSize(20)
         p.setFont(f)
-        p.setPen(Qt.SolidLine)
+        p.setPen(Qt.PenStyle.SolidLine)
         r = QRect(0, self.dummy.geometry().top() + 10, self.geometry().width(), 150)
-        p.drawText(r, Qt.AlignHCenter | Qt.AlignTop | Qt.TextSingleLine, self.text)
+        p.drawText(r, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextSingleLine, self.text)
         p.end()
 
     def set_msg(self, text):

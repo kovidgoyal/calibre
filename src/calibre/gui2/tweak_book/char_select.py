@@ -402,19 +402,19 @@ class CategoryModel(QAbstractItemModel):
             return ROOT
         return self.index(pid - 1, 0)
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
         pid = index.internalId()
         if pid == 0:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 return self.categories[index.row()][0]
-            if role == Qt.FontRole:
+            if role == Qt.ItemDataRole.FontRole:
                 return self.bold_font
-            if role == Qt.DecorationRole and index.row() == 0:
+            if role == Qt.ItemDataRole.DecorationRole and index.row() == 0:
                 return self.fav_icon
         else:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 item = self.categories[pid - 1][1][index.row()]
                 return item[0]
         return None
@@ -501,19 +501,19 @@ class CharModel(QAbstractListModel):
         return len(self.chars)
 
     def data(self, index, role):
-        if role == Qt.UserRole and -1 < index.row() < len(self.chars):
+        if role == Qt.ItemDataRole.UserRole and -1 < index.row() < len(self.chars):
             return self.chars[index.row()]
         return None
 
     def flags(self, index):
-        ans = Qt.ItemIsEnabled
+        ans = Qt.ItemFlag.ItemIsEnabled
         if self.allow_dnd:
-            ans |= Qt.ItemIsSelectable
-            ans |= Qt.ItemIsDragEnabled if index.isValid() else Qt.ItemIsDropEnabled
+            ans |= Qt.ItemFlag.ItemIsSelectable
+            ans |= Qt.ItemFlag.ItemIsDragEnabled if index.isValid() else Qt.ItemFlag.ItemIsDropEnabled
         return ans
 
     def supportedDropActions(self):
-        return Qt.MoveAction
+        return Qt.DropAction.MoveAction
 
     def mimeTypes(self):
         return ['application/calibre_charcode_indices']
@@ -525,7 +525,7 @@ class CharModel(QAbstractListModel):
         return md
 
     def dropMimeData(self, md, action, row, column, parent):
-        if action != Qt.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
+        if action != Qt.DropAction.MoveAction or not md.hasFormat('application/calibre_charcode_indices') or row < 0 or column != 0:
             return False
         indices = list(map(int, bytes(md.data('application/calibre_charcode_indices')).decode('ascii').split(',')))
         codes = [self.chars[x] for x in indices]
@@ -553,7 +553,7 @@ class CharDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         try:
-            charcode = int(index.data(Qt.UserRole))
+            charcode = int(index.data(Qt.ItemDataRole.UserRole))
         except (TypeError, ValueError):
             return
         painter.save()
@@ -569,12 +569,12 @@ class CharDelegate(QStyledItemDelegate):
         f = option.font
         f.setPixelSize(option.rect.height() - 8)
         painter.setFont(f)
-        painter.drawText(option.rect, Qt.AlignHCenter | Qt.AlignBottom | Qt.TextSingleLine, codepoint_to_chr(charcode))
+        painter.drawText(option.rect, Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignBottom | Qt.TextFlag.TextSingleLine, codepoint_to_chr(charcode))
 
     def paint_non_printing(self, painter, option, charcode):
         text = self.np_pat.sub(r'\n\1', non_printing[charcode])
-        painter.drawText(option.rect, Qt.AlignCenter | Qt.TextWordWrap | Qt.TextWrapAnywhere, text)
-        painter.setPen(QPen(Qt.DashLine))
+        painter.drawText(option.rect, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap | Qt.TextFlag.TextWrapAnywhere, text)
+        painter.setPen(QPen(Qt.PenStyle.DashLine))
         painter.drawRect(option.rect.adjusted(1, 1, -1, -1))
 
 
@@ -596,7 +596,7 @@ class CharView(QListView):
         self.setMouseTracking(True)
         self.setSpacing(2)
         self.setUniformItemSizes(True)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
         self.showing_favorites = False
         set_no_activate_on_click(self)
@@ -605,7 +605,7 @@ class CharView(QListView):
 
     def item_activated(self, index):
         try:
-            char_code = int(self.model().data(index, Qt.UserRole))
+            char_code = int(self.model().data(index, Qt.ItemDataRole.UserRole))
         except (TypeError, ValueError):
             pass
         else:
@@ -639,14 +639,14 @@ class CharView(QListView):
             if row != self.last_mouse_idx:
                 self.last_mouse_idx = row
                 try:
-                    char_code = int(self.model().data(index, Qt.UserRole))
+                    char_code = int(self.model().data(index, Qt.ItemDataRole.UserRole))
                 except (TypeError, ValueError):
                     pass
                 else:
                     self.show_name.emit(char_code)
-            self.setCursor(Qt.PointingHandCursor)
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
         else:
-            self.setCursor(Qt.ArrowCursor)
+            self.setCursor(Qt.CursorShape.ArrowCursor)
             self.show_name.emit(-1)
             self.last_mouse_idx = -1
         return QListView.mouseMoveEvent(self, ev)
@@ -655,7 +655,7 @@ class CharView(QListView):
         index = self.indexAt(pos)
         if index.isValid():
             try:
-                char_code = int(self.model().data(index, Qt.UserRole))
+                char_code = int(self.model().data(index, Qt.ItemDataRole.UserRole))
             except (TypeError, ValueError):
                 pass
             else:
@@ -711,7 +711,7 @@ class CharSelect(Dialog):
         b.setDefault(True)
 
         self.splitter = s = QSplitter(self)
-        s.setFocusPolicy(Qt.NoFocus)
+        s.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         s.setChildrenCollapsible(False)
 
         self.search = h = HistoryLineEdit2(self)
@@ -722,21 +722,21 @@ class CharSelect(Dialog):
         h.initialize('charmap_search')
         h.setPlaceholderText(_('Search by name, nickname or character code'))
         self.search_button = b = QPushButton(_('&Search'))
-        b.setFocusPolicy(Qt.NoFocus)
+        b.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         h.returnPressed.connect(self.do_search)
         b.clicked.connect(self.do_search)
         self.clear_button = cb = QToolButton(self)
         cb.setIcon(QIcon(I('clear_left.png')))
-        cb.setFocusPolicy(Qt.NoFocus)
+        cb.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         cb.setText(_('Clear search'))
         cb.clicked.connect(self.clear_search)
         l.addWidget(h), l.addWidget(b, 0, 1), l.addWidget(cb, 0, 2)
 
         self.category_view = CategoryView(self)
-        self.category_view.setFocusPolicy(Qt.NoFocus)
+        self.category_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         l.addWidget(s, 1, 0, 1, 3)
         self.char_view = CharView(self)
-        self.char_view.setFocusPolicy(Qt.NoFocus)
+        self.char_view.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.rearrange_button.toggled[bool].connect(self.set_allow_drag_and_drop)
         self.category_view.category_selected.connect(self.show_chars)
         self.char_view.show_name.connect(self.show_char_info)
@@ -744,12 +744,12 @@ class CharSelect(Dialog):
         s.addWidget(self.category_view), s.addWidget(self.char_view)
 
         self.char_info = la = QLabel('\xa0')
-        la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         l.addWidget(la, 2, 0, 1, 3)
 
         self.rearrange_msg = la = QLabel(_(
             'Drag and drop characters to re-arrange them. Click the "Re-arrange" button again when you are done.'))
-        la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         la.setVisible(False)
         l.addWidget(la, 3, 0, 1, 3)
         self.h = h = QHBoxLayout()
@@ -760,7 +760,7 @@ class CharSelect(Dialog):
         connect_lambda(mm.stateChanged, self, lambda self: tprefs.set('char_select_match_any', self.match_any.isChecked()))
         h.addWidget(mm), h.addStretch(), h.addWidget(self.bb)
         l.addLayout(h, 4, 0, 1, 3)
-        self.char_view.setFocus(Qt.OtherFocusReason)
+        self.char_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def do_search(self):
         text = unicode_type(self.search.text()).strip()
@@ -807,7 +807,7 @@ class CharSelect(Dialog):
         self.raise_()
 
     def char_selected(self, c):
-        if QApplication.keyboardModifiers() & Qt.CTRL:
+        if QApplication.keyboardModifiers() & Qt.Modifier.CTRL:
             self.hide()
         if self.parent() is None or self.parent().focusWidget() is None:
             QApplication.clipboard().setText(c)

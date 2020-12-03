@@ -32,7 +32,7 @@ class FetchNewsAction(InterfaceAction):
     def init_scheduler(self, db):
         from calibre.gui2.dialogs.scheduler import Scheduler
         self.scheduler = Scheduler(self.gui, db)
-        self.scheduler.start_recipe_fetch.connect(self.download_scheduled_recipe, type=Qt.QueuedConnection)
+        self.scheduler.start_recipe_fetch.connect(self.download_scheduled_recipe, type=Qt.ConnectionType.QueuedConnection)
         self.qaction.setMenu(self.scheduler.news_menu)
         self.qaction.triggered.connect(
                 self.scheduler.show_dialog)
@@ -46,7 +46,7 @@ class FetchNewsAction(InterfaceAction):
     def connect_scheduler(self):
         self.scheduler.delete_old_news.connect(
                 self.gui.library_view.model().delete_books_by_id,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
 
     def download_custom_recipe(self, title, urn):
         arg = {'title': title, 'urn': urn, 'username': None, 'password': None}

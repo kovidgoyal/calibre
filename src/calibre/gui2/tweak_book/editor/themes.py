@@ -27,7 +27,7 @@ _default_theme = None
 def default_theme():
     global _default_theme
     if _default_theme is None:
-        isdark = QApplication.instance().palette().color(QPalette.WindowText).lightness() > 128
+        isdark = QApplication.instance().palette().color(QPalette.ColorRole.WindowText).lightness() > 128
         _default_theme = 'wombat-dark' if isdark else 'pyte-light'
     return _default_theme
 
@@ -279,7 +279,7 @@ def get_theme(name):
 def highlight_to_char_format(h):
     ans = syntax_text_char_format()
     if h.bold:
-        ans.setFontWeight(QFont.Bold)
+        ans.setFontWeight(QFont.Weight.Bold)
     if h.italic:
         ans.setFontItalic(True)
     if h.fg is not None:
@@ -375,7 +375,7 @@ class ColorButton(QPushButton):
             self.current_color = read_color(color).color()
             self.ic.fill(self.current_color)
         else:
-            self.ic.fill(Qt.transparent)
+            self.ic.fill(Qt.GlobalColor.transparent)
             self.current_color = color
         self.update_tooltip()
         self.setIcon(QIcon(self.ic))
@@ -384,13 +384,13 @@ class ColorButton(QPushButton):
     def clear(self):
         self.current_color = None
         self.update_tooltip()
-        self.ic.fill(Qt.transparent)
+        self.ic.fill(Qt.GlobalColor.transparent)
         self.setIcon(QIcon(self.ic))
         self.data[self.name] = self.value
         self.changed.emit()
 
     def choose_color(self):
-        col = QColorDialog.getColor(self.current_color or Qt.black, self, _('Choose color'))
+        col = QColorDialog.getColor(self.current_color or Qt.GlobalColor.black, self, _('Choose color'))
         if col.isValid():
             self.current_color = col
             self.update_tooltip()
@@ -425,7 +425,7 @@ class Bool(QCheckBox):
 
     @property
     def value(self):
-        return self.checkState() == Qt.Checked
+        return self.checkState() == Qt.CheckState.Checked
 
 
 class Property(QWidget):

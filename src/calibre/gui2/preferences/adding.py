@@ -59,7 +59,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.author_map_rules_button.clicked.connect(self.change_author_map_rules)
         self.add_filter_rules_button.clicked.connect(self.change_add_filter_rules)
         self.tabWidget.setCurrentIndex(0)
-        self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        self.actions_tab.layout().setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     def change_tag_map_rules(self):
         from calibre.gui2.tag_mapper import RulesDialog
@@ -123,9 +123,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for ext in sorted(exts):
             viewer.addItem(ext)
             item = viewer.item(viewer.count()-1)
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
-            item.setCheckState(Qt.Checked if
-                    ext in fmts else Qt.Unchecked)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if
+                    ext in fmts else Qt.CheckState.Unchecked)
         viewer.blockSignals(False)
 
     @property
@@ -133,7 +133,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         fmts = []
         viewer = self.opt_blocked_auto_formats
         for i in range(viewer.count()):
-            if viewer.item(i).checkState() == Qt.Checked:
+            if viewer.item(i).checkState() == Qt.CheckState.Checked:
                 fmts.append(unicode_type(viewer.item(i).text()))
         return fmts
     # }}}

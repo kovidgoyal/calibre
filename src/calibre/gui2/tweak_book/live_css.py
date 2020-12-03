@@ -28,8 +28,8 @@ class Heading(QWidget):  # {{{
 
     def __init__(self, text, expanded=True, parent=None):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.text = text
         self.expanded = expanded
         self.hovering = False
@@ -48,7 +48,7 @@ class Heading(QWidget):  # {{{
         self.setFont(f)
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.LeftButton:
+        if ev.button() == Qt.MouseButton.LeftButton:
             ev.accept()
             self.expanded ^= True
             self.toggled.emit(self)
@@ -68,12 +68,12 @@ class Heading(QWidget):  # {{{
     def paintEvent(self, ev):
         p = QPainter(self)
         p.setClipRect(ev.rect())
-        bg = self.palette().color(QPalette.AlternateBase)
+        bg = self.palette().color(QPalette.ColorRole.AlternateBase)
         if self.hovering:
             bg = bg.lighter(115)
         p.fillRect(self.rect(), bg)
         try:
-            p.drawText(self.rect(), Qt.AlignLeft|Qt.AlignVCenter|Qt.TextSingleLine, self.rendered_text)
+            p.drawText(self.rect(), Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter|Qt.TextFlag.TextSingleLine, self.rendered_text)
         finally:
             p.end()
 
@@ -97,9 +97,9 @@ class Cell(object):  # {{{
     __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch', 'is_overriden')
 
     SIDE_MARGIN = 5
-    FLAGS = Qt.AlignVCenter | Qt.TextSingleLine | Qt.TextIncludeTrailingSpaces
+    FLAGS = Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine | Qt.TextFlag.TextIncludeTrailingSpaces
 
-    def __init__(self, text, rect, right_align=False, color_role=QPalette.WindowText, swatch=None, is_overriden=False):
+    def __init__(self, text, rect, right_align=False, color_role=QPalette.ColorRole.WindowText, swatch=None, is_overriden=False):
         self.rect, self.text = rect, text
         self.right_align = right_align
         self.is_overriden = is_overriden
@@ -110,7 +110,7 @@ class Cell(object):  # {{{
             self.swatch = QColor(swatch[0], swatch[1], swatch[2], int(255 * swatch[3]))
 
     def draw(self, painter, width, palette):
-        flags = self.FLAGS | (Qt.AlignRight if self.right_align else Qt.AlignLeft)
+        flags = self.FLAGS | (Qt.AlignmentFlag.AlignRight if self.right_align else Qt.AlignmentFlag.AlignLeft)
         rect = QRect(self.rect)
         if self.right_align:
             rect.setRight(width - self.SIDE_MARGIN)
@@ -121,7 +121,7 @@ class Cell(object):  # {{{
             painter.fillRect(r, self.swatch)
             br.setRight(r.right())
         if self.is_overriden:
-            painter.setPen(palette.color(QPalette.WindowText))
+            painter.setPen(palette.color(QPalette.ColorRole.WindowText))
             painter.drawLine(br.left(), br.top() + br.height() // 2, br.right(), br.top() + br.height() // 2)
 # }}}
 
@@ -133,7 +133,7 @@ class Declaration(QWidget):
 
     def __init__(self, html_name, data, is_first=False, parent=None):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Minimum)
         self.data = data
         self.is_first = is_first
         self.html_name = html_name
@@ -159,7 +159,7 @@ class Declaration(QWidget):
             br2 = bounding_rect(sel)
             self.hyperlink_rect = QRect(side_margin, ypos, br1.width(), br1.height())
             self.rows.append([
-                Cell(name, self.hyperlink_rect, color_role=QPalette.Link),
+                Cell(name, self.hyperlink_rect, color_role=QPalette.ColorRole.Link),
                 Cell(sel, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), right_align=True)
             ])
             ypos += max(br1.height(), br2.height()) + 2 * line_spacing
@@ -171,7 +171,7 @@ class Declaration(QWidget):
             vtext = prop.value + '\xa0' + ('!' if prop.important else '') + prop.important
             br2 = bounding_rect(vtext)
             self.rows.append([
-                Cell(text, QRect(side_margin, ypos, br1.width(), br1.height()), color_role=QPalette.LinkVisited, is_overriden=prop.is_overriden),
+                Cell(text, QRect(side_margin, ypos, br1.width(), br1.height()), color_role=QPalette.ColorRole.LinkVisited, is_overriden=prop.is_overriden),
                 Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), swatch=prop.color, is_overriden=prop.is_overriden)
             ])
             self.lines_for_copy.append(text + vtext)
@@ -190,7 +190,7 @@ class Declaration(QWidget):
         p = QPainter(self)
         p.setClipRect(ev.rect())
         palette = self.palette()
-        p.setPen(palette.color(QPalette.WindowText))
+        p.setPen(palette.color(QPalette.ColorRole.WindowText))
         if not self.is_first:
             p.drawLine(0, 0, self.width(), 0)
         try:
@@ -210,20 +210,20 @@ class Declaration(QWidget):
             pos = ev.pos()
             hovering = self.hyperlink_rect.contains(pos)
             self.update_hover(hovering)
-            cursor = Qt.ArrowCursor
+            cursor = Qt.CursorShape.ArrowCursor
             for r, row in enumerate(self.rows):
                 for cell in row:
                     if cell.rect.contains(pos):
-                        cursor = Qt.PointingHandCursor if cell.rect is self.hyperlink_rect else Qt.IBeamCursor
+                        cursor = Qt.CursorShape.PointingHandCursor if cell.rect is self.hyperlink_rect else Qt.CursorShape.IBeamCursor
                     if r == 0:
                         break
-                if cursor != Qt.ArrowCursor:
+                if cursor != Qt.CursorShape.ArrowCursor:
                     break
             self.setCursor(cursor)
         return QWidget.mouseMoveEvent(self, ev)
 
     def mousePressEvent(self, ev):
-        if hasattr(self, 'hyperlink_rect') and ev.button() == Qt.LeftButton:
+        if hasattr(self, 'hyperlink_rect') and ev.button() == Qt.MouseButton.LeftButton:
             pos = ev.pos()
             if self.hyperlink_rect.contains(pos):
                 self.emit_hyperlink_activated()
@@ -245,14 +245,14 @@ class Declaration(QWidget):
 
     def leaveEvent(self, ev):
         self.update_hover(False)
-        self.setCursor(Qt.ArrowCursor)
+        self.setCursor(Qt.CursorShape.ArrowCursor)
         return QWidget.leaveEvent(self, ev)
 
     def update_hover(self, hovering):
         cell = self.rows[0][0]
         if (hovering and cell.override_color is None) or (
                 not hovering and cell.override_color is not None):
-            cell.override_color = QColor(Qt.red) if hovering else None
+            cell.override_color = QColor(Qt.GlobalColor.red) if hovering else None
             self.update()
 
     def contextMenuEvent(self, ev):
@@ -266,7 +266,7 @@ class Box(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
-        l.setAlignment(Qt.AlignTop)
+        l.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(l)
         self.widgets = []
 
@@ -404,11 +404,11 @@ class LiveCSS(QWidget):
                 'Move the cursor inside a HTML tag to see what styles'
                 ' apply to that tag.'))
         la.setWordWrap(True)
-        la.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        la.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         s.addWidget(la)
 
         self.box = box = Box(self)
-        box.hyperlink_activated.connect(self.goto_declaration, type=Qt.QueuedConnection)
+        box.hyperlink_activated.connect(self.goto_declaration, type=Qt.ConnectionType.QueuedConnection)
         self.scroll = sc = QScrollArea(self)
         sc.setWidget(box)
         sc.setWidgetResizable(True)

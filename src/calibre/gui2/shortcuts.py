@@ -19,10 +19,10 @@ from calibre.utils.config import XMLConfig
 from calibre.utils.icu import sort_key
 from polyglot.builtins import unicode_type
 
-DEFAULTS = Qt.UserRole
-DESCRIPTION = Qt.UserRole + 1
-CUSTOM = Qt.UserRole + 2
-KEY = Qt.UserRole + 3
+DEFAULTS = Qt.ItemDataRole.UserRole
+DESCRIPTION = Qt.ItemDataRole.UserRole + 1
+CUSTOM = Qt.ItemDataRole.UserRole + 2
+KEY = Qt.ItemDataRole.UserRole + 3
 
 
 class Customize(QFrame):
@@ -31,7 +31,7 @@ class Customize(QFrame):
         QFrame.__init__(self, parent)
         self.setFrameShape(self.StyledPanel)
         self.setFrameShadow(self.Raised)
-        self.setFocusPolicy(Qt.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAutoFillBackground(True)
         self.l = l = QVBoxLayout(self)
         self.header = la = QLabel(self)
@@ -83,7 +83,7 @@ class Customize(QFrame):
     def clear_button(self, which):
         b = getattr(self, 'button%d' % which)
         s = getattr(self, 'shortcut%d' % which, None)
-        b.setText(_('None') if s is None else s.toString(QKeySequence.NativeText))
+        b.setText(_('None') if s is None else s.toString(QKeySequence.SequenceFormat.NativeText))
         b.setFont(QFont())
 
     def clear_clicked(self, which=0):
@@ -101,25 +101,25 @@ class Customize(QFrame):
             self.clear_button(w)
         button = getattr(self, 'button%d'%which)
         button.setText(_('Press a key...'))
-        button.setFocus(Qt.OtherFocusReason)
+        button.setFocus(Qt.FocusReason.OtherFocusReason)
         font = QFont()
         font.setBold(True)
         button.setFont(font)
 
     def key_press_event(self, ev, which=0):
         code = ev.key()
-        if self.capture == 0 or code in (0, Qt.Key_unknown,
-                Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt, Qt.Key_Meta,
-                Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock, Qt.Key_ScrollLock):
+        if self.capture == 0 or code in (0, Qt.Key.Key_unknown,
+                Qt.Key.Key_Shift, Qt.Key.Key_Control, Qt.Key.Key_Alt, Qt.Key.Key_Meta,
+                Qt.Key.Key_AltGr, Qt.Key.Key_CapsLock, Qt.Key.Key_NumLock, Qt.Key.Key_ScrollLock):
             return QWidget.keyPressEvent(self, ev)
-        sequence = QKeySequence(code|(int(ev.modifiers()) & (~Qt.KeypadModifier)))
+        sequence = QKeySequence(code|(int(ev.modifiers()) & (~Qt.KeyboardModifier.KeypadModifier)))
         setattr(self, 'shortcut%d'%which, sequence)
         self.clear_button(which)
         self.capture = 0
         dup_desc = self.dup_check(sequence, self.key)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
-                    unicode_type(sequence.toString(QKeySequence.NativeText)) + ' ' +
+                    unicode_type(sequence.toString(QKeySequence.SequenceFormat.NativeText)) + ' ' +
                     _('already assigned to') + ' ' + dup_desc, show=True)
             self.clear_clicked(which=which)
 
@@ -155,8 +155,8 @@ class Delegate(QStyledItemDelegate):
         painter.save()
         painter.setClipRect(QRectF(option.rect))
         if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
-        elif option.state & QStyle.State_Selected:
+            QApplication.style().drawControl(QStyle.ControlElement.CE_ItemViewItem, option, painter)
+        elif option.state & QStyle.StateFlag.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
         painter.translate(option.rect.topLeft())
         self.to_doc(index).drawContents(painter)
@@ -237,11 +237,11 @@ class Shortcuts(QAbstractListModel):
     def get_match(self, event_or_sequence, ignore=tuple()):
         q = event_or_sequence
         if isinstance(q, QKeyEvent):
-            q = QKeySequence(q.key()|(int(q.modifiers()) & (~Qt.KeypadModifier)))
+            q = QKeySequence(q.key()|(int(q.modifiers()) & (~Qt.KeyboardModifier.KeypadModifier)))
         for key in self.order:
             if key not in ignore:
                 for seq in self.get_sequences(key):
-                    if seq.matches(q) == QKeySequence.ExactMatch:
+                    if seq.matches(q) == QKeySequence.SequenceMatch.ExactMatch:
                         return key
         return None
 
@@ -259,10 +259,10 @@ class Shortcuts(QAbstractListModel):
         if row < 0 or row >= len(self.order):
             return None
         key = self.order[row]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.TEMPLATE.format(self.descriptions[key],
                     _(' or ').join(self.get_shortcuts(key)), _('Keys'))
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             return _('Double click to change')
         if role == DEFAULTS:
             return self.sequences[key]
@@ -280,14 +280,14 @@ class Shortcuts(QAbstractListModel):
     def set_data(self, index, custom):
         key = self.order[index.row()]
         if custom:
-            self.custom[key] = [unicode_type(x.toString(QKeySequence.PortableText)) for x in custom]
+            self.custom[key] = [unicode_type(x.toString(QKeySequence.SequenceFormat.PortableText)) for x in custom]
         elif key in self.custom:
             del self.custom[key]
 
     def flags(self, index):
         if not index.isValid():
-            return Qt.ItemIsEnabled
-        return QAbstractListModel.flags(self, index) | Qt.ItemIsEditable
+            return Qt.ItemFlag.ItemIsEnabled
+        return QAbstractListModel.flags(self, index) | Qt.ItemFlag.ItemIsEditable
 
 
 class ShortcutConfig(QWidget):
@@ -302,7 +302,7 @@ class ShortcutConfig(QWidget):
         self.delegate = Delegate()
         self.view.setItemDelegate(self.delegate)
         self.delegate.sizeHintChanged.connect(self.scrollTo,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
 
     def scrollTo(self, index):
         self.view.scrollTo(index, self.view.EnsureVisible)

@@ -67,7 +67,7 @@ class Matches(QAbstractItemModel):
         self.got_result_details_dispatcher = FunctionDispatcher(self.got_result_details)
 
         self.sort_col = 2
-        self.sort_order = Qt.AscendingOrder
+        self.sort_order = Qt.SortOrder.AscendingOrder
 
     def closing(self):
         self.cover_pool.abort()
@@ -183,10 +183,10 @@ class Matches(QAbstractItemModel):
         return len(self.HEADERS)
 
     def headerData(self, section, orientation, role):
-        if role != Qt.DisplayRole:
+        if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Orientation.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
             return (text)
@@ -198,7 +198,7 @@ class Matches(QAbstractItemModel):
         if row >= len(self.matches):
             return None
         result = self.matches[row]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             if col == 1:
                 t = result.title if result.title else _('Unknown')
                 a = result.author if result.author else ''
@@ -208,7 +208,7 @@ class Matches(QAbstractItemModel):
             elif col == 4:
                 return ('<span>%s<br>%s</span>' % (result.store_name, result.formats))
             return None
-        elif role == Qt.DecorationRole:
+        elif role == Qt.ItemDataRole.DecorationRole:
             if col == 0 and result.cover_data:
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
@@ -227,7 +227,7 @@ class Matches(QAbstractItemModel):
             if col == 6:
                 if result.affiliate:
                     return (self.DONATE_ICON)
-        elif role == Qt.ToolTipRole:
+        elif role == Qt.ItemDataRole.ToolTipRole:
             if col == 1:
                 return ('<p>%s</p>' % result.title)
             elif col == 2:
@@ -253,7 +253,7 @@ class Matches(QAbstractItemModel):
             elif col == 6:
                 if result.affiliate:
                     return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.plugin_author + '</p>')
-        elif role == Qt.SizeHintRole:
+        elif role == Qt.ItemDataRole.SizeHintRole:
             return QSize(64, 64)
         return None
 
@@ -289,7 +289,7 @@ class Matches(QAbstractItemModel):
         self.sort_order = order
         if not self.matches:
             return
-        descending = order == Qt.DescendingOrder
+        descending = order == Qt.SortOrder.DescendingOrder
         self.all_matches.sort(
             key=lambda x: sort_key(unicode_type(self.data_as_text(x, col))),
             reverse=descending)

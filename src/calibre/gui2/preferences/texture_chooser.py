@@ -44,7 +44,7 @@ class TextureChooser(QDialog):
         self.tdir = texture_dir()
 
         self.images = il = QListWidget(self)
-        il.itemDoubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        il.itemDoubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         il.setIconSize(QSize(256, 256))
         il.setViewMode(il.IconMode)
         il.setFlow(il.LeftToRight)
@@ -57,7 +57,7 @@ class TextureChooser(QDialog):
         ad.setOpenExternalLinks(True)
         ad.setWordWrap(True)
         l.addWidget(ad)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = self.add_button = bb.addButton(_('Add texture'), bb.ActionRole)
@@ -85,7 +85,7 @@ class TextureChooser(QDialog):
         self.update_remove_state()
 
         if initial:
-            existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
+            existing = {unicode_type(i.data(Qt.ItemDataRole.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
             item = existing.get(initial, None)
             if item is not None:
                 item.setSelected(True)
@@ -96,8 +96,8 @@ class TextureChooser(QDialog):
     def create_item(self, data):
         x = data
         i = QListWidgetItem(QIcon(x['path']), x['name'], self.images)
-        i.setData(Qt.UserRole, x['fname'])
-        i.setData(Qt.UserRole+1, x['path'])
+        i.setData(Qt.ItemDataRole.UserRole, x['fname'])
+        i.setData(Qt.ItemDataRole.UserRole+1, x['path'])
         return i
 
     def update_remove_state(self):
@@ -116,7 +116,7 @@ class TextureChooser(QDialog):
         path = path[0]
         fname = os.path.basename(path)
         name = fname.rpartition('.')[0]
-        existing = {unicode_type(i.data(Qt.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
+        existing = {unicode_type(i.data(Qt.ItemDataRole.UserRole) or ''):i for i in (self.images.item(c) for c in range(self.images.count()))}
         dest = os.path.join(self.tdir, fname)
         with open(path, 'rb') as s, open(dest, 'wb') as f:
             shutil.copyfileobj(s, f)
@@ -135,7 +135,7 @@ class TextureChooser(QDialog):
     @property
     def selected_fname(self):
         try:
-            return unicode_type(self.selected_item.data(Qt.UserRole) or '')
+            return unicode_type(self.selected_item.data(Qt.ItemDataRole.UserRole) or '')
         except (AttributeError, TypeError):
             pass
 
@@ -145,7 +145,7 @@ class TextureChooser(QDialog):
         if self.selected_fname.startswith(':'):
             return error_dialog(self, _('Cannot remove'),
                                 _('Cannot remove builtin textures'), show=True)
-        os.remove(unicode_type(self.selected_item.data(Qt.UserRole+1) or ''))
+        os.remove(unicode_type(self.selected_item.data(Qt.ItemDataRole.UserRole+1) or ''))
         self.images.takeItem(self.images.row(self.selected_item))
 
 

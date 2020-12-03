@@ -246,7 +246,7 @@ class AdvancedTab(QWidget):
         l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
         self.widgets = []
         self.widget_map = {}
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         for name in sorted(options, key=lambda n: options[n].shortdoc.lower()):
             if name in ('auth', 'port', 'allow_socket_preallocation', 'userdb'):
                 continue
@@ -458,7 +458,7 @@ class NewUser(QDialog):
         self.p1, self.p2 = p1, p2 = QLineEdit(self), QLineEdit(self)
         l.addRow(_('&Password:'), p1), l.addRow(_('&Repeat password:'), p2)
         for p in p1, p2:
-            p.setEchoMode(QLineEdit.PasswordEchoOnEdit)
+            p.setEchoMode(QLineEdit.EchoMode.PasswordEchoOnEdit)
             p.setMinimumWidth(300)
             if username:
                 p.setText(user_data[username]['pw'])
@@ -466,17 +466,17 @@ class NewUser(QDialog):
         sp.stateChanged.connect(self.show_password)
         l.addRow(sp)
         self.bb = bb = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         l.addRow(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        (self.uw if not username else self.p1).setFocus(Qt.OtherFocusReason)
+        (self.uw if not username else self.p1).setFocus(Qt.FocusReason.OtherFocusReason)
 
     def show_password(self):
         for p in self.p1, self.p2:
             p.setEchoMode(
-                QLineEdit.Normal
-                if self.showp.isChecked() else QLineEdit.PasswordEchoOnEdit
+                QLineEdit.EchoMode.Normal
+                if self.showp.isChecked() else QLineEdit.EchoMode.PasswordEchoOnEdit
             )
 
     @property
@@ -621,7 +621,7 @@ class ChangeRestriction(QDialog):
         self.atype_changed()
 
         self.bb = bb = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
         )
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         l.addWidget(bb)
@@ -717,9 +717,9 @@ class User(QWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.username_label = la = QLabel('')
         l.addWidget(la)
         self.ro_text = _('Allow {} to make &changes (i.e. grant write access)')
@@ -837,7 +837,7 @@ class Users(QWidget):
         self.user_list = w = QListWidget(self)
         w.setSpacing(1)
         w.doubleClicked.connect(self.current_user_activated)
-        w.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
+        w.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
         lp.addWidget(w)
 
         self.user_display = u = User(self)
@@ -1161,7 +1161,7 @@ class SearchTheInternet(QWidget):
         sb = self.sa.verticalScrollBar()
         if sb:
             sb.setValue(sb.maximum())
-        self.items[-1].name_widget.setFocus(Qt.OtherFocusReason)
+        self.items[-1].name_widget.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
     def serialized_urls(self):
@@ -1268,7 +1268,7 @@ class ConfigWidget(ConfigWidgetBase):
     def start_server(self):
         if not self.save_changes():
             return
-        self.setCursor(Qt.BusyCursor)
+        self.setCursor(Qt.CursorShape.BusyCursor)
         try:
             self.gui.start_content_server(check_started=False)
             while (not self.server.is_running and self.server.exception is None):
@@ -1343,7 +1343,7 @@ class ConfigWidget(ConfigWidgetBase):
         loc = QLabel(_('The server log files are in: {}').format(os.path.dirname(log_error_file)))
         loc.setWordWrap(True)
         layout.addWidget(loc)
-        bx = QDialogButtonBox(QDialogButtonBox.Ok)
+        bx = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         layout.addWidget(bx)
         bx.accepted.connect(d.accept)
         b = bx.addButton(_('&Clear logs'), bx.ActionRole)

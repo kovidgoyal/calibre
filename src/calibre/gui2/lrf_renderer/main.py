@@ -73,7 +73,7 @@ class Main(MainWindow, Ui_MainWindow):
         MainWindow.__init__(self, opts, parent)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
-        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.setWindowTitle(__appname__ + _(' - LRF Viewer'))
 
         self.logger = logger
@@ -82,7 +82,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.spin_box_action = self.spin_box = QSpinBox()
         self.tool_bar.addWidget(self.spin_box)
         self.tool_bar.addSeparator()
-        self.slider_action = self.slider = QSlider(Qt.Horizontal)
+        self.slider_action = self.slider = QSlider(Qt.Orientation.Horizontal)
         self.tool_bar.addWidget(self.slider)
         self.tool_bar.addSeparator()
         self.search = SearchBox2(self)
@@ -90,9 +90,9 @@ class Main(MainWindow, Ui_MainWindow):
         self.search_action = self.tool_bar.addWidget(self.search)
         self.search.search.connect(self.find)
 
-        self.action_next_page.setShortcuts([QKeySequence.MoveToNextPage, QKeySequence(Qt.Key_Space)])
-        self.action_previous_page.setShortcuts([QKeySequence.MoveToPreviousPage, QKeySequence(Qt.Key_Backspace)])
-        self.action_next_match.setShortcuts(QKeySequence.FindNext)
+        self.action_next_page.setShortcuts([QKeySequence.StandardKey.MoveToNextPage, QKeySequence(Qt.Key.Key_Space)])
+        self.action_previous_page.setShortcuts([QKeySequence.StandardKey.MoveToPreviousPage, QKeySequence(Qt.Key.Key_Backspace)])
+        self.action_next_match.setShortcuts(QKeySequence.StandardKey.FindNext)
         self.addAction(self.action_next_match)
         self.action_next_page.triggered[(bool)].connect(self.next)
         self.action_previous_page.triggered[(bool)].connect(self.previous)
@@ -104,9 +104,9 @@ class Main(MainWindow, Ui_MainWindow):
         self.spin_box.valueChanged[(int)].connect(self.go_to_page)
         self.slider.valueChanged[(int)].connect(self.go_to_page)
 
-        self.graphics_view.setRenderHint(QPainter.Antialiasing, True)
-        self.graphics_view.setRenderHint(QPainter.TextAntialiasing, True)
-        self.graphics_view.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        self.graphics_view.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        self.graphics_view.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
+        self.graphics_view.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
 
         self.closed = False
 
@@ -114,7 +114,7 @@ class Main(MainWindow, Ui_MainWindow):
         opts = self.opts
         d = Config(self, opts)
         d.exec_()
-        if d.result() == QDialog.Accepted:
+        if d.result() == QDialog.DialogCode.Accepted:
             gprefs['lrf_viewer_white_background'] = opts.white_background = bool(d.white_background.isChecked())
             gprefs['lrf_viewer_hyphenate'] = opts.hyphenate = bool(d.hyphenate.isChecked())
 
@@ -128,7 +128,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
             self.progress_label.setText('Parsing '+ self.file_name)
             self.renderer = RenderWorker(self, stream, self.logger, self.opts)
-            self.renderer.finished.connect(self.parsed, type=Qt.QueuedConnection)
+            self.renderer.finished.connect(self.parsed, type=Qt.ConnectionType.QueuedConnection)
             self.search.clear()
             self.last_search = None
         else:
@@ -195,7 +195,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.spin_box.setSuffix(' of %d'%(self.document.num_of_pages,))
             self.spin_box.updateGeometry()
             self.stack.setCurrentIndex(0)
-            self.graphics_view.setFocus(Qt.OtherFocusReason)
+            self.graphics_view.setFocus(Qt.FocusReason.OtherFocusReason)
         elif self.renderer.exception is not None:
             exception = self.renderer.exception
             print('Error rendering document', file=sys.stderr)

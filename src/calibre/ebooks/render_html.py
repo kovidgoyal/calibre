@@ -27,7 +27,7 @@ class Render(QWebEnginePage):
         QWebEnginePage.__init__(self)
         secure_webengine(self)
         self.printing_started = False
-        self.loadFinished.connect(self.load_finished, type=Qt.QueuedConnection)
+        self.loadFinished.connect(self.load_finished, type=Qt.ConnectionType.QueuedConnection)
         self.pdfPrintingFinished.connect(self.print_finished)
         self.hang_timer = t = QTimer(self)
         t.setInterval(500)
@@ -45,7 +45,7 @@ class Render(QWebEnginePage):
                 } catch {}
             }
             ans;
-            ''', QWebEngineScript.ApplicationWorld, self.start_print)
+            ''', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.start_print)
         else:
             self.hang_timer.stop()
             QApplication.instance().exit(1)
@@ -70,14 +70,14 @@ class Render(QWebEnginePage):
 
     def start_print(self, data):
         margins = QMarginsF(0, 0, 0, 0)
-        page_size = QPageSize(QPageSize.A4)
+        page_size = QPageSize(QPageSize.PageSizeId.A4)
         if isinstance(data, dict):
             try:
                 if 'margins' in data:
                     margins = QMarginsF(*data['margins'])
                 if 'size' in data:
                     sz = data['size']
-                    if type(getattr(QPageSize, sz, None)) is type(QPageSize.A4):  # noqa
+                    if type(getattr(QPageSize, sz, None)) is type(QPageSize.PageSizeId.A4):  # noqa
                         page_size = QPageSize(getattr(QPageSize, sz))
                     else:
                         from calibre.ebooks.pdf.image_writer import parse_pdf_page_size
@@ -86,7 +86,7 @@ class Render(QWebEnginePage):
                             page_size = ps
             except Exception:
                 pass
-        page_layout = QPageLayout(page_size, QPageLayout.Portrait, margins)
+        page_layout = QPageLayout(page_size, QPageLayout.Orientation.Portrait, margins)
         self.printToPdf('rendered.pdf', page_layout)
         self.printing_started = True
         self.start_time = monotonic()

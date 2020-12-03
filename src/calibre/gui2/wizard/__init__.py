@@ -448,12 +448,12 @@ class ManufacturerModel(QAbstractListModel):
         return 1
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             ans = self.manufacturers[index.row()]
             if ans == Device.manufacturer:
                 ans = _('Generic')
             return ans
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.manufacturers[index.row()]
         return None
 
@@ -476,9 +476,9 @@ class DeviceModel(QAbstractListModel):
         return 1
 
     def data(self, index, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return (self.devices[index.row()].name)
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.devices[index.row()]
         return None
 
@@ -616,31 +616,31 @@ class DevicePage(QWizardPage, DeviceUI):
             idx = self.man_model.index_of(Device.manufacturer)
             previous = Device
         self.manufacturer_view.selectionModel().select(idx,
-                QItemSelectionModel.Select)
-        self.dev_model = DeviceModel(self.man_model.data(idx, Qt.UserRole))
+                QItemSelectionModel.SelectionFlag.Select)
+        self.dev_model = DeviceModel(self.man_model.data(idx, Qt.ItemDataRole.UserRole))
         idx = self.dev_model.index_of(previous)
         self.device_view.setModel(self.dev_model)
         self.device_view.selectionModel().select(idx,
-                QItemSelectionModel.Select)
+                QItemSelectionModel.SelectionFlag.Select)
         self.manufacturer_view.selectionModel().selectionChanged[(QItemSelection, QItemSelection)].connect(self.manufacturer_changed)
 
     def manufacturer_changed(self, current, previous):
         new = list(current.indexes())[0]
-        man = self.man_model.data(new, Qt.UserRole)
+        man = self.man_model.data(new, Qt.ItemDataRole.UserRole)
         self.dev_model = DeviceModel(man)
         self.device_view.setModel(self.dev_model)
         self.device_view.selectionModel().select(self.dev_model.index(0),
-                QItemSelectionModel.Select)
+                QItemSelectionModel.SelectionFlag.Select)
 
     def commit(self):
         idx = list(self.device_view.selectionModel().selectedIndexes())[0]
-        dev = self.dev_model.data(idx, Qt.UserRole)
+        dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
         dev.commit()
         dynamic.set('welcome_wizard_device', dev.id)
 
     def nextId(self):
         idx = list(self.device_view.selectionModel().selectedIndexes())[0]
-        dev = self.dev_model.data(idx, Qt.UserRole)
+        dev = self.dev_model.data(idx, Qt.ItemDataRole.UserRole)
         if dev in (Kindle, KindleDX, KindleFire, KindlePW, KindleVoyage):
             return KindlePage.ID
         if dev is iPhone:

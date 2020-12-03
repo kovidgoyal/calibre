@@ -68,7 +68,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         copy = QStyleOptionViewItem(opt)
         copy.showDecorationSelected = True
         if self.view.currentIndex() == idx:
-            copy.state |= QStyle.State_HasFocus
+            copy.state |= QStyle.StateFlag.State_HasFocus
         QStyledItemDelegate.paint(self, p, copy, idx)
 
 # }}}
@@ -152,13 +152,13 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             tweak = self.tweaks[row]
         except:
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return textwrap.fill(tweak.name, 40)
-        if role == Qt.FontRole and tweak.is_customized:
+        if role == Qt.ItemDataRole.FontRole and tweak.is_customized:
             ans = QFont()
             ans.setBold(True)
             return ans
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             tt = _('This tweak has its default value')
             if tweak.is_customized:
                 tt = '<p>'+_('This tweak has been customized')
@@ -166,7 +166,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
                 for varn, val in iteritems(tweak.custom_values):
                     tt += '%s = %r\n\n'%(varn, val)
             return textwrap.fill(tt)
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return tweak
         return None
 
@@ -237,7 +237,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         return pos
 
     def restore_to_default(self, idx):
-        tweak = self.data(idx, Qt.UserRole)
+        tweak = self.data(idx, Qt.ItemDataRole.UserRole)
         if tweak is not None:
             tweak.restore_to_default()
             self.dataChanged.emit(idx, idx)
@@ -248,7 +248,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
         self.plugin_tweaks = {}
 
     def update_tweak(self, idx, varmap):
-        tweak = self.data(idx, Qt.UserRole)
+        tweak = self.data(idx, Qt.ItemDataRole.UserRole)
         if tweak is not None:
             tweak.update(varmap)
             self.dataChanged.emit(idx, idx)
@@ -293,7 +293,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
             return ans
         query = lower(query)
         for r in candidates:
-            dat = self.data(self.index(r), Qt.UserRole)
+            dat = self.data(self.index(r), Qt.ItemDataRole.UserRole)
             var_names = ' '.join(dat.default_values)
             if query in lower(dat.name) or query in lower(var_names):
                 ans.add(r)
@@ -351,8 +351,8 @@ class PluginTweaks(QDialog):  # {{{
         self.l.addWidget(self.msg)
         self.l.addWidget(self.edit)
         self.edit.setPlainText(raw)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel,
-                Qt.Horizontal, self)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel,
+                Qt.Orientation.Horizontal, self)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.l.addWidget(self.bb)
@@ -367,7 +367,7 @@ class TweaksView(QListView):
 
     def __init__(self, parent=None):
         QListView.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setAlternatingRowColors(True)
         self.setSpacing(5)
         self.setVerticalScrollMode(self.ScrollPerPixel)
@@ -434,7 +434,7 @@ class ConfigWidget(ConfigWidgetBase):
         eb.g = ebg = QGridLayout(eb)
         self.edit_tweak = et = QPlainTextEdit(self)
         et.setMinimumWidth(400)
-        et.setLineWrapMode(QPlainTextEdit.NoWrap)
+        et.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         ebg.addWidget(et, 0, 0, 1, 2)
         self.restore_default_button = b = QPushButton(self)
         b.setToolTip(_("Restore this tweak to its default value"))
@@ -461,7 +461,7 @@ class ConfigWidget(ConfigWidgetBase):
         self.previous_button.clicked.connect(self.find_previous)
         self.search.initialize('tweaks_search_history', help_text=_('Search for tweak'))
         self.search.search.connect(self.find)
-        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.view.customContextMenuRequested.connect(self.show_context_menu)
         self.copy_icon = QIcon(I('edit-copy.png'))
 
@@ -469,7 +469,7 @@ class ConfigWidget(ConfigWidgetBase):
         idx = self.tweaks_view.currentIndex()
         if not idx.isValid():
             return True
-        tweak = self.tweaks.data(idx, Qt.UserRole)
+        tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
         self.context_menu = QMenu(self)
         self.context_menu.addAction(self.copy_icon,
                             _('Copy to clipboard'),
@@ -503,7 +503,7 @@ class ConfigWidget(ConfigWidgetBase):
 
     def current_changed(self, current, previous):
         self.tweaks_view.scrollTo(current)
-        tweak = self.tweaks.data(current, Qt.UserRole)
+        tweak = self.tweaks.data(current, Qt.ItemDataRole.UserRole)
         self.help.setPlainText(tweak.doc)
         self.edit_tweak.setPlainText(tweak.edit_text)
 
@@ -518,7 +518,7 @@ class ConfigWidget(ConfigWidgetBase):
         idx = self.tweaks_view.currentIndex()
         if idx.isValid():
             self.tweaks.restore_to_default(idx)
-            tweak = self.tweaks.data(idx, Qt.UserRole)
+            tweak = self.tweaks.data(idx, Qt.ItemDataRole.UserRole)
             self.edit_tweak.setPlainText(tweak.edit_text)
             self.changed()
 

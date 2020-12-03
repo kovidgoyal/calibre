@@ -19,9 +19,9 @@ class StoreChooserWidget(QWidget, Ui_Form):
         self.setupUi(self)
 
         self.query.initialize('store_config_chooser_query')
-        self.query.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.query.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.query.setMinimumContentsLength(25)
-        self.adv_search_action = ac = self.query.lineEdit().addAction(QIcon(I('gear.png')), QLineEdit.LeadingPosition)
+        self.adv_search_action = ac = self.query.lineEdit().addAction(QIcon(I('gear.png')), QLineEdit.ActionPosition.LeadingPosition)
         ac.triggered.connect(self.build_adv_search)
         ac.setToolTip(_('Advanced search'))
         self.search.clicked.connect(self.do_search)
@@ -35,5 +35,5 @@ class StoreChooserWidget(QWidget, Ui_Form):
 
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
-        if adv.exec_() == QDialog.Accepted:
+        if adv.exec_() == QDialog.DialogCode.Accepted:
             self.query.setText(adv.search_string())

@@ -48,11 +48,11 @@ class HeaderView(QHeaderView):  # {{{
 
     def __init__(self, *args):
         QHeaderView.__init__(self, *args)
-        if self.orientation() == Qt.Horizontal:
+        if self.orientation() == Qt.Orientation.Horizontal:
             self.setSectionsMovable(True)
             self.setSectionsClickable(True)
-            self.setContextMenuPolicy(Qt.CustomContextMenu)
-            self.setTextElideMode(Qt.ElideRight)
+            self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+            self.setTextElideMode(Qt.TextElideMode.ElideRight)
         self.hover = -1
         self.current_font = QFont(self.font())
         self.current_font.setBold(True)
@@ -74,18 +74,18 @@ class HeaderView(QHeaderView):  # {{{
         opt.orientation = self.orientation()
         opt.fontMetrics = self.fm
         model = self.parent().model()
-        opt.text = unicode_type(model.headerData(logical_index, opt.orientation, Qt.DisplayRole) or '')
-        if opt.orientation == Qt.Vertical:
+        opt.text = unicode_type(model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
+        if opt.orientation == Qt.Orientation.Vertical:
             try:
-                val = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
+                val = model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DecorationRole)
                 if val is not None:
                     opt.icon = val
-                opt.iconAlignment = Qt.AlignVCenter
+                opt.iconAlignment = Qt.AlignmentFlag.AlignVCenter
             except (IndexError, ValueError, TypeError):
                 pass
         if self.isSortIndicatorShown():
-            opt.sortIndicator = QStyleOptionHeader.SortDown
-        return self.style().sizeFromContents(QStyle.CT_HeaderSection, opt, QSize(), self)
+            opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown
+        return self.style().sizeFromContents(QStyle.ContentsType.CT_HeaderSection, opt, QSize(), self)
 
     def paintSection(self, painter, rect, logical_index):
         opt = QStyleOptionHeader()
@@ -93,41 +93,41 @@ class HeaderView(QHeaderView):  # {{{
         opt.rect = rect
         opt.section = logical_index
         opt.orientation = self.orientation()
-        opt.textAlignment = Qt.AlignHCenter | Qt.AlignVCenter
+        opt.textAlignment = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
         opt.fontMetrics = self.fm
         model = self.parent().model()
         style = self.style()
         margin = 2 * style.pixelMetric(style.PM_HeaderMargin, None, self)
         if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
-            opt.sortIndicator = QStyleOptionHeader.SortDown if self.sortIndicatorOrder() == Qt.AscendingOrder else QStyleOptionHeader.SortUp
+            opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown if self.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder else QStyleOptionHeader.SortIndicator.SortUp
             margin += style.pixelMetric(style.PM_HeaderMarkSize, None, self)
-        opt.text = unicode_type(model.headerData(logical_index, opt.orientation, Qt.DisplayRole) or '')
-        if self.textElideMode() != Qt.ElideNone:
-            opt.text = opt.fontMetrics.elidedText(opt.text, Qt.ElideRight, rect.width() - margin)
+        opt.text = unicode_type(model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
+        if self.textElideMode() != Qt.TextElideMode.ElideNone:
+            opt.text = opt.fontMetrics.elidedText(opt.text, Qt.TextElideMode.ElideRight, rect.width() - margin)
         if self.isEnabled():
-            opt.state |= QStyle.State_Enabled
+            opt.state |= QStyle.StateFlag.State_Enabled
             if self.window().isActiveWindow():
-                opt.state |= QStyle.State_Active
+                opt.state |= QStyle.StateFlag.State_Active
                 if self.hover == logical_index:
-                    opt.state |= QStyle.State_MouseOver
+                    opt.state |= QStyle.StateFlag.State_MouseOver
         sm = self.selectionModel()
-        if opt.orientation == Qt.Vertical:
+        if opt.orientation == Qt.Orientation.Vertical:
             try:
-                val = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
+                val = model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DecorationRole)
                 if val is not None:
                     opt.icon = val
-                opt.iconAlignment = Qt.AlignVCenter
+                opt.iconAlignment = Qt.AlignmentFlag.AlignVCenter
             except (IndexError, ValueError, TypeError):
                 pass
             if sm.isRowSelected(logical_index, QModelIndex()):
-                opt.state |= QStyle.State_Sunken
+                opt.state |= QStyle.StateFlag.State_Sunken
 
         painter.save()
         if (
-                (opt.orientation == Qt.Horizontal and sm.currentIndex().column() == logical_index) or (
-                    opt.orientation == Qt.Vertical and sm.currentIndex().row() == logical_index)):
+                (opt.orientation == Qt.Orientation.Horizontal and sm.currentIndex().column() == logical_index) or (
+                    opt.orientation == Qt.Orientation.Vertical and sm.currentIndex().row() == logical_index)):
             painter.setFont(self.current_font)
-        self.style().drawControl(QStyle.CE_Header, opt, painter, self)
+        self.style().drawControl(QStyle.ControlElement.CE_Header, opt, painter, self)
         painter.restore()
 # }}}
 
@@ -285,9 +285,9 @@ class BooksView(QTableView):  # {{{
         self.setModel(self._model)
         self.pin_view.setModel(self._model)
         self._model.count_changed_signal.connect(self.do_row_sizing,
-                                                 type=Qt.QueuedConnection)
+                                                 type=Qt.ConnectionType.QueuedConnection)
         for wv in self, self.pin_view:
-            wv.setSelectionBehavior(QAbstractItemView.SelectRows)
+            wv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
             wv.setSortingEnabled(True)
         self.selectionModel().currentRowChanged.connect(self._model.current_changed)
         self.selectionModel().selectionChanged.connect(self.selection_changed.emit)
@@ -297,8 +297,8 @@ class BooksView(QTableView):  # {{{
         # {{{ Column Header setup
         self.can_add_columns = True
         self.was_restored = False
-        self.column_header = HeaderView(Qt.Horizontal, self)
-        self.pin_view.column_header = HeaderView(Qt.Horizontal, self.pin_view)
+        self.column_header = HeaderView(Qt.Orientation.Horizontal, self)
+        self.pin_view.column_header = HeaderView(Qt.Orientation.Horizontal, self.pin_view)
         self.setHorizontalHeader(self.column_header)
         self.pin_view.setHorizontalHeader(self.pin_view.column_header)
         self.column_header.sectionMoved.connect(self.save_state)
@@ -307,12 +307,12 @@ class BooksView(QTableView):  # {{{
         self.pin_view.column_header.sortIndicatorChanged.disconnect()
         self.pin_view.column_header.sortIndicatorChanged.connect(self.pin_view_user_sort_requested)
         self.column_header.customContextMenuRequested.connect(partial(self.show_column_header_context_menu, view=self))
-        self.column_header.sectionResized.connect(self.column_resized, Qt.QueuedConnection)
+        self.column_header.sectionResized.connect(self.column_resized, Qt.ConnectionType.QueuedConnection)
         if self.is_library_view:
-            self.pin_view.column_header.sectionResized.connect(self.pin_view_column_resized, Qt.QueuedConnection)
+            self.pin_view.column_header.sectionResized.connect(self.pin_view_column_resized, Qt.ConnectionType.QueuedConnection)
             self.pin_view.column_header.sectionMoved.connect(self.pin_view.save_state)
             self.pin_view.column_header.customContextMenuRequested.connect(partial(self.show_column_header_context_menu, view=self.pin_view))
-        self.row_header = HeaderView(Qt.Vertical, self)
+        self.row_header = HeaderView(Qt.Orientation.Vertical, self)
         self.row_header.setSectionResizeMode(self.row_header.Fixed)
         self.setVerticalHeader(self.row_header)
         # }}}
@@ -320,11 +320,11 @@ class BooksView(QTableView):  # {{{
         self._model.database_changed.connect(self.database_changed)
         hv = self.verticalHeader()
         hv.setSectionsClickable(True)
-        hv.setCursor(Qt.PointingHandCursor)
+        hv.setCursor(Qt.CursorShape.PointingHandCursor)
         self.selected_ids = []
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
         self._model.sorting_done.connect(self.sorting_done,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.set_row_header_visibility()
         self.allow_mirroring = True
         if self.is_library_view:
@@ -340,7 +340,7 @@ class BooksView(QTableView):  # {{{
     # Pin view {{{
     def set_pin_view_visibility(self, visible=False):
         self.pin_view.setVisible(visible)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff if visible else Qt.ScrollBarAsNeeded)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff if visible else Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.mirror_selection_between_views(self)
 
     def mirror_selection_between_views(self, src):
@@ -349,14 +349,14 @@ class BooksView(QTableView):  # {{{
             if dest is self.pin_view and not dest.isVisible():
                 return
             self.allow_mirroring = False
-            dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.ClearAndSelect)
+            dest.selectionModel().select(src.selectionModel().selection(), QItemSelectionModel.SelectionFlag.ClearAndSelect)
             ci = dest.currentIndex()
             nci = src.selectionModel().currentIndex()
             # Save/restore horz scroll.  ci column may be scrolled out of view.
             hpos = dest.horizontalScrollBar().value()
             if ci.isValid():
                 nci = dest.model().index(nci.row(), ci.column())
-            dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.NoUpdate)
+            dest.selectionModel().setCurrentIndex(nci, QItemSelectionModel.SelectionFlag.NoUpdate)
             dest.horizontalScrollBar().setValue(hpos)
             self.allow_mirroring = True
 
@@ -472,7 +472,7 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
-            hcols = [(hcol, unicode_type(self.model().headerData(hidx, Qt.Horizontal, Qt.DisplayRole) or '')) for hcol, hidx in iteritems(hidden_cols)]
+            hcols = [(hcol, unicode_type(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or '')) for hcol, hidx in iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))
@@ -498,7 +498,7 @@ class BooksView(QTableView):  # {{{
         col = None
         if idx > -1 and idx < len(self.column_map):
             col = self.column_map[idx]
-            name = unicode_type(self.model().headerData(idx, Qt.Horizontal, Qt.DisplayRole) or '')
+            name = unicode_type(self.model().headerData(idx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or '')
             view.column_header_context_menu = self.create_context_menu(col, name, view)
         has_context_menu = hasattr(view, 'column_header_context_menu')
         if self.is_library_view and has_context_menu:
@@ -522,11 +522,11 @@ class BooksView(QTableView):  # {{{
         for v in views:
             ch = v.column_header
             ch.blockSignals(True)
-            ch.setSortIndicator(logical_idx, Qt.AscendingOrder if ascending else Qt.DescendingOrder)
+            ch.setSortIndicator(logical_idx, Qt.SortOrder.AscendingOrder if ascending else Qt.SortOrder.DescendingOrder)
             ch.blockSignals(False)
 
     def sort_by_column_and_order(self, col, ascending):
-        order = Qt.AscendingOrder if ascending else Qt.DescendingOrder
+        order = Qt.SortOrder.AscendingOrder if ascending else Qt.SortOrder.DescendingOrder
         self.column_header.blockSignals(True)
         self.column_header.setSortIndicator(col, order)
         self.column_header.blockSignals(False)
@@ -534,15 +534,15 @@ class BooksView(QTableView):  # {{{
         if self.is_library_view:
             self.set_sort_indicator(col, ascending)
 
-    def user_sort_requested(self, col, order=Qt.AscendingOrder):
+    def user_sort_requested(self, col, order=Qt.SortOrder.AscendingOrder):
         if 0 <= col < len(self.column_map):
             field = self.column_map[col]
-            self.intelligent_sort(field, order == Qt.AscendingOrder)
+            self.intelligent_sort(field, order == Qt.SortOrder.AscendingOrder)
 
-    def pin_view_user_sort_requested(self, col, order=Qt.AscendingOrder):
+    def pin_view_user_sort_requested(self, col, order=Qt.SortOrder.AscendingOrder):
         if col < len(self.column_map) and col >= 0:
             field = self.column_map[col]
-            self.intelligent_sort(field, order == Qt.AscendingOrder)
+            self.intelligent_sort(field, order == Qt.SortOrder.AscendingOrder)
 
     def intelligent_sort(self, field, ascending):
         m = self.model()
@@ -898,14 +898,14 @@ class BooksView(QTableView):  # {{{
                     pass
             sections = tuple(x for x in map(f, changed) if x is not None)
             if sections:
-                self.row_header.headerDataChanged(Qt.Vertical, min(sections), max(sections))
+                self.row_header.headerDataChanged(Qt.Orientation.Vertical, min(sections), max(sections))
                 # This is needed otherwise Qt does not always update the
                 # viewport correctly. See https://bugs.launchpad.net/bugs/1404697
                 self.row_header.viewport().update()
         else:
             # Marked items have either appeared or all been removed
             self.model().set_row_decoration(current_marked)
-            self.row_header.headerDataChanged(Qt.Vertical, 0, self.row_header.count()-1)
+            self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
             self.row_header.geometriesChanged.emit()
             self.set_row_header_visibility()
 
@@ -974,13 +974,13 @@ class BooksView(QTableView):  # {{{
         self.set_ondevice_column_visibility()
         # incase there were marked books
         self.model().set_row_decoration(set())
-        self.row_header.headerDataChanged(Qt.Vertical, 0, self.row_header.count()-1)
+        self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
         self.row_header.geometriesChanged.emit()
         # }}}
 
     # Context Menu {{{
     def set_context_menu(self, menu, edit_collections_action):
-        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
         self.context_menu = menu
         self.alternate_views.set_context_menu(menu)
         self.edit_collections_action = edit_collections_action
@@ -996,7 +996,7 @@ class BooksView(QTableView):  # {{{
     # }}}
 
     def handle_mouse_press_event(self, ev):
-        if QApplication.keyboardModifiers() & Qt.ShiftModifier:
+        if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
             # Shift-Click in QTableView is badly behaved.
             index = self.indexAt(ev.pos())
             if not index.isValid():
@@ -1175,15 +1175,15 @@ class BooksView(QTableView):  # {{{
                 rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() - rows, index.column())
-        elif action == QTableView.MoveHome and modifiers & Qt.ControlModifier:
+        elif action == QTableView.MoveHome and modifiers & Qt.KeyboardModifier.ControlModifier:
             return self.model().index(0, orig.column())
-        elif action == QTableView.MoveEnd and modifiers & Qt.ControlModifier:
+        elif action == QTableView.MoveEnd and modifiers & Qt.KeyboardModifier.ControlModifier:
             return self.model().index(self.model().rowCount(QModelIndex()) - 1, orig.column())
         return index
 
     def selectionCommand(self, index, event):
-        if event and event.type() == event.KeyPress and event.key() in (Qt.Key_Home, Qt.Key_End) and event.modifiers() & Qt.CTRL:
-            return QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+        if event and event.type() == event.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.Modifier.CTRL:
+            return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super(BooksView, self).selectionCommand(index, event)
 
     def keyPressEvent(self, ev):
@@ -1329,7 +1329,7 @@ class BooksView(QTableView):  # {{{
         elif self._model.highlight_only:
             self.clearSelection()
         if self.isVisible() and getattr(txt, 'as_you_type', False) is not True:
-            self.setFocus(Qt.OtherFocusReason)
+            self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def connect_to_search_box(self, sb, search_done):
         sb.search.connect(self.search_proxy)
@@ -1358,7 +1358,7 @@ class DeviceBooksView(BooksView):  # {{{
         BooksView.__init__(self, parent, DeviceBooksModel,
                            use_edit_metadata_dialog=False)
         self._model.resize_rows.connect(self.do_row_sizing,
-                                                 type=Qt.QueuedConnection)
+                                                 type=Qt.ConnectionType.QueuedConnection)
         self.can_add_columns = False
         self.resize_on_select = False
         self.rating_delegate = None

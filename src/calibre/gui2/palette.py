@@ -25,11 +25,11 @@ def dark_palette():
     p.setColor(p.Button, dark_color)
     p.setColor(p.ButtonText, dark_text_color)
     p.setColor(p.Disabled, p.ButtonText, disabled_color)
-    p.setColor(p.BrightText, Qt.red)
+    p.setColor(p.BrightText, Qt.GlobalColor.red)
     p.setColor(p.Link, dark_link_color)
 
     p.setColor(p.Highlight, dark_link_color)
-    p.setColor(p.HighlightedText, Qt.black)
+    p.setColor(p.HighlightedText, Qt.GlobalColor.black)
     p.setColor(p.Disabled, p.HighlightedText, disabled_color)
 
     return p

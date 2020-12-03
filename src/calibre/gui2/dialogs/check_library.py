@@ -34,7 +34,7 @@ class DBCheck(QDialog):  # {{{
         self.l1.setWordWrap(True)
         self.l.addWidget(self.l1)
         self.msg = QLabel('')
-        self.update_msg.connect(self.msg.setText, type=Qt.QueuedConnection)
+        self.update_msg.connect(self.msg.setText, type=Qt.ConnectionType.QueuedConnection)
         self.l.addWidget(self.msg)
         self.msg.setWordWrap(True)
         self.resize(self.sizeHint() + QSize(100, 50))
@@ -264,33 +264,33 @@ class CheckLibraryDialog(QDialog):
             tl = Item()
             tl.setText(0, h)
             if fixable and list:
-                tl.setData(1, Qt.UserRole, self.is_fixable)
+                tl.setData(1, Qt.ItemDataRole.UserRole, self.is_fixable)
                 tl.setText(1, _('(fixable)'))
-                tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+                tl.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
                 tl.setCheckState(1, False)
             else:
-                tl.setData(1, Qt.UserRole, self.is_deletable)
-                tl.setData(2, Qt.UserRole, self.is_deletable)
+                tl.setData(1, Qt.ItemDataRole.UserRole, self.is_deletable)
+                tl.setData(2, Qt.ItemDataRole.UserRole, self.is_deletable)
                 tl.setText(1, _('(deletable)'))
-                tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+                tl.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
                 tl.setCheckState(1, False)
             if attr == 'extra_covers':
-                tl.setData(2, Qt.UserRole, self.is_deletable)
+                tl.setData(2, Qt.ItemDataRole.UserRole, self.is_deletable)
                 tl.setText(2, _('(deletable)'))
-                tl.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+                tl.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
                 tl.setCheckState(2, False)
             self.top_level_items[attr] = tl
 
             for problem in list_:
                 it = Item()
                 if checkable:
-                    it.setFlags(Qt.ItemIsEnabled | Qt.ItemIsUserCheckable)
+                    it.setFlags(Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable)
                     it.setCheckState(2, False)
-                    it.setData(2, Qt.UserRole, self.is_deletable)
+                    it.setData(2, Qt.ItemDataRole.UserRole, self.is_deletable)
                 else:
-                    it.setFlags(Qt.ItemIsEnabled)
+                    it.setFlags(Qt.ItemFlag.ItemIsEnabled)
                 it.setText(0, problem[0])
-                it.setData(0, Qt.UserRole, problem[2])
+                it.setData(0, Qt.ItemDataRole.UserRole, problem[2])
                 it.setText(2, problem[1])
                 tl.addChild(it)
                 self.all_items.append(it)
@@ -331,8 +331,8 @@ class CheckLibraryDialog(QDialog):
             all_checked = True
             for i in range(0, node.childCount()):
                 c = node.child(i).checkState(2)
-                checked = checked or c == Qt.Checked
-                all_checked = all_checked and c == Qt.Checked
+                checked = checked or c == Qt.CheckState.Checked
+                all_checked = all_checked and c == Qt.CheckState.Checked
             return (checked, all_checked)
 
         def any_child_delete_checked():
@@ -344,15 +344,15 @@ class CheckLibraryDialog(QDialog):
 
         def any_fix_checked():
             for parent in self.top_level_items.values():
-                if (parent.data(1, Qt.UserRole) == self.is_fixable and
-                        parent.checkState(1) == Qt.Checked):
+                if (parent.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable and
+                        parent.checkState(1) == Qt.CheckState.Checked):
                     return True
             return False
 
         if item in self.top_level_items.values():
             if item.childCount() > 0:
-                if item.data(1, Qt.UserRole) == self.is_fixable and column == 1:
-                    if item.data(2, Qt.UserRole) == self.is_deletable:
+                if item.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable and column == 1:
+                    if item.data(2, Qt.ItemDataRole.UserRole) == self.is_deletable:
                         set_delete_boxes(item, 2, False)
                 else:
                     set_delete_boxes(item, column, item.checkState(column))
@@ -361,40 +361,40 @@ class CheckLibraryDialog(QDialog):
                         item.setCheckState(1, False)
                         self.log.blockSignals(False)
             else:
-                item.setCheckState(column, Qt.Unchecked)
+                item.setCheckState(column, Qt.CheckState.Unchecked)
         else:
             for parent in self.top_level_items.values():
-                if parent.data(2, Qt.UserRole) == self.is_deletable:
+                if parent.data(2, Qt.ItemDataRole.UserRole) == self.is_deletable:
                     (child_chkd, all_chkd) = is_child_delete_checked(parent)
                     if all_chkd and child_chkd:
-                        check_state = Qt.Checked
+                        check_state = Qt.CheckState.Checked
                     elif child_chkd:
-                        check_state = Qt.PartiallyChecked
+                        check_state = Qt.CheckState.PartiallyChecked
                     else:
-                        check_state = Qt.Unchecked
+                        check_state = Qt.CheckState.Unchecked
                     self.log.blockSignals(True)
-                    if parent.data(1, Qt.UserRole) == self.is_fixable:
+                    if parent.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable:
                         parent.setCheckState(2, check_state)
                     else:
                         parent.setCheckState(1, check_state)
-                    if child_chkd and parent.data(1, Qt.UserRole) == self.is_fixable:
-                        parent.setCheckState(1, Qt.Unchecked)
+                    if child_chkd and parent.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable:
+                        parent.setCheckState(1, Qt.CheckState.Unchecked)
                     self.log.blockSignals(False)
         self.delete_button.setEnabled(any_child_delete_checked())
         self.fix_button.setEnabled(any_fix_checked())
 
     def mark_for_fix(self):
         for it in self.top_level_items.values():
-            if (it.flags() & Qt.ItemIsUserCheckable and
-                    it.data(1, Qt.UserRole) == self.is_fixable and
+            if (it.flags() & Qt.ItemFlag.ItemIsUserCheckable and
+                    it.data(1, Qt.ItemDataRole.UserRole) == self.is_fixable and
                     it.childCount() > 0):
-                it.setCheckState(1, Qt.Checked)
+                it.setCheckState(1, Qt.CheckState.Checked)
 
     def mark_for_delete(self):
         for it in self.all_items:
-            if (it.flags() & Qt.ItemIsUserCheckable and
-                    it.data(2, Qt.UserRole) == self.is_deletable):
-                it.setCheckState(2, Qt.Checked)
+            if (it.flags() & Qt.ItemFlag.ItemIsUserCheckable and
+                    it.data(2, Qt.ItemDataRole.UserRole) == self.is_deletable):
+                it.setCheckState(2, Qt.CheckState.Checked)
 
     def delete_marked(self):
         if not confirm('<p>'+_('The marked files and folders will be '
@@ -407,7 +407,7 @@ class CheckLibraryDialog(QDialog):
                        key=lambda x: len(x.text(1)),
                        reverse=True)
         for it in items:
-            if it.checkState(2) == Qt.Checked:
+            if it.checkState(2) == Qt.CheckState.Checked:
                 try:
                     p = os.path.join(self.db.library_path, unicode_type(it.text(2)))
                     if os.path.isdir(p):
@@ -425,7 +425,7 @@ class CheckLibraryDialog(QDialog):
         child_count = tl.childCount()
         for i in range(0, child_count):
             item = tl.child(i)
-            id = int(item.data(0, Qt.UserRole))
+            id = int(item.data(0, Qt.ItemDataRole.UserRole))
             all = self.db.formats(id, index_is_id=True, verify_formats=False)
             all = {f.strip() for f in all.split(',')} if all else set()
             valid = self.db.formats(id, index_is_id=True, verify_formats=True)
@@ -438,7 +438,7 @@ class CheckLibraryDialog(QDialog):
         child_count = tl.childCount()
         for i in range(0, child_count):
             item = tl.child(i)
-            id = int(item.data(0, Qt.UserRole))
+            id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, False)
 
     def fix_extra_covers(self):
@@ -446,7 +446,7 @@ class CheckLibraryDialog(QDialog):
         child_count = tl.childCount()
         for i in range(0, child_count):
             item = tl.child(i)
-            id = int(item.data(0, Qt.UserRole))
+            id = int(item.data(0, Qt.ItemDataRole.UserRole))
             self.db.set_has_cover(id, True)
 
     def fix_items(self):

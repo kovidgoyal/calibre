@@ -38,7 +38,7 @@ class ProgressIndicator(QWidget):  # {{{
         self.pi = _ProgressIndicator(self)
         self.status = QLabel(self)
         self.status.setWordWrap(True)
-        self.status.setAlignment(Qt.AlignHCenter|Qt.AlignTop)
+        self.status.setAlignment(Qt.AlignmentFlag.AlignHCenter|Qt.AlignmentFlag.AlignTop)
         self.setVisible(False)
         self.pos = None
 
@@ -188,7 +188,7 @@ class FormatList(QListWidget):  # {{{
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        event.setDropAction(Qt.CopyAction)
+        event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
         # Now look for ebook files
         urls, filenames = dnd_get_files(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True)
@@ -210,7 +210,7 @@ class FormatList(QListWidget):  # {{{
         event.acceptProposedAction()
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete:
+        if event.key() == Qt.Key.Key_Delete:
             self.delete_format.emit()
         else:
             return QListWidget.keyPressEvent(self, event)
@@ -236,7 +236,7 @@ class ImageDropMixin(object):  # {{{
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        event.setDropAction(Qt.CopyAction)
+        event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
         pmap, data = dnd_get_local_image_and_pixmap(md)
         if pmap is not None:
@@ -311,7 +311,7 @@ def draw_size(p, rect, w, h):
     f.setBold(True)
     p.setFont(f)
     sz = '\u00a0%d x %d\u00a0'%(w, h)
-    flags = Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine
+    flags = Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine
     szrect = p.boundingRect(rect, flags, sz)
     p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
     p.setPen(QPen(QColor(255,255,255)))
@@ -372,14 +372,14 @@ class ImageView(QWidget, ImageDropMixin):
         cw, ch = self.rect().width(), self.rect().height()
         scaled, nw, nh = fit_image(w, h, cw, ch)
         if scaled:
-            pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.IgnoreAspectRatio,
-                    Qt.SmoothTransformation)
+            pmap = pmap.scaled(int(nw*pmap.devicePixelRatio()), int(nh*pmap.devicePixelRatio()), Qt.AspectRatioMode.IgnoreAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation)
         w, h = int(pmap.width()/pmap.devicePixelRatio()), int(pmap.height()/pmap.devicePixelRatio())
         x = int(abs(cw - w)/2)
         y = int(abs(ch - h)/2)
         target = QRect(x, y, w, h)
         p = QPainter(self)
-        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         p.drawPixmap(target, pmap)
         if self.draw_border:
             pen = QPen()
@@ -524,7 +524,7 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
     def event(self, ev):
         # See https://bugreports.qt.io/browse/QTBUG-46911
         if ev.type() == ev.ShortcutOverride and (
-                hasattr(ev, 'key') and ev.key() in (Qt.Key_Left, Qt.Key_Right) and (ev.modifiers() & ~Qt.KeypadModifier) == Qt.ControlModifier):
+                hasattr(ev, 'key') and ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (ev.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
             ev.accept()
         return QLineEdit.event(self, ev)
 
@@ -574,7 +574,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
         self.textChanged.connect(self.text_changed)
 
         self.completer = ItemsCompleter(self, complete_items)
-        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
 
         self.completer.activated[native_string_type].connect(self.complete_text)
 
@@ -630,14 +630,14 @@ class EnComboBox(QComboBox):  # {{{
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setLineEdit(EnLineEdit(self))
-        self.completer().setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.setMinimumContentsLength(20)
 
     def text(self):
         return unicode_type(self.currentText())
 
     def setText(self, text):
-        idx = self.findText(text, Qt.MatchFixedString|Qt.MatchCaseSensitive)
+        idx = self.findText(text, Qt.MatchFlag.MatchFixedString|Qt.MatchFlag.MatchCaseSensitive)
         if idx == -1:
             self.insertItem(0, text)
             idx = 0
@@ -881,7 +881,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
             if color is not None:
                 fmt.setForeground(QColor(color))
             if bold:
-                fmt.setFontWeight(QFont.Bold)
+                fmt.setFontWeight(QFont.Weight.Bold)
             if italic:
                 fmt.setFontItalic(italic)
             cls.Formats[name] = fmt
@@ -957,7 +957,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
                                PythonHighlighter.Formats["string"])
 
     def rehighlight(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
 
@@ -974,9 +974,9 @@ class SplitterHandle(QSplitterHandle):
     def __init__(self, orientation, splitter):
         QSplitterHandle.__init__(self, orientation, splitter)
         splitter.splitterMoved.connect(self.splitter_moved,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.double_clicked.connect(splitter.double_clicked,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.highlight = False
         self.setToolTip(_('Drag to resize')+' '+splitter.label)
 
@@ -1002,7 +1002,7 @@ class LayoutButton(QToolButton):
         self.splitter = splitter
         if splitter is not None:
             splitter.state_changed.connect(self.update_state)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.shortcut = shortcut or ''
 
     def update_shortcut(self, action_toggle=None):
@@ -1035,7 +1035,7 @@ class LayoutButton(QToolButton):
             self.set_state_to_hide()
 
     def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.RightButton:
+        if ev.button() == Qt.MouseButton.RightButton:
             from calibre.gui2.ui import get_gui
             gui = get_gui()
             if self.icname == 'search':
@@ -1058,7 +1058,7 @@ class Splitter(QSplitter):
 
     def __init__(self, name, label, icon, initial_show=True,
             initial_side_size=120, connect_button=True,
-            orientation=Qt.Horizontal, side_index=0, parent=None,
+            orientation=Qt.Orientation.Horizontal, side_index=0, parent=None,
             shortcut=None, hide_handle_on_single_panel=True):
         QSplitter.__init__(self, parent)
         if hide_handle_on_single_panel:
@@ -1076,7 +1076,7 @@ class Splitter(QSplitter):
         self.label = label
         self.initial_side_size = initial_side_size
         self.initial_show = initial_show
-        self.splitterMoved.connect(self.splitter_moved, type=Qt.QueuedConnection)
+        self.splitterMoved.connect(self.splitter_moved, type=Qt.ConnectionType.QueuedConnection)
         self.button = LayoutButton(icon, label, self, shortcut=shortcut)
         if connect_button:
             self.button.clicked.connect(self.double_clicked)
@@ -1130,7 +1130,7 @@ class Splitter(QSplitter):
 
     @property
     def save_name(self):
-        ori = 'horizontal' if self.orientation() == Qt.Horizontal \
+        ori = 'horizontal' if self.orientation() == Qt.Orientation.Horizontal \
                 else 'vertical'
         return self._name + '_' + ori
 
@@ -1252,14 +1252,14 @@ class PaperSizes(QComboBox):  # {{{
             if iswindows or ismacos:
                 # On Linux, this can cause Qt to load the system cups plugin
                 # which can crash: https://bugs.launchpad.net/calibre/+bug/1861741
-                PaperSizes.system_default_paper_size = 'letter' if QPrinter().pageSize() == QPagedPaintDevice.Letter else 'a4'
+                PaperSizes.system_default_paper_size = 'letter' if QPrinter().pageSize() == QPagedPaintDevice.PageSize.Letter else 'a4'
         if not choices:
             from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
             choices = PAPER_SIZES
         for a in sorted(choices, key=numeric_sort_key):
             s = getattr(QPageSize, a.capitalize())
             sz = QPageSize.definitionSize(s)
-            unit = {QPageSize.Millimeter: 'mm', QPageSize.Inch: 'inch'}[QPageSize.definitionUnits(s)]
+            unit = {QPageSize.Unit.Millimeter: 'mm', QPageSize.Unit.Inch: 'inch'}[QPageSize.definitionUnits(s)]
             name = '{} ({:g} x {:g} {})'.format(QPageSize.name(s), sz.width(), sz.height(), unit)
             self.addItem(name, a)
 

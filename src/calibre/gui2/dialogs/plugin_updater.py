@@ -231,8 +231,8 @@ class DisplayPluginSortFilterModel(QSortFilterProxyModel):
 
     def __init__(self, parent):
         QSortFilterProxyModel.__init__(self, parent)
-        self.setSortRole(Qt.UserRole)
-        self.setSortCaseSensitivity(Qt.CaseInsensitive)
+        self.setSortRole(Qt.ItemDataRole.UserRole)
+        self.setSortCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         self.filter_criteria = FILTER_ALL
         self.filter_text = ""
 
@@ -273,7 +273,7 @@ class DisplayPluginModel(QAbstractTableModel):
         return len(self.headers)
 
     def headerData(self, section, orientation, role):
-        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.headers[section]
         return None
 
@@ -284,7 +284,7 @@ class DisplayPluginModel(QAbstractTableModel):
         if row < 0 or row >= self.rowCount():
             return None
         display_plugin = self.display_plugins[row]
-        if role in [Qt.DisplayRole, Qt.UserRole]:
+        if role in [Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.UserRole]:
             if col == 0:
                 return display_plugin.name
             if col == 1:
@@ -297,7 +297,7 @@ class DisplayPluginModel(QAbstractTableModel):
             if col == 4:
                 return self._get_display_version(display_plugin.available_version)
             if col == 5:
-                if role == Qt.UserRole:
+                if role == Qt.ItemDataRole.UserRole:
                     return self._get_display_release_date(display_plugin.release_date, 'yyyyMMdd')
                 else:
                     return self._get_display_release_date(display_plugin.release_date)
@@ -305,25 +305,25 @@ class DisplayPluginModel(QAbstractTableModel):
                 return self._get_display_version(display_plugin.calibre_required_version)
             if col == 7:
                 return display_plugin.author
-        elif role == Qt.DecorationRole:
+        elif role == Qt.ItemDataRole.DecorationRole:
             if col == 0:
                 return self._get_status_icon(display_plugin)
             if col == 1:
                 if display_plugin.donation_link:
                     return QIcon(I('donate.png'))
-        elif role == Qt.ToolTipRole:
+        elif role == Qt.ItemDataRole.ToolTipRole:
             if col == 1 and display_plugin.donation_link:
                 return _('This plugin is FREE but you can reward the developer for their effort\n'
                                   'by donating to them via PayPal.\n\n'
                                   'Right-click and choose Donate to reward: ')+display_plugin.author
             else:
                 return self._get_status_tooltip(display_plugin)
-        elif role == Qt.ForegroundRole:
+        elif role == Qt.ItemDataRole.ForegroundRole:
             if col != 1:  # Never change colour of the donation column
                 if display_plugin.is_deprecated:
-                    return QBrush(Qt.blue)
+                    return QBrush(Qt.GlobalColor.blue)
                 if display_plugin.is_disabled():
-                    return QBrush(Qt.gray)
+                    return QBrush(Qt.GlobalColor.gray)
         return None
 
     def plugin_to_index(self, display_plugin):
@@ -483,8 +483,8 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
         self.plugin_view = QTableView(self)
         self.plugin_view.horizontalHeader().setStretchLastSection(True)
-        self.plugin_view.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.plugin_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.plugin_view.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.plugin_view.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.plugin_view.setAlternatingRowColors(True)
         self.plugin_view.setSortingEnabled(True)
         self.plugin_view.setIconSize(QSize(28, 28))
@@ -493,26 +493,26 @@ class PluginUpdaterDialog(SizePersistedDialog):
         details_layout = QHBoxLayout()
         layout.addLayout(details_layout)
         forum_label = self.forum_label = QLabel('')
-        forum_label.setTextInteractionFlags(Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard)
+        forum_label.setTextInteractionFlags(Qt.TextInteractionFlag.LinksAccessibleByMouse | Qt.TextInteractionFlag.LinksAccessibleByKeyboard)
         forum_label.linkActivated.connect(self._forum_label_activated)
-        details_layout.addWidget(QLabel(_('Description')+':', self), 0, Qt.AlignLeft)
-        details_layout.addWidget(forum_label, 1, Qt.AlignRight)
+        details_layout.addWidget(QLabel(_('Description')+':', self), 0, Qt.AlignmentFlag.AlignLeft)
+        details_layout.addWidget(forum_label, 1, Qt.AlignmentFlag.AlignRight)
 
         self.description = QLabel(self)
-        self.description.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        self.description.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        self.description.setFrameStyle(QFrame.Shape.Panel | QFrame.Shadow.Sunken)
+        self.description.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.description.setMinimumHeight(40)
         self.description.setWordWrap(True)
         layout.addWidget(self.description)
 
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Close)
+        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         self.button_box.rejected.connect(self.reject)
         self.finished.connect(self._finished)
-        self.install_button = self.button_box.addButton(_('&Install'), QDialogButtonBox.AcceptRole)
+        self.install_button = self.button_box.addButton(_('&Install'), QDialogButtonBox.ButtonRole.AcceptRole)
         self.install_button.setToolTip(_('Install the selected plugin'))
         self.install_button.clicked.connect(self._install_clicked)
         self.install_button.setEnabled(False)
-        self.configure_button = self.button_box.addButton(' '+_('&Customize plugin ')+' ', QDialogButtonBox.ResetRole)
+        self.configure_button = self.button_box.addButton(' '+_('&Customize plugin ')+' ', QDialogButtonBox.ButtonRole.ResetRole)
         self.configure_button.setToolTip(_('Customize the options for this plugin'))
         self.configure_button.clicked.connect(self._configure_clicked)
         self.configure_button.setEnabled(False)
@@ -525,7 +525,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.forum_label.setText(txt)
 
     def _create_context_menu(self):
-        self.plugin_view.setContextMenuPolicy(Qt.ActionsContextMenu)
+        self.plugin_view.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
         self.install_action = QAction(QIcon(I('plugins/plugin_upgrade_ok.png')), _('&Install'), self)
         self.install_action.setToolTip(_('Install the selected plugin'))
         self.install_action.triggered.connect(self._install_clicked)
@@ -622,9 +622,9 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self.filter_by_name_lineedit.setText("")  # clear the name filter text when a different group was selected
         self.proxy_model.set_filter_criteria(idx)
         if idx == FILTER_NOT_INSTALLED:
-            self.plugin_view.sortByColumn(5, Qt.DescendingOrder)
+            self.plugin_view.sortByColumn(5, Qt.SortOrder.DescendingOrder)
         else:
-            self.plugin_view.sortByColumn(0, Qt.AscendingOrder)
+            self.plugin_view.sortByColumn(0, Qt.SortOrder.AscendingOrder)
         self._select_and_focus_view()
 
     def _filter_name_lineedit_changed(self, text):

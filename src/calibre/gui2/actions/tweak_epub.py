@@ -154,7 +154,7 @@ class TweakEpubAction(InterfaceAction):
                 ' library maintenance.') % fmt, show=True)
         tweak = 'ebook-edit'
         try:
-            self.gui.setCursor(Qt.BusyCursor)
+            self.gui.setCursor(Qt.CursorShape.BusyCursor)
             if tprefs['update_metadata_from_calibre']:
                 db.new_api.embed_metadata((book_id,), only_fmts={fmt})
             notify = '%d:%s:%s:%s' % (book_id, fmt, db.library_id, db.library_path)

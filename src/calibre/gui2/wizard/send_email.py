@@ -42,7 +42,7 @@ class TestEmail(QDialog):
             self.to.setText(pa)
         self.test_button = b = QPushButton(_('&Test'), self)
         b.clicked.connect(self.start_test)
-        self.test_done.connect(self.on_test_done, type=Qt.QueuedConnection)
+        self.test_done.connect(self.on_test_done, type=Qt.ConnectionType.QueuedConnection)
         self.h = h = QHBoxLayout()
         h.addWidget(le), h.addWidget(b)
         l.addLayout(h)
@@ -53,7 +53,7 @@ class TestEmail(QDialog):
             l.addWidget(la)
         self.log = QPlainTextEdit(self)
         l.addWidget(self.log)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         bb.rejected.connect(self.reject), bb.accepted.connect(self.accept)
         l.addWidget(bb)
 
@@ -89,7 +89,7 @@ class RelaySetup(QDialog):
 
         self.l = l = QGridLayout()
         self.setLayout(l)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.tl = QLabel(('<p>'+_('Setup sending email using') +
@@ -117,7 +117,7 @@ class RelaySetup(QDialog):
                 self.ptoggle = QCheckBox(_('&Show password'), self)
                 l.addWidget(self.ptoggle, r, 2)
                 self.ptoggle.stateChanged.connect(
-                        lambda s: self.password.setEchoMode(self.password.Normal if s == Qt.Checked else self.password.Password))
+                        lambda s: self.password.setEchoMode(self.password.Normal if s == Qt.CheckState.Checked else self.password.Password))
         self.username.setText(service['username'])
         self.password.setEchoMode(self.password.Password)
         self.bl = QLabel('<p>' + _(

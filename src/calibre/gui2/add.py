@@ -82,7 +82,7 @@ class Adder(QObject):
         self.list_of_archives = list_of_archives
         self.callback = callback
         self.add_formats_to_existing = prefs['add_formats_to_existing']
-        self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
+        self.do_one_signal.connect(self.tick, type=Qt.ConnectionType.QueuedConnection)
         self.pool = pool
         self.pd = ProgressDialog(_('Adding books...'), _('Scanning for files...'), min=0, max=0, parent=parent, icon='add_book.png')
         self.db = getattr(db, 'new_api', None)

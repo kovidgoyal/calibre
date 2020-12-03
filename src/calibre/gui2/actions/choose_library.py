@@ -123,7 +123,7 @@ class MovedDialog(QDialog):  # {{{
         self.cd.setIcon(QIcon(I('document_open.png')))
         self.cd.clicked.connect(self.choose_dir)
         l.addWidget(self.cd, l.rowCount() - 1, 1, 1, 1)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Abort)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Abort)
         b = self.bb.addButton(_('Library moved'), self.bb.AcceptRole)
         b.setIcon(QIcon(I('ok.png')))
         b = self.bb.addButton(_('Forget library'), self.bb.RejectRole)
@@ -164,7 +164,7 @@ class BackupStatus(QDialog):  # {{{
         self.msg = QLabel('')
         self.msg.setWordWrap(True)
         l.addWidget(self.msg)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = bb.addButton(_('Queue &all books for backup'), bb.ActionRole)
@@ -219,8 +219,8 @@ class ChooseLibraryAction(InterfaceAction):
         ac.triggered.connect(self.exim_data)
 
         self.stats = LibraryUsageStats()
-        self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
-                QToolButton.MenuButtonPopup)
+        self.popup_type = (QToolButton.ToolButtonPopupMode.InstantPopup if len(self.stats.stats) > 1 else
+                QToolButton.ToolButtonPopupMode.MenuButtonPopup)
         if len(self.stats.stats) > 1:
             self.action_choose.triggered.connect(self.choose_library)
         else:
@@ -257,7 +257,7 @@ class ChooseLibraryAction(InterfaceAction):
             ac.setVisible(False)
             connect_lambda(ac.triggered, self, lambda self:
                     self.switch_requested(self.qs_locations[int(self.gui.sender().objectName())]),
-                    type=Qt.QueuedConnection)
+                    type=Qt.ConnectionType.QueuedConnection)
             self.choose_menu.addAction(ac)
 
         self.rename_separator = self.choose_menu.addSeparator()
@@ -265,26 +265,26 @@ class ChooseLibraryAction(InterfaceAction):
         self.maintenance_menu = QMenu(_('Library maintenance'))
         ac = self.create_action(spec=(_('Library metadata backup status'),
                         'lt.png', None, None), attr='action_backup_status')
-        ac.triggered.connect(self.backup_status, type=Qt.QueuedConnection)
+        ac.triggered.connect(self.backup_status, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
         ac = self.create_action(spec=(_('Check library'), 'lt.png',
                                       None, None), attr='action_check_library')
-        ac.triggered.connect(self.check_library, type=Qt.QueuedConnection)
+        ac.triggered.connect(self.check_library, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
         ac = self.create_action(spec=(_('Restore database'), 'lt.png',
                                       None, None),
                                       attr='action_restore_database')
-        ac.triggered.connect(self.restore_database, type=Qt.QueuedConnection)
+        ac.triggered.connect(self.restore_database, type=Qt.ConnectionType.QueuedConnection)
         self.maintenance_menu.addAction(ac)
 
         self.choose_menu.addMenu(self.maintenance_menu)
         self.view_state_map = {}
         self.restore_view_state.connect(self._restore_view_state,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         ac = self.create_action(spec=(_('Switch to previous library'), 'lt.png',
                                       None, None),
                                       attr='action_previous_library')
-        ac.triggered.connect(self.switch_to_previous_library, type=Qt.QueuedConnection)
+        ac.triggered.connect(self.switch_to_previous_library, type=Qt.ConnectionType.QueuedConnection)
         self.gui.keyboard.register_shortcut(
             self.unique_name + '-' + 'action_previous_library',
             ac.text(), action=ac, group=self.action_spec[0], default_keys=('Ctrl+Alt+p',))

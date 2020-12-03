@@ -117,7 +117,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.setWindowIcon(QApplication.instance().windowIcon())
         self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.proceed_question = ProceedQuestion(self)
         self.job_error_dialog = JobError(self)
         self.keyboard = Manager(self)
@@ -343,11 +343,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.library_view.model().count_changed()
         self.bars_manager.database_changed(self.library_view.model().db)
         self.library_view.model().database_changed.connect(self.bars_manager.database_changed,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
 
         # ########################## Tags Browser ##############################
         TagBrowserMixin.init_tag_browser_mixin(self, db)
-        self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.QueuedConnection)
+        self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.ConnectionType.QueuedConnection)
 
         # ######################## Search Restriction ##########################
         if db.new_api.pref('virtual_lib_on_startup'):
@@ -447,11 +447,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if view is self.library_view:
             self.focus_library_view()
         else:
-            view.setFocus(Qt.OtherFocusReason)
+            view.setFocus(Qt.FocusReason.OtherFocusReason)
     shift_esc = focus_current_view
 
     def focus_library_view(self):
-        self.library_view.alternate_views.current_view.setFocus(Qt.OtherFocusReason)
+        self.library_view.alternate_views.current_view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def ctrl_esc(self):
         self.apply_virtual_library()
@@ -545,7 +545,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         pass
 
     def system_tray_icon_activated(self, r=False):
-        if r in (QSystemTrayIcon.Trigger, QSystemTrayIcon.MiddleClick, False):
+        if r in (QSystemTrayIcon.ActivationReason.Trigger, QSystemTrayIcon.ActivationReason.MiddleClick, False):
             if self.isVisible():
                 if self.isMinimized():
                     self.showNormal()
@@ -764,7 +764,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 argv = ()
             if isinstance(argv, (list, tuple)) and len(argv) > 1:
                 self.handle_cli_args(argv[1:])
-            self.setWindowState(self.windowState() & ~Qt.WindowMinimized|Qt.WindowActive)
+            self.setWindowState(self.windowState() & ~Qt.WindowState.WindowMinimized|Qt.WindowState.WindowActive)
             self.show_windows()
             self.raise_()
             self.activateWindow()

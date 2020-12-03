@@ -26,7 +26,7 @@ class PluginUpdaterAction(InterfaceAction):
         # Get the user to choose a plugin to install
         initial_filter = FILTER_UPDATE_AVAILABLE
         mods = QApplication.keyboardModifiers()
-        if mods & Qt.ControlModifier or mods & Qt.ShiftModifier:
+        if mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.ShiftModifier:
             initial_filter = FILTER_ALL
 
         d = PluginUpdaterDialog(self.gui, initial_filter=initial_filter)

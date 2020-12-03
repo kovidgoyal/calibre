@@ -27,7 +27,7 @@ class Delegate(QStyledItemDelegate):
             rect = view.visualRect(index)
             size = self.sizeHint(option, index)
             if rect.width() < size.width():
-                tooltip = index.data(Qt.DisplayRole)
+                tooltip = index.data(Qt.ItemDataRole.DisplayRole)
                 QToolTip.showText(ev.globalPos(), tooltip, view)
                 return True
         return QStyledItemDelegate.helpEvent(self, ev, view, option, index)
@@ -39,20 +39,20 @@ class TOCView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.delegate = Delegate(self)
         self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
         self.header().close()
         self.setMouseTracking(True)
         self.set_style_sheet()
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.context_menu)
-        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.QueuedConnection)
+        QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
 
     def setModel(self, model):
         QTreeView.setModel(self, model)
-        model.auto_expand_nodes.connect(self.auto_expand_indices, type=Qt.QueuedConnection)
+        model.auto_expand_nodes.connect(self.auto_expand_indices, type=Qt.ConnectionType.QueuedConnection)
 
     def auto_expand_indices(self, indices):
         for idx in indices:
@@ -82,7 +82,7 @@ class TOCView(QTreeView):
 
     def mouseMoveEvent(self, ev):
         if self.indexAt(ev.pos()).isValid():
-            self.setCursor(Qt.PointingHandCursor)
+            self.setCursor(Qt.CursorShape.PointingHandCursor)
         else:
             self.unsetCursor()
         return QTreeView.mouseMoveEvent(self, ev)
@@ -164,7 +164,7 @@ class TOCItem(QStandardItem):
         self.normal_font, self.emphasis_font = normal_font, emphasis_font
         for t in toc['children']:
             self.appendRow(TOCItem(t, depth+1, all_items, normal_font, emphasis_font, parent=self))
-        self.setFlags(Qt.ItemIsEnabled)
+        self.setFlags(Qt.ItemFlag.ItemIsEnabled)
         self.is_current_search_result = False
         self.depth = depth
         self.set_being_viewed(False)
@@ -182,7 +182,7 @@ class TOCItem(QStandardItem):
 
     @classmethod
     def type(cls):
-        return QStandardItem.UserType+10
+        return QStandardItem.ItemType.UserType+10
 
     def set_current_search_result(self, yes):
         if yes and not self.is_current_search_result:

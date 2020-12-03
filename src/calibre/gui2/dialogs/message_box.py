@@ -24,7 +24,7 @@ class Icon(QWidget):
     def __init__(self, parent=None, size=None):
         QWidget.__init__(self, parent)
         self.pixmap = None
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.size = size or 64
 
     def set_icon(self, qicon):
@@ -68,7 +68,7 @@ class MessageBox(QDialog):  # {{{
         dm.setObjectName("det_msg")
         l.addWidget(dm, 1, 0, 1, 2)
         self.bb = bb = QDialogButtonBox(self)
-        bb.setStandardButtons(QDialogButtonBox.Ok)
+        bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok)
         bb.setObjectName("bb")
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -119,7 +119,7 @@ class MessageBox(QDialog):  # {{{
 
         self.copy_action = QAction(self)
         self.addAction(self.copy_action)
-        self.copy_action.setShortcuts(QKeySequence.Copy)
+        self.copy_action.setShortcuts(QKeySequence.StandardKey.Copy)
         self.copy_action.triggered.connect(self.copy_to_clipboard)
 
         self.is_question = type_ == self.QUESTION
@@ -142,7 +142,7 @@ class MessageBox(QDialog):  # {{{
         if not det_msg:
             self.det_msg_toggle.setVisible(False)
 
-        self.resize_needed.connect(self.do_resize, type=Qt.QueuedConnection)
+        self.resize_needed.connect(self.do_resize, type=Qt.ConnectionType.QueuedConnection)
         self.do_resize()
 
     def sizeHint(self):
@@ -174,11 +174,11 @@ class MessageBox(QDialog):  # {{{
         if self.is_question:
             try:
                 self.bb.button(self.bb.Yes if self.default_yes else self.bb.No
-                        ).setFocus(Qt.OtherFocusReason)
+                        ).setFocus(Qt.FocusReason.OtherFocusReason)
             except:
                 pass  # Buttons were changed
         else:
-            self.bb.button(self.bb.Ok).setFocus(Qt.OtherFocusReason)
+            self.bb.button(self.bb.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def set_details(self, msg):
@@ -203,7 +203,7 @@ class ViewLog(QDialog):  # {{{
         self.tb.setHtml('<pre style="font-family: monospace">%s</pre>' % html)
         l.addWidget(self.tb)
 
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.copy_button = self.bb.addButton(_('Copy to clipboard'),
@@ -327,7 +327,7 @@ class ErrorNotification(MessageBox):  # {{{
                 parent=parent)
         self.html_log = html_log
         self.log_viewer_title = log_viewer_title
-        self.finished.connect(self.do_close, type=Qt.QueuedConnection)
+        self.finished.connect(self.do_close, type=Qt.ConnectionType.QueuedConnection)
 
         self.vlb = self.bb.addButton(_('&View log'), self.bb.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
@@ -356,9 +356,9 @@ class JobError(QDialog):  # {{{
 
     def __init__(self, parent):
         QDialog.__init__(self, parent)
-        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.queue = []
-        self.do_pop.connect(self.pop, type=Qt.QueuedConnection)
+        self.do_pop.connect(self.pop, type=Qt.ConnectionType.QueuedConnection)
 
         self._layout = l = QGridLayout()
         self.setLayout(l)
@@ -369,11 +369,11 @@ class JobError(QDialog):  # {{{
         self.msg_label = QLabel('<p>&nbsp;')
         self.msg_label.setStyleSheet('QLabel { margin-top: 1ex; }')
         self.msg_label.setWordWrap(True)
-        self.msg_label.setTextFormat(Qt.RichText)
+        self.msg_label.setTextFormat(Qt.TextFormat.RichText)
         self.det_msg = QPlainTextEdit(self)
         self.det_msg.setVisible(False)
 
-        self.bb = QDialogButtonBox(QDialogButtonBox.Close, parent=self)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, parent=self)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
@@ -393,8 +393,8 @@ class JobError(QDialog):  # {{{
         l.addWidget(self.icon_widget, 0, 0, 1, 1)
         l.addWidget(self.msg_label,  0, 1, 1, 1)
         l.addWidget(self.det_msg,    1, 0, 1, 2)
-        l.addWidget(self.suppress,   2, 0, 1, 2, Qt.AlignLeft|Qt.AlignBottom)
-        l.addWidget(self.bb,         3, 0, 1, 2, Qt.AlignRight|Qt.AlignBottom)
+        l.addWidget(self.suppress,   2, 0, 1, 2, Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignBottom)
+        l.addWidget(self.bb,         3, 0, 1, 2, Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignBottom)
         l.setColumnStretch(1, 100)
 
         self.setModal(False)
@@ -441,7 +441,7 @@ class JobError(QDialog):  # {{{
 
     def showEvent(self, ev):
         ret = QDialog.showEvent(self, ev)
-        self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
+        self.bb.button(self.bb.Close).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def show_error(self, title, msg, det_msg='', retry_func=None):

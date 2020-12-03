@@ -179,7 +179,7 @@ class Renderer(QWebEnginePage):
         self.loadFinished.connect(self.load_finished)
         self.load_hang_check_timer = t = QTimer(self)
         self.load_started_at = 0
-        t.setTimerType(Qt.VeryCoarseTimer)
+        t.setTimerType(Qt.TimerType.VeryCoarseTimer)
         t.setInterval(HANG_TIME * 1000)
         t.setSingleShot(True)
         t.timeout.connect(self.on_load_hang)
@@ -384,7 +384,7 @@ def job_for_name(container, name, margins, page_layout):
     index_file = container.name_to_abspath(name)
     if margins:
         page_layout = QPageLayout(page_layout)
-        page_layout.setUnits(QPageLayout.Point)
+        page_layout.setUnits(QPageLayout.Unit.Point)
         new_margins = QMarginsF(*resolve_margins(margins, page_layout))
         page_layout.setMargins(new_margins)
     return index_file, page_layout, name

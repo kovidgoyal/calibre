@@ -42,9 +42,9 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
         disabled_formats = all_formats.difference(format_map)
         for format in format_map + sorted(disabled_formats):
             item = QListWidgetItem(format, self.columns)
-            item.setData(Qt.UserRole, (format))
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked if format in format_map else Qt.Unchecked)
+            item.setData(Qt.ItemDataRole.UserRole, (format))
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
+            item.setCheckState(Qt.CheckState.Checked if format in format_map else Qt.CheckState.Unchecked)
 
         self.column_up.clicked.connect(self.up_column)
         self.column_down.clicked.connect(self.down_column)
@@ -138,9 +138,9 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def format_map(self):
         formats = [
-                unicode_type(self.columns.item(i).data(Qt.UserRole) or '')
+                unicode_type(self.columns.item(i).data(Qt.ItemDataRole.UserRole) or '')
                 for i in range(self.columns.count())
-                if self.columns.item(i).checkState()==Qt.Checked
+                if self.columns.item(i).checkState()==Qt.CheckState.Checked
         ]
         return formats
 

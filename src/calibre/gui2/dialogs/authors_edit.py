@@ -30,7 +30,7 @@ class ItemDelegate(QStyledItemDelegate):
         return QStyledItemDelegate.sizeHint(self, *args) + QSize(0, 15)
 
     def setEditorData(self, editor, index):
-        name = unicode_type(index.data(Qt.DisplayRole) or '')
+        name = unicode_type(index.data(Qt.ItemDataRole.DisplayRole) or '')
         editor.setText(name)
         editor.lineEdit().selectAll()
 
@@ -41,7 +41,7 @@ class ItemDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         self.ed = EditWithComplete(parent)
-        self.ed.setFocusPolicy(Qt.StrongFocus)
+        self.ed.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         init_line_edit(self.ed, self.all_authors)
         return self.ed
 
@@ -56,7 +56,7 @@ class List(QListWidget):
         self.setDragDropMode(self.InternalMove)
         self.setAlternatingRowColors(True)
         self.d = ItemDelegate(all_authors, self)
-        self.d.edited.connect(self.edited, type=Qt.QueuedConnection)
+        self.d.edited.connect(self.edited, type=Qt.ConnectionType.QueuedConnection)
         self.setItemDelegate(self.d)
 
     def delete_selected(self):
@@ -64,7 +64,7 @@ class List(QListWidget):
             self.takeItem(self.row(item))
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Delete:
+        if ev.key() == Qt.Key.Key_Delete:
             self.delete_selected()
             ev.accept()
             return
@@ -85,7 +85,7 @@ class List(QListWidget):
     def mark_as_editable(self):
         for i in range(self.count()):
             item = self.item(i)
-            item.setFlags(item.flags() | Qt.ItemIsEditable)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
     def edited(self, i):
         item = self.item(i)
@@ -103,7 +103,7 @@ class Edit(EditWithComplete):
     returnPressed = pyqtSignal()
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key_Return, Qt.Key_Enter):
+        if ev.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
             ev.accept()
             self.returnPressed.emit()
             return
@@ -150,7 +150,7 @@ class AuthorsEdit(QDialog):
         b.setIcon(QIcon(I('minus.png')))
         b.clicked.connect(self.al.delete_selected)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 3, 0, 1, 3)
@@ -160,7 +160,7 @@ class AuthorsEdit(QDialog):
         geom = gprefs.get('authors-edit-geometry', None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, geom)
-        self.author.setFocus(Qt.OtherFocusReason)
+        self.author.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def save_geometry(self):
         gprefs.set('authors-edit-geometry', bytearray(self.saveGeometry()))

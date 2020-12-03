@@ -117,7 +117,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.resizeRowsToContents()
 
     def setup_row(self, field_metadata, row, col, oldkey=None):
-        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
         item = QTableWidgetItem(col)
         item.setFlags(flags)
@@ -154,18 +154,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.setItem(row, 3, item)
 
         item = QTableWidgetItem(fm['name'])
-        item.setData(Qt.UserRole, (col))
+        item.setData(Qt.ItemDataRole.UserRole, (col))
         item.setFlags(flags)
         self.opt_columns.setItem(row, 0, item)
 
         if col.startswith('#'):
-            item.setData(Qt.DecorationRole, (QIcon(I('column.png'))))
+            item.setData(Qt.ItemDataRole.DecorationRole, (QIcon(I('column.png'))))
         if col != 'ondevice':
-            flags |= Qt.ItemIsUserCheckable
+            flags |= Qt.ItemFlag.ItemIsUserCheckable
         item.setFlags(flags)
         if col != 'ondevice':
-            item.setCheckState(Qt.Unchecked if col in self.hidden_cols else
-                    Qt.Checked)
+            item.setCheckState(Qt.CheckState.Unchecked if col in self.hidden_cols else
+                    Qt.CheckState.Checked)
 
     def up_column(self):
         idx = self.opt_columns.currentRow()
@@ -194,7 +194,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         if idx < 0:
             return error_dialog(self, '', _('You must select a column to delete it'),
                     show=True)
-        col = unicode_type(self.opt_columns.item(idx, 0).data(Qt.UserRole) or '')
+        col = unicode_type(self.opt_columns.item(idx, 0).data(Qt.ItemDataRole.UserRole) or '')
         if col not in self.custcols:
             return error_dialog(self, '',
                     _('The selected column is not a custom column'), show=True)
@@ -223,7 +223,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         model = self.gui.library_view.model()
         row = self.opt_columns.currentRow()
         try:
-            key = unicode_type(self.opt_columns.item(row, 0).data(Qt.UserRole))
+            key = unicode_type(self.opt_columns.item(row, 0).data(Qt.ItemDataRole.UserRole))
         except:
             key = ''
         CreateCustomColumn(self, row, key, model.orig_headers, ALL_COLUMNS)
@@ -236,14 +236,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        config_cols = [unicode_type(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        config_cols = [unicode_type(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = {unicode_type(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+        hidden_cols = {unicode_type(self.opt_columns.item(i, 0).data(Qt.ItemDataRole.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())
-                 if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked}
+                 if self.opt_columns.item(i, 0).checkState()==Qt.CheckState.Unchecked}
         hidden_cols = hidden_cols.union(removed_cols)  # Hide removed cols
         hidden_cols = list(hidden_cols.intersection(set(model.column_map)))
         if 'ondevice' in hidden_cols:

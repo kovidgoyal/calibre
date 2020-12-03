@@ -51,11 +51,11 @@ class TTSWidget(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.mark_changed.connect(self.on_mark_change)
-        self.dispatch_on_main_thread_signal.connect(self.dispatch_on_main_thread, type=Qt.QueuedConnection)
+        self.dispatch_on_main_thread_signal.connect(self.dispatch_on_main_thread, type=Qt.ConnectionType.QueuedConnection)
         self.tts = Client(self.dispatch_on_main_thread_signal.emit)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(self)
-        la.setTextFormat(Qt.RichText)
+        la.setTextFormat(Qt.TextFormat.RichText)
         la.setWordWrap(True)
         self.text = '''\
 In their duty through weakness of will, which is the

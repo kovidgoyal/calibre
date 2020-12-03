@@ -17,8 +17,8 @@ class LoadingOverlay(QWidget):
         self.setVisible(False)
         self.label = QLabel(self)
         self.label.setText('<i>testing with some long and wrap worthy message that should hopefully still render well')
-        self.label.setTextFormat(Qt.RichText)
-        self.label.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        self.label.setTextFormat(Qt.TextFormat.RichText)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         self.label.setWordWrap(True)
         if parent is None:
             self.resize(300, 300)
@@ -47,11 +47,11 @@ class LoadingOverlay(QWidget):
         self.move(0, 0)
         self.setVisible(True)
         self.raise_()
-        self.setFocus(Qt.OtherFocusReason)
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
         self.update()
 
     def hide(self):
-        self.parent().web_view.setFocus(Qt.OtherFocusReason)
+        self.parent().web_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.pi.stop()
         return QWidget.hide(self)
 

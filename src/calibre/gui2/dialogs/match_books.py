@@ -25,7 +25,7 @@ class TableItem(QTableWidgetItem):
         self.sort = sort
         self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
-        self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+        self.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable)
 
     def __ge__(self, other):
         l = sort_key(self.sort)
@@ -49,7 +49,7 @@ class TableItem(QTableWidgetItem):
 class MatchBooks(QDialog, Ui_MatchBooks):
 
     def __init__(self, gui, view, id_, row_index):
-        QDialog.__init__(self, gui, flags=Qt.Window)
+        QDialog.__init__(self, gui, flags=Qt.WindowType.Window)
         Ui_MatchBooks.__init__(self)
         self.setupUi(self)
         self.isClosed = False
@@ -68,7 +68,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
         # Remove the help button from the window title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         self.device_db = view.model().db
@@ -80,8 +80,8 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.current_library_book_id = None
 
         # Set up the books table columns
-        self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.books_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.books_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.books_table.setColumnCount(3)
         t = QTableWidgetItem(_('Title'))
         self.books_table.setHorizontalHeaderItem(0, t)
@@ -92,7 +92,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
         self.books_table_header_height = self.books_table.height()
         self.books_table.cellDoubleClicked.connect(self.book_doubleclicked)
         self.books_table.cellClicked.connect(self.book_clicked)
-        self.books_table.sortByColumn(0, Qt.AscendingOrder)
+        self.books_table.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
         # get the standard table row height. Do this here because calling
         # resizeRowsToContents can word wrap long cell contents, creating
@@ -134,7 +134,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             return
         try:
             self.search_button.setEnabled(False)
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+            QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
             books = self.library_db.data.search(query, return_matches=True)
             self.books_table.setRowCount(len(books))
 
@@ -142,7 +142,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
             for row, b in enumerate(books):
                 mi = self.library_db.get_metadata(b, index_is_id=True, get_user_categories=False)
                 a = TableItem(mi.title, mi.title_sort)
-                a.setData(Qt.UserRole, b)
+                a.setData(Qt.ItemDataRole.UserRole, b)
                 self.books_table.setItem(row, 0, a)
                 a = TableItem(' & '.join(mi.authors), mi.author_sort)
                 self.books_table.setItem(row, 1, a)
@@ -177,7 +177,7 @@ class MatchBooks(QDialog, Ui_MatchBooks):
 
     def book_clicked(self, row, column):
         self.book_selected = True
-        id_ = int(self.books_table.item(row, 0).data(Qt.UserRole))
+        id_ = int(self.books_table.item(row, 0).data(Qt.ItemDataRole.UserRole))
         self.current_library_book_id = id_
 
     def book_doubleclicked(self, row, column):

@@ -53,13 +53,13 @@ class Wizard(QDialog):
         self.widget = WizardWidget(self)
         self.verticalLayout.addWidget(self.widget)
         self.buttonBox = QDialogButtonBox(self)
-        self.buttonBox.setOrientation(Qt.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
+        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
         self.verticalLayout.addWidget(self.buttonBox)
 
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-        self.setModal(Qt.WindowModal)
+        self.setModal(Qt.WindowModality.WindowModal)
 
     @property
     def xpath(self):

@@ -45,12 +45,12 @@ class Icon(QWidget):
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.set_icon('dialog_question.png')
         self.default_icon = self.icon
         self._fraction = 0.0
         self.animation = a = QPropertyAnimation(self, b"fraction", self)
-        a.setDuration(2000), a.setEasingCurve(QEasingCurve.Linear)
+        a.setDuration(2000), a.setEasingCurve(QEasingCurve.Type.Linear)
         a.setStartValue(0.0), a.setEndValue(2.0), a.setLoopCount(10)
 
     def set_icon(self, icon):
@@ -101,7 +101,7 @@ class ProceedQuestion(QWidget):
 
         self._show_fraction = 0.0
         self.show_animation = a = QPropertyAnimation(self, b"show_fraction", self)
-        a.setDuration(1000), a.setEasingCurve(QEasingCurve.OutQuad)
+        a.setDuration(1000), a.setEasingCurve(QEasingCurve.Type.OutQuad)
         a.setStartValue(0.0), a.setEndValue(1.0)
         a.finished.connect(self.stop_show_animation)
         self.rendered_pixmap = None
@@ -150,10 +150,10 @@ class ProceedQuestion(QWidget):
         l.addWidget(self.bb)
 
         self.ask_question.connect(self.do_ask_question,
-                type=Qt.QueuedConnection)
-        self.setFocusPolicy(Qt.NoFocus)
+                type=Qt.ConnectionType.QueuedConnection)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         for child in self.findChildren(QWidget):
-            child.setFocusPolicy(Qt.NoFocus)
+            child.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setFocusProxy(self.parent())
         self.resize_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
@@ -240,7 +240,7 @@ class ProceedQuestion(QWidget):
                     QIcon() if question.action_icon is None else question.action_icon)
             # Force the button box to relayout its buttons, as button text
             # might have changed
-            self.bb.setOrientation(Qt.Vertical), self.bb.setOrientation(Qt.Horizontal)
+            self.bb.setOrientation(Qt.Orientation.Vertical), self.bb.setOrientation(Qt.Orientation.Horizontal)
             self.det_msg.setPlainText(question.det_msg or '')
             self.det_msg.setVisible(False)
             self.det_msg_toggle.setVisible(bool(question.det_msg))
@@ -267,7 +267,7 @@ class ProceedQuestion(QWidget):
             return
 
         dpr = getattr(self, 'devicePixelRatioF', self.devicePixelRatio)()
-        p = QImage(dpr * self.size(), QImage.Format_ARGB32_Premultiplied)
+        p = QImage(dpr * self.size(), QImage.Format.Format_ARGB32_Premultiplied)
         p.setDevicePixelRatio(dpr)
         # For some reason, Qt scrolls the book view when rendering this widget,
         # for the very first time, so manually preserve its position
@@ -376,8 +376,8 @@ class ProceedQuestion(QWidget):
 
     def paintEvent(self, ev):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
         try:
             if self.rendered_pixmap is None:
                 self.paint_background(painter)

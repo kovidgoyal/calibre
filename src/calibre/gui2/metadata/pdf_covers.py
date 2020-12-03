@@ -33,8 +33,8 @@ class CoverDelegate(QStyledItemDelegate):
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
         # Ensure the cover is rendered over any selection rect
-        style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
-            QPixmap(index.data(Qt.DecorationRole)))
+        style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignTop|Qt.AlignmentFlag.AlignHCenter,
+            QPixmap(index.data(Qt.ItemDataRole.DecorationRole)))
 
 
 PAGES_PER_RENDER = 10
@@ -63,15 +63,15 @@ class PDFCovers(QDialog):
         c.setViewMode(c.IconMode)
         c.setUniformItemSizes(True)
         c.setResizeMode(c.Adjust)
-        c.itemDoubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        c.itemDoubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        self.more_pages = b = bb.addButton(_('&More pages'), QDialogButtonBox.ActionRole)
+        self.more_pages = b = bb.addButton(_('&More pages'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.start_rendering)
         l.addWidget(bb)
-        self.rendering_done.connect(self.show_pages, type=Qt.QueuedConnection)
+        self.rendering_done.connect(self.show_pages, type=Qt.ConnectionType.QueuedConnection)
         self.first = 1
         self.setWindowTitle(_('Choose cover from PDF'))
         self.setWindowIcon(file_icon_provider().icon_from_ext('pdf'))
@@ -88,9 +88,9 @@ class PDFCovers(QDialog):
     @property
     def cover_path(self):
         for item in self.covers.selectedItems():
-            return unicode_type(item.data(Qt.UserRole) or '')
+            return unicode_type(item.data(Qt.ItemDataRole.UserRole) or '')
         if self.covers.count() > 0:
-            return unicode_type(self.covers.item(0).data(Qt.UserRole) or '')
+            return unicode_type(self.covers.item(0).data(Qt.ItemDataRole.UserRole) or '')
 
     def cleanup(self):
         try:
@@ -136,11 +136,11 @@ class PDFCovers(QDialog):
             dpr = self.devicePixelRatio()
 
         for i, f in enumerate(sorted(files)):
-            p = QPixmap(f).scaled(self.covers.iconSize()*dpr, aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
+            p = QPixmap(f).scaled(self.covers.iconSize()*dpr, aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
             p.setDevicePixelRatio(dpr)
             i = QListWidgetItem(_('page %d') % (self.first + i))
-            i.setData(Qt.DecorationRole, p)
-            i.setData(Qt.UserRole, f)
+            i.setData(Qt.ItemDataRole.DecorationRole, p)
+            i.setData(Qt.ItemDataRole.UserRole, f)
             self.covers.addItem(i)
         self.first += len(files)
         if len(files) == PAGES_PER_RENDER:

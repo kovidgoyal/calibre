@@ -43,7 +43,7 @@ class StatusNotifierItem(QObject):
             self._icon = QIcon(path)
         else:
             self._icon = QApplication.instance().windowIcon()
-        self.show_menu.connect(self._show_menu, type=Qt.QueuedConnection)
+        self.show_menu.connect(self._show_menu, type=Qt.ConnectionType.QueuedConnection)
         _sni_count += 1
         kw['num'] = _sni_count
         self.dbus_api = StatusNotifierItemAPI(self, **kw)
@@ -99,7 +99,7 @@ class StatusNotifierItem(QObject):
         return False
 
     def emit_activated(self):
-        self.activated.emit(QSystemTrayIcon.Trigger)
+        self.activated.emit(QSystemTrayIcon.ActivationReason.Trigger)
 
 
 _status_item_menu_count = 0
@@ -201,16 +201,16 @@ class StatusNotifierItemAPI(Object):
 
     @dbus_method(IFACE, in_signature='ii', out_signature='')
     def Activate(self, x, y):
-        self.notifier.activated.emit(QSystemTrayIcon.Trigger)
+        self.notifier.activated.emit(QSystemTrayIcon.ActivationReason.Trigger)
 
     @dbus_method(IFACE, in_signature='u', out_signature='')
     def XAyatanaSecondaryActivate(self, timestamp):
         # This is called when the user middle clicks the icon in Unity
-        self.notifier.activated.emit(QSystemTrayIcon.MiddleClick)
+        self.notifier.activated.emit(QSystemTrayIcon.ActivationReason.MiddleClick)
 
     @dbus_method(IFACE, in_signature='ii', out_signature='')
     def SecondaryActivate(self, x, y):
-        self.notifier.activated.emit(QSystemTrayIcon.MiddleClick)
+        self.notifier.activated.emit(QSystemTrayIcon.ActivationReason.MiddleClick)
 
     @dbus_method(IFACE, in_signature='is', out_signature='')
     def Scroll(self, delta, orientation):

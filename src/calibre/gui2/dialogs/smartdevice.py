@@ -100,11 +100,11 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
         self.resize(self.sizeHint())
 
     def use_fixed_port_changed(self, state):
-        self.fixed_port.setEnabled(state == Qt.Checked)
+        self.fixed_port.setEnabled(state == Qt.CheckState.Checked)
 
     def toggle_password(self, state):
-        self.password_box.setEchoMode(QLineEdit.Password if state ==
-                Qt.Unchecked else QLineEdit.Normal)
+        self.password_box.setEchoMode(QLineEdit.EchoMode.Password if state ==
+                Qt.CheckState.Unchecked else QLineEdit.EchoMode.Normal)
 
     def accept(self):
         port = unicode_type(self.fixed_port.text())

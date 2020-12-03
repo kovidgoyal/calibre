@@ -56,7 +56,7 @@ def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
     d.setText(msg)
-    d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+    d.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
     return d.exec_()
 
 
@@ -156,10 +156,10 @@ def make_undoable(spinbox):
             self.undo, self.redo = self.undo_stack.undo, self.undo_stack.redo
 
         def keyPressEvent(self, ev):
-            if ev == QKeySequence.Undo:
+            if ev == QKeySequence.StandardKey.Undo:
                 self.undo()
                 return ev.accept()
-            if ev == QKeySequence.Redo:
+            if ev == QKeySequence.StandardKey.Redo:
                 self.redo()
                 return ev.accept()
             return spinbox.keyPressEvent(self, ev)
@@ -167,12 +167,12 @@ def make_undoable(spinbox):
         def contextMenuEvent(self, ev):
             m = QMenu(self)
             if hasattr(self, 'setDateTime'):
-                m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
+                m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key.Key_Minus).toString(QKeySequence.SequenceFormat.NativeText),
                             lambda : self.setDateTime(self.minimumDateTime()))
-                m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+                m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
                             lambda : self.setDateTime(QDateTime.currentDateTime()))
-            m.addAction(_('&Undo') + access_key(QKeySequence.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
-            m.addAction(_('&Redo') + access_key(QKeySequence.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
+            m.addAction(_('&Undo') + access_key(QKeySequence.StandardKey.Undo), self.undo).setEnabled(self.undo_stack.canUndo())
+            m.addAction(_('&Redo') + access_key(QKeySequence.StandardKey.Redo), self.redo).setEnabled(self.undo_stack.canRedo())
             m.addSeparator()
             populate_standard_spinbox_context_menu(self, m)
             m.popup(ev.globalPos())
@@ -270,7 +270,7 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
             'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.title_edit.textChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
+        self.title_edit.textChanged.connect(self.update_state_and_val, type=Qt.ConnectionType.QueuedConnection)
         self.textChanged.connect(self.update_state)
 
         self.autogen_button = autogen_button
@@ -369,9 +369,9 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
                     _('You have changed the authors for this book. You must save '
                       'these changes before you can use Manage authors. Do you '
                       'want to save these changes?'))
-            if d == QMessageBox.Cancel:
+            if d == QMessageBox.StandardButton.Cancel:
                 return
-            if d == QMessageBox.Yes:
+            if d == QMessageBox.StandardButton.Yes:
                 self.commit(self.db, self.id_)
                 self.db.commit()
                 self.original_val = self.current_val
@@ -465,7 +465,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
             'No action is required if this is what you want.'))
         self.tooltips = (ok_tooltip, bad_tooltip)
 
-        self.authors_edit.editTextChanged.connect(self.update_state_and_val, type=Qt.QueuedConnection)
+        self.authors_edit.editTextChanged.connect(self.update_state_and_val, type=Qt.ConnectionType.QueuedConnection)
         self.textChanged.connect(self.update_state)
         self.textChanged.connect(self.data_changed)
 
@@ -722,7 +722,7 @@ class BuddyLabel(QLabel):  # {{{
     def __init__(self, buddy):
         QLabel.__init__(self, buddy.LABEL)
         self.setBuddy(buddy)
-        self.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
 # }}}
 
 # Formats {{{
@@ -736,7 +736,7 @@ class Format(QListWidgetItem):
         self.size = float(size)/(1024*1024)
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext),
-                                 text, parent, QListWidgetItem.UserType)
+                                 text, parent, QListWidgetItem.ItemType.UserType)
         if timestamp is not None:
             ts = timestamp.astimezone(local_tz)
             t = strftime('%a, %d %b %Y [%H:%M:%S]', ts.timetuple())
@@ -792,7 +792,7 @@ class FormatList(_FormatList):
 
     def __init__(self, parent):
         _FormatList.__init__(self, parent)
-        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
 
     def contextMenuEvent(self, event):
         item = self.itemFromIndex(self.currentIndex())
@@ -804,12 +804,12 @@ class FormatList(_FormatList):
 
             if item:
                 action = ViewAction(item, cm)
-                action.view_fmt.connect(self.view_fmt, type=Qt.QueuedConnection)
+                action.view_fmt.connect(self.view_fmt, type=Qt.ConnectionType.QueuedConnection)
                 cm.addAction(action)
 
                 if item.ext.upper() in EDIT_SUPPORTED:
                     action = EditAction(item, cm)
-                    action.edit_fmt.connect(self.edit_fmt, type=Qt.QueuedConnection)
+                    action.edit_fmt.connect(self.edit_fmt, type=Qt.ConnectionType.QueuedConnection)
                     cm.addAction(action)
 
             if item and originals:
@@ -1104,8 +1104,8 @@ class Cover(ImageView):  # {{{
                 self.setText(text)
                 if icon is not None:
                     self.setIcon(QIcon(I(icon)))
-                self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Preferred)
-                self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+                self.setSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Preferred)
+                self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
                 if action is not None:
                     self.clicked.connect(action)
 
@@ -1115,7 +1115,7 @@ class Cover(ImageView):  # {{{
             'Automatically detect and remove extra space at the cover\'s edges.\n'
             'Pressing it repeatedly can sometimes remove stubborn borders.'))
         b.m = m = QMenu(b)
-        b.setPopupMode(QToolButton.InstantPopup)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         m.addAction(QIcon(I('trim.png')), _('Automatically trim borders'), self.trim_cover)
         m.addSeparator()
         m.addAction(_('Trim borders manually'), self.manual_trim_cover)
@@ -1135,8 +1135,8 @@ class Cover(ImageView):  # {{{
                 self.generate_cover_button]
 
         self.frame_size = (300, 400)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,
-            QSizePolicy.Preferred))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Preferred,
+            QSizePolicy.Policy.Preferred))
 
     def undo_trim(self):
         if self.cdata_before_trim:
@@ -1408,9 +1408,9 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
                     _('You have changed the tags. In order to use the tags'
                        ' editor, you must either discard or apply these '
                        'changes. Apply changes?'))
-            if d == QMessageBox.Cancel:
+            if d == QMessageBox.StandardButton.Cancel:
                 return
-            if d == QMessageBox.Yes:
+            if d == QMessageBox.StandardButton.Yes:
                 self.commit(db, id_)
                 db.commit()
                 self.original_val = self.current_val
@@ -1428,7 +1428,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
         return True
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_F2:
+        if ev.key() == Qt.Key.Key_F2:
             self.tag_editor_requested.emit()
             ev.accept()
             return
@@ -1717,7 +1717,7 @@ class ISBNDialog(QDialog):  # {{{
         w.selectAll()
         w.textChanged.connect(self.checkText)
         l.addWidget(w, 1, 1, 1, 1)
-        w = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        w = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(w, 2, 0, 1, 2)
         w.accepted.connect(self.accept)
         w.rejected.connect(self.reject)
@@ -1855,9 +1855,9 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
         return o != c
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Up and is_date_undefined(self.current_val):
+        if ev.key() == Qt.Key.Key_Up and is_date_undefined(self.current_val):
             self.setDateTime(QDateTime.currentDateTime())
-        elif ev.key() == Qt.Key_Tab and is_date_undefined(self.current_val):
+        elif ev.key() == Qt.Key.Key_Tab and is_date_undefined(self.current_val):
             ev.ignore()
         else:
             return super(DateEdit, self).keyPressEvent(ev)

@@ -45,11 +45,11 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 
             if auto_conversion:
                 d.accept()
-                result = QDialog.Accepted
+                result = QDialog.DialogCode.Accepted
             else:
                 result = d.exec_()
 
-            if result == QDialog.Accepted:
+            if result == QDialog.DialogCode.Accepted:
                 # if not convert_existing(parent, db, [book_id], d.output_format):
                 #    continue
 
@@ -143,7 +143,7 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
 
     d = BulkConfig(parent, db, out_format,
             has_saved_settings=has_saved_settings, book_ids=book_ids)
-    if d.exec_() != QDialog.Accepted:
+    if d.exec_() != QDialog.DialogCode.Accepted:
         return None
 
     output_format = d.output_format

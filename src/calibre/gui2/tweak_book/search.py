@@ -254,7 +254,7 @@ class SearchWidget(QWidget):
         l.setContentsMargins(0, 0, right, 0)
 
         self.fl = fl = QLabel(_('&Find:'))
-        fl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
+        fl.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
         self.find_text = ft = HistoryBox(self, _('Clear search &history'))
         ft.save_search.connect(self.save_search)
         ft.show_saved_searches.connect(self.show_saved_searches)
@@ -266,7 +266,7 @@ class SearchWidget(QWidget):
         l.setColumnStretch(1, 10)
 
         self.rl = rl = QLabel(_('&Replace:'))
-        rl.setAlignment(Qt.AlignRight | Qt.AlignCenter)
+        rl.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
         self.replace_text = rt = HistoryBox(self, _('Clear replace &history'))
         rt.save_search.connect(self.save_search)
         rt.show_saved_searches.connect(self.show_saved_searches)
@@ -279,7 +279,7 @@ class SearchWidget(QWidget):
         l.addLayout(rs2, 1, 1)
 
         self.rl2 = rl2 = QLabel(_('F&unction:'))
-        rl2.setAlignment(Qt.AlignRight | Qt.AlignCenter)
+        rl2.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
         self.functions = fb = FunctionBox(self, show_saved_search_actions=True)
         fb.show_saved_searches.connect(self.show_saved_searches)
         fb.save_search.connect(self.save_search)
@@ -289,7 +289,7 @@ class SearchWidget(QWidget):
         rs2.addWidget(w)
         self.fhl = fhl = QHBoxLayout(w)
         fhl.setContentsMargins(0, 0, 0, 0)
-        fhl.addWidget(fb, stretch=10, alignment=Qt.AlignVCenter)
+        fhl.addWidget(fb, stretch=10, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.ae_func = b = QPushButton(_('Create/&edit'), self)
         b.clicked.connect(self.edit_function)
         b.setToolTip(_('Create a new function, or edit an existing function'))
@@ -313,7 +313,7 @@ class SearchWidget(QWidget):
 
         self.ml = ml = QLabel(_('&Mode:'))
         self.ol = ol = FlowLayout()
-        ml.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        ml.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
         l.addWidget(ml, 2, 0)
         l.addLayout(ol, 2, 1, 1, 3)
         self.mode_box = mb = ModeBox(self)
@@ -474,7 +474,7 @@ class SearchPanel(QWidget):  # {{{
         l.setContentsMargins(0, 0, 0, 0)
         self.t = t = QToolBar(self)
         l.addWidget(t)
-        t.setOrientation(Qt.Vertical)
+        t.setOrientation(Qt.Orientation.Vertical)
         t.setIconSize(QSize(12, 12))
         t.setMovable(False)
         t.setFloatable(False)
@@ -496,7 +496,7 @@ class SearchPanel(QWidget):  # {{{
 
     def show_panel(self):
         self.setVisible(True)
-        self.widget.find_text.setFocus(Qt.OtherFocusReason)
+        self.widget.find_text.setFocus(Qt.FocusReason.OtherFocusReason)
         le = self.widget.find_text.lineEdit()
         le.setSelection(0, le.maxLength())
 
@@ -518,7 +518,7 @@ class SearchPanel(QWidget):  # {{{
             self.where_before_marked = None
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Escape:
+        if ev.key() == Qt.Key.Key_Escape:
             self.hide_panel()
             ev.accept()
         else:
@@ -533,7 +533,7 @@ class SearchDescription(QScrollArea):
         self.label = QLabel(' \n \n ')
         self.setWidget(self.label)
         self.setWidgetResizable(True)
-        self.label.setTextFormat(Qt.PlainText)
+        self.label.setTextFormat(Qt.TextFormat.PlainText)
         self.label.setWordWrap(True)
         self.set_text = self.label.setText
 
@@ -549,14 +549,14 @@ class SearchesModel(QAbstractListModel):
         return len(self.filtered_searches)
 
     def supportedDropActions(self):
-        return Qt.MoveAction
+        return Qt.DropAction.MoveAction
 
     def flags(self, index):
         ans = QAbstractListModel.flags(self, index)
         if index.isValid():
-            ans |= Qt.ItemIsDragEnabled
+            ans |= Qt.ItemFlag.ItemIsDragEnabled
         else:
-            ans |= Qt.ItemIsDropEnabled
+            ans |= Qt.ItemFlag.ItemIsDropEnabled
         return ans
 
     def mimeTypes(self):
@@ -574,7 +574,7 @@ class SearchesModel(QAbstractListModel):
         return ans
 
     def dropMimeData(self, data, action, row, column, parent):
-        if parent.isValid() or action != Qt.MoveAction or not data.hasFormat('x-calibre/searches-rows') or not self.filtered_searches:
+        if parent.isValid() or action != Qt.DropAction.MoveAction or not data.hasFormat('x-calibre/searches-rows') or not self.filtered_searches:
             return False
         rows = sorted(map(int, bytes(bytearray(data.data('x-calibre/searches-rows'))).decode('ascii').split(',')))
         moved_searches = [self.searches[self.filtered_searches[r]] for r in rows]
@@ -606,14 +606,14 @@ class SearchesModel(QAbstractListModel):
 
     def data(self, index, role):
         try:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 search = self.searches[self.filtered_searches[index.row()]]
                 return search['name']
-            if role == Qt.ToolTipRole:
+            if role == Qt.ItemDataRole.ToolTipRole:
                 search = self.searches[self.filtered_searches[index.row()]]
                 tt = '\n'.join((search['find'], search['replace']))
                 return tt
-            if role == Qt.UserRole:
+            if role == Qt.ItemDataRole.UserRole:
                 search = self.searches[self.filtered_searches[index.row()]]
                 return (self.filtered_searches[index.row()], search)
         except IndexError:
@@ -732,7 +732,7 @@ class EditSearch(QFrame):  # {{{
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
         self.mode_box = m = ModeBox(self)
-        m.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        m.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.la4 = la = QLabel(_('&Mode:'))
         la.setBuddy(m)
         h.addWidget(la), h.addWidget(m), h.addStretch(2)
@@ -794,7 +794,7 @@ class EditSearch(QFrame):  # {{{
         self.done.emit(True)
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Escape:
+        if ev.key() == Qt.Key.Key_Escape:
             self.abort_editing()
             ev.accept()
             return
@@ -929,7 +929,7 @@ class SavedSearches(QWidget):
             b.setToolTip(tooltip or '')
             if action:
                 b.setObjectName(action)
-            b.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+            b.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
             return b
 
         mulmsg = '\n\n' + _('The entries are tried in order until the first one matches.')
@@ -947,14 +947,14 @@ class SavedSearches(QWidget):
             connect_lambda(b.clicked, self, lambda self: self.run_search(self.sender().objectName()))
 
         self.d1 = d = QFrame(self)
-        d.setFrameStyle(QFrame.HLine)
+        d.setFrameStyle(QFrame.Shape.HLine)
         v.addWidget(d)
 
         self.h3 = h = QHBoxLayout()
         self.upb = b = QToolButton(self)
         self.move_up_action = a = QAction(self)
         a.setShortcut(QKeySequence('Alt+Up'))
-        b.setIcon(QIcon(I('arrow-up.png'))), b.setToolTip(_('Move selected entries up') + ' [%s]' % a.shortcut().toString(QKeySequence.NativeText))
+        b.setIcon(QIcon(I('arrow-up.png'))), b.setToolTip(_('Move selected entries up') + ' [%s]' % a.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
         connect_lambda(a.triggered, self, lambda self: self.move_entry(-1))
         self.searches.addAction(a)
         connect_lambda(b.clicked, self, lambda self: self.move_entry(-1))
@@ -962,7 +962,7 @@ class SavedSearches(QWidget):
         self.dnb = b = QToolButton(self)
         self.move_down_action = a = QAction(self)
         a.setShortcut(QKeySequence('Alt+Down'))
-        b.setIcon(QIcon(I('arrow-down.png'))), b.setToolTip(_('Move selected entries down') + ' [%s]' % a.shortcut().toString(QKeySequence.NativeText))
+        b.setIcon(QIcon(I('arrow-down.png'))), b.setToolTip(_('Move selected entries down') + ' [%s]' % a.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
         connect_lambda(a.triggered, self, lambda self: self.move_entry(1))
         self.searches.addAction(a)
         connect_lambda(b.clicked, self, lambda self: self.move_entry(1))
@@ -982,7 +982,7 @@ class SavedSearches(QWidget):
         v.addWidget(b)
 
         self.d2 = d = QFrame(self)
-        d.setFrameStyle(QFrame.HLine)
+        d.setFrameStyle(QFrame.Shape.HLine)
         v.addWidget(d)
 
         self.where_box = wb = WhereBox(self, emphasize=True)
@@ -998,7 +998,7 @@ class SavedSearches(QWidget):
         v.addWidget(wr)
 
         self.d3 = d = QFrame(self)
-        d.setFrameStyle(QFrame.HLine)
+        d.setFrameStyle(QFrame.Shape.HLine)
         v.addWidget(d)
 
         self.description = d = SearchDescription(self)
@@ -1017,7 +1017,7 @@ class SavedSearches(QWidget):
         m.addAction(_('Copy to search panel'), lambda : QTimer.singleShot(0, self.copy_to_search_panel))
         b.setMenu(m)
 
-        self.searches.setFocus(Qt.OtherFocusReason)
+        self.searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
     def state(self):
@@ -1106,7 +1106,7 @@ class SavedSearches(QWidget):
                 seen.add(index.row())
                 search = SearchWidget.DEFAULT_STATE.copy()
                 del search['mode']
-                search_index, s = index.data(Qt.UserRole)
+                search_index, s = index.data(Qt.ItemDataRole.UserRole)
                 search.update(s)
                 fill_in_search(search)
                 searches.append(search)
@@ -1159,10 +1159,10 @@ class SavedSearches(QWidget):
             return error_dialog(self, _('Cannot edit'), _(
                 'Cannot edit search - no search selected.'), show=True)
         if not self.editing_search:
-            search_index, search = index.data(Qt.UserRole)
+            search_index, search = index.data(Qt.ItemDataRole.UserRole)
             self.edit_search_widget.show_search(search=search, search_index=search_index)
             self.stack.setCurrentIndex(1)
-            self.edit_search_widget.find.setFocus(Qt.OtherFocusReason)
+            self.edit_search_widget.find.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def remove_search(self):
         if self.editing_search:
@@ -1178,7 +1178,7 @@ class SavedSearches(QWidget):
             return
         self.edit_search_widget.show_search()
         self.stack.setCurrentIndex(1)
-        self.edit_search_widget.search_name.setFocus(Qt.OtherFocusReason)
+        self.edit_search_widget.search_name.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def _add_search(self):
         self.model.add_searches()
@@ -1193,14 +1193,14 @@ class SavedSearches(QWidget):
             return
         self.edit_search_widget.show_search(state=state)
         self.stack.setCurrentIndex(1)
-        self.edit_search_widget.search_name.setFocus(Qt.OtherFocusReason)
+        self.edit_search_widget.search_name.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def show_details(self):
         self.description.set_text(' \n \n ')
         i = self.searches.currentIndex()
         if i.isValid():
             try:
-                search_index, search = i.data(Qt.UserRole)
+                search_index, search = i.data(Qt.ItemDataRole.UserRole)
             except TypeError:
                 return  # no saved searches
             cs = '✓' if search.get('case_sensitive', SearchWidget.DEFAULT_STATE['case_sensitive']) else '✗'
@@ -1243,7 +1243,7 @@ class SavedSearches(QWidget):
     def copy_to_search_panel(self):
         ci = self.searches.selectionModel().currentIndex()
         if ci and ci.isValid():
-            search = ci.data(Qt.UserRole)[-1]
+            search = ci.data(Qt.ItemDataRole.UserRole)[-1]
             self.copy_search_to_search_panel.emit(search)
 
     def export_searches(self, all=True):
@@ -1255,7 +1255,7 @@ class SavedSearches(QWidget):
         else:
             searches = []
             for index in self.searches.selectionModel().selectedIndexes():
-                search = index.data(Qt.UserRole)[-1]
+                search = index.data(Qt.ItemDataRole.UserRole)[-1]
                 searches.append(search.copy())
             if not searches:
                 return error_dialog(self, _('No searches'), _(

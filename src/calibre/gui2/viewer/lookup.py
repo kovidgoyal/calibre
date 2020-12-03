@@ -78,7 +78,7 @@ class SourceEditor(Dialog):
         l.addRow(la)
         l.addRow(self.bb)
         if self.initial_name:
-            u.setFocus(Qt.OtherFocusReason)
+            u.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
     def source_name(self):
@@ -128,7 +128,7 @@ class SourcesEditor(Dialog):
         e.viewport().setAcceptDrops(True)
         e.setDropIndicatorShown(True)
         e.setDragDropMode(e.InternalMove)
-        e.setDefaultDropAction(Qt.MoveAction)
+        e.setDefaultDropAction(Qt.DropAction.MoveAction)
         l.addWidget(e)
         l.addWidget(self.bb)
         self.build_entries(vprefs['lookup_locations'])
@@ -144,7 +144,7 @@ class SourcesEditor(Dialog):
 
     def add_entry(self, entry, prepend=False):
         i = QListWidgetItem(entry['name'])
-        i.setData(Qt.UserRole, entry.copy())
+        i.setData(Qt.ItemDataRole.UserRole, entry.copy())
         self.entries.insertItem(0, i) if prepend else self.entries.addItem(i)
 
     def build_entries(self, entries):
@@ -157,7 +157,7 @@ class SourcesEditor(Dialog):
 
     def add_source(self):
         d = SourceEditor(self)
-        if d.exec_() == QDialog.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.add_entry(d.entry, prepend=True)
 
     def remove_source(self):
@@ -166,14 +166,14 @@ class SourcesEditor(Dialog):
             self.entries.takeItem(idx)
 
     def edit_source(self, source_item):
-        d = SourceEditor(self, source_item.data(Qt.UserRole))
-        if d.exec_() == QDialog.Accepted:
-            source_item.setData(Qt.UserRole, d.entry)
-            source_item.setData(Qt.DisplayRole, d.name)
+        d = SourceEditor(self, source_item.data(Qt.ItemDataRole.UserRole))
+        if d.exec_() == QDialog.DialogCode.Accepted:
+            source_item.setData(Qt.ItemDataRole.UserRole, d.entry)
+            source_item.setData(Qt.ItemDataRole.DisplayRole, d.name)
 
     @property
     def all_entries(self):
-        return [self.entries.item(r).data(Qt.UserRole) for r in range(self.entries.count())]
+        return [self.entries.item(r).data(Qt.ItemDataRole.UserRole) for r in range(self.entries.count())]
 
     def accept(self):
         entries = self.all_entries
@@ -194,7 +194,7 @@ def create_profile():
         ans.setHttpUserAgent(random_user_agent(allow_ie=False))
         ans.setCachePath(os.path.join(cache_dir(), 'ev2vl'))
         js = P('lookup.js', data=True, allow_user_override=False)
-        insert_scripts(ans, create_script('lookup.js', js, injection_point=QWebEngineScript.DocumentCreation))
+        insert_scripts(ans, create_script('lookup.js', js, injection_point=QWebEngineScript.InjectionPoint.DocumentCreation))
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
         create_profile.ans = ans
@@ -204,7 +204,7 @@ def create_profile():
 class Page(QWebEnginePage):
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(
+        prefix = {QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO', QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'}.get(
                 level, 'ERROR')
         if source_id == 'userscript:lookup.js':
             prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
@@ -296,16 +296,16 @@ class Lookup(QWidget):
             d.setWindowTitle('Inspect Lookup page')
             v = QVBoxLayout(d)
             v.addWidget(self._devtools_view)
-            d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+            d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
             d.bb.rejected.connect(d.reject)
             v.addWidget(d.bb)
             d.resize(QSize(800, 600))
-            d.setAttribute(Qt.WA_DeleteOnClose, False)
+            d.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self._devtools_dialog.show()
-        self._page.triggerAction(QWebEnginePage.InspectElement)
+        self._page.triggerAction(QWebEnginePage.WebAction.InspectElement)
 
     def add_sources(self):
-        if SourcesEditor(self).exec_() == QDialog.Accepted:
+        if SourcesEditor(self).exec_() == QDialog.DialogCode.Accepted:
             self.populate_sources()
             self.source_box.setCurrentIndex(0)
             self.update_query()
@@ -322,7 +322,7 @@ class Lookup(QWidget):
         sb.blockSignals(True)
         for item in vprefs['lookup_locations']:
             sb.addItem(item['name'], item)
-        idx = sb.findText(vprefs['lookup_location'], Qt.MatchExactly)
+        idx = sb.findText(vprefs['lookup_location'], Qt.MatchFlag.MatchExactly)
         if idx > -1:
             sb.setCurrentIndex(idx)
         sb.blockSignals(False)

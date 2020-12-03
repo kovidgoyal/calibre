@@ -20,7 +20,7 @@ class ImageDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)
-        img = index.data(Qt.DecorationRole)
+        img = index.data(Qt.ItemDataRole.DecorationRole)
         if img:
             h = option.rect.height() - 4
             w = option.rect.width()
@@ -31,7 +31,7 @@ class ImageDelegate(QStyledItemDelegate):
                 dpr = img.devicePixelRatio()
                 scaled, nw, nh = fit_image(img.width(), img.height(), w, h)
                 if scaled:
-                    img = img.scaled(nw*dpr, nh*dpr, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                    img = img.scaled(nw*dpr, nh*dpr, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
             iw, ih = int(img.width()/dpr), int(img.height()/dpr)
             dx, dy = (option.rect.width() - iw) // 2, (option.rect.height() - ih) // 2
             painter.drawPixmap(option.rect.adjusted(dx, dy, -dx, -dy), img)

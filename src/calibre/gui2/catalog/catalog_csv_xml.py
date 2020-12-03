@@ -53,7 +53,7 @@ class PluginWidget(QWidget):
         l.addWidget(la)
         self.db_fields.setDragEnabled(True)
         self.db_fields.setDragDropMode(QListWidget.InternalMove)
-        self.db_fields.setDefaultDropAction(Qt.CopyAction if ismacos else Qt.MoveAction)
+        self.db_fields.setDefaultDropAction(Qt.DropAction.CopyAction if ismacos else Qt.DropAction.MoveAction)
         self.db_fields.setAlternatingRowColors(True)
         self.db_fields.setObjectName("db_fields")
 
@@ -79,24 +79,24 @@ class PluginWidget(QWidget):
 
         self.db_fields.clear()
         for x in sorted(self.all_fields, key=key):
-            QListWidgetItem(name(x) + ' (%s)' % x, self.db_fields).setData(Qt.UserRole, x)
+            QListWidgetItem(name(x) + ' (%s)' % x, self.db_fields).setData(Qt.ItemDataRole.UserRole, x)
             if x.startswith('#') and fm[x]['datatype'] == 'series':
                 x += '_index'
-                QListWidgetItem(name(x) + ' (%s)' % x, self.db_fields).setData(Qt.UserRole, x)
+                QListWidgetItem(name(x) + ' (%s)' % x, self.db_fields).setData(Qt.ItemDataRole.UserRole, x)
 
         # Restore the activated fields from last use
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
-            item.setCheckState(Qt.Checked if unicode_type(item.data(Qt.UserRole)) in fields else Qt.Unchecked)
+            item.setCheckState(Qt.CheckState.Checked if unicode_type(item.data(Qt.ItemDataRole.UserRole)) in fields else Qt.CheckState.Unchecked)
 
     def options(self):
         # Save the currently activated fields
         fields, all_fields = [], []
         for x in range(self.db_fields.count()):
             item = self.db_fields.item(x)
-            all_fields.append(unicode_type(item.data(Qt.UserRole)))
-            if item.checkState() == Qt.Checked:
-                fields.append(unicode_type(item.data(Qt.UserRole)))
+            all_fields.append(unicode_type(item.data(Qt.ItemDataRole.UserRole)))
+            if item.checkState() == Qt.CheckState.Checked:
+                fields.append(unicode_type(item.data(Qt.ItemDataRole.UserRole)))
         set_saved_field_data(self.name, fields, {x:i for i, x in enumerate(all_fields)})
 
         # Return a dictionary with current options for this widget

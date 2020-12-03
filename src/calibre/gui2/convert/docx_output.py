@@ -34,7 +34,7 @@ class PluginWidget(Widget):
         self.opt_docx_page_size = QComboBox(self)
         l.addRow(_('Paper si&ze:'), self.opt_docx_page_size)
         self.opt_docx_custom_page_size = w = QLineEdit(self)
-        w.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        w.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         l.addRow(_('&Custom size:'), w)
         for i, text in enumerate((_('Page &left margin'), _('Page &top margin'), _('Page &right margin'), _('Page &bottom margin'))):
             m = 'left top right bottom'.split()[i]

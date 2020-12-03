@@ -147,7 +147,7 @@ class ViewAction(InterfaceAction):
         self._view_file(job.result)
 
     def _launch_viewer(self, name=None, viewer='ebook-viewer', internal=True, calibre_book_data=None, open_at=None):
-        self.gui.setCursor(Qt.BusyCursor)
+        self.gui.setCursor(Qt.CursorShape.BusyCursor)
         try:
             if internal:
                 args = [viewer]

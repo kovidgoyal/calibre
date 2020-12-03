@@ -34,15 +34,15 @@ class ChooseResources(QWidget):
 
     def select_none(self):
         for item in self:
-            item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.CheckState.Unchecked)
 
     def select_all(self):
         for item in self:
-            item.setCheckState(Qt.Checked)
+            item.setCheckState(Qt.CheckState.Checked)
 
     @property
     def resources(self):
-        return {i.data(Qt.UserRole):self.original_resources[i.data(Qt.UserRole)] for i in self if i.checkState() == Qt.Checked}
+        return {i.data(Qt.ItemDataRole.UserRole):self.original_resources[i.data(Qt.ItemDataRole.UserRole)] for i in self if i.checkState() == Qt.CheckState.Checked}
 
     @resources.setter
     def resources(self, resources):
@@ -57,9 +57,9 @@ class ChooseResources(QWidget):
                 text = _('Data URL #{}').format(dc)
             text += ' ({})'.format(ngettext('one instance', '{} instances', num).format(num))
             i = QListWidgetItem(text, self.items)
-            i.setData(Qt.UserRole, url)
-            i.setCheckState(Qt.Checked)
-            i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+            i.setData(Qt.ItemDataRole.UserRole, url)
+            i.setCheckState(Qt.CheckState.Checked)
+            i.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
 
 
 class DownloadStatus(QScrollArea):
@@ -109,7 +109,7 @@ class DownloadResources(Dialog):
         self.get_done.connect(self._get_done)
         self.download_done.connect(self._download_done)
         self.replace_done.connect(self._replace_done)
-        self.progress.connect(self.download_status.progress, type=Qt.QueuedConnection)
+        self.progress.connect(self.download_status.progress, type=Qt.ConnectionType.QueuedConnection)
 
     def setup_ui(self):
         self.setWindowIcon(QIcon(I('download-metadata.png')))

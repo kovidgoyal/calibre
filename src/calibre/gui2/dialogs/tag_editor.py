@@ -71,8 +71,8 @@ class TagEditor(QDialog, Ui_TagEditor):
             tags = []
 
         if self.is_names:
-            self.applied_tags.setDragDropMode(QAbstractItemView.InternalMove)
-            self.applied_tags.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            self.applied_tags.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+            self.applied_tags.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
         if key:
             all_tags = [tag for tag in self.db.all_custom(label=key)]
@@ -215,7 +215,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             tag = tag.strip()
             if not tag:
                 continue
-            for item in self.available_tags.findItems(tag, Qt.MatchFixedString):
+            for item in self.available_tags.findItems(tag, Qt.MatchFlag.MatchFixedString):
                 self.available_tags.takeItem(self.available_tags.row(item))
             if tag not in tags_in_box:
                 tags_in_box.append(tag)

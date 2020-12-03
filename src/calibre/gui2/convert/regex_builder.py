@@ -31,7 +31,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         self.regex_valid()
 
         if not db or not book_id:
-            button = self.button_box.addButton(QDialogButtonBox.Open)
+            button = self.button_box.addButton(QDialogButtonBox.StandardButton.Open)
             button.clicked.connect(self.open_clicked)
         elif not doc and not self.select_format(db, book_id):
             self.cancelled = True
@@ -88,12 +88,12 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             cursor = QTextCursor(self.preview.document())
             extsel = QTextEdit.ExtraSelection()
             extsel.cursor = cursor
-            extsel.format.setBackground(QBrush(Qt.yellow))
+            extsel.format.setBackground(QBrush(Qt.GlobalColor.yellow))
             try:
                 for match in compile_regular_expression(regex).finditer(text):
                     es = QTextEdit.ExtraSelection(extsel)
-                    es.cursor.setPosition(match.start(), QTextCursor.MoveAnchor)
-                    es.cursor.setPosition(match.end(), QTextCursor.KeepAnchor)
+                    es.cursor.setPosition(match.start(), QTextCursor.MoveMode.MoveAnchor)
+                    es.cursor.setPosition(match.end(), QTextCursor.MoveMode.KeepAnchor)
                     selections.append(es)
                     self.match_locs.append((match.start(), match.end()))
             except:
@@ -113,7 +113,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 if pos > loc:
                     match_loc = i
                     break
-            self.goto_loc(self.match_locs[match_loc][1], operation=QTextCursor.Left, n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
+            self.goto_loc(self.match_locs[match_loc][1], operation=QTextCursor.MoveOperation.Left, n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
 
     def goto_next(self):
         pos = self.preview.textCursor().position()
@@ -126,7 +126,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                     break
             self.goto_loc(self.match_locs[match_loc][0], n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
 
-    def goto_loc(self, loc, operation=QTextCursor.Right, mode=QTextCursor.KeepAnchor, n=0):
+    def goto_loc(self, loc, operation=QTextCursor.MoveOperation.Right, mode=QTextCursor.MoveMode.KeepAnchor, n=0):
         cursor = QTextCursor(self.preview.document())
         cursor.setPosition(loc)
         if n:
@@ -141,7 +141,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
         elif len(formats) > 1:
             d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
             d.exec_()
-            if d.result() == QDialog.Accepted:
+            if d.result() == QDialog.DialogCode.Accepted:
                 format = d.format()
             else:
                 return False
@@ -208,7 +208,7 @@ class RegexEdit(QWidget, Ui_Edit):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.setupUi(self)
-        self.edit.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.edit.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
 
         self.book_id = None
         self.db = None

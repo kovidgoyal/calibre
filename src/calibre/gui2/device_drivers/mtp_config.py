@@ -34,9 +34,9 @@ class FormatsConfig(QWidget):  # {{{
         unchecked_formats = sorted(all_formats - set(format_map))
         for fmt in format_map + unchecked_formats:
             item = QListWidgetItem(fmt, f)
-            item.setData(Qt.UserRole, fmt)
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked if fmt in format_map else Qt.Unchecked)
+            item.setData(Qt.ItemDataRole.UserRole, fmt)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
+            item.setCheckState(Qt.CheckState.Checked if fmt in format_map else Qt.CheckState.Unchecked)
 
         self.button_up = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
@@ -50,8 +50,8 @@ class FormatsConfig(QWidget):  # {{{
 
     @property
     def format_map(self):
-        return [unicode_type(self.f.item(i).data(Qt.UserRole) or '') for i in
-                range(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+        return [unicode_type(self.f.item(i).data(Qt.ItemDataRole.UserRole) or '') for i in
+                range(self.f.count()) if self.f.item(i).checkState()==Qt.CheckState.Checked]
 
     def validate(self):
         if not self.format_map:
@@ -181,21 +181,21 @@ class IgnoredDevices(QWidget):  # {{{
             name = x[0]
             name = '%s [%s]'%(name, dev)
             item = QListWidgetItem(name, f)
-            item.setData(Qt.UserRole, dev)
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked if dev in blacklist else Qt.Unchecked)
+            item.setData(Qt.ItemDataRole.UserRole, dev)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
+            item.setCheckState(Qt.CheckState.Checked if dev in blacklist else Qt.CheckState.Unchecked)
 
     @property
     def blacklist(self):
-        return [unicode_type(self.f.item(i).data(Qt.UserRole) or '') for i in
-                range(self.f.count()) if self.f.item(i).checkState()==Qt.Checked]
+        return [unicode_type(self.f.item(i).data(Qt.ItemDataRole.UserRole) or '') for i in
+                range(self.f.count()) if self.f.item(i).checkState()==Qt.CheckState.Checked]
 
     def ignore_device(self, snum):
         for i in range(self.f.count()):
             i = self.f.item(i)
-            c = unicode_type(i.data(Qt.UserRole) or '')
+            c = unicode_type(i.data(Qt.ItemDataRole.UserRole) or '')
             if c == snum:
-                i.setCheckState(Qt.Checked)
+                i.setCheckState(Qt.CheckState.Checked)
                 break
 
 # }}}
@@ -306,7 +306,7 @@ class FormatRules(QGroupBox):
         self.b = b = QPushButton(QIcon(I('plus.png')), _('Add a &new rule'))
         l.addWidget(b)
         b.clicked.connect(self.add_rule)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Ignored)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Ignored)
 
     @property
     def device(self):
@@ -421,7 +421,7 @@ class MTPConfig(QTabWidget):
         v.setMinimumWidth(400)
         v.setMinimumHeight(350)
         l.addWidget(v)
-        bb = d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb = d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         l.addWidget(bb)
@@ -509,7 +509,7 @@ class SendError(QDialog):
         la.setWordWrap(True)
         la.setMinimumWidth(500)
         l.addWidget(la)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         self.b = bb.addButton(_('Configure'), bb.AcceptRole)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -543,7 +543,7 @@ if __name__ == '__main__':
     d.l = QVBoxLayout()
     d.setLayout(d.l)
     d.l.addWidget(cw)
-    bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+    bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
     d.l.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)

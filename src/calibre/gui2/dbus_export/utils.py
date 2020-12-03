@@ -81,7 +81,7 @@ def qicon_to_sni_image_list(qicon):
         for size in sizes:
             # Convert to DBUS struct of width, height, and image data in ARGB32
             # in network endianness
-            i = qicon.pixmap(size).toImage().convertToFormat(QImage.Format_ARGB32)
+            i = qicon.pixmap(size).toImage().convertToFormat(QImage.Format.Format_ARGB32)
             w, h = i.width(), i.height()
             data = i.constBits().asstring(4 * w * h)
             if socket.htonl(1) != 1:
@@ -106,13 +106,13 @@ def swap_mnemonic_char(text, from_char='&', to_char='_'):
 
 def key_sequence_to_dbus_shortcut(qks):
     for key in qks:
-        if key == -1 or key == Qt.Key_unknown:
+        if key == -1 or key == Qt.Key.Key_unknown:
             continue
         items = []
-        for mod, name in iteritems({Qt.META:'Super', Qt.CTRL:'Control', Qt.ALT:'Alt', Qt.SHIFT:'Shift'}):
+        for mod, name in iteritems({Qt.Modifier.META:'Super', Qt.Modifier.CTRL:'Control', Qt.Modifier.ALT:'Alt', Qt.Modifier.SHIFT:'Shift'}):
             if key & mod == mod:
                 items.append(name)
-        key &= int(~(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier | Qt.KeypadModifier))
+        key &= int(~(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier | Qt.KeyboardModifier.KeypadModifier))
         text = QKeySequence(key).toString()
         if text:
             text = {'+':'plus', '-':'minus'}.get(text, text)

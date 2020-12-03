@@ -31,14 +31,14 @@ class DBRestore(QDialog):
         self.msg = QLabel('')
         self.l.addWidget(self.msg)
         self.msg.setWordWrap(True)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         self.l.addWidget(self.bb)
         self.bb.rejected.connect(self.confirm_cancel)
         self.resize(self.sizeHint() + QSize(100, 50))
         self.error = None
         self.rejected = False
         self.library_path = library_path
-        self.update_signal.connect(self.do_update, type=Qt.QueuedConnection)
+        self.update_signal.connect(self.do_update, type=Qt.ConnectionType.QueuedConnection)
 
         from calibre.db.restore import Restore
         self.restorer = Restore(library_path, self)

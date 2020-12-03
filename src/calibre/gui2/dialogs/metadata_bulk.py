@@ -108,15 +108,15 @@ class MyBlockingBusy(QDialog):  # {{{
         self.current_step_value = 0
         self._layout.addWidget(self.current_step_pb)
         self._layout.addSpacing(15)
-        self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
+        self._layout.addWidget(self.msg, 0, Qt.AlignmentFlag.AlignHCenter)
         self.setWindowTitle(window_title + '...')
         self.setMinimumWidth(200)
         self.resize(self.sizeHint())
         self.error = None
-        self.all_done.connect(self.on_all_done, type=Qt.QueuedConnection)
-        self.progress_update.connect(self.on_progress_update, type=Qt.QueuedConnection)
-        self.progress_finished_cur_step.connect(self.on_progress_finished_cur_step, type=Qt.QueuedConnection)
-        self.progress_next_step_range.connect(self.on_progress_next_step_range, type=Qt.QueuedConnection)
+        self.all_done.connect(self.on_all_done, type=Qt.ConnectionType.QueuedConnection)
+        self.progress_update.connect(self.on_progress_update, type=Qt.ConnectionType.QueuedConnection)
+        self.progress_finished_cur_step.connect(self.on_progress_finished_cur_step, type=Qt.ConnectionType.QueuedConnection)
+        self.progress_next_step_range.connect(self.on_progress_next_step_range, type=Qt.ConnectionType.QueuedConnection)
         self.args, self.ids = args, ids
         self.db, self.cc_widgets = db, cc_widgets
         self.s_r_func = FunctionDispatcher(s_r_func)
@@ -539,7 +539,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.prepare_search_and_replace()
 
         self.button_box.clicked.connect(self.button_clicked)
-        self.button_box.button(QDialogButtonBox.Apply).setToolTip(_(
+        self.button_box.button(QDialogButtonBox.StandardButton.Apply).setToolTip(_(
             'Immediately make all changes without closing the dialog. '
             'This operation cannot be canceled or undone'))
         self.do_again = False
@@ -553,7 +553,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.central_widget.setCurrentIndex(ct)
         self.languages.init_langs(self.db)
         self.languages.setEditText('')
-        self.authors.setFocus(Qt.OtherFocusReason)
+        self.authors.setFocus(Qt.FocusReason.OtherFocusReason)
         self.generate_cover_settings = None
         self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
         self.exec_()
@@ -601,7 +601,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.adddate.setDateTime(UNDEFINED_QDATETIME)
 
     def button_clicked(self, which):
-        if which == self.button_box.button(QDialogButtonBox.Apply):
+        if which == self.button_box.button(QDialogButtonBox.StandardButton.Apply):
             self.do_again = True
             self.accept()
 
@@ -721,9 +721,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.s_r_template.lost_focus.connect(self.s_r_template_changed)
         self.central_widget.setCurrentIndex(0)
 
-        self.search_for.completer().setCaseSensitivity(Qt.CaseSensitive)
-        self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitive)
-        self.s_r_template.completer().setCaseSensitivity(Qt.CaseSensitive)
+        self.search_for.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        self.replace_with.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
+        self.s_r_template.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
 
         self.s_r_search_mode_changed(self.search_mode.currentIndex())
         self.multiple_separator.setFixedWidth(30)
@@ -1111,7 +1111,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def tag_editor(self, *args):
         d = TagEditor(self, self.db, None)
         d.exec_()
-        if d.result() == QDialog.Accepted:
+        if d.result() == QDialog.DialogCode.Accepted:
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
             all_tags = self.db.new_api.all_field_names('tags')

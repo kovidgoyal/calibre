@@ -41,19 +41,19 @@ class MainWindow(QMainWindow):
         m.aboutToShow.connect(self.about_to_show_one)
         s = self.style()
         self.q = q = QAction('&Quit', self)
-        q.setShortcut(QKeySequence.Quit), q.setIcon(s.standardIcon(s.SP_DialogCancelButton))
+        q.setShortcut(QKeySequence.StandardKey.Quit), q.setIcon(s.standardIcon(s.SP_DialogCancelButton))
         q.triggered.connect(QApplication.quit)
         self.addAction(q)
         QApplication.instance().setWindowIcon(s.standardIcon(s.SP_ComputerIcon))
         for i, icon in zip(range(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp))):
             ac = m.addAction('One - &%d' % (i + 1))
-            ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_1 + i), Qt.SHIFT | (Qt.Key_1 + i)))
+            ac.setShortcut(QKeySequence(Qt.Modifier.CTRL | (Qt.Key.Key_1 + i), Qt.Modifier.SHIFT | (Qt.Key.Key_1 + i)))
             ac.setIcon(icon)
         m.addSeparator()
         self.menu_two = m2 = m.addMenu('A &submenu')
         for i, icon in zip(range(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
             ac = m2.addAction('Two - &%d' % (i + 1))
-            ac.setShortcut(QKeySequence(Qt.CTRL | (Qt.Key_A + i)))
+            ac.setShortcut(QKeySequence(Qt.Modifier.CTRL | (Qt.Key.Key_A + i)))
             ac.setIcon(icon)
         m2.aboutToShow.connect(self.about_to_show_two)
         m2.addSeparator(), m.addSeparator()
@@ -162,7 +162,7 @@ class MainWindow(QMainWindow):
 
 
 app=QApplication([])
-app.setAttribute(Qt.AA_DontUseNativeMenuBar, False)
+app.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeMenuBar, False)
 app.setApplicationName('com.calibre-ebook.DBusExportDemo')
 mw=MainWindow()
 mw.show()

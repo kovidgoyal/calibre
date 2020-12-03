@@ -298,7 +298,7 @@ class PDFStream(object):
         self.debug = debug
         self.page_size = page_size
         self.links = Links(self, mark_links, page_size)
-        i = QImage(1, 1, QImage.Format_ARGB32)
+        i = QImage(1, 1, QImage.Format.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
         self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
 
@@ -427,21 +427,21 @@ class PDFStream(object):
         fmt = img.format()
         image = QImage(img)
         if (image.depth() == 1 and img.colorTable().size() == 2 and
-            img.colorTable().at(0) == QColor(Qt.black).rgba() and
-            img.colorTable().at(1) == QColor(Qt.white).rgba()):
-            if fmt == QImage.Format_MonoLSB:
-                image = image.convertToFormat(QImage.Format_Mono)
-            fmt = QImage.Format_Mono
+            img.colorTable().at(0) == QColor(Qt.GlobalColor.black).rgba() and
+            img.colorTable().at(1) == QColor(Qt.GlobalColor.white).rgba()):
+            if fmt == QImage.Format.Format_MonoLSB:
+                image = image.convertToFormat(QImage.Format.Format_Mono)
+            fmt = QImage.Format.Format_Mono
         else:
-            if (fmt != QImage.Format_RGB32 and fmt != QImage.Format_ARGB32):
-                image = image.convertToFormat(QImage.Format_ARGB32)
-                fmt = QImage.Format_ARGB32
+            if (fmt != QImage.Format.Format_RGB32 and fmt != QImage.Format.Format_ARGB32):
+                image = image.convertToFormat(QImage.Format.Format_ARGB32)
+                fmt = QImage.Format.Format_ARGB32
 
         w = image.width()
         h = image.height()
         d = image.depth()
 
-        if fmt == QImage.Format_Mono:
+        if fmt == QImage.Format.Format_Mono:
             bytes_per_line = (w + 7) >> 3
             data = image.constBits().asstring(bytes_per_line * h)
             return self.write_image(data, w, h, d, cache_key=cache_key)
@@ -449,7 +449,7 @@ class PDFStream(object):
         has_alpha = False
         soft_mask = None
 
-        if fmt == QImage.Format_ARGB32:
+        if fmt == QImage.Format.Format_ARGB32:
             tmask = image.constBits().asstring(4*w*h)[self.alpha_bit::4]
             sdata = bytearray(tmask)
             vals = set(sdata)
@@ -458,8 +458,8 @@ class PDFStream(object):
             if has_alpha:
                 # Blend image onto a white background as otherwise Qt will render
                 # transparent pixels as black
-                background = QImage(image.size(), QImage.Format_ARGB32_Premultiplied)
-                background.fill(Qt.white)
+                background = QImage(image.size(), QImage.Format.Format_ARGB32_Premultiplied)
+                background.fill(Qt.GlobalColor.white)
                 painter = QPainter(background)
                 painter.drawImage(0, 0, image)
                 painter.end()

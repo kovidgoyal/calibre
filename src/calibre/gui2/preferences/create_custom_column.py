@@ -98,7 +98,7 @@ class CreateCustomColumn(QDialog):
         self.heading_label.setText('<b>' + _('Create a custom column'))
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         self.simple_error = partial(error_dialog, self, show=True,
@@ -239,7 +239,7 @@ class CreateCustomColumn(QDialog):
     # }}}
 
     def setup_ui(self):  # {{{
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowIcon(QIcon(I('column.png')))
         self.vl = l = QVBoxLayout(self)
         self.heading_label = la = QLabel('')
@@ -259,7 +259,7 @@ class CreateCustomColumn(QDialog):
         self.g = g = QGridLayout()
         l.addLayout(g)
         l.addStretch(10)
-        self.button_box = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.button_box = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         l.addWidget(bb)
 

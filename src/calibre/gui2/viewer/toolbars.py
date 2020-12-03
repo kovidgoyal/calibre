@@ -90,10 +90,10 @@ class ToolBar(QToolBar):
         QToolBar.__init__(self, parent)
         self.setWindowTitle(_('Toolbar'))
         self.shortcut_actions = {}
-        self.setToolButtonStyle(Qt.ToolButtonIconOnly)
+        self.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         self.setVisible(False)
-        self.setAllowedAreas(Qt.AllToolBarAreas)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setAllowedAreas(Qt.ToolBarArea.AllToolBarAreas)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
 
     def create_shortcut_action(self, name):
         a = getattr(all_actions(), name)
@@ -135,13 +135,13 @@ class ActionsToolBar(ToolBar):
         web_view.reference_mode_changed.connect(self.update_reference_mode_action)
         web_view.standalone_misc_settings_changed.connect(self.update_visibility)
         web_view.autoscroll_state_changed.connect(self.update_autoscroll_action)
-        web_view.customize_toolbar.connect(self.customize, type=Qt.QueuedConnection)
+        web_view.customize_toolbar.connect(self.customize, type=Qt.ConnectionType.QueuedConnection)
         web_view.view_created.connect(self.on_view_created)
 
-        self.back_action = page.action(QWebEnginePage.Back)
+        self.back_action = page.action(QWebEnginePage.WebAction.Back)
         self.back_action.setIcon(aa.back.icon)
         self.back_action.setText(aa.back.text)
-        self.forward_action = page.action(QWebEnginePage.Forward)
+        self.forward_action = page.action(QWebEnginePage.WebAction.Forward)
         self.forward_action.setIcon(aa.forward.icon)
         self.forward_action.setText(aa.forward.text)
 
@@ -238,7 +238,7 @@ class ActionsToolBar(ToolBar):
             if x is not None:
 
                 def as_text(idx):
-                    return index_to_key_sequence(idx).toString(QKeySequence.NativeText)
+                    return index_to_key_sequence(idx).toString(QKeySequence.SequenceFormat.NativeText)
 
                 keys = sorted(filter(None, map(as_text, x)))
                 if keys:
@@ -310,7 +310,7 @@ class ActionsList(QListWidget):
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)
-        self.setDefaultDropAction(Qt.CopyAction if ismacos else Qt.MoveAction)
+        self.setDefaultDropAction(Qt.DropAction.CopyAction if ismacos else Qt.DropAction.MoveAction)
         self.setMinimumHeight(400)
         self.is_source = is_source
         if is_source:
@@ -332,7 +332,7 @@ class ActionsList(QListWidget):
             except AttributeError:
                 return
             i = QListWidgetItem(a.icon, a.text, self)
-        i.setData(Qt.UserRole, action)
+        i.setData(Qt.ItemDataRole.UserRole, action)
         return i
 
     def set_names(self, names):
@@ -343,7 +343,7 @@ class ActionsList(QListWidget):
     def remove_selected(self):
         ans = []
         for item in tuple(self.selectedItems()):
-            action = item.data(Qt.UserRole)
+            action = item.data(Qt.ItemDataRole.UserRole)
             if action is not None or not self.is_source:
                 self.takeItem(self.row(item))
             ans.append(action)
@@ -361,7 +361,7 @@ class ActionsList(QListWidget):
     def names(self):
         for i in range(self.count()):
             item = self.item(i)
-            yield item.data(Qt.UserRole)
+            yield item.data(Qt.ItemDataRole.UserRole)
 
 
 class ConfigureToolBar(Dialog):

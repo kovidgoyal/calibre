@@ -57,10 +57,10 @@ def test_modifiers(ev, *args):
 
 
 def smart_home(editor, ev):
-    if no_modifiers(ev, Qt.ControlModifier) and not is_cursor_on_wrapped_line(editor):
+    if no_modifiers(ev, Qt.KeyboardModifier.ControlModifier) and not is_cursor_on_wrapped_line(editor):
         cursor, text = get_text_before_cursor(editor)
         cursor = editor.textCursor()
-        mode = cursor.KeepAnchor if test_modifiers(ev, Qt.ShiftModifier) else cursor.MoveAnchor
+        mode = cursor.KeepAnchor if test_modifiers(ev, Qt.KeyboardModifier.ShiftModifier) else cursor.MoveAnchor
         cursor.movePosition(cursor.StartOfBlock, mode)
         if text.strip() and text.lstrip() != text:
             # Move to the start of text

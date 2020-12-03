@@ -26,11 +26,11 @@ class ProfileModel(QAbstractListModel):
 
     def data(self, index, role):
         profile = self.profiles[index.row()]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             if profile.name.startswith('Default '):
                 return _('Default profile')
             return profile.name
-        if role in (Qt.ToolTipRole, Qt.StatusTipRole, Qt.WhatsThisRole):
+        if role in (Qt.ItemDataRole.ToolTipRole, Qt.ItemDataRole.StatusTipRole, Qt.ItemDataRole.WhatsThisRole):
             w, h = profile.screen_size
             if w >= 10000:
                 ss = _('unlimited')
@@ -69,7 +69,7 @@ class PageSetupWidget(Widget, Ui_Form):
         self.opt_output_profile.setToolTip('<p>'+it.replace('t.','ce.\n<br>'))
 
     def show_desc(self, index):
-        desc = unicode_type(index.model().data(index, Qt.StatusTipRole) or '')
+        desc = unicode_type(index.model().data(index, Qt.ItemDataRole.StatusTipRole) or '')
         self.profile_description.setText(desc)
 
     def connect_gui_obj_handler(self, g, slot):

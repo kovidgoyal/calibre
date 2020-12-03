@@ -621,12 +621,12 @@ class Smarts(NullSmarts):
 
         if tprefs['replace_entities_as_typed'] and (
                 ';' in ev_text or
-                (key == Qt.Key_Semicolon and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier))
+                (key == Qt.Key.Key_Semicolon and no_modifiers(ev, Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.AltModifier))
         ):
             self.replace_possible_entity(editor)
             return True
 
-        if key in (Qt.Key_Enter, Qt.Key_Return) and no_modifiers(ev, Qt.ControlModifier, Qt.AltModifier):
+        if key in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and no_modifiers(ev, Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.AltModifier):
             ls = get_leading_whitespace_on_block(editor)
             if ls == ' ':
                 ls = ''  # Do not consider a single leading space as indentation
@@ -645,7 +645,7 @@ class Smarts(NullSmarts):
             editor.textCursor().insertText('\n' + ls)
             return True
 
-        if key == Qt.Key_Slash:
+        if key == Qt.Key.Key_Slash:
             cursor, text = get_text_before_cursor(editor)
             if not text.rstrip().endswith('<'):
                 return False
@@ -661,21 +661,21 @@ class Smarts(NullSmarts):
             if self.auto_close_tag(editor):
                 return True
 
-        if key == Qt.Key_Home and smart_home(editor, ev):
+        if key == Qt.Key.Key_Home and smart_home(editor, ev):
             return True
 
-        if key == Qt.Key_Tab and smart_tab(editor, ev):
+        if key == Qt.Key.Key_Tab and smart_tab(editor, ev):
             return True
 
-        if key == Qt.Key_Backspace and smart_backspace(editor, ev):
+        if key == Qt.Key.Key_Backspace and smart_backspace(editor, ev):
             return True
 
-        if key in (Qt.Key_BraceLeft, Qt.Key_BraceRight):
+        if key in (Qt.Key.Key_BraceLeft, Qt.Key.Key_BraceRight):
             mods = ev.modifiers()
-            if int(mods & Qt.ControlModifier):
-                if self.jump_to_enclosing_tag(editor, key == Qt.Key_BraceLeft):
+            if int(mods & Qt.KeyboardModifier.ControlModifier):
+                if self.jump_to_enclosing_tag(editor, key == Qt.Key.Key_BraceLeft):
                     return True
-        if key == Qt.Key_T and int(ev.modifiers() & (Qt.ControlModifier | Qt.AltModifier)):
+        if key == Qt.Key.Key_T and int(ev.modifiers() & (Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier)):
             return self.select_tag_contents(editor)
 
         return False

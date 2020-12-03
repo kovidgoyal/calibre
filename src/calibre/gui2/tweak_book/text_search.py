@@ -99,7 +99,7 @@ class TextSearch(QWidget):
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('&Find:'))
         self.find = ft = HistoryComboBox(self)
-        ft.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        ft.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         ft.initialize('tweak_book_text_search_history')
         la.setBuddy(ft)
         self.h = h = QHBoxLayout()

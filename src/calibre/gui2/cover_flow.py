@@ -63,8 +63,8 @@ class DummyImageList(pictureflow.FlowImages):
     def __init__(self):
         pictureflow.FlowImages.__init__(self)
         self.num = 40000
-        i1, i2 = QImage(300, 400, QImage.Format_RGB32), QImage(300, 400, QImage.Format_RGB32)
-        i1.fill(Qt.green), i2.fill(Qt.blue)
+        i1, i2 = QImage(300, 400, QImage.Format.Format_RGB32), QImage(300, 400, QImage.Format.Format_RGB32)
+        i1.fill(Qt.GlobalColor.green), i2.fill(Qt.GlobalColor.blue)
         self.images = [i1, i2]
 
     def count(self):
@@ -86,7 +86,7 @@ class DatabaseImages(pictureflow.FlowImages):
         pictureflow.FlowImages.__init__(self)
         self.model = model
         self.is_cover_browser_visible = is_cover_browser_visible
-        self.model.modelReset.connect(self.reset, type=Qt.QueuedConnection)
+        self.model.modelReset.connect(self.reset, type=Qt.ConnectionType.QueuedConnection)
         self.ignore_image_requests = True
         self.template_inited = False
         self.subtitle_error_reported = False
@@ -179,13 +179,13 @@ class CoverFlow(pictureflow.PictureFlow):
         pictureflow.PictureFlow.__init__(self, parent,
                             config['cover_flow_queue_length']+1)
         self.setMinimumSize(QSize(300, 150))
-        self.setFocusPolicy(Qt.WheelFocus)
-        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
-            QSizePolicy.Expanding))
+        self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding))
         self.dc_signal.connect(self._data_changed,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.context_menu = None
-        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.DefaultContextMenu)
         self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         if not gprefs['cover_browser_reflections']:
             self.setShowReflections(False)
@@ -243,21 +243,21 @@ class CBDialog(QDialog):
             self.resize(w, h)
         self.action_fs_toggle = a = QAction(self)
         self.addAction(a)
-        a.setShortcuts([QKeySequence('F11', QKeySequence.PortableText),
-            QKeySequence('Ctrl+Shift+F', QKeySequence.PortableText)])
+        a.setShortcuts([QKeySequence('F11', QKeySequence.SequenceFormat.PortableText),
+            QKeySequence('Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)])
         a.triggered.connect(self.toggle_fullscreen)
         self.action_esc_fs = a = QAction(self)
         a.triggered.connect(self.show_normal)
         self.addAction(a)
-        a.setShortcuts([QKeySequence('Esc', QKeySequence.PortableText)])
+        a.setShortcuts([QKeySequence('Esc', QKeySequence.SequenceFormat.PortableText)])
 
         self.pre_fs_geom = None
-        cover_flow.setFocus(Qt.OtherFocusReason)
+        cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
         self.view_action = a = QAction(self)
         iactions = parent.iactions
         self.addAction(a)
         a.setShortcuts(list(iactions['View'].menuless_qaction.shortcuts())+
-                [QKeySequence(Qt.Key_Space)])
+                [QKeySequence(Qt.Key.Key_Space)])
         a.triggered.connect(iactions['View'].menuless_qaction.trigger)
         self.sd_action = a = QAction(self)
         self.addAction(a)
@@ -321,7 +321,7 @@ class CoverFlowMixin(object):
             self.cb_splitter.insertWidget(self.cb_splitter.side_index, self.cover_flow)
             if CoverFlow is not None:
                 self.cover_flow.stop.connect(self.cb_splitter.hide_side_pane)
-        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled, type=Qt.QueuedConnection)
+        self.cb_splitter.button.toggled.connect(self.cover_browser_toggled, type=Qt.ConnectionType.QueuedConnection)
 
     def update_cover_flow_subtitle_font(self):
         db = self.current_db.new_api
@@ -347,7 +347,7 @@ class CoverFlowMixin(object):
             self.cover_browser_hidden()
 
     def cover_browser_shown(self):
-        self.cover_flow.setFocus(Qt.OtherFocusReason)
+        self.cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
         if CoverFlow is not None:
             if self.db_images.ignore_image_requests:
                 self.db_images.ignore_image_requests = False
@@ -373,7 +373,7 @@ class CoverFlowMixin(object):
         d = CBDialog(self, self.cover_flow)
         d.addAction(self.cb_splitter.action_toggle)
         self.cover_flow.setVisible(True)
-        self.cover_flow.setFocus(Qt.OtherFocusReason)
+        self.cover_flow.setFocus(Qt.FocusReason.OtherFocusReason)
         d.show_fullscreen() if gprefs['cb_fullscreen'] else d.show()
         self.cb_splitter.button.set_state_to_hide()
         d.closed.connect(self.cover_browser_closed)
@@ -456,7 +456,7 @@ def test():
     w.setCentralWidget(cf)
 
     w.show()
-    cf.setFocus(Qt.OtherFocusReason)
+    cf.setFocus(Qt.FocusReason.OtherFocusReason)
     sys.exit(app.exec_())
 
 
@@ -478,5 +478,5 @@ if __name__ == '__main__':
     w.setCentralWidget(cf)
 
     w.show()
-    cf.setFocus(Qt.OtherFocusReason)
+    cf.setFocus(Qt.FocusReason.OtherFocusReason)
     sys.exit(app.exec_())

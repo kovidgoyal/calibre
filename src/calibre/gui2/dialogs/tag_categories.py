@@ -54,7 +54,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         self.db = db
@@ -169,7 +169,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def make_list_widget(self, item):
         n = item.name if item.exists else item.name + _(' (not on any book)')
         w = QListWidgetItem(item.icon, n)
-        w.setData(Qt.UserRole, item.index)
+        w.setData(Qt.ItemDataRole.UserRole, item.index)
         w.setToolTip(_('Category lookup name: ') + item.label)
         return w
 
@@ -197,7 +197,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             return
         nodes = self.available_items_box.selectedItems() if node is None else [node]
         for node in nodes:
-            index = self.all_items[node.data(Qt.UserRole)].index
+            index = self.all_items[node.data(Qt.ItemDataRole.UserRole)].index
             if index not in self.applied_items:
                 self.applied_items.append(index)
         self.applied_items.sort(key=lambda x:sort_key(self.all_items[x].name))
@@ -209,7 +209,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     def unapply_tags(self, node=None):
         nodes = self.applied_items_box.selectedItems() if node is None else [node]
         for node in nodes:
-            index = self.all_items[node.data(Qt.UserRole)].index
+            index = self.all_items[node.data(Qt.ItemDataRole.UserRole)].index
             self.applied_items.remove(index)
         self.display_filtered_categories(None)
 

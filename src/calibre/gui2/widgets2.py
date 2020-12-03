@@ -122,7 +122,7 @@ class ColorButton(QPushButton):
             self.color_changed.emit(self._color)
 
     def choose_color(self):
-        col = QColorDialog.getColor(QColor(self._color or Qt.white), self, _('Choose a color'))
+        col = QColorDialog.getColor(QColor(self._color or Qt.GlobalColor.white), self, _('Choose a color'))
         if col.isValid():
             self.color = unicode_type(col.name())
 
@@ -130,7 +130,7 @@ class ColorButton(QPushButton):
 def access_key(k):
     'Return shortcut text suitable for adding to a menu item'
     if QKeySequence.keyBindings(k):
-        return '\t' + QKeySequence(k).toString(QKeySequence.NativeText)
+        return '\t' + QKeySequence(k).toString(QKeySequence.SequenceFormat.NativeText)
     return ''
 
 
@@ -138,22 +138,22 @@ def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False, use_s
     m = menu
     le = spinbox.lineEdit()
     ca = spinbox if use_self_for_copy_actions else le
-    m.addAction(_('Cu&t') + access_key(QKeySequence.Cut), ca.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
-    m.addAction(_('&Copy') + access_key(QKeySequence.Copy), ca.copy).setEnabled(le.hasSelectedText())
-    m.addAction(_('&Paste') + access_key(QKeySequence.Paste), ca.paste).setEnabled(not le.isReadOnly())
-    m.addAction(_('Delete') + access_key(QKeySequence.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+    m.addAction(_('Cu&t') + access_key(QKeySequence.StandardKey.Cut), ca.cut).setEnabled(not le.isReadOnly() and le.hasSelectedText())
+    m.addAction(_('&Copy') + access_key(QKeySequence.StandardKey.Copy), ca.copy).setEnabled(le.hasSelectedText())
+    m.addAction(_('&Paste') + access_key(QKeySequence.StandardKey.Paste), ca.paste).setEnabled(not le.isReadOnly())
+    m.addAction(_('Delete') + access_key(QKeySequence.StandardKey.Delete), le.del_).setEnabled(not le.isReadOnly() and le.hasSelectedText())
     m.addSeparator()
-    m.addAction(_('Select &all') + access_key(QKeySequence.SelectAll), spinbox.selectAll)
+    m.addAction(_('Select &all') + access_key(QKeySequence.StandardKey.SelectAll), spinbox.selectAll)
     m.addSeparator()
     m.addAction(_('&Step up'), spinbox.stepUp)
     m.addAction(_('Step &down'), spinbox.stepDown)
-    m.setAttribute(Qt.WA_DeleteOnClose)
+    m.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
 
 
 class RightClickButton(QToolButton):
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.RightButton and self.menu() is not None:
+        if ev.button() == Qt.MouseButton.RightButton and self.menu() is not None:
             self.showMenu()
             ev.accept()
             return
@@ -178,7 +178,7 @@ class Dialog(QDialog):
         self.prefs_for_persistence = prefs
         self.setWindowTitle(title)
         self.name = name
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
 
@@ -297,10 +297,10 @@ class RatingEditor(QComboBox):
         self.setCurrentIndex(val)
 
     def keyPressEvent(self, ev):
-        if ev == QKeySequence.Undo:
+        if ev == QKeySequence.StandardKey.Undo:
             self.undo()
             return ev.accept()
-        if ev == QKeySequence.Redo:
+        if ev == QKeySequence.StandardKey.Redo:
             self.redo()
             return ev.accept()
         k = ev.key()
@@ -372,7 +372,7 @@ class FlowLayout(QLayout):  # {{{
         if p is None:
             return -1
         if p.isWidgetType():
-            which = QStyle.PM_LayoutHorizontalSpacing if horizontal else QStyle.PM_LayoutVerticalSpacing
+            which = QStyle.PixelMetric.PM_LayoutHorizontalSpacing if horizontal else QStyle.PixelMetric.PM_LayoutVerticalSpacing
             return p.style().pixelMetric(which, None, p)
         return p.spacing()
 
@@ -389,7 +389,7 @@ class FlowLayout(QLayout):  # {{{
                 return ans
             if wid is None:
                 return 0
-            return wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal if horizontal else Qt.Vertical)
+            return wid.style().layoutSpacing(QSizePolicy.ControlType.PushButton, QSizePolicy.ControlType.PushButton, Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
 
         lines, current_line = [], []
         gmap = {}
@@ -457,9 +457,9 @@ class HTMLDisplay(QTextBrowser):
             self.setFont(font)
         self.setFrameShape(self.NoFrame)
         self.setOpenLinks(False)
-        self.setAttribute(Qt.WA_OpaquePaintEvent, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
         palette = self.palette()
-        palette.setBrush(QPalette.Base, Qt.transparent)
+        palette.setBrush(QPalette.ColorRole.Base, Qt.GlobalColor.transparent)
         self.setPalette(palette)
         self.setAcceptDrops(False)
         self.anchorClicked.connect(self.on_anchor_clicked)
@@ -589,7 +589,7 @@ class DateTimeEdit(QDateTimeEdit):
         md = QMimeData()
         text = self.lineEdit().selectedText()
         md.setText(text or self.dateTime().toString())
-        md.setData(self.MIME_TYPE, self.dateTime().toString(Qt.ISODate).encode('ascii'))
+        md.setData(self.MIME_TYPE, self.dateTime().toString(Qt.DateFormat.ISODate).encode('ascii'))
         return md
 
     def copy(self):
@@ -603,15 +603,15 @@ class DateTimeEdit(QDateTimeEdit):
     def paste(self):
         md = QApplication.instance().clipboard().mimeData()
         if md.hasFormat(self.MIME_TYPE):
-            self.setDateTime(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.ISODate))
+            self.setDateTime(QDateTime.fromString(md.data(self.MIME_TYPE).data().decode('ascii'), Qt.DateFormat.ISODate))
         else:
             self.lineEdit().paste()
 
     def create_context_menu(self):
         m = QMenu(self)
-        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key_Minus).toString(QKeySequence.NativeText),
+        m.addAction(_('Set date to undefined') + '\t' + QKeySequence(Qt.Key.Key_Minus).toString(QKeySequence.SequenceFormat.NativeText),
                     self.clear_date)
-        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key_Equal).toString(QKeySequence.NativeText),
+        m.addAction(_('Set date to today') + '\t' + QKeySequence(Qt.Key.Key_Equal).toString(QKeySequence.SequenceFormat.NativeText),
                     self.today_date)
         m.addSeparator()
         populate_standard_spinbox_context_menu(self, m, use_self_for_copy_actions=True)
@@ -628,19 +628,19 @@ class DateTimeEdit(QDateTimeEdit):
         self.setDateTime(UNDEFINED_QDATETIME)
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Minus:
+        if ev.key() == Qt.Key.Key_Minus:
             ev.accept()
             self.clear_date()
-        elif ev.key() == Qt.Key_Equal:
+        elif ev.key() == Qt.Key.Key_Equal:
             self.today_date()
             ev.accept()
-        elif ev.matches(QKeySequence.Copy):
+        elif ev.matches(QKeySequence.StandardKey.Copy):
             self.copy()
             ev.accept()
-        elif ev.matches(QKeySequence.Cut):
+        elif ev.matches(QKeySequence.StandardKey.Cut):
             self.cut()
             ev.accept()
-        elif ev.matches(QKeySequence.Paste):
+        elif ev.matches(QKeySequence.StandardKey.Paste):
             self.paste()
             ev.accept()
         else:

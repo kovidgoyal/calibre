@@ -54,34 +54,34 @@ def writing_system_for_font(font):
     # this just confuses the algorithm below. Vietnamese is Latin with lots of
     # special chars
     try:
-        systems.remove(QFontDatabase.Vietnamese)
+        systems.remove(QFontDatabase.WritingSystem.Vietnamese)
     except ValueError:
         pass
 
-    system = QFontDatabase.Any
+    system = QFontDatabase.WritingSystem.Any
 
-    if (QFontDatabase.Latin not in systems):
+    if (QFontDatabase.WritingSystem.Latin not in systems):
         has_latin = False
         # we need to show something
         if systems:
             system = systems[-1]
     else:
-        systems.remove(QFontDatabase.Latin)
+        systems.remove(QFontDatabase.WritingSystem.Latin)
 
     if not systems:
         return system, has_latin
 
-    if (len(systems) == 1 and systems[0] > QFontDatabase.Cyrillic):
+    if (len(systems) == 1 and systems[0] > QFontDatabase.WritingSystem.Cyrillic):
         return systems[0], has_latin
 
     if (len(systems) <= 2 and
-        systems[-1] > QFontDatabase.Armenian and
-        systems[-1] < QFontDatabase.Vietnamese):
+        systems[-1] > QFontDatabase.WritingSystem.Armenian and
+        systems[-1] < QFontDatabase.WritingSystem.Vietnamese):
         return systems[-1], has_latin
 
     if (len(systems) <= 5 and
-        systems[-1] >= QFontDatabase.SimplifiedChinese and
-        systems[-1] <= QFontDatabase.Korean):
+        systems[-1] >= QFontDatabase.WritingSystem.SimplifiedChinese and
+        systems[-1] <= QFontDatabase.WritingSystem.Korean):
         system = systems[-1]
 
     return system, has_latin
@@ -96,7 +96,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
             return QSize(300, 50)
 
     def do_size_hint(self, option, index):
-        text = index.data(Qt.DisplayRole) or ''
+        text = index.data(Qt.ItemDataRole.DisplayRole) or ''
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
         m = QFontMetrics(font)
@@ -112,7 +112,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         painter.restore()
 
     def do_paint(self, painter, option, index):
-        text = unicode_type(index.data(Qt.DisplayRole) or '')
+        text = unicode_type(index.data(Qt.ItemDataRole.DisplayRole) or '')
         font = QFont(option.font)
         font.setPointSize(QFontInfo(font).pointSize() * 1.5)
         font2 = QFont(font)
@@ -124,26 +124,26 @@ class FontFamilyDelegate(QStyledItemDelegate):
 
         r = option.rect
 
-        if option.state & QStyle.State_Selected:
+        if option.state & QStyle.StateFlag.State_Selected:
             painter.setPen(QPen(option.palette.highlightedText(), 0))
 
-        if (option.direction == Qt.RightToLeft):
+        if (option.direction == Qt.LayoutDirection.RightToLeft):
             r.setRight(r.right() - 4)
         else:
             r.setLeft(r.left() + 4)
 
         painter.setFont(font)
-        painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, text)
+        painter.drawText(r, Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignLeading|Qt.TextFlag.TextSingleLine, text)
 
-        if (system != QFontDatabase.Any):
+        if (system != QFontDatabase.WritingSystem.Any):
             w = painter.fontMetrics().width(text + "  ")
             painter.setFont(font2)
             sample = QFontDatabase().writingSystemSample(system)
-            if (option.direction == Qt.RightToLeft):
+            if (option.direction == Qt.LayoutDirection.RightToLeft):
                 r.setRight(r.right() - w)
             else:
                 r.setLeft(r.left() + w)
-            painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, sample)
+            painter.drawText(r, Qt.AlignmentFlag.AlignVCenter|Qt.AlignmentFlag.AlignLeading|Qt.TextFlag.TextSingleLine, sample)
 
 
 class Typefaces(QLabel):
@@ -217,11 +217,11 @@ class FontFamilyDialog(QDialog):
                 if icu_lower(val) == icu_lower(current_family):
                     self.view.setCurrentIndex(self.m.index(i))
                     break
-        self.view.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        self.view.doubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.view.changed.connect(self.current_changed,
-                type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
         self.faces = Typefaces(self)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'),
@@ -248,7 +248,7 @@ class FontFamilyDialog(QDialog):
         l.addWidget(self.view, 2, 0, 1, 3)
         l.addWidget(self.faces, 1, 3, 2, 1)
         l.addWidget(self.bb, 3, 0, 1, 4)
-        l.setAlignment(self.faces, Qt.AlignTop)
+        l.setAlignment(self.faces, Qt.AlignmentFlag.AlignTop)
 
         self.resize(800, 600)
 
@@ -256,7 +256,7 @@ class FontFamilyDialog(QDialog):
         self.view.setCurrentIndex(self.m.index(i))
 
     def keyPressEvent(self, e):
-        if e.key() == Qt.Key_Return:
+        if e.key() == Qt.Key.Key_Return:
             return
         return QDialog.keyPressEvent(self, e)
 
@@ -335,7 +335,7 @@ class FontFamilyChooser(QWidget):
         self.setLayout(l)
         self.button = QPushButton(self)
         self.button.setIcon(QIcon(I('font.png')))
-        self.button.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.button.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         l.addWidget(self.button)
         self.default_text = _('Choose &font family')
         self.font_family = None

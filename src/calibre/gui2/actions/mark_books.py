@@ -79,9 +79,9 @@ class MarkBooksAction(InterfaceAction):
                 continue
 
     def eventFilter(self, obj, ev):
-        if ev.type() == ev.MouseButtonPress and ev.button() == Qt.LeftButton:
+        if ev.type() == ev.MouseButtonPress and ev.button() == Qt.MouseButton.LeftButton:
             mods = QApplication.keyboardModifiers()
-            if mods & Qt.ControlModifier or mods & Qt.ShiftModifier:
+            if mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.ShiftModifier:
                 self.show_marked()
                 return True
         return False

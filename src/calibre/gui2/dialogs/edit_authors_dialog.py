@@ -72,7 +72,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         # Remove help icon on title bar
         icon = self.windowIcon()
-        self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
+        self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
         self.setWindowIcon(icon)
 
         try:
@@ -84,13 +84,13 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         except Exception:
             pass
 
-        self.buttonBox.button(QDialogButtonBox.Ok).setText(_('&OK'))
-        self.buttonBox.button(QDialogButtonBox.Cancel).setText(_('&Cancel'))
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
         self.buttonBox.accepted.connect(self.accepted)
         self.apply_vl_checkbox.stateChanged.connect(self.use_vl_changed)
 
         # Set up the heading for sorting
-        self.table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
         self.find_aut_func = find_aut_func
         self.table.resizeColumnsToContents()
@@ -130,19 +130,19 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.filter_button.clicked.connect(self.do_filter)
 
         self.not_found_label = l = QLabel(self.table)
-        l.setFrameStyle(QFrame.StyledPanel)
+        l.setFrameStyle(QFrame.Shape.StyledPanel)
         l.setAutoFillBackground(True)
         l.setText(_('No matches found'))
-        l.setAlignment(Qt.AlignVCenter)
+        l.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         l.resize(l.sizeHint())
         l.move(10, 2)
         l.setVisible(False)
         self.not_found_label_timer = QTimer()
         self.not_found_label_timer.setSingleShot(True)
         self.not_found_label_timer.timeout.connect(
-                self.not_found_label_timer_event, type=Qt.QueuedConnection)
+                self.not_found_label_timer_event, type=Qt.ConnectionType.QueuedConnection)
 
-        self.table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.table.customContextMenuRequested.connect(self.show_context_menu)
 
         # Fetch the data
@@ -202,7 +202,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             name = name.replace('|', ',')
 
             name_item = tableItem(name)
-            name_item.setData(Qt.UserRole, id_)
+            name_item.setData(Qt.ItemDataRole.UserRole, id_)
             sort_item = tableItem(sort)
             link_item = tableItem(link)
 
@@ -239,7 +239,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
                     if primary_startswith(item_txt, id_to_select):
                         select_item = self.table.item(row, 1 if use_as else 0)
                         break
-                elif id_to_select == self.table.item(row, 0).data(Qt.UserRole):
+                elif id_to_select == self.table.item(row, 0).data(Qt.ItemDataRole.UserRole):
                     if select_sort:
                         select_item = self.table.item(row, 1)
                     elif select_link:
@@ -307,7 +307,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 
         m = self.au_context_menu = QMenu(self)
         idx = self.table.indexAt(point)
-        id_ = int(self.table.item(idx.row(), 0).data(Qt.UserRole))
+        id_ = int(self.table.item(idx.row(), 0).data(Qt.ItemDataRole.UserRole))
         sub = self.get_column_name(idx.column())
         if self.context_item.text() != self.original_authors[id_][sub]:
             ca = m.addAction(_('Undo'))
@@ -390,10 +390,10 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.not_found_label.setVisible(False)
         # For some reason the button box keeps stealing the RETURN shortcut.
         # Steal it back
-        self.buttonBox.button(QDialogButtonBox.Ok).setDefault(False)
-        self.buttonBox.button(QDialogButtonBox.Ok).setAutoDefault(False)
-        self.buttonBox.button(QDialogButtonBox.Cancel).setDefault(False)
-        self.buttonBox.button(QDialogButtonBox.Cancel).setAutoDefault(False)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setDefault(False)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setAutoDefault(False)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setDefault(False)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setAutoDefault(False)
 
         st = icu_lower(unicode_type(self.find_box.currentText()))
         if not st:
@@ -442,7 +442,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         self.table.cellChanged.disconnect()
         for row in range(0,self.table.rowCount()):
             item_aut = self.table.item(row, 0)
-            id_ = int(item_aut.data(Qt.UserRole))
+            id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
             aut  = unicode_type(item_aut.text()).strip()
             item_aus = self.table.item(row, 1)
             # Sometimes trailing commas are left by changing between copy algs
@@ -450,7 +450,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             item_aus.setText(aus)
             self.authors[id_]['sort'] = aus
             self.set_icon(item_aus, id_)
-        self.table.setFocus(Qt.OtherFocusReason)
+        self.table.setFocus(Qt.FocusReason.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
 
     def do_auth_sort_to_author(self):
@@ -458,11 +458,11 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
         for row in range(0,self.table.rowCount()):
             aus  = unicode_type(self.table.item(row, 1).text()).strip()
             item_aut = self.table.item(row, 0)
-            id_ = int(item_aut.data(Qt.UserRole))
+            id_ = int(item_aut.data(Qt.ItemDataRole.UserRole))
             item_aut.setText(aus)
             self.authors[id_]['name'] = aus
             self.set_icon(item_aut, id_)
-        self.table.setFocus(Qt.OtherFocusReason)
+        self.table.setFocus(Qt.FocusReason.OtherFocusReason)
         self.table.cellChanged.connect(self.cell_changed)
 
     def set_icon(self, item, id_):
@@ -473,7 +473,7 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
             item.setIcon(self.empty_icon)
 
     def cell_changed(self, row, col):
-        id_ = int(self.table.item(row, 0).data(Qt.UserRole))
+        id_ = int(self.table.item(row, 0).data(Qt.ItemDataRole.UserRole))
         if col == 0:
             item = self.table.item(row, 0)
             aut  = unicode_type(item.text()).strip()

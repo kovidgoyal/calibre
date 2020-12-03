@@ -222,7 +222,7 @@ class TextEdit(PlainTextEdit):
     def apply_settings(self, prefs=None, dictionaries_changed=False):  # {{{
         prefs = prefs or tprefs
         self.setAcceptDrops(prefs.get('editor_accepts_drops', True))
-        self.setLineWrapMode(QPlainTextEdit.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.NoWrap)
+        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.LineWrapMode.NoWrap)
         theme = get_theme(prefs['editor_theme'])
         self.apply_theme(theme)
         w = self.fontMetrics()
@@ -621,7 +621,7 @@ class TextEdit(PlainTextEdit):
     def highlight_cursor_line(self):
         sel = QTextEdit.ExtraSelection()
         sel.format.setBackground(self.palette().alternateBase())
-        sel.format.setProperty(QTextFormat.FullWidthSelection, True)
+        sel.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
         self.current_cursor_line = sel
@@ -664,26 +664,26 @@ class TextEdit(PlainTextEdit):
 
     def paint_line_numbers(self, ev):
         painter = QPainter(self.line_number_area)
-        painter.fillRect(ev.rect(), self.line_number_palette.color(QPalette.Base))
+        painter.fillRect(ev.rect(), self.line_number_palette.color(QPalette.ColorRole.Base))
 
         block = self.firstVisibleBlock()
         num = block.blockNumber()
         top = int(self.blockBoundingGeometry(block).translated(self.contentOffset()).top())
         bottom = top + int(self.blockBoundingRect(block).height())
         current = self.textCursor().block().blockNumber()
-        painter.setPen(self.line_number_palette.color(QPalette.Text))
+        painter.setPen(self.line_number_palette.color(QPalette.ColorRole.Text))
 
         while block.isValid() and top <= ev.rect().bottom():
             if block.isVisible() and bottom >= ev.rect().top():
                 if current == num:
                     painter.save()
-                    painter.setPen(self.line_number_palette.color(QPalette.BrightText))
+                    painter.setPen(self.line_number_palette.color(QPalette.ColorRole.BrightText))
                     f = QFont(self.font())
                     f.setBold(True)
                     painter.setFont(f)
                     self.last_current_lnum = (top, bottom - top)
                 painter.drawText(0, top, self.line_number_area.width() - 5, self.fontMetrics().height(),
-                              Qt.AlignRight, unicode_type(num + 1))
+                              Qt.AlignmentFlag.AlignRight, unicode_type(num + 1))
                 if current == num:
                     painter.restore()
             block = block.next()
@@ -697,12 +697,12 @@ class TextEdit(PlainTextEdit):
         # problem as well, since they use the overridden createMimeDataFromSelection() method
         # instead of the one from Qt (which makes copy() work), and allows proper customization
         # of the shortcuts
-        if ev in (QKeySequence.Copy, QKeySequence.Cut, QKeySequence.Paste, QKeySequence.Undo, QKeySequence.Redo):
+        if ev in (QKeySequence.StandardKey.Copy, QKeySequence.StandardKey.Cut, QKeySequence.StandardKey.Paste, QKeySequence.StandardKey.Undo, QKeySequence.StandardKey.Redo):
             ev.ignore()
             return True
         # This is used to convert typed hex codes into unicode
         # characters
-        if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
+        if ev.key() == Qt.Key.Key_X and ev.modifiers() == Qt.KeyboardModifier.AltModifier:
             ev.accept()
             return True
         return PlainTextEdit.override_shortcut(self, ev)
@@ -767,7 +767,7 @@ class TextEdit(PlainTextEdit):
             # For some reason using eventFilter for this does not work, so we
             # implement it here
             self.completion_popup.abort()
-        if ev.modifiers() & Qt.CTRL:
+        if ev.modifiers() & Qt.Modifier.CTRL:
             url = self.link_for_position(ev.pos())
             if url is not None:
                 ev.accept()
@@ -803,7 +803,7 @@ class TextEdit(PlainTextEdit):
             return self.smarts.set_text_alignment(self, formatting.partition('_')[-1])
         color = 'currentColor'
         if formatting in {'color', 'background-color'}:
-            color = QColorDialog.getColor(QColor(Qt.black if formatting == 'color' else Qt.white), self, _('Choose color'), QColorDialog.ShowAlphaChannel)
+            color = QColorDialog.getColor(QColor(Qt.GlobalColor.black if formatting == 'color' else Qt.GlobalColor.white), self, _('Choose color'), QColorDialog.ColorDialogOption.ShowAlphaChannel)
             if not color.isValid():
                 return
             r, g, b, a = color.getRgb()
@@ -881,11 +881,11 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
             self.smarts.remove_tag(self)
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_X and ev.modifiers() == Qt.AltModifier:
+        if ev.key() == Qt.Key.Key_X and ev.modifiers() == Qt.KeyboardModifier.AltModifier:
             if self.replace_possible_unicode_sequence():
                 ev.accept()
                 return
-        if ev.key() == Qt.Key_Insert:
+        if ev.key() == Qt.Key.Key_Insert:
             self.setOverwriteMode(self.overwriteMode() ^ True)
             ev.accept()
             return
@@ -903,9 +903,9 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
             return
         code = ev.key()
         if code in (
-            0, Qt.Key_unknown, Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt,
-            Qt.Key_Meta, Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock,
-            Qt.Key_ScrollLock, Qt.Key_Up, Qt.Key_Down):
+            0, Qt.Key.Key_unknown, Qt.Key.Key_Shift, Qt.Key.Key_Control, Qt.Key.Key_Alt,
+            Qt.Key.Key_Meta, Qt.Key.Key_AltGr, Qt.Key.Key_CapsLock, Qt.Key.Key_NumLock,
+            Qt.Key.Key_ScrollLock, Qt.Key.Key_Up, Qt.Key.Key_Down):
             # We ignore up/down arrow so as to not break scrolling through the
             # text with the arrow keys
             return

@@ -135,15 +135,15 @@ class State(QObject):
             return
 
 
-def send_click(view, pos, button=Qt.LeftButton, double_click=False):
+def send_click(view, pos, button=Qt.MouseButton.LeftButton, double_click=False):
     mods = QApplication.keyboardModifiers()
     if double_click:
-        ev = QMouseEvent(QEvent.MouseButtonDblClick, pos, button, button, mods)
+        ev = QMouseEvent(QEvent.Type.MouseButtonDblClick, pos, button, button, mods)
         QApplication.postEvent(view.viewport(), ev)
         return
-    ev = QMouseEvent(QEvent.MouseButtonPress, pos, button, button, mods)
+    ev = QMouseEvent(QEvent.Type.MouseButtonPress, pos, button, button, mods)
     QApplication.postEvent(view.viewport(), ev)
-    ev = QMouseEvent(QEvent.MouseButtonRelease, pos, button, button, mods)
+    ev = QMouseEvent(QEvent.Type.MouseButtonRelease, pos, button, button, mods)
     QApplication.postEvent(view.viewport(), ev)
 
 
@@ -152,14 +152,14 @@ class GestureManager(QObject):
     def __init__(self, view):
         QObject.__init__(self, view)
         if touch_supported:
-            view.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
+            view.viewport().setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents)
         self.state = State()
-        self.state.tapped.connect(self.handle_tap, type=Qt.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
+        self.state.tapped.connect(self.handle_tap, type=Qt.ConnectionType.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
         self.state.flicking.connect(self.handle_flicking)
         connect_lambda(self.state.tap_hold_started, self, lambda self, tp: self.handle_tap_hold('start', tp))
         connect_lambda(self.state.tap_hold_updated, self, lambda self, tp: self.handle_tap_hold('update', tp))
         connect_lambda(self.state.tap_hold_finished, self, lambda self, tp: self.handle_tap_hold('end', tp))
-        self.evmap = {QEvent.TouchBegin: 'start', QEvent.TouchUpdate: 'update', QEvent.TouchEnd: 'end'}
+        self.evmap = {QEvent.Type.TouchBegin: 'start', QEvent.Type.TouchUpdate: 'update', QEvent.Type.TouchEnd: 'end'}
         self.last_tap_at = 0
         if touch_supported:
             self.scroller = QScroller.scroller(view.viewport())
@@ -168,18 +168,18 @@ class GestureManager(QObject):
         if not touch_supported:
             return
         etype = ev.type()
-        if etype in (QEvent.MouseButtonPress, QEvent.MouseMove, QEvent.MouseButtonRelease, QEvent.MouseButtonDblClick):
-            if ev.source() in (Qt.MouseEventSynthesizedBySystem, Qt.MouseEventSynthesizedByQt):
+        if etype in (QEvent.Type.MouseButtonPress, QEvent.Type.MouseMove, QEvent.Type.MouseButtonRelease, QEvent.Type.MouseButtonDblClick):
+            if ev.source() in (Qt.MouseEventSource.MouseEventSynthesizedBySystem, Qt.MouseEventSource.MouseEventSynthesizedByQt):
                 # swallow fake mouse events generated from touch events
                 ev.ignore()
                 return False
             self.scroller.stop()
             return
-        if etype == QEvent.Wheel and self.scroller.state() != QScroller.Inactive:
+        if etype == QEvent.Type.Wheel and self.scroller.state() != QScroller.State.Inactive:
             ev.ignore()
             return False
         boundary = self.evmap.get(etype, None)
-        if boundary is None or ev.device().type() != QTouchDevice.TouchScreen:
+        if boundary is None or ev.device().type() != QTouchDevice.DeviceType.TouchScreen:
             return
         self.state.update(ev, boundary=boundary)
         ev.accept()
@@ -193,9 +193,9 @@ class GestureManager(QObject):
 
     def handle_flicking(self, touch_point, is_end):
         if is_end:
-            it = QScroller.InputRelease
+            it = QScroller.Input.InputRelease
         else:
-            it = QScroller.InputPress if touch_point.extra_data is None else QScroller.InputMove
+            it = QScroller.Input.InputPress if touch_point.extra_data is None else QScroller.Input.InputMove
         touch_point.extra_data = True
         self.scroller.handleInput(it, touch_point.current_position, int(touch_point.last_update_time * 1000))
 
@@ -211,4 +211,4 @@ class GestureManager(QObject):
     def handle_tap_hold(self, action, tp):
         self.scroller.stop()
         if action == 'end':
-            send_click(self.parent(), tp.start_position, button=Qt.RightButton)
+            send_click(self.parent(), tp.start_position, button=Qt.MouseButton.RightButton)

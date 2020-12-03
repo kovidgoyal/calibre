@@ -43,12 +43,12 @@ class SplashScreen(QSplashScreen):
         self.dpr = QApplication.instance().devicePixelRatio()
         self.pmap = QPixmap(I('library.png', allow_user_override=False))
         self.pmap.setDevicePixelRatio(self.dpr)
-        self.pmap = self.pmap.scaled(int(self.dpr * self.LOGO_SIZE), int(self.dpr * self.LOGO_SIZE), transformMode=Qt.SmoothTransformation)
+        self.pmap = self.pmap.scaled(int(self.dpr * self.LOGO_SIZE), int(self.dpr * self.LOGO_SIZE), transformMode=Qt.TransformationMode.SmoothTransformation)
         self.light_brush = QBrush(QColor('#F6F3E9'))
         self.dark_brush = QBrush(QColor('#39322B'))
         pmap = QPixmap(int(self.WIDTH * self.dpr), int(self.total_height * self.dpr))
         pmap.setDevicePixelRatio(self.dpr)
-        pmap.fill(Qt.transparent)
+        pmap.fill(Qt.GlobalColor.transparent)
         QSplashScreen.__init__(self, pmap)
         self.setWindowTitle(__appname__)
 
@@ -72,22 +72,22 @@ class SplashScreen(QSplashScreen):
 
         # Draw number
         painter.setFont(self.num_font)
-        num_width = painter.boundingRect(0, 0, 0, 0, Qt.AlignCenter | Qt.TextSingleLine, self.num_ch).width() + 12
+        num_width = painter.boundingRect(0, 0, 0, 0, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.num_ch).width() + 12
         num_x = width - num_width
         painter.setPen(QPen(QColor('#d6b865')))
-        painter.drawText(num_x, y, num_width, height, Qt.AlignCenter | Qt.TextSingleLine, self.num_ch)
+        painter.drawText(num_x, y, num_width, height, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.num_ch)
 
         # Draw title
         x = pw + 10
         width -= num_width + 5 + x
         painter.setFont(self.title_font)
-        painter.drawText(x, y, width, self.title_height, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, "CALIBRE")
+        painter.drawText(x, y, width, self.title_height, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine, "CALIBRE")
 
         # Draw starting up message
         y += self.title_height + 5
         painter.setPen(QPen(self.dark_brush.color()))
         painter.setFont(self.body_font)
-        br = painter.drawText(x, y, width, self.line_height, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, _(
+        br = painter.drawText(x, y, width, self.line_height, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine, _(
             'Starting up, please wait...'))
         starting_up_bottom = br.bottom()
 
@@ -96,7 +96,7 @@ class SplashScreen(QSplashScreen):
         if m and m.strip():
             painter.setFont(self.footer_font)
             b = max(starting_up_bottom + 5, bottom - self.line_height)
-            painter.drawText(x, b, width, self.line_height, Qt.AlignLeft | Qt.AlignTop | Qt.TextSingleLine, m)
+            painter.drawText(x, b, width, self.line_height, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop | Qt.TextFlag.TextSingleLine, m)
 
         painter.restore()
 

@@ -81,7 +81,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         self.changed_queue = Queue()
 
         self.timer         = QTimer(self)
-        self.timer.timeout.connect(self.update, type=Qt.QueuedConnection)
+        self.timer.timeout.connect(self.update, type=Qt.ConnectionType.QueuedConnection)
         self.timer.start(1000)
 
     def columnCount(self, parent=QModelIndex()):
@@ -91,9 +91,9 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
         return len(self.jobs)
 
     def headerData(self, section, orientation, role):
-        if role != Qt.DisplayRole:
+        if role != Qt.ItemDataRole.DisplayRole:
             return None
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Orientation.Horizontal:
             return ({
               0: _('Job'),
               1: _('Status'),
@@ -129,12 +129,12 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
 
     def data(self, index, role):
         try:
-            if role not in (Qt.DisplayRole, Qt.DecorationRole):
+            if role not in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.DecorationRole):
                 return None
             row, col = index.row(), index.column()
             job = self.jobs[row]
 
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 if col == 0:
                     desc = job.description
                     if not desc:
@@ -152,7 +152,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                     return human_readable_interval(rtime)
                 if col == 4 and job.start_time is not None:
                     return (strftime('%H:%M -- %d %b', time.localtime(job.start_time)))
-            if role == Qt.DecorationRole and col == 0:
+            if role == Qt.ItemDataRole.DecorationRole and col == 0:
                 state = job.run_state
                 if state == job.WAITING:
                     return self.wait_icon
@@ -427,12 +427,12 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
         opts.maximum = 100
         opts.textVisible = True
         try:
-            percent = int(index.model().data(index, Qt.DisplayRole))
+            percent = int(index.model().data(index, Qt.ItemDataRole.DisplayRole))
         except (TypeError, ValueError):
             percent = 0
         opts.progress = percent
         opts.text = (_('Unavailable') if percent == 0 else '%d%%'%percent)
-        QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
+        QApplication.style().drawControl(QStyle.ControlElement.CE_ProgressBar, opts, painter)
 # }}}
 
 
@@ -502,7 +502,7 @@ class JobsButton(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.num_jobs = 0
         self.mouse_over = False
-        self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PM_ToolBarIconSize))
+        self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PixelMetric.PM_ToolBarIconSize))
         self._jobs = QLabel('')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
         self.update_label()
@@ -512,10 +512,10 @@ class JobsButton(QWidget):  # {{{
         l.setSpacing(3)
         l.addWidget(self.pi)
         l.addWidget(self._jobs)
-        m = self.style().pixelMetric(QStyle.PM_DefaultFrameWidth)
+        m = self.style().pixelMetric(QStyle.PixelMetric.PM_DefaultFrameWidth)
         self.layout().setContentsMargins(m, m, m, m)
-        self._jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
-        self.setCursor(Qt.PointingHandCursor)
+        self._jobs.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         b = _('Click to see list of jobs')
         self.setToolTip(b + ' [%s]'%self.shortcut)
         self.action_toggle = QAction(b, parent)
@@ -603,9 +603,9 @@ class JobsButton(QWidget):  # {{{
             p = QPainter(self)
             tool = QStyleOption()
             tool.rect = self.rect()
-            tool.state = QStyle.State_Raised | QStyle.State_Active | QStyle.State_MouseOver
+            tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             s = self.style()
-            s.drawPrimitive(QStyle.PE_PanelButtonTool, tool, p, self)
+            s.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool, p, self)
             p.end()
         QWidget.paintEvent(self, ev)
 
@@ -623,7 +623,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.proxy_model.setSourceModel(self.model)
         self.proxy_model.search_done.connect(self.search.search_done)
         self.jobs_view.setModel(self.proxy_model)
-        self.setWindowModality(Qt.NonModal)
+        self.setWindowModality(Qt.WindowModality.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
         self.details_button.clicked.connect(self.show_details)
         self.kill_button.clicked.connect(self.kill_job)

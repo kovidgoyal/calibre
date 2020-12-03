@@ -124,7 +124,7 @@ def create_profile():
         s = QWebEngineScript()
         s.setName('csslint.js')
         s.setSourceCode(csslint_js())
-        s.setWorldId(QWebEngineScript.ApplicationWorld)
+        s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
         ans.scripts().insert(s)
     return ans
 
@@ -163,7 +163,7 @@ class Worker(QWebEnginePage):
         self.working = True
         self.console_messages = []
         self.runJavaScript(
-            'window.check_css({})'.format(json.dumps(src)), QWebEngineScript.ApplicationWorld, self.check_done)
+            'window.check_css({})'.format(json.dumps(src)), QWebEngineScript.ScriptWorldId.ApplicationWorld, self.check_done)
 
     def check_css_when_ready(self, src):
         if self.ready:
@@ -195,7 +195,7 @@ class Pool(object):
         self.assign_work()
         app = QApplication.instance()
         while self.working:
-            app.processEvents(QEventLoop.WaitForMoreEvents | QEventLoop.ExcludeUserInputEvents)
+            app.processEvents(QEventLoop.ProcessEventsFlag.WaitForMoreEvents | QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
         return self.results
 
     def assign_work(self):

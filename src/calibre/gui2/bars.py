@@ -28,7 +28,7 @@ class RevealBar(QWidget):  # {{{
         self.setVisible(False)
         self._animated_size = 1.0
         self.animation = QPropertyAnimation(self, b'animated_size', self)
-        self.animation.setEasingCurve(QEasingCurve.Linear)
+        self.animation.setEasingCurve(QEasingCurve.Type.Linear)
         self.animation.setDuration(1000), self.animation.setStartValue(0.0), self.animation.setEndValue(1.0)
         self.animation.valueChanged.connect(self.animation_value_changed)
         self.animation.finished.connect(self.animation_done)
@@ -122,7 +122,7 @@ def wrap_all_button_texts(all_buttons):
 def create_donate_button(action):
     ans = ThrobbingButton()
     ans.setAutoRaise(True)
-    ans.setCursor(Qt.PointingHandCursor)
+    ans.setCursor(Qt.CursorShape.PointingHandCursor)
     ans.clicked.connect(action.trigger)
     ans.setToolTip(action.text().replace('&', ''))
     ans.setIcon(action.icon())
@@ -136,8 +136,8 @@ class ToolBar(QToolBar):  # {{{
         QToolBar.__init__(self, parent)
         self.setMovable(False)
         self.setFloatable(False)
-        self.setOrientation(Qt.Horizontal)
-        self.setAllowedAreas(Qt.TopToolBarArea|Qt.BottomToolBarArea)
+        self.setOrientation(Qt.Orientation.Horizontal)
+        self.setAllowedAreas(Qt.ToolBarArea.TopToolBarArea|Qt.ToolBarArea.BottomToolBarArea)
         self.setStyleSheet('QToolButton:checked { font-weight: bold }')
         self.preferred_width = self.sizeHint().width()
         self.gui = parent
@@ -157,14 +157,14 @@ class ToolBar(QToolBar):  # {{{
             self.donate_button.setToolButtonStyle(style)
 
     def get_text_style(self):
-        style = Qt.ToolButtonTextUnderIcon
+        style = Qt.ToolButtonStyle.ToolButtonTextUnderIcon
         s = gprefs['toolbar_icon_size']
         if s != 'off':
             p = gprefs['toolbar_text']
             if p == 'never':
-                style = Qt.ToolButtonIconOnly
+                style = Qt.ToolButtonStyle.ToolButtonIconOnly
             elif p == 'auto' and self.preferred_width > self.width()+15:
-                style = Qt.ToolButtonIconOnly
+                style = Qt.ToolButtonStyle.ToolButtonIconOnly
         return style
 
     def contextMenuEvent(self, ev):
@@ -201,7 +201,7 @@ class ToolBar(QToolBar):  # {{{
                 for ac in self.location_manager.all_actions:
                     self.addAction(ac)
                     self.added_actions.append(ac)
-                    self.setup_tool_button(self, ac, QToolButton.MenuButtonPopup)
+                    self.setup_tool_button(self, ac, QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                     ac.setVisible(False)
             elif what == 'Donate':
                 self.donate_button = create_donate_button(self.donate_action)
@@ -223,7 +223,7 @@ class ToolBar(QToolBar):  # {{{
         ch = bar.widgetForAction(ac)
         if ch is None:
             ch = self.child_bar.widgetForAction(ac)
-        ch.setCursor(Qt.PointingHandCursor)
+        ch.setCursor(Qt.CursorShape.PointingHandCursor)
         if hasattr(ch, 'setText') and hasattr(ch, 'text'):
             self.all_widgets.append(ch)
         if hasattr(ch, 'setAutoRaise'):  # is a QToolButton or similar
@@ -253,7 +253,7 @@ class ToolBar(QToolBar):  # {{{
         md = event.mimeData()
         if md.hasFormat("application/calibre+from_library") or \
            md.hasFormat("application/calibre+from_device"):
-            event.setDropAction(Qt.CopyAction)
+            event.setDropAction(Qt.DropAction.CopyAction)
             event.accept()
             return
 
@@ -346,7 +346,7 @@ if ismacos:
 
         def __init__(self, clone, parent, is_top_level=False, clone_shortcuts=True):
             QAction.__init__(self, clone.text().replace('&&', '&'), parent)
-            self.setMenuRole(QAction.NoRole)  # ensure this action is not moved around by Qt
+            self.setMenuRole(QAction.MenuRole.NoRole)  # ensure this action is not moved around by Qt
             self.is_top_level = is_top_level
             self.clone_shortcuts = clone_shortcuts
             self.clone = clone
@@ -447,7 +447,7 @@ if ismacos:
 
         def adapt_for_dialog(self, enter):
 
-            def ac(text, key, role=QAction.TextHeuristicRole):
+            def ac(text, key, role=QAction.MenuRole.TextHeuristicRole):
                 ans = QAction(text, self)
                 ans.setMenuRole(role)
                 ans.setShortcut(QKeySequence(key))
@@ -460,9 +460,9 @@ if ismacos:
                 self.edit_menu = QMenu()
                 self.edit_action = QAction(_('Edit'), self)
                 self.edit_action.setMenu(self.edit_menu)
-                ac(_('Copy'), QKeySequence.Copy),
-                ac(_('Paste'), QKeySequence.Paste),
-                ac(_('Select all'), QKeySequence.SelectAll),
+                ac(_('Copy'), QKeySequence.StandardKey.Copy),
+                ac(_('Paste'), QKeySequence.StandardKey.Paste),
+                ac(_('Select all'), QKeySequence.StandardKey.SelectAll),
                 mb.addAction(self.edit_action)
                 self.added_actions = [self.edit_action]
             else:
@@ -705,9 +705,9 @@ class BarsManager(QObject):
     def apply_settings(self):
         sz = gprefs['toolbar_icon_size']
         sz = {'off':0, 'small':24, 'medium':48, 'large':64}[sz]
-        style = Qt.ToolButtonTextUnderIcon
+        style = Qt.ToolButtonStyle.ToolButtonTextUnderIcon
         if sz > 0 and gprefs['toolbar_text'] == 'never':
-            style = Qt.ToolButtonIconOnly
+            style = Qt.ToolButtonStyle.ToolButtonIconOnly
 
         for bar in self.bars:
             bar.setIconSize(QSize(sz, sz))

@@ -17,7 +17,7 @@ OUTPUT = '/t/dev.pdf'
 class Renderer(QWebEnginePage):
 
     def do_print(self, ok):
-        p = QPageLayout(QPageSize(QPageSize(QPageSize.A4)), QPageLayout.Portrait, QMarginsF(72, 0, 72, 0))
+        p = QPageLayout(QPageSize(QPageSize(QPageSize.PageSizeId.A4)), QPageLayout.Orientation.Portrait, QMarginsF(72, 0, 72, 0))
         self.printToPdf(self.print_finished, p)
 
     def print_finished(self, pdf_data):

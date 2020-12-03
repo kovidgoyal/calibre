@@ -20,12 +20,12 @@ def browser_item(f, parent):
     if not f.is_folder:
         name += ' [%s]'%f.last_mod_string
     ans = QTreeWidgetItem(parent, [name])
-    ans.setData(0, Qt.UserRole, f.full_path)
+    ans.setData(0, Qt.ItemDataRole.UserRole, f.full_path)
     if f.is_folder:
         ext = 'dir'
     else:
         ext = f.name.rpartition('.')[-1]
-    ans.setData(0, Qt.DecorationRole, file_icon_provider().icon_from_ext(ext))
+    ans.setData(0, Qt.ItemDataRole.DecorationRole, file_icon_provider().icon_from_ext(ext))
 
     return ans
 
@@ -55,7 +55,7 @@ class Storage(QTreeWidget):
     def current_item(self):
         item = self.currentItem()
         if item is not None:
-            return (self.object_id, item.data(0, Qt.UserRole))
+            return (self.object_id, item.data(0, Qt.ItemDataRole.UserRole))
         return None
 
 
@@ -88,7 +88,7 @@ class Browser(QDialog):
         self.setLayout(l)
         self.folders = cw = Folders(filesystem_cache, show_files=show_files)
         l.addWidget(cw)
-        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -131,8 +131,8 @@ class IgnoredFolders(QDialog):
         l.addWidget(la)
         la.setWordWrap(True)
 
-        self.bb = QDialogButtonBox(QDialogButtonBox.Ok |
-                                   QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok |
+                                   QDialogButtonBox.StandardButton.Cancel)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.sab = self.bb.addButton(_('Select &all'), self.bb.ActionRole)
@@ -150,11 +150,11 @@ class IgnoredFolders(QDialog):
         root = w.invisibleRootItem()
         w.itemChanged.disconnect(self.item_changed)
         try:
-            if item.checkState(0) == Qt.Checked:
+            if item.checkState(0) == Qt.CheckState.Checked:
                 # Ensure that the parents of this item are checked
                 p = item.parent()
                 while p is not None and p is not root:
-                    p.setCheckState(0, Qt.Checked)
+                    p.setCheckState(0, Qt.CheckState.Checked)
                     p = p.parent()
             # Set the state of all descendants to the same state as this item
             for child in self.iterchildren(item):
@@ -173,24 +173,24 @@ class IgnoredFolders(QDialog):
     def create_item(self, f, parent):
         name = f.name
         ans = QTreeWidgetItem(parent, [name])
-        ans.setData(0, Qt.UserRole, '/'.join(f.full_path[1:]))
-        ans.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
+        ans.setData(0, Qt.ItemDataRole.UserRole, '/'.join(f.full_path[1:]))
+        ans.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
         ans.setCheckState(0,
-            Qt.Unchecked if self.dev.is_folder_ignored(f.storage_id, f.full_path[1:]) else Qt.Checked)
-        ans.setData(0, Qt.DecorationRole, file_icon_provider().icon_from_ext('dir'))
+            Qt.CheckState.Unchecked if self.dev.is_folder_ignored(f.storage_id, f.full_path[1:]) else Qt.CheckState.Checked)
+        ans.setData(0, Qt.ItemDataRole.DecorationRole, file_icon_provider().icon_from_ext('dir'))
         return ans
 
     def select_all(self):
         w = self.tabs.currentWidget()
         for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
-            c.setCheckState(0, Qt.Checked)
+            c.setCheckState(0, Qt.CheckState.Checked)
 
     def select_none(self):
         w = self.tabs.currentWidget()
         for i in range(w.invisibleRootItem().childCount()):
             c = w.invisibleRootItem().child(i)
-            c.setCheckState(0, Qt.Unchecked)
+            c.setCheckState(0, Qt.CheckState.Unchecked)
 
     @property
     def ignored_folders(self):
@@ -198,9 +198,9 @@ class IgnoredFolders(QDialog):
         for w in self.widgets:
             folders = set()
             for node in self.iterchildren(w.invisibleRootItem()):
-                if node.checkState(0) == Qt.Checked:
+                if node.checkState(0) == Qt.CheckState.Checked:
                     continue
-                path = unicode_type(node.data(0, Qt.UserRole) or '')
+                path = unicode_type(node.data(0, Qt.ItemDataRole.UserRole) or '')
                 parent = path.rpartition('/')[0]
                 if '/' not in path or icu_lower(parent) not in folders:
                     folders.add(icu_lower(path))

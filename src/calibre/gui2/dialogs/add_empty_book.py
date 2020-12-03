@@ -105,7 +105,7 @@ class AddEmptyBookDialog(QDialog):
         cf.setChecked(gprefs.get('create_empty_copy_dup_formats', False))
         self._layout.addWidget(cf, 10, 0, 1, -1)
 
-        button_box = self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self._layout.addWidget(button_box, 11, 0, 1, -1)

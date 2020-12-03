@@ -111,7 +111,7 @@ def parse_text_formatting(text):
     for tag, start, length in chain(ranges, open_ranges):
         fmt = QTextCharFormat()
         if tag in {'b', 'strong'}:
-            fmt.setFontWeight(QFont.Bold)
+            fmt.setFontWeight(QFont.Weight.Bold)
         elif tag in {'i', 'em'}:
             fmt.setFontItalic(True)
         else:
@@ -128,7 +128,7 @@ def parse_text_formatting(text):
 
 class Block(object):
 
-    def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignCenter):
+    def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignmentFlag.AlignCenter):
         self.layouts = []
         self._position = Point(0, 0)
         self.leading = self.line_spacing = 0
@@ -141,7 +141,7 @@ class Block(object):
             l = QTextLayout(unescape_formatting(text), font, img)
             l.setAdditionalFormats(formats)
             to = QTextOption(align)
-            to.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+            to.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
             l.setTextOption(to)
 
             l.beginLayout()
@@ -191,7 +191,7 @@ class Block(object):
             if hasattr(l, 'draw'):
                 # Etch effect for the text
                 painter.save()
-                painter.setRenderHints(QPainter.TextAntialiasing | QPainter.Antialiasing)
+                painter.setRenderHints(QPainter.RenderHint.TextAntialiasing | QPainter.RenderHint.Antialiasing)
                 painter.save()
                 painter.setPen(QColor(255, 255, 255, 125))
                 l.draw(painter, QPointF(1, 1))
@@ -205,21 +205,21 @@ def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     title, subtitle, footer = title, subtitle, footer
     title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
-    title_font.setStyleStrategy(QFont.PreferAntialias)
+    title_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
     title_block = Block(title, width, title_font, img, max_height, style.TITLE_ALIGN)
     title_block.position = style.hmargin, style.vmargin
     subtitle_block = Block()
     if subtitle:
         subtitle_font = QFont(prefs.subtitle_font_family or 'Liberation Sans')
         subtitle_font.setPixelSize(prefs.subtitle_font_size)
-        subtitle_font.setStyleStrategy(QFont.PreferAntialias)
+        subtitle_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
         gap = 2 * title_block.leading
         mh = max_height - title_block.height - gap
         subtitle_block = Block(subtitle, width, subtitle_font, img, mh, style.SUBTITLE_ALIGN)
         subtitle_block.position = style.hmargin, title_block.position.y + title_block.height + gap
 
     footer_font = QFont(prefs.footer_font_family or 'Liberation Serif')
-    footer_font.setStyleStrategy(QFont.PreferAntialias)
+    footer_font.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
     footer_font.setPixelSize(prefs.footer_font_size)
     footer_block = Block(footer, width, footer_font, img, max_height, style.FOOTER_ALIGN)
     footer_block.position = style.hmargin, img.height() - style.vmargin - footer_block.height
@@ -342,7 +342,7 @@ def color(color_theme, name):
 
 class Style(object):
 
-    TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignHCenter | Qt.AlignTop
+    TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop
 
     def __init__(self, color_theme, prefs):
         self.load_colors(color_theme)
@@ -370,9 +370,9 @@ class Cross(Style):
                   title_block.height + subtitle_block.height + subtitle_block.line_spacing // 2 + title_block.leading)
         painter.save()
         p = QPainterPath()
-        p.addRoundedRect(QRectF(r), 10, 10 * r.width()/r.height(), Qt.RelativeSize)
+        p.addRoundedRect(QRectF(r), 10, 10 * r.width()/r.height(), Qt.SizeMode.RelativeSize)
         painter.setClipPath(p)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.fillRect(r, self.color2)
         painter.restore()
         r = QRect(0, 0, int(title_block.position.x), rect.height())
@@ -458,10 +458,10 @@ class Banner(Style):
         right_fold, right_inner = draw_fold(right + width23, m=-1, corner=right_corner)
 
         painter.save()
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         pen = QPen(self.ccolor2)
         pen.setWidth(3)
-        pen.setJoinStyle(Qt.RoundJoin)
+        pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         painter.setPen(pen)
         for r in (left_fold, right_fold):
             painter.fillPath(r, QBrush(self.color2))
@@ -499,7 +499,7 @@ class Ornamental(Style):
                 import traceback
                 traceback.print_exc()
         p = painter
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         g = QRadialGradient(QPointF(rect.center()), rect.width())
         g.setColorAt(0, self.color1), g.setColorAt(1, self.color2)
         painter.fillRect(rect, QBrush(g))
@@ -546,7 +546,7 @@ class Blocks(Style):
 
     NAME = 'Blocks'
     GUI_NAME = _('Blocks')
-    FOOTER_ALIGN = Qt.AlignRight | Qt.AlignTop
+    FOOTER_ALIGN = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
 
     def __call__(self, painter, rect, color_theme, title_block, subtitle_block, footer_block):
         painter.fillRect(rect, self.color1)
@@ -593,7 +593,7 @@ def generate_cover(mi, prefs=None, as_qimage=False):
     color_theme = random.choice(load_color_themes(prefs))
     style = random.choice(load_styles(prefs))(color_theme, prefs)
     title, subtitle, footer = format_text(mi, prefs)
-    img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format_ARGB32)
+    img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format.Format_ARGB32)
     title_block, subtitle_block, footer_block = layout_text(
         prefs, img, title, subtitle, footer, img.height() // 3, style)
     p = QPainter(img)
@@ -647,8 +647,8 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
     scale = 800. / prefs['cover_height']
     scale_cover(prefs, scale)
     prefs = Prefs(**prefs)
-    img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format_ARGB32)
-    img.fill(Qt.white)
+    img = QImage(prefs.cover_width, prefs.cover_height, QImage.Format.Format_ARGB32)
+    img.fill(Qt.GlobalColor.white)
     # colors = to_theme('ffffff ffffff 000000 000000')
     color_theme = theme_to_colors(fallback_colors)
 
@@ -666,7 +666,7 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
             scaled, width, height = fit_image(logo.width(), logo.height(), pwidth, pheight)
             x, y = (pwidth - width) // 2, (pheight - height) // 2
             rect = QRect(x, top + y, width, height)
-            painter.setRenderHint(QPainter.SmoothPixmapTransform)
+            painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
             painter.drawImage(rect, logo)
             return self.ccolor1, self.ccolor1, self.ccolor1
     style = CalibeLogoStyle(color_theme, prefs)
@@ -687,14 +687,14 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
 
 def message_image(text, width=500, height=400, font_size=20):
     init_environment()
-    img = QImage(width, height, QImage.Format_ARGB32)
-    img.fill(Qt.white)
+    img = QImage(width, height, QImage.Format.Format_ARGB32)
+    img.fill(Qt.GlobalColor.white)
     p = QPainter(img)
     f = QFont()
     f.setPixelSize(font_size)
     p.setFont(f)
     r = img.rect().adjusted(10, 10, -10, -10)
-    p.drawText(r, Qt.AlignJustify | Qt.AlignVCenter | Qt.TextWordWrap, text)
+    p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextWordWrap, text)
     p.end()
     return pixmap_to_data(img)
 
@@ -707,15 +707,15 @@ def scale_cover(prefs, scale):
 def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=False, font_family=None):
     init_environment()
     font_family = font_family or cprefs['title_font_family'] or 'Liberation Serif'
-    img = QImage(width, height, QImage.Format_ARGB32)
-    img.fill(Qt.white)
+    img = QImage(width, height, QImage.Format.Format_ARGB32)
+    img.fill(Qt.GlobalColor.white)
     p = QPainter(img)
-    p.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
+    p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing)
     f = QFont(font_family)
-    f.setStyleStrategy(QFont.PreferAntialias)
+    f.setStyleStrategy(QFont.StyleStrategy.PreferAntialias)
     f.setPixelSize((height * 3) // 4), f.setBold(True)
     p.setFont(f)
-    p.drawText(img.rect(), Qt.AlignLeft | Qt.AlignVCenter, sanitize(title))
+    p.drawText(img.rect(), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, sanitize(title))
     p.end()
     if as_qimage:
         return img

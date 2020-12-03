@@ -44,7 +44,7 @@ class RecipesView(QTreeView):
         self.setAnimated(True)
         self.setHeaderHidden(True)
         self.setObjectName('recipes')
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
     def currentChanged(self, current, previous):
         QTreeView.currentChanged(self, current, previous)
@@ -240,10 +240,10 @@ class SchedulerDialog(QDialog):
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
         self.recipes.setModel(self.recipe_model)
-        self.recipes.setFocus(Qt.OtherFocusReason)
+        self.recipes.setFocus(Qt.FocusReason.OtherFocusReason)
         self.setWindowTitle(_("Schedule news download [{} sources]").format(self.recipe_model.showing_count))
         self.search.search.connect(self.recipe_model.search)
-        self.recipe_model.searched.connect(self.search.search_done, type=Qt.QueuedConnection)
+        self.recipe_model.searched.connect(self.search.search_done, type=Qt.ConnectionType.QueuedConnection)
         self.recipe_model.searched.connect(self.search_done)
 
         # Right Panel
@@ -255,7 +255,7 @@ class SchedulerDialog(QDialog):
         self.detail_box.setVisible(False)
         self.detail_box.setCurrentIndex(0)
         v.addWidget(self.detail_box)
-        v.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        v.addItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
         # First Tab (scheduling)
         self.tab = QWidget()
@@ -299,7 +299,7 @@ class SchedulerDialog(QDialog):
         g.addWidget(la), g.addWidget(un, 0, 1)
         acc.pwla = la = QLabel(_("&Password:"))
         self.password = pw = QLineEdit(self)
-        pw.setEchoMode(QLineEdit.Password), la.setBuddy(pw)
+        pw.setEchoMode(QLineEdit.EchoMode.Password), la.setBuddy(pw)
         g.addWidget(la), g.addWidget(pw, 1, 1)
         self.show_password = spw = QCheckBox(_("&Show password"), self.account)
         spw.stateChanged[int].connect(self.set_pw_echo_mode)
@@ -335,7 +335,7 @@ class SchedulerDialog(QDialog):
             " older than a number of days, below, takes priority over this setting."))
         ki.setSpecialValueText(_("all issues")), ki.setSuffix(_(" issues"))
         g.addWidget(la), g.addWidget(ki, 2, 1)
-        si = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        si = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         g.addItem(si, 3, 1, 1, 1)
 
         # Bottom area
@@ -355,7 +355,7 @@ class SchedulerDialog(QDialog):
         b.setToolTip(_("Download all scheduled news sources at once"))
         b.clicked.connect(self.download_all_clicked)
         self.l.addWidget(b, 3, 0, 1, 1)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.download_button = b = bb.addButton(_('&Download now'), bb.ActionRole)
         b.setIcon(QIcon(I('arrow-down.png'))), b.setVisible(False)
@@ -371,7 +371,7 @@ class SchedulerDialog(QDialog):
 
     def set_pw_echo_mode(self, state):
         self.password.setEchoMode(self.password.Normal
-                if state == Qt.Checked else self.password.Password)
+                if state == Qt.CheckState.Checked else self.password.Password)
 
     def schedule_type_selected(self, *args):
         for i, st in enumerate(self.SCHEDULE_TYPES):
@@ -380,7 +380,7 @@ class SchedulerDialog(QDialog):
                 break
 
     def keyPressEvent(self, ev):
-        if ev.key() not in (Qt.Key_Enter, Qt.Key_Return):
+        if ev.key() not in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             return QDialog.keyPressEvent(self, ev)
 
     def break_cycles(self):
@@ -578,7 +578,7 @@ class Scheduler(QObject):
 
         self.recipe_model = RecipeModel()
         self.db = db
-        self.lock = QMutex(QMutex.Recursive)
+        self.lock = QMutex(QMutex.RecursionMode.Recursive)
         self.download_queue = set()
 
         self.news_menu = QMenu()

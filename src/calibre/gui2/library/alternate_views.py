@@ -49,9 +49,9 @@ class EncodeError(ValueError):
 
 
 def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
-    if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+    if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
         mods = ev.modifiers()
-        if mods & Qt.CTRL or mods & Qt.ALT or mods & Qt.SHIFT or mods & Qt.META:
+        if mods & Qt.Modifier.CTRL or mods & Qt.Modifier.ALT or mods & Qt.Modifier.SHIFT or mods & Qt.Modifier.META:
             return
         if self.state() != self.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
@@ -102,13 +102,13 @@ def dragMoveEvent(self, event):
 def event_has_mods(self, event=None):
     mods = event.modifiers() if event is not None else \
             QApplication.keyboardModifiers()
-    return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
+    return mods & Qt.KeyboardModifier.ControlModifier or mods & Qt.KeyboardModifier.ShiftModifier
 
 
 def mousePressEvent(self, event):
     ep = event.pos()
     if self.indexAt(ep) in self.selectionModel().selectedIndexes() and \
-            event.button() == Qt.LeftButton and not self.event_has_mods():
+            event.button() == Qt.MouseButton.LeftButton and not self.event_has_mods():
         self.drag_start_pos = ep
     if hasattr(self, 'handle_mouse_press_event'):
         return self.handle_mouse_press_event(event)
@@ -116,12 +116,12 @@ def mousePressEvent(self, event):
 
 
 def drag_icon(self, cover, multiple):
-    cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
+    cover = cover.scaledToHeight(120, Qt.TransformationMode.SmoothTransformation)
     if multiple:
         base_width = cover.width()
         base_height = cover.height()
         base = QImage(base_width+21, base_height+21,
-                QImage.Format_ARGB32_Premultiplied)
+                QImage.Format.Format_ARGB32_Premultiplied)
         base.fill(QColor(255, 255, 255, 0).rgba())
         p = QPainter(base)
         rect = QRect(20, 0, base_width, base_height)
@@ -198,7 +198,7 @@ def mouseMoveEvent(self, event):
         self.drag_start_pos = None
         return
 
-    if not (event.buttons() & Qt.LeftButton) or \
+    if not (event.buttons() & Qt.MouseButton.LeftButton) or \
             (event.pos() - self.drag_start_pos).manhattanLength() \
                     < QApplication.startDragDistance():
         return
@@ -207,7 +207,7 @@ def mouseMoveEvent(self, event):
     if not index.isValid():
         return
     drag = self.drag_data()
-    drag.exec_(Qt.CopyAction)
+    drag.exec_(Qt.DropAction.CopyAction)
     self.drag_start_pos = None
 
 
@@ -216,8 +216,8 @@ def dnd_merge_ok(md):
 
 
 def dragEnterEvent(self, event):
-    if int(event.possibleActions() & Qt.CopyAction) + \
-        int(event.possibleActions() & Qt.MoveAction) == 0:
+    if int(event.possibleActions() & Qt.DropAction.CopyAction) + \
+        int(event.possibleActions() & Qt.DropAction.MoveAction) == 0:
         return
     paths = self.paths_from_event(event)
     md = event.mimeData()
@@ -235,11 +235,11 @@ def dropEvent(self, event):
             book_id = self.model().id(row)
             if book_id and book_id not in ids:
                 self.books_dropped.emit({book_id: ids})
-                event.setDropAction(Qt.CopyAction)
+                event.setDropAction(Qt.DropAction.CopyAction)
                 event.accept()
         return
     paths = self.paths_from_event(event)
-    event.setDropAction(Qt.CopyAction)
+    event.setDropAction(Qt.DropAction.CopyAction)
     event.accept()
     self.files_dropped.emit(paths)
 
@@ -329,7 +329,7 @@ class AlternateViews(object):
                 self.main_connected = True
                 self.main_view.selectionModel().currentChanged.connect(self.main_current_changed)
                 self.main_view.selectionModel().selectionChanged.connect(self.main_selection_changed)
-            view.setFocus(Qt.OtherFocusReason)
+            view.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def set_database(self, db, stage=0):
         for view in itervalues(self.views):
@@ -399,13 +399,13 @@ class CoverDelegate(QStyledItemDelegate):
         super(CoverDelegate, self).__init__(parent)
         self._animated_size = 1.0
         self.animation = QPropertyAnimation(self, b'animated_size', self)
-        self.animation.setEasingCurve(QEasingCurve.OutInCirc)
+        self.animation.setEasingCurve(QEasingCurve.Type.OutInCirc)
         self.animation.setDuration(500)
         self.set_dimensions()
         self.cover_cache = CoverCache()
         self.render_queue = LifoQueue()
         self.animating = None
-        self.highlight_color = QColor(Qt.white)
+        self.highlight_color = QColor(Qt.GlobalColor.white)
         self.rating_font = QFont(rating_font())
 
     def set_dimensions(self):
@@ -516,8 +516,8 @@ class CoverDelegate(QStyledItemDelegate):
             painter.save()
             try:
                 painter.setPen(self.highlight_color)
-                painter.setRenderHint(QPainter.Antialiasing, True)
-                painter.drawRoundedRect(option.rect, 10, 10, Qt.RelativeSize)
+                painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+                painter.drawRoundedRect(option.rect, 10, 10, Qt.SizeMode.RelativeSize)
             finally:
                 painter.restore()
         marked = db.data.get_marked(book_id)
@@ -556,8 +556,8 @@ class CoverDelegate(QStyledItemDelegate):
             if cdata is None or cdata is False:
                 title = db.field_for('title', book_id, default_value='')
                 authors = ' & '.join(db.field_for('authors', book_id, default_value=()))
-                painter.setRenderHint(QPainter.TextAntialiasing, True)
-                painter.drawText(rect, Qt.AlignCenter|Qt.TextWordWrap, '%s\n\n%s' % (title, authors))
+                painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap, '%s\n\n%s' % (title, authors))
                 if cdata is False:
                     self.render_queue.put(book_id)
                 if self.title_height != 0:
@@ -593,14 +593,14 @@ class CoverDelegate(QStyledItemDelegate):
             painter.restore()
 
     def paint_title(self, painter, rect, db, book_id):
-        painter.setRenderHint(QPainter.TextAntialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
         title, is_stars = self.render_field(db, book_id)
         if is_stars:
             painter.setFont(self.rating_font)
         metrics = painter.fontMetrics()
         painter.setPen(self.highlight_color)
-        painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
-                            metrics.elidedText(title, Qt.ElideRight, rect.width()))
+        painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextSingleLine,
+                            metrics.elidedText(title, Qt.TextElideMode.ElideRight, rect.width()))
 
     def paint_emblems(self, painter, rect, emblems):
         gutter = self.emblem_size + self.MARGIN
@@ -647,7 +647,7 @@ class CoverDelegate(QStyledItemDelegate):
 
     @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result=bool)
     def helpEvent(self, event, view, option, index):
-        if event is not None and view is not None and event.type() == QEvent.ToolTip:
+        if event is not None and view is not None and event.type() == QEvent.Type.ToolTip:
             try:
                 db = index.model().db
             except AttributeError:
@@ -717,9 +717,9 @@ class GridView(QListView):
         self.thumbnail_cache = ThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'],
             thumbnail_size=(int(dpr * self.delegate.cover_size.width()), int(dpr * self.delegate.cover_size.height())))
         self.render_thread = None
-        self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
+        self.update_item.connect(self.re_render, type=Qt.ConnectionType.QueuedConnection)
         self.doubleClicked.connect(self.double_clicked)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.gui = parent
         self.context_menu = None
         self.update_timer = QTimer(self)
@@ -924,7 +924,7 @@ class GridView(QListView):
                     if scaled:
                         if self.ignore_render_requests.is_set():
                             return
-                        p = p.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                        p = p.scaled(nwidth, nheight, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
                         p.setDevicePixelRatio(dpr)
                     cdata = p
                 # update cache
@@ -1029,7 +1029,7 @@ class GridView(QListView):
         pass
 
     def handle_mouse_press_event(self, ev):
-        if QApplication.keyboardModifiers() & Qt.ShiftModifier:
+        if QApplication.keyboardModifiers() & Qt.KeyboardModifier.ShiftModifier:
             # Shift-Click in QListView is broken. It selects extra items in
             # various circumstances, for example, click on some item in the
             # middle of a row then click on an item in the next row, all items
@@ -1079,13 +1079,13 @@ class GridView(QListView):
         if handle_enter_press(self, ev, self.start_view_animation, False):
             return
         k = ev.key()
-        if ev.modifiers() & Qt.ShiftModifier and k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
+        if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier and k in (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down):
             ci = self.currentIndex()
             if not ci.isValid():
                 return
             c = ci.row()
             ncols = self.number_of_columns() or 1
-            delta = {Qt.Key_Left: -1, Qt.Key_Right: 1, Qt.Key_Up: -ncols, Qt.Key_Down: ncols}[k]
+            delta = {Qt.Key.Key_Left: -1, Qt.Key.Key_Right: 1, Qt.Key.Key_Up: -ncols, Qt.Key.Key_Down: ncols}[k]
             n = max(0, min(c + delta, self.model().rowCount(None) - 1))
             if n == c:
                 return
@@ -1117,7 +1117,7 @@ class GridView(QListView):
 
     def restore_current_book_state(self, state):
         book_id = state
-        self.setFocus(Qt.OtherFocusReason)
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
         try:
             row = self.model().db.data.id_to_index(book_id)
         except (IndexError, ValueError, KeyError, TypeError, AttributeError):
@@ -1146,12 +1146,12 @@ class GridView(QListView):
         return index
 
     def selectionCommand(self, index, event):
-        if event and event.type() == event.KeyPress and event.key() in (Qt.Key_Home, Qt.Key_End) and event.modifiers() & Qt.CTRL:
-            return QItemSelectionModel.ClearAndSelect | QItemSelectionModel.Rows
+        if event and event.type() == event.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.Modifier.CTRL:
+            return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super(GridView, self).selectionCommand(index, event)
 
     def wheelEvent(self, ev):
-        if ev.phase() not in (Qt.ScrollUpdate, 0, Qt.ScrollMomentum):
+        if ev.phase() not in (Qt.ScrollPhase.ScrollUpdate, 0, Qt.ScrollPhase.ScrollMomentum):
             return
         number_of_pixels = ev.pixelDelta()
         number_of_degrees = ev.angleDelta() / 8.0

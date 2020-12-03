@@ -44,14 +44,14 @@ class GlobalUndoHistory(QAbstractListModel):
     def rowCount(self, parent=ROOT):
         return len(self.states)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.label_for_row(index.row())
-        if role == Qt.FontRole and index.row() == self.pos:
+        if role == Qt.ItemDataRole.FontRole and index.row() == self.pos:
             f = QApplication.instance().font()
             f.setBold(True)
             return f
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.states[index.row()]
         return None
 

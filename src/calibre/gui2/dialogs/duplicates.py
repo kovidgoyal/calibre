@@ -47,7 +47,7 @@ class DuplicatesQuestion(QDialog):
         dl.expandAll()
         dl.setIndentation(30)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 2, 0, 1, 2)
@@ -72,12 +72,12 @@ class DuplicatesQuestion(QDialog):
     def select_all(self):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
-            x.setCheckState(0, Qt.Checked)
+            x.setCheckState(0, Qt.CheckState.Checked)
 
     def select_none(self):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
-            x.setCheckState(0, Qt.Unchecked)
+            x.setCheckState(0, Qt.CheckState.Unchecked)
 
     def reject(self):
         self.save_geometry()
@@ -106,19 +106,19 @@ class DuplicatesQuestion(QDialog):
             item = QTreeWidgetItem([ta%dict(
                 title=mi.title, author=mi.format_field('authors')[1],
                 formats=incoming_formats)] , 0)
-            item.setCheckState(0, Qt.Checked)
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
-            item.setData(0, Qt.FontRole, bf)
-            item.setData(0, Qt.UserRole, (mi, cover, formats))
+            item.setCheckState(0, Qt.CheckState.Checked)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable)
+            item.setData(0, Qt.ItemDataRole.FontRole, bf)
+            item.setData(0, Qt.ItemDataRole.UserRole, (mi, cover, formats))
             matching_books = db.books_with_same_title(mi)
 
             def add_child(text):
                 c = QTreeWidgetItem([text], 1)
-                c.setFlags(Qt.ItemIsEnabled)
+                c.setFlags(Qt.ItemFlag.ItemIsEnabled)
                 item.addChild(c)
                 return c
 
-            add_child(_('Already in calibre:')).setData(0, Qt.FontRole, itf)
+            add_child(_('Already in calibre:')).setData(0, Qt.ItemDataRole.FontRole, itf)
 
             author_text = {}
             for book_id in matching_books:
@@ -142,15 +142,15 @@ class DuplicatesQuestion(QDialog):
     def duplicates(self):
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
-            if x.checkState(0) == Qt.Checked:
-                yield x.data(0, Qt.UserRole)
+            if x.checkState(0) == Qt.CheckState.Checked:
+                yield x.data(0, Qt.ItemDataRole.UserRole)
 
     @property
     def as_text(self):
         entries = []
         for i in range(self.dup_list.topLevelItemCount()):
             x = self.dup_list.topLevelItem(i)
-            check = '✓' if x.checkState(0) == Qt.Checked else '✗'
+            check = '✓' if x.checkState(0) == Qt.CheckState.Checked else '✗'
             title = '%s %s' % (check, unicode_type(x.text(0)))
             dups = []
             for child in (x.child(j) for j in range(x.childCount())):

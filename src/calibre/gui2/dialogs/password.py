@@ -32,10 +32,10 @@ class PasswordDialog(QDialog, Ui_Dialog):
         self.show_password.stateChanged[(int)].connect(self.toggle_password)
 
     def toggle_password(self, state):
-        if state == Qt.Unchecked:
-            self.gui_password.setEchoMode(QLineEdit.Password)
+        if state == Qt.CheckState.Unchecked:
+            self.gui_password.setEchoMode(QLineEdit.EchoMode.Password)
         else:
-            self.gui_password.setEchoMode(QLineEdit.Normal)
+            self.gui_password.setEchoMode(QLineEdit.EchoMode.Normal)
 
     def username(self):
         return unicode_type(self.gui_username.text())

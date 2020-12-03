@@ -80,7 +80,7 @@ class Saver(QObject):
         self._book_id_data = {}
         self.all_book_ids = frozenset(book_ids)
         self.pd = ProgressDialog(_('Saving %d books...') % len(self.all_book_ids), _('Collecting metadata...'), min=0, max=0, parent=parent, icon='save.png')
-        self.do_one_signal.connect(self.tick, type=Qt.QueuedConnection)
+        self.do_one_signal.connect(self.tick, type=Qt.ConnectionType.QueuedConnection)
         self.do_one = self.do_one_collect
         self.ids_to_collect = iter(self.all_book_ids)
         self.tdir = PersistentTemporaryDirectory('_save_to_disk')

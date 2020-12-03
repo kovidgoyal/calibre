@@ -35,7 +35,7 @@ ignore_me
 class BusyCursor(object):
 
     def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
@@ -66,7 +66,7 @@ class InsertTag(Dialog):  # {{{
         la.setBuddy(ti)
         l.addWidget(ti)
         l.addWidget(self.bb)
-        ti.setFocus(Qt.OtherFocusReason)
+        ti.setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
     def tag(self):
@@ -208,7 +208,7 @@ class ImportForeign(Dialog):  # {{{
         h1.addWidget(b)
         l.addRow(_('Source file:'), h1)
         b.clicked.connect(self.choose_source)
-        b.setFocus(Qt.OtherFocusReason)
+        b.setFocus(Qt.FocusReason.OtherFocusReason)
 
         self.h2 = h1 = QHBoxLayout()
         self.dest = src = QLineEdit(self)
@@ -289,17 +289,17 @@ class Results(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent=parent)
 
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.results = ()
         self.current_result = -1
         self.max_result = -1
         self.mouse_hover_result = -1
         self.setMouseTracking(True)
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.text_option = to = QTextOption()
         to.setWrapMode(to.NoWrap)
         self.divider = QStaticText('\xa0→ \xa0')
-        self.divider.setTextFormat(Qt.PlainText)
+        self.divider.setTextFormat(Qt.TextFormat.PlainText)
 
     def item_from_y(self, y):
         if not self.results:
@@ -347,7 +347,7 @@ class Results(QWidget):
         if results:
             self.current_result = 0
             prefixes = [QStaticText('<b>%s</b>' % os.path.basename(x)) for x in results]
-            [(p.setTextFormat(Qt.RichText), p.setTextOption(self.text_option)) for p in prefixes]
+            [(p.setTextFormat(Qt.TextFormat.RichText), p.setTextOption(self.text_option)) for p in prefixes]
             self.maxwidth = max([x.size().width() for x in prefixes])
             self.results = tuple((prefix, self.make_text(text, positions), text)
                 for prefix, (text, positions) in zip(prefixes, iteritems(results)))
@@ -361,7 +361,7 @@ class Results(QWidget):
     def make_text(self, text, positions):
         text = QStaticText(make_highlighted_text(emphasis_style(), text, positions))
         text.setTextOption(self.text_option)
-        text.setTextFormat(Qt.RichText)
+        text.setTextFormat(Qt.TextFormat.RichText)
         return text
 
     def paintEvent(self, ev):
@@ -380,7 +380,7 @@ class Results(QWidget):
                 if i in (self.current_result, self.mouse_hover_result):
                     p.save()
                     if i != self.current_result:
-                        p.setPen(Qt.DotLine)
+                        p.setPen(Qt.PenStyle.DotLine)
                     p.drawLine(offset, QPoint(self.width(), offset.y()))
                     p.restore()
                 offset.setY(offset.y() + self.MARGIN // 2)
@@ -394,11 +394,11 @@ class Results(QWidget):
                     offset.setX(0)
                     p.save()
                     if i != self.current_result:
-                        p.setPen(Qt.DotLine)
+                        p.setPen(Qt.PenStyle.DotLine)
                     p.drawLine(offset, QPoint(self.width(), offset.y()))
                     p.restore()
         else:
-            p.drawText(self.rect(), Qt.AlignCenter, _('No results found'))
+            p.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, _('No results found'))
 
         p.end()
 
@@ -445,17 +445,17 @@ class QuickOpen(Dialog):
         t.textEdited.connect(self.update_matches)
         t.setClearButtonEnabled(True)
         t.setPlaceholderText(_('Search'))
-        l.addWidget(t, alignment=Qt.AlignTop)
+        l.addWidget(t, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.help_label = hl = QLabel(self.help_text)
-        hl.setContentsMargins(50, 50, 50, 50), hl.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        hl.setContentsMargins(50, 50, 50, 50), hl.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
         l.addWidget(hl)
         self.results = Results(self)
         self.results.setVisible(False)
         self.results.item_selected.connect(self.accept)
         l.addWidget(self.results)
 
-        l.addWidget(self.bb, alignment=Qt.AlignBottom)
+        l.addWidget(self.bb, alignment=Qt.AlignmentFlag.AlignBottom)
 
     def update_matches(self, text):
         text = unicode_type(text).strip()
@@ -466,9 +466,9 @@ class QuickOpen(Dialog):
         self.matches = tuple(matches)
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key_Up, Qt.Key_Down):
+        if ev.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
             ev.accept()
-            self.results.change_current(delta=-1 if ev.key() == Qt.Key_Up else 1)
+            self.results.change_current(delta=-1 if ev.key() == Qt.Key.Key_Up else 1)
             return
         return Dialog.keyPressEvent(self, ev)
 
@@ -498,22 +498,22 @@ class NamesDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
-        text, positions = index.data(Qt.UserRole)
+        text, positions = index.data(Qt.ItemDataRole.UserRole)
         self.initStyleOption(option, index)
         painter.save()
         painter.setFont(option.font)
         p = option.palette
-        c = p.HighlightedText if option.state & QStyle.State_Selected else p.Text
-        group = (p.Active if option.state & QStyle.State_Active else p.Inactive)
+        c = p.HighlightedText if option.state & QStyle.StateFlag.State_Selected else p.Text
+        group = (p.Active if option.state & QStyle.StateFlag.State_Active else p.Inactive)
         c = p.color(group, c)
         painter.setClipRect(option.rect)
         if positions is None or -1 in positions:
             painter.setPen(c)
-            painter.drawText(option.rect, Qt.AlignLeft | Qt.AlignVCenter | Qt.TextSingleLine, text)
+            painter.drawText(option.rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine, text)
         else:
             to = QTextOption()
             to.setWrapMode(to.NoWrap)
-            to.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            to.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             positions = sorted(set(positions) - {-1}, reverse=True)
             text = '<body>%s</body>' % make_highlighted_text(emphasis_style(), text, positions)
             doc = QTextDocument()
@@ -547,9 +547,9 @@ class NamesModel(QAbstractListModel):
         return len(self.items)
 
     def data(self, index, role):
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return '\xa0' * 20
 
     def filter(self, query):
@@ -605,11 +605,11 @@ class AnchorsModel(QAbstractListModel):
         return len(self.items)
 
     def data(self, index, role):
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self.items[index.row()]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return '\n'.join(self.items[index.row()])
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             text, frag = self.items[index.row()]
             return _('Anchor: {0}\nLeading text: {1}').format(frag, text)
 
@@ -658,7 +658,7 @@ class InsertLink(Dialog):
         fn.setSpacing(5)
         self.anchor_names, self.anchor_names_filter = fn, f
         fn.selectionModel().selectionChanged.connect(self.update_target)
-        fn.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        fn.doubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.anl = fnl = QVBoxLayout()
         self.la2 = la = QLabel(_('Choose a &location (anchor) in the file:'))
         la.setBuddy(fn)
@@ -708,7 +708,7 @@ class InsertLink(Dialog):
         if not rows:
             self.anchor_names.model().set_names([])
         else:
-            name, positions = self.file_names.model().data(rows[0], Qt.UserRole)
+            name, positions = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)
             self.populate_anchors(name)
 
     def populate_anchors(self, name):
@@ -730,7 +730,7 @@ class InsertLink(Dialog):
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             return
-        name = self.file_names.model().data(rows[0], Qt.UserRole)[0]
+        name = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[0]
         if name == self.source_name:
             href = ''
         else:
@@ -738,7 +738,7 @@ class InsertLink(Dialog):
         frag = ''
         rows = list(self.anchor_names.selectionModel().selectedRows())
         if rows:
-            anchor = self.anchor_names.model().data(rows[0], Qt.UserRole)[1]
+            anchor = self.anchor_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[1]
             if anchor:
                 frag = '#' + anchor
         href += frag
@@ -865,7 +865,7 @@ class InsertSemantics(Dialog):
         fn, f = create_filterable_names_list([], filter_text=_('Filter locations'), parent=self)
         self.anchor_names, self.anchor_names_filter = fn, f
         fn.selectionModel().selectionChanged.connect(self.update_target)
-        fn.doubleClicked.connect(self.accept, type=Qt.QueuedConnection)
+        fn.doubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         self.anl = fnl = QVBoxLayout()
         self.la2 = la = QLabel(_('Choose a &location (anchor) in the file:'))
         la.setBuddy(fn)
@@ -924,7 +924,7 @@ class InsertSemantics(Dialog):
         if not rows:
             self.anchor_names.model().set_names([])
         else:
-            name, positions = self.file_names.model().data(rows[0], Qt.UserRole)
+            name, positions = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)
             self.populate_anchors(name)
 
     def populate_anchors(self, name):
@@ -940,12 +940,12 @@ class InsertSemantics(Dialog):
         rows = list(self.file_names.selectionModel().selectedRows())
         if not rows:
             return
-        name = self.file_names.model().data(rows[0], Qt.UserRole)[0]
+        name = self.file_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[0]
         href = name
         frag = ''
         rows = list(self.anchor_names.selectionModel().selectedRows())
         if rows:
-            anchor = self.anchor_names.model().data(rows[0], Qt.UserRole)[0]
+            anchor = self.anchor_names.model().data(rows[0], Qt.ItemDataRole.UserRole)[0]
             if anchor:
                 frag = '#' + anchor
         href += frag
@@ -1057,7 +1057,7 @@ class CoverView(QWidget):
         QWidget.__init__(self, parent)
         self.current_pixmap_size = QSize(0, 0)
         self.pixmap = QPixmap()
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
     def set_pixmap(self, data):
         self.pixmap.loadFromData(data)
@@ -1080,9 +1080,9 @@ class CoverView(QWidget):
         y = int(extray/2.)
         target = QRect(x, y, min(canvas_size.width(), width), min(canvas_size.height(), height))
         p = QPainter(self)
-        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         p.drawPixmap(target, self.pixmap.scaled(target.size(),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         p.end()
 
     def sizeHint(self):
@@ -1112,7 +1112,7 @@ class AddCover(Dialog):
         gb.setLayout(v), gb.setFlat(True)
         self.names, self.names_filter = create_filterable_names_list(
             sorted(self.image_names, key=sort_key), filter_text=_('Filter the list of images'), parent=self)
-        self.names.doubleClicked.connect(self.double_clicked, type=Qt.QueuedConnection)
+        self.names.doubleClicked.connect(self.double_clicked, type=Qt.ConnectionType.QueuedConnection)
         self.cover_view = CoverView(self)
         l.addWidget(self.names_filter)
         v.addWidget(self.names)
@@ -1134,7 +1134,7 @@ class AddCover(Dialog):
         p.setVisible(self.container.book_type != 'azw3')
 
         def on_state_change(s):
-            tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.Checked)
+            tprefs.set('add_cover_preserve_aspect_ratio', s == Qt.CheckState.Checked)
 
         p.stateChanged.connect(on_state_change)
         self.info_label = il = QLabel('\xa0')
@@ -1145,7 +1145,7 @@ class AddCover(Dialog):
         b = self.bb.addButton(_('Import &image'), self.bb.ActionRole)
         b.clicked.connect(self.import_image)
         b.setIcon(QIcon(I('document_open.png')))
-        self.names.setFocus(Qt.OtherFocusReason)
+        self.names.setFocus(Qt.FocusReason.OtherFocusReason)
         self.names.selectionModel().currentChanged.connect(self.current_image_changed)
         cname = get_raster_cover_name(self.container)
         if cname:

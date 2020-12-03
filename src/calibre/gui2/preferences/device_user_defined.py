@@ -16,8 +16,8 @@ def step_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
     d.setText(msg)
-    d.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-    return d.exec_() & QMessageBox.Cancel
+    d.setStandardButtons(QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel)
+    return d.exec_() & QMessageBox.StandardButton.Cancel
 
 
 class UserDefinedDevice(QDialog):
@@ -38,8 +38,8 @@ class UserDefinedDevice(QDialog):
         self.ok.setAutoDefault(False)
         self.ok.clicked.connect(self.accept)
         self.bbox = QDialogButtonBox(self)
-        self.bbox.addButton(self.copy, QDialogButtonBox.ActionRole)
-        self.bbox.addButton(self.ok, QDialogButtonBox.AcceptRole)
+        self.bbox.addButton(self.copy, QDialogButtonBox.ButtonRole.ActionRole)
+        self.bbox.addButton(self.ok, QDialogButtonBox.ButtonRole.AcceptRole)
         self._layout.addWidget(self.bbox)
         self.resize(750, 500)
         self.bbox.setEnabled(False)

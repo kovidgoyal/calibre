@@ -33,7 +33,7 @@ class TableItem(QTableWidgetItem):
         self.sort = sort
         self.sort_idx = idx
         QTableWidgetItem.__init__(self, val)
-        self.setFlags(Qt.ItemIsEnabled|Qt.ItemIsSelectable)
+        self.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable)
 
     def __ge__(self, other):
         if self.sort is None:
@@ -95,7 +95,7 @@ class BooksTableFilter(QObject):
     return_pressed_signal = pyqtSignal()
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress and event.key() == Qt.Key_Return:
+        if event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Return:
             self.return_pressed_signal.emit()
             return True
         return False
@@ -106,7 +106,7 @@ class WidgetFocusFilter(QObject):
     focus_entered_signal = pyqtSignal(object)
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.FocusIn:
+        if event.type() == QEvent.Type.FocusIn:
             self.focus_entered_signal.emit(obj)
         return False
 
@@ -119,11 +119,11 @@ class WidgetTabFilter(QObject):
         self.which_widget = which_widget
 
     def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyPress:
-            if event.key() == Qt.Key_Tab:
+        if event.type() == QEvent.Type.KeyPress:
+            if event.key() == Qt.Key.Key_Tab:
                 self.tab_signal.emit(self.which_widget, True)
                 return True
-            if event.key() == Qt.Key_Backtab:
+            if event.key() == Qt.Key.Key_Backtab:
                 self.tab_signal.emit(self.which_widget, False)
                 return True
         return False
@@ -139,7 +139,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.is_pane = gprefs.get('quickview_is_pane', False)
 
         if not self.is_pane:
-            QDialog.__init__(self, gui, flags=Qt.Widget)
+            QDialog.__init__(self, gui, flags=Qt.WindowType.Widget)
         else:
             QDialog.__init__(self, gui)
         Ui_Quickview.__init__(self)
@@ -175,17 +175,17 @@ class Quickview(QDialog, Ui_Quickview):
         self.no_valid_items = False
         self.follow_library_view = True
 
-        self.apply_vls.setCheckState(Qt.Checked if gprefs['qv_respects_vls']
-                                        else Qt.Unchecked)
+        self.apply_vls.setCheckState(Qt.CheckState.Checked if gprefs['qv_respects_vls']
+                                        else Qt.CheckState.Unchecked)
         self.apply_vls.stateChanged.connect(self.vl_box_changed)
 
         self.fm = self.db.field_metadata
 
-        self.items.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.items.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.items.currentTextChanged.connect(self.item_selected)
         self.items.setProperty('highlight_current_item', 150)
         self.items.itemDoubleClicked.connect(self.item_doubleclicked)
-        self.items.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.items.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.items.customContextMenuRequested.connect(self.show_item_context_menu)
 
         focus_filter = WidgetFocusFilter(self.items)
@@ -210,8 +210,8 @@ class Quickview(QDialog, Ui_Quickview):
         for idx,widget in enumerate(self.tab_order_widgets):
             widget.installEventFilter(WidgetTabFilter(widget, idx, self.tab_pressed_signal))
 
-        self.books_table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.books_table.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.books_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.books_table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.books_table.setProperty('highlight_current_item', 150)
 
         # Set up the books table columns
@@ -222,7 +222,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.currentCellChanged.connect(self.books_table_cell_changed)
         self.books_table.cellClicked.connect(self.books_table_set_search_string)
         self.books_table.cellActivated.connect(self.books_table_set_search_string)
-        self.books_table.sortByColumn(0, Qt.AscendingOrder)
+        self.books_table.sortByColumn(0, Qt.SortOrder.AscendingOrder)
 
         # get the standard table row height. Do this here because calling
         # resizeRowsToContents can word wrap long cell contents, creating
@@ -271,7 +271,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.quickview_icon = QIcon(I('quickview.png'))
         self.select_book_icon = QIcon(I('library.png'))
         self.search_icon = QIcon(I('search.png'))
-        self.books_table.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.books_table.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.books_table.customContextMenuRequested.connect(self.show_context_menu)
 
         # Add the quickview toggle as a shortcut for the close button
@@ -308,7 +308,7 @@ class Quickview(QDialog, Ui_Quickview):
         item = self.books_table.item(index.row(), 0)
         if item is None:
             return False
-        book_id = int(item.data(Qt.UserRole))
+        book_id = int(item.data(Qt.ItemDataRole.UserRole))
         book_displayed = self.book_displayed_in_library_view(book_id)
         m = self.context_menu = QMenu(self)
         a = m.addAction(self.select_book_icon, _('Select this book in the library'),
@@ -373,7 +373,7 @@ class Quickview(QDialog, Ui_Quickview):
         current = self.books_table.item(current_row, current_col)
         if current is None:
             return
-        book_id = current.data(Qt.UserRole)
+        book_id = current.data(Qt.ItemDataRole.UserRole)
 
         if current is None:
             return
@@ -409,7 +409,7 @@ class Quickview(QDialog, Ui_Quickview):
             in_widget -= 1
             if in_widget < 0:
                 in_widget = len(self.tab_order_widgets) - 1
-        self.tab_order_widgets[in_widget].setFocus(Qt.TabFocusReason)
+        self.tab_order_widgets[in_widget].setFocus(Qt.FocusReason.TabFocusReason)
 
     def show(self):
         QDialog.show(self)
@@ -620,7 +620,7 @@ class Quickview(QDialog, Ui_Quickview):
                         v = mi.get('book_size')
                         if v is not None:
                             a = TableItem('{:n}'.format(v), v)
-                            a.setTextAlignment(Qt.AlignRight)
+                            a.setTextAlignment(Qt.AlignmentFlag.AlignRight)
                         else:
                             a = TableItem(' ', None)
                     elif self.fm[col]['datatype'] == 'series':
@@ -642,7 +642,7 @@ class Quickview(QDialog, Ui_Quickview):
                 except:
                     traceback.print_exc()
                     a = TableItem(_('Something went wrong while filling in the table'), '')
-                a.setData(Qt.UserRole, b)
+                a.setData(Qt.ItemDataRole.UserRole, b)
                 a.setToolTip(tt)
                 self.books_table.setItem(row, self.key_to_table_widget_column(col), a)
                 self.books_table.setRowHeight(row, self.books_table_row_height)
@@ -650,7 +650,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setSortingEnabled(True)
         if select_item is not None:
             self.books_table.setCurrentItem(select_item)
-            self.books_table.scrollToItem(select_item, QAbstractItemView.PositionAtCenter)
+            self.books_table.scrollToItem(select_item, QAbstractItemView.ScrollHint.PositionAtCenter)
         self.set_search_text(sv)
 
     # Deal with sizing the table columns. Done here because the numbers are not
@@ -744,13 +744,13 @@ class Quickview(QDialog, Ui_Quickview):
         item = self.books_table.item(row, column)
         if item is None:
             return
-        book_id = int(self.books_table.item(row, column).data(Qt.UserRole))
+        book_id = int(self.books_table.item(row, column).data(Qt.ItemDataRole.UserRole))
         if not self.book_displayed_in_library_view(book_id):
             self.book_not_in_view_error()
             return
         key = self.column_order[column]
         modifiers = int(QApplication.keyboardModifiers())
-        if modifiers in (Qt.CTRL, Qt.SHIFT):
+        if modifiers in (Qt.Modifier.CTRL, Qt.Modifier.SHIFT):
             self.edit_metadata(book_id)
         else:
             self.view.select_cell(self.db.data.id_to_index(book_id),
@@ -808,7 +808,7 @@ class Quickview(QDialog, Ui_Quickview):
     def _reject(self):
         if self.is_pane:
             self.gui.quickview_splitter.hide_quickview_widget()
-        self.gui.library_view.setFocus(Qt.ActiveWindowFocusReason)
+        self.gui.library_view.setFocus(Qt.FocusReason.ActiveWindowFocusReason)
         self._close()
         QDialog.reject(self)
 

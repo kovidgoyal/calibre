@@ -37,8 +37,8 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
     if palette is None:
         palette = QApplication.palette()
-    img = QImage(sz, sz, QImage.Format_ARGB32)
-    img.fill(Qt.transparent)
+    img = QImage(sz, sz, QImage.Format.Format_ARGB32)
+    img.fill(Qt.GlobalColor.transparent)
     p = QPainter(img)
     p.setRenderHints(p.TextAntialiasing | p.Antialiasing)
     if fill is not None:
@@ -46,7 +46,7 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     f = p.font()
     f.setFamily('Liberation Sans'), f.setPixelSize(int(sz // divider)), f.setBold(True)
     p.setFont(f), p.setPen(QColor('#2271d5'))
-    p.drawText(img.rect().adjusted(2, 2, -2, -2), Qt.AlignCenter, text)
+    p.drawText(img.rect().adjusted(2, 2, -2, -2), Qt.AlignmentFlag.AlignCenter, text)
     p.end()
     return QIcon(QPixmap.fromImage(img))
 
@@ -143,11 +143,11 @@ class Editor(QMainWindow):
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
         if parent is None:
-            self.setWindowFlags(Qt.Widget)
+            self.setWindowFlags(Qt.WindowType.Widget)
         self.is_synced_to_container = False
         self.syntax = syntax
         self.editor = TextEdit(self)
-        self.editor.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.editor.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.editor.customContextMenuRequested.connect(self.show_context_menu)
         self.setCentralWidget(self.editor)
         self.create_toolbars()
@@ -230,7 +230,7 @@ class Editor(QMainWindow):
         self.editor.apply_settings(prefs=None, dictionaries_changed=dictionaries_changed)
 
     def set_focus(self):
-        self.editor.setFocus(Qt.OtherFocusReason)
+        self.editor.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def action_triggered(self, action):
         action, args = action[0], action[1:]
@@ -396,9 +396,9 @@ class Editor(QMainWindow):
                 if hasattr(w, 'setPopupMode'):
                     # For some unknown reason this button is occassionally a
                     # QPushButton instead of a QToolButton
-                    w.setPopupMode(QToolButton.MenuButtonPopup)
+                    w.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 w.setMenu(self.insert_tag_menu)
-                w.setContextMenuPolicy(Qt.CustomContextMenu)
+                w.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
                 w.customContextMenuRequested.connect(w.showMenu)
                 self._build_insert_tag_button_menu()
             elif name == 'change-paragraph':
@@ -408,7 +408,7 @@ class Editor(QMainWindow):
                 if hasattr(ch, 'setPopupMode'):
                     # For some unknown reason this button is occassionally a
                     # QPushButton instead of a QToolButton
-                    ch.setPopupMode(QToolButton.InstantPopup)
+                    ch.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
                 for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):
                     m.addAction(actions['rename-block-tag-%s' % name])
 

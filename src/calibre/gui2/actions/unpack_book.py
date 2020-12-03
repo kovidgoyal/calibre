@@ -94,7 +94,7 @@ class UnpackBook(QDialog):
             </ol>'''))
         self.help_label.setWordWrap(True)
         self._fr = QFrame()
-        self._fr.setFrameShape(QFrame.VLine)
+        self._fr.setFrameShape(QFrame.Shape.VLine)
         g.addWidget(self._fr)
         g.addWidget(self.help_label)
 

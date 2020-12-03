@@ -83,7 +83,7 @@ class ConfirmDialog(QDialog):
         l.setColumnStretch(1, 100)
 
         self.identify = self.covers = True
-        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         self.bb.rejected.connect(self.reject)
         b = self.bb.addButton(_('Download only &metadata'),
                 self.bb.AcceptRole)
@@ -105,7 +105,7 @@ class ConfirmDialog(QDialog):
         b.setIcon(QIcon(I('ok.png')))
 
         self.resize(self.sizeHint())
-        b.setFocus(Qt.OtherFocusReason)
+        b.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def only_metadata(self):
         self.covers = False

@@ -36,8 +36,8 @@ class Updater(QThread):  # {{{
         self.pd.setModal(True)
         self.pd.show()
         self.update_progress.connect(self.pd.set_value,
-                type=Qt.QueuedConnection)
-        self.update_done.connect(self.pd.hide, type=Qt.QueuedConnection)
+                type=Qt.ConnectionType.QueuedConnection)
+        self.update_done.connect(self.pd.hide, type=Qt.ConnectionType.QueuedConnection)
 
     def canceled(self):
         self.keep_going = False

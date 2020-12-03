@@ -36,13 +36,13 @@ class Smarts(NullSmarts):
     def handle_key_press(self, ev, editor):
         key = ev.key()
 
-        if key == Qt.Key_Tab and smart_tab(editor, ev):
+        if key == Qt.Key.Key_Tab and smart_tab(editor, ev):
             return True
 
-        elif key == Qt.Key_Backspace and smart_backspace(editor, ev):
+        elif key == Qt.Key.Key_Backspace and smart_backspace(editor, ev):
             return True
 
-        elif key in (Qt.Key_Enter, Qt.Key_Return):
+        elif key in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             ls = get_leading_whitespace_on_block(editor)
             cursor = editor.textCursor()
             line = cursor.block().text()
@@ -54,7 +54,7 @@ class Smarts(NullSmarts):
             editor.setTextCursor(cursor)
             return True
 
-        elif key == Qt.Key_Colon:
+        elif key == Qt.Key.Key_Colon:
             cursor, text = get_text_before_cursor(editor)
             if self.dedent_pat.search(text) is not None:
                 ls = get_leading_whitespace_on_block(editor)
@@ -66,7 +66,7 @@ class Smarts(NullSmarts):
                     editor.setTextCursor(cursor)
                     return True
 
-        if key == Qt.Key_Home and smart_home(editor, ev):
+        if key == Qt.Key.Key_Home and smart_home(editor, ev):
             return True
 
 

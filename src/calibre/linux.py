@@ -1302,7 +1302,7 @@ def write_appdata(key, entry, base, translators):
 
 def render_img(image, dest, width=128, height=128):
     from PyQt5.Qt import QImage, Qt
-    img = QImage(I(image)).scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    img = QImage(I(image)).scaled(width, height, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
     img.save(dest)
 
 

@@ -28,14 +28,14 @@ class ProgressDialog(QDialog):
             if not isinstance(icon, QIcon):
                 icon = QIcon(I(icon))
             i.setPixmap(icon.pixmap(64))
-            h.addWidget(i, alignment=Qt.AlignTop | Qt.AlignHCenter)
+            h.addWidget(i, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
             self.l = l = QVBoxLayout()
             h.addLayout(l)
             self.setWindowIcon(icon)
 
         self.title_label = t = QLabel(title)
         self.setWindowTitle(title)
-        t.setStyleSheet('QLabel { font-weight: bold }'), t.setAlignment(Qt.AlignCenter), t.setTextFormat(Qt.PlainText)
+        t.setStyleSheet('QLabel { font-weight: bold }'), t.setAlignment(Qt.AlignmentFlag.AlignCenter), t.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(t)
 
         self.bar = b = QProgressBar(self)
@@ -44,15 +44,15 @@ class ProgressDialog(QDialog):
 
         self.message = m = QLabel(self)
         fm = QFontMetrics(self.font())
-        m.setAlignment(Qt.AlignCenter), m.setMinimumWidth(fm.averageCharWidth() * 80), m.setTextFormat(Qt.PlainText)
+        m.setAlignment(Qt.AlignmentFlag.AlignCenter), m.setMinimumWidth(fm.averageCharWidth() * 80), m.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(m)
         self.msg = msg
 
-        self.button_box = bb = QDialogButtonBox(QDialogButtonBox.Abort, self)
+        self.button_box = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Abort, self)
         bb.rejected.connect(self._canceled)
         l.addWidget(bb)
 
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.canceled = False
 
         if not cancelable:
@@ -125,7 +125,7 @@ class ProgressDialog(QDialog):
         QDialog.reject(self)
 
     def keyPressEvent(self, ev):
-        if ev.key() == Qt.Key_Escape:
+        if ev.key() == Qt.Key.Key_Escape:
             if self.cancelable:
                 self._canceled()
         else:
@@ -146,9 +146,9 @@ class BlockingBusy(QDialog):
         self.msg.setFont(self.font)
         self.pi = ProgressIndicator(self)
         self.pi.setDisplaySize(QSize(100, 100))
-        self._layout.addWidget(self.pi, 0, Qt.AlignHCenter)
+        self._layout.addWidget(self.pi, 0, Qt.AlignmentFlag.AlignHCenter)
         self._layout.addSpacing(15)
-        self._layout.addWidget(self.msg, 0, Qt.AlignHCenter)
+        self._layout.addWidget(self.msg, 0, Qt.AlignmentFlag.AlignHCenter)
         self.start()
         self.setWindowTitle(window_title)
         self.resize(self.sizeHint())

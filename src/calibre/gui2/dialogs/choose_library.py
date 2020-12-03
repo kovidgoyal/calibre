@@ -27,8 +27,8 @@ class ProgressDialog(PD):
 
     def __init__(self, *args, **kwargs):
         PD.__init__(self, *args, **kwargs)
-        self.on_progress_update.connect(self.progressed, type=Qt.QueuedConnection)
-        self.finished_moving.connect(self.accept, type=Qt.QueuedConnection)
+        self.on_progress_update.connect(self.progressed, type=Qt.ConnectionType.QueuedConnection)
+        self.finished_moving.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
 
     def reject(self):
         return

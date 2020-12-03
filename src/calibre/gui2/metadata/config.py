@@ -38,8 +38,8 @@ class FieldsModel(FM):  # {{{
 
     def state(self, field, defaults=False):
         src = self.prefs.defaults if defaults else self.prefs
-        return (Qt.Unchecked if field in src['ignore_fields']
-                    else Qt.Checked)
+        return (Qt.CheckState.Unchecked if field in src['ignore_fields']
+                    else Qt.CheckState.Checked)
 
     def restore_defaults(self):
         self.beginResetModel()
@@ -50,7 +50,7 @@ class FieldsModel(FM):  # {{{
         ignored_fields = {x for x in self.prefs['ignore_fields'] if x not in
             self.overrides}
         changed = {k for k, v in iteritems(self.overrides) if v ==
-            Qt.Unchecked}
+            Qt.CheckState.Unchecked}
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
 
 # }}}

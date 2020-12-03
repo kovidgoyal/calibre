@@ -16,10 +16,10 @@ class LayoutItem(QWidget):
     def __init__(self, button, parent=None):
         QWidget.__init__(self, parent)
         self.mouse_over = False
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.button = button
         self.text = button.label
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.fm = QFontMetrics(self.font())
         self._bi = self._di = None
 
@@ -32,7 +32,7 @@ class LayoutItem(QWidget):
     @property
     def dull_icon(self):
         if self._di is None:
-            self._di = self.button.icon().pixmap(ICON_SZ, ICON_SZ, mode=QIcon.Disabled)
+            self._di = self.button.icon().pixmap(ICON_SZ, ICON_SZ, mode=QIcon.Mode.Disabled)
         return self._di
 
     def event(self, ev):
@@ -60,13 +60,13 @@ class LayoutItem(QWidget):
         if self.mouse_over:
             tool = QStyleOption()
             tool.rect = self.rect()
-            tool.state = QStyle.State_Raised | QStyle.State_Active | QStyle.State_MouseOver
+            tool.state = QStyle.StateFlag.State_Raised | QStyle.StateFlag.State_Active | QStyle.StateFlag.State_MouseOver
             s = self.style()
-            s.drawPrimitive(QStyle.PE_PanelButtonTool, tool, painter, self)
+            s.drawPrimitive(QStyle.PrimitiveElement.PE_PanelButtonTool, tool, painter, self)
         painter.drawText(
             0, 0,
             self.width(),
-            ls, Qt.AlignCenter | Qt.TextSingleLine, self.text)
+            ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, self.text)
         text = _('Hide') if shown else _('Show')
         f = self.font()
         f.setBold(True)
@@ -74,7 +74,7 @@ class LayoutItem(QWidget):
         painter.drawText(
             0, self.height() - ls,
             self.width(),
-            ls, Qt.AlignCenter | Qt.TextSingleLine, text)
+            ls, Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextSingleLine, text)
         x = (self.width() - ICON_SZ) // 2
         y = ls + (self.height() - ICON_SZ - 2 * ls) // 2
         pmap = self.bright_icon if shown else self.dull_icon
@@ -115,7 +115,7 @@ class LayoutMenu(QMenu):
                 return item
 
     def mousePressEvent(self, ev):
-        if ev.button() != Qt.LeftButton:
+        if ev.button() != Qt.MouseButton.LeftButton:
             ev.ignore()
             return
         if (ev.pos().isNull() and not ev.screenPos().isNull()) or not self.rect().contains(ev.pos()):
@@ -127,7 +127,7 @@ class LayoutMenu(QMenu):
             ev.ignore()
 
     def mouseReleaseEvent(self, ev):
-        if ev.button() != Qt.LeftButton:
+        if ev.button() != Qt.MouseButton.LeftButton:
             ev.ignore()
             return
         item = self.item_for_ev(ev)

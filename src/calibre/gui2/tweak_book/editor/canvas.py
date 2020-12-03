@@ -117,7 +117,7 @@ class Rotate(Command):
         img = canvas.current_image
         m = QTransform()
         m.rotate(90)
-        return img.transformed(m, Qt.SmoothTransformation)
+        return img.transformed(m, Qt.TransformationMode.SmoothTransformation)
 
 
 class Scale(Command):
@@ -130,7 +130,7 @@ class Scale(Command):
 
     def __call__(self, canvas):
         img = canvas.current_image
-        return img.scaled(self.width, self.height, transformMode=Qt.SmoothTransformation)
+        return img.scaled(self.width, self.height, transformMode=Qt.TransformationMode.SmoothTransformation)
 
 
 class Sharpen(Command):
@@ -212,7 +212,7 @@ def imageop(func):
             return error_dialog(self, _('No image'), _('No image loaded'), show=True)
         if not self.is_valid:
             return error_dialog(self, _('Invalid image'), _('The current image is not valid'), show=True)
-        QApplication.setOverrideCursor(Qt.BusyCursor)
+        QApplication.setOverrideCursor(Qt.CursorShape.BusyCursor)
         try:
             return func(self, *args, **kwargs)
         finally:
@@ -224,7 +224,7 @@ class Canvas(QWidget):
 
     BACKGROUND = QColor(60, 60, 60)
     SHADE_COLOR = QColor(0, 0, 0, 180)
-    SELECT_PEN = QPen(QColor(Qt.white))
+    SELECT_PEN = QPen(QColor(Qt.GlobalColor.white))
 
     selection_state_changed = pyqtSignal(object)
     undo_redo_state_changed = pyqtSignal(object, object)
@@ -246,7 +246,7 @@ class Canvas(QWidget):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
-        event.setDropAction(Qt.CopyAction)
+        event.setDropAction(Qt.DropAction.CopyAction)
         md = event.mimeData()
 
         x, y = dnd_get_image(md)
@@ -276,7 +276,7 @@ class Canvas(QWidget):
         QWidget.__init__(self, parent)
         self.setAcceptDrops(True)
         self.setMouseTracking(True)
-        self.setFocusPolicy(Qt.ClickFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
         self.selection_state = SelectionState()
         self.undo_stack = u = QUndoStack()
         u.setUndoLimit(10)
@@ -454,11 +454,11 @@ class Canvas(QWidget):
     def get_cursor(self):
         dc = self.selection_state.drag_corner
         if dc is None:
-            ans = Qt.OpenHandCursor if self.selection_state.last_drag_pos is None else Qt.ClosedHandCursor
+            ans = Qt.CursorShape.OpenHandCursor if self.selection_state.last_drag_pos is None else Qt.CursorShape.ClosedHandCursor
         elif None in dc:
-            ans = Qt.SizeVerCursor if dc[0] is None else Qt.SizeHorCursor
+            ans = Qt.CursorShape.SizeVerCursor if dc[0] is None else Qt.CursorShape.SizeHorCursor
         else:
-            ans = Qt.SizeBDiagCursor if dc in {('left', 'bottom'), ('right', 'top')} else Qt.SizeFDiagCursor
+            ans = Qt.CursorShape.SizeBDiagCursor if dc in {('left', 'bottom'), ('right', 'top')} else Qt.CursorShape.SizeFDiagCursor
         return ans
 
     def move_edge(self, edge, dp):
@@ -499,7 +499,7 @@ class Canvas(QWidget):
                     self.move_edge(edge, dp)
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.LeftButton and self.target.contains(ev.pos()):
+        if ev.button() == Qt.MouseButton.LeftButton and self.target.contains(ev.pos()):
             pos = ev.pos()
             self.selection_state.last_press_point = pos
             if self.selection_state.current_mode is None:
@@ -522,11 +522,11 @@ class Canvas(QWidget):
         self.selection_state.in_selection = False
         self.selection_state.drag_corner = None
         pos = ev.pos()
-        cursor = Qt.ArrowCursor
+        cursor = Qt.CursorShape.ArrowCursor
         try:
             if not self.target.contains(pos):
                 return
-            if ev.buttons() & Qt.LeftButton:
+            if ev.buttons() & Qt.MouseButton.LeftButton:
                 if self.selection_state.last_press_point is not None and self.selection_state.current_mode is not None:
                     if self.selection_state.current_mode == 'select':
                         self.selection_state.rect = QRectF(self.selection_state.last_press_point, pos).normalized()
@@ -554,7 +554,7 @@ class Canvas(QWidget):
             self.setCursor(cursor)
 
     def mouseReleaseEvent(self, ev):
-        if ev.button() == Qt.LeftButton:
+        if ev.button() == Qt.MouseButton.LeftButton:
             self.selection_state.dragging = self.selection_state.last_drag_pos = None
             if self.selection_state.current_mode == 'select':
                 r = self.selection_state.rect
@@ -569,14 +569,14 @@ class Canvas(QWidget):
 
     def keyPressEvent(self, ev):
         k = ev.key()
-        if k in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down) and self.selection_state.rect is not None and self.has_selection:
+        if k in (Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down) and self.selection_state.rect is not None and self.has_selection:
             ev.accept()
-            delta = 10 if ev.modifiers() & Qt.ShiftModifier else 1
+            delta = 10 if ev.modifiers() & Qt.KeyboardModifier.ShiftModifier else 1
             x = y = 0
-            if k in (Qt.Key_Left, Qt.Key_Right):
-                x = delta * (-1 if k == Qt.Key_Left else 1)
+            if k in (Qt.Key.Key_Left, Qt.Key.Key_Right):
+                x = delta * (-1 if k == Qt.Key.Key_Left else 1)
             else:
-                y = delta * (-1 if k == Qt.Key_Up else 1)
+                y = delta * (-1 if k == Qt.Key.Key_Up else 1)
             self.move_selection_rect(x, y)
             self.update()
         else:
@@ -594,8 +594,8 @@ class Canvas(QWidget):
         font.setPointSize(3 * font.pointSize())
         font.setBold(True)
         painter.setFont(font)
-        painter.setPen(QColor(Qt.black))
-        painter.drawText(self.rect(), Qt.AlignCenter, _('Not a valid image'))
+        painter.setPen(QColor(Qt.GlobalColor.black))
+        painter.drawText(self.rect(), Qt.AlignmentFlag.AlignCenter, _('Not a valid image'))
 
     def load_pixmap(self):
         canvas_size = self.rect().width(), self.rect().height()
@@ -615,7 +615,7 @@ class Canvas(QWidget):
             except AttributeError:
                 dpr = self.devicePixelRatio()
             if scaled:
-                i = self.current_image.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.SmoothTransformation)
+                i = self.current_image.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.TransformationMode.SmoothTransformation)
             self.current_scaled_pixmap = QPixmap.fromImage(i)
             self.current_scaled_pixmap.setDevicePixelRatio(dpr)
 
@@ -637,7 +637,7 @@ class Canvas(QWidget):
     def draw_selection_rect(self, painter):
         cr, sr = self.target, self.selection_state.rect
         painter.setPen(self.SELECT_PEN)
-        painter.setRenderHint(QPainter.Antialiasing, False)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
         if self.selection_state.current_mode == 'selected':
             # Shade out areas outside the selection rect
             for r in (
@@ -652,19 +652,19 @@ class Canvas(QWidget):
             if self.selection_state.in_selection and dr is not None:
                 # Draw the resize rectangle
                 painter.save()
-                painter.setCompositionMode(QPainter.RasterOp_SourceAndNotDestination)
+                painter.setCompositionMode(QPainter.CompositionMode.RasterOp_SourceAndNotDestination)
                 painter.setClipRect(sr.adjusted(1, 1, -1, -1))
                 painter.drawRect(dr)
                 painter.restore()
 
         # Draw the selection rectangle
-        painter.setCompositionMode(QPainter.RasterOp_SourceAndNotDestination)
+        painter.setCompositionMode(QPainter.CompositionMode.RasterOp_SourceAndNotDestination)
         painter.drawRect(sr)
 
     def paintEvent(self, event):
         QWidget.paintEvent(self, event)
         p = QPainter(self)
-        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         try:
             self.draw_background(p)
             if self.original_image_data is None:

@@ -343,8 +343,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.refill_all_boxes()
 
     def existing_pb_clicked(self, qitem):
-        item = qitem.data(Qt.UserRole)
-        if (qitem.flags() & Qt.ItemIsEnabled):
+        item = qitem.data(Qt.ItemDataRole.UserRole)
+        if (qitem.flags() & Qt.ItemFlag.ItemIsEnabled):
             self.edit_format.setCurrentIndex(self.edit_format.findText(item[0]))
             self.edit_device.setCurrentIndex(self.edit_device.findText(item[1]))
         else:
@@ -379,9 +379,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     ops.append('([' + op[0] + '] -> ' + op[1] + ')')
                 txt = '%s:%s = %s\n'%(f, d, ', '.join(ops))
                 item = QListWidgetItem(txt)
-                item.setData(Qt.UserRole, (f, d))
+                item.setData(Qt.ItemDataRole.UserRole, (f, d))
                 if d in self.disabled_devices:
-                    item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
                 self.existing_plugboards.addItem(item)
         self.refilling = False
 

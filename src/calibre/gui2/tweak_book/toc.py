@@ -43,7 +43,7 @@ class TOCEditor(QDialog):
         self.item_edit = ItemEdit(self, tprefs)
         s.addWidget(self.item_edit)
 
-        bb = self.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
@@ -106,7 +106,7 @@ class TOCEditor(QDialog):
                 uid=self.toc_view.toc_uid)
 
 
-DEST_ROLE = Qt.UserRole
+DEST_ROLE = Qt.ItemDataRole.UserRole
 FRAG_ROLE = DEST_ROLE + 1
 
 
@@ -134,8 +134,8 @@ class TOCViewer(QWidget):
         self.view.setItemDelegate(self.delegate)
         self.view.setHeaderHidden(True)
         self.view.setAnimated(True)
-        self.view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.view.customContextMenuRequested.connect(self.show_context_menu, type=Qt.QueuedConnection)
+        self.view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.view.customContextMenuRequested.connect(self.show_context_menu, type=Qt.ConnectionType.QueuedConnection)
         self.view.itemActivated.connect(self.emit_navigate)
         self.view.itemPressed.connect(self.item_pressed)
         set_no_activate_on_click(self.view)
@@ -168,7 +168,7 @@ class TOCViewer(QWidget):
         self.build()
 
     def item_pressed(self, item):
-        if QApplication.mouseButtons() & Qt.LeftButton:
+        if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
             QTimer.singleShot(0, self.emit_navigate)
 
     def show_context_menu(self, pos):
@@ -213,7 +213,7 @@ class TOCViewer(QWidget):
                 node.setData(0, FRAG_ROLE, child.frag or '')
                 tt = _('File: {0}\nAnchor: {1}').format(
                     child.dest or '', child.frag or _('Top of file'))
-                node.setData(0, Qt.ToolTipRole, tt)
+                node.setData(0, Qt.ItemDataRole.ToolTipRole, tt)
                 process_node(child, node)
 
         self.view.clear()

@@ -154,7 +154,7 @@ class PDFOutput(OutputFormatPlugin):
         from calibre.constants import FAKE_PROTOCOL
         scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
         scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
-        scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+        scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
         QWebEngineUrlScheme.registerScheme(scheme)
         must_use_qt()
         self.input_fmt = input_fmt

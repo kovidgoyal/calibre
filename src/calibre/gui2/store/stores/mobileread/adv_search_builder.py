@@ -33,9 +33,9 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
     def tab_changed(self, idx):
         if idx == 1:
-            self.tab_2_button_box.button(QDialogButtonBox.Ok).setDefault(True)
+            self.tab_2_button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
         else:
-            self.buttonBox.button(QDialogButtonBox.Ok).setDefault(True)
+            self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
 
     def advanced_search_button_pushed(self):
         self.adv_search_used = True

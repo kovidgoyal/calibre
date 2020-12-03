@@ -116,8 +116,8 @@ document.title = 'compiler initialized';
     def create_script(src, name):
         s = QWebEngineScript()
         s.setName(name)
-        s.setInjectionPoint(QWebEngineScript.DocumentReady)
-        s.setWorldId(QWebEngineScript.ApplicationWorld)
+        s.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
+        s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
         s.setRunsOnSubFrames(True)
         s.setSourceCode(src)
         return s
@@ -136,7 +136,7 @@ document.title = 'compiler initialized';
                 self.spin_loop()
 
         def spin_loop(self):
-            QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
+            QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
 
         def javaScriptConsoleMessage(self, level, msg, line_num, source_id):
             if level:
@@ -152,7 +152,7 @@ document.title = 'compiler initialized';
             options['write_name'] = True
             options['keep_docstrings'] = False
             src = 'var js = window.compiler.compile({}, {}); [js, window.write_cache]'.format(*map(json.dumps, (src, options)))
-            self.runJavaScript(src, QWebEngineScript.ApplicationWorld, self.compilation_done)
+            self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, self.compilation_done)
             while self.working:
                 self.spin_loop()
             if self.compiler_result is null or self.compiler_result is None:
@@ -166,7 +166,7 @@ document.title = 'compiler initialized';
             self.compiler_result = null = object()
             self.errors = []
             self.working = True
-            self.runJavaScript(js, QWebEngineScript.ApplicationWorld, self.compilation_done)
+            self.runJavaScript(js, QWebEngineScript.ScriptWorldId.ApplicationWorld, self.compilation_done)
             while self.working:
                 self.spin_loop()
             if self.compiler_result is null:
@@ -346,8 +346,8 @@ def run_rapydscript_tests():
     def create_script(src, name):
         s = QWebEngineScript()
         s.setName(name)
-        s.setInjectionPoint(QWebEngineScript.DocumentReady)
-        s.setWorldId(QWebEngineScript.ApplicationWorld)
+        s.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
+        s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
         s.setRunsOnSubFrames(False)
         s.setSourceCode(src)
         return s
@@ -365,11 +365,11 @@ def run_rapydscript_tests():
         def title_changed(self, title):
             if title == 'initialized':
                 self.titleChanged.disconnect()
-                self.runJavaScript('window.main()', QWebEngineScript.ApplicationWorld, self.callback)
+                self.runJavaScript('window.main()', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.callback)
 
         def spin_loop(self):
             while self.working:
-                QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
+                QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             return self.result
 
         def callback(self, result):

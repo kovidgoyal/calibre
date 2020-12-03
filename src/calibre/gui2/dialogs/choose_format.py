@@ -37,7 +37,7 @@ class ChooseFormatDialog(QDialog):
             self.owb.setMenu(self.own)
             self.own.aboutToShow.connect(self.populate_open_with)
         self.buttonBox = bb = QDialogButtonBox(self)
-        bb.setStandardButtons(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         h.addStretch(10), h.addWidget(self.buttonBox)
 

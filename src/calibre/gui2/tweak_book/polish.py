@@ -62,7 +62,7 @@ def customize_remove_unused_css(name, parent, ans):
     ' Note that in rare cases merging can result in a change to the effective styling'
     ' of the book, so use with care.'))
 
-    d.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
@@ -109,7 +109,7 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.e = QTextBrowser(d)
     d.l.addWidget(d.e)
     d.e.setHtml(report)
-    d.bb = QDialogButtonBox(QDialogButtonBox.Close)
+    d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
     d.show_changes = False
     if changed:
         b = d.b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
@@ -144,17 +144,17 @@ class ImageItemDelegate(QStyledItemDelegate):
         return QSize(300, 100)
 
     def paint(self, painter, option, index):
-        name = index.data(Qt.DisplayRole)
-        sz = human_readable(index.data(Qt.UserRole))
-        pmap = index.data(Qt.UserRole+1)
+        name = index.data(Qt.ItemDataRole.DisplayRole)
+        sz = human_readable(index.data(Qt.ItemDataRole.UserRole))
+        pmap = index.data(Qt.ItemDataRole.UserRole+1)
         irect = option.rect.adjusted(0, 5, 0, -5)
         irect.setRight(irect.left() + 70)
         if pmap is None:
             pmap = QPixmap(current_container().get_file_path_for_processing(name))
             scaled, nwidth, nheight = fit_image(pmap.width(), pmap.height(), irect.width(), irect.height())
             if scaled:
-                pmap = pmap.scaled(nwidth, nheight, transformMode=Qt.SmoothTransformation)
-            index.model().setData(index, pmap, Qt.UserRole+1)
+                pmap = pmap.scaled(nwidth, nheight, transformMode=Qt.TransformationMode.SmoothTransformation)
+            index.model().setData(index, pmap, Qt.ItemDataRole.UserRole+1)
         x, y = (irect.width() - pmap.width())//2, (irect.height() - pmap.height())//2
         r = irect.adjusted(x, y, -x, -y)
         QStyledItemDelegate.paint(self, painter, option, empty_index)
@@ -162,9 +162,9 @@ class ImageItemDelegate(QStyledItemDelegate):
         trect = irect.adjusted(irect.width() + 10, 0, 0, 0)
         trect.setRight(option.rect.right())
         painter.save()
-        if option.state & QStyle.State_Selected:
+        if option.state & QStyle.StateFlag.State_Selected:
             painter.setPen(QPen(option.palette.color(option.palette.HighlightedText)))
-        painter.drawText(trect, Qt.AlignVCenter | Qt.AlignLeft, name + '\n' + sz)
+        painter.drawText(trect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, name + '\n' + sz)
         painter.restore()
 
 
@@ -184,7 +184,7 @@ class CompressImages(Dialog):
         c = current_container()
         for name in sorted(get_compressible_images(c), key=numeric_sort_key):
             x = QListWidgetItem(name, i)
-            x.setData(Qt.UserRole, c.filesize(name))
+            x.setData(Qt.ItemDataRole.UserRole, c.filesize(name))
         i.setSelectionMode(i.ExtendedSelection)
         i.setMinimumHeight(350), i.setMinimumWidth(350)
         i.selectAll(), i.setSpacing(5)
@@ -239,8 +239,8 @@ class CompressImagesProgress(Dialog):
         self.keep_going = True
         self.result = (None, '')
         Dialog.__init__(self, _('Compressing images...'), 'compress-images-progress', parent=parent)
-        self.gui_loop.connect(self.update_progress, type=Qt.QueuedConnection)
-        self.cidone.connect(self.accept, type=Qt.QueuedConnection)
+        self.gui_loop.connect(self.update_progress, type=Qt.ConnectionType.QueuedConnection)
+        self.cidone.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         t = Thread(name='RunCompressImages', target=self.run_compress)
         t.daemon = True
         t.start()
@@ -261,17 +261,17 @@ class CompressImagesProgress(Dialog):
 
     def setup_ui(self):
         self.setWindowIcon(QIcon(I('compress-image.png')))
-        self.setCursor(Qt.BusyCursor)
+        self.setCursor(Qt.CursorShape.BusyCursor)
         self.setMinimumWidth(350)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(_('Compressing images, please wait...'))
-        la.setStyleSheet('QLabel { font-weight: bold }'), la.setAlignment(Qt.AlignCenter), la.setTextFormat(Qt.PlainText)
+        la.setStyleSheet('QLabel { font-weight: bold }'), la.setAlignment(Qt.AlignmentFlag.AlignCenter), la.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(la)
         self.progress = p = QProgressBar(self)
         p.setMinimum(0), p.setMaximum(0)
         l.addWidget(p)
         self.msg = la = QLabel('\xa0')
-        la.setAlignment(Qt.AlignCenter), la.setTextFormat(Qt.PlainText)
+        la.setAlignment(Qt.AlignmentFlag.AlignCenter), la.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(la)
 
         self.bb.setStandardButtons(self.bb.Cancel)

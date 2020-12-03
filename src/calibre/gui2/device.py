@@ -128,7 +128,7 @@ def device_name_for_plugboards(device_class):
 class BusyCursor(object):
 
     def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
@@ -893,7 +893,7 @@ class DeviceMixin(object):  # {{{
     def init_device_mixin(self):
         self.device_error_dialog = error_dialog(self, _('Error'),
                 _('Error communicating with device'), ' ')
-        self.device_error_dialog.setModal(Qt.NonModal)
+        self.device_error_dialog.setModal(Qt.WindowModality.NonModal)
         self.device_manager = DeviceManager(FunctionDispatcher(self.device_detected),
                 self.job_manager, Dispatcher(self.status_bar.show_message),
                 Dispatcher(self.show_open_feedback),
@@ -973,7 +973,7 @@ class DeviceMixin(object):  # {{{
         config_dialog.setWindowIcon(QIcon(I('config.png')))
         l = QVBoxLayout(config_dialog)
         config_dialog.setLayout(l)
-        bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(config_dialog.accept)
         bb.rejected.connect(config_dialog.reject)
         l.addWidget(cw)
@@ -1259,7 +1259,7 @@ class DeviceMixin(object):  # {{{
                 elif f in aval_out_formats:
                     formats.append((f, _('0 of %i books') % len(rows), True))
             d = ChooseFormatDeviceDialog(self, _('Choose format to send to device'), formats)
-            if d.exec_() != QDialog.Accepted:
+            if d.exec_() != QDialog.DialogCode.Accepted:
                 return
             if d.format():
                 fmt = d.format().lower()
@@ -1891,7 +1891,7 @@ class DeviceMixin(object):  # {{{
                     # loop with preventing App Not Responding errors
                     if current_book_count % 10 == 0:
                         QCoreApplication.processEvents(
-                            flags=QEventLoop.ExcludeUserInputEvents|QEventLoop.ExcludeSocketNotifiers)
+                            flags=QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents|QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
                     current_book_count += 1
                     book.in_library = None
                     if getattr(book, 'uuid', None) in self.db_book_uuid_cache:

@@ -52,7 +52,7 @@ class EnumValuesEdit(QDialog):
         t.setColumnCount(2)
         t.setRowCount(1)
         t.setHorizontalHeaderLabels([_('Value'), _('Color')])
-        t.setSelectionMode(QAbstractItemView.SingleSelection)
+        t.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         tl.addWidget(t)
 
         self.fm = fm = db.field_metadata[key]
@@ -67,11 +67,11 @@ class EnumValuesEdit(QDialog):
             else:
                 c.setCurrentIndex(0)
 
-        t.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        t.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
 
         self.setLayout(l)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, 1, 0, 1, 2)

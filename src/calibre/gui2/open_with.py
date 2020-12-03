@@ -28,7 +28,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key as sort_key
 from polyglot.builtins import iteritems, range, string_or_bytes, unicode_type
 
-ENTRY_ROLE = Qt.UserRole
+ENTRY_ROLE = Qt.ItemDataRole.UserRole
 
 
 def pixmap_to_data(pixmap):
@@ -281,7 +281,7 @@ class ChooseProgram(Dialog):  # {{{
         self.programs = self.find_error = self.selected_entry = None
         self.select_manually = False
         Dialog.__init__(self, _('Choose a program'), 'choose-open-with-program-dialog', parent=parent, prefs=prefs)
-        self.found.connect(self.programs_found, type=Qt.QueuedConnection)
+        self.found.connect(self.programs_found, type=Qt.ConnectionType.QueuedConnection)
         self.pi.startAnimation()
         t = Thread(target=self.find_programs)
         t.daemon = True
@@ -292,11 +292,11 @@ class ChooseProgram(Dialog):  # {{{
         self.w = w = QWidget(self)
         self.w.l = l = QVBoxLayout(w)
         self.pi = pi = ProgressIndicator(self, 256)
-        l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignHCenter), l.addSpacing(10)
+        l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignmentFlag.AlignHCenter), l.addSpacing(10)
         w.la = la = QLabel(_('Gathering data, please wait...'))
         f = la.font()
         f.setBold(True), f.setPointSize(28), la.setFont(f)
-        l.addWidget(la, alignment=Qt.AlignHCenter), l.addStretch(1)
+        l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter), l.addStretch(1)
         s.addWidget(w)
 
         self.w2 = w = QWidget(self)
@@ -380,7 +380,7 @@ def populate_menu(menu, connect_action, file_type):
         text = elided_text(text, pos='right')
         sa = registered_shortcuts.get(entry['uuid'])
         if sa is not None:
-            text += '\t' + sa.shortcut().toString(QKeySequence.NativeText)
+            text += '\t' + sa.shortcut().toString(QKeySequence.SequenceFormat.NativeText)
         ac = menu.addAction(icon, text)
         connect_action(ac, entry)
     return menu
@@ -444,14 +444,14 @@ class EditPrograms(Dialog):  # {{{
         if ci is None:
             return error_dialog(self, _('No selection'), _(
                 'No application selected'), show=True)
-        name = ci.data(Qt.DisplayRole)
+        name = ci.data(Qt.ItemDataRole.DisplayRole)
         name, ok = QInputDialog.getText(self, _('Enter new name'), _('New name for {}').format(name), text=name)
         if ok and name:
             entry = ci.data(ENTRY_ROLE)
             change_name_in_entry(entry, name)
             ci.setData(ENTRY_ROLE, entry)
             self.update_stored_config()
-            ci.setData(Qt.DisplayRole, name)
+            ci.setData(Qt.ItemDataRole.DisplayRole, name)
 
     def remove(self):
         ci = self.plist.currentItem()

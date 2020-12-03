@@ -129,7 +129,7 @@ class UpdateNotification(QDialog):
 
     def __init__(self, calibre_version, plugin_updates, parent=None):
         QDialog.__init__(self, parent)
-        self.setAttribute(Qt.WA_QuitOnClose, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_QuitOnClose, False)
         self.resize(400, 250)
         self.l = QGridLayout()
         self.setLayout(self.l)
@@ -162,7 +162,7 @@ class UpdateNotification(QDialog):
         if plugin_updates > 0:
             b = self.bb.addButton(_('Update &plugins'), self.bb.ActionRole)
             b.setIcon(QIcon(I('plugins/plugin_updater.png')))
-            b.clicked.connect(self.get_plugins, type=Qt.QueuedConnection)
+            b.clicked.connect(self.get_plugins, type=Qt.ConnectionType.QueuedConnection)
         self.bb.addButton(self.bb.Cancel)
         self.l.addWidget(self.bb, 2, 0, 1, -1)
         self.bb.accepted.connect(self.accept)
@@ -201,7 +201,7 @@ class UpdateMixin(object):
         if not opts.no_update_check:
             self.update_checker = CheckForUpdates(self)
             self.update_checker.signal.update_found.connect(self.update_found,
-                    type=Qt.QueuedConnection)
+                    type=Qt.ConnectionType.QueuedConnection)
             self.update_checker.start()
 
     def recalc_update_label(self, number_of_plugin_updates):

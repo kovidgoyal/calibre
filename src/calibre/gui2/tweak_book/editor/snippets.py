@@ -26,8 +26,8 @@ from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, unicode_type, range
 
 string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
-KEY = Qt.Key_J
-MODIFIER = Qt.META if ismacos else Qt.CTRL
+KEY = Qt.Key.Key_J
+MODIFIER = Qt.Modifier.META if ismacos else Qt.Modifier.CTRL
 
 SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
 
@@ -463,7 +463,7 @@ class EditSnippet(QWidget):
                 l.addWidget(args[0], r, 0, 1, 2)
             else:
                 la = QLabel(args[0])
-                l.addWidget(la, r, 0, Qt.AlignRight), l.addWidget(args[1], r, 1)
+                l.addWidget(la, r, 0, Qt.AlignmentFlag.AlignRight), l.addWidget(args[1], r, 1)
                 la.setBuddy(args[1])
 
         self.heading = la = QLabel('<h2>\xa0')
@@ -503,14 +503,14 @@ class EditSnippet(QWidget):
         add_row(_('T&est:'), d)
 
         i = QListWidgetItem(_('All'), t)
-        i.setData(Qt.UserRole, '*')
-        i.setCheckState(Qt.Checked)
-        i.setFlags(i.flags() | Qt.ItemIsUserCheckable)
+        i.setData(Qt.ItemDataRole.UserRole, '*')
+        i.setCheckState(Qt.CheckState.Checked)
+        i.setFlags(i.flags() | Qt.ItemFlag.ItemIsUserCheckable)
         for ftype in sorted(all_text_syntaxes):
             i = QListWidgetItem(ftype, t)
-            i.setData(Qt.UserRole, ftype)
-            i.setCheckState(Qt.Checked)
-            i.setFlags(i.flags() | Qt.ItemIsUserCheckable)
+            i.setData(Qt.ItemDataRole.UserRole, ftype)
+            i.setCheckState(Qt.CheckState.Checked)
+            i.setFlags(i.flags() | Qt.ItemFlag.ItemIsUserCheckable)
 
         self.creating_snippet = False
 
@@ -529,19 +529,19 @@ class EditSnippet(QWidget):
         ftypes = snip.get('syntaxes', ())
         for i in range(self.types.count()):
             i = self.types.item(i)
-            ftype = i.data(Qt.UserRole)
-            i.setCheckState(Qt.Checked if ftype in ftypes else Qt.Unchecked)
+            ftype = i.data(Qt.ItemDataRole.UserRole)
+            i.setCheckState(Qt.CheckState.Checked if ftype in ftypes else Qt.CheckState.Unchecked)
         if self.creating_snippet and not ftypes:
-            self.types.item(0).setCheckState(Qt.Checked)
-        (self.name if self.creating_snippet else self.template).setFocus(Qt.OtherFocusReason)
+            self.types.item(0).setCheckState(Qt.CheckState.Checked)
+        (self.name if self.creating_snippet else self.template).setFocus(Qt.FocusReason.OtherFocusReason)
 
     @property
     def snip(self):
         ftypes = []
         for i in range(self.types.count()):
             i = self.types.item(i)
-            if i.checkState() == Qt.Checked:
-                ftypes.append(i.data(Qt.UserRole))
+            if i.checkState() == Qt.CheckState.Checked:
+                ftypes.append(i.data(Qt.ItemDataRole.UserRole))
         return {'description':self.name.text().strip(), 'trigger':self.trig.text(), 'template':self.template.toPlainText(), 'syntaxes':ftypes}
 
     @snip.setter
@@ -595,22 +595,22 @@ class UserSnippets(Dialog):
         c.l2 = l = QVBoxLayout()
         h.addLayout(l)
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('plus.png'))), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon(I('plus.png'))), b.setText(_('&Add snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.add_snippet)
         l.addWidget(b)
 
         self.edit_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('modified.png'))), b.setText(_('&Edit snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon(I('modified.png'))), b.setText(_('&Edit snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.edit_snippet)
         l.addWidget(b)
 
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('minus.png'))), b.setText(_('&Remove snippet')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon(I('minus.png'))), b.setText(_('&Remove snippet')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.remove_snippet)
         l.addWidget(b)
 
         self.add_button = b = QToolButton(self)
-        b.setIcon(QIcon(I('config.png'))), b.setText(_('Change &built-in')), b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        b.setIcon(QIcon(I('config.png'))), b.setText(_('Change &built-in')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         b.clicked.connect(self.change_builtin)
         l.addWidget(b)
 
@@ -627,7 +627,7 @@ class UserSnippets(Dialog):
 
     def snip_to_item(self, snip):
         i = QListWidgetItem(self.snip_to_text(snip), self.snip_list)
-        i.setData(Qt.UserRole, copy.deepcopy(snip))
+        i.setData(Qt.ItemDataRole.UserRole, copy.deepcopy(snip))
         return i
 
     def reject(self):
@@ -647,13 +647,13 @@ class UserSnippets(Dialog):
                     item = self.snip_list.currentItem()
                     snip = self.edit_snip.snip
                     item.setText(self.snip_to_text(snip))
-                    item.setData(Qt.UserRole, snip)
+                    item.setData(Qt.ItemDataRole.UserRole, snip)
                 self.snip_list.setCurrentItem(item)
                 self.snip_list.scrollToItem(item)
             else:
                 error_dialog(self, _('Invalid snippet'), err, show=True)
             return
-        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.UserRole) for i in range(self.snip_list.count())]
+        user_snippets['snippets'] = [self.snip_list.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.snip_list.count())]
         snippets(refresh=True)
         return Dialog.accept(self)
 
@@ -665,7 +665,7 @@ class UserSnippets(Dialog):
         if item is None:
             return error_dialog(self, _('Cannot edit snippet'), _('No snippet selected'), show=True)
         self.stack.setCurrentIndex(1)
-        self.edit_snip.snip = item.data(Qt.UserRole)
+        self.edit_snip.snip = item.data(Qt.ItemDataRole.UserRole)
 
     def add_snippet(self, *args):
         self.stack.setCurrentIndex(1)
@@ -680,7 +680,7 @@ class UserSnippets(Dialog):
         q = self.search_bar.text().strip()
         if not q:
             return
-        matches = self.snip_list.findItems(q, Qt.MatchContains | Qt.MatchWrap)
+        matches = self.snip_list.findItems(q, Qt.MatchFlag.MatchContains | Qt.MatchFlag.MatchWrap)
         if len(matches) < 1:
             return error_dialog(self, _('No snippets found'), _(
                 'No snippets found for query: %s') % q, show=True)
@@ -699,17 +699,17 @@ class UserSnippets(Dialog):
             snip = copy.deepcopy(snip)
             snip['trigger'], snip['syntaxes'] = trigger, syntaxes
             i = QListWidgetItem(self.snip_to_text(snip), lw)
-            i.setData(Qt.UserRole, snip)
+            i.setData(Qt.ItemDataRole.UserRole, snip)
         d.l = l = QVBoxLayout(d)
         l.addWidget(QLabel(_('Choose the built-in snippet to modify:')))
         l.addWidget(lw)
         lw.itemDoubleClicked.connect(d.accept)
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         if d.exec_() == d.Accepted and lw.currentItem() is not None:
             self.stack.setCurrentIndex(1)
-            self.edit_snip.apply_snip(lw.currentItem().data(Qt.UserRole), creating_snippet=True)
+            self.edit_snip.apply_snip(lw.currentItem().data(Qt.ItemDataRole.UserRole), creating_snippet=True)
 # }}}
 
 

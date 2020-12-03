@@ -303,7 +303,7 @@ class CoverView(QWidget):
         self.metadata = metadata
         self.pixmap = None
         self.blank = QPixmap(I('blank.png'))
-        self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.GrowFlag|QSizePolicy.ExpandFlag)
+        self.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.PolicyFlag.GrowFlag|QSizePolicy.PolicyFlag.ExpandFlag)
         self.sizePolicy().setHeightForWidth(True)
 
     @property
@@ -363,7 +363,7 @@ class CoverView(QWidget):
         scaled, width, height = fit_image(pmap.width(), pmap.height(), target.width(), target.height())
         target.setRect(target.x(), target.y(), width, height)
         p = QPainter(self)
-        p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.SmoothPixmapTransform)
         p.drawPixmap(target, pmap)
 
         if self.pixmap is not None and not self.pixmap.isNull():
@@ -372,7 +372,7 @@ class CoverView(QWidget):
             f.setBold(True)
             p.setFont(f)
             sz = u'\u00a0%d x %d\u00a0'%(self.pixmap.width(), self.pixmap.height())
-            flags = int(Qt.AlignBottom|Qt.AlignRight|Qt.TextSingleLine)
+            flags = int(Qt.AlignmentFlag.AlignBottom|Qt.AlignmentFlag.AlignRight|Qt.TextFlag.TextSingleLine)
             szrect = p.boundingRect(sztgt, flags, sz)
             p.fillRect(szrect.adjusted(0, 0, 0, 4), QColor(0, 0, 0, 200))
             p.setPen(QPen(QColor(255,255,255)))
@@ -445,7 +445,7 @@ class CompareSingle(QWidget):
             if field == 'identifiers':
                 button.m = m = QMenu(button)
                 button.setMenu(m)
-                button.setPopupMode(QToolButton.DelayedPopup)
+                button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
                 m.addAction(button.toolTip()).triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
                 m.addAction(_('Merge identifiers')).triggered.connect(self.merge_identifiers)
@@ -453,7 +453,7 @@ class CompareSingle(QWidget):
             elif field == 'tags':
                 button.m = m = QMenu(button)
                 button.setMenu(m)
-                button.setPopupMode(QToolButton.DelayedPopup)
+                button.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
                 m.addAction(button.toolTip()).triggered.connect(button.click)
                 m.actions()[0].setIcon(button.icon())
                 m.addAction(_('Merge tags')).triggered.connect(self.merge_tags)
@@ -556,7 +556,7 @@ class CompareMany(QDialog):
         sa.setWidget(self.compare_widget)
         sa.setWidgetResizable(True)
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         bb.button(bb.Cancel).setAutoDefault(False)
         bb.rejected.connect(self.reject)
         if self.total > 1:
@@ -576,7 +576,7 @@ class CompareMany(QDialog):
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
             self.next_action = ac = QAction(self)
-            ac.setShortcut(QKeySequence(Qt.ALT | Qt.Key_Right))
+            ac.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_Right))
             self.addAction(ac)
         if action_button is not None:
             self.acb = b = bb.addButton(action_button[0], bb.ActionRole)
@@ -585,7 +585,7 @@ class CompareMany(QDialog):
             b.clicked.connect(self.action_button_clicked)
         self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), bb.ActionRole)
         if self.total > 1:
-            b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.NativeText))
+            b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.next_action.triggered.connect(b.click)
         b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
         connect_lambda(b.clicked, self, lambda self: self.next_item(True))
@@ -609,7 +609,7 @@ class CompareMany(QDialog):
         geom = gprefs.get('diff_dialog_geom', None)
         if geom is not None:
             QApplication.instance().safe_restore_geometry(self, geom)
-        b.setFocus(Qt.OtherFocusReason)
+        b.setFocus(Qt.FocusReason.OtherFocusReason)
         self.next_called = False
 
     @property
@@ -679,7 +679,7 @@ class CompareMany(QDialog):
         self.accept()
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             ev.accept()
             return
         return QDialog.keyPressEvent(self, ev)

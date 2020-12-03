@@ -109,14 +109,14 @@ class Polish(QDialog):  # {{{
             l.addWidget(la, count, 1, 1, 1)
 
         count += 1
-        l.addItem(QSpacerItem(10, 10, vPolicy=QSizePolicy.Expanding), count, 1, 1, 2)
+        l.addItem(QSpacerItem(10, 10, vPolicy=QSizePolicy.Policy.Expanding), count, 1, 1, 2)
 
         la = self.help_label = QLabel('')
         self.help_link_activated('#polish')
         la.setWordWrap(True)
-        la.setTextFormat(Qt.RichText)
-        la.setFrameShape(QFrame.StyledPanel)
-        la.setAlignment(Qt.AlignLeft|Qt.AlignTop)
+        la.setTextFormat(Qt.TextFormat.RichText)
+        la.setFrameShape(QFrame.Shape.StyledPanel)
+        la.setAlignment(Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignTop)
         la.setLineWidth(2)
         la.setStyleSheet('QLabel { margin-left: 75px }')
         l.addWidget(la, 0, 2, count+1, 1)
@@ -127,7 +127,7 @@ class Polish(QDialog):  # {{{
         sr.setToolTip(textwrap.fill(_('Show a report of all the actions performed'
                         ' after polishing is completed')))
         l.addWidget(sr, count+1, 0, 1, 1)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         self.save_button = sb = bb.addButton(_('&Save settings'), bb.ActionRole)
@@ -194,7 +194,7 @@ class Polish(QDialog):  # {{{
             x.blockSignals(False)
 
     def option_toggled(self, name, state):
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             self.help_label.setText(self.help_text[name])
 
     def help_link_activated(self, link):
@@ -313,7 +313,7 @@ class Report(QDialog):  # {{{
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self.gui = parent
-        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.setWindowIcon(QIcon(I('polish.png')))
         self.reports = []
 
@@ -331,7 +331,7 @@ class Report(QDialog):  # {{{
         self.ign = QCheckBox(_('Ignore remaining reports'), self)
         l.addWidget(self.ign, 2, 0)
 
-        bb = self.bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb = self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         b = self.log_button = bb.addButton(_('View full &log'), bb.ActionRole)
@@ -339,7 +339,7 @@ class Report(QDialog):  # {{{
         bb.button(bb.Close).setDefault(True)
         l.addWidget(bb, 2, 1)
 
-        self.finished.connect(self.show_next, type=Qt.QueuedConnection)
+        self.finished.connect(self.show_next, type=Qt.ConnectionType.QueuedConnection)
 
         self.resize(QSize(800, 600))
 
@@ -361,7 +361,7 @@ class Report(QDialog):  # {{{
         self.setWindowTitle(_('Polishing of %s')%book_title)
         self.view.setText(markdown('# %s\n\n'%book_title + report,
                                    output_format='html4'))
-        self.bb.button(self.bb.Close).setFocus(Qt.OtherFocusReason)
+        self.bb.button(self.bb.Close).setFocus(Qt.FocusReason.OtherFocusReason)
         self.backup_msg.setVisible(bool(fmts))
         if fmts:
             m = ngettext('The original file has been saved as %s.',

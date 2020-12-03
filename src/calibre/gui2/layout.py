@@ -191,23 +191,23 @@ class SearchBar(QFrame):  # {{{
 
     def __init__(self, parent):
         QFrame.__init__(self, parent)
-        self.setFrameStyle(QFrame.NoFrame)
+        self.setFrameStyle(QFrame.Shape.NoFrame)
         self.setObjectName('search_bar')
         self._layout = l = QHBoxLayout(self)
         l.setContentsMargins(0, 4, 0, 4)
 
         x = parent.virtual_library = QToolButton(self)
-        x.setCursor(Qt.PointingHandCursor)
+        x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setPopupMode(x.InstantPopup)
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
         x.setIcon(QIcon(I('vl.png')))
         x.setObjectName("virtual_library")
-        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         l.addWidget(x)
 
         x = QToolButton(self)
-        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         x.setAutoRaise(True)
         x.setIcon(QIcon(I('minus.png')))
         x.setObjectName('clear_vl')
@@ -216,17 +216,17 @@ class SearchBar(QFrame):  # {{{
         x.setToolTip(_('Close the Virtual library'))
         parent.clear_vl = x
         self.vl_sep = QFrame(self)
-        self.vl_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
+        self.vl_sep.setFrameStyle(QFrame.Shape.VLine | QFrame.Shadow.Sunken)
         l.addWidget(self.vl_sep)
 
         parent.sort_sep = QFrame(self)
-        parent.sort_sep.setFrameStyle(QFrame.VLine | QFrame.Sunken)
+        parent.sort_sep.setFrameStyle(QFrame.Shape.VLine | QFrame.Shadow.Sunken)
         parent.sort_sep.setVisible(False)
         parent.sort_button = self.sort_button = sb = QToolButton(self)
-        sb.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        sb.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         sb.setToolTip(_('Change how the displayed books are sorted'))
-        sb.setCursor(Qt.PointingHandCursor)
-        sb.setPopupMode(QToolButton.InstantPopup)
+        sb.setCursor(Qt.CursorShape.PointingHandCursor)
+        sb.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         sb.setAutoRaise(True)
         sb.setText(_('Sort'))
         sb.setIcon(QIcon(I('sort.png')))
@@ -237,14 +237,14 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(parent.sort_sep)
 
         x = parent.search = SearchBox2(self, as_url=search_as_url)
-        x.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        x.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         x.setObjectName("search")
         x.setToolTip(_("<p>Search the list of books by title, author, publisher, "
                        "tags, comments, etc.<br><br>Words separated by spaces are ANDed"))
         x.setMinimumContentsLength(10)
         l.addWidget(x)
 
-        parent.advanced_search_toggle_action = ac = parent.search.add_action('gear.png', QLineEdit.LeadingPosition)
+        parent.advanced_search_toggle_action = ac = parent.search.add_action('gear.png', QLineEdit.ActionPosition.LeadingPosition)
         parent.addAction(ac)
         ac.setToolTip(_('Advanced search'))
         parent.keyboard.register_shortcut('advanced search toggle',
@@ -252,15 +252,15 @@ class SearchBar(QFrame):  # {{{
                 action=ac)
 
         self.search_button = QToolButton()
-        self.search_button.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
         self.search_button.setIcon(QIcon(I('search.png')))
-        self.search_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.search_button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.search_button.setText(_('Search'))
         self.search_button.setAutoRaise(True)
-        self.search_button.setCursor(Qt.PointingHandCursor)
+        self.search_button.setCursor(Qt.CursorShape.PointingHandCursor)
         l.addWidget(self.search_button)
-        self.search_button.setSizePolicy(QSizePolicy.Minimum,
-                QSizePolicy.Minimum)
+        self.search_button.setSizePolicy(QSizePolicy.Policy.Minimum,
+                QSizePolicy.Policy.Minimum)
         self.search_button.clicked.connect(parent.do_search_button)
         self.search_button.setToolTip(
             _('Do quick search (you can also press the Enter key)'))
@@ -268,8 +268,8 @@ class SearchBar(QFrame):  # {{{
         x = parent.highlight_only_button = QToolButton(self)
         x.setAutoRaise(True)
         x.setText(_('Highlight'))
-        x.setCursor(Qt.PointingHandCursor)
-        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        x.setCursor(Qt.CursorShape.PointingHandCursor)
+        x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         x.setIcon(QIcon(I('arrow-down.png')))
         l.addWidget(x)
 
@@ -282,7 +282,7 @@ class SearchBar(QFrame):  # {{{
 
         x = parent.copy_search_button = QToolButton(self)
         x.setAutoRaise(True)
-        x.setCursor(Qt.PointingHandCursor)
+        x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setIcon(QIcon(I("search_copy_saved.png")))
         x.setObjectName("copy_search_button")
         l.addWidget(x)
@@ -291,7 +291,7 @@ class SearchBar(QFrame):  # {{{
 
         x = parent.save_search_button = RightClickButton(self)
         x.setAutoRaise(True)
-        x.setCursor(Qt.PointingHandCursor)
+        x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setIcon(QIcon(I("search_add_saved.png")))
         x.setObjectName("save_search_button")
         l.addWidget(x)
@@ -302,8 +302,8 @@ class SearchBar(QFrame):  # {{{
             'Use an existing Saved search or create a new one'
         ))
         x.setText(_('Saved search'))
-        x.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
-        x.setCursor(Qt.PointingHandCursor)
+        x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        x.setCursor(Qt.CursorShape.PointingHandCursor)
         x.setPopupMode(x.InstantPopup)
         x.setAutoRaise(True)
         x.setIcon(QIcon(I("bookmarks.png")))
@@ -337,7 +337,7 @@ class MainWindowMixin(object):  # {{{
         self.setWindowIcon(QIcon(I('lt.png')))
         self.setWindowTitle(__appname__)
 
-        self.setContextMenuPolicy(Qt.NoContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.centralwidget = QWidget(self)
         self.setCentralWidget(self.centralwidget)
         self._central_widget_layout = l = QVBoxLayout(self.centralwidget)
@@ -352,10 +352,10 @@ class MainWindowMixin(object):  # {{{
         self.bars_manager = BarsManager(self.donate_action,
                 self.location_manager, self)
         for bar in self.bars_manager.main_bars:
-            self.addToolBar(Qt.TopToolBarArea, bar)
+            self.addToolBar(Qt.ToolBarArea.TopToolBarArea, bar)
             bar.setStyleSheet('QToolBar { border: 0px }')
         for bar in self.bars_manager.child_bars:
-            self.addToolBar(Qt.BottomToolBarArea, bar)
+            self.addToolBar(Qt.ToolBarArea.BottomToolBarArea, bar)
             bar.setStyleSheet('QToolBar { border: 0px }')
         self.bars_manager.update_bars()
         # This is disabled because it introduces various toolbar related bugs
@@ -372,7 +372,7 @@ class MainWindowMixin(object):  # {{{
         # Add in the widget for the shutdown messages. It is invisible until a
         # message is shown
         smw = self.shutdown_message_widget = QLabel(self)
-        smw.setAlignment(Qt.AlignCenter)
+        smw.setAlignment(Qt.AlignmentFlag.AlignCenter)
         smw.setVisible(False)
         smw.setAutoFillBackground(True)
         smw.setStyleSheet('QLabel { background-color: rgba(200, 200, 200, 200); color: black }')

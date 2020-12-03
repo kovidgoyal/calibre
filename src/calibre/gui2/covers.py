@@ -25,7 +25,7 @@ class Preview(QLabel):
 
     def __init__(self, parent=None):
         QLabel.__init__(self, parent)
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum)
 
     def sizeHint(self):
         return QSize(300, 400)
@@ -44,7 +44,7 @@ class ColorButton(QToolButton):
 
     @property
     def color(self):
-        return self._color.name(QColor.HexRgb)[1:]
+        return self._color.name(QColor.NameFormat.HexRgb)[1:]
 
     @color.setter
     def color(self, val):
@@ -78,7 +78,7 @@ class CreateColorScheme(QDialog):
         l.addRow(_('Color &2:'), self.color2)
         l.addRow(_('Contrast color &1 (mainly for text):'), self.contrast_color1)
         l.addRow(_('Contrast color &2 (mainly for text):'), self.contrast_color2)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addRow(bb)
@@ -227,7 +227,7 @@ class CoverSettingsWidget(QWidget):
             ' in the templates for bold, italic and line breaks, respectively. The'
             ' default templates use the title, series and authors. You can change them to use'
             ' whatever metadata you like.'))
-        la.setWordWrap(True), la.setTextFormat(Qt.PlainText)
+        la.setWordWrap(True), la.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(la)
 
         def create_template_widget(title, which, button):
@@ -237,16 +237,16 @@ class CoverSettingsWidget(QWidget):
             l.addWidget(heading)
             la = QLabel()
             setattr(self, attr, la)
-            l.addWidget(la), la.setTextFormat(Qt.PlainText), la.setStyleSheet('QLabel {font-family: monospace}')
+            l.addWidget(la), la.setTextFormat(Qt.TextFormat.PlainText), la.setStyleSheet('QLabel {font-family: monospace}')
             la.setWordWrap(True)
             b = QPushButton(button)
-            b.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             connect_lambda(b.clicked, self, lambda self: self.change_template(which))
             setattr(self, attr + '_button', b)
             l.addWidget(b)
             if which != 'footer':
                 f = QFrame(tp)
-                setattr(tp, attr + '_sep', f), f.setFrameShape(QFrame.HLine)
+                setattr(tp, attr + '_sep', f), f.setFrameShape(QFrame.Shape.HLine)
                 l.addWidget(f)
             l.addSpacing(10)
 
@@ -297,15 +297,15 @@ class CoverSettingsWidget(QWidget):
         self.colors_map = {}
         for name in sorted(color_themes, key=sort_key):
             self.colors_map[name] = li = QListWidgetItem(name, self.colors_list)
-            li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
-            li.setCheckState(Qt.Unchecked if name in disabled else Qt.Checked)
-            li.setData(Qt.UserRole, color_themes[name])
+            li.setFlags(li.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            li.setCheckState(Qt.CheckState.Unchecked if name in disabled else Qt.CheckState.Checked)
+            li.setData(Qt.ItemDataRole.UserRole, color_themes[name])
         lu = prefs.get('last_used_colors')
-        if not self.for_global_prefs and lu in self.colors_map and self.colors_map[lu].checkState() == Qt.Checked:
+        if not self.for_global_prefs and lu in self.colors_map and self.colors_map[lu].checkState() == Qt.CheckState.Checked:
             self.colors_map[lu].setSelected(True)
         else:
             for name, li in iteritems(self.colors_map):
-                if li.checkState() == Qt.Checked:
+                if li.checkState() == Qt.CheckState.Checked:
                     li.setSelected(True)
                     break
             else:
@@ -316,14 +316,14 @@ class CoverSettingsWidget(QWidget):
         self.style_map.clear()
         for name in sorted(all_styles(), key=sort_key):
             self.style_map[name] = li = QListWidgetItem(name, self.styles_list)
-            li.setFlags(li.flags() | Qt.ItemIsUserCheckable)
-            li.setCheckState(Qt.Unchecked if name in disabled else Qt.Checked)
+            li.setFlags(li.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            li.setCheckState(Qt.CheckState.Unchecked if name in disabled else Qt.CheckState.Checked)
         lu = prefs.get('last_used_style')
-        if not self.for_global_prefs and lu in self.style_map and self.style_map[lu].checkState() == Qt.Checked:
+        if not self.for_global_prefs and lu in self.style_map and self.style_map[lu].checkState() == Qt.CheckState.Checked:
             self.style_map[lu].setSelected(True)
         else:
             for name, li in iteritems(self.style_map):
-                if li.checkState() == Qt.Checked:
+                if li.checkState() == Qt.CheckState.Checked:
                     li.setSelected(True)
                     break
             else:
@@ -338,7 +338,7 @@ class CoverSettingsWidget(QWidget):
     @property
     def disabled_colors(self):
         for name, li in iteritems(self.colors_map):
-            if li.checkState() == Qt.Unchecked:
+            if li.checkState() == Qt.CheckState.Unchecked:
                 yield name
 
     @property
@@ -346,7 +346,7 @@ class CoverSettingsWidget(QWidget):
         ans = {}
         for name, li in iteritems(self.colors_map):
             if name.startswith('#'):
-                ans[name] = li.data(Qt.UserRole)
+                ans[name] = li.data(Qt.ItemDataRole.UserRole)
         return ans
 
     @property
@@ -358,7 +358,7 @@ class CoverSettingsWidget(QWidget):
     @property
     def disabled_styles(self):
         for name, li in iteritems(self.style_map):
-            if li.checkState() == Qt.Unchecked:
+            if li.checkState() == Qt.CheckState.Unchecked:
                 yield name
 
     @property
@@ -393,12 +393,12 @@ class CoverSettingsWidget(QWidget):
                 self.colors_list.item(i).setSelected(False)
 
     def create_color_scheme(self):
-        scheme = self.colors_map[self.current_colors].data(Qt.UserRole)
+        scheme = self.colors_map[self.current_colors].data(Qt.ItemDataRole.UserRole)
         d = CreateColorScheme('#' + _('My Color Scheme'), scheme, set(self.colors_map), parent=self)
         if d.exec_() == d.Accepted:
             name, scheme = d.data
             li = QListWidgetItem(name)
-            li.setData(Qt.UserRole, scheme), li.setFlags(li.flags() | Qt.ItemIsUserCheckable), li.setCheckState(Qt.Checked)
+            li.setData(Qt.ItemDataRole.UserRole, scheme), li.setFlags(li.flags() | Qt.ItemFlag.ItemIsUserCheckable), li.setCheckState(Qt.CheckState.Checked)
             self.insert_scheme(name, li)
             self.emit_changed()
             self.original_prefs['color_themes'] = self.current_prefs['color_themes']
@@ -410,11 +410,11 @@ class CoverSettingsWidget(QWidget):
                 'Cannot edit a builtin color scheme. Create a new'
                 ' color scheme instead.'), show=True)
         li = self.colors_map[cs]
-        d = CreateColorScheme(cs, li.data(Qt.UserRole), set(self.colors_map), edit_scheme=True, parent=self)
+        d = CreateColorScheme(cs, li.data(Qt.ItemDataRole.UserRole), set(self.colors_map), edit_scheme=True, parent=self)
         if d.exec_() == d.Accepted:
             name, scheme = d.data
             li.setText(name)
-            li.setData(Qt.UserRole, scheme)
+            li.setData(Qt.ItemDataRole.UserRole, scheme)
             if name != cs:
                 self.colors_map.pop(cs, None)
                 self.insert_scheme(name, li)
@@ -517,7 +517,7 @@ class CoverSettingsDialog(QDialog):
         self.save_settings = ss = QCheckBox(_('Save these settings as the &defaults for future use'))
         ss.setChecked(gprefs.get('cover_generation_save_settings_for_future', True))
         l.addWidget(ss)
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         bb.b = b = bb.addButton(_('Restore &defaults'), bb.ActionRole)

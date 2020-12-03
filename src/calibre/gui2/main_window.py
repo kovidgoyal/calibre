@@ -107,8 +107,8 @@ class MainWindow(QMainWindow):
     def get_menubar_actions(cls):
         preferences_action = QAction(QIcon(I('config.png')), _('&Preferences'), None)
         quit_action        = QAction(QIcon(I('window-close.png')), _('&Quit'), None)
-        preferences_action.setMenuRole(QAction.PreferencesRole)
-        quit_action.setMenuRole(QAction.QuitRole)
+        preferences_action.setMenuRole(QAction.MenuRole.PreferencesRole)
+        quit_action.setMenuRole(QAction.MenuRole.QuitRole)
         return preferences_action, quit_action
 
     @property

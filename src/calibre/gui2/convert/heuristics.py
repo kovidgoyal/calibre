@@ -101,11 +101,11 @@ class HeuristicsWidget(Widget, Ui_Form):
         gprefs['replace_scene_breaks_history'] = rssb_history
 
     def enable_heuristics(self, state):
-        state = state == Qt.Checked
+        state = state == Qt.CheckState.Checked
         self.heuristic_options.setEnabled(state)
 
     def enable_unwrap(self, state):
-        if state == Qt.Checked:
+        if state == Qt.CheckState.Checked:
             state = True
         else:
             state = False

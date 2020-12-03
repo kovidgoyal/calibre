@@ -66,7 +66,7 @@ class InterfaceAction(QObject):
     priority = 1
 
     #: The menu popup type for when this plugin is added to a toolbar
-    popup_type = QToolButton.MenuButtonPopup
+    popup_type = QToolButton.ToolButtonPopupMode.MenuButtonPopup
 
     #: Whether this action should be auto repeated when its shortcut
     #: key is held down.
@@ -186,7 +186,7 @@ class InterfaceAction(QObject):
                 shortcut_name = unicode_type(spec[0])
 
             if shortcut_name and self.action_spec[0] and not (
-                    attr == 'qaction' and self.popup_type == QToolButton.InstantPopup):
+                    attr == 'qaction' and self.popup_type == QToolButton.ToolButtonPopupMode.InstantPopup):
                 try:
                     self.gui.keyboard.register_shortcut(self.unique_name + ' - ' + attr,
                         shortcut_name, default_keys=keys,
@@ -199,7 +199,7 @@ class InterfaceAction(QObject):
                     except:
                         pass
                     shortcut_action.setShortcuts([QKeySequence(key,
-                        QKeySequence.PortableText) for key in keys])
+                        QKeySequence.SequenceFormat.PortableText) for key in keys])
                 else:
                     self.shortcut_action_for_context_menu = shortcut_action
                     if ismacos:

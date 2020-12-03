@@ -74,7 +74,7 @@ class DownloadDialog(QDialog):  # {{{
         self.pb.setMinimum(0)
         self.pb.setMaximum(0)
         self.l.addWidget(self.pb)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Cancel, Qt.Horizontal, self)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel, Qt.Orientation.Horizontal, self)
         self.l.addWidget(self.bb)
         self.bb.rejected.connect(self.reject)
         sz = self.sizeHint()

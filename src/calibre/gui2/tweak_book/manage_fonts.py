@@ -106,8 +106,8 @@ class AllFonts(QAbstractTableModel):
     def columnCount(self, parent=None):
         return 2
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if orientation == Qt.Horizontal and role == Qt.DisplayRole:
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if orientation == Qt.Orientation.Horizontal and role == Qt.ItemDataRole.DisplayRole:
             return _('Font family') if section == 1 else _('Embedded')
         return QAbstractTableModel.headerData(self, section, orientation, role)
 
@@ -124,8 +124,8 @@ class AllFonts(QAbstractTableModel):
         if self.sorted_on[0] != 'name':
             self.items.sort(key=self.font_data.get, reverse=reverse)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             row, col = index.row(), index.column()
             try:
                 name = self.items[row]
@@ -133,17 +133,17 @@ class AllFonts(QAbstractTableModel):
             except (IndexError, KeyError):
                 return
             return name if col == 1 else embedded
-        if role == Qt.TextAlignmentRole:
+        if role == Qt.ItemDataRole.TextAlignmentRole:
             col = index.column()
             if col == 0:
-                return Qt.AlignHCenter | Qt.AlignVCenter
-        if role in (Qt.UserRole, Qt.UserRole + 1):
+                return Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter
+        if role in (Qt.ItemDataRole.UserRole, Qt.ItemDataRole.UserRole + 1):
             row = index.row()
             try:
                 name = self.items[row]
             except (IndexError, KeyError):
                 return
-            if role == Qt.UserRole:
+            if role == Qt.ItemDataRole.UserRole:
                 try:
                     return font_scanner.fonts_for_family(name)
                 except NoFonts:
@@ -151,8 +151,8 @@ class AllFonts(QAbstractTableModel):
             else:
                 return name
 
-    def sort(self, col, order=Qt.AscendingOrder):
-        sorted_on = (('name' if col == 1 else 'embedded'), order == Qt.AscendingOrder)
+    def sort(self, col, order=Qt.SortOrder.AscendingOrder):
+        sorted_on = (('name' if col == 1 else 'embedded'), order == Qt.SortOrder.AscendingOrder)
         if sorted_on != self.sorted_on:
             self.sorted_on = sorted_on
             self.beginResetModel()
@@ -230,7 +230,7 @@ class ManageFonts(Dialog):
         Dialog.__init__(self, _('Manage Fonts'), 'manage-fonts', parent=parent)
 
     def setup_ui(self):
-        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
@@ -255,7 +255,7 @@ class ManageFonts(Dialog):
         fv.setAlternatingRowColors(True)
         fv.setSelectionMode(fv.ExtendedSelection)
         fv.setSelectionBehavior(fv.SelectRows)
-        fv.horizontalHeader().setSortIndicator(1, Qt.AscendingOrder)
+        fv.horizontalHeader().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
         self.container = c = QWidget()
         l = c.l = QVBoxLayout(c)
         c.setLayout(l)
@@ -291,11 +291,11 @@ class ManageFonts(Dialog):
         la.setWordWrap(True)
         l.addWidget(la)
 
-        l.setAlignment(Qt.AlignTop | Qt.AlignHCenter)
+        l.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
 
     def show_embedding_data(self, index):
-        faces = index.data(Qt.UserRole)
-        family = index.data(Qt.UserRole + 1)
+        faces = index.data(Qt.ItemDataRole.UserRole)
+        family = index.data(Qt.ItemDataRole.UserRole + 1)
         if not faces:
             return error_dialog(self, _('Not found'), _(
                 'The font <b>%s</b> was not found on your computer. If you have the font files,'

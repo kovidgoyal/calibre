@@ -20,7 +20,7 @@ class tableItem(QTableWidgetItem):
 
     def __init__(self, text):
         QTableWidgetItem.__init__(self, text)
-        self.setFlags(Qt.ItemIsEnabled)
+        self.setFlags(Qt.ItemFlag.ItemIsEnabled)
         self.sort = text.lower()
 
     def __ge__(self, other):
@@ -34,7 +34,7 @@ class centeredTableItem(tableItem):
 
     def __init__(self, text):
         tableItem.__init__(self, text)
-        self.setTextAlignment(Qt.AlignCenter)
+        self.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
 class titleTableItem(tableItem):
@@ -78,7 +78,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.buttonBox.accepted.connect(self.accepted)
         self.buttonBox.rejected.connect(self.rejected)
         self.table.cellClicked.connect(self.cell_clicked)
-        self.table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.table.setColumnCount(7)
         self.table.setHorizontalHeaderLabels(
                                     ['', _('Location'), _('Title'), _('Author'),
@@ -92,9 +92,9 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
             (model,books) = items[card]
             for (id,book) in books:
                 item = QTableWidgetItem()
-                item.setFlags(Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
-                item.setCheckState(Qt.Checked)
-                item.setData(Qt.UserRole, (model, id, book.path))
+                item.setFlags(Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsEnabled)
+                item.setCheckState(Qt.CheckState.Checked)
+                item.setData(Qt.ItemDataRole.UserRole, (model, id, book.path))
                 self.table.setItem(row, 0, item)
                 self.table.setItem(row, 1, tableItem(card))
                 self.table.setItem(row, 2, titleTableItem(book.title))
@@ -106,7 +106,7 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
         self.table.setCurrentCell(0, 1)
         self.table.resizeColumnsToContents()
         self.table.setSortingEnabled(True)
-        self.table.sortByColumn(2, Qt.AscendingOrder)
+        self.table.sortByColumn(2, Qt.SortOrder.AscendingOrder)
         self.table.setCurrentCell(0, 1)
 
     def cell_clicked(self, row, col):
@@ -116,9 +116,9 @@ class DeleteMatchingFromDeviceDialog(QDialog, Ui_DeleteMatchingFromDeviceDialog)
     def accepted(self):
         self.result = []
         for row in range(self.table.rowCount()):
-            if self.table.item(row, 0).checkState() == Qt.Unchecked:
+            if self.table.item(row, 0).checkState() == Qt.CheckState.Unchecked:
                 continue
-            (model, id, path) = self.table.item(row, 0).data(Qt.UserRole)
+            (model, id, path) = self.table.item(row, 0).data(Qt.ItemDataRole.UserRole)
             path = unicode_type(path)
             self.result.append((model, id, path))
         return

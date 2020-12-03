@@ -108,7 +108,7 @@ class DebugOutput(Dialog):
 
     def __init__(self, parent=None):
         Dialog.__init__(self, 'Debug output', 'sr-function-debug-output')
-        self.setAttribute(Qt.WA_DeleteOnClose, False)
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)

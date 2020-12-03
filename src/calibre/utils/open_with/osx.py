@@ -339,7 +339,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
                     break
         else:
             return
-    ans = ans.scaled(size, size, transformMode=Qt.SmoothTransformation)
+    ans = ans.scaled(size, size, transformMode=Qt.TransformationMode.SmoothTransformation)
     if as_data:
         ans = pixmap_to_data(ans)
     return ans

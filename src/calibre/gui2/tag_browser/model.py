@@ -32,7 +32,7 @@ from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
-DRAG_IMAGE_ROLE = Qt.UserRole + 1000
+DRAG_IMAGE_ROLE = Qt.ItemDataRole.UserRole + 1000
 COUNT_ROLE = DRAG_IMAGE_ROLE + 1
 
 _bf = None
@@ -161,7 +161,7 @@ class TagTreeItem(object):  # {{{
         return self.cached_item_count
 
     def data(self, role):
-        if role == Qt.UserRole:
+        if role == Qt.ItemDataRole.UserRole:
             return self
         if self.type == self.TAG:
             return self.tag_data(role)
@@ -170,17 +170,17 @@ class TagTreeItem(object):  # {{{
         return None
 
     def category_data(self, role):
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return self.py_name
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             return (self.py_name)
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             if not self.tag.state:
                 self.ensure_icon()
             return self.icon_state_map[self.tag.state]
-        if role == Qt.FontRole:
+        if role == Qt.ItemDataRole.FontRole:
             return bf()
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             return self.tooltip if gprefs['tag_browser_show_tooltips'] else None
         if role == DRAG_IMAGE_ROLE:
             self.ensure_icon()
@@ -198,15 +198,15 @@ class TagTreeItem(object):  # {{{
                 name = tag.original_name
             else:
                 name = tag.name
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             return unicode_type(name)
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             return (tag.original_name)
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             if not tag.state:
                 self.ensure_icon()
             return self.icon_state_map[tag.state]
-        if role == Qt.ToolTipRole:
+        if role == Qt.ItemDataRole.ToolTipRole:
             if gprefs['tag_browser_show_tooltips']:
                 tt = [self.tooltip] if self.tooltip else []
                 if tag.original_categories:
@@ -333,7 +333,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.db = None
         self._build_in_progress = False
         self.reread_collapse_model({}, rebuild=False)
-        self.show_error_after_event_loop_tick_signal.connect(self.on_show_error_after_event_loop_tick, type=Qt.QueuedConnection)
+        self.show_error_after_event_loop_tick_signal.connect(self.on_show_error_after_event_loop_tick, type=Qt.ConnectionType.QueuedConnection)
 
     @property
     def gui_parent(self):
@@ -835,7 +835,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         if not fmts.intersection(set(self.mimeTypes())):
             return False
         if "application/calibre+from_library" in fmts:
-            if action != Qt.CopyAction:
+            if action != Qt.DropAction.CopyAction:
                 return False
             return self.do_drop_from_library(md, action, row, column, parent)
         elif 'application/calibre+from_tag_browser' in fmts:
@@ -861,7 +861,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 # dropped on itself
                 return False
             src_item = self.get_node(src_index)
-            dest_item = parent.data(Qt.UserRole)
+            dest_item = parent.data(Qt.ItemDataRole.UserRole)
             # Here we do the real work. If src is a tag, src == dest, and src
             # is hierarchical then we can do a rename.
             if (src_item.type == TagTreeItem.TAG and
@@ -894,7 +894,7 @@ class TagsModel(QAbstractItemModel):  # {{{
          full name, category key, path to node)
         The type must be TagTreeItem.TAG
         dest is the TagTreeItem node to receive the items
-        action is Qt.CopyAction or Qt.MoveAction
+        action is Qt.DropAction.CopyAction or Qt.DropAction.MoveAction
         '''
         def process_source_node(user_cats, src_parent, src_parent_is_gst,
                                 is_uc, dest_key, idx):
@@ -906,7 +906,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             src_cat = idx.tag.category
             # delete the item if the source is a User category and action is move
             if is_uc and not src_parent_is_gst and src_parent in user_cats and \
-                                    action == Qt.MoveAction:
+                                    action == Qt.DropAction.MoveAction:
                 new_cat = []
                 for tup in user_cats[src_parent]:
                     if src_name == tup[0] and src_cat == tup[1]:
@@ -962,7 +962,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     def do_drop_from_library(self, md, action, row, column, parent):
         idx = parent
         if idx.isValid():
-            node = self.data(idx, Qt.UserRole)
+            node = self.data(idx, Qt.ItemDataRole.UserRole)
             if node.type == TagTreeItem.TAG:
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
@@ -1192,7 +1192,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         item = self.get_node(index)
         return item.data(role)
 
-    def setData(self, index, value, role=Qt.EditRole):
+    def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
         if not index.isValid():
             return False
         # set up to reposition at the same item. We can do this except if
@@ -1357,24 +1357,24 @@ class TagsModel(QAbstractItemModel):  # {{{
         return None
 
     def flags(self, index, *args):
-        ans = Qt.ItemIsEnabled|Qt.ItemIsEditable
+        ans = Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsEditable
         if index.isValid():
-            node = self.data(index, Qt.UserRole)
+            node = self.data(index, Qt.ItemDataRole.UserRole)
             if node.type == TagTreeItem.TAG:
                 if node.tag.is_editable or node.tag.is_hierarchical:
-                    ans |= Qt.ItemIsDragEnabled
+                    ans |= Qt.ItemFlag.ItemIsDragEnabled
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher', 'languages') or \
                     (fm['is_custom'] and
                         fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
-                    ans |= Qt.ItemIsDropEnabled
+                    ans |= Qt.ItemFlag.ItemIsDropEnabled
             else:
-                ans |= Qt.ItemIsDropEnabled
+                ans |= Qt.ItemFlag.ItemIsDropEnabled
         return ans
 
     def supportedDropActions(self):
-        return Qt.CopyAction|Qt.MoveAction
+        return Qt.DropAction.CopyAction|Qt.DropAction.MoveAction
 
     def named_path_for_index(self, index):
         ans = []

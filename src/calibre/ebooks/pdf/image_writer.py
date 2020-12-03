@@ -56,7 +56,7 @@ def parse_pdf_page_size(spec, unit='inch', dpi=72.0):
                     'didot':didot, 'pica':pica, 'millimeter':mm,
                     'centimeter':cm
                 }.get(unit, 1.0)
-            return QPageSize(QSizeF(factor*width, factor*height), QPageSize.Point, matchPolicy=QPageSize.ExactMatch)
+            return QPageSize(QSizeF(factor*width, factor*height), QPageSize.Unit.Point, matchPolicy=QPageSize.SizeMatchPolicy.ExactMatch)
 
 
 def get_page_size(opts, for_comic=False):
@@ -68,7 +68,7 @@ def get_page_size(opts, for_comic=False):
                 opts.output_profile.height)
         dpi = opts.output_profile.dpi
         factor = 72.0 / dpi
-        page_size = QPageSize(QSizeF(factor * w, factor * h), QPageSize.Point, matchPolicy=QPageSize.ExactMatch)
+        page_size = QPageSize(QSizeF(factor * w, factor * h), QPageSize.Unit.Point, matchPolicy=QPageSize.SizeMatchPolicy.ExactMatch)
     else:
         page_size = None
         if opts.custom_size is not None:
@@ -85,8 +85,8 @@ def get_page_layout(opts, for_comic=False):
         return max(0, getattr(opts, 'pdf_page_margin_' + which) or getattr(opts, 'margin_' + which))
 
     margins = QMarginsF(m('left'), m('top'), m('right'), m('bottom'))
-    ans = QPageLayout(page_size, QPageLayout.Portrait, margins)
-    ans.setMode(QPageLayout.FullPageMode)
+    ans = QPageLayout(page_size, QPageLayout.Orientation.Portrait, margins)
+    ans.setMode(QPageLayout.Mode.FullPageMode)
     return ans
 # }}}
 

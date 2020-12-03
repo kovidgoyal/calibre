@@ -36,7 +36,7 @@ class Message(QWidget):
         self.layout = QTextLayout()
         self.layout.setFont(self.font())
         self.layout.setCacheEnabled(True)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         self.last_layout_rect = None
 
     def setText(self, text):
@@ -82,7 +82,7 @@ class TitleBar(QWidget):
         self.icon = Icon(self, size=ICON_SIZE)
         l.addWidget(self.icon)
         self.title = QLabel('')
-        self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.title.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         l.addWidget(self.title)
         l.addStrut(25)
         self.msg = la = Message(self)
@@ -116,7 +116,7 @@ class Category(QWidget):  # {{{
         self.bf = QFont()
         self.bf.setBold(True)
         self.label.setFont(self.bf)
-        self.sep.setFrameShape(QFrame.HLine)
+        self.sep.setFrameShape(QFrame.Shape.HLine)
         self._layout.addWidget(self.label)
         self._layout.addWidget(self.sep)
 
@@ -129,7 +129,7 @@ class Category(QWidget):  # {{{
         self.bar.setIconSize(QSize(2*lh, 2*lh))
         self.bar.setMovable(False)
         self.bar.setFloatable(False)
-        self.bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        self.bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)
         self._layout.addWidget(self.bar)
         self.actions = []
         for p in plugins:
@@ -140,7 +140,7 @@ class Category(QWidget):  # {{{
             ac.setStatusTip(p.description)
             self.actions.append(ac)
             w = self.bar.widgetForAction(ac)
-            w.setCursor(Qt.PointingHandCursor)
+            w.setCursor(Qt.CursorShape.PointingHandCursor)
             if hasattr(w, 'setAutoRaise'):
                 w.setAutoRaise(True)
             w.setMinimumWidth(100)
@@ -230,20 +230,20 @@ class Preferences(QDialog):
         if islinux:
             self.move(gui.rect().center() - self.rect().center())
 
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
         self.setWindowIcon(QIcon(I('config.png')))
         self.l = l = QVBoxLayout(self)
 
         self.stack = QStackedWidget(self)
-        self.bb = QDialogButtonBox(QDialogButtonBox.Close | QDialogButtonBox.Apply | QDialogButtonBox.Discard | QDialogButtonBox.RestoreDefaults)
+        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Discard | QDialogButtonBox.StandardButton.RestoreDefaults)
         self.bb.button(self.bb.Apply).clicked.connect(self.accept)
         self.bb.button(self.bb.Discard).clicked.connect(self.reject)
         self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
         self.bb.button(self.bb.RestoreDefaults).clicked.connect(self.restore_defaults)
         self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), self.bb.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
-        self.wizard_button.clicked.connect(self.run_wizard, type=Qt.QueuedConnection)
+        self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
         self.wizard_button.setAutoDefault(False)
         self.bb.rejected.connect(self.reject)
         self.browser = Browser(self)
@@ -253,7 +253,7 @@ class Preferences(QDialog):
         self.stack.addWidget(self.scroll_area)
         self.scroll_area.setWidgetResizable(True)
 
-        self.setContextMenuPolicy(Qt.NoContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.title_bar = TitleBar(self)
         for ac, tt in [(self.bb.Apply, _('Save changes')),
                 (self.bb.Discard, _('Cancel and return to overview'))]:

@@ -71,7 +71,7 @@ class MetadataSingleDialogBase(QDialog):
     def setupUi(self, *args):  # {{{
         self.download_shortcut = QShortcut(self)
         self.download_shortcut.setKey(QKeySequence('Ctrl+D',
-            QKeySequence.PortableText))
+            QKeySequence.SequenceFormat.PortableText))
         p = self.parent()
         if hasattr(p, 'keyboard'):
             kname = u'Interface Action: Edit Metadata (Edit Metadata) : menu action : download'
@@ -79,7 +79,7 @@ class MetadataSingleDialogBase(QDialog):
             if sc:
                 self.download_shortcut.setKey(sc[0])
         self.swap_title_author_shortcut = s = QShortcut(self)
-        s.setKey(QKeySequence('Alt+Down', QKeySequence.PortableText))
+        s.setKey(QKeySequence('Alt+Down', QKeySequence.SequenceFormat.PortableText))
 
         self.button_box = bb = QDialogButtonBox(self)
         self.button_box.accepted.connect(self.accept)
@@ -187,7 +187,7 @@ class MetadataSingleDialogBase(QDialog):
         self.swap_title_author_button = QToolButton(self)
         self.swap_title_author_button.setIcon(QIcon(I('swap.png')))
         self.swap_title_author_button.setToolTip(_(
-            'Swap the author and title') + ' [%s]' % self.swap_title_author_shortcut.key().toString(QKeySequence.NativeText))
+            'Swap the author and title') + ' [%s]' % self.swap_title_author_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
         self.swap_title_author_button.clicked.connect(self.swap_title_author)
         self.swap_title_author_shortcut.activated.connect(self.swap_title_author_button.click)
 
@@ -272,12 +272,12 @@ class MetadataSingleDialogBase(QDialog):
         # center the text in a QToolButton with an icon, so we cant just set an
         # icon
         b.setIcon(QIcon(I('download-metadata.png')))
-        b.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setMinimumHeight(b.sizeHint().height())
         b.setIcon(QIcon())
         b.setText(_('&Download metadata')), b.setPopupMode(b.DelayedPopup)
-        b.setToolTip(_('Download metadata for this book [%s]') % self.download_shortcut.key().toString(QKeySequence.NativeText))
-        b.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
+        b.setToolTip(_('Download metadata for this book [%s]') % self.download_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
+        b.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed))
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
         self.fetch_metadata_menu = m = QMenu(self.fetch_metadata_button)
         m.addAction(QIcon(I('edit-undo.png')), _('Undo last metadata download'), self.undo_fetch_metadata)
@@ -399,7 +399,7 @@ class MetadataSingleDialogBase(QDialog):
             self.set_current_callback(id_)
         self.was_data_edited = False
         # Commented out as it doesn't play nice with Next, Prev buttons
-        # self.fetch_metadata_button.setFocus(Qt.OtherFocusReason)
+        # self.fetch_metadata_button.setFocus(Qt.FocusReason.OtherFocusReason)
 
     # Miscellaneous interaction methods {{{
     def update_window_title(self, *args):
@@ -530,7 +530,7 @@ class MetadataSingleDialogBase(QDialog):
                     val = merge_two_comments(cval, val)
             self.comments.set_value(val)
         if fw is not None:
-            fw.setFocus(Qt.OtherFocusReason)
+            fw.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def fetch_metadata(self, *args):
         from calibre.ebooks.metadata.sources.update import update_sources
@@ -718,7 +718,7 @@ class MetadataSingleDialogBase(QDialog):
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
         self.button_box.button(self.button_box.Ok).setDefault(True)
-        self.button_box.button(self.button_box.Ok).setFocus(Qt.OtherFocusReason)
+        self.button_box.button(self.button_box.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
         for w, state in iteritems(self.comments_edit_state_at_apply):
             if state == 'code':
@@ -778,8 +778,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
             self.tabs.append(w)
             self.central_widget.addTab(ScrollArea(w, self), _('&Custom metadata'))
         l.addLayout(tl)
-        l.addItem(QSpacerItem(10, 15, QSizePolicy.Expanding,
-            QSizePolicy.Fixed))
+        l.addItem(QSpacerItem(10, 15, QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed))
 
         sto = QWidget.setTabOrder
         sto(self.button_box, self.fetch_metadata_button)
@@ -815,7 +815,7 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
 
         tl.addWidget(self.formats_manager, 0, 6, 3, 1)
 
-        self.splitter = Splitter(Qt.Horizontal, self)
+        self.splitter = Splitter(Qt.Orientation.Horizontal, self)
         self.splitter.addWidget(self.cover)
         self.splitter.frame_resized.connect(self.cover.frame_resized)
         l.addWidget(self.splitter)
@@ -852,8 +852,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
                 sto(widget, button)
 
         l.addWidget(gb, 0, 0, 1, 3)
-        self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Expanding,
-                QSizePolicy.Expanding)
+        self.tabs[0].spc_one = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Expanding)
         l.addItem(self.tabs[0].spc_one, 1, 0, 1, 3)
         sto(self.cover.buttons[-1], self.rating)
         create_row2(1, self.rating, self.clear_ratings_button)
@@ -873,8 +873,8 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         create_row2(6, self.publisher, self.publisher.clear_button)
         sto(self.publisher.clear_button, self.languages)
         create_row2(7, self.languages)
-        self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Expanding,
-                QSizePolicy.Expanding)
+        self.tabs[0].spc_two = QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
+                QSizePolicy.Policy.Expanding)
         l.addItem(self.tabs[0].spc_two, 9, 0, 1, 3)
         l.addWidget(self.fetch_metadata_button, 10, 0, 1, 2)
         l.addWidget(self.config_metadata_button, 10, 2, 1, 1)
@@ -1002,7 +1002,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         sto(self.swap_title_author_button, self.manage_authors_button)
         sto(self.manage_authors_button, self.tags_editor_button)
         sto(self.tags_editor_button, self.paste_isbn_button)
-        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
+        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
                    13, 1, 1 ,1)
 
         w = getattr(self, 'custom_metadata_widgets_parent', None)
@@ -1012,7 +1012,7 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
             gb.setLayout(gbl)
             sr = QScrollArea(tab0)
             sr.setWidgetResizable(True)
-            sr.setFrameStyle(QFrame.NoFrame)
+            sr.setFrameStyle(QFrame.Shape.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
             self.tabs[0].l.addWidget(gb, 0, 1, 1, 1)
@@ -1021,8 +1021,8 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         w = QGroupBox(_('&Comments'), tab0)
         sp = QSizePolicy()
         sp.setVerticalStretch(10)
-        sp.setHorizontalPolicy(QSizePolicy.Expanding)
-        sp.setVerticalPolicy(QSizePolicy.Expanding)
+        sp.setHorizontalPolicy(QSizePolicy.Policy.Expanding)
+        sp.setVerticalPolicy(QSizePolicy.Policy.Expanding)
         w.setSizePolicy(sp)
         l = QHBoxLayout()
         w.setLayout(l)
@@ -1049,13 +1049,13 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
         sto(self.cover.buttons[-2], self.cover.buttons[-1])
         l.addLayout(hl, 1, 0, 1, 3)
         wgl.addWidget(gb)
-        wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding,
-            QSizePolicy.Expanding))
-        wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Expanding,
-            QSizePolicy.Expanding))
+        wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding))
+        wgl.addItem(QSpacerItem(10, 10, QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Expanding))
         wgl.addWidget(self.formats_manager)
 
-        self.splitter = QSplitter(Qt.Horizontal, tab1)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal, tab1)
         tab1.l.addWidget(self.splitter)
         self.splitter.addWidget(self.cover)
         self.splitter.addWidget(wsp)
@@ -1141,7 +1141,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         sto(self.swap_title_author_button, self.manage_authors_button)
         sto(self.manage_authors_button, self.tags_editor_button)
         sto(self.tags_editor_button, self.paste_isbn_button)
-        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Fixed, QSizePolicy.Expanding),
+        tl.addItem(QSpacerItem(1, 1, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Expanding),
                    13, 1, 1 ,1)
 
         # Custom metadata in col 1
@@ -1151,16 +1151,16 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
             gbl = QVBoxLayout()
             gb.setLayout(gbl)
             sr = QScrollArea(gb)
-            sr.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            sr.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
             sr.setWidgetResizable(True)
-            sr.setFrameStyle(QFrame.NoFrame)
+            sr.setFrameStyle(QFrame.Shape.NoFrame)
             sr.setWidget(w)
             gbl.addWidget(sr)
             l.addWidget(gb, 0, 1, 1, 1)
             sp = QSizePolicy()
             sp.setVerticalStretch(10)
-            sp.setHorizontalPolicy(QSizePolicy.Minimum)
-            sp.setVerticalPolicy(QSizePolicy.Expanding)
+            sp.setHorizontalPolicy(QSizePolicy.Policy.Minimum)
+            sp.setVerticalPolicy(QSizePolicy.Policy.Expanding)
             gb.setSizePolicy(sp)
             self.set_custom_metadata_tab_order()
 
@@ -1168,8 +1168,8 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         w = QGroupBox(_('Comments'), tab0)
         sp = QSizePolicy()
         sp.setVerticalStretch(10)
-        sp.setHorizontalPolicy(QSizePolicy.Expanding)
-        sp.setVerticalPolicy(QSizePolicy.Expanding)
+        sp.setHorizontalPolicy(QSizePolicy.Policy.Expanding)
+        sp.setVerticalPolicy(QSizePolicy.Policy.Expanding)
         w.setSizePolicy(sp)
         lb = QHBoxLayout()
         w.setLayout(lb)
@@ -1180,7 +1180,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
         gb = QGroupBox(_('Cover'), tab0)
         lb = QGridLayout()
         gb.setLayout(lb)
-        lb.addWidget(self.cover, 0, 0, 1, 3, alignment=Qt.AlignCenter)
+        lb.addWidget(self.cover, 0, 0, 1, 3, alignment=Qt.AlignmentFlag.AlignCenter)
         sto(self.manage_authors_button, self.cover.buttons[0])
         for i, b in enumerate(self.cover.buttons[:3]):
             lb.addWidget(b, 1, i, 1, 1)

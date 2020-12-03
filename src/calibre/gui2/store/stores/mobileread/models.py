@@ -29,7 +29,7 @@ class BooksModel(QAbstractItemModel):
         self.filter = ''
         self.search_filter = SearchFilter(all_books)
         self.sort_col = 0
-        self.sort_order = Qt.AscendingOrder
+        self.sort_order = Qt.SortOrder.AscendingOrder
 
     def get_book(self, index):
         row = index.row()
@@ -66,10 +66,10 @@ class BooksModel(QAbstractItemModel):
         return len(self.HEADERS)
 
     def headerData(self, section, orientation, role):
-        if role != Qt.DisplayRole:
+        if role != Qt.ItemDataRole.DisplayRole:
             return None
         text = ''
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Orientation.Horizontal:
             if section < len(self.HEADERS):
                 text = self.HEADERS[section]
             return (text)
@@ -79,7 +79,7 @@ class BooksModel(QAbstractItemModel):
     def data(self, index, role):
         row, col = index.row(), index.column()
         result = self.books[row]
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             if col == 0:
                 return (result.title)
             elif col == 1:
@@ -103,7 +103,7 @@ class BooksModel(QAbstractItemModel):
         self.sort_order = order
         if not self.books:
             return
-        descending = order == Qt.DescendingOrder
+        descending = order == Qt.SortOrder.DescendingOrder
         self.books.sort(None,
             lambda x: sort_key(type(u'')(self.data_as_text(x, col))),
             descending)

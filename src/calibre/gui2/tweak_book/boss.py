@@ -118,7 +118,7 @@ class Boss(QObject):
         get_boss.boss = self
         self.gui = parent
         completion_worker().result_callback = self.handle_completion_result_signal.emit
-        self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.QueuedConnection)
+        self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.ConnectionType.QueuedConnection)
         self.completion_request_count = 0
         self.editor_cache = JSONConfig('editor-cache', base_path=cache_dir())
         d = self.editor_cache.defaults
@@ -745,7 +745,7 @@ class Boss(QObject):
         self.apply_container_update_to_gui()
         if from_filelist:
             self.gui.file_list.select_names(frozenset(itervalues(name_map)), current_name=name_map.get(from_filelist))
-            self.gui.file_list.file_list.setFocus(Qt.PopupFocusReason)
+            self.gui.file_list.file_list.setFocus(Qt.FocusReason.PopupFocusReason)
 
     # }}}
 
@@ -794,12 +794,12 @@ class Boss(QObject):
                 if name in editors:
                     editor = editors[name]
                     editor.go_to_line(lnum)
-                    editor.setFocus(Qt.OtherFocusReason)
+                    editor.setFocus(Qt.FocusReason.OtherFocusReason)
                     self.gui.raise_()
         d = Diff(revert_button_msg=revert_msg, show_open_in_editor=show_open_in_editor)
         [x.break_cycles() for x in _diff_dialogs if not x.isVisible()]
         _diff_dialogs = [x for x in _diff_dialogs if x.isVisible()] + [d]
-        d.show(), d.raise_(), d.setFocus(Qt.OtherFocusReason), d.setWindowModality(Qt.NonModal)
+        d.show(), d.raise_(), d.setFocus(Qt.FocusReason.OtherFocusReason), d.setWindowModality(Qt.WindowModality.NonModal)
         if show_open_in_editor:
             d.line_activated.connect(line_activated)
         return d
@@ -831,7 +831,7 @@ class Boss(QObject):
         k.addWidget(cb)
         cb.setChecked(True)
         connect_lambda(cb.toggled, d, lambda d, checked: tprefs.set('skip_ask_to_show_current_diff_for_' + name, not checked))
-        d.bb = bb = QDialogButtonBox(QDialogButtonBox.Close, d)
+        d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close, d)
         k.addWidget(bb)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
@@ -994,7 +994,7 @@ class Boss(QObject):
 
     def show_text_search(self):
         self.gui.text_search_dock.show()
-        self.gui.text_search.find.setFocus(Qt.OtherFocusReason)
+        self.gui.text_search.find.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def search_action_triggered(self, action, overrides=None):
         ss = self.gui.saved_searches.isVisible()
@@ -1013,9 +1013,9 @@ class Boss(QObject):
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
         ed = ret is True and self.gui.central.current_editor
         if getattr(ed, 'has_line_numbers', False):
-            ed.editor.setFocus(Qt.OtherFocusReason)
+            ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
-            self.gui.saved_searches.setFocus(Qt.OtherFocusReason)
+            self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def search(self, action, overrides=None):
         # Run a search/replace
@@ -1035,9 +1035,9 @@ class Boss(QObject):
                    self.gui, self.show_editor, self.edit_file, self.show_current_diff, self.add_savepoint, self.rewind_savepoint, self.set_modified)
         ed = ret is True and self.gui.central.current_editor
         if getattr(ed, 'has_line_numbers', False):
-            ed.editor.setFocus(Qt.OtherFocusReason)
+            ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
-            self.gui.saved_searches.setFocus(Qt.OtherFocusReason)
+            self.gui.saved_searches.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def find_text(self, state):
         from calibre.gui2.tweak_book.text_search import run_text_search
@@ -1049,7 +1049,7 @@ class Boss(QObject):
         ret = run_text_search(state, ed, name, searchable_names, self.gui, self.show_editor, self.edit_file)
         ed = ret is True and self.gui.central.current_editor
         if getattr(ed, 'has_line_numbers', False):
-            ed.editor.setFocus(Qt.OtherFocusReason)
+            ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def find_word(self, word, locations):
         # Go to a word from the spell check dialog
@@ -1773,7 +1773,7 @@ class Boss(QObject):
             d.m = QLabel(_('There are unsaved changes, if you quit without saving, you will lose them.'))
             d.m.setWordWrap(True)
             d.l.addWidget(d.m, 0, 1)
-            d.bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+            d.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
             d.bb.rejected.connect(d.reject)
             d.bb.accepted.connect(d.accept)
             d.l.addWidget(d.bb, 1, 0, 1, 2)
@@ -1782,10 +1782,10 @@ class Boss(QObject):
             def endit(d, x):
                 d.do_save = x
                 d.accept()
-            b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ActionRole)
+            b = d.bb.addButton(_('&Save and Quit'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('save.png')))
             connect_lambda(b.clicked, d, lambda d: endit(d, True))
-            b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ActionRole)
+            b = d.bb.addButton(_('&Quit without saving'), QDialogButtonBox.ButtonRole.ActionRole)
             connect_lambda(b.clicked, d, lambda d: endit(d, False))
             d.resize(d.sizeHint())
             if d.exec_() != d.Accepted or d.do_save is None:

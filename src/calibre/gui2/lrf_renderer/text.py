@@ -23,19 +23,19 @@ class PixmapItem(QGraphicsPixmapItem):
 
     def __init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize):
         p = QPixmap()
-        p.loadFromData(data, encoding, Qt.AutoColor)
+        p.loadFromData(data, encoding, Qt.ImageConversionFlag.AutoColor)
         w, h = p.width(), p.height()
         p = p.copy(x0, y0, min(w, x1-x0), min(h, y1-y0))
         if p.width() != xsize or p.height() != ysize:
-            p = p.scaled(xsize, ysize, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            p = p.scaled(xsize, ysize, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
         QGraphicsPixmapItem.__init__(self, p)
         self.height, self.width = ysize, xsize
-        self.setTransformationMode(Qt.SmoothTransformation)
-        self.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
+        self.setTransformationMode(Qt.TransformationMode.SmoothTransformation)
+        self.setShapeMode(QGraphicsPixmapItem.ShapeMode.BoundingRectShape)
 
     def resize(self, width, height):
         p = self.pixmap()
-        self.setPixmap(p.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        self.setPixmap(p.scaled(width, height, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.width, self.height = width, height
 
 
@@ -80,7 +80,7 @@ class FontLoader(object):
         if font in self.cache:
             rfont = self.cache[font]
         else:
-            italic = font[2] == QFont.StyleItalic
+            italic = font[2] == QFont.Style.StyleItalic
             rfont = QFont(font[0], font[3], font[1], italic)
             rfont.setPixelSize(font[3])
             rfont.setBold(wt>=69)
@@ -131,7 +131,7 @@ class TextStyle(Style):
 
     def __init__(self, style, font_loader, ruby_tags):
         self.font_loader = font_loader
-        self.fontstyle   = QFont.StyleNormal
+        self.fontstyle   = QFont.Style.StyleNormal
         for attr in ruby_tags:
             setattr(self, attr, ruby_tags[attr])
         Style.__init__(self, style, font_loader.dpi)
@@ -260,7 +260,7 @@ class TextBlock(object):
                 self.create_link(i.attrs['refobj'])
             elif i.name == 'Italic':
                 open_containers.append((('current_style', self.current_style.copy()),))
-                self.current_style.update(fontstyle=QFont.StyleItalic)
+                self.current_style.update(fontstyle=QFont.Style.StyleItalic)
             elif i.name == 'Plot':
                 plot = Plot(i, self.font_loader.dpi)
                 if self.current_line is None:
@@ -340,8 +340,8 @@ class Link(QGraphicsRectItem):
         self.refobj = refobj
         self.slot = slot
         self.brush = self.__class__.inactive_brush
-        self.setPen(QPen(Qt.NoPen))
-        self.setCursor(Qt.PointingHandCursor)
+        self.setPen(QPen(Qt.PenStyle.NoPen))
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setAcceptHoverEvents(True)
 
     def hoverEnterEvent(self, event):
@@ -492,11 +492,11 @@ class Line(QGraphicsItem):
         x, y = 0, 0+self.height-self.descent
         if self.vdebug:
             painter.save()
-            painter.setPen(QPen(Qt.yellow, 1, Qt.DotLine))
+            painter.setPen(QPen(Qt.GlobalColor.yellow, 1, Qt.PenStyle.DotLine))
             painter.drawRect(self.boundingRect())
             painter.restore()
         painter.save()
-        painter.setPen(QPen(Qt.NoPen))
+        painter.setPen(QPen(Qt.PenStyle.NoPen))
         for c in self.children():
             painter.setBrush(c.brush)
             painter.drawRect(c.boundingRect())
@@ -509,8 +509,8 @@ class Line(QGraphicsItem):
                 painter.setFont(tok.font)
                 if tok.highlight:
                     painter.save()
-                    painter.setPen(QPen(Qt.NoPen))
-                    painter.setBrush(QBrush(Qt.yellow))
+                    painter.setPen(QPen(Qt.PenStyle.NoPen))
+                    painter.setBrush(QBrush(Qt.GlobalColor.yellow))
                     painter.drawRect(x, 0, tok.width, tok.height)
                     painter.restore()
                 painter.setPen(QPen(tok.text_color))

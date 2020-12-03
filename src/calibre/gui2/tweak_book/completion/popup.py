@@ -26,11 +26,11 @@ class ChoosePopupWidget(QWidget):
     def __init__(self, parent, max_height=1000):
         QWidget.__init__(self, parent)
 
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setFocusProxy(parent)
         self.setVisible(False)
         self.setMouseTracking(True)
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.current_results = self.current_size_hint = None
 
@@ -40,8 +40,8 @@ class ChoosePopupWidget(QWidget):
         self.max_height = max_height
 
         self.text_option = to = QTextOption()
-        to.setWrapMode(QTextOption.NoWrap)
-        to.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        to.setWrapMode(QTextOption.WrapMode.NoWrap)
+        to.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
 
         self.rendered_text_cache = {}
         parent.installEventFilter(self)
@@ -71,11 +71,11 @@ class ChoosePopupWidget(QWidget):
             desc = self.descriptions.get(otext)
             if desc:
                 text += ' - <i>%s</i>' % prepare_string_for_xml(desc)
-            color = self.palette().color(QPalette.Text).name()
+            color = self.palette().color(QPalette.ColorRole.Text).name()
             text = '<span style="color: %s">%s</span>' % (color, text)
             st = self.rendered_text_cache[otext] = QStaticText(text)
             st.setTextOption(self.text_option)
-            st.setTextFormat(Qt.RichText)
+            st.setTextFormat(Qt.TextFormat.RichText)
             st.prepare(font=self.parent().font())
         return st
 
@@ -119,7 +119,7 @@ class ChoosePopupWidget(QWidget):
             painter.save()
             if i == self.current_index:
                 painter.fillRect(1, y, width, height, pal.color(pal.Highlight))
-                color = pal.color(QPalette.HighlightedText).name()
+                color = pal.color(QPalette.ColorRole.HighlightedText).name()
                 st = QStaticText(st)
                 text = st.text().partition('>')[2]
                 st.setText('<span style="color: %s">%s' % (color, text))
@@ -177,18 +177,18 @@ class ChoosePopupWidget(QWidget):
 
     def handle_keypress(self, ev):
         key = ev.key()
-        if key == Qt.Key_Escape:
+        if key == Qt.Key.Key_Escape:
             self.abort(), ev.accept()
             return True
-        if key == Qt.Key_Tab and not ev.modifiers() & Qt.CTRL:
-            self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
+        if key == Qt.Key.Key_Tab and not ev.modifiers() & Qt.Modifier.CTRL:
+            self.choose_next_result(previous=ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
             ev.accept()
             return True
-        if key == Qt.Key_Backtab and not ev.modifiers() & Qt.CTRL:
-            self.choose_next_result(previous=ev.modifiers() & Qt.ShiftModifier)
+        if key == Qt.Key.Key_Backtab and not ev.modifiers() & Qt.Modifier.CTRL:
+            self.choose_next_result(previous=ev.modifiers() & Qt.KeyboardModifier.ShiftModifier)
             return True
-        if key in (Qt.Key_Up, Qt.Key_Down):
-            self.choose_next_result(previous=key == Qt.Key_Up)
+        if key in (Qt.Key.Key_Up, Qt.Key.Key_Down):
+            self.choose_next_result(previous=key == Qt.Key.Key_Up)
             return True
         return False
 

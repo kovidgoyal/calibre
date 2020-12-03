@@ -31,8 +31,8 @@ class PluginWidget(Widget, Ui_Form):
         self.md_map = {}
         for name, text in iteritems(MD_EXTENSIONS):
             i = QListWidgetItem('%s - %s' % (name, text), self.opt_markdown_extensions)
-            i.setFlags(Qt.ItemIsUserCheckable | Qt.ItemIsEnabled)
-            i.setData(Qt.UserRole, name)
+            i.setFlags(Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled)
+            i.setData(Qt.ItemDataRole.UserRole, name)
             self.md_map[name] = i
 
         self.initialize_options(get_option, get_help, db, book_id)
@@ -40,17 +40,17 @@ class PluginWidget(Widget, Ui_Form):
     def set_value_handler(self, g, val):
         if g is self.opt_markdown_extensions:
             for i in itervalues(self.md_map):
-                i.setCheckState(Qt.Unchecked)
+                i.setCheckState(Qt.CheckState.Unchecked)
             for x in val.split(','):
                 x = x.strip()
                 if x in self.md_map:
-                    self.md_map[x].setCheckState(Qt.Checked)
+                    self.md_map[x].setCheckState(Qt.CheckState.Checked)
             return True
 
     def get_value_handler(self, g):
         if g is not self.opt_markdown_extensions:
             return Widget.get_value_handler(self, g)
-        return ', '.join(unicode_type(i.data(Qt.UserRole) or '') for i in itervalues(self.md_map) if i.checkState())
+        return ', '.join(unicode_type(i.data(Qt.ItemDataRole.UserRole) or '') for i in itervalues(self.md_map) if i.checkState())
 
     def connect_gui_obj_handler(self, g, f):
         if g is not self.opt_markdown_extensions:

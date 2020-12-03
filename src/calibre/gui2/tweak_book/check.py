@@ -51,7 +51,7 @@ class Delegate(QStyledItemDelegate):
         super(Delegate, self).initStyleOption(option, index)
         if index.row() == self.parent().currentRow():
             option.font.setBold(True)
-            option.backgroundBrush = self.parent().palette().brush(QPalette.AlternateBase)
+            option.backgroundBrush = self.parent().palette().brush(QPalette.ColorRole.AlternateBase)
 
 
 class Check(QSplitter):
@@ -65,7 +65,7 @@ class Check(QSplitter):
         self.setChildrenCollapsible(False)
 
         self.items = i = QListWidget(self)
-        i.setContextMenuPolicy(Qt.CustomContextMenu)
+        i.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         i.customContextMenuRequested.connect(self.context_menu)
         self.items.setSpacing(3)
         self.items.itemDoubleClicked.connect(self.current_item_activated)
@@ -101,7 +101,7 @@ class Check(QSplitter):
         items = []
         for item in (self.items.item(i) for i in range(self.items.count())):
             msg = unicode_type(item.text())
-            msg = prefix_for_level(item.data(Qt.UserRole).level) + msg
+            msg = prefix_for_level(item.data(Qt.ItemDataRole.UserRole).level) + msg
             items.append(msg)
         if items:
             QApplication.clipboard().setText('\n'.join(items))
@@ -122,11 +122,11 @@ class Check(QSplitter):
         elif url == 'run:check':
             self.check_requested.emit()
         elif url == 'fix:errors':
-            errors = [self.items.item(i).data(Qt.UserRole) for i in range(self.items.count())]
+            errors = [self.items.item(i).data(Qt.ItemDataRole.UserRole) for i in range(self.items.count())]
             self.fix_requested.emit(errors)
         elif url.startswith('fix:error,'):
             num = int(url.rpartition(',')[-1])
-            errors = [self.items.item(num).data(Qt.UserRole)]
+            errors = [self.items.item(num).data(Qt.ItemDataRole.UserRole)]
             self.fix_requested.emit(errors)
         elif url.startswith('activate:item:'):
             index = int(url.rpartition(':')[-1])
@@ -145,7 +145,7 @@ class Check(QSplitter):
     def current_item_activated(self, *args):
         i = self.items.currentItem()
         if i is not None:
-            err = i.data(Qt.UserRole)
+            err = i.data(Qt.ItemDataRole.UserRole)
             if err.has_multiple_locations:
                 self.location_activated(0)
             else:
@@ -154,7 +154,7 @@ class Check(QSplitter):
     def location_activated(self, index):
         i = self.items.currentItem()
         if i is not None:
-            err = i.data(Qt.UserRole)
+            err = i.data(Qt.ItemDataRole.UserRole)
             err.current_location_index = index
             self.item_activated.emit(err)
 
@@ -173,7 +173,7 @@ class Check(QSplitter):
             return loc
 
         if i is not None:
-            err = i.data(Qt.UserRole)
+            err = i.data(Qt.ItemDataRole.UserRole)
             header = {DEBUG:_('Debug'), INFO:_('Information'), WARN:_('Warning'), ERROR:_('Error'), CRITICAL:_('Error')}[err.level]
             ifix = ''
             loc = loc_to_string(err.line, err.col)
@@ -216,12 +216,12 @@ class Check(QSplitter):
 
         for err in sorted(errors, key=lambda e:(100 - e.level, e.name)):
             i = QListWidgetItem('%s\xa0\xa0\xa0\xa0[%s]' % (err.msg, err.name), self.items)
-            i.setData(Qt.UserRole, err)
+            i.setData(Qt.ItemDataRole.UserRole, err)
             i.setIcon(icon_for_level(err.level))
         if errors:
             self.items.setCurrentRow(0)
             self.current_item_changed()
-            self.items.setFocus(Qt.OtherFocusReason)
+            self.items.setFocus(Qt.FocusReason.OtherFocusReason)
         else:
             self.clear_help()
 
@@ -242,7 +242,7 @@ class Check(QSplitter):
         self.items.clear()
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.current_item_activated()
         return super(Check, self).keyPressEvent(ev)
 

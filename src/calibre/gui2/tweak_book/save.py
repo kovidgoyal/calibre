@@ -137,8 +137,8 @@ class SaveManager(QObject):
         t.daemon = True
         t.start()
         self.status_widget = w = SaveWidget(parent)
-        self.start_save.connect(w.start, type=Qt.QueuedConnection)
-        self.save_done.connect(w.stop, type=Qt.QueuedConnection)
+        self.start_save.connect(w.start, type=Qt.ConnectionType.QueuedConnection)
+        self.save_done.connect(w.stop, type=Qt.ConnectionType.QueuedConnection)
 
     def schedule(self, tdir, container):
         self.count += 1

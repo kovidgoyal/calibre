@@ -111,7 +111,7 @@ class ImageDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
-        name = unicode_type(index.data(Qt.DisplayRole) or '')
+        name = unicode_type(index.data(Qt.ItemDataRole.DisplayRole) or '')
         cover = self.cover_cache.get(name, None)
         if cover is None:
             cover = self.cover_cache[name] = QPixmap()
@@ -129,7 +129,7 @@ class ImageDelegate(QStyledItemDelegate):
                 if not cover.isNull():
                     scaled, width, height = fit_image(cover.width(), cover.height(), self.cover_size.width(), self.cover_size.height())
                     if scaled:
-                        cover = self.cover_cache[name] = cover.scaled(int(dpr*width), int(dpr*height), transformMode=Qt.SmoothTransformation)
+                        cover = self.cover_cache[name] = cover.scaled(int(dpr*width), int(dpr*height), transformMode=Qt.TransformationMode.SmoothTransformation)
 
         painter.save()
         try:
@@ -144,10 +144,10 @@ class ImageDelegate(QStyledItemDelegate):
                 painter.drawPixmap(rect, cover)
             rect = trect
             rect.setTop(rect.bottom() - self.title_height + 5)
-            painter.setRenderHint(QPainter.TextAntialiasing, True)
+            painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
             metrics = painter.fontMetrics()
-            painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
-                                metrics.elidedText(name, Qt.ElideLeft, rect.width()))
+            painter.drawText(rect, Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextSingleLine,
+                                metrics.elidedText(name, Qt.TextElideMode.ElideLeft, rect.width()))
         finally:
             painter.restore()
 
@@ -184,7 +184,7 @@ class Images(QAbstractListModel):
             name = self.image_names[index.row()]
         except IndexError:
             return None
-        if role in (Qt.DisplayRole, Qt.ToolTipRole):
+        if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.ToolTipRole):
             return name
         return None
 
@@ -208,7 +208,7 @@ class InsertImage(Dialog):
         self.setLayout(l)
 
         self.la1 = la = QLabel(_('&Existing images in the book'))
-        la.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        la.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         l.addWidget(la, 0, 0, 1, 2)
         if self.for_browsing:
             la.setVisible(False)
@@ -250,7 +250,7 @@ class InsertImage(Dialog):
             b.clicked.connect(self.refresh)
             b.setIcon(QIcon(I('view-refresh.png')))
             b.setToolTip(_('Refresh the displayed images'))
-            self.setAttribute(Qt.WA_DeleteOnClose, False)
+            self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         else:
             b = self.import_button = self.bb.addButton(_('&Import image'), self.bb.ActionRole)
             b.clicked.connect(self.import_image)
@@ -333,7 +333,7 @@ class InsertImage(Dialog):
             self.accept()
 
     def pressed(self, index):
-        if QApplication.mouseButtons() & Qt.LeftButton:
+        if QApplication.mouseButtons() & Qt.MouseButton.LeftButton:
             self.activated(index)
 
     def activated(self, index):
@@ -391,7 +391,7 @@ class ChooseFolder(Dialog):  # {{{
         f.setHeaderHidden(True)
         f.itemDoubleClicked.connect(self.accept)
         l.addWidget(f)
-        f.setContextMenuPolicy(Qt.CustomContextMenu)
+        f.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         f.customContextMenuRequested.connect(self.show_context_menu)
         self.root = QTreeWidgetItem(f, ('/',))
 
@@ -452,7 +452,7 @@ class NewBook(Dialog):  # {{{
 
         self.title = t = QLineEdit(self)
         l.addRow(_('&Title:'), t)
-        t.setFocus(Qt.OtherFocusReason)
+        t.setFocus(Qt.FocusReason.OtherFocusReason)
 
         self.authors = a = QLineEdit(self)
         l.addRow(_('&Authors:'), a)

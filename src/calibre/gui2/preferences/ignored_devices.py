@@ -61,8 +61,8 @@ class ConfigWidget(ConfigWidgetBase):
         self.changed_signal.emit()
 
     def toggle_item(self, item):
-        item.setCheckState(Qt.Checked if item.checkState() == Qt.Unchecked else
-                Qt.Unchecked)
+        item.setCheckState(Qt.CheckState.Checked if item.checkState() == Qt.CheckState.Unchecked else
+                Qt.CheckState.Unchecked)
 
     def initialize(self):
         self.confirms_reset = False
@@ -71,18 +71,18 @@ class ConfigWidget(ConfigWidgetBase):
         for dev in self.gui.device_manager.devices:
             for d, name in iteritems(dev.get_user_blacklisted_devices()):
                 item = QListWidgetItem('%s [%s]'%(name, d), self.devices)
-                item.setData(Qt.UserRole, (dev, d))
-                item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-                item.setCheckState(Qt.Checked)
+                item.setData(Qt.ItemDataRole.UserRole, (dev, d))
+                item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
+                item.setCheckState(Qt.CheckState.Checked)
         self.devices.blockSignals(False)
 
         self.device_plugins.blockSignals(True)
         for dev in self.gui.device_manager.disabled_device_plugins:
             n = dev.get_gui_name()
             item = QListWidgetItem(n, self.device_plugins)
-            item.setData(Qt.UserRole, dev)
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked)
+            item.setData(Qt.ItemDataRole.UserRole, dev)
+            item.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsUserCheckable|Qt.ItemFlag.ItemIsSelectable)
+            item.setCheckState(Qt.CheckState.Checked)
             item.setIcon(QIcon(I('plugins.png')))
         self.device_plugins.sortItems()
         self.device_plugins.blockSignals(False)
@@ -95,10 +95,10 @@ class ConfigWidget(ConfigWidgetBase):
         devs = {}
         for i in range(0, self.devices.count()):
             e = self.devices.item(i)
-            dev, uid = e.data(Qt.UserRole)
+            dev, uid = e.data(Qt.ItemDataRole.UserRole)
             if dev not in devs:
                 devs[dev] = []
-            if e.checkState() == Qt.Checked:
+            if e.checkState() == Qt.CheckState.Checked:
                 devs[dev].append(uid)
 
         for dev, bl in iteritems(devs):
@@ -106,8 +106,8 @@ class ConfigWidget(ConfigWidgetBase):
 
         for i in range(self.device_plugins.count()):
             e = self.device_plugins.item(i)
-            dev = e.data(Qt.UserRole)
-            if e.checkState() == Qt.Unchecked:
+            dev = e.data(Qt.ItemDataRole.UserRole)
+            if e.checkState() == Qt.CheckState.Unchecked:
                 enable_plugin(dev)
         if self.confirms_reset:
             gprefs['ask_to_manage_device'] = []

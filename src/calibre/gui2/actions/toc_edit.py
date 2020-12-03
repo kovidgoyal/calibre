@@ -38,7 +38,7 @@ class ChooseFormat(QDialog):  # {{{
             self.buttons.append(b)
         self.formats = gprefs.get('edit_toc_last_selected_formats', ['EPUB',])
         bb = self.bb = QDialogButtonBox(
-            QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
+            QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.addButton(_('&All formats'),
                      bb.ActionRole).clicked.connect(self.do_all)
         bb.accepted.connect(self.accept)

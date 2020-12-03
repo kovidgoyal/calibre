@@ -845,26 +845,26 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, checked=False, is_tristate=False):
         QTableWidgetItem.__init__(self, '')
-        self.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled))
+        self.setFlags(Qt.ItemFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsUserCheckable | Qt.ItemFlag.ItemIsEnabled))
         if is_tristate:
-            self.setFlags(self.flags() | Qt.ItemIsTristate)
+            self.setFlags(self.flags() | Qt.ItemFlag.ItemIsTristate)
         if checked:
-            self.setCheckState(Qt.Checked)
+            self.setCheckState(Qt.CheckState.Checked)
         else:
             if is_tristate and checked is None:
-                self.setCheckState(Qt.PartiallyChecked)
+                self.setCheckState(Qt.CheckState.PartiallyChecked)
             else:
-                self.setCheckState(Qt.Unchecked)
+                self.setCheckState(Qt.CheckState.Unchecked)
 
     def get_boolean_value(self):
         '''
         Return a boolean value indicating whether checkbox is checked
         If this is a tristate checkbox, a partially checked value is returned as None
         '''
-        if self.checkState() == Qt.PartiallyChecked:
+        if self.checkState() == Qt.CheckState.PartiallyChecked:
             return None
         else:
-            return self.checkState() == Qt.Checked
+            return self.checkState() == Qt.CheckState.Checked
 
 
 class NoWheelComboBox(QComboBox):
@@ -911,7 +911,7 @@ class GenericRulesTable(QTableWidget):
         self.layout = parent_gb.layout()
 
         # Add ourselves to the layout
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         # sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
@@ -1206,7 +1206,7 @@ class ExclusionRules(GenericRulesTable):
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
     def _initialize(self):
         self.populate_table()
@@ -1218,7 +1218,7 @@ class ExclusionRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.Checked
+        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
         data['name'] = unicode_type(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
         data['field'] = unicode_type(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()
         data['pattern'] = unicode_type(self.cellWidget(row,self.COLUMNS['PATTERN']['ordinal']).currentText()).strip()
@@ -1299,7 +1299,7 @@ class PrefixRules(GenericRulesTable):
         self.setColumnCount(len(header_labels))
         self.setHorizontalHeaderLabels(header_labels)
         self.setSortingEnabled(False)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
     def _initialize(self):
         self.generate_prefix_list()
@@ -1312,7 +1312,7 @@ class PrefixRules(GenericRulesTable):
     def convert_row_to_data(self, row):
         data = self.create_blank_row_data()
         data['ordinal'] = row
-        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.Checked
+        data['enabled'] = self.item(row,self.COLUMNS['ENABLED']['ordinal']).checkState() == Qt.CheckState.Checked
         data['name'] = unicode_type(self.cellWidget(row,self.COLUMNS['NAME']['ordinal']).text()).strip()
         data['prefix'] = unicode_type(self.cellWidget(row,self.COLUMNS['PREFIX']['ordinal']).currentText()).strip()
         data['field'] = unicode_type(self.cellWidget(row,self.COLUMNS['FIELD']['ordinal']).currentText()).strip()

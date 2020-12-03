@@ -35,7 +35,7 @@ class HistoryBox(QComboBox):
             history.append(val)
         self.clear()
         self.addItems(history)
-        self.setCurrentIndex(self.findText(val, Qt.MatchFixedString))
+        self.setCurrentIndex(self.findText(val, Qt.MatchFlag.MatchFixedString))
 
     def save_history(self, opt_name):
         history = [unicode_type(self.itemText(i)) for i in range(self.count())]

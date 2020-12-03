@@ -351,7 +351,7 @@ class WebPage(QWebEnginePage):
             QApplication.instance().clipboard().setMimeData(md)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prefix = {QWebEnginePage.InfoMessageLevel: 'INFO', QWebEnginePage.WarningMessageLevel: 'WARNING'}.get(
+        prefix = {QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO', QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'}.get(
                 level, 'ERROR')
         prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
         try:
@@ -376,9 +376,9 @@ class WebPage(QWebEnginePage):
 
     def runjs(self, src, callback=None):
         if callback is None:
-            self.runJavaScript(src, QWebEngineScript.ApplicationWorld)
+            self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld)
         else:
-            self.runJavaScript(src, QWebEngineScript.ApplicationWorld, callback)
+            self.runJavaScript(src, QWebEngineScript.ScriptWorldId.ApplicationWorld, callback)
 
 
 def viewer_html():
@@ -570,14 +570,14 @@ class WebView(RestartingWebEngineView):
             child = event.child()
             if 'HostView' in child.metaObject().className():
                 self._host_widget = child
-                self._host_widget.setFocus(Qt.OtherFocusReason)
+                self._host_widget.setFocus(Qt.FocusReason.OtherFocusReason)
         return QWebEngineView.event(self, event)
 
     def sizeHint(self):
         return self._size_hint
 
     def refresh(self):
-        self.pageAction(QWebEnginePage.ReloadAndBypassCache).trigger()
+        self.pageAction(QWebEnginePage.WebAction.ReloadAndBypassCache).trigger()
 
     @property
     def bridge(self):
@@ -707,7 +707,7 @@ class WebView(RestartingWebEngineView):
 
     def highlight_action(self, uuid, which):
         self.execute_when_ready('highlight_action', uuid, which)
-        self.setFocus(Qt.OtherFocusReason)
+        self.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def generic_action(self, which, data):
         self.execute_when_ready('generic_action', which, data)

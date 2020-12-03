@@ -111,9 +111,9 @@ class RunAction(QDialog):
         la.setMaximumWidth(450)
         l.addWidget(la, l.rowCount(), 1)
         l.addWidget(self.bb, l.rowCount(), 0, 1, -1)
-        self.update_current_signal.connect(self.update_current, type=Qt.QueuedConnection)
-        self.update_overall_signal.connect(self.update_overall, type=Qt.QueuedConnection)
-        self.finish_signal.connect(self.finish_processing, type=Qt.QueuedConnection)
+        self.update_current_signal.connect(self.update_current, type=Qt.ConnectionType.QueuedConnection)
+        self.update_overall_signal.connect(self.update_overall, type=Qt.ConnectionType.QueuedConnection)
+        self.finish_signal.connect(self.finish_processing, type=Qt.ConnectionType.QueuedConnection)
 
     def update_overall(self, msg, count, total):
         self.overall.setMaximum(total), self.overall.setValue(count)
@@ -206,16 +206,16 @@ class EximDialog(Dialog):
         lpaths = all_known_libraries()
         for lpath in sorted(lpaths, key=lambda x:numeric_sort_key(os.path.basename(x))):
             i = QListWidgetItem(self.export_lib_text(lpath), ll)
-            i.setData(Qt.UserRole, lpath)
-            i.setData(Qt.UserRole+1, lpaths[lpath])
+            i.setData(Qt.ItemDataRole.UserRole, lpath)
+            i.setData(Qt.ItemDataRole.UserRole+1, lpaths[lpath])
             i.setIcon(QIcon(I('lt.png')))
             i.setSelected(True)
         self.update_disk_usage.connect((
-            lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(self.lib_list.item(i).data(Qt.UserRole), sz))), type=Qt.QueuedConnection)
+            lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(self.lib_list.item(i).data(Qt.ItemDataRole.UserRole), sz))), type=Qt.ConnectionType.QueuedConnection)
 
     def get_lib_sizes(self):
         for i in range(self.lib_list.count()):
-            path = self.lib_list.item(i).data(Qt.UserRole)
+            path = self.lib_list.item(i).data(Qt.ItemDataRole.UserRole)
             try:
                 sz = disk_usage(path, abort=self.abort_disk_usage)
             except Exception:
@@ -353,7 +353,7 @@ class EximDialog(Dialog):
 
     def run_export_action(self):
         from calibre.gui2.ui import get_gui
-        library_paths = {i.data(Qt.UserRole):i.data(Qt.UserRole+1) for i in self.lib_list.selectedItems()}
+        library_paths = {i.data(Qt.ItemDataRole.UserRole):i.data(Qt.ItemDataRole.UserRole+1) for i in self.lib_list.selectedItems()}
         dbmap = {}
         gui = get_gui()
         if gui is not None:

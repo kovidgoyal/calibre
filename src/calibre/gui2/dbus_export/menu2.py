@@ -36,7 +36,7 @@ class DBusMenu(QObject):
         QObject.__init__(self, parent)
         # Unity barfs is the Event DBUS method does not return immediately, so
         # handle it asynchronously
-        self.handle_event_signal.connect(self.handle_event, type=Qt.QueuedConnection)
+        self.handle_event_signal.connect(self.handle_event, type=Qt.ConnectionType.QueuedConnection)
         self.dbus_api = DBusMenuAPI(self, object_path, bus=bus)
         self.set_status = self.dbus_api.set_status
         self._next_id = 0

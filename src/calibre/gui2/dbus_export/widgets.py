@@ -100,11 +100,11 @@ class ExportedMenuBar(QMenuBar):  # {{{
 
     def eventFilter(self, obj, ev):
         etype = ev.type()
-        if etype == QEvent.Show:
+        if etype == QEvent.Type.Show:
             # Hiding a window causes the registrar to auto-unregister it, so we
             # have to re-register it on show events.
             self.register()
-        elif etype == QEvent.WinIdChange:
+        elif etype == QEvent.Type.WinIdChange:
             self.unregister()
             self.register()
         return False
@@ -206,7 +206,7 @@ class Factory(QObject):
             self.status_notifier = bool(self.bus.call_blocking(*args, timeout=0.1))
 
     def create_window_menubar(self, parent):
-        if not QApplication.instance().testAttribute(Qt.AA_DontUseNativeMenuBar) and self.has_global_menu:
+        if not QApplication.instance().testAttribute(Qt.ApplicationAttribute.AA_DontUseNativeMenuBar) and self.has_global_menu:
             ans = ExportedMenuBar(parent, self.menu_registrar, self.bus)
             self.prune_dead_refs()
             self.window_menus.append(weakref.ref(ans))

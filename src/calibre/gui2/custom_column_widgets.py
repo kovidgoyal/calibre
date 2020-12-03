@@ -152,7 +152,7 @@ class LongText(Base):
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
         self._tb = QPlainTextEdit(self._box)
-        self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._tb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
         self.widgets = [self._box]
@@ -387,7 +387,7 @@ class Comments(Base):
         self._box.setTitle(label_string(self.col_metadata['name']))
         self._layout = QVBoxLayout()
         self._tb = CommentsEditor(self._box, toolbar_prefs_name='metadata-comments-editor-widget-hidden-toolbars')
-        self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._tb.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         # self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)
         self._box.setLayout(self._layout)
@@ -480,7 +480,7 @@ def _save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
     d.setText(msg)
-    d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+    d.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Cancel)
     return d.exec_()
 
 
@@ -499,7 +499,7 @@ class Text(Base):
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
             w.get_editor_button().clicked.connect(self.edit)
-            w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            w.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
             self.set_to_undefined = w.clear
         else:
             w = EditWithComplete(parent)
@@ -552,9 +552,9 @@ class Text(Base):
                     _('You have changed the values. In order to use this '
                        'editor, you must either discard or apply these '
                        'changes. Apply changes?'))
-            if d == QMessageBox.Cancel:
+            if d == QMessageBox.StandardButton.Cancel:
                 return
-            if d == QMessageBox.Yes:
+            if d == QMessageBox.StandardButton.Yes:
                 self.commit(self.book_id)
                 self.db.commit()
                 self.initial_val = self.current_val
@@ -791,7 +791,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     elide_pos = tweaks['metadata_edit_elision_point']
     elide_pos = elide_pos if elide_pos in {'left', 'middle', 'right'} else 'right'
     # make room on the right side for the scrollbar
-    sb_width = QApplication.instance().style().pixelMetric(QStyle.PM_ScrollBarExtent)
+    sb_width = QApplication.instance().style().pixelMetric(QStyle.PixelMetric.PM_ScrollBarExtent)
     layout.setContentsMargins(0, 0, sb_width, 0)
     for key in cols:
         if not fm[key]['is_editable']:
@@ -841,9 +841,9 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                                tweaks['metadata_edit_single_cc_label_length']) - colon_width
                 wij.setMaximumWidth(label_width)
                 if c == 0:
-                    wij.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
+                    wij.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.Preferred)
                     l.setColumnMinimumWidth(0, label_width)
-                wij.setAlignment(Qt.AlignRight|Qt.AlignVCenter)
+                wij.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter)
                 t = unicode_type(wij.text())
                 if t:
                     if do_elision:
@@ -865,8 +865,8 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
 
     items = []
     if len(ans) > 0:
-        items.append(QSpacerItem(10, 10, QSizePolicy.Minimum,
-            QSizePolicy.Expanding))
+        items.append(QSpacerItem(10, 10, QSizePolicy.Policy.Minimum,
+            QSizePolicy.Policy.Expanding))
         layout.addItem(items[-1], layout.rowCount(), 0, 1, 1)
         layout.setRowStretch(layout.rowCount()-1, 100)
     return ans, items
@@ -1186,7 +1186,7 @@ class BulkSeries(BulkBase):
             'force series numbers.') + '</p>')
         self.series_increment.setPrefix('+')
         layout.addWidget(self.series_increment)
-        layout.addItem(QSpacerItem(20, 10, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
         self.widgets.append(w)
         self.idx_widget.stateChanged.connect(self.a_c_checkbox_changed)
         self.force_number.stateChanged.connect(self.a_c_checkbox_changed)
@@ -1363,7 +1363,7 @@ class BulkText(BulkBase):
         if self.col_metadata['is_multiple']:
             is_tags = not self.col_metadata['display'].get('is_names', False)
             self.make_widgets(parent, EditWithComplete, add_tags_edit_button=is_tags)
-            self.main_widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+            self.main_widget.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
             self.adding_widget = self.main_widget
 
             if is_tags:
@@ -1464,7 +1464,7 @@ class BulkText(BulkBase):
                     _('You have entered values. In order to use this '
                        'editor you must first discard them. '
                        'Discard the values?'))
-            if d == QMessageBox.Cancel or d == QMessageBox.No:
+            if d == QMessageBox.StandardButton.Cancel or d == QMessageBox.StandardButton.No:
                 return
             widget.setText('')
         d = TagEditor(self.parent, self.db, key=('#'+self.col_metadata['label']))

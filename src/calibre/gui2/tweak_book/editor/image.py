@@ -47,7 +47,7 @@ class ResizeDialog(QDialog):  # {{{
         l.addRow(ar)
         self.resize(self.sizeHint())
 
-        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addRow(bb)
@@ -92,7 +92,7 @@ class Editor(QMainWindow):
     def __init__(self, syntax, parent=None):
         QMainWindow.__init__(self, parent)
         if parent is None:
-            self.setWindowFlags(Qt.Widget)
+            self.setWindowFlags(Qt.WindowType.Widget)
 
         self.is_synced_to_container = False
         self.syntax = syntax
@@ -186,7 +186,7 @@ class Editor(QMainWindow):
             self.restoreState(state)
 
     def set_focus(self):
-        self.canvas.setFocus(Qt.OtherFocusReason)
+        self.canvas.setFocus(Qt.FocusReason.OtherFocusReason)
 
     def undo(self):
         self.canvas.undo_action.trigger()
@@ -267,7 +267,7 @@ class Editor(QMainWindow):
         self.action_resize = ac = b.addAction(QIcon(I('resize.png')), _('Resize image'), self.resize_image)
         b.addSeparator()
         self.action_filters = ac = b.addAction(QIcon(I('filter.png')), _('Image filters'))
-        b.widgetForAction(ac).setPopupMode(QToolButton.InstantPopup)
+        b.widgetForAction(ac).setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.filters_menu = m = QMenu(self)
         ac.setMenu(m)
         m.addAction(_('Auto-trim image'), self.canvas.autotrim_image)

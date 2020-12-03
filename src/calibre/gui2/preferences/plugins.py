@@ -39,7 +39,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
         SearchQueryParser.__init__(self, ['all'])
         self.show_only_user_plugins = show_only_user_plugins
         self.icon = QIcon(I('plugins.png'))
-        p = QIcon(self.icon).pixmap(64, 64, QIcon.Disabled, QIcon.On)
+        p = QIcon(self.icon).pixmap(64, 64, QIcon.Mode.Disabled, QIcon.State.On)
         self.disabled_icon = QIcon(p)
         self._p = p
         self.populate()
@@ -190,19 +190,19 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
     def flags(self, index):
         if not index.isValid():
             return 0
-        flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        flags = Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled
         return flags
 
     def data(self, index, role):
         if not index.isValid():
             return None
         if index.internalId() == 0:
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 return self.categories[index.row()]
         else:
             plugin = self.index_to_plugin(index)
             disabled = is_disabled(plugin)
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 ver = '.'.join(map(unicode_type, plugin.version))
                 desc = '\n'.join(textwrap.wrap(plugin.description, 100))
                 ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
@@ -212,11 +212,11 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
                 if disabled:
                     ans += _('\n\nThis plugin has been disabled')
                 return (ans)
-            if role == Qt.DecorationRole:
+            if role == Qt.ItemDataRole.DecorationRole:
                 return self.disabled_icon if disabled else self.icon
-            if role == Qt.ForegroundRole and disabled:
-                return (QBrush(Qt.gray))
-            if role == Qt.UserRole:
+            if role == Qt.ItemDataRole.ForegroundRole and disabled:
+                return (QBrush(Qt.GlobalColor.gray))
+            if role == Qt.ItemDataRole.UserRole:
                 return plugin
         return None
 
@@ -263,7 +263,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.selectionModel().select(idx,
                 self.plugin_view.selectionModel().ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
-        self.plugin_view.setFocus(Qt.OtherFocusReason)
+        self.plugin_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.plugin_view.scrollTo(idx, self.plugin_view.EnsureVisible)
 
     def find_next(self, *args):

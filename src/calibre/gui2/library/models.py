@@ -43,8 +43,8 @@ def human_readable(size, precision=1):
 
 TIME_FMT = '%d %b %Y'
 
-ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
-        Qt.AlignHCenter}
+ALIGNMENT_MAP = {'left': Qt.AlignmentFlag.AlignLeft, 'right': Qt.AlignmentFlag.AlignRight, 'center':
+        Qt.AlignmentFlag.AlignHCenter}
 
 _default_image = None
 
@@ -138,7 +138,7 @@ class ColumnIcon(object):  # {{{
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
                         scaled, nw, nh = fit_image(bm.width(), bm.height(), bm.width(), dim)
-                        bm = bm.scaled(nw, nh, aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
+                        bm = bm.scaled(nw, nh, aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
                         bm.setDevicePixelRatio(self.dpr)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()
@@ -146,7 +146,7 @@ class ColumnIcon(object):  # {{{
                     i = len(icon_bitmaps)
                     result = QPixmap(total_width + ((i-1)*2), dim)
                     result.setDevicePixelRatio(self.dpr)
-                    result.fill(Qt.transparent)
+                    result.fill(Qt.GlobalColor.transparent)
                     painter = QPainter(result)
                     x = 0
                     for bm in icon_bitmaps:
@@ -501,11 +501,11 @@ class BooksModel(QAbstractTableModel):  # {{{
             self.searched.emit(True)
         self.search_done.emit()
 
-    def sort(self, col, order=Qt.AscendingOrder, reset=True):
+    def sort(self, col, order=Qt.SortOrder.AscendingOrder, reset=True):
         if not self.db:
             return
         if not isinstance(order, bool):
-            order = order == Qt.AscendingOrder
+            order = order == Qt.SortOrder.AscendingOrder
         label = self.column_map[col]
         self._sort(label, order, reset)
 
@@ -904,7 +904,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         # we will get asked to display columns we don't know about. Must test for this.
         if col >= len(self.column_to_dc_map):
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.ItemDataRole.DisplayRole:
             rules = self.db.new_api.pref('column_icon_rules')
             if rules:
                 key = self.column_map[col]
@@ -926,14 +926,14 @@ class BooksModel(QAbstractTableModel):  # {{{
                         return None
                     self.icon_cache[id_][cache_index] = None
             return self.column_to_dc_map[col](index.row())
-        elif role == Qt.ToolTipRole:
+        elif role == Qt.ItemDataRole.ToolTipRole:
             return self.column_to_tc_map[col](index.row())
-        elif role == Qt.EditRole:
+        elif role == Qt.ItemDataRole.EditRole:
             return self.column_to_dc_map[col](index.row())
-        elif role == Qt.BackgroundRole:
+        elif role == Qt.ItemDataRole.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
                 return QColor('#027524') if QApplication.instance().is_dark_theme else QColor('#b4ecb4')
-        elif role == Qt.ForegroundRole:
+        elif role == Qt.ItemDataRole.ForegroundRole:
             key = self.column_map[col]
             id_ = self.id(index)
             self.column_color.mi = None
@@ -950,7 +950,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 cc = self.custom_columns[self.column_map[col]]['display']
                 colors = cc.get('enum_colors', [])
                 values = cc.get('enum_values', [])
-                txt = unicode_type(index.data(Qt.DisplayRole) or '')
+                txt = unicode_type(index.data(Qt.ItemDataRole.DisplayRole) or '')
                 if len(colors) > 0 and txt in values:
                     try:
                         color = QColor(colors[values.index(txt)])
@@ -971,7 +971,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
             self.column_color.mi = None
             return None
-        elif role == Qt.DecorationRole:
+        elif role == Qt.ItemDataRole.DecorationRole:
             default_icon = None
             if self.column_to_dc_decorator_map[col] is not None:
                 default_icon = self.column_to_dc_decorator_map[index.column()](index.row())
@@ -1001,24 +1001,24 @@ class BooksModel(QAbstractTableModel):  # {{{
                         return self.bool_blank_icon
                     self.icon_cache[id_][cache_index] = None
             return default_icon
-        elif role == Qt.TextAlignmentRole:
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
             cname = self.column_map[index.column()]
-            ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
+            ans = Qt.AlignmentFlag.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return (ans)
-        elif role == Qt.FontRole and self.styled_columns:
+        elif role == Qt.ItemDataRole.FontRole and self.styled_columns:
             cname = self.column_map[index.column()]
             return self.styled_columns.get(cname)
-        # elif role == Qt.ToolTipRole and index.isValid():
+        # elif role == Qt.ItemDataRole.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
         #        return (_("Double click to <b>edit</b> me<br><br>"))
         return None
 
     def headerData(self, section, orientation, role):
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Orientation.Horizontal:
             if section >= len(self.column_map):  # same problem as in data, the column_map can be wrong
                 return None
-            if role == Qt.ToolTipRole:
+            if role == Qt.ItemDataRole.ToolTipRole:
                 ht = self.column_map[section]
                 fm = self.db.field_metadata[self.column_map[section]]
                 if ht == 'timestamp':  # change help text because users know this field as 'date'
@@ -1033,16 +1033,16 @@ class BooksModel(QAbstractTableModel):  # {{{
                     if cust_desc:
                         cust_desc = '\n' + _('Description:') + ' ' + cust_desc
                 return (_('The lookup/search name is "{0}"{1}{2}').format(ht, cust_desc, is_cat))
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 return (self.headers[self.column_map[section]])
             return None
-        if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
+        if DEBUG and role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Vertical:
             col = self.db.field_metadata['uuid']['rec_index']
             return (_('This book\'s UUID is "{0}"').format(self.db.data[section][col]))
 
-        if role == Qt.DisplayRole:  # orientation is vertical
+        if role == Qt.ItemDataRole.DisplayRole:  # orientation is vertical
             return (section+1)
-        if role == Qt.DecorationRole:
+        if role == Qt.ItemDataRole.DecorationRole:
             try:
                 return self.marked_icon if self.db.data.get_marked(self.db.data.index_to_id(section)) else self.row_decoration
             except (ValueError, IndexError):
@@ -1054,10 +1054,10 @@ class BooksModel(QAbstractTableModel):  # {{{
         if index.isValid():
             colhead = self.column_map[index.column()]
             if colhead in self.editable_cols:
-                flags |= Qt.ItemIsEditable
+                flags |= Qt.ItemFlag.ItemIsEditable
             elif self.is_custom_column(colhead):
                 if self.custom_columns[colhead]['is_editable']:
-                    flags |= Qt.ItemIsEditable
+                    flags |= Qt.ItemFlag.ItemIsEditable
         return flags
 
     def set_custom_column_data(self, row, colhead, value):
@@ -1126,7 +1126,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         from calibre.gui2.ui import get_gui
         if get_gui().shutting_down:
             return False
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             from calibre.gui2.ui import get_gui
             try:
                 return self._set_data(index, value)
@@ -1427,7 +1427,7 @@ class DeviceBooksModel(BooksModel):  # {{{
 
     def flags(self, index):
         if self.is_row_marked_for_deletion(index.row()):
-            return Qt.NoItemFlags
+            return Qt.ItemFlag.NoItemFlags
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():
             cname = self.column_map[index.column()]
@@ -1436,7 +1436,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                      (callable(getattr(self.db, 'supports_collections', None)) and
                       self.db.supports_collections() and
                       device_prefs['manage_device_metadata']=='manual')):
-                flags |= Qt.ItemIsEditable
+                flags |= Qt.ItemFlag.ItemIsEditable
         return flags
 
     def search(self, text, reset=True):
@@ -1470,7 +1470,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         self.search(self.last_search, reset)
 
     def sort(self, col, order, reset=True):
-        descending = order != Qt.AscendingOrder
+        descending = order != Qt.SortOrder.AscendingOrder
         cname = self.column_map[col]
 
         def author_key(x):
@@ -1646,7 +1646,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     def data(self, index, role):
         row, col = index.row(), index.column()
         cname = self.column_map[col]
-        if role == Qt.DisplayRole or role == Qt.EditRole:
+        if role == Qt.ItemDataRole.DisplayRole or role == Qt.ItemDataRole.EditRole:
             if cname == 'title':
                 text = self.db[self.map[row]].title
                 if not text:
@@ -1677,7 +1677,7 @@ class DeviceBooksModel(BooksModel):  # {{{
                     return (', '.join(tags))
             elif DEBUG and cname == 'inlibrary':
                 return (self.db[self.map[row]].in_library)
-        elif role == Qt.ToolTipRole and index.isValid():
+        elif role == Qt.ItemDataRole.ToolTipRole and index.isValid():
             if col == 0 and hasattr(self.db[self.map[row]], 'in_library_waiting'):
                 return (_('Waiting for metadata to be updated'))
             if self.is_row_marked_for_deletion(row):
@@ -1687,28 +1687,28 @@ class DeviceBooksModel(BooksModel):  # {{{
                         callable(getattr(self.db, 'supports_collections', None)) and self.db.supports_collections())
             ):
                 return (_("Double click to <b>edit</b> me<br><br>"))
-        elif role == Qt.DecorationRole and cname == 'inlibrary':
+        elif role == Qt.ItemDataRole.DecorationRole and cname == 'inlibrary':
             if hasattr(self.db[self.map[row]], 'in_library_waiting'):
                 return (self.sync_icon)
             elif self.db[self.map[row]].in_library:
                 return (self.bool_yes_icon)
             elif self.db[self.map[row]].in_library is not None:
                 return (self.bool_no_icon)
-        elif role == Qt.TextAlignmentRole:
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
             cname = self.column_map[index.column()]
-            ans = Qt.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
+            ans = Qt.AlignmentFlag.AlignVCenter | ALIGNMENT_MAP[self.alignment_map.get(cname,
                 'left')]
             return (ans)
         return None
 
     def headerData(self, section, orientation, role):
-        if role == Qt.ToolTipRole and orientation == Qt.Horizontal:
+        if role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Horizontal:
             return (_('The lookup/search name is "{0}"').format(self.column_map[section]))
-        if DEBUG and role == Qt.ToolTipRole and orientation == Qt.Vertical:
+        if DEBUG and role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Vertical:
             return (_('This book\'s UUID is "{0}"').format(self.db[self.map[section]].uuid))
-        if role != Qt.DisplayRole:
+        if role != Qt.ItemDataRole.DisplayRole:
             return None
-        if orientation == Qt.Horizontal:
+        if orientation == Qt.Orientation.Horizontal:
             cname = self.column_map[section]
             text = self.headers[cname]
             return (text)
@@ -1720,7 +1720,7 @@ class DeviceBooksModel(BooksModel):  # {{{
         if get_gui().shutting_down:
             return False
         done = False
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             row, col = index.row(), index.column()
             cname = self.column_map[col]
             if cname in ('size', 'timestamp', 'inlibrary'):

@@ -56,7 +56,7 @@ def _run(args, notify=None):
     reset_base_dir()
     scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))
     scheme.setSyntax(QWebEngineUrlScheme.Syntax.Host)
-    scheme.setFlags(QWebEngineUrlScheme.SecureScheme)
+    scheme.setFlags(QWebEngineUrlScheme.Flag.SecureScheme)
     QWebEngineUrlScheme.registerScheme(scheme)
 
     # The following two lines are needed to prevent circular imports causing

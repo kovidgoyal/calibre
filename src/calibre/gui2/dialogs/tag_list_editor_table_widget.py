@@ -14,7 +14,7 @@ class TleTableWidget(QTableWidget):
         QTableWidget.__init__(self, parent=parent)
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Delete:
+        if event.key() == Qt.Key.Key_Delete:
             self.delete_pressed.emit()
             event.accept()
             return
