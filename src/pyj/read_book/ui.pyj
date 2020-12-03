@@ -3,19 +3,20 @@
 # globals: __RENDER_VERSION__
 from __python__ import hash_literals
 
-import traceback
 from elementmaker import E
-from gettext import gettext as _
 
+import traceback
 from ajax import ajax, ajax_send
 from book_list.constants import read_book_container_id
 from book_list.library_data import current_library_id, library_data
 from book_list.router import home, push_state, read_book_mode, update_window_title
 from book_list.ui import show_panel
 from dom import clear
+from gettext import gettext as _
 from modals import create_simple_dialog_markup, error_dialog
 from read_book.db import get_db
 from read_book.globals import ui_operations
+from read_book.tts import Client
 from read_book.view import View
 from utils import debounce, full_screen_element, human_readable, request_full_screen
 from widgets import create_button
@@ -53,6 +54,7 @@ class ReadUI:
             id=self.display_id, style='display:none',
         ))
         self.view = View(container.lastChild)
+        self.tts_client = Client()
         self.windows_to_listen_for_messages_from = []
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         window.addEventListener('message', self.message_from_other_window.bind(self))
@@ -83,6 +85,8 @@ class ReadUI:
         ui_operations.close_book = self.close_book.bind(self)
         ui_operations.copy_image = self.copy_image.bind(self)
         ui_operations.view_image = self.view_image.bind(self)
+        ui_operations.speak_simple_text = self.speak_simple_text.bind(self)
+        ui_operations.tts = self.tts.bind(self)
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text, html):
@@ -115,12 +119,6 @@ class ReadUI:
             window.navigator.clipboard.writeText(text or '').then(def (): pass;, def():
                 error_dialog(_('Could not copy to clipboard'), _('No permission to write to clipboard'))
             )
-        ui_operations.speak_simple_text = def (text):
-            if not window.speechSynthesis:
-                return error_dialog(_('No speech support'), _(
-                    'Your browser does not have support for Text-to-Speech'))
-            ut = new SpeechSynthesisUtterance(text)  # noqa
-            window.speechSynthesis.speak(ut)
 
     def on_resize(self):
         self.view.on_resize()
@@ -610,3 +608,23 @@ class ReadUI:
             w, callback = x
             if w is msg.source:
                 callback(msg)
+
+    def check_for_speech_capability(self):
+        if not window.speechSynthesis:
+            error_dialog(_('No speech support'), _(
+                'Your browser does not have support for Text-to-Speech'))
+            return False
+        return True
+
+    def speak_simple_text(self, text):
+        if not self.check_for_speech_capability():
+            return
+        self.tts_client.speak_simple_text(text)
+
+    def tts(self, event, data):
+        if not self.check_for_speech_capability():
+            return
+        if event is 'play':
+            self.tts_client.speak_marked_text(data.marked_text, self.view.read_aloud.handle_tts_event)
+        else:
+            getattr(self.tts_client, event)()

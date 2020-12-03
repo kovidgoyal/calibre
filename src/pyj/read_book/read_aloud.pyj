@@ -173,6 +173,8 @@ class ReadAloud:
             self.send_message('mark', num=data)
         elif which is 'begin':
             self.state = PLAYING
+        elif which is 'end':
+            pass
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)

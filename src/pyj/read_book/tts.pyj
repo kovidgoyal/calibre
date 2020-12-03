@@ -1,0 +1,120 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from gettext import gettext as _
+from modals import error_dialog
+
+
+def escaper():
+    doc = document.implementation.createDocument("", "", None)
+    el = doc.createElement("temp")
+    el.textContent = "temp"
+    el = el.firstChild
+    ser =  new XMLSerializer()  # noqa
+    return def(text):
+        el.nodeValue = text
+        return ser.serializeToString(el)
+escape_for_xml = escaper()
+
+
+class Client:
+
+    def __init__(self):
+        self.status = {'synthesizing': False, 'paused': False}
+        self.queue = v'[]'
+        self.last_reached_mark = None
+        self.onevent = def():
+            pass
+
+    def create_utterance(self, text_or_ssml, wrap_in_ssml):
+        if wrap_in_ssml:
+            text_or_ssml = (
+                '<?xml version="1.0"?>\n<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"><s>' +
+                text_or_ssml +
+                '</s></speak>')
+        ut = new window.SpeechSynthesisUtterance(text_or_ssml)
+        ut.onstart = self.utterance_started
+        ut.onpause = self.utterance_paused
+        ut.onend = self.utterance_ended
+        ut.onerror = self.utterance_failed
+        ut.onmark = self.utterance_mark_reached
+        ut.onresume = self.utterance_resumed
+        self.queue.push(ut)
+        return ut
+
+    def utterance_started(self, event):
+        self.status = {'synthesizing': True, 'paused': False}
+        self.onevent('begin')
+
+    def utterance_paused(self, event):
+        self.status = {'synthesizing': True, 'paused': True}
+        self.onevent('pause')
+
+    def utterance_ended(self, event):
+        self.status = {'synthesizing': False, 'paused': False}
+        self.queue.splice(0, 1)
+        if self.queue.length:
+            window.speechSynthesis.speak(self.queue[0])
+        else:
+            self.onevent('end')
+
+    def utterance_failed(self, event):
+        self.status = {'synthesizing': False, 'paused': False}
+        self.queue = v'[]'
+        error_dialog(_('Speaking failed'), _(
+            'An error has occurred with speech synthesis: ' + event.error))
+        self.onevent('cancel')
+
+    def utterance_mark_reached(self, event):
+        self.last_reached_mark = event.name
+        self.onevent('mark', int(event.name))
+
+    def utterance_resumed(self, event):
+        self.status = {'synthesizing': True, 'paused': False}
+        self.onevent('resume')
+
+    def pause(self):
+        window.speechSynthesis.pause()
+
+    def resume(self):
+        window.speechSynthesis.resume()
+
+    def stop(self):
+        window.speechSynthesis.cancel()
+        self.queue = v'[]'
+        self.status = {'synthesizing': False, 'paused': False}
+
+    def speak_simple_text(self, text):
+        self.stop()
+        while text.length > 32766:
+            self.create_utterance(text[:32766])
+            text = text[32766:]
+        if text:
+            self.create_utterance(text)
+        if self.queue.length:
+            window.speechSynthesis.speak(self.queue[0])
+
+    def speak_marked_text(self, text_segments, onevent):
+        self.stop()
+        self.onevent = onevent
+        buf = v'[]'
+        size = 0
+        for x in text_segments:
+            if jstype(x) is 'number':
+                # Currently the sad sack brosers dont support SSML
+                # https://github.com/WICG/speech-api/issues/37
+                # buf.push('<mark name="' + x + '"/>')
+                buf.push('')
+            else:
+                buf.push(escape_for_xml(x))
+            size += buf[-1].length
+            if size > 24000:
+                buf = v'[]'
+                size = 0
+                self.create_utterance(buf.join(''), True)
+        text = buf.join('')
+        if text.length:
+            self.create_utterance(text)
+        if self.queue.length:
+            window.speechSynthesis.speak(self.queue[0])
