@@ -31,6 +31,10 @@ class NoUDisks1(Exception):
     pass
 
 
+def basic_mount_options():
+    return ['rw', 'noexec', 'nosuid', 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
+
+
 class UDisks(object):
 
     def __init__(self):
@@ -54,8 +58,7 @@ class UDisks(object):
         d = self.device(device_node_path)
         try:
             return unicode_type(d.FilesystemMount('',
-                ['auth_no_user_interaction', 'rw', 'noexec', 'nosuid',
-                 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]))
+                ['auth_no_user_interaction'] + basic_mount_options()))
         except Exception:
             # May be already mounted, check
             mp = node_mountpoint(unicode_type(device_node_path))
@@ -133,13 +136,11 @@ class UDisks2(object):
 
     def mount(self, device_node_path):
         d = self.device(device_node_path)
-        mount_options = ['rw', 'noexec', 'nosuid',
-                'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
         try:
             return as_unicode(d.Mount(
                 {
                     'auth.no_user_interaction':True,
-                    'options':','.join(mount_options)
+                    'options':','.join(basic_mount_options())
                 },
                 dbus_interface=self.FILESYSTEM))
         except Exception:
