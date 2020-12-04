@@ -17,22 +17,18 @@ extern int qt_defaultDpiX();
 
 QProgressIndicator::QProgressIndicator(QWidget* parent, int size, int interval)
         : QWidget(parent),
-        m_angle(0),
-        m_timerId(-1),
-        m_delay(interval),
         m_displaySize(size, size),
-        m_dark(Qt::black),
-        m_light(Qt::white)
+		m_animator(this)
 {
+	Q_UNUSED(interval);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setFocusPolicy(Qt::NoFocus);
-	m_dark = this->palette().color(QPalette::WindowText);
-	m_light = this->palette().color(QPalette::Window);
+	QObject::connect(&m_animator, SIGNAL(updated()), this, SLOT(update()));
 }
 
 bool QProgressIndicator::isAnimated () const
 {
-    return (m_timerId != -1);
+    return m_animator.is_running();
 }
 
 void QProgressIndicator::setDisplaySize(QSize size)
@@ -49,68 +45,38 @@ void QProgressIndicator::setSizeHint(QSize size)
     update();
 }
 
-
-
-
 void QProgressIndicator::startAnimation()
 {
-    m_angle = 0;
-
-    if (m_timerId == -1)
-        m_timerId = startTimer(m_delay);
+	if (!m_animator.is_running()) {
+		m_animator.start();
+		update();
+		emit running_state_changed(true);
+	}
 }
 void QProgressIndicator::start() { startAnimation(); }
 
 void QProgressIndicator::stopAnimation()
 {
-    if (m_timerId != -1)
-        killTimer(m_timerId);
-
-    m_timerId = -1;
-
-    update();
+	if (m_animator.is_running()) {
+		m_animator.stop();
+		update();
+		emit running_state_changed(false);
+	}
 }
 void QProgressIndicator::stop() { stopAnimation(); }
-
-void QProgressIndicator::setAnimationDelay(int delay)
-{
-    if (m_timerId != -1)
-        killTimer(m_timerId);
-
-    m_delay = delay;
-
-    if (m_timerId != -1)
-        m_timerId = startTimer(m_delay);
-}
-
-void QProgressIndicator::set_colors(const QColor & dark, const QColor & light)
-{
-    m_dark = dark; m_light = light;
-
-    update();
-}
 
 QSize QProgressIndicator::sizeHint() const
 {
     return m_displaySize;
 }
 
-int QProgressIndicator::heightForWidth(int w) const
-{
-    return w;
-}
-
-void QProgressIndicator::timerEvent(QTimerEvent * /*event*/)
-{
-    m_angle = (m_angle-2)%360;
-
-    update();
-}
-
 void QProgressIndicator::paintEvent(QPaintEvent * /*event*/)
 {
 	QPainter painter(this);
-	draw_snake_spinner(painter, this->rect(), m_angle, m_light, m_dark);
+	QRect r(this->rect());
+	QPoint center(r.center());
+	int smaller = std::min(r.width(), r.height());
+	m_animator.draw(painter, QRect(center.x() - smaller / 2, center.y() - smaller / 2, smaller, smaller), this->palette().color(QPalette::WindowText));
 }
 
 static inline QByteArray detectDesktopEnvironment()

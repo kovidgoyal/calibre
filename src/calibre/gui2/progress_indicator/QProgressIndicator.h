@@ -56,7 +56,7 @@ public:
 		painter.save();
 		painter.setRenderHint(QPainter::Antialiasing);
         QRectF rect(bounds);
-		float width = thickness > 0.f ? thickness : std::max(3.f, std::min((float)rect.width() / 10.f, 24.f));
+		float width = thickness > 0.f ? thickness : std::max(3.f, std::min((float)rect.width() / 10.f, 18.f));
 		QPen pen(color);
 		pen.setWidthF(width);
         float ht = width / 2 + 1;
@@ -96,16 +96,9 @@ private:
 class QProgressIndicator : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(int delay READ animationDelay WRITE setAnimationDelay)
     Q_PROPERTY(QSize displaySize READ displaySize WRITE setDisplaySize)
 public:
-    QProgressIndicator(QWidget* parent = 0, int size = 64, int interval = 10);
-
-    /*! Returns the delay between animation steps.
-        \return The number of milliseconds between animation steps. By default, the animation delay is set to 80 milliseconds.
-        \sa setAnimationDelay
-     */
-    int animationDelay() const { return m_delay; }
+    QProgressIndicator(QWidget* parent = 0, int size = 64, int interval = 0);
 
     /*! Returns a Boolean value indicating whether the component is currently animated.
         \return Animation state.
@@ -114,7 +107,6 @@ public:
     bool isAnimated () const;
 
     virtual QSize sizeHint() const;
-    int heightForWidth(int w) const;
     QSize displaySize() const { return m_displaySize; }
 public slots:
     /*! Starts the spin animation.
@@ -129,18 +121,6 @@ public slots:
     void stopAnimation();
 	void stop();
 
-    /*! Sets the delay between animation steps.
-        Setting the \a delay to a value larger than 40 slows the animation, while setting the \a delay to a smaller value speeds it up.
-        \param delay The delay, in milliseconds.
-        \sa animationDelay
-     */
-    void setAnimationDelay(int delay);
-
-    /*! Sets the color of the components to the given color.
-        \sa color
-     */
-    void set_colors(const QColor & dark, const QColor & light);
-
     /*! Set the size of this widget (used by sizeHint)
      * \sa displaySize
      */
@@ -148,15 +128,13 @@ public slots:
     void setDisplaySize(int size) { setDisplaySize(QSize(size, size)); }
 	void setSizeHint(int size);
 	void setSizeHint(QSize size);
+signals:
+	void running_state_changed(bool);
 protected:
-    virtual void timerEvent(QTimerEvent * event);
     virtual void paintEvent(QPaintEvent * event);
 private:
-    int m_angle;
-    int m_timerId;
-    int m_delay;
     QSize m_displaySize;
-    QColor m_dark, m_light;
+	SpinAnimator m_animator;
 };
 
 int load_style(QHash<int,QString> icon_map, int transient_scroller=0);

@@ -13,7 +13,7 @@ class LoadingOverlay(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
-        self.pi = ProgressIndicator(self, 96, 80)
+        self.pi = ProgressIndicator(self, 96)
         self.setVisible(False)
         self.label = QLabel(self)
         self.label.setText('<i>testing with some long and wrap worthy message that should hopefully still render well')

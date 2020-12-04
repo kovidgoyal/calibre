@@ -503,6 +503,7 @@ class JobsButton(QWidget):  # {{{
         self.num_jobs = 0
         self.mouse_over = False
         self.pi = ProgressIndicator(self, self.style().pixelMetric(QStyle.PixelMetric.PM_ToolBarIconSize))
+        self.pi.setVisible(False)
         self._jobs = QLabel('')
         self._jobs.mouseReleaseEvent = self.mouseReleaseEvent
         self.update_label()
@@ -562,9 +563,11 @@ class JobsButton(QWidget):  # {{{
 
     def start(self):
         self.pi.startAnimation()
+        self.pi.setVisible(True)
 
     def stop(self):
         self.pi.stopAnimation()
+        self.pi.setVisible(False)
 
     def jobs(self):
         return self.num_jobs

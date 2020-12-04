@@ -43,9 +43,7 @@ class QProgressIndicator : QWidget {
 
 public:
 
-    QProgressIndicator(QWidget *parent /TransferThis/ = 0, int size = 64, int interval = 10);
-
-    int animationDelay() const;
+    QProgressIndicator(QWidget *parent /TransferThis/ = 0, int size = 64, int interval = 0);
 
     bool isAnimated () const;
 
@@ -62,10 +60,6 @@ public slots:
     void stopAnimation();
 	void stop();
 
-    void setAnimationDelay(int delay);
-
-    void set_colors(const QColor & dark, const QColor & light);
-
     void setDisplaySize(QSize size);
     void setDisplaySize(int size);
     void setSizeHint(int size);
@@ -73,9 +67,10 @@ public slots:
 
 protected:
     
-    virtual void timerEvent(QTimerEvent * event); 
-
     virtual void paintEvent(QPaintEvent * event);
+
+signals:
+	void running_state_changed(bool);
 
 };
 
