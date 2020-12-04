@@ -674,9 +674,11 @@ class View:
         else:
             self.iframe.contentWindow.focus()
 
-    def start_read_aloud(self):
+    def start_read_aloud(self, dont_start_talking):
         self.selection_bar.hide()
         self.read_aloud.show()
+        if not dont_start_talking:
+            self.read_aloud.play()
 
     def show_chrome(self, data):
         elements = {}
