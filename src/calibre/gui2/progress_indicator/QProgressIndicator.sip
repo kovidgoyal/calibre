@@ -12,6 +12,29 @@ void set_no_activate_on_click(QWidget *widget);
 void draw_snake_spinner(QPainter &painter, QRect rect, int angle, const QColor & light, const QColor & dark);
 %End
 
+class SpinAnimator : QObject {
+
+%TypeHeaderCode
+#include <QProgressIndicator.h>
+%End
+
+public:
+    SpinAnimator(QWidget *parent /TransferThis/ = 0);
+	float get_arc_length() const ;
+	int get_arc_rotation() const ;
+	int get_overall_rotation() const ;
+	void draw(QPainter &painter, QRect bounds, const QColor &color);
+	void start();
+	void stop();
+	bool is_running();
+public slots:
+	void set_arc_length(float val) ;
+	void set_arc_rotation(int val) ;
+	void set_overall_rotation(int val) ;
+signals:
+	void updated();
+};
+
 class QProgressIndicator : QWidget {
 
 %TypeHeaderCode

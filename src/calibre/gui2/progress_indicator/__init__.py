@@ -94,6 +94,31 @@ class WaitLayout(QStackedLayout):
         self.wp.msg = val
 
 
+def develop():
+    from PyQt5.Qt import QPalette, QPainter, QRect
+    from calibre.gui2 import Application
+    from calibre_extensions.progress_indicator import SpinAnimator
+
+    class Widget(QWidget):
+
+        def __init__(self):
+            QWidget.__init__(self)
+            self.a = SpinAnimator(self)
+            self.a.updated.connect(self.update)
+
+        def paintEvent(self, ev):
+            p = QPainter(self)
+            pal = self.palette()
+            self.a.draw(p, QRect(0, 0, 64, 64), pal.color(QPalette.ColorRole.WindowText))
+            p.end()
+
+    app = Application([])
+    w = Widget()
+    w.show()
+    w.a.start()
+    app.exec_()
+
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
