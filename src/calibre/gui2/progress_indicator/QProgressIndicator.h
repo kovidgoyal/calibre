@@ -50,7 +50,7 @@ public:
 	~SpinAnimator() { m_animation.stop(); m_animation.clear(); }
 	void start() { m_animation.start(); }
 	void stop() { m_animation.stop(); m_arc_length = arc_length_max; m_arc_rotation = 0; m_overall_rotation = 0; notify_of_update(); }
-	bool is_running() { return m_animation.state() == QAbstractAnimation::Running; }
+	bool is_running() const { return m_animation.state() == QAbstractAnimation::Running; }
 	void draw(QPainter &painter, QRect bounds, const QColor &color, const float thickness=0.f) {
 		m_has_pending_updates = false;
 		painter.save();
