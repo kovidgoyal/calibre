@@ -6,9 +6,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import (QPainter, Qt, QWidget, QPropertyAnimation, QRect, QPoint,
-                      QColor, QEasingCurve, QBrush, QPainterPath, QPointF,
-                      QPalette)
+from PyQt5.Qt import (
+    QBrush, QColor, QEasingCurve, QPainter, QPainterPath, QPalette, QPoint, QPointF,
+    QPropertyAnimation, QRect, Qt, QWidget
+)
 
 from calibre.gui2 import config
 from polyglot.builtins import range
@@ -86,7 +87,7 @@ class Pointer(QWidget):
 
     def paintEvent(self, ev):
         p = QPainter(self)
-        p.setRenderHints(p.Antialiasing)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing)
         p.setBrush(self.brush)
         p.setPen(Qt.PenStyle.NoPen)
         p.drawPath(self.arrow_path)
