@@ -311,13 +311,13 @@ def shortcuts_definition():
     'show_chrome': desc(
         v"['Escape', 'ContextMenu']",
         'ui',
-        _('Show the viewer controls'),
+        _('Show the E-book viewer controls'),
     ),
 
     'preferences': desc(
         v"['Ctrl+,', 'Ctrl+Escape', 'Meta+Escape', 'Meta+,']",
         'ui',
-        _('Show viewer preferences'),
+        _('Show E-book viewer preferences'),
     ),
 
     'goto_location': desc(
@@ -378,7 +378,7 @@ def add_standalone_viewer_shortcuts():
     sc['quit'] = desc(
         quit_shortcut,
         'ui',
-        _('Quit the viewer'),
+        _('Quit the E-book viewer'),
     )
 
     sc['print'] = desc(

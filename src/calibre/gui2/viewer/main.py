@@ -102,7 +102,7 @@ def send_message_to_viewer_instance(args, open_at):
         try:
             send_message_in_process(msg, address=viewer_socket_address())
         except Exception as err:
-            error_dialog(None, _('Connect to viewer failed'), _(
+            error_dialog(None, _('Connect to E-book viewer failed'), _(
                 'Unable to connect to existing E-book viewer window, try restarting the viewer.'), det_msg=str(err), show=True)
             raise SystemExit(1)
         print('Opened book in existing viewer instance')

@@ -292,7 +292,7 @@ terminal. For example, you can start the GUI from the terminal as::
 
     calibre-debug -g
 
-Similarly, you can start the e-book-viewer as::
+Similarly, you can start the E-book viewer as::
 
     calibre-debug -w /path/to/file/to/be/viewed
 

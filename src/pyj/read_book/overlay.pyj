@@ -297,7 +297,7 @@ class MainOverlay:  # {{{
 
             E.ul(
                 ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
-                ac(_('Preferences'), _('Configure the book viewer'), self.overlay.show_prefs, 'cogs'),
+                ac(_('Preferences'), _('Configure the E-book viewer'), self.overlay.show_prefs, 'cogs'),
             ),
 
             class_=MAIN_OVERLAY_ACTIONS_CLASS
@@ -359,14 +359,14 @@ class MainOverlay:  # {{{
             actions_div.appendChild(E.ul(
                 ac(_('Inspector'), _('Show the content inspector'),
                    def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug'),
-                ac(_('Reset interface'), _('Reset viewer panels, toolbars and scrollbars to defaults'),
+                ac(_('Reset interface'), _('Reset E-book viewer panels, toolbars and scrollbars to defaults'),
                     def():
                         self.overlay.hide()
                         ui_operations.reset_interface()
                         sd = get_session_data()
                         sd.set('skipped_dialogs', session_defaults.skipped_dialogs)
                     , 'window-restore'),
-                ac(_('Quit'), _('Close the viewer'),
+                ac(_('Quit'), _('Close the E-book viewer'),
                    def(): self.overlay.hide(), ui_operations.quit();, 'remove'),
             ))
         else:

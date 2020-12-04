@@ -398,7 +398,7 @@ class ReadUI:
                 x += progress_track[name]
             pbar.setAttribute('value', x + '')
             if x is total:
-                msg = _('Downloaded {}, saving to disk, this may take a few seconds...').format(human_readable(total))
+                msg = _('Downloaded {}, saving to disk. This may take a few seconds...').format(human_readable(total))
             else:
                 msg = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
             progress.lastChild.textContent = msg
@@ -515,7 +515,7 @@ class ReadUI:
                 x += progress_track[name]
             pbar.setAttribute('value', x + '')
             if x is total:
-                msg = _('Downloaded {}, saving to disk, this may take a few seconds...').format(human_readable(total))
+                msg = _('Downloaded {}, saving to disk. This may take a few seconds...').format(human_readable(total))
             else:
                 msg = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
             progress.lastChild.textContent = msg
