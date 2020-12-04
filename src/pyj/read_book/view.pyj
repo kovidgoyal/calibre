@@ -1107,19 +1107,23 @@ class View:
             self.selection_bar.notes_edited(uuid)
             self.selection_bar.update_position()
 
-    def on_next_spine_item(self, data):
+    def show_next_spine_item(self, previous):
         spine = self.book.manifest.spine
         idx = spine.indexOf(self.currently_showing.name)
-        if data.previous:
+        if previous:
             if idx is 0:
-                return
+                return False
             idx = min(spine.length - 1, max(idx - 1, 0))
             self.show_name(spine[idx], initial_position={'type':'frac', 'frac':1, 'replace_history':True})
         else:
             if idx is spine.length - 1:
-                return
+                return False
             idx = max(0, min(spine.length - 1, idx + 1))
             self.show_name(spine[idx], initial_position={'type':'frac', 'frac':0, 'replace_history':True})
+        return True
+
+    def on_next_spine_item(self, data):
+        self.show_next_spine_item(data.previous)
 
     def on_next_section(self, data):
         toc_node = get_next_section(data.forward)
@@ -1272,7 +1276,6 @@ class View:
 
     def on_content_loaded(self, data):
         self.selection_bar.hide()
-        self.read_aloud.hide()
         self.processing_spine_item_display = False
         self.currently_showing.loading = False
         self.hide_loading()
@@ -1286,6 +1289,8 @@ class View:
                 ui_operations.clear_history()
         if ui_operations.content_file_changed:
             ui_operations.content_file_changed(self.currently_showing.name)
+        if self.read_aloud.is_visible:
+            self.read_aloud.play()
 
     def set_progress_frac(self, progress_frac, file_progress_frac, page_counts):
         self.current_progress_frac = progress_frac or 0

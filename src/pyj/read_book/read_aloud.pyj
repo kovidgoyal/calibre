@@ -174,7 +174,9 @@ class ReadAloud:
         elif which is 'begin':
             self.state = PLAYING
         elif which is 'end':
-            pass
+            self.state = STOPPED
+            if not self.view.show_next_spine_item():
+                self.hide()
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)
