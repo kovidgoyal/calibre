@@ -191,17 +191,3 @@ def move_end_of_selection(pos, start):
         else:
             if r.endContainer is not p.offsetNode or r.endOffset is not p.offset:
                 r.setEnd(p.offsetNode, p.offset)
-
-
-def range_for_tts(x, y):
-    p = None
-    if x? and y?:
-        p = caret_position_from_point(x, y)
-    if not p:
-        p = caret_position_from_point(0, 0)
-    if not p:
-        p = {'offsetNode': document.body, 'offset': 0}
-    r = document.createRange()
-    r.setStart(p.offsetNode, p.offset)
-    r.setEndAfter(document.body)
-    return r

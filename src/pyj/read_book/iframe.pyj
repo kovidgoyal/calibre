@@ -7,7 +7,7 @@ from fs_images import fix_fullscreen_svg_images
 from gettext import gettext as _
 from iframe_comm import IframeClient
 from range_utils import (
-    first_non_empty_text_node_in_range, highlight_associated_with_selection,
+    highlight_associated_with_selection,
     last_span_for_crw, reset_highlight_counter, select_crw, unwrap_all_crw,
     unwrap_crw, wrap_text_in_range
 )
@@ -64,7 +64,7 @@ from read_book.touch import (
 )
 from read_book.viewport import scroll_viewport
 from select import (
-    move_end_of_selection, range_for_tts, selection_extents, word_at_point
+    move_end_of_selection, selection_extents, word_at_point
 )
 from utils import debounce, is_ios
 
@@ -900,15 +900,16 @@ class IframeBoss:
         if data.type is 'mark':
             self.mark_word_being_spoken(data.num)
         elif data.type is 'play':
-            if data.x? and data.y?:
-                r = range_for_tts(data.x, data.y)
-                text_node, offset = first_non_empty_text_node_in_range(r)
-            else:
-                text_node, offset = None, 0
+            text_node, offset = None, 0
+            if data.pos:
+                r = word_at_point(data.pos.x, data.pos.y)
+                if r:
+                    if r.startContainer?.nodeType is Node.TEXT_NODE:
+                        text_node, offset = r.startContainer, r.startOffset
             marked_text = tts_data(text_node, offset)
             sel = window.getSelection()
             sel.removeAllRanges()
-            self.send_message('tts', type='text-extracted', marked_text=marked_text)
+            self.send_message('tts', type='text-extracted', marked_text=marked_text, pos=data.pos)
 
     def mark_word_being_spoken(self, occurrence_number):
         self.last_search_at = window.performance.now()

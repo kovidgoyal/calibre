@@ -9,7 +9,7 @@ from dom import clear, svgicon, unique_id
 from gettext import gettext as _
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import ICON_SIZE
-from read_book.selection_bar import BUTTON_MARGIN
+from read_book.selection_bar import BUTTON_MARGIN, get_margins, map_to_iframe_coords
 from read_book.shortcuts import shortcut_for_key_event
 
 HIDDEN = 0
@@ -35,6 +35,7 @@ class ReadAloud:
             'display: inline-flex; flex-direction: column; margin: 1rem;'
         ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
+        container.addEventListener('click', self.container_clicked, {'passive': False})
 
     @property
     def container(self):
@@ -83,17 +84,16 @@ class ReadAloud:
             return
         bar_container = self.bar
         clear(bar_container)
-        bar_container.style.maxWidth = 'min(50rem, 90vw)' if self.supports_css_min_max else '50rem'
+        bar_container.style.maxWidth = 'min(40rem, 80vw)' if self.supports_css_min_max else '40rem'
         bar_container.style.backgroundColor = get_color("window-background")
-        notes_container = E.div()
         for x in [
             E.div(style='height: 4ex; display: flex; align-items: center; padding: 5px; justify-content: center'),
 
             E.hr(style='border-top: solid 1px; margin: 0; padding: 0; display: none'),
 
             E.div(
-                style='display: none; padding: 5px;',
-                notes_container,
+                style='display: none; padding: 5px; font-size: smaller',
+                E.div()
             )
         ]:
             bar_container.appendChild(x)
@@ -118,6 +118,16 @@ class ReadAloud:
         else:
             bar.appendChild(cb('play', 'play', _('Start reading') if self.state is STOPPED else _('Resume reading')))
         bar.appendChild(cb('hide', 'close', _('Close Read aloud')))
+        if self.state is not WAITING_FOR_PLAY_TO_START:
+            notes_container = bar_container.lastChild
+            notes_container.style.display = notes_container.previousSibling.style.display = 'block'
+            notes_container = notes_container.lastChild
+            if self.state is STOPPED:
+                notes_container.textContent = _('Tap/click on a word to start from there')
+            elif self.state is PLAYING:
+                notes_container.textContent = _('Tap/click on a word to skip to it')
+            else:
+                notes_container.textContent = _('Tap/click on a word to continue from there')
 
     def play(self):
         if self.state is PAUSED:
@@ -142,6 +152,15 @@ class ReadAloud:
             self.pause()
         elif self.state is PAUSED or self.state is STOPPED:
             self.play()
+
+    def container_clicked(self, ev):
+        if ev.button is not 0:
+            return
+        ev.stopPropagation(), ev.preventDefault()
+        margins = get_margins()
+        pos = {'x': ev.clientX, 'y': ev.clientY}
+        pos = map_to_iframe_coords(pos, margins)
+        self.send_message('play', pos=pos)
 
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -183,4 +202,6 @@ class ReadAloud:
 
     def handle_message(self, msg):
         if msg.type is 'text-extracted':
+            if msg.pos:
+                self.stop()
             ui_operations.tts('play', {'marked_text': msg.marked_text})
