@@ -8,6 +8,10 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 
+#define arc_length_max 0.734f
+#define arc_length_min 0.02f
+
+
 class SpinAnimator: public QObject {
 	Q_OBJECT
 	Q_PROPERTY(float arc_length READ get_arc_length WRITE set_arc_length)
@@ -16,7 +20,7 @@ class SpinAnimator: public QObject {
 public:
 	SpinAnimator(QObject* parent = 0, const int speed_factor=300) :
 		QObject(parent),
-		m_arc_length(0),
+		m_arc_length(arc_length_max),
 		m_arc_rotation(0),
 		m_overall_rotation(0),
 		m_has_pending_updates(false),
@@ -25,7 +29,6 @@ public:
 		QPropertyAnimation *a;
 #define S(property, duration) a = new QPropertyAnimation(this, QByteArray(#property), this); a->setEasingCurve(QEasingCurve::InOutCubic); a->setDuration(duration); a->setLoopCount(-1); m_animation.addAnimation(a);
 		S(arc_length, 7 * speed_factor);
-		const float arc_length_max = 0.734f, arc_length_min = 0.01f;
 		a->setStartValue(arc_length_min);
         a->setKeyValueAt(0.25, arc_length_min);
         a->setKeyValueAt(0.5, arc_length_max);
@@ -46,7 +49,7 @@ public:
 	}
 	~SpinAnimator() { m_animation.stop(); m_animation.clear(); }
 	void start() { m_animation.start(); }
-	void stop() { m_animation.stop(); }
+	void stop() { m_animation.stop(); m_arc_length = arc_length_max; m_arc_rotation = 0; m_overall_rotation = 0; notify_of_update(); }
 	bool is_running() { return m_animation.state() == QAbstractAnimation::Running; }
 	void draw(QPainter &painter, QRect bounds, const QColor &color, const float thickness=0.f) {
 		m_has_pending_updates = false;
