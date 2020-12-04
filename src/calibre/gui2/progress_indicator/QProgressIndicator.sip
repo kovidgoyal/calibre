@@ -19,7 +19,7 @@ class SpinAnimator : QObject {
 %End
 
 public:
-    SpinAnimator(QWidget *parent /TransferThis/ = 0, int speed_factor=300);
+    SpinAnimator(QObject *parent /TransferThis/ = 0, int speed_factor=300);
 	float get_arc_length() const ;
 	int get_arc_rotation() const ;
 	int get_overall_rotation() const ;

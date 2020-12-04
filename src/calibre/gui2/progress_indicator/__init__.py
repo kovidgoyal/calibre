@@ -3,8 +3,8 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from PyQt5.Qt import (
-    QDialog, QLabel, QSizePolicy, QStackedLayout, QStackedWidget, Qt, QVBoxLayout,
-    QWidget
+    QDialog, QLabel, QObject, QSizePolicy, QStackedLayout, QStackedWidget, Qt,
+    QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre_extensions.progress_indicator import (
@@ -12,6 +12,30 @@ from calibre_extensions.progress_indicator import (
 )
 
 draw_snake_spinner
+
+try:
+    from calibre_extensions.progress_indicator import SpinAnimator
+except ImportError:
+    # dummy class for people running from source without updated binaries
+    class SpinAnimator(QObject):
+
+        updated = pyqtSignal()
+
+        def __init__(self, parent):
+            QObject.__init__(self, parent)
+            self.running = False
+
+        def draw(self, *a):
+            pass
+
+        def start(self):
+            self.running = True
+
+        def stop(self):
+            self.running = False
+
+        def is_running(self):
+            return self.running
 
 
 class WaitPanel(QWidget):
@@ -95,7 +119,8 @@ class WaitLayout(QStackedLayout):
 
 
 def develop():
-    from PyQt5.Qt import QPalette, QPainter
+    from PyQt5.Qt import QPainter, QPalette
+
     from calibre.gui2 import Application
     from calibre_extensions.progress_indicator import SpinAnimator
 

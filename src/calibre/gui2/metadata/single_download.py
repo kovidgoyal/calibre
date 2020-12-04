@@ -29,7 +29,7 @@ from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, rating_font, gprefs
-from calibre.gui2.progress_indicator import draw_snake_spinner
+from calibre.gui2.progress_indicator import SpinAnimator
 from calibre.gui2.widgets2 import HTMLDisplay
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
@@ -88,33 +88,25 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent):
         QStyledItemDelegate.__init__(self, parent)
-
-        self.angle = 0
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.frame_changed)
-        self.dark_color = parent.palette().color(QPalette.ColorRole.WindowText)
-        self.light_color = parent.palette().color(QPalette.ColorRole.Window)
+        self.animator = SpinAnimator(self)
+        self.animator.updated.connect(self.needs_redraw)
+        self.color = parent.palette().color(QPalette.ColorRole.WindowText)
         self.spinner_width = 64
 
-    def frame_changed(self, *args):
-        self.angle = (self.angle-2)%360
-        self.needs_redraw.emit()
-
     def start_animation(self):
-        self.angle = 0
-        self.timer.start(10)
+        self.animator.start()
 
     def stop_animation(self):
-        self.timer.stop()
+        self.animator.stop()
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         style = QApplication.style()
-        waiting = self.timer.isActive() and bool(index.data(Qt.ItemDataRole.UserRole))
+        waiting = self.animator.is_running() and bool(index.data(Qt.ItemDataRole.UserRole))
         if waiting:
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
             rect.moveCenter(option.rect.center())
-            draw_snake_spinner(painter, rect, self.angle, self.light_color, self.dark_color)
+            self.animator.draw(painter, rect, self.color)
         else:
             # Ensure the cover is rendered over any selection rect
             style.drawItemPixmap(painter, option.rect, Qt.AlignmentFlag.AlignTop|Qt.AlignmentFlag.AlignHCenter,
