@@ -95,7 +95,7 @@ class WaitLayout(QStackedLayout):
 
 
 def develop():
-    from PyQt5.Qt import QPalette, QPainter, QRect
+    from PyQt5.Qt import QPalette, QPainter
     from calibre.gui2 import Application
     from calibre_extensions.progress_indicator import SpinAnimator
 
@@ -109,14 +109,19 @@ def develop():
         def paintEvent(self, ev):
             p = QPainter(self)
             pal = self.palette()
-            self.a.draw(p, QRect(0, 0, 64, 64), pal.color(QPalette.ColorRole.WindowText))
+            self.a.draw(p, self.rect(), pal.color(QPalette.ColorRole.WindowText))
             p.end()
 
     app = Application([])
+    d = QDialog()
+    d.resize(64, 64)
+    l = QVBoxLayout(d)
     w = Widget()
-    w.show()
+    l.addWidget(w)
     w.a.start()
-    app.exec_()
+    d.exec_()
+    del d
+    del app
 
 
 if __name__ == '__main__':

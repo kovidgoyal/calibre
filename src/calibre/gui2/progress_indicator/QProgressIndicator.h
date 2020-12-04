@@ -14,7 +14,7 @@ class SpinAnimator: public QObject {
 	Q_PROPERTY(int arc_rotation READ get_arc_rotation WRITE set_arc_rotation)
 	Q_PROPERTY(int overall_rotation READ get_overall_rotation WRITE set_overall_rotation)
 public:
-	SpinAnimator(QObject* parent = 0) :
+	SpinAnimator(QObject* parent = 0, const int speed_factor=300) :
 		QObject(parent),
 		m_arc_length(0),
 		m_arc_rotation(0),
@@ -24,7 +24,7 @@ public:
 	{
 		QPropertyAnimation *a;
 #define S(property, duration) a = new QPropertyAnimation(this, QByteArray(#property), this); a->setEasingCurve(QEasingCurve::InOutCubic); a->setDuration(duration); a->setLoopCount(-1); m_animation.addAnimation(a);
-		S(arc_length, 1400);
+		S(arc_length, 7 * speed_factor);
 		const float arc_length_max = 0.734f, arc_length_min = 0.01f;
 		a->setStartValue(arc_length_min);
         a->setKeyValueAt(0.25, arc_length_min);
@@ -32,14 +32,14 @@ public:
         a->setKeyValueAt(0.75, arc_length_max);
         a->setEndValue(arc_length_min);
 
-		S(arc_rotation, 1400);
+		S(arc_rotation, 7 * speed_factor);
         a->setStartValue(0);
         a->setKeyValueAt(0.25, 0);
         a->setKeyValueAt(0.5, 45);
         a->setKeyValueAt(0.75, 45);
         a->setEndValue(360);
 
-		S(overall_rotation, 2000);
+		S(overall_rotation, 10 * speed_factor);
 		a->setStartValue(0);
 		a->setEndValue(360);
 #undef S
@@ -48,15 +48,15 @@ public:
 	void start() { m_animation.start(); }
 	void stop() { m_animation.stop(); }
 	bool is_running() { return m_animation.state() == QAbstractAnimation::Running; }
-	void draw(QPainter &painter, QRect bounds, const QColor &color) {
+	void draw(QPainter &painter, QRect bounds, const QColor &color, const float thickness=0.f) {
 		m_has_pending_updates = false;
 		painter.save();
 		painter.setRenderHint(QPainter::Antialiasing);
         QRectF rect(bounds);
-		float thickness = std::max(3.f, std::min((float)rect.width() / 10.f, 24.f));
+		float width = thickness > 0.f ? thickness : std::max(3.f, std::min((float)rect.width() / 10.f, 24.f));
 		QPen pen(color);
-		pen.setWidthF(thickness);
-        float ht = thickness / 2 + 1;
+		pen.setWidthF(width);
+        float ht = width / 2 + 1;
         rect.adjust(ht, ht, -ht, -ht);
         pen.setCapStyle(Qt::RoundCap);
 		painter.setPen(pen);
