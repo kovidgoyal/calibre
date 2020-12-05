@@ -130,14 +130,26 @@ class TagDelegate(QStyledItemDelegate):  # {{{
 
     def createEditor(self, parent, option, index):
         item = self.tags_view.model().get_node(index)
-        item.use_vl = False
-        if self.tags_view.model().get_in_vl():
-            if question_dialog(self.tags_view, _('Rename in Virtual library'), '<p>' +
-                               _('Do you want this rename to apply only to books '
-                                 'in the current Virtual library?') + '</p>',
-                               yes_text=_('Yes, apply only in VL'),
-                               no_text=_('No, apply in entire library')):
-                item.use_vl = True
+        if not item.ignore_vl:
+            if item.use_vl is None:
+                if self.tags_view.model().get_in_vl():
+                    item.use_vl = question_dialog(self.tags_view,
+                                      _('Rename in Virtual library'), '<p>' +
+                                      _('Do you want this rename to apply only to books '
+                                        'in the current Virtual library?') + '</p>',
+                                      yes_text=_('Yes, apply only in VL'),
+                                      no_text=_('No, apply in entire library'))
+                else:
+                    item.use_vl = False
+            elif not item.use_vl and self.tags_view.model().get_in_vl():
+                item.use_vl = not question_dialog(self.tags_view,
+                                    _('Rename in Virtual library'), '<p>' +
+                                    _('A virtual library is active but you are renaming '
+                                      'the item in all books in your library. Is '
+                                      'this really what you want to do?') + '</p>',
+                                    yes_text=_('Yes, apply in entire library'),
+                                    no_text=_('No, apply only in VL'),
+                                    skip_dialog_name='tag_item_rename_in_entire_library')
         if self.completion_data:
             editor = EditWithComplete(parent)
             editor.set_separator(None)
@@ -320,11 +332,27 @@ class TagsView(QTreeView):  # {{{
         self.collapsed.connect(self.collapse_node_and_children)
 
     def keyPressEvent(self, event):
-        if (gprefs['tag_browser_allow_keyboard_focus'] and event.key() == Qt.Key.Key_Return and self.state() != self.EditingState and
-                # I don't see how current_index can ever be not valid, but ...
-                self.currentIndex().isValid()):
-            self.toggle_current_index()
-            return
+        # I don't see how current_index can ever be not valid, but ...
+        if self.currentIndex().isValid():
+            if (gprefs['tag_browser_allow_keyboard_focus'] and
+                    event.key() == Qt.Key.Key_Return and self.state() != self.EditingState):
+                self.toggle_current_index()
+                return
+            # If this is an edit request, mark the node to request whether to use VLs
+            # As far as I can tell, F2 is used across all platforms
+            if event.key() == Qt.Key.Key_F2:
+                node = self.model().get_node(self.currentIndex())
+                if node.type == TagTreeItem.TAG:
+                    # Saved search nodes don't use the VL test/dialog
+                    node.use_vl = None
+                    node.ignore_vl = node.tag.category == 'search'
+                else:
+                    # Don't open the editor for non-editable items
+                    if not node.category_key.startswith('@') or node.is_gst:
+                        return
+                    # Category nodes don't use the VL test/dialog
+                    node.use_vl = False
+                    node.ignore_vl = True
         QTreeView.keyPressEvent(self, event)
 
     def database_changed(self, event, ids):
@@ -442,7 +470,7 @@ class TagsView(QTreeView):  # {{{
 
     def context_menu_handler(self, action=None, category=None,
                              key=None, index=None, search_state=None,
-                             use_vl=None, is_first_letter=False):
+                             is_first_letter=False, ignore_vl=False):
         if not action:
             return
         try:
@@ -481,12 +509,14 @@ class TagsView(QTreeView):  # {{{
             if action == 'edit_item_no_vl':
                 item = self.model().get_node(index)
                 item.use_vl = False
+                item.ignore_vl = ignore_vl
                 set_completion_data(category)
                 self.edit(index)
                 return
             if action == 'edit_item_in_vl':
                 item = self.model().get_node(index)
                 item.use_vl = True
+                item.ignore_vl = ignore_vl
                 set_completion_data(category)
                 self.edit(index)
                 return
@@ -734,7 +764,7 @@ class TagsView(QTreeView):  # {{{
                         self.context_menu.addAction(self.rename_icon,
                                                     _('Rename %s')%display_name(tag),
                             partial(self.context_menu_handler, action='edit_item_no_vl',
-                                    index=index))
+                                    index=index, ignore_vl=True))
                         self.context_menu.addAction(self.delete_icon,
                                 _('Delete Saved search %s')%display_name(tag),
                                 partial(self.context_menu_handler,
@@ -771,7 +801,7 @@ class TagsView(QTreeView):  # {{{
                         self.context_menu.addAction(self.rename_icon,
                             _('Rename %s')%item.py_name,
                             partial(self.context_menu_handler, action='edit_item_no_vl',
-                                    index=index))
+                                    index=index, ignore_vl=True))
                     self.context_menu.addAction(self.user_category_icon,
                             _('Add sub-category to %s')%item.py_name,
                             partial(self.context_menu_handler,
