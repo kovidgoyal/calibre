@@ -292,6 +292,7 @@ class MessagePopup(QLabel):
         t.setSingleShot(True)
         t.timeout.connect(self.hide)
         self.setMouseTracking(True)
+        self.hide()
 
     def mouseMoveEvent(self, ev):
         self.close_timer.start()
