@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import zlib, json, os
+import zlib, json, os, time
 from io import BytesIO
 from functools import partial
 
@@ -36,7 +36,11 @@ class ContentTest(LibraryBaseTest):
             conn = server.connect()
             request = partial(make_request, conn, prefix='/ajax/book')
 
-            r, data = request('/x')
+            try:
+                r, data = request('/x')
+            except ConnectionRefusedError:
+                time.sleep(2)
+                r, data = request('/x')
             self.ae(r.status, NOT_FOUND)
 
             r, onedata = request('/1')
