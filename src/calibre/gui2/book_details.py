@@ -14,6 +14,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import fit_image, sanitize_file_name
+from calibre.constants import config_dir
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import Metadata, field_metadata
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -115,6 +116,56 @@ def init_find_in_tag_browser(menu, ac, field, value):
         menu.addAction(ac)
 
 
+def get_icon_path(f, prefix):
+    from calibre.library.field_metadata import category_icon_map
+    custom_icons = gprefs['tags_browser_category_icons']
+    ci = custom_icons.get(prefix + f, '')
+    if ci:
+        icon_path = os.path.join(config_dir, 'tb_icons', ci)
+    elif prefix:
+        icon_path = I(category_icon_map['gst'])
+    else:
+        icon_path = I(category_icon_map.get(f, 'search.png'))
+    return icon_path
+
+
+def init_find_in_grouped_search(menu, field, value, book_info):
+    from calibre.gui2.ui import get_gui
+    db = get_gui().current_db
+    fm = db.field_metadata
+    field_name = fm.get(field, {}).get('name', None)
+    if field_name is None:
+        # I don't think this can ever happen, but ...
+        return
+    gsts = db.prefs.get('grouped_search_terms', {})
+    gsts_to_show = []
+    for v in gsts:
+        fk = fm.search_term_to_field_key(v)
+        if field in fk:
+            gsts_to_show.append(v)
+
+    if gsts_to_show:
+        m = QMenu((_('Search calibre for %s') + '...')%escape_for_menu(value), menu)
+        m.setIcon(QIcon(I('search.png')))
+        menu.addMenu(m)
+        m.addAction(QIcon(get_icon_path(field, '')),
+                    _('in category %s')%escape_for_menu(field_name),
+                    lambda g=field: book_info.search_requested(
+                            '{}:"={}"'.format(g, value.replace('"', r'\"'))))
+        for gst in gsts_to_show:
+            icon_path = get_icon_path(gst, '@')
+            m.addAction(QIcon(icon_path),
+                        _('in grouped search %s')%gst,
+                        lambda g=gst: book_info.search_requested(
+                                '{}:"={}"'.format(g, value.replace('"', r'\"'))))
+    else:
+        menu.addAction(QIcon(I('search.png')),
+            _('Search calibre for {val} in category {name}').format(
+                    val=escape_for_menu(value), name=escape_for_menu(field_name)),
+            lambda g=field: book_info.search_requested(
+                    '{}:"={}"'.format(g, value.replace('"', r'\"'))))
+
+
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
     func = render_data_func or render_data
     try:
@@ -193,6 +244,7 @@ def add_format_entries(menu, data, book_info):
     book_id = int(data['book_id'])
     fmt = data['fmt']
     init_find_in_tag_browser(menu, book_info.find_in_tag_browser_action, 'formats', fmt)
+    init_find_in_grouped_search(menu, 'formats', fmt, book_info)
     db = get_gui().current_db.new_api
     ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
     nfmt = ofmt[len('ORIGINAL_'):]
@@ -265,14 +317,13 @@ def add_item_specific_entries(menu, data, book_info):
             menu.addAction(ac)
         add_copy_action(author)
         init_find_in_tag_browser(menu, find_action, 'authors', author)
+        init_find_in_grouped_search(menu, 'authors', author, book_info)
         menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
         if hasattr(book_info, 'search_internet'):
             menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
             menu.addMenu(sia)
             search_internet_added = True
         if hasattr(book_info, 'search_requested'):
-            menu.addAction(_('Search calibre for %s') % author,
-                            lambda : book_info.search_requested('authors:"={}"'.format(author.replace('"', r'\"'))))
             ac = book_info.remove_item_action
             book_id = get_gui().library_view.current_id
             ac.data = ('authors', author, book_id)
@@ -298,14 +349,17 @@ def add_item_specific_entries(menu, data, book_info):
                 menu.addAction(ac)
                 remove_value = data['id_type']
                 init_find_in_tag_browser(menu, find_action, field, remove_value)
+                init_find_in_grouped_search(menu, field, remove_value, book_info)
                 menu.addAction(book_info.edit_identifiers_action)
             elif field in ('tags', 'series', 'publisher') or is_category(field):
                 add_copy_action(value)
                 init_find_in_tag_browser(menu, find_action, field, value)
+                init_find_in_grouped_search(menu, field, value, book_info)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
             elif field == 'languages':
                 remove_value = langnames_to_langcodes((value,)).get(value, 'Unknown')
                 init_find_in_tag_browser(menu, find_action, field, value)
+                init_find_in_grouped_search(menu, field, value, book_info)
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
             ac.setText(_('Remove %s from this book') % escape_for_menu(value))
