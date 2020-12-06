@@ -10,7 +10,8 @@ from itertools import chain
 from PyQt5.Qt import (
     QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
     QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
-    Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
+    QAbstractItemView
 )
 
 from calibre.constants import (
@@ -156,7 +157,7 @@ class Highlights(QTreeWidget):
         self.default_decoration = QIcon(I('blank.png'))
         self.setHeaderHidden(True)
         self.num_of_items = 0
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         set_no_activate_on_click(self)
         self.itemActivated.connect(self.item_activated)
         self.currentItemChanged.connect(self.current_item_changed)

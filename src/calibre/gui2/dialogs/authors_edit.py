@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 from PyQt5.Qt import (
     QDialog, QGridLayout, QDialogButtonBox, QListWidget, QApplication, Qt,
-    pyqtSignal, QSize, QPushButton, QIcon, QStyledItemDelegate, QLabel)
+    pyqtSignal, QSize, QPushButton, QIcon, QStyledItemDelegate, QLabel, QAbstractItemView)
 
 from calibre.utils.config_base import tweaks
 from calibre.gui2 import gprefs
@@ -51,7 +51,7 @@ class List(QListWidget):
     def __init__(self, all_authors, parent):
         QListWidget.__init__(self, parent)
         self.setDragEnabled(True)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)
         self.setAlternatingRowColors(True)

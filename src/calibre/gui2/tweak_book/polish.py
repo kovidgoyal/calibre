@@ -12,7 +12,7 @@ from PyQt5.Qt import (
     QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
     QCheckBox, Qt, QListWidgetItem, QHBoxLayout, QListWidget, QPixmap,
     QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen,
-    QProgressBar, pyqtSignal, QApplication
+    QProgressBar, pyqtSignal, QApplication, QAbstractItemView
 )
 
 from calibre import human_readable, fit_image, force_unicode
@@ -185,7 +185,7 @@ class CompressImages(Dialog):
         for name in sorted(get_compressible_images(c), key=numeric_sort_key):
             x = QListWidgetItem(name, i)
             x.setData(Qt.ItemDataRole.UserRole, c.filesize(name))
-        i.setSelectionMode(i.ExtendedSelection)
+        i.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         i.setMinimumHeight(350), i.setMinimumWidth(350)
         i.selectAll(), i.setSpacing(5)
         self.delegate = ImageItemDelegate(self)

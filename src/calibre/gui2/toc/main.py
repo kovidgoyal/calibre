@@ -10,7 +10,7 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
     QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
-    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt,
+    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QAbstractItemView,
     QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Thread
@@ -386,7 +386,7 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setHeaderLabel(_('Table of Contents'))
         self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.setDragEnabled(True)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)

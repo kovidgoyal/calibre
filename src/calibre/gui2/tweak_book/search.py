@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
     QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
     QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView
 )
 
 from calibre import prepare_string_for_xml
@@ -912,7 +912,7 @@ class SavedSearches(QWidget):
         self.model.dataChanged.connect(self.show_details)
         searches.setModel(self.model)
         searches.selectionModel().currentChanged.connect(self.show_details)
-        searches.setSelectionMode(searches.ExtendedSelection)
+        searches.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.delegate = SearchDelegate(searches)
         searches.setItemDelegate(self.delegate)
         searches.setAlternatingRowColors(True)

@@ -15,7 +15,7 @@ from collections import defaultdict
 from PyQt5.Qt import (
     QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox,
     QApplication, QLineEdit, QHBoxLayout, QFormLayout, QCheckBox, QWidget,
-    QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget, QSize)
+    QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget, QSize, QAbstractItemView)
 
 from calibre import as_unicode
 from calibre.constants import ismacos
@@ -207,7 +207,7 @@ class ChooseLibrary(Dialog):  # {{{
     def setup_ui(self):
         self.l = l = QGridLayout(self)
         self.items = i = QListWidget(self)
-        i.setSelectionMode(i.SingleSelection)
+        i.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         i.currentItemChanged.connect(self.current_changed)
         l.addWidget(i)
         self.v = v = QVBoxLayout()

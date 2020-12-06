@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 
 from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
-        QAbstractListModel, QListView, QSize, QApplication
+        QAbstractListModel, QListView, QSize, QApplication, QAbstractItemView
 
 from calibre.gui2 import file_icon_provider
 
@@ -70,8 +70,8 @@ class SelectFormats(QDialog):
             self.fview.setStyleSheet('QListView { %s }' % sheet)
         self._l.addWidget(self.fview)
         self.fview.setModel(self.formats)
-        self.fview.setSelectionMode(self.fview.SingleSelection if single else
-                self.fview.MultiSelection)
+        self.fview.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection if single else
+                QAbstractItemView.SelectionMode.MultiSelection)
         self.bbox = \
         QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel,
                 Qt.Orientation.Horizontal, self)

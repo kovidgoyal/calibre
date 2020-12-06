@@ -11,7 +11,7 @@ from threading import Thread
 from glob import glob
 
 from PyQt5.Qt import (
-    QDialog, QApplication, QLabel, QVBoxLayout, QDialogButtonBox, Qt,
+    QDialog, QApplication, QLabel, QVBoxLayout, QDialogButtonBox, Qt, QAbstractItemView,
     pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate
 )
 try:
@@ -59,7 +59,7 @@ class PDFCovers(QDialog):
         self.item_delegate = CoverDelegate(self)
         c.setItemDelegate(self.item_delegate)
         c.setIconSize(QSize(120, 160))
-        c.setSelectionMode(c.SingleSelection)
+        c.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         c.setViewMode(c.IconMode)
         c.setUniformItemSizes(True)
         c.setResizeMode(c.Adjust)

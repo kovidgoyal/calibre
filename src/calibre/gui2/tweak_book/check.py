@@ -9,7 +9,8 @@ import sys
 
 from PyQt5.Qt import (
      QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QMenu,
-     QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
+     QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate,
+     QAbstractItemView)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
 from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
@@ -70,7 +71,7 @@ class Check(QSplitter):
         self.items.setSpacing(3)
         self.items.itemDoubleClicked.connect(self.current_item_activated)
         self.items.currentItemChanged.connect(self.current_item_changed)
-        self.items.setSelectionMode(self.items.NoSelection)
+        self.items.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.delegate = Delegate(self.items)
         self.items.setItemDelegate(self.delegate)
         self.addWidget(i)

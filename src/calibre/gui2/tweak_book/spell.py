@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget, QListWidgetItem,
     QMenu, QModelIndex, QPlainTextEdit, QPushButton, QSize, QStackedLayout, Qt,
     QTableView, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QWidget, pyqtSignal
+    QWidget, pyqtSignal, QAbstractItemView
 )
 from threading import Thread
 
@@ -216,7 +216,7 @@ class ManageUserDictionaries(Dialog):
         self.la = la = QLabel(_('Words in this dictionary:'))
         l.addWidget(la)
         self.words = w = UserWordList(self)
-        w.setSelectionMode(w.ExtendedSelection)
+        w.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         l.addWidget(w)
         self.add_word_button = b = QPushButton(_('&Add word'), self)
         b.clicked.connect(self.add_word)

@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl)
+    QFontDatabase, QComboBox, QUrl, QAbstractItemView)
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
@@ -130,7 +130,8 @@ class FilesView(QTableView):
 
     def __init__(self, model, parent=None):
         QTableView.__init__(self, parent)
-        self.setSelectionBehavior(self.SelectRows), self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionBehavior(self.SelectRows)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setAlternatingRowColors(True)
         self.setSortingEnabled(True)
         self.proxy = p = ProxyModel(self)

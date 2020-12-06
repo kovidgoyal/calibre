@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QAbstractItemModel, QAbstractListModel, QApplication, QCheckBox, QGridLayout,
     QHBoxLayout, QIcon, QInputMethodEvent, QLabel, QListView, QMenu, QMimeData,
     QModelIndex, QPen, QPushButton, QSize, QSizePolicy, QSplitter,
-    QStyledItemDelegate, Qt, QToolButton, QTreeView, pyqtSignal
+    QStyledItemDelegate, Qt, QToolButton, QTreeView, pyqtSignal, QAbstractItemView
 )
 
 from calibre.gui2.tweak_book import tprefs
@@ -618,7 +618,7 @@ class CharView(QListView):
             self.setDropIndicatorShown(True)
             self._model.allow_dnd = False
         else:
-            self.setSelectionMode(self.ExtendedSelection)
+            self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
             self.viewport().setAcceptDrops(True)
             self.setDragEnabled(True)
             self.setAcceptDrops(True)

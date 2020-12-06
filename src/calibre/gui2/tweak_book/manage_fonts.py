@@ -11,7 +11,7 @@ from io import BytesIO
 from PyQt5.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
-    QHBoxLayout, QTextEdit, QApplication, QMessageBox)
+    QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
@@ -253,7 +253,7 @@ class ManageFonts(Dialog):
         fv.setSortingEnabled(True)
         fv.setShowGrid(False)
         fv.setAlternatingRowColors(True)
-        fv.setSelectionMode(fv.ExtendedSelection)
+        fv.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         fv.setSelectionBehavior(fv.SelectRows)
         fv.horizontalHeader().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
         self.container = c = QWidget()

@@ -10,7 +10,7 @@ import os, stat
 from PyQt5.Qt import (
     QSize, QStackedLayout, QWidget, QVBoxLayout, QLabel, QPushButton,
     QListWidget, QListWidgetItem, QIcon, Qt, pyqtSignal, QGridLayout,
-    QProgressBar, QDialog, QDialogButtonBox, QScrollArea, QLineEdit, QFrame
+    QProgressBar, QDialog, QDialogButtonBox, QScrollArea, QLineEdit, QFrame, QAbstractItemView
 )
 
 from calibre import human_readable, as_unicode
@@ -200,7 +200,7 @@ class EximDialog(Dialog):
         la.setWordWrap(True), l.addWidget(la)
         self.lib_list = ll = QListWidget(self)
         l.addWidget(ll)
-        ll.setSelectionMode(ll.ExtendedSelection)
+        ll.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         ll.setStyleSheet('QListView::item { padding: 5px }')
         ll.setAlternatingRowColors(True)
         lpaths = all_known_libraries()

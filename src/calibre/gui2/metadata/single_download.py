@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
     QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
-    QCursor, QHBoxLayout, QPushButton, QSizePolicy, QSplitter)
+    QCursor, QHBoxLayout, QPushButton, QSizePolicy, QSplitter, QAbstractItemView)
 
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata import authors_to_string, rating_to_stars
@@ -214,7 +214,7 @@ class ResultsView(QTableView):  # {{{
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
         self.rt_delegate = RichTextDelegate(self)
-        self.setSelectionMode(self.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAlternatingRowColors(True)
         self.setSelectionBehavior(self.SelectRows)
         self.setIconSize(QSize(24, 24))
@@ -774,7 +774,7 @@ class CoversView(QListView):  # {{{
         self.setResizeMode(self.Adjust)
         self.setGridSize(QSize(190, 260))
         self.setIconSize(QSize(*CoverDelegate.ICON_SIZE))
-        self.setSelectionMode(self.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setViewMode(self.IconMode)
 
         self.delegate = CoverDelegate(self)

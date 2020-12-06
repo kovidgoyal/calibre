@@ -8,7 +8,8 @@ from functools import partial
 
 from PyQt5.Qt import (
     QAction, QGroupBox, QHBoxLayout, QIcon, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal
+    QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal,
+    QAbstractItemView
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
@@ -305,7 +306,7 @@ class ActionsList(QListWidget):
 
     def __init__(self, actions, parent=None, is_source=True):
         QListWidget.__init__(self, parent)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setDragEnabled(True)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)

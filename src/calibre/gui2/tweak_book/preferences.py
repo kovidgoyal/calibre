@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
-    QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox,
+    QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox, QAbstractItemView,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer, QRadioButton)
 
 from calibre import prepare_string_for_xml
@@ -434,7 +434,7 @@ class ToolbarList(QListWidget):
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
 
 class ToolbarSettings(QWidget):

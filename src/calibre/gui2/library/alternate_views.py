@@ -704,7 +704,7 @@ class GridView(QListView):
         # restore_vpos()
         # self.setLayoutMode(self.Batched)
         self.setResizeMode(self.Adjust)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setVerticalScrollMode(self.ScrollPerPixel)
         self.delegate = CoverDelegate(self)
         self.delegate.animation.valueChanged.connect(self.animation_value_changed)

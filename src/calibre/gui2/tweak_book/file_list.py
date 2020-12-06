@@ -11,7 +11,7 @@ from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout,
-    QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget,
+    QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget, QAbstractItemView,
     QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,
     QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget, pyqtSignal
@@ -252,7 +252,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.header().close()
         self.setDragEnabled(True)
         self.setEditTriggers(self.EditKeyPressed)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
         self.setDragDropMode(self.InternalMove)

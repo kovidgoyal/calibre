@@ -8,7 +8,7 @@ import textwrap
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon,
-    QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate,
+    QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate, QAbstractItemView,
     QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal
 )
 
@@ -295,7 +295,7 @@ class Rules(QWidget):
         l.addLayout(h)
         self.rule_list = r = QListWidget(self)
         self.delegate = Delegate(self)
-        r.setSelectionMode(r.ExtendedSelection)
+        r.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         r.setItemDelegate(self.delegate)
         r.doubleClicked.connect(self.edit_rule)
         h.addWidget(r)

@@ -10,7 +10,7 @@ from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
     QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal
+    QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView
 )
 
 from calibre import prepare_string_for_xml
@@ -204,7 +204,7 @@ class ResultsList(QTreeWidget):
     def __init__(self, parent):
         QTreeWidget.__init__(self, parent)
         self.setHeaderHidden(True)
-        self.setSelectionMode(self.ExtendedSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.delegate = AnnotsResultsDelegate(self)

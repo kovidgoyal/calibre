@@ -12,7 +12,7 @@ from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
-        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu)
+        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QAbstractItemView)
 
 from calibre import prepare_string_for_xml, sanitize_file_name, as_unicode
 from calibre.constants import config_dir
@@ -911,7 +911,7 @@ class EditRules(QWidget):  # {{{
         self.g = g = QGridLayout()
         self.rules_view = QListView(self)
         self.rules_view.doubleClicked.connect(self.edit_rule)
-        self.rules_view.setSelectionMode(self.rules_view.ExtendedSelection)
+        self.rules_view.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.rules_view.setAlternatingRowColors(True)
         self.rtfd = RichTextDelegate(parent=self.rules_view, max_width=400)
         self.rules_view.setItemDelegate(self.rtfd)

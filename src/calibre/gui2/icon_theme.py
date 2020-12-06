@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
     pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap,
     QGridLayout, QStyledItemDelegate, QApplication, QStaticText,
-    QStyle, QPen, QProgressDialog
+    QStyle, QPen, QProgressDialog, QAbstractItemView
 )
 try:
     from PyQt5 import sip
@@ -217,7 +217,7 @@ class ThemeCreateDialog(Dialog):
         l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
         self.missing_icons_group = mg = QGroupBox(self)
         self.mising_icons = mi = QListWidget(mg)
-        mi.setSelectionMode(mi.NoSelection)
+        mi.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         mg.l = QVBoxLayout(mg)
         mg.l.addWidget(mi)
         self.splitter.addWidget(mg)

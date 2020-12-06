@@ -12,7 +12,7 @@ from PyQt5.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
         QStyledItemDelegate, QSize, QStyle, QStringListModel, pyqtSignal,
         QDialog, QVBoxLayout, QApplication, QFontComboBox, QPushButton,
         QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
-        QHBoxLayout, QLabel, QLineEdit, QSizePolicy)
+        QHBoxLayout, QLabel, QLineEdit, QSizePolicy, QAbstractItemView)
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog, info_dialog, empty_index
@@ -186,7 +186,7 @@ class FontsView(QListView):
 
     def __init__(self, parent):
         QListView.__init__(self, parent)
-        self.setSelectionMode(self.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAlternatingRowColors(True)
         self.d = FontFamilyDelegate(self)
         self.setItemDelegate(self.d)

@@ -7,7 +7,7 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
-    QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence,
+    QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence, QAbstractItemView,
     QApplication, QListView, QPoint, QModelIndex,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer)
 try:
@@ -93,7 +93,7 @@ class Completer(QListView):  # {{{
         self.setEditTriggers(self.NoEditTriggers)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setSelectionBehavior(self.SelectRows)
-        self.setSelectionMode(self.SingleSelection)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setUniformItemSizes(True)
         self.setAlternatingRowColors(True)
         self.setModel(CompleteModel(self, sort_func=sort_func, strip_completion_entries=strip_completion_entries))
