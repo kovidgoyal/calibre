@@ -2,9 +2,30 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QObject, pyqtSignal
+from PyQt5.Qt import QObject, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import error_dialog
+from calibre.gui2.viewer.config import get_pref_group, vprefs
+from calibre.gui2.widgets2 import Dialog
+
+
+class Config(Dialog):
+
+    def __init__(self, tts_client, ui_settings, backend_settings, parent):
+        self.tts_client = tts_client
+        self.ui_settings = ui_settings
+        self.backend_settings = backend_settings
+        Dialog.__init__(self, _('Configure Read aloud'), 'read-aloud-config', parent, prefs=vprefs)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.config_widget = self.tts_client.config_widget(self.backend_settings, self)
+        l.addWidget(self.config_widget)
+        l.addWidget(self.bb)
+
+    def accept(self):
+        self.backend_settings = self.config_widget.backend_settings
+        return super().accept()
 
 
 def add_markup(text_parts):
@@ -23,6 +44,7 @@ class TTS(QObject):
 
     dispatch_on_main_thread_signal = pyqtSignal(object)
     event_received = pyqtSignal(object, object)
+    settings_changed = pyqtSignal(object)
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent)
@@ -80,3 +102,11 @@ class TTS(QObject):
 
     def stop(self, data):
         self.tts_client.stop()
+
+    def configure(self, data):
+        ui_settings = get_pref_group('tts').copy()
+        key = 'tts_' + self.tts_client.name
+        d = Config(self.tts_client, ui_settings, vprefs.get(key) or {}, parent=self.parent())
+        if d.exec_() == d.DialogCode.Accepted:
+            vprefs[key] = d.backend_settings
+            self.settings_changed.emit(d.ui_settings)

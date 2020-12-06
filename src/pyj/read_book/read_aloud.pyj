@@ -117,6 +117,7 @@ class ReadAloud:
             bar.appendChild(cb(None, 'hourglass', _('Pause reading')))
         else:
             bar.appendChild(cb('play', 'play', _('Start reading') if self.state is STOPPED else _('Resume reading')))
+        bar.appendChild(cb('configure', 'cogs', _('Configure Read aloud')))
         bar.appendChild(cb('hide', 'close', _('Close Read aloud')))
         if self.state is not WAITING_FOR_PLAY_TO_START:
             notes_container = bar_container.lastChild
@@ -128,6 +129,10 @@ class ReadAloud:
                 notes_container.textContent = _('Tap/click on a word to skip to it')
             else:
                 notes_container.textContent = _('Tap/click on a word to continue from there')
+
+    def configure(self):
+        self.pause()
+        ui_operations.tts('configure')
 
     def play(self):
         if self.state is PAUSED:
@@ -194,8 +199,7 @@ class ReadAloud:
             self.state = PLAYING
         elif which is 'end':
             self.state = STOPPED
-            if not self.view.show_next_spine_item():
-                self.hide()
+            self.view.show_next_spine_item()
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)

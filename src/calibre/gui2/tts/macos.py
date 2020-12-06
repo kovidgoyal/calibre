@@ -8,6 +8,7 @@ from .common import Event, EventType
 class Client:
 
     mark_template = '[[sync 0x{:x}]]'
+    name = 'nsss'
 
     @classmethod
     def escape_marked_text(cls, text):

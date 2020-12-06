@@ -13,6 +13,7 @@ from .common import Event, EventType
 class Client:
 
     mark_template = '<bookmark mark="{}"/>'
+    name = 'sapi'
 
     @classmethod
     def escape_marked_text(cls, text):

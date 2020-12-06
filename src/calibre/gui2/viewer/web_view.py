@@ -351,8 +351,10 @@ class WebPage(QWebEnginePage):
             QApplication.instance().clipboard().setMimeData(md)
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prefix = {QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO', QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'}.get(
-                level, 'ERROR')
+        prefix = {
+            QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
+            QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
+        }.get(level, 'ERROR')
         prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
         try:
             sys.stderr.flush()
