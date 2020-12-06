@@ -211,7 +211,8 @@ class EximDialog(Dialog):
             i.setIcon(QIcon(I('lt.png')))
             i.setSelected(True)
         self.update_disk_usage.connect((
-            lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(self.lib_list.item(i).data(Qt.ItemDataRole.UserRole), sz))), type=Qt.ConnectionType.QueuedConnection)
+            lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(
+                self.lib_list.item(i).data(Qt.ItemDataRole.UserRole), sz))), type=Qt.ConnectionType.QueuedConnection)
 
     def get_lib_sizes(self):
         for i in range(self.lib_list.count()):

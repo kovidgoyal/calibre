@@ -42,7 +42,8 @@ class ChooseResources(QWidget):
 
     @property
     def resources(self):
-        return {i.data(Qt.ItemDataRole.UserRole):self.original_resources[i.data(Qt.ItemDataRole.UserRole)] for i in self if i.checkState() == Qt.CheckState.Checked}
+        return {i.data(Qt.ItemDataRole.UserRole):self.original_resources[i.data(Qt.ItemDataRole.UserRole)]
+                for i in self if i.checkState() == Qt.CheckState.Checked}
 
     @resources.setter
     def resources(self, resources):

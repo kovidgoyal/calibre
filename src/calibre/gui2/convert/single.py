@@ -153,7 +153,9 @@ class Config(QDialog):
         self.gridLayout.addWidget(self.scrollArea, 1, 1, 1, 1)
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.RestoreDefaults)
+        self.buttonBox.setStandardButtons(
+            QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok|
+            QDialogButtonBox.StandardButton.RestoreDefaults)
         self.buttonBox.setObjectName("buttonBox")
         self.gridLayout.addWidget(self.buttonBox, 3, 1, 1, 1)
         self.help = QTextEdit(self)

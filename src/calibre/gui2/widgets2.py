@@ -389,7 +389,10 @@ class FlowLayout(QLayout):  # {{{
                 return ans
             if wid is None:
                 return 0
-            return wid.style().layoutSpacing(QSizePolicy.ControlType.PushButton, QSizePolicy.ControlType.PushButton, Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
+            return wid.style().layoutSpacing(
+                QSizePolicy.ControlType.PushButton,
+                QSizePolicy.ControlType.PushButton,
+                Qt.Orientation.Horizontal if horizontal else Qt.Orientation.Vertical)
 
         lines, current_line = [], []
         gmap = {}

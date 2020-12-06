@@ -697,7 +697,10 @@ class TextEdit(PlainTextEdit):
         # problem as well, since they use the overridden createMimeDataFromSelection() method
         # instead of the one from Qt (which makes copy() work), and allows proper customization
         # of the shortcuts
-        if ev in (QKeySequence.StandardKey.Copy, QKeySequence.StandardKey.Cut, QKeySequence.StandardKey.Paste, QKeySequence.StandardKey.Undo, QKeySequence.StandardKey.Redo):
+        if ev in (
+            QKeySequence.StandardKey.Copy, QKeySequence.StandardKey.Cut, QKeySequence.StandardKey.Paste,
+            QKeySequence.StandardKey.Undo, QKeySequence.StandardKey.Redo
+        ):
             ev.ignore()
             return True
         # This is used to convert typed hex codes into unicode
@@ -803,7 +806,9 @@ class TextEdit(PlainTextEdit):
             return self.smarts.set_text_alignment(self, formatting.partition('_')[-1])
         color = 'currentColor'
         if formatting in {'color', 'background-color'}:
-            color = QColorDialog.getColor(QColor(Qt.GlobalColor.black if formatting == 'color' else Qt.GlobalColor.white), self, _('Choose color'), QColorDialog.ColorDialogOption.ShowAlphaChannel)
+            color = QColorDialog.getColor(
+                QColor(Qt.GlobalColor.black if formatting == 'color' else Qt.GlobalColor.white),
+                self, _('Choose color'), QColorDialog.ColorDialogOption.ShowAlphaChannel)
             if not color.isValid():
                 return
             r, g, b, a = color.getRgb()

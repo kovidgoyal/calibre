@@ -99,7 +99,8 @@ class HeaderView(QHeaderView):  # {{{
         style = self.style()
         margin = 2 * style.pixelMetric(style.PM_HeaderMargin, None, self)
         if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
-            opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown if self.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder else QStyleOptionHeader.SortIndicator.SortUp
+            opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown if \
+                self.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder else QStyleOptionHeader.SortIndicator.SortUp
             margin += style.pixelMetric(style.PM_HeaderMarkSize, None, self)
         opt.text = unicode_type(model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
         if self.textElideMode() != Qt.TextElideMode.ElideNone:
@@ -472,7 +473,8 @@ class BooksView(QTableView):  # {{{
         ans.addSeparator()
         if hidden_cols:
             m = ans.addMenu(_('Show column'))
-            hcols = [(hcol, unicode_type(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or '')) for hcol, hidx in iteritems(hidden_cols)]
+            hcols = [(hcol, unicode_type(self.model().headerData(hidx, Qt.Orientation.Horizontal, Qt.ItemDataRole.DisplayRole) or ''))
+                     for hcol, hidx in iteritems(hidden_cols)]
             hcols.sort(key=lambda x: primary_sort_key(x[1]))
             for hcol, hname in hcols:
                 m.addAction(hname, partial(handler, action='show', column=hcol))

@@ -205,7 +205,8 @@ class Central(QStackedWidget):  # {{{
 
     def eventFilter(self, obj, event):
         base = super(Central, self)
-        if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (Qt.MouseButton.RightButton, Qt.MouseButton.MidButton):
+        if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (
+                Qt.MouseButton.RightButton, Qt.MouseButton.MidButton):
             return base.eventFilter(obj, event)
         index = self.editor_tabs.tabBar().tabAt(event.pos())
         if index < 0:
@@ -808,20 +809,26 @@ class Main(MainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, d)
 
         d = create(_('Live CSS'), 'live-css')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         self.live_css = LiveCSS(self.preview, parent=d)
         d.setWidget(self.live_css)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Check book'), 'check-book')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         d.setWidget(self.check_book)
         self.addDockWidget(Qt.DockWidgetArea.TopDockWidgetArea, d)
         d.close()  # By default the check window is closed
 
         d = create(_('Inspector'), 'inspector')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         d.setWidget(self.preview.inspector)
         self.preview.inspector.setParent(d)
         self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea, d)
@@ -829,26 +836,34 @@ class Main(MainWindow):
         QTimer.singleShot(10, self.preview.inspector.connect_to_dock)
 
         d = create(_('Table of Contents'), 'toc-viewer')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         d.setWidget(self.toc_view)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Text search'), 'text-search')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         d.setWidget(self.text_search)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Checkpoints'), 'checkpoints')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         self.checkpoints = CheckpointView(self.boss.global_undo, parent=d)
         d.setWidget(self.checkpoints)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
         d = create(_('Saved searches'), 'saved-searches')
-        d.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea | Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
+        d.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea |
+            Qt.DockWidgetArea.BottomDockWidgetArea | Qt.DockWidgetArea.TopDockWidgetArea)
         d.setWidget(self.saved_searches)
         self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, d)
         d.close()  # Hidden by default

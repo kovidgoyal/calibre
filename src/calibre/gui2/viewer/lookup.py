@@ -204,8 +204,10 @@ def create_profile():
 class Page(QWebEnginePage):
 
     def javaScriptConsoleMessage(self, level, msg, linenumber, source_id):
-        prefix = {QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO', QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'}.get(
-                level, 'ERROR')
+        prefix = {
+            QWebEnginePage.JavaScriptConsoleMessageLevel.InfoMessageLevel: 'INFO',
+            QWebEnginePage.JavaScriptConsoleMessageLevel.WarningMessageLevel: 'WARNING'
+        }.get(level, 'ERROR')
         if source_id == 'userscript:lookup.js':
             prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
             sys.stderr.flush()

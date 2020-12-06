@@ -136,7 +136,9 @@ class PDFCovers(QDialog):
             dpr = self.devicePixelRatio()
 
         for i, f in enumerate(sorted(files)):
-            p = QPixmap(f).scaled(self.covers.iconSize()*dpr, aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio, transformMode=Qt.TransformationMode.SmoothTransformation)
+            p = QPixmap(f).scaled(
+                self.covers.iconSize()*dpr, aspectRatioMode=Qt.AspectRatioMode.IgnoreAspectRatio,
+                transformMode=Qt.TransformationMode.SmoothTransformation)
             p.setDevicePixelRatio(dpr)
             i = QListWidgetItem(_('page %d') % (self.first + i))
             i.setData(Qt.ItemDataRole.DecorationRole, p)

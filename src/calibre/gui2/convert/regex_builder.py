@@ -113,7 +113,10 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
                 if pos > loc:
                     match_loc = i
                     break
-            self.goto_loc(self.match_locs[match_loc][1], operation=QTextCursor.MoveOperation.Left, n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
+            self.goto_loc(
+                self.match_locs[match_loc][1],
+                operation=QTextCursor.MoveOperation.Left,
+                n=self.match_locs[match_loc][1] - self.match_locs[match_loc][0])
 
     def goto_next(self):
         pos = self.preview.textCursor().position()

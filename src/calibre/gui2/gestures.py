@@ -154,7 +154,9 @@ class GestureManager(QObject):
         if touch_supported:
             view.viewport().setAttribute(Qt.WidgetAttribute.WA_AcceptTouchEvents)
         self.state = State()
-        self.state.tapped.connect(self.handle_tap, type=Qt.ConnectionType.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
+        self.state.tapped.connect(
+            self.handle_tap,
+            type=Qt.ConnectionType.QueuedConnection)  # has to be queued otherwise QApplication.keyboardModifiers() does not work
         self.state.flicking.connect(self.handle_flicking)
         connect_lambda(self.state.tap_hold_started, self, lambda self, tp: self.handle_tap_hold('start', tp))
         connect_lambda(self.state.tap_hold_updated, self, lambda self, tp: self.handle_tap_hold('update', tp))

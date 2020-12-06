@@ -236,7 +236,10 @@ class Preferences(QDialog):
         self.l = l = QVBoxLayout(self)
 
         self.stack = QStackedWidget(self)
-        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply | QDialogButtonBox.StandardButton.Discard | QDialogButtonBox.StandardButton.RestoreDefaults)
+        self.bb = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply |
+            QDialogButtonBox.StandardButton.Discard | QDialogButtonBox.StandardButton.RestoreDefaults
+        )
         self.bb.button(self.bb.Apply).clicked.connect(self.accept)
         self.bb.button(self.bb.Discard).clicked.connect(self.reject)
         self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))

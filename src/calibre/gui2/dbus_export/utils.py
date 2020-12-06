@@ -112,7 +112,8 @@ def key_sequence_to_dbus_shortcut(qks):
         for mod, name in iteritems({Qt.Modifier.META:'Super', Qt.Modifier.CTRL:'Control', Qt.Modifier.ALT:'Alt', Qt.Modifier.SHIFT:'Shift'}):
             if key & mod == mod:
                 items.append(name)
-        key &= int(~(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier | Qt.KeyboardModifier.KeypadModifier))
+        key &= int(~(Qt.KeyboardModifier.ShiftModifier | Qt.KeyboardModifier.ControlModifier |
+                     Qt.KeyboardModifier.AltModifier | Qt.KeyboardModifier.MetaModifier | Qt.KeyboardModifier.KeypadModifier))
         text = QKeySequence(key).toString()
         if text:
             text = {'+':'plus', '-':'minus'}.get(text, text)

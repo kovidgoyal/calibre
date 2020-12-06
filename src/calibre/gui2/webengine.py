@@ -41,7 +41,11 @@ def insert_scripts(profile, *scripts):
         sc.insert(script)
 
 
-def create_script(name, src, world=QWebEngineScript.ScriptWorldId.ApplicationWorld, injection_point=QWebEngineScript.InjectionPoint.DocumentReady, on_subframes=True):
+def create_script(
+    name, src, world=QWebEngineScript.ScriptWorldId.ApplicationWorld,
+    injection_point=QWebEngineScript.InjectionPoint.DocumentReady,
+    on_subframes=True
+):
     script = QWebEngineScript()
     if isinstance(src, bytes):
         src = src.decode('utf-8')
