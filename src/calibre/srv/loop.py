@@ -492,10 +492,10 @@ class ServerLoop(object):
         self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
-            self.ready = True
             if self.LISTENING_MSG:
                 self.log(self.LISTENING_MSG, ba)
             self.plugin_pool.start()
+            self.ready = True
 
             while self.ready:
                 try:
