@@ -327,7 +327,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     # Build the Catalog dialog in gui2.dialogs.catalog
     d = Catalog(parent, dbspec, ids, db)
 
-    if d.exec_() != d.Accepted:
+    if d.exec_() != QDialog.DialogCode.Accepted:
         return None
 
     # Create the output file

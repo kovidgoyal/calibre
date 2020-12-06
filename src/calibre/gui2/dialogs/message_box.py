@@ -291,7 +291,7 @@ class ProceedNotification(MessageBox):  # {{{
 
     def do_proceed(self, result):
         from calibre.gui2.ui import get_gui
-        func = (self.callback if result == self.Accepted else
+        func = (self.callback if result == QDialog.DialogCode.Accepted else
                 self.cancel_callback)
         gui = get_gui()
         gui.proceed_requested.emit(func, self.payload)

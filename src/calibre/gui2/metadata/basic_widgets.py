@@ -360,7 +360,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         current_authors = self.current_val
         from calibre.gui2.dialogs.authors_edit import AuthorsEdit
         d = AuthorsEdit(all_authors, current_authors, self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.set_value(d.authors)
 
     def manage_authors(self):
@@ -1207,7 +1207,7 @@ class Cover(ImageView):  # {{{
         cdata = self.current_val
         from calibre.gui2.dialogs.trim_image import TrimImage
         d = TrimImage(cdata, parent=self)
-        if d.exec_() == d.Accepted and d.image_data is not None:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.image_data is not None:
             self.current_val = d.image_data
             self.cdata_before_trim = cdata
 
@@ -1222,7 +1222,7 @@ class Cover(ImageView):  # {{{
         from calibre.gui2.covers import CoverSettingsDialog
         mi = self.dialog.to_book_metadata()
         d = CoverSettingsDialog(mi=mi, parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.current_val = generate_cover(mi, prefs=d.prefs_for_rendering)
 
     def set_pixmap_from_data(self, data):
@@ -1417,7 +1417,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
             else:
                 self.current_val = self.original_val
         d = TagEditor(self, db, id_)
-        if d.exec_() == TagEditor.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.current_val = d.tags
             self.update_items_cache(db.new_api.all_field_names('tags'))
 
@@ -1553,7 +1553,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
 
     def edit_identifiers(self):
         d = Identifiers(self.current_val, self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.current_val = d.get_identifiers()
 
     @property

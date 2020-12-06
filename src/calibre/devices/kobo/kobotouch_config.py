@@ -667,6 +667,6 @@ if __name__ == '__main__':
     d.l.addWidget(bb)
     bb.accepted.connect(d.accept)
     bb.rejected.connect(d.reject)
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         cw.commit()
     dev.shutdown()

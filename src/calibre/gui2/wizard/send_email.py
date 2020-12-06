@@ -257,7 +257,7 @@ class SendEmail(QWidget, Ui_Form):
                 }
         }[service]
         d = RelaySetup(service, self)
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return
         self.relay_username.setText(d.username.text())
         self.relay_password.setText(d.password.text())

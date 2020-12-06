@@ -66,7 +66,7 @@ def customize_remove_unused_css(name, parent, ans):
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
-    if d.exec_() != d.Accepted:
+    if d.exec_() != QDialog.DialogCode.Accepted:
         raise Abort()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
@@ -301,7 +301,7 @@ if __name__ == '__main__':
     c = get_container(sys.argv[-1], tweak_mode=True)
     set_current_container(c)
     d = CompressImages()
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         pass
     sip.delete(app)
     del app

@@ -695,7 +695,7 @@ if __name__ == '__main__':
     gm = partial(db.get_metadata, index_is_id=True, get_cover=True, cover_as_data=True)
     get_metadata = lambda x:list(map(gm, ids[x]))
     d = CompareMany(list(range(len(ids))), get_metadata, db.field_metadata, db=db)
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         for changed, mi in itervalues(d.accepted):
             if changed and mi is not None:
                 print(mi)

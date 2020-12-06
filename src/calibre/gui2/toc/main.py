@@ -327,7 +327,7 @@ class ItemView(QStackedWidget):  # {{{
 
     def create_from_user_xpath(self):
         d = XPathDialog(self, self.prefs)
-        if d.exec_() == d.Accepted and d.xpaths:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.xpaths:
             self.create_from_xpath.emit(d.xpaths, d.remove_duplicates_cb.isChecked())
 
     def hide_azw3_warning(self):
@@ -1141,7 +1141,7 @@ def main(path=None, title=None):
         d = TOCEditor(path, title=title)
         d.start()
         ret = 1
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             ret = 0
         wf.write('{}'.format(ret).encode('ascii'))
     del d

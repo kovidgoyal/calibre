@@ -10,7 +10,7 @@ import textwrap, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (Qt, QModelIndex, QAbstractItemModel, QIcon,
-        QBrush)
+        QBrush, QDialog)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
@@ -449,7 +449,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         from calibre.gui2.dialogs.choose_plugin_toolbars import ChoosePluginToolbarsDialog
         d = ChoosePluginToolbarsDialog(self, plugin_action, allowed_locations)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             for key, text in d.selected_locations():
                 installed_actions = list(gprefs.get('action-layout-'+key, []))
                 installed_actions.append(plugin_action.name)

@@ -331,7 +331,7 @@ class ManageUserDictionaries(Dialog):
         d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         l.addRow(bb)
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return
         d.loc.update_recently_used()
         word = unicode_type(w.text())
@@ -369,7 +369,7 @@ class ManageUserDictionaries(Dialog):
         l.addRow(bb)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
 
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return
         lc = le.lang_codes
         if not lc:
@@ -518,7 +518,7 @@ class ManageDictionaries(Dialog):  # {{{
 
     def add_dictionary(self):
         d = AddDictionary(self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.build_dictionaries(reread=True)
 
     def remove_dictionary(self):
@@ -847,7 +847,7 @@ class WordsView(QTableView):
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
         self.setSortingEnabled(True), self.setShowGrid(False), self.setAlternatingRowColors(True)
-        self.setSelectionBehavior(self.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setTabKeyNavigation(False)
         self.verticalHeader().close()
 

@@ -257,5 +257,5 @@ if __name__ == '__main__':
     db = db()
     app = Application([])
     d = TagEditor(None, db, current_tags='a b c'.split())
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         print(d.tags)

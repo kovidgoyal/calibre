@@ -10,7 +10,7 @@ import os, shutil, copy
 from functools import partial
 from io import BytesIO
 
-from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon, QApplication, QMimeData
+from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon, QApplication, QMimeData, QDialog
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, gprefs
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -315,7 +315,7 @@ class EditMetadataAction(InterfaceAction):
                 action_button=(_('&View book'), I('view.png'), self.gui.iactions['View'].view_historical),
                 db=db
             )
-            if d.exec_() == d.Accepted:
+            if d.exec_() == QDialog.DialogCode.Accepted:
                 if d.mark_rejected:
                     failed_ids |= d.rejected_ids
                     restrict_to_failed = True
@@ -723,7 +723,7 @@ class EditMetadataAction(InterfaceAction):
         result = model.get_collections_with_ids()
         d = DeviceCategoryEditor(self.gui, tag_to_match=None, data=result, key=sort_key)
         d.exec_()
-        if d.result() == d.Accepted:
+        if d.result() == QDialog.DialogCode.Accepted:
             to_rename = d.to_rename  # dict of new text to old ids
             to_delete = d.to_delete  # list of ids
             for old_id, new_name in iteritems(to_rename):
@@ -912,13 +912,13 @@ class EditMetadataAction(InterfaceAction):
             from calibre.gui2.metadata.pdf_covers import PDFCovers
             d = PDFCovers(pdfpath, parent=self.gui)
             ret = d.exec_()
-            if ret == d.Accepted:
+            if ret == QDialog.DialogCode.Accepted:
                 cpath = d.cover_path
                 if cpath:
                     with open(cpath, 'rb') as f:
                         cdata = f.read()
             d.cleanup()
-            if ret != d.Accepted:
+            if ret != QDialog.DialogCode.Accepted:
                 return
         else:
             stream = BytesIO()

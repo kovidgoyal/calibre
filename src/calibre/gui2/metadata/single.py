@@ -432,7 +432,7 @@ class MetadataSingleDialogBase(QDialog):
                                                        'pdf')
         from calibre.gui2.metadata.pdf_covers import PDFCovers
         d = PDFCovers(pdfpath, parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             cpath = d.cover_path
             if cpath:
                 with open(cpath, 'rb') as f:
@@ -538,7 +538,7 @@ class MetadataSingleDialogBase(QDialog):
         d = FullFetch(self.cover.pixmap(), self)
         ret = d.start(title=self.title.current_val, authors=self.authors.current_val,
                 identifiers=self.identifiers.current_val)
-        if ret == d.Accepted:
+        if ret == QDialog.DialogCode.Accepted:
             self.metadata_before_fetch = {f:getattr(self, f).current_val for f in fetched_fields}
             from calibre.ebooks.metadata.sources.prefs import msprefs
             mi = d.book
@@ -581,7 +581,7 @@ class MetadataSingleDialogBase(QDialog):
         d = CoverFetch(self.cover.pixmap(), self)
         ret = d.start(self.title.current_val, self.authors.current_val,
                 self.identifiers.current_val)
-        if ret == d.Accepted:
+        if ret == QDialog.DialogCode.Accepted:
             if d.cover_pixmap is not None:
                 self.cover.current_val = pixmap_to_data(d.cover_pixmap)
 

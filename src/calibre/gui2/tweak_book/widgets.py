@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
     QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
-    QPixmap, QRect, QPlainTextEdit, QMimeData)
+    QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.constants import iswindows
@@ -75,7 +75,7 @@ class InsertTag(Dialog):  # {{{
     @classmethod
     def test(cls):
         d = cls()
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             print(d.tag)
 
 # }}}
@@ -778,7 +778,7 @@ class InsertLink(Dialog):
         from calibre.ebooks.oeb.polish.container import get_container
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c, next(c.spine_names)[0])
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             print(d.href, d.text)
 
 # }}}
@@ -971,7 +971,7 @@ class InsertSemantics(Dialog):
         from calibre.ebooks.oeb.polish.container import get_container
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             import pprint
             pprint.pprint(d.changed_type_map)
             d.apply_changes(d.container)
@@ -1043,7 +1043,7 @@ class FilterCSS(Dialog):  # {{{
     @classmethod
     def test(cls):
         d = cls()
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             print(d.filtered_properties)
 
 # }}}
@@ -1176,7 +1176,7 @@ class AddCover(Dialog):
             from calibre.gui2.tweak_book.file_list import NewFileDialog
             d = NewFileDialog(self)
             d.do_import_file(ans[0], hide_button=True)
-            if d.exec_() == d.Accepted:
+            if d.exec_() == QDialog.DialogCode.Accepted:
                 self.import_requested.emit(d.file_name, d.file_data)
                 self.container = current_container()
                 self.names_filter.clear()
@@ -1191,7 +1191,7 @@ class AddCover(Dialog):
         from calibre.ebooks.oeb.polish.container import get_container
         c = get_container(sys.argv[-1], tweak_mode=True)
         d = cls(c)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             pass
 
 # }}}

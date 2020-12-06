@@ -11,7 +11,7 @@ import sys
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
-        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit)
+        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit, QDialog)
 
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
@@ -350,7 +350,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             if check_key_modifier(Qt.KeyboardModifier.ShiftModifier) and col != 'authors':
                 key = col if m.is_custom_column(col) else None
                 d = TagEditor(parent, self.db, m.id(index.row()), key=key)
-                if d.exec_() == TagEditor.Accepted:
+                if d.exec_() == QDialog.DialogCode.Accepted:
                     m.setData(index, self.sep.join(d.tags), Qt.ItemDataRole.EditRole)
                 return None
             editor = EditWithComplete(parent)
@@ -516,7 +516,7 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
         d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             m.setData(index, d.text, Qt.ItemDataRole.EditRole)
         return None
 

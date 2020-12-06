@@ -4,7 +4,7 @@
 
 
 from PyQt5.Qt import (
-    QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, Qt, QVBoxLayout
+    QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, Qt, QVBoxLayout, QDialog
 )
 
 from calibre import prepare_string_for_xml
@@ -154,7 +154,7 @@ class SavedSearchEditor(Dialog):
 
     def add_search(self):
         d = AddSavedSearch(parent=self, commit_changes=False)
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
         nmap = {icu_lower(n):n for n in self.searches}
@@ -188,7 +188,7 @@ class SavedSearchEditor(Dialog):
         d.setWindowTitle(_('Edit saved search'))
         d.sname.setText(n)
         d.search.setText(self.searches[n])
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
         self.slist.currentItem().setText(name)

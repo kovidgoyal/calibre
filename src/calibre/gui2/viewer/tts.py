@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QDialogButtonBox, QObject, QVBoxLayout, pyqtSignal
+from PyQt5.Qt import QDialogButtonBox, QObject, QVBoxLayout, pyqtSignal, QDialog
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.config import get_pref_group, vprefs
@@ -126,6 +126,6 @@ class TTS(QObject):
     def configure(self, data):
         ui_settings = get_pref_group('tts').copy()
         d = Config(self.tts_client, ui_settings, self.backend_settings, parent=self.parent())
-        if d.exec_() == d.DialogCode.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.backend_settings = d.backend_settings
             self.settings_changed.emit(d.ui_settings)

@@ -992,7 +992,7 @@ class EditRules(QWidget):  # {{{
     def add_rule(self):
         d = RuleEditor(self.model.fm, self.pref_name)
         d.add_blank_condition()
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             kind, col, r = d.rule
             if kind and r and col:
                 idx = self.model.add_rule(kind, col, r)
@@ -1002,7 +1002,7 @@ class EditRules(QWidget):  # {{{
     def add_advanced(self):
         if self.pref_name == 'column_color_rules':
             td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
-            if td.exec_() == td.Accepted:
+            if td.exec_() == QDialog.DialogCode.Accepted:
                 col, r = td.rule
                 if r and col:
                     idx = self.model.add_rule('color', col, r)
@@ -1013,7 +1013,7 @@ class EditRules(QWidget):  # {{{
                 td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, doing_emblem=True)
             else:
                 td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, icon_field_key='')
-            if td.exec_() == td.Accepted:
+            if td.exec_() == QDialog.DialogCode.Accepted:
                 typ, col, r = td.rule
                 if typ and r and col:
                     idx = self.model.add_rule(typ, col, r)
@@ -1036,7 +1036,7 @@ class EditRules(QWidget):  # {{{
             d = TemplateDialog(self, rule, mi=self.mi, fm=self.fm, icon_field_key=col,
                                icon_rule_kind=kind)
 
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             if len(d.rule) == 2:  # Convert template dialog rules to a triple
                 d.rule = ('color', d.rule[0], d.rule[1])
             kind, col, r = d.rule

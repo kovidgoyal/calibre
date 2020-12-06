@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt5.Qt import Qt, QVBoxLayout, QFormLayout
+from PyQt5.Qt import Qt, QVBoxLayout, QFormLayout, QDialog
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
     CommaSeparatedList, AbortCommit
@@ -66,7 +66,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d = RulesDialog(self)
         if gprefs.get('tag_map_on_add_rules'):
             d.rules = gprefs['tag_map_on_add_rules']
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.tag_map_rules = d.rules
             self.changed_signal.emit()
 
@@ -75,7 +75,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d = RulesDialog(self)
         if gprefs.get('author_map_on_add_rules'):
             d.rules = gprefs['author_map_on_add_rules']
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.author_map_rules = d.rules
             self.changed_signal.emit()
 
@@ -84,7 +84,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         d = RulesDialog(self)
         if gprefs.get('add_filter_rules'):
             d.rules = gprefs['add_filter_rules']
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.add_filter_rules = d.rules
             self.changed_signal.emit()
 

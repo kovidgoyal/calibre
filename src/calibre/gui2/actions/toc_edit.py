@@ -134,7 +134,7 @@ class ToCEditAction(InterfaceAction):
         for book_id, fmts in iteritems(book_id_map):
             if len(fmts) > 1:
                 d = ChooseFormat(fmts, self.gui)
-                if d.exec_() != d.Accepted:
+                if d.exec_() != QDialog.DialogCode.Accepted:
                     return
                 fmts = d.formats
             for fmt in fmts:

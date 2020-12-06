@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QAbstractListModel, QAction, QApplication, QCheckBox, QComboBox, QFont, QFrame,
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
     QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
-    QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar,
+    QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QDialog,
     QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView
 )
 
@@ -342,7 +342,7 @@ class SearchWidget(QWidget):
 
     def edit_function(self):
         d = FunctionEditor(func_name=self.functions.text().strip(), parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.functions.setText(d.func_name)
 
     def remove_function(self):
@@ -747,7 +747,7 @@ class EditSearch(QFrame):  # {{{
 
     def edit_function(self):
         d = FunctionEditor(func_name=self.function.text().strip(), parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.function.setText(d.func_name)
 
     def remove_function(self):

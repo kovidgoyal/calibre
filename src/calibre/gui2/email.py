@@ -297,7 +297,7 @@ class SelectRecipients(QDialog):  # {{{
 
 def select_recipients(parent=None):
     d = SelectRecipients(parent)
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         return d.ans
     return ()
 # }}}

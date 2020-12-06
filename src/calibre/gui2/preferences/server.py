@@ -745,7 +745,7 @@ class User(QWidget):
 
     def change_password(self):
         d = NewUser(self.user_data, self, self.username)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.user_data[self.username]['pw'] = d.password
             self.changed_signal.emit()
 
@@ -802,7 +802,7 @@ class User(QWidget):
             self.user_data[self.username]['restriction'].copy(),
             parent=self
         )
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.user_data[self.username]['restriction'] = d.restriction
             self.update_restriction()
             self.changed_signal.emit()
@@ -866,7 +866,7 @@ class Users(QWidget):
 
     def add_user(self):
         d = NewUser(self.user_data, parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             un, pw = d.username, d.password
             self.user_data[un] = create_user_data(pw)
             self.user_list.insertItem(0, un)

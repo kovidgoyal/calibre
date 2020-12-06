@@ -506,7 +506,7 @@ class PolishAction(InterfaceAction):
 
     def do_polish(self, book_id_map):
         d = Polish(self.gui.library_view.model().db, book_id_map, parent=self.gui)
-        if d.exec_() == d.Accepted and d.jobs:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.jobs:
             show_reports = bool(d.show_reports.isChecked())
             for desc, data, book_id, base, is_orig in reversed(d.jobs):
                 job = self.gui.job_manager.run_job(

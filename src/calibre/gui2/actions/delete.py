@@ -10,7 +10,7 @@ import errno, os
 from functools import partial
 from collections import Counter
 
-from PyQt5.Qt import QObject, QTimer, QModelIndex
+from PyQt5.Qt import QObject, QTimer, QModelIndex, QDialog
 
 from calibre.constants import ismacos
 from calibre.gui2 import error_dialog, question_dialog
@@ -158,7 +158,7 @@ class DeleteAction(InterfaceAction):
                     c[x] += 1
         d = SelectFormats(c, msg, parent=self.gui, exclude=exclude,
                 single=single)
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return None
         return d.selected_formats
 

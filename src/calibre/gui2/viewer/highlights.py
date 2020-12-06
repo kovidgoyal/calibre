@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
     QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
     Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
-    QAbstractItemView
+    QAbstractItemView, QDialog
 )
 
 from calibre.constants import (
@@ -391,7 +391,7 @@ class NotesDisplay(Details):
     def edit_notes(self):
         current_text = self.current_notes
         d = NotesEditDialog(current_text, self)
-        if d.exec_() == d.Accepted and d.notes != current_text:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.notes != current_text:
             self.notes_edited.emit(d.notes)
 
 

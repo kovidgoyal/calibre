@@ -14,7 +14,7 @@ from multiprocessing.pool import ThreadPool
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
-    pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap,
+    pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap, QDialog,
     QGridLayout, QStyledItemDelegate, QApplication, QStaticText,
     QStyle, QPen, QProgressDialog, QAbstractItemView
 )
@@ -412,7 +412,7 @@ def create_theme(folder=None, parent=None):
             return
     report = read_theme_from_folder(folder)
     d = ThemeCreateDialog(parent, report)
-    if d.exec_() != d.Accepted:
+    if d.exec_() != QDialog.DialogCode.Accepted:
         return
     d.save_metadata()
     d = Compress(d.report, parent=parent)
@@ -788,7 +788,7 @@ class ChooseTheme(Dialog):
         if self.downloaded_theme and not isinstance(self.downloaded_theme, BytesIO):
             return error_dialog(self, _('Download failed'), _(
                 'Failed to download icon theme, click "Show Details" for more information.'), show=True, det_msg=self.downloaded_theme)
-        if ret == d.Rejected or not self.keep_downloading or d.canceled or self.downloaded_theme is None:
+        if ret == QDialog.DialogCode.Rejected or not self.keep_downloading or d.canceled or self.downloaded_theme is None:
             return
         dt = self.downloaded_theme
 
@@ -865,6 +865,6 @@ if __name__ == '__main__':
     app = Application([])
     # create_theme('.')
     d = ChooseTheme()
-    if d.exec_() == d.Accepted and d.commit_changes is not None:
+    if d.exec_() == QDialog.DialogCode.Accepted and d.commit_changes is not None:
         d.commit_changes()
     del app

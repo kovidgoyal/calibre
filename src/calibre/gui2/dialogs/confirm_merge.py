@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
-    QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt,
+    QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt, QDialog
 )
 
 from calibre.ebooks.metadata import authors_to_string
@@ -88,7 +88,7 @@ def confirm_merge(msg, name, parent, mi):
     if not config_set.get(confirm_config_name(name), True):
         return True
     d = ConfirmMerge(msg, name, parent, mi)
-    return d.exec_() == d.Accepted
+    return d.exec_() == QDialog.DialogCode.Accepted
 
 
 class ChooseMerge(Dialog):
@@ -186,6 +186,6 @@ class ChooseMerge(Dialog):
 
 def merge_drop(dest_id, src_ids, gui):
     d = ChooseMerge(dest_id, src_ids, gui)
-    if d.exec_() != d.Accepted:
+    if d.exec_() != QDialog.DialogCode.Accepted:
         return None, None, None
     return d.merge_type

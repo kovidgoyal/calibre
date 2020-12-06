@@ -10,7 +10,7 @@ import os
 from functools import partial
 from collections import defaultdict
 
-from PyQt5.Qt import QPixmap, QTimer, QApplication
+from PyQt5.Qt import QPixmap, QTimer, QApplication, QDialog
 
 from calibre import as_unicode, guess_type
 from calibre.gui2 import (error_dialog, choose_files, choose_dir,
@@ -206,7 +206,7 @@ class AddAction(InterfaceAction):
         from calibre.ebooks.oeb.polish.create import valid_empty_formats
         from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
         d = ChooseFormatDialog(self.gui, _('Choose format of empty file'), sorted(valid_empty_formats))
-        if d.exec_() != d.Accepted or not d.format():
+        if d.exec_() != QDialog.DialogCode.Accepted or not d.format():
             return
         self._add_empty_format(d.format())
 
@@ -320,7 +320,7 @@ class AddAction(InterfaceAction):
             title = index.model().db.title(index.row())
         dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db,
                                  author, series, dup_title=title)
-        if dlg.exec_() == dlg.Accepted:
+        if dlg.exec_() == QDialog.DialogCode.Accepted:
             temp_files = []
             num = dlg.qty_to_add
             series = dlg.selected_series
@@ -478,7 +478,7 @@ class AddAction(InterfaceAction):
     def add_from_isbn(self, *args):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
         d = AddFromISBN(self.gui)
-        if d.exec_() == d.Accepted and d.books:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.books:
             self.add_isbns(d.books, add_tags=d.set_tags)
 
     def add_books(self, *args):

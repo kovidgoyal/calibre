@@ -604,7 +604,7 @@ class SavedSearchBoxMixin(object):  # {{{
     def do_saved_search_edit(self, search):
         d = SavedSearchEditor(self, search)
         d.exec_()
-        if d.result() == d.Accepted:
+        if d.result() == QDialog.DialogCode.Accepted:
             self.do_rebuild_saved_searches()
 
     def do_rebuild_saved_searches(self):
@@ -614,7 +614,7 @@ class SavedSearchBoxMixin(object):  # {{{
     def add_saved_search(self):
         from calibre.gui2.dialogs.saved_search_editor import AddSavedSearch
         d = AddSavedSearch(parent=self, search=self.search.current_text)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.current_db.new_api.ensure_has_search_category(fail_on_existing=False)
             self.do_rebuild_saved_searches()
 

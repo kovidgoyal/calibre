@@ -362,7 +362,7 @@ class EximDialog(Dialog):
             dbmap[db.library_path] = db.new_api
         return RunAction(_('Exporting all calibre data...'), _(
             'Failed to export data.'), partial(export, self.export_dir, library_paths=library_paths, dbmap=dbmap),
-                      parent=self).exec_() == Dialog.Accepted
+                      parent=self).exec_() == QDialog.DialogCode.Accepted
 
     def run_import_action(self):
         library_path_map = {}
@@ -370,7 +370,7 @@ class EximDialog(Dialog):
             if w.path:
                 library_path_map[w.lpath] = w.path
         return RunAction(_('Importing all calibre data...'), _(
-            'Failed to import data.'), partial(import_data, self.importer, library_path_map), parent=self).exec_() == Dialog.Accepted
+            'Failed to import data.'), partial(import_data, self.importer, library_path_map), parent=self).exec_() == QDialog.DialogCode.Accepted
 
     def accept(self):
         if not self.validate():

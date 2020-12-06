@@ -687,7 +687,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         d.bb.rejected.connect(d.reject)
         d.resize(d.sizeHint())
         link, name, is_image = None, None, False
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             link, name = unicode_type(d.url.text()).strip(), unicode_type(d.name.text()).strip()
             is_image = d.treat_as_image.isChecked()
         return link, name, is_image

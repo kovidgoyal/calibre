@@ -11,7 +11,7 @@ from io import BytesIO
 from PyQt5.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
-    QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView)
+    QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView, QDialog)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
@@ -254,7 +254,7 @@ class ManageFonts(Dialog):
         fv.setShowGrid(False)
         fv.setAlternatingRowColors(True)
         fv.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        fv.setSelectionBehavior(fv.SelectRows)
+        fv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         fv.horizontalHeader().setSortIndicator(1, Qt.SortOrder.AscendingOrder)
         self.container = c = QWidget()
         l = c.l = QVBoxLayout(c)
@@ -333,7 +333,7 @@ class ManageFonts(Dialog):
         if not fonts:
             return
         d = ChangeFontFamily(', '.join(fonts), {f for f, embedded in iteritems(self.model.font_data) if embedded}, self)
-        if d.exec_() != d.Accepted:
+        if d.exec_() != QDialog.DialogCode.Accepted:
             return
         changed = False
         new_family = d.normalized_family

@@ -8,7 +8,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     QAction, QGroupBox, QHBoxLayout, QIcon, QKeySequence, QLabel, QListWidget,
-    QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal,
+    QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal, QDialog,
     QAbstractItemView
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
@@ -298,7 +298,7 @@ class ActionsToolBar(ToolBar):
 
     def customize(self):
         d = ConfigureToolBar(parent=self.parent())
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.add_actions()
 
 

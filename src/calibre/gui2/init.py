@@ -10,7 +10,7 @@ import functools
 from PyQt5.Qt import (
     QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy, QSplitter,
     QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
-    QToolButton, QVBoxLayout, QWidget
+    QToolButton, QVBoxLayout, QWidget, QDialog
 )
 
 from calibre.constants import __appname__, get_version, ismacos
@@ -697,7 +697,7 @@ class LayoutMixin(object):  # {{{
         identifiers = db.field_for('identifiers', book_id, default_value={})
         from calibre.gui2.metadata.basic_widgets import Identifiers
         d = Identifiers(identifiers, self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             identifiers = d.get_identifiers()
             db.set_field('identifiers', {book_id: identifiers})
             self.iactions['Edit Metadata'].refresh_books_after_metadata_edit({book_id})

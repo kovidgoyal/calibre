@@ -12,7 +12,7 @@ from collections import defaultdict
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
+    QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout,
     QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox
@@ -205,7 +205,7 @@ class IdLinksEditor(Dialog):
         if r > -1:
             key, name, template = map(lambda c: self.table.item(r, c).text(), range(3))
         d = IdLinksRuleEdit(key, name, template, self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             if r < 0:
                 self.table.setRowCount(self.table.rowCount() + 1)
                 r = self.table.rowCount() - 1
@@ -586,14 +586,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def choose_icon_theme(self):
         from calibre.gui2.icon_theme import ChooseTheme
         d = ChooseTheme(self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.commit_icon_theme = d.commit_changes
             self.icon_theme_title = d.new_theme_title or _('Default icons')
             self.icon_theme.setText(_('Icon theme: <b>%s</b>') % self.icon_theme_title)
             self.changed_signal.emit()
 
     def edit_id_link_rules(self):
-        if IdLinksEditor(self).exec_() == Dialog.Accepted:
+        if IdLinksEditor(self).exec_() == QDialog.DialogCode.Accepted:
             self.changed_signal.emit()
 
     @property
@@ -725,7 +725,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def change_cover_grid_texture(self):
         from calibre.gui2.preferences.texture_chooser import TextureChooser
         d = TextureChooser(parent=self, initial=self.cg_bg_widget.btex)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.set_cg_texture(d.texture)
             self.changed_signal.emit()
 
@@ -750,7 +750,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def change_font(self, *args):
         fd = QFontDialog(self.build_font_obj(), self)
-        if fd.exec_() == fd.Accepted:
+        if fd.exec_() == QDialog.DialogCode.Accepted:
             font = fd.selectedFont()
             fi = QFontInfo(font)
             self.current_font = [unicode_type(fi.family()), fi.pointSize(),

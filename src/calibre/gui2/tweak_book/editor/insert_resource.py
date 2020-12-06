@@ -12,7 +12,7 @@ from PyQt5.Qt import (
     QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout,
     QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListView, QMenu, QPainter,
     QPixmap, QRect, QSize, QSizePolicy, QSortFilterProxyModel, QStyledItemDelegate,
-    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal
+    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal, QDialog
 )
 
 from calibre import fit_image
@@ -300,7 +300,7 @@ class InsertImage(Dialog):
             n, e = basename.rpartition('.')[0::2]
             basename = n + '.' + e.lower()
             d = ChooseName(basename, self)
-            if d.exec_() == d.Accepted and d.filename:
+            if d.exec_() == QDialog.DialogCode.Accepted and d.filename:
                 self.accept()
                 self.chosen_image_is_external = (d.filename, path)
 
@@ -321,7 +321,7 @@ class InsertImage(Dialog):
             return error_dialog(self, _('No image'), _(
                 'There is no image on the clipboard'), show=True)
         d = ChooseName('image.jpg', self)
-        if d.exec_() == d.Accepted and d.filename:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.filename:
             fmt = d.filename.rpartition('.')[-1].lower()
             if fmt not in {'jpg', 'jpeg', 'png'}:
                 return error_dialog(self, _('Invalid file extension'), _(
@@ -355,7 +355,7 @@ class InsertImage(Dialog):
 def get_resource_data(rtype, parent):
     if rtype == 'image':
         d = InsertImage(parent)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             return d.chosen_image, d.chosen_image_is_external, d.fullpage.isChecked(), d.preserve_aspect_ratio.isChecked()
 
 

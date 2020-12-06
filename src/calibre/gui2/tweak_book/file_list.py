@@ -111,7 +111,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     l.addRow(bb)
     ans = {'prefix': None, 'start': None}
 
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         prefix = sanitize(unicode_type(d.prefix.text()))
         previous[category] = prefix
         tprefs.set('file-list-bulk-rename-prefix', previous)
@@ -636,7 +636,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     def start_merge(self, category, names):
         d = MergeDialog(names, self)
-        if d.exec_() == d.Accepted and d.ans:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.ans:
             self.merge_requested.emit(category, names, d.ans)
 
     def edit_current_item(self):
@@ -942,7 +942,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         d.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(d.accept), bb.rejected.connect(d.reject)
         l.addWidget(bb)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             tprefs['remove_existing_links_when_linking_sheets'] = r.isChecked()
             sheets = [unicode_type(s.item(il).text()) for il in range(s.count()) if s.item(il).checkState() == Qt.CheckState.Checked]
             if sheets:

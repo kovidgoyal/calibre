@@ -130,7 +130,7 @@ def start_download(gui, ids, callback, ensure_fields=None):
     d = ConfirmDialog(ids, gui)
     ret = d.exec_()
     d.b.clicked.disconnect()
-    if ret != d.Accepted:
+    if ret != QDialog.DialogCode.Accepted:
         return
     tf = PersistentTemporaryFile('_metadata_bulk.log')
     tf.close()

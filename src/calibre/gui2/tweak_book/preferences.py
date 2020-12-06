@@ -250,7 +250,7 @@ class EditorSettings(BasicSettings):  # {{{
     def manage_snippets(self):
         from calibre.gui2.tweak_book.editor.snippets import UserSnippets
         d = UserSnippets(self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.snippets_changed = True
 
     def theme_choices(self):

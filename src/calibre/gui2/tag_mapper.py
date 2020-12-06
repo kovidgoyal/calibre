@@ -7,7 +7,7 @@ from collections import OrderedDict
 import textwrap
 
 from PyQt5.Qt import (
-    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon,
+    QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon, QDialog,
     QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate, QAbstractItemView,
     QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal
 )
@@ -154,7 +154,7 @@ class RuleEdit(QWidget):
     def edit_tags(self):
         from calibre.gui2.dialogs.tag_editor import TagEditor
         d = TagEditor(self, get_gui().current_db, current_tags=list(filter(None, [x.strip() for x in self.query.text().split(',')])))
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.query.setText(', '.join(d.tags))
 
     @property
@@ -320,7 +320,7 @@ class Rules(QWidget):
 
     def add_rule(self):
         d = self.RuleEditDialogClass(self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             i = self.RuleItemClass(d.edit_widget.rule, self.rule_list)
             self.rule_list.scrollToItem(i)
             self.changed.emit()
@@ -330,7 +330,7 @@ class Rules(QWidget):
         if i is not None:
             d = self.RuleEditDialogClass(self)
             d.edit_widget.rule = i.data(Qt.ItemDataRole.UserRole)
-            if d.exec_() == d.Accepted:
+            if d.exec_() == QDialog.DialogCode.Accepted:
                 rule = d.edit_widget.rule
                 i.setData(DATA_ROLE, rule)
                 i.setData(RENDER_ROLE, self.RuleItemClass.text_from_rule(rule, self.rule_list))

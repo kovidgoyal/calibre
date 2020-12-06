@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import json
 
-from PyQt5.Qt import Qt
+from PyQt5.Qt import Qt, QDialog
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -115,7 +115,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         from calibre.gui2.convert.font_key import FontKeyChooser
         d = FontKeyChooser(self, self.opt_base_font_size.value(),
                 unicode_type(self.opt_font_size_mapping.text()).strip())
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.opt_font_size_mapping.setText(', '.join(['%.1f'%x for x in
                 d.fsizes]))
             self.opt_base_font_size.setValue(d.dbase)

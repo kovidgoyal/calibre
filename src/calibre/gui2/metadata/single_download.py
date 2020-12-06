@@ -216,7 +216,7 @@ class ResultsView(QTableView):  # {{{
         self.rt_delegate = RichTextDelegate(self)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setAlternatingRowColors(True)
-        self.setSelectionBehavior(self.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setIconSize(QSize(24, 24))
         self.clicked.connect(self.show_details)
         self.doubleClicked.connect(self.select_index)

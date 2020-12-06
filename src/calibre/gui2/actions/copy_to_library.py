@@ -84,7 +84,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
     d.bb.accepted.connect(d.accept)
     d.bb.rejected.connect(d.reject)
     d.resize(d.sizeHint())
-    if d.exec_() == d.Accepted:
+    if d.exec_() == QDialog.DialogCode.Accepted:
         changes_made = False
         for k, cb in missing_widgets:
             if cb.isChecked():
@@ -382,7 +382,7 @@ class CopyToLibraryAction(InterfaceAction):
         db = self.gui.library_view.model().db
         locations = list(self.stats.locations(db))
         d = ChooseLibrary(self.gui, locations)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             path, delete_after = d.args
             if not path:
                 return
@@ -447,7 +447,7 @@ class CopyToLibraryAction(InterfaceAction):
         duplicate_ids = self.do_copy(ids, db, loc, delete_after, False)
         if duplicate_ids:
             d = DuplicatesQuestion(self.gui, duplicate_ids, loc)
-            if d.exec_() == d.Accepted:
+            if d.exec_() == QDialog.DialogCode.Accepted:
                 ids = d.ids
                 if ids:
                     self.do_copy(list(ids), db, loc, delete_after, add_duplicates=True)

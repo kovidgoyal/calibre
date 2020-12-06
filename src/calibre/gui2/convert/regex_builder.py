@@ -229,7 +229,7 @@ class RegexEdit(QWidget, Ui_Edit):
         if not self.doc_cache:
             self.doc_cache = bld.doc()
             self.doc_update.emit(self.doc_cache)
-        if bld.exec_() == bld.Accepted:
+        if bld.exec_() == QDialog.DialogCode.Accepted:
             self.edit.setText(bld.regex.text())
 
     def doc(self):

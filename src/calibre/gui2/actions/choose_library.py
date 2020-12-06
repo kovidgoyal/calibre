@@ -311,7 +311,7 @@ class ChooseLibraryAction(InterfaceAction):
                     _('Cannot export/import data while there are running jobs.'), show=True)
         from calibre.gui2.dialogs.exim import EximDialog
         d = EximDialog(parent=self.gui)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             if d.restart_needed:
                 self.gui.iactions['Restart'].restart()
 
@@ -594,7 +594,7 @@ class ChooseLibraryAction(InterfaceAction):
             ret = d.exec_()
             self.build_menus()
             self.gui.iactions['Copy To Library'].build_menus()
-            if ret == d.Accepted:
+            if ret == QDialog.DialogCode.Accepted:
                 loc = d.newloc.replace('/', os.sep)
             else:
                 return

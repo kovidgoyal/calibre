@@ -10,7 +10,7 @@ import textwrap
 from functools import partial
 
 from PyQt5.Qt import (
-    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame,
+    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog,
     QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
@@ -143,7 +143,7 @@ class TagBrowserMixin(object):  # {{{
         db = self.library_view.model().db
         d = TagCategories(self, db, on_category,
                           book_ids=self.tags_view.model().get_book_ids_to_use())
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             # Order is important. The categories must be removed before setting
             # the preference because setting the pref recomputes the dynamic categories
             db.field_metadata.remove_user_categories()
@@ -265,7 +265,7 @@ class TagBrowserMixin(object):  # {{{
                           sorter=key, ttm_is_first_letter=is_first_letter,
                           fm=db.field_metadata[category])
         d.exec_()
-        if d.result() == d.Accepted:
+        if d.result() == QDialog.DialogCode.Accepted:
             to_rename = d.to_rename  # dict of old id to new name
             to_delete = d.to_delete  # list of ids
             orig_name = d.original_names  # dict of id: name
@@ -414,7 +414,7 @@ class TagBrowserMixin(object):  # {{{
                     break
         editor = EditAuthorsDialog(parent, db, id_, select_sort, select_link,
                                    get_authors_func, is_first_letter)
-        if editor.exec_() == editor.Accepted:
+        if editor.exec_() == QDialog.DialogCode.Accepted:
             # Save and restore the current selections. Note that some changes
             # will cause sort orders to change, so don't bother with attempting
             # to restore the position. Restoring the state has the side effect

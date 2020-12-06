@@ -130,7 +130,7 @@ class FilesView(QTableView):
 
     def __init__(self, model, parent=None):
         QTableView.__init__(self, parent)
-        self.setSelectionBehavior(self.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setAlternatingRowColors(True)
         self.setSortingEnabled(True)

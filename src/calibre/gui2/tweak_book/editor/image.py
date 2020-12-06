@@ -309,7 +309,7 @@ class Editor(QMainWindow):
     def resize_image(self):
         im = self.canvas.current_image
         d = ResizeDialog(im.width(), im.height(), self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.canvas.resize_image(d.width, d.height)
 
     def sharpen_image(self):

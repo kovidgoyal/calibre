@@ -10,7 +10,7 @@ from collections import namedtuple
 from PyQt5.Qt import (
     QColor, QBrush, QFont, QApplication, QPalette, QComboBox,
     QPushButton, QIcon, QFormLayout, QLineEdit, QWidget, QScrollArea,
-    QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog,
+    QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog, QDialog,
     QToolButton, QCheckBox, QSize, QLabel, QSplitter, QTextCharFormat)
 
 from calibre.gui2 import error_dialog
@@ -659,7 +659,7 @@ class ThemeEditor(Dialog):
 
     def create_new_theme(self):
         d = CreateNewTheme(self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             name = '*' + d.theme_name
             base = unicode_type(d.base.currentText())
             theme = {}

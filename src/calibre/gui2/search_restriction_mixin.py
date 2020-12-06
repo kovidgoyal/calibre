@@ -245,7 +245,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         else:
             names = getattr(db, 'all_%s_names'%f)()
         d = SelectNames(names, txt, parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             prefix = f+'s' if f in {'tag', 'author'} else f
             if f == 'search':
                 search = ['(%s)'%(db.saved_search_lookup(x)) for x in d.names]
@@ -357,7 +357,7 @@ class SearchRestrictionMixin(object):
         db = self.library_view.model().db
         virt_libs = db.new_api.pref('virtual_libraries', {})
         cd = CreateVirtualLibrary(self, virt_libs.keys(), editing=name)
-        if cd.exec_() == cd.Accepted:
+        if cd.exec_() == QDialog.DialogCode.Accepted:
             if name:
                 self._remove_vl(name, reapply=False)
             self.add_virtual_library(db, cd.library_name, cd.library_search)
@@ -519,7 +519,7 @@ class SearchRestrictionMixin(object):
         d = QuickOpen(
                 sorted(virt_libs.keys(), key=sort_key), parent=self, title=_('Choose Virtual library'),
                 name='vl-open', level1=' ', help_text=help_text)
-        if d.exec_() == d.Accepted and d.selected_result:
+        if d.exec_() == QDialog.DialogCode.Accepted and d.selected_result:
             self.apply_virtual_library(library=d.selected_result)
 
     def _remove_vl(self, name, reapply=True):

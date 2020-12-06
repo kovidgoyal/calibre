@@ -7,7 +7,7 @@ import json
 import os
 from functools import partial
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout,
+    QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout, QDialog,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
     QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView
@@ -813,7 +813,7 @@ class AnnotationsBrowser(Dialog):
                 'Editing is only supported for the notes associated with highlights'), show=True)
         notes = annot.get('notes')
         d = EditNotes(notes, self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             notes = d.notes
             if notes and notes.strip():
                 annot['notes'] = notes.strip()

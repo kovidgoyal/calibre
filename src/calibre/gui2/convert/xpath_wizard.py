@@ -75,7 +75,7 @@ class XPathEdit(QWidget, Ui_Edit):
 
     def wizard(self):
         wiz = Wizard(self)
-        if wiz.exec_() == wiz.Accepted:
+        if wiz.exec_() == QDialog.DialogCode.Accepted:
             self.edit.setText(wiz.xpath)
 
     def setObjectName(self, *args):

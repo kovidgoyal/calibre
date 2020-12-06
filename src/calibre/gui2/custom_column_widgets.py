@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout, QUrl,
         QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
-        QMessageBox, QToolButton, QPlainTextEdit, QApplication, QStyle)
+        QMessageBox, QToolButton, QPlainTextEdit, QApplication, QStyle, QDialog)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
 from calibre.gui2.complete2 import EditWithComplete
@@ -561,7 +561,7 @@ class Text(Base):
             else:
                 self.setter(self.initial_val)
         d = TagEditor(self.parent, self.db, self.book_id, self.key)
-        if d.exec_() == TagEditor.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.setter(d.tags)
 
     def connect_data_changed(self, slot):
@@ -1468,7 +1468,7 @@ class BulkText(BulkBase):
                 return
             widget.setText('')
         d = TagEditor(self.parent, self.db, key=('#'+self.col_metadata['label']))
-        if d.exec_() == TagEditor.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             val = d.tags
             if not val:
                 val = []

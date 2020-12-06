@@ -567,13 +567,13 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def customize_cover_generation(self):
         from calibre.gui2.covers import CoverSettingsDialog
         d = CoverSettingsDialog(parent=self)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.generate_cover_settings = d.prefs_for_rendering
 
     def set_comments(self):
         from calibre.gui2.dialogs.comments_dialog import CommentsDialog
         d = CommentsDialog(self, '' if self.comments is null else (self.comments or ''), _('Comments'))
-        if d.exec_() == d.Accepted:
+        if d.exec_() == QDialog.DialogCode.Accepted:
             self.comments = d.textbox.html
             b = self.comments_button
             b.setStyleSheet('QPushButton { font-weight: bold }')

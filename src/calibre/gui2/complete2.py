@@ -92,7 +92,7 @@ class Completer(QListView):  # {{{
         self.max_visible_items = max_visible_items
         self.setEditTriggers(self.NoEditTriggers)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.setSelectionBehavior(self.SelectRows)
+        self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.setUniformItemSizes(True)
         self.setAlternatingRowColors(True)

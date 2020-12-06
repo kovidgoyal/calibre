@@ -7,6 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
+from PyQt5.Qt import QDialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2 import error_dialog
@@ -46,6 +47,6 @@ class ShowTemplateTesterAction(InterfaceAction):
                    mi=db.get_metadata(index.row(), index_is_id=False, get_cover=False),
                    text_is_placeholder=self.first_time)
             t.setWindowTitle(_('Template tester'))
-            if t.exec_() == t.Accepted:
+            if t.exec_() == QDialog.DialogCode.Accepted:
                 self.previous_text = t.rule[1]
                 self.first_time = False
