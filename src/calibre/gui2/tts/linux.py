@@ -19,7 +19,7 @@ class Client:
     def escape_marked_text(cls, text):
         return prepare_string_for_xml(text)
 
-    def __init__(self, dispatch_on_main_thread):
+    def __init__(self, dispatch_on_main_thread=lambda f: f()):
         self.status = {'synthesizing': False, 'paused': False}
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.current_marked_text = None
@@ -41,7 +41,10 @@ class Client:
 
     def __del__(self):
         if self.ssip_client is not None:
-            self.ssip_client.cancel()
+            try:
+                self.ssip_client.cancel()
+            except Exception:
+                pass
             self.ssip_client.close()
             self.ssip_client = None
     shutdown = __del__
