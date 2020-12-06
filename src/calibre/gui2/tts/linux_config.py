@@ -4,8 +4,8 @@
 
 from contextlib import suppress
 from PyQt5.Qt import (
-    QAbstractItemView, QAbstractTableModel, QComboBox, QFontMetrics, QFormLayout, Qt,
-    QTableView, QWidget, QSortFilterProxyModel, QItemSelectionModel
+    QAbstractItemView, QAbstractTableModel, QComboBox, QFontMetrics, QFormLayout,
+    QItemSelectionModel, QSortFilterProxyModel, QSlider, Qt, QTableView, QWidget
 )
 
 from calibre.gui2.preferences.look_feel import BusyCursor
@@ -57,13 +57,29 @@ class VoicesModel(QAbstractTableModel):
         finally:
             self.endResetModel()
 
+    def index_for_voice(self, v):
+        r = 0
+        if v != self.system_default_voice:
+            try:
+                idx = self.current_voices.index(v)
+            except Exception:
+                return
+            r = idx + 1
+        return self.index(r, 0)
+
 
 class Widget(QWidget):
 
-    def __init__(self, tts_client, initial_backend_settings, parent=None):
+    def __init__(self, tts_client, initial_backend_settings=None, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
         self.tts_client = tts_client
+
+        self.speed = s = QSlider(Qt.Orientation.Horizontal, self)
+        s.setMinimumWidth(200)
+        l.addRow(_('&Speed of speech:'), s)
+        s.setRange(-100, 100)
+        s.setSingleStep(5)
 
         self.output_modules = om = QComboBox(self)
         with BusyCursor():
@@ -72,7 +88,7 @@ class Widget(QWidget):
         om.addItem(_('System default'), self.system_default_output_module)
         for x in self.voice_data:
             om.addItem(x, x)
-        l.addRow(_('Speech synthesizer:'), om)
+        l.addRow(_('Speech s&ynthesizer:'), om)
 
         self.voices = v = QTableView(self)
         self.voices_model = VoicesModel(self.voice_data, self.system_default_output_module, parent=v)
@@ -88,7 +104,11 @@ class Widget(QWidget):
         v.sortByColumn(0, Qt.SortOrder.AscendingOrder)
         om.currentIndexChanged.connect(self.output_module_changed)
         l.addRow(v)
+
         self.backend_settings = initial_backend_settings or {}
+
+    def restore_to_defaults(self):
+        self.backend_settings = {}
 
     def sizeHint(self):
         ans = super().sizeHint()
@@ -128,6 +148,15 @@ class Widget(QWidget):
         self.voices_model.change_output_module(om)
 
     @property
+    def rate(self):
+        return self.speed.value()
+
+    @rate.setter
+    def rate(self, val):
+        val = int(val or 0)
+        self.speed.setValue(val)
+
+    @property
     def backend_settings(self):
         ans = {}
         om = self.selected_output_module
@@ -136,6 +165,9 @@ class Widget(QWidget):
         voice = self.selected_voice
         if voice != VoicesModel.system_default_voice:
             ans['voice'] = voice
+        rate = self.rate
+        if rate:
+            ans['rate'] = rate
         return ans
 
     @backend_settings.setter
@@ -144,6 +176,7 @@ class Widget(QWidget):
         self.selected_output_module = om
         voice = val.get('voice') or VoicesModel.system_default_voice
         self.selected_voice = voice
+        self.rate = val.get('rate') or 0
 
 
 if __name__ == '__main__':
@@ -154,3 +187,4 @@ if __name__ == '__main__':
     w = Widget(c, {})
     w.show()
     app.exec_()
+    print(w.backend_settings)

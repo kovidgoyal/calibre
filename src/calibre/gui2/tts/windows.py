@@ -19,7 +19,7 @@ class Client:
     def escape_marked_text(cls, text):
         return prepare_string_for_xml(text)
 
-    def __init__(self, dispatch_on_main_thread):
+    def __init__(self, settings, dispatch_on_main_thread):
         from calibre.utils.windows.winsapi import ISpVoice
         self.sp_voice = ISpVoice()
         self.events_thread = Thread(name='SAPIEvents', target=self.wait_for_events, daemon=True)

@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QObject, QVBoxLayout, pyqtSignal
+from PyQt5.Qt import QDialogButtonBox, QObject, QVBoxLayout, pyqtSignal
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.config import get_pref_group, vprefs
@@ -22,6 +22,12 @@ class Config(Dialog):
         self.config_widget = self.tts_client.config_widget(self.backend_settings, self)
         l.addWidget(self.config_widget)
         l.addWidget(self.bb)
+        self.config_widget.restore_to_defaults
+        b = self.bb.addButton(QDialogButtonBox.StandardButton.RestoreDefaults)
+        b.clicked.connect(self.restore_to_defaults)
+
+    def restore_to_defaults(self):
+        self.config_widget.restore_to_defaults()
 
     def accept(self):
         self.backend_settings = self.config_widget.backend_settings
@@ -62,7 +68,7 @@ class TTS(QObject):
     def tts_client(self):
         if self._tts_client is None:
             from calibre.gui2.tts.implementation import Client
-            self._tts_client = Client(self.dispatch_on_main_thread_signal.emit)
+            self._tts_client = Client(self.backend_settings, self.dispatch_on_main_thread_signal.emit)
         return self._tts_client
 
     def shutdown(self):
@@ -103,10 +109,23 @@ class TTS(QObject):
     def stop(self, data):
         self.tts_client.stop()
 
+    @property
+    def backend_settings(self):
+        from calibre.gui2.tts.implementation import Client
+        key = 'tts_' + Client.name
+        return vprefs.get(key) or {}
+
+    @backend_settings.setter
+    def backend_settings(self, val):
+        from calibre.gui2.tts.implementation import Client
+        key = 'tts_' + Client.name
+        val = val or {}
+        vprefs.set(key, val)
+        self.tts_client.apply_settings(val)
+
     def configure(self, data):
         ui_settings = get_pref_group('tts').copy()
-        key = 'tts_' + self.tts_client.name
-        d = Config(self.tts_client, ui_settings, vprefs.get(key) or {}, parent=self.parent())
+        d = Config(self.tts_client, ui_settings, self.backend_settings, parent=self.parent())
         if d.exec_() == d.DialogCode.Accepted:
-            vprefs[key] = d.backend_settings
+            self.backend_settings = d.backend_settings
             self.settings_changed.emit(d.ui_settings)

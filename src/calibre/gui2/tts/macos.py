@@ -14,7 +14,7 @@ class Client:
     def escape_marked_text(cls, text):
         return text.replace('[[', ' [ [ ').replace(']]', ' ] ] ')
 
-    def __init__(self, dispatch_on_main_thread):
+    def __init__(self, settings, dispatch_on_main_thread):
         from calibre_extensions.cocoa import NSSpeechSynthesizer
         self.nsss = NSSpeechSynthesizer(self.handle_message)
         self.current_callback = None

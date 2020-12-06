@@ -19,8 +19,9 @@ class Client:
     def escape_marked_text(cls, text):
         return prepare_string_for_xml(text)
 
-    def __init__(self, dispatch_on_main_thread=lambda f: f()):
+    def __init__(self, settings, dispatch_on_main_thread=lambda f: f()):
         self.status = {'synthesizing': False, 'paused': False}
+        self.settings = settings
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.current_marked_text = None
         self.last_mark = None
@@ -59,12 +60,22 @@ class Client:
         self.set_use_ssml(use_ssml)
 
     def apply_settings(self, new_settings=None):
+        if new_settings is not None:
+            self.settings = new_settings
         if self.settings_applied:
             self.shutdown()
             self.settings_applied = False
             self.ensure_state()
         self.settings_applied = True
-        # TODO: Implement this
+        om = self.settings.get('output_module')
+        if om:
+            self.ssip_client.set_output_module(om)
+        voice = self.settings.get('voice')
+        if voice:
+            self.ssip_client.set_synthesis_voice(voice[0])
+        rate = self.settings.get('rate')
+        if rate:
+            self.ssip_client.set_rate(rate)
 
     def set_use_ssml(self, on):
         from speechd.client import DataMode, SSIPCommunicationError
@@ -148,6 +159,7 @@ class Client:
                 text = self.current_marked_text
             else:
                 text = self.current_marked_text[idx:]
+        self.ensure_state(use_ssml=True)
         self.ssip_client.speak(text, callback=self.current_callback)
 
     def stop(self):
