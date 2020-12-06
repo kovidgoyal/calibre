@@ -120,7 +120,9 @@ class TestServer(Thread):
             timeout = self.loop.opts.timeout
         if interface is None:
             interface = self.address[0]
-        return http_client.HTTPConnection(interface, self.address[1], timeout=timeout)
+        ans = http_client.HTTPConnection(interface, self.address[1], timeout=timeout)
+        ans.connect()
+        return ans
 
     def change_handler(self, handler):
         from calibre.srv.http_response import create_http_handler
