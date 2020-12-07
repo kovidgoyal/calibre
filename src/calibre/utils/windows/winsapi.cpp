@@ -212,6 +212,12 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
             if (LCIDToLocaleName(lcid, buf, LOCALE_NAME_MAX_LENGTH, 0) > 0) {
                 pyobject_raii pyval(PyUnicode_FromWideChar(buf, -1)); if (!pyval) return NULL;
                 if (PyDict_SetItemString(dict.ptr(), "language", pyval.ptr()) != 0) return NULL;
+				wchar_t display_name[1024];
+				int res = GetLocaleInfoEx(buf, LOCALE_SLOCALIZEDDISPLAYNAME, display_name, sizeof(display_name)/sizeof(display_name[0]));
+				if (res > 0) {
+					pyobject_raii pd(PyUnicode_FromWideChar(display_name, -1)); if (!pd) return NULL;
+					if (PyDict_SetItemString(dict.ptr(), "language_display_name", pd.ptr()) != 0) return NULL;
+				}
             }
         }
         if (PyList_Append(ans.ptr(), dict.ptr()) != 0) return NULL;
