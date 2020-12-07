@@ -176,7 +176,7 @@
     {
         "name": "cocoa",
         "only": "macos",
-        "sources": "calibre/utils/cocoa.m calibre/gui2/tts/nsss.m calibre/utils/cocoa_wrapper.c",
+        "sources": "calibre/utils/cocoa.m calibre/gui2/tts/nsss.m",
         "ldflags": "-framework Cocoa"
     },
     {
