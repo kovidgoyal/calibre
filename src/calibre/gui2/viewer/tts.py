@@ -129,3 +129,5 @@ class TTS(QObject):
         if d.exec_() == QDialog.DialogCode.Accepted:
             self.backend_settings = d.backend_settings
             self.settings_changed.emit(d.ui_settings)
+        else:
+            self.settings_changed.emit(None)

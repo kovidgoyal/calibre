@@ -205,6 +205,8 @@ class ReadAloud:
             if self.waiting_for_configure:
                 self.waiting_for_configure = False
                 self.play()
+            if data is not None:
+                pass
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)
