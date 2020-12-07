@@ -10,6 +10,11 @@ from .common import Event, EventType
 from .errors import TTSSystemUnavailable
 
 
+def wrap_in_ssml(text):
+    return ('<?xml version="1.0"?>\n<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis"><s>' +
+            text + '</s></speak>')
+
+
 class Client:
 
     mark_template = '<mark name="{}"/>'
@@ -139,7 +144,7 @@ class Client:
         self.current_callback = cw
 
         self.ensure_state(use_ssml=True)
-        self.ssip_client.speak(text, callback=self.current_callback)
+        self.ssip_client.speak(wrap_in_ssml(text), callback=self.current_callback)
 
     def pause(self):
         if self.status['synthesizing'] and not self.status['paused']:
@@ -160,7 +165,7 @@ class Client:
             else:
                 text = self.current_marked_text[idx:]
         self.ensure_state(use_ssml=True)
-        self.ssip_client.speak(text, callback=self.current_callback)
+        self.ssip_client.speak(wrap_in_ssml(text), callback=self.current_callback)
 
     def stop(self):
         self.current_callback = self.current_marked_text = self.last_mark = None
