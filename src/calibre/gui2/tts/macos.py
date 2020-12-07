@@ -21,6 +21,7 @@ class Client:
         self.default_system_rate = self.nsss.get_current_rate()
         self.default_system_voice = self.nsss.get_current_voice()
         self.current_callback = None
+        self.current_marked_text = self.last_mark = None
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.status = {'synthesizing': False, 'paused': False}
         self.apply_settings(settings)
@@ -38,6 +39,7 @@ class Client:
         from calibre_extensions.cocoa import MARK, END
         event = None
         if message_type == MARK:
+            self.last_mark = data
             if data == self.END_MARK:
                 event = Event(EventType.end)
                 self.status = {'synthesizing': False, 'paused': False}
@@ -56,6 +58,7 @@ class Client:
 
     def speak_simple_text(self, text):
         self.current_callback = None
+        self.current_marked_text = self.last_mark = None
         self.nsss.speak(self.escape_marked_text(text))
         self.status = {'synthesizing': True, 'paused': False}
 
@@ -64,6 +67,8 @@ class Client:
         # on macOS didFinishSpeaking is never called for some reason, so work
         # around it by adding an extra, special mark at the end
         text += self.mark_template.format(self.END_MARK)
+        self.current_marked_text = text
+        self.last_mark = None
         self.nsss.speak(text)
         self.status = {'synthesizing': True, 'paused': False}
         self.current_callback(Event(EventType.begin))
@@ -78,6 +83,19 @@ class Client:
     def resume(self):
         if self.status['paused']:
             self.nsss.resume()
+            self.status = {'synthesizing': True, 'paused': False}
+            if self.current_callback is not None:
+                self.current_callback(Event(EventType.resume))
+
+    def resume_after_configure(self):
+        if self.status['paused'] and self.last_mark is not None and self.current_marked_text:
+            mark = self.mark_template.format(self.last_mark)
+            idx = self.current_marked_text.find(mark)
+            if idx == -1:
+                text = self.current_marked_text
+            else:
+                text = self.current_marked_text[idx:]
+            self.nsss.speak(text)
             self.status = {'synthesizing': True, 'paused': False}
             if self.current_callback is not None:
                 self.current_callback(Event(EventType.resume))

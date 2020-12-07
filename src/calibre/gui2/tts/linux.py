@@ -166,6 +166,7 @@ class Client:
                 text = self.current_marked_text[idx:]
         self.ensure_state(use_ssml=True)
         self.ssip_client.speak(wrap_in_ssml(text), callback=self.current_callback)
+    resume_after_configure = resume
 
     def stop(self):
         self.current_callback = self.current_marked_text = self.last_mark = None

@@ -137,7 +137,8 @@ class ReadAloud:
 
     def play(self):
         if self.state is PAUSED:
-            ui_operations.tts('resume')
+            ui_operations.tts('resume_after_configure' if self.waiting_for_configure else 'resume')
+            self.waiting_for_configure = False
             self.state = PLAYING
         elif self.state is STOPPED:
             self.send_message('play')
@@ -203,7 +204,6 @@ class ReadAloud:
             self.view.show_next_spine_item()
         elif which is 'configured':
             if self.waiting_for_configure:
-                self.waiting_for_configure = False
                 self.play()
             if data is not None:
                 pass

@@ -100,6 +100,9 @@ class TTS(QObject):
     def resume(self, data):
         self.tts_client.resume()
 
+    def resume_after_configure(self, data):
+        self.tts_client.resume_after_configure()
+
     def callback(self, event):
         data = event.data
         if event.type is event.type.mark:
