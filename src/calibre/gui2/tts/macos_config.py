@@ -96,6 +96,7 @@ class Widget(QWidget):
         v.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         v.setSortingEnabled(True)
         v.horizontalHeader().resizeSection(0, QFontMetrics(self.font()).averageCharWidth() * 20)
+        v.horizontalHeader().resizeSection(1, QFontMetrics(self.font()).averageCharWidth() * 30)
         v.verticalHeader().close()
         v.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         v.sortByColumn(0, Qt.SortOrder.AscendingOrder)
@@ -123,7 +124,7 @@ class Widget(QWidget):
         idx = self.voices_model.index_for_voice(val)
         if idx is not None:
             idx = self.proxy_model.mapFromSource(idx)
-            self.voices.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            self.voices.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
             self.voices.scrollTo(idx)
 
     @property

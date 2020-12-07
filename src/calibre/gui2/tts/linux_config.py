@@ -126,7 +126,7 @@ class Widget(QWidget):
         idx = self.voices_model.index_for_voice(tuple(val))
         if idx is not None:
             idx = self.proxy_model.mapFromSource(idx)
-            self.voices.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            self.voices.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows)
             self.voices.scrollTo(idx)
 
     @property
