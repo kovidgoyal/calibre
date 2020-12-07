@@ -21,9 +21,9 @@ static PyTypeObject NSSSType = {
 };
 
 static void
-dispatch_message(NSSS *self, MessageType which, unsigned long val) {
+dispatch_message(NSSS *self, MessageType which, unsigned int val) {
 	PyGILState_STATE state = PyGILState_Ensure();
-	PyObject *ret = PyObject_CallFunction(self->callback, "ik", which, val);
+	PyObject *ret = PyObject_CallFunction(self->callback, "iI", which, val);
 	if (ret) Py_DECREF(ret);
 	else PyErr_Print();
 	PyGILState_Release(state);
@@ -52,7 +52,7 @@ dispatch_message(NSSS *self, MessageType which, unsigned long val) {
 - (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didEncounterSyncMessage:(NSString *)message {
 	NSError *err = nil;
 	NSNumber *syncProp = (NSNumber*) [sender objectForProperty: NSSpeechRecentSyncProperty error: &err];
-	if (syncProp && !err) dispatch_message(nsss, MARK, syncProp.unsignedLongValue);
+	if (syncProp && !err) dispatch_message(nsss, MARK, syncProp.unsignedIntValue);
 }
 
 @end
