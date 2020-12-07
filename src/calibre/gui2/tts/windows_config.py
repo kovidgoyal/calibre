@@ -91,7 +91,7 @@ class Widget(QWidget):
         v.setModel(p)
         v.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         v.setSortingEnabled(True)
-        v.horizontalHeader().resizeSection(0, QFontMetrics(self.font()).averageCharWidth() * 30)
+        v.horizontalHeader().resizeSection(0, QFontMetrics(self.font()).averageCharWidth() * 25)
         v.verticalHeader().close()
         v.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         v.sortByColumn(0, Qt.SortOrder.AscendingOrder)
