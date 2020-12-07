@@ -36,7 +36,7 @@ class Client:
 
     def handle_message(self, message_type, data):
         from calibre_extensions.cocoa import MARK, END
-        print(message_type, data)
+        event = None
         if message_type == MARK:
             if data == self.END_MARK:
                 event = Event(EventType.end)
@@ -44,13 +44,10 @@ class Client:
             else:
                 event = Event(EventType.mark, data)
         elif message_type == END:
-            if data:
-                return  # normal end event is handled by END_MARK
-            event = Event(EventType.cancel)
-            self.status = {'synthesizing': False, 'paused': False}
-        else:
-            return
-        if self.current_callback is not None:
+            if not data:  # normal end event is handled by END_MARK
+                event = Event(EventType.cancel)
+                self.status = {'synthesizing': False, 'paused': False}
+        if event is not None and self.current_callback is not None:
             try:
                 self.current_callback(event)
             except Exception:
