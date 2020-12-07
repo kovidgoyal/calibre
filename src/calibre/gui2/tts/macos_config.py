@@ -3,7 +3,6 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import suppress
-from calibre_extensions.cocoa import locale_names
 from PyQt5.Qt import (
     QAbstractItemView, QAbstractTableModel, QFontMetrics, QFormLayout,
     QItemSelectionModel, QSortFilterProxyModel, QSlider, Qt, QTableView, QWidget
@@ -24,10 +23,11 @@ class VoicesModel(QAbstractTableModel):
         def gender(x):
             return gmap.get(x, x)
 
-        self.current_voices = tuple((x['name'], x['locale_id'], x['age'], gender(x['gender'])) for x in voice_data.values())
+        def language(x):
+            return x.get('language_display_name') or x['locale_id'] or ''
+
+        self.current_voices = tuple((x['name'], language(x), x['age'], gender(x['gender'])) for x in voice_data.values())
         self.voice_ids = tuple(voice_data)
-        all_locales = tuple(filter(None, (x[1] for x in self.current_voices)))
-        self.locale_map = dict(zip(all_locales, locale_names(*all_locales)))
         self.column_headers = _('Name'), _('Language'), _('Age'), _('Gender')
 
     def rowCount(self, parent=None):
@@ -50,8 +50,6 @@ class VoicesModel(QAbstractTableModel):
                 data = self.current_voices[row - 1]
                 col = index.column()
                 ans = data[col] or ''
-                if col == 1:
-                    ans = self.locale_map.get(ans, ans)
                 return ans
         if role == Qt.ItemDataRole.UserRole:
             row = index.row()

@@ -104,13 +104,20 @@ static PyObject*
 NSSS_get_all_voices(NSSS *self, PyObject *args) {
 	PyObject *ans = PyDict_New();
 	if (!ans) return NULL;
+	NSLocale *locale = [NSLocale autoupdatingCurrentLocale];
 	for (NSSpeechSynthesizerVoiceName voice_id in [NSSpeechSynthesizer availableVoices]) {
 		NSDictionary *attributes = [NSSpeechSynthesizer attributesForVoice:voice_id];
 		if (attributes) {
+			NSObject *lang_key = [attributes objectForKey:NSVoiceLocaleIdentifier];
+			const char *lang_name = NULL;
+			if (lang_key && [lang_key isKindOfClass:[NSString class]]) {
+				NSString *display_name = [locale displayNameForKey:NSLocaleIdentifier value:(NSString*)lang_key];
+				if (display_name) lang_name = [display_name UTF8String];
+			}
 #define E(x, y) #x, as_python([attributes objectForKey:y])
-			PyObject *v = Py_BuildValue("{sN sN sN sN sN}",
+			PyObject *v = Py_BuildValue("{sN sN sN sN sN sz}",
 					E(name, NSVoiceName), E(age, NSVoiceAge), E(gender, NSVoiceGender),
-					E(demo_text, NSVoiceDemoText), E(locale_id, NSVoiceLocaleIdentifier));
+					E(demo_text, NSVoiceDemoText), E(locale_id, NSVoiceLocaleIdentifier), "language_display_name", lang_name);
 			if (!v) { Py_DECREF(ans); return NULL; }
 #undef E
 			if (PyDict_SetItemString(ans, [voice_id UTF8String], v) != 0) {
