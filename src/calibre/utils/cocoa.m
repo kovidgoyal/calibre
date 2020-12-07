@@ -173,6 +173,31 @@ transient_scroller(PyObject *self) {
     return PyBool_FromLong([NSScroller preferredScrollerStyle] == NSScrollerStyleOverlay);
 }
 
+static PyObject*
+locale_names(PyObject *self, PyObject *args) {
+	PyObject *ans = PyTuple_New(PyTuple_GET_SIZE(args));
+	if (!ans) return NULL;
+	NSLocale *locale = [NSLocale autoupdatingCurrentLocale];
+
+	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(ans); i++) {
+		PyObject *x = PyTuple_GET_ITEM(args, i);
+		if (!PyUnicode_Check(x)) { PyErr_SetString(PyExc_TypeError, "language codes must be unicode"); Py_CLEAR(ans); return NULL; }
+		if (PyUnicode_READY(x) != 0) { Py_CLEAR(ans); return NULL; }
+		const char *code = PyUnicode_AsUTF8(x);
+		if (code == NULL) { Py_CLEAR(ans); return NULL; }
+		NSString *display_name = [locale displayNameForKey:NSLocaleIdentifier value:@(code)];
+		if (display_name) {
+			PyObject *p = PyUnicode_FromString([display_name UTF8String]);
+			if (!p) { Py_CLEAR(ans); return NULL; }
+			PyTuple_SET_ITEM(ans, i, p);
+		} else {
+			Py_INCREF(x);
+			PyTuple_SET_ITEM(ans, i, x);
+		}
+	}
+	return ans;
+}
+
 static PyMethodDef module_methods[] = {
     {"transient_scroller", (PyCFunction)transient_scroller, METH_NOARGS, ""},
     {"cursor_blink_time", (PyCFunction)cursor_blink_time, METH_NOARGS, ""},
@@ -181,6 +206,7 @@ static PyMethodDef module_methods[] = {
     {"send_notification", (PyCFunction)send_notification, METH_VARARGS, ""},
     {"disable_cocoa_ui_elements", (PyCFunction)disable_cocoa_ui_elements, METH_VARARGS, ""},
     {"send2trash", (PyCFunction)send2trash, METH_VARARGS, ""},
+    {"locale_names", (PyCFunction)locale_names, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 
