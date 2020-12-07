@@ -25,7 +25,7 @@ class VoicesModel(QAbstractTableModel):
         return len(self.current_voices) + 1
 
     def columnCount(self, parent=None):
-        return 3
+        return len(self.column_headers)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
@@ -163,7 +163,7 @@ class Widget(QWidget):
         if om != self.system_default_output_module:
             ans['output_module'] = om
         voice = self.selected_voice
-        if voice != VoicesModel.system_default_voice:
+        if voice and voice != VoicesModel.system_default_voice:
             ans['voice'] = voice
         rate = self.rate
         if rate:
