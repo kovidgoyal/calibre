@@ -8,6 +8,7 @@ from .common import Event, EventType
 class Client:
 
     mark_template = '[[sync 0x{:x}]]'
+    END_MARK = 0xffffffff
     name = 'nsss'
 
     @classmethod
@@ -35,10 +36,17 @@ class Client:
 
     def handle_message(self, message_type, data):
         from calibre_extensions.cocoa import MARK, END
+        print(message_type, data)
         if message_type == MARK:
-            event = Event(EventType.mark, data)
+            if data == self.END_MARK:
+                event = Event(EventType.end)
+                self.status = {'synthesizing': False, 'paused': False}
+            else:
+                event = Event(EventType.mark, data)
         elif message_type == END:
-            event = Event(EventType.end if data else EventType.cancel)
+            if data:
+                return  # normal end event is handled by END_MARK
+            event = Event(EventType.cancel)
             self.status = {'synthesizing': False, 'paused': False}
         else:
             return
@@ -56,6 +64,9 @@ class Client:
 
     def speak_marked_text(self, text, callback):
         self.current_callback = callback
+        # on macOS didFinishSpeaking is never called for some reason, so work
+        # around it by adding an extra, special mark at the end
+        text += self.mark_template.format(self.END_MARK)
         self.nsss.speak(text)
         self.status = {'synthesizing': True, 'paused': False}
         self.current_callback(Event(EventType.begin))
