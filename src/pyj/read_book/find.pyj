@@ -162,7 +162,9 @@ def select_tts_mark(idx_in_flat_text):
     r = /\w+/g
     r.lastIndex = idx_in_flat_text
     match = v'r.exec(cache.text_map.flat_text)'
-    word_length = match[0]?.length or 5
+    word_length = 5
+    if match:
+        word_length = match[0]?.length or 5
     match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, idx_in_flat_text + word_length)
     if not match:
         return False
