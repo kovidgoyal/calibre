@@ -132,6 +132,7 @@ class ReadAloud:
 
     def configure(self):
         self.pause()
+        self.waiting_for_configure = True
         ui_operations.tts('configure')
 
     def play(self):
@@ -200,6 +201,10 @@ class ReadAloud:
         elif which is 'end':
             self.state = STOPPED
             self.view.show_next_spine_item()
+        elif which is 'configured':
+            if self.waiting_for_configure:
+                self.waiting_for_configure = False
+                self.play()
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('tts', type=type, **kw)

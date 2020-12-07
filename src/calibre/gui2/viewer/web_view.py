@@ -477,6 +477,7 @@ class WebView(RestartingWebEngineView):
         self.current_cfi = self.current_content_file = None
         RestartingWebEngineView.__init__(self, parent)
         self.tts = TTS(self)
+        self.tts.settings_changed.connect(self.tts_settings_changed)
         self.tts.event_received.connect(self.tts_event_received)
         self.dead_renderer_error_shown = False
         self.render_process_failed.connect(self.render_process_died)
@@ -716,3 +717,6 @@ class WebView(RestartingWebEngineView):
 
     def tts_event_received(self, which, data):
         self.execute_when_ready('tts_event', which, data)
+
+    def tts_settings_changed(self, ui_settings):
+        self.execute_when_ready('tts_event', 'configured', ui_settings)
