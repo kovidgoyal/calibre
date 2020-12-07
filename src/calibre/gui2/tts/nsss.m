@@ -30,8 +30,10 @@ dispatch_message(NSSS *self, MessageType which, unsigned long val) {
 }
 
 @interface SynthesizerDelegate : NSObject <NSSpeechSynthesizerDelegate> {
-	NSSS *parent;
+	@private
+	NSSS *nsss;
 }
+
 - (id)initWithNSSS:(NSSS *)x;
 @end
 
@@ -39,18 +41,18 @@ dispatch_message(NSSS *self, MessageType which, unsigned long val) {
 
 - (id)initWithNSSS:(NSSS *)x {
     self = [super init];
-    if (self) parent = x;
+    nsss = x;
     return self;
 }
 
 - (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didFinishSpeaking:(BOOL)success {
-	dispatch_message(parent, END, success);
+	dispatch_message(nsss, END, success);
 }
 
 - (void)speechSynthesizer:(NSSpeechSynthesizer *)sender didEncounterSyncMessage:(NSString *)message {
 	NSError *err = nil;
 	NSNumber *syncProp = (NSNumber*) [sender objectForProperty: NSSpeechRecentSyncProperty error: &err];
-	if (syncProp && !err) dispatch_message(parent, MARK, syncProp.unsignedLongValue);
+	if (syncProp && !err) dispatch_message(nsss, MARK, syncProp.unsignedLongValue);
 }
 
 @end
