@@ -652,6 +652,9 @@ class ServerLoop(object):
                 self.control_in.write(what)
                 self.control_in.flush()
             except BrokenPipeError:
+                # this started happening in the CI environment for the ajax_book test
+                # in early Dec 2020
+                self.log.error('Control pipe broken, resetting')
                 self.create_control_connection()
                 self.control_in.write(what)
                 self.control_in.flush()
