@@ -11,9 +11,9 @@ import sys
 import tempfile
 from io import BytesIO
 # We use explicit module imports so tracebacks when importing are more useful
-from PyQt5.QtCore import QBuffer, QByteArray, Qt
+from PyQt5.QtCore import QBuffer, QByteArray, Qt, QIODevice
 from PyQt5.QtGui import (
-    QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform, QIODevice
+    QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
 )
 from threading import Thread
 
