@@ -8,19 +8,15 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import json
 import os
 import time
-import unittest
 import zlib
 from functools import partial
 from io import BytesIO
 
-from calibre.constants import islinux
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.srv.tests.base import LibraryBaseTest
 from polyglot.binary import as_base64_bytes
 from polyglot.http_client import FORBIDDEN, NOT_FOUND, OK
 from polyglot.urllib import quote, urlencode
-
-is_ci = os.environ.get('CI', '').lower() == 'true'
 
 
 def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=None, method='GET', data=None):
@@ -36,7 +32,6 @@ def make_request(conn, url, headers={}, prefix='/ajax', username=None, password=
 
 class ContentTest(LibraryBaseTest):
 
-    @unittest.skipIf(islinux and is_ci, 'This test is flaky since early Dec 2020 on ubuntu CI, looks like a file descriptor being closed that should not be')
     def test_ajax_book(self):  # {{{
         'Test /ajax/book'
         with self.create_server() as server:
