@@ -26,7 +26,6 @@ class Stream(object):
             stream = io.StringIO()
         self.stream = stream
         self.encoding = getattr(self.stream, 'encoding', None) or 'utf-8'
-        self._prints = partial(prints, file=self.stream)
 
     def write(self, text):
         self._prints(text, end='')
@@ -36,6 +35,9 @@ class Stream(object):
 
     def prints(self, level, *args, **kwargs):
         self._prints(*args, **kwargs)
+
+    def _prints(self, *args, **kwargs):
+        prints(*args, file=self.stream, **kwargs)
 
 
 class ANSIStream(Stream):

@@ -222,8 +222,7 @@ class WebSocketTest(BaseTest):
             for payload in [b'', b'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b"\xfe" * 125]:
                 simple_test([(PING, payload)], [(PONG, payload)])
 
-            with server.silence_log:
-                simple_test([(PING, 'a'*126)], close_code=PROTOCOL_ERROR, send_close=False)
+            simple_test([(PING, 'a'*126)], close_code=PROTOCOL_ERROR, send_close=False)
 
             for payload in (b'', b'pong'):
                 simple_test([(PONG, payload)], [])
@@ -231,46 +230,45 @@ class WebSocketTest(BaseTest):
             fragments = 'Hello-µ@ßöä üàá-UTF-8!!'.split()
             nc = struct.pack(b'!H', NORMAL_CLOSE)
 
-            with server.silence_log:
-                # It can happen that the server detects bad data and closes the
-                # connection before the client has finished sending all
-                # messages, so ignore failures to send packets.
-                isf_test = partial(simple_test, ignore_send_failures=True)
-                for rsv in range(1, 7):
-                    isf_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
-                for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
-                    isf_test([{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
+            # It can happen that the server detects bad data and closes the
+            # connection before the client has finished sending all
+            # messages, so ignore failures to send packets.
+            isf_test = partial(simple_test, ignore_send_failures=True)
+            for rsv in range(1, 7):
+                isf_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
+            for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
+                isf_test([{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
 
-                for opcode in (PING, PONG):
-                    isf_test([
-                        {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
-                    ], close_code=PROTOCOL_ERROR, send_close=False)
-                isf_test([(CLOSE, nc + b'x'*124)], send_close=False, close_code=PROTOCOL_ERROR)
-
-                for fin in (0, 1):
-                    isf_test([{'opcode':0, 'fin': fin, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
-
+            for opcode in (PING, PONG):
                 isf_test([
-                    {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}, {'opcode':0, 'fin':0}
-                ], [''.join(fragments)], close_code=PROTOCOL_ERROR, send_close=False)
-
-                isf_test([
-                    {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]},
+                    {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                 ], close_code=PROTOCOL_ERROR, send_close=False)
+            isf_test([(CLOSE, nc + b'x'*124)], send_close=False, close_code=PROTOCOL_ERROR)
 
-                frags = []
-                for payload in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', b'\xed\xa0\x80', b'\x80\x65\x64\x69\x74\x65\x64'):
-                    frags.append({'opcode':(CONTINUATION if frags else TEXT), 'fin':1 if len(frags) == 2 else 0, 'payload':payload})
-                isf_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
+            for fin in (0, 1):
+                isf_test([{'opcode':0, 'fin': fin, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
 
-                frags, q = [], b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x80\x65\x64\x69\x74\x65\x64'
-                for i in range(len(q)):
-                    b = q[i:i+1]
-                    frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
-                isf_test(frags, close_code=INCONSISTENT_DATA, send_close=False, ignore_send_failures=True)
+            isf_test([
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}, {'opcode':0, 'fin':0}
+            ], [''.join(fragments)], close_code=PROTOCOL_ERROR, send_close=False)
 
-                for q in (b'\xce', b'\xce\xba\xe1'):
-                    isf_test([{'opcode':TEXT, 'payload':q}], close_code=INCONSISTENT_DATA, send_close=False)
+            isf_test([
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]},
+            ], close_code=PROTOCOL_ERROR, send_close=False)
+
+            frags = []
+            for payload in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', b'\xed\xa0\x80', b'\x80\x65\x64\x69\x74\x65\x64'):
+                frags.append({'opcode':(CONTINUATION if frags else TEXT), 'fin':1 if len(frags) == 2 else 0, 'payload':payload})
+            isf_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
+
+            frags, q = [], b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x80\x65\x64\x69\x74\x65\x64'
+            for i in range(len(q)):
+                b = q[i:i+1]
+                frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
+            isf_test(frags, close_code=INCONSISTENT_DATA, send_close=False, ignore_send_failures=True)
+
+            for q in (b'\xce', b'\xce\xba\xe1'):
+                isf_test([{'opcode':TEXT, 'payload':q}], close_code=INCONSISTENT_DATA, send_close=False)
 
             simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}

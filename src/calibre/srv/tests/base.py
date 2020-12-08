@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, time, shutil, gc, tempfile, atexit, os
+import unittest, time, shutil, gc, tempfile, atexit, os, sys
 from io import BytesIO
 from functools import partial
 from threading import Thread
@@ -86,10 +86,11 @@ class TestServer(Thread):
             create_http_handler(handler),
             opts=Options(**kwargs),
             plugins=plugins,
-            log=ServerLog(level=ServerLog.WARN),
+            log=ServerLog(level=ServerLog.DEBUG),
         )
         self.log = self.loop.log
-        self.silence_log = self.log
+        # allow unittest's bufferring to work
+        self.log.outputs[0].stream = sys.stdout
         specialize(self)
 
     def setup_defaults(self, kwargs):
@@ -145,8 +146,10 @@ class LibraryServer(TestServer):
             create_http_handler(self.handler.dispatch),
             opts=opts,
             plugins=plugins,
-            log=ServerLog(level=ServerLog.WARN),
+            log=ServerLog(level=ServerLog.DEBUG),
         )
+        # allow unittest's bufferring to work
+        self.loop.log.outputs[0].stream = sys.stdout
         self.handler.set_log(self.loop.log)
         specialize(self)
 
