@@ -648,8 +648,13 @@ class ServerLoop(object):
         if iswindows:
             self.control_in.sendall(what)
         else:
-            self.control_in.write(what)
-            self.control_in.flush()
+            try:
+                self.control_in.write(what)
+                self.control_in.flush()
+            except BrokenPipeError:
+                self.create_control_connection()
+                self.control_in.write(what)
+                self.control_in.flush()
 
     def wakeup(self):
         self.write_to_control(WAKEUP)
