@@ -191,6 +191,9 @@ class ReadAloud:
             return
         if sc_name is 'show_chrome':
             self.hide()
+        elif sc_name is 'quit':
+            self.hide()
+            ui_operations.quit()
         elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
             self.send_message('trigger-shortcut', name=sc_name)
 
