@@ -11,6 +11,7 @@ import select
 import socket
 import ssl
 import traceback
+from contextlib import suppress
 from functools import partial
 from io import BytesIO
 
@@ -434,8 +435,10 @@ class ServerLoop(object):
             self.control_out = open(r, 'rb')
 
     def close_control_connection(self):
-        self.control_in.close()
-        self.control_out.close()
+        with suppress(Exception):
+            self.control_in.close()
+        with suppress(Exception):
+            self.control_out.close()
 
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.bind_address)
@@ -730,12 +733,10 @@ class ServerLoop(object):
 
     def shutdown(self):
         self.jobs_manager.shutdown()
-        try:
+        with suppress(socket.error):
             if getattr(self, 'socket', None):
                 self.socket.close()
                 self.socket = None
-        except socket.error:
-            pass
         for s, conn in tuple(iteritems(self.connection_map)):
             self.close(s, conn)
         wait_till = monotonic() + self.opts.shutdown_timeout

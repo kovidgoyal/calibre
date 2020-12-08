@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, time, shutil, gc, tempfile, atexit, os, sys
+import unittest, time, shutil, gc, tempfile, atexit, os
 from io import BytesIO
 from functools import partial
 from threading import Thread
@@ -23,6 +23,21 @@ class BaseTest(unittest.TestCase):
     maxDiff = None
 
     ae = unittest.TestCase.assertEqual
+
+    def run(self, result=None):
+        if result is None:
+            result = self.defaultTestResult()
+        max_retries = 1
+        for i in range(max_retries + 1):
+            failures_before = len(result.failures)
+            errors_before = len(result.errors)
+            super().run(result=result)
+            if len(result.failures) == failures_before and len(result.errors) == errors_before:
+                return
+            print(f'Retrying test {self._testMethodName} after failure/error')
+            q = result.failures if len(result.failures) > failures_before else result.errors
+            q.pop(-1)
+            time.sleep(1)
 
 
 class LibraryBaseTest(BaseTest):
@@ -89,8 +104,6 @@ class TestServer(Thread):
             log=ServerLog(level=ServerLog.DEBUG),
         )
         self.log = self.loop.log
-        # allow unittest's bufferring to work
-        self.log.outputs[0].stream = sys.stdout
 
     def setup_defaults(self, kwargs):
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
@@ -112,7 +125,10 @@ class TestServer(Thread):
         return self
 
     def __exit__(self, *args):
-        self.loop.stop()
+        try:
+            self.loop.stop()
+        except Exception as e:
+            self.log.error('Failed to stop server with error:', e)
         self.join(self.loop.opts.shutdown_timeout)
         self.loop.close_control_connection()
 
@@ -148,12 +164,14 @@ class LibraryServer(TestServer):
             plugins=plugins,
             log=ServerLog(level=ServerLog.DEBUG),
         )
-        # allow unittest's bufferring to work
-        self.loop.log.outputs[0].stream = sys.stdout
-        self.handler.set_log(self.loop.log)
+        self.log = self.loop.log
+        self.handler.set_log(self.log)
 
     def __exit__(self, *args):
-        self.loop.stop()
+        try:
+            self.loop.stop()
+        except Exception as e:
+            self.log.error('Failed to stop server with error:', e)
         self.handler.close()
         self.join(self.loop.opts.shutdown_timeout)
         self.loop.close_control_connection()

@@ -7,7 +7,7 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os: [ubuntu-latest, macos-latest, windows-latest]
+                os: [ubuntu-20.04, macos-latest, windows-latest]
         steps:
             - name: Checkout source code
               uses: actions/checkout@master
@@ -33,7 +33,7 @@ jobs:
 
     archtest:
         name: Test on Arch
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-20.04
         container:
             image: 'archlinux/base:latest'
             env:
