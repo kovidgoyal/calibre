@@ -433,6 +433,10 @@ class ServerLoop(object):
             self.control_in =  open(w, 'wb')
             self.control_out = open(r, 'rb')
 
+    def close_control_connection(self):
+        self.control_in.close()
+        self.control_out.close()
+
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.bind_address)
     __repr__ = __str__
@@ -688,12 +692,11 @@ class ServerLoop(object):
                 f = self.control_out.recv if iswindows else self.control_out.read
                 try:
                     c = f(1)
-                except (socket.error, OSError):
+                except (socket.error, OSError) as e:
                     if not self.ready:
                         return
-                    self.log.error('Control socket raised an error, resetting')
-                    self.create_control_connection()
-                    continue
+                    self.log.error('Control connection raised an error:', e)
+                    raise
                 if c == JOB_DONE:
                     for s, conn, event in self.dispatch_job_results():
                         yield s, conn, event
@@ -702,8 +705,8 @@ class ServerLoop(object):
                 elif not c:
                     if not self.ready:
                         return
-                    self.log.error('Control socket failed to recv(), resetting')
-                    self.create_control_connection()
+                    self.log.error('Control connection failed to read after signalling ready')
+                    raise Exception('Control connection failed to read, something bad happened')
             else:
                 yield s, self.connection_map[s], READ
         for s in writable:

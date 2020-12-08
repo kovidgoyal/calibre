@@ -115,6 +115,7 @@ class TestServer(Thread):
     def __exit__(self, *args):
         self.loop.stop()
         self.join(self.loop.opts.shutdown_timeout)
+        self.loop.close_control_connection()
 
     def connect(self, timeout=None, interface=None):
         if timeout is None:
@@ -157,3 +158,4 @@ class LibraryServer(TestServer):
         self.loop.stop()
         self.handler.close()
         self.join(self.loop.opts.shutdown_timeout)
+        self.loop.close_control_connection()
