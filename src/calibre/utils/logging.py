@@ -37,7 +37,7 @@ class Stream(object):
         self._prints(*args, **kwargs)
 
     def _prints(self, *args, **kwargs):
-        prints(*args, file=self.stream, **kwargs)
+        prints(*args, **kwargs, file=self.stream)
 
 
 class ANSIStream(Stream):
