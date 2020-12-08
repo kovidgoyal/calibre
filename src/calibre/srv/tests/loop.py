@@ -96,16 +96,13 @@ class LoopTest(BaseTest):
                 raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
                     res.status, res.reason, res.getheaders(), res.read()))
             self.ae(pool.busy, 1)
-            server.loop.log.filter_level = server.loop.log.ERROR
             server.loop.stop()
             server.join()
             self.ae(1, sum(int(w.is_alive()) for w in pool.workers))
 
     def test_fallback_interface(self):
         'Test falling back to default interface'
-        def specialize(server):
-            server.loop.log.filter_level = server.loop.log.ERROR
-        with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True, specialize=specialize) as server:
+        with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True) as server:
             self.assertNotEqual('1.1.1.1', server.address[0])
 
     @skipIf(True, 'Disabled as it is failing on the build server, need to investigate')

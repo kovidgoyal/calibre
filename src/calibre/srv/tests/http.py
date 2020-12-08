@@ -196,14 +196,11 @@ class TestHTTP(BaseTest):
             self.ae(r.read(), b'Requested resource not found')
 
             # Test 500
-            orig = server.loop.log.filter_level
-            server.loop.log.filter_level = server.loop.log.ERROR + 10
             server.change_handler(lambda data:1/0)
             conn = server.connect()
             conn.request('GET', '/test/')
             r = conn.getresponse()
             self.ae(r.status, http_client.INTERNAL_SERVER_ERROR)
-            server.loop.log.filter_level = orig
 
             # Test 301
             def handler(data):
@@ -244,9 +241,6 @@ class TestHTTP(BaseTest):
             self.ae(r.status, http_client.OK)
             self.ae(r.read(), b'testbody1234567890')
 
-            # Test various incorrect input
-            orig_level, server.log.filter_level = server.log.filter_level, server.log.ERROR
-
             conn.request('GET', '/test' + ('a' * 200))
             r = conn.getresponse()
             self.ae(r.status, http_client.BAD_REQUEST)
@@ -284,7 +278,6 @@ class TestHTTP(BaseTest):
             self.ae(r.status, http_client.REQUEST_TIMEOUT)
             self.assertIn(b'', r.read())
 
-            server.log.filter_level = orig_level
             conn = server.connect()
 
             # Test closing

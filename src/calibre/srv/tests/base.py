@@ -76,7 +76,7 @@ class TestServer(Thread):
 
     daemon = True
 
-    def __init__(self, handler, plugins=(), specialize=lambda srv:None, **kwargs):
+    def __init__(self, handler, plugins=(), **kwargs):
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
@@ -91,7 +91,6 @@ class TestServer(Thread):
         self.log = self.loop.log
         # allow unittest's bufferring to work
         self.log.outputs[0].stream = sys.stdout
-        specialize(self)
 
     def setup_defaults(self, kwargs):
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
@@ -133,7 +132,7 @@ class TestServer(Thread):
 
 class LibraryServer(TestServer):
 
-    def __init__(self, library_path, libraries=(), plugins=(), specialize=lambda x:None, **kwargs):
+    def __init__(self, library_path, libraries=(), plugins=(), **kwargs):
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
@@ -152,7 +151,6 @@ class LibraryServer(TestServer):
         # allow unittest's bufferring to work
         self.loop.log.outputs[0].stream = sys.stdout
         self.handler.set_log(self.loop.log)
-        specialize(self)
 
     def __exit__(self, *args):
         self.loop.stop()
