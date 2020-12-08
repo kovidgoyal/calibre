@@ -15,6 +15,7 @@ from functools import partial
 from io import BytesIO
 
 from calibre import as_unicode
+from calibre.constants import iswindows
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import JobQueueFull
 from calibre.srv.jobs import JobsManager
@@ -423,7 +424,14 @@ class ServerLoop(object):
             return ssl.ALERT_DESCRIPTION_NO_RENEGOTIATION
 
     def create_control_connection(self):
-        self.control_in, self.control_out = create_sock_pair()
+        if iswindows:
+            self.control_in, self.control_out = create_sock_pair()
+        else:
+            r, w = os.pipe()
+            os.set_blocking(r, False)
+            os.set_blocking(w, True)
+            self.control_in =  open(w, 'wb')
+            self.control_out = open(r, 'rb')
 
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.bind_address)
@@ -636,11 +644,18 @@ class ServerLoop(object):
                         self.log.error('Error in SSL handshake, terminating connection: %s' % as_unicode(e))
                         self.close(s, conn)
 
+    def write_to_control(self, what):
+        if iswindows:
+            self.control_in.sendall(what)
+        else:
+            self.control_in.write(what)
+            self.control_in.flush()
+
     def wakeup(self):
-        self.control_in.sendall(WAKEUP)
+        self.write_to_control(WAKEUP)
 
     def job_completed(self):
-        self.control_in.sendall(JOB_DONE)
+        self.write_to_control(JOB_DONE)
 
     def dispatch_job_results(self):
         while True:
@@ -670,9 +685,10 @@ class ServerLoop(object):
                         if self.ssl_context is not None:
                             yield s, conn, RDWR
             elif s == control:
+                f = self.control_out.recv if iswindows else self.control_out.read
                 try:
-                    c = self.control_out.recv(1)
-                except socket.error:
+                    c = f(1)
+                except (socket.error, OSError):
                     if not self.ready:
                         return
                     self.log.error('Control socket raised an error, resetting')
