@@ -10,7 +10,7 @@ import sys
 
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence,
-        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
+        QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime, QEvent,
         QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit, QDialog)
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -680,7 +680,7 @@ class DelegateCB(QComboBox):  # {{{
         QComboBox.__init__(self, parent)
 
     def event(self, e):
-        if e.type() == e.ShortcutOverride:
+        if e.type() == QEvent.Type.ShortcutOverride:
             e.accept()
         return QComboBox.event(self, e)
 # }}}

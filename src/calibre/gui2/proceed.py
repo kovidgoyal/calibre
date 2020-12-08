@@ -11,7 +11,7 @@ from collections import namedtuple
 from PyQt5.Qt import (
     QWidget, Qt, QLabel, QVBoxLayout, QDialogButtonBox, QApplication, QTimer, QPixmap,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout, QFontMetrics,
-    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy, QImage)
+    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy, QImage, QPalette)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -394,13 +394,13 @@ class ProceedQuestion(QWidget):
         br = 12  # border_radius
         bw = 1  # border_width
         pal = self.palette()
-        c = pal.color(pal.Window)
+        c = pal.color(QPalette.ColorRole.Window)
         c.setAlphaF(0.9)
         p = QPainterPath()
         p.addRoundedRect(QRectF(self.rect()), br, br)
         painter.fillPath(p, c)
         p.addRoundedRect(QRectF(self.rect()).adjusted(bw, bw, -bw, -bw), br, br)
-        painter.fillPath(p, pal.color(pal.WindowText))
+        painter.fillPath(p, pal.color(QPalette.ColorRole.WindowText))
 
 
 def main():

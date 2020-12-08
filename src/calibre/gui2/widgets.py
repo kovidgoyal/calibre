@@ -7,7 +7,7 @@ Miscellaneous widgets used in the GUI
 '''
 import re, os
 
-from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction,
+from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
@@ -523,7 +523,7 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
     def event(self, ev):
         # See https://bugreports.qt.io/browse/QTBUG-46911
-        if ev.type() == ev.ShortcutOverride and (
+        if ev.type() == QEvent.Type.ShortcutOverride and (
                 hasattr(ev, 'key') and ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right) and (
                     ev.modifiers() & ~Qt.KeyboardModifier.KeypadModifier) == Qt.KeyboardModifier.ControlModifier):
             ev.accept()

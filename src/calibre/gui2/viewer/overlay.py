@@ -3,7 +3,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QWidget, Qt, QFontInfo, QLabel, QVBoxLayout
+from PyQt5.Qt import QWidget, Qt, QFontInfo, QLabel, QVBoxLayout, QPalette
 
 from calibre.gui2.progress_indicator import ProgressIndicator
 
@@ -26,9 +26,9 @@ class LoadingOverlay(QWidget):
             self.resize(parent.size())
         self.setAutoFillBackground(True)
         pal = self.palette()
-        col = pal.color(pal.Window)
+        col = pal.color(QPalette.ColorRole.Window)
         col.setAlphaF(0.8)
-        pal.setColor(pal.Window, col)
+        pal.setColor(QPalette.ColorRole.Window, col)
         self.setPalette(pal)
         self.move(0, 0)
         f = self.font()

@@ -1239,7 +1239,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         if et == QEvent.Type.ToolTip:
             self.show_tooltip(ev)
             return True
-        if et == ev.ShortcutOverride:
+        if et == QEvent.Type.ShortcutOverride:
             ret = self.override_shortcut(ev)
             if ret:
                 return True

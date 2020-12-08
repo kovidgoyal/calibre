@@ -87,7 +87,7 @@ class Central(QStackedWidget):  # {{{
         t.setTabsClosable(True)
         t.setMovable(True)
         pal = self.palette()
-        if pal.color(pal.WindowText).lightness() > 128:
+        if pal.color(QPalette.ColorRole.WindowText).lightness() > 128:
             i = QImage(I('modified.png'))
             i.invertPixels()
             self.modified_icon = QIcon(QPixmap.fromImage(i))

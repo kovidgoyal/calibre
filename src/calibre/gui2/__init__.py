@@ -681,7 +681,7 @@ else:
 
 def is_dark_theme():
     pal = QApplication.instance().palette()
-    col = pal.color(pal.Window)
+    col = pal.color(QPalette.ColorRole.Window)
     return max(col.getRgb()[:3]) < 115
 
 
@@ -1068,7 +1068,7 @@ class Application(QApplication):
         # Workaround for https://bugreports.qt.io/browse/QTBUG-75321
         # Buttontext is set to black for some reason
         pal = QPalette(self.palette())
-        pal.setColor(pal.ButtonText, pal.color(pal.WindowText))
+        pal.setColor(QPalette.ColorRole.ButtonText, pal.color(QPalette.ColorRole.WindowText))
         self.ignore_palette_changes = True
         self.setPalette(pal, 'QComboBox')
         self.ignore_palette_changes = False
