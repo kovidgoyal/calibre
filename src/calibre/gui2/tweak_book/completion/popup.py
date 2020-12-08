@@ -9,7 +9,7 @@ import textwrap
 from math import ceil
 
 from PyQt5.Qt import (
-    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette)
+    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette, QEvent)
 
 from calibre import prints, prepare_string_for_xml
 from calibre.gui2 import error_dialog
@@ -109,9 +109,9 @@ class ChoosePopupWidget(QWidget):
         painter = QPainter(self)
         painter.setClipRect(ev.rect())
         pal = self.palette()
-        painter.fillRect(self.rect(), pal.color(pal.Text))
+        painter.fillRect(self.rect(), pal.color(QPalette.ColorRole.Text))
         crect = self.rect().adjusted(1, 1, -1, -1)
-        painter.fillRect(crect, pal.color(pal.Base))
+        painter.fillRect(crect, pal.color(QPalette.ColorRole.Base))
         painter.setClipRect(crect)
         painter.setFont(self.parent().font())
         width = self.rect().width()
@@ -195,7 +195,7 @@ class ChoosePopupWidget(QWidget):
     def eventFilter(self, obj, ev):
         if obj is self.parent() and self.isVisible():
             etype = ev.type()
-            if etype == ev.KeyPress:
+            if etype == QEvent.Type.KeyPress:
                 ret = self.handle_keypress(ev)
                 if ret:
                     ev.accept()

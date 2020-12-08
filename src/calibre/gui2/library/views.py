@@ -1184,7 +1184,7 @@ class BooksView(QTableView):  # {{{
         return index
 
     def selectionCommand(self, index, event):
-        if event and event.type() == event.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.Modifier.CTRL:
+        if event and event.type() == QEvent.Type.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.Modifier.CTRL:
             return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
         return super(BooksView, self).selectionCommand(index, event)
 

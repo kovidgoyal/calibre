@@ -8,7 +8,7 @@ import shutil
 import sys
 from itertools import count
 from PyQt5.Qt import (
-    QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo,
+    QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QPalette,
     QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
@@ -422,8 +422,8 @@ def system_colors():
     is_dark_theme = app.is_dark_theme
     pal = app.palette()
     ans = {
-        'background': pal.color(pal.Base).name(),
-        'foreground': pal.color(pal.Text).name(),
+        'background': pal.color(QPalette.ColorRole.Base).name(),
+        'foreground': pal.color(QPalette.ColorRole.Text).name(),
     }
     if is_dark_theme:
         # only override link colors for dark themes

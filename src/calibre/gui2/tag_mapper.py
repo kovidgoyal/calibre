@@ -9,7 +9,7 @@ import textwrap
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon, QDialog,
     QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate, QAbstractItemView,
-    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal
+    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal, QPalette
 )
 
 from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
@@ -256,7 +256,7 @@ class Delegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         pal = option.palette
-        color = pal.color(pal.HighlightedText if option.state & QStyle.StateFlag.State_Selected else pal.Text).name()
+        color = pal.color(QPalette.ColorRole.HighlightedText if option.state & QStyle.StateFlag.State_Selected else QPalette.ColorRole.Text).name()
         text = '<div style="color:%s">%s</div>' % (color, index.data(RENDER_ROLE))
         st = QStaticText(text)
         st.setTextWidth(option.rect.width())

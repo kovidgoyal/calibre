@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence, QAbstractItemView,
-    QApplication, QListView, QPoint, QModelIndex,
+    QApplication, QListView, QPoint, QModelIndex, QEvent,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer)
 try:
     from PyQt5 import sip
@@ -184,7 +184,7 @@ class Completer(QListView):  # {{{
     def debug_event(self, ev):
         from calibre.gui2 import event_type_name
         print('Event:', event_type_name(ev))
-        if ev.type() in (ev.KeyPress, ev.ShortcutOverride, ev.KeyRelease):
+        if ev.type() in (QEvent.Type.KeyPress, QEvent.Type.ShortcutOverride, QEvent.Type.KeyRelease):
             print('\tkey:', QKeySequence(ev.key()).toString())
 
     def mouseMoveEvent(self, ev):
@@ -206,7 +206,7 @@ class Completer(QListView):  # {{{
 
         # self.debug_event(e)
 
-        if etype == e.KeyPress:
+        if etype == QEvent.Type.KeyPress:
             try:
                 key = e.key()
             except AttributeError:
@@ -253,13 +253,14 @@ class Completer(QListView):  # {{{
                 self.hide()
             if e.isAccepted():
                 return True
-        elif ismacos and etype == e.InputMethodQuery and e.queries() == (Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled) and self.isVisible():
+        elif ismacos and etype == QEvent.Type.InputMethodQuery and e.queries() == (
+            Qt.InputMethodQuery.ImHints | Qt.InputMethodQuery.ImEnabled) and self.isVisible():
             # In Qt 5 the Esc key causes this event and the line edit does not
             # handle it, which causes the parent dialog to be closed
             # See https://bugreports.qt-project.org/browse/QTBUG-41806
             e.accept()
             return True
-        elif etype == e.MouseButtonPress and hasattr(e, 'globalPos') and not self.rect().contains(self.mapFromGlobal(e.globalPos())):
+        elif etype == QEvent.Type.MouseButtonPress and hasattr(e, 'globalPos') and not self.rect().contains(self.mapFromGlobal(e.globalPos())):
             # A click outside the popup, close it
             if isinstance(widget, QComboBox):
                 # This workaround is needed to ensure clicking on the drop down
@@ -274,7 +275,7 @@ class Completer(QListView):  # {{{
             self.hide()
             e.accept()
             return True
-        elif etype in (e.InputMethod, e.ShortcutOverride):
+        elif etype in (QEvent.Type.InputMethod, QEvent.Type.ShortcutOverride):
             QApplication.sendEvent(widget, e)
         return False
 # }}}

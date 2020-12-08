@@ -11,7 +11,7 @@ from functools import partial
 
 
 from PyQt5.Qt import (
-    QComboBox, Qt, QLineEdit, pyqtSlot, QDialog,
+    QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, QEvent,
     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
     QIcon, QMenu, QApplication, QKeyEvent)
 
@@ -69,7 +69,7 @@ class SearchLineEdit(QLineEdit):  # {{{
 
     def paste_and_search(self):
         self.paste()
-        ev = QKeyEvent(QKeyEvent.KeyPress, Qt.Key.Key_Enter, Qt.KeyboardModifier.NoModifier)
+        ev = QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Enter, Qt.KeyboardModifier.NoModifier)
         self.keyPressEvent(ev)
 
     @pyqtSlot()

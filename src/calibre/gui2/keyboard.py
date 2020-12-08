@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
         QApplication, QSize, QRectF, QWidget, QTreeView, QHBoxLayout, QVBoxLayout,
-        QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon)
+        QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon, QEvent)
 try:
     from PyQt5 import sip
 except ImportError:
@@ -490,10 +490,10 @@ class Editor(QFrame):  # {{{
     def eventFilter(self, obj, event):
         if self.capture and obj in (self.button1, self.button2):
             t = event.type()
-            if t == event.ShortcutOverride:
+            if t == QEvent.Type.ShortcutOverride:
                 event.accept()
                 return True
-            if t == event.KeyPress:
+            if t == QEvent.Type.KeyPress:
                 self.key_press_event(event, 1 if obj is self.button1 else 2)
                 return True
         return QFrame.eventFilter(self, obj, event)

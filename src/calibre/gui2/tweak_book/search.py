@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
     QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
     QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QDialog,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QEvent
 )
 
 from calibre import prepare_string_for_xml
@@ -104,7 +104,7 @@ class HistoryBox(HistoryComboBox):
         self.set_uniform_item_sizes(False)
 
     def event(self, ev):
-        if ev.type() in (ev.ShortcutOverride, ev.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
+        if ev.type() in (QEvent.Type.ShortcutOverride, QEvent.Type.KeyPress) and ev.key() == KEY and ev.modifiers() & MODIFIER:
             if not self.ignore_snip_expansion:
                 self.ignore_snip_expansion = True
                 expand_template(self.lineEdit())

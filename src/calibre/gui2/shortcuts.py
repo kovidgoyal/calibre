@@ -11,7 +11,7 @@ from functools import partial
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QKeySequence, QListView, QVBoxLayout, QLabel,
     QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, QIcon,
-    QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent, QRadioButton, QPushButton, QToolButton
+    QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent, QRadioButton, QPushButton, QToolButton, QEvent
 )
 
 from calibre.gui2 import error_dialog
@@ -72,10 +72,10 @@ class Customize(QFrame):
         if self.capture == 0 or obj not in (self.button1, self.button2):
             return QFrame.eventFilter(self, obj, event)
         t = event.type()
-        if t == event.ShortcutOverride:
+        if t == QEvent.Type.ShortcutOverride:
             event.accept()
             return True
-        if t == event.KeyPress:
+        if t == QEvent.Type.KeyPress:
             self.key_press_event(event, 1 if obj is self.button1 else 2)
             return True
         return QFrame.eventFilter(self, obj, event)
