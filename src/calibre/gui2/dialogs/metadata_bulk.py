@@ -996,8 +996,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             return
 
         try:
-            self.test_result.setText(self.s_r_obj.sub(self.s_r_func,
-                                     unicode_type(self.test_text.text())))
+            test_result = self.s_r_obj.sub(self.s_r_func, self.test_text.text())
+            if self.search_mode.currentIndex() == 0:
+                rfunc = self.s_r_functions[self.replace_func.currentText()]
+                test_result = rfunc(test_result)
+            self.test_result.setText(test_result)
         except Exception as e:
             self.s_r_error = e
             self.s_r_set_colors()
