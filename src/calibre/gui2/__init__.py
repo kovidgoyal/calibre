@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo, QPalette,
     QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QColor,
     QNetworkProxyFactory, QObject, QSettings, QSocketNotifier, QStringListModel, Qt,
-    QThread, QTimer, QTranslator, QUrl, pyqtSignal
+    QThread, QTimer, QTranslator, QUrl, pyqtSignal, QIODevice
 )
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 
@@ -709,7 +709,7 @@ def pixmap_to_data(pixmap, format='JPEG', quality=None):
             quality = 90
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     pixmap.save(buf, format, quality=quality)
     return ba.data()
 

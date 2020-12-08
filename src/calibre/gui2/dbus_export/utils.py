@@ -9,7 +9,7 @@ import sys, array, re, os, errno
 
 import dbus
 
-from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
+from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray, QIODevice
 
 from polyglot.builtins import unicode_type, iteritems
 
@@ -127,7 +127,7 @@ def icon_to_dbus_menu_icon(icon, size=32):
         return None
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     icon.pixmap(32).save(buf, 'PNG')
     return dbus.ByteArray(ba)
 

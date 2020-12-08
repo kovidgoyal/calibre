@@ -9,7 +9,7 @@ import sys
 from itertools import count
 from PyQt5.Qt import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo,
-    QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal
+    QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -100,7 +100,7 @@ def send_reply(rq, mime_type, data):
     # make the buf a child of rq so that it is automatically deleted when
     # rq is deleted
     buf = QBuffer(parent=rq)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     # we have to copy data into buf as it will be garbage
     # collected by python
     buf.write(data)

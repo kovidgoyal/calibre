@@ -9,7 +9,7 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QFont, QHBoxLayout, QIcon, QMenu, QModelIndex, QStandardItem,
     QStandardItemModel, QStyledItemDelegate, Qt, QToolButton, QToolTip, QTreeView,
-    QWidget, pyqtSignal
+    QWidget, pyqtSignal, QEvent
 )
 
 from calibre.gui2 import error_dialog
@@ -23,7 +23,7 @@ class Delegate(QStyledItemDelegate):
         # Show a tooltip only if the item is truncated
         if not ev or not view:
             return False
-        if ev.type() == ev.ToolTip:
+        if ev.type() == QEvent.Type.ToolTip:
             rect = view.visualRect(index)
             size = self.sizeHint(option, index)
             if rect.width() < size.width():

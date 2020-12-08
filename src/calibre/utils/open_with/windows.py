@@ -7,7 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 import sys
-from PyQt5.Qt import QBuffer, QByteArray, QPixmap, Qt, QtWin
+from PyQt5.Qt import QBuffer, QByteArray, QPixmap, Qt, QtWin, QIODevice
 
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline
@@ -24,7 +24,7 @@ def hicon_to_pixmap(hicon):
 def pixmap_to_data(pixmap):
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     pixmap.save(buf, 'PNG')
     return bytes(bytearray(ba.data()))
 

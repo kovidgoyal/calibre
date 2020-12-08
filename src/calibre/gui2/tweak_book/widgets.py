@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
     QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
-    QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog)
+    QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog, QEvent)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.constants import iswindows
@@ -1236,7 +1236,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
 
     def event(self, ev):
         et = ev.type()
-        if et == ev.ToolTip:
+        if et == QEvent.Type.ToolTip:
             self.show_tooltip(ev)
             return True
         if et == ev.ShortcutOverride:

@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPixmap,
     QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate,
     QStyleOptionViewItem, Qt, QTableView, QTimer, QToolTip, QTreeView, QUrl,
-    pyqtProperty, pyqtSignal, pyqtSlot, qBlue, qGreen, qRed
+    pyqtProperty, pyqtSignal, pyqtSlot, qBlue, qGreen, qRed, QIODevice
 )
 from textwrap import wrap
 from threading import Event, Thread
@@ -77,7 +77,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
 def image_to_data(image):  # {{{
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     if not image.save(buf, CACHE_FORMAT):
         raise EncodeError('Failed to encode thumbnail')
     ret = ba.data()

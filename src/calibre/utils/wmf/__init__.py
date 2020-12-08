@@ -61,12 +61,12 @@ def create_bmp_from_dib(raw):
 
 
 def to_png(bmp):
-    from PyQt5.Qt import QImage, QByteArray, QBuffer
+    from PyQt5.Qt import QImage, QByteArray, QBuffer, QIODevice
     i = QImage()
     if not i.loadFromData(bmp):
         raise ValueError('Invalid image data')
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     i.save(buf, 'png')
     return ba.data()

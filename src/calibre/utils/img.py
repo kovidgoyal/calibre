@@ -13,7 +13,7 @@ from io import BytesIO
 # We use explicit module imports so tracebacks when importing are more useful
 from PyQt5.QtCore import QBuffer, QByteArray, Qt
 from PyQt5.QtGui import (
-    QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform
+    QColor, QImage, QImageReader, QImageWriter, QPixmap, QTransform, QIODevice
 )
 from threading import Thread
 
@@ -151,7 +151,7 @@ def image_and_format_from_data(data):
     ' Create an image object from the specified data which should be a bytestring and also return the format of the image '
     ba = QByteArray(data)
     buf = QBuffer(ba)
-    buf.open(QBuffer.ReadOnly)
+    buf.open(QIODevice.OpenModeFlag.ReadOnly)
     r = QImageReader(buf)
     fmt = bytes(r.format()).decode('utf-8')
     return r.read(), fmt
@@ -172,7 +172,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     fmt = fmt.upper()
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     if fmt == 'GIF':
         w = QImageWriter(buf, b'PNG')
         w.setQuality(90)
@@ -609,7 +609,7 @@ def encode_jpeg(file_path, quality=80):
         raise ValueError('%s is not a valid image file' % file_path)
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     if not img.save(buf, 'PPM'):
         raise ValueError('Failed to export image to PPM')
     return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))

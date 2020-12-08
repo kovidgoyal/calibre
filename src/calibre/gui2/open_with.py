@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (
     QAction, QBuffer, QByteArray, QIcon, QInputDialog, QKeySequence, QLabel,
     QListWidget, QListWidgetItem, QPixmap, QSize, QStackedLayout, Qt, QVBoxLayout,
-    QWidget, pyqtSignal
+    QWidget, pyqtSignal, QIODevice
 )
 from threading import Thread
 
@@ -34,7 +34,7 @@ ENTRY_ROLE = Qt.ItemDataRole.UserRole
 def pixmap_to_data(pixmap):
     ba = QByteArray()
     buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
+    buf.open(QIODevice.OpenModeFlag.WriteOnly)
     pixmap.save(buf, 'PNG')
     return bytearray(ba.data())
 

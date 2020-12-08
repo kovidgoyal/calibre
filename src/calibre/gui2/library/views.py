@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 from PyQt5.Qt import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
-    QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
+    QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView, QEvent,
     QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication)
 
 from calibre.constants import islinux
@@ -213,7 +213,7 @@ class BooksView(QTableView):  # {{{
     is_library_view = True
 
     def viewportEvent(self, event):
-        if (event.type() == event.ToolTip and not gprefs['book_list_tooltips']):
+        if (event.type() == QEvent.Type.ToolTip and not gprefs['book_list_tooltips']):
             return False
         try:
             ret = self.gesture_manager.handle_event(event)
