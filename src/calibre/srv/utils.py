@@ -146,7 +146,7 @@ def stop_cork(sock):
 
 
 def create_sock_pair():
-    '''Create socket pair. Works also on windows by using an ephemeral TCP port.'''
+    '''Create socket pair. '''
     client_sock, srv_sock = socket.socketpair()
     set_socket_inherit(client_sock, False), set_socket_inherit(srv_sock, False)
     return client_sock, srv_sock
