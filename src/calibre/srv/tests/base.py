@@ -25,6 +25,7 @@ class BaseTest(unittest.TestCase):
     ae = unittest.TestCase.assertEqual
 
     def run(self, result=None):
+        # we retry failing server tests since they are flaky on CI
         if result is None:
             result = self.defaultTestResult()
         max_retries = 1
