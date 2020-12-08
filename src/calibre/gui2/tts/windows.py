@@ -20,9 +20,8 @@ class Client:
         return prepare_string_for_xml(text)
 
     def __init__(self, settings=None, dispatch_on_main_thread=lambda f: f()):
-        from calibre.utils.windows.winsapi import ISpVoice
-        self.events_thread = Thread(name='SAPIEvents', target=self.wait_for_events, daemon=True)
-        self.sp_voice = ISpVoice()
+        self.create_voice()
+        self.ignore_next_stop_event = self.ignore_next_start_event = False
         self.default_system_rate = self.sp_voice.get_current_rate()
         self.default_system_voice = self.sp_voice.get_current_voice()
         self.default_system_sound_output = self.sp_voice.get_current_sound_output()
@@ -31,8 +30,13 @@ class Client:
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.current_marked_text = self.last_mark = None
         self.status = {'synthesizing': False, 'paused': False}
-        self.events_thread.start()
         self.apply_settings(settings)
+
+    def create_voice(self):
+        from calibre.utils.windows.winsapi import ISpVoice
+        self.sp_voice = ISpVoice()
+        self.events_thread = Thread(name='SAPIEvents', target=self.wait_for_events, daemon=True)
+        self.events_thread.start()
 
     def __del__(self):
         if self.sp_voice is not None:
@@ -42,6 +46,10 @@ class Client:
     shutdown = __del__
 
     def apply_settings(self, new_settings=None):
+        if self.status['paused']:
+            self.sp_voice.resume()
+            self.ignore_next_stop_event = True
+            self.status = {'synthesizing': False, 'paused': False}
         settings = new_settings or {}
         self.sp_voice.set_current_rate(settings.get('rate', self.default_system_rate))
         self.sp_voice.set_current_voice(settings.get('voice') or self.default_system_voice)
@@ -63,9 +71,15 @@ class Client:
                 self.last_mark = event_data
                 event = Event(EventType.mark, event_data)
             elif event_type == SPEI_START_INPUT_STREAM:
+                if self.ignore_next_start_event:
+                    self.ignore_next_start_event = False
+                    continue
                 event = Event(EventType.begin)
                 self.status = {'synthesizing': True, 'paused': False}
             elif event_type == SPEI_END_INPUT_STREAM:
+                if self.ignore_next_stop_event:
+                    self.ignore_next_stop_event = False
+                    continue
                 event = Event(EventType.end)
                 self.status = {'synthesizing': False, 'paused': False}
             else:
@@ -123,16 +137,19 @@ class Client:
 
     def resume_after_configure(self):
         if self.status['paused']:
+            self.resume()
+        else:
             mark = self.mark_template.format(self.last_mark)
             idx = self.current_marked_text.find(mark)
             if idx == -1:
                 text = self.current_marked_text
             else:
                 text = self.current_marked_text[idx:]
-            self.speak_xml(text)
-            self.status = {'synthesizing': True, 'paused': False}
+            self.ignore_next_start_event = True
             if self.current_callback is not None:
                 self.current_callback(Event(EventType.resume))
+            self.speak_xml(text)
+            self.status = {'synthesizing': True, 'paused': False}
 
     def get_voice_data(self):
         ans = getattr(self, 'voice_data', None)
