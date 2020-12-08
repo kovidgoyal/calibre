@@ -648,16 +648,8 @@ class ServerLoop(object):
         if iswindows:
             self.control_in.sendall(what)
         else:
-            try:
-                self.control_in.write(what)
-                self.control_in.flush()
-            except BrokenPipeError:
-                # this started happening in the CI environment for the ajax_book test
-                # in early Dec 2020
-                self.log.error('Control pipe broken, resetting')
-                self.create_control_connection()
-                self.control_in.write(what)
-                self.control_in.flush()
+            self.control_in.write(what)
+            self.control_in.flush()
 
     def wakeup(self):
         self.write_to_control(WAKEUP)

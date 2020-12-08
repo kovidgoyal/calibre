@@ -7,7 +7,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import json
 import os
-import time
 import zlib
 from functools import partial
 from io import BytesIO
@@ -38,12 +37,7 @@ class ContentTest(LibraryBaseTest):
             db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
             request = partial(make_request, conn, prefix='/ajax/book')
-
-            try:
-                r, data = request('/x')
-            except ConnectionRefusedError:
-                time.sleep(2)
-                r, data = request('/x')
+            r, data = request('/x')
             self.ae(r.status, NOT_FOUND)
 
             r, onedata = request('/1')
