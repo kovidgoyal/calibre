@@ -183,13 +183,13 @@ class Bool(Base):
         l.addWidget(self.combobox)
 
         c = QToolButton(parent)
-        c.setText(_('Yes'))
+        c.setIcon(QIcon(I('ok.png')))
         c.setToolTip(_('Set {} to yes').format(name))
         l.addWidget(c)
         c.clicked.connect(self.set_to_yes)
 
         c = QToolButton(parent)
-        c.setText(_('No'))
+        c.setIcon(QIcon(I('list_remove.png')))
         c.setToolTip(_('Set {} to no').format(name))
         l.addWidget(c)
         c.clicked.connect(self.set_to_no)
@@ -896,15 +896,33 @@ class BulkBase(Base):
             ans = list(ans)
         return ans
 
-    def finish_ui_setup(self, parent):
+    def finish_ui_setup(self, parent, is_bool=False, add_edit_tags_button=(False,)):
         self.was_none = False
         l = self.widgets[1].layout()
-        self.clear_button = QToolButton(parent)
-        self.clear_button.setIcon(QIcon(I('trash.png')))
-        self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
-        l.insertWidget(1, self.clear_button)
+        if not is_bool or self.bools_are_tristate:
+            self.clear_button = QToolButton(parent)
+            self.clear_button.setIcon(QIcon(I('trash.png')))
+            self.clear_button.setToolTip(_('Clear {0}').format(self.col_metadata['name']))
+            self.clear_button.clicked.connect(self.set_to_undefined)
+            l.insertWidget(1, self.clear_button)
+        if is_bool:
+            self.set_no_button = QToolButton(parent)
+            self.set_no_button.setIcon(QIcon(I('list_remove.png')))
+            self.set_no_button.clicked.connect(lambda:self.main_widget.setCurrentIndex(1))
+            self.set_no_button.setToolTip(_('Set {0} to No').format(self.col_metadata['name']))
+            l.insertWidget(1, self.set_no_button)
+            self.set_yes_button = QToolButton(parent)
+            self.set_yes_button.setIcon(QIcon(I('ok.png')))
+            self.set_yes_button.clicked.connect(lambda:self.main_widget.setCurrentIndex(0))
+            self.set_yes_button.setToolTip(_('Set {0} to Yes').format(self.col_metadata['name']))
+            l.insertWidget(1, self.set_yes_button)
+        if add_edit_tags_button[0]:
+            self.edit_tags_button = QToolButton(parent)
+            self.edit_tags_button.setToolTip(_('Open item editor'))
+            self.edit_tags_button.setIcon(QIcon(I('chapters.png')))
+            self.edit_tags_button.clicked.connect(add_edit_tags_button[1])
+            l.insertWidget(1, self.edit_tags_button)
         l.insertStretch(2)
-        self.clear_button.clicked.connect(self.set_to_undefined)
 
     def initialize(self, book_ids):
         self.initial_val = val = self.get_initial_value(book_ids)
@@ -918,7 +936,7 @@ class BulkBase(Base):
         val = self.normalize_ui_val(val)
         self.db.set_custom_bulk(book_ids, val, num=self.col_id, notify=notify)
 
-    def make_widgets(self, parent, main_widget_class, add_tags_edit_button=False):
+    def make_widgets(self, parent, main_widget_class):
         w = QWidget(parent)
         self.widgets = [QLabel(label_string(self.col_metadata['name']), w), w]
         l = QHBoxLayout()
@@ -927,11 +945,6 @@ class BulkBase(Base):
         self.main_widget = main_widget_class(w)
         l.addWidget(self.main_widget)
         l.setStretchFactor(self.main_widget, 10)
-        if add_tags_edit_button:
-            self.edit_tags_button = QToolButton(parent)
-            self.edit_tags_button.setToolTip(_('Open item editor'))
-            self.edit_tags_button.setIcon(QIcon(I('chapters.png')))
-            l.addWidget(self.edit_tags_button)
         self.a_c_checkbox = QCheckBox(_('Apply changes'), w)
         l.addWidget(self.a_c_checkbox)
         self.ignore_change_signals = True
@@ -985,9 +998,7 @@ class BulkBool(BulkBase, Bool):
         for icon, text in zip(icons, items):
             self.main_widget.addItem(QIcon(icon), text)
         self.main_widget.blockSignals(False)
-        if self.bools_are_tristate:
-            # Add clear if bools are tristate
-            self.finish_ui_setup(parent)
+        self.finish_ui_setup(parent, is_bool=True)
 
     def set_to_undefined(self):
         # Only called if bools are tristate
@@ -1360,14 +1371,14 @@ class BulkText(BulkBase):
     def setup_ui(self, parent):
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
+        is_tags = False
         if self.col_metadata['is_multiple']:
             is_tags = not self.col_metadata['display'].get('is_names', False)
-            self.make_widgets(parent, EditWithComplete, add_tags_edit_button=is_tags)
+            self.make_widgets(parent, EditWithComplete)
             self.main_widget.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
             self.adding_widget = self.main_widget
 
             if is_tags:
-                self.edit_tags_button.clicked.connect(self.edit_add)
                 w = RemoveTags(parent, values)
                 w.remove_tags_button.clicked.connect(self.edit_remove)
                 l = QLabel(label_string(self.col_metadata['name'])+': ' +
@@ -1394,7 +1405,7 @@ class BulkText(BulkBase):
             self.main_widget.setMinimumContentsLength(25)
         self.ignore_change_signals = False
         self.parent = parent
-        self.finish_ui_setup(parent)
+        self.finish_ui_setup(parent, add_edit_tags_button=(is_tags,self.edit_add))
 
     def set_to_undefined(self):
         self.main_widget.clearEditText()
