@@ -697,7 +697,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def createEditor(self, parent, option, index):
         editor = DelegateCB(parent)
-        items = [_('Y'), _('N'), ' ']
+        items = [_('Yes'), _('No'), _('Undefined')]
         icons = [I('ok.png'), I('list_remove.png'), I('blank.png')]
         if not index.model().db.new_api.pref('bools_are_tristate'):
             items = items[:-1]
