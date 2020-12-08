@@ -47,7 +47,7 @@ class TextureChooser(QDialog):
         il.itemDoubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         il.setIconSize(QSize(256, 256))
         il.setViewMode(il.IconMode)
-        il.setFlow(il.LeftToRight)
+        il.setFlow(Qt.LayoutDirection.LeftToRight)
         il.setSpacing(20)
         il.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         il.itemSelectionChanged.connect(self.update_remove_state)

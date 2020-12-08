@@ -215,7 +215,7 @@ class InsertImage(Dialog):
 
         self.view = v = QListView(self)
         v.setViewMode(v.IconMode)
-        v.setFlow(v.LeftToRight)
+        v.setFlow(Qt.LayoutDirection.LeftToRight)
         v.setSpacing(4)
         v.setResizeMode(v.Adjust)
         v.setUniformItemSizes(True)

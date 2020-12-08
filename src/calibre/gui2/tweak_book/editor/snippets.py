@@ -486,7 +486,7 @@ class EditSnippet(QWidget):
         add_row(_('&Template:'), t)
 
         self.types = t = QListWidget(self)
-        t.setFlow(t.LeftToRight)
+        t.setFlow(Qt.LayoutDirection.LeftToRight)
         t.setWrapping(True), t.setResizeMode(t.Adjust), t.setSpacing(5)
         fm = t.fontMetrics()
         t.setMaximumHeight(2*(fm.ascent() + fm.descent()) + 25)

@@ -634,7 +634,7 @@ class LayoutMixin(object):  # {{{
         else:
             self.layout_button = b = QToolButton(self)
             b.setAutoRaise(True), b.setCursor(Qt.CursorShape.PointingHandCursor)
-            b.setPopupMode(b.InstantPopup)
+            b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
             b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
             b.setText(_('Layout')), b.setIcon(QIcon(I('config.png')))
             b.setMenu(LayoutMenu(self))

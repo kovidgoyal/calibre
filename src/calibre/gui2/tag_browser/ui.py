@@ -468,7 +468,7 @@ class TagBrowserBar(QWidget):  # {{{
         b.setAutoRaise(True)
         b.setText(_('Configure')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setCursor(Qt.CursorShape.PointingHandCursor)
-        b.setPopupMode(b.InstantPopup)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         b.setToolTip(textwrap.fill(_(
             'Change how the Tag browser works, such as,'
             ' how it is sorted, what happens when you click'

@@ -198,7 +198,7 @@ class SearchBar(QFrame):  # {{{
 
         x = parent.virtual_library = QToolButton(self)
         x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setPopupMode(x.InstantPopup)
+        x.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         x.setText(_('Virtual library'))
         x.setAutoRaise(True)
         x.setIcon(QIcon(I('vl.png')))
@@ -304,7 +304,7 @@ class SearchBar(QFrame):  # {{{
         x.setText(_('Saved search'))
         x.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         x.setCursor(Qt.CursorShape.PointingHandCursor)
-        x.setPopupMode(x.InstantPopup)
+        x.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         x.setAutoRaise(True)
         x.setIcon(QIcon(I("bookmarks.png")))
         l.addWidget(x)

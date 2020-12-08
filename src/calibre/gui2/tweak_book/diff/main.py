@@ -280,7 +280,7 @@ class Diff(Dialog):
         b.setIcon(QIcon(I('config.png')))
         b.setText(_('&Options')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setToolTip(_('Change how the differences are displayed'))
-        b.setPopupMode(b.InstantPopup)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         m = QMenu(b)
         b.setMenu(m)
         cm = self.cm = QMenu(_('Lines of context around each change'))

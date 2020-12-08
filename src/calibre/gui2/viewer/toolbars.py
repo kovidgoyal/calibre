@@ -206,7 +206,7 @@ class ActionsToolBar(ToolBar):
                     pass
         w = self.widgetForAction(self.color_scheme_action)
         if w:
-            w.setPopupMode(w.InstantPopup)
+            w.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
 
     def update_mode_action(self):
         mode = get_session_pref('read_mode', default='paged', group=None)

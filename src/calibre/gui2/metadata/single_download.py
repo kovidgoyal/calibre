@@ -769,7 +769,7 @@ class CoversView(QListView):  # {{{
         self.m = CoversModel(current_cover, self)
         self.setModel(self.m)
 
-        self.setFlow(self.LeftToRight)
+        self.setFlow(Qt.LayoutDirection.LeftToRight)
         self.setWrapping(True)
         self.setResizeMode(self.Adjust)
         self.setGridSize(QSize(190, 260))

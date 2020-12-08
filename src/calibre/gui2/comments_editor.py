@@ -17,7 +17,7 @@ from PyQt5.Qt import (
     QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPalette,
     QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget,
     QTextBlockFormat, QTextCharFormat, QTextCursor, QTextEdit, QTextListFormat,
-    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot
+    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot, QToolButton
 )
 
 from calibre import xml_replace_entities
@@ -1126,7 +1126,7 @@ class Editor(QWidget):  # {{{
         self.toolbar2.addAction(self.editor.action_block_style)
         w = self.toolbar2.widgetForAction(self.editor.action_block_style)
         if hasattr(w, 'setPopupMode'):
-            w.setPopupMode(w.InstantPopup)
+            w.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.toolbar2.addAction(self.editor.action_insert_link)
         self.toolbar2.addAction(self.editor.action_insert_hr)
         # }}}
