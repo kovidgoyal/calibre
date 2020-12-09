@@ -95,8 +95,8 @@ class MetadataSingleDialogBase(QDialog):
         self.button_box.addButton(self.prev_button, bb.ActionRole)
         self.button_box.addButton(self.next_button, bb.ActionRole)
         self.prev_button.clicked.connect(self.prev_clicked)
-        bb.setStandardButtons(bb.Ok|bb.Cancel)
-        bb.button(bb.Ok).setDefault(True)
+        bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
+        bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
 
         self.central_widget = QTabWidget(self)
 

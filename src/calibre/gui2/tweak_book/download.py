@@ -7,7 +7,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     pyqtSignal, QWidget, QListWidget, QListWidgetItem, QLabel, Qt,
-    QVBoxLayout, QScrollArea, QProgressBar, QGridLayout, QSize, QIcon)
+    QVBoxLayout, QScrollArea, QProgressBar, QGridLayout, QSize, QIcon, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog, info_dialog, warning_dialog
 from calibre.gui2.tweak_book import current_container
@@ -224,8 +224,8 @@ class DownloadResources(Dialog):
             self.state = 3
             self.bb.clear()
             self.resources_replaced = True
-            self.bb.setStandardButtons(self.bb.Ok | self.bb.Close)
-            b = self.bb.button(self.bb.Ok)
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Close)
+            b = self.bb.button(QDialogButtonBox.StandardButton.Ok)
             b.setText(_('See what &changed'))
             b.setIcon(QIcon(I('diff.png')))
             connect_lambda(b.clicked, self, lambda self: setattr(self, 'show_diff', True))

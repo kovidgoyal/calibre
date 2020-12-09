@@ -1034,7 +1034,7 @@ class FullFetch(QDialog):  # {{{
         l.addLayout(h)
         self.bb.rejected.connect(self.reject)
         self.bb.accepted.connect(self.accept)
-        self.ok_button = self.bb.button(self.bb.Ok)
+        self.ok_button = self.bb.button(QDialogButtonBox.StandardButton.Ok)
         self.ok_button.setEnabled(False)
         self.ok_button.clicked.connect(self.ok_clicked)
         self.prev_button = pb = QPushButton(QIcon(I('back.png')), _('&Back'), self)

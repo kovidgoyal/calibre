@@ -12,7 +12,7 @@ from PyQt5.Qt import (
     QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout,
     QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListView, QMenu, QPainter,
     QPixmap, QRect, QSize, QSizePolicy, QSortFilterProxyModel, QStyledItemDelegate,
-    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal, QDialog
+    Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal, QDialog, QDialogButtonBox
 )
 
 from calibre import fit_image
@@ -465,7 +465,7 @@ class NewBook(Dialog):  # {{{
         bb = self.bb
         l.addRow(bb)
         bb.clear()
-        bb.addButton(bb.Cancel)
+        bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         b = bb.addButton('&EPUB', bb.AcceptRole)
         connect_lambda(b.clicked, self, lambda self: self.set_fmt('epub'))
         b = bb.addButton('&AZW3', bb.AcceptRole)

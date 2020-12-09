@@ -124,20 +124,20 @@ class MessageBox(QDialog):  # {{{
 
         self.is_question = type_ == self.QUESTION
         if self.is_question:
-            self.bb.setStandardButtons(self.bb.Yes|self.bb.No)
-            self.bb.button(self.bb.Yes if default_yes else self.bb.No
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes|QDialogButtonBox.StandardButton.No)
+            self.bb.button(QDialogButtonBox.StandardButton.Yes if default_yes else QDialogButtonBox.StandardButton.No
                     ).setDefault(True)
             self.default_yes = default_yes
             if yes_text is not None:
-                self.bb.button(self.bb.Yes).setText(yes_text)
+                self.bb.button(QDialogButtonBox.StandardButton.Yes).setText(yes_text)
             if no_text is not None:
-                self.bb.button(self.bb.No).setText(no_text)
+                self.bb.button(QDialogButtonBox.StandardButton.No).setText(no_text)
             if yes_icon is not None:
-                self.bb.button(self.bb.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else QIcon(I(yes_icon)))
+                self.bb.button(QDialogButtonBox.StandardButton.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else QIcon(I(yes_icon)))
             if no_icon is not None:
-                self.bb.button(self.bb.No).setIcon(no_icon if isinstance(no_icon, QIcon) else QIcon(I(no_icon)))
+                self.bb.button(QDialogButtonBox.StandardButton.No).setIcon(no_icon if isinstance(no_icon, QIcon) else QIcon(I(no_icon)))
         else:
-            self.bb.button(self.bb.Ok).setDefault(True)
+            self.bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
 
         if not det_msg:
             self.det_msg_toggle.setVisible(False)
@@ -173,12 +173,12 @@ class MessageBox(QDialog):  # {{{
         ret = QDialog.showEvent(self, ev)
         if self.is_question:
             try:
-                self.bb.button(self.bb.Yes if self.default_yes else self.bb.No
+                self.bb.button(QDialogButtonBox.StandardButton.Yes if self.default_yes else QDialogButtonBox.StandardButton.No
                         ).setFocus(Qt.FocusReason.OtherFocusReason)
             except:
                 pass  # Buttons were changed
         else:
-            self.bb.button(self.bb.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
+            self.bb.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def set_details(self, msg):

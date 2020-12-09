@@ -274,12 +274,12 @@ class CompressImagesProgress(Dialog):
         la.setAlignment(Qt.AlignmentFlag.AlignCenter), la.setTextFormat(Qt.TextFormat.PlainText)
         l.addWidget(la)
 
-        self.bb.setStandardButtons(self.bb.Cancel)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(self.bb)
 
     def reject(self):
         self.keep_going = False
-        self.bb.button(self.bb.Cancel).setEnabled(False)
+        self.bb.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
         Dialog.reject(self)
 
     def progress_callback(self, num, total, name):

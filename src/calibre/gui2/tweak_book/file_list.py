@@ -980,7 +980,7 @@ class NewFileDialog(QDialog):  # {{{
                        ' file into the book.'))
         b.clicked.connect(self.import_file)
 
-        self.ok_button = bb.button(bb.Ok)
+        self.ok_button = bb.button(QDialogButtonBox.StandardButton.Ok)
 
         self.file_data = b''
         self.using_template = False

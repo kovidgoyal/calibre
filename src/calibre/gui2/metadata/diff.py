@@ -557,7 +557,7 @@ class CompareMany(QDialog):
         sa.setWidgetResizable(True)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
-        bb.button(bb.Cancel).setAutoDefault(False)
+        bb.button(QDialogButtonBox.StandardButton.Cancel).setAutoDefault(False)
         bb.rejected.connect(self.reject)
         if self.total > 1:
             self.aarb = b = bb.addButton(_('&Accept all remaining'), bb.YesRole)

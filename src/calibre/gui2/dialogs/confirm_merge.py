@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (
-    QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt, QDialog
+    QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt, QDialog, QDialogButtonBox
 )
 
 from calibre.ebooks.metadata import authors_to_string
@@ -57,7 +57,7 @@ class ConfirmMerge(Dialog):
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
         l.addWidget(s), l.addWidget(self.bb)
-        self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No)
 
         self.left = w = QWidget(self)
         s.addWidget(w)
@@ -103,7 +103,7 @@ class ChooseMerge(Dialog):
         self.splitter = s = QSplitter(self)
         s.setChildrenCollapsible(False)
         l.addWidget(s), l.addWidget(self.bb)
-        self.bb.setStandardButtons(self.bb.Yes | self.bb.No)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.No)
         self.left = w = QWidget(self)
         s.addWidget(w)
         w.l = l = QVBoxLayout(w)

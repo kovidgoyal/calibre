@@ -11,7 +11,7 @@ from threading import Thread
 from glob import glob
 
 from PyQt5.Qt import (
-    QDialog, QApplication, QLabel, QVBoxLayout, QDialogButtonBox, Qt, QAbstractItemView,
+    QDialog, QApplication, QLabel, QVBoxLayout, QDialogButtonBox, Qt, QAbstractItemView, QListView,
     pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate
 )
 try:

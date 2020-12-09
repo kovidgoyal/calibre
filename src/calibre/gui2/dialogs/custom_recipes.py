@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView,
     QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal, QSortFilterProxyModel,
     QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,
-    QToolButton, QTreeView, QDialog)
+    QToolButton, QTreeView, QDialog, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog, open_local_file, choose_files, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm as confirm_delete
@@ -589,7 +589,7 @@ class CustomRecipes(Dialog):
                 b.setIcon(QIcon(I(icon))), b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
         else:
-            bb.setStandardButtons(bb.Cancel | bb.Save)
+            bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Save)
             if self.stack.currentIndex() == 1:
                 text = _('S&witch to advanced mode')
                 tooltip = _('Edit this recipe in advanced mode')

@@ -10,7 +10,7 @@ from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout, QDialog,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
     QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView
+    QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QDialogButtonBox
 )
 
 from calibre import prepare_string_for_xml
@@ -125,7 +125,7 @@ class Export(Dialog):  # {{{
         l.addRow(_('Format to export in:'), ef)
         l.addRow(self.bb)
         self.bb.clear()
-        self.bb.addButton(self.bb.Cancel)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         b = self.bb.addButton(_('Copy to clipboard'), self.bb.ActionRole)
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon(I('edit-copy.png')))

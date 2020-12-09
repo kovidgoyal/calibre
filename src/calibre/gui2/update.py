@@ -163,7 +163,7 @@ class UpdateNotification(QDialog):
             b = self.bb.addButton(_('Update &plugins'), self.bb.ActionRole)
             b.setIcon(QIcon(I('plugins/plugin_updater.png')))
             b.clicked.connect(self.get_plugins, type=Qt.ConnectionType.QueuedConnection)
-        self.bb.addButton(self.bb.Cancel)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)
         self.l.addWidget(self.bb, 2, 0, 1, -1)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)

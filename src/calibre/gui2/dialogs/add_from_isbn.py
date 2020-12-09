@@ -41,7 +41,7 @@ class AddFromISBN(QDialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel, self)
-        bb.button(bb.Ok).setText(_('&OK'))
+        bb.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
         l.addWidget(bb), bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.ll = l = QVBoxLayout()
         h.addLayout(l)

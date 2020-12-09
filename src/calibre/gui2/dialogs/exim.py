@@ -88,7 +88,7 @@ class RunAction(QDialog):
     def setup_ui(self):
         self.l = l = QGridLayout(self)
         self.bb = QDialogButtonBox(self)
-        self.bb.setStandardButtons(self.bb.Cancel)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         self.bb.rejected.connect(self.reject)
 
         self.la1 = la = QLabel('<h2>' + self.title)
@@ -125,7 +125,7 @@ class RunAction(QDialog):
 
     def reject(self):
         self.abort.set()
-        self.bb.button(self.bb.Cancel).setEnabled(False)
+        self.bb.button(QDialogButtonBox.StandardButton.Cancel).setEnabled(False)
 
     def finish_processing(self):
         if self.abort.is_set():
@@ -327,7 +327,7 @@ class EximDialog(Dialog):
     def show_panel(self, which):
         self.validate = self.run_action = lambda : True
         if which is None:
-            self.bb.setStandardButtons(self.bb.Cancel)
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Cancel)
         else:
             if which == 'export':
                 self.validate = self.validate_export
@@ -338,7 +338,7 @@ class EximDialog(Dialog):
             else:
                 self.validate = self.validate_import
                 self.run_action = self.run_import_action
-            self.bb.setStandardButtons(self.bb.Ok | self.bb.Cancel)
+            self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         self.stack.setCurrentIndex({'export':1, 'import':2}.get(which, 0))
 
     def validate_export(self):
