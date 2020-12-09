@@ -57,8 +57,8 @@ You can copy a link to the current book displayed in calibre by right clicking
 the :guilabel:`Book details panel` and choosing :guilabel:`Copy link to book`.
 
 
-Open a specific book in the viewer at a specific position
----------------------------------------------------------------
+Open a specific book in the E-book viewer at a specific position
+-------------------------------------------------------------------
 
 The URL syntax is::
 
