@@ -1311,7 +1311,9 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     if num_removed:
         log('Removed', num_removed, 'unused fonts')
 
-    # Needed because of https://bugreports.qt.io/browse/QTBUG-88976
+    # Originally added because of https://bugreports.qt.io/browse/QTBUG-88976
+    # however even after that fix, calibre's font subsetting is superior to
+    # harfbuzz, so continue to use it.
     subset_fonts(pdf_doc, log)
 
     num_removed = pdf_doc.dedup_images()
