@@ -11,7 +11,7 @@ from itertools import groupby
 from operator import attrgetter, itemgetter
 
 from PyQt5.Qt import (
-    Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit,
+    Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit, QListView,
     QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
     QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox)
 
@@ -486,7 +486,7 @@ class EditSnippet(QWidget):
         add_row(_('&Template:'), t)
 
         self.types = t = QListWidget(self)
-        t.setFlow(Qt.LayoutDirection.LeftToRight)
+        t.setFlow(QListView.Flow.LeftToRight)
         t.setWrapping(True), t.setResizeMode(t.Adjust), t.setSpacing(5)
         fm = t.fontMetrics()
         t.setMaximumHeight(2*(fm.ascent() + fm.descent()) + 25)

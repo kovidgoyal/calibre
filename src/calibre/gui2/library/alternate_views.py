@@ -699,7 +699,7 @@ class GridView(QListView):
         setup_dnd_interface(self)
         self.setUniformItemSizes(True)
         self.setWrapping(True)
-        self.setFlow(Qt.LayoutDirection.LeftToRight)
+        self.setFlow(QListView.Flow.LeftToRight)
         # We cannot set layout mode to batched, because that breaks
         # restore_vpos()
         # self.setLayoutMode(self.Batched)

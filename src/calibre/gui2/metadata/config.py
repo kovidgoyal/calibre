@@ -80,7 +80,7 @@ class ConfigWidget(QWidget):
         g.setContentsMargins(0, 0, 0, 0)
         self.fields_view = v = FieldsList(self)
         g.addWidget(v)
-        v.setFlow(Qt.LayoutDirection.LeftToRight)
+        v.setFlow(QListView.Flow.LeftToRight)
         v.setWrapping(True)
         v.setResizeMode(v.Adjust)
         self.fields_model = FieldsModel(self.plugin)

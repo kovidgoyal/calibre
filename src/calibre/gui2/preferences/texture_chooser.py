@@ -9,7 +9,7 @@ import glob, os, shutil
 from functools import partial
 from PyQt5.Qt import (
     QDialog, QVBoxLayout, QListWidget, QListWidgetItem, Qt, QIcon,
-    QApplication, QSize, QDialogButtonBox, QTimer, QLabel, QAbstractItemView)
+    QApplication, QSize, QDialogButtonBox, QTimer, QLabel, QAbstractItemView, QListView)
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
@@ -47,7 +47,7 @@ class TextureChooser(QDialog):
         il.itemDoubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         il.setIconSize(QSize(256, 256))
         il.setViewMode(il.IconMode)
-        il.setFlow(Qt.LayoutDirection.LeftToRight)
+        il.setFlow(QListView.Flow.LeftToRight)
         il.setSpacing(20)
         il.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         il.itemSelectionChanged.connect(self.update_remove_state)

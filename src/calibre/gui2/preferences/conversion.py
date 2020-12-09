@@ -52,7 +52,7 @@ class ListView(QListView):
         f.setBold(True)
         self.setFont(f)
         self.setIconSize(QSize(48, 48))
-        self.setFlow(self.TopToBottom)
+        self.setFlow(QListView.Flow.TopToBottom)
         self.setSpacing(10)
 
     def currentChanged(self, cur, prev):

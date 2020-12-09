@@ -591,7 +591,7 @@ class CharView(QListView):
         self.delegate = CharDelegate(self)
         self.setResizeMode(self.Adjust)
         self.setItemDelegate(self.delegate)
-        self.setFlow(Qt.LayoutDirection.LeftToRight)
+        self.setFlow(QListView.Flow.LeftToRight)
         self.setWrapping(True)
         self.setMouseTracking(True)
         self.setSpacing(2)

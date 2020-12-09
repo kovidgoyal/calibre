@@ -16,7 +16,7 @@ from copy import copy, deepcopy
 
 from PyQt5.Qt import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
-    QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox,
+    QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox, QListView,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
     QFontComboBox, QPushButton, QSizePolicy, QHBoxLayout, QGroupBox, QAbstractItemView,
     QToolButton, QVBoxLayout, QSpacerItem, QTimer, QRadioButton)
@@ -733,7 +733,7 @@ class Preferences(QDialog):
         cl.currentRowChanged.connect(self.stacks.setCurrentIndex)
         cl.clearPropertyFlags()
         cl.setViewMode(cl.IconMode)
-        cl.setFlow(cl.TopToBottom)
+        cl.setFlow(QListView.Flow.TopToBottom)
         cl.setMovement(cl.Static)
         cl.setWrapping(False)
         cl.setSpacing(15)
