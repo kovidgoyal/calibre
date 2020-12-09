@@ -58,7 +58,7 @@ from calibre.gui2.tag_browser.ui import TagBrowserMixin
 from calibre.gui2.update import UpdateMixin
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.library import current_library_name
-from calibre.srv.library_broker import GuiLibraryBroker
+from calibre.srv.library_broker import GuiLibraryBroker, db_matches
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.ipc.pool import Pool
 from polyglot.builtins import string_or_bytes, unicode_type
@@ -661,7 +661,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if action == 'switch-library':
             library_id = decode_library_id(posixpath.basename(path))
             library_path = self.library_broker.path_for_library_id(library_id)
-            if library_path is not None and library_id != getattr(self.current_db.new_api, 'server_library_id', None):
+            if not db_matches(self.current_db, library_id, library_path):
                 self.library_moved(library_path)
         elif action == 'show-book':
             parts = tuple(filter(None, path.split('/')))
@@ -741,7 +741,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.perform_url_action(library_id, library_path, doit)
 
     def perform_url_action(self, library_id, library_path, func):
-        if library_id != getattr(self.current_db.new_api, 'server_library_id', None):
+        if not db_matches(self.current_db, library_id, library_path):
             self.library_moved(library_path)
             QTimer.singleShot(0, func)
         else:

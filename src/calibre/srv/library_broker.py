@@ -74,6 +74,14 @@ def correct_case_of_last_path_component(original_path):
     return os.path.join(prefix, basename)
 
 
+def db_matches(db, library_id, library_path):
+    db = db.new_api
+    if getattr(db, 'server_library_id', object()) == library_id:
+        return True
+    dbpath = db.dbpath
+    return samefile(dbpath, os.path.join(library_path, os.path.basename(dbpath)))
+
+
 class LibraryBroker(object):
 
     def __init__(self, libraries):
@@ -150,7 +158,16 @@ class LibraryBroker(object):
 
     def path_for_library_id(self, library_id):
         with self:
-            return self.original_path_map.get(self.lmap.get(library_id))
+            lpath = self.lmap.get(library_id)
+            if lpath is None:
+                q = library_id.lower()
+                for k, v in self.lmap.items():
+                    if k.lower() == q:
+                        lpath = v
+                        break
+                else:
+                    return
+            return self.original_path_map.get(lpath)
 
     def __enter__(self):
         self.lock.acquire()

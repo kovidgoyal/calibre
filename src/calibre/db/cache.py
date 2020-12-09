@@ -171,6 +171,10 @@ class Cache(object):
         return self.backend.library_id
 
     @property
+    def dbpath(self):
+        return self.backend.dbpath
+
+    @property
     def safe_read_lock(self):
         ''' A safe read lock is a lock that does nothing if the thread already
         has a write lock, otherwise it acquires a read lock. This is necessary
