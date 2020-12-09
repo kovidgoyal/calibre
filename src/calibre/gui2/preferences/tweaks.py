@@ -11,7 +11,7 @@ from operator import attrgetter
 from PyQt5.Qt import (
     QAbstractListModel, QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
     QGroupBox, QIcon, QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit,
-    QPushButton, QSizePolicy, QSplitter, QStyle, QStyledItemDelegate,
+    QPushButton, QSizePolicy, QSplitter, QStyle, QStyledItemDelegate, QAbstractItemView,
     QStyleOptionViewItem, Qt, QVBoxLayout, QWidget, pyqtSignal
 )
 
@@ -370,7 +370,7 @@ class TweaksView(QListView):
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setAlternatingRowColors(True)
         self.setSpacing(5)
-        self.setVerticalScrollMode(self.ScrollPerPixel)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.setMinimumWidth(300)
 
     def currentChanged(self, cur, prev):

@@ -82,7 +82,7 @@ class ConfigWidget(QWidget):
         g.addWidget(v)
         v.setFlow(QListView.Flow.LeftToRight)
         v.setWrapping(True)
-        v.setResizeMode(v.Adjust)
+        v.setResizeMode(QListView.ResizeMode.Adjust)
         self.fields_model = FieldsModel(self.plugin)
         self.fields_model.initialize()
         v.setModel(self.fields_model)

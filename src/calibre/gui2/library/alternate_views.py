@@ -703,9 +703,9 @@ class GridView(QListView):
         # We cannot set layout mode to batched, because that breaks
         # restore_vpos()
         # self.setLayoutMode(self.Batched)
-        self.setResizeMode(self.Adjust)
+        self.setResizeMode(QListView.ResizeMode.Adjust)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
-        self.setVerticalScrollMode(self.ScrollPerPixel)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.delegate = CoverDelegate(self)
         self.delegate.animation.valueChanged.connect(self.animation_value_changed)
         self.delegate.animation.finished.connect(self.animation_done)

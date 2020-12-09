@@ -214,10 +214,10 @@ class InsertImage(Dialog):
             la.setVisible(False)
 
         self.view = v = QListView(self)
-        v.setViewMode(v.IconMode)
+        v.setViewMode(QListView.ViewMode.IconMode)
         v.setFlow(QListView.Flow.LeftToRight)
         v.setSpacing(4)
-        v.setResizeMode(v.Adjust)
+        v.setResizeMode(QListView.ResizeMode.Adjust)
         v.setUniformItemSizes(True)
         set_no_activate_on_click(v)
         v.activated.connect(self.activated)

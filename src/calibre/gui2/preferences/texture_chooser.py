@@ -46,7 +46,7 @@ class TextureChooser(QDialog):
         self.images = il = QListWidget(self)
         il.itemDoubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
         il.setIconSize(QSize(256, 256))
-        il.setViewMode(il.IconMode)
+        il.setViewMode(QListView.ViewMode.IconMode)
         il.setFlow(QListView.Flow.LeftToRight)
         il.setSpacing(20)
         il.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)

@@ -589,7 +589,7 @@ class CharView(QListView):
         self._model = CharModel(self)
         self.setModel(self._model)
         self.delegate = CharDelegate(self)
-        self.setResizeMode(self.Adjust)
+        self.setResizeMode(QListView.ResizeMode.Adjust)
         self.setItemDelegate(self.delegate)
         self.setFlow(QListView.Flow.LeftToRight)
         self.setWrapping(True)

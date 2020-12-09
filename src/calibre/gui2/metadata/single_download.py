@@ -771,11 +771,11 @@ class CoversView(QListView):  # {{{
 
         self.setFlow(QListView.Flow.LeftToRight)
         self.setWrapping(True)
-        self.setResizeMode(self.Adjust)
+        self.setResizeMode(QListView.ResizeMode.Adjust)
         self.setGridSize(QSize(190, 260))
         self.setIconSize(QSize(*CoverDelegate.ICON_SIZE))
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        self.setViewMode(self.IconMode)
+        self.setViewMode(QListView.ViewMode.IconMode)
 
         self.delegate = CoverDelegate(self)
         self.setItemDelegate(self.delegate)

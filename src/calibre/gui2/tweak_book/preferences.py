@@ -732,7 +732,7 @@ class Preferences(QDialog):
         self.categories_list = cl = QListWidget(self)
         cl.currentRowChanged.connect(self.stacks.setCurrentIndex)
         cl.clearPropertyFlags()
-        cl.setViewMode(cl.IconMode)
+        cl.setViewMode(QListView.ViewMode.IconMode)
         cl.setFlow(QListView.Flow.TopToBottom)
         cl.setMovement(cl.Static)
         cl.setWrapping(False)

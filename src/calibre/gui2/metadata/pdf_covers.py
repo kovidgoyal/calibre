@@ -60,9 +60,9 @@ class PDFCovers(QDialog):
         c.setItemDelegate(self.item_delegate)
         c.setIconSize(QSize(120, 160))
         c.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
-        c.setViewMode(c.IconMode)
+        c.setViewMode(QListView.ViewMode.IconMode)
         c.setUniformItemSizes(True)
-        c.setResizeMode(c.Adjust)
+        c.setResizeMode(QListView.ResizeMode.Adjust)
         c.itemDoubleClicked.connect(self.accept, type=Qt.ConnectionType.QueuedConnection)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)

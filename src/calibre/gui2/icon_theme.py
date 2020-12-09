@@ -645,7 +645,7 @@ class ChooseTheme(Dialog):
         sb.currentIndexChanged[int].connect(self.re_sort)
         sb.currentIndexChanged[int].connect(lambda : gprefs.set('choose_icon_theme_sort_by', sb.currentIndex()))
         self.theme_list = tl = QListWidget(self)
-        tl.setVerticalScrollMode(tl.ScrollPerPixel)
+        tl.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
         self.delegate = Delegate(tl)
         tl.setItemDelegate(self.delegate)
         tl.itemDoubleClicked.connect(self.accept)

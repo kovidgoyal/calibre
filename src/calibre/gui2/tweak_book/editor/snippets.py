@@ -487,7 +487,7 @@ class EditSnippet(QWidget):
 
         self.types = t = QListWidget(self)
         t.setFlow(QListView.Flow.LeftToRight)
-        t.setWrapping(True), t.setResizeMode(t.Adjust), t.setSpacing(5)
+        t.setWrapping(True), t.setResizeMode(QListView.ResizeMode.Adjust), t.setSpacing(5)
         fm = t.fontMetrics()
         t.setMaximumHeight(2*(fm.ascent() + fm.descent()) + 25)
         add_row(_('&File types:'), t)
