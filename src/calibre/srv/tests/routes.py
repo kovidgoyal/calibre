@@ -8,12 +8,13 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from calibre.srv.tests.base import BaseTest
 from polyglot.builtins import itervalues, filter
+from tempfile import TemporaryDirectory
 
 
 class TestRouter(BaseTest):
 
     def test_library_id_construction(self):
-        from calibre.srv.library_broker import library_id_from_path
+        from calibre.srv.library_broker import library_id_from_path, correct_case_of_last_path_component
         self.ae(library_id_from_path('as'), 'as')
         self.ae(library_id_from_path('as/'), 'as')
         self.ae(library_id_from_path('as////'), 'as')
@@ -21,6 +22,11 @@ class TestRouter(BaseTest):
         if os.sep == '\\':
             self.ae(library_id_from_path('as/' + os.sep), 'as')
             self.ae(library_id_from_path('X:' + os.sep), 'X')
+        with TemporaryDirectory() as tdir:
+            path = os.path.join(tdir, 'Test')
+            os.mkdir(path)
+            self.ae(correct_case_of_last_path_component(os.path.join(tdir, 'test')), path)
+            self.ae(correct_case_of_last_path_component(os.path.join(tdir, 'Test')), path)
 
     def test_route_construction(self):
         ' Test route construction '

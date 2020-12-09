@@ -62,6 +62,18 @@ def library_id_from_path(path, existing=frozenset()):
     return make_library_id_unique(library_id, existing)
 
 
+def correct_case_of_last_path_component(original_path):
+    prefix, basename = os.path.split(original_path)
+    q = basename.lower()
+    equals = tuple(x for x in os.listdir(prefix) if x.lower() == q)
+    if len(equals) > 1:
+        if basename not in equals:
+            basename = equals[0]
+    else:
+        basename = equals[0]
+    return os.path.join(prefix, basename)
+
+
 class LibraryBroker(object):
 
     def __init__(self, libraries):
@@ -82,9 +94,10 @@ class LibraryBroker(object):
             seen.add(path)
             if is_samefile or not LibraryDatabase.exists_at(path):
                 continue
-            library_id = library_id_from_path(original_path, self.lmap)
+            corrected_path = correct_case_of_last_path_component(original_path)
+            library_id = library_id_from_path(corrected_path, self.lmap)
             self.lmap[library_id] = path
-            self.library_name_map[library_id] = basename(original_path)
+            self.library_name_map[library_id] = basename(corrected_path)
             self.original_path_map[path] = original_path
         self.loaded_dbs = {}
         self.category_caches, self.search_caches, self.tag_browser_caches = (
@@ -195,11 +208,11 @@ class GuiLibraryBroker(LibraryBroker):
             if library_path not in self.original_path_map:
                 self.original_path_map[library_path] = original_library_path
             db = self.init_library(library_path, False)
-            library_id = library_id_from_path(library_path, self.lmap)
+            corrected_path = correct_case_of_last_path_component(original_library_path)
+            library_id = library_id_from_path(corrected_path, self.lmap)
             db.new_api.server_library_id = library_id
             self.lmap[library_id] = library_path
-            self.library_name_map[library_id] = basename(
-                original_library_path)
+            self.library_name_map[library_id] = basename(corrected_path)
             self.loaded_dbs[library_id] = db
             return db
 
@@ -226,10 +239,10 @@ class GuiLibraryBroker(LibraryBroker):
                 break
         else:
             # A new library
-            library_id = self.gui_library_id = library_id_from_path(
-                newloc, self.lmap)
+            corrected_path = correct_case_of_last_path_component(original_path)
+            library_id = self.gui_library_id = library_id_from_path(corrected_path, self.lmap)
             self.lmap[library_id] = newloc
-            self.library_name_map[library_id] = basename(original_path)
+            self.library_name_map[library_id] = basename(corrected_path)
             self.original_path_map[newloc] = original_path
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
