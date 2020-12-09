@@ -2,8 +2,11 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+from elementmaker import E
+
+from dom import unique_id
 from gettext import gettext as _
-from modals import error_dialog
+from modals import create_custom_dialog, error_dialog
 
 
 def escaper():
@@ -26,6 +29,8 @@ class Client:
         self.last_reached_mark = None
         self.onevent = def():
             pass
+        self.current_voice_name = ''
+        self.current_rate = None
 
     def create_utterance(self, text_or_ssml, wrap_in_ssml):
         if wrap_in_ssml:
@@ -40,6 +45,13 @@ class Client:
         ut.onerror = self.utterance_failed
         ut.onmark = self.utterance_mark_reached
         ut.onresume = self.utterance_resumed
+        if self.current_voice_name:
+            for voice in window.speechSynthesis.getVoices():
+                if voice.name is self.current_voice_name:
+                    ut.voice = voice
+                    break
+        if self.current_rate:
+            ut.rate = self.current_rate
         self.queue.push(ut)
         return ut
 
@@ -118,3 +130,48 @@ class Client:
             self.create_utterance(text)
         if self.queue.length:
             window.speechSynthesis.speak(self.queue[0])
+
+    def configure(self):
+        voice_id = unique_id()
+        rate_id = unique_id()
+        default_voice = None
+        create_custom_dialog(_('Configure Text-to-Speech'), def (parent_div, close_modal):
+                nonlocal default_voice
+                select = E.select(size='10', id=voice_id)
+                voices = window.speechSynthesis.getVoices()
+                voices.sort(def (a, b):
+                    a = a.name.toLowerCase()
+                    b = b.name.toLowerCase()
+                    return -1 if a < b else (0 if a is b else 1)
+                )
+                for voice in voices:
+                    dflt = ''
+                    if voice.default:
+                        default_voice = voice.name
+                        dflt = '-- {}'.format(_('default'))
+                    option = E.option(f'{voice.name} ({voice.lang}){dflt}', data_name=voice.name)
+                    if (self.current_voice_name and voice.name is self.current_voice_name) or (not self.current_voice_name and voice.default):
+                        option.setAttribute('selected', 'selected')
+                    select.appendChild(option)
+                parent_div.appendChild(E.div(_('Speed of speech:')))
+                parent_div.appendChild(E.input(type='range', id=rate_id, min='1', max='20', value=((self.current_rate or 1) * 10) + ''))
+                parent_div.appendChild(E.div(_('Pick a voice below:')))
+                parent_div.appendChild(select)
+                opt = select.querySelector(':selected')
+                if opt:
+                    opt.scrollIntoView()
+
+            , on_close=def():
+                voice = document.getElementById(voice_id).value
+                rate = int(document.getElementById(rate_id).value) / 10
+                if rate is 1:
+                    rate = None
+                if voice is default_voice:
+                    voice = ''
+                changed = voice is not self.current_voice_name or rate is not self.current_rate
+                if changed:
+                    self.current_voice_name = voice
+                    self.current_rate = rate
+
+                self.view.read_aloud.handle_tts_event('configured', None)
+        )

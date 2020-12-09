@@ -70,6 +70,7 @@ defaults = {
     'selection_bar_quick_highlights': v"[]",
     'skipped_dialogs': v'{}',
     'tts': v'{}',
+    'tts_backend': v'{}',
 }
 
 is_local_setting = {
@@ -100,6 +101,7 @@ is_local_setting = {
     'user_stylesheet': True,
     'highlight_style': True,
     'tts': True,
+    'tts_backend': True,
 }
 
 
