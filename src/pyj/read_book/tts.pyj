@@ -6,7 +6,9 @@ from elementmaker import E
 
 from dom import unique_id
 from gettext import gettext as _
+from book_list.globals import get_session_data
 from modals import create_custom_dialog, error_dialog
+from widgets import create_button
 
 
 def escaper():
@@ -24,13 +26,15 @@ escape_for_xml = escaper()
 class Client:
 
     def __init__(self):
+        self.stop_requested_at = None
         self.status = {'synthesizing': False, 'paused': False}
         self.queue = v'[]'
         self.last_reached_mark = None
         self.onevent = def():
             pass
-        self.current_voice_name = ''
-        self.current_rate = None
+        data = get_session_data().get('tts_backend')
+        self.current_voice_uri = data.voice or ''
+        self.current_rate = data.rate or None
 
     def create_utterance(self, text_or_ssml, wrap_in_ssml):
         if wrap_in_ssml:
@@ -45,9 +49,9 @@ class Client:
         ut.onerror = self.utterance_failed
         ut.onmark = self.utterance_mark_reached
         ut.onresume = self.utterance_resumed
-        if self.current_voice_name:
+        if self.current_voice_uri:
             for voice in window.speechSynthesis.getVoices():
-                if voice.name is self.current_voice_name:
+                if voice.voiceURI is self.current_voice_uri:
                     ut.voice = voice
                     break
         if self.current_rate:
@@ -65,6 +69,9 @@ class Client:
 
     def utterance_ended(self, event):
         self.status = {'synthesizing': False, 'paused': False}
+        if self.stop_requested_at? and window.performance.now() - self.stop_requested_at < 1000:
+            self.stop_requested_at = None
+            return
         self.queue.splice(0, 1)
         if self.queue.length:
             window.speechSynthesis.speak(self.queue[0])
@@ -92,9 +99,14 @@ class Client:
     def resume(self):
         window.speechSynthesis.resume()
 
+    def resume_after_configure(self):
+        if self.queue.length:
+            window.speechSynthesis.speak(self.queue[0])
+
     def stop(self):
-        window.speechSynthesis.cancel()
         self.queue = v'[]'
+        self.stop_requested_at = window.performance.now()
+        window.speechSynthesis.cancel()
         self.status = {'synthesizing': False, 'paused': False}
 
     def speak_simple_text(self, text):
@@ -135,9 +147,14 @@ class Client:
         voice_id = unique_id()
         rate_id = unique_id()
         default_voice = None
+
+        def restore_defaults():
+            document.getElementById(voice_id).selectedIndex = -1
+            document.getElementById(rate_id).value = 10
+
         create_custom_dialog(_('Configure Text-to-Speech'), def (parent_div, close_modal):
                 nonlocal default_voice
-                select = E.select(size='10', id=voice_id)
+                select = E.select(size='5', id=voice_id)
                 voices = window.speechSynthesis.getVoices()
                 voices.sort(def (a, b):
                     a = a.name.toLowerCase()
@@ -147,19 +164,23 @@ class Client:
                 for voice in voices:
                     dflt = ''
                     if voice.default:
-                        default_voice = voice.name
+                        default_voice = voice.voiceURI
                         dflt = '-- {}'.format(_('default'))
-                    option = E.option(f'{voice.name} ({voice.lang}){dflt}', data_name=voice.name)
-                    if (self.current_voice_name and voice.name is self.current_voice_name) or (not self.current_voice_name and voice.default):
+                    option = E.option(f'{voice.name} ({voice.lang}){dflt}', value=voice.voiceURI)
+                    if (self.current_voice_uri and voice.voiceURI is self.current_voice_uri) or (not self.current_voice_uri and voice.default):
                         option.setAttribute('selected', 'selected')
                     select.appendChild(option)
                 parent_div.appendChild(E.div(_('Speed of speech:')))
                 parent_div.appendChild(E.input(type='range', id=rate_id, min='1', max='20', value=((self.current_rate or 1) * 10) + ''))
                 parent_div.appendChild(E.div(_('Pick a voice below:')))
                 parent_div.appendChild(select)
-                opt = select.querySelector(':selected')
-                if opt:
-                    opt.scrollIntoView()
+                if select.options.selectedIndex?:
+                    select.options[select.options.selectedIndex].scrollIntoView()
+                parent_div.appendChild(E.div(
+                        style='margin-top: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
+                        create_button(_('Restore defaults'), action=restore_defaults),
+                        create_button(_('Close'), action=close_modal)
+                ))
 
             , on_close=def():
                 voice = document.getElementById(voice_id).value
@@ -168,10 +189,19 @@ class Client:
                     rate = None
                 if voice is default_voice:
                     voice = ''
-                changed = voice is not self.current_voice_name or rate is not self.current_rate
+                changed = voice is not self.current_voice_uri or rate is not self.current_rate
                 if changed:
-                    self.current_voice_name = voice
+                    self.current_voice_uri = voice
                     self.current_rate = rate
+                    sd = get_session_data()
+                    sd.set('tts_backend', {'voice': voice, 'rate': rate})
+                    existing = self.queue
+                    if self.queue and self.queue.length:
+                        if self.status.paused:
+                            window.speechSynthesis.resume()
+                        self.stop()
+                        for ut in existing:
+                            self.create_utterance(ut.text)
 
-                self.view.read_aloud.handle_tts_event('configured', None)
+                self.onevent('configured')
         )
