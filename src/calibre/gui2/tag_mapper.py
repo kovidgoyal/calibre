@@ -9,7 +9,7 @@ import textwrap
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon, QDialog,
     QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate, QAbstractItemView,
-    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal, QPalette
+    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal, QPalette, QItemSelectionModel
 )
 
 from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
@@ -344,25 +344,30 @@ class Rules(QWidget):
         if changed:
             self.changed.emit()
 
+    def move_selected(self, delta=-1):
+        current_item = self.rule_list.currentItem()
+        items = self.rule_list.selectedItems()
+        if current_item is None or not items or not len(items):
+            return
+        row_map = {id(item): self.rule_list.row(item) for item in items}
+        items.sort(key=lambda item: row_map[id(item)])
+        num = self.rule_list.count()
+        for item in items:
+            row = row_map[id(item)]
+            nrow = (row + delta + num) % num
+            self.rule_list.takeItem(row)
+            self.rule_list.insertItem(nrow, item)
+        sm = self.rule_list.selectionModel()
+        for item in items:
+            sm.select(self.rule_list.indexFromItem(item), QItemSelectionModel.SelectionFlag.Select)
+        sm.setCurrentIndex(self.rule_list.indexFromItem(current_item), QItemSelectionModel.SelectionFlag.Current)
+        self.changed.emit()
+
     def move_up(self):
-        i = self.rule_list.currentItem()
-        if i is not None:
-            row = self.rule_list.row(i)
-            if row > 0:
-                self.rule_list.takeItem(row)
-                self.rule_list.insertItem(row - 1, i)
-                self.rule_list.setCurrentItem(i)
-                self.changed.emit()
+        self.move_selected()
 
     def move_down(self):
-        i = self.rule_list.currentItem()
-        if i is not None:
-            row = self.rule_list.row(i)
-            if row < self.rule_list.count() - 1:
-                self.rule_list.takeItem(row)
-                self.rule_list.insertItem(row + 1, i)
-                self.rule_list.setCurrentItem(i)
-                self.changed.emit()
+        self.move_selected(1)
 
     @property
     def rules(self):
