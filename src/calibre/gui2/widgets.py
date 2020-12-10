@@ -1056,12 +1056,14 @@ class LayoutButton(QToolButton):
 class Splitter(QSplitter):
 
     state_changed = pyqtSignal(object)
+    reapply_sizes = pyqtSignal(object)
 
     def __init__(self, name, label, icon, initial_show=True,
             initial_side_size=120, connect_button=True,
             orientation=Qt.Orientation.Horizontal, side_index=0, parent=None,
             shortcut=None, hide_handle_on_single_panel=True):
         QSplitter.__init__(self, parent)
+        self.reapply_sizes.connect(self.setSizes, type=Qt.ConnectionType.QueuedConnection)
         self.hide_handle_on_single_panel = hide_handle_on_single_panel
         if hide_handle_on_single_panel:
             self.state_changed.connect(self.update_handle_width)
@@ -1151,7 +1153,8 @@ class Splitter(QSplitter):
     def side_index_size(self, val):
         if self.count() < 2:
             return
-        if val == 0 and not self.is_side_index_hidden:
+        side_index_hidden = self.is_side_index_hidden
+        if val == 0 and not side_index_hidden:
             self.save_state()
         sizes = list(self.sizes())
         for i in range(len(sizes)):
@@ -1159,10 +1162,17 @@ class Splitter(QSplitter):
         self.setSizes(sizes)
         sizes = list(self.sizes())
         total = sum(sizes)
+        total_needs_adjustment = self.hide_handle_on_single_panel and side_index_hidden
+        if total_needs_adjustment:
+            total -= self.original_handle_width
         for i in range(len(sizes)):
             sizes[i] = val if i == self.side_index else total-val
         self.setSizes(sizes)
         self.initialize()
+        if total_needs_adjustment:
+            # the handle visibility and therefore size distribution will change
+            # when the event loop ticks
+            self.reapply_sizes.emit(sizes)
 
     def do_resize(self, *args):
         orig = self.desired_side_size
