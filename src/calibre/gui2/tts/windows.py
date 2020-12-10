@@ -95,25 +95,26 @@ class Client:
                     import traceback
                     traceback.print_exc()
 
-    def speak_simple_text(self, text):
+    def speak(self, text, is_xml=False, want_events=True):
         from calibre_extensions.winsapi import (
-            SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK
+            SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK, SPF_IS_XML
         )
+        import unicodedata
+        text = unicodedata.normalize('NFC', text)
+        flags = SPF_IS_XML if is_xml else SPF_IS_NOT_XML
+        self.current_stream_number = self.sp_voice.speak(text, flags | SPF_PURGEBEFORESPEAK | SPF_ASYNC, want_events)
+        return self.current_stream_number
+
+    def speak_simple_text(self, text):
         self.current_callback = None
         self.current_marked_text = self.last_mark = None
-        self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_NOT_XML, True)
-
-    def speak_xml(self, text):
-        from calibre_extensions.winsapi import (
-            SPF_ASYNC, SPF_IS_XML, SPF_PURGEBEFORESPEAK
-        )
-        self.current_stream_number = self.sp_voice.speak(text, SPF_ASYNC | SPF_PURGEBEFORESPEAK | SPF_IS_XML, True)
+        self.speak(text)
 
     def speak_marked_text(self, text, callback):
         self.current_marked_text = text
         self.last_mark = None
         self.current_callback = callback
-        self.speak_xml(text)
+        self.speak(text, is_xml=True)
 
     def stop(self):
         from calibre_extensions.winsapi import SPF_PURGEBEFORESPEAK
@@ -155,7 +156,7 @@ class Client:
         self.ignore_next_start_event = True
         if self.current_callback is not None:
             self.current_callback(Event(EventType.resume))
-        self.speak_xml(text)
+        self.speak(text, is_xml=True)
         self.status = {'synthesizing': True, 'paused': False}
 
     def get_voice_data(self):
