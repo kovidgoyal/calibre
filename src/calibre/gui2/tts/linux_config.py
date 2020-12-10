@@ -76,10 +76,12 @@ class Widget(QWidget):
         self.tts_client = tts_client
 
         self.speed = s = QSlider(Qt.Orientation.Horizontal, self)
+        s.setTickPosition(QSlider.TickPosition.TicksAbove)
         s.setMinimumWidth(200)
         l.addRow(_('&Speed of speech:'), s)
-        s.setRange(-100, 100)
-        s.setSingleStep(5)
+        s.setRange(self.tts_client.min_rate, self.tts_client.max_rate)
+        s.setSingleStep(10)
+        s.setTickInterval((self.tts_client.max_rate - self.tts_client.min_rate) // 2)
 
         self.output_modules = om = QComboBox(self)
         with BusyCursor():
@@ -183,7 +185,7 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.tts.implementation import Client
     app = Application([])
-    c = Client()
+    c = Client({})
     w = Widget(c, {})
     w.show()
     app.exec_()

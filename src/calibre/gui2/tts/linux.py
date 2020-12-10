@@ -19,6 +19,8 @@ class Client:
 
     mark_template = '<mark name="{}"/>'
     name = 'speechd'
+    min_rate = -100
+    max_rate = 100
 
     @classmethod
     def escape_marked_text(cls, text):
@@ -71,7 +73,6 @@ class Client:
             self.shutdown()
             self.settings_applied = False
             self.ensure_state()
-        self.settings_applied = True
         om = self.settings.get('output_module')
         if om:
             self.ssip_client.set_output_module(om)
@@ -81,6 +82,7 @@ class Client:
         rate = self.settings.get('rate')
         if rate:
             self.ssip_client.set_rate(rate)
+        self.settings_applied = True
 
     def set_use_ssml(self, on):
         from speechd.client import DataMode, SSIPCommunicationError
@@ -190,3 +192,18 @@ class Client:
                 ans[om] = tuple(self.ssip_client.list_synthesis_voices())
             self.ssip_client.set_output_module(output_module)
         return ans
+
+    def change_rate(self, steps=1):
+        rate = current_rate = self.settings.get('rate') or 0
+        step_size = (self.max_rate - self.min_rate) // 10
+        rate += steps * step_size
+        rate = max(self.min_rate, min(rate, self.max_rate))
+        if rate != current_rate:
+            self.settings['rate'] = rate
+            prev_state = self.status.copy()
+            self.apply_settings()
+            if prev_state['synthesizing'] and not prev_state['paused']:
+                self.status['synthesizing'] = True
+                self.status['paused'] = True
+                self.resume_after_configure()
+            return self.settings

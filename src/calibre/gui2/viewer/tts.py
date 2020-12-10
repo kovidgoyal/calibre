@@ -34,13 +34,12 @@ class Config(Dialog):
         return super().accept()
 
 
-def add_markup(text_parts):
+def add_markup(text_parts, mark_template):
     from calibre.gui2.tts.implementation import Client
     buf = []
-    bm = Client.mark_template
     for x in text_parts:
         if isinstance(x, int):
-            buf.append(bm.format(x))
+            buf.append(mark_template.format(x))
         else:
             buf.append(Client.escape_marked_text(x))
     return ''.join(buf)
@@ -65,10 +64,14 @@ class TTS(QObject):
             traceback.print_exc()
 
     @property
+    def tts_client_class(self):
+        from calibre.gui2.tts.implementation import Client
+        return Client
+
+    @property
     def tts_client(self):
         if self._tts_client is None:
-            from calibre.gui2.tts.implementation import Client
-            self._tts_client = Client(self.backend_settings, self.dispatch_on_main_thread_signal.emit)
+            self._tts_client = self.tts_client_class(self.backend_settings, self.dispatch_on_main_thread_signal.emit)
         return self._tts_client
 
     def shutdown(self):
@@ -91,7 +94,7 @@ class TTS(QObject):
             return error_dialog(self.parent(), _('Text-to-Speech unavailable'), str(err), show=True)
 
     def play(self, data):
-        marked_text = add_markup(data['marked_text'])
+        marked_text = add_markup(data['marked_text'], self.tts_client_class.mark_template)
         self.tts_client.speak_marked_text(marked_text, self.callback)
 
     def pause(self, data):
@@ -114,23 +117,31 @@ class TTS(QObject):
 
     @property
     def backend_settings(self):
-        from calibre.gui2.tts.implementation import Client
-        key = 'tts_' + Client.name
+        key = 'tts_' + self.tts_client_class.name
         return vprefs.get(key) or {}
 
     @backend_settings.setter
     def backend_settings(self, val):
-        from calibre.gui2.tts.implementation import Client
-        key = 'tts_' + Client.name
-        val = val or {}
-        vprefs.set(key, val)
-        self.tts_client.apply_settings(val)
+        key = 'tts_' + self.tts_client_class.name
+        vprefs.set(key, val or {})
 
     def configure(self, data):
         ui_settings = get_pref_group('tts').copy()
         d = Config(self.tts_client, ui_settings, self.backend_settings, parent=self.parent())
         if d.exec_() == QDialog.DialogCode.Accepted:
-            self.backend_settings = d.backend_settings
+            s = d.backend_settings
+            self.backend_settings = s
+            self.tts_client.apply_settings(s)
             self.settings_changed.emit(d.ui_settings)
         else:
             self.settings_changed.emit(None)
+
+    def slower(self, data):
+        settings = self.tts_client.change_rate(steps=-1)
+        if settings is not None:
+            self.backend_settings = settings
+
+    def faster(self, data):
+        settings = self.tts_client.change_rate(steps=1)
+        if settings is not None:
+            self.backend_settings = settings

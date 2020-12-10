@@ -117,6 +117,8 @@ class ReadAloud:
             bar.appendChild(cb(None, 'hourglass', _('Pause reading')))
         else:
             bar.appendChild(cb('play', 'play', _('Start reading') if self.state is STOPPED else _('Resume reading')))
+        bar.appendChild(cb('slower', 'slower', _('Slow down speech')))
+        bar.appendChild(cb('faster', 'faster', _('Speed up speech')))
         bar.appendChild(cb('configure', 'cogs', _('Configure Read aloud')))
         bar.appendChild(cb('hide', 'close', _('Close Read aloud')))
         if self.state is not WAITING_FOR_PLAY_TO_START:
@@ -134,6 +136,12 @@ class ReadAloud:
         self.pause()
         self.waiting_for_configure = True
         ui_operations.tts('configure')
+
+    def slower(self):
+        ui_operations.tts('slower')
+
+    def faster(self):
+        ui_operations.tts('faster')
 
     def play(self):
         if self.state is PAUSED:
