@@ -26,9 +26,10 @@ class Client:
     def escape_marked_text(cls, text):
         return prepare_string_for_xml(text)
 
-    def __init__(self, settings, dispatch_on_main_thread=lambda f: f()):
+    def __init__(self, settings=None, dispatch_on_main_thread=lambda f: f()):
+        self.ssip_client = None
         self.status = {'synthesizing': False, 'paused': False}
-        self.settings = settings
+        self.settings = settings or {}
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.current_marked_text = None
         self.last_mark = None
@@ -36,7 +37,6 @@ class Client:
         self.next_begin_is_for_resume = False
         self.current_callback = None
         self.settings_applied = False
-        self.ssip_client = None
         self.system_default_output_module = None
 
     def create_ssip_client(self):
@@ -127,7 +127,7 @@ class Client:
             self.next_cancel_is_for_pause = False
         return event
 
-    def speak_marked_text(self, text, callback):
+    def speak_marked_text(self, text, callback=lambda ev: None):
         self.stop()
         self.current_marked_text = text
         self.last_mark = None
