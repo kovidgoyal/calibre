@@ -83,9 +83,7 @@ itself, because it is pain, but because occasionally circumstances occur in
 which toil and pain can procure him some great pleasure. To take a trivial
 example, which of.
 '''
-        self.text = 'one, two, three. one two three'
         self.ssml, self.pos_map = add_markup(self.text)
-        print(1111, self.ssml)
         self.current_mark = None
         l.addWidget(la)
         self.bb = bb = QDialogButtonBox(self)
