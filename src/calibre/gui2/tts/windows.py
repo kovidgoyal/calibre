@@ -99,8 +99,6 @@ class Client:
         from calibre_extensions.winsapi import (
             SPF_ASYNC, SPF_IS_NOT_XML, SPF_PURGEBEFORESPEAK, SPF_IS_XML
         )
-        import unicodedata
-        text = unicodedata.normalize('NFC', text)
         flags = SPF_IS_XML if is_xml else SPF_IS_NOT_XML
         self.current_stream_number = self.sp_voice.speak(text, flags | SPF_PURGEBEFORESPEAK | SPF_ASYNC, want_events)
         return self.current_stream_number

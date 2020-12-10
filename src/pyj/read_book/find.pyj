@@ -44,6 +44,10 @@ def index_for_node(node, node_list):
             return entry.offset
 
 
+def tts_word_regex():
+    return /[\p{L}\p{M}]+/gu
+
+
 def tts_data(text_node, offset):
     offset_in_flat_text = offset or 0
     if not cache.text_map:
@@ -55,7 +59,7 @@ def tts_data(text_node, offset):
     last = None
     marked_text = v'[]'
     text = cache.text_map.flat_text[offset_in_flat_text:]
-    for v'match of text.matchAll(/\w+/g)':
+    for v'match of text.matchAll(tts_word_regex())':
         start = match.index
         if first:
             first = False
@@ -162,7 +166,7 @@ def select_tts_mark(idx_in_flat_text):
     window.getSelection().removeAllRanges()
     if not cache.text_map:
         cache.text_map = build_text_map()
-    r = /\w+/g
+    r = tts_word_regex()
     r.lastIndex = idx_in_flat_text
     match = v'r.exec(cache.text_map.flat_text)'
     word_length = 5
