@@ -63,7 +63,7 @@ def tts_data(text_node, offset):
                 marked_text.push(text[:start])
         marked_text.push(start + offset_in_flat_text)
         marked_text.push(match[0])
-        last = start + match.length
+        last = start + match[0].length
     if last is None:
         marked_text.push(text)
     else:
