@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 15  # Needed for dynamic plugin loading
+store_version = 16  # Needed for dynamic plugin loading
 
 from contextlib import closing
 try:
@@ -11,7 +11,7 @@ try:
 except ImportError:
     from urllib import urlencode
 
-from lxml import html
+from lxml import html, etree
 
 from PyQt5.Qt import QUrl
 
@@ -21,7 +21,7 @@ from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
 SEARCH_BASE_URL = 'https://www.amazon.fr/s/'
-SEARCH_BASE_QUERY = {'url': 'search-alias=digital-text'}
+SEARCH_BASE_QUERY = {'i': 'digital-text'}
 BY = 'de'
 KINDLE_EDITION = 'Format Kindle'
 DETAILS_URL = 'https://amazon.fr/dp/'
@@ -38,7 +38,7 @@ def search_amazon(query, max_results=10, timeout=60,
                   write_html_to=None,
                   base_url=SEARCH_BASE_URL,
                   base_query=SEARCH_BASE_QUERY,
-                  field_keywords='field-keywords'
+                  field_keywords='k'
                   ):
     uquery = base_query.copy()
     uquery[field_keywords] = query
@@ -58,52 +58,30 @@ def search_amazon(query, max_results=10, timeout=60,
             with open(write_html_to, 'wb') as f:
                 f.write(raw)
         doc = html.fromstring(raw)
-        try:
-            results = doc.xpath('//div[@id="atfResults" and @class]')[0]
-        except IndexError:
-            return
-
-        if 's-result-list-parent-container' in results.get('class', ''):
-            data_xpath = "descendant-or-self::li[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-result-item ')]"
-            format_xpath = './/a[@title="%s"]/@title' % KINDLE_EDITION
-            asin_xpath = '@data-asin'
-            cover_xpath =  "descendant-or-self::img[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-image ')]/@src"
-            title_xpath = "descendant-or-self::h2[@class and contains(concat(' ', normalize-space(@class), ' '), ' s-access-title ')]//text()"
-            author_xpath = './/span[starts-with(text(), "%s ")]/following-sibling::span//text()' % BY
-            price_xpath = 'descendant::span[contains(@class, "s-price")]//text()'
-        else:
-            return
-
-        for data in doc.xpath(data_xpath):
-            if counter <= 0:
-                break
-
+        for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
+            kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(KINDLE_EDITION)))
             # Even though we are searching digital-text only Amazon will still
             # put in results for non Kindle books (author pages). Se we need
             # to explicitly check if the item is a Kindle book and ignore it
             # if it isn't.
-            format = ''.join(data.xpath(format_xpath))
-            if 'kindle' not in format.lower():
+            if 'kindle' not in kformat.lower():
+                continue
+            asin = result.get('data-asin')
+            if not asin:
                 continue
 
-            # We must have an asin otherwise we can't easily reference the
-            # book later.
-            asin = data.xpath(asin_xpath)
-            if asin:
-                asin = asin[0]
-            else:
-                continue
-
-            cover_url = ''.join(data.xpath(cover_xpath))
-
-            title = ''.join(data.xpath(title_xpath))
-            author = ''.join(data.xpath(author_xpath))
-            try:
-                author = author.split('by ', 1)[1].split(" (")[0]
-            except:
-                pass
-
-            price = ''.join(data.xpath(price_xpath))
+            cover_url = ''.join(result.xpath('.//img/@src'))
+            title = etree.tostring(result.xpath('.//h2')[0], method='text', encoding='unicode')
+            adiv = result.xpath('.//div[contains(@class, "a-color-secondary")]')[0]
+            aparts = etree.tostring(adiv, method='text', encoding='unicode').split()
+            idx = aparts.index(BY)
+            author = ' '.join(aparts[idx+1:]).split('|')[0].strip()
+            price = ''
+            for span in result.xpath('.//span[contains(@class, "a-price")]/span[contains(@class, "a-offscreen")]'):
+                q = ''.join(span.xpath('./text()'))
+                if q:
+                    price = q
+                    break
 
             counter -= 1
 
@@ -111,8 +89,8 @@ def search_amazon(query, max_results=10, timeout=60,
             s.cover_url = cover_url.strip()
             s.title = title.strip()
             s.author = author.strip()
-            s.price = price.strip()
             s.detail_item = asin.strip()
+            s.price = price.strip()
             s.formats = 'Kindle'
 
             yield s

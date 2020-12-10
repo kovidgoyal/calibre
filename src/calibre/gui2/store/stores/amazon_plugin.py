@@ -22,6 +22,8 @@ from calibre.gui2.store.search_result import SearchResult
 
 SEARCH_BASE_URL = 'https://www.amazon.com/s/'
 SEARCH_BASE_QUERY = {'i': 'digital-text'}
+BY = 'by'
+KINDLE_EDITION = 'Kindle Edition'
 DETAILS_URL = 'https://amazon.com/dp/'
 STORE_LINK =  'https://www.amazon.com/Kindle-eBooks'
 DRM_SEARCH_TEXT = 'Simultaneous Device Usage'
@@ -57,7 +59,7 @@ def search_amazon(query, max_results=10, timeout=60,
                 f.write(raw)
         doc = html.fromstring(raw)
         for result in doc.xpath('//div[contains(@class, "s-result-list")]//div[@data-index and @data-asin]'):
-            kformat = ''.join(result.xpath('.//a[contains(text(), "Kindle Edition")]//text()'))
+            kformat = ''.join(result.xpath('.//a[contains(text(), "{}")]//text()'.format(KINDLE_EDITION)))
             # Even though we are searching digital-text only Amazon will still
             # put in results for non Kindle books (author pages). Se we need
             # to explicitly check if the item is a Kindle book and ignore it
@@ -72,7 +74,7 @@ def search_amazon(query, max_results=10, timeout=60,
             title = etree.tostring(result.xpath('.//h2')[0], method='text', encoding='unicode')
             adiv = result.xpath('.//div[contains(@class, "a-color-secondary")]')[0]
             aparts = etree.tostring(adiv, method='text', encoding='unicode').split()
-            idx = aparts.index('by')
+            idx = aparts.index(BY)
             author = ' '.join(aparts[idx+1:]).split('|')[0].strip()
             price = ''
             for span in result.xpath('.//span[contains(@class, "a-price")]/span[contains(@class, "a-offscreen")]'):
