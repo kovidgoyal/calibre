@@ -79,7 +79,7 @@ class AnnotsResultsDelegate(ResultsDelegate):
 
     def result_data(self, result):
         if not isinstance(result, dict):
-            return None, None, None, None
+            return None, None, None, None, None
         full_text = result['text'].replace('\x1f', ' ')
         parts = full_text.split('\x1d', 2)
         before = after = ''
@@ -90,9 +90,7 @@ class AnnotsResultsDelegate(ResultsDelegate):
             before, text = parts
         else:
             text = parts[0]
-        if result.get('annotation', {}).get('notes'):
-            before = '•' + (before or '')
-        return False, before, text, after
+        return False, before, text, after, bool(result.get('annotation', {}).get('notes'))
 
 
 # }}}

@@ -19,13 +19,13 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 
     def result_data(self, result):
         if not hasattr(result, 'is_hidden'):
-            return None, None, None, None
-        return result.is_hidden, result.before, result.text, result.after
+            return None, None, None, None, None
+        return result.is_hidden, result.before, result.text, result.after, False
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
         result = index.data(Qt.ItemDataRole.UserRole)
-        is_hidden, result_before, result_text, result_after = self.result_data(result)
+        is_hidden, result_before, result_text, result_after, show_leading_dot = self.result_data(result)
         if result_text is None:
             return
         painter.save()
@@ -45,6 +45,8 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             rect = option.rect.adjusted(option.decorationSize.width() + 4 if is_hidden else 0, 0, 0, 0)
             painter.setClipRect(rect)
             before = re.sub(r'\s+', ' ', result_before)
+            if show_leading_dot:
+                before = '•' + before
             before_width = 0
             if before:
                 before_width = painter.boundingRect(rect, flags, before).width()
@@ -58,6 +60,8 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
             match_width = painter.boundingRect(rect, flags, text).width()
             if match_width >= rect.width() - 3 * ellipsis_width:
                 efm = QFontMetrics(emphasis_font)
+                if show_leading_dot:
+                    text = '•' + text
                 text = efm.elidedText(text, Qt.TextElideMode.ElideRight, rect.width())
                 painter.drawText(rect, flags, text)
             else:
