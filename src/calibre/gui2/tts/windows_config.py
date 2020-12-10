@@ -80,7 +80,7 @@ class Widget(QWidget):
         self.speed = s = QSlider(Qt.Orientation.Horizontal, self)
         s.setMinimumWidth(200)
         l.addRow(_('&Speed of speech (words per minute):'), s)
-        s.setRange(-10, 10)
+        s.setRange(self.tts_client.min_rate, self.tts_client.max_rate)
         s.setSingleStep(1)
         s.setPageStep(2)
 

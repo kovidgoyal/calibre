@@ -14,6 +14,8 @@ class Client:
 
     mark_template = '<bookmark mark="{}"/>'
     name = 'sapi'
+    min_rate = -10
+    max_rate = 10
 
     @classmethod
     def escape_marked_text(cls, text):
@@ -30,7 +32,8 @@ class Client:
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.current_marked_text = self.last_mark = None
         self.status = {'synthesizing': False, 'paused': False}
-        self.apply_settings(settings)
+        self.settings = settings or {}
+        self.apply_settings()
 
     def create_voice(self):
         from calibre.utils.windows.winsapi import ISpVoice
@@ -50,10 +53,11 @@ class Client:
             self.sp_voice.resume()
             self.ignore_next_stop_event = True
             self.status = {'synthesizing': False, 'paused': False}
-        settings = new_settings or {}
-        self.sp_voice.set_current_rate(settings.get('rate', self.default_system_rate))
-        self.sp_voice.set_current_voice(settings.get('voice') or self.default_system_voice)
-        self.sp_voice.set_current_sound_output(settings.get('sound_output') or self.default_system_sound_output)
+        if new_settings is not None:
+            self.settings = new_settings
+        self.sp_voice.set_current_rate(self.settings.get('rate', self.default_system_rate))
+        self.sp_voice.set_current_voice(self.settings.get('voice') or self.default_system_voice)
+        self.sp_voice.set_current_sound_output(self.settings.get('sound_output') or self.default_system_sound_output)
 
     def wait_for_events(self):
         while True:
@@ -138,21 +142,21 @@ class Client:
     def resume_after_configure(self):
         if self.status['paused']:
             self.resume()
+            return
+        if self.last_mark is None:
+            idx = -1
         else:
-            if self.last_mark is None:
-                idx = -1
-            else:
-                mark = self.mark_template.format(self.last_mark)
-                idx = self.current_marked_text.find(mark)
-            if idx == -1:
-                text = self.current_marked_text
-            else:
-                text = self.current_marked_text[idx:]
-            self.ignore_next_start_event = True
-            if self.current_callback is not None:
-                self.current_callback(Event(EventType.resume))
-            self.speak_xml(text)
-            self.status = {'synthesizing': True, 'paused': False}
+            mark = self.mark_template.format(self.last_mark)
+            idx = self.current_marked_text.find(mark)
+        if idx == -1:
+            text = self.current_marked_text
+        else:
+            text = self.current_marked_text[idx:]
+        self.ignore_next_start_event = True
+        if self.current_callback is not None:
+            self.current_callback(Event(EventType.resume))
+        self.speak_xml(text)
+        self.status = {'synthesizing': True, 'paused': False}
 
     def get_voice_data(self):
         ans = getattr(self, 'voice_data', None)
@@ -169,3 +173,18 @@ class Client:
     def config_widget(self, backend_settings, parent):
         from calibre.gui2.tts.windows_config import Widget
         return Widget(self, backend_settings, parent)
+
+    def change_rate(self, steps=1):
+        rate = current_rate = self.settings.get('rate', self.default_system_rate)
+        step_size = (self.max_rate - self.min_rate) // 10
+        rate += steps * step_size
+        rate = max(self.min_rate, min(rate, self.max_rate))
+        if rate != current_rate:
+            self.settings['rate'] = rate
+            prev_state = self.status.copy()
+            self.pause()
+            self.apply_settings()
+            if prev_state['synthesizing']:
+                self.status = {'synthesizing': True, 'paused': False}
+                self.resume_after_configure()
+            return self.settings
