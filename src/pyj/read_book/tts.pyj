@@ -25,6 +25,9 @@ escape_for_xml = escaper()
 
 class Client:
 
+    min_rate = 0.1
+    max_rate = 2
+
     def __init__(self):
         self.stop_requested_at = None
         self.status = {'synthesizing': False, 'paused': False}
@@ -143,6 +146,34 @@ class Client:
         if self.queue.length:
             window.speechSynthesis.speak(self.queue[0])
 
+    def faster(self):
+        self.change_rate(steps=1)
+
+    def slower(self):
+        self.change_rate(steps=-1)
+
+    def apply_settings(self):
+        sd = get_session_data()
+        sd.set('tts_backend', {'voice': self.current_voice_uri, 'rate': self.current_rate})
+        existing = self.queue
+        if self.queue and self.queue.length:
+            if self.status.paused:
+                window.speechSynthesis.resume()
+            self.stop()
+            for ut in existing:
+                self.create_utterance(ut.text)
+
+    def change_rate(self, steps=1):
+        rate = current_rate = (self.current_rate or 1) * 10
+        step_size = 2
+        rate += steps * step_size
+        rate /= 10
+        rate = max(self.min_rate, min(rate, self.max_rate))
+        if rate is not current_rate:
+            self.current_rate = rate
+            self.apply_settings()
+            self.resume_after_configure()
+
     def configure(self):
         voice_id = unique_id()
         rate_id = unique_id()
@@ -171,7 +202,7 @@ class Client:
                         option.setAttribute('selected', 'selected')
                     select.appendChild(option)
                 parent_div.appendChild(E.div(_('Speed of speech:')))
-                parent_div.appendChild(E.input(type='range', id=rate_id, min='1', max='20', value=((self.current_rate or 1) * 10) + ''))
+                parent_div.appendChild(E.input(type='range', id=rate_id, min=(self.min_rate * 10) + '', max=(self.max_rate * 10) + '', value=((self.current_rate or 1) * 10) + ''))
                 parent_div.appendChild(E.div(_('Pick a voice below:')))
                 parent_div.appendChild(select)
                 if select.options.selectedIndex?:
@@ -193,15 +224,7 @@ class Client:
                 if changed:
                     self.current_voice_uri = voice
                     self.current_rate = rate
-                    sd = get_session_data()
-                    sd.set('tts_backend', {'voice': voice, 'rate': rate})
-                    existing = self.queue
-                    if self.queue and self.queue.length:
-                        if self.status.paused:
-                            window.speechSynthesis.resume()
-                        self.stop()
-                        for ut in existing:
-                            self.create_utterance(ut.text)
+                    self.apply_settings()
 
                 self.onevent('configured')
         )

@@ -214,6 +214,7 @@ class ReadAloud:
             self.state = STOPPED
             self.view.show_next_spine_item()
         elif which is 'configured':
+            self.focus()
             if self.waiting_for_configure:
                 self.play()
             if data is not None:
