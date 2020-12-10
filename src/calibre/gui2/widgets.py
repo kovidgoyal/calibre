@@ -1062,6 +1062,7 @@ class Splitter(QSplitter):
             orientation=Qt.Orientation.Horizontal, side_index=0, parent=None,
             shortcut=None, hide_handle_on_single_panel=True):
         QSplitter.__init__(self, parent)
+        self.hide_handle_on_single_panel = hide_handle_on_single_panel
         if hide_handle_on_single_panel:
             self.state_changed.connect(self.update_handle_width)
         self.original_handle_width = self.handleWidth()
@@ -1156,8 +1157,8 @@ class Splitter(QSplitter):
         for i in range(len(sizes)):
             sizes[i] = val if i == self.side_index else 10
         self.setSizes(sizes)
-        total = sum(self.sizes())
         sizes = list(self.sizes())
+        total = sum(sizes)
         for i in range(len(sizes)):
             sizes[i] = val if i == self.side_index else total-val
         self.setSizes(sizes)
