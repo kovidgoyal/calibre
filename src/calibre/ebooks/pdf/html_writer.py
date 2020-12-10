@@ -1031,6 +1031,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     report_progress(0.8, _('Adding headers and footers'))
     name = create_skeleton(container)
     root = container.parsed(name)
+    root.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset;')
     body = last_tag(root)
     body.attrib.pop('id', None)
     body.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset;')
@@ -1181,6 +1182,7 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     data = results[name]
     if not isinstance(data, bytes):
         raise SystemExit(data)
+    # open('/t/impose.pdf', 'wb').write(data)
     doc = data_as_pdf_doc(data)
     first_page_num = pdf_doc.page_count()
     num_pages = doc.page_count()
