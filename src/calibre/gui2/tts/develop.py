@@ -29,6 +29,8 @@ def add_markup(text):
             first = False
             if start:
                 buf.append(Client.escape_marked_text(text[:start]))
+        elif start > last:
+            buf.append(Client.escape_marked_text(text[last:start]))
         num = next(counter)
         buf.append(bm.format(num))
         pos_map[num] = start, end
@@ -52,7 +54,7 @@ class TTSWidget(QWidget):
         QWidget.__init__(self, parent)
         self.mark_changed.connect(self.on_mark_change)
         self.dispatch_on_main_thread_signal.connect(self.dispatch_on_main_thread, type=Qt.ConnectionType.QueuedConnection)
-        self.tts = Client(self.dispatch_on_main_thread_signal.emit)
+        self.tts = Client({}, self.dispatch_on_main_thread_signal.emit)
         self.l = l = QVBoxLayout(self)
         self.la = la = QLabel(self)
         la.setTextFormat(Qt.TextFormat.RichText)
@@ -81,7 +83,9 @@ itself, because it is pain, but because occasionally circumstances occur in
 which toil and pain can procure him some great pleasure. To take a trivial
 example, which of.
 '''
+        self.text = 'one, two, three. one two three'
         self.ssml, self.pos_map = add_markup(self.text)
+        print(1111, self.ssml)
         self.current_mark = None
         l.addWidget(la)
         self.bb = bb = QDialogButtonBox(self)
