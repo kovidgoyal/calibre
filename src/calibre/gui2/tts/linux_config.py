@@ -81,7 +81,7 @@ class Widget(QWidget):
         l.addRow(_('&Speed of speech:'), s)
         s.setRange(self.tts_client.min_rate, self.tts_client.max_rate)
         s.setSingleStep(10)
-        s.setTickInterval((self.tts_client.max_rate - self.tts_client.min_rate) // 2)
+        s.setTickInterval((s.maximum() - s.minimum()) // 2)
 
         self.output_modules = om = QComboBox(self)
         with BusyCursor():

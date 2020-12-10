@@ -83,8 +83,9 @@ class Widget(QWidget):
         self.speed = s = QSlider(Qt.Orientation.Horizontal, self)
         s.setMinimumWidth(200)
         l.addRow(_('&Speed of speech (words per minute):'), s)
-        delta = self.default_system_rate - 50
-        s.setRange(self.default_system_rate - delta, self.default_system_rate + delta)
+        s.setRange(self.tts_client.min_rate, self.tts_client.max_rate)
+        s.setTickPosition(QSlider.TickPosition.TicksAbove)
+        s.setTickInterval((s.maximum() - s.minimum()) // 2)
         s.setSingleStep(10)
 
         self.voices = v = QTableView(self)

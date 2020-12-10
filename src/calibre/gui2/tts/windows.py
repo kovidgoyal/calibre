@@ -139,8 +139,11 @@ class Client:
         if self.status['paused']:
             self.resume()
         else:
-            mark = self.mark_template.format(self.last_mark)
-            idx = self.current_marked_text.find(mark)
+            if self.last_mark is None:
+                idx = -1
+            else:
+                mark = self.mark_template.format(self.last_mark)
+                idx = self.current_marked_text.find(mark)
             if idx == -1:
                 text = self.current_marked_text
             else:

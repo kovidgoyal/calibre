@@ -95,7 +95,7 @@ class TTS(QObject):
 
     def play(self, data):
         marked_text = add_markup(data['marked_text'], self.tts_client_class.mark_template)
-        self.tts_client.speak_marked_text(marked_text, self.callback)
+        self.tts_client.speak_marked_text(marked_text.strip(), self.callback)
 
     def pause(self, data):
         self.tts_client.pause()
