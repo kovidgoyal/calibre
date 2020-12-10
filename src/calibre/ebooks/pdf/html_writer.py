@@ -1031,10 +1031,11 @@ def add_header_footer(manager, opts, pdf_doc, container, page_number_display_map
     report_progress(0.8, _('Adding headers and footers'))
     name = create_skeleton(container)
     root = container.parsed(name)
-    root.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset;')
+    reset_css = 'margin: 0; padding: 0; border-width: 0; background-color: unset;'
+    root.set('style', reset_css)
     body = last_tag(root)
     body.attrib.pop('id', None)
-    body.set('style', 'margin: 0; padding: 0; border-width: 0; background-color: unset;')
+    body.set('style', reset_css)
     job = job_for_name(container, name, Margins(0, 0, 0, 0), page_layout)
 
     def m(tag_name, text=None, style=None, **attrs):
