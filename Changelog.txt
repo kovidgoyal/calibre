@@ -23,6 +23,45 @@
 # - title by author
 # }}}
 
+{{{ 5.7.0 2020-11-11
+
+:: new features
+
+- [major] E-book viewer: Add a "Read aloud" function that works via the operating system's Text-to-speech engine.
+
+  Click the "Read aloud" button in the viewer controls to start reading the book text aloud from the current page.
+
+- A new busy spinner for waiting animations
+
+- [1907140] Edit metadata: Add buttons to easily set yes/no fields also shortcut to clear the field.
+
+:: bug fixes
+
+- [1905967] PDF Output: Fix a regression in the previous release that broke text rendering for some fonts due to a bug in Qt WebEngine.
+
+- [1905736] PDF Output: Fix conversion failing when adding header/footer and the input document defines margins/padding on the <html> tag.
+
+- [1907159] Windows: Fix the case of library names in copied calibre:// links sometimes incorrect.
+
+- [1906459] AZW3 Input: Fix a regression in calibre 5 that broke processing of files with inline flow replacements.
+
+- [1906149] Fix hiding and showing book details panel changes its size by a pixel or two.
+
+- [1907067] Get books: Fix amazon.fr not working because of website changes.
+
+- Bulk metadata search/replace: Fix text transform function not being applied to the test result in character mode
+
+- [1906464] Book list: Improve rendering of column headers when they dont fit, by eliding them instead of just cutting off rendering.
+
+- [1906063] Fix template function "first_non_empty" fails if no argument evaluates non-empty
+
+:: improved recipes
+- The Guardian
+- The Atlantic
+
+}}}
+
+
 {{{ 5.6.0 2020-11-27
 
 :: new features
