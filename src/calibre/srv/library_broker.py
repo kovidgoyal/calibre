@@ -63,6 +63,7 @@ def library_id_from_path(path, existing=frozenset()):
 
 
 def correct_case_of_last_path_component(original_path):
+    original_path = os.path.abspath(original_path)
     prefix, basename = os.path.split(original_path)
     q = basename.lower()
     try:
