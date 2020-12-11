@@ -42,6 +42,18 @@ def word_at_point(x, y):
             return r
 
 
+def first_visible_word():
+    width = window.innerWidth
+    height = window.innerHeight
+    xdelta = width // 10
+    ydelta = height // 10
+    for y in range(0, height, ydelta):
+        for x in range(0, width, xdelta):
+            r = word_at_point(x, y)
+            if r?:
+                return r
+
+
 def empty_range_extents():
     return {
         'start': {'x': 0, 'y': 0, 'height': 0, 'width': 0, 'onscreen': False, 'selected_prev': False},

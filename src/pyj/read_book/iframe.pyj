@@ -64,7 +64,7 @@ from read_book.touch import (
 )
 from read_book.viewport import scroll_viewport
 from select import (
-    move_end_of_selection, selection_extents, word_at_point
+    move_end_of_selection, selection_extents, word_at_point, first_visible_word
 )
 from utils import debounce, is_ios
 
@@ -903,9 +903,10 @@ class IframeBoss:
             text_node, offset = None, 0
             if data.pos:
                 r = word_at_point(data.pos.x, data.pos.y)
-                if r:
-                    if r.startContainer?.nodeType is Node.TEXT_NODE:
-                        text_node, offset = r.startContainer, r.startOffset
+            else:
+                r = first_visible_word()
+            if r and r.startContainer?.nodeType is Node.TEXT_NODE:
+                text_node, offset = r.startContainer, r.startOffset
             marked_text = tts_data(text_node, offset)
             sel = window.getSelection()
             sel.removeAllRanges()
