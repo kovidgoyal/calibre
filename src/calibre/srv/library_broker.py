@@ -65,11 +65,14 @@ def library_id_from_path(path, existing=frozenset()):
 def correct_case_of_last_path_component(original_path):
     prefix, basename = os.path.split(original_path)
     q = basename.lower()
-    equals = tuple(x for x in os.listdir(prefix) if x.lower() == q)
+    try:
+        equals = tuple(x for x in os.listdir(prefix) if x.lower() == q)
+    except OSError:
+        equals = ()
     if len(equals) > 1:
         if basename not in equals:
             basename = equals[0]
-    else:
+    elif equals:
         basename = equals[0]
     return os.path.join(prefix, basename)
 
