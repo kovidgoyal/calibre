@@ -141,6 +141,13 @@ the selection bar in the viewer preferences under :guilabel:`Selection
 behavior`.
 
 
+.. note:: Support for text-to-speech in browsers is very incomplete and
+   bug-ridden so how well :guilabel:`Read aloud` will work in the in-browser
+   viewer is dependent on how well the underlying browser supports
+   text-to-speech. In particular, highlighting of current word does not work,
+   and changing speed or voice will cause reading to start again from the
+   beginning.
+
 .. note:: On Linux, :guilabel:`Read aloud` requires `Speech Dispatcher
    <https://freebsoft.org/speechd>`_ to be installed and working.
 
