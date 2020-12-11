@@ -799,6 +799,43 @@ def merge_w_arrays(arrays):
     return ans
 
 
+def width_map_from_w_array(w):
+    ans = {}
+    i = 0
+    while i + 1 < len(w):
+        elem = w[i]
+        next_elem = w[i+1]
+        if isinstance(next_elem, list):
+            for gid, width in zip(range(elem, elem + len(next_elem)), next_elem):
+                ans[gid] = width
+            i += 2
+        else:
+            try:
+                width = w[i+2]
+            except IndexError:
+                width = 0
+            for gid in range(elem, next_elem + 1):
+                ans[gid] = width
+            i += 3
+    return ans
+
+
+def merge_w_arrays_directly(arrays):
+    width_maps = tuple(map(width_map_from_w_array, arrays))
+
+    def getter(gid):
+        return max(m.get(gid, 0) for m in width_maps)
+
+    all_gids = set()
+    for m in width_maps:
+        all_gids |= set(m)
+
+    widths = []
+    for gid in sorted(all_gids):
+        widths.extend((gid, gid, getter(gid)))
+    return merge_w_arrays((widths,))
+
+
 class CMap(object):
 
     def __init__(self):
@@ -933,18 +970,13 @@ def merge_font(fonts, log):
     cmaps = list(filter(None, (f['ToUnicode'] for f in t0_fonts)))
     if cmaps:
         t0_font['ToUnicode'] = as_bytes(merge_cmaps(cmaps))
-    base_font['sfnt'], width_for_glyph_id, height_for_glyph_id = merge_truetype_fonts_for_pdf(tuple(f['sfnt'] for f in descendant_fonts), log)
-    widths = []
+    base_font['sfnt'] = merge_truetype_fonts_for_pdf(tuple(f['sfnt'] for f in descendant_fonts), log)
     arrays = tuple(filter(None, (f['W'] for f in descendant_fonts)))
     if arrays:
-        for gid in all_glyph_ids_in_w_arrays(arrays):
-            widths.append(gid), widths.append(gid), widths.append(1000*width_for_glyph_id(gid))
-        base_font['W'] = merge_w_arrays((widths,))
+        base_font['W'] = merge_w_arrays_directly(arrays)
     arrays = tuple(filter(None, (f['W2'] for f in descendant_fonts)))
     if arrays:
-        for gid in all_glyph_ids_in_w_arrays(arrays):
-            widths.append(gid), widths.append(gid), widths.append(1000*height_for_glyph_id(gid))
-        base_font['W2'] = merge_w_arrays((widths,))
+        base_font['W2'] = merge_w_arrays_directly(arrays)
     return t0_font, base_font, references_to_drop
 
 
