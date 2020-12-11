@@ -192,7 +192,7 @@ def all_actions():
             'search_net': a('global-search', _('Search for selection on the net'), 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
-            'speak': a('bullhorn', _('Speak aloud'), 'speak_aloud'),
+            'speak': a('bullhorn', _('Read aloud'), 'speak_aloud'),
         }
         qh = all_actions.ans.quick_highlight
         qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
