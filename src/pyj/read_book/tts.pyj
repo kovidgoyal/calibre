@@ -208,7 +208,7 @@ class Client:
                 if select.options.selectedIndex?:
                     select.options[select.options.selectedIndex].scrollIntoView()
                 parent_div.appendChild(E.div(
-                        style='margin-top: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
+                        style='margin: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
                         create_button(_('Restore defaults'), action=restore_defaults),
                         create_button(_('Close'), action=close_modal)
                 ))
