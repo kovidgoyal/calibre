@@ -72,7 +72,7 @@ def _checkExists(filename):
 
 def _formatXml(root):
     """ A helper to make the LRS output look nicer. """
-    for elem in root.getiterator():
+    for elem in root.iter():
         if len(elem) > 0 and (not elem.text or not elem.text.strip()):
             elem.text = "\n"
         if not elem.tail or not elem.tail.strip():
