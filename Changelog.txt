@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.7.0 2020-12-11
+{{{ 5.7.1 2020-12-11
 
 :: new features
 
@@ -37,7 +37,7 @@
 
 :: bug fixes
 
-- [1905967] PDF Output: Fix a regression in the previous release that broke text rendering for some fonts due to a bug in Qt WebEngine.
+- [1905967] PDF Output: Fix a regression in the previous release that broke text rendering for some fonts due to a bug in Qt WebEngine (full fix is in 5.7.1).
 
 - [1905736] PDF Output: Fix conversion failing when adding header/footer and the input document defines margins/padding on the <html> tag.
 
@@ -54,6 +54,8 @@
 - [1906464] Book list: Improve rendering of column headers when they dont fit, by eliding them instead of just cutting off rendering.
 
 - [1906063] Fix template function "first_non_empty" fails if no argument evaluates non-empty
+
+- [1907773] Fix regression in 5.7.0 causing failure to start if one of the previously used libraries had a stored path ending in a slash.
 
 :: improved recipes
 - The Guardian
