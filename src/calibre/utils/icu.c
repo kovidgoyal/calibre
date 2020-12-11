@@ -1,5 +1,7 @@
 #include "icu_calibre_utils.h"
 
+#include <stdbool.h>
+
 #define UPPER_CASE 0
 #define LOWER_CASE 1
 #define TITLE_CASE 2
@@ -238,14 +240,14 @@ icu_Collator_contains(icu_Collator *self, PyObject *args) {
 
     a = python_to_icu(a_, &asz);
     if (a == NULL) goto end;
-    if (asz == 0) { found = TRUE; goto end; }
+    if (asz == 0) { found = true; goto end; }
     b = python_to_icu(b_, &bsz);
     if (b == NULL) goto end;
 
     search = usearch_openFromCollator(a, asz, b, bsz, self->collator, NULL, &status);
     if (U_SUCCESS(status)) {
         pos = usearch_first(search, &status);
-        if (pos != USEARCH_DONE) found = TRUE;
+        if (pos != USEARCH_DONE) found = true;
     }
 end:
     if (search != NULL) usearch_close(search);
