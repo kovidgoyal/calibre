@@ -59,7 +59,7 @@ class VoicesModel(QAbstractTableModel):
         if v != self.system_default_voice:
             for i, x in enumerate(self.current_voices):
                 if x[4] == v:
-                    r = i + i
+                    r = i + 1
                     break
             else:
                 return
