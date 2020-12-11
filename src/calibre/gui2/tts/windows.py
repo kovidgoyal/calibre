@@ -3,6 +3,7 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+from time import monotonic
 from threading import Thread
 
 from calibre import prepare_string_for_xml
@@ -23,7 +24,8 @@ class Client:
 
     def __init__(self, settings=None, dispatch_on_main_thread=lambda f: f()):
         self.create_voice()
-        self.ignore_next_stop_event = self.ignore_next_start_event = False
+        self.ignore_next_stop_event = None
+        self.ignore_next_start_event = False
         self.default_system_rate = self.sp_voice.get_current_rate()
         self.default_system_voice = self.sp_voice.get_current_voice()
         self.default_system_sound_output = self.sp_voice.get_current_sound_output()
@@ -51,7 +53,7 @@ class Client:
     def apply_settings(self, new_settings=None):
         if self.status['paused']:
             self.sp_voice.resume()
-            self.ignore_next_stop_event = True
+            self.ignore_next_stop_event = monotonic()
             self.status = {'synthesizing': False, 'paused': False}
         if new_settings is not None:
             self.settings = new_settings
@@ -81,8 +83,8 @@ class Client:
                 event = Event(EventType.begin)
                 self.status = {'synthesizing': True, 'paused': False}
             elif event_type == SPEI_END_INPUT_STREAM:
-                if self.ignore_next_stop_event:
-                    self.ignore_next_stop_event = False
+                if self.ignore_next_stop_event is not None and monotonic() - self.ignore_next_stop_event < 2:
+                    self.ignore_next_stop_event = None
                     continue
                 event = Event(EventType.end)
                 self.status = {'synthesizing': False, 'paused': False}
@@ -111,6 +113,8 @@ class Client:
     def speak_marked_text(self, text, callback):
         self.current_marked_text = text
         self.last_mark = None
+        if self.status['synthesizing']:
+            self.ignore_next_stop_event = monotonic()
         self.current_callback = callback
         self.speak(text, is_xml=True)
 
