@@ -25,6 +25,10 @@ class Config(Dialog):
         self.config_widget.restore_to_defaults
         b = self.bb.addButton(QDialogButtonBox.StandardButton.RestoreDefaults)
         b.clicked.connect(self.restore_to_defaults)
+        self.config_widget.restore_state(vprefs)
+
+    def save_state(self):
+        self.config_widget.save_state(vprefs)
 
     def restore_to_defaults(self):
         self.config_widget.restore_to_defaults()
@@ -135,6 +139,7 @@ class TTS(QObject):
             self.settings_changed.emit(d.ui_settings)
         else:
             self.settings_changed.emit(None)
+        d.save_state()
 
     def slower(self, data):
         settings = self.tts_client.change_rate(steps=-1)

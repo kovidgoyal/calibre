@@ -4,8 +4,9 @@
 
 from contextlib import suppress
 from PyQt5.Qt import (
-    QAbstractItemView, QAbstractTableModel, QComboBox, QFontMetrics, QFormLayout,
-    QItemSelectionModel, QSlider, QSortFilterProxyModel, Qt, QTableView, QWidget
+    QAbstractItemView, QAbstractTableModel, QByteArray, QComboBox, QFontMetrics,
+    QFormLayout, QItemSelectionModel, QSlider, QSortFilterProxyModel, Qt, QTableView,
+    QWidget
 )
 
 from calibre.gui2.preferences.look_feel import BusyCursor
@@ -107,6 +108,15 @@ class Widget(QWidget):
         l.addRow(_('Sound output:'), so)
 
         self.backend_settings = initial_backend_settings or {}
+
+    def restore_state(self, prefs):
+        data = prefs.get(f'{self.tts_client.name}-voice-table-state')
+        if data is not None:
+            self.voices.horizontalHeader().restoreState(QByteArray(data))
+
+    def save_state(self, prefs):
+        data = bytearray(self.voices.horizontalHeader().saveState())
+        prefs.set(f'{self.tts_client.name}-voice-table-state', data)
 
     def restore_to_defaults(self):
         self.backend_settings = {}
