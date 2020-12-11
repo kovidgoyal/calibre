@@ -131,13 +131,18 @@ the username of the Content server viewer to sync with. Use the special value
 Read aloud
 ------------
 
-The viewer can read book text aloud. To use it you can simply click th
+The viewer can read book text aloud. To use it you can simply click the
 :guilabel:`Read aloud` button in the viewer controls to start reading book text
-aloud. The word being currently read is highlighted.
+aloud. The word being currently read is highlighted. Speech is synthesized from
+the text using your operating system services for text-to-speech.
 
-You can also read aloud highlighted passages by adding the read aloud button to
+You can also read aloud highlighted passages by adding the :guilabel:`Read aloud` button to
 the selection bar in the viewer preferences under :guilabel:`Selection
 behavior`.
+
+
+.. note:: On Linux, :guilabel:`Read aloud` requires `Speech Dispatcher
+   <https://freebsoft.org/speechd>`_ to be installed and working.
 
 
 Customizing the look and feel of your reading experience
