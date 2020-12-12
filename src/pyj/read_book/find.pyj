@@ -138,7 +138,11 @@ def reset_find_caches():
 
 def select_find_result(match):
     sel = window.getSelection()
-    sel.setBaseAndExtent(match.start_node, match.start_offset, match.end_node, match.end_offset)
+    try:
+        sel.setBaseAndExtent(match.start_node, match.start_offset, match.end_node, match.end_offset)
+    except:  # if offset is outside node
+        return False
+    return True
 
 
 def select_search_result(sr):
@@ -158,8 +162,7 @@ def select_search_result(sr):
     match = find_specific_occurrence(q, int(sr.index), before_len, after_len, cache.text_map, sr.from_offset)
     if not match:
         return False
-    select_find_result(match)
-    return True
+    return select_find_result(match)
 
 
 def select_tts_mark(idx_in_flat_text):
@@ -175,5 +178,4 @@ def select_tts_mark(idx_in_flat_text):
     match = get_occurrence_data(cache.text_map.node_list, idx_in_flat_text, idx_in_flat_text + word_length)
     if not match:
         return False
-    select_find_result(match)
-    return True
+    return select_find_result(match)
