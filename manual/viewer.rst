@@ -134,7 +134,9 @@ Read aloud
 The viewer can read book text aloud. To use it you can simply click the
 :guilabel:`Read aloud` button in the viewer controls to start reading book text
 aloud. The word being currently read is highlighted. Speech is synthesized from
-the text using your operating system services for text-to-speech.
+the text using your operating system services for text-to-speech. You can
+change the voice being used by clicking the gear icon in the bar that is
+displayed while :guilabel:`Read aloud` is active.
 
 You can also read aloud highlighted passages by adding the :guilabel:`Read aloud` button to
 the selection bar in the viewer preferences under :guilabel:`Selection
