@@ -69,12 +69,16 @@ class ReadAloud:
             self.state = HIDDEN
             self.container.style.display = 'none'
             self.view.focus_iframe()
+            if ui_operations.read_aloud_state_changed:
+                ui_operations.read_aloud_state_changed(False)
 
     def show(self):
         if self.state is HIDDEN:
             self.container.style.display = 'block'
             self.state = STOPPED
             self.focus()
+            if ui_operations.read_aloud_state_changed:
+                ui_operations.read_aloud_state_changed(True)
 
     def focus(self):
         self.container.focus()

@@ -394,6 +394,8 @@ if window is window.top:
         to_python.customize_toolbar()
     ui_operations.autoscroll_state_changed = def(active):
         to_python.autoscroll_state_changed(active)
+    ui_operations.read_aloud_state_changed = def(active):
+        to_python.read_aloud_state_changed(active)
     ui_operations.search_result_not_found = def(sr):
         to_python.search_result_not_found(sr)
     ui_operations.scrollbar_context_menu = def(x, y, frac):

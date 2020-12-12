@@ -65,6 +65,7 @@ def all_actions():
             'print': Action('print.png', _('Print book'), 'print'),
             'preferences': Action('config.png', _('Preferences'), 'preferences'),
             'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
+            'toggle_read_aloud': Action('bullhorn.png', _('Read aloud'), 'toggle_read_aloud'),
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
         }
         all_actions.ans = Actions(amap)
@@ -136,6 +137,7 @@ class ActionsToolBar(ToolBar):
         web_view.reference_mode_changed.connect(self.update_reference_mode_action)
         web_view.standalone_misc_settings_changed.connect(self.update_visibility)
         web_view.autoscroll_state_changed.connect(self.update_autoscroll_action)
+        web_view.read_aloud_state_changed.connect(self.update_read_aloud_action)
         web_view.customize_toolbar.connect(self.customize, type=Qt.ConnectionType.QueuedConnection)
         web_view.view_created.connect(self.on_view_created)
 
@@ -171,6 +173,8 @@ class ActionsToolBar(ToolBar):
         a.setCheckable(True)
         self.toggle_highlights_action = self.highlights_action = a = shortcut_action('toggle_highlights')
         a.setCheckable(True)
+        self.toggle_read_aloud_action = a = shortcut_action('toggle_read_aloud')
+        a.setCheckable(True)
         self.lookup_action = a = shortcut_action('lookup')
         a.setCheckable(True)
         self.inspector_action = a = shortcut_action('inspector')
@@ -178,6 +182,7 @@ class ActionsToolBar(ToolBar):
         self.autoscroll_action = a = shortcut_action('autoscroll')
         a.setCheckable(True)
         self.update_autoscroll_action(False)
+        self.update_read_aloud_action(False)
         self.chrome_action = shortcut_action('chrome')
 
         self.mode_action = a = shortcut_action('mode')
@@ -222,6 +227,11 @@ class ActionsToolBar(ToolBar):
         self.autoscroll_action.setChecked(active)
         self.autoscroll_action.setToolTip(
             _('Turn off auto-scrolling') if active else _('Turn on auto-scrolling'))
+
+    def update_read_aloud_action(self, active):
+        self.toggle_read_aloud_action.setChecked(active)
+        self.autoscroll_action.setToolTip(
+            _('Stop reading') if active else _('Read the text of the book aloud'))
 
     def update_reference_mode_action(self, enabled):
         self.reference_action.setChecked(enabled)

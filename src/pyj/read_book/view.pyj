@@ -507,6 +507,8 @@ class View:
             self.toggle_reference_mode()
         elif data.name is 'read_aloud':
             self.start_read_aloud()
+        elif data.name is 'toggle_read_aloud':
+            self.toggle_read_aloud()
         elif data.name is 'reload_book':
             ui_operations.reload_book()
         elif data.name is 'next_section':
@@ -679,6 +681,12 @@ class View:
         self.read_aloud.show()
         if not dont_start_talking:
             self.read_aloud.play()
+
+    def toggle_read_aloud(self):
+        if self.read_aloud.is_visible:
+            self.read_aloud.hide()
+        else:
+            self.start_read_aloud()
 
     def show_chrome(self, data):
         elements = {}
