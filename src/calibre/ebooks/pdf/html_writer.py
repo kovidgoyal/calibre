@@ -1080,14 +1080,14 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
         page_number_display_map, page_layout, page_margins_map,
         pdf_metadata, report_progress, toc if has_toc else None)
 
+    num_removed = remove_unused_fonts(pdf_doc)
+    if num_removed:
+        log('Removed', num_removed, 'unused fonts')
+
     merge_fonts(pdf_doc, log)
     num_removed = dedup_type3_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'duplicated Type3 glyphs')
-
-    num_removed = remove_unused_fonts(pdf_doc)
-    if num_removed:
-        log('Removed', num_removed, 'unused fonts')
 
     num_removed = pdf_doc.dedup_images()
     if num_removed:
