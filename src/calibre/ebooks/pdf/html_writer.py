@@ -34,6 +34,7 @@ from calibre.gui2 import setup_unix_signals
 from calibre.gui2.webengine import secure_webengine
 from calibre.srv.render_book import check_for_maths
 from calibre.utils.fonts.sfnt.container import Sfnt, UnsupportedFont
+from calibre.utils.fonts.sfnt.errors import NoGlyphs
 from calibre.utils.fonts.sfnt.merge import merge_truetype_fonts_for_pdf
 from calibre.utils.fonts.sfnt.subset import pdf_subset
 from calibre.utils.logging import default_log
@@ -742,7 +743,10 @@ def merge_font_files(fonts, log):
     glyph_ids = all_glyph_ids_in_w_arrays(w_arrays, as_set=True)
     h_arrays = tuple(filter(None, (f['W2'] for f in descendant_fonts)))
     glyph_ids |= all_glyph_ids_in_w_arrays(h_arrays, as_set=True)
-    pdf_subset(merged_sfnt, glyph_ids)
+    try:
+        pdf_subset(merged_sfnt, glyph_ids)
+    except NoGlyphs:
+        log.warn(f'Subsetting of {fonts[0]["BaseFont"]} failed with no glyphs found, ignoring')
     font_data = merged_sfnt()[0]
     log(f'Merged {len(fonts)} instances of {fonts[0]["BaseFont"]} reducing size from {human_readable(total_size)} to {human_readable(len(font_data))}')
     return font_data, tuple(f['Reference'] for f in descendant_fonts)
