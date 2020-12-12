@@ -8,22 +8,19 @@
 import copy
 import json
 import os
-import re
 import signal
 import sys
 from collections import namedtuple
+from html5_parser import parse
 from io import BytesIO
 from itertools import count, repeat
-from operator import attrgetter, itemgetter
-
-from html5_parser import parse
 from PyQt5.Qt import (
     QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
 
-from calibre import detect_ncpus, prepare_string_for_xml, human_readable
+from calibre import detect_ncpus, human_readable, prepare_string_for_xml
 from calibre.constants import __version__, iswindows
 from calibre.ebooks.metadata.xmp import metadata_to_xmp_packet
 from calibre.ebooks.oeb.base import XHTML, XPath
@@ -45,9 +42,7 @@ from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import (
-    as_bytes, as_unicode, filter, iteritems, map, range, unicode_type
-)
+from polyglot.builtins import filter, iteritems, map, range, unicode_type
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)
@@ -769,182 +764,6 @@ def all_glyph_ids_in_w_arrays(arrays, as_set=False):
     return ans if as_set else sorted(ans)
 
 
-def merge_w_arrays(arrays):
-    ranges = []
-    for w in arrays:
-        i = 0
-        while i + 1 < len(w):
-            elem = w[i]
-            next_elem = w[i+1]
-            if isinstance(next_elem, list):
-                ranges.append(Range(elem, elem + len(next_elem) - 1, next_elem))
-                i += 2
-            elif i + 2 < len(w):
-                ranges.append(Range(elem, next_elem, [w[i+2]]))
-                i += 3
-            else:
-                break
-    ranges.sort(key=attrgetter('sort_order'))
-    merged_ranges = ranges[:1]
-    for r in ranges[1:]:
-        prev_range = merged_ranges[-1]
-        left_over = prev_range.merge(r)
-        if left_over is not None:
-            merged_ranges.append(left_over)
-    if not merged_ranges:
-        return []
-    ans = []
-    for r in merged_ranges:
-        ans.extend(r.as_item)
-    return ans
-
-
-def width_map_from_w_array(w):
-    ans = {}
-    i = 0
-    while i + 1 < len(w):
-        elem = w[i]
-        next_elem = w[i+1]
-        if isinstance(next_elem, list):
-            for gid, width in zip(range(elem, elem + len(next_elem)), next_elem):
-                ans[gid] = width
-            i += 2
-        else:
-            try:
-                width = w[i+2]
-            except IndexError:
-                width = 0
-            for gid in range(elem, next_elem + 1):
-                ans[gid] = width
-            i += 3
-    return ans
-
-
-def merge_w_arrays_directly(arrays):
-    width_maps = tuple(map(width_map_from_w_array, arrays))
-
-    def getter(gid):
-        return max(m.get(gid, 0) for m in width_maps)
-
-    all_gids = set()
-    for m in width_maps:
-        all_gids |= set(m)
-
-    widths = []
-    for gid in sorted(all_gids):
-        widths.extend((gid, gid, getter(gid)))
-    return merge_w_arrays((widths,))
-
-
-class CMap(object):
-
-    def __init__(self):
-        self.start_codespace = sys.maxsize
-        self.end_codespace = 0
-        self.ranges = set()
-        self.chars = set()
-        self.header = self.footer = None
-
-    def add_codespace(self, start, end):
-        self.start_codespace = min(self.start_codespace, start)
-        self.end_codespace = max(self.end_codespace, end)
-
-    def serialize(self):
-        chars = sorted(self.chars, key=itemgetter(0))
-
-        def ashex(x):
-            ans = '{:04X}'.format(x)
-            leftover = len(ans) % 4
-            if leftover:
-                ans = ('0' * (4 - leftover)) + ans
-            return ans
-
-        lines = ['1 begincodespacerange', '<{}> <{}>'.format(*map(ashex, (self.start_codespace, self.end_codespace))), 'endcodespacerange']
-        while chars:
-            group, chars = chars[:100], chars[100:]
-            lines.append('{} beginbfchar'.format(len(group)))
-            for g in group:
-                lines.append('<{}> <{}>'.format(*map(ashex, g)))
-            lines.append('endbfchar')
-
-        ranges = sorted(self.ranges, key=itemgetter(0))
-        while ranges:
-            group, ranges = ranges[:100], ranges[100:]
-            lines.append('{} beginbfrange'.format(len(group)))
-            for g in group:
-                lines.append('<{}> <{}> <{}>'.format(*map(ashex, g)))
-            lines.append('endbfrange')
-        return self.header + '\n' + '\n'.join(lines) + '\n' + self.footer
-
-
-def merge_cmaps(cmaps):
-    header, incmap, incodespace, inchar, inrange, footer = 'header cmap codespace char range footer'.split()
-    start_pat = re.compile(r'\d+\s+begin(codespacerange|bfrange|bfchar)')
-    ans = CMap()
-    for cmap in cmaps:
-        state = header
-        headerlines = []
-        footerlines = []
-        prefix_ended = False
-        for line in as_unicode(cmap, errors='replace').splitlines():
-            line = line.strip()
-            if state is header:
-                headerlines.append(line)
-                if line == 'begincmap':
-                    state = incmap
-                continue
-            if state is incmap:
-                if line == 'endcmap':
-                    state = footer
-                    footerlines.append(line)
-                    continue
-                m = start_pat.match(line)
-                if m is not None:
-                    state = incodespace if m.group(1) == 'codespacerange' else (inchar if m.group(1) == 'bfchar' else inrange)
-                    prefix_ended = True
-                    continue
-                if not prefix_ended:
-                    headerlines.append(line)
-                continue
-            if state is incodespace:
-                if line == 'endcodespacerange':
-                    state = incmap
-                else:
-                    s, e = line.split()
-                    s = int(s[1:-1], 16)
-                    e = int(e[1:-1], 16)
-                    ans.add_codespace(s, e)
-                continue
-            if state is inchar:
-                if line == 'endbfchar':
-                    state = incmap
-                else:
-                    a, b = line.split()
-                    a = int(a[1:-1], 16)
-                    b = int(b[1:-1], 16)
-                    ans.chars.add((a, b))
-                continue
-            if state is inrange:
-                if line == 'endbfrange':
-                    state = incmap
-                else:
-                    # technically bfrange can contain arrays for th eunicode
-                    # value but from looking at SkPDFFont.cpp in chromium, it
-                    # does not generate any
-                    a, b, u = line.split()
-                    a = int(a[1:-1], 16)
-                    b = int(b[1:-1], 16)
-                    u = int(u[1:-1], 16)
-                    ans.ranges.add((a, b, u))
-                continue
-            if state is footer:
-                footerlines.append(line)
-        if ans.header is None:
-            ans.header = '\n'.join(headerlines)
-            ans.footer = '\n'.join(footerlines)
-    return ans.serialize()
-
-
 def fonts_are_identical(fonts):
     sentinel = object()
     for key in ('ToUnicode', 'Data', 'W', 'W2'):
@@ -957,27 +776,27 @@ def fonts_are_identical(fonts):
     return True
 
 
-def merge_font(fonts, log):
+def merge_font_files(fonts, log):
+    # As of Qt 5.15.1 Chromium has switched to harfbuzz and dropped sfntly. It
+    # now produces font descriptors whose W arrays dont match the glyph width
+    # information from the hhea table, in contravention of the PDF spec. So
+    # we can no longer merge font descriptors, all we can do is merge the
+    # actual sfnt data streams into a single stream and subset it to contain
+    # only the glyphs from all W arrays.
     # choose the largest font as the base font
+
     fonts.sort(key=lambda f: len(f['Data'] or b''), reverse=True)
-    base_font = fonts[0]
-    t0_font = next(f for f in fonts if f['DescendantFont'] == base_font['Reference'])
     descendant_fonts = [f for f in fonts if f['Subtype'] != 'Type0']
-    t0_fonts = [f for f in fonts if f['Subtype'] == 'Type0']
-    references_to_drop = tuple(f['Reference'] for f in fonts if f is not base_font and f is not t0_font)
-    if fonts_are_identical(descendant_fonts):
-        return t0_font, base_font, references_to_drop
-    cmaps = list(filter(None, (f['ToUnicode'] for f in t0_fonts)))
-    if cmaps:
-        t0_font['ToUnicode'] = as_bytes(merge_cmaps(cmaps))
-    base_font['sfnt'] = merge_truetype_fonts_for_pdf(tuple(f['sfnt'] for f in descendant_fonts), log)
-    arrays = tuple(filter(None, (f['W'] for f in descendant_fonts)))
-    if arrays:
-        base_font['W'] = merge_w_arrays_directly(arrays)
-    arrays = tuple(filter(None, (f['W2'] for f in descendant_fonts)))
-    if arrays:
-        base_font['W2'] = merge_w_arrays_directly(arrays)
-    return t0_font, base_font, references_to_drop
+    total_size = sum(len(f['Data']) for f in descendant_fonts)
+    merged_sfnt = merge_truetype_fonts_for_pdf(tuple(f['sfnt'] for f in descendant_fonts), log)
+    w_arrays = tuple(filter(None, (f['W'] for f in descendant_fonts)))
+    glyph_ids = all_glyph_ids_in_w_arrays(w_arrays, as_set=True)
+    h_arrays = tuple(filter(None, (f['W2'] for f in descendant_fonts)))
+    glyph_ids |= all_glyph_ids_in_w_arrays(h_arrays, as_set=True)
+    pdf_subset(merged_sfnt, glyph_ids)
+    font_data = merged_sfnt()[0]
+    log(f'Merged {len(fonts)} instances of {fonts[0]["BaseFont"]} reducing size from {human_readable(total_size)} to {human_readable(len(font_data))}')
+    return font_data, tuple(f['Reference'] for f in descendant_fonts)
 
 
 def merge_fonts(pdf_doc, log):
@@ -1005,18 +824,10 @@ def merge_fonts(pdf_doc, log):
 
     for f in all_fonts:
         base_font_map.setdefault(f['BaseFont'], []).append(f)
-    replacements = {}
-    items = []
     for name, fonts in iteritems(base_font_map):
         if mergeable(fonts):
-            t0_font, base_font, references_to_drop = merge_font(fonts, log)
-            for ref in references_to_drop:
-                replacements[ref] = t0_font['Reference']
-            data = base_font['sfnt']()[0]
-            items.append((
-                base_font['Reference'], t0_font['Reference'], base_font['W'] or [], base_font['W2'] or [],
-                data, t0_font['ToUnicode'] or b''))
-    pdf_doc.merge_fonts(tuple(items), replacements)
+            font_data, references = merge_font_files(fonts, log)
+            pdf_doc.merge_fonts(font_data, references)
 
 
 def test_merge_fonts():
@@ -1024,28 +835,11 @@ def test_merge_fonts():
     podofo = get_podofo()
     pdf_doc = podofo.PDFDoc()
     pdf_doc.open(path)
-    merge_fonts(pdf_doc)
+    from calibre.utils.logging import default_log
+    merge_fonts(pdf_doc, default_log)
     out = path.rpartition('.')[0] + '-merged.pdf'
     pdf_doc.save(out)
     print('Merged PDF written to', out)
-
-
-def subset_fonts(pdf_doc, log):
-    all_fonts = pdf_doc.list_fonts(True)
-    for font in all_fonts:
-        if font['Subtype'] != 'Type0' and font['Data']:
-            try:
-                sfnt = Sfnt(font['Data'])
-            except UnsupportedFont:
-                continue
-            if b'glyf' not in sfnt:
-                continue
-            num, gen = font['Reference']
-            glyphs = all_glyph_ids_in_w_arrays((font['W'] or (), font['W2'] or ()), as_set=True)
-            pdf_subset(sfnt, glyphs)
-            data = sfnt()[0]
-            log('Subset embedded font from: {} to {}'.format(human_readable(len(font['Data'])), human_readable(len(data))))
-            pdf_doc.replace_font_data(data, num, gen)
 # }}}
 
 
@@ -1345,11 +1139,6 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
     num_removed = remove_unused_fonts(pdf_doc)
     if num_removed:
         log('Removed', num_removed, 'unused fonts')
-
-    # Originally added because of https://bugreports.qt.io/browse/QTBUG-88976
-    # however even after that fix, calibre's font subsetting is superior to
-    # harfbuzz, so continue to use it.
-    subset_fonts(pdf_doc, log)
 
     num_removed = pdf_doc.dedup_images()
     if num_removed:

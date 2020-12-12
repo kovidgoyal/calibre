@@ -116,8 +116,6 @@ def find_tests(which_tests=None, exclude_tests=None):
         a(find_tests())
         from calibre.ebooks.metadata.html import find_tests
         a(find_tests())
-        from calibre.ebooks.pdf.test_html_writer import find_tests
-        a(find_tests())
         from calibre.utils.xml_parse import find_tests
         a(find_tests())
         from calibre.gui2.viewer.annotations import find_tests

@@ -325,63 +325,36 @@ replace_font_data(PDFDoc *self, PyObject *args) {
 
 PyObject*
 merge_fonts(PDFDoc *self, PyObject *args) {
-    PyObject *items, *replacements;
-    if (!PyArg_ParseTuple(args, "O!O!", &PyTuple_Type, &items, &PyDict_Type, &replacements)) return NULL;
-    std::unordered_map<uint64_t, uint64_t> ref_map;
+    const char *data; Py_ssize_t sz;
+	PyObject *references;
+    if (!PyArg_ParseTuple(args, "y#O!", &data, &sz, &PyTuple_Type, &references)) return NULL;
     PdfVecObjects &objects = self->doc->GetObjects();
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-    size_t c = 0;
-    while (PyDict_Next(replacements, &pos, &key, &value)) {
-        c++;
-        unsigned long num, gen;
-        if (!PyArg_ParseTuple(key, "kk", &num, &gen)) return NULL;
-        uint64_t k = ref_as_integer(static_cast<pdf_objnum>(num), static_cast<pdf_gennum>(gen));
-        PdfReference ref(num, static_cast<pdf_gennum>(gen));
-        PdfObject *font = objects.GetObject(ref);
-        if (font) remove_font(objects, font);
-        if (!PyArg_ParseTuple(value, "kk", &num, &gen)) return NULL;
-        uint64_t v = ref_as_integer(num, static_cast<pdf_gennum>(gen));
-        ref_map[k] = v;
-    }
-    if (c > 0) replace_font_references(self, ref_map);
-
-    for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(items); i++) {
-        long num, gen, t0num, t0gen;
-        PyObject *W, *W2;
-        const char *data, *tounicode_data;
-        Py_ssize_t sz, tounicode_sz;
-        if (!PyArg_ParseTuple(PyTuple_GET_ITEM(items, i), "(ll)(ll)O!O!s#s#", &num, &gen, &t0num, &t0gen, &PyList_Type, &W, &PyList_Type, &W2, &data, &sz, &tounicode_data, &tounicode_sz)) return NULL;
-        PdfReference ref(num, static_cast<pdf_gennum>(gen));
-        PdfObject *font = objects.GetObject(ref);
-        if (font) {
-            if (PyObject_IsTrue(W)) {
-                PdfArray w;
-                convert_w_array(W, w);
-                font->GetDictionary().AddKey("W", w);
-            }
-            if (PyObject_IsTrue(W2)) {
-                PdfArray w;
-                convert_w_array(W2, w);
-                font->GetDictionary().AddKey("W2", w);
-            }
-            const PdfObject *descriptor = font->GetIndirectKey("FontDescriptor");
-            if (descriptor) {
-                PdfObject *ff = get_font_file(descriptor);
-                PdfStream *stream = ff->GetStream();
-                stream->Set(data, sz);
-            }
-        }
-        if (tounicode_sz) {
-            PdfObject *t0font = objects.GetObject(PdfReference(t0num, static_cast<pdf_gennum>(t0gen)));
-            if (t0font) {
-                PdfObject *s = t0font->GetIndirectKey("ToUnicode");
-                if (!s) { PyErr_SetString(PyExc_ValueError, "Type0 font has no ToUnicode stream"); return NULL; }
-                s->GetStream()->Set(tounicode_data, tounicode_sz);
-            }
-        }
-    }
-    Py_RETURN_NONE;
+	PdfObject *font_file = NULL;
+	for (Py_ssize_t i = 0; i < PyTuple_GET_SIZE(references); i++) {
+		unsigned long num, gen;
+		if (!PyArg_ParseTuple(PyTuple_GET_ITEM(references, i), "kk", &num, &gen)) return NULL;
+		PdfObject *font = objects.GetObject(PdfReference(num, static_cast<pdf_gennum>(gen)));
+		if (!font) { PyErr_SetString(PyExc_KeyError, "No font with the specified reference found"); return NULL; }
+		PdfObject *dobj = font->GetIndirectKey("FontDescriptor");
+		if (!dobj) { PyErr_SetString(PyExc_ValueError, "Font does not have a descriptor"); return NULL; }
+		if (!dobj->IsDictionary()) { PyErr_SetString(PyExc_ValueError, "Font does not have a dictionary descriptor"); return NULL; }
+        PdfDictionary &descriptor = dobj->GetDictionary();
+		const char *font_file_key = NULL;
+		if (descriptor.HasKey("FontFile")) font_file_key = "FontFile";
+		else if (descriptor.HasKey("FontFile2")) font_file_key = "FontFile2";
+		else if (descriptor.HasKey("FontFile3")) font_file_key = "FontFile3";
+		else { PyErr_SetString(PyExc_ValueError, "Font descriptor does not have file data"); return NULL; }
+		PdfObject *ff = dobj->GetIndirectKey(font_file_key);
+		if (i == 0) {
+			font_file = ff;
+			PdfStream *stream = ff->GetStream();
+			stream->Set(data, sz);
+		} else {
+			delete objects.RemoveObject(ff->Reference());
+			descriptor.AddKey(font_file_key, font_file->Reference());
+		}
+	}
+	Py_RETURN_NONE;
 }
 
 class CharProc {
