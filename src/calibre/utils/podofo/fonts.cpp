@@ -170,7 +170,7 @@ list_fonts(PDFDoc *self, PyObject *args) {
                 unsigned long num = ref.ObjectNumber(), generation = ref.GenerationNumber();
                 const PdfObject *descriptor = it->GetIndirectKey("FontDescriptor");
                 pyunique_ptr descendant_font, stream_ref, encoding, w, w2;
-                PyBytesOutputStream stream_data, to_unicode;
+                PyBytesOutputStream stream_data, to_unicode, cid_gid_map;
                 if (dict.HasKey("W")) {
                     w.reset(convert_w_array(dict.GetKey("W")->GetArray()));
                     if (!w) return NULL;
@@ -183,6 +183,10 @@ list_fonts(PDFDoc *self, PyObject *args) {
                     encoding.reset(PyUnicode_FromString(dict.GetKey("Encoding")->GetName().GetName().c_str()));
                     if (!encoding) return NULL;
                 }
+				if (dict.HasKey("CIDToGIDMap") && (!dict.GetKey("CIDToGIDMap")->IsName() || strcmp(dict.GetKey("CIDToGIDMap")->GetName().GetName().c_str(), "Identity") != 0)) {
+					const PdfStream *stream = dict.GetKey("CIDToGIDMap")->GetStream();
+					if (stream) stream->GetFilteredCopy(&cid_gid_map);
+				}
                 if (descriptor) {
                     const PdfObject *ff = get_font_file(descriptor);
                     if (ff) {
@@ -208,7 +212,7 @@ list_fonts(PDFDoc *self, PyObject *args) {
                 }
 #define V(x) (x ? x.get() : Py_None)
                 pyunique_ptr d(Py_BuildValue(
-                        "{ss ss s(kk) sO sO sO sO sO sO sO}",
+                        "{ss ss s(kk) sO sO sO sO sO sO sO sO}",
                         "BaseFont", name.c_str(),
                         "Subtype", subtype.c_str(),
                         "Reference", num, generation,
@@ -217,7 +221,8 @@ list_fonts(PDFDoc *self, PyObject *args) {
                         "StreamRef", V(stream_ref),
                         "Encoding", V(encoding),
                         "ToUnicode", V(to_unicode),
-                        "W", V(w), "W2", V(w2)
+                        "W", V(w), "W2", V(w2),
+						"CIDToGIDMap", V(cid_gid_map)
                 ));
 #undef V
                 if (!d) { return NULL; }
