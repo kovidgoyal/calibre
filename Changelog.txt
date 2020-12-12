@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.7.1 2020-12-11
+{{{ 5.7.2 2020-12-12
 
 :: new features
 
@@ -37,7 +37,7 @@
 
 :: bug fixes
 
-- [1905967] PDF Output: Fix a regression in the previous release that broke text rendering for some fonts due to a bug in Qt WebEngine (full fix is in 5.7.1).
+- [1905967] PDF Output: Fix a regression in the previous release that broke text rendering for some fonts due to a bug in Qt WebEngine (full fix is in 5.7.2).
 
 - [1905736] PDF Output: Fix conversion failing when adding header/footer and the input document defines margins/padding on the <html> tag.
 
