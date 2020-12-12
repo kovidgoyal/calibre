@@ -118,7 +118,6 @@ class ColumnIcon(object):  # {{{
                 if not rule_icons:
                     continue
                 icon_list = [ic.strip() for ic in rule_icons.split(':') if ic.strip()]
-                print(icon_list)
                 icons.extend(icon_list)
                 if icon_list and not kind.endswith('_composed'):
                     break
