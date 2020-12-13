@@ -140,6 +140,11 @@ else:
     }
 
 
+def set_time_formatter(func):
+    nonlocal time_formatter
+    time_formatter = {'format': func}
+
+
 def format_time_left(seconds):
     hours, minutes = divmod(int(seconds / 60), 60)
     if hours <= 0:

@@ -9,7 +9,7 @@ import sys
 from itertools import count
 from PyQt5.Qt import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QPalette,
-    QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice
+    QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice, QLocale
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
@@ -602,6 +602,7 @@ class WebView(RestartingWebEngineView):
             'show_home_page_on_ready': self.show_home_page_on_ready,
             'system_colors': system_colors(),
             'QT_VERSION': QT_VERSION,
+            'short_time_fmt': QLocale.system().timeFormat(QLocale.FormatType.ShortFormat),
         }
         self.bridge.create_view(
             vprefs['session_data'], vprefs['local_storage'], field_metadata.all_metadata(), ui_data)

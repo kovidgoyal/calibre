@@ -5,6 +5,7 @@ from __python__ import bound_methods, hash_literals
 import traceback
 from elementmaker import E
 from gettext import gettext as _, install
+from date import format_date
 
 import initialize  # noqa: unused-import
 from ajax import ajax, workaround_qt_bug
@@ -20,6 +21,7 @@ from read_book.globals import runtime, set_system_colors, ui_operations, default
 from read_book.iframe import main as iframe_main
 from read_book.shortcuts import add_standalone_viewer_shortcuts
 from read_book.view import View
+from read_book.prefs.head_foot import set_time_formatter
 from session import local_storage, session_defaults
 from utils import debounce, encode_query_with_path, parse_url_params
 from viewer.constants import FAKE_HOST, FAKE_PROTOCOL, READER_BACKGROUND_URL
@@ -177,6 +179,9 @@ def create_view(prefs, local_storage, field_metadata, ui_data):
     document.documentElement.style.fontFamily = f'"{ui_data.ui_font_family}", sans-serif'
     document.documentElement.style.fontSize = ui_data.ui_font_sz
     runtime.QT_VERSION = ui_data.QT_VERSION
+    set_time_formatter(def (d):
+        return format_date(d, ui_data.short_time_fmt)
+    )
     if view is None:
         create_session_data(prefs, local_storage)
         view = View(document.getElementById('view'))
