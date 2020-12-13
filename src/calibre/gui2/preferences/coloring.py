@@ -880,6 +880,19 @@ class RulesModel(QAbstractListModel):  # {{{
 # }}}
 
 
+class RulesView(QListView):  # {{{
+
+    def __init__(self, parent, enable_convert_buttons_function):
+        QListView.__init__(self, parent)
+        self.enable_convert_buttons_function = enable_convert_buttons_function
+
+    def currentChanged(self, new, prev):
+        if self.model() and new.isValid():
+            _, _, rule = self.model().data(new, Qt.ItemDataRole.UserRole)
+            self.enable_convert_buttons_function(isinstance(rule, Rule))
+# }}}
+
+
 class EditRules(QWidget):  # {{{
 
     changed = pyqtSignal()
@@ -909,7 +922,7 @@ class EditRules(QWidget):  # {{{
         l.addWidget(self.remove_button, l.rowCount() - 1, 1)
 
         self.g = g = QGridLayout()
-        self.rules_view = QListView(self)
+        self.rules_view = RulesView(self, self.do_enable_convert_buttons)
         self.rules_view.doubleClicked.connect(self.edit_rule)
         self.rules_view.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.rules_view.setAlternatingRowColors(True)
@@ -936,6 +949,16 @@ class EditRules(QWidget):  # {{{
         b.clicked.connect(self.add_advanced)
         self.hb = hb = QHBoxLayout()
         l.addLayout(hb, l.rowCount(), 0, 1, 2)
+        hb.addWidget(b)
+        self.duplicate_rule_button = b = QPushButton(QIcon(I('edit-copy.png')),
+                _('Du&plicate rule'), self)
+        b.clicked.connect(self.duplicate_rule)
+        b.setEnabled(False)
+        hb.addWidget(b)
+        self.convert_to_advanced_button = b = QPushButton(QIcon(I('modified.png')),
+                _('Convert to advanced r&ule'), self)
+        b.clicked.connect(self.convert_to_advanced)
+        b.setEnabled(False)
         hb.addWidget(b)
         hb.addStretch(10)
         self.export_button = b = QPushButton(_('E&xport'), self)
@@ -988,6 +1011,48 @@ class EditRules(QWidget):  # {{{
         enabled = self.enabled.isChecked()
         for x in ('add_advanced_button', 'rules_view', 'up_button', 'down_button', 'add_button', 'remove_button'):
             getattr(self, x).setEnabled(enabled)
+
+    def do_enable_convert_buttons(self, to_what):
+        self.convert_to_advanced_button.setEnabled(to_what)
+        self.duplicate_rule_button.setEnabled(True)
+
+    def convert_to_advanced(self):
+        sm = self.rules_view.selectionModel()
+        rows = list(sm.selectedRows())
+        if not rows or len(rows) != 1:
+            error_dialog(self, _('Select one rule'),
+                _('You must select only one rule.'), show=True)
+            return
+        idx = self.rules_view.currentIndex()
+        if idx.isValid():
+            kind, col, rule = self.model.data(idx, Qt.ItemDataRole.UserRole)
+            if isinstance(rule, Rule):
+                template = '\n'.join(
+                     [l for l in rule.template.splitlines() if not l.startswith(Rule.SIGNATURE)])
+                orig_row = idx.row()
+                self.model.remove_rule(idx)
+                new_idx = self.model.add_rule(kind, col, template)
+                self.rules_view.setCurrentIndex(new_idx)
+                while self.rules_view.currentIndex().row() > orig_row:
+                    self.move_up()
+                self.changed.emit()
+
+    def duplicate_rule(self):
+        sm = self.rules_view.selectionModel()
+        rows = list(sm.selectedRows())
+        if not rows or len(rows) != 1:
+            error_dialog(self, _('Select one rule'),
+                _('You must select only one rule.'), show=True)
+            return
+        idx = self.rules_view.currentIndex()
+        if idx.isValid():
+            kind, col, rule = self.model.data(idx, Qt.ItemDataRole.UserRole)
+            orig_row = idx.row()
+            new_idx = self.model.add_rule(kind, col, rule)
+            self.rules_view.setCurrentIndex(new_idx)
+            while self.rules_view.currentIndex().row() > orig_row:
+                self.move_up()
+            self.changed.emit()
 
     def add_rule(self):
         d = RuleEditor(self.model.fm, self.pref_name)
@@ -1062,24 +1127,32 @@ class EditRules(QWidget):  # {{{
             self.changed.emit()
 
     def move_up(self):
-        idx = self.rules_view.currentIndex()
-        if idx.isValid():
-            idx = self.model.move(idx, -1)
-            if idx is not None:
-                sm = self.rules_view.selectionModel()
-                sm.select(idx, sm.ClearAndSelect)
-                self.rules_view.setCurrentIndex(idx)
-                self.changed.emit()
+        sm = self.rules_view.selectionModel()
+        rows = sorted(list(sm.selectedRows()))
+        if rows:
+            if rows[0].row() == 0:
+                return
+            sm.clear()
+            for idx in rows:
+                if idx.isValid():
+                    idx = self.model.move(idx, -1)
+                    if idx is not None:
+                        sm.select(idx, sm.Toggle)
+            self.changed.emit()
 
     def move_down(self):
-        idx = self.rules_view.currentIndex()
-        if idx.isValid():
-            idx = self.model.move(idx, 1)
-            if idx is not None:
-                sm = self.rules_view.selectionModel()
-                sm.select(idx, sm.ClearAndSelect)
-                self.rules_view.setCurrentIndex(idx)
-                self.changed.emit()
+        sm = self.rules_view.selectionModel()
+        rows = sorted(list(sm.selectedRows()))
+        if rows:
+            if rows[-1].row() == self.model.rowCount() - 1:
+                return
+            sm.clear()
+            for idx in rows:
+                if idx.isValid():
+                    idx = self.model.move(idx, 1)
+                    if idx is not None:
+                        sm.select(idx, sm.Toggle)
+            self.changed.emit()
 
     def clear(self):
         self.model.clear()
