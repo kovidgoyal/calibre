@@ -145,6 +145,8 @@ def make_clearing_spinbox(spinbox):
             if ev.key() == Qt.Key.Key_Space:
                 self.clear_to_undefined()
             else:
+                if self.value() == self.minimum():
+                    self.clear()
                 return spinbox.keyPressEvent(self, ev)
     return SpinBox
 
