@@ -6,7 +6,7 @@ from functools import partial
 
 from calibre import prepare_string_for_xml
 
-from .common import Event, EventType
+from .common import Event, EventType, add_markup
 from .errors import TTSSystemUnavailable
 
 
@@ -21,6 +21,7 @@ class Client:
     name = 'speechd'
     min_rate = -100
     max_rate = 100
+    chunk_size = 0
 
     @classmethod
     def escape_marked_text(cls, text):
@@ -127,8 +128,9 @@ class Client:
             self.next_cancel_is_for_pause = False
         return event
 
-    def speak_marked_text(self, text, callback=lambda ev: None):
+    def speak_marked_text(self, marked_text, callback=lambda ev: None):
         self.stop()
+        text = ''.join(add_markup(marked_text, self.mark_template, self.escape_marked_text, self.chunk_size))
         self.current_marked_text = text
         self.last_mark = None
 

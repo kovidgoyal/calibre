@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from .common import Event, EventType
+from .common import Event, EventType, add_markup
 
 
 class Client:
@@ -12,6 +12,7 @@ class Client:
     name = 'nsss'
     min_rate = 10
     max_rate = 340
+    chunk_size = 0
 
     @classmethod
     def escape_marked_text(cls, text):
@@ -70,7 +71,8 @@ class Client:
         self.nsss.speak(self.escape_marked_text(text))
         self.status = {'synthesizing': True, 'paused': False}
 
-    def speak_marked_text(self, text, callback):
+    def speak_marked_text(self, marked_text, callback):
+        text = ''.join(add_markup(marked_text, self.mark_template, self.escape_marked_text, self.chunk_size))
         self.current_callback = callback
         self.current_marked_text = text
         self.last_mark = None
