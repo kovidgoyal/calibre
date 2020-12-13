@@ -1032,9 +1032,8 @@ class EditRules(QWidget):  # {{{
                 orig_row = idx.row()
                 self.model.remove_rule(idx)
                 new_idx = self.model.add_rule(kind, col, template)
+                new_idx = self.model.move(new_idx, -(self.model.rowCount() - orig_row - 1))
                 self.rules_view.setCurrentIndex(new_idx)
-                while self.rules_view.currentIndex().row() > orig_row:
-                    self.move_up()
                 self.changed.emit()
 
     def duplicate_rule(self):
@@ -1047,11 +1046,10 @@ class EditRules(QWidget):  # {{{
         idx = self.rules_view.currentIndex()
         if idx.isValid():
             kind, col, rule = self.model.data(idx, Qt.ItemDataRole.UserRole)
-            orig_row = idx.row()
+            orig_row = idx.row() + 1
             new_idx = self.model.add_rule(kind, col, rule)
+            new_idx = self.model.move(new_idx, -(self.model.rowCount() - orig_row - 1))
             self.rules_view.setCurrentIndex(new_idx)
-            while self.rules_view.currentIndex().row() > orig_row:
-                self.move_up()
             self.changed.emit()
 
     def add_rule(self):
