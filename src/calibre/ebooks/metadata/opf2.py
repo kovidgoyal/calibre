@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import re, sys, unittest, functools, os, uuid, glob, io, json, copy
+import re, sys, functools, os, uuid, glob, io, json, copy
 
 from lxml import etree
 
@@ -1742,78 +1742,80 @@ def test_m2o():
         print('!=', newmi.get_identifiers())
 
 
-class OPFTest(unittest.TestCase):
-
-    def setUp(self):
-        self.stream = io.BytesIO(
-b'''\
-<?xml version="1.0"  encoding="UTF-8"?>
-<package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
-<metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
-    <dc:title opf:file-as="Wow">A Cool &amp; &copy; &#223; Title</dc:title>
-    <creator opf:role="aut" file-as="Monkey">Monkey Kitchen</creator>
-    <creator opf:role="aut">Next</creator>
-    <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
-    <dc:identifier scheme="ISBN">123456789</dc:identifier>
-    <dc:identifier scheme="dummy">dummy</dc:identifier>
-    <meta name="calibre:series" content="A one book series" />
-    <meta name="calibre:rating" content="4"/>
-    <meta name="calibre:publication_type" content="test"/>
-    <meta name="calibre:series_index" content="2.5" />
-</metadata>
-<manifest>
-    <item id="1" href="a%20%7E%20b" media-type="text/txt" />
-</manifest>
-</package>
-'''
-        )
-        self.opf = OPF(self.stream, getcwd())
-
-    def testReading(self, opf=None):
-        if opf is None:
-            opf = self.opf
-        self.assertEqual(opf.title, u'A Cool & \xa9 \xdf Title')
-        self.assertEqual(opf.authors, u'Monkey Kitchen,Next'.split(','))
-        self.assertEqual(opf.author_sort, 'Monkey')
-        self.assertEqual(opf.title_sort, 'Wow')
-        self.assertEqual(opf.tags, ['One', 'Two'])
-        self.assertEqual(opf.isbn, '123456789')
-        self.assertEqual(opf.series, 'A one book series')
-        self.assertEqual(opf.series_index, 2.5)
-        self.assertEqual(opf.rating, 4)
-        self.assertEqual(opf.publication_type, 'test')
-        self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
-        self.assertEqual(opf.get_identifiers(), {'isbn':'123456789',
-            'dummy':'dummy'})
-
-    def testWriting(self):
-        for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
-                     ('author_sort', "Kitchen"), ('tags', ['Three']),
-                     ('isbn', 'a'), ('rating', 3), ('series_index', 1),
-                     ('title_sort', 'ts')]:
-            setattr(self.opf, *test)
-            attr, val = test
-            self.assertEqual(getattr(self.opf, attr), val)
-
-        self.opf.render()
-
-    def testCreator(self):
-        opf = OPFCreator(getcwd(), self.opf)
-        buf = io.BytesIO()
-        opf.render(buf)
-        raw = buf.getvalue()
-        self.testReading(opf=OPF(io.BytesIO(raw), getcwd()))
-
-    def testSmartUpdate(self):
-        self.opf.smart_update(MetaInformation(self.opf))
-        self.testReading()
-
-
 def suite():
+    import unittest
+
+    class OPFTest(unittest.TestCase):
+
+        def setUp(self):
+            self.stream = io.BytesIO(
+    b'''\
+    <?xml version="1.0"  encoding="UTF-8"?>
+    <package version="2.0" xmlns="http://www.idpf.org/2007/opf" >
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:title opf:file-as="Wow">A Cool &amp; &copy; &#223; Title</dc:title>
+        <creator opf:role="aut" file-as="Monkey">Monkey Kitchen</creator>
+        <creator opf:role="aut">Next</creator>
+        <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
+        <dc:identifier scheme="ISBN">123456789</dc:identifier>
+        <dc:identifier scheme="dummy">dummy</dc:identifier>
+        <meta name="calibre:series" content="A one book series" />
+        <meta name="calibre:rating" content="4"/>
+        <meta name="calibre:publication_type" content="test"/>
+        <meta name="calibre:series_index" content="2.5" />
+    </metadata>
+    <manifest>
+        <item id="1" href="a%20%7E%20b" media-type="text/txt" />
+    </manifest>
+    </package>
+    '''
+            )
+            self.opf = OPF(self.stream, getcwd())
+
+        def testReading(self, opf=None):
+            if opf is None:
+                opf = self.opf
+            self.assertEqual(opf.title, u'A Cool & \xa9 \xdf Title')
+            self.assertEqual(opf.authors, u'Monkey Kitchen,Next'.split(','))
+            self.assertEqual(opf.author_sort, 'Monkey')
+            self.assertEqual(opf.title_sort, 'Wow')
+            self.assertEqual(opf.tags, ['One', 'Two'])
+            self.assertEqual(opf.isbn, '123456789')
+            self.assertEqual(opf.series, 'A one book series')
+            self.assertEqual(opf.series_index, 2.5)
+            self.assertEqual(opf.rating, 4)
+            self.assertEqual(opf.publication_type, 'test')
+            self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
+            self.assertEqual(opf.get_identifiers(), {'isbn':'123456789',
+                'dummy':'dummy'})
+
+        def testWriting(self):
+            for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
+                        ('author_sort', "Kitchen"), ('tags', ['Three']),
+                        ('isbn', 'a'), ('rating', 3), ('series_index', 1),
+                        ('title_sort', 'ts')]:
+                setattr(self.opf, *test)
+                attr, val = test
+                self.assertEqual(getattr(self.opf, attr), val)
+
+            self.opf.render()
+
+        def testCreator(self):
+            opf = OPFCreator(getcwd(), self.opf)
+            buf = io.BytesIO()
+            opf.render(buf)
+            raw = buf.getvalue()
+            self.testReading(opf=OPF(io.BytesIO(raw), getcwd()))
+
+        def testSmartUpdate(self):
+            self.opf.smart_update(MetaInformation(self.opf))
+            self.testReading()
+
     return unittest.TestLoader().loadTestsFromTestCase(OPFTest)
 
 
 def test():
+    import unittest
     unittest.TextTestRunner(verbosity=2).run(suite())
 
 
