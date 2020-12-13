@@ -67,6 +67,7 @@ def all_actions():
             'metadata': Action('metadata.png', _('Show book metadata'), 'metadata'),
             'toggle_read_aloud': Action('bullhorn.png', _('Read aloud'), 'toggle_read_aloud'),
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
+            'select_all': Action('edit-select-all.png', _('Select all text in the current file')),
         }
         all_actions.ans = Actions(amap)
     return all_actions.ans
@@ -147,6 +148,8 @@ class ActionsToolBar(ToolBar):
         self.forward_action = page.action(QWebEnginePage.WebAction.Forward)
         self.forward_action.setIcon(aa.forward.icon)
         self.forward_action.setText(aa.forward.text)
+        self.select_all_action = a = page.action(QWebEnginePage.WebAction.SelectAll)
+        a.setIcon(aa.select_all.icon), a.setText(aa.select_all.text)
 
         self.open_action = a = QAction(aa.open.icon, aa.open.text, self)
         self.open_menu = m = QMenu(self)
