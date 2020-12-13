@@ -29,18 +29,24 @@ except RangeError:
 except:
     pass
 
-_fmt_date_pat = None
+
 def fmt_date_pat():
-    nonlocal _fmt_date_pat
-    if not _fmt_date_pat:
-        _fmt_date_pat = /(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))/g
-    return _fmt_date_pat
+    ans = fmt_date_pat.ans
+    if not ans?:
+        ans = fmt_date_pat.ans = /(s{1,2})|(m{1,2})|(h{1,2})|(H{1,2})|(zzz)|(z)|(ap)|(AP)|(a)|(A)|(t)|(d{1,4}|M{1,4}|(?:yyyy|yy))/g
+    return ans
+
 
 def fd_format_hour(dt, ampm, hr, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     if ampm:
         h = h % 12
     return h.toString() if hr.length is 1 else str.format('{:02d}', h)
+
+
+def fd_format_hour24(dt, ampm, hr, as_utc):
+    return fd_format_hour(dt, False, hr, as_utc)
+
 
 def fd_format_minute(dt, ampm, min, as_utc):
     m = dt.getUTCMinutes() if as_utc else dt.getMinutes()
@@ -50,10 +56,26 @@ def fd_format_second(dt, ampm, min, as_utc):
     s = dt.getUTCSeconds() if as_utc else dt.getSeconds()
     return s.toString() if min.length is 1 else str.format('{:02d}', s)
 
+def fd_format_ms(dt, ampm, min, as_utc):
+    s = dt.getUTCMilliseconds() if as_utc else dt.getSeconds()
+    return s.toString() if min.length is 1 else str.format('{:03d}', s)
+
+
+
+def fd_format_timezone(dt, ampm, t, as_utc):
+    short = dt.toLocaleTimeString()
+    full = dt.toLocaleTimeString(v'[]', {'timeZoneName': 'long'})
+    idx = full.indexOf(short)
+    if idx > -1:
+        return full[idx + short.length:].strip()
+    return window.Intl.DateTimeFormat().resolvedOptions().timeZone
+
+
 def fd_format_ampm(dt, ampm, ap, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     ans = 'am' if h < 12 else 'pm'
-    return ans if ap is 'ap' else ans.toUpperCase()
+    return ans if (ap is 'ap' or ap is 'a') else ans.toUpperCase()
+
 
 def fd_format_day(dt, ampm, dy, as_utc):
     d = dt.getUTCDate() if as_utc else dt.getDate()
@@ -93,15 +115,26 @@ fd_function_index = {
     'M': fd_format_month,
     'y': fd_format_year,
     'h': fd_format_hour,
+    'H': fd_format_hour24,
     'm': fd_format_minute,
     's': fd_format_second,
     'a': fd_format_ampm,
     'A': fd_format_ampm,
+    'z': fd_format_ms,
+    't': fd_format_timezone,
 }
+
+
+def am_pm_pat():
+    ans = am_pm_pat.ans
+    if not ans?:
+        ans = am_pm_pat.ans = /(ap)|(a)/
+    return ans
+
 
 def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     fmt = fmt or 'dd MMM yyyy'
-    ampm = 'ap' in fmt.toLowerCase()
+    ampm = am_pm_pat().test(fmt)
     if jstype(date) is 'string':
         date = Date(date)
     date = date or Date()
