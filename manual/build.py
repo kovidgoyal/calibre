@@ -74,6 +74,8 @@ def build_pot(base):
     if is_ci:
         sp = eval(subprocess.check_output(['python', '-c', 'import sphinx; print(sphinx.__path__)']).decode('utf-8'))
         code = f'import sys, os; sys.path += [{os.path.dirname(sp[0])!r}]; from sphinx.cmd.build import main; main({cmd[1:]!r})'
+        os.environ['CALIBRE_DEVELOP_FROM'] = j(d(BASE), 'src')
+        print('Running with calibre src:', os.environ['CALIBRE_DEVELOP_FROM'])
         cmd = [sys.executable, '-c', code]
     print(' '.join(cmd))
     subprocess.check_call(cmd)
