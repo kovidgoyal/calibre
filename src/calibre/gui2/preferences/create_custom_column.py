@@ -288,12 +288,12 @@ class CreateCustomColumn(QDialog):
         # Lookup name
         self.column_name_box = cnb = QLineEdit(self)
         cnb.setToolTip(_("Used for searching the column. Must contain only digits and lower case letters."))
-        add_row(_("&Lookup name"), cnb)
+        add_row(_("&Lookup name:"), cnb)
 
         # Heading
         self.column_heading_box = chb = QLineEdit(self)
         chb.setToolTip(_("Column heading in the library view and category name in the Tag browser"))
-        add_row(_("Column &heading"), chb)
+        add_row(_("Column &heading:"), chb)
 
         # Column Type
         h = QHBoxLayout()
@@ -309,12 +309,12 @@ class CreateCustomColumn(QDialog):
         self.is_names = ins = QCheckBox(_("Contains names"), self)
         ins.setToolTip(_("Check this box if this column contains names, like the authors column."))
         h.addWidget(ins)
-        add_row(_("&Column type"), h)
+        add_row(_("&Column type:"), h)
 
         # Description
         self.description_box = d = QLineEdit(self)
         d.setToolTip(_("Optional text describing what this column is for"))
-        add_row(_("D&escription"), d)
+        add_row(_("D&escription:"), d)
 
         # Date/number formatting
         h = QHBoxLayout()
@@ -332,7 +332,7 @@ class CreateCustomColumn(QDialog):
         cdl.setToolTip(_("Similar to save templates. For example, %s") % "{title} {isbn}")
         h = QHBoxLayout()
         h.addWidget(cb), h.addWidget(cdl)
-        self.composite_label = add_row(_("&Template"), h)
+        self.composite_label = add_row(_("&Template:"), h)
 
         # Comments properties
         self.comments_heading_position = ct = QComboBox(self)
@@ -344,7 +344,7 @@ class CreateCustomColumn(QDialog):
             ct.addItem(text, k)
         ct.setToolTip(_('Choose whether or not the column heading is shown in the Book\n'
                         'details panel and, if shown, where'))
-        self.comments_heading_position_label = add_row(_('Column heading'), ct)
+        self.comments_heading_position_label = add_row(_('Column heading:'), ct)
 
         self.comments_type = ct = QComboBox(self)
         for k, text in (
@@ -365,11 +365,11 @@ class CreateCustomColumn(QDialog):
             "A comma-separated list of permitted values. The empty value is always\n"
             "included, and is the default. For example, the list 'one,two,three' has\n"
             "four values, the first of them being the empty value."))
-        self.enum_default_label = add_row(_("&Values"), eb)
+        self.enum_default_label = add_row(_("&Values:"), eb)
         self.enum_colors = ec = QLineEdit(self)
         ec.setToolTip(_("A list of color names to use when displaying an item. The\n"
             "list must be empty or contain a color for each value."))
-        self.enum_colors_label = add_row(_('Colors'), ec)
+        self.enum_colors_label = add_row(_('Colors:'), ec)
 
         # Rating allow half stars
         self.allow_half_stars = ahs = QCheckBox(_('Allow half stars'))
@@ -409,7 +409,7 @@ class CreateCustomColumn(QDialog):
             'yyyy-mm-dd. For Yes/No columns enter "Yes" or "No". For Text with '
             'a fixed set of values enter one of the permitted values. For '
             'Rating columns enter a number between 0 and 5.') + '</p>')
-        self.default_value_label = add_row(_('Default value'), dv)
+        self.default_value_label = add_row(_('Default value:'), dv)
 
         self.resize(self.sizeHint())
     # }}}
