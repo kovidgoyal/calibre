@@ -1,4 +1,128 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import unicode_literals
+import json
+import re
+from xml.sax.saxutils import escape, quoteattr
+
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+# {{{ parse NYT JSON
+def key_startswith(key, obj):
+    for q, val in obj.items():
+        if q.startswith(key):
+            return val
+
+
+def is_heading(tn):
+    return tn in ('Heading1Block', 'Heading2Block', 'Heading3Block', 'Heading4Block')
+
+
+def process_inline_text(lines, block, data):
+    text = ''
+    if 'text@stripHtml' in block:
+        text = escape(block['text@stripHtml'])
+    elif 'renderedRepresentation' in block:  # happens in byline blocks
+        text = block['renderedRepresentation']
+    elif 'text' in block:
+        text = block['text']
+    if text:
+        for fmt in block.get('formats', ()):
+            tn = fmt['typename']
+            if tn == 'LinkFormat':
+                ab = data[fmt['id']]
+                text = '<a href="{}" title="{}">{}</a>'.format(ab['url'], ab.get('title') or '', text)
+            elif tn == 'BoldFormat':
+                text = '<b>' + text + '</b>'
+        lines.append(text)
+
+
+def process_paragraph(lines, block, data, content_key='content'):
+    tn = block['__typename']
+    m = re.match(r'Heading([1-6])Block', tn)
+    if m is not None:
+        tag = 'h' + m.group(1)
+    else:
+        tag = 'p'
+    ta = block.get('textAlign') or 'LEFT'
+    style = 'text-align: {}'.format(ta.lower())
+    lines.append('<{} style="{}">'.format(tag, style))
+    for item in block[content_key]:
+        tn = item['typename']
+        if tn in ('TextInline', 'Byline'):
+            process_inline_text(lines, data[item['id']], data)
+    lines.append('</' + tag + '>')
+
+
+def process_timestamp(lines, block, data):
+    ts = block['timestamp']
+    dt = parse_iso8601(ts, as_utc=False)
+    lines.append('<p class="timestamp">' + escape(dt.strftime('%b %d, %Y')) + '</p>')
+
+
+def process_header(lines, block, data):
+    label = block.get('label')
+    if label:
+        process_paragraph(lines, data[label['id']], data)
+    headline = block.get('headline')
+    if headline:
+        process_paragraph(lines, data[headline['id']], data)
+    summary = block.get('summary')
+    if summary:
+        process_paragraph(lines, data[summary['id']], data)
+    lm = block.get('ledeMedia')
+    if lm and lm.get('typename') == 'ImageBlock':
+        process_image_block(lines, data[lm['id']], data)
+    byline = block.get('byline')
+    if byline:
+        process_paragraph(lines, data[byline['id']], data, content_key='bylines')
+    timestamp = block.get('timestampBlock')
+    if timestamp:
+        process_timestamp(lines, data[timestamp['id']], data)
+
+
+def process_image_block(lines, block, data):
+    media = data[block['media']['id']]
+    caption = media.get('caption')
+    caption_lines = []
+    if caption:
+        process_inline_text(caption_lines, data[caption['id']], data)
+    crops = key_startswith('crops({', media)
+    renditions = data[crops[0]['id']]['renditions']
+    img = data[renditions[0]['id']]['url']
+    lines.append('<div style="text-align: center"><img src={}/>'.format(quoteattr(img)))
+    lines.extend(caption_lines)
+    lines.append('</div>')
+
+
+def json_to_html(raw):
+    data = json.loads(raw)
+    data = data['initialState']
+    article = next(iter(data.values()))
+    body = data[article['sprinkledBody']['id']]
+    lines = []
+    for item in body['content@filterEmpty']:
+        tn = item['typename']
+        if tn in ('HeaderBasicBlock', 'HeaderLegacyBlock'):
+            process_header(lines, data[item['id']], data)
+        elif tn in ('ParagraphBlock', 'LabelBlock', 'DetailBlock') or is_heading(tn):
+            process_paragraph(lines, data[item['id']], data)
+        elif tn == 'ImageBlock':
+            process_image_block(lines, data[item['id']], data)
+    return '<html><body>' + '\n'.join(lines) + '</body></html>'
+
+
+def extract_html(soup):
+    script = soup.findAll('script', text=lambda x: x and 'window.__preloadedData' in x)[0]
+    script = type(u'')(script)
+    raw = script[script.find('{'):script.rfind(';')].strip().rstrip(';')
+    return json_to_html(raw)
+
+# }}}
 
 
 def classes(classes):
@@ -23,11 +147,9 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     encoding = 'utf-8'
 
-    keep_only_tags = [
-            dict(name='h1'),
-            dict(attrs={'data-testid':'photoviewer-wrapper'}),
-            dict(itemprop=['author creator', 'articleBody']),
-    ]
+    def preprocess_raw_html(self, raw_html, url):
+        html = extract_html(self.index_to_soup(raw_html))
+        return html
 
     def parse_index(self):
         soup = self.index_to_soup(
@@ -67,3 +189,9 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
                 self.log('\t', desc)
 
         return feeds
+
+
+if __name__ == '__main__':
+    import sys
+    from calibre.ebooks.BeautifulSoup import BeautifulSoup
+    print(extract_html(BeautifulSoup(open(sys.argv[-1]).read())))
