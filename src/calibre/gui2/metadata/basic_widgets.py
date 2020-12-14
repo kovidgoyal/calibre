@@ -20,6 +20,7 @@ from PyQt5.Qt import (
 )
 
 from calibre import strftime
+from calibre.constants import iswindows
 from calibre.customize.ui import run_plugins_on_import
 from calibre.db import SPOOL_SIZE
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -973,6 +974,11 @@ class FormatsManager(QWidget):
         bad_perms = []
         for _file in paths:
             _file = make_long_path_useable(os.path.abspath(_file))
+            if iswindows:
+                from calibre.gui2.add import resolve_windows_links
+                x = list(resolve_windows_links([_file], hwnd=int(self.effectiveWinId())))
+                if x:
+                    _file = x[0]
             if not os.access(_file, os.R_OK):
                 bad_perms.append(_file)
                 continue

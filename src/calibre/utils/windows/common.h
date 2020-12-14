@@ -11,6 +11,7 @@
 #include <Windows.h>
 #include <Python.h>
 #include <comdef.h>
+#define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
 static inline PyObject*
 set_error_from_hresult(const char *file, const int line, const HRESULT hr, const char *prefix="", PyObject *name=NULL) {
