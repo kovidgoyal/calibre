@@ -27,7 +27,7 @@ class Client:
         self.current_marked_text = self.last_mark = None
         self.dispatch_on_main_thread = dispatch_on_main_thread
         self.status = {'synthesizing': False, 'paused': False}
-        self.settings = settings
+        self.settings = settings or {}
         self.ignore_next_stop_event = False
         self.apply_settings()
 

@@ -64,7 +64,10 @@ class TTS(QObject):
     @property
     def tts_client(self):
         if self._tts_client is None:
-            self._tts_client = self.tts_client_class(self.backend_settings, self.dispatch_on_main_thread_signal.emit)
+            settings = self.backend_settings
+            self._tts_client = self.tts_client_class(settings, self.dispatch_on_main_thread_signal.emit)
+            if self._tts_client.settings != settings:
+                self.backend_settings = self._tts_client.settings
         return self._tts_client
 
     def shutdown(self):
