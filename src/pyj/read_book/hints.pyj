@@ -1,0 +1,31 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+
+def is_visible(a):
+    if not a.offsetParent:
+        return False
+    rect = a.getBoundingClientRect()
+    return rect.left >= 0 and rect.top >= 0 and rect.left < window.innerWidth and rect.top < window.innerHeight
+
+
+def hint_visible_links(link_attr):
+    i = 0
+    hint_map = {}
+    for a in document.body.querySelectorAll(f'a[{link_attr}]'):
+        if is_visible(a):
+            i += 1
+            h = i + ''
+            a.setAttribute('calibre-hint-render', i.toString(36))
+            a.setAttribute('calibre-hint-value', h)
+            hint_map[h] = a.getAttribute(link_attr)
+            a.classList.add('calibre-hint-visible')
+    return hint_map
+
+
+def unhint_links(link_attr):
+    for a in document.body.querySelectorAll(f'a[{link_attr}]'):
+        a.classList.remove('calibre-hint-visible')
+        a.removeAttribute('calibre-hint-render')
+        a.removeAttribute('calibre-hint-value')

@@ -652,7 +652,7 @@ class IframeBoss:
 
     def connect_links(self):
         link_attr = 'data-' + self.book.manifest.link_uid
-        for a in document.body.querySelectorAll('a[{}]'.format(link_attr)):
+        for a in document.body.querySelectorAll(f'a[{link_attr}]'):
             a.addEventListener('click', self.link_activated)
         if runtime.is_standalone_viewer:
             # links with a target get turned into requests to open a new window by Qt
