@@ -144,7 +144,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             elif not item.use_vl and self.tags_view.model().get_in_vl():
                 item.use_vl = not question_dialog(self.tags_view,
                                     _('Rename in Virtual library'), '<p>' +
-                                    _('A virtual library is active but you are renaming '
+                                    _('A Virtual library is active but you are renaming '
                                       'the item in all books in your library. Is '
                                       'this really what you want to do?') + '</p>',
                                     yes_text=_('Yes, apply in entire library'),

@@ -958,7 +958,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - Edit book: Preview panel: Allow right clicking on images to edit them
 
-- Add a new Quick select action to quickly select a virtual library with a few keystrokes. Activated by Ctrl+T or the Virtual library menu
+- Add a new Quick select action to quickly select a Virtual library with a few keystrokes. Activated by Ctrl+T or the Virtual library menu
 
 - Viewer: Calculate default column widths based on current font size
 
