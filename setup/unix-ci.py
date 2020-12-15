@@ -85,13 +85,6 @@ def download_and_decompress(url, dest, compression=None):
     raise SystemExit('Failed to download ' + url)
 
 
-def install_calibre_binary():
-    dest = os.path.expanduser('~/calibre-bin')
-    os.mkdir(dest)
-    download_and_decompress('https://calibre-ebook.com/dist/linux64', dest, 'J')
-    return os.path.join(dest, 'calibre-debug')
-
-
 def install_qt_source_code():
     dest = os.path.expanduser('~/qt-base')
     os.mkdir(dest)
@@ -111,7 +104,7 @@ def run_python(*args):
 def install_linux_deps():
     run('sudo', 'apt-get', 'update', '-y')
     # run('sudo', 'apt-get', 'upgrade', '-y')
-    run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev', 'libespeak-ng-dev')
+    run('sudo', 'apt-get', 'install', '-y', 'gettext', 'libgl1-mesa-dev')
 
 
 def main():
@@ -145,12 +138,10 @@ username = api
 '''.replace('PASSWORD', os.environ['tx'])
         with open(os.path.expanduser('~/.transifexrc'), 'w') as f:
             f.write(transifexrc)
-        install_linux_deps()
-        interpreter = install_calibre_binary()
         install_qt_source_code()
-        run(interpreter, 'setup.py', 'gui')
-        run(interpreter, 'setup.py', 'pot')
-
+        install_env()
+        run(sys.executable, '-m', 'pip', 'install', 'transifex-client')
+        run(sys.executable, 'setup.py', 'pot')
     elif action == 'test':
         os.environ['CI'] = 'true'
         if ismacos:

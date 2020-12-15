@@ -12,7 +12,6 @@ from functools import partial
 j, d, a = os.path.join, os.path.dirname, os.path.abspath
 BASE = d(a(__file__))
 SPHINX_BUILD = ['sphinx-build']
-is_ci = os.environ.get('CI') == 'true'
 
 sys.path.insert(0, d(BASE))
 from setup import __appname__, __version__
@@ -71,12 +70,6 @@ def build_manual(language, base):
 
 def build_pot(base):
     cmd = SPHINX_BUILD + ['-b', 'gettext', '-t', 'online', '-t', 'gettext', '.', base]
-    if is_ci:
-        sp = eval(subprocess.check_output(['python', '-c', 'import sphinx; print(sphinx.__path__)']).decode('utf-8'))
-        code = f'import sys, os; sys.path += [{os.path.dirname(sp[0])!r}]; from sphinx.cmd.build import main; main({cmd[1:]!r})'
-        os.environ['CALIBRE_DEVELOP_FROM'] = j(d(BASE), 'src')
-        print('Running with calibre src:', os.environ['CALIBRE_DEVELOP_FROM'])
-        cmd = [sys.executable, '-c', code]
     print(' '.join(cmd))
     subprocess.check_call(cmd)
     os.remove(j(base, 'generated.pot'))
