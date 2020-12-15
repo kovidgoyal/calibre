@@ -11,7 +11,7 @@ from range_utils import (
     last_span_for_crw, reset_highlight_counter, select_crw, unwrap_all_crw,
     unwrap_crw, wrap_text_in_range
 )
-from read_book.hints import hint_visible_links, unhint_links
+from read_book.hints import hint_visible_links, unhint_links, apply_prefix_to_hints
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import (
@@ -936,6 +936,8 @@ class IframeBoss:
                 a.removeEventListener('animationend', self.hint_animation_ended)
                 a.addEventListener('animationend', self.hint_animation_ended, False)
                 a.classList.add('calibre-animated-hint')
+        elif data.type is 'apply_prefix':
+            apply_prefix_to_hints(data.prefix)
 
     def hint_animation_ended(self, ev):
         a = ev.currentTarget

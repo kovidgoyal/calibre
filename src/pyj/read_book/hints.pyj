@@ -56,12 +56,16 @@ class Hints:
         if ev.key is 'Escape':
             self.hide()
             return
+        if ev.key is 'Enter':
+            if self.current_prefix:
+                self.apply_prefix(True)
+            return
         if ev.key is 'Backspace':
             if self.current_prefix:
                 self.current_prefix = self.current_prefix[:-1]
                 self.apply_prefix()
             return
-        hint_keys = list('01234567890abcdefghijklmnopqrstuvwxyz')
+        hint_keys = list('1234567890abcdefghijklmnopqrstuvwxyz')
         q = ev.key.toLowerCase()
         if hint_keys.indexOf(q) > -1:
             self.current_prefix += q
@@ -75,15 +79,24 @@ class Hints:
         ev.stopPropagation(), ev.preventDefault()
         self.hide()
 
-    def apply_prefix(self):
+    def apply_prefix(self, accept_full_match):
         matches = v'[]'
         if self.current_prefix:
             for k in Object.keys(self.hints_map):
-                if k.startswith(self.current_prefix):
+                if k is '_length':
+                    continue
+                q = encode(int(k))
+                if accept_full_match:
+                    if q is self.current_prefix:
+                        matches.push(k)
+                        break
+                elif q.startswith(self.current_prefix):
                     matches.push(k)
         if matches.length is 1:
             self.send_message('activate', hint=self.hints_map[matches[0]])
             self.hide()
+        else:
+            self.send_message('apply_prefix', prefix=self.current_prefix)
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('hints', type=type, **kw)
@@ -111,6 +124,10 @@ def is_visible(a):
     return rect.left >= 0 and rect.top >= 0 and rect.left < window.innerWidth and rect.top < window.innerHeight
 
 
+def encode(i):
+    return i.toString(36).toLowerCase()
+
+
 def hint_visible_links():
     i = 0
     hint_map = {}
@@ -118,7 +135,7 @@ def hint_visible_links():
         if is_visible(a):
             i += 1
             h = i + ''
-            a.dataset.calibreHintRender = i.toString(36)
+            a.dataset.calibreHintRender = encode(i)
             a.dataset.calibreHintValue = h
             a.classList.add('calibre-hint-visible')
             hint_map[h] = {'type': 'link', 'value': i}
@@ -128,6 +145,20 @@ def hint_visible_links():
 
 def unhint_links():
     for a in document.body.querySelectorAll('a[href]'):
-        a.classList.remove('calibre-hint-visible')
+        a.classList.remove('calibre-hint-visible', 'calibre-hint-enter')
         v'delete a.dataset.calibreHintRender'
         v'delete a.dataset.calibreHintValue'
+
+
+def apply_prefix_to_hints(prefix):
+    for a in document.body.querySelectorAll('[data-calibre-hint-value]'):
+        val = int(a.dataset.calibreHintValue)
+        r = encode(val)
+        a.classList.remove('calibre-hint-enter')
+        if not prefix or r.startsWith(prefix):
+            a.classList.add('calibre-hint-visible')
+            a.dataset.calibreHintRender = leftover = r[prefix.length:] or '\xa0'
+            if leftover is '\xa0':
+                a.classList.add('calibre-hint-enter')
+        else:
+            a.classList.remove('calibre-hint-visible')
