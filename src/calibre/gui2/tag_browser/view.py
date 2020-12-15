@@ -690,7 +690,7 @@ class TagsView(QTreeView):  # {{{
                 if tag:
                     # If the user right-clicked on an editable item, then offer
                     # the possibility of renaming that item.
-                    if tag.is_editable or tag.is_hierarchical:
+                    if fm['datatype'] != 'composite' and (tag.is_editable or tag.is_hierarchical):
                         # Add the 'rename' items to both interior and leaf nodes
                         if fm['datatype'] != 'enumeration':
                             if self.model().get_in_vl():
