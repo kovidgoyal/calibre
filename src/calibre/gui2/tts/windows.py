@@ -127,9 +127,18 @@ class Client:
             self.synthesizing = False
         if new_settings is not None:
             self.settings = new_settings
-        self.sp_voice.set_current_rate(self.settings.get('rate', self.default_system_rate))
-        self.sp_voice.set_current_voice(self.settings.get('voice') or self.default_system_voice)
-        self.sp_voice.set_current_sound_output(self.settings.get('sound_output') or self.default_system_sound_output)
+        try:
+            self.sp_voice.set_current_rate(self.settings.get('rate', self.default_system_rate))
+        except OSError:
+            self.settings.pop('rate', None)
+        try:
+            self.sp_voice.set_current_voice(self.settings.get('voice') or self.default_system_voice)
+        except OSError:
+            self.settings.pop('voice', None)
+        try:
+            self.sp_voice.set_current_sound_output(self.settings.get('sound_output') or self.default_system_sound_output)
+        except OSError:
+            self.settings.pop('sound_output', None)
 
     def wait_for_events(self):
         while True:
