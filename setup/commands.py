@@ -21,7 +21,7 @@ __all__ = [
     'upload_user_manual', 'upload_demo', 'reupload',
     'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
     'linux', 'linux32', 'linux64', 'win', 'win32', 'win64', 'osx', 'build_dep',
-    'export_packages', 'hyphenation', 'csslint'
+    'export_packages', 'hyphenation', 'liberation_fonts', 'csslint'
 ]
 
 from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64, ExtDev, BuildDep, ExportPackages
@@ -50,6 +50,9 @@ mathjax = MathJax()
 
 from setup.hyphenation import Hyphenation
 hyphenation = Hyphenation()
+
+from setup.liberation import LiberationFonts
+liberation_fonts = LiberationFonts()
 
 from setup.git_version import GitVersion
 git_version = GitVersion()
