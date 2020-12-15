@@ -21,7 +21,20 @@ class LiberationFonts(ReVendor):
     def vendored_dir(self):
         return self.j(self.RESOURCES, 'fonts', 'liberation')
 
+    @property
+    def version_file(self):
+        return self.j(self.vendored_dir, 'version.txt')
+
+    def already_present(self):
+        if os.path.exists(self.version_file):
+            with open(self.version_file) as f:
+                return f.read() == self.VERSION
+        return False
+
     def run(self, opts):
+        if not opts.system_liberation_fonts and self.already_present():
+            self.info('Liberation Fonts already present in the resources directory, not downloading')
+            return
         self.clean()
         os.makedirs(self.vendored_dir)
         self.use_symlinks = opts.system_liberation_fonts
@@ -33,3 +46,5 @@ class LiberationFonts(ReVendor):
 
             for x in font_files:
                 self.add_file(x, os.path.basename(x))
+        with open(self.j(self.vendored_dir, 'version.txt'), 'w') as f:
+            f.write(self.VERSION)
