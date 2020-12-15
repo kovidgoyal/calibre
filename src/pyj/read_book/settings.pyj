@@ -125,6 +125,19 @@ def apply_colors(is_content_popup):
             cursor: default !important;\
             padding: 1px !important;\
             border: solid 1px {opts.color_scheme.foreground} !important;\
+
+        }}
+
+        .calibre-animated-hint {{
+            animation-name: calibre-animate-hint; \
+            animation-duration: 0.3s; \
+            animation-timing-function: ease-out; \
+            display: inline-block !important; \
+            text-indent: 0 !important; \
+        }}
+        @keyframes calibre-animate-hint {{
+            from {{ transform: scale(1); }}
+            to {{ transform: scale(2); }}
         }}
     '''
     ss.textContent = text

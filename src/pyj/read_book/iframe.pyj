@@ -933,7 +933,11 @@ class IframeBoss:
             hint = data.hint
             if hint.type is 'link':
                 a = document.body.querySelector(f'[data-calibre-hint-value="{hint.value}"]')
-                self.activate_link(hint.data.name, hint.data.frag, a)
+                a.addEventListener("animationend", def (ev):
+                    a.classList.remove('calibre-animated-hint')
+                    self.activate_link(hint.data.name, hint.data.frag, a)
+                , False)
+                a.classList.add('calibre-animated-hint')
 
 
 def main():
