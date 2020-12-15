@@ -35,6 +35,7 @@ from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.selection_bar import SelectionBar
 from read_book.read_aloud import ReadAloud
+from read_book.hints import Hints
 from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
@@ -245,6 +246,7 @@ class View:
                         self.book_scrollbar.create(),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-selection-bar-overlay'),  # selection bar overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-read-aloud-overlay'),  # read aloud overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-hints-overlay'),  # hints overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
@@ -317,6 +319,7 @@ class View:
         self.overlay = Overlay(self)
         self.selection_bar = SelectionBar(self)
         self.read_aloud = ReadAloud(self)
+        self.hints = Hints(self)
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {'selection': {'empty': True}}
@@ -348,6 +351,9 @@ class View:
 
     def on_tts_message(self, data):
         self.read_aloud.handle_message(data)
+
+    def on_hints_message(self, data):
+        self.hints.handle_message(data)
 
     def left_margin_clicked(self, event):
         if event.button is 0:
@@ -452,6 +458,7 @@ class View:
         if visible:
             self.selection_bar.hide()
             self.read_aloud.hide()
+            self.hints.hide()
         else:
             self.selection_bar.update_position()
 
@@ -507,6 +514,8 @@ class View:
             self.toggle_reference_mode()
         elif data.name is 'read_aloud':
             self.start_read_aloud()
+        elif data.name is 'toggle_hints':
+            self.toggle_hints()
         elif data.name is 'toggle_read_aloud':
             self.toggle_read_aloud()
         elif data.name is 'reload_book':
@@ -673,11 +682,14 @@ class View:
             self.selection_bar.focus()
         elif self.read_aloud.is_visible:
             self.read_aloud.focus()
+        elif self.hints.is_visible:
+            self.hints.focus()
         else:
             self.iframe.contentWindow.focus()
 
     def start_read_aloud(self, dont_start_talking):
         self.selection_bar.hide()
+        self.hints.hide()
         self.read_aloud.show()
         if not dont_start_talking:
             self.read_aloud.play()
@@ -687,6 +699,14 @@ class View:
             self.read_aloud.hide()
         else:
             self.start_read_aloud()
+
+    def toggle_hints(self):
+        if self.hints.is_visible:
+            self.hints.hide()
+        else:
+            self.selection_bar.hide()
+            self.read_aloud.hide()
+            self.hints.show()
 
     def show_chrome(self, data):
         elements = {}

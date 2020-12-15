@@ -194,6 +194,12 @@ def shortcuts_definition():
         _('Read aloud')
     ),
 
+    'toggle_hints': desc(
+        'Alt+f',
+        'ui',
+        _('Follow links with the keyboard')
+    ),
+
     'copy_to_clipboard': desc(
         v"['Ctrl+c', 'Meta+c']",
         'ui',

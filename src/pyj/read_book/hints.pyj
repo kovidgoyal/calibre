@@ -3,6 +3,53 @@
 from __python__ import bound_methods, hash_literals
 
 
+class Hints:
+
+    def __init__(self, view):
+        self.view = view
+        container = self.container
+        container.setAttribute('tabindex', '0')
+        container.style.overflow = 'hidden'
+        container.addEventListener('keydown', self.on_keydown, {'passive': False})
+        container.addEventListener('click', self.container_clicked, {'passive': False})
+
+    @property
+    def container(self):
+        return document.getElementById('book-hints-overlay')
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def focus(self):
+        self.container.focus()
+
+    def hide(self):
+        if self.is_visible:
+            self.container.style.display = 'none'
+            self.send_message('hide')
+
+    def show(self):
+        if not self.is_visible:
+            self.container.style.display = 'block'
+            self.focus()
+            self.send_message('show')
+
+    def on_keydown(self, ev):
+        ev.preventDefault(), ev.stopPropagation()
+
+    def container_clicked(self, ev):
+        ev.stopPropagation(), ev.preventDefault()
+        self.hide()
+
+    def send_message(self, type, **kw):
+        self.view.iframe_wrapper.send_message('hints', type=type, **kw)
+
+    def handle_message(self, msg):
+        if msg.type is 'shown':
+            self.hints_map = msg.hints_map
+
+
 def is_visible(a):
     if not a.offsetParent:
         return False

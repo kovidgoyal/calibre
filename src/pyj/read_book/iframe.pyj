@@ -11,6 +11,7 @@ from range_utils import (
     last_span_for_crw, reset_highlight_counter, select_crw, unwrap_all_crw,
     unwrap_crw, wrap_text_in_range
 )
+from read_book.hints import hint_visible_links, unhint_links
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import (
@@ -148,6 +149,7 @@ class IframeBoss:
             'handle_navigation_shortcut': self.on_handle_navigation_shortcut,
             'annotations': self.annotations_msg_received,
             'tts': self.tts_msg_received,
+            'hints': self.hints_msg_received,
             'copy_selection': self.copy_selection,
             'replace_highlights': self.replace_highlights,
             'clear_selection': def(): window.getSelection().removeAllRanges();,
@@ -228,6 +230,7 @@ class IframeBoss:
         set_toc_anchor_map()
         self.replace_history_on_next_cfi_update = True
         self.book = current_book.book = data.book
+        self.link_attr = 'data-' + self.book.manifest.link_uid
         self.reference_mode_enabled = data.reference_mode_enabled
         self.is_titlepage = data.is_titlepage
         spine = self.book.manifest.spine
@@ -650,9 +653,9 @@ class IframeBoss:
     def send_message(self, action, **data):
         self.comm.send_message(action, data)
 
+
     def connect_links(self):
-        link_attr = 'data-' + self.book.manifest.link_uid
-        for a in document.body.querySelectorAll(f'a[{link_attr}]'):
+        for a in document.body.querySelectorAll(f'a[{self.link_attr}]'):
             a.addEventListener('click', self.link_activated)
         if runtime.is_standalone_viewer:
             # links with a target get turned into requests to open a new window by Qt
@@ -669,11 +672,10 @@ class IframeBoss:
             self.send_message('view_image', calibre_src=img.dataset.calibreSrc)
 
     def link_activated(self, evt):
-        link_attr = 'data-' + self.book.manifest.link_uid
         try:
-            data = JSON.parse(evt.currentTarget.getAttribute(link_attr))
+            data = JSON.parse(evt.currentTarget.getAttribute(self.link_attr))
         except:
-            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(link_attr)))
+            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(self.link_attr)))
             return
         name, frag = data.name, data.frag
         if not name:
@@ -916,6 +918,16 @@ class IframeBoss:
         self.last_search_at = window.performance.now()
         if select_tts_mark(occurrence_number):
             self.ensure_selection_visible()
+
+    def hints_msg_received(self, data):
+        if data.type is 'show':
+            # clear selection so that it does not confuse with the hints which use the same colors
+            window.getSelection().removeAllRanges()
+            hints_map = hint_visible_links(self.link_attr)
+            self.send_message('hints', type='shown', hints_map=hints_map)
+        elif data.type is 'hide':
+            unhint_links(self.link_attr)
+
 
 def main():
     main.boss = IframeBoss()
