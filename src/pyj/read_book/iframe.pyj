@@ -938,7 +938,7 @@ class IframeBoss:
                 a.classList.add('calibre-animated-hint')
 
     def hint_animation_ended(self, ev):
-        a = ev.target
+        a = ev.currentTarget
         a.classList.remove('calibre-animated-hint')
         a.click()
 
