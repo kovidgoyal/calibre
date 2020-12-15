@@ -1,6 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
+from dom import clear
+from elementmaker import E
+from book_list.theme import get_color
+from gettext import gettext as _
+
 from read_book.shortcuts import shortcut_for_key_event
 
 
@@ -39,7 +44,9 @@ class Hints:
     def show(self):
         if not self.is_visible:
             self.reset()
-            self.container.style.display = 'block'
+            c = self.container
+            c.style.display = 'block'
+            clear(c)
             self.focus()
             self.send_message('show')
 
@@ -84,6 +91,16 @@ class Hints:
         if msg.type is 'shown':
             self.reset()
             self.hints_map = msg.hints_map
+            if not self.hints_map._length:
+                self.no_hints_found()
+
+    def no_hints_found(self):
+        c = self.container
+        c.appendChild(E.div(
+            _('No links found. Press Esc to close'),
+            style=f'position: absolute; margin: auto; top: 50%; left: 50%; background: {get_color("window-background")};' +
+                  ' padding: 1rem; border: solid 1px currentColor; border-radius: 4px; transform: translate(-50%, -50%);'
+        ))
 
 
 def is_visible(a):
@@ -104,6 +121,7 @@ def hint_visible_links(link_attr):
             a.dataset.calibreHintValue = h
             a.classList.add('calibre-hint-visible')
             hint_map[h] = {'type': 'link', 'data':JSON.parse(a.getAttribute(link_attr)), 'value': i}
+    hint_map._length = i
     return hint_map
 
 
