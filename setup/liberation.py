@@ -24,9 +24,10 @@ class LiberationFonts(ReVendor):
     def run(self, opts):
         self.clean()
         os.makedirs(self.vendored_dir)
+        self.use_symlinks = opts.system_liberation_fonts
         with self.temp_dir() as dl_src:
-            src = opts.path_to_hyphenation or self.download_vendor_release(dl_src, opts.hyphenation_url)
-            font_files = glob.glob(os.path.join(src, '*/Liberation*.ttf'))
+            src = opts.path_to_liberation_fonts or self.download_vendor_release(dl_src, opts.liberation_fonts_url)
+            font_files = glob.glob(os.path.join(src, 'Liberation*.ttf'))
             if not font_files:
                 raise SystemExit(f'No font files found in {src}')
 
