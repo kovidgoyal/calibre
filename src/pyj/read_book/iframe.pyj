@@ -677,17 +677,19 @@ class IframeBoss:
         except:
             print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(self.link_attr)))
             return
-        name, frag = data.name, data.frag
+        self.activate_link(data.name, data.frag, evt.currentTarget)
+
+    def activate_link(self, name, frag, target_elem):
         if not name:
             name = current_spine_item().name
         try:
-            is_popup = is_footnote_link(evt.currentTarget, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
+            is_popup = is_footnote_link(target_elem, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
         except:
             import traceback
             traceback.print_exc()
             is_popup = False
         if is_popup:
-            self.send_message('show_footnote', name=name, frag=frag, title=evt.currentTarget.textContent, cols_per_screen=calc_columns_per_screen())
+            self.send_message('show_footnote', name=name, frag=frag, title=target_elem.textContent, cols_per_screen=calc_columns_per_screen())
             return
         if name is current_spine_item().name:
             self.replace_history_on_next_cfi_update = False
@@ -927,6 +929,11 @@ class IframeBoss:
             self.send_message('hints', type='shown', hints_map=hints_map)
         elif data.type is 'hide':
             unhint_links(self.link_attr)
+        elif data.type is 'activate':
+            hint = data.hint
+            if hint.type is 'link':
+                a = document.body.querySelector(f'[data-calibre-hint-value="{hint.value}"]')
+                self.activate_link(hint.data.name, hint.data.frag, a)
 
 
 def main():

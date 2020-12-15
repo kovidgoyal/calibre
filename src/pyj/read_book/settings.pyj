@@ -114,7 +114,7 @@ def apply_colors(is_content_popup):
     # follow links hint box
     text += f'''\n\n
         .calibre-hint-visible::before {{
-            content: attr(calibre-hint-render);\
+            content: attr(data-calibre-hint-render);\
             text-decoration: none !important;\
             font-weight: bold !important;\
             color: {selfg} !important;\

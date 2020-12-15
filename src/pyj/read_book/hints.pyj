@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
+from read_book.shortcuts import shortcut_for_key_event
 
 
 class Hints:
@@ -44,10 +45,37 @@ class Hints:
 
     def on_keydown(self, ev):
         ev.preventDefault(), ev.stopPropagation()
+        if ev.key is 'Escape':
+            self.hide()
+            return
+        if ev.key is 'Backspace':
+            if self.current_prefix:
+                self.current_prefix = self.current_prefix[:-1]
+                self.apply_prefix()
+            return
+        hint_keys = list('01234567890abcdefghijklmnopqrstuvwxyz')
+        q = ev.key.toLowerCase()
+        if hint_keys.indexOf(q) > -1:
+            self.current_prefix += q
+            self.apply_prefix()
+
+        sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
+        if not sc_name:
+            return
 
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
         self.hide()
+
+    def apply_prefix(self):
+        matches = v'[]'
+        if self.current_prefix:
+            for k in Object.keys(self.hints_map):
+                if k.startswith(self.current_prefix):
+                    matches.push(k)
+        if matches.length is 1:
+            self.send_message('activate', hint=self.hints_map[matches[0]])
+            self.hide()
 
     def send_message(self, type, **kw):
         self.view.iframe_wrapper.send_message('hints', type=type, **kw)
@@ -72,15 +100,15 @@ def hint_visible_links(link_attr):
         if is_visible(a):
             i += 1
             h = i + ''
-            a.setAttribute('calibre-hint-render', i.toString(36))
-            a.setAttribute('calibre-hint-value', h)
-            hint_map[h] = {'type': 'link', 'data':a.getAttribute(link_attr)}
+            a.dataset.calibreHintRender = i.toString(36)
+            a.dataset.calibreHintValue = h
             a.classList.add('calibre-hint-visible')
+            hint_map[h] = {'type': 'link', 'data':JSON.parse(a.getAttribute(link_attr)), 'value': i}
     return hint_map
 
 
 def unhint_links(link_attr):
     for a in document.body.querySelectorAll(f'a[{link_attr}]'):
         a.classList.remove('calibre-hint-visible')
-        a.removeAttribute('calibre-hint-render')
-        a.removeAttribute('calibre-hint-value')
+        v'delete a.dataset.calibreHintRender'
+        v'delete a.dataset.calibreHintValue'
