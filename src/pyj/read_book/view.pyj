@@ -297,6 +297,7 @@ class View:
             ,
             'annotations': self.on_annotations_message,
             'tts': self.on_tts_message,
+            'hints': self.on_hints_message,
             'copy_text_to_clipboard': def(data):
                 ui_operations.copy_selection(data.text, data.html)
             ,

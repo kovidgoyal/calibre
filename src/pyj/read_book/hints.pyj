@@ -12,6 +12,11 @@ class Hints:
         container.style.overflow = 'hidden'
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.container_clicked, {'passive': False})
+        self.reset()
+
+    def reset(self):
+        self.hints_map = {}
+        self.current_prefix = ''
 
     @property
     def container(self):
@@ -28,9 +33,11 @@ class Hints:
         if self.is_visible:
             self.container.style.display = 'none'
             self.send_message('hide')
+            self.reset()
 
     def show(self):
         if not self.is_visible:
+            self.reset()
             self.container.style.display = 'block'
             self.focus()
             self.send_message('show')
@@ -47,6 +54,7 @@ class Hints:
 
     def handle_message(self, msg):
         if msg.type is 'shown':
+            self.reset()
             self.hints_map = msg.hints_map
 
 
@@ -66,7 +74,7 @@ def hint_visible_links(link_attr):
             h = i + ''
             a.setAttribute('calibre-hint-render', i.toString(36))
             a.setAttribute('calibre-hint-value', h)
-            hint_map[h] = a.getAttribute(link_attr)
+            hint_map[h] = {'type': 'link', 'data':a.getAttribute(link_attr)}
             a.classList.add('calibre-hint-visible')
     return hint_map
 
