@@ -25,7 +25,7 @@ from calibre.constants import (
 )
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.gui2 import NO_URL_FORMATTING, error_dialog, is_dark_theme, open_url
+from calibre.gui2 import NO_URL_FORMATTING, error_dialog, is_dark_theme, safe_open_url
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
@@ -319,7 +319,8 @@ class WebPage(QWebEnginePage):
             return True
         if url.scheme() in (FAKE_PROTOCOL, 'data'):
             return True
-        open_url(url)
+        if req_type == QWebEnginePage.NavigationType.NavigationTypeLinkClicked:
+            safe_open_url(url)
         return False
 
     def go_to_anchor(self, anchor):
