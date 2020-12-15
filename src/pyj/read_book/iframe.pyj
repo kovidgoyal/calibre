@@ -925,19 +925,22 @@ class IframeBoss:
         if data.type is 'show':
             # clear selection so that it does not confuse with the hints which use the same colors
             window.getSelection().removeAllRanges()
-            hints_map = hint_visible_links(self.link_attr)
+            hints_map = hint_visible_links()
             self.send_message('hints', type='shown', hints_map=hints_map)
         elif data.type is 'hide':
-            unhint_links(self.link_attr)
+            unhint_links()
         elif data.type is 'activate':
             hint = data.hint
             if hint.type is 'link':
                 a = document.body.querySelector(f'[data-calibre-hint-value="{hint.value}"]')
-                a.addEventListener("animationend", def (ev):
-                    a.classList.remove('calibre-animated-hint')
-                    self.activate_link(hint.data.name, hint.data.frag, a)
-                , False)
+                a.removeEventListener('animationend', self.hint_animation_ended)
+                a.addEventListener('animationend', self.hint_animation_ended, False)
                 a.classList.add('calibre-animated-hint')
+
+    def hint_animation_ended(self, ev):
+        a = ev.target
+        a.classList.remove('calibre-animated-hint')
+        a.click()
 
 
 def main():
