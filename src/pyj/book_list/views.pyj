@@ -413,6 +413,7 @@ def create_vl_panel(container_id):
         items.push(create_item(name, subtitle=vls[name], action=show_vl.bind(None, name, True)))
     container.appendChild(E.div())
     create_item_list(container.lastChild, items, _('Choose a Virtual library to browse from the list below'))
+    enable_escape_key(container, back)
 
 
 def show_vl(vl_name, replace):
@@ -445,6 +446,7 @@ def create_mode_panel(container_id):
     ci(_('Custom list'), CUSTOM_LIST_DESCRIPTION(), 'custom_list')
     container.appendChild(E.div())
     create_item_list(container.lastChild, items, _('Choose a display mode for the list of books from below'))
+    enable_escape_key(container, back)
 
 # }}}
 
