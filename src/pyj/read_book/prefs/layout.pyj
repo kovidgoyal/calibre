@@ -18,8 +18,8 @@ TEXT_AREA = unique_id('text-area')
 
 add_extra_css(def():
     sel = '#' + MARGINS
-    style = build_rule(sel, margin_left='2em', margin_top='-1em')
-    style += build_rule('#{} td'.format(CONTAINER), padding='1ex 1em')
+    style = build_rule(sel, margin_left='1rem', margin_top='-1ex')
+    style += build_rule('#{} td'.format(CONTAINER), padding='1ex')
     return style
 )
 
@@ -43,10 +43,17 @@ def create_layout_panel(container, apply_func, cancel_func):
     container.appendChild(E.p(_('Change the page margins (in pixels) below'), style='margin:1ex 1rem; padding: 1ex 0'))
     container.appendChild(E.table(id=MARGINS))
     labels = {'top':_('Top:'), 'bottom':_('Bottom:'), 'left':_('Left:'), 'right':_('Right:')}
-    for which in 'top bottom left right'.split(' '):
-        container.lastChild.appendChild(E.tr(
-            E.td(labels[which]), E.td(E.input(type='number', min='0', step='1', name=which, value=str(sd.get('margin_'+which))))
-        ))
+
+    def item(which, tr):
+        tr.appendChild(E.td(labels[which]))
+        tr.appendChild(E.td(E.input(type='number', max='9999', min='0', step='1', name=which, value=str(sd.get('margin_' + which)))))
+
+    container.lastChild.appendChild(E.tr())
+    item('left', container.lastChild.lastChild)
+    item('right', container.lastChild.lastChild)
+    container.lastChild.appendChild(E.tr())
+    item('top', container.lastChild.lastChild)
+    item('bottom', container.lastChild.lastChild)
 
     def sec(text):
         container.appendChild(E.div(text, style='margin: 2ex 1rem; padding-top:2ex; border-top: solid 1px; max-width: 50em'))
@@ -67,18 +74,20 @@ def create_layout_panel(container, apply_func, cancel_func):
           ' set based on the screen size.'))
     cps = sd.get('columns_per_screen')
     container.appendChild(E.table(style='margin: 1ex 1rem', id=COLS,
-        E.tr(E.td(_('Portrait orientation:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait)))),
-        E.tr(E.td(_('Landscape orientation:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape)))),
-    ))
+        E.tr(
+            E.td(_('Portrait:')), E.td(E.input(type='number', name='portrait',   min='0', step='1', max='20', value=str(cps.portrait))),
+            E.td(_('Landscape:')), E.td(E.input(type='number', name='landscape', min='0', step='1', max='20', value=str(cps.landscape))),
+    )))
 
     sec(_('Change the maximum screen area (in pixels) used to display text.'
           ' A value of zero means that all available screen area is used.'
           ' Current window width is {0} and height is {1} pixels.'
     ).format(window.innerWidth, window.innerHeight))
     container.appendChild(E.table(style='margin: 1ex 1rem', id=TEXT_AREA,
-        E.tr(E.td(_('Max. width:')), E.td(E.input(type='number', name='width',   min='0', step='10', value=str(sd.get('max_text_width'))))),
-        E.tr(E.td(_('Max. height:')), E.td(E.input(type='number', name='height', min='0', step='10', value=str(sd.get('max_text_height'))))),
-    ))
+        E.tr(
+            E.td(_('Width:')), E.td(E.input(type='number', name='width',   min='0', step='10', max='99999', value=str(sd.get('max_text_width')))),
+            E.td(_('Height:')), E.td(E.input(type='number', name='height', min='0', step='10', max='99999', value=str(sd.get('max_text_height')))),
+    )))
 
     sec(_('Control how the cover is displayed'))
     container.appendChild(E.div(style='margin: 1ex 2rem; display: flex;',
