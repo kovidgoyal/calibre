@@ -71,6 +71,7 @@ defaults = {
     'skipped_dialogs': v'{}',
     'tts': v'{}',
     'tts_backend': v'{}',
+    'fullscreen_when_opening': 'auto',
 }
 
 is_local_setting = {
@@ -102,6 +103,7 @@ is_local_setting = {
     'highlight_style': True,
     'tts': True,
     'tts_backend': True,
+    'fullscreen_when_opening': True,
 }
 
 

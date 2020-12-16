@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.constants import book_list_container_id, read_book_container_id
-from book_list.globals import get_current_query
+from book_list.globals import get_current_query, get_session_data
 from book_list.library_data import current_library_id
 from modals import close_all_modals
 from utils import (
@@ -56,9 +56,14 @@ def apply_url(ignore_handler):
 
 
 def open_book(book_id, fmt, library_id=None, replace=False):
-    # Note that full screen requests only succeed if they are in response to a
-    # user action like clicking/tapping a button
-    request_full_screen()
+    opt = get_session_data().get('fullscreen_when_opening')
+    has_touch = v'"ontouchstart" in window'
+    at_left = window.screenLeft is 0
+    likely_wants_fullscreen = has_touch and at_left
+    if (opt is 'auto' and likely_wants_fullscreen) or opt is 'always':
+        # Note that full screen requests only succeed if they are in response to a
+        # user action like clicking/tapping a button
+        request_full_screen()
     library_id = library_id or current_library_id()
     push_state({'book_id':book_id, 'fmt':fmt, 'library_id':library_id}, replace=replace, mode=read_book_mode)
 

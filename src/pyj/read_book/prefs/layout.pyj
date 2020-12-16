@@ -8,11 +8,13 @@ from gettext import gettext as _
 from book_list.globals import get_session_data
 from dom import add_extra_css, build_rule, element, unique_id
 from read_book.prefs.utils import create_button_box
+from read_book.globals import runtime
 from session import defaults
 
 CONTAINER = unique_id('reader-page-layout')
 MARGINS = unique_id('reader-page-margins')
 READ_MODE = unique_id('read-mode')
+FS_MODE = unique_id('fs-mode')
 COLS = unique_id('cols-per-screen')
 TEXT_AREA = unique_id('text-area')
 
@@ -28,7 +30,8 @@ def restore_defaults():
     for which in 'top bottom left right'.split(' '):
         container.querySelector('input[name={}]'.format(which)).value = str(defaults['margin_' + which])
     for name in 'paged flow'.split(' '):
-        container.querySelector('input[data-name={}]'.format(name)).checked = defaults.read_mode is name
+        container.querySelector(f'#{READ_MODE} input[data-name={name}]').checked = defaults.read_mode is name
+    container.querySelector(f'#{FS_MODE} input[value={defaults.fullscreen_when_opening}]').checked = True
     for name in 'portrait landscape'.split(' '):
         container.querySelector('input[name={}]'.format(name)).value = str(defaults.columns_per_screen[name])
     for which in 'width height'.split(' '):
@@ -89,9 +92,23 @@ def create_layout_panel(container, apply_func, cancel_func):
             E.td(_('Height:')), E.td(E.input(type='number', name='height', min='0', step='10', max='99999', value=str(sd.get('max_text_height')))),
     )))
 
-    sec(_('Control how the cover is displayed'))
+    sec(_('Miscellaneous'))
     container.appendChild(E.div(style='margin: 1ex 2rem; display: flex;',
         E.label(E.input(type='checkbox', name='cover_preserve_aspect_ratio', checked=sd.get('cover_preserve_aspect_ratio')), _('Preserve cover aspect ratio'))))
+    if not runtime.is_standalone_viewer:
+        name = 'fullscreen_when_opening'
+        val = sd.get(name)
+        container.appendChild(E.div(
+            E.div(style='margin: 1ex 2rem', id=FS_MODE,
+                _('When opening a book enter fullscreen:'), ' ',
+                E.label(E.input(type='radio', name=name, value='auto', checked=val is 'auto'), _('Auto')),
+                '\xa0',
+                E.label(E.input(type='radio', name=name, value='always', checked=val is 'always'), _('Always')),
+                '\xa0',
+                E.label(E.input(type='radio', name=name, value='never', checked=val is 'never'), _('Never')),
+            )
+        ))
+
     container.appendChild(E.div(style='margin: 1rem', create_button_box(restore_defaults, apply_func, cancel_func)))
 
 
@@ -116,6 +133,11 @@ def commit_layout(onchange, container):
     if rm is not crm:
         was_changed = True
         sd.set('read_mode', crm)
+    fs = sd.get('fullscreen_when_opening')
+    cfs = document.querySelector(f'#{FS_MODE} input[name="fullscreen_when_opening"]:checked').value
+    if cfs is not fs:
+        was_changed = True
+        sd.set('fullscreen_when_opening', cfs)
     cps = sd.get('columns_per_screen')
     cps = {'portrait': cps.portrait, 'landscape': cps.landscape}
     for which in ('portrait', 'landscape'):
