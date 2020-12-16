@@ -176,7 +176,7 @@ class JsonCodec(object):
     def decode_from_file(self, file_, booklist, book_class, prefix):
         js = []
         try:
-            js = json.load(file_, encoding='utf-8')
+            js = json.load(file_)
             for item in js:
                 entry = self.raw_to_book(item, book_class, prefix)
                 if entry is not None:
