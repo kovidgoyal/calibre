@@ -266,7 +266,7 @@ def look_and_feel(container):
         {'original': _('Original'), 'left': _('Left align'), 'justify': _('Justify text')}
     ))
     g.appendChild(checkbox('smarten_punctuation', _('Smarten &punctuation')))
-    g.appendChild(checkbox('unsmarten_punctuation', _('&UnSmarten punctuation')))
+    g.appendChild(checkbox('unsmarten_punctuation', _('&Unsmarten punctuation')))
     g.appendChild(checkbox('asciiize', _('&Transliterate Unicode characters to ASCII')))
 
     subhead(_('Lay&out'))

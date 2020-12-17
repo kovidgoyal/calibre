@@ -1363,7 +1363,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - PDF Output: When a link with a fragment points to a non-existent anchor link to the top of the file instead of not linking at all
 
-- PDF Output: Fix standard svg fullscreen image markup not working
+- PDF Output: Fix standard SVG fullscreen image markup not working
 
 - [1848701] PDF Output: Fix some books with full screen images failing to convert.
 

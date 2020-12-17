@@ -157,11 +157,11 @@ behavior`.
 Following links using only the keyboard
 -----------------------------------------------
 
-The E-book viewer has a :guilabel:`hints mode` that allows you to click links
-in the text without using the mouse. Press the :kbd:`Alt+f` key and all links
+The E-book viewer has a :guilabel:`Hints mode` that allows you to click links
+in the text without using the mouse. Press the :kbd:`Alt+F` key and all links
 in the current screen will be highlighted with a number or letter over them.
 Press the letter on your keyboard to click the link. Pressing the :kbd:`Esc`
-key will abort the hints mode without selecting any link.
+key will abort the :guilabel:`Hints mode` without selecting any link.
 
 If more than thirty five links are on-screen then some of them will have
 multiple letters, in which case type the first and second, or the first and
