@@ -138,16 +138,15 @@ class _Parser(object):
     def error(self, message):
         try:
             tval = "'" + self.prog[self.lex_pos-1][1] + "'"
-        except:
+        except Exception:
             tval = _('Unknown')
-        m = 'Formatter: ' + message + _(' near')
         if self.lex_pos > 0:
-            m = '{0} {1}'.format(m, tval)
+            location = tval
         elif self.lex_pos < self.prog_len:
-            m = '{0} {1}'.format(m, tval)
+            location = tval
         else:
-            m = '{0} {1}'.format(m, _('end of program'))
-        raise ValueError(m)
+            location = _('the end of the program')
+        raise ValueError(_('{0}: {1} near {2}').format('Formatter', message, location))
 
     def token(self):
         try:
