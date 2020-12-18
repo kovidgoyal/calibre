@@ -285,7 +285,7 @@ def look_and_feel(container):
     subhead(_('St&yling'))
     g = E.div(class_='simple-group')
     container.appendChild(g)
-    g.appendChild(lineedit('filter_css', _('Filter Style Information'), 40))
+    g.appendChild(lineedit('filter_css', _('Filter style information'), 40))
     container.appendChild(textarea('extra_css', 'E&xtra CSS'))
 # }}}
 

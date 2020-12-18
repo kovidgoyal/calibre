@@ -74,7 +74,7 @@ class Main(MainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
-        self.setWindowTitle(__appname__ + _(' - LRF Viewer'))
+        self.setWindowTitle(__appname__ + _(' - LRF viewer'))
 
         self.logger = logger
         self.opts = opts

@@ -398,7 +398,7 @@ operates on the intermediate XHTML produced by the conversion pipeline. Use the 
 :ref:`conversion-introduction` to figure out the appropriate settings for your book. There is also a button for a XPath wizard
 to help with the generation of simple XPath expressions.
 
-By default, calibre uses the following expression for chapter detection::
+By default, calibre uses the following expression for detecting chapters::
 
     //*[((name()='h1' or name()='h2') and re:test(., 'chapter|book|section|part\s+', 'i')) or @class = 'chapter']
 

@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>LRF Viewer</string>
+   <string>LRF viewer</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -119,7 +119,7 @@
   </widget>
   <widget class="QToolBar" name="tool_bar">
    <property name="windowTitle">
-    <string>LRF Viewer toolbar</string>
+    <string>LRF viewer toolbar</string>
    </property>
    <property name="allowedAreas">
     <set>Qt::AllToolBarAreas</set>

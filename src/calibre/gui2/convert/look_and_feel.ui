@@ -382,7 +382,7 @@
        <item>
         <widget class="QGroupBox" name="opt_filter_css">
          <property name="title">
-          <string>Filter Style Information</string>
+          <string>Filter style information</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
