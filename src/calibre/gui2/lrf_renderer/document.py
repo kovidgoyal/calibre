@@ -353,7 +353,7 @@ class History(collections.deque):
 
 class Document(QGraphicsScene):
 
-    num_of_pages = property(fget=lambda self: sum(self.chapter_layout))
+    num_of_pages = property(fget=lambda self: sum(self.chapter_layout or ()))
     chapter_rendered = pyqtSignal(object)
     page_changed = pyqtSignal(object)
 
