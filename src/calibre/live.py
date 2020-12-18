@@ -10,6 +10,7 @@ import re
 import sys
 import types
 from contextlib import suppress
+from datetime import timedelta
 from enum import Enum, auto
 from http import HTTPStatus
 from importlib import import_module
@@ -28,6 +29,7 @@ worker = None
 worker_lock = Lock()
 fetcher = None
 db_path = None
+old_interval = timedelta(days=1)
 module_version = 1
 minimum_calibre_version = 5, 7, 0
 
@@ -196,7 +198,7 @@ def download_module(full_name, timeout=default_timeout, strategy=Strategy.downlo
     if strategy is Strategy.download_now:
         return load_module_from_data(full_name, latest_data_for_module(full_name, timeout=timeout))
     cached_etag, cached_data, date = read_from_cache(full_name)
-    if date is not None and (utcnow() - date).days > 0:
+    if date is None or (utcnow() - date) > old_interval:
         return load_module_from_data(full_name, latest_data_for_module(full_name, timeout=timeout))
     if cached_data is not None:
         return load_module_from_data(full_name, cached_data)
@@ -251,6 +253,7 @@ def find_tests():
             self.fetched_module_version = 99999
             self.sentinel_value = 1
             self.fetch_counter = 0
+            self.orig_old_interval = old_interval
 
         @property
         def live_data(self):
@@ -266,9 +269,10 @@ def find_tests():
             return q, data
 
         def tearDown(self):
-            global db_path, fetcher
+            global db_path, fetcher, old_interval
             os.remove(db_path)
             db_path = fetcher = None
+            old_interval = self.orig_old_interval
 
         def assert_cache_empty(self):
             self.ae(read_from_cache('live.test'), (None, None, None))
@@ -280,6 +284,7 @@ def find_tests():
             self.ae(read_from_cache('live.test')[:2], ('etag', data))
 
         def test_module_loading(self):
+            global old_interval
             self.assert_cache_empty()
             m = load_module('calibre.live', strategy=Strategy.fast)
             self.assertEqual(m.module_version, module_version)
@@ -291,6 +296,21 @@ def find_tests():
             m = load_module('calibre.live', strategy=Strategy.fast)
             self.assertEqual(m.module_version, self.fetched_module_version)
             self.ae(self.fetch_counter, 1)
+            m = load_module('calibre.live', strategy=Strategy.download_if_old)
+            self.assertEqual(m.module_version, self.fetched_module_version)
+            self.ae(self.fetch_counter, 1)
+            m = load_module('calibre.live', strategy=Strategy.download_now)
+            self.assertEqual(m.module_version, self.fetched_module_version)
+            self.ae(self.fetch_counter, 2)
+            old_interval = timedelta(days=-1)
+            m = load_module('calibre.live', strategy=Strategy.download_if_old)
+            self.assertEqual(m.module_version, self.fetched_module_version)
+            self.ae(self.fetch_counter, 3)
+            old_interval = self.orig_old_interval
+            clear_cache()
+            m = load_module('calibre.live', strategy=Strategy.download_if_old)
+            self.assertEqual(m.module_version, self.fetched_module_version)
+            self.ae(self.fetch_counter, 4)
 
     return unittest.defaultTestLoader.loadTestsFromTestCase(LiveTest)
 
