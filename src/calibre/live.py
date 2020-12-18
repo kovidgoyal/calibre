@@ -223,6 +223,13 @@ def cached_is_suitable(cached, installed):
 
 
 def load_module(full_name, strategy=Strategy.download_now, timeout=default_timeout):
+    '''
+    Load the specified module from the calibre servers. strategy controls
+    whether to check for the latest version immediately or eventually
+    (strategies other that download_now).  Note that you must call
+    start_worker() for eventual checking to work. Remember to call
+    stop_worker() at exit as well.
+    '''
     installed = import_module(full_name)
     try:
         if strategy is Strategy.fast:
