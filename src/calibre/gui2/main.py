@@ -437,9 +437,10 @@ def send_message(msg):
     except Exception as err:
         print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
         print(err, file=sys.stderr, flush=True)
-        error_dialog(None, _('Contacting calibre failed'), _(
-            'Failed to contact running instance of calibre, try restarting calibre'),
-            det_msg=str(err) + '\n\n' + repr(msg), show=True)
+        if Application.instance():
+            error_dialog(None, _('Contacting calibre failed'), _(
+                'Failed to contact running instance of calibre, try restarting calibre'),
+                det_msg=str(err) + '\n\n' + repr(msg), show=True)
         return False
     return True
 
