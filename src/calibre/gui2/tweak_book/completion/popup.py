@@ -9,7 +9,7 @@ import textwrap
 from math import ceil
 
 from PyQt5.Qt import (
-    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette, QEvent)
+    QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette, QEvent, QTextCursor)
 
 from calibre import prints, prepare_string_for_xml
 from calibre.gui2 import error_dialog
@@ -259,7 +259,7 @@ class CompletionPopup(ChoosePopupWidget):
             c.insertText(text)
             chars = string_length(text)
             c.setPosition(c.position() - chars)
-            c.setPosition(c.position() + chars, c.KeepAnchor)
+            c.setPosition(c.position() + chars, QTextCursor.MoveMode.KeepAnchor)
 
     def abort(self):
         ChoosePopupWidget.abort(self)
@@ -268,7 +268,7 @@ class CompletionPopup(ChoosePopupWidget):
     def mark_completion(self, editor, query):
         self.current_completion = c = editor.textCursor()
         chars = string_length(query or '')
-        c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, c.KeepAnchor)
+        c.setPosition(c.position() - chars), c.setPosition(c.position() + chars, QTextCursor.MoveMode.KeepAnchor)
         self.hide()
 
     def handle_result(self, result):

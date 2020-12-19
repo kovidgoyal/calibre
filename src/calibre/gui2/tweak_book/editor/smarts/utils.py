@@ -11,7 +11,7 @@ from PyQt5.Qt import Qt, QTextCursor
 def get_text_around_cursor(editor, before=True):
     cursor = editor.textCursor()
     cursor.clearSelection()
-    cursor.movePosition((QTextCursor.MoveOperation.StartOfBlock if before else QTextCursor.MoveOperation.EndOfBlock), cursor.KeepAnchor)
+    cursor.movePosition((QTextCursor.MoveOperation.StartOfBlock if before else QTextCursor.MoveOperation.EndOfBlock), QTextCursor.MoveMode.KeepAnchor)
     text = editor.selected_text_from_cursor(cursor)
     return cursor, text
 
@@ -60,7 +60,7 @@ def smart_home(editor, ev):
     if no_modifiers(ev, Qt.KeyboardModifier.ControlModifier) and not is_cursor_on_wrapped_line(editor):
         cursor, text = get_text_before_cursor(editor)
         cursor = editor.textCursor()
-        mode = cursor.KeepAnchor if test_modifiers(ev, Qt.KeyboardModifier.ShiftModifier) else cursor.MoveAnchor
+        mode = QTextCursor.MoveMode.KeepAnchor if test_modifiers(ev, Qt.KeyboardModifier.ShiftModifier) else QTextCursor.MoveMode.MoveAnchor
         cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, mode)
         if text.strip() and text.lstrip() != text:
             # Move to the start of text

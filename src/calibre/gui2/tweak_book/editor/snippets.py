@@ -13,7 +13,7 @@ from operator import attrgetter, itemgetter
 from PyQt5.Qt import (
     Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit, QListView,
     QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
-    QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox)
+    QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox, QTextCursor)
 
 from calibre.constants import ismacos
 from calibre.gui2 import error_dialog
@@ -226,7 +226,7 @@ class EditorTabStop(object):
         if editor is None or self.is_deleted:
             return ''
         c = editor.textCursor()
-        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        c.setPosition(self.left), c.setPosition(self.right, QTextCursor.MoveMode.KeepAnchor)
         return editor.selected_text_from_cursor(c)
 
     @text.setter
@@ -236,14 +236,14 @@ class EditorTabStop(object):
             return
         c = editor.textCursor()
         c.joinPreviousEditBlock() if self.join_previous_edit else c.beginEditBlock()
-        c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+        c.setPosition(self.left), c.setPosition(self.right, QTextCursor.MoveMode.KeepAnchor)
         c.insertText(text)
         c.endEditBlock()
 
     def set_editor_cursor(self, editor):
         if not self.is_deleted:
             c = editor.textCursor()
-            c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
+            c.setPosition(self.left), c.setPosition(self.right, QTextCursor.MoveMode.KeepAnchor)
             editor.setTextCursor(c)
 
     def contained_in(self, left, right):
@@ -349,7 +349,7 @@ def expand_template(editor, trigger, template):
     right = c.position()
     left = right - string_length(trigger)
     text, tab_stops = parse_template(template)
-    c.setPosition(left), c.setPosition(right, c.KeepAnchor), c.insertText(text)
+    c.setPosition(left), c.setPosition(right, QTextCursor.MoveMode.KeepAnchor), c.insertText(text)
     editor_tab_stops = [EditorTabStop(left, ts, editor) for ts in itervalues(tab_stops)]
 
     tl = Template(editor_tab_stops)

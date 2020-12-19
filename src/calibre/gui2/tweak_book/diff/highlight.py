@@ -46,7 +46,7 @@ class QtHighlighter(QTextDocument):
                     afs = ()
                 for af in afs:
                     start = dest_block.position() + af.start
-                    c.setPosition(start), c.setPosition(start + af.length, c.KeepAnchor)
+                    c.setPosition(start), c.setPosition(start + af.length, QTextCursor.MoveMode.KeepAnchor)
                     c.setCharFormat(af.format)
                 cursor.insertBlock()
                 cursor.setCharFormat(NULL_FMT)

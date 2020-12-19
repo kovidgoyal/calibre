@@ -77,7 +77,7 @@ class Smarts(NullSmarts):
 
     def get_completion_data(self, editor, ev=None):
         c = editor.textCursor()
-        c.movePosition(QTextCursor.MoveOperation.StartOfLine, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.StartOfLine, QTextCursor.MoveMode.KeepAnchor)
         text = c.selectedText()
         m = self.complete_attr_pat.search(text)
         if m is None:

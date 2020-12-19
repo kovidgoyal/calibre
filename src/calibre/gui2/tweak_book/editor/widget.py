@@ -181,7 +181,7 @@ class Editor(QMainWindow):
         anchor, position = val.get('cursor', (None, None))
         if anchor is not None and position is not None:
             c = self.editor.textCursor()
-            c.setPosition(anchor), c.setPosition(position, c.KeepAnchor)
+            c.setPosition(anchor), c.setPosition(position, QTextCursor.MoveMode.KeepAnchor)
             self.editor.setTextCursor(c)
 
     def current_tag(self, for_position_sync=True):
@@ -476,7 +476,7 @@ class Editor(QMainWindow):
         col = c.positionInBlock()
         if not c.atStart():
             c.clearSelection()
-            c.movePosition(QTextCursor.MoveOperation.PreviousCharacter, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.PreviousCharacter, QTextCursor.MoveMode.KeepAnchor)
             char = unicode_type(c.selectedText()).rstrip('\0')
         return (c.blockNumber() + 1, col, char)
 

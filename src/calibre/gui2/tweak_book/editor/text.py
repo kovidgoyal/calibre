@@ -310,7 +310,7 @@ class TextEdit(PlainTextEdit):
         c.movePosition(QTextCursor.MoveOperation.Start)
         c.movePosition(QTextCursor.MoveOperation.NextBlock, n=lnum - 1)
         c.movePosition(QTextCursor.MoveOperation.StartOfLine)
-        c.movePosition(QTextCursor.MoveOperation.EndOfLine, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
         text = unicode_type(c.selectedText()).rstrip('\0')
         if col is None:
             c.movePosition(QTextCursor.MoveOperation.StartOfLine)
@@ -369,7 +369,7 @@ class TextEdit(PlainTextEdit):
         pos = m_start if reverse else m_end
         if wrap:
             pos = m_end if reverse else m_start
-        c.setPosition(pos, c.KeepAnchor)
+        c.setPosition(pos, QTextCursor.MoveMode.KeepAnchor)
         raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
@@ -391,7 +391,7 @@ class TextEdit(PlainTextEdit):
 
         c.clearSelection()
         c.setPosition(start)
-        c.setPosition(end, c.KeepAnchor)
+        c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
         self.setTextCursor(c)
         # Center search result on screen
         self.centerCursor()
@@ -425,7 +425,7 @@ class TextEdit(PlainTextEdit):
                 start_pos = min(c.anchor(), c.position())
                 c.insertText(raw)
                 end_pos = max(c.anchor(), c.position())
-                c.setPosition(start_pos), c.setPosition(end_pos, c.KeepAnchor)
+                c.setPosition(start_pos), c.setPosition(end_pos, QTextCursor.MoveMode.KeepAnchor)
                 self.update_extra_selections()
         return count
 
@@ -439,7 +439,7 @@ class TextEdit(PlainTextEdit):
                      ' Are you sure you want to proceed?'), 'edit-book-confirm-sort-css', parent=self, config_set=tprefs):
             c = self.textCursor()
             c.beginEditBlock()
-            c.movePosition(QTextCursor.MoveOperation.Start), c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.Start), c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
             text = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
             text = css_text(sort_sheet(current_container(), text))
@@ -460,7 +460,7 @@ class TextEdit(PlainTextEdit):
         pos = QTextCursor.MoveOperation.Start if reverse else QTextCursor.MoveOperation.End
         if wrap and not complete:
             pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
-        c.movePosition(pos, c.KeepAnchor)
+        c.movePosition(pos, QTextCursor.MoveMode.KeepAnchor)
         raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
         if m is None:
@@ -481,7 +481,7 @@ class TextEdit(PlainTextEdit):
                 start, end = textpos + start, textpos + end
         c.clearSelection()
         c.setPosition(start)
-        c.setPosition(end, c.KeepAnchor)
+        c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
         self.setTextCursor(c)
         # Center search result on screen
         self.centerCursor()
@@ -499,7 +499,7 @@ class TextEdit(PlainTextEdit):
         pos = QTextCursor.MoveOperation.Start if reverse else QTextCursor.MoveOperation.End
         if wrap and not complete:
             pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
-        c.movePosition(pos, c.KeepAnchor)
+        c.movePosition(pos, QTextCursor.MoveMode.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
             self.highlighter.join()
             found, start, end = self.smarts.find_text(pat, c, reverse)
@@ -517,7 +517,7 @@ class TextEdit(PlainTextEdit):
             start, end = end, start
         c.clearSelection()
         c.setPosition(start)
-        c.setPosition(end, c.KeepAnchor)
+        c.setPosition(end, QTextCursor.MoveMode.KeepAnchor)
         self.setTextCursor(c)
         # Center search result on screen
         self.centerCursor()
@@ -528,7 +528,7 @@ class TextEdit(PlainTextEdit):
         c.setPosition(c.position())
         if not from_cursor:
             c.movePosition(QTextCursor.MoveOperation.Start)
-        c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
 
         def find_first_word(haystack):
             match_pos, match_word = -1, None
@@ -544,7 +544,7 @@ class TextEdit(PlainTextEdit):
             if idx == -1:
                 return False
             c.setPosition(c.anchor() + idx)
-            c.setPosition(c.position() + string_length(word), c.KeepAnchor)
+            c.setPosition(c.position() + string_length(word), QTextCursor.MoveMode.KeepAnchor)
             if self.smarts.verify_for_spellcheck(c, self.highlighter):
                 self.highlighter.join()  # Ensure highlighting is finished
                 locale = self.spellcheck_locale_for_cursor(c)
@@ -554,7 +554,7 @@ class TextEdit(PlainTextEdit):
                         self.centerCursor()
                     return True
             c.setPosition(c.position())
-            c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
 
         return False
 
@@ -568,7 +568,7 @@ class TextEdit(PlainTextEdit):
                 if r.format.property(SPELL_PROPERTY):
                     if not from_cursor or block.position() + r.start + r.length > c.position():
                         c.setPosition(block.position() + r.start)
-                        c.setPosition(c.position() + r.length, c.KeepAnchor)
+                        c.setPosition(c.position() + r.length, QTextCursor.MoveMode.KeepAnchor)
                         self.setTextCursor(c)
                         return True
             block = block.next()
@@ -712,7 +712,7 @@ class TextEdit(PlainTextEdit):
     def text_for_range(self, block, r):
         c = self.textCursor()
         c.setPosition(block.position() + r.start)
-        c.setPosition(c.position() + r.length, c.KeepAnchor)
+        c.setPosition(c.position() + r.length, QTextCursor.MoveMode.KeepAnchor)
         return unicode_type(c.selectedText())
 
     def spellcheck_locale_for_cursor(self, c):
@@ -828,13 +828,13 @@ class TextEdit(PlainTextEdit):
         left, right = self.get_range_inside_tag()
         c = self.textCursor()
         c.setPosition(left)
-        c.setPosition(right, c.KeepAnchor)
+        c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
         prev_text = unicode_type(c.selectedText()).rstrip('\0')
         c.insertText(prefix + prev_text + suffix)
         if prev_text:
             right = c.position()
             c.setPosition(left)
-            c.setPosition(right, c.KeepAnchor)
+            c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
         else:
             c.setPosition(c.position() - len(suffix))
         self.setTextCursor(c)
@@ -850,7 +850,7 @@ class TextEdit(PlainTextEdit):
         if self.syntax == 'html':
             left, right = self.get_range_inside_tag()
             c.setPosition(left)
-            c.setPosition(right, c.KeepAnchor)
+            c.setPosition(right, QTextCursor.MoveMode.KeepAnchor)
             href = prepare_string_for_xml(href, True)
             if fullpage:
                 template =  '''\
@@ -866,10 +866,10 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         c.insertText(text)
         if self.syntax == 'html' and not fullpage:
             c.setPosition(left + 10)
-            c.setPosition(c.position() + len(alt), c.KeepAnchor)
+            c.setPosition(c.position() + len(alt), QTextCursor.MoveMode.KeepAnchor)
         else:
             c.setPosition(left)
-            c.setPosition(left + len(text), c.KeepAnchor)
+            c.setPosition(left + len(text), QTextCursor.MoveMode.KeepAnchor)
         self.setTextCursor(c)
 
     def insert_hyperlink(self, target, text, template=None):
@@ -934,7 +934,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         if has_selection:
             text = unicode_type(c.selectedText()).rstrip('\0')
         else:
-            c.setPosition(c.position() - min(c.positionInBlock(), 6), c.KeepAnchor)
+            c.setPosition(c.position() - min(c.positionInBlock(), 6), QTextCursor.MoveMode.KeepAnchor)
             text = unicode_type(c.selectedText()).rstrip('\0')
         m = re.search(r'[a-fA-F0-9]{2,6}$', text)
         if m is None:
@@ -947,7 +947,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         if num > 0x10ffff or num < 1:
             return False
         end_pos = max(c.anchor(), c.position())
-        c.setPosition(end_pos - len(text)), c.setPosition(end_pos, c.KeepAnchor)
+        c.setPosition(end_pos - len(text)), c.setPosition(end_pos, QTextCursor.MoveMode.KeepAnchor)
         c.insertText(safe_chr(num))
         return True
 
@@ -955,7 +955,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         c = self.textCursor()
         c.clearSelection()
         c.setPosition(0)
-        c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
         self.setTextCursor(c)
 
     def rename_block_tag(self, new_name):

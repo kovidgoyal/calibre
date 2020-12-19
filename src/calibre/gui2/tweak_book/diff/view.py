@@ -240,11 +240,11 @@ class TextBrowser(PlainTextEdit):  # {{{
             if num in headers:
                 self.search_header_pos = start + length
             else:
-                c.setPosition(c.position() + length, c.KeepAnchor)
+                c.setPosition(c.position() + length, QTextCursor.MoveMode.KeepAnchor)
                 self.search_header_pos = 0
             if reverse:
                 pos, anchor = c.position(), c.anchor()
-                c.setPosition(pos), c.setPosition(anchor, c.KeepAnchor)
+                c.setPosition(pos), c.setPosition(anchor, QTextCursor.MoveMode.KeepAnchor)
             self.setTextCursor(c)
             self.centerCursor()
             self.scrolled.emit()
@@ -643,7 +643,7 @@ class DiffSplit(QSplitter):  # {{{
                     for _ in range(delta):
                         c.insertBlock()
                 else:
-                    c.movePosition(QTextCursor.MoveOperation.NextBlock, c.KeepAnchor, -delta)
+                    c.movePosition(QTextCursor.MoveOperation.NextBlock, QTextCursor.MoveMode.KeepAnchor, -delta)
                     c.removeSelectedText()
                 c.endEditBlock()
                 v.images[top] = (img, w, lines)

@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl, QAbstractItemView, QDialogButtonBox)
+    QFontDatabase, QComboBox, QUrl, QAbstractItemView, QDialogButtonBox, QTextCursor)
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
@@ -337,7 +337,7 @@ def jump_to_location(loc):
         if not block.isValid():
             return
         c = editor.textCursor()
-        c.setPosition(block.position(), c.MoveAnchor)
+        c.setPosition(block.position(), QTextCursor.MoveMode.MoveAnchor)
         editor.setTextCursor(c)
         if loc.text_on_line is not None:
             editor.find(regex.compile(regex.escape(loc.text_on_line)))

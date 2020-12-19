@@ -559,7 +559,7 @@ def to_plain_text(self):
     c = self.textCursor()
     c.clearSelection()
     c.movePosition(QTextCursor.MoveOperation.Start)
-    c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
+    c.movePosition(QTextCursor.MoveOperation.End, QTextCursor.MoveMode.KeepAnchor)
     ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
     # QTextCursor pads the return value of selectedText with null bytes if
     # non BMP characters such as 0x1f431 are present.
