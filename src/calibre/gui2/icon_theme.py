@@ -214,7 +214,7 @@ class ThemeCreateDialog(Dialog):
         self.w = w = QGroupBox(_('Theme Metadata'), self)
         self.splitter.addWidget(w)
         l = w.l = QFormLayout(w)
-        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.missing_icons_group = mg = QGroupBox(self)
         self.mising_icons = mi = QListWidget(mg)
         mi.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)

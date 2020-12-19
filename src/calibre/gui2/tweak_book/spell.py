@@ -69,7 +69,7 @@ class AddDictionary(QDialog):  # {{{
         QDialog.__init__(self, parent)
         self.setWindowTitle(_('Add a dictionary'))
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         self.la = la = QLabel('<p>' + _(

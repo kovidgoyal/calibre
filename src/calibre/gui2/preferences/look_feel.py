@@ -61,7 +61,7 @@ class DefaultAuthorLink(QWidget):  # {{{
         l.setContentsMargins(0, 0, 0, 0)
         l = QFormLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.choices = c = QComboBox()
         c.setMinimumContentsLength(30)
         for text, data in [
@@ -125,7 +125,7 @@ class IdLinksRuleEdit(Dialog):
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         l.addRow(QLabel(_(
             'The key of the identifier, for example, in isbn:XXX, the key is "isbn"')))
         self.key = k = QLineEdit(self)

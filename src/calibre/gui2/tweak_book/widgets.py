@@ -188,7 +188,7 @@ class ImportForeign(Dialog):  # {{{
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.setLayout(l)
 
         la = self.la = QLabel(_(
@@ -666,7 +666,7 @@ class InsertLink(Dialog):
         h.addLayout(fnl), h.setStretch(1, 1)
 
         self.tl = tl = QFormLayout()
-        tl.setFieldGrowthPolicy(tl.AllNonFixedFieldsGrow)
+        tl.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.target = t = QLineEdit(self)
         t.setPlaceholderText(_('The destination (href) for the link'))
         tl.addRow(_('&Target:'), t)

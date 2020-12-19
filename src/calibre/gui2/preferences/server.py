@@ -243,7 +243,7 @@ class AdvancedTab(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.widgets = []
         self.widget_map = {}
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -448,7 +448,7 @@ class NewUser(QDialog):
             if username else _('Add new user')
         )
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.uw = u = QLineEdit(self)
         l.addRow(_('&Username:'), u)
         if username:
@@ -591,7 +591,7 @@ class ChangeRestriction(QDialog):
         self.username = username
         self._items = []
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
         self.libraries = t = QWidget(self)
         t.setObjectName('libraries')
@@ -898,7 +898,7 @@ class CustomList(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.default_template = default_custom_list_template()
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
         self.la = la = QLabel('<p>' + _(
             'Here you can create a template to control what data is shown when'
             ' using the <i>Custom list</i> mode for the book list'))
@@ -1029,7 +1029,7 @@ class URLItem(QWidget):
         self.changed_signal.connect(parent.changed_signal)
         self.l = l = QFormLayout(self)
         self.type_widget = t = QComboBox(self)
-        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         t.addItems([_('Book'), _('Author')])
         l.addRow(_('URL type:'), t)
         self.name_widget = n = QLineEdit(self)

@@ -303,7 +303,7 @@ class BasicRecipe(QWidget):  # {{{
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
         self.hm = hm = QLabel(_(
             'Create a basic news recipe, by adding RSS feeds to it.\n'
@@ -354,7 +354,7 @@ class BasicRecipe(QWidget):  # {{{
         self.afg = afg = QGroupBox(self)
         afg.setTitle(_('Add feed to recipe'))
         afg.l = QFormLayout(afg)
-        afg.l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
+        afg.l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
         self.feed_title = ft = QLineEdit(self)
         afg.l.addRow(_('&Feed title:'), ft)
         self.feed_url = fu = QLineEdit(self)

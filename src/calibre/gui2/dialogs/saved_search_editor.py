@@ -38,7 +38,7 @@ class AddSavedSearch(Dialog):
 
     def setup_ui(self):
         self.l = l = QFormLayout(self)
-        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
         self.la = la = QLabel(self.label or _(
             'You can create a <i>Saved search</i>, for frequently used searches here.'

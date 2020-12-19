@@ -92,7 +92,7 @@ def create_adv_tab(self):
     l.addWidget(w.g1), l.addWidget(w.g2), l.addStretch(10)
 
     w.g1.l = l = QFormLayout(w.g1)
-    l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+    l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     for key, text in (
             ('all', _("A&ll these words:")),
             ('phrase', _("&This exact phrase:")),
@@ -103,7 +103,7 @@ def create_adv_tab(self):
         l.addRow(text, le)
 
     w.g2.l = l = QFormLayout(w.g2)
-    l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+    l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     self.none = le = QLineEdit(w)
     l.addRow(_("Any of these &unwanted words:"), le)
 
@@ -113,7 +113,7 @@ def create_simple_tab(self, db):
     self.tab_widget.addTab(w, _("Titl&e/author/series..."))
 
     w.l = l = QFormLayout(w)
-    l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+    l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     self.title_box = le = QLineEdit(w)
     le.setObjectName('title_box')
@@ -239,7 +239,7 @@ def create_template_tab(self):
     self.tab_widget.addTab(w, _("&Template search"))
 
     w.l = l = QFormLayout(w)
-    l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+    l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     self.template_value_box = le = QLineEdit(w)
     le.setObjectName('template_value_box')
