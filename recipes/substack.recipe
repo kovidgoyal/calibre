@@ -9,9 +9,12 @@
 ##
 
 __license__ = 'GNU General Public License v3 – https://www.gnu.org/licenses/gpl-3.0.html'
-__copyright__ = 'Nathan Cook – 2020-12-18'
-__version__ = 'v0.1.0'
-__date__ = '2020-12-18'
+__copyright__ = 'Nathan Cook – 2020-12-19'
+__version__ = 'v0.1.1'
+__date__ = '2020-12-19'
+__author__ = 'topynate'
+
+language = 'en'
 
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -20,9 +23,11 @@ from mechanize import Request
 
 class Substack(BasicNewsRecipe):
     title          = 'Substack'
+    __author__     ='topynate'
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup   = True
+    needs_subscription = 'optional'
 
 # Every Substack publication has an RSS feed at https://{name}.substack.com/feed.
 # The same URL provides either all posts, or all free posts + previews of paid posts,
