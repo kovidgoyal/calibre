@@ -55,13 +55,13 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         painter.fillRect(r, bg)
         style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option, painter, widget)
         painter.setOpacity(0.3)
-        icon.paint(painter, r, option.decorationAlignment, icon.Normal, icon.On)
+        icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.Mode.On)
         painter.restore()
 
     def draw_icon(self, style, painter, option, widget):
         r = style.subElementRect(style.SE_ItemViewItemDecoration, option, widget)
         icon = option.icon
-        icon.paint(painter, r, option.decorationAlignment, icon.Normal, icon.On)
+        icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.Mode.On)
 
     def paint_text(self, painter, rect, flags, text, hover):
         set_color = hover and QApplication.instance().is_dark_theme
