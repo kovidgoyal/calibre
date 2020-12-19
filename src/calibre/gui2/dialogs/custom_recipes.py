@@ -583,7 +583,7 @@ class CustomRecipes(Dialog):
         bb = self.bb
         bb.clear()
         if index == 0:
-            bb.setStandardButtons(bb.Close)
+            bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
             for icon, text, tooltip, receiver in self.list_actions:
                 b = bb.addButton(text, QDialogButtonBox.ButtonRole.ActionRole)
                 b.setIcon(QIcon(I(icon))), b.setToolTip(tooltip)

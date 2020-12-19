@@ -368,7 +368,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(d.accept)
 
     def onchange():
-        b = bb.button(bb.Apply)
+        b = bb.button(QDialogButtonBox.StandardButton.Apply)
         b.setEnabled(True)
         b.setDefault(True)
         b.setAutoDefault(True)

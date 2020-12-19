@@ -336,7 +336,7 @@ class Report(QDialog):  # {{{
         bb.rejected.connect(self.reject)
         b = self.log_button = bb.addButton(_('View full &log'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.view_log)
-        bb.button(bb.Close).setDefault(True)
+        bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
         l.addWidget(bb, 2, 1)
 
         self.finished.connect(self.show_next, type=Qt.ConnectionType.QueuedConnection)
