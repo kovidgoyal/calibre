@@ -10,7 +10,7 @@ from operator import attrgetter
 
 from PyQt5.Qt import (
     QAbstractListModel, QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
-    QGroupBox, QIcon, QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit,
+    QGroupBox, QIcon, QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit, QComboBox,
     QPushButton, QSizePolicy, QSplitter, QStyle, QStyledItemDelegate, QAbstractItemView, QItemSelectionModel,
     QStyleOptionViewItem, Qt, QVBoxLayout, QWidget, pyqtSignal
 )
@@ -408,7 +408,7 @@ class ConfigWidget(ConfigWidgetBase):
 
         self.search = sb = SearchBox2(self)
         sb.sizePolicy().setHorizontalStretch(10)
-        sb.setSizeAdjustPolicy(sb.AdjustToMinimumContentsLength)
+        sb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLength)
         sb.setMinimumContentsLength(10)
         g.addWidget(self.search, 0, 0, 1, 1)
         self.next_button = b = QPushButton(self)

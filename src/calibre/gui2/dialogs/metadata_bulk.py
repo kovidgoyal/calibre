@@ -9,7 +9,7 @@ from io import BytesIO
 from threading import Thread
 
 from PyQt5.Qt import (
-    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar,
+    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar, QComboBox,
     QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal, QApplication
 )
 
@@ -1087,7 +1087,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.initialize_publisher()
         for x in ('authors', 'publisher', 'series'):
             x = getattr(self, x)
-            x.setSizeAdjustPolicy(x.AdjustToMinimumContentsLengthWithIcon)
+            x.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             x.setMinimumContentsLength(25)
 
     def initalize_authors(self):

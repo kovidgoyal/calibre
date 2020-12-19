@@ -140,7 +140,7 @@ class SearchBox2(QComboBox):  # {{{
         self.timer.timeout.connect(self.timer_event, type=Qt.ConnectionType.QueuedConnection)
         self.setInsertPolicy(self.NoInsert)
         self.setMaxCount(self.MAX_COUNT)
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(25)
         self._in_a_search = False
         self.tool_tip_text = self.toolTip()
@@ -343,7 +343,7 @@ class SavedSearchBox(QComboBox):  # {{{
 
         self.setEditable(True)
         self.setInsertPolicy(self.NoInsert)
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(10)
         self.tool_tip_text = self.toolTip()
 

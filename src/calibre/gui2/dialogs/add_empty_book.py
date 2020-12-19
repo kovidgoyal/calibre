@@ -40,7 +40,7 @@ class AddEmptyBookDialog(QDialog):
 
         self.authors_combo = EditWithComplete(self)
         self.authors_combo.setSizeAdjustPolicy(
-                self.authors_combo.AdjustToMinimumContentsLengthWithIcon)
+                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.authors_combo.setEditable(True)
         self._layout.addWidget(self.authors_combo, 3, 0, 1, 1)
         self.initialize_authors(db, author)
@@ -56,7 +56,7 @@ class AddEmptyBookDialog(QDialog):
 
         self.series_combo = EditWithComplete(self)
         self.series_combo.setSizeAdjustPolicy(
-                self.authors_combo.AdjustToMinimumContentsLengthWithIcon)
+                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.series_combo.setEditable(True)
         self._layout.addWidget(self.series_combo, 5, 0, 1, 1)
         self.initialize_series(db, series)

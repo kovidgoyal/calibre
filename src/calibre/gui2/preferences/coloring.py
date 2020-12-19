@@ -143,7 +143,7 @@ class ConditionEditor(QWidget):  # {{{
         self.action_box.currentIndexChanged.connect(self.init_value_box)
 
         for b in (self.column_box, self.action_box):
-            b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
+            b.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             b.setMinimumContentsLength(20)
 
     @property
@@ -358,7 +358,7 @@ class RuleEditor(QDialog):  # {{{
             v.setIconSize(QSize(32, 32))
             self.filename_box.setView(v)
             self.orig_filenamebox_view = f.view()
-            f.setMinimumContentsLength(20), f.setSizeAdjustPolicy(f.AdjustToMinimumContentsLengthWithIcon)
+            f.setMinimumContentsLength(20), f.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             self.populate_icon_filenames()
 
         if self.rule_kind == 'color':
@@ -433,7 +433,7 @@ class RuleEditor(QDialog):  # {{{
 
         if self.rule_kind == 'color':
             for b in (self.column_box, ):
-                b.setSizeAdjustPolicy(b.AdjustToMinimumContentsLengthWithIcon)
+                b.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
                 b.setMinimumContentsLength(15)
 
         for key in sorted(displayable_columns(fm),

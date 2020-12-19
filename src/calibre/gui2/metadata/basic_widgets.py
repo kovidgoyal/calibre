@@ -15,7 +15,7 @@ from datetime import date, datetime
 from PyQt5.Qt import (
     QAction, QApplication, QDateTime, QDialog, QDialogButtonBox, QDoubleSpinBox,
     QGridLayout, QIcon, QKeySequence, QLabel, QLineEdit, QListWidgetItem, QMenu,
-    QMessageBox, QPixmap, QPlainTextEdit, QSize, QSizePolicy, Qt, QToolButton,
+    QMessageBox, QPixmap, QPlainTextEdit, QSize, QSizePolicy, Qt, QToolButton, QComboBox,
     QUndoCommand, QUndoStack, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 
@@ -344,7 +344,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.manage_authors_signal = manage_authors
         manage_authors.triggered.connect(self.manage_authors)
         self.lineEdit().createStandardContextMenu = self.createStandardContextMenu
@@ -601,7 +601,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
         self.set_separator(None)
         self.dialog = parent
         self.setSizeAdjustPolicy(
-                self.AdjustToMinimumContentsLengthWithIcon)
+                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
@@ -1770,7 +1770,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
         self.currentTextChanged.connect(self.data_changed)
         self.set_separator(None)
         self.setSizeAdjustPolicy(
-                self.AdjustToMinimumContentsLengthWithIcon)
+                QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.books_to_refresh = set()
         self.clear_button = QToolButton(parent)
         self.clear_button.setIcon(QIcon(I('trash.png')))

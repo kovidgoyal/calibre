@@ -504,7 +504,7 @@ class Text(Base):
         else:
             w = EditWithComplete(parent)
             w.set_separator(None)
-            w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
+            w.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             w.setMinimumContentsLength(25)
             self.set_to_undefined = w.clearEditText
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
@@ -578,7 +578,7 @@ class Series(Base):
     def setup_ui(self, parent):
         w = EditWithComplete(parent)
         w.set_separator(None)
-        w.setSizeAdjustPolicy(w.AdjustToMinimumContentsLengthWithIcon)
+        w.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         w.setMinimumContentsLength(25)
         self.name_widget = w
         self.widgets = [QLabel(label_string(self.col_metadata['name']), parent)]
@@ -1156,7 +1156,7 @@ class BulkSeries(BulkBase):
         self.make_widgets(parent, EditWithComplete)
         values = self.all_values = list(self.db.all_custom(num=self.col_id))
         values.sort(key=sort_key)
-        self.main_widget.setSizeAdjustPolicy(self.main_widget.AdjustToMinimumContentsLengthWithIcon)
+        self.main_widget.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.main_widget.setMinimumContentsLength(25)
         self.widgets.append(QLabel('', parent))
         w = QWidget(parent)
@@ -1401,7 +1401,7 @@ class BulkText(BulkBase):
             self.make_widgets(parent, EditWithComplete)
             self.main_widget.set_separator(None)
             self.main_widget.setSizeAdjustPolicy(
-                        self.main_widget.AdjustToMinimumContentsLengthWithIcon)
+                        QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
             self.main_widget.setMinimumContentsLength(25)
         self.ignore_change_signals = False
         self.parent = parent

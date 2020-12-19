@@ -6,6 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from PyQt5.Qt import QComboBox
 from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.localization import lang_map_for_ui
@@ -20,7 +21,7 @@ class LanguagesEdit(EditWithComplete):
         self.refresh_recently_used()
         EditWithComplete.__init__(self, parent, sort_func=self.sort_language_items_key)
 
-        self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
+        self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
         self._lang_map = lang_map_for_ui()
         self.names_with_commas = [x for x in itervalues(self._lang_map) if ',' in x]

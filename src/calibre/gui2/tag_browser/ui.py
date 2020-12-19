@@ -10,7 +10,7 @@ import textwrap
 from functools import partial
 
 from PyQt5.Qt import (
-    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog,
+    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog, QComboBox,
     QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
@@ -480,7 +480,7 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.item_search = FindBox(parent)
         self.item_search.setMinimumContentsLength(5)
-        self.item_search.setSizeAdjustPolicy(self.item_search.AdjustToMinimumContentsLengthWithIcon)
+        self.item_search.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
         self.item_search.initialize('tag_browser_search')
         self.item_search.completer().setCaseSensitivity(Qt.CaseSensitivity.CaseSensitive)
         self.item_search.setToolTip(
