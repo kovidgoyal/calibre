@@ -41,17 +41,17 @@ class MainWindow(QMainWindow):
         m.aboutToShow.connect(self.about_to_show_one)
         s = self.style()
         self.q = q = QAction('&Quit', self)
-        q.setShortcut(QKeySequence.StandardKey.Quit), q.setIcon(s.standardIcon(s.SP_DialogCancelButton))
+        q.setShortcut(QKeySequence.StandardKey.Quit), q.setIcon(s.standardIcon(QStyle.StandardPixmap.SP_DialogCancelButton))
         q.triggered.connect(QApplication.quit)
         self.addAction(q)
-        QApplication.instance().setWindowIcon(s.standardIcon(s.SP_ComputerIcon))
-        for i, icon in zip(range(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogHelpButton, s.SP_ArrowUp))):
+        QApplication.instance().setWindowIcon(s.standardIcon(QStyle.StandardPixmap.SP_ComputerIcon))
+        for i, icon in zip(range(3), map(s.standardIcon, (QStyle.StandardPixmap.SP_DialogOkButton, QStyle.StandardPixmap.SP_DialogHelpButton, QStyle.StandardPixmap.SP_ArrowUp))):
             ac = m.addAction('One - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.Modifier.CTRL | (Qt.Key.Key_1 + i), Qt.Modifier.SHIFT | (Qt.Key.Key_1 + i)))
             ac.setIcon(icon)
         m.addSeparator()
         self.menu_two = m2 = m.addMenu('A &submenu')
-        for i, icon in zip(range(3), map(s.standardIcon, (s.SP_DialogOkButton, s.SP_DialogCancelButton, s.SP_ArrowUp))):
+        for i, icon in zip(range(3), map(s.standardIcon, (QStyle.StandardPixmap.SP_DialogOkButton, QStyle.StandardPixmap.SP_DialogCancelButton, QStyle.StandardPixmap.SP_ArrowUp))):
             ac = m2.addAction('Two - &%d' % (i + 1))
             ac.setShortcut(QKeySequence(Qt.Modifier.CTRL | (Qt.Key.Key_A + i)))
             ac.setIcon(icon)
@@ -112,8 +112,8 @@ class MainWindow(QMainWindow):
     def change_icon(self):
         import random
         s = self.style()
-        num = s.SP_ComputerIcon
-        while num == s.SP_ComputerIcon:
+        num = QStyle.StandardPixmap.SP_ComputerIcon
+        while num == QStyle.StandardPixmap.SP_ComputerIcon:
             num = random.choice(range(20))
         self.systray.setIcon(self.style().standardIcon(num))
 
