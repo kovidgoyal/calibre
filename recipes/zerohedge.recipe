@@ -1,5 +1,8 @@
+# -*- mode: python; coding: utf-8; -*-
+# vim: set syntax=python fileencoding=utf-8
+
 __license__ = 'GPL v3'
-__copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2011-2020, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.zerohedge.com
 '''
@@ -14,12 +17,14 @@ class ZeroHedge(BasicNewsRecipe):
     oldest_article = 10
     max_articles_per_feed = 100
     no_stylesheets = True
-    use_embedded_content = True
+    use_embedded_content = False
     encoding = 'utf8'
     publisher = 'zero hedge'
     category = 'news, USA, world, economy, politics'
     language = 'en'
-    masthead_url = 'http://www.zerohedge.com/themes/newsflash/logo.png'
+    masthead_url = 'https://www.zerohedge.com/images/logo/full.svg'
+    auto_cleanup     = True
+    auto_cleanup_keep = '//*[@class="main-content"]'
     publication_type = 'blog'
     extra_css = 'body{ font-family: sans-serif }'
 
