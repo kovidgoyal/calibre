@@ -1804,8 +1804,47 @@ class BuiltinSwapAroundArticles(BuiltinFormatterFunction):
         return separator.join(sorted(result, key=sort_key))
 
 
+class BuiltinArguments(BuiltinFormatterFunction):
+    name = 'arguments'
+    arg_count = -1
+    category = 'other'
+    __doc__ = doc = _('arguments(id[=expression] [, id[=expression]]*) '
+                      '-- Used in a stored template to retrieve the arguments '
+                      'passed in the call. It both declares and initializes '
+                      'local variables, effectively parameters. The variables '
+                      'are positional; they get the value of the value given '
+                      'in the call in the same position. If the corresponding '
+                      'parameter is not provided in the call then arguments '
+                      'assigns that variable the provided default value. If '
+                      'there is no default value then the variable is set to '
+                      'the empty string.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        # The arguments function is implemented in-line in the formatter
+        raise NotImplementedError()
+
+
+class BuiltinGlobals(BuiltinFormatterFunction):
+    name = 'globals'
+    arg_count = -1
+    category = 'other'
+    __doc__ = doc = _('globals(id[=expression] [, id[=expression]]*) '
+                      '-- Retrieves "global variables" that can be passed into '
+                      'the formatter. It both declares and initializes local '
+                      'variables with the names of the global variables passed '
+                      'in. If the corresponding variable is not provided in '
+                      'the passed-in globals then it assigns that variable the '
+                      'provided default value. If there is no default value '
+                      'then the variable is set to the empty string.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        # The globals function is implemented in-line in the formatter
+        raise NotImplementedError()
+
+
 _formatter_builtins = [
-    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinAssign(),
+    BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
+    BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
     BuiltinCapitalize(), BuiltinCheckYesNo(), BuiltinCeiling(),
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinContains(),
@@ -1814,6 +1853,7 @@ _formatter_builtins = [
     BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
+    BuiltinGlobals(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
