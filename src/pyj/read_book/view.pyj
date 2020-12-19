@@ -321,6 +321,7 @@ class View:
         self.selection_bar = SelectionBar(self)
         self.read_aloud = ReadAloud(self)
         self.hints = Hints(self)
+        self.modal_overlays = v'[self.selection_bar, self.read_aloud, self.hints]'
         self.processing_spine_item_display = False
         self.pending_load = None
         self.currently_showing = {'selection': {'empty': True}}
@@ -457,9 +458,8 @@ class View:
         if ui_operations.overlay_visibility_changed:
             ui_operations.overlay_visibility_changed(visible)
         if visible:
-            self.selection_bar.hide()
-            self.read_aloud.hide()
-            self.hints.hide()
+            for x in self.modal_overlays:
+                x.hide()
         else:
             self.selection_bar.update_position()
 
@@ -679,18 +679,16 @@ class View:
         self.focus_iframe()
 
     def focus_iframe(self):
-        if self.selection_bar.is_visible:
-            self.selection_bar.focus()
-        elif self.read_aloud.is_visible:
-            self.read_aloud.focus()
-        elif self.hints.is_visible:
-            self.hints.focus()
-        else:
-            self.iframe.contentWindow.focus()
+        for x in self.modal_overlays:
+            if x.is_visible:
+                x.focus()
+                return
+        self.iframe.contentWindow.focus()
 
     def start_read_aloud(self, dont_start_talking):
-        self.selection_bar.hide()
-        self.hints.hide()
+        for x in self.modal_overlays:
+            if x is not self.read_aloud:
+                x.hide()
         self.read_aloud.show()
         if not dont_start_talking:
             self.read_aloud.play()
@@ -705,8 +703,9 @@ class View:
         if self.hints.is_visible:
             self.hints.hide()
         else:
-            self.selection_bar.hide()
-            self.read_aloud.hide()
+            for x in self.modal_overlays:
+                if x is not self.hints:
+                    x.hide()
             self.hints.show()
 
     def show_chrome(self, data):
@@ -1306,7 +1305,9 @@ class View:
         )
 
     def on_content_loaded(self, data):
-        self.selection_bar.hide()
+        for x in self.modal_overlays:
+            if not x.dont_hide_on_content_loaded:
+                x.hide()
         self.processing_spine_item_display = False
         self.currently_showing.loading = False
         self.hide_loading()

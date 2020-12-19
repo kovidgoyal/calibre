@@ -21,6 +21,8 @@ STOPPED = 4
 
 class ReadAloud:
 
+    dont_hide_on_content_loaded = True
+
     def __init__(self, view):
         self.view = view
         self._state = HIDDEN
