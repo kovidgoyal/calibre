@@ -5,7 +5,7 @@
 import re
 
 from PyQt5.Qt import (
-    QAction, QFont, QFontMetrics, QStyle, QStyledItemDelegate, Qt, pyqtSignal
+    QAction, QFont, QFontMetrics, QStyle, QStyledItemDelegate, Qt, pyqtSignal, QPalette
 )
 
 from calibre.gui2 import QT_HIDDEN_CLEAR_ACTION
@@ -31,8 +31,8 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
         painter.save()
         try:
             p = option.palette
-            c = p.HighlightedText if option.state & QStyle.StateFlag.State_Selected else p.Text
-            group = (p.Active if option.state & QStyle.StateFlag.State_Active else p.Inactive)
+            c = QPalette.ColorRole.HighlightedText if option.state & QStyle.StateFlag.State_Selected else QPalette.ColorRole.Text
+            group = (QPalette.ColorGroup.Active if option.state & QStyle.StateFlag.State_Active else QPalette.ColorGroup.Inactive)
             c = p.color(group, c)
             painter.setPen(c)
             font = option.font

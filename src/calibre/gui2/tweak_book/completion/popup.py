@@ -118,7 +118,7 @@ class ChoosePopupWidget(QWidget):
         for i, st, y, height in self.iter_visible_items():
             painter.save()
             if i == self.current_index:
-                painter.fillRect(1, y, width, height, pal.color(pal.Highlight))
+                painter.fillRect(1, y, width, height, pal.color(QPalette.ColorRole.Highlight))
                 color = pal.color(QPalette.ColorRole.HighlightedText).name()
                 st = QStaticText(st)
                 text = st.text().partition('>')[2]

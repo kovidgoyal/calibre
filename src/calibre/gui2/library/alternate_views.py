@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QAbstractItemView, QApplication, QBuffer, QByteArray, QColor, QDrag,
     QEasingCurve, QEvent, QFont, QHelpEvent, QIcon, QImage, QItemSelection,
     QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPixmap,
-    QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate,
+    QPoint, QPropertyAnimation, QRect, QSize, QStyledItemDelegate, QPalette,
     QStyleOptionViewItem, Qt, QTableView, QTimer, QToolTip, QTreeView, QUrl,
     pyqtProperty, pyqtSignal, pyqtSlot, qBlue, qGreen, qRed, QIODevice
 )
@@ -799,7 +799,7 @@ class GridView(QListView):
         r, g, b = gprefs['cover_grid_color']
         tex = gprefs['cover_grid_texture']
         pal = self.palette()
-        pal.setColor(pal.Base, QColor(r, g, b))
+        pal.setColor(QPalette.ColorRole.Base, QColor(r, g, b))
         self.setPalette(pal)
         ss = ''
         if tex:

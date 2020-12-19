@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from PyQt5.Qt import (
     Qt, QAction, QMenu, QObject, QToolBar, QToolButton, QSize, pyqtSignal, QKeySequence,
-    QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget)
+    QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget, QPalette)
 try:
     from PyQt5 import sip
 except ImportError:
@@ -58,7 +58,7 @@ class RevealBar(QWidget):  # {{{
             rect = self.rect()
             painter = QPainter(self)
             pal = self.palette()
-            col = pal.color(pal.Button)
+            col = pal.color(QPalette.ColorRole.Button)
             rect.setLeft(rect.left() + (rect.width() * self._animated_size))
             painter.setClipRect(rect)
             painter.fillRect(self.rect(), col)

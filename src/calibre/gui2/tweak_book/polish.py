@@ -11,7 +11,7 @@ from threading import Thread
 from PyQt5.Qt import (
     QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
     QCheckBox, Qt, QListWidgetItem, QHBoxLayout, QListWidget, QPixmap,
-    QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen,
+    QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen, QPalette,
     QProgressBar, pyqtSignal, QApplication, QAbstractItemView
 )
 
@@ -163,7 +163,7 @@ class ImageItemDelegate(QStyledItemDelegate):
         trect.setRight(option.rect.right())
         painter.save()
         if option.state & QStyle.StateFlag.State_Selected:
-            painter.setPen(QPen(option.palette.color(option.palette.HighlightedText)))
+            painter.setPen(QPen(option.palette.color(QPalette.ColorRole.HighlightedText)))
         painter.drawText(trect, Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft, name + '\n' + sz)
         painter.restore()
 

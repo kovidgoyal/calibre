@@ -12,7 +12,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
-        QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice)
+        QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice, QPalette)
 
 from calibre.constants import iswindows, ismacos
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
@@ -868,9 +868,9 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
         p = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),
-                ("keyword", p.color(p.Link).name(), True, False),
-                ("builtin", p.color(p.Link).name(), False, False),
-                ("constant", p.color(p.Link).name(), False, False),
+                ("keyword", p.color(QPalette.ColorRole.Link).name(), True, False),
+                ("builtin", p.color(QPalette.ColorRole.Link).name(), False, False),
+                ("constant", p.color(QPalette.ColorRole.Link).name(), False, False),
                 ("decorator", "#0000E0", False, False),
                 ("comment", "#007F00", False, True),
                 ("string", "#808000", False, False),

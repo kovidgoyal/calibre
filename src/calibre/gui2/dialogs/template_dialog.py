@@ -9,7 +9,7 @@ import json, os, traceback
 
 from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize)
+                      QIcon, QSize, QPalette)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -85,8 +85,8 @@ class TemplateHighlighter(QSyntaxHighlighter):
         pal = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),
-                ("keyword", pal.color(pal.Link).name(), True, False),
-                ("builtin", pal.color(pal.Link).name(), False, False),
+                ("keyword", pal.color(QPalette.ColorRole.Link).name(), True, False),
+                ("builtin", pal.color(QPalette.ColorRole.Link).name(), False, False),
                 ("comment", "#007F00", False, True),
                 ("string", "#808000", False, False),
                 ("number", "#924900", False, False),

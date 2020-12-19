@@ -430,7 +430,7 @@ def system_colors():
         # only override link colors for dark themes
         # since if the book specifies its own link colors
         # they will likely work well with light themes
-        ans['link'] = pal.color(pal.Link).name()
+        ans['link'] = pal.color(QPalette.ColorRole.Link).name()
     return ans
 
 

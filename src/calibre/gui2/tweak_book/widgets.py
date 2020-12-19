@@ -12,7 +12,7 @@ from PyQt5.Qt import (
     QGridLayout, QLabel, QLineEdit, QVBoxLayout, QFormLayout, QHBoxLayout,
     QToolButton, QIcon, QApplication, Qt, QWidget, QPoint, QSizePolicy,
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
-    QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
+    QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView, QPalette,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
     QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog, QEvent, QDialogButtonBox)
 
@@ -277,7 +277,7 @@ def make_highlighted_text(emph, text, positions):
 
 def emphasis_style():
     pal = QApplication.instance().palette()
-    return 'color: {}; font-weight: bold'.format(pal.color(pal.Link).name())
+    return 'color: {}; font-weight: bold'.format(pal.color(QPalette.ColorRole.Link).name())
 
 
 class Results(QWidget):
@@ -503,8 +503,8 @@ class NamesDelegate(QStyledItemDelegate):
         painter.save()
         painter.setFont(option.font)
         p = option.palette
-        c = p.HighlightedText if option.state & QStyle.StateFlag.State_Selected else p.Text
-        group = (p.Active if option.state & QStyle.StateFlag.State_Active else p.Inactive)
+        c = QPalette.ColorRole.HighlightedText if option.state & QStyle.StateFlag.State_Selected else QPalette.ColorRole.Text
+        group = (QPalette.ColorGroup.Active if option.state & QStyle.StateFlag.State_Active else QPalette.ColorGroup.Inactive)
         c = p.color(group, c)
         painter.setClipRect(option.rect)
         if positions is None or -1 in positions:
@@ -512,7 +512,7 @@ class NamesDelegate(QStyledItemDelegate):
             painter.drawText(option.rect, Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter | Qt.TextFlag.TextSingleLine, text)
         else:
             to = QTextOption()
-            to.setWrapMode(to.NoWrap)
+            to.setWrapMode(QTextOption.WrapMode.NoWrap)
             to.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
             positions = sorted(set(positions) - {-1}, reverse=True)
             text = '<body>%s</body>' % make_highlighted_text(emphasis_style(), text, positions)

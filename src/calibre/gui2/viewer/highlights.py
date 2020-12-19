@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
     QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
     Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
-    QAbstractItemView, QDialog
+    QAbstractItemView, QDialog, QPalette
 )
 
 from calibre.constants import (
@@ -82,7 +82,7 @@ def decoration_for_style(palette, style, icon_size, device_pixel_ratio, is_dark)
         canvas.setDevicePixelRatio(device_pixel_ratio)
         p = QPainter(canvas)
         p.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-        p.setPen(palette.color(palette.WindowText))
+        p.setPen(palette.color(QPalette.ColorRole.WindowText))
         irect = QRect(0, 0, icon_size, icon_size)
         adjust = -2
         text_rect = p.drawText(irect.adjusted(0, adjust, 0, adjust), Qt.AlignmentFlag.AlignHCenter| Qt.AlignmentFlag.AlignTop, 'a')

@@ -11,7 +11,7 @@ import os, textwrap, json
 from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
-        QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
+        QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem, QPalette,
         QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QAbstractItemView)
 
 from calibre import prepare_string_for_xml, sanitize_file_name, as_unicode
@@ -500,8 +500,8 @@ class RuleEditor(QDialog):  # {{{
 
     def update_color_label(self):
         pal = QApplication.palette()
-        bg1 = unicode_type(pal.color(pal.Base).name())
-        bg2 = unicode_type(pal.color(pal.AlternateBase).name())
+        bg1 = unicode_type(pal.color(QPalette.ColorRole.Base).name())
+        bg2 = unicode_type(pal.color(QPalette.ColorRole.AlternateBase).name())
         c = self.color_box.color
         self.color_label.setText('''
             <span style="color: {c}; background-color: {bg1}">&nbsp;{st}&nbsp;</span>
