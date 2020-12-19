@@ -188,7 +188,7 @@ class Highlights(QTreeWidget):
 
     def load(self, highlights):
         s = self.style()
-        icon_size = s.pixelMetric(s.PM_SmallIconSize, None, self)
+        icon_size = s.pixelMetric(QStyle.PixelMetric.PM_SmallIconSize, None, self)
         dpr = self.devicePixelRatioF()
         is_dark = is_dark_theme()
         self.clear()

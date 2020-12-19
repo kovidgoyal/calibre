@@ -97,11 +97,11 @@ class HeaderView(QHeaderView):  # {{{
         opt.fontMetrics = self.fm
         model = self.parent().model()
         style = self.style()
-        margin = 2 * style.pixelMetric(style.PM_HeaderMargin, None, self)
+        margin = 2 * style.pixelMetric(QStyle.PixelMetric.PM_HeaderMargin, None, self)
         if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
             opt.sortIndicator = QStyleOptionHeader.SortIndicator.SortDown if \
                 self.sortIndicatorOrder() == Qt.SortOrder.AscendingOrder else QStyleOptionHeader.SortIndicator.SortUp
-            margin += style.pixelMetric(style.PM_HeaderMarkSize, None, self)
+            margin += style.pixelMetric(QStyle.PixelMetric.PM_HeaderMarkSize, None, self)
         opt.text = unicode_type(model.headerData(logical_index, opt.orientation, Qt.ItemDataRole.DisplayRole) or '')
         if self.textElideMode() != Qt.TextElideMode.ElideNone:
             opt.text = opt.fontMetrics.elidedText(opt.text, Qt.TextElideMode.ElideRight, rect.width() - margin)
