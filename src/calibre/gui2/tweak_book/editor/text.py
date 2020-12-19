@@ -291,7 +291,7 @@ class TextEdit(PlainTextEdit):
         pos = c.position()
         c.beginEditBlock()
         c.clearSelection()
-        c.select(c.Document)
+        c.select(QTextCursor.SelectionType.Document)
         c.insertText(unicodedata.normalize('NFC', text))
         c.endEditBlock()
         c.setPosition(min(pos, len(text)))
