@@ -121,7 +121,7 @@ def epub_2_to_3(container, report, previous_nav=None, remove_ncx=True):
     toc_name = find_existing_ncx_toc(container)
     if toc_name and remove_ncx:
         container.remove_item(toc_name)
-    container.opf_xpath('./opf:spine')[0].attrib.pop('toc', None)
+        container.opf_xpath('./opf:spine')[0].attrib.pop('toc', None)
     landmarks = get_landmarks(container)
     for guide in container.opf_xpath('./opf:guide'):
         guide.getparent().remove(guide)
