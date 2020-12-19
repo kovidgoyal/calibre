@@ -8,8 +8,6 @@ import textwrap
 import time
 from collections import defaultdict
 from functools import partial
-from threading import Thread
-
 from PyQt5.Qt import (
     QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize, QSizePolicy,
     QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
@@ -18,6 +16,7 @@ from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
+from threading import Thread
 
 from calibre import prints
 from calibre.constants import (
@@ -25,7 +24,9 @@ from calibre.constants import (
 )
 from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_MIME, serialize
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.gui2 import NO_URL_FORMATTING, error_dialog, is_dark_theme, safe_open_url
+from calibre.gui2 import (
+    NO_URL_FORMATTING, error_dialog, is_dark_theme, safe_open_url
+)
 from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.tweak_book import TOP, actions, current_container, editors, tprefs
 from calibre.gui2.tweak_book.file_list import OpenWithHandler
@@ -459,7 +460,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
         menu.addAction(actions['reload-preview'])
         menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
         if url.partition(':')[0].lower() in {'http', 'https'}:
-            menu.addAction(_('Open link'), partial(open_url, data.linkUrl()))
+            menu.addAction(_('Open link'), partial(safe_open_url, data.linkUrl()))
         if data.MediaTypeImage <= data.mediaType() <= data.MediaTypeFile:
             url = data.mediaUrl()
             if url.scheme() == FAKE_PROTOCOL:

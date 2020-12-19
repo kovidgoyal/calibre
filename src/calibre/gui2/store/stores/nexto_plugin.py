@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2020, Tomasz Długosz <tomek3d@gmail.com>'
@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from contextlib import closing
+from base64 import standard_b64encode
 try:
     from urllib.parse import quote_plus
 except ImportError:
@@ -29,7 +30,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 def as_base64(data):
     if not isinstance(data, bytes):
         data = data.encode('utf-8')
-    ans = b64encode(data)
+    ans = standard_b64encode(data)
     if isinstance(ans, bytes):
         ans = ans.decode('ascii')
     return ans
