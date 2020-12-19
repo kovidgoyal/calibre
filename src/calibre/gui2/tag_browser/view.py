@@ -53,7 +53,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         if self.old_look:
             bg = option.palette.alternateBase() if option.features&option.Alternate else option.palette.base()
         painter.fillRect(r, bg)
-        style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option, painter, widget)
+        style.proxy().drawPrimitive(QStyle.PrimitiveElement.PE_PanelItemViewItem, option, painter, widget)
         painter.setOpacity(0.3)
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
         painter.restore()

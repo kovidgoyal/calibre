@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import time
 
 from PyQt5.Qt import (
-    QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction, QEvent,
+    QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction, QEvent, QStyle,
     QActionGroup, QMenu, QPushButton, QWidget, QTimer, QMessageBox, pyqtSignal)
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run

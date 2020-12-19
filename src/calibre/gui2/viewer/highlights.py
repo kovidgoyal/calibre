@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
     QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
     Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
-    QAbstractItemView, QDialog, QPalette
+    QAbstractItemView, QDialog, QPalette, QStyle
 )
 
 from calibre.constants import (
