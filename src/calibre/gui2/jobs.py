@@ -464,7 +464,7 @@ class DetailView(Dialog):  # {{{
             w.setReadOnly(True), w.setLineWrapMode(w.NoWrap)
         l.addWidget(w)
         l.addWidget(self.bb)
-        self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
+        self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.copy_button = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('edit-copy.png')))
         b.clicked.connect(self.copy_to_clipboard)

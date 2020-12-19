@@ -116,7 +116,7 @@ class DebugOutput(Dialog):
         self.log_text = ''
         l.addWidget(t)
         l.addWidget(self.bb)
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.cb = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon(I('edit-copy.png')))

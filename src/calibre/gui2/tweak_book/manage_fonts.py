@@ -76,7 +76,7 @@ class EmbeddingData(Dialog):
         self.text = t = QTextEdit(self)
         t.setReadOnly(True)
         l.addWidget(t), l.addWidget(self.bb)
-        self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
+        self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
 
     def populate_text(self):
         text = ['<h2>' + self.windowTitle() + '</h2><ul>']

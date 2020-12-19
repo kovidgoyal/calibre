@@ -398,7 +398,7 @@ class Tester(Dialog):
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
         self.tags = t = QLineEdit(self)

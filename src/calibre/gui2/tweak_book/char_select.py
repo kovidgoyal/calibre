@@ -703,7 +703,7 @@ class CharSelect(Dialog):
         self.l = l = QGridLayout(self)
         self.setLayout(l)
 
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rearrange_button = b = self.bb.addButton(_('Re-arrange favorites'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setCheckable(True)
         b.setChecked(False)

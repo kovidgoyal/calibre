@@ -297,7 +297,7 @@ class Diff(Dialog):
         self.names = QLabel('')
         self.hl.addWidget(self.names, r)
 
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         if self.revert_button_msg is not None:
             self.rvb = b = self.bb.addButton(self.revert_button_msg, QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('edit-undo.png'))), b.setAutoDefault(False)

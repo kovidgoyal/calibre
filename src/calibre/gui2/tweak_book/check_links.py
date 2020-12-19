@@ -83,7 +83,7 @@ class CheckExternalLinks(Dialog):
         ca.stateChanged.connect(self.anchors_changed)
         h.addWidget(ca), h.addStretch(100), h.addWidget(self.bb)
         l.addLayout(h)
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rb = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('view-refresh.png')))
         b.clicked.connect(self.refresh)

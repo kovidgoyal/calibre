@@ -400,7 +400,7 @@ class EditPrograms(Dialog):  # {{{
         pl.setIconSize(QSize(48, 48)), pl.setSpacing(5)
         l.addWidget(pl)
 
-        self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
+        self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.rb = b = self.bb.addButton(_('&Remove'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.remove), b.setIcon(QIcon(I('list_remove.png')))
         self.cb = b = self.bb.addButton(_('Change &icon'), QDialogButtonBox.ButtonRole.ActionRole)

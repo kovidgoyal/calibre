@@ -1395,7 +1395,7 @@ class Reports(Dialog):
         la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
         l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter), l.addStretch(1)
 
-        self.bb.setStandardButtons(self.bb.Close)
+        self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         self.refresh_button = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.refresh)
         b.setIcon(QIcon(I('view-refresh.png')))
