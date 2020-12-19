@@ -699,7 +699,7 @@ class EbookViewer(MainWindow):
         t.start()
 
     def eventFilter(self, obj, ev):
-        if ev.type() == ev.MouseMove:
+        if ev.type() == QEvent.Type.MouseMove:
             if self.cursor_hidden:
                 self.cursor_hidden = False
                 QApplication.instance().restoreOverrideCursor()

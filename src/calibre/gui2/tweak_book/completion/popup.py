@@ -200,7 +200,7 @@ class ChoosePopupWidget(QWidget):
                 if ret:
                     ev.accept()
                 return ret
-            elif etype == ev.Resize:
+            elif etype == QEvent.Type.Resize:
                 self.relayout_timer.start()
         return False
 

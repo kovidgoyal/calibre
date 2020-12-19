@@ -10,7 +10,7 @@ import functools
 from PyQt5.Qt import (
     QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy, QSplitter,
     QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
-    QToolButton, QVBoxLayout, QWidget, QDialog
+    QToolButton, QVBoxLayout, QWidget, QDialog, QEvent
 )
 
 from calibre.constants import __appname__, get_version, ismacos
@@ -239,9 +239,9 @@ class VersionLabel(QLabel):  # {{{
     def event(self, ev):
         m = None
         et = ev.type()
-        if et == ev.Enter:
+        if et == QEvent.Type.Enter:
             m = True
-        elif et == ev.Leave:
+        elif et == QEvent.Type.Leave:
             m = False
         if m is not None and m != self.mouse_over:
             self.mouse_over = m

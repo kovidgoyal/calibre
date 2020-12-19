@@ -5,7 +5,7 @@
 
 from PyQt5.Qt import (
     QFontMetrics, QHBoxLayout, QIcon, QMenu, QPainter, QPushButton, QSize,
-    QSizePolicy, Qt, QWidget, QStyleOption, QStyle)
+    QSizePolicy, Qt, QWidget, QStyleOption, QStyle, QEvent)
 
 
 ICON_SZ = 64
@@ -38,9 +38,9 @@ class LayoutItem(QWidget):
     def event(self, ev):
         m = None
         et = ev.type()
-        if et == ev.Enter:
+        if et == QEvent.Type.Enter:
             m = True
-        elif et == ev.Leave:
+        elif et == QEvent.Type.Leave:
             m = False
         if m is not None and m != self.mouse_over:
             self.mouse_over = m

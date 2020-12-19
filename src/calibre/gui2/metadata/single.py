@@ -717,8 +717,8 @@ class MetadataSingleDialogBase(QDialog):
                     ' [Alt+Left]')%prev
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
-        self.button_box.button(self.button_box.Ok).setDefault(True)
-        self.button_box.button(self.button_box.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
+        self.button_box.button(QDialogButtonBox.StandardButton.Ok).setFocus(Qt.FocusReason.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
         for w, state in iteritems(self.comments_edit_state_at_apply):
             if state == 'code':

@@ -15,7 +15,7 @@ from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes, map
 
 import regex
 from PyQt5.Qt import (
-    QSplitter, QApplication, QTimer,
+    QSplitter, QApplication, QTimer, QEvent,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
     QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath,
     QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal, QImage, QPixmap,
@@ -401,8 +401,8 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
     wheel_event = pyqtSignal(object)
 
     def event(self, ev):
-        if ev.type() in (ev.HoverEnter, ev.HoverLeave):
-            self.hover = ev.type() == ev.HoverEnter
+        if ev.type() in (QEvent.Type.HoverEnter, QEvent.Type.HoverLeave):
+            self.hover = ev.type() == QEvent.Type.HoverEnter
         return QSplitterHandle.event(self, ev)
 
     def paintEvent(self, event):

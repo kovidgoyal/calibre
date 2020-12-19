@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 
 from PyQt5.Qt import (
-    QWidget, Qt, QLabel, QVBoxLayout, QDialogButtonBox, QApplication, QTimer, QPixmap,
+    QWidget, Qt, QLabel, QVBoxLayout, QDialogButtonBox, QApplication, QTimer, QPixmap, QEvent,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout, QFontMetrics,
     QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy, QImage, QPalette)
 
@@ -160,7 +160,7 @@ class ProceedQuestion(QWidget):
         t.setSingleShot(True), t.setInterval(100), t.timeout.connect(self.parent_resized)
 
     def eventFilter(self, obj, ev):
-        if ev.type() == ev.Resize and self.isVisible():
+        if ev.type() == QEvent.Type.Resize and self.isVisible():
             self.resize_timer.start()
         return False
 

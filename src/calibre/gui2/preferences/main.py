@@ -258,8 +258,8 @@ class Preferences(QDialog):
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.NoContextMenu)
         self.title_bar = TitleBar(self)
-        for ac, tt in [(self.bb.Apply, _('Save changes')),
-                (self.bb.Discard, _('Cancel and return to overview'))]:
+        for ac, tt in [(QDialogButtonBox.StandardButton.Apply, _('Save changes')),
+                (QDialogButtonBox.StandardButton.Discard, _('Cancel and return to overview'))]:
             self.bb.button(ac).setToolTip(tt)
 
         l.addWidget(self.title_bar), l.addWidget(self.stack), l.addWidget(self.bb)
@@ -323,7 +323,7 @@ class Preferences(QDialog):
 
         self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(False)
         self.wizard_button.setVisible(False)
-        for button in (self.bb.Apply, self.bb.RestoreDefaults, self.bb.Discard):
+        for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.RestoreDefaults, QDialogButtonBox.StandardButton.Discard):
             button = self.bb.button(button)
             button.setVisible(True)
 
@@ -353,7 +353,7 @@ class Preferences(QDialog):
         self.title_bar.show_plugin()
         self.setWindowIcon(QIcon(I('config.png')))
 
-        for button in (self.bb.Apply, self.bb.RestoreDefaults, self.bb.Discard):
+        for button in (QDialogButtonBox.StandardButton.Apply, QDialogButtonBox.StandardButton.RestoreDefaults, QDialogButtonBox.StandardButton.Discard):
             button = self.bb.button(button)
             button.setVisible(False)
 

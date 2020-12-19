@@ -60,9 +60,9 @@ class HeaderView(QHeaderView):  # {{{
         self.fm = QFontMetrics(self.current_font)
 
     def event(self, e):
-        if e.type() in (e.HoverMove, e.HoverEnter):
+        if e.type() in (QEvent.Type.HoverMove, QEvent.Type.HoverEnter):
             self.hover = self.logicalIndexAt(e.pos())
-        elif e.type() in (e.Leave, e.HoverLeave):
+        elif e.type() in (QEvent.Type.Leave, QEvent.Type.HoverLeave):
             self.hover = -1
         return QHeaderView.event(self, e)
 

@@ -8,7 +8,7 @@ import shutil
 import sys
 from itertools import count
 from PyQt5.Qt import (
-    QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QPalette,
+    QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QPalette, QEvent,
     QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice, QLocale
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
@@ -572,7 +572,7 @@ class WebView(RestartingWebEngineView):
             ' You should try restarting the viewer.') , show=True)
 
     def event(self, event):
-        if event.type() == event.ChildPolished:
+        if event.type() == QEvent.Type.ChildPolished:
             child = event.child()
             if 'HostView' in child.metaObject().className():
                 self._host_widget = child

@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import time
 
 from PyQt5.Qt import (
-    QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction,
+    QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction, QEvent,
     QActionGroup, QMenu, QPushButton, QWidget, QTimer, QMessageBox, pyqtSignal)
 
 from calibre.gui2.dbus_export.utils import setup_for_cli_run
@@ -153,8 +153,8 @@ class MainWindow(QMainWindow):
         QMessageBox.information(self, 'A test dialog', 'While this dialog is shown, the global menu should be hidden')
 
     def event(self, ev):
-        if ev.type() in (ev.WindowBlocked, ev.WindowUnblocked):
-            if ev.type() == ev.WindowBlocked:
+        if ev.type() in (QEvent.Type.WindowBlocked, QEvent.Type.WindowUnblocked):
+            if ev.type() == QEvent.Type.WindowBlocked:
                 self.window_blocked.emit()
             else:
                 self.window_unblocked.emit()

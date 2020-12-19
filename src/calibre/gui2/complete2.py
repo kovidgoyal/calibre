@@ -512,7 +512,7 @@ class EditWithComplete(EnComboBox):
         except AttributeError:
             return False
         etype = e.type()
-        if self.eat_focus_out and self is obj and etype == e.FocusOut:
+        if self.eat_focus_out and self is obj and etype == QEvent.Type.FocusOut:
             if c.isVisible():
                 return True
         return EnComboBox.eventFilter(self, obj, e)

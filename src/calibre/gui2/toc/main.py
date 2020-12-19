@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
     QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
     QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QAbstractItemView,
-    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
+    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal, QEvent
 )
 from threading import Thread
 
@@ -770,7 +770,7 @@ class TOCView(QWidget):  # {{{
         self.item_view.edit_item()
 
     def event(self, e):
-        if e.type() == e.StatusTip:
+        if e.type() == QEvent.Type.StatusTip:
             txt = unicode_type(e.tip()) or self.default_msg
             self.hl.setText(txt)
         return super(TOCView, self).event(e)

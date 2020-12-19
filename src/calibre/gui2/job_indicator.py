@@ -7,8 +7,8 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
-    QBrush, QColor, QEasingCurve, QPainter, QPainterPath, QPalette, QPoint, QPointF,
-    QPropertyAnimation, QRect, Qt, QWidget
+    QAbstractAnimation, QBrush, QColor, QEasingCurve, QPainter, QPainterPath,
+    QPalette, QPoint, QPointF, QPropertyAnimation, QRect, Qt, QWidget
 )
 
 from calibre.gui2 import config
@@ -78,7 +78,7 @@ class Pointer(QWidget):
         self.path.closeSubpath()
         self.animation.setStartValue(self.rect_at(0.0))
         self.animation.setEndValue(self.rect_at(1.0))
-        self.animation.setDirection(self.animation.Backward)
+        self.animation.setDirection(QAbstractAnimation.Direction.Backward)
         num_keys = 100
         for i in range(1, num_keys):
             i /= num_keys
