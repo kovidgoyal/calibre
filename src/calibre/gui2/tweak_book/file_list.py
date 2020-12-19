@@ -10,7 +10,7 @@ import textwrap
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout,
+    QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QItemSelectionModel,
     QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget, QAbstractItemView,
     QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,
     QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
@@ -338,7 +338,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                 if q == current_name:
                     self.scrollToItem(c)
                     s = self.selectionModel()
-                    s.setCurrentIndex(self.indexFromItem(c), s.NoUpdate)
+                    s.setCurrentIndex(self.indexFromItem(c), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def mark_name_as_current(self, name):
         current = self.item_from_name(name)

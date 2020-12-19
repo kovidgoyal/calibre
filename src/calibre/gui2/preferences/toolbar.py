@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QAbstractListModel, Qt, QIcon
+from PyQt5.Qt import QAbstractListModel, Qt, QIcon, QItemSelectionModel
 
 from calibre import force_unicode
 from calibre.gui2.preferences.toolbar_ui import Ui_Form
@@ -343,10 +343,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             idx_map = m.move_many(x, delta)
             newci = idx_map.get(i)
             if newci is not None:
-                sm.setCurrentIndex(newci, sm.ClearAndSelect)
+                sm.setCurrentIndex(newci, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             sm.clear()
             for idx in idx_map.values():
-                sm.select(idx, sm.Select)
+                sm.select(idx, QItemSelectionModel.SelectionFlag.Select)
             self.changed_signal.emit()
 
     def commit(self):

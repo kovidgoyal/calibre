@@ -19,7 +19,7 @@ from PyQt5.Qt import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
     QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex,
-    QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
+    QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu, QItemSelectionModel,
     QCursor, QHBoxLayout, QPushButton, QSizePolicy, QSplitter, QAbstractItemView)
 
 from calibre.customize.ui import metadata_plugins
@@ -234,7 +234,7 @@ class ResultsView(QTableView):  # {{{
         if idx.isValid() and self.model().rowCount() > 0:
             self.show_details(idx)
             sm = self.selectionModel()
-            sm.select(idx, sm.ClearAndSelect|sm.Rows)
+            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
 
     def resize_delegate(self):
         self.rt_delegate.max_width = int(self.width()/2.1)
@@ -295,7 +295,7 @@ class ResultsView(QTableView):  # {{{
             index = self.moveCursor(ac, ev.modifiers())
             if index.isValid() and index != self.currentIndex():
                 m = self.selectionModel()
-                m.select(index, m.Select|m.Current|m.Rows)
+                m.select(index, QItemSelectionModel.SelectionFlag.Select|QItemSelectionModel.SelectionFlag.Current|QItemSelectionModel.SelectionFlag.Rows)
                 self.setCurrentIndex(index)
                 ev.accept()
                 return
@@ -796,7 +796,7 @@ class CoversView(QListView):  # {{{
     def select(self, num):
         current = self.model().index(num)
         sm = self.selectionModel()
-        sm.select(current, sm.SelectCurrent)
+        sm.select(current, QItemSelectionModel.SelectionFlag.SelectCurrent)
 
     def start(self):
         self.select(0)

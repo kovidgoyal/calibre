@@ -1010,11 +1010,14 @@ class BooksView(QTableView):  # {{{
             current_row = ci.row()
             sm = self.selectionModel()
             if clicked_row == current_row:
-                sm.setCurrentIndex(index, sm.NoUpdate)
+                sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
                 return
             sr = sm.selectedRows()
             if not len(sr):
-                sm.select(index, sm.Select | sm.Clear | sm.Current | sm.Rows)
+                sm.select(
+                    index,
+                    QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Clear |
+                    QItemSelectionModel.SelectionFlag.Current | QItemSelectionModel.SelectionFlag.Rows)
                 return
 
             m = self.model()
@@ -1035,15 +1038,17 @@ class BooksView(QTableView):  # {{{
                     upper, lower = clicked_row, min_row
                 else:
                     upper, lower = max_row, clicked_row
-                existing_selection.merge(new_selection(upper, lower), sm.Select)
+                existing_selection.merge(new_selection(upper, lower), QItemSelectionModel.SelectionFlag.Select)
             else:
                 if current_row < clicked_row:
                     upper, lower = current_row, clicked_row
                 else:
                     upper, lower  = clicked_row, current_row
-                existing_selection.merge(new_selection(upper, lower), sm.Toggle)
-            sm.select(existing_selection, sm.ClearAndSelect)
-            sm.setCurrentIndex(index, sm.Select | sm.Rows)  # ensure clicked row is always selected
+                existing_selection.merge(new_selection(upper, lower), QItemSelectionModel.SelectionFlag.Toggle)
+            sm.select(existing_selection, QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            sm.setCurrentIndex(
+                # ensure clicked row is always selected
+                index, QItemSelectionModel.SelectionFlag.Select | QItemSelectionModel.SelectionFlag.Rows)
         else:
             return QTableView.mousePressEvent(self, ev)
 
@@ -1125,20 +1130,20 @@ class BooksView(QTableView):  # {{{
             index = self.model().index(row, i)
             if for_sync:
                 sm = self.selectionModel()
-                sm.setCurrentIndex(index, sm.NoUpdate)
+                sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
             else:
                 self.setCurrentIndex(index)
                 if select:
                     sm = self.selectionModel()
-                    sm.select(index, sm.ClearAndSelect|sm.Rows)
+                    sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
 
     def select_cell(self, row_number=0, logical_column=0):
         if row_number > -1 and row_number < self.model().rowCount(QModelIndex()):
             index = self.model().index(row_number, logical_column)
             self.setCurrentIndex(index)
             sm = self.selectionModel()
-            sm.select(index, sm.ClearAndSelect|sm.Rows)
-            sm.select(index, sm.Current)
+            sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
+            sm.select(index, QItemSelectionModel.SelectionFlag.Current)
             self.clicked.emit(index)
 
     def row_at_top(self):
@@ -1237,8 +1242,8 @@ class BooksView(QTableView):  # {{{
         for k, g in itertools.groupby(enumerate(rows), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(operator.itemgetter(1), g))
             sel.merge(QItemSelection(m.index(min(group), 0),
-                m.index(max(group), max_col)), sm.Select)
-        sm.select(sel, sm.ClearAndSelect)
+                m.index(max(group), max_col)), QItemSelectionModel.SelectionFlag.Select)
+        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         return rows
 
     def get_selected_ids(self, as_set=False):

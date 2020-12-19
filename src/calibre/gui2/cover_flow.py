@@ -12,7 +12,7 @@ Module to implement the Cover Flow feature
 import sys, os, time
 
 from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
-        QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication)
+        QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication, QItemSelectionModel)
 
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.constants import islinux
@@ -365,7 +365,7 @@ class CoverFlowMixin(object):
             idx = self.library_view.model().index(self.cover_flow.currentSlide(), 0)
             if idx.isValid():
                 sm = self.library_view.selectionModel()
-                sm.select(idx, sm.ClearAndSelect|sm.Rows)
+                sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
                 self.library_view.setCurrentIndex(idx)
                 self.library_view.scroll_to_row(idx.row())
 
@@ -419,7 +419,7 @@ class CoverFlowMixin(object):
         m = self.library_view.model()
         index = m.index(row, 0)
         sm = self.library_view.selectionModel()
-        sm.select(index, sm.ClearAndSelect|sm.Rows)
+        sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect|QItemSelectionModel.SelectionFlag.Rows)
         self.library_view.setCurrentIndex(index)
 
     def cover_flow_do_sync(self):

@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import Qt, QAbstractListModel, QModelIndex
+from PyQt5.Qt import Qt, QAbstractListModel, QModelIndex, QItemSelectionModel
 
 from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -86,7 +86,7 @@ class PageSetupWidget(Widget, Ui_Form):
             idx = g.model().index(idx)
             sm = g.selectionModel()
             g.setCurrentIndex(idx)
-            sm.select(idx, sm.SelectCurrent)
+            sm.select(idx, QItemSelectionModel.SelectionFlag.SelectCurrent)
             return True
         return False
 

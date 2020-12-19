@@ -14,7 +14,7 @@ from threading import Thread
 from PyQt5.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
-    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout,
+    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,
     QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
 )
 
@@ -308,7 +308,7 @@ def move_field_up(widget, model):
         idx = model.move(idx, -1)
         if idx is not None:
             sm = widget.selectionModel()
-            sm.select(idx, sm.ClearAndSelect)
+            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             widget.setCurrentIndex(idx)
 
 
@@ -318,7 +318,7 @@ def move_field_down(widget, model):
         idx = model.move(idx, 1)
         if idx is not None:
             sm = widget.selectionModel()
-            sm.select(idx, sm.ClearAndSelect)
+            sm.select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             widget.setCurrentIndex(idx)
 
 # }}}

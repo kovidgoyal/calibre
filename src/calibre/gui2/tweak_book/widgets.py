@@ -11,7 +11,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QGridLayout, QLabel, QLineEdit, QVBoxLayout, QFormLayout, QHBoxLayout,
     QToolButton, QIcon, QApplication, Qt, QWidget, QPoint, QSizePolicy,
-    QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
+    QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel, QItemSelectionModel,
     QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView, QPalette,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
     QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog, QEvent, QDialogButtonBox)
@@ -901,12 +901,12 @@ class InsertSemantics(Dialog):
             row = self.file_names.model().find_name(name)
             if row is not None:
                 sm = self.file_names.selectionModel()
-                sm.select(self.file_names.model().index(row), sm.ClearAndSelect)
+                sm.select(self.file_names.model().index(row), QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 if frag:
                     row = self.anchor_names.model().find_name(frag)
                     if row is not None:
                         sm = self.anchor_names.selectionModel()
-                        sm.select(self.anchor_names.model().index(row), sm.ClearAndSelect)
+                        sm.select(self.anchor_names.model().index(row), QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.target.blockSignals(True)
         if name is not None:
             self.target.setText(name + (('#' + frag) if frag else ''))

@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (
     QAbstractListModel, QAction, QApplication, QCheckBox, QComboBox, QFont, QFrame,
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
-    QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
+    QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QItemSelectionModel,
     QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QDialog,
     QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QEvent, QDialogButtonBox
 )
@@ -1139,9 +1139,9 @@ class SavedSearches(QWidget):
                 index = self.model.index_for_search(s)
                 if index.isValid() and index.row() > -1:
                     if s is current_search:
-                        sm.setCurrentIndex(index, sm.Select)
+                        sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.Select)
                     else:
-                        sm.select(index, sm.Select)
+                        sm.select(index, QItemSelectionModel.SelectionFlag.Select)
 
     def search_editing_done(self, save_changes):
         if save_changes and not self.edit_search_widget.save_changes():
@@ -1187,7 +1187,7 @@ class SavedSearches(QWidget):
         index = self.model.index(self.model.rowCount() - 1)
         self.searches.scrollTo(index)
         sm = self.searches.selectionModel()
-        sm.setCurrentIndex(index, sm.ClearAndSelect)
+        sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.show_details()
 
     def add_predefined_search(self, state):
@@ -1239,7 +1239,7 @@ class SavedSearches(QWidget):
                 self.model.add_searches(count=count)
                 sm = self.searches.selectionModel()
                 top, bottom = self.model.index(self.model.rowCount() - count), self.model.index(self.model.rowCount() - 1)
-                sm.select(QItemSelection(top, bottom), sm.ClearAndSelect)
+                sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 self.searches.scrollTo(bottom)
 
     def copy_to_search_panel(self):

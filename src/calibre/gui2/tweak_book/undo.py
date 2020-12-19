@@ -9,7 +9,7 @@ import shutil
 
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QModelIndex, QApplication, QWidget,
-    QGridLayout, QListView, QStyledItemDelegate, pyqtSignal, QPushButton, QIcon)
+    QGridLayout, QListView, QStyledItemDelegate, pyqtSignal, QPushButton, QIcon, QItemSelectionModel)
 
 from calibre.gui2 import error_dialog
 
@@ -217,7 +217,7 @@ class CheckpointView(QWidget):
         self.view.clearSelection()
         m = self.view.model()
         sm = self.view.selectionModel()
-        sm.select(m.index(m.pos), sm.ClearAndSelect)
+        sm.select(m.index(m.pos), QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(m.index(m.pos))
 
     def double_clicked(self, index):
@@ -242,4 +242,3 @@ class CheckpointView(QWidget):
             return error_dialog(self, _('Cannot compare'), _(
                 'There is no point comparing the current state to itself'), show=True)
         self.compare_requested.emit(m.states[row].container)
-

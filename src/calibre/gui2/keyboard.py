@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from collections import OrderedDict
 from functools import partial
 
-from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex,
+from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex, QItemSelectionModel,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
         QApplication, QSize, QRectF, QWidget, QTreeView, QHBoxLayout, QVBoxLayout,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon, QEvent)
@@ -720,8 +720,7 @@ class ShortcutConfig(QWidget):  # {{{
 
     def highlight_index(self, idx):
         self.view.scrollTo(idx)
-        self.view.selectionModel().select(idx,
-                self.view.selectionModel().ClearAndSelect)
+        self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.view.setCurrentIndex(idx)
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -746,8 +745,7 @@ class ShortcutConfig(QWidget):  # {{{
         if idx is not None:
             self.view.expand(idx)
             self.view.scrollTo(idx, self.view.PositionAtTop)
-            self.view.selectionModel().select(idx,
-                    self.view.selectionModel().ClearAndSelect)
+            self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.view.setCurrentIndex(idx)
             self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 

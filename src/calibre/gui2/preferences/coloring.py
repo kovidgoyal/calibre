@@ -10,7 +10,7 @@ import os, textwrap, json
 
 from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
-        QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
+        QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton, QItemSelectionModel,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem, QPalette,
         QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QAbstractItemView)
 
@@ -1135,7 +1135,7 @@ class EditRules(QWidget):  # {{{
                 if idx.isValid():
                     idx = self.model.move(idx, -1)
                     if idx is not None:
-                        sm.select(idx, sm.Toggle)
+                        sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
             self.changed.emit()
 
     def move_down(self):
@@ -1149,7 +1149,7 @@ class EditRules(QWidget):  # {{{
                 if idx.isValid():
                     idx = self.model.move(idx, 1)
                     if idx is not None:
-                        sm.select(idx, sm.Toggle)
+                        sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
             self.changed.emit()
 
     def clear(self):

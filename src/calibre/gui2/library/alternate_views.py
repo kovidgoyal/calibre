@@ -990,8 +990,8 @@ class GridView(QListView):
         # performance if a large number of rows has to be selected.
         for k, g in itertools.groupby(enumerate(rows), lambda i_x:i_x[0]-i_x[1]):
             group = list(map(operator.itemgetter(1), g))
-            sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), sm.Select)
-        sm.select(sel, sm.ClearAndSelect)
+            sel.merge(QItemSelection(m.index(min(group), 0), m.index(max(group), 0)), QItemSelectionModel.SelectionFlag.Select)
+        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
     def selectAll(self):
         # We re-implement this to ensure that only indexes from column 0 are
@@ -1001,11 +1001,11 @@ class GridView(QListView):
         m = self.model()
         sm = self.selectionModel()
         sel = QItemSelection(m.index(0, 0), m.index(m.rowCount(QModelIndex())-1, 0))
-        sm.select(sel, sm.ClearAndSelect)
+        sm.select(sel, QItemSelectionModel.SelectionFlag.ClearAndSelect)
 
     def set_current_row(self, row):
         sm = self.selectionModel()
-        sm.setCurrentIndex(self.model().index(row, 0), sm.NoUpdate)
+        sm.setCurrentIndex(self.model().index(row, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
 
     def set_context_menu(self, menu):
         self.context_menu = menu
@@ -1040,17 +1040,17 @@ class GridView(QListView):
                 return
             ci = self.currentIndex()
             sm = self.selectionModel()
-            sm.setCurrentIndex(index, sm.NoUpdate)
+            sm.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.NoUpdate)
             if not ci.isValid():
                 return
             if not sm.hasSelection():
-                sm.select(index, sm.ClearAndSelect)
+                sm.select(index, QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 return
             cr = ci.row()
             tgt = index.row()
             top = self.model().index(min(cr, tgt), 0)
             bottom = self.model().index(max(cr, tgt), 0)
-            sm.select(QItemSelection(top, bottom), sm.Select)
+            sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.Select)
         else:
             return QListView.mousePressEvent(self, ev)
 
@@ -1098,8 +1098,8 @@ class GridView(QListView):
                 end = c
             top = self.model().index(min(n, end), 0)
             bottom = self.model().index(max(n, end), 0)
-            sm.select(QItemSelection(top, bottom), sm.ClearAndSelect)
-            sm.setCurrentIndex(self.model().index(n, 0), sm.NoUpdate)
+            sm.select(QItemSelection(top, bottom), QItemSelectionModel.SelectionFlag.ClearAndSelect)
+            sm.setCurrentIndex(self.model().index(n, 0), QItemSelectionModel.SelectionFlag.NoUpdate)
         else:
             return QListView.keyPressEvent(self, ev)
 

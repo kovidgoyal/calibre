@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, textwrap, time
 
 from PyQt5.Qt import (
-    QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView,
+    QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView, QItemSelectionModel,
     QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal, QSortFilterProxyModel,
     QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,
     QToolButton, QTreeView, QDialog, QDialogButtonBox)
@@ -217,7 +217,7 @@ class RecipeList(QWidget):  # {{{
         if v.model().rowCount() > 0:
             idx = v.model().index(row)
             if idx.isValid():
-                v.selectionModel().select(idx, v.selectionModel().ClearAndSelect)
+                v.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
                 v.setCurrentIndex(idx)
                 self.recipe_selected(idx)
 

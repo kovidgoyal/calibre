@@ -10,7 +10,7 @@ import textwrap, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (Qt, QModelIndex, QAbstractItemModel, QIcon,
-        QBrush, QDialog)
+        QBrush, QDialog, QItemSelectionModel)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
@@ -260,8 +260,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.highlight_index(idx)
 
     def highlight_index(self, idx):
-        self.plugin_view.selectionModel().select(idx,
-                self.plugin_view.selectionModel().ClearAndSelect)
+        self.plugin_view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
         self.plugin_view.setFocus(Qt.FocusReason.OtherFocusReason)
         self.plugin_view.scrollTo(idx, self.plugin_view.EnsureVisible)
