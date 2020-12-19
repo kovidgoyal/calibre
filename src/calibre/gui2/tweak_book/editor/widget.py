@@ -476,7 +476,7 @@ class Editor(QMainWindow):
         col = c.positionInBlock()
         if not c.atStart():
             c.clearSelection()
-            c.movePosition(c.PreviousCharacter, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.PreviousCharacter, c.KeepAnchor)
             char = unicode_type(c.selectedText()).rstrip('\0')
         return (c.blockNumber() + 1, col, char)
 

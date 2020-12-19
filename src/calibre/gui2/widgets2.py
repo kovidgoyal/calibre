@@ -9,7 +9,7 @@ from PyQt5.Qt import (
     QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
     QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,
     QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize, QSizePolicy,
-    QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser, QToolButton,
+    QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser, QToolButton, QTextCursor,
     QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal
 )
 
@@ -558,8 +558,8 @@ def to_plain_text(self):
     # that
     c = self.textCursor()
     c.clearSelection()
-    c.movePosition(c.Start)
-    c.movePosition(c.End, c.KeepAnchor)
+    c.movePosition(QTextCursor.MoveOperation.Start)
+    c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
     ans = c.selectedText().replace(PARAGRAPH_SEPARATOR, '\n')
     # QTextCursor pads the return value of selectedText with null bytes if
     # non BMP characters such as 0x1f431 are present.

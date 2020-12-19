@@ -522,7 +522,7 @@ class DiffSplit(QSplitter):  # {{{
     def finalize(self):
         for v in (self.left, self.right):
             c = v.textCursor()
-            c.movePosition(c.Start)
+            c.movePosition(QTextCursor.MoveOperation.Start)
             v.setTextCursor(c)
         self.update()
 
@@ -536,14 +536,14 @@ class DiffSplit(QSplitter):  # {{{
         self.right.headers.append((self.right.blockCount() - 1, right_name))
         for v in (self.left, self.right):
             c = v.textCursor()
-            c.movePosition(c.End)
+            c.movePosition(QTextCursor.MoveOperation.End)
             (c.insertBlock(), c.insertBlock(), c.insertBlock())
 
         with BusyCursor():
             if is_identical:
                 for v in (self.left, self.right):
                     c = v.textCursor()
-                    c.movePosition(c.End)
+                    c.movePosition(QTextCursor.MoveOperation.End)
                     c.insertText('[%s]\n\n' % _('The files are identical'))
             elif left_name != right_name and not left_text and not right_text:
                 self.add_text_diff(_('[This file was renamed to %s]') % right_name, _('[This file was renamed from %s]') % left_name, context, None)
@@ -605,10 +605,10 @@ class DiffSplit(QSplitter):  # {{{
         QApplication.processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents | QEventLoop.ProcessEventsFlag.ExcludeSocketNotifiers)
         for v, img, size in ((self.left, left_img, len(left_data)), (self.right, right_img, len(right_data))):
             c = v.textCursor()
-            c.movePosition(c.End)
+            c.movePosition(QTextCursor.MoveOperation.End)
             start = c.block().blockNumber()
             lines, w = self.get_lines_for_image(img, v)
-            c.movePosition(c.StartOfBlock)
+            c.movePosition(QTextCursor.MoveOperation.StartOfBlock)
             if size > 0:
                 c.beginEditBlock()
                 c.insertText(_('Size: {0} Resolution: {1}x{2}').format(human_readable(size), img.width(), img.height()))
@@ -638,12 +638,12 @@ class DiffSplit(QSplitter):  # {{{
                 top, bot, kind = v.changes[i]
                 c = QTextCursor(v.document().findBlockByNumber(top+1))
                 c.beginEditBlock()
-                c.movePosition(c.StartOfBlock)
+                c.movePosition(QTextCursor.MoveOperation.StartOfBlock)
                 if delta > 0:
                     for _ in range(delta):
                         c.insertBlock()
                 else:
-                    c.movePosition(c.NextBlock, c.KeepAnchor, -delta)
+                    c.movePosition(QTextCursor.MoveOperation.NextBlock, c.KeepAnchor, -delta)
                     c.removeSelectedText()
                 c.endEditBlock()
                 v.images[top] = (img, w, lines)
@@ -678,7 +678,7 @@ class DiffSplit(QSplitter):  # {{{
             if len(left_text) == len(right_text) and left_text == right_text:
                 for v in (self.left, self.right):
                     c = v.textCursor()
-                    c.movePosition(c.End)
+                    c.movePosition(QTextCursor.MoveOperation.End)
                     c.insertText('[%s]\n\n' % _('The files are identical after beautifying'))
                 return
 
@@ -690,7 +690,7 @@ class DiffSplit(QSplitter):  # {{{
         left_highlight, right_highlight = get_highlighter(self.left, left_text, syntax), get_highlighter(self.right, right_text, syntax)
         cl, cr = self.left_cursor, self.right_cursor = self.left.textCursor(), self.right.textCursor()
         cl.beginEditBlock(), cr.beginEditBlock()
-        cl.movePosition(cl.End), cr.movePosition(cr.End)
+        cl.movePosition(QTextCursor.MoveOperation.End), cr.movePosition(QTextCursor.MoveOperation.End)
         self.left_insert = partial(self.do_insert, cl, left_highlight, self.left.line_number_map)
         self.right_insert = partial(self.do_insert, cr, right_highlight, self.right.line_number_map)
 

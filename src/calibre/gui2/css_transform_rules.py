@@ -5,7 +5,7 @@
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit,
-    QPushButton, QSize, pyqtSignal, QMenu, QDialogButtonBox
+    QPushButton, QSize, pyqtSignal, QMenu, QDialogButtonBox, QTextCursor
 )
 
 from calibre.ebooks.css_transform_rules import (
@@ -211,7 +211,7 @@ class Tester(Dialog):  # {{{
         t.load_text('/* %s */\n' % _('Enter CSS rules below and click the "Test" button'), 'css')
         la.setBuddy(t)
         c = t.textCursor()
-        c.movePosition(c.End)
+        c.movePosition(QTextCursor.MoveOperation.End)
         t.setTextCursor(c)
         self.h = h = QHBoxLayout()
         l.addLayout(h)

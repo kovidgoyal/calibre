@@ -6,17 +6,15 @@
 import importlib
 import os
 import re
+import regex
 import textwrap
 import unicodedata
-from polyglot.builtins import unicode_type, map, range, as_unicode
-
 from PyQt5.Qt import (
     QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,
-    QPlainTextEdit, QRect, QSize, Qt, QTextEdit, QTextFormat, QTimer, QToolTip,
-    QWidget, pyqtSignal
+    QPlainTextEdit, QRect, QSize, Qt, QTextCursor, QTextEdit, QTextFormat, QTimer,
+    QToolTip, QWidget, pyqtSignal
 )
 
-import regex
 from calibre import prepare_string_for_xml
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, css_text
 from calibre.ebooks.oeb.polish.replace import get_recommended_folders
@@ -42,6 +40,7 @@ from calibre.utils.icu import (
 )
 from calibre.utils.img import image_to_data
 from calibre.utils.titlecase import titlecase
+from polyglot.builtins import as_unicode, map, range, unicode_type
 
 
 def get_highlighter(syntax):
@@ -308,22 +307,22 @@ class TextEdit(PlainTextEdit):
         lnum = max(1, min(self.blockCount(), lnum))
         c = self.textCursor()
         c.clearSelection()
-        c.movePosition(c.Start)
-        c.movePosition(c.NextBlock, n=lnum - 1)
-        c.movePosition(c.StartOfLine)
-        c.movePosition(c.EndOfLine, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.Start)
+        c.movePosition(QTextCursor.MoveOperation.NextBlock, n=lnum - 1)
+        c.movePosition(QTextCursor.MoveOperation.StartOfLine)
+        c.movePosition(QTextCursor.MoveOperation.EndOfLine, c.KeepAnchor)
         text = unicode_type(c.selectedText()).rstrip('\0')
         if col is None:
-            c.movePosition(c.StartOfLine)
+            c.movePosition(QTextCursor.MoveOperation.StartOfLine)
             lt = text.lstrip()
             if text and lt and lt != text:
-                c.movePosition(c.NextWord)
+                c.movePosition(QTextCursor.MoveOperation.NextWord)
         else:
             c.setPosition(c.block().position() + col)
             if c.blockNumber() + 1 > lnum:
                 # We have moved past the end of the line
                 c.setPosition(c.block().position())
-                c.movePosition(c.EndOfBlock)
+                c.movePosition(QTextCursor.MoveOperation.EndOfBlock)
         self.setTextCursor(c)
         self.ensureCursorVisible()
 
@@ -440,12 +439,12 @@ class TextEdit(PlainTextEdit):
                      ' Are you sure you want to proceed?'), 'edit-book-confirm-sort-css', parent=self, config_set=tprefs):
             c = self.textCursor()
             c.beginEditBlock()
-            c.movePosition(c.Start), c.movePosition(c.End, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.Start), c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
             text = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
             text = css_text(sort_sheet(current_container(), text))
             c.insertText(text)
-            c.movePosition(c.Start)
+            c.movePosition(QTextCursor.MoveOperation.Start)
             c.endEditBlock()
             self.setTextCursor(c)
 
@@ -457,10 +456,10 @@ class TextEdit(PlainTextEdit):
         c.clearSelection()
         if complete:
             # Search the entire text
-            c.movePosition(c.End if reverse else c.Start)
-        pos = c.Start if reverse else c.End
+            c.movePosition(QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start)
+        pos = QTextCursor.MoveOperation.Start if reverse else QTextCursor.MoveOperation.End
         if wrap and not complete:
-            pos = c.End if reverse else c.Start
+            pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
         c.movePosition(pos, c.KeepAnchor)
         raw = unicode_type(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
         m = pat.search(raw)
@@ -496,10 +495,10 @@ class TextEdit(PlainTextEdit):
         c.clearSelection()
         if complete:
             # Search the entire text
-            c.movePosition(c.End if reverse else c.Start)
-        pos = c.Start if reverse else c.End
+            c.movePosition(QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start)
+        pos = QTextCursor.MoveOperation.Start if reverse else QTextCursor.MoveOperation.End
         if wrap and not complete:
-            pos = c.End if reverse else c.Start
+            pos = QTextCursor.MoveOperation.End if reverse else QTextCursor.MoveOperation.Start
         c.movePosition(pos, c.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
             self.highlighter.join()
@@ -528,8 +527,8 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         c.setPosition(c.position())
         if not from_cursor:
-            c.movePosition(c.Start)
-        c.movePosition(c.End, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.Start)
+        c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
 
         def find_first_word(haystack):
             match_pos, match_word = -1, None
@@ -555,14 +554,14 @@ class TextEdit(PlainTextEdit):
                         self.centerCursor()
                     return True
             c.setPosition(c.position())
-            c.movePosition(c.End, c.KeepAnchor)
+            c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
 
         return False
 
     def find_next_spell_error(self, from_cursor=True):
         c = self.textCursor()
         if not from_cursor:
-            c.movePosition(c.Start)
+            c.movePosition(QTextCursor.MoveOperation.Start)
         block = c.block()
         while block.isValid():
             for r in block.layout().additionalFormats():
@@ -600,7 +599,7 @@ class TextEdit(PlainTextEdit):
     def go_to_anchor(self, anchor):
         if anchor is TOP:
             c = self.textCursor()
-            c.movePosition(c.Start)
+            c.movePosition(QTextCursor.MoveOperation.Start)
             self.setTextCursor(c)
             return True
         base = r'''%%s\s*=\s*['"]{0,1}%s''' % regex.escape(anchor)
@@ -726,7 +725,7 @@ class TextEdit(PlainTextEdit):
 
     def recheck_word(self, word, locale):
         c = self.textCursor()
-        c.movePosition(c.Start)
+        c.movePosition(QTextCursor.MoveOperation.Start)
         block = c.block()
         while block.isValid():
             for r in block.layout().additionalFormats():
@@ -956,7 +955,7 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         c = self.textCursor()
         c.clearSelection()
         c.setPosition(0)
-        c.movePosition(c.End, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.End, c.KeepAnchor)
         self.setTextCursor(c)
 
     def rename_block_tag(self, new_name):

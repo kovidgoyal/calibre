@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from PyQt5.Qt import Qt
+from PyQt5.Qt import Qt, QTextCursor
 
 from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
@@ -77,7 +77,7 @@ class Smarts(NullSmarts):
 
     def get_completion_data(self, editor, ev=None):
         c = editor.textCursor()
-        c.movePosition(c.StartOfLine, c.KeepAnchor)
+        c.movePosition(QTextCursor.MoveOperation.StartOfLine, c.KeepAnchor)
         text = c.selectedText()
         m = self.complete_attr_pat.search(text)
         if m is None:

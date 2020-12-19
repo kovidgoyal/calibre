@@ -589,7 +589,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def do_insert_hr(self, *args):
         with self.editing_cursor() as c:
-            c.movePosition(c.EndOfBlock, c.MoveAnchor)
+            c.movePosition(QTextCursor.MoveOperation.EndOfBlock, c.MoveAnchor)
             c.insertHtml('<hr>')
 
     def do_insert_link(self, *args):

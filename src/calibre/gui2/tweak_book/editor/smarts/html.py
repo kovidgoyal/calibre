@@ -321,10 +321,10 @@ class Smarts(NullSmarts):
         def add_tag(tag):
             a = QTextEdit.ExtraSelection()
             a.cursor, a.format = editor.textCursor(), editor.match_paren_format
-            a.cursor.setPosition(tag.start_block.position()), a.cursor.movePosition(a.cursor.EndOfBlock, a.cursor.KeepAnchor)
+            a.cursor.setPosition(tag.start_block.position()), a.cursor.movePosition(a.QTextCursor.MoveOperation.EndOfBlock, a.cursor.KeepAnchor)
             text = unicode_type(a.cursor.selectedText())
             start_pos = utf16_length(text[:tag.start_offset])
-            a.cursor.setPosition(tag.end_block.position()), a.cursor.movePosition(a.cursor.EndOfBlock, a.cursor.KeepAnchor)
+            a.cursor.setPosition(tag.end_block.position()), a.cursor.movePosition(a.QTextCursor.MoveOperation.EndOfBlock, a.cursor.KeepAnchor)
             text = unicode_type(a.cursor.selectedText())
             end_pos = utf16_length(text[:tag.end_offset + 1])
             a.cursor.setPosition(tag.start_block.position() + start_pos)
@@ -805,7 +805,7 @@ class Smarts(NullSmarts):
                 if in_text:
                     # Add remaining text in block
                     c.setPosition(block.position() + boundaries[-1].offset + 1)
-                    c.movePosition(c.EndOfBlock, c.KeepAnchor)
+                    c.movePosition(QTextCursor.MoveOperation.EndOfBlock, c.KeepAnchor)
                     if c.hasSelection():
                         append(c.selectedText() + '\n', c.anchor())
             block = block.next()

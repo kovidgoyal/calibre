@@ -5,13 +5,13 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import Qt
+from PyQt5.Qt import Qt, QTextCursor
 
 
 def get_text_around_cursor(editor, before=True):
     cursor = editor.textCursor()
     cursor.clearSelection()
-    cursor.movePosition((cursor.StartOfBlock if before else cursor.EndOfBlock), cursor.KeepAnchor)
+    cursor.movePosition((QTextCursor.MoveOperation.StartOfBlock if before else QTextCursor.MoveOperation.EndOfBlock), cursor.KeepAnchor)
     text = editor.selected_text_from_cursor(cursor)
     return cursor, text
 
@@ -22,9 +22,9 @@ get_text_after_cursor = lambda editor: get_text_around_cursor(editor, before=Fal
 
 def is_cursor_on_wrapped_line(editor):
     cursor = editor.textCursor()
-    cursor.movePosition(cursor.StartOfLine)
+    cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
     sol = cursor.position()
-    cursor.movePosition(cursor.StartOfBlock)
+    cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock)
     return sol != cursor.position()
 
 
@@ -61,10 +61,10 @@ def smart_home(editor, ev):
         cursor, text = get_text_before_cursor(editor)
         cursor = editor.textCursor()
         mode = cursor.KeepAnchor if test_modifiers(ev, Qt.KeyboardModifier.ShiftModifier) else cursor.MoveAnchor
-        cursor.movePosition(cursor.StartOfBlock, mode)
+        cursor.movePosition(QTextCursor.MoveOperation.StartOfBlock, mode)
         if text.strip() and text.lstrip() != text:
             # Move to the start of text
-            cursor.movePosition(cursor.NextWord, mode)
+            cursor.movePosition(QTextCursor.MoveOperation.NextWord, mode)
         editor.setTextCursor(cursor)
         return True
     return False
