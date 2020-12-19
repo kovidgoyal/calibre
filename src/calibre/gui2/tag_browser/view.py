@@ -10,7 +10,7 @@ import os, re, traceback
 from functools import partial
 
 from PyQt5.Qt import (
-    QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
+    QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication, QStyle,
     QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont, QTimer
 )
@@ -77,7 +77,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, widget)
         text = index.data(Qt.ItemDataRole.DisplayRole)
-        hover = option.state & style.State_MouseOver
+        hover = option.state & QStyle.StateFlag.State_MouseOver
         is_search = (True if item.type == TagTreeItem.TAG and
                             item.tag.category == 'search' else False)
         if not is_search and (hover or gprefs['tag_browser_show_counts']):
