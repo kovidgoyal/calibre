@@ -4,14 +4,13 @@
 
 
 import weakref
-
 from PyQt5.Qt import (
     QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
     QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
-    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu,
-    QMimeData, QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize,
-    QSizePolicy, QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser,
-    QToolButton, QUndoCommand, QUndoStack, QWidget, pyqtSignal
+    QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,
+    QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize, QSizePolicy,
+    QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser, QToolButton,
+    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -488,7 +487,7 @@ class HTMLDisplay(QTextBrowser):
 
     def on_anchor_clicked(self, qurl):
         if not qurl.scheme() and qurl.hasFragment() and qurl.toString().startswith('#'):
-            frag = qurl.fragment(qurl.FullyDecoded)
+            frag = qurl.fragment(QUrl.ComponentFormattingOption.FullyDecoded)
             if frag:
                 self.scrollToAnchor(frag)
                 return

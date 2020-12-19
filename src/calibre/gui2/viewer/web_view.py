@@ -550,7 +550,7 @@ class WebView(RestartingWebEngineView):
 
     def url_changed(self, url):
         if url.hasFragment():
-            frag = url.fragment(url.FullyDecoded)
+            frag = url.fragment(QUrl.ComponentFormattingOption.FullyDecoded)
             if frag and frag.startswith('bookpos='):
                 cfi = frag[len('bookpos='):]
                 if cfi:
