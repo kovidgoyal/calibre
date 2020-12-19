@@ -361,7 +361,7 @@ class Report(QDialog):  # {{{
         self.setWindowTitle(_('Polishing of %s')%book_title)
         self.view.setText(markdown('# %s\n\n'%book_title + report,
                                    output_format='html4'))
-        self.bb.button(self.bb.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
         self.backup_msg.setVisible(bool(fmts))
         if fmts:
             m = ngettext('The original file has been saved as %s.',

@@ -240,10 +240,10 @@ class Preferences(QDialog):
             QDialogButtonBox.StandardButton.Close | QDialogButtonBox.StandardButton.Apply |
             QDialogButtonBox.StandardButton.Discard | QDialogButtonBox.StandardButton.RestoreDefaults
         )
-        self.bb.button(self.bb.Apply).clicked.connect(self.accept)
-        self.bb.button(self.bb.Discard).clicked.connect(self.reject)
-        self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
-        self.bb.button(self.bb.RestoreDefaults).clicked.connect(self.restore_defaults)
+        self.bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept)
+        self.bb.button(QDialogButtonBox.StandardButton.Discard).clicked.connect(self.reject)
+        self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
+        self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(self.restore_defaults)
         self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), QDialogButtonBox.ButtonRole.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
@@ -321,23 +321,23 @@ class Preferences(QDialog):
         self.title_bar.show_plugin(plugin)
         self.setWindowIcon(QIcon(plugin.icon))
 
-        self.bb.button(self.bb.Close).setVisible(False)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(False)
         self.wizard_button.setVisible(False)
         for button in (self.bb.Apply, self.bb.RestoreDefaults, self.bb.Discard):
             button = self.bb.button(button)
             button.setVisible(True)
 
-        self.bb.button(self.bb.Apply).setEnabled(False)
-        self.bb.button(self.bb.Apply).setDefault(False), self.bb.button(self.bb.Apply).setDefault(True)
-        self.bb.button(self.bb.RestoreDefaults).setEnabled(self.showing_widget.supports_restoring_to_defaults)
-        self.bb.button(self.bb.RestoreDefaults).setToolTip(
+        self.bb.button(QDialogButtonBox.StandardButton.Apply).setEnabled(False)
+        self.bb.button(QDialogButtonBox.StandardButton.Apply).setDefault(False), self.bb.button(QDialogButtonBox.StandardButton.Apply).setDefault(True)
+        self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setEnabled(self.showing_widget.supports_restoring_to_defaults)
+        self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setToolTip(
             self.showing_widget.restore_defaults_desc if self.showing_widget.supports_restoring_to_defaults else
             (_('Restoring to defaults not supported for') + ' ' + plugin.gui_name))
-        self.bb.button(self.bb.RestoreDefaults).setText(_('Restore &defaults'))
+        self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setText(_('Restore &defaults'))
         self.showing_widget.changed_signal.connect(self.changed_signal)
 
     def changed_signal(self):
-        b = self.bb.button(self.bb.Apply)
+        b = self.bb.button(QDialogButtonBox.StandardButton.Apply)
         b.setEnabled(True)
 
     def hide_plugin(self):
@@ -357,8 +357,8 @@ class Preferences(QDialog):
             button = self.bb.button(button)
             button.setVisible(False)
 
-        self.bb.button(self.bb.Close).setVisible(True)
-        self.bb.button(self.bb.Close).setDefault(False), self.bb.button(self.bb.Close).setDefault(True)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setVisible(True)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(False), self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
         self.wizard_button.setVisible(True)
 
     def restart_now(self):

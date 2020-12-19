@@ -245,7 +245,7 @@ class InsertImage(Dialog):
 
         if self.for_browsing:
             self.bb.clear()
-            self.bb.addButton(self.bb.Close)
+            self.bb.addButton(QDialogButtonBox.StandardButton.Close)
             b = self.refresh_button = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
             b.clicked.connect(self.refresh)
             b.setIcon(QIcon(I('view-refresh.png')))

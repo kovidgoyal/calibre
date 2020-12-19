@@ -680,8 +680,8 @@ class TemplatesDialog(Dialog):  # {{{
         self.show_template()
 
         self.bb.clear()
-        self.bb.addButton(self.bb.Close)
-        self.rd = b = self.bb.addButton(self.bb.RestoreDefaults)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Close)
+        self.rd = b = self.bb.addButton(QDialogButtonBox.StandardButton.RestoreDefaults)
         b.clicked.connect(self.restore_defaults)
         l.addWidget(self.bb)
 

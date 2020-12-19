@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QColor, QBrush, QFont, QApplication, QPalette, QComboBox,
     QPushButton, QIcon, QFormLayout, QLineEdit, QWidget, QScrollArea,
     QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog, QDialog,
-    QToolButton, QCheckBox, QSize, QLabel, QSplitter, QTextCharFormat)
+    QToolButton, QCheckBox, QSize, QLabel, QSplitter, QTextCharFormat, QDialogButtonBox)
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import tprefs
@@ -603,7 +603,7 @@ class ThemeEditor(Dialog):
         sp.addWidget(s), sp.addWidget(p)
 
         self.bb.clear()
-        self.bb.addButton(self.bb.Close)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         l.addWidget(self.bb)
 
         if self.theme.count() > 0:

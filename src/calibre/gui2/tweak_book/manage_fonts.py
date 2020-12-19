@@ -235,7 +235,7 @@ class ManageFonts(Dialog):
         self.setLayout(l)
 
         self.bb.clear()
-        self.bb.addButton(self.bb.Close)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         self.splitter = s = QSplitter(self)
         self.h = h = QHBoxLayout()
         h.setContentsMargins(0, 0, 0, 0)

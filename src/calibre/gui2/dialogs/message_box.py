@@ -441,7 +441,7 @@ class JobError(QDialog):  # {{{
 
     def showEvent(self, ev):
         ret = QDialog.showEvent(self, ev)
-        self.bb.button(self.bb.Close).setFocus(Qt.FocusReason.OtherFocusReason)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setFocus(Qt.FocusReason.OtherFocusReason)
         return ret
 
     def show_error(self, title, msg, det_msg='', retry_func=None):

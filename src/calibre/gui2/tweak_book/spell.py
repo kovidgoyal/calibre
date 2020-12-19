@@ -186,7 +186,7 @@ class ManageUserDictionaries(Dialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         l.addWidget(self.bb)
-        self.bb.clear(), self.bb.addButton(self.bb.Close)
+        self.bb.clear(), self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = self.bb.addButton(_('&New dictionary'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('spell-check.png')))
         b.clicked.connect(self.new_dictionary)
@@ -453,7 +453,7 @@ class ManageDictionaries(Dialog):  # {{{
         l.addLayout(s, 0, 1)
 
         self.bb.clear()
-        self.bb.addButton(self.bb.Close)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = self.bb.addButton(_('Manage &user dictionaries'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('user_profile.png')))
         b.setToolTip(_(
@@ -940,7 +940,7 @@ class SpellCheck(Dialog):
         l.addLayout(s)
         l.addWidget(self.bb)
         self.bb.clear()
-        self.bb.addButton(self.bb.Close)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Close)
         b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip('<p>' + _('Re-scan the book for words, useful if you have edited the book since opening this dialog'))
         b.setIcon(QIcon(I('view-refresh.png')))

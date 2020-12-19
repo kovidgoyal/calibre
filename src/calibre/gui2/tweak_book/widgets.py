@@ -872,7 +872,7 @@ class InsertSemantics(Dialog):
         fnl.addWidget(la), fnl.addWidget(f), fnl.addWidget(fn)
         h.addLayout(fnl), h.setStretch(1, 1)
 
-        self.bb.addButton(self.bb.Help)
+        self.bb.addButton(QDialogButtonBox.StandardButton.Help)
         self.bb.helpRequested.connect(self.help_requested)
         l.addWidget(self.bb)
         self.semantic_type_changed()

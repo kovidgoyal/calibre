@@ -303,7 +303,7 @@ class Diff(Dialog):
             b.setIcon(QIcon(I('edit-undo.png'))), b.setAutoDefault(False)
             b.clicked.connect(self.revert_requested)
             b.clicked.connect(self.reject)
-        self.bb.button(self.bb.Close).setDefault(True)
+        self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
         self.hl.addWidget(self.bb, r)
 
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)

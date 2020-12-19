@@ -125,7 +125,7 @@ def show_report(changed, title, report, parent, show_current_diff):
         cp.setText(text)
 
     b.clicked.connect(copy_report)
-    d.bb.button(d.bb.Close).setDefault(True)
+    d.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys, importlib, weakref
 
-from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea, QApplication
+from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea, QApplication, QDialogButtonBox
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
@@ -124,8 +124,8 @@ class Catalog(QDialog, Ui_Dialog):
         self.add_to_library.setChecked(dynamic.get('catalog_add_to_library', True))
 
         self.format.currentIndexChanged.connect(self.show_plugin_tab)
-        self.buttonBox.button(self.buttonBox.Apply).clicked.connect(self.apply)
-        self.buttonBox.button(self.buttonBox.Help).clicked.connect(self.help)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.apply)
+        self.buttonBox.button(QDialogButtonBox.StandardButton.Help).clicked.connect(self.help)
         self.show_plugin_tab(None)
 
         geom = dynamic.get('catalog_window_geom', None)
@@ -165,9 +165,9 @@ class Catalog(QDialog, Ui_Dialog):
                     self.tabs.addTab(s, pw.TITLE)
                 break
         if hasattr(self.options_widget, 'show_help'):
-            self.buttonBox.button(self.buttonBox.Help).setVisible(True)
+            self.buttonBox.button(QDialogButtonBox.StandardButton.Help).setVisible(True)
         else:
-            self.buttonBox.button(self.buttonBox.Help).setVisible(False)
+            self.buttonBox.button(QDialogButtonBox.StandardButton.Help).setVisible(False)
 
     def format_changed(self, idx):
         cf = unicode_type(self.format.currentText())

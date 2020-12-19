@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt5.Qt import QModelIndex, QDialog, QApplication
+from PyQt5.Qt import QModelIndex, QDialog, QApplication, QDialogButtonBox
 
 from calibre.gui2.convert.single import Config, GroupModel, gprefs
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
@@ -55,7 +55,7 @@ class BulkConfig(Config):
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
-        rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
+        rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
         rb.setVisible(False)
         self.groups.setMouseTracking(True)
         if not has_saved_settings:

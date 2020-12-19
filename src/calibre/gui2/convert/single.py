@@ -87,7 +87,7 @@ class Config(QDialog):
         self.groups.activated[(QModelIndex)].connect(self.show_pane)
         self.groups.clicked[(QModelIndex)].connect(self.show_pane)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
-        rb = self.buttonBox.button(self.buttonBox.RestoreDefaults)
+        rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
         rb.setText(_('Restore &defaults'))
         rb.clicked.connect(self.restore_defaults)
         self.groups.setMouseTracking(True)
