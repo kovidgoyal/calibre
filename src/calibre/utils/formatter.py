@@ -31,6 +31,8 @@ class Node(object):
     NODE_CALL = 10
     NODE_ARGUMENTS = 11
     NODE_FIRST_NON_EMPTY = 12
+    NODE_FOR = 13
+    NODE_GLOBALS = 14
 
 
 class IfNode(Node):
@@ -40,6 +42,15 @@ class IfNode(Node):
         self.condition = condition
         self.then_part = then_part
         self.else_part = else_part
+
+
+class ForNode(Node):
+    def __init__(self, variable, list_field_expr, block):
+        Node.__init__(self)
+        self.node_type = self.NODE_FOR
+        self.variable = variable
+        self.list_field_expr = list_field_expr
+        self.block = block
 
 
 class AssignNode(Node):
@@ -70,6 +81,13 @@ class ArgumentsNode(Node):
     def __init__(self, expression_list):
         Node.__init__(self)
         self.node_type = self.NODE_ARGUMENTS
+        self.expression_list = expression_list
+
+
+class GlobalsNode(Node):
+    def __init__(self, expression_list):
+        Node.__init__(self)
+        self.node_type = self.NODE_GLOBALS
         self.expression_list = expression_list
 
 
@@ -206,6 +224,13 @@ class _Parser(object):
         except:
             return False
 
+    def token_op_is_colon(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == ':' and token[0] == self.LEX_OP
+        except:
+            return False
+
     def token_is_id(self):
         try:
             return self.prog[self.lex_pos][0] == self.LEX_ID
@@ -254,6 +279,27 @@ class _Parser(object):
         except:
             return False
 
+    def token_is_for(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'for' and token[0] == self.LEX_KEYWORD
+        except:
+            return False
+
+    def token_is_in(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'in' and token[0] == self.LEX_KEYWORD
+        except:
+            return False
+
+    def token_is_rof(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'rof' and token[0] == self.LEX_KEYWORD
+        except:
+            return False
+
     def token_is_constant(self):
         try:
             return self.prog[self.lex_pos][0] == self.LEX_CONST
@@ -270,7 +316,7 @@ class _Parser(object):
         self.lex_pos = 0
         self.parent = parent
         self.funcs = funcs
-        self.func_names = frozenset(set(self.funcs.keys()) | {'arguments',})
+        self.func_names = frozenset(set(self.funcs.keys()))
         self.prog = prog[0]
         self.prog_len = len(self.prog)
         if prog[1] != '':
@@ -308,6 +354,24 @@ class _Parser(object):
         self.consume()
         return IfNode(condition, then_part, else_part)
 
+    def for_expression(self):
+        self.consume()
+        if not self.token_is_id():
+            self.error(_("Missing identifier in for statement"))
+        variable = self.token()
+        if not self.token_is_in():
+            self.error(_("Missing 'in' in for statement"))
+        self.consume()
+        list_expr = self.infix_expr()
+        if not self.token_op_is_colon():
+            self.error(_("Missing colon (':') in for statement"))
+        self.consume()
+        block = self.expression_list()
+        if not self.token_is_rof():
+            self.error(_("Missing 'rof' in for statement"))
+        self.consume()
+        return ForNode(variable, list_expr, block)
+
     def infix_expr(self):
         left = self.expr()
         if self.token_op_is_string_infix_compare():
@@ -333,6 +397,8 @@ class _Parser(object):
     def expr(self):
         if self.token_is_if():
             return self.if_expression()
+        if self.token_is_for():
+            return self.for_expression()
         if self.token_is_id():
             # We have an identifier. Determine if it is a function
             id_ = self.token()
@@ -370,16 +436,18 @@ class _Parser(object):
                 return FirstNonEmptyNode(arguments)
             if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
                 return AssignNode(arguments[0].name, arguments[1])
-            if id_ == 'arguments':
+            if id_ == 'arguments' or id_ == 'globals':
                 new_args = []
                 for arg in arguments:
                     if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
-                        self.error(_("Parameters to 'arguments' must be "
-                                     "variables or assignments"))
+                        self.error(_("Parameters to '{}' must be "
+                                     "variables or assignments").format(id_))
                     if arg.node_type == Node.NODE_RVALUE:
                         arg = AssignNode(arg.name, ConstantNode(''))
                     new_args.append(arg)
-                return ArgumentsNode(new_args)
+                if id_ == 'arguments':
+                    return ArgumentsNode(new_args)
+                return GlobalsNode(new_args)
             if id_ in self.func_names and not self.funcs[id_].is_python:
                 return self.call_expression(id_, arguments)
             cls = self.funcs[id_]
@@ -398,12 +466,13 @@ class _Interpreter(object):
         m = 'Interpreter: ' + message
         raise ValueError(m)
 
-    def program(self, funcs, parent, prog, val, is_call=False, args=None):
+    def program(self, funcs, parent, prog, val, is_call=False, args=None, global_vars=None):
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
         self.funcs = funcs
         self.locals = {'$':val}
+        self.global_vars = global_vars if isinstance(global_vars, dict) else {}
         if is_call:
             return self.do_node_call(CallNode(prog, None), args=args)
         return self.expression_list(prog)
@@ -497,6 +566,12 @@ class _Interpreter(object):
             self.locals[arg.left] = self.locals.get('*arg_'+ str(dex), self.expr(arg.right))
         return ''
 
+    def do_node_globals(self, prog):
+        res = ''
+        for arg in prog.expression_list:
+            res = self.locals[arg.left] = self.global_vars.get(arg.left, self.expr(arg.right))
+        return res
+
     def do_node_constant(self, prog):
         return prog.value
 
@@ -539,6 +614,25 @@ class _Interpreter(object):
                 return v
         return ''
 
+    def do_node_for(self, prog):
+        try:
+            v = prog.variable
+            f = self.expr(prog.list_field_expr)
+            res = getattr(self.parent_book, f, f)
+            if res is not None:
+                if not isinstance(res, list):
+                    res = res.split(',')
+                ret = ''
+                for x in res:
+                    self.locals[v] = x
+                    ret = self.expression_list(prog.block)
+                return ret
+            self.error(_('Field {0} is not a list').format(f))
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            self.error(_('Unhandled exception {0}').format(e))
+
     NODE_OPS = {
         Node.NODE_IF:             do_node_if,
         Node.NODE_ASSIGN:         do_node_assign,
@@ -552,6 +646,8 @@ class _Interpreter(object):
         Node.NODE_ARGUMENTS:      do_node_arguments,
         Node.NODE_CALL:           do_node_call,
         Node.NODE_FIRST_NON_EMPTY:do_node_first_non_empty,
+        Node.NODE_FOR:            do_node_for,
+        Node.NODE_GLOBALS:        do_node_globals,
         }
 
     def expr(self, prog):
@@ -635,7 +731,8 @@ class TemplateFormatter(string.Formatter):
             (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'[(),=;]',                 lambda x,t: (_Parser.LEX_OP, t)),  # noqa
+            (r'(for|in|rof)\b',          lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'[(),=;:]',                lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
             (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),  # noqa
@@ -645,7 +742,7 @@ class TemplateFormatter(string.Formatter):
             (r'\s',                      None),
         ], flags=re.DOTALL)
 
-    def _eval_program(self, val, prog, column_name):
+    def _eval_program(self, val, prog, column_name, global_vars):
         if column_name is not None and self.template_cache is not None:
             tree = self.template_cache.get(column_name, None)
             if not tree:
@@ -653,9 +750,9 @@ class TemplateFormatter(string.Formatter):
                 self.template_cache[column_name] = tree
         else:
             tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
-        return self.gpm_interpreter.program(self.funcs, self, tree, val)
+        return self.gpm_interpreter.program(self.funcs, self, tree, val, global_vars=global_vars)
 
-    def _eval_sfm_call(self, template_name, args):
+    def _eval_sfm_call(self, template_name, args, global_vars):
         func = self.funcs[template_name]
         tree = func.cached_parse_tree
         if tree is None:
@@ -663,7 +760,8 @@ class TemplateFormatter(string.Formatter):
                            self.lex_scanner.scan(func.program_text[len('program:'):]))
             func.cached_parse_tree = tree
         return self.gpm_interpreter.program(self.funcs, self, tree, None,
-                                            is_call=True, args=args)
+                                            is_call=True, args=args,
+                                            global_vars=global_vars)
     # ################# Override parent classes methods #####################
 
     def get_value(self, key, args, kwargs):
@@ -688,7 +786,7 @@ class TemplateFormatter(string.Formatter):
             if p >= 0:
                 p += 1
         if p >= 0 and fmt[-1] == '\'':
-            val = self._eval_program(val, fmt[p+1:-1], None)
+            val = self._eval_program(val, fmt[p+1:-1], None, self.global_vars)
             colon = fmt[0:p].find(':')
             if colon < 0:
                 dispfmt = ''
@@ -719,7 +817,7 @@ class TemplateFormatter(string.Formatter):
                         args = [self.backslash_comma_to_comma.sub(',', a) for a in args]
                     if not func.is_python:
                         args.insert(0, val)
-                        val = self._eval_sfm_call(fname, args)
+                        val = self._eval_sfm_call(fname, args, self.global_vars)
                     else:
                         if (func.arg_count == 1 and (len(args) != 1 or args[0])) or \
                                 (func.arg_count > 1 and func.arg_count != len(args)+1):
@@ -741,9 +839,10 @@ class TemplateFormatter(string.Formatter):
             return ''
         return prefix + val + suffix
 
-    def evaluate(self, fmt, args, kwargs):
+    def evaluate(self, fmt, args, kwargs, global_vars):
         if fmt.startswith('program:'):
-            ans = self._eval_program(kwargs.get('$', None), fmt[8:], self.column_name)
+            ans = self._eval_program(kwargs.get('$', None), fmt[8:],
+                                     self.column_name, global_vars)
         else:
             ans = self.vformat(fmt, args, kwargs)
         if self.strip_results:
@@ -759,18 +858,21 @@ class TemplateFormatter(string.Formatter):
         self.book = book
         self.composite_values = {}
         self.locals = {}
+        self.global_vars = {}
         return self.evaluate(fmt, [], kwargs)
 
     # ######### a formatter guaranteed not to throw an exception ############
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
-                    strip_results=True, template_functions=None):
+                    strip_results=True, template_functions=None,
+                    global_vars={}):
         self.strip_results = strip_results
         self.column_name = column_name
         self.template_cache = template_cache
         self.kwargs = kwargs
         self.book = book
+        self.global_vars = global_vars if isinstance(global_vars, dict) else {}
         if template_functions:
             self.funcs = template_functions
         else:
@@ -778,7 +880,7 @@ class TemplateFormatter(string.Formatter):
         self.composite_values = {}
         self.locals = {}
         try:
-            ans = self.evaluate(fmt, [], kwargs)
+            ans = self.evaluate(fmt, [], kwargs, global_vars)
         except Exception as e:
             if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()

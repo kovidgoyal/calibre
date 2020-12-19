@@ -357,7 +357,16 @@ For more complicated template programs it is often easier to avoid template synt
 
 One advantage of `program:` mode is that braces are no longer special. For example, it is not necessary to use `[[` and `]]` when using the `template()` function. Another advantage is readability.
 
-Both General and Template Program Modes support ``if`` expressions with the following syntax::
+Template Program Mode and General Program Mode support classic **relational (comparison) operators**: ``==``, ``!=``, ``<``,
+``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive
+string comparison using lexical order. Examples:
+
+    * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
+    * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
+    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
+    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
+
+Both General and Template Program Modes support **``if`` expressions** with the following syntax::
 
     if <<expression>> then
         <<expression_list>>
@@ -391,12 +400,38 @@ An ``if`` produces a value like any other language expression. This means that a
     * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
     * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
 
-Template Program Mode and General Program Mode support classic relational (comparison) operators: ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive string comparison using lexical order. Examples:
+The template language supports **``for`` expressions** with the following syntax:
 
-    * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
-    * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
-    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632', otherwise 'no'.
-    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
+    for <<id>> in <<expression>>:
+        <<expression_list>>
+    rof
+    
+The expression must evaluate to either a metadata field lookup key, for example ``tags`` or ``#genre``, or a comma-separated list of
+values. If the result is a valid lookup name then the field's value is fetched, otherwise the list is broken into its
+individual values. Each resulting value in the list is assigned to the variable ``id`` then the ``expression_list``
+is evaluated.
+
+Example: This template removes the first hierarchical name for each value in Genre (``#genre``), constructing a list with
+the new names.
+
+        program:
+        	new_tags = '';
+        	for i in '#genre':
+        		j = re(i, '^.*?\.(.*)$', '\1');
+        		new_tags = list_union(new_tags, j, ',')
+        	rof;
+            new_tags
+
+If the original Genre is ``History.Military, Science Fiction.Alternate History, ReadMe`` then the template returns
+``Military, Alternate History, ReadMe``. You could use this template in calibre's
+:guilabel:`Edit metadata in bulk -> Search & replace` with :guilabel:`Search for` set to ``template`` to strip
+off the first level of the hierarchy and assign the resulting value to Genre.
+
+Note: the last line in the template, ``new_tags``, isn't necessary in this case because ``for`` returns the value
+of the last ``expression`` in the ``expression list``.
+
+Stored General Program Mode Templates
+----------------------------------------
 
 General Program Mode supports saving templates and calling those templates from another template. You save
 templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in that dialog. You call
@@ -423,6 +458,39 @@ Examples, again assuming the stored template is named ``foo``:
 An easy way to test stored templates is using the ``Template tester`` dialog. Give it a keyboard shortcut in
 :guilabel:`Preferences->Advanced->Keyboard shortcuts->Template tester`. Giving the ``Stored templates`` dialog a
 shortcut will help switching more rapidly between the tester and editing the stored template's source code.
+
+Providing additional information to templates
+----------------------------------------------
+
+A developer can choose to pass additional information to the template processor, such as application-specific book
+metadata or information about what the processor is being asked to do. A template can access this information
+and use it during the evaluation.
+
+**Developer: how to pass additional information**
+
+The additional information is a python dictionary containing pairs ``variable_name: variable_value`` where the values
+should be strings. The template can access the dict, creating template local variables named ``variable_name`` containing the
+value ``variable_value``. The user cannot change the name so it is best to use names that won't collide with other
+template local variables, for example by prefixing the name with an underscore.
+
+This dict is passed to the template processor (the ``formatter``) using the named parameter ``global_vars=your_dict``.
+The full method signature is:
+
+    def safe_format(self, fmt, kwargs, error_value, book,
+                    column_name=None, template_cache=None,
+                    strip_results=True, template_functions=None,
+                    global_vars={})
+                    
+
+**Template writer: how to access the additional information**
+
+You access the additional information in a template using the template function ``globals(id[=expression] [, id[=expression]]*)``
+where ``id`` is any legal variable name. This function checks whether the additional information provided by the developer
+contains the name. If it does then the function assigns the provided value to a template local variable with the given name.
+If the name is not in the additional information and if an ``expression`` is provided, the ``expression`` is evaluated and
+the result is assigned to the local variable. If neither a value nor an expression is provided, the function assigns
+the empty string (``''``) to the local variable.
+
 
 Notes on the difference between modes
 -----------------------------------------
