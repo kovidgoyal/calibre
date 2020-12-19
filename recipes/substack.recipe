@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+#
+# Title:        Substack
+# License:      GNU General Public License v3 – https://www.gnu.org/licenses/gpl-3.0.html
+# Copyright:    Nathan Cook (nathan.cook@gmail.com)
+##
+# Written:      2020-12-18
+##
+
+__license__ = 'GNU General Public License v3 – https://www.gnu.org/licenses/gpl-3.0.html'
+__copyright__ = 'Nathan Cook – 2020-12-18'
+__version__ = 'v0.1.0'
+__date__ = '2020-12-18'
+
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import json
+from mechanize import Request
+
+class Substack(BasicNewsRecipe):
+    title          = 'Substack'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+# Every Substack publication has an RSS feed at https://{name}.substack.com/feed.
+# The same URL provides either all posts, or all free posts + previews of paid posts,
+# depending on whether you're logged in.
+    feeds          = [
+        ('Novum Lumen', 'https://novumlumen.substack.com/feed'),    # gratuitously self-promotional example
+    ]
+    
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://substack.com/account/login?redirect=%2F&email=&with_password=')
+            data = json.dumps({'email': self.username, 'password': self.password, 'captch_response':None})
+            req = Request(
+                url='https://substack.com/api/v1/login',
+                headers = {
+                    'Accept': '*/*',
+                    'Content-Type': 'application/json',
+                    'Origin': 'https://substack.com',
+                    'Referer': 'https://substack.com/account/login?redirect=%2F&email=&with_password=',
+                },
+                data=data,
+                method='POST')
+            res = br.open(req)
+            if res.getcode() != 200:
+                raise ValueError('Login failed, check username and password')        
+        return br
+    
