@@ -20,7 +20,7 @@ from PyQt5.Qt import (
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,
     QStyledItemDelegate, QModelIndex, QRect, QStyle, QPalette, QTimer, QMenu,
     QAbstractItemModel, QTreeView, QFont, QRadioButton, QHBoxLayout,
-    QFontDatabase, QComboBox, QUrl, QAbstractItemView)
+    QFontDatabase, QComboBox, QUrl, QAbstractItemView, QDialogButtonBox)
 
 from calibre import human_readable, fit_image
 from calibre.constants import DEBUG
@@ -1396,10 +1396,10 @@ class Reports(Dialog):
         l.addWidget(la, alignment=Qt.AlignmentFlag.AlignHCenter), l.addStretch(1)
 
         self.bb.setStandardButtons(self.bb.Close)
-        self.refresh_button = b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        self.refresh_button = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.refresh)
         b.setIcon(QIcon(I('view-refresh.png')))
-        self.save_button = b = self.bb.addButton(_('&Save'), self.bb.ActionRole)
+        self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.reports.to_csv)
         b.setIcon(QIcon(I('save.png')))
         b.setToolTip(_('Export the currently shown report as a CSV file'))

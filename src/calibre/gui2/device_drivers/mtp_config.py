@@ -425,7 +425,7 @@ class MTPConfig(QTabWidget):
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
         l.addWidget(bb)
-        bb.addButton(_('Copy to clipboard'), bb.ActionRole)
+        bb.addButton(_('Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         bb.clicked.connect(lambda :
                 QApplication.clipboard().setText(v.toPlainText()))
         d.exec_()
@@ -510,7 +510,7 @@ class SendError(QDialog):
         la.setMinimumWidth(500)
         l.addWidget(la)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        self.b = bb.addButton(_('Configure'), bb.AcceptRole)
+        self.b = bb.addButton(_('Configure'), QDialogButtonBox.ButtonRole.AcceptRole)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb)

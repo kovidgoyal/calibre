@@ -560,17 +560,17 @@ class CompareMany(QDialog):
         bb.button(QDialogButtonBox.StandardButton.Cancel).setAutoDefault(False)
         bb.rejected.connect(self.reject)
         if self.total > 1:
-            self.aarb = b = bb.addButton(_('&Accept all remaining'), bb.YesRole)
+            self.aarb = b = bb.addButton(_('&Accept all remaining'), QDialogButtonBox.ButtonRole.YesRole)
             b.setIcon(QIcon(I('ok.png'))), b.setAutoDefault(False)
             if accept_all_tooltip:
                 b.setToolTip(accept_all_tooltip)
             b.clicked.connect(self.accept_all_remaining)
-            self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.ActionRole)
+            self.rarb = b = bb.addButton(_('Re&ject all remaining'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_all_tooltip:
                 b.setToolTip(reject_all_tooltip)
             b.clicked.connect(self.reject_all_remaining)
-            self.sb = b = bb.addButton(_('R&eject'), bb.ActionRole)
+            self.sb = b = bb.addButton(_('R&eject'), QDialogButtonBox.ButtonRole.ActionRole)
             connect_lambda(b.clicked, self, lambda self: self.next_item(False))
             b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_button_tooltip:
@@ -579,11 +579,11 @@ class CompareMany(QDialog):
             ac.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Key.Key_Right))
             self.addAction(ac)
         if action_button is not None:
-            self.acb = b = bb.addButton(action_button[0], bb.ActionRole)
+            self.acb = b = bb.addButton(action_button[0], QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(action_button[1]))
             self.action_button_action = action_button[2]
             b.clicked.connect(self.action_button_clicked)
-        self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), bb.ActionRole)
+        self.nb = b = bb.addButton(_('&Next') if self.total > 1 else _('&OK'), QDialogButtonBox.ButtonRole.ActionRole)
         if self.total > 1:
             b.setToolTip(_('Move to next [%s]') % self.next_action.shortcut().toString(QKeySequence.SequenceFormat.NativeText))
             self.next_action.triggered.connect(b.click)

@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (
     QAction, QBuffer, QByteArray, QIcon, QInputDialog, QKeySequence, QLabel,
     QListWidget, QListWidgetItem, QPixmap, QSize, QStackedLayout, Qt, QVBoxLayout,
-    QWidget, pyqtSignal, QIODevice
+    QWidget, pyqtSignal, QIODevice, QDialogButtonBox
 )
 from threading import Thread
 
@@ -311,7 +311,7 @@ class ChooseProgram(Dialog):  # {{{
         l.addWidget(la), l.addWidget(pl)
         la.setBuddy(pl)
 
-        b = self.bb.addButton(_('&Browse computer for program'), self.bb.ActionRole)
+        b = self.bb.addButton(_('&Browse computer for program'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.manual)
         l.addWidget(self.bb)
 
@@ -401,11 +401,11 @@ class EditPrograms(Dialog):  # {{{
         l.addWidget(pl)
 
         self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
-        self.rb = b = self.bb.addButton(_('&Remove'), self.bb.ActionRole)
+        self.rb = b = self.bb.addButton(_('&Remove'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.remove), b.setIcon(QIcon(I('list_remove.png')))
-        self.cb = b = self.bb.addButton(_('Change &icon'), self.bb.ActionRole)
+        self.cb = b = self.bb.addButton(_('Change &icon'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.change_icon), b.setIcon(QIcon(I('icon_choose.png')))
-        self.cb = b = self.bb.addButton(_('Change &name'), self.bb.ActionRole)
+        self.cb = b = self.bb.addButton(_('Change &name'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.change_name), b.setIcon(QIcon(I('modified.png')))
         l.addWidget(self.bb)
 

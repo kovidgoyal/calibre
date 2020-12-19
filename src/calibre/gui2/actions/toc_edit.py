@@ -40,7 +40,7 @@ class ChooseFormat(QDialog):  # {{{
         bb = self.bb = QDialogButtonBox(
             QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.addButton(_('&All formats'),
-                     bb.ActionRole).clicked.connect(self.do_all)
+                     QDialogButtonBox.ButtonRole.ActionRole).clicked.connect(self.do_all)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
         l.addWidget(bb, l.rowCount(), 0, 1, -1)

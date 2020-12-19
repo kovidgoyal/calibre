@@ -7,7 +7,7 @@ from PyQt5.Qt import (
     QAction, QApplication, QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette,
     QPixmap, QPushButton, QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton,
-    QVBoxLayout, QWidget, pyqtSignal
+    QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox
 )
 
 from calibre import fit_image
@@ -80,11 +80,11 @@ class Configure(Dialog):
         self.l.addWidget(QLabel('<p>' + _(
             'Note that <b>comments</b> will always be displayed at the end, regardless of the order you assign here')))
 
-        b = self.bb.addButton(_('Restore &defaults'), self.bb.ActionRole)
+        b = self.bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
-        b = self.bb.addButton(_('Select &all'), self.bb.ActionRole)
+        b = self.bb.addButton(_('Select &all'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.select_all)
-        b = self.bb.addButton(_('Select &none'), self.bb.ActionRole)
+        b = self.bb.addButton(_('Select &none'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.select_none)
         self.l.addWidget(self.bb)
         self.setMinimumHeight(500)

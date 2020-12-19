@@ -244,7 +244,7 @@ class Preferences(QDialog):
         self.bb.button(self.bb.Discard).clicked.connect(self.reject)
         self.bb.button(self.bb.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
         self.bb.button(self.bb.RestoreDefaults).clicked.connect(self.restore_defaults)
-        self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), self.bb.ActionRole)
+        self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), QDialogButtonBox.ButtonRole.ActionRole)
         self.wizard_button.setIcon(QIcon(I('wizard.png')))
         self.wizard_button.clicked.connect(self.run_wizard, type=Qt.ConnectionType.QueuedConnection)
         self.wizard_button.setAutoDefault(False)

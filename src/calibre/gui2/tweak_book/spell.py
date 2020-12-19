@@ -187,7 +187,7 @@ class ManageUserDictionaries(Dialog):
         l.addLayout(h)
         l.addWidget(self.bb)
         self.bb.clear(), self.bb.addButton(self.bb.Close)
-        b = self.bb.addButton(_('&New dictionary'), self.bb.ActionRole)
+        b = self.bb.addButton(_('&New dictionary'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('spell-check.png')))
         b.clicked.connect(self.new_dictionary)
 
@@ -454,12 +454,12 @@ class ManageDictionaries(Dialog):  # {{{
 
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
-        b = self.bb.addButton(_('Manage &user dictionaries'), self.bb.ActionRole)
+        b = self.bb.addButton(_('Manage &user dictionaries'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('user_profile.png')))
         b.setToolTip(_(
             'Manage the list of user dictionaries (dictionaries to which you can add words)'))
         b.clicked.connect(self.manage_user_dictionaries)
-        b = self.bb.addButton(_('&Add dictionary'), self.bb.ActionRole)
+        b = self.bb.addButton(_('&Add dictionary'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_(
             'Add a new dictionary that you downloaded from the internet'))
         b.setIcon(QIcon(I('plus.png')))
@@ -941,11 +941,11 @@ class SpellCheck(Dialog):
         l.addWidget(self.bb)
         self.bb.clear()
         self.bb.addButton(self.bb.Close)
-        b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip('<p>' + _('Re-scan the book for words, useful if you have edited the book since opening this dialog'))
         b.setIcon(QIcon(I('view-refresh.png')))
         connect_lambda(b.clicked, self, lambda self: self.refresh(change_request=None))
-        b = self.bb.addButton(_('&Undo last change'), self.bb.ActionRole)
+        b = self.bb.addButton(_('&Undo last change'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip('<p>' + _('Undo the last spell check word replacement, if any'))
         b.setIcon(QIcon(I('edit-undo.png')))
         b.clicked.connect(self.undo_last_change)

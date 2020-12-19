@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
     QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize,
     QSizePolicy, QStackedLayout, QStyledItemDelegate, Qt, QTimer, QToolBar, QDialog,
-    QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QEvent
+    QToolButton, QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QEvent, QDialogButtonBox
 )
 
 from calibre import prepare_string_for_xml
@@ -1493,7 +1493,7 @@ def run_search(
                     det_msg += _('{0}: {1} occurrences').format(k, count_map[k]) + '\n'
             if show_diff and count > 0:
                 d = MessageBox(MessageBox.INFO, _('Searching done'), '<p>'+msg, parent=gui_parent, show_copy_button=False, det_msg=det_msg)
-                d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.AcceptRole)
+                d.diffb = b = d.bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
                 d.show_changes = False
                 b.setIcon(QIcon(I('diff.png'))), b.clicked.connect(d.accept)
                 connect_lambda(b.clicked, d, lambda d: setattr(d, 'show_changes', True))

@@ -9,7 +9,7 @@ import re, io, weakref, sys
 
 from PyQt5.Qt import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
-    QSize, Qt, QApplication, QIcon)
+    QSize, Qt, QApplication, QIcon, QDialogButtonBox)
 
 from calibre.ebooks.oeb.polish.utils import apply_func_to_match_groups, apply_func_to_html_text
 from calibre.gui2 import error_dialog
@@ -117,7 +117,7 @@ class DebugOutput(Dialog):
         l.addWidget(t)
         l.addWidget(self.bb)
         self.bb.setStandardButtons(self.bb.Close)
-        self.cb = b = self.bb.addButton(_('&Copy to clipboard'), self.bb.ActionRole)
+        self.cb = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.copy_to_clipboard)
         b.setIcon(QIcon(I('edit-copy.png')))
 

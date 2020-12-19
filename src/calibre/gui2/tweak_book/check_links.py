@@ -8,7 +8,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QCheckBox, QHBoxLayout, QIcon, QInputDialog, QLabel, QProgressBar, QSizePolicy,
-    QStackedWidget, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal
+    QStackedWidget, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox
 )
 
 from calibre.gui2 import error_dialog
@@ -84,7 +84,7 @@ class CheckExternalLinks(Dialog):
         h.addWidget(ca), h.addStretch(100), h.addWidget(self.bb)
         l.addLayout(h)
         self.bb.setStandardButtons(self.bb.Close)
-        self.rb = b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        self.rb = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('view-refresh.png')))
         b.clicked.connect(self.refresh)
 

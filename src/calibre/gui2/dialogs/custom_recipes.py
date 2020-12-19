@@ -585,7 +585,7 @@ class CustomRecipes(Dialog):
         if index == 0:
             bb.setStandardButtons(bb.Close)
             for icon, text, tooltip, receiver in self.list_actions:
-                b = bb.addButton(text, bb.ActionRole)
+                b = bb.addButton(text, QDialogButtonBox.ButtonRole.ActionRole)
                 b.setIcon(QIcon(I(icon))), b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
         else:
@@ -594,7 +594,7 @@ class CustomRecipes(Dialog):
                 text = _('S&witch to advanced mode')
                 tooltip = _('Edit this recipe in advanced mode')
                 receiver = self.switch_to_advanced
-                b = bb.addButton(text, bb.ActionRole)
+                b = bb.addButton(text, QDialogButtonBox.ButtonRole.ActionRole)
                 b.setToolTip(tooltip)
                 b.clicked.connect(receiver)
 

@@ -11,7 +11,7 @@ from io import BytesIO
 from PyQt5.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
-    QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView, QDialog)
+    QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView, QDialog, QDialogButtonBox)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
@@ -277,7 +277,7 @@ class ManageFonts(Dialog):
         b.setIcon(QIcon(I('subset-fonts.png')))
         b.clicked.connect(self.subset_fonts)
         l.addWidget(b)
-        self.refresh_button = b = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        self.refresh_button = b = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_('Rescan the book for fonts in case you have made changes'))
         b.setIcon(QIcon(I('view-refresh.png')))
         b.clicked.connect(self.refresh)

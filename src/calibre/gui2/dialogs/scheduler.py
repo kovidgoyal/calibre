@@ -357,7 +357,7 @@ class SchedulerDialog(QDialog):
         self.l.addWidget(b, 3, 0, 1, 1)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel, self)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        self.download_button = b = bb.addButton(_('&Download now'), bb.ActionRole)
+        self.download_button = b = bb.addButton(_('&Download now'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('arrow-down.png'))), b.setVisible(False)
         b.clicked.connect(self.download_clicked)
         self.l.addWidget(bb, 3, 1, 1, 1)

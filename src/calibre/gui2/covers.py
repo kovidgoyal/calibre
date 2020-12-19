@@ -520,7 +520,7 @@ class CoverSettingsDialog(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         l.addWidget(bb)
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
-        bb.b = b = bb.addButton(_('Restore &defaults'), bb.ActionRole)
+        bb.b = b = bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
         ss.setToolTip('<p>' + _(
             'Save the current settings as the settings to use always instead of just this time. Remember that'

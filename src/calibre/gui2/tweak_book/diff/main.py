@@ -11,7 +11,7 @@ from functools import partial
 from PyQt5.Qt import (
     QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
-    QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer, QHBoxLayout)
+    QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer, QHBoxLayout, QDialogButtonBox)
 
 from calibre.ebooks.oeb.polish.container import Container
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -299,7 +299,7 @@ class Diff(Dialog):
 
         self.bb.setStandardButtons(self.bb.Close)
         if self.revert_button_msg is not None:
-            self.rvb = b = self.bb.addButton(self.revert_button_msg, self.bb.ActionRole)
+            self.rvb = b = self.bb.addButton(self.revert_button_msg, QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('edit-undo.png'))), b.setAutoDefault(False)
             b.clicked.connect(self.revert_requested)
             b.clicked.connect(self.reject)

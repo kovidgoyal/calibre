@@ -9,7 +9,7 @@ from functools import partial
 from PyQt5.Qt import (
     QAction, QGroupBox, QHBoxLayout, QIcon, QKeySequence, QLabel, QListWidget,
     QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal, QDialog,
-    QAbstractItemView
+    QAbstractItemView, QDialogButtonBox
 )
 from PyQt5.QtWebEngineWidgets import QWebEnginePage
 
@@ -414,7 +414,7 @@ class ConfigureToolBar(Dialog):
         v.addWidget(self.current_actions)
         h.addLayout(bv), h.addWidget(rg)
         l.addWidget(self.bb)
-        self.rdb = b = self.bb.addButton(_('Restore defaults'), self.bb.ActionRole)
+        self.rdb = b = self.bb.addButton(_('Restore defaults'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
 
     def remove_actions(self):

@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
     QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
-    QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog, QEvent)
+    QPixmap, QRect, QPlainTextEdit, QMimeData, QDialog, QEvent, QDialogButtonBox)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.constants import iswindows
@@ -1142,7 +1142,7 @@ class AddCover(Dialog):
         l.addLayout(h)
 
         l.addWidget(self.bb)
-        b = self.bb.addButton(_('Import &image'), self.bb.ActionRole)
+        b = self.bb.addButton(_('Import &image'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.import_image)
         b.setIcon(QIcon(I('document_open.png')))
         self.names.setFocus(Qt.FocusReason.OtherFocusReason)

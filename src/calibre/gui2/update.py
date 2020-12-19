@@ -156,11 +156,11 @@ class UpdateNotification(QDialog):
         self.cb.setChecked(config.get('new_version_notification'))
         self.cb.stateChanged.connect(self.show_future)
         self.bb = QDialogButtonBox(self)
-        b = self.bb.addButton(_('&Get update'), self.bb.AcceptRole)
+        b = self.bb.addButton(_('&Get update'), QDialogButtonBox.ButtonRole.AcceptRole)
         b.setDefault(True)
         b.setIcon(QIcon(I('arrow-down.png')))
         if plugin_updates > 0:
-            b = self.bb.addButton(_('Update &plugins'), self.bb.ActionRole)
+            b = self.bb.addButton(_('Update &plugins'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('plugins/plugin_updater.png')))
             b.clicked.connect(self.get_plugins, type=Qt.ConnectionType.QueuedConnection)
         self.bb.addButton(QDialogButtonBox.StandardButton.Cancel)

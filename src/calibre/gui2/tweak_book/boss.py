@@ -835,7 +835,7 @@ class Boss(QObject):
         k.addWidget(bb)
         bb.accepted.connect(d.accept)
         bb.rejected.connect(d.reject)
-        d.b = b = bb.addButton(_('See what &changed'), bb.AcceptRole)
+        d.b = b = bb.addButton(_('See what &changed'), QDialogButtonBox.ButtonRole.AcceptRole)
         b.setIcon(QIcon(I('diff.png'))), b.setAutoDefault(False)
         bb.button(bb.Close).setDefault(True)
         if d.exec_() == QDialog.DialogCode.Accepted:

@@ -15,7 +15,7 @@ from PyQt5.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout,
-    QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox
+    QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit, QComboBox, QDialogButtonBox
 )
 
 from calibre import human_readable
@@ -179,13 +179,13 @@ class IdLinksEditor(Dialog):
         t.horizontalHeader().setSectionResizeMode(2, t.horizontalHeader().Stretch)
         self.cb = b = QPushButton(QIcon(I('plus.png')), _('&Add rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.edit_rule())
-        self.bb.addButton(b, self.bb.ActionRole)
+        self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         self.rb = b = QPushButton(QIcon(I('minus.png')), _('&Remove rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.remove_rule())
-        self.bb.addButton(b, self.bb.ActionRole)
+        self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         self.eb = b = QPushButton(QIcon(I('modified.png')), _('&Edit rule'), self)
         connect_lambda(b.clicked, self, lambda self: self.edit_rule(self.table.currentRow()))
-        self.bb.addButton(b, self.bb.ActionRole)
+        self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
         l.addWidget(self.bb)
 
     def sizeHint(self):

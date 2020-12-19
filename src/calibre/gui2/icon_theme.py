@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
     pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap, QDialog,
     QGridLayout, QStyledItemDelegate, QApplication, QStaticText,
-    QStyle, QPen, QProgressDialog, QAbstractItemView
+    QStyle, QPen, QProgressDialog, QAbstractItemView, QDialogButtonBox
 )
 try:
     from PyQt5 import sip
@@ -237,7 +237,7 @@ class ThemeCreateDialog(Dialog):
             ' Creative Commons or Public Domain.'))
         self.description = QTextEdit(self)
         l.addRow(self.description)
-        self.refresh_button = rb = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
+        self.refresh_button = rb = self.bb.addButton(_('&Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
         rb.setIcon(QIcon(I('view-refresh.png')))
         rb.clicked.connect(self.refresh)
 
@@ -605,7 +605,7 @@ class ChooseTheme(Dialog):
         self.stack = l = QStackedLayout()
         self.pi = pi = ProgressIndicator(self, 256)
         vl.addLayout(l), vl.addWidget(self.bb)
-        self.restore_defs_button = b = self.bb.addButton(_('Restore &default icons'), self.bb.ActionRole)
+        self.restore_defs_button = b = self.bb.addButton(_('Restore &default icons'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
         b.setIcon(QIcon(I('view-refresh.png')))
         self.c = c = QWidget(self)

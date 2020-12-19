@@ -36,7 +36,7 @@ class Choose(QDialog):
         bb.rejected.connect(self.reject)
         self.buts = buts = []
         for fmt in fmts:
-            b = bb.addButton(fmt.upper(), bb.AcceptRole)
+            b = bb.addButton(fmt.upper(), QDialogButtonBox.ButtonRole.AcceptRole)
             b.setObjectName(fmt)
             connect_lambda(b.clicked, self, lambda self: self.chosen(self.sender().objectName()))
             buts.append(b)

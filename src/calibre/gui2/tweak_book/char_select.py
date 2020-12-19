@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     QAbstractItemModel, QAbstractListModel, QApplication, QCheckBox, QGridLayout,
     QHBoxLayout, QIcon, QInputMethodEvent, QLabel, QListView, QMenu, QMimeData,
     QModelIndex, QPen, QPushButton, QSize, QSizePolicy, QSplitter,
-    QStyledItemDelegate, Qt, QToolButton, QTreeView, pyqtSignal, QAbstractItemView
+    QStyledItemDelegate, Qt, QToolButton, QTreeView, pyqtSignal, QAbstractItemView, QDialogButtonBox
 )
 
 from calibre.gui2.tweak_book import tprefs
@@ -704,7 +704,7 @@ class CharSelect(Dialog):
         self.setLayout(l)
 
         self.bb.setStandardButtons(self.bb.Close)
-        self.rearrange_button = b = self.bb.addButton(_('Re-arrange favorites'), self.bb.ActionRole)
+        self.rearrange_button = b = self.bb.addButton(_('Re-arrange favorites'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setCheckable(True)
         b.setChecked(False)
         b.setVisible(False)

@@ -15,7 +15,7 @@ from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt, QPainter,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication,
     QSize, QStyleOptionProgressBar, QStyle, QToolTip, QWidget, QStyleOption,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
-    QByteArray, QSortFilterProxyModel, QTextBrowser, QPlainTextEdit)
+    QByteArray, QSortFilterProxyModel, QTextBrowser, QPlainTextEdit, QDialogButtonBox)
 
 from calibre import strftime
 from calibre.constants import islinux, isbsd
@@ -465,7 +465,7 @@ class DetailView(Dialog):  # {{{
         l.addWidget(w)
         l.addWidget(self.bb)
         self.bb.clear(), self.bb.setStandardButtons(self.bb.Close)
-        self.copy_button = b = self.bb.addButton(_('&Copy to clipboard'), self.bb.ActionRole)
+        self.copy_button = b = self.bb.addButton(_('&Copy to clipboard'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setIcon(QIcon(I('edit-copy.png')))
         b.clicked.connect(self.copy_to_clipboard)
         self.next_pos = 0

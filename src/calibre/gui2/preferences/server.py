@@ -938,9 +938,9 @@ class CustomList(QWidget):  # {{{
         l.addRow(t)
         t.textChanged.connect(self.changed_signal)
         self.imex = bb = QDialogButtonBox(self)
-        b = bb.addButton(_('&Import template'), bb.ActionRole)
+        b = bb.addButton(_('&Import template'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.import_template)
-        b = bb.addButton(_('E&xport template'), bb.ActionRole)
+        b = bb.addButton(_('E&xport template'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.export_template)
         l.addRow(bb)
 
@@ -1346,7 +1346,7 @@ class ConfigWidget(ConfigWidgetBase):
         bx = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok)
         layout.addWidget(bx)
         bx.accepted.connect(d.accept)
-        b = bx.addButton(_('&Clear logs'), bx.ActionRole)
+        b = bx.addButton(_('&Clear logs'), QDialogButtonBox.ButtonRole.ActionRole)
 
         def clear_logs():
             if getattr(self.server, 'is_running', False):

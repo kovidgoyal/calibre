@@ -107,12 +107,12 @@ class MessageBox(QDialog):  # {{{
 
         if show_copy_button:
             self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
-                    self.bb.ActionRole)
+                    QDialogButtonBox.ButtonRole.ActionRole)
             self.ctc_button.clicked.connect(self.copy_to_clipboard)
 
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
-        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
+        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, QDialogButtonBox.ButtonRole.ActionRole)
         self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
         self.det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))
@@ -207,7 +207,7 @@ class ViewLog(QDialog):  # {{{
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.copy_button = self.bb.addButton(_('Copy to clipboard'),
-                self.bb.ActionRole)
+                QDialogButtonBox.ButtonRole.ActionRole)
         self.copy_button.setIcon(QIcon(I('edit-copy.png')))
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
@@ -273,7 +273,7 @@ class ProceedNotification(MessageBox):  # {{{
         self.log_is_file = log_is_file
         self.log_viewer_title = log_viewer_title
 
-        self.vlb = self.bb.addButton(_('&View log'), self.bb.ActionRole)
+        self.vlb = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
         self.vlb.clicked.connect(self.show_log)
         self.det_msg_toggle.setVisible(bool(det_msg))
@@ -329,7 +329,7 @@ class ErrorNotification(MessageBox):  # {{{
         self.log_viewer_title = log_viewer_title
         self.finished.connect(self.do_close, type=Qt.ConnectionType.QueuedConnection)
 
-        self.vlb = self.bb.addButton(_('&View log'), self.bb.ActionRole)
+        self.vlb = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
         self.vlb.setIcon(QIcon(I('debug.png')))
         self.vlb.clicked.connect(self.show_log)
         self.det_msg_toggle.setVisible(bool(det_msg))
@@ -377,14 +377,14 @@ class JobError(QDialog):  # {{{
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.ctc_button = self.bb.addButton(_('&Copy to clipboard'),
-                self.bb.ActionRole)
+                QDialogButtonBox.ButtonRole.ActionRole)
         self.ctc_button.clicked.connect(self.copy_to_clipboard)
-        self.retry_button = self.bb.addButton(_('&Retry'), self.bb.ActionRole)
+        self.retry_button = self.bb.addButton(_('&Retry'), QDialogButtonBox.ButtonRole.ActionRole)
         self.retry_button.clicked.connect(self.retry)
         self.retry_func = None
         self.show_det_msg = _('Show &details')
         self.hide_det_msg = _('Hide &details')
-        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, self.bb.ActionRole)
+        self.det_msg_toggle = self.bb.addButton(self.show_det_msg, QDialogButtonBox.ButtonRole.ActionRole)
         self.det_msg_toggle.clicked.connect(self.toggle_det_msg)
         self.det_msg_toggle.setToolTip(
                 _('Show detailed information about this error'))

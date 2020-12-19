@@ -978,7 +978,7 @@ class LogViewer(QDialog):  # {{{
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         l.addWidget(self.bb)
         self.copy_button = self.bb.addButton(_('Copy to clipboard'),
-                self.bb.ActionRole)
+                QDialogButtonBox.ButtonRole.ActionRole)
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         self.copy_button.setIcon(QIcon(I('edit-copy.png')))
         self.bb.rejected.connect(self.reject)
@@ -1040,7 +1040,7 @@ class FullFetch(QDialog):  # {{{
         self.prev_button = pb = QPushButton(QIcon(I('back.png')), _('&Back'), self)
         pb.clicked.connect(self.back_clicked)
         pb.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        self.log_button = self.bb.addButton(_('&View log'), self.bb.ActionRole)
+        self.log_button = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.prev_button.setVisible(False)
@@ -1154,7 +1154,7 @@ class CoverFetch(QDialog):  # {{{
 
         self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
         l.addWidget(self.bb)
-        self.log_button = self.bb.addButton(_('&View log'), self.bb.ActionRole)
+        self.log_button = self.bb.addButton(_('&View log'), QDialogButtonBox.ButtonRole.ActionRole)
         self.log_button.clicked.connect(self.view_log)
         self.log_button.setIcon(QIcon(I('debug.png')))
         self.bb.rejected.connect(self.reject)

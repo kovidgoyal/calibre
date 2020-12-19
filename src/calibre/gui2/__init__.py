@@ -18,7 +18,7 @@ from PyQt5.Qt import (
     QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo, QPalette,
     QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QColor,
     QNetworkProxyFactory, QObject, QSettings, QSocketNotifier, QStringListModel, Qt,
-    QThread, QTimer, QTranslator, QUrl, pyqtSignal, QIODevice
+    QThread, QTimer, QTranslator, QUrl, pyqtSignal, QIODevice, QDialogButtonBox
 )
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 
@@ -458,7 +458,7 @@ def info_dialog(parent, title, msg, det_msg='', show=False,
 def show_restart_warning(msg, parent=None):
     d = warning_dialog(parent, _('Restart needed'), msg,
             show_copy_button=False)
-    b = d.bb.addButton(_('&Restart calibre now'), d.bb.AcceptRole)
+    b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
     b.setIcon(QIcon(I('lt.png')))
     d.do_restart = False
 

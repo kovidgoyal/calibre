@@ -92,8 +92,8 @@ class MetadataSingleDialogBase(QDialog):
                 self)
         self.prev_button.setShortcut(QKeySequence('Alt+Left'))
 
-        self.button_box.addButton(self.prev_button, bb.ActionRole)
-        self.button_box.addButton(self.next_button, bb.ActionRole)
+        self.button_box.addButton(self.prev_button, QDialogButtonBox.ButtonRole.ActionRole)
+        self.button_box.addButton(self.next_button, QDialogButtonBox.ButtonRole.ActionRole)
         self.prev_button.clicked.connect(self.prev_clicked)
         bb.setStandardButtons(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)

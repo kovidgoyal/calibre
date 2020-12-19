@@ -123,7 +123,7 @@ class DownloadResources(Dialog):
         self.wait.addWidget(ds), self.wait.addWidget(s)
         self.wait.start()
         for t, f in ((_('Select &none'), cr.select_none), (_('Select &all'), cr.select_all)):
-            b = self.bb.addButton(t, self.bb.ActionRole)
+            b = self.bb.addButton(t, QDialogButtonBox.ButtonRole.ActionRole)
             b.clicked.connect(f), b.setAutoDefault(False)
         self.bb.setVisible(False)
         l.addWidget(self.wait), l.addWidget(self.bb)

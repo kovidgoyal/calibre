@@ -225,7 +225,7 @@ class FontFamilyDialog(QDialog):
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
         self.add_fonts_button = afb = self.bb.addButton(_('Add &fonts'),
-                self.bb.ActionRole)
+                QDialogButtonBox.ButtonRole.ActionRole)
         afb.setIcon(QIcon(I('plus.png')))
         afb.clicked.connect(self.add_fonts)
         self.ml = QLabel(_('Choose a font family from the list below:'))
