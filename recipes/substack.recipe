@@ -22,7 +22,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Substack(BasicNewsRecipe):
     title          = 'Substack'
-    __author__     ='topynate'
+    __author__     = 'topynate'
     oldest_article = 7
     language = 'en'
     max_articles_per_feed = 100
@@ -40,7 +40,7 @@ class Substack(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://substack.com/account/login?redirect=%2F&email=&with_password=')
-            data = json.dumps({'email': self.username, 'password': self.password, 'captch_response':None})
+            data = json.dumps({'email': self.username, 'password': self.password, 'captcha_response':None})
             req = Request(
                 url='https://substack.com/api/v1/login',
                 headers={
