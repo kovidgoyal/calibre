@@ -43,7 +43,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         rating = item.average_rating
         if rating is None:
             return
-        r = style.subElementRect(style.SE_ItemViewItemDecoration, option, widget)
+        r = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, widget)
         icon = option.icon
         painter.save()
         nr = r.adjusted(0, 0, 0, 0)
@@ -59,7 +59,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         painter.restore()
 
     def draw_icon(self, style, painter, option, widget):
-        r = style.subElementRect(style.SE_ItemViewItemDecoration, option, widget)
+        r = style.subElementRect(QStyle.SubElement.SE_ItemViewItemDecoration, option, widget)
         icon = option.icon
         icon.paint(painter, r, option.decorationAlignment, QIcon.Mode.Normal, QIcon.State.On)
 
@@ -75,7 +75,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             painter.restore()
 
     def draw_text(self, style, painter, option, widget, index, item):
-        tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
+        tr = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, option, widget)
         text = index.data(Qt.ItemDataRole.DisplayRole)
         hover = option.state & style.State_MouseOver
         is_search = (True if item.type == TagTreeItem.TAG and
@@ -119,7 +119,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         self.draw_text(style, painter, option, widget, index, item)
         painter.restore()
         if item.boxed:
-            r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
+            r = style.subElementRect(QStyle.SubElement.SE_ItemViewItemFocusRect, option,
                     widget)
             painter.drawLine(r.bottomLeft(), r.bottomRight())
         if item.type == TagTreeItem.TAG and item.tag.state == 0 and config['show_avg_rating']:

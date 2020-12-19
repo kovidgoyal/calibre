@@ -43,7 +43,7 @@ class UpdateEditorGeometry(object):
         opt.showDecorationSelected = True
         opt.decorationSize = QSize(0, 0)  # We want the editor to cover the decoration
         style = QApplication.style()
-        initial_geometry = style.subElementRect(style.SE_ItemViewItemText, opt, None)
+        initial_geometry = style.subElementRect(QStyle.SubElement.SE_ItemViewItemText, opt, None)
         orig_width = initial_geometry.width()
 
         # Compute the required width: the width that can show all of the current value
