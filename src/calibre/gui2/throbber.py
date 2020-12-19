@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
     QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty, QSizePolicy,
-    QWidget, QIcon, QPainter, QStyleOptionToolButton)
+    QWidget, QIcon, QPainter, QStyleOptionToolButton, QStyle, QAbstractAnimation)
 
 from calibre.gui2 import config
 
@@ -54,7 +54,7 @@ class ThrobbingButton(QToolButton):
     def start_animation(self):
         if config['disable_animations']:
             return
-        if self.animation.state() != self.animation.Stopped or not self.isVisible():
+        if self.animation.state() != QAbstractAnimation.State.Stopped or not self.isVisible():
             return
         size = self.iconSize().width()
         smaller = int(0.7 * size)
@@ -73,7 +73,7 @@ class ThrobbingButton(QToolButton):
         self.initStyleOption(opt)
         s = self.style()
         opt.iconSize = QSize(size, size)
-        s.drawComplexControl(s.CC_ToolButton, opt, p, self)
+        s.drawComplexControl(QStyle.ComplexControl.CC_ToolButton, opt, p, self)
 
 
 if __name__ == '__main__':
