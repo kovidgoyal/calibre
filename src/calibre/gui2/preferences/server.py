@@ -12,7 +12,7 @@ import time
 
 from PyQt5.Qt import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-    QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit,
+    QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QPlainTextEdit, QLayout,
     QPushButton, QScrollArea, QSize, QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer,
     QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
@@ -539,7 +539,7 @@ class Library(QWidget):
         self.name = name
         self.enable_on_checked = enable_on_checked
         self.l = l = QVBoxLayout(self)
-        l.setSizeConstraint(l.SetMinAndMaxSize)
+        l.setSizeConstraint(QLayout.SizeConstraint.SetMinAndMaxSize)
         if not is_first:
             self.border = b = QFrame(self)
             b.setFrameStyle(QFrame.Shape.HLine)
