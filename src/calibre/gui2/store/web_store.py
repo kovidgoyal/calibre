@@ -10,7 +10,7 @@ from PyQt5.Qt import (
     QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl,
     QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineWidgets import QWebEngineProfile, QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEngineProfile, QWebEngineView, QWebEngineDownloadItem
 
 from calibre import random_user_agent, url_slash_cleaner
 from calibre.constants import STORE_DIALOG_APP_UID, cache_dir, islinux, iswindows
@@ -181,7 +181,7 @@ class Main(MainWindow):
         download_item = self.download_data.pop(download_id)
         path = download_item.path()
         fname = os.path.basename(path)
-        if download_item.state() == download_item.DownloadInterrupted:
+        if download_item.state() == QWebEngineDownloadItem.DownloadState.DownloadInterrupted:
             error_dialog(self, _('Download failed'), _(
                 'Download of {0} failed with error: {1}').format(fname, download_item.interruptReasonString()), show=True)
             return
