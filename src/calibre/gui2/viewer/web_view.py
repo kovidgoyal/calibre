@@ -13,7 +13,7 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
 from PyQt5.QtWebEngineWidgets import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings
 )
 
 from calibre import as_unicode, prints
@@ -223,7 +223,7 @@ def create_profile():
         ans.installUrlSchemeHandler(QByteArray(FAKE_PROTOCOL.encode('ascii')), url_handler)
         s = ans.settings()
         s.setDefaultTextEncoding('utf-8')
-        s.setAttribute(s.LinksIncludedInFocusChain, False)
+        s.setAttribute(QWebEngineSettings.WebAttribute.LinksIncludedInFocusChain, False)
         create_profile.ans = ans
     return ans
 

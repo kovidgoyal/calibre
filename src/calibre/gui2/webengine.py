@@ -6,7 +6,7 @@
 import json
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
-from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngineView
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngineView, QWebEngineSettings
 
 from calibre import prints
 from calibre.utils.monotonic import monotonic
@@ -18,17 +18,17 @@ def secure_webengine(view_or_page_or_settings, for_viewer=False):
     s = view_or_page_or_settings.settings() if hasattr(
         view_or_page_or_settings, 'settings') else view_or_page_or_settings
     a = s.setAttribute
-    a(s.PluginsEnabled, False)
+    a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
     if not for_viewer:
-        a(s.JavascriptEnabled, False)
+        a(QWebEngineSettings.WebAttribute.JavascriptEnabled, False)
         s.setUnknownUrlSchemePolicy(s.DisallowUnknownUrlSchemes)
         if hasattr(view_or_page_or_settings, 'setAudioMuted'):
             view_or_page_or_settings.setAudioMuted(True)
-    a(s.JavascriptCanOpenWindows, False)
-    a(s.JavascriptCanAccessClipboard, False)
+    a(QWebEngineSettings.WebAttribute.JavascriptCanOpenWindows, False)
+    a(QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, False)
     # ensure javascript cannot read from local files
-    a(s.LocalContentCanAccessFileUrls, False)
-    a(s.AllowWindowActivationFromJavaScript, False)
+    a(QWebEngineSettings.WebAttribute.LocalContentCanAccessFileUrls, False)
+    a(QWebEngineSettings.WebAttribute.AllowWindowActivationFromJavaScript, False)
     return s
 
 
