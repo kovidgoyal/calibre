@@ -1067,7 +1067,7 @@ class Editor(QWidget):  # {{{
         self.set_base_url = self.editor.set_base_url
         self.set_html = self.editor.set_html
         self.tabs = QTabWidget(self)
-        self.tabs.setTabPosition(self.tabs.South)
+        self.tabs.setTabPosition(QTabWidget.TabPosition.South)
         self.wyswyg = QWidget(self.tabs)
         self.code_edit = QPlainTextEdit(self.tabs)
         self.source_dirty = False

@@ -314,7 +314,7 @@ class BooksView(QTableView):  # {{{
             self.pin_view.column_header.sectionMoved.connect(self.pin_view.save_state)
             self.pin_view.column_header.customContextMenuRequested.connect(partial(self.show_column_header_context_menu, view=self.pin_view))
         self.row_header = HeaderView(Qt.Orientation.Vertical, self)
-        self.row_header.setSectionResizeMode(self.row_header.Fixed)
+        self.row_header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
         self.setVerticalHeader(self.row_header)
         # }}}
 

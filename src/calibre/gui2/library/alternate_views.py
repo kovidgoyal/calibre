@@ -702,7 +702,7 @@ class GridView(QListView):
         self.setFlow(QListView.Flow.LeftToRight)
         # We cannot set layout mode to batched, because that breaks
         # restore_vpos()
-        # self.setLayoutMode(self.Batched)
+        # self.setLayoutMode(QListView.ResizeMode.Batched)
         self.setResizeMode(QListView.ResizeMode.Adjust)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)

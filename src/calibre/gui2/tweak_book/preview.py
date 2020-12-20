@@ -502,7 +502,7 @@ class Preview(QWidget):
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
         self.stack = QStackedLayout(l)
-        self.stack.setStackingMode(self.stack.StackAll)
+        self.stack.setStackingMode(QStackedLayout.StackingMode.StackAll)
         self.current_sync_retry_count = 0
         self.view = WebView(self)
         self.view._page.bridge.request_sync.connect(self.request_sync)
