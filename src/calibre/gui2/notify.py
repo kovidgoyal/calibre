@@ -124,6 +124,7 @@ class QtNotifier(Notifier):
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
+        from PyQt5.Qt import QSystemTrayIcon
         if self.systray is not None:
             try:
                 hide = False
@@ -133,7 +134,7 @@ class QtNotifier(Notifier):
                     if ismacos and not self.systray.isVisible():
                         self.systray.show()
                         hide = True
-                    self.systray.showMessage(summary, body, self.systray.Information,
+                    self.systray.showMessage(summary, body, QSystemTrayIcon.MessageIcon.Information,
                             timeout)
                 finally:
                     if hide:
