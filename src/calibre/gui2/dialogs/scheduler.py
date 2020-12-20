@@ -268,7 +268,7 @@ class SchedulerDialog(QDialog):
         self.frame = f = QFrame(self.tab)
         vt.addWidget(f)
         f.setFrameShape(QFrame.Shape.StyledPanel)
-        f.setFrameShadow(f.Raised)
+        f.setFrameShadow(QFrame.Shadow.Raised)
         f.v = vf = QVBoxLayout(f)
         self.schedule = s = QCheckBox(_("&Schedule for download:"), f)
         self.schedule.stateChanged[int].connect(self.toggle_schedule_info)

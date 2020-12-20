@@ -30,7 +30,7 @@ class Customize(QFrame):
     def __init__(self, index, dup_check, parent=None):
         QFrame.__init__(self, parent)
         self.setFrameShape(QFrame.Shape.StyledPanel)
-        self.setFrameShadow(self.Raised)
+        self.setFrameShadow(QFrame.Shadow.Raised)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setAutoFillBackground(True)
         self.l = l = QVBoxLayout(self)

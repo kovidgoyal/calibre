@@ -404,7 +404,7 @@ class Editor(QFrame):  # {{{
         self.capture = 0
 
         self.setFrameShape(QFrame.Shape.StyledPanel)
-        self.setFrameShadow(self.Raised)
+        self.setFrameShadow(QFrame.Shadow.Raised)
         self._layout = l = QGridLayout(self)
         self.setLayout(l)
 
