@@ -140,7 +140,7 @@ class ItemEdit(QWidget):
         b.clicked.connect(self.find_previous)
 
         self.f = f = QFrame()
-        f.setFrameShape(f.StyledPanel)
+        f.setFrameShape(QFrame.Shape.StyledPanel)
         f.setMinimumWidth(250)
         l = f.l = QVBoxLayout()
         f.setLayout(l)

@@ -277,7 +277,7 @@ class EximDialog(Dialog):
             f = QFrame(self)
             self.frames.append(f)
             l.addWidget(f)
-            f.setFrameShape(f.HLine)
+            f.setFrameShape(QFrame.Shape.HLine)
             w = ImportLocation(lpath, self.slp)
             l.addWidget(w)
             self.imported_lib_widgets.append(w)

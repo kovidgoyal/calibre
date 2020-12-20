@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from functools import partial
 
 from PyQt5.Qt import (
-    Qt, QMenu, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
+    Qt, QMenu, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox, QFrame,
     QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QRadioButton, QAction, QTextBrowser, QAbstractItemView)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
@@ -160,7 +160,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
             ''') % localize_user_manual_link('https://manual.calibre-ebook.com/virtual_libraries.html'))
         hl.setWordWrap(True)
         hl.setOpenExternalLinks(True)
-        hl.setFrameStyle(hl.StyledPanel)
+        hl.setFrameStyle(QFrame.Shape.StyledPanel)
         gl.addWidget(hl, 0, 3, 4, 1)
 
         bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)

@@ -846,7 +846,7 @@ class InsertSemantics(Dialog):
         l.addLayout(tl)
 
         self.hline = hl = QFrame(self)
-        hl.setFrameStyle(hl.HLine)
+        hl.setFrameStyle(QFrame.Shape.HLine)
         l.addWidget(hl)
 
         self.h = h = QHBoxLayout()

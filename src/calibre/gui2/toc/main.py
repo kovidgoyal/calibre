@@ -247,7 +247,7 @@ class ItemView(QStackedWidget):  # {{{
 
         # Item status
         ip.hl1 = hl =  QFrame()
-        hl.setFrameShape(hl.HLine)
+        hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         self.icon_label = QLabel()
         self.status_label = QLabel()
@@ -255,7 +255,7 @@ class ItemView(QStackedWidget):  # {{{
         l.addWidget(self.icon_label, l.rowCount(), 0)
         l.addWidget(self.status_label, l.rowCount()-1, 1)
         ip.hl2 = hl =  QFrame()
-        hl.setFrameShape(hl.HLine)
+        hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
 
         # Edit/remove item
@@ -269,7 +269,7 @@ class ItemView(QStackedWidget):  # {{{
         l.addWidget(b, l.rowCount(), 0, 1, 2)
         b.clicked.connect(self.delete_item)
         ip.hl3 = hl =  QFrame()
-        hl.setFrameShape(hl.HLine)
+        hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         l.setRowMinimumHeight(rs, 20)
 
@@ -292,7 +292,7 @@ class ItemView(QStackedWidget):  # {{{
         l.addWidget(b, l.rowCount()+1, 0, 1, 2)
 
         ip.hl4 = hl =  QFrame()
-        hl.setFrameShape(hl.HLine)
+        hl.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(hl, l.rowCount(), 0, 1, 2)
         l.setRowMinimumHeight(rs, 20)
 

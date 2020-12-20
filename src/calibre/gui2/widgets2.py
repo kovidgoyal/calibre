@@ -5,7 +5,7 @@
 
 import weakref
 from PyQt5.Qt import (
-    QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog,
+    QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog, QFrame,
     QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
     QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,
     QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize, QSizePolicy,
@@ -457,7 +457,7 @@ class HTMLDisplay(QTextBrowser):
         if delta:
             font.setPixelSize(f.pixelSize() + delta)
             self.setFont(font)
-        self.setFrameShape(self.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
         self.setOpenLinks(False)
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
         palette = self.palette()

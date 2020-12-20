@@ -9,7 +9,7 @@ from functools import partial
 from PyQt5.Qt import (
     QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout, QDialog,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
-    QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem,
+    QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QFrame,
     QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QDialogButtonBox
 )
 
@@ -565,7 +565,7 @@ class Details(QTextBrowser):
 
     def __init__(self, parent):
         QTextBrowser.__init__(self, parent)
-        self.setFrameShape(self.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
         self.setOpenLinks(False)
         self.setAttribute(Qt.WidgetAttribute.WA_OpaquePaintEvent, False)
         palette = self.palette()

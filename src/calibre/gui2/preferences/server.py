@@ -542,7 +542,7 @@ class Library(QWidget):
         l.setSizeConstraint(l.SetMinAndMaxSize)
         if not is_first:
             self.border = b = QFrame(self)
-            b.setFrameStyle(b.HLine)
+            b.setFrameStyle(QFrame.Shape.HLine)
             l.addWidget(b)
         self.cw = cw = QCheckBox(name.replace('&', '&&'))
         cw.setStyleSheet('QCheckBox { font-weight: bold }')

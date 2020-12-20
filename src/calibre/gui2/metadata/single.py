@@ -42,7 +42,7 @@ class ScrollArea(QScrollArea):
 
     def __init__(self, widget=None, parent=None):
         QScrollArea.__init__(self, parent)
-        self.setFrameShape(self.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
         self.setWidgetResizable(True)
         if widget is not None:
             self.setWidget(widget)

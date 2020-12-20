@@ -494,7 +494,7 @@ class EditSnippet(QWidget):
         t.setToolTip(_('Which file types this snippet should be active in'))
 
         self.frame = f = QFrame(self)
-        f.setFrameShape(f.HLine)
+        f.setFrameShape(QFrame.Shape.HLine)
         add_row(f)
         self.test = d = SnippetTextEdit('', self)
         d.snippet_manager.snip_func = self.snip_func

@@ -177,7 +177,7 @@ class CoverSettingsWidget(QWidget):
         def add_hline():
             f = QFrame()
             fp.f.append(f)
-            f.setFrameShape(f.HLine)
+            f.setFrameShape(QFrame.Shape.HLine)
             l.addRow(f)
 
         for x, label, size_label in (

@@ -299,7 +299,7 @@ class SearchWidget(QWidget):
         b.clicked.connect(self.remove_function)
         fhl.addWidget(b)
         self.fsep = f = QFrame(self)
-        f.setFrameShape(f.VLine)
+        f.setFrameShape(QFrame.Shape.VLine)
         fhl.addWidget(f)
 
         self.fb = fb = PushButton(_('Fin&d'), 'find', self)
@@ -670,7 +670,7 @@ class EditSearch(QFrame):  # {{{
 
     def __init__(self, parent=None):
         QFrame.__init__(self, parent)
-        self.setFrameShape(self.StyledPanel)
+        self.setFrameShape(QFrame.Shape.StyledPanel)
         self.search_index = -1
         self.search = {}
         self.original_name = None
