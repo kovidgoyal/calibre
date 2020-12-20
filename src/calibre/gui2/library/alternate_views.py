@@ -135,7 +135,7 @@ def drag_icon(self, cover, multiple):
         rect.moveTop(20)
         p.fillRect(rect, QColor('white'))
         p.save()
-        p.setCompositionMode(p.CompositionMode_SourceAtop)
+        p.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceAtop)
         p.drawImage(rect.topLeft(), cover)
         p.restore()
         p.drawRect(rect)
