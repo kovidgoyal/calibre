@@ -297,7 +297,7 @@ class Results(QWidget):
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.text_option = to = QTextOption()
-        to.setWrapMode(to.NoWrap)
+        to.setWrapMode(QTextOption.WrapMode.NoWrap)
         self.divider = QStaticText('\xa0→ \xa0')
         self.divider.setTextFormat(Qt.TextFormat.PlainText)
 

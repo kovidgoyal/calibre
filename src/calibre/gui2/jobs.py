@@ -461,7 +461,7 @@ class DetailView(Dialog):  # {{{
             self.tb = w = QTextBrowser(self)
         else:
             self.log = w = QPlainTextEdit(self)
-            w.setReadOnly(True), w.setLineWrapMode(w.NoWrap)
+            w.setReadOnly(True), w.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         l.addWidget(w)
         l.addWidget(self.bb)
         self.bb.clear(), self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)

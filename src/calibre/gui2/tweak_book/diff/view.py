@@ -17,7 +17,7 @@ import regex
 from PyQt5.Qt import (
     QSplitter, QApplication, QTimer, QEvent,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
-    QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath,
+    QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath, QPlainTextEdit,
     QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal, QImage, QPixmap,
     QMenu, QIcon, QKeySequence)
 
@@ -107,7 +107,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.right = right
         self.setReadOnly(True)
-        self.setLineWrapMode(self.WidgetWidth)
+        self.setLineWrapMode(QPlainTextEdit.LineWrapMode.WidgetWidth)
         font = self.font()
         ff = tprefs['editor_font_family']
         if ff is None:
