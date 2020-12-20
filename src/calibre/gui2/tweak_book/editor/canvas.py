@@ -199,7 +199,7 @@ class Replace(Command):
             img = self.after_image = QImage(canvas.current_image)
             rect = QRectF(*get_selection_rect(img, canvas.selection_state.rect, canvas.target))
             p = QPainter(img)
-            p.setRenderHint(p.SmoothPixmapTransform, True)
+            p.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
             p.drawImage(rect, pimg, QRectF(pimg.rect()))
             p.end()
         return self.after_image

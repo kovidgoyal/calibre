@@ -40,7 +40,7 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     img = QImage(sz, sz, QImage.Format.Format_ARGB32)
     img.fill(Qt.GlobalColor.transparent)
     p = QPainter(img)
-    p.setRenderHints(p.TextAntialiasing | p.Antialiasing)
+    p.setRenderHints(QPainter.RenderHint.TextAntialiasing | QPainter.RenderHint.Antialiasing)
     if fill is not None:
         qDrawShadeRect(p, img.rect(), palette, fill=fill, lineWidth=1, midLineWidth=1)
     f = p.font()

@@ -5,7 +5,7 @@
 
 from PyQt5.Qt import (
     QApplication, QBrush, QColor, QFont, QFontMetrics, QPen, QPixmap, QSplashScreen,
-    Qt
+    Qt, QPainter
 )
 
 from calibre.constants import __appname__, numeric_version
@@ -55,8 +55,8 @@ class SplashScreen(QSplashScreen):
     def drawContents(self, painter):
         self.drawn_once = True
         painter.save()
-        painter.setRenderHint(painter.TextAntialiasing, True)
-        painter.setRenderHint(painter.Antialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing, True)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pw = self.LOGO_SIZE
         height = max(pw, self.total_height)
         width = self.width()
