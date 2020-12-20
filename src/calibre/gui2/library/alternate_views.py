@@ -271,7 +271,7 @@ def setup_dnd_interface(cls_or_self):
         self.drag_start_pos = None
         self.setDragEnabled(True)
         self.setDragDropOverwriteMode(False)
-        self.setDragDropMode(self.DragDrop)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
 # }}}
 
 # Manage slave views {{{

@@ -7,7 +7,7 @@ import os
 import sys
 import textwrap
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout,
+    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout, QAbstractItemView,
     QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton,
     QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
@@ -127,7 +127,7 @@ class SourcesEditor(Dialog):
         e.itemDoubleClicked.connect(self.edit_source)
         e.viewport().setAcceptDrops(True)
         e.setDropIndicatorShown(True)
-        e.setDragDropMode(e.InternalMove)
+        e.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         e.setDefaultDropAction(Qt.DropAction.MoveAction)
         l.addWidget(e)
         l.addWidget(self.bb)

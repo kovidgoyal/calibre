@@ -389,7 +389,7 @@ class TreeWidget(QTreeWidget):  # {{{
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
-        self.setDragDropMode(self.InternalMove)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAutoScroll(True)
         self.setAutoScrollMargin(ICON_SIZE*2)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)

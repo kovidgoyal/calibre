@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget
+from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget, QAbstractItemView
 
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs
@@ -52,7 +52,7 @@ class PluginWidget(QWidget):
         self.la2 = la = QLabel(_('Drag and drop to re-arrange fields'))
         l.addWidget(la)
         self.db_fields.setDragEnabled(True)
-        self.db_fields.setDragDropMode(QListWidget.InternalMove)
+        self.db_fields.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.db_fields.setDefaultDropAction(Qt.DropAction.CopyAction if ismacos else Qt.DropAction.MoveAction)
         self.db_fields.setAlternatingRowColors(True)
         self.db_fields.setObjectName("db_fields")

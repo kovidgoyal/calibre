@@ -219,7 +219,7 @@ class FilesView(QTableView):
             self.sortByColumn(sort_column, sort_order)
         h.setSectionsMovable(True), h.setSectionsClickable(True)
         h.setDragEnabled(True), h.setAcceptDrops(True)
-        h.setDragDropMode(self.InternalMove)
+        h.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
 
 # }}}
 

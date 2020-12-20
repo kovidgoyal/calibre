@@ -1372,7 +1372,7 @@ class DeviceBooksView(BooksView):  # {{{
         self.half_rating_delegate = None
         for i in range(10):
             self.setItemDelegateForColumn(i, TextDelegate(self))
-        self.setDragDropMode(self.NoDragDrop)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.NoDragDrop)
         self.setAcceptDrops(False)
         self.set_row_header_visibility()
 

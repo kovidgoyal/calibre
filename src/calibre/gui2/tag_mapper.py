@@ -302,7 +302,7 @@ class Rules(QWidget):
         r.setDragEnabled(True)
         r.viewport().setAcceptDrops(True)
         r.setDropIndicatorShown(True)
-        r.setDragDropMode(r.InternalMove)
+        r.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         r.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.l2 = l = QVBoxLayout()
         h.addLayout(l)

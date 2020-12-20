@@ -53,7 +53,7 @@ class List(QListWidget):
         self.setDragEnabled(True)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.setDropIndicatorShown(True)
-        self.setDragDropMode(self.InternalMove)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAlternatingRowColors(True)
         self.d = ItemDelegate(all_authors, self)
         self.d.edited.connect(self.edited, type=Qt.ConnectionType.QueuedConnection)

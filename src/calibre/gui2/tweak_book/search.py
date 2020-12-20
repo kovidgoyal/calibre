@@ -916,7 +916,7 @@ class SavedSearches(QWidget):
         self.delegate = SearchDelegate(searches)
         searches.setItemDelegate(self.delegate)
         searches.setAlternatingRowColors(True)
-        searches.setDragEnabled(True), searches.setAcceptDrops(True), searches.setDragDropMode(searches.InternalMove)
+        searches.setDragEnabled(True), searches.setAcceptDrops(True), searches.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         searches.setDropIndicatorShown(True)
         h.addLayout(stack, stretch=10)
         self.v = v = QVBoxLayout()

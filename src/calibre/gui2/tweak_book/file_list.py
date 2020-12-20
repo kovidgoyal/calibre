@@ -255,7 +255,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)
-        self.setDragDropMode(self.InternalMove)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.setAutoScroll(True)
         self.setAutoScrollMargin(TOP_ICON_SIZE*2)
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
@@ -928,7 +928,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         l.addWidget(s)
         s.setDragEnabled(True)
         s.setDropIndicatorShown(True)
-        s.setDragDropMode(self.InternalMove)
+        s.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         s.setAutoScroll(True)
         s.setDefaultDropAction(Qt.DropAction.MoveAction)
         for name in sheets:

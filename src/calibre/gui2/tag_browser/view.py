@@ -197,7 +197,7 @@ class TagsView(QTreeView):  # {{{
         self.made_connections = False
         self.setAcceptDrops(True)
         self.setDragEnabled(True)
-        self.setDragDropMode(self.DragDrop)
+        self.setDragDropMode(QAbstractItemView.DragDropMode.DragDrop)
         self.setDropIndicatorShown(True)
         self.setAutoExpandDelay(500)
         self.pane_is_visible = False

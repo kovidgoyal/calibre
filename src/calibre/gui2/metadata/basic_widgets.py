@@ -13,7 +13,7 @@ import textwrap
 import weakref
 from datetime import date, datetime
 from PyQt5.Qt import (
-    QAction, QApplication, QDateTime, QDialog, QDialogButtonBox, QDoubleSpinBox,
+    QAction, QApplication, QDateTime, QDialog, QDialogButtonBox, QDoubleSpinBox, QAbstractItemView,
     QGridLayout, QIcon, QKeySequence, QLabel, QLineEdit, QListWidgetItem, QMenu,
     QMessageBox, QPixmap, QPlainTextEdit, QSize, QSizePolicy, Qt, QToolButton, QComboBox,
     QUndoCommand, QUndoStack, QUrl, QVBoxLayout, QWidget, pyqtSignal
@@ -887,7 +887,7 @@ class FormatsManager(QWidget):
         self.formats.edit_fmt.connect(self.edit_format)
         self.formats.delete_format.connect(self.remove_format)
         self.formats.itemDoubleClicked.connect(self.show_format)
-        self.formats.setDragDropMode(self.formats.DropOnly)
+        self.formats.setDragDropMode(QAbstractItemView.DragDropMode.DropOnly)
         self.formats.setIconSize(QSize(32, 32))
         self.formats.setMaximumWidth(200)
 

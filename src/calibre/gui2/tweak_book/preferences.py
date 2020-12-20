@@ -95,7 +95,7 @@ class BasicSettings(QWidget):  # {{{
         widget = QListWidget(self)
         widget.addItems(prefs.defaults[name])
         widget.setDragEnabled(True)
-        widget.setDragDropMode(widget.InternalMove)
+        widget.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         widget.viewport().setAcceptDrops(True)
         widget.setDropIndicatorShown(True)
         widget.indexesMoved.connect(self.emit_changed)
