@@ -758,5 +758,9 @@ class Preview(QWidget):
         if mf:
             s.setFontFamily(QWebEngineSettings.FontFamily.FixedFont, mf)
         stdfnt = tprefs['preview_standard_font_family'] or 'serif'
-        stdfnt = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[stdfnt])
+        stdfnt = {
+            'serif': QWebEngineSettings.FontFamily.SerifFont,
+            'sans': QWebEngineSettings.FontFamily.SansSerifFont,
+            'mono': QWebEngineSettings.FontFamily.FixedFont
+        }[stdfnt]
         s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, s.fontFamily(stdfnt))
