@@ -479,7 +479,7 @@ class HTMLDisplay(QTextBrowser):
         if app.is_dark_theme:
             pal = app.palette()
             col = pal.color(QPalette.ColorRole.Link)
-            self.default_css = 'a { color: %s }\n\n' % col.name(col.HexRgb)
+            self.default_css = 'a { color: %s }\n\n' % col.name(QColor.NameFormat.HexRgb)
         else:
             self.default_css = ''
         self.document().setDefaultStyleSheet(self.default_css + self.external_css)
