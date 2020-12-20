@@ -311,21 +311,24 @@ def apply_font_settings(page_or_view):
     sf = fs.get('standard_font') or 'serif'
     sf = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
     s.setFontFamily(s.StandardFont, s.fontFamily(sf))
-    old_minimum = s.fontSize(s.MinimumFontSize)
-    old_base = s.fontSize(s.DefaultFontSize)
-    old_fixed_base = s.fontSize(s.DefaultFixedFontSize)
+    old_minimum = s.fontSize(QWebEngineSettings.FontSize.MinimumFontSize)
+    old_base = s.fontSize(QWebEngineSettings.FontSize.DefaultFontSize)
+    old_fixed_base = s.fontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize)
     mfs = fs.get('minimum_font_size')
     if mfs is None:
-        s.resetFontSize(s.MinimumFontSize)
+        s.resetFontSize(QWebEngineSettings.FontSize.MinimumFontSize)
     else:
-        s.setFontSize(s.MinimumFontSize, mfs)
+        s.setFontSize(QWebEngineSettings.FontSize.MinimumFontSize, mfs)
     bfs = sd.get('base_font_size')
     if bfs is not None:
-        s.setFontSize(s.DefaultFontSize, bfs)
-        s.setFontSize(s.DefaultFixedFontSize, int(bfs * 13 / 16))
+        s.setFontSize(QWebEngineSettings.FontSize.DefaultFontSize, bfs)
+        s.setFontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize, int(bfs * 13 / 16))
 
     font_size_changed = (old_minimum, old_base, old_fixed_base) != (
-            s.fontSize(s.MinimumFontSize), s.fontSize(s.DefaultFontSize), s.fontSize(s.DefaultFixedFontSize))
+            s.fontSize(QWebEngineSettings.FontSize.MinimumFontSize),
+            s.fontSize(QWebEngineSettings.FontSize.DefaultFontSize),
+            s.fontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize)
+    )
     if font_size_changed and hasattr(page_or_view, 'execute_when_ready'):
         page_or_view.execute_when_ready('viewer_font_size_changed')
 
