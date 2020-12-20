@@ -884,8 +884,8 @@ class Wizard(QWizard):
     def __init__(self, parent):
         QWizard.__init__(self, parent)
         self.setWindowTitle(__appname__+' '+_('Welcome wizard'))
-        self.setPixmap(self.LogoPixmap, QIcon(I('library.png')).pixmap(48, 48))
-        self.setWizardStyle(self.ModernStyle)
+        self.setPixmap(QWizard.WizardPixmap.LogoPixmap, QIcon(I('library.png')).pixmap(48, 48))
+        self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
         self.device_page = DevicePage()
         self.library_page = LibraryPage()
         self.library_page.retranslate.connect(self.retranslate)
@@ -921,7 +921,7 @@ class Wizard(QWizard):
         QWizard.accept(self)
 
     def set_finish_text(self, *args):
-        bt = unicode_type("<em>" + self.buttonText(self.FinishButton) + "</em>").replace('&', '')
+        bt = unicode_type("<em>" + self.buttonText(QWizard.WizardButton.FinishButton) + "</em>").replace('&', '')
         t = unicode_type(self.finish_page.finish_text.text())
         if '%s' in t:
             self.finish_page.finish_text.setText(t%bt)
