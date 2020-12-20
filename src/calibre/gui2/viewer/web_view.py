@@ -11,7 +11,7 @@ from PyQt5.Qt import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QPalette, QEvent,
     QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice, QLocale
 )
-from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
+from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings
 )
@@ -124,14 +124,14 @@ def handle_mathjax_request(rq, name):
                 raw = f.read()
         except EnvironmentError as err:
             prints("Failed to get mathjax file: {} with error: {}".format(name, err), file=sys.stderr)
-            rq.fail(rq.RequestFailed)
+            rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
             return
         if name.endswith('/startup.js'):
             raw = P('pdf-mathjax-loader.js', data=True, allow_user_override=False) + raw
         send_reply(rq, mt, raw)
     else:
         prints("Failed to get mathjax file: {} outside mathjax directory".format(name), file=sys.stderr)
-        rq.fail(rq.RequestFailed)
+        rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
 
 class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
@@ -142,7 +142,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
-            return self.fail_request(rq, rq.RequestDenied)
+            return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestDenied)
         url = rq.requestUrl()
         host = url.host()
         if host not in self.allowed_hosts or url.scheme() != FAKE_PROTOCOL:
@@ -161,7 +161,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             try:
                 data, mime_type = get_data(name)
                 if data is None:
-                    rq.fail(rq.UrlNotFound)
+                    rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                     return
                 data = as_bytes(data)
                 mime_type = {
@@ -174,7 +174,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             except Exception:
                 import traceback
                 traceback.print_exc()
-                return self.fail_request(rq, rq.RequestFailed)
+                return self.fail_request(rq, QWebEngineUrlRequestJob.Error.RequestFailed)
         elif name == 'manifest':
             data = b'[' + set_book_path.manifest + b',' + set_book_path.metadata + b']'
             send_reply(rq, set_book_path.manifest_mime, data)
@@ -183,7 +183,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
             if data:
                 send_reply(rq, mt, data)
             else:
-                rq.fail(rq.UrlNotFound)
+                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
         elif name.startswith('mathjax/'):
             handle_mathjax_request(rq, name)
         elif not name:
@@ -193,7 +193,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def fail_request(self, rq, fail_code=None):
         if fail_code is None:
-            fail_code = rq.UrlNotFound
+            fail_code = QWebEngineUrlRequestJob.Error.UrlNotFound
         rq.fail(fail_code)
         prints("Blocking FAKE_PROTOCOL request: {}".format(rq.requestUrl().toString()))
 

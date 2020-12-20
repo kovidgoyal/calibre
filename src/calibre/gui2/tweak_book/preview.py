@@ -12,7 +12,7 @@ from PyQt5.Qt import (
     QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize, QSizePolicy,
     QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler
+from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob
 from PyQt5.QtWebEngineWidgets import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings
 )
@@ -171,11 +171,11 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
 
     def requestStarted(self, rq):
         if bytes(rq.requestMethod()) != b'GET':
-            rq.fail(rq.RequestDenied)
+            rq.fail(QWebEngineUrlRequestJob.Error.RequestDenied)
             return
         url = rq.requestUrl()
         if url.host() != FAKE_HOST or url.scheme() != FAKE_PROTOCOL:
-            rq.fail(rq.UrlNotFound)
+            rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
             return
         name = url.path()[1:]
         try:
@@ -184,7 +184,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
                 return
             c = current_container()
             if not c.has_name(name):
-                rq.fail(rq.UrlNotFound)
+                rq.fail(QWebEngineUrlRequestJob.Error.UrlNotFound)
                 return
             mime_type = c.mime_map.get(name, 'application/octet-stream')
             if mime_type in OEB_DOCS:
@@ -205,7 +205,7 @@ class UrlSchemeHandler(QWebEngineUrlSchemeHandler):
         except Exception:
             import traceback
             traceback.print_exc()
-            rq.fail(rq.RequestFailed)
+            rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
 
     def check_for_parse(self):
         remove = []
