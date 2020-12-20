@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import (
-    QAbstractListModel, Qt, QKeySequence, QListView, QVBoxLayout, QLabel,
+    QAbstractListModel, Qt, QKeySequence, QListView, QVBoxLayout, QLabel, QAbstractItemView,
     QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, QIcon,
     QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent, QRadioButton, QPushButton, QToolButton, QEvent
 )
@@ -309,7 +309,7 @@ class ShortcutConfig(QWidget):
 
     @property
     def is_editing(self):
-        return self.view.state() == self.view.EditingState
+        return self.view.state() == QAbstractItemView.State.EditingState
 
 
 if __name__ == '__main__':

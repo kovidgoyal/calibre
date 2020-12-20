@@ -53,7 +53,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
         mods = ev.modifiers()
         if mods & Qt.Modifier.CTRL or mods & Qt.Modifier.ALT or mods & Qt.Modifier.SHIFT or mods & Qt.Modifier.META:
             return
-        if self.state() != self.EditingState and self.hasFocus() and self.currentIndex().isValid():
+        if self.state() != QAbstractItemView.State.EditingState and self.hasFocus() and self.currentIndex().isValid():
             from calibre.gui2.ui import get_gui
             ev.ignore()
             tweak = tweaks['enter_key_behavior']

@@ -5,7 +5,7 @@
 
 from functools import partial
 
-from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
+from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize, QAbstractItemView,
                       QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
                       pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu, QColor)
 
@@ -296,7 +296,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             ca.triggered.connect(partial(self.search_for_books, item))
             if disable_copy_paste_search:
                 ca.setEnabled(False)
-        if self.table.state() == self.table.EditingState:
+        if self.table.state() == QAbstractItemView.State.EditingState:
             m.addSeparator()
             case_menu = QMenu(_('Change case'))
             action_upper_case = case_menu.addAction(_('Upper case'))

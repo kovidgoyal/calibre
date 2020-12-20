@@ -6,7 +6,7 @@
 import re
 import textwrap
 
-from PyQt5.Qt import QAbstractTableModel, QFont, Qt
+from PyQt5.Qt import QAbstractTableModel, QFont, Qt, QAbstractItemView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget
@@ -245,7 +245,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         # No defaults to restore to
 
     def commit(self):
-        if self.email_view.state() == self.email_view.EditingState:
+        if self.email_view.state() == QAbstractItemView.State.EditingState:
             # Ensure that the cell being edited is committed by switching focus
             # to some other widget, which automatically closes the open editor
             self.send_email_widget.setFocus(Qt.FocusReason.OtherFocusReason)

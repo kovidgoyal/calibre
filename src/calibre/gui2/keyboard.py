@@ -10,7 +10,7 @@ from collections import OrderedDict
 from functools import partial
 
 from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex, QItemSelectionModel,
-        Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame,
+        Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame, QAbstractItemView,
         QApplication, QSize, QRectF, QWidget, QTreeView, QHBoxLayout, QVBoxLayout,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon, QEvent)
 try:
@@ -687,7 +687,7 @@ class ShortcutConfig(QWidget):  # {{{
         self.changed_signal.emit()
 
     def commit(self):
-        if self.view.state() == self.view.EditingState:
+        if self.view.state() == QAbstractItemView.State.EditingState:
             self.delegate.accept_changes()
         self._model.commit()
 
@@ -700,7 +700,7 @@ class ShortcutConfig(QWidget):  # {{{
 
     @property
     def is_editing(self):
-        return self.view.state() == self.view.EditingState
+        return self.view.state() == QAbstractItemView.State.EditingState
 
     def find(self, query):
         if not query:

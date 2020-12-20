@@ -10,7 +10,7 @@ import os, re, traceback
 from functools import partial
 
 from PyQt5.Qt import (
-    QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication, QStyle,
+    QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication, QStyle, QAbstractItemView,
     QMenu, QPoint, QToolTip, QCursor, QDrag, QRect, QModelIndex,
     QLinearGradient, QPalette, QColor, QPen, QBrush, QFont, QTimer
 )
@@ -335,7 +335,7 @@ class TagsView(QTreeView):  # {{{
         # I don't see how current_index can ever be not valid, but ...
         if self.currentIndex().isValid():
             if (gprefs['tag_browser_allow_keyboard_focus'] and
-                    event.key() == Qt.Key.Key_Return and self.state() != self.EditingState):
+                    event.key() == Qt.Key.Key_Return and self.state() != QAbstractItemView.State.EditingState):
                 self.toggle_current_index()
                 return
             # If this is an edit request, mark the node to request whether to use VLs
