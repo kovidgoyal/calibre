@@ -582,7 +582,7 @@ class DateTimeEdit(QDateTimeEdit):
         self.setMinimumDateTime(UNDEFINED_QDATETIME)
         self.setCalendarPopup(True)
         self.cw = CalendarWidget(self)
-        self.cw.setVerticalHeaderFormat(self.cw.NoVerticalHeader)
+        self.cw.setVerticalHeaderFormat(QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader)
         self.setCalendarWidget(self.cw)
         self.setSpecialValueText(_('Undefined'))
 
