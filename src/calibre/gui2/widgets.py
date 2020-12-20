@@ -402,7 +402,7 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
         ImageDropMixin.__init__(self)
         self.pixmap_size = 0, 0
         if self.show_size:
-            self.setViewportUpdateMode(self.FullViewportUpdate)
+            self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
 
     def get_pixmap(self):
         for item in self.scene.items():
