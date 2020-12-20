@@ -127,7 +127,7 @@ class SearchBox2(QComboBox):  # {{{
                 ac.triggered.connect(self.clear_clicked)
 
         c = self.line_edit.completer()
-        c.setCompletionMode(c.PopupCompletion)
+        c.setCompletionMode(QCompleter.CompletionMode.PopupCompletion)
         c.highlighted[native_string_type].connect(self.completer_used)
 
         self.line_edit.key_pressed.connect(self.key_pressed, type=Qt.ConnectionType.DirectConnection)
