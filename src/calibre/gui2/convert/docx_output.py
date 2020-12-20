@@ -27,7 +27,7 @@ class PluginWidget(Widget):
             self.opt_docx_page_size.addItem(x)
 
         self.initialize_options(get_option, get_help, db, book_id)
-        self.layout().setFieldGrowthPolicy(self.layout().ExpandingFieldsGrow)
+        self.layout().setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.ExpandingFieldsGrow)
 
     def setupUi(self, *a):
         self.l = l = QFormLayout(self)
