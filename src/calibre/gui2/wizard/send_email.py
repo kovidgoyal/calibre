@@ -174,8 +174,8 @@ class SendEmail(QWidget, Ui_Form):
             button.clicked.connect(partial(self.create_service_relay, x))
         self.relay_show_password.stateChanged.connect(
          lambda state : self.relay_password.setEchoMode(
-             self.relay_password.Password if
-             state == 0 else self.relay_password.Normal))
+             QLineEdit.EchoMode.Password if
+             state == 0 else QLineEdit.EchoMode.Normal))
         self.test_email_button.clicked.connect(self.test_email)
 
     def changed(self, *args):
