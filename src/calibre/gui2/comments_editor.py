@@ -677,7 +677,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             'will stop working if the file is moved.'))
         la.setWordWrap(True)
         la.setStyleSheet('QLabel { margin-bottom: 1.5ex }')
-        l.setWidget(0, l.SpanningRole, la)
+        l.setWidget(0, QFormLayout.ItemRole.SpanningRole, la)
         l.addRow(_('Enter &URL:'), d.url)
         l.addRow(_('Treat the URL as an &image'), d.treat_as_image)
         l.addRow(_('Enter &name (optional):'), d.name)
