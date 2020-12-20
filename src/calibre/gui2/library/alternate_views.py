@@ -1124,7 +1124,7 @@ class GridView(QListView):
             return
         self.set_current_row(row)
         self.select_rows((row,))
-        self.scrollTo(self.model().index(row, 0), self.PositionAtCenter)
+        self.scrollTo(self.model().index(row, 0), QAbstractItemView.ScrollHint.PositionAtCenter)
 
     def marked_changed(self, old_marked, current_marked):
         changed = old_marked | current_marked

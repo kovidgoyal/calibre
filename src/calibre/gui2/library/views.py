@@ -1088,7 +1088,7 @@ class BooksView(QTableView):  # {{{
             h = self.horizontalHeader()
             for i in range(h.count()):
                 if not h.isSectionHidden(i) and h.sectionViewportPosition(i) >= 0:
-                    self.scrollTo(self.model().index(row, i), self.PositionAtCenter)
+                    self.scrollTo(self.model().index(row, i), QAbstractItemView.ScrollHint.PositionAtCenter)
                     break
 
     @property

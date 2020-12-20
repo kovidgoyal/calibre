@@ -305,7 +305,7 @@ class ShortcutConfig(QWidget):
                 type=Qt.ConnectionType.QueuedConnection)
 
     def scrollTo(self, index):
-        self.view.scrollTo(index, self.view.EnsureVisible)
+        self.view.scrollTo(index, QAbstractItemView.ScrollHint.EnsureVisible)
 
     @property
     def is_editing(self):

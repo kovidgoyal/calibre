@@ -696,7 +696,7 @@ class ShortcutConfig(QWidget):  # {{{
         self.view.setModel(self._model)
 
     def editor_opened(self, index):
-        self.view.scrollTo(index, self.view.EnsureVisible)
+        self.view.scrollTo(index, QAbstractItemView.ScrollHint.EnsureVisible)
 
     @property
     def is_editing(self):
@@ -744,7 +744,7 @@ class ShortcutConfig(QWidget):  # {{{
         idx = self.view.model().index_for_group(group_name)
         if idx is not None:
             self.view.expand(idx)
-            self.view.scrollTo(idx, self.view.PositionAtTop)
+            self.view.scrollTo(idx, QAbstractItemView.ScrollHint.PositionAtTop)
             self.view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
             self.view.setCurrentIndex(idx)
             self.view.setFocus(Qt.FocusReason.OtherFocusReason)

@@ -10,7 +10,7 @@ import textwrap, os
 from collections import OrderedDict
 
 from PyQt5.Qt import (Qt, QModelIndex, QAbstractItemModel, QIcon,
-        QBrush, QDialog, QItemSelectionModel)
+        QBrush, QDialog, QItemSelectionModel, QAbstractItemView)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.plugins_ui import Ui_Form
@@ -263,7 +263,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.plugin_view.selectionModel().select(idx, QItemSelectionModel.SelectionFlag.ClearAndSelect)
         self.plugin_view.setCurrentIndex(idx)
         self.plugin_view.setFocus(Qt.FocusReason.OtherFocusReason)
-        self.plugin_view.scrollTo(idx, self.plugin_view.EnsureVisible)
+        self.plugin_view.scrollTo(idx, QAbstractItemView.ScrollHint.EnsureVisible)
 
     def find_next(self, *args):
         idx = self.plugin_view.currentIndex()

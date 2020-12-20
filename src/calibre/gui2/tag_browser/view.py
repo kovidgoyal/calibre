@@ -1113,7 +1113,7 @@ class TagsView(QTreeView):  # {{{
         self.blockSignals(False)
 
     def show_item_at_path(self, path, box=False,
-                          position=QTreeView.PositionAtCenter):
+                          position=QAbstractItemView.ScrollHint.PositionAtCenter):
         '''
         Scroll the browser and open categories to show the item referenced by
         path. If possible, the item is placed in the center. If box=True, a
@@ -1133,7 +1133,7 @@ class TagsView(QTreeView):  # {{{
         self.expand(idx)
 
     def show_item_at_index(self, idx, box=False,
-                           position=QTreeView.PositionAtCenter):
+                           position=QAbstractItemView.ScrollHint.PositionAtCenter):
         if idx.isValid() and idx.data(Qt.ItemDataRole.UserRole) is not self._model.root_item:
             self.expand_parent(idx)
             self.setCurrentIndex(idx)
