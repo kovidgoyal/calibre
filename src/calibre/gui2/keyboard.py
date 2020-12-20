@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import (QObject, QKeySequence, QAbstractItemModel, QModelIndex, QItemSelectionModel,
         Qt, QStyledItemDelegate, QTextDocument, QStyle, pyqtSignal, QFrame, QAbstractItemView,
-        QApplication, QSize, QRectF, QWidget, QTreeView, QHBoxLayout, QVBoxLayout,
+        QApplication, QSize, QRectF, QWidget, QTreeView, QHBoxLayout, QVBoxLayout, QAbstractItemDelegate,
         QGridLayout, QLabel, QRadioButton, QPushButton, QToolButton, QIcon, QEvent)
 try:
     from PyQt5 import sip
@@ -610,7 +610,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         editor.initialize(shortcut, all_shortcuts)
 
     def setModelData(self, editor, model, index):
-        self.closeEditor.emit(editor, self.NoHint)
+        self.closeEditor.emit(editor, QAbstractItemDelegate.EndEditHint.NoHint)
         custom_keys = editor.custom_keys
         sc = index.data(Qt.ItemDataRole.UserRole).data
         if custom_keys is None:

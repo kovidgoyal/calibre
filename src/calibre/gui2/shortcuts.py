@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     QAbstractListModel, Qt, QKeySequence, QListView, QVBoxLayout, QLabel, QAbstractItemView,
-    QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, QIcon,
+    QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, QIcon, QAbstractItemDelegate,
     QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent, QRadioButton, QPushButton, QToolButton, QEvent
 )
 
@@ -187,7 +187,7 @@ class Delegate(QStyledItemDelegate):
                     setattr(editor, 'shortcut%d'%(x+1), seq)
 
     def setModelData(self, editor, model, index):
-        self.closeEditor.emit(editor, self.NoHint)
+        self.closeEditor.emit(editor, QAbstractItemDelegate.EndEditHint.NoHint)
         custom = []
         if editor.custom.isChecked():
             for x in ('1', '2'):
