@@ -672,7 +672,7 @@ class HistoryLineEdit(QComboBox):  # {{{
     def __init__(self, *args):
         QComboBox.__init__(self, *args)
         self.setEditable(True)
-        self.setInsertPolicy(self.NoInsert)
+        self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.setMaxCount(10)
         self.setClearButtonEnabled = self.lineEdit().setClearButtonEnabled
         self.textChanged = self.editTextChanged
