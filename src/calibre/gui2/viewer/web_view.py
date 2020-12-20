@@ -297,20 +297,20 @@ def apply_font_settings(page_or_view):
     sd = vprefs['session_data']
     fs = sd.get('standalone_font_settings', {})
     if fs.get('serif_family'):
-        s.setFontFamily(s.SerifFont, fs.get('serif_family'))
+        s.setFontFamily(QWebEngineSettings.FontFamily.SerifFont, fs.get('serif_family'))
     else:
-        s.resetFontFamily(s.SerifFont)
+        s.resetFontFamily(QWebEngineSettings.FontFamily.SerifFont)
     if fs.get('sans_family'):
-        s.setFontFamily(s.SansSerifFont, fs.get('sans_family'))
+        s.setFontFamily(QWebEngineSettings.FontFamily.SansSerifFont, fs.get('sans_family'))
     else:
-        s.resetFontFamily(s.SansSerifFont)
+        s.resetFontFamily(QWebEngineSettings.FontFamily.SansSerifFont)
     if fs.get('mono_family'):
-        s.setFontFamily(s.FixedFont, fs.get('mono_family'))
+        s.setFontFamily(QWebEngineSettings.FontFamily.FixedFont, fs.get('mono_family'))
     else:
-        s.resetFontFamily(s.SansSerifFont)
+        s.resetFontFamily(QWebEngineSettings.FontFamily.SansSerifFont)
     sf = fs.get('standard_font') or 'serif'
     sf = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[sf])
-    s.setFontFamily(s.StandardFont, s.fontFamily(sf))
+    s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, s.fontFamily(sf))
     old_minimum = s.fontSize(QWebEngineSettings.FontSize.MinimumFontSize)
     old_base = s.fontSize(QWebEngineSettings.FontSize.DefaultFontSize)
     old_fixed_base = s.fontSize(QWebEngineSettings.FontSize.DefaultFixedFontSize)

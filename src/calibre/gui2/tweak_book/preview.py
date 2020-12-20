@@ -752,11 +752,11 @@ class Preview(QWidget):
         s.setFontSize(QWebEngineSettings.FontSize.MinimumFontSize, tprefs['preview_minimum_font_size'])
         sf, ssf, mf = tprefs['engine_preview_serif_family'], tprefs['engine_preview_sans_family'], tprefs['engine_preview_mono_family']
         if sf:
-            s.setFontFamily(s.SerifFont, sf)
+            s.setFontFamily(QWebEngineSettings.FontFamily.SerifFont, sf)
         if ssf:
-            s.setFontFamily(s.SansSerifFont, ssf)
+            s.setFontFamily(QWebEngineSettings.FontFamily.SansSerifFont, ssf)
         if mf:
-            s.setFontFamily(s.FixedFont, mf)
+            s.setFontFamily(QWebEngineSettings.FontFamily.FixedFont, mf)
         stdfnt = tprefs['preview_standard_font_family'] or 'serif'
         stdfnt = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[stdfnt])
-        s.setFontFamily(s.StandardFont, s.fontFamily(stdfnt))
+        s.setFontFamily(QWebEngineSettings.FontFamily.StandardFont, s.fontFamily(stdfnt))
