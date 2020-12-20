@@ -17,7 +17,7 @@ from PyQt5.Qt import (
     QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPalette,
     QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget,
     QTextBlockFormat, QTextCharFormat, QTextCursor, QTextEdit, QTextListFormat,
-    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot, QToolButton
+    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot, QToolButton, QTextFormat
 )
 
 from calibre import xml_replace_entities
@@ -558,11 +558,11 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             bf.setTopMargin(tmargin), bf.setBottomMargin(bmargin)
             bf.setHeadingLevel(lvl)
             if adjust:
-                bcf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
-                cf.setProperty(QTextCharFormat.FontSizeAdjustment, adjust)
+                bcf.setProperty(QTextFormat.Property.FontSizeAdjustment, adjust)
+                cf.setProperty(QTextFormat.Property.FontSizeAdjustment, adjust)
             if wt:
-                bcf.setProperty(QTextCharFormat.FontWeight, wt)
-                cf.setProperty(QTextCharFormat.FontWeight, wt)
+                bcf.setProperty(QTextFormat.Property.FontWeight, wt)
+                cf.setProperty(QTextFormat.Property.FontWeight, wt)
             c.setBlockCharFormat(bcf)
             c.mergeCharFormat(cf)
             c.mergeBlockFormat(bf)
