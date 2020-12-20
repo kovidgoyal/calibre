@@ -1135,7 +1135,7 @@ class Cover(ImageView):  # {{{
         b.setMenu(m)
         m.addAction(QIcon(I('config.png')), _('Customize the styles and colors of the generated cover'), self.custom_cover)
         m.addAction(QIcon(I('edit-undo.png')), _('Undo last Generate cover'), self.undo_generate)
-        b.setPopupMode(b.DelayedPopup)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         self.buttons = [self.select_cover_button, self.remove_cover_button,
                 self.trim_cover_button, self.download_cover_button,
                 self.generate_cover_button]

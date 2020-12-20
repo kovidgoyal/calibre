@@ -255,7 +255,7 @@ class MetadataSingleDialogBase(QDialog):
                       'to choose a different prefix.') + '</p>')
         b.setIcon(QIcon(I('edit-paste.png')))
         b.clicked.connect(self.identifiers.paste_identifier)
-        b.setPopupMode(b.DelayedPopup)
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.setMenu(QMenu(b))
         self.update_paste_identifiers_menu()
 
@@ -275,7 +275,7 @@ class MetadataSingleDialogBase(QDialog):
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setMinimumHeight(b.sizeHint().height())
         b.setIcon(QIcon())
-        b.setText(_('&Download metadata')), b.setPopupMode(b.DelayedPopup)
+        b.setText(_('&Download metadata')), b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.setToolTip(_('Download metadata for this book [%s]') % self.download_shortcut.key().toString(QKeySequence.SequenceFormat.NativeText))
         b.setSizePolicy(QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed))
         self.fetch_metadata_button.clicked.connect(self.fetch_metadata)
