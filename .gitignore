@@ -35,6 +35,7 @@ resources/mozilla-ca-certs.pem
 resources/user-agent-data.json
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
+setup/pyqt_enums
 tags
 nbproject/
 translations/
