@@ -12,7 +12,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
         QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel, QKeySequence,
-        QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice, QPalette)
+        QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice, QPalette, QClipboard)
 
 from calibre.constants import iswindows, ismacos
 from calibre.gui2 import (error_dialog, pixmap_to_data, gprefs,
@@ -295,7 +295,7 @@ class ImageDropMixin(object):  # {{{
         cb = QApplication.instance().clipboard()
         pmap = cb.pixmap()
         if pmap.isNull() and cb.supportsSelection():
-            pmap = cb.pixmap(cb.Selection)
+            pmap = cb.pixmap(QClipboard.Mode.Selection)
         if not pmap.isNull():
             self.set_pixmap(pmap)
             self.cover_changed.emit(

@@ -9,7 +9,7 @@ import os
 import sys
 from functools import partial
 from PyQt5.Qt import (
-    QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout,
+    QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout, QClipboard,
     QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListView, QMenu, QPainter,
     QPixmap, QRect, QSize, QSizePolicy, QSortFilterProxyModel, QStyledItemDelegate,
     Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, pyqtSignal, QDialog, QDialogButtonBox
@@ -316,7 +316,7 @@ class InsertImage(Dialog):
         c = QApplication.instance().clipboard()
         img = c.image()
         if img.isNull():
-            img = c.image(c.Selection)
+            img = c.image(QClipboard.Mode.Selection)
         if img.isNull():
             return error_dialog(self, _('No image'), _(
                 'There is no image on the clipboard'), show=True)

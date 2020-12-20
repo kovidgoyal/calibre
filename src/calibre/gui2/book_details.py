@@ -9,7 +9,7 @@ from collections import namedtuple
 from functools import partial
 from PyQt5.Qt import (
     QAction, QApplication, QColor, QEasingCurve, QIcon, QKeySequence, QLayout, QMenu,
-    QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize,
+    QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QClipboard,
     QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal
 )
 
@@ -604,7 +604,7 @@ class CoverView(QWidget):  # {{{
             cb = QApplication.instance().clipboard()
             pmap = cb.pixmap()
             if pmap.isNull() and cb.supportsSelection():
-                pmap = cb.pixmap(cb.Selection)
+                pmap = cb.pixmap(QClipboard.Mode.Selection)
         if not pmap.isNull():
             self.update_cover(pmap)
 
