@@ -66,7 +66,8 @@ def resolve_windows_links(paths, hwnd=None):
     try:
         from calibre_extensions.winutil import resolve_lnk
     except ImportError:
-        return paths
+        def resolve_lnk(x, *a):
+            return x
     for x in paths:
         if x.lower().endswith('.lnk'):
             try:
