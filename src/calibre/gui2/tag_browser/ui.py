@@ -10,7 +10,7 @@ import textwrap
 from functools import partial
 
 from PyQt5.Qt import (
-    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog, QComboBox,
+    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog, QComboBox, QLineEdit,
     QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
@@ -514,7 +514,7 @@ class TagBrowserBar(QWidget):  # {{{
 
         self.toggle_search_button = b = QToolButton(self)
         le = self.item_search.lineEdit()
-        le.addAction(QIcon(I('window-close.png')), le.LeadingPosition).triggered.connect(self.close_find_box)
+        le.addAction(QIcon(I('window-close.png')), QLineEdit.ActionPosition.LeadingPosition).triggered.connect(self.close_find_box)
         b.setText(_('Find')), b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         b.setCursor(Qt.CursorShape.PointingHandCursor)
         b.setIcon(QIcon(I('search.png')))
