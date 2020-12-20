@@ -291,7 +291,7 @@ class ResultsView(QTableView):  # {{{
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Left, Qt.Key.Key_Right):
-            ac = self.MoveDown if ev.key() == Qt.Key.Key_Right else self.MoveUp
+            ac = QAbstractItemView.CursorAction.MoveDown if ev.key() == Qt.Key.Key_Right else QAbstractItemView.CursorAction.MoveUp
             index = self.moveCursor(ac, ev.modifiers())
             if index.isValid() and index != self.currentIndex():
                 m = self.selectionModel()

@@ -1166,7 +1166,7 @@ class BooksView(QTableView):  # {{{
     def moveCursor(self, action, modifiers):
         orig = self.currentIndex()
         index = QTableView.moveCursor(self, action, modifiers)
-        if action == QTableView.MovePageDown:
+        if action == QAbstractItemView.CursorAction.MovePageDown:
             moved = index.row() - orig.row()
             try:
                 rows = self.row_at_bottom() - self.row_at_top()
@@ -1174,7 +1174,7 @@ class BooksView(QTableView):  # {{{
                 rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() + rows, index.column())
-        elif action == QTableView.MovePageUp:
+        elif action == QAbstractItemView.CursorAction.MovePageUp:
             moved = orig.row() - index.row()
             try:
                 rows = self.row_at_bottom() - self.row_at_top()
@@ -1182,9 +1182,9 @@ class BooksView(QTableView):  # {{{
                 rows = moved
             if moved > rows:
                 index = self.model().index(orig.row() - rows, index.column())
-        elif action == QTableView.MoveHome and modifiers & Qt.KeyboardModifier.ControlModifier:
+        elif action == QAbstractItemView.CursorAction.MoveHome and modifiers & Qt.KeyboardModifier.ControlModifier:
             return self.model().index(0, orig.column())
-        elif action == QTableView.MoveEnd and modifiers & Qt.KeyboardModifier.ControlModifier:
+        elif action == QAbstractItemView.CursorAction.MoveEnd and modifiers & Qt.KeyboardModifier.ControlModifier:
             return self.model().index(self.model().rowCount(QModelIndex()) - 1, orig.column())
         return index
 
