@@ -441,10 +441,10 @@ class VLTabs(QTabBar):  # {{{
         gprefs['vl_tabs_closable'] = True
         self.setTabsClosable(True)
         try:
-            self.tabButton(0, self.RightSide).setVisible(False)
+            self.tabButton(0, QTabBar.ButtonPosition.RightSide).setVisible(False)
         except AttributeError:
             try:
-                self.tabButton(0, self.LeftSide).setVisible(False)
+                self.tabButton(0, QTabBar.ButtonPosition.LeftSide).setVisible(False)
             except AttributeError:
                 # On some OS X machines (using native style) the tab button is
                 # on the left
@@ -509,10 +509,10 @@ class VLTabs(QTabBar):  # {{{
         if current_idx is None and current_lib:
             self.setTabText(all_idx, current_lib)
         try:
-            self.tabButton(all_idx, self.RightSide).setVisible(False)
+            self.tabButton(all_idx, QTabBar.ButtonPosition.RightSide).setVisible(False)
         except AttributeError:
             try:
-                self.tabButton(all_idx, self.LeftSide).setVisible(False)
+                self.tabButton(all_idx, QTabBar.ButtonPosition.LeftSide).setVisible(False)
             except AttributeError:
                 # On some OS X machines (using native style) the tab button is
                 # on the left
