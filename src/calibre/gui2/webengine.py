@@ -21,7 +21,7 @@ def secure_webengine(view_or_page_or_settings, for_viewer=False):
     a(QWebEngineSettings.WebAttribute.PluginsEnabled, False)
     if not for_viewer:
         a(QWebEngineSettings.WebAttribute.JavascriptEnabled, False)
-        s.setUnknownUrlSchemePolicy(s.DisallowUnknownUrlSchemes)
+        s.setUnknownUrlSchemePolicy(QWebEngineSettings.UnknownUrlSchemePolicy.DisallowUnknownUrlSchemes)
         if hasattr(view_or_page_or_settings, 'setAudioMuted'):
             view_or_page_or_settings.setAudioMuted(True)
     a(QWebEngineSettings.WebAttribute.JavascriptCanOpenWindows, False)
