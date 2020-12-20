@@ -100,7 +100,7 @@ class BasicSettings(QWidget):  # {{{
         widget.setDropIndicatorShown(True)
         widget.indexesMoved.connect(self.emit_changed)
         widget.setDefaultDropAction(Qt.DropAction.MoveAction)
-        widget.setMovement(widget.Snap)
+        widget.setMovement(QListView.Movement.Snap)
         widget.setSpacing(5)
         widget.defaults = prefs.defaults[name]
 
@@ -734,7 +734,7 @@ class Preferences(QDialog):
         cl.clearPropertyFlags()
         cl.setViewMode(QListView.ViewMode.IconMode)
         cl.setFlow(QListView.Flow.TopToBottom)
-        cl.setMovement(cl.Static)
+        cl.setMovement(QListView.Movement.Static)
         cl.setWrapping(False)
         cl.setSpacing(15)
         if get_lang()[:2] not in ('zh', 'ja'):
