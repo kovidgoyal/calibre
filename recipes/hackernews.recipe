@@ -19,8 +19,6 @@ class HNWithCommentsLink(BasicNewsRecipe):
     description = u'Hacker News, run by Y Combinator. Anything that good hackers would find interesting, with a focus on programming and startups.'
     publisher = 'Y Combinator'
     category = 'news, programming, it, technology'
-    masthead_url = 'http://img585.imageshack.us/img585/5011/hnle.png'
-    cover_url = 'http://img585.imageshack.us/img585/5011/hnle.png'
     delay = 1
     max_articles_per_feed = 30
     use_embedded_content = False
@@ -30,7 +28,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
     requires_version = (0, 8, 16)
 
     feeds = [
-        (u'Hacker News', 'http://news.ycombinator.com/rss')
+        (u'Hacker News', 'https://news.ycombinator.com/rss')
     ]
 
     temp_files = []
@@ -53,7 +51,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         title = self.tag_to_string(main.find('td', 'title'))
         link = main.find('td', 'title').find('a')['href']
         if link.startswith('item?'):
-            link = 'http://news.ycombinator.com/' + link
+            link = 'https://news.ycombinator.com/' + link
         readable_link = link.rpartition('http://')[2].rpartition('https://')[2]
         subtext = self.tag_to_string(main.find('td', 'subtext'))
 
@@ -94,7 +92,7 @@ class HNWithCommentsLink(BasicNewsRecipe):
         return a
 
     def get_obfuscated_article(self, url):
-        if url.startswith('http://news.ycombinator.com'):
+        if url.startswith('https://news.ycombinator.com'):
             content = self.get_hn_content(url)
         else:
             # TODO: use content-type header instead of url
@@ -118,6 +116,8 @@ class HNWithCommentsLink(BasicNewsRecipe):
         content = re.sub(r'</body>\s*</html>\s*$', '', content) + \
             article.summary + '</body></html>'
 
+        if not isinstance(content, bytes):
+            content = content.encode('utf-8')
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(content)
         self.temp_files[-1].close()
@@ -137,5 +137,5 @@ class HNWithCommentsLink(BasicNewsRecipe):
 
 #    def parse_index(self):
 #        feeds = []
-#        feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'http://news.ycombinator.com/item?id=2935944'}]))
+#        feeds.append((u'Hacker News',[{'title': 'Testing', 'url': 'https://news.ycombinator.com/item?id=2935944'}]))
 #        return feeds
