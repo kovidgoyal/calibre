@@ -6,7 +6,7 @@
 from functools import partial
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize, QAbstractItemView,
-                      QDialogButtonBox, QTableWidget, QItemDelegate, QApplication,
+                      QDialogButtonBox, QItemDelegate, QApplication,
                       pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu, QColor)
 
 from calibre.gui2.actions.show_quickview import get_quickview_action_plugin
@@ -240,7 +240,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
         self.apply_vl_checkbox.clicked.connect(self.vl_box_changed)
 
-        self.table.setEditTriggers(QTableWidget.EditKeyPressed)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
 
         try:
             geom = gprefs.get('tag_list_editor_dialog_geometry', None)

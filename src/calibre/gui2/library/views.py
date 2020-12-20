@@ -238,11 +238,11 @@ class BooksView(QTableView):  # {{{
             if not tweaks['horizontal_scrolling_per_column']:
                 wv.setHorizontalScrollMode(self.ScrollPerPixel)
 
-            wv.setEditTriggers(self.EditKeyPressed)
+            wv.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
             if tweaks['doubleclick_on_library_view'] == 'edit_cell':
-                wv.setEditTriggers(self.DoubleClicked|wv.editTriggers())
+                wv.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked|wv.editTriggers())
             elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
-                wv.setEditTriggers(self.SelectedClicked|wv.editTriggers())
+                wv.setEditTriggers(QAbstractItemView.EditTrigger.SelectedClicked|wv.editTriggers())
                 wv.doubleClicked.connect(parent.iactions['View'].view_triggered)
             elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
                 # Must not enable single-click to edit, or the field will remain
@@ -252,7 +252,7 @@ class BooksView(QTableView):  # {{{
                             partial(parent.iactions['Edit Metadata'].edit_metadata,
                                     checked=False))
                 else:
-                    wv.setEditTriggers(self.DoubleClicked|wv.editTriggers())
+                    wv.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked|wv.editTriggers())
 
         setup_dnd_interface(self)
         for wv in self, self.pin_view:

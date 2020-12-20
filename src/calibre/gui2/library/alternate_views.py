@@ -60,7 +60,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
             gui = get_gui()
             if tweak == 'edit_cell':
                 if has_edit_cell:
-                    self.edit(self.currentIndex(), self.EditKeyPressed, ev)
+                    self.edit(self.currentIndex(), QAbstractItemView.EditTrigger.EditKeyPressed, ev)
                 else:
                     gui.iactions['Edit Metadata'].edit_metadata(False)
             elif tweak == 'edit_metadata':

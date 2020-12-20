@@ -251,7 +251,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         self.setIconSize(QSize(16, 16))
         self.header().close()
         self.setDragEnabled(True)
-        self.setEditTriggers(self.EditKeyPressed)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
         self.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         self.viewport().setAcceptDrops(True)
         self.setDropIndicatorShown(True)

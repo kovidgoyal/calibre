@@ -90,7 +90,7 @@ class Completer(QListView):  # {{{
         self.disable_popup = False
         self.setWindowFlags(Qt.WindowType.Popup)
         self.max_visible_items = max_visible_items
-        self.setEditTriggers(self.NoEditTriggers)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
