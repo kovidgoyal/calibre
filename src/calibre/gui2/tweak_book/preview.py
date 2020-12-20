@@ -14,7 +14,7 @@ from PyQt5.Qt import (
 )
 from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob, QWebEngineUrlRequestInfo
 from PyQt5.QtWebEngineWidgets import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings, QWebEngineContextMenuData
 )
 from threading import Thread
 
@@ -461,7 +461,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
         menu.addAction(QIcon(I('debug.png')), _('Inspect element'), self.inspect)
         if url.partition(':')[0].lower() in {'http', 'https'}:
             menu.addAction(_('Open link'), partial(safe_open_url, data.linkUrl()))
-        if data.MediaTypeImage <= data.mediaType() <= data.MediaTypeFile:
+        if QWebEngineContextMenuData.MediaType.MediaTypeImage <= data.mediaType() <= QWebEngineContextMenuData.MediaType.MediaTypeFile:
             url = data.mediaUrl()
             if url.scheme() == FAKE_PROTOCOL:
                 href = url.path().lstrip('/')
@@ -470,7 +470,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
                     resource_name = c.href_to_name(href)
                     if resource_name and c.exists(resource_name) and resource_name not in c.names_that_must_not_be_changed:
                         self.add_open_with_actions(menu, resource_name)
-                        if data.mediaType() == data.MediaTypeImage:
+                        if data.mediaType() == QWebEngineContextMenuData.MediaType.MediaTypeImage:
                             mime = c.mime_map[resource_name]
                             if mime.startswith('image/'):
                                 menu.addAction(_('Edit %s') % resource_name, partial(self.edit_image, resource_name))
