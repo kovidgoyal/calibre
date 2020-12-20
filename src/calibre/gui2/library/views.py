@@ -236,7 +236,7 @@ class BooksView(QTableView):  # {{{
 
         for wv in self, self.pin_view:
             if not tweaks['horizontal_scrolling_per_column']:
-                wv.setHorizontalScrollMode(self.ScrollPerPixel)
+                wv.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
             wv.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
             if tweaks['doubleclick_on_library_view'] == 'edit_cell':
