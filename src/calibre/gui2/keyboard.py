@@ -303,7 +303,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
                 if sc['persist_shortcut']:
                     options_map[un] = options_map.get(un, {})
                     options_map[un]['persist_shortcut'] = sc['persist_shortcut']
-                keys = [unicode_type(k.toString(k.PortableText)) for k in sc['keys']]
+                keys = [unicode_type(k.toString(QKeySequence.SequenceFormat.PortableText)) for k in sc['keys']]
                 kmap[un] = keys
         with self.keyboard.config:
             self.keyboard.config['map'] = kmap
@@ -451,11 +451,11 @@ class Editor(QFrame):  # {{{
         self.default_keys = [QKeySequence(k, QKeySequence.SequenceFormat.PortableText) for k
                 in shortcut['default_keys']]
         self.current_keys = list(shortcut['keys'])
-        default = ', '.join([unicode_type(k.toString(k.NativeText)) for k in
+        default = ', '.join([unicode_type(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in
                     self.default_keys])
         if not default:
             default = _('None')
-        current = ', '.join([unicode_type(k.toString(k.NativeText)) for k in
+        current = ', '.join([unicode_type(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in
                     self.current_keys])
         if not current:
             current = _('None')
@@ -469,7 +469,7 @@ class Editor(QFrame):  # {{{
             self.use_custom.setChecked(True)
             for key, which in zip(self.current_keys, [1,2]):
                 button = getattr(self, 'button%d'%which)
-                button.setText(key.toString(key.NativeText))
+                button.setText(key.toString(QKeySequence.SequenceFormat.NativeText))
 
     def custom_toggled(self, checked):
         for w in ('1', '2'):
@@ -559,7 +559,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         elif data.is_shortcut:
             shortcut = data.data
             # Shortcut
-            keys = [unicode_type(k.toString(k.NativeText)) for k in shortcut['keys']]
+            keys = [unicode_type(k.toString(QKeySequence.SequenceFormat.NativeText)) for k in shortcut['keys']]
             if not keys:
                 keys = _('None')
             else:

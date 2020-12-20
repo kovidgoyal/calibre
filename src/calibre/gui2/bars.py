@@ -379,7 +379,7 @@ if ismacos:
             if self.clone_shortcuts:
                 sc = self.clone.shortcut()
                 if sc and not sc.isEmpty():
-                    self.setText(self.text() + '\t' + sc.toString(sc.NativeText))
+                    self.setText(self.text() + '\t' + sc.toString(QKeySequence.SequenceFormat.NativeText))
             if self.clone.menu() is None:
                 if not self.is_top_level:
                     self.setMenu(None)

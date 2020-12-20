@@ -170,7 +170,7 @@ class Delegate(QStyledItemDelegate):
 
     def setEditorData(self, editor, index):
         defs = index.data(DEFAULTS)
-        defs = _(' or ').join([unicode_type(x.toString(x.NativeText)) for x in defs])
+        defs = _(' or ').join([unicode_type(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in defs])
         editor.key = unicode_type(index.data(KEY))
         editor.default_shortcuts.setText(_('&Default') + ': %s' % defs)
         editor.default_shortcuts.setChecked(True)
@@ -183,7 +183,7 @@ class Delegate(QStyledItemDelegate):
                 button = getattr(editor, 'button%d'%(x+1))
                 if len(custom) > x:
                     seq = QKeySequence(custom[x])
-                    button.setText(seq.toString(seq.NativeText))
+                    button.setText(seq.toString(QKeySequence.SequenceFormat.NativeText))
                     setattr(editor, 'shortcut%d'%(x+1), seq)
 
     def setModelData(self, editor, model, index):
@@ -251,7 +251,7 @@ class Shortcuts(QAbstractListModel):
             return self.descriptions[key]
 
     def get_shortcuts(self, key):
-        return [unicode_type(x.toString(x.NativeText)) for x in
+        return [unicode_type(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in
                 self.get_sequences(key)]
 
     def data(self, index, role):

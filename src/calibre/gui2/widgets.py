@@ -11,7 +11,7 @@ from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
-        QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel,
+        QLineEdit, QComboBox, QPen, QGraphicsScene, QMenu, QStringListModel, QKeySequence,
         QCompleter, QTimer, QRect, QGraphicsView, QPagedPaintDevice, QPalette)
 
 from calibre.constants import iswindows, ismacos
@@ -1009,7 +1009,7 @@ class LayoutButton(QToolButton):
     def update_shortcut(self, action_toggle=None):
         action_toggle = action_toggle or getattr(self, 'action_toggle', None)
         if action_toggle:
-            sc = ', '.join(sc.toString(sc.NativeText)
+            sc = ', '.join(sc.toString(QKeySequence.SequenceFormat.NativeText)
                                 for sc in action_toggle.shortcuts())
             self.shortcut = sc or ''
             self.update_text()
