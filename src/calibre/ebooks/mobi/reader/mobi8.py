@@ -337,7 +337,7 @@ class Mobi8Reader(object):
             # See https://www.mobileread.com/forums/showthread.php?t=259557
             m = self.aid_re.match(tag)
             if m is not None:
-                self.linked_aids.add(m.group(1))
+                self.linked_aids.add(m.group(1).decode('utf-8'))
                 return m.group(1) + b'-' + self.aid_anchor_suffix
 
         # No tag found, link to start of file

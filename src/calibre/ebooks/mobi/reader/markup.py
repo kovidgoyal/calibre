@@ -335,7 +335,7 @@ def expand_mobi8_markup(mobi8_reader, resource_map, log):
     parts = update_internal_links(mobi8_reader, log)
 
     # Remove pointless markup inserted by kindlegen
-    remove_kindlegen_markup(parts, mobi8_reader.aid_anchor_suffix, mobi8_reader.linked_aids)
+    remove_kindlegen_markup(parts, mobi8_reader.aid_anchor_suffix.decode('utf-8'), mobi8_reader.linked_aids)
 
     # Handle substitutions for the flows pieces first as they may
     # be inlined into the xhtml text
