@@ -12,7 +12,7 @@ class AdvancedUserRecipe1608358960(BasicNewsRecipe):
     max_articles_per_feed = 25
     auto_cleanup   = True
     no_stylesheets = True
-    encoding = 'iso-8859-1'
+    encoding = 'utf-8'
 
     feeds          = [
         ('kath.net', 'https://www.kath.net/ticker/index.xml'),
