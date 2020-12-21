@@ -54,16 +54,16 @@ def remove(node):
 
 
 def replace_node(replacement, node):
-    remove(replace_node)
-    node.parentNode.insertBefore(replacement, node)
+    p = node.parentNode
+    p.insertBefore(replacement, node)
     remove(node)
+    return p
 
 
 def unwrap(node):
     r = (node.ownerDocument or document).createRange()
     r.selectNodeContents(node)
-    replace_node(r.extractContents(), node)
-    p = node.parentNode
+    p = replace_node(r.extractContents(), node)
     if p:
         p.normalize()
 
