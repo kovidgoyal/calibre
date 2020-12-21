@@ -1,8 +1,6 @@
 #!/usr/bin/env  python
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
-import urllib.request
-
 try:
     from http.cookiejar import Cookie
 except ImportError:
@@ -267,8 +265,8 @@ class Economist(BasicNewsRecipe):
                 self.log('Got cover:', self.cover_url)
         else:
             date8 = self.INDEX[-10:].replace('-', '')
-            resource = urllib.request.urlopen("https://www.economist.com/weeklyedition/archive?year={}".format(date8[:4]))
-            archive = resource.read().decode(resource.headers.get_content_charset())
+            archive_url = "https://www.economist.com/weeklyedition/archive?year={}".format(date8[:4])
+            archive = self.index_to_soup(archive_url, raw=True).decode("utf-8")
             if date8 in archive:
                 parts = archive.split(date8)       
                 self.cover_url = parts[-3].split(',')[-1]+date8+parts[-2].split()[0]
