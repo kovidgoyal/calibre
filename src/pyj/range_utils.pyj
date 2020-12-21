@@ -94,7 +94,11 @@ def select_crw(crw):
 
 
 def wrap_range(r, wrapper):
-    r.surroundContents(wrapper)
+    try:
+        r.surroundContents(wrapper)
+    except:
+        wrapper.appendChild(r.extractContents())
+        r.insertNode(wrapper)
     # remove any empty text nodes created by surroundContents() on either
     # side of the wrapper. This happens for instance on Chrome when
     # wrapping all text inside <i>some text</i>
