@@ -238,13 +238,13 @@ def render_data(mi, use_roman_numbers=True, all_fields=False, pref_name='book_di
 # Context menu {{{
 
 
-def add_format_entries(menu, data, book_info):
+def add_format_entries(menu, data, book_info, copy_menu, search_menu):
     from calibre.ebooks.oeb.polish.main import SUPPORTED
     from calibre.gui2.ui import get_gui
     book_id = int(data['book_id'])
     fmt = data['fmt']
-    init_find_in_tag_browser(menu, book_info.find_in_tag_browser_action, 'formats', fmt)
-    init_find_in_grouped_search(menu, 'formats', fmt, book_info)
+    init_find_in_tag_browser(search_menu, book_info.find_in_tag_browser_action, 'formats', fmt)
+    init_find_in_grouped_search(search_menu, 'formats', fmt, book_info)
     db = get_gui().current_db.new_api
     ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
     nfmt = ofmt[len('ORIGINAL_'):]
@@ -293,37 +293,40 @@ def add_format_entries(menu, data, book_info):
             path = os.path.join(path, data['fname'] + '.' + data['fmt'].lower())
         ac = book_info.copy_link_action
         ac.current_url = path
-        ac.setText(_('&Copy path to file'))
-        menu.addAction(ac)
+        ac.setText(_('Path to file'))
+        copy_menu.addAction(ac)
 
 
-def add_item_specific_entries(menu, data, book_info):
+def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
     from calibre.gui2.ui import get_gui
     search_internet_added = False
     find_action = book_info.find_in_tag_browser_action
     dt = data['type']
 
     def add_copy_action(name):
-        menu.addAction(QIcon(I('edit-copy.png')), _('Copy {} to clipboard').format(name), lambda: QApplication.instance().clipboard().setText(name))
+        copy_menu.addAction(QIcon(I('edit-copy.png')), _('Copy {} to clipboard').format(name), lambda: QApplication.instance().clipboard().setText(name))
 
     if dt == 'format':
-        add_format_entries(menu, data, book_info)
+        add_format_entries(menu, data, book_info, copy_menu, search_menu)
     elif dt == 'author':
         author = data['name']
         if data['url'] != 'calibre':
             ac = book_info.copy_link_action
             ac.current_url = data['url']
             ac.setText(_('&Copy author link'))
-            menu.addAction(ac)
+            copy_menu.addAction(ac)
         add_copy_action(author)
-        init_find_in_tag_browser(menu, find_action, 'authors', author)
-        init_find_in_grouped_search(menu, 'authors', author, book_info)
+        init_find_in_tag_browser(search_menu, find_action, 'authors', author)
+        init_find_in_grouped_search(search_menu, 'authors', author, book_info)
         menu.addAction(init_manage_action(book_info.manage_action, 'authors', author))
         if hasattr(book_info, 'search_internet'):
-            menu.sia = sia = create_search_internet_menu(book_info.search_internet, author)
-            menu.addMenu(sia)
+            search_menu.addSeparator()
+            search_menu.sim = create_search_internet_menu(book_info.search_internet, author)
+            for ac in search_menu.sim.actions():
+                search_menu.addAction(ac)
+                ac.setText(_('Search {0} for {1}').format(ac.text(), author))
             search_internet_added = True
-        if hasattr(book_info, 'search_requested'):
+        if hasattr(book_info, 'remove_item_action'):
             ac = book_info.remove_item_action
             book_id = get_gui().library_view.current_id
             ac.data = ('authors', author, book_id)
@@ -336,7 +339,7 @@ def add_item_specific_entries(menu, data, book_info):
             path = get_gui().library_view.model().db.abspath(path, index_is_id=True)
         ac.current_url = path
         ac.setText(_('Copy path'))
-        menu.addAction(ac)
+        copy_menu.addAction(ac)
     else:
         field = data.get('field')
         if field is not None:
@@ -346,20 +349,20 @@ def add_item_specific_entries(menu, data, book_info):
                 ac = book_info.copy_link_action
                 ac.current_url = value
                 ac.setText(_('&Copy identifier'))
-                menu.addAction(ac)
+                copy_menu.addAction(ac)
                 remove_value = data['id_type']
-                init_find_in_tag_browser(menu, find_action, field, remove_value)
-                init_find_in_grouped_search(menu, field, remove_value, book_info)
+                init_find_in_tag_browser(search_menu, find_action, field, remove_value)
+                init_find_in_grouped_search(search_menu, field, remove_value, book_info)
                 menu.addAction(book_info.edit_identifiers_action)
             elif field in ('tags', 'series', 'publisher') or is_category(field):
                 add_copy_action(value)
-                init_find_in_tag_browser(menu, find_action, field, value)
-                init_find_in_grouped_search(menu, field, value, book_info)
+                init_find_in_tag_browser(search_menu, find_action, field, value)
+                init_find_in_grouped_search(search_menu, field, value, book_info)
                 menu.addAction(init_manage_action(book_info.manage_action, field, value))
             elif field == 'languages':
                 remove_value = langnames_to_langcodes((value,)).get(value, 'Unknown')
-                init_find_in_tag_browser(menu, find_action, field, value)
-                init_find_in_grouped_search(menu, field, value, book_info)
+                init_find_in_tag_browser(search_menu, find_action, field, value)
+                init_find_in_grouped_search(search_menu, field, value, book_info)
             ac = book_info.remove_item_action
             ac.data = (field, remove_value, book_id)
             ac.setText(_('Remove %s from this book') % escape_for_menu(value))
@@ -381,7 +384,8 @@ def create_copy_links(menu, data=None):
             QApplication.instance().clipboard().setText(url)
         menu.addAction(QIcon(I('edit-copy.png')), text, doit)
 
-    link(_('Show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
+    menu.addSeparator()
+    link(_('Link to show book in calibre'), f'calibre://show-book/{library_id}/{book_id}')
     if data:
         field = data.get('field')
         if data['type'] == 'author':
@@ -389,41 +393,50 @@ def create_copy_links(menu, data=None):
         if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
             name = data['name' if data['type'] == 'author' else 'value']
             eq = f'{field}:"={name}"'.encode('utf-8').hex()
-            link(_('Show books matching {} in calibre').format(name),
+            link(_('Link to show books matching {} in calibre').format(name),
                  f'calibre://search/{library_id}?eq={eq}')
 
     for fmt in db.formats(book_id):
         fmt = fmt.upper()
-        link(_('View {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
+        link(_('Link to view {} format of book').format(fmt.upper()), f'calibre://view-book/{library_id}/{book_id}/{fmt}')
 
 
 def details_context_menu_event(view, ev, book_info, add_popup_action=False, edit_metadata=None):
     url = view.anchorAt(ev.pos())
     menu = QMenu(view)
-    menu.addAction(QIcon(I('edit-copy.png')), _('Copy all book details'), partial(copy_all, view))
-    cm = QMenu(_('Copy link to book'), menu)
-    cm.setIcon(QIcon(I('edit-copy.png')))
+    copy_menu = menu.addMenu(QIcon(I('edit-copy.png')), _('Copy'))
+    copy_menu.addAction(QIcon(I('edit-copy.png')), _('All book details'), partial(copy_all, view))
+    if view.textCursor().hasSelection():
+        copy_menu.addAction(QIcon(I('edit-copy.png')), _('Selected text'), view.copy)
+    copy_menu.addSeparator()
     copy_links_added = False
     search_internet_added = False
+    search_menu = QMenu(_('Search'), menu)
+    search_menu.setIcon(QIcon(I('search.png')))
     if url and url.startswith('action:'):
         data = json_loads(from_hex_bytes(url.split(':', 1)[1]))
-        create_copy_links(cm, data)
+        search_internet_added = add_item_specific_entries(menu, data, book_info, copy_menu, search_menu)
+        create_copy_links(copy_menu, data)
         copy_links_added = True
-        search_internet_added = add_item_specific_entries(menu, data, book_info)
     elif url and not url.startswith('#'):
         ac = book_info.copy_link_action
         ac.current_url = url
         ac.setText(_('Copy link location'))
         menu.addAction(ac)
     if not copy_links_added:
-        create_copy_links(cm)
-    if list(cm.actions()):
-        menu.addMenu(cm)
+        create_copy_links(copy_menu)
 
     if not search_internet_added and hasattr(book_info, 'search_internet'):
-        menu.addSeparator()
-        menu.si = create_search_internet_menu(book_info.search_internet)
-        menu.addMenu(menu.si)
+        sim = create_search_internet_menu(book_info.search_internet)
+        if search_menu.isEmpty():
+            search_menu = sim
+        else:
+            search_menu.addSeparator()
+            for ac in sim.actions():
+                search_menu.addAction(ac)
+                ac.setText(_('Search {0} for this book').format(ac.text()))
+    if not search_menu.isEmpty():
+        menu.addMenu(search_menu)
     for ac in tuple(menu.actions()):
         if not ac.isEnabled():
             menu.removeAction(ac)
