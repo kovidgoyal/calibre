@@ -627,7 +627,7 @@ class _Interpreter(object):
                     self.locals[v] = x
                     ret = self.expression_list(prog.block)
                 return ret
-            self.error(_('Field {0} is not a list').format(f))
+            self.error(_('The field {0} is not a list').format(f))
         except ValueError as e:
             raise e
         except Exception as e:
