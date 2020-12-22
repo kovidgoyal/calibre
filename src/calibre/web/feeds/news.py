@@ -1449,6 +1449,9 @@ class BasicNewsRecipe(Recipe):
     def prepare_masthead_image(self, path_to_image, out_path):
         prepare_masthead_image(path_to_image, out_path, self.MI_WIDTH, self.MI_HEIGHT)
 
+    def publication_date(self):
+        return nowf()
+
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
@@ -1477,7 +1480,7 @@ class BasicNewsRecipe(Recipe):
         language = canonicalize_lang(self.language)
         if language is not None:
             mi.language = language
-        mi.pubdate = nowf()
+        mi.pubdate = self.publication_date()
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
 
