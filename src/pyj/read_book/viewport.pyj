@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms window_scroll_pos'.split(' ')
+FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms window_scroll_pos content_size'.split(' ')
 
 from read_book.globals import get_boss, viewport_mode_changer
 from utils import document_height, document_width, is_ios
@@ -120,15 +120,16 @@ class ScrollViewport:
     def flow___reset_transforms(self):
         pass
 
+    def flow_content_size(self):
+        return document.documentElement.scrollWidth, document.documentElement.scrollHeight
+
     def paged_content_inline_size(self):
-        if self.horizontal_writing_mode:
-            return document.documentElement.scrollWidth
-        return document.documentElement.scrollHeight
+        w, h = self.content_size()
+        return w if self.horizontal_writing_mode else h
 
     def paged_content_block_size(self):
-        if self.horizontal_writing_mode:
-            return document.documentElement.scrollHeight
-        return document.documentElement.scrollWidth
+        w, h = self.content_size()
+        return h if self.horizontal_writing_mode else w
 
     def inline_size(self):
         if self.horizontal_writing_mode:
@@ -305,6 +306,11 @@ class IOSScrollViewport(ScrollViewport):
 
     def paged_window_scroll_pos(self):
         return self.transform_val(), self.transform_val(True)
+
+    def paged_content_size(self):
+        w = document.documentElement.scrollWidth
+        h = document.documentElement.scrollHeight
+        return w - self.transform_val(), h - self.transform_val(True)
 
     def paged___reset_transforms(self):
         s = document.documentElement.style
