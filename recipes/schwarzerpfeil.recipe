@@ -7,6 +7,7 @@ SchwarzerPfeil Calibre recipe.
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class Schwarzerpfeil(BasicNewsRecipe):
     title                 = 'SchwarzerPfeil'
     __author__            = 'tastytea'
