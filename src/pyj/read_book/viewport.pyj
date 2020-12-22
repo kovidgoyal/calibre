@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms'.split(' ')
+FUNCTIONS = 'x y scroll_to scroll_into_view reset_globals __reset_transforms window_scroll_pos'.split(' ')
 
 from read_book.globals import get_boss, viewport_mode_changer
 from utils import document_height, document_width, is_ios
@@ -55,6 +55,9 @@ class ScrollViewport:
 
     def flow_y(self):
         return window.pageYOffset
+
+    def flow_window_scroll_pos(self):
+        return window.pageXOffset, window.pageYOffset
 
     def inline_pos(self):
         if self.vertical_writing_mode:
@@ -160,8 +163,6 @@ class ScrollViewport:
     # Assure that the viewport position returned is corrected for the RTL
     # mode of ScrollViewport.
     def viewport_to_document(self, x, y, doc):
-        self.__reset_transforms()
-
         # Convert x, y from the viewport (window) co-ordinate system to the
         # document (body) co-ordinate system
         doc = doc or window.document
@@ -173,12 +174,11 @@ class ScrollViewport:
             x += rect.left
             y += rect.top
             doc = frame.ownerDocument
-        win = doc.defaultView or window
-        wx, wy = win.pageXOffset, win.pageYOffset
+        wx, wy = self.window_scroll_pos()
         x += wx
         y += wy
         if self.rtl:
-            return -x, y
+            x *= -1
         return x, y
 
     def rect_inline_start(self, rect):
@@ -270,28 +270,25 @@ class IOSScrollViewport(ScrollViewport):
         if boss:
             boss.onscroll()
 
-    def paged_x(self):
+    def transform_val(self, y):
         raw = document.documentElement.style.transform
         if not raw or raw is 'none':
             return 0
-        raw = raw[raw.indexOf('(') + 1:]
+        idx = raw.lastIndexOf('(') if y else raw.indexOf('(')
+        raw = raw[idx + 1:]
         ans = parseInt(raw)
         if isNaN(ans):
-            return 0
+            ans = 0
+        return ans
+
+    def paged_x(self):
+        ans = self.transform_val()
         if self.ltr:
             ans *= -1
         return ans
 
     def paged_y(self):
-        raw = document.documentElement.style.transform
-        if not raw or raw is 'none':
-            return 0
-        raw = raw[raw.lastIndexOf('(') + 1:]
-        ans = parseInt(raw)
-        if isNaN(ans):
-            return 0
-        ans *= -1
-        return ans
+        return -1 * self.transform_val(True)
 
     def paged_scroll_into_view(self, elem):
         left = elem.offsetLeft
@@ -305,6 +302,9 @@ class IOSScrollViewport(ScrollViewport):
             p = p.offsetParent
         # left -= window_width() // 2
         self._scroll_implementation(max(0, left), 0)
+
+    def paged_window_scroll_pos(self):
+        return self.transform_val(), self.transform_val(True)
 
     def paged___reset_transforms(self):
         s = document.documentElement.style
