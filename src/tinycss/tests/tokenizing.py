@@ -186,7 +186,7 @@ foo(int x) {\
             ('S', '\n'), ('IDENT', 'Ipsum')]),
 
         # Cancel the meaning of special characters
-        (r'"Lore\m Ipsum"', [('STRING', 'Lorem Ipsum')]),  # or not specal
+        (r'"Lore\m Ipsum"', [('STRING', 'Lorem Ipsum')]),  # or not special
         (r'"Lorem \49psum"', [('STRING', 'Lorem Ipsum')]),
         (r'"Lorem \49 psum"', [('STRING', 'Lorem Ipsum')]),
         (r'"Lorem\"Ipsum"', [('STRING', 'Lorem"Ipsum')]),
