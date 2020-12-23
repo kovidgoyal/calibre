@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheMiamiHerald(BasicNewsRecipe):
     title = 'The Miami Herald'
-    __author__ = 'Darko Miletic and Sujata Raman'
+    __author__ = 'Kovid Goyal'
     description = "Miami-Dade and Broward's source for the latest breaking local news on sports, weather, business, jobs, real estate, shopping, health, travel, entertainment, & more."  # noqa
     oldest_article = 1
     max_articles_per_feed = 100
@@ -18,45 +18,32 @@ class TheMiamiHerald(BasicNewsRecipe):
     language = 'en'
     no_stylesheets = True
     use_embedded_content = False
-    encoding = 'cp1252'
+    encoding = 'utf-8'
     remove_javascript = True
-    extra_css = '''
-                h1{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#1A272F; }
-                .subheadline{font-family:Arial,Helvetica,sans-serif; font-size:30%; color: #666666;}
-                #storyBodyContent{font-family:Arial,Helvetica,sans-serif; font-size:xx-small; }
-                .byline{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#58595B; }
-                .credit_line{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#58595B; }
-                .storyPublishDate{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666; }
-                .shirttail{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666;font-style:italic }
-                .imageCaption{font-family:Arial,Helvetica,sans-serif; font-size:30%; color:#666666; }
-                '''
-
     conversion_options = {
         'comment': description, 'publisher': publisher, 'language': language
     }
 
-    keep_only_tags = [dict(name='div', attrs={'id': 'wide'}), ]
+    keep_only_tags = [
+    ]
 
-    remove_tags = [dict(name=['object', 'link', 'embed', 'iframe', 'meta'])]
+    remove_tags = [
+    ]
 
     feeds = [
 
-    (u'Breaking News', u'http://www.miamiherald.com/news/breaking-news/index.xml'),
-    (u'Miami-Dade', u'http://www.miamiherald.com/news/miami-dade/index.xml'),
-    (u'Broward', u'http://www.miamiherald.com/news/broward/index.xml'),
-    (u'Florida Keys', u'http://www.miamiherald.com/news/florida-keys/index.xml'),
-    (u'Florida', u'http://www.miamiherald.com/news/florida/index.xml'),
-    (u'Nation', u'http://www.miamiherald.com/news/nation/index.xml'),
-    (u'World', u'http://www.miamiherald.com/news/world/index.xml'),
-    (u'Americas', u'http://www.miamiherald.com/news/americas/index.xml'),
-    (u'Cuba', u'http://www.miamiherald.com/news/americas/cuba/index.xml'),
-    (u'Haiti', u'http://www.miamiherald.com/news/americas/haiti/index.xml'),
-    (u'Politics', u'http://www.miamiherald.com/news/politics/index.xml'),
-    (u'Education', u'http://www.miamiherald.com/news/education/index.xml'),
-    (u'Environment', u'http://www.miamiherald.com/news/environment/index.xml')
+    (u'News', u'https://www.miamiherald.com/news/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Miami-Dade', u'https://www.miamiherald.com/news/local/community/miami-dade/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Broward', u'https://www.miamiherald.com/news/local/community/broward/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Florida Keys', u'https://www.miamiherald.com/news/local/community/florida-keys/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Florida', u'https://www.miamiherald.com/news/state/florida/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'National', u'https://www.miamiherald.com/news/nation-world/national/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'World', u'https://www.miamiherald.com/news/nation-world/world/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Americas', u'https://www.miamiherald.com/news/nation-world/world/americas/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Cuba', u'https://www.miamiherald.com/news/nation-world/world/americas/cuba/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Haiti', u'https://www.miamiherald.com/news/nation-world/world/americas/haiti/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Politics', u'https://www.miamiherald.com/news/politics-government/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Education', u'https://www.miamiherald.com/news/local/education/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Environment', u'https://www.miamiherald.com/news/local/environment/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
+    (u'Sports', u'https://www.miamiherald.com/sports/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
     ]
-
-    def print_version(self, url):
-        art, sep, rest = url.rpartition('/')
-        art2, sep2, rest2 = art.rpartition('/')
-        return art2 + '/v-print/' + rest2 + '/' + rest
