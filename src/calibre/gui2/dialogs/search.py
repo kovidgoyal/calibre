@@ -99,12 +99,14 @@ def create_adv_tab(self):
             ('any', _("O&ne or more of these words:")),
     ):
         le = QLineEdit(w)
+        le.setClearButtonEnabled(True)
         setattr(self, key, le)
         l.addRow(text, le)
 
     w.g2.l = l = QFormLayout(w.g2)
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
     self.none = le = QLineEdit(w)
+    le.setClearButtonEnabled(True)
     l.addRow(_("Any of these &unwanted words:"), le)
 
 
@@ -116,6 +118,7 @@ def create_simple_tab(self, db):
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     self.title_box = le = QLineEdit(w)
+    le.setClearButtonEnabled(True)
     le.setObjectName('title_box')
     le.setPlaceholderText(_('The title to search for'))
     l.addRow(_('&Title:'), le)
@@ -150,6 +153,7 @@ def create_simple_tab(self, db):
     self.general_combo.addItems(searchables)
     self.box_last_values = copy.deepcopy(box_values)
     self.general_box = le = QLineEdit(self)
+    le.setClearButtonEnabled(True)
     le.setObjectName('general_box')
     l.addRow(self.general_combo, le)
     if self.box_last_values:
@@ -242,6 +246,7 @@ def create_template_tab(self):
     l.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
 
     self.template_value_box = le = QLineEdit(w)
+    le.setClearButtonEnabled(True)
     le.setObjectName('template_value_box')
     le.setPlaceholderText(_('The value to search for'))
     le.setToolTip('<p>' +

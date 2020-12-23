@@ -21,6 +21,7 @@ class TemplateLineEditor(QLineEdit):
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
         self.mi   = None
+        self.setClearButtonEnabled(True)
 
     def set_mi(self, mi):
         self.mi = mi
