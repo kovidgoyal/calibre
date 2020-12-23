@@ -33,7 +33,10 @@ class DailyTelegraph(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
 
-    keep_only_tags = dict(id=['story', 'story-headline'])
+    keep_only_tags = [
+        classes('story-headline'),
+        dict(id='story'),
+    ]
     remove_tags = [
         dict(id='comments'),
         classes('story-info story-header-tools module-controls story-sidebar'
@@ -43,14 +46,14 @@ class DailyTelegraph(BasicNewsRecipe):
     ]
 
     feeds = [
-        (u'National News', u'http://www.news.com.au/national/rss'),
-        (u'World News', u'http://www.news.com.au/world/rss'),
-        (u'Entertainmnet', u'http://www.news.com.au/entertainment/rss'),
-        (u'Technology', u'http://www.news.com.au/technology/rss'),
-        (u'Lifestyle', u'http://www.news.com.au/lifestyle/rss'),
-        (u'Sport', u'http://www.news.com.au/sport/rss'),
-        (u'Finance', u'http://www.news.com.au/finance/rss'),
-        (u'Travel', u'http://www.news.com.au/travel/rss'),
+        (u'National News', u'https://www.news.com.au/content-feeds/latest-news-national/'),
+        (u'World News', u'https://www.news.com.au/content-feeds/latest-news-world/'),
+        (u'Entertainment', u'https://www.news.com.au/content-feeds/latest-news-entertainment/'),
+        (u'Technology', u'https://www.news.com.au/content-feeds/latest-news-technology/'),
+        (u'Lifestyle', u'https://www.news.com.au/content-feeds/latest-news-lifestyle/'),
+        (u'Sport', u'https://www.news.com.au/content-feeds/latest-news-sport/'),
+        (u'Finance', u'https://www.news.com.au/content-feeds/latest-news-finance/'),
+        (u'Travel', u'https://www.news.com.au/content-feeds/latest-news-travel/'),
     ]
 
     def get_article_url(self, article):
@@ -58,3 +61,8 @@ class DailyTelegraph(BasicNewsRecipe):
         if '/video/' in ans:
             return
         return ans
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup
