@@ -40,34 +40,53 @@ def find_containing_block(elem):
         elem = elem.parentNode
     return elem
 
-def scroll_to_node(node):
+
+def line_height():
+    ans = line_height.ans
+    if not ans:
+        ds = window.getComputedStyle(document.body)
+        try:
+            # will fail if line-height = "normal"
+            lh = float(ds.lineHeight)
+        except:
+            try:
+                lh = 1.2 * float(ds.fontSize)
+            except:
+                lh = 15
+        ans = line_height.ans = max(5, lh)
+    return ans
+
+
+def scroll_to_node(node, sync_context):
     if node is document.body:
         window.scrollTo(0, 0)
     else:
         node.scrollIntoView()
+        if sync_context:
+            window.scrollBy(0, -sync_context * line_height())
 
 
 state = {'blocks_found': False, 'in_split_mode': False}
 
 
 
-def go_to_line(lnum):
+def go_to_line(lnum, sync_context):
     for node in document.querySelectorAll(f'[data-lnum="{lnum}"]'):
         if is_hidden(node):
             continue
-        scroll_to_node(node)
+        scroll_to_node(node, sync_context)
         break
 
 @from_python
-def go_to_sourceline_address(sourceline, tags):
+def go_to_sourceline_address(sourceline, tags, sync_context):
     nodes = document.querySelectorAll(f'[data-lnum="{sourceline}"]')
     for index in range(nodes.length):
         node = nodes[index]
         if index >= tags.length or node.tagName.toLowerCase() is not tags[index]:
             break
         if index == tags.length - 1 and not is_hidden(node):
-            return scroll_to_node(node)
-    go_to_line(sourceline)
+            return scroll_to_node(node, sync_context)
+    go_to_line(sourceline, sync_context)
 
 def line_numbers():
     found_body = False

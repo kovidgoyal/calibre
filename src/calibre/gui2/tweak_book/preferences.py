@@ -381,6 +381,11 @@ class PreviewSettings(BasicSettings):  # {{{
         w = self('preview_minimum_font_size')
         w.setMinimum(4), w.setMaximum(100), w.setSuffix(' px')
         l.addRow(_('Mi&nimum font size:'), w)
+        w = self('preview_sync_context')
+        w.setMinimum(0), w.setMaximum(10), w.setSuffix(' ' + _('lines'))
+        w.setToolTip('<p>' + _(
+            'Number of lines that are shown above the current line when syncing the text shown in the preview panel to the cursor position in the code view'))
+        l.addRow(_('Visible lines above s&ync point:'), w)
         l.addRow(_('Background color:'), self.color_override('preview_background'))
         l.addRow(_('Foreground color:'), self.color_override('preview_foreground'))
         l.addRow(_('Link color:'), self.color_override('preview_link_color'))

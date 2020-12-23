@@ -38,6 +38,7 @@ d['preview_standard_font_family'] = 'serif'
 d['preview_base_font_size'] = 18
 d['preview_mono_font_size'] = 14
 d['preview_minimum_font_size'] = 8
+d['preview_sync_context'] = 0
 d['preview_background'] = 'auto'
 d['preview_foreground'] = 'auto'
 d['preview_link_color'] = 'auto'

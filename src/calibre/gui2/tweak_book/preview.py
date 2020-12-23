@@ -341,7 +341,7 @@ class WebPage(QWebEnginePage):
             if lnum is None:
                 return
             tags = [x.lower() for x in tags]
-            self.bridge.go_to_sourceline_address.emit(lnum, tags)
+            self.bridge.go_to_sourceline_address.emit(lnum, tags, tprefs['preview_sync_context'])
 
     def split_mode(self, enabled):
         if self.bridge.ready:
