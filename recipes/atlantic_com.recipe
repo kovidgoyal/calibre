@@ -9,6 +9,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 web_version = True
+test_article = None
+# test_article = 'https://www.theatlantic.com/health/archive/2020/12/covid-19-second-surge/617415/?utm_source=feed'
 
 
 def classes(classes):
@@ -16,6 +18,19 @@ def classes(classes):
     return dict(
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
     )
+
+
+def prefix_classes(classes):
+    q = classes.split()
+
+    def test(x):
+        if x:
+            for cls in x.split():
+                for c in q:
+                    if cls.startswith(c):
+                        return True
+        return False
+    return dict(attrs={'class': test})
 
 
 class TheAtlantic(BasicNewsRecipe):
@@ -38,6 +53,9 @@ class TheAtlantic(BasicNewsRecipe):
             'c-article-header__hed c-rubric article-header c-article-meta c-lead-media'
             ' lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
+        prefix_classes(
+            'ArticleHeader_root__ ArticleLayoutSection_main__'
+        ),
         dict(itemprop='articleBody'),
         # these are for photos articles
         dict(id='article-header'),
@@ -45,9 +63,10 @@ class TheAtlantic(BasicNewsRecipe):
     ]
     remove_tags = [
         classes(
-            'c-ad c-share-social social-kit-top letter-writer-info callout secondary-byline embed-wrapper'
+            'c-ad c-share-social c-recirculation-link social-kit-top letter-writer-info callout secondary-byline embed-wrapper'
             ' offset-wrapper boxtop-most-popular social-icons hints read-more c-article-writer__social'
         ),
+        prefix_classes('ArticleRecirc_inline__'),
         {
             'name': ['meta', 'link', 'noscript', 'aside', 'h3']
         },
@@ -103,7 +122,7 @@ class TheAtlantic(BasicNewsRecipe):
             ans = None
         return ans
 
-    if web_version:
+    if web_version and not test_article:
 
         use_embedded_content = False
 
@@ -129,6 +148,8 @@ class TheAtlantic(BasicNewsRecipe):
         ]
     else:
         def parse_index(self):
+            if test_article:
+                return [('Articles', [{'title': 'Test article', 'url': test_article}])]
             soup = self.index_to_soup(self.INDEX)
             figure = soup.find('figure', id='cover-image')
             if figure is not None:
