@@ -13,7 +13,7 @@ from itertools import groupby
 from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, QFont,
         QModelIndex, QDateTime, QColor, QPixmap, QPainter, QApplication)
 
-from calibre import fit_image, force_unicode, prepare_string_for_xml
+from calibre import fit_image, force_unicode, prepare_string_for_xml, human_readable
 from calibre.gui2 import error_dialog
 from calibre.utils.search_query_parser import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
@@ -34,12 +34,6 @@ from calibre.library.coloring import color_row_key
 from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, range, map
 
 Counts = namedtuple('Counts', 'library_total total current')
-
-
-def human_readable(size, precision=1):
-    """ Convert a size in bytes into megabytes """
-    return ('%.'+unicode_type(precision)+'f') % (size/(1024*1024))
-
 
 TIME_FMT = '%d %b %Y'
 
