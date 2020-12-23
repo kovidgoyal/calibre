@@ -450,11 +450,16 @@ class AddAction(InterfaceAction):
                 accept = True
         if accept and event is not None:
             event.accept()
+        add_as_book = False
         if do_confirm and formats:
-            if not confirm(
+            ok, add_as_book = confirm(
                 _('You have dropped some files onto the book <b>%s</b>. This will'
                   ' add or replace the files for this book. Do you want to proceed?') % db.title(cid, index_is_id=True),
-                'confirm_drop_on_book', parent=self.gui):
+                'confirm_drop_on_book', parent=self.gui,
+                extra_button=ngettext('Add as new book', 'Add as new books', len(formats)))
+            if ok and add_as_book:
+                add_as_book = [path for ext, path in formats]
+            if not ok or add_as_book:
                 formats = []
         for ext, path in formats:
             db.add_format_with_hooks(cid, ext, path, index_is_id=True)
@@ -462,6 +467,8 @@ class AddAction(InterfaceAction):
             self.gui.library_view.model().current_changed(current_idx, current_idx)
         if cover_changed:
             self.gui.refresh_cover_browser()
+        if add_as_book:
+            self.files_dropped(add_as_book)
 
     def __add_filesystem_book(self, paths, allow_device=True):
         if isinstance(paths, string_or_bytes):
