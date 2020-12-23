@@ -1680,7 +1680,7 @@ class BasicNewsRecipe(Recipe):
                     url = purl._replace(netloc=hostname).geturl()
                     if purl.username and purl.password:
                         br.add_password(url, purl.username, purl.password)
-                with closing(br.open_novisit(url)) as f:
+                with closing(br.open_novisit(url, timeout=self.timeout)) as f:
                     raw = f.read()
                 parsed_feeds.append(feed_from_xml(
                     raw, title=title, log=self.log,
