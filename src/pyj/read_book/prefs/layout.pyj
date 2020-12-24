@@ -31,7 +31,8 @@ def restore_defaults():
         container.querySelector('input[name={}]'.format(which)).value = str(defaults['margin_' + which])
     for name in 'paged flow'.split(' '):
         container.querySelector(f'#{READ_MODE} input[data-name={name}]').checked = defaults.read_mode is name
-    container.querySelector(f'#{FS_MODE} input[value={defaults.fullscreen_when_opening}]').checked = True
+    if not runtime.is_standalone_viewer:
+        container.querySelector(f'#{FS_MODE} input[value={defaults.fullscreen_when_opening}]').checked = True
     for name in 'portrait landscape'.split(' '):
         container.querySelector('input[name={}]'.format(name)).value = str(defaults.columns_per_screen[name])
     for which in 'width height'.split(' '):
