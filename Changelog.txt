@@ -23,6 +23,55 @@
 # - title by author
 # }}}
 
+{{{ 5.8.0 2020-12-24
+
+:: new features
+
+- Happy holidays to all calibre users!
+
+- E-book Viewer: Add a mode to follow links with only the keyboard (triggered by Alt+f)
+
+- [1908929] Edit book: A new option to show a configurable number lines above the current line when syncing the position of the preview panel to the current position in the code editor (under Preview settings in the Editor preferences).
+
+- [1907410] Windows: Automatically resolve shortcuts (.lnk files) when adding books to calibre.
+
+- Content server viewer: Don't enter fullscreen mode automatically when reading on desktop like devices (this can be controlled via a setting in in the viewer preferences under Page layout)
+
+- E-book Viewer tool bar: Add a select all action and a Read aloud action (can be added by right clicking the tool bar and configuring it)
+
+- Template/formatter enhancements: Add a 'for' statement and add the ability for a developer to pass extra information to a template.
+
+- [1907919 1907918] Rules editors for icon/coloring rules: Add a button to duplicate rules and to convert a rule to advanced template mode
+
+:: bug fixes
+
+- Content server viewer: Fix regression in 5.0 that broke scrolling on iOS
+
+- [1908000] E-book viewer: Fix error when scrolling to some search results in flow mode
+
+- [1898394] AZW3 Input: Fix rare AID based links not working.
+
+- [1907907] E-book viewer: Fix clock in header/footer not using system time format
+
+- Windows: Fix Read aloud not working with books that have a single large internal text file, such as MOBI or DOCX books
+
+- PDF Output: Fix a regression causing conversion to fail when typesetting Chinese text
+
+- Amazon metadata download: Fix no results being found when using the auto or google server because of a change in the markup of the Google search results page.
+
+:: improved recipes
+
+- The Australian
+- The Atlantic
+- Zerohedge
+- New York Times Book Review
+
+:: new recipes
+
+- SchwarzerPfeil by tastytea
+- Substack by topynate
+}}}
+
 {{{ 5.7.2 2020-12-12
 
 :: new features
