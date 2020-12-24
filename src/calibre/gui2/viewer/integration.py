@@ -7,6 +7,7 @@ import re
 
 
 def get_book_library_details(absolute_path_to_ebook):
+    from calibre.srv.library_broker import correct_case_of_last_path_component, library_id_from_path
     absolute_path_to_ebook = os.path.abspath(os.path.expanduser(absolute_path_to_ebook))
     base = os.path.dirname(absolute_path_to_ebook)
     m = re.search(r' \((\d+)\)$', os.path.basename(base))
@@ -14,11 +15,13 @@ def get_book_library_details(absolute_path_to_ebook):
         return
     book_id = int(m.group(1))
     library_dir = os.path.dirname(os.path.dirname(base))
+    corrected_path = correct_case_of_last_path_component(library_dir)
+    library_id = library_id_from_path(corrected_path)
     dbpath = os.path.join(library_dir, 'metadata.db')
     dbpath = os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH') or dbpath
     if not os.path.exists(dbpath):
         return
-    return {'dbpath': dbpath, 'book_id': book_id, 'fmt': absolute_path_to_ebook.rpartition('.')[-1].upper()}
+    return {'dbpath': dbpath, 'book_id': book_id, 'fmt': absolute_path_to_ebook.rpartition('.')[-1].upper(), 'library_id': library_id}
 
 
 def database_has_annotations_support(cursor):

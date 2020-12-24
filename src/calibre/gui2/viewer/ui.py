@@ -9,12 +9,12 @@ import re
 import sys
 from collections import defaultdict, namedtuple
 from hashlib import sha256
-from threading import Thread
-
 from PyQt5.Qt import (
-    QApplication, QCursor, QDockWidget, QEvent, QMenu, QMimeData, QModelIndex,
-    QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, QMainWindow
+    QApplication, QCursor, QDockWidget, QEvent, QMainWindow, QMenu, QMimeData,
+    QModelIndex, QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget,
+    pyqtSignal
 )
+from threading import Thread
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -24,6 +24,7 @@ from calibre.gui2 import choose_files, error_dialog
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
+from calibre.gui2.viewer import get_current_book_data
 from calibre.gui2.viewer.annotations import (
     AnnotationsSaveWorker, annotations_dir, parse_annotations
 )
@@ -109,6 +110,7 @@ class EbookViewer(MainWindow):
         except EnvironmentError:
             pass
         self.current_book_data = {}
+        get_current_book_data(self.current_book_data)
         self.book_prepared.connect(self.load_finished, type=Qt.ConnectionType.QueuedConnection)
         self.dock_defs = dock_defs()
 
@@ -457,6 +459,7 @@ class EbookViewer(MainWindow):
         self.loading_overlay(_('Loading book, please wait'))
         self.save_annotations()
         self.current_book_data = {}
+        get_current_book_data(self.current_book_data)
         self.search_widget.clear_searches()
         t = Thread(name='LoadBook', target=self._load_ebook_worker, args=(pathtoebook, open_at, reload_book or self.force_reload))
         t.daemon = True
@@ -513,6 +516,7 @@ class EbookViewer(MainWindow):
             self.load_ebook(data['pathtoebook'], open_at=data['open_at'], reload_book=True)
             return
         self.current_book_data = data
+        get_current_book_data(self.current_book_data)
         self.current_book_data['annotations_map'] = defaultdict(list)
         self.current_book_data['annotations_path_key'] = path_key(data['pathtoebook']) + '.json'
         self.load_book_data(cbd)

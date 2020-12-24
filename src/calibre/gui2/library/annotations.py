@@ -7,11 +7,13 @@ import json
 import os
 from functools import partial
 from PyQt5.Qt import (
-    QApplication, QCheckBox, QComboBox, QCursor, QDateTime, QFont, QFormLayout, QDialog,
-    QHBoxLayout, QIcon, QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize,
-    QSplitter, Qt, QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QFrame,
-    QVBoxLayout, QWidget, pyqtSignal, QAbstractItemView, QDialogButtonBox
+    QAbstractItemView, QApplication, QCheckBox, QComboBox, QCursor, QDateTime,
+    QDialog, QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon,
+    QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,
+    QTextBrowser, QTimer, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
 )
+from urllib.parse import quote
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
@@ -22,25 +24,40 @@ from calibre.gui2.widgets2 import Dialog
 
 
 # rendering {{{
-def render_highlight_as_text(hl, lines):
+
+def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
     lines.append(hl['highlighted_text'])
     date = QDateTime.fromString(hl['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
+    if as_markdown and link_prefix:
+        cfi = hl['start_cfi']
+        spine_index = (1 + hl['spine_index']) * 2
+        link = (link_prefix + quote(f'epubcfi(/{spine_index}{cfi})')).replace(')', '%29')
+        date = f'[{date}]({link})'
     lines.append(date)
     notes = hl.get('notes')
     if notes:
         lines.append('')
         lines.append(notes)
     lines.append('')
-    lines.append('───')
+    if as_markdown:
+        lines.append('-' * 20)
+    else:
+        lines.append('───')
     lines.append('')
 
 
-def render_bookmark_as_text(b, lines):
+def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     lines.append(b['title'])
     date = QDateTime.fromString(b['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
+    if as_markdown and link_prefix and b['pos_type'] == 'epubcfi':
+        link = (link_prefix + quote(b['pos'])).replace(')', '%29')
+        date = f'[{date}]({link})'
     lines.append(date)
     lines.append('')
-    lines.append('───')
+    if as_markdown:
+        lines.append('-' * 20)
+    else:
+        lines.append('───')
     lines.append('')
 
 
@@ -115,6 +132,7 @@ class Export(Dialog):  # {{{
         self.l = l = QFormLayout(self)
         self.export_format = ef = QComboBox(self)
         ef.addItem(_('Plain text'), 'txt')
+        ef.addItem(_('Markdown'), 'md')
         ef.addItem(*self.file_type_data())
         idx = ef.findData(self.prefs[self.pref_name])
         if idx > -1:
@@ -151,7 +169,8 @@ class Export(Dialog):  # {{{
             self.accept()
 
     def exported_data(self):
-        if self.export_format.currentData() == 'calibre_annotation_collection':
+        fmt = self.export_format.currentData()
+        if fmt == 'calibre_annotation_collection':
             return json.dumps({
                 'version': 1,
                 'type': 'calibre_annotation_collection',
@@ -160,6 +179,10 @@ class Export(Dialog):  # {{{
         lines = []
         db = current_db()
         bid_groups = {}
+        as_markdown = fmt == 'md'
+        library_id = getattr(db, 'server_library_id', None)
+        if library_id:
+            library_id = '_hex_-' + library_id.encode('utf-8').hex()
         for a in self.annotations:
             bid_groups.setdefault(a['book_id'], []).append(a)
         for book_id, group in bid_groups.items():
@@ -167,10 +190,14 @@ class Export(Dialog):  # {{{
             lines.append('')
             for a in group:
                 atype = a['type']
+                if library_id:
+                    link_prefix = f'calibre://show-book/{library_id}/{book_id}/{a["format"]}?open_at='
+                else:
+                    link_prefix = None
                 if atype == 'highlight':
-                    render_highlight_as_text(a, lines)
+                    render_highlight_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
                 elif atype == 'bookmark':
-                    render_bookmark_as_text(a, lines)
+                    render_bookmark_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
             lines.append('')
         return '\n'.join(lines).strip()
 # }}}
