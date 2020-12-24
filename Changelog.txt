@@ -29,7 +29,7 @@
 
 - Happy holidays to all calibre users!
 
-- E-book Viewer: Add a mode to follow links with only the keyboard (triggered by Alt+f)
+- E-book Viewer: Add a mode to follow links with only the keyboard (triggered by Alt+F)
 
 - [1908929] Edit book: A new option to show a configurable number lines above the current line when syncing the position of the preview panel to the current position in the code editor (under Preview settings in the Editor preferences).
 
