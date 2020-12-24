@@ -99,6 +99,8 @@ def create_layout_panel(container, apply_func, cancel_func):
     if not runtime.is_standalone_viewer:
         name = 'fullscreen_when_opening'
         val = sd.get(name)
+        if 'auto always never'.split(' ').indexOf(val or '') < 0:
+            val = defaults.fullscreen_when_opening
         container.appendChild(E.div(
             E.div(style='margin: 1ex 2rem', id=FS_MODE,
                 _('When opening a book enter fullscreen:'), ' ',
