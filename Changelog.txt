@@ -35,7 +35,7 @@
 
 - [1907410] Windows: Automatically resolve shortcuts (.lnk files) when adding books to calibre.
 
-- Content server viewer: Don't enter fullscreen mode automatically when reading on desktop like devices (this can be controlled via a setting in in the viewer preferences under Page layout)
+- Content server viewer: Don't enter full screen mode automatically when reading on desktop like devices (this can be controlled via a setting in the viewer preferences under Page layout)
 
 - E-book Viewer tool bar: Add a select all action and a Read aloud action (can be added by right clicking the tool bar and configuring it)
 
