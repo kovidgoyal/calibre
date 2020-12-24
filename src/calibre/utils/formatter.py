@@ -851,22 +851,22 @@ class TemplateFormatter(string.Formatter):
 
     # ######### a formatter that throws exceptions ############
 
-    def unsafe_format(self, fmt, kwargs, book, strip_results=True):
+    def unsafe_format(self, fmt, kwargs, book, strip_results=True, global_vars=None):
         self.strip_results = strip_results
         self.column_name = self.template_cache = None
         self.kwargs = kwargs
         self.book = book
         self.composite_values = {}
         self.locals = {}
-        self.global_vars = {}
-        return self.evaluate(fmt, [], kwargs)
+        self.global_vars = global_vars if isinstance(global_vars, dict) else {}
+        return self.evaluate(fmt, [], kwargs, self.global_vars)
 
     # ######### a formatter guaranteed not to throw an exception ############
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
-                    global_vars={}):
+                    global_vars=None):
         self.strip_results = strip_results
         self.column_name = column_name
         self.template_cache = template_cache
@@ -880,7 +880,7 @@ class TemplateFormatter(string.Formatter):
         self.composite_values = {}
         self.locals = {}
         try:
-            ans = self.evaluate(fmt, [], kwargs, global_vars)
+            ans = self.evaluate(fmt, [], kwargs, self.global_vars)
         except Exception as e:
             if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()
