@@ -20,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 4)
+current_version = (1, 0, 5)
 minimum_calibre_version = (2, 80, 0)
 
 
@@ -235,7 +235,7 @@ def google_search(terms, site=None, br=None, log=prints, safe_search=False, dump
     ans = []
     for div in root.xpath('//*[@id="search"]//*[@id="rso"]//*[@class="g"]'):
         try:
-            a = div.xpath('descendant::div[@class="r"]/a[@href]')[0]
+            a = div.xpath('descendant::div[@class="rc"]//a[@href]')[0]
         except IndexError:
             log('Ignoring div with no descendant')
             continue
