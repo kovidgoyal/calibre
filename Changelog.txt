@@ -57,7 +57,7 @@
 
 - PDF Output: Fix a regression causing conversion to fail when typesetting Chinese text
 
-- Amazon metadata download: Fix no results being found when using the auto or google server because of a change in the markup of the Google search results page.
+- Amazon metadata download: Fix no results being found when using the automatic or Google servers because of a change in the markup of the Google search results page.
 
 - [1909217 1909197] Version 5.8.1 fixes a couple of regressions that broke the Save to disk function and changing Page layout settings in the viewer.
 
