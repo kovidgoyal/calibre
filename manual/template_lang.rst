@@ -401,19 +401,19 @@ An ``if`` produces a value like any other language expression. This means that a
     * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
     * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
 
-The template language supports **``for`` expressions** with the following syntax:
+The template language supports **``for`` expressions** with the following syntax::
 
     for <<id>> in <<expression>>:
         <<expression_list>>
     rof
-    
+
 The expression must evaluate to either a metadata field lookup key, for example ``tags`` or ``#genre``, or a comma-separated list of
 values. If the result is a valid lookup name then the field's value is fetched, otherwise the list is broken into its
 individual values. Each resulting value in the list is assigned to the variable ``id`` then the ``expression_list``
 is evaluated.
 
 Example: This template removes the first hierarchical name for each value in Genre (``#genre``), constructing a list with
-the new names.
+the new names::
 
         program:
         	new_tags = '';
@@ -481,7 +481,7 @@ The full method signature is:
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
                     global_vars={})
-                    
+
 
 **Template writer: how to access the additional information**
 
@@ -509,7 +509,7 @@ Example: the following SFM template returns either the series name or the string
 The equivalent template in TPM is ::
 
     ``{series:'ifempty($, 'no series')'}``
-    
+
 The equivalent template in GPM is::
 
     ``program: ifempty(field('series'), 'no series')``
