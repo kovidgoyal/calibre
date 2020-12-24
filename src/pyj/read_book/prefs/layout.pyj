@@ -133,11 +133,12 @@ def commit_layout(onchange, container):
     if rm is not crm:
         was_changed = True
         sd.set('read_mode', crm)
-    fs = sd.get('fullscreen_when_opening')
-    cfs = document.querySelector(f'#{FS_MODE} input[name="fullscreen_when_opening"]:checked').value
-    if cfs is not fs:
-        was_changed = True
-        sd.set('fullscreen_when_opening', cfs)
+    if not runtime.is_standalone_viewer:
+        fs = sd.get('fullscreen_when_opening')
+        cfs = document.querySelector(f'#{FS_MODE} input[name="fullscreen_when_opening"]:checked').value
+        if cfs is not fs:
+            was_changed = True
+            sd.set('fullscreen_when_opening', cfs)
     cps = sd.get('columns_per_screen')
     cps = {'portrait': cps.portrait, 'landscape': cps.landscape}
     for which in ('portrait', 'landscape'):
