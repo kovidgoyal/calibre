@@ -73,6 +73,8 @@ def confirm(msg, name, parent=None, pixmap='dialog_warning.png', title=None,
         show_cancel_button=True, confirm_msg=None, config_set=None, extra_button=None):
     config_set = config_set or dynamic
     if not config_set.get(confirm_config_name(name), True):
+        if extra_button:
+            return True, False
         return True
     d = Dialog(msg, name, parent, config_set=config_set, icon=pixmap, extra_button=extra_button,
                title=title, confirm_msg=confirm_msg, show_cancel_button=show_cancel_button)
