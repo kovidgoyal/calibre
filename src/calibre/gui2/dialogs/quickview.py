@@ -490,7 +490,9 @@ class Quickview(QDialog, Ui_Quickview):
             self.indicate_no_items()
 
     def is_category(self, key):
-        return key is not None and self.fm[key]['is_category']
+        return key is not None and (self.fm[key]['is_category'] or
+                                    (self.fm[key]['datatype'] == 'composite' and
+                                     self.fm[key]['display'].get('make_category', False)))
 
     def _refresh(self, book_id, key):
         '''
