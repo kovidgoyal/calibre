@@ -1306,16 +1306,9 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
-        res = [l.strip() for l in list1.split(separator) if l.strip()]
-        l2 = [l.strip() for l in list2.split(separator) if l.strip()]
-        lcl1 = {icu_lower(l) for l in res}
-
-        for i in l2:
-            if icu_lower(i) not in lcl1 and i not in res:
-                res.append(i)
-        if separator == ',':
-            return ', '.join(res)
-        return separator.join(res)
+        res = {icu_lower(l.strip()): l.strip() for l in list2.split(separator) if l.strip()}
+        res.update({icu_lower(l.strip()): l.strip() for l in list1.split(separator) if l.strip()})
+        return separator.join(res.values())
 
 
 class BuiltinListDifference(BuiltinFormatterFunction):
