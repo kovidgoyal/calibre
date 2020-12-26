@@ -784,12 +784,11 @@ class RulesModel(QAbstractListModel):  # {{{
     def move(self, idx, delta):
         row = idx.row() + delta
         if row >= 0 and row < len(self.rules):
-            t = self.rules[row]
-            self.rules[row] = self.rules[row-delta]
-            self.rules[row-delta] = t
-            self.dataChanged.emit(idx, idx)
+            self.beginResetModel()
+            t = self.rules.pop(row-delta)
+            self.rules.insert(row, t) # does append if row >= len(rules)
+            self.endResetModel()
             idx = self.index(row)
-            self.dataChanged.emit(idx, idx)
             return idx
 
     def clear(self):
@@ -1136,6 +1135,7 @@ class EditRules(QWidget):  # {{{
                     idx = self.model.move(idx, -1)
                     if idx is not None:
                         sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
+                        self.rules_view.setCurrentIndex(idx)
             self.changed.emit()
 
     def move_down(self):
@@ -1150,6 +1150,7 @@ class EditRules(QWidget):  # {{{
                     idx = self.model.move(idx, 1)
                     if idx is not None:
                         sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
+                        self.rules_view.setCurrentIndex(idx)
             self.changed.emit()
 
     def clear(self):
