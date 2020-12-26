@@ -768,13 +768,6 @@ calibre is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 There can be several causes for this:
 
-    * If you are on Windows XP, or on a computer with a processor that does not
-      support SSE2 (such as AMD processors from before 2003) try installing
-      calibre `version 1.48 <https://download.calibre-ebook.com/1.48.0/>`_. calibre
-      2.0 and newer use Qt 5 which is known to be incompatible with Windows XP
-      machines, and requires SSE2. Simply un-install calibre and then install
-      version 1.48, doing so will not affect your books/settings.
-
     * If you get an error about calibre not being able to open a file because it is in use by another program, do the following:
 
        * Uninstall calibre
