@@ -23,6 +23,7 @@ class Stage1(Command):
         'iso639',
         'iso3166',
         'gui',
+        'recent_uas',
     ]
 
 
