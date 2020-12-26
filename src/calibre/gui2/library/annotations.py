@@ -191,7 +191,7 @@ class Export(Dialog):  # {{{
             for a in group:
                 atype = a['type']
                 if library_id:
-                    link_prefix = f'calibre://show-book/{library_id}/{book_id}/{a["format"]}?open_at='
+                    link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
                 else:
                     link_prefix = None
                 if atype == 'highlight':

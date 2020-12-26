@@ -144,7 +144,7 @@ class Export(ExportBase):
             library_id = bld['library_id']
         if library_id:
             library_id = '_hex_-' + library_id.encode('utf-8').hex()
-            link_prefix = f'calibre://show-book/{library_id}/{book_id}/{book_fmt}?open_at='
+            link_prefix = f'calibre://view-book/{library_id}/{book_id}/{book_fmt}?open_at='
         fmt = self.export_format.currentData()
         if fmt == 'calibre_highlights':
             return json.dumps({
