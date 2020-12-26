@@ -17,7 +17,8 @@ from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
 from calibre import prepare_string_for_xml, sanitize_file_name, as_unicode
 from calibre.constants import config_dir
 from calibre.utils.icu import sort_key
-from calibre.gui2 import error_dialog, choose_files, pixmap_to_data, gprefs, choose_save_file
+from calibre.gui2 import (error_dialog, choose_files, pixmap_to_data, gprefs,
+                          choose_save_file, open_local_file)
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.widgets2 import ColorButton
@@ -784,12 +785,11 @@ class RulesModel(QAbstractListModel):  # {{{
     def move(self, idx, delta):
         row = idx.row() + delta
         if row >= 0 and row < len(self.rules):
-            t = self.rules[row]
-            self.rules[row] = self.rules[row-delta]
-            self.rules[row-delta] = t
-            self.dataChanged.emit(idx, idx)
+            self.beginResetModel()
+            t = self.rules.pop(row-delta)
+            self.rules.insert(row, t) # does append if row >= len(rules)
+            self.endResetModel()
             idx = self.index(row)
-            self.dataChanged.emit(idx, idx)
             return idx
 
     def clear(self):
@@ -959,6 +959,12 @@ class EditRules(QWidget):  # {{{
                 _('Convert to advanced r&ule'), self)
         b.clicked.connect(self.convert_to_advanced)
         b.setEnabled(False)
+        hb.addWidget(b)
+        hb.addStretch(10)
+        self.open_icon_folder_button = b = QPushButton(QIcon(I('icon_choose.png')),
+                _('Open icon directory'), self)
+        connect_lambda(b.clicked, self,
+                       lambda _: open_local_file(os.path.join(config_dir, 'cc_icons')))
         hb.addWidget(b)
         hb.addStretch(10)
         self.export_button = b = QPushButton(_('E&xport'), self)
@@ -1136,6 +1142,7 @@ class EditRules(QWidget):  # {{{
                     idx = self.model.move(idx, -1)
                     if idx is not None:
                         sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
+                        self.rules_view.setCurrentIndex(idx)
             self.changed.emit()
 
     def move_down(self):
@@ -1150,6 +1157,7 @@ class EditRules(QWidget):  # {{{
                     idx = self.model.move(idx, 1)
                     if idx is not None:
                         sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
+                        self.rules_view.setCurrentIndex(idx)
             self.changed.emit()
 
     def clear(self):
