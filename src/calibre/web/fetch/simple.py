@@ -236,7 +236,7 @@ class RecursiveFetcher(object):
     def fetch_url(self, url):
         data = None
         self.log.debug('Fetching', url)
-        st = time.time()
+        st = time.monotonic()
 
         # Check for a URL pointing to the local filesystem and special case it
         # for efficiency and robustness. Bypasses delay checking as it does not
@@ -255,10 +255,10 @@ class RecursiveFetcher(object):
                 data = response(f.read())
                 data.newurl = 'file:'+url  # This is what mechanize does for
                 # local URLs
-            self.log.debug('Fetched %s in %.1f seconds' % (url, time.time() - st))
+            self.log.debug('Fetched %s in %.1f seconds' % (url, time.monotonic() - st))
             return data
 
-        delta = time.time() - self.last_fetch_at
+        delta = time.monotonic() - self.last_fetch_at
         if delta < self.delay:
             time.sleep(self.delay - delta)
         # mechanize does not handle quoting automatically
@@ -292,8 +292,8 @@ class RecursiveFetcher(object):
             else:
                 raise err
         finally:
-            self.last_fetch_at = time.time()
-        self.log.debug('Fetched %s in %f seconds' % (url, time.time() - st))
+            self.last_fetch_at = time.monotonic()
+        self.log.debug('Fetched %s in %f seconds' % (url, time.monotonic() - st))
         return data
 
     def start_fetch(self, url):
@@ -341,10 +341,13 @@ class RecursiveFetcher(object):
                 iurl = tag['href']
                 if not urlsplit(iurl).scheme:
                     iurl = urljoin(baseurl, iurl, False)
+                found_cached = False
                 with self.stylemap_lock:
                     if iurl in self.stylemap:
                         tag['href'] = self.stylemap[iurl]
-                        continue
+                        found_cached = True
+                if found_cached:
+                    continue
                 try:
                     data = self.fetch_url(iurl)
                 except Exception:
@@ -364,10 +367,13 @@ class RecursiveFetcher(object):
                         iurl = m.group(1)
                         if not urlsplit(iurl).scheme:
                             iurl = urljoin(baseurl, iurl, False)
+                        found_cached = False
                         with self.stylemap_lock:
                             if iurl in self.stylemap:
                                 ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
-                                continue
+                                found_cached = True
+                        if found_cached:
+                            continue
                         try:
                             data = self.fetch_url(iurl)
                         except Exception:
@@ -402,10 +408,13 @@ class RecursiveFetcher(object):
                     iurl = self.image_url_processor(baseurl, iurl)
                 if not urlsplit(iurl).scheme:
                     iurl = urljoin(baseurl, iurl, False)
+                found_in_cache = False
                 with self.imagemap_lock:
                     if iurl in self.imagemap:
                         tag['src'] = self.imagemap[iurl]
-                        continue
+                        found_in_cache = True
+                if found_in_cache:
+                    continue
                 try:
                     data = self.fetch_url(iurl)
                     if data == b'GIF89a\x01':
@@ -529,9 +538,9 @@ class RecursiveFetcher(object):
                     else:
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
 
-                    st = time.time()
+                    st = time.monotonic()
                     soup = self.get_soup(dsrc, url=iurl)
-                    self.log.debug('Parsed %s in %.1f seconds' % (iurl, time.time() - st))
+                    self.log.debug('Parsed %s in %.1f seconds' % (iurl, time.monotonic() - st))
 
                     base = soup.find('base', href=True)
                     if base is not None:
