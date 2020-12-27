@@ -20,7 +20,7 @@ class Arcamax(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     remove_javascript = True
-    cover_url = 'http://www.arcamax.com/images/pub/amuse/leftcol/zits.jpg'
+    cover_url = 'https://www.arcamax.com/images/pub/amuse/leftcol/zits.jpg'
 
     # ###### USER PREFERENCES - SET COMICS AND NUMBER OF COMICS TO RETRIEVE ##
     num_comics_to_get = 7
@@ -41,41 +41,41 @@ class Arcamax(BasicNewsRecipe):
         self.panel_counter = 0
         for title, url in [
                 # ####### COMICS - GENERAL ########
-                # (u"9 Chickweed Lane", u"http://www.arcamax.com/thefunnies/ninechickweedlane"),
-                # (u"Agnes", u"http://www.arcamax.com/thefunnies/agnes"),
-                # (u"Andy Capp", u"http://www.arcamax.com/thefunnies/andycapp"),
-                (u"BC", u"http://www.arcamax.com/thefunnies/bc"),
-                # (u"Baby Blues", u"http://www.arcamax.com/thefunnies/babyblues"),
-                # (u"Beetle Bailey", u"http://www.arcamax.com/thefunnies/beetlebailey"),
-                (u"Blondie", u"http://www.arcamax.com/thefunnies/blondie"),
-                # u"Boondocks", u"http://www.arcamax.com/thefunnies/boondocks"),
-                # (u"Cathy", u"http://www.arcamax.com/thefunnies/cathy"),
-                # (u"Daddys Home", u"http://www.arcamax.com/thefunnies/daddyshome"),
-                (u"Dilbert", u"http://www.arcamax.com/thefunnies/dilbert"),
-                # (u"Dinette Set", u"http://www.arcamax.com/thefunnies/thedinetteset"),
-                (u"Dog Eat Doug", u"http://www.arcamax.com/thefunnies/dogeatdoug"),
-                (u"Doonesbury", u"http://www.arcamax.com/thefunnies/doonesbury"),
-                # (u"Dustin", u"http://www.arcamax.com/thefunnies/dustin"),
-                (u"Family Circus", u"http://www.arcamax.com/thefunnies/familycircus"),
-                (u"Garfield", u"http://www.arcamax.com/thefunnies/garfield"),
-                # (u"Get Fuzzy", u"http://www.arcamax.com/thefunnies/getfuzzy"),
-                # (u"Girls and Sports", u"http://www.arcamax.com/thefunnies/girlsandsports"),
-                # (u"Hagar the Horrible", u"http://www.arcamax.com/thefunnies/hagarthehorrible"),
-                # (u"Heathcliff", u"http://www.arcamax.com/thefunnies/heathcliff"),
-                # (u"Jerry King Cartoons", u"http://www.arcamax.com/thefunnies/humorcartoon"),
-                # (u"Luann", u"http://www.arcamax.com/thefunnies/luann"),
-                # (u"Momma", u"http://www.arcamax.com/thefunnies/momma"),
-                # (u"Mother Goose and Grimm", u"http://www.arcamax.com/thefunnies/mothergooseandgrimm"),
-                (u"Mutts", u"http://www.arcamax.com/thefunnies/mutts"),
-                # (u"Non Sequitur", u"http://www.arcamax.com/thefunnies/nonsequitur"),
-                # (u"Pearls Before Swine", u"http://www.arcamax.com/thefunnies/pearlsbeforeswine"),
-                # (u"Pickles", u"http://www.arcamax.com/thefunnies/pickles"),
-                # (u"Red and Rover", u"http://www.arcamax.com/thefunnies/redandrover"),
-                # (u"Rubes", u"http://www.arcamax.com/thefunnies/rubes"),
-                # (u"Rugrats", u"http://www.arcamax.com/thefunnies/rugrats"),
-                (u"Speed Bump", u"http://www.arcamax.com/thefunnies/speedbump"),
-                (u"Wizard of Id", u"http://www.arcamax.com/thefunnies/wizardofid"),
-                (u"Zits", u"http://www.arcamax.com/thefunnies/zits"),
+                # (u"9 Chickweed Lane", u"https://www.arcamax.com/thefunnies/ninechickweedlane"),
+                # (u"Agnes", u"https://www.arcamax.com/thefunnies/agnes"),
+                # (u"Andy Capp", u"https://www.arcamax.com/thefunnies/andycapp"),
+                (u"BC", u"https://www.arcamax.com/thefunnies/bc"),
+                # (u"Baby Blues", u"https://www.arcamax.com/thefunnies/babyblues"),
+                # (u"Beetle Bailey", u"https://www.arcamax.com/thefunnies/beetlebailey"),
+                (u"Blondie", u"https://www.arcamax.com/thefunnies/blondie"),
+                # u"Boondocks", u"https://www.arcamax.com/thefunnies/boondocks"),
+                # (u"Cathy", u"https://www.arcamax.com/thefunnies/cathy"),
+                # (u"Daddys Home", u"https://www.arcamax.com/thefunnies/daddyshome"),
+                (u"Dilbert", u"https://www.arcamax.com/thefunnies/dilbert"),
+                # (u"Dinette Set", u"https://www.arcamax.com/thefunnies/thedinetteset"),
+                (u"Dog Eat Doug", u"https://www.arcamax.com/thefunnies/dogeatdoug"),
+                # (u"Doonesbury", u"https://www.arcamax.com/thefunnies/doonesbury"),
+                # (u"Dustin", u"https://www.arcamax.com/thefunnies/dustin"),
+                (u"Family Circus", u"https://www.arcamax.com/thefunnies/familycircus"),
+                (u"Garfield", u"https://www.arcamax.com/thefunnies/garfield"),
+                # (u"Get Fuzzy", u"https://www.arcamax.com/thefunnies/getfuzzy"),
+                # (u"Girls and Sports", u"https://www.arcamax.com/thefunnies/girlsandsports"),
+                # (u"Hagar the Horrible", u"https://www.arcamax.com/thefunnies/hagarthehorrible"),
+                # (u"Heathcliff", u"https://www.arcamax.com/thefunnies/heathcliff"),
+                # (u"Jerry King Cartoons", u"https://www.arcamax.com/thefunnies/humorcartoon"),
+                # (u"Luann", u"https://www.arcamax.com/thefunnies/luann"),
+                # (u"Momma", u"https://www.arcamax.com/thefunnies/momma"),
+                # (u"Mother Goose and Grimm", u"https://www.arcamax.com/thefunnies/mothergooseandgrimm"),
+                (u"Mutts", u"https://www.arcamax.com/thefunnies/mutts"),
+                # (u"Non Sequitur", u"https://www.arcamax.com/thefunnies/nonsequitur"),
+                # (u"Pearls Before Swine", u"https://www.arcamax.com/thefunnies/pearlsbeforeswine"),
+                # (u"Pickles", u"https://www.arcamax.com/thefunnies/pickles"),
+                # (u"Red and Rover", u"https://www.arcamax.com/thefunnies/redandrover"),
+                # (u"Rubes", u"https://www.arcamax.com/thefunnies/rubes"),
+                # (u"Rugrats", u"https://www.arcamax.com/thefunnies/rugrats"),
+                (u"Speed Bump", u"https://www.arcamax.com/thefunnies/speedbump"),
+                (u"Wizard of Id", u"https://www.arcamax.com/thefunnies/wizardofid"),
+                (u"Zits", u"https://www.arcamax.com/thefunnies/zits"),
         ]:
             self.log('Finding strips for:', title)
             articles = self.make_links(url, title)
@@ -98,7 +98,7 @@ class Arcamax(BasicNewsRecipe):
                 f.write(raw)
             soup = self.index_to_soup(raw)
             a = soup.find(name='a', attrs={'class': ['prev']})
-            prev_page_url = 'http://www.arcamax.com' + a['href']
+            prev_page_url = 'https://www.arcamax.com' + a['href']
             title = self.tag_to_string(
                 soup.find('title')).partition('|')[0].strip()
             if 'for' not in title.split():
@@ -117,7 +117,7 @@ class Arcamax(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', src=True):
             if img['src'].startswith('/'):
-                img['src'] = 'http://arcamax.com' + img['src']
+                img['src'] = 'https://arcamax.com' + img['src']
         return soup
 
     extra_css = '''
