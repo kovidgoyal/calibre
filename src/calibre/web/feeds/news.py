@@ -699,7 +699,7 @@ class BasicNewsRecipe(Recipe):
             # the recipe implements get_browser() or not
             br = self.clone_browser(self.browser)
             open_func = getattr(br, 'open_novisit', br.open)
-            with closing(open_func(url_or_raw)) as f:
+            with closing(open_func(url_or_raw, timeout=self.timeout)) as f:
                 _raw = f.read()
             if not _raw:
                 raise RuntimeError('Could not fetch index from %s'%url_or_raw)
@@ -1128,7 +1128,7 @@ class BasicNewsRecipe(Recipe):
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url)) as r:
+                            with open(img, 'wb') as fi, closing(self.browser.open(feed.image_url, timeout=self.timeout)) as r:
                                 fi.write(r.read())
                             self.image_counter += 1
                             feed.image_url = img
@@ -1333,7 +1333,7 @@ class BasicNewsRecipe(Recipe):
                     cdata = f.read()
             else:
                 self.report_progress(1, _('Downloading cover from %s')%cu)
-                with closing(self.browser.open(cu)) as r:
+                with closing(self.browser.open(cu, timeout=self.timeout)) as r:
                     cdata = r.read()
             if not cdata:
                 return
@@ -1382,7 +1382,7 @@ class BasicNewsRecipe(Recipe):
             with open(mpath, 'wb') as mfile:
                 mfile.write(open(mu, 'rb').read())
         else:
-            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu)) as r:
+            with open(mpath, 'wb') as mfile, closing(self.browser.open(mu, timeout=self.timeout)) as r:
                 mfile.write(r.read())
             self.report_progress(1, _('Masthead image downloaded'))
         self.prepare_masthead_image(mpath, outfile)
