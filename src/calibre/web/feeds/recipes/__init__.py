@@ -51,10 +51,12 @@ def compile_recipe(src):
             'xrange': range,
     }
     exec(src, namespace)
+    ua = namespace.get('calibre_most_common_ua')
 
     for x in itervalues(namespace):
         if (isinstance(x, type) and issubclass(x, BasicNewsRecipe) and x not
                 in basic_recipes):
+            x.calibre_most_common_ua = ua
             return x
 
     return None
