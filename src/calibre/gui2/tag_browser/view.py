@@ -20,7 +20,7 @@ from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
-        TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
+        TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE, rename_only_in_vl_question)
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
                           rating_font, empty_index, question_dialog)
@@ -133,12 +133,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         if not item.ignore_vl:
             if item.use_vl is None:
                 if self.tags_view.model().get_in_vl():
-                    item.use_vl = question_dialog(self.tags_view,
-                                      _('Rename in Virtual library'), '<p>' +
-                                      _('Do you want this rename to apply only to books '
-                                        'in the current Virtual library?') + '</p>',
-                                      yes_text=_('Yes, apply only in VL'),
-                                      no_text=_('No, apply in entire library'))
+                    item.use_vl = rename_only_in_vl_question(self.tags_view)
                 else:
                     item.use_vl = False
             elif not item.use_vl and self.tags_view.model().get_in_vl():

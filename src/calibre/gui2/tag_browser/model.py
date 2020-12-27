@@ -18,7 +18,7 @@ from PyQt5.Qt import (
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
 from calibre.ebooks.metadata import rating_to_stars
-from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs
+from calibre.gui2 import config, error_dialog, file_icon_provider, gprefs, question_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.config import prefs, tweaks
@@ -296,6 +296,15 @@ class TagTreeItem(object):  # {{{
 
 
 FL_Interval = namedtuple('FL_Interval', ('first_chr', 'last_chr', 'length'))
+
+
+def rename_only_in_vl_question(parent):
+    return question_dialog(parent,
+                           _('Rename in Virtual library'), '<p>' +
+                           _('Do you want this rename to apply only to books '
+                             'in the current Virtual library?') + '</p>',
+                           yes_text=_('Yes, apply only in VL'),
+                           no_text=_('No, apply in entire library'))
 
 
 class TagsModel(QAbstractItemModel):  # {{{
@@ -878,8 +887,10 @@ class TagsModel(QAbstractItemModel):  # {{{
                     new_name = dest_item.tag.original_name + '.' + src_simple_name
                 else:
                     new_name = src_simple_name
-                # In d&d renames always use the vl. This might be controversial.
-                src_item.use_vl = True
+                if self.get_in_vl():
+                    src_item.use_vl = rename_only_in_vl_question(self.gui_parent)
+                else:
+                    src_item.use_vl = False
                 self.rename_item(src_item, key, new_name)
                 return True
         # Should be working with a user category
