@@ -99,11 +99,12 @@ def parse_metadata(full_name, raw_bytes):
     return module_version, minimum_calibre_version
 
 
-def fetch_module(full_name, etag=None, timeout=default_timeout):
+def fetch_module(full_name, etag=None, timeout=default_timeout, url=None):
     if timeout is default_timeout:
         timeout = DEFAULT_TIMEOUT
-    path = '/'.join(full_name.split('.')) + '.py'
-    url = 'https://code.calibre-ebook.com/src/' + path
+    if url is None:
+        path = '/'.join(full_name.split('.')) + '.py'
+        url = 'https://code.calibre-ebook.com/src/' + path
     headers = {'accept-encoding': 'gzip'}
     if etag:
         headers['if-none-match'] = f'"{etag}"'
