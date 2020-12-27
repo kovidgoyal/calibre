@@ -20,6 +20,7 @@ class Arcamax(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     remove_javascript = True
+    simultaneous_downloads = 1
     cover_url = 'https://www.arcamax.com/images/pub/amuse/leftcol/zits.jpg'
 
     # ###### USER PREFERENCES - SET COMICS AND NUMBER OF COMICS TO RETRIEVE ##
