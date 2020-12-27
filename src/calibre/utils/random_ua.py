@@ -19,6 +19,10 @@ def common_user_agents():
     return user_agent_data()['common_user_agents']
 
 
+def user_agents_popularity_map():
+    return user_agent_data().get('user_agents_popularity', {})
+
+
 def all_firefox_versions(limit=10):
     return user_agent_data()['firefox_versions'][:limit]
 

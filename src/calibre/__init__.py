@@ -280,25 +280,26 @@ def get_proxy_info(proxy_scheme, proxy_string):
     return ans
 
 
-# IE 11 on windows 7
-USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
-USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
-
-
 def is_mobile_ua(ua):
     return 'Mobile/' in ua or 'Mobile ' in ua
 
 
 def random_user_agent(choose=None, allow_ie=True):
-    from calibre.utils.random_ua import common_user_agents
+    from calibre.utils.random_ua import common_user_agents, user_agents_popularity_map
     ua_list = common_user_agents()
-    ua_list = [x for x in ua_list if not is_mobile_ua(x)]
+    ua_list = tuple(x for x in ua_list if not is_mobile_ua(x))
     if not allow_ie:
-        ua_list = [x for x in ua_list if 'Trident/' not in x and 'Edge/' not in x]
-    return random.choice(ua_list) if choose is None else ua_list[choose]
+        ua_list = tuple(x for x in ua_list if 'Trident/' not in x)
+    if choose is not None:
+        return ua_list[choose]
+    pm = user_agents_popularity_map()
+    weights = None
+    if pm:
+        weights = tuple(map(pm.__getitem__, ua_list))
+    return random.choices(ua_list, weights=weights)[0]
 
 
-def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, verify_ssl_certificates=True, handle_refresh=True):
+def browser(honor_time=True, max_time=2, user_agent=None, verify_ssl_certificates=True, handle_refresh=True, **kw):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
     refresh requests and ignores robots.txt. Also uses proxy if available.
@@ -312,7 +313,7 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, 
     opener.set_handle_refresh(handle_refresh, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     if user_agent is None:
-        user_agent = USER_AGENT_MOBILE if mobile_browser else USER_AGENT
+        user_agent = random_user_agent(0, allow_ie=False)
     opener.addheaders = [('User-agent', user_agent)]
     proxies = get_proxies()
     to_add = {}
