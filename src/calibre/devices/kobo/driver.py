@@ -3557,13 +3557,13 @@ class KOBOTOUCH(KOBO):
     @property
     def update_subtitle(self):
         # Subtitle was added to the database at the same time as the series support.
-        return self.update_device_metadata and self.supports_series() and self.subtitle_template is not None
+        return self.update_device_metadata and self.supports_series() and self.get_pref('update_subtitle')
 
     @property
     def subtitle_template(self):
+        if not self.update_subtitle:
+            return None
         subtitle_template = self.get_pref('subtitle_template')
-        if subtitle_template is not None:
-            subtitle_template = subtitle_template.strip()
         subtitle_template = subtitle_template.strip() if subtitle_template is not None else None
         return subtitle_template
 
