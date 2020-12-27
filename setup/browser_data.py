@@ -26,23 +26,6 @@ def filter_ans(ans):
 
 
 def common_user_agents():
-    if is_ci:
-        return [
-            # IE 11 - windows 10
-            'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko',
-            # IE 11 - windows 8.1
-            'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko',
-            # IE 11 - windows 8
-            'Mozilla/5.0 (Windows NT 6.2; Trident/7.0; rv:11.0) like Gecko',
-            # IE 11 - windows 7
-            'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko',
-            # 32bit IE 11 on 64 bit win 10
-            'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko',
-            # 32bit IE 11 on 64 bit win 8.1
-            'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko',
-            # 32bit IE 11 on 64 bit win 7
-            'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-        ]
     print('Getting recent UAs...')
     raw = download_from_calibre_server('https://code.calibre-ebook.com/ua-popularity')
     ans = {}
