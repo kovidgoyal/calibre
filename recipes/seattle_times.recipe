@@ -9,10 +9,16 @@ seattletimes.nwsource.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class SeattleTimes(BasicNewsRecipe):
 
     title = 'The Seattle Times'
-    __author__ = 'Darko Miletic'
+    __author__ = 'Kovid Goyal'
     description = 'News from Seattle and USA'
     publisher = 'The Seattle Times'
     category = 'news, politics, USA'
@@ -22,8 +28,13 @@ class SeattleTimes(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf-8'
     language = 'en'
-    auto_cleanup = True
-    auto_cleanup_keep = '//div[@id="PhotoContainer"]'
+
+    keep_only_tags = [
+        classes('article-header featured-media article-body')
+    ]
+    remove_tags = [
+        classes('most-read-container native-ad-article ad-container user-messaging')
+    ]
 
     feeds = [
         (u'Local News',
@@ -43,3 +54,10 @@ class SeattleTimes(BasicNewsRecipe):
         (u'Photo and Video',
          u'https://www.seattletimes.com/photo-video/feed/'),
     ]
+
+    def get_browser(self, *a, **kw):
+        # MyClatchy servers dont like the user-agent header, they hang forever
+        # when it is present
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
+        return br
