@@ -12,8 +12,6 @@ from urllib.request import urlopen
 from polyglot.builtins import filter
 from setup import download_securely
 
-is_ci = os.environ.get('CI', '').lower() == 'true'
-
 
 def download_from_calibre_server(url):
     ca = os.path.join(sys.resources_location, 'calibre-ebook-root-CA.crt')
@@ -39,8 +37,6 @@ def common_user_agents():
 
 
 def firefox_versions():
-    if is_ci:
-        return '51.0 50.0'.split()
     print('Getting firefox versions...')
     import html5lib
     raw = download_securely(
@@ -55,8 +51,6 @@ def firefox_versions():
 
 
 def chrome_versions():
-    if is_ci:
-        return []
     print('Getting chrome versions...')
     import html5lib
     raw = download_securely(
