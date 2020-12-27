@@ -8,6 +8,12 @@ miamiherald.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class TheMiamiHerald(BasicNewsRecipe):
     title = 'The Miami Herald'
     __author__ = 'Kovid Goyal'
@@ -25,9 +31,10 @@ class TheMiamiHerald(BasicNewsRecipe):
     }
 
     keep_only_tags = [
+        classes('story-body')
     ]
-
     remove_tags = [
+        classes('social-network-macro social-media')
     ]
 
     feeds = [
@@ -47,3 +54,19 @@ class TheMiamiHerald(BasicNewsRecipe):
     (u'Environment', u'https://www.miamiherald.com/news/local/environment/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
     (u'Sports', u'https://www.miamiherald.com/sports/?widgetName=rssfeed&widgetContentId=712015&getXmlFeed=true'),
     ]
+
+    def get_browser(self, *a, **kw):
+        # MyClatchy servers dont like the user-agent header, they hang forever
+        # when it is present
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        br.addheaders = [x for x in br.addheaders if x[0].lower() != 'user-agent']
+        return br
+
+    def preprocess_html(self, soup):
+        for picture in soup.findAll('picture'):
+            img = picture.find('img')
+            for i, source in enumerate(picture.findAll('source')):
+                if i == 0:
+                    img['src'] = source['srcset'].split()[0]
+                source.extract()
+        return soup
