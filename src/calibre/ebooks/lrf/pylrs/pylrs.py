@@ -577,7 +577,7 @@ class Book(Delegator):
                 if 'baselineskip' in span.attrs:
                     span.attrs['baselineskip'] = rescale(span.attrs['baselineskip'])
 
-        text_styles = set(tb.textStyle for tb in text_blocks)
+        text_styles = (tb.textStyle for tb in text_blocks)
         for ts in text_styles:
             ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
             ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
