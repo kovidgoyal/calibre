@@ -1221,7 +1221,8 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         'formats',
         'title',
         'inlibrary',
-        'tags'
+        'tags',
+        'search'
     ]
 
     def __init__(self, model):
@@ -1252,7 +1253,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
         if location not in self.USABLE_LOCATIONS:
             return set()
         matches = set()
-        all_locs = set(self.USABLE_LOCATIONS) - {'all', 'tags'}
+        all_locs = set(self.USABLE_LOCATIONS) - {'all', 'tags', 'search'}
         locations = all_locs if location == 'all' else [location]
         q = {
              'title' : lambda x : getattr(x, 'title').lower(),
