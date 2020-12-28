@@ -48,7 +48,7 @@ class LRFDocument(LRFMetaFile):
         self.objects = {}
         self._file.seek(self.object_index_offset)
         obj_array = array.array("I", self._file.read(4*4*self.number_of_objects))
-        if ord(array.array("i",[1]).tostring()[0:1])==0:  # big-endian
+        if ord(array.array("i",[1]).tobytes()[0:1])==0:  # big-endian
             obj_array.byteswap()
         for i in range(self.number_of_objects):
             if not self.keep_parsing:
