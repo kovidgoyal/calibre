@@ -29,7 +29,7 @@
 
 - Happy holidays to all calibre users!
 
-- E-book Viewer: Add a mode to follow links with only the keyboard (triggered by Alt+F)
+- E-book viewer: Add a mode to follow links with only the keyboard (triggered by Alt+F)
 
 - [1908929] Edit book: A new option to show a configurable number lines above the current line when syncing the position of the preview panel to the current position in the code editor (under Preview settings in the Editor preferences).
 
@@ -37,7 +37,7 @@
 
 - Content server viewer: Don't enter full screen mode automatically when reading on desktop like devices (this can be controlled via a setting in the viewer preferences under Page layout)
 
-- E-book Viewer tool bar: Add a select all action and a Read aloud action (can be added by right clicking the tool bar and configuring it)
+- E-book viewer tool bar: Add a select all action and a Read aloud action (can be added by right clicking the tool bar and configuring it)
 
 - Template/formatter enhancements: Add a 'for' statement and add the ability for a developer to pass extra information to a template.
 
