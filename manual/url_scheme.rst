@@ -50,11 +50,11 @@ The URL syntax is::
 
 This will show the book with ``book_id`` (a number) in calibre. The ids for
 books can be seen in the calibre interface by hovering over the
-:guilabel:`Click to open` link in the book details panel, it is the number in
+:guilabel:`Click to open` link in the :guilabel:`Book details` panel, it is the number in
 brackets at the end of the path to the book folder.
 
 You can copy a link to the current book displayed in calibre by right clicking
-the :guilabel:`Book details panel` and choosing :guilabel:`Copy link to book`.
+the :guilabel:`Book details` panel and choosing :guilabel:`Copy link to book`.
 
 
 Open a specific book in the E-book viewer at a specific position
