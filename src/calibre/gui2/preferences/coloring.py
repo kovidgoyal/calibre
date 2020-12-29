@@ -137,7 +137,7 @@ class ConditionEditor(QWidget):  # {{{
         for key in sorted(
                 conditionable_columns(fm),
                 key=lambda key: sort_key(fm[key]['name'])):
-            self.column_box.addItem(fm[key]['name'], key)
+            self.column_box.addItem('{} ({})'.format(fm[key]['name'], key), key)
         self.column_box.setCurrentIndex(0)
 
         self.column_box.currentIndexChanged.connect(self.init_action_box)
@@ -443,7 +443,8 @@ class RuleEditor(QDialog):  # {{{
                 continue
             name = all_columns_string if key == color_row_key else fm[key]['name']
             if name:
-                self.column_box.addItem(name, key)
+                self.column_box.addItem(name +
+                        (' (' + key + ')' if key != color_row_key else ''), key)
         self.column_box.setCurrentIndex(0)
 
         if self.rule_kind == 'color':
