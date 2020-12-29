@@ -19,6 +19,55 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+def is_mall_img(img_src):
+    import urlparse
+    try:
+        parsed = urlparse.urlparse(img_src)
+        img_width = urlparse.parse_qs(parsed.query)['width']
+        print(img_width)
+        if img_width and len(img_width) > 0:
+            return int(img_width[0]) < 480
+    except:
+        pass
+    return False
+
+
+def obtain_attrib(elem, key):
+    try:
+        return elem.attrib[key]
+    except:
+        pass
+    return None
+
+
+def parse_per_resolution(srcset_res):
+    datas = srcset_res.split(' ')
+    if len(datas) > 0:
+        try:
+            size = datas[1]
+            width = int(size[:-1])
+            if 560 <= width <= 960:
+                return datas[0]
+        except Exception as e:
+            print('parse_per_resolution error : ' + str(e))
+    return ''
+
+
+def find_appropriate_img_url(picture):
+    sources = picture.xpath('./source')
+    for a_source in sources:
+        srcset = a_source.attrib['srcset']
+        if 'w,' in srcset:
+            for item in srcset.split(','):
+                new_img_url = parse_per_resolution(item)
+                if len(new_img_url) > 0:
+                    return new_img_url
+        else:
+            new_img_url = parse_per_resolution(srcset)
+            if len(new_img_url) > 0:
+                return new_img_url
+    return ''
+
 
 class Guardian(BasicNewsRecipe):
 
@@ -142,19 +191,30 @@ class Guardian(BasicNewsRecipe):
             img['srcset'] = ''
         return soup
 
-    def preprocess_raw_html(self, raw, url):
-        root = parse(raw)
+    def process_images(self, page_root):
         try:
-            images = root.xpath('//div//div//div//img')
-            if images:
+            images = page_root.xpath('//div//div//div//img')
+            if len(images) > 0:
                 for img in images:
-                    img_width = img.attrib['width']
+                    img_src = img.attrib['src']
+                    if is_mall_img(img_src):
+                        img_parent = img.getparent()
+                        if img_parent is not None:
+                            # find a appropriate image url, 560px ~ 960px 
+                            new_src = find_appropriate_img_url(img_parent)
+                            if len(new_src) > 0:
+                                img.attrib['src'] = new_src
+                    img_width = obtain_attrib(img, 'width')
                     if img_width is not None:
                         # delete width & height
                         img.attrib.pop("width")
                         img.attrib.pop("height")
         except Exception as e:
             pass 
+
+    def preprocess_raw_html(self, raw, url):
+        root = parse(raw)
+        self.process_images(root)
         try:
             # find out Share on facebook elements
             share_platforms = root.xpath('//div//div//div/ul/li/a[starts-with(@aria-label,"Share on")]')
