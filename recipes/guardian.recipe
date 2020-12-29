@@ -10,6 +10,9 @@ from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 
+from html5_parser import parse
+from lxml import etree
+
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -49,13 +52,36 @@ class Guardian(BasicNewsRecipe):
         dict(attrs={'data-component': ['share', 'social']}),
         dict(attrs={'data-link-name': 'block share'}),
         dict(attrs={'class': lambda x: x and 'inline-expand-image' in x}),
+        dict(name='a', attrs={'aria-label': lambda x: x and 'Share On' in x}),
+        dict(name='a', attrs={'class': lambda x: x and 'social__action js-social__action--top' in x}),
+        dict(name='div', attrs={'id': 'share-count-root'}),
         dict(attrs={'class': lambda x: x and 'modern-visible' in x.split()}),
         classes('badge-slot reveal-caption__checkbox mobile-only element-rich-link'),
-        dict(name=['link', 'meta', 'style']),
+        dict(name=['link', 'meta', 'style', 'svg', 'input']),
     ]
     remove_tags_after = [
         dict(attrs={'class': lambda x: x and 'content__article-body' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'article-body-commercial-selector' in x.split()}),
     ]
+
+    extra_css = """
+            img {
+                width: 100% !important; 
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
+                min-width: 480px;
+            }
+
+            a span {
+                color: #E05E02;
+            }
+
+            figcaption span {
+                font-size: 0.5em;
+                color: #6B6B6B;
+            }
+        """
 
     def get_browser(self, *a, **kw):
         # This site returns images in JPEG-XR format if the user agent is IE
@@ -68,9 +94,36 @@ class Guardian(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
         return br
 
+
+    def parse_section(self, url, title_prefix=''):
+        feeds = []
+        soup = self.index_to_soup(url)
+        for section in soup.findAll('section'):
+            title = title_prefix + self.tag_to_string(section.find(
+                attrs={'class': 'fc-container__header__title'})).strip().capitalize()
+            self.log('\nFound section:', title)
+            if 'Video' in title:
+                self.log('=======> Skip section:', title)
+                continue
+            feeds.append((title, []))
+            for li in section.findAll('li'):
+                for a in li.findAll('a', attrs={'data-link-name': 'article'}, href=True):
+                    title = self.tag_to_string(a).strip()
+                    url = a['href']
+                    self.log(' ', title, url)
+                    feeds[-1][1].append({'title': title, 'url': url})
+                    break
+        return feeds
+
+    def parse_index(self):
+        feeds = self.parse_section(self.base_url)
+        feeds += self.parse_section(
+            'https://www.theguardian.com/uk/sport', 'Sport - ')
+        if date.today().weekday() in (5, 6):
+            feeds += self.parse_section('https://www.theguardian.com/theguardian/weekend', 'Weekend - ')
+        return feeds
+
     def preprocess_html(self, soup):
-        # with open('/t/raw.html', 'w') as f:
-        #     f.write(str(soup))
         old_body = soup.find('body')
         if old_body is not None:
             main_column = soup.find(**classes('content__main-column'))
@@ -89,30 +142,47 @@ class Guardian(BasicNewsRecipe):
             img['srcset'] = ''
         return soup
 
-    def parse_section(self, url, title_prefix=''):
-        feeds = []
-        soup = self.index_to_soup(url)
-        for section in soup.findAll('section'):
-            title = title_prefix + self.tag_to_string(section.find(
-                attrs={'class': 'fc-container__header__title'})).strip().capitalize()
-            self.log('\nFound section:', title)
-            feeds.append((title, []))
-            for li in section.findAll('li'):
-                for a in li.findAll('a', attrs={'data-link-name': 'article'}, href=True):
-                    title = self.tag_to_string(a).strip()
-                    url = a['href']
-                    self.log(' ', title, url)
-                    feeds[-1][1].append({'title': title, 'url': url})
-                    break
-        return feeds
+    def preprocess_raw_html(self, raw, url):
+        root = parse(raw)
+        try:
+            images = root.xpath('//div//div//div//img')
+            if images:
+                for img in images:
+                    img_width = img.attrib['width']
+                    if img_width is not None:
+                        # delete width & height
+                        img.attrib.pop("width")
+                        img.attrib.pop("height")
+        except Exception as e:
+            pass 
+        try:
+            # find out Share on facebook elements
+            share_platforms = root.xpath('//div//div//div/ul/li/a[starts-with(@aria-label,"Share on")]')
+            if share_platforms and len(share_platforms) > 0:
+                parent_div = share_platforms[0].getparent().getparent().getparent()
+                ul_elem = share_platforms[0].getparent().getparent()
+                # remove ul element
+                parent_div.remove(ul_elem)
 
-    def parse_index(self):
-        # return [('All articles', [
-        #     {'title': 'XXXXX', 'url': 'https://www.theguardian.com/politics/2020/dec/01/uk-likely-to-axe-finance-bill-clauses-if-brexit-trade-deal-made'},
-        # ])]
-        feeds = self.parse_section(self.base_url)
-        feeds += self.parse_section(
-            'https://www.theguardian.com/uk/sport', 'Sport - ')
-        if date.today().weekday() in (5, 6):
-            feeds += self.parse_section('https://www.theguardian.com/theguardian/weekend', 'Weekend - ')
-        return feeds
+            share_counts = root.xpath('//div//div//div[contains(@id,"-count-root")]')
+            if share_counts and len(share_counts) > 0:
+                share_parent_div = share_counts[0].getparent().getparent()
+                # remove share count element
+                share_parent_div.remove(share_counts[0].getparent())
+
+            pub_date_div = root.xpath('//div//div//div//input[@id="dateToggle"]')
+            if pub_date_div:
+                input_elem = pub_date_div[0]
+                date_parent = input_elem.getparent()
+                # remove the input element
+                date_parent.remove(input_elem)
+                # try to remove last modified p
+                last_modified_p = date_parent.xpath('./p')
+                if last_modified_p and len(last_modified_p) > 0:
+                    date_parent.remove(last_modified_p[0])
+            # rebuild the html raw string
+            raw = etree.tostring(root, encoding='unicode')
+        except Exception as e:
+            self.log('preprocess_raw_html error -> ', str(e))
+        return raw
+
