@@ -10,7 +10,6 @@ from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 
-from html5_parser import parse
 from lxml import etree
 
 
@@ -90,7 +89,7 @@ class Guardian(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_empty_feeds = True
     no_stylesheets = True
-    remove_attributes = ['style']
+    remove_attributes = ['style', 'width', 'height']
     ignore_duplicate_articles = {'title', 'url'}
 
     timefmt = ' [%a, %d %b %Y]'
@@ -106,7 +105,7 @@ class Guardian(BasicNewsRecipe):
         dict(name='div', attrs={'id': 'share-count-root'}),
         dict(attrs={'class': lambda x: x and 'modern-visible' in x.split()}),
         classes('badge-slot reveal-caption__checkbox mobile-only element-rich-link'),
-        dict(name=['link', 'meta', 'style', 'svg', 'input']),
+        dict(name=['link', 'meta', 'style', 'svg', 'input', 'source']),
     ]
     remove_tags_after = [
         dict(attrs={'class': lambda x: x and 'content__article-body' in x.split()}),
@@ -115,7 +114,7 @@ class Guardian(BasicNewsRecipe):
 
     extra_css = """
             img {
-                width: 100% !important; 
+                width: 100% !important;
                 height: 100% !important;
                 max-width: 100% !important;
                 max-height: 100% !important;
@@ -142,7 +141,6 @@ class Guardian(BasicNewsRecipe):
         kw['user_agent'] = self.non_ie_ua
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
         return br
-
 
     def parse_section(self, url, title_prefix=''):
         feeds = []
@@ -216,6 +214,7 @@ class Guardian(BasicNewsRecipe):
         root = parse(raw)
         self.process_images(root)
         try:
+            root = self.index_to_soup(raw, as_tree=True)
             # find out Share on facebook elements
             share_platforms = root.xpath('//div//div//div/ul/li/a[starts-with(@aria-label,"Share on")]')
             if share_platforms and len(share_platforms) > 0:
@@ -243,6 +242,5 @@ class Guardian(BasicNewsRecipe):
             # rebuild the html raw string
             raw = etree.tostring(root, encoding='unicode')
         except Exception as e:
-            self.log('preprocess_raw_html error -> ', str(e))
+            self.log('preprocess_raw_html error -> {}'.format(e))
         return raw
-

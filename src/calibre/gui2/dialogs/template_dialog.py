@@ -242,7 +242,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         if self.coloring:
             self.color_layout.setVisible(True)
             for n1, k1 in cols:
-                self.colored_field.addItem(n1, k1)
+                self.colored_field.addItem(n1 +
+                       (' (' + k1 + ')' if k1 != color_row_key else ''), k1)
             self.colored_field.setCurrentIndex(self.colored_field.findData(color_field))
         elif self.iconing or self.embleming:
             self.icon_layout.setVisible(True)
@@ -253,7 +254,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.icon_field.setVisible(False)
 
             for n1, k1 in cols:
-                self.icon_field.addItem(n1, k1)
+                self.icon_field.addItem('{} ({})'.format(n1, k1), k1)
             self.icon_file_names = []
             d = os.path.join(config_dir, 'cc_icons')
             if os.path.exists(d):
