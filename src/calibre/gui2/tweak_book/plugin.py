@@ -6,12 +6,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import importlib
-
+import sys
 from PyQt5.Qt import QToolButton
 
 from calibre import prints
 from calibre.customize.ui import all_edit_book_tool_plugins
-from calibre.gui2.tweak_book import tprefs, current_container
+from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
 from polyglot.builtins import itervalues, unicode_type
 
@@ -168,7 +168,16 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
     del plugin_toolbar_actions[:]
 
     for plugin in all_edit_book_tool_plugins():
-        for tool in load_plugin_tools(plugin):
+        try:
+            tools = tuple(load_plugin_tools(plugin))
+        except Exception:
+            if not plugin.plugin_path:
+                raise
+            print('Failed to load third-party plugin:', plugin.name, file=sys.stderr)
+            import traceback
+            traceback.print_exc()
+            continue
+        for tool in tools:
             _tool_memory.append(tool)
             if tool.allowed_in_toolbar:
                 create_plugin_action(plugin, tool, True, actions, toolbar_actions, plugin_menu_actions)
