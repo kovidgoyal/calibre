@@ -153,20 +153,13 @@ class SavedSearchEditor(Dialog):
             self.slist.addItem(name)
 
     def add_search(self):
-        d = AddSavedSearch(parent=self, commit_changes=False)
+        d = AddSavedSearch(parent=self, commit_changes=False, validate=self.validate_add)
         if d.exec_() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
-        nmap = {icu_lower(n):n for n in self.searches}
-        if icu_lower(name) in nmap:
-            q = nmap[icu_lower(name)]
-            del self.searches[q]
-            self.select_search(q)
-            self.slist.takeItem(self.slist.currentRow())
         self.searches[name] = expression
-        self.slist.insertItem(0, name)
-        self.slist.setCurrentRow(0)
-        self.current_index_changed(self.slist.currentItem())
+        self.populate_search_list()
+        self.select_search(name)
 
     def del_search(self):
         n = self.current_search_name
@@ -184,7 +177,9 @@ class SavedSearchEditor(Dialog):
         n = self.current_search_name
         if not n:
             return
-        d = AddSavedSearch(parent=self, commit_changes=False, label=_('Edit the name and/or expression below.'), validate=self.validate_edit)
+        d = AddSavedSearch(parent=self, commit_changes=False,
+                           label=_('Edit the name and/or expression below.'),
+                           validate=self.validate_edit)
         d.setWindowTitle(_('Edit saved search'))
         d.sname.setText(n)
         d.search.setText(self.searches[n])
@@ -196,10 +191,17 @@ class SavedSearchEditor(Dialog):
         self.searches[name] = expression
         self.current_index_changed(self.slist.currentItem())
 
+    def duplicate_msg(self, name):
+            return _('A saved search with the name {} already exists. Choose another name').format(name)
+
     def validate_edit(self, name, expression):
         q = self.current_search_name
         if icu_lower(name) in {icu_lower(n) for n in self.searches if n != q}:
-            return _('A saved search with the name {} already exists. Choose another name').format(name)
+            return self.duplicate_msg(name)
+
+    def validate_add(self, name, expression):
+        if icu_lower(name) in {icu_lower(n) for n in self.searches}:
+            return self.duplicate_msg(name)
 
     def select_search(self, name):
         items = self.slist.findItems(name, Qt.MatchFlag.MatchFixedString | Qt.MatchFlag.MatchCaseSensitive)

@@ -1372,10 +1372,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         if index.isValid():
             node = self.data(index, Qt.ItemDataRole.UserRole)
             if node.type == TagTreeItem.TAG:
-                if node.tag.is_editable or node.tag.is_hierarchical:
+                tag = node.tag
+                category = tag.category
+                if (tag.is_editable or tag.is_hierarchical) and category != 'search':
                     ans |= Qt.ItemFlag.ItemIsDragEnabled
-                fm = self.db.metadata_for_field(node.tag.category)
-                if node.tag.category in \
+                fm = self.db.metadata_for_field(category)
+                if category in \
                     ('tags', 'series', 'authors', 'rating', 'publisher', 'languages') or \
                     (fm['is_custom'] and
                         fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
