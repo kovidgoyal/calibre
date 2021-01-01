@@ -9,14 +9,18 @@ usatoday.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class USAToday(BasicNewsRecipe):
 
     title = 'USA Today'
     __author__ = 'Kovid Goyal'
     description = 'newspaper'
     encoding = 'utf-8'
-    publisher = 'usatoday.com'
-    category = 'news, usa'
     language = 'en'
 
     use_embedded_content = False
@@ -24,7 +28,16 @@ class USAToday(BasicNewsRecipe):
     max_articles_per_feed = 15
     no_stylesheets = True
     remove_empty_feeds = True
-    filterDuplicates = True
+
+    keep_only_tags = [
+        classes('gnt_ar_hl gnt_ar_by gnt_ar_b topper__inner in-depth-content'),
+    ]
+
+    remove_tags = [
+        classes('component--pullquote__icon gnt_ss'),
+        dict(attrs={'aria-label': ['advertisement']}),
+        dict(name=['link', 'media-gallery']),
+    ]
 
     extra_css = '''
                     h1, h2 {
@@ -64,15 +77,3 @@ class USAToday(BasicNewsRecipe):
         ('Most Popular',
          'http://rssfeeds.usatoday.com/usatoday-mostviewedarticles&x=1'),
     ]
-
-    auto_cleanup = True
-
-    def get_masthead_url(self):
-        masthead = 'http://i.usatoday.net/mobile/_common/_images/565x73_usat_mobile.gif'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(masthead)
-        except:
-            self.log("\nCover unavailable")
-            masthead = None
-        return masthead
