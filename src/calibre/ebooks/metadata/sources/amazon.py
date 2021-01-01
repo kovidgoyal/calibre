@@ -908,7 +908,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 14)
+    version = (1, 2, 15)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1478,9 +1478,13 @@ class Amazon(Source):
         if not self.use_search_engine:
             return True
         if title is not None:
-            tokens = {icu_lower(x).rstrip(':') for x in title.split() if len(x) > 3}
+
+            def tokenize_title(x):
+                return icu_lower(x).replace("'", '').replace('"', '').rstrip(':')
+
+            tokens = {tokenize_title(x) for x in title.split() if len(x) > 3}
             if tokens:
-                result_tokens = {icu_lower(x).rstrip(':') for x in mi.title.split()}
+                result_tokens = {tokenize_title(x) for x in mi.title.split()}
                 if not tokens.intersection(result_tokens):
                     log('Ignoring result:', mi.title, 'as its title does not match')
                     return False
