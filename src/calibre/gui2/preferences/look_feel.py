@@ -489,7 +489,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('tags_browser_partition_method', gprefs, choices=choices)
         r('tags_browser_collapse_at', gprefs)
         r('tags_browser_collapse_fl_at', gprefs)
-        r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList)
 
         choices = {k for k in db.field_metadata.all_field_keys()
                 if (db.field_metadata[k]['is_category'] and (
@@ -497,8 +496,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     ]) and not db.field_metadata[k]['display'].get('is_names', False)) or (
                     db.field_metadata[k]['datatype'] in ['composite'
                     ] and db.field_metadata[k]['display'].get('make_category', False))}
-        choices -= {'authors', 'publisher', 'formats', 'news', 'identifiers'}
         choices |= {'search'}
+        r('tag_browser_dont_collapse', gprefs, setting=CommaSeparatedList,
+          choices=sorted(choices, key=sort_key))
+
+        choices -= {'authors', 'publisher', 'formats', 'news', 'identifiers'}
         self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(choices, key=sort_key))
