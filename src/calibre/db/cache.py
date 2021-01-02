@@ -607,7 +607,8 @@ class Cache(object):
         if not fmt:
             return {}
         fmt = fmt.upper()
-        if allow_cache:
+        # allow_cache and update_db are mutually exclusive. Give priority to update_db
+        if allow_cache and not update_db:
             x = self.format_metadata_cache[book_id].get(fmt, None)
             if x is not None:
                 return x
@@ -634,6 +635,11 @@ class Cache(object):
         field = self.fields['formats']
         fmts = field.table.book_col_map.get(book_id, ())
         return {fmt:field.format_fname(book_id, fmt) for fmt in fmts}
+
+    @read_api
+    def format_db_size(self, book_id, fmt):
+        field = self.fields['formats']
+        return field.format_size(book_id, fmt)
 
     @read_api
     def pref(self, name, default=None, namespace=None):

@@ -623,6 +623,9 @@ class FormatsField(ManyToManyField):
     def format_fname(self, book_id, fmt):
         return self.table.fname_map[book_id][fmt.upper()]
 
+    def format_size(self, book_id, fmt):
+        return self.table.size_map.get(book_id, {}).get(fmt.upper(), None)
+
     def iter_searchable_values(self, get_metadata, candidates, default_value=None):
         val_map = defaultdict(set)
         cbm = self.table.book_col_map
