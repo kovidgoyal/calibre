@@ -23,8 +23,8 @@ class ElPais(BasicNewsRecipe):
     language = 'es'
     timefmt = '[%a, %d %b, %Y]'
 
-    oldest_article = 2
-    max_articles_per_feed = 15
+    oldest_article = 2.1
+    max_articles_per_feed = 25
 
     use_embedded_content = False
     recursion = 5
@@ -33,38 +33,42 @@ class ElPais(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-        dict(name='h1'), dict(itemprop=['articleBody', 'image', 'caption']),
-        dict(attrs={'class': ['articulo-subtitulos', 'articulo-apertura ']}),
+        dict(attrs={'class': [
+                              'article_header',
+                              'article_body',
+                              'a_t',
+                              'a_st',
+                              'articulo-titulares',
+                              'articulo-apertura',
+                              'articulo__contenedor'
+                             ]}),
+    ]
+
+    remove_tags = [
+        dict(attrs={'class': [
+                              'sumario__interior',
+                              'articulo-trust',
+                              'compartir',
+                              'articulo-tags',
+                              'outbrain',
+                              'more_info',
+                              'articulo-apoyos',
+                              'top10',
+                             ]}),
     ]
 
     feeds = [
-        (u'Titulares de portada', u'http://www.elpais.com/rss/feed.html?feedId=1022'),
+        (u'Espa\xf1a', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/espana/portada'),
         (u'Internacional',
-         u'http://www.elpais.com/rss/feed.html?feedId=1001'),
-        (u'Espa\xf1a', u'http://www.elpais.com/rss/feed.html?feedId=1002'),
-        (u'Deportes', u'http://www.elpais.com/rss/feed.html?feedId=1007'),
-        (u'Econom\xeda',
-         u'http://www.elpais.com/rss/feed.html?feedId=1006'),
-        (u'Pol\xedtica',
-         u'http://www.elpais.com/rss/feed.html?feedId=17073'),
+         u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/internacional/portada'),
+        (u'Opini\xf3n', u'https://elpais.com/rss/elpais/opinion.xml'),
+        (u'Ciencia', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/ciencia/portada'),
         (u'Tecnolog\xeda',
-         u'http://www.elpais.com/rss/feed.html?feedId=1005'),
-        (u'Cultura', u'http://www.elpais.com/rss/feed.html?feedId=1008'),
-        (u'Gente', u'http://www.elpais.com/rss/feed.html?feedId=1009'),
-        (u'Sociedad', u'http://www.elpais.com/rss/feed.html?feedId=1004'),
-        (u'Opini\xf3n', u'http://www.elpais.com/rss/feed.html?feedId=1003'),
-        (u'Ciencia', u'http://www.elpais.com/rss/feed.html?feedId=17068'),
-        (u'Justicia y leyes',
-         u'http://www.elpais.com/rss/feed.html?feedId=17069'),
-        (u'Medio ambiente',
-         u'http://www.elpais.com/rss/feed.html?feedId=17071'),
-        (u'Vi\xf1etas', u'http://www.elpais.com/rss/feed.html?feedId=17058')
+         u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/tecnologia/portada'),
+        (u'Cultura', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/cultura/portada'),
+        (u'Estilo', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/estilo/portada'),
+        (u'Deportes', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/deportes/portada'),
+        (u'Televisión', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/television/portada'),
+        (u'Sociedad', u'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/sociedad/portada'),
+        (u'Blogs', u'http://ep01.epimg.net/rss/elpais/blogs.xml'),
     ]
-
-    def preprocess_html(self, soup):
-        for img in soup.findAll('img', srcset=True):
-            try:
-                img['src'] = list(filter(None, img['srcset'].split()))[0]
-            except IndexError:
-                continue
-        return soup
