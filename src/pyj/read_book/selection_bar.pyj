@@ -650,9 +650,13 @@ class SelectionBar:
 
     # show and hide {{{
     def hide(self):
+        was_shown = self.state is not HIDDEN
         self.state = HIDDEN
         self.container.style.display = 'none'
         self.view.focus_iframe()
+        if not was_shown and self.spoken_aloud_at_least_once:
+            ui_operations.speak_simple_text('')  # cancel any on-going speech
+            self.spoken_aloud_at_least_once = False
 
     def show(self):
         sd = get_session_data()
@@ -955,6 +959,7 @@ class SelectionBar:
         text = self.view.currently_showing.selection.text
         if text:
             ui_operations.speak_simple_text(text)
+            self.spoken_aloud_at_least_once = True
 
     def create_highlight(self):
         cs = self.view.currently_showing.selection
