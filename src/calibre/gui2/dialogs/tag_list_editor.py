@@ -192,10 +192,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.edit_delegate.editing_started.connect(self.start_editing)
         self.table.setItemDelegateForColumn(0, self.edit_delegate)
 
-        if prefs['use_primary_find_in_search']:
-            self.string_contains = primary_contains
-        else:
+        if prefs['case_sensitive']:
             self.string_contains = contains
+        else:
+            self.string_contains = self.case_insensitive_compare
 
         self.delete_button.clicked.connect(self.delete_tags)
         self.table.delete_pressed.connect(self.delete_pressed)
@@ -290,9 +290,14 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca.triggered.connect(self.rename_tag)
         ca = m.addAction(_('Delete'))
         ca.triggered.connect(self.delete_tags)
+        item_name = unicode_type(item.text())
+        ca = m.addAction(_('Search for {}').format(item_name))
+        ca.triggered.connect(partial(self.set_search_text, item_name))
+        item_name = unicode_type(item.text())
+        ca = m.addAction(_('Filter by {}').format(item_name))
+        ca.triggered.connect(partial(self.set_filter_text, item_name))
         if self.category is not None:
-            ca = m.addAction(_("Search the library for '{0}'").format(
-                                   unicode_type(item.text())))
+            ca = m.addAction(_("Search the library for '{0}'").format(item_name))
             ca.triggered.connect(partial(self.search_for_books, item))
             if disable_copy_paste_search:
                 ca.setEnabled(False)
@@ -335,6 +340,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         cb = QApplication.clipboard()
         item.setText(cb.text())
 
+    def case_insensitive_compare(self, l, r):
+        if prefs['use_primary_find_in_search']:
+            return primary_contains(l, r)
+        return contains(l.lower(), r.lower())
+
     def do_case(self, func):
         items = self.table.selectedItems()
         # block signals to avoid the "edit one changes all" behavior
@@ -352,13 +362,12 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def do_search(self):
         self.not_found_label.setVisible(False)
-        find_text = icu_lower(unicode_type(self.search_box.currentText()))
+        find_text = unicode_type(self.search_box.currentText())
         if not find_text:
             return
         for _ in range(0, self.table.rowCount()):
             r = self.search_item_row = (self.search_item_row + 1) % self.table.rowCount()
-            if self.string_contains(find_text,
-                        self.table.item(r, 0).text()):
+            if self.string_contains(find_text, self.table.item(r, 0).text()):
                 self.table.setCurrentItem(self.table.item(r, 0))
                 self.table.setFocus(True)
                 return
@@ -372,6 +381,10 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def clear_search(self):
         self.search_item_row = -1
         self.search_box.setText('')
+
+    def set_search_text(self, txt):
+        self.search_box.setText(txt)
+        self.do_search()
 
     def fill_in_table(self, tags, tag_to_match, ttm_is_first_letter):
         data = self.get_book_ids(self.apply_vl_checkbox.isChecked())
@@ -460,7 +473,11 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def clear_filter(self):
         self.filter_box.setText('')
-        self.fill_in_table(None, None, False)
+        self.do_filter()
+
+    def set_filter_text(self, txt):
+        self.filter_box.setText(txt)
+        self.do_filter()
 
     def do_filter(self):
         self.fill_in_table(None, None, False)
