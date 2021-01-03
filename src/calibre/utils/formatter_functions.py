@@ -146,7 +146,7 @@ class BuiltinFormatterFunction(FormatterFunction):
     def __init__(self):
         formatter_functions().register_builtin(self)
         eval_func = inspect.getmembers(self.__class__,
-                        lambda x: inspect.ismethod(x) and x.__name__ == 'evaluate')
+                        lambda x: inspect.isfunction(x) and x.__name__ == 'evaluate')
         try:
             lines = [l[4:] for l in inspect.getsourcelines(eval_func[0][1])[0]]
         except:
@@ -402,6 +402,26 @@ class BuiltinAssign(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, target, value):
         locals[target] = value
         return value
+
+
+class BuiltinListSplit(BuiltinFormatterFunction):
+    name = 'list_split'
+    arg_count = 3
+    category = 'List manipulation'
+    __doc__ = doc = _('split(list_val, sep, id_prefix) -- splits the list_val '
+                    "into separate values using 'sep', then assigns the values "
+                    "to variables named 'id_prefix_N' where N is the position "
+                    "of the value in the list. The first item has position 0 (zero). "
+                    "The function returns the last element in the list. "
+                    "Example: split('one, two, foo', ',', 'var') is equivalent "
+                    "to var_0 = 'one'; var_1 = 'two'; var_3 = 'foo'.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, list_val, sep, id_prefix):
+        l = [v.strip() for v in list_val.split(sep)]
+        res = ''
+        for i,v in enumerate(l):
+            res = locals[id_prefix+'_'+unicode_type(i)] = v
+        return res
 
 
 class BuiltinPrint(BuiltinFormatterFunction):
@@ -1885,7 +1905,8 @@ _formatter_builtins = [
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
-    BuiltinListReGroup(), BuiltinListSort(), BuiltinListUnion(), BuiltinLookup(),
+    BuiltinListReGroup(), BuiltinListSort(), BuiltinListSplit(), BuiltinListUnion(),
+    BuiltinLookup(),
     BuiltinLowercase(), BuiltinMod(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
     BuiltinOr(), BuiltinPrint(), BuiltinRatingToStars(), BuiltinRawField(), BuiltinRawList(),
     BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(), BuiltinSeriesSort(),

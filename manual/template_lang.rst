@@ -340,6 +340,16 @@ The following functions are available in addition to those described in single-f
 
     * ``round(x)`` -- returns the nearest integer to x. Throws an exception if x is not a number.
     * ``series_sort()`` -- returns the series sort value.
+    * ``'split(list_val, sep, id_prefix)`` -- splits the ``list_val`` into separate values using ``sep``, then assigns the values to variables named ``id_prefix_N`` where N is the position of the value in the list. The first item has position 0 (zero). The function returns the last element in the list. Example::
+    
+        split('one, two, foo', ',', 'var')
+        
+    is equivalent to::
+    
+        var_0 = 'one';
+        var_1 = 'two';
+        var_3 = 'foo
+        
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
     * ``strcat_max(max, string1, prefix2, string2, ...)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to string1. `Prefix, string` pairs are added to the end of the value as long as the resulting string length is less than `max`. String1 is returned even if string1 is longer than max. You can pass as many `prefix, string` pairs as you wish.
     * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive comparison x and y as strings. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
