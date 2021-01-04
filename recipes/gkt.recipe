@@ -19,7 +19,7 @@ class GKT(BasicNewsRecipe):
             if ignore_error:
                 return
             raise
-        for a in root.xpath('//div[@class="post-content"]/h1/a[@href]'):
+        for a in root.xpath('//div[@class="posts-listing"]/h1/a[@href]'):
             title = self.tag_to_string(a).strip()
             url = a.get('href')
             if title and url:
@@ -36,7 +36,7 @@ class GKT(BasicNewsRecipe):
             if 'PDF' in category or not category:
                 continue
             url = a.get('href')
-            self.log('Found section:', category)
+            self.log('Found section:', category, 'at', url)
             articles = list(self.parse_gkt_section(url)) + \
                 list(self.parse_gkt_section(url + '/page/2', ignore_error=True))
             if articles:
