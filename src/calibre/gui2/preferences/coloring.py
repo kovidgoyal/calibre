@@ -788,7 +788,7 @@ class RulesModel(QAbstractListModel):  # {{{
         if row >= 0 and row < len(self.rules):
             self.beginResetModel()
             t = self.rules.pop(row-delta)
-            self.rules.insert(row, t) # does append if row >= len(rules)
+            self.rules.insert(row, t)  # does append if row >= len(rules)
             self.endResetModel()
             idx = self.index(row)
             return idx

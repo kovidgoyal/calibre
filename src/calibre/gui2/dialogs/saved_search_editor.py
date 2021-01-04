@@ -192,7 +192,7 @@ class SavedSearchEditor(Dialog):
         self.current_index_changed(self.slist.currentItem())
 
     def duplicate_msg(self, name):
-            return _('A saved search with the name {} already exists. Choose another name').format(name)
+        return _('A saved search with the name {} already exists. Choose another name').format(name)
 
     def validate_edit(self, name, expression):
         q = self.current_search_name
