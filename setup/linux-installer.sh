@@ -81,7 +81,7 @@ if py3:
     from urllib.parse import urlparse
     from urllib.request import BaseHandler, build_opener, Request, urlopen, getproxies, addinfourl
     import http.client as httplib
-    encode_for_subprocess = lambda x:x
+    encode_for_subprocess = lambda x: x
 else:
     from future_builtins import map
     from urlparse import urlparse
