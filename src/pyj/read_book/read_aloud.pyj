@@ -188,7 +188,7 @@ class ReadAloud:
         if ev.key is 'Escape':
             self.hide()
             return
-        if ev.key is ' ' or ev.key is 'MediaPlayPause':
+        if ev.key is ' ' or ev.key is 'MediaPlayPause' or ev.key is 'PlayPause':
             self.toggle()
             return
         if ev.key is 'Play' or ev.key is 'MediaPlay':
