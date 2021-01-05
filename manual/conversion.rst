@@ -391,15 +391,18 @@ and their syntax at :ref:`regexptutorial`.
 Structure detection
 ---------------------
 
-Structure detection involves calibre trying its best to detect structural elements in the input document, when they are not properly specified. For example, chapters, page breaks, headers, footers, etc. As you can imagine, this process varies widely from book to book. Fortunately, calibre has very powerful options to control this. With power comes complexity, but if once you take the time to learn the complexity, you will find it well worth the effort.
+Structure detection involves calibre trying its best to detect structural elements in the input document, when they are not
+properly specified. For example, chapters, page breaks, headers, footers, etc. As you can imagine, this process varies widely
+from book to book. Fortunately, calibre has very powerful options to control this. With power comes complexity, but if once you
+take the time to learn the complexity, you will find it well worth the effort.
 
 Chapters and page breaks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-calibre has two sets of options for :guilabel:`chapter detection` and :guilabel:`inserting page breaks`. This can sometimes be slightly confusing, as by default,
-calibre will insert page breaks before detected chapters as well as the locations detected by the page breaks option.
-The reason for this is that there are often location where page breaks should be inserted that are not chapter boundaries.
-Also, detected chapters can be optionally inserted into the auto generated Table of Contents.
+calibre has two sets of options for :guilabel:`chapter detection` and :guilabel:`inserting page breaks`. This can sometimes be
+slightly confusing, as by default, calibre will insert page breaks before detected chapters as well as the locations detected by
+the page breaks option. The reason for this is that there are often location where page breaks should be inserted that are not
+chapter boundaries. Also, detected chapters can be optionally inserted into the auto generated Table of Contents.
 
 calibre uses *XPath*, a powerful language to allow the user to specify chapter boundaries/page breaks. XPath can seem a little daunting
 to use at first, fortunately, there is a :ref:`XPath tutorial <xpath-tutorial>` in the User Manual. Remember that Structure detection
@@ -477,7 +480,7 @@ in the :ref:`structure-detection` section above. If you do not want to include d
 table of contents, check the :guilabel:`Do not add detected chapters` option.
 
 If less than the :guilabel:`Chapter threshold` number of chapters were detected, calibre will then add any hyperlinks
-it finds in the input document to the Table of Contents. This often works well many input documents include a
+it finds in the input document to the Table of Contents. This often works well: many input documents include a
 hyperlinked Table of Contents right at the start. The :guilabel:`Number of links` option can be used to control
 this behavior. If set to zero, no links are added. If set to a number greater than zero, at most that number of links
 is added.
