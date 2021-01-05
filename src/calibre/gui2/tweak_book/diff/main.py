@@ -118,6 +118,8 @@ def get_decoded_raw(name):
                     enc = 'utf-8'
             else:
                 enc = force_encoding(raw, verbose=True)
+            if isinstance(enc, bytes):
+                enc = enc.decode('utf-8', 'ignore')
             try:
                 raw = raw.decode(enc)
             except (LookupError, ValueError):
