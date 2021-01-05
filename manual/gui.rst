@@ -741,7 +741,7 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`/, Ctrl+F`
       - Focus the Search bar
     * - :kbd:`Shift+Ctrl+F`
-      - Open the advanced search dialog
+      - Open the Advanced search dialog
     * - :kbd:`Shift+Alt+F`
       - Toggle the Search bar
     * - :kbd:`Esc`
