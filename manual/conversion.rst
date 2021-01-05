@@ -264,9 +264,18 @@ and default font rescaling keys.
 
 If you know that the file you are converting was intended to be used on a particular device/software platform,
 choose the corresponding input profile, otherwise just choose the default input profile. If you know the files
-you are producing are meant for a particular device type, choose the corresponding output profile. In particular, for MOBI output files, you should choose the Kindle, for LIT the Microsoft Reader and for EPUB the Sony Reader. In the case of EPUB, the Sony Reader profile will result in EPUB files that will work everywhere. However, it has some side effects, like inserting artificial section breaks to keep internal components below the size threshold, needed for SONY devices. In particular for the iPhone/Android phones, choose the SONY output profile. If you know your EPUB files will not be read on a SONY or similar device, use the default output profile. If you are producing MOBI files that are not intended for the Kindle, choose the Mobipocket books output profile.
+you are producing are meant for a particular device type, choose the corresponding output profile. In
+particular, for MOBI output files, you should choose the Kindle, for LIT the Microsoft Reader and for EPUB the
+Sony Reader. In the case of EPUB, the Sony Reader profile will result in EPUB files that will work everywhere.
+However, it has some side effects, like inserting artificial section breaks to keep internal components below
+the size threshold, needed for SONY devices. In particular for the iPhone/Android phones, choose the SONY
+output profile. If you know your EPUB files will not be read on a SONY or similar device, use the default output
+profile. If you are producing MOBI files that are not intended for the Kindle, choose the Mobipocket books
+output profile.
 
-The output profile also controls the screen size. This will cause, for example, images to be auto-resized to be fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your device.
+The output profile also controls the screen size. This will cause, for example, images to be auto-resized to be
+fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your
+device.
 
 .. _heuristic-processing:
 
@@ -292,12 +301,12 @@ remove all non-breaking-space entities, or may include false positive matches re
 :guilabel:`Line-unwrap factor`
     This option controls the algorithm calibre uses to remove hard line breaks. For example, if the value of this
     option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
-    than the length of 40% of all lines in the document.  If your document only has a few line breaks which need
+    than the length of 40% of all lines in the document. If your document only has a few line breaks which need
     correction, then this value should be reduced to somewhere between 0.1 and 0.2.
 
 :guilabel:`Detect and markup unformatted chapter headings and sub headings`
     If your document does not have chapter headings and titles formatted differently from the rest of the text,
-    calibre can use this option to attempt detection them and surround them with heading tags. <h2> tags are used
+    calibre can use this option to attempt to detect them and surround them with heading tags. <h2> tags are used
     for chapter headings; <h3> tags are used for any titles that are detected.
 
     This function will not create a TOC, but in many cases it will cause calibre's default chapter detection settings
