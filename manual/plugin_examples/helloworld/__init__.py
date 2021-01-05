@@ -22,11 +22,11 @@ class HelloWorld(FileTypePlugin):
 
     def run(self, path_to_ebook):
         from calibre.ebooks.metadata.meta import get_metadata, set_metadata
-        file = open(path_to_ebook, 'r+b')
-        ext  = os.path.splitext(path_to_ebook)[-1][1:].lower()
-        mi = get_metadata(file, ext)
-        mi.publisher = 'Hello World'
-        set_metadata(file, mi, ext)
+        with open(path_to_ebook, 'r+b') as file:
+            ext  = os.path.splitext(path_to_ebook)[-1][1:].lower()
+            mi = get_metadata(file, ext)
+            mi.publisher = 'Hello World'
+            set_metadata(file, mi, ext)
         return path_to_ebook
 
 
