@@ -92,7 +92,8 @@ Device drivers
 
 .. module:: calibre.devices.interface
 
-The base class for all device drivers is :class:`DevicePlugin`. However, if your device exposes itself as a USBMS drive to the operating system, you should use the USBMS class instead as it implements all the logic needed to support these kinds of devices.
+The base class for all device drivers is :class:`DevicePlugin`. However, if your device exposes itself as a USBMS drive to the operating system,
+you should use the USBMS class instead as it implements all the logic needed to support these kinds of devices.
 
 .. autoclass:: DevicePlugin
    :show-inheritance:
@@ -108,7 +109,8 @@ The base class for all device drivers is :class:`DevicePlugin`. However, if your
 USB Mass Storage based devices
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. This class in turn inherits some of its functionality from its bases, documented below. A typical basic USBMS based driver looks like this:
+The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. This class in turn inherits some of its functionality
+from its bases, documented below. A typical basic USBMS based driver looks like this:
 
 .. code-block:: python
 
@@ -154,7 +156,8 @@ The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. 
 User Interface Actions
 --------------------------
 
-If you are adding your own plugin in a ZIP file, you should subclass both InterfaceActionBase and InterfaceAction. The :meth:`load_actual_plugin` method of your InterfaceActionBase subclass must return an instantiated object of your InterfaceBase subclass.
+If you are adding your own plugin in a ZIP file, you should subclass both InterfaceActionBase and InterfaceAction. The
+:meth:`load_actual_plugin` method of your InterfaceActionBase subclass must return an instantiated object of your InterfaceBase subclass.
 
 
 .. autoclass:: calibre.gui2.actions.InterfaceAction
