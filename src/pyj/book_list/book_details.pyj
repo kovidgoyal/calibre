@@ -644,6 +644,9 @@ def onkeydown(container_id, close_action, ev):
             elif ev.key is 'Escape':
                 ev.preventDefault(), ev.stopPropagation()
                 close_action()
+            elif ev.key is 'Delete':
+                ev.preventDefault(), ev.stopPropagation()
+                delete_book()
 
 
 def init(container_id):
