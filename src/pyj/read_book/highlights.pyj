@@ -604,7 +604,25 @@ def show_export_dialog(annotations_manager):
                     x.focus()
                     x.select()
                     document.execCommand('copy')
-            ))
+                ),
+                '\xa0',
+                create_button(_('Download'), 'cloud-download', def (ev):
+                    nonlocal fmt
+                    text = document.getElementById(ta_id).textContent
+                    ext = 'md' if fmt is 'markdown' else ('txt' if fmt is 'text' else 'json')
+                    mt = 'text/markdown' if fmt is 'markdown' else ('text/plain' if fmt is 'text' else 'application/json')
+                    filename = f'highlights.{ext}'
+                    file = new Blob([text], {'type': mt})
+                    url = window.URL.createObjectURL(file)
+                    a = E.a(href=url, download=filename)
+                    document.body.appendChild(a)
+                    a.click()
+                    window.setTimeout(def():
+                        document.body.removeChild(a)
+                        window.URL.revokeObjectURL(url)
+                    , 0)
+                ),
+            )
         ))
         window.setTimeout(update_text, 0)
     )
