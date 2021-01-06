@@ -519,7 +519,7 @@ parameters can be statements (sequences of expressions). Note that the definitiv
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str``
       is the zero'th character. If end is negative, then it indicates that many characters counting from the right. If end is zero, then it
       indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
-    * ``subtract(x, y)`` -- returns ``x - y. Throws an exception if either ``x`` or ``y`` are not numbers.
+    * ``subtract(x, y)`` -- returns ``x - y``. Throws an exception if either ``x`` or ``y`` are not numbers.
     * ``today()`` -- return a date string for today. This value is designed for use in `format_date` or `days_between`, but can be manipulated
       like any other string. The date is in ISO format.
     * ``template(x)`` -- evaluates ``x`` as a template. The evaluation is done in its own context, meaning that variables are not shared between
