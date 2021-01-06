@@ -34,9 +34,9 @@ class USAToday(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('component--pullquote__icon gnt_ss'),
+        classes('component--pullquote__icon gnt_ss gnt_em_vp__tp'),
         dict(attrs={'aria-label': ['advertisement']}),
-        dict(name=['link', 'media-gallery']),
+        dict(name=['link', 'media-gallery', 'button']),
     ]
 
     extra_css = '''
