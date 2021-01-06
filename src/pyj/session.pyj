@@ -63,6 +63,7 @@ defaults = {
     'user_stylesheet': '',
     'word_actions': v'[]',
     'highlight_style': None,
+    'highlights_export_format': 'text',
     'custom_highlight_styles': v'[]',
     'show_selection_bar': True,
     'net_search_url': 'https://google.com/search?q={q}',
@@ -104,6 +105,7 @@ is_local_setting = {
     'tts': True,
     'tts_backend': True,
     'fullscreen_when_opening': True,
+    'highlights_export_format': True,
 }
 
 
@@ -170,7 +172,12 @@ class SessionData:
             if defval is undefined:
                 defval = None
             return defval
-        return JSON.parse(ans)
+        try:
+            return JSON.parse(ans)
+        except:
+            if defval is undefined:
+                defval = None
+            return defval
 
     def set(self, key, value):
         key = self.global_prefix + key

@@ -3,14 +3,18 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _, ngettext
 
+from ajax import encode_query
 from book_list.globals import get_session_data
-from read_book.globals import is_dark_theme
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, clear, svgicon, unique_id
-from modals import error_dialog, get_text_dialog, question_dialog, warning_dialog
+from gettext import gettext as _, ngettext
+from modals import (
+    create_custom_dialog, error_dialog, get_text_dialog, question_dialog,
+    warning_dialog
+)
+from read_book.globals import is_dark_theme
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -521,6 +525,84 @@ def get_container():
     return document.getElementById(get_container_id())
 
 
+def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
+    lines.push(hl.highlighted_text)
+    date = Date(hl.timestamp).toLocaleString()
+    if as_markdown and link_prefix:
+        cfi = hl.start_cfi
+        spine_index = (1 + hl.spine_index) * 2
+        link = link_prefix + encode_query({'open_at': f'epubcfi(/{spine_index}{cfi})'})
+        date = f'[{date}]({link})'
+    lines.push(date)
+    notes = hl.notes
+    if notes:
+        lines.push('')
+        lines.push(notes)
+    lines.push('')
+    if as_markdown:
+        lines.push('-' * 20)
+    else:
+        lines.push('───')
+    lines.push('')
+
+
+
+def show_export_dialog(annotations_manager):
+    sd = get_session_data()
+    fmt = sd.get('highlights_export_format')
+    if v"['text', 'markdown', 'calibre_annotations_collection']".indexOf(fmt) < 0:
+        fmt = 'text'
+    all_highlights = annotations_manager.all_highlights()
+    ta_id = unique_id()
+
+    def update_text():
+        if fmt is 'calibre_annotations_collection':
+            data = {
+                'version': 1,
+                'type': 'calibre_annotation_collection',
+                'annotations': all_highlights,
+            }
+            document.getElementById(ta_id).textContent = JSON.stringify(data, None, 2)
+            return
+        as_markdown = fmt is 'markdown'
+        lines = v'[]'
+        for hl in all_highlights:
+            render_highlight_as_text(hl, lines, as_markdown=as_markdown)
+        document.getElementById(ta_id).textContent = lines.join('\n')
+
+    def fmt_item(text, val):
+        ans = E.label(E.input(type='radio', name='format', value=val, checked=val is fmt), '\xa0', text)
+        ans.style.marginRight = '1rem'
+        ans.firstChild.addEventListener('change', def(ev):
+            nonlocal fmt
+            fmt = this.value
+            sd.set('highlights_export_format', this.value)
+            update_text()
+        )
+        return ans
+
+    create_custom_dialog(_('Export highlights'), def (modal_container, close_modal):
+        modal_container.appendChild(E.div(
+            E.div(_('Format for exported highlights:')),
+            E.div(
+                fmt_item(_('Plain text'), 'text'),
+                fmt_item(_('Markdown'), 'markdown'),
+                fmt_item('calibre', 'calibre_annotations_collection'),
+            ),
+            E.textarea(style='margin-top: 1ex; resize: none; max-height: 25vh', readonly=True, rows='20', cols='80', id=ta_id),
+            E.div(
+                class_='button-box',
+                create_button(_('Copy'), 'copy', def (ev):
+                    x = document.getElementById(ta_id)
+                    x.focus()
+                    x.select()
+                    document.execCommand('copy')
+            ))
+        ))
+        window.setTimeout(update_text, 0)
+    )
+
+
 def focus_search():
     c = get_container()
     c.querySelector('input').focus()
@@ -679,12 +761,14 @@ def create_highlights_panel(annotations_manager, book, container, onclick):
     prev_button.addEventListener('click', def(ev): find_previous();)
     sb = create_search_bar(find_next, 'search-in-highlights', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button])
     sb.style.flexGrow = '10'
+    export_button = create_button(_('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager))
+    export_button.style.marginLeft = '1rem'
     c = E.div(
         style='margin: 1rem',
         id=get_container_id(),
         E.div(
             style='display: flex',
-            sb, next_button, prev_button
+            sb, next_button, prev_button, export_button
         ),
     )
     container.appendChild(c)
