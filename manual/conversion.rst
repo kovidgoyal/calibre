@@ -256,17 +256,26 @@ or color all headings a certain color, etc.
 Page setup
 -------------
 
-The :guilabel:`Page setup` options are for controlling screen layout, like margins and screen sizes. There are
-options to setup page margins, which will be used by the output plugin, if the selected output format
-supports page margins. In addition, you should choose an Input profile and an output profile. Both sets
-of profiles basically deal with how to interpret measurements in the input/output documents, screen sizes
-and default font rescaling keys.
+The :guilabel:`Page setup` options are for controlling screen layout, like
+margins and screen sizes. There are options to setup page margins, which will
+be used by the output plugin, if the selected output format supports page
+margins. In addition, you should choose an Input profile and an output profile.
+Both sets of profiles basically deal with how to interpret measurements in the
+input/output documents, screen sizes and default font rescaling keys.
 
-If you know that the file you are converting was intended to be used on a particular device/software platform,
-choose the corresponding input profile, otherwise just choose the default input profile. If you know the files
-you are producing are meant for a particular device type, choose the corresponding output profile. In particular, for MOBI output files, you should choose the Kindle, for LIT the Microsoft Reader and for EPUB the Sony Reader. In the case of EPUB, the Sony Reader profile will result in EPUB files that will work everywhere. However, it has some side effects, like inserting artificial section breaks to keep internal components below the size threshold, needed for SONY devices. In particular for the iPhone/Android phones, choose the SONY output profile. If you know your EPUB files will not be read on a SONY or similar device, use the default output profile. If you are producing MOBI files that are not intended for the Kindle, choose the Mobipocket books output profile.
+If you know that the file you are converting was intended to be used on a
+particular device/software platform, choose the corresponding input profile,
+otherwise just choose the default input profile. If you know the files you are
+producing are meant for a particular device type, choose the corresponding
+output profile. Otherwise, choose one of the Generic output profiles. If you
+are converting to MOBI or AZW3 then you will almost always want to choose one
+of the Kindle output profiles. Otherwise, your best bet for modern E-book
+reading devices is to choose the :guilabel:`Generic e-ink HD` output profile.
 
-The output profile also controls the screen size. This will cause, for example, images to be auto-resized to be fit to the screen in some output formats. So choose a profile of a device that has a screen size similar to your device.
+The output profile also controls the screen size. This will cause, for example,
+images to be auto-resized to be fit to the screen in some output formats. So
+choose a profile of a device that has a screen size similar to your device.
+
 
 .. _heuristic-processing:
 
@@ -292,12 +301,12 @@ remove all non-breaking-space entities, or may include false positive matches re
 :guilabel:`Line-unwrap factor`
     This option controls the algorithm calibre uses to remove hard line breaks. For example, if the value of this
     option is 0.4, that means calibre will remove hard line breaks from the end of lines whose lengths are less
-    than the length of 40% of all lines in the document.  If your document only has a few line breaks which need
+    than the length of 40% of all lines in the document. If your document only has a few line breaks which need
     correction, then this value should be reduced to somewhere between 0.1 and 0.2.
 
 :guilabel:`Detect and markup unformatted chapter headings and sub headings`
     If your document does not have chapter headings and titles formatted differently from the rest of the text,
-    calibre can use this option to attempt detection them and surround them with heading tags. <h2> tags are used
+    calibre can use this option to attempt to detect them and surround them with heading tags. <h2> tags are used
     for chapter headings; <h3> tags are used for any titles that are detected.
 
     This function will not create a TOC, but in many cases it will cause calibre's default chapter detection settings
@@ -382,15 +391,18 @@ and their syntax at :ref:`regexptutorial`.
 Structure detection
 ---------------------
 
-Structure detection involves calibre trying its best to detect structural elements in the input document, when they are not properly specified. For example, chapters, page breaks, headers, footers, etc. As you can imagine, this process varies widely from book to book. Fortunately, calibre has very powerful options to control this. With power comes complexity, but if once you take the time to learn the complexity, you will find it well worth the effort.
+Structure detection involves calibre trying its best to detect structural elements in the input document, when they are not
+properly specified. For example, chapters, page breaks, headers, footers, etc. As you can imagine, this process varies widely
+from book to book. Fortunately, calibre has very powerful options to control this. With power comes complexity, but if once you
+take the time to learn the complexity, you will find it well worth the effort.
 
 Chapters and page breaks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-calibre has two sets of options for :guilabel:`chapter detection` and :guilabel:`inserting page breaks`. This can sometimes be slightly confusing, as by default,
-calibre will insert page breaks before detected chapters as well as the locations detected by the page breaks option.
-The reason for this is that there are often location where page breaks should be inserted that are not chapter boundaries.
-Also, detected chapters can be optionally inserted into the auto generated Table of Contents.
+calibre has two sets of options for :guilabel:`chapter detection` and :guilabel:`inserting page breaks`. This can sometimes be
+slightly confusing, as by default, calibre will insert page breaks before detected chapters as well as the locations detected by
+the page breaks option. The reason for this is that there are often location where page breaks should be inserted that are not
+chapter boundaries. Also, detected chapters can be optionally inserted into the auto generated Table of Contents.
 
 calibre uses *XPath*, a powerful language to allow the user to specify chapter boundaries/page breaks. XPath can seem a little daunting
 to use at first, fortunately, there is a :ref:`XPath tutorial <xpath-tutorial>` in the User Manual. Remember that Structure detection
@@ -468,7 +480,7 @@ in the :ref:`structure-detection` section above. If you do not want to include d
 table of contents, check the :guilabel:`Do not add detected chapters` option.
 
 If less than the :guilabel:`Chapter threshold` number of chapters were detected, calibre will then add any hyperlinks
-it finds in the input document to the Table of Contents. This often works well many input documents include a
+it finds in the input document to the Table of Contents. This often works well: many input documents include a
 hyperlinked Table of Contents right at the start. The :guilabel:`Number of links` option can be used to control
 this behavior. If set to zero, no links are added. If set to a number greater than zero, at most that number of links
 is added.
