@@ -6,7 +6,7 @@
 # to the ticket list.
 # Also, each release can have new and improved recipes.
 
-# {{{ 5.x.0 2020-xx-xx
+# {{{ 5.x.0 2021-xx-xx
 #
 # :: new features
 #
@@ -22,6 +22,48 @@
 # :: new recipes
 # - title by author
 # }}}
+
+{{{ 5.9.0 2021-01-08
+
+:: new features
+
+- Annotations: Allow exporting highlights and bookmarks in Markdown format, with a link to open the book at the highlight location
+
+- [1909529] Content server viewer: Allow exporting all highlights
+
+- [1909339] Icon rules editor: Add a button to open the icons folder
+
+- [1909258] Quickview: Dropdown menu for all selectable columns
+
+:: bug fixes
+
+- Fix a regression that cause the Content server to crash if a client closed a connection during a file transfer on macOS and Linux.
+
+- [1909224] LRF Output: Fix conversion broken in calibre 5 when font size rescaling is active
+
+- E-book viewer: Cancel any speech in progress when hiding the selection popup bar after triggering the speak aloud action on it
+
+- [1909332] Color/icon rules editor: Fix duplicate rule button not working correctly
+
+- [1909291] Fix dropping files onto book details causing an error if the confirmation dialog is disabled
+
+:: improved recipes
+- General Knowledge Today
+- El Pais
+- USA Today
+- WirtchaftsWoche Online
+- The Guardian
+- Arcamax
+- Miami Herald
+- The Seattle Times
+
+:: new recipes
+
+- Mallorca Zeitung by VoHegg
+- T-Online by VoHegg
+- El Diario by Dirk Gómez
+
+}}}
 
 {{{ 5.8.1 2020-12-24
 
