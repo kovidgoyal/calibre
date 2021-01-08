@@ -37,7 +37,7 @@
 
 :: bug fixes
 
-- Fix a regression that caused the Content server to crash if a client closed a connection during a file transfer on macOS and Linux.
+- [1909880 1906152] Fix a regression that caused the Content server to crash if a client closed a connection during a file transfer on macOS and Linux.
 
 - [1909224] LRF Output: Fix conversion broken in calibre 5 when font size rescaling is active
 
