@@ -8,7 +8,6 @@ import os
 import sys
 from textwrap import TextWrapper
 
-from calibre import prints
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
@@ -201,7 +200,7 @@ def do_list(
         fields
     )
     with ColoredStream(sys.stdout, fg='green'):
-        prints(''.join(titles))
+        print(''.join(titles), flush=True)
     stdout = getattr(sys.stdout, 'buffer', sys.stdout)
     linesep = as_bytes(os.linesep)
 
