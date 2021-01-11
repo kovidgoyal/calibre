@@ -278,24 +278,26 @@ class Plugin(object):  # {{{
         '''
         if self.plugin_path is not None:
             from calibre.utils.zipfile import ZipFile
-            zf = ZipFile(self.plugin_path)
-            extensions = {x.rpartition('.')[-1].lower() for x in
-                zf.namelist()}
-            zip_safe = True
-            for ext in ('pyd', 'so', 'dll', 'dylib'):
-                if ext in extensions:
-                    zip_safe = False
-                    break
-            if zip_safe:
-                sys.path.insert(0, self.plugin_path)
-                self.sys_insertion_path = self.plugin_path
-            else:
-                from calibre.ptempfile import TemporaryDirectory
-                self._sys_insertion_tdir = TemporaryDirectory('plugin_unzip')
-                self.sys_insertion_path = self._sys_insertion_tdir.__enter__(*args)
-                zf.extractall(self.sys_insertion_path)
-                sys.path.insert(0, self.sys_insertion_path)
-            zf.close()
+            from importlib.machinery import EXTENSION_SUFFIXES
+            with ZipFile(self.plugin_path) as zf:
+                extensions = {x.lower() for x in EXTENSION_SUFFIXES}
+                zip_safe = True
+                for name in zf.namelist():
+                    for q in extensions:
+                        if name.endswith(q):
+                            zip_safe = False
+                            break
+                    if not zip_safe:
+                        break
+                if zip_safe:
+                    sys.path.insert(0, self.plugin_path)
+                    self.sys_insertion_path = self.plugin_path
+                else:
+                    from calibre.ptempfile import TemporaryDirectory
+                    self._sys_insertion_tdir = TemporaryDirectory('plugin_unzip')
+                    self.sys_insertion_path = self._sys_insertion_tdir.__enter__(*args)
+                    zf.extractall(self.sys_insertion_path)
+                    sys.path.insert(0, self.sys_insertion_path)
 
     def __exit__(self, *args):
         ip, it = getattr(self, 'sys_insertion_path', None), getattr(self,
