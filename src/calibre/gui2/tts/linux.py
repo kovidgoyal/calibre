@@ -41,9 +41,14 @@ class Client:
         self.system_default_output_module = None
 
     def create_ssip_client(self):
-        from speechd.client import Priority, SpawnError, SSIPClient
+        from speechd.client import Priority, SpawnError, SSIPClient, SSIPCommunicationError
         try:
             self.ssip_client = SSIPClient('calibre')
+        except SSIPCommunicationError as err:
+            ex = err.additional_exception()
+            if isinstance(ex, SpawnError):
+                raise TTSSystemUnavailable(_('Could not find speech-dispatcher on your system. Please install it.'), str(err))
+            raise
         except SpawnError as err:
             raise TTSSystemUnavailable(_('Could not find speech-dispatcher on your system. Please install it.'), str(err))
         self.ssip_client.set_priority(Priority.TEXT)
