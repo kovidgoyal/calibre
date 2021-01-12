@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+#
+# 11 Jan 2021 -  L. Houpert - Major changes in the Mediapart recipe:
+#   1) Summary of the article are noow available
+#   2) Additional sections  International, France, Economie and Culture have
+# been added through custom entries in the function my_parse_index.
+#   3) Fix the cover image so it doesnt disappear from the Kindle menu
+# ( cover image format is changed to .jpeg)
+#
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
@@ -42,7 +50,7 @@ class Mediapart(BasicNewsRecipe):
     remove_tags = [classes('login-subscribe print-source_url')]
     conversion_options = {'smarten_punctuation': True}
 
-    cover_url = 'https://static.mediapart.fr/files/M%20Philips/logo-mediapart.png'
+    cover_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
 
     # --
 
