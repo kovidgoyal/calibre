@@ -1203,10 +1203,10 @@ class Application(QApplication):
     def setup_unix_signals(self):
         setup_unix_signals(self)
 
-    def signal_received(self, read_fd):
+    def signal_received(self):
         try:
-            os.read(read_fd, 1024)
-        except EnvironmentError:
+            os.read(self.signal_notifier.socket(), 1024)
+        except OSError:
             return
         self.shutdown_signal_received.emit()
 
