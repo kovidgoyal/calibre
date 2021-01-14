@@ -40,7 +40,7 @@ def fmt_date_pat():
 def fd_format_hour(dt, ampm, hr, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     if ampm:
-        h = h % 12
+        h %= 12
     return h.toString() if hr.length is 1 else str.format('{:02d}', h)
 
 
@@ -128,7 +128,7 @@ fd_function_index = {
 def am_pm_pat():
     ans = am_pm_pat.ans
     if not ans?:
-        ans = am_pm_pat.ans = /(ap)|(a)/
+        ans = am_pm_pat.ans = /(ap)|(a)|(AP)|(A)/
     return ans
 
 
