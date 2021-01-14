@@ -7,7 +7,8 @@
 # been added through custom entries in the function my_parse_index.
 #   3) Fix the cover image so it doesnt disappear from the Kindle menu
 # ( cover image format is changed to .jpeg)
-# 14 Jan 2021 - Add Mediapart Logo url as masthead_url
+# 14 Jan 2021 - Add Mediapart Logo url as masthead_url and change cover
+#   by adding overlaying the date on top of the Mediapart cover
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
@@ -18,11 +19,15 @@ Mediapart
 
 import re
 from datetime import date, datetime, timedelta
-from time import strftime
-
+import urllib.request
+from PyQt5.Qt import (
+    QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
+    QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient,
+    QPainterPath, QPen, QRectF, QTransform, QRadialGradient
+)
 from calibre.web.feeds import feeds_from_index
 from calibre.web.feeds.news import BasicNewsRecipe
-
+from polyglot.builtins import unicode_type
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -52,7 +57,7 @@ class Mediapart(BasicNewsRecipe):
     conversion_options = {'smarten_punctuation': True}
 
     masthead_url = "https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png"
-    cover_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
+    # cover_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
 
     # --
 
@@ -243,21 +248,71 @@ class Mediapart(BasicNewsRecipe):
             br.submit()
         return br
 
+    # def default_cover(self, cover_file):
+    #     """
+    #     Create a generic cover for recipes that don't have a cover
+    #     This override adds time to the cover
+    #     """
+    #     try:
+    #         from calibre.ebooks import calibre_cover
+    #         title = self.title if isinstance(self.title, unicode) else \
+    #             self.title.decode('utf-8', 'replace')
+    #         date = strftime(self.timefmt)
+    #         time = strftime('%a %d %b %Y %-H:%M')
+    #         img_data = calibre_cover(title, date, time)
+    #         cover_file.write(img_data)
+    #         cover_file.flush()
+    #         print(f'title: {title}\ndate: {date}\ntime: {time}')
+    #     except:
+    #         self.log.exception('\nFAILED TO GENERATE DEFAULT COVER\n')
+    #         return False
+
+
+
     def default_cover(self, cover_file):
-        """
+        '''
         Create a generic cover for recipes that don't have a cover
-        This override adds time to the cover
-        """
+        '''
+        from calibre.gui2 import ensure_app, config, load_builtin_fonts, pixmap_to_data
+        def init_environment():
+            ensure_app()
+            load_builtin_fonts()
+
+        def create_cover_mediapart(date):
+            ' Create a cover for mediapart adding the date on Mediapart Cover'
+            init_environment()
+            # Get data
+            image_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg' #'mediapart.jpeg'
+            data = urllib.request.urlopen(image_url).read()
+            img  = QImage()
+            img.loadFromData(data)
+            p = QPainter(img)
+
+            pen = QPen(Qt.black)
+            pen.setWidth(4)
+            p.setPen(pen)
+
+            font = QFont()
+            font.setFamily('Times')
+            font.setBold(True)
+            font.setPointSize(78)
+            p.setFont(font)
+
+            # Add date
+            p.drawText(125, 750, date)
+            p.end()
+            print(f'create_cover_mediapart\nDate: {date}\n')
+            return pixmap_to_data(img)
+
         try:
-            from calibre.ebooks import calibre_cover
-            title = self.title if isinstance(self.title, unicode) else \
-                self.title.decode('utf-8', 'replace')
-            date = strftime(self.timefmt)
-            time = strftime('%a %d %b %Y %-H:%M')
-            img_data = calibre_cover(title, date, time)
+            today=datetime.today()
+            date = today.strftime('%d %b %Y')
+            img_data = create_cover_mediapart(date)
             cover_file.write(img_data)
             cover_file.flush()
-            print(f'title: {title}\ndate: {date}\ntime: {time}')
         except:
             self.log.exception('Failed to generate default cover')
+            import sys
+            print(sys.argv)
             return False
+        return True
