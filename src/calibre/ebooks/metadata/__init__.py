@@ -65,15 +65,20 @@ def remove_bracketed_text(src, brackets=None):
 
 
 def author_to_author_sort(author, method=None):
-    if not author or method == 'copy':
+    if not author:
         return ''
-    sauthor = remove_bracketed_text(author).strip()
-    tokens = sauthor.split()
-    if len(tokens) < 2:
-        return author
+
     if method is None:
         method = tweaks['author_sort_copy_method']
     if method == 'copy':
+        return author
+
+    sauthor = remove_bracketed_text(author).strip()
+    if method == 'comma' and ',' in sauthor:
+        return author
+
+    tokens = sauthor.split()
+    if len(tokens) < 2:
         return author
 
     ltoks = frozenset(x.lower() for x in tokens)
@@ -83,9 +88,6 @@ def author_to_author_sort(author, method=None):
 
     author_surname_prefixes = frozenset(x.lower() for x in tweaks['author_surname_prefixes'])
     if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
-        return author
-
-    if method == 'comma' and any(',' in t for t in tokens):
         return author
 
     prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
@@ -442,3 +444,80 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     if allow_half_stars and r % 2:
         ans += half
     return ans
+
+
+def find_tests():
+    import unittest
+
+    class TestRemoveBracketedText(unittest.TestCase):
+        def test_brackets(self):
+            self.assertEqual(remove_bracketed_text('a[b]c(d)e{f}g<h>i'), 'aceg<h>i')
+
+        def test_nested(self):
+            self.assertEqual(remove_bracketed_text('a[[b]c(d)e{f}]g(h(i)j[k]l{m})n{{{o}}}p'), 'agnp')
+
+        def test_mismatched(self):
+            self.assertEqual(remove_bracketed_text('a[b(c]d)e'), 'ae')
+            self.assertEqual(remove_bracketed_text('a{b(c}d)e'), 'ae')
+
+        def test_extra_closed(self):
+            self.assertEqual(remove_bracketed_text('a]b}c)d'), 'abcd')
+            self.assertEqual(remove_bracketed_text('a[b]c]d(e)f{g)h}i}j)k]l'), 'acdfijkl')
+
+        def test_unclosed(self):
+            self.assertEqual(remove_bracketed_text('a]b[c'), 'ab')
+            self.assertEqual(remove_bracketed_text('a(b[c]d{e}f'), 'a')
+            self.assertEqual(remove_bracketed_text('a{b}c{d[e]f(g)h'), 'ac')
+
+    class TestAuthorToAuthorSort(unittest.TestCase):
+        def check_all_methods(self, name, comma=None, nocomma=None, copy=None):
+            methods = ('copy', 'comma', 'nocomma')
+            if comma is None:
+                comma = name
+            if nocomma is None:
+                nocomma = comma
+            if copy is None:
+                copy = name
+            results = (copy, comma, nocomma)
+            for method, result in zip(methods, results):
+                self.assertEqual(author_to_author_sort(name, method), result)
+
+        def test_single(self):
+            self.check_all_methods('Aristotle')
+
+        def test_all_prefix(self):
+            self.check_all_methods('Mr. Dr Prof.')
+
+        def test_all_suffix(self):
+            self.check_all_methods('Senior Inc')
+
+        def test_copywords(self):
+            self.check_all_methods('Don "Team" Smith', 'Smith, Don "Team"', 'Smith Don "Team"')
+            self.check_all_methods('Don Team Smith')
+
+        def test_method(self):
+            self.check_all_methods('Jane Doe', 'Doe, Jane', 'Doe Jane')
+
+        def test_prefix_suffix(self):
+            self.check_all_methods('Mrs. Jane Q. Doe III', 'Doe, Jane Q. III', 'Doe Jane Q. III')
+
+        def test_surname_prefix(self):
+            self.check_all_methods('Leonardo Da Vinci', 'Da Vinci, Leonardo', 'Da Vinci Leonardo')
+            self.check_all_methods('Van Gogh')
+
+        def test_comma(self):
+            self.check_all_methods('James Wesley, Rawles', nocomma='Rawles James Wesley,')
+
+        def test_brackets(self):
+            self.check_all_methods('Seventh Author [7]', 'Author, Seventh', 'Author Seventh')
+            self.check_all_methods('John [x]von Neumann (III)', 'von Neumann, John', 'von Neumann John')
+
+        def test_falsy(self):
+            self.check_all_methods('')
+            self.check_all_methods(None, '', '', '')
+            self.check_all_methods([], '', '', '')
+
+    ans = unittest.defaultTestLoader.loadTestsFromTestCase(TestRemoveBracketedText)
+    ans.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestAuthorToAuthorSort))
+    return ans
+
