@@ -8,7 +8,7 @@
 #   3) Fix the cover image so it doesnt disappear from the Kindle menu
 # ( cover image format is changed to .jpeg)
 # 14 Jan 2021 - Add Mediapart Logo url as masthead_url and change cover
-#   by adding overlaying the date on top of the Mediapart cover
+#   by overlaying the date on top of the Mediapart cover
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
@@ -18,7 +18,7 @@ Mediapart
 '''
 
 import re
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timezone, timedelta
 import urllib.request
 from PyQt5.Qt import (
     QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
@@ -61,7 +61,9 @@ class Mediapart(BasicNewsRecipe):
 
     # --
 
-    oldest_article_date = datetime.today() - timedelta(days=oldest_article)
+    # Get date in french time zone format
+    today = datetime.now(timezone.utc) + timedelta(hours=1)
+    oldest_article_date = today - timedelta(days=oldest_article)
 
     feeds = [
         ('La Une', 'http://www.mediapart.fr/articles/feed'),
@@ -281,28 +283,50 @@ class Mediapart(BasicNewsRecipe):
         def create_cover_mediapart(date):
             ' Create a cover for mediapart adding the date on Mediapart Cover'
             init_environment()
-            # Get data
+
+            # Get date and hour corresponding to french time zone
+            today = datetime.now(timezone.utc) + timedelta(hours=1)
+            wkd = today.weekday()
+            french_weekday={0:'Mon',1:'Mar',2:'Mer',3:'Jeu',4:'Ven',5:'Sam',6:'Dim'}
+            day = french_weekday[wkd]+'.'
+            date = day + ' ' + today.strftime('%d %b. %Y')
+            edition = today.strftime('Édition de %Hh')
+
+            # Get Cover data
             image_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg' #'mediapart.jpeg'
             data = urllib.request.urlopen(image_url).read()
             img  = QImage()
             img.loadFromData(data)
-            p = QPainter(img)
 
+            # Overlay date on cover
+            p = QPainter(img)
+            pen = QPen(Qt.black)
+            pen.setWidth(6)
+            p.setPen(pen)
+            font = QFont()
+            font.setFamily('Times')
+            font.setPointSize(78)
+            p.setFont(font)
+            r = QRect(0, 600, 744,100)
+            p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, date)
+            p.end()
+
+            # Overlay edition information on cover
+            p = QPainter(img)
             pen = QPen(Qt.black)
             pen.setWidth(4)
             p.setPen(pen)
-
             font = QFont()
             font.setFamily('Times')
-            font.setBold(True)
-            font.setPointSize(78)
+            font.setItalic(True);
+            font.setPointSize(66)
             p.setFont(font)
-
             # Add date
-            r = QRect(0, 600, 744,200)
-            p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, date)
+            r = QRect(0, 720, 744,100)
+            p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, edition)
             p.end()
-            print(f'create_cover_mediapart\nDate: {date}\n')
+
+            print(f'create_cover_mediapart\nDate: {date}\n {edition}\n')
             return pixmap_to_data(img)
 
         try:
