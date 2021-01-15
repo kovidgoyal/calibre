@@ -46,23 +46,26 @@ def remove_bracketed_text(src, brackets=None):
         brackets = {'(': ')', '[': ']', '{': '}'}
     from collections import Counter
     counts = Counter()
+    total = 0
     buf = []
     src = force_unicode(src)
     rmap = {v: k for k, v in iteritems(brackets)}
     for char in src:
         if char in brackets:
             counts[char] += 1
+            total += 1
         elif char in rmap:
             idx = rmap[char]
             if counts[idx] > 0:
                 counts[idx] -= 1
-        elif sum(itervalues(counts)) < 1:
+                total -= 1
+        elif total < 1:
             buf.append(char)
     return ''.join(buf)
 
 
 def author_to_author_sort(author, method=None):
-    if not author:
+    if not author or method == 'copy':
         return ''
     sauthor = remove_bracketed_text(author).strip()
     tokens = sauthor.split()
@@ -70,45 +73,46 @@ def author_to_author_sort(author, method=None):
         return author
     if method is None:
         method = tweaks['author_sort_copy_method']
+    if method == 'copy':
+        return author
 
     ltoks = frozenset(x.lower() for x in tokens)
     copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
     if ltoks.intersection(copy_words):
-        method = 'copy'
+        return author
 
-    if method == 'copy':
+    author_surname_prefixes = frozenset(x.lower() for x in tweaks['author_surname_prefixes'])
+    if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
+        return author
+
+    if method == 'comma' and any(',' in t for t in tokens):
         return author
 
     prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
     prefixes |= {y+'.' for y in prefixes}
-    while True:
-        if not tokens:
-            return author
-        tok = tokens[0].lower()
-        if tok in prefixes:
-            tokens = tokens[1:]
-        else:
+
+    for first in range(len(tokens)):
+        if tokens[first].lower() not in prefixes:
             break
+    else:
+        return author
 
     suffixes = {force_unicode(y).lower() for y in tweaks['author_name_suffixes']}
     suffixes |= {y+'.' for y in suffixes}
 
-    suffix = ''
-    while True:
-        if not tokens:
-            return author
-        last = tokens[-1].lower()
-        if last in suffixes:
-            suffix = tokens[-1] + ' ' + suffix
-            tokens = tokens[:-1]
-        else:
+    for last in range(len(tokens) - 1, first - 1, -1):
+        if tokens[last].lower() not in suffixes:
             break
-    suffix = suffix.strip()
-
-    if method == 'comma' and ',' in ''.join(tokens):
+    else:
         return author
 
-    atokens = tokens[-1:] + tokens[:-1]
+    suffix = ' '.join(tokens[last + 1:])
+
+    if last > first and tokens[last - 1].lower() in author_surname_prefixes:
+        tokens[last - 1] += ' ' + tokens[last]
+        last -= 1
+
+    atokens = tokens[last:last + 1] + tokens[first:last]
     num_toks = len(atokens)
     if suffix:
         atokens.append(suffix)

@@ -69,6 +69,7 @@ author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
 author_name_prefixes = ('Mr', 'Mrs', 'Ms', 'Dr', 'Prof')
 author_name_copywords = ('Corporation', 'Company', 'Co.', 'Agency', 'Council',
         'Committee', 'Inc.', 'Institute', 'Society', 'Club', 'Team')
+author_surname_prefixes = ('da', 'de', 'di', 'la', 'le', 'van', 'von')
 
 #: Splitting multiple author names
 # By default, calibre splits a string containing multiple author names on
