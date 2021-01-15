@@ -299,7 +299,8 @@ class Mediapart(BasicNewsRecipe):
             p.setFont(font)
 
             # Add date
-            p.drawText(125, 750, date)
+            r = QRect(0, 600, 744,200)
+            p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, date)
             p.end()
             print(f'create_cover_mediapart\nDate: {date}\n')
             return pixmap_to_data(img)
