@@ -33,6 +33,7 @@ class Node(object):
     NODE_FIRST_NON_EMPTY = 12
     NODE_FOR = 13
     NODE_GLOBALS = 14
+    NODE_CONTAINS = 15
 
 
 class IfNode(Node):
@@ -142,6 +143,16 @@ class FirstNonEmptyNode(Node):
         Node.__init__(self)
         self.node_type = self.NODE_FIRST_NON_EMPTY
         self.expression_list = expression_list
+
+
+class ContainsNode(Node):
+    def __init__(self, arguments):
+        Node.__init__(self)
+        self.node_type = self.NODE_CONTAINS
+        self.value_expression = arguments[0]
+        self.test_expression = arguments[1]
+        self.match_expression = arguments[2]
+        self.not_match_expression = arguments[3]
 
 
 class _Parser(object):
@@ -448,6 +459,8 @@ class _Parser(object):
                 if id_ == 'arguments':
                     return ArgumentsNode(new_args)
                 return GlobalsNode(new_args)
+            if id_ == 'contains' and len(arguments) == 4:
+                return ContainsNode(arguments)
             if id_ in self.func_names and not self.funcs[id_].is_python:
                 return self.call_expression(id_, arguments)
             cls = self.funcs[id_]
@@ -633,6 +646,13 @@ class _Interpreter(object):
         except Exception as e:
             self.error(_('Unhandled exception {0}').format(e))
 
+    def do_node_contains(self, prog):
+        v = self.expr(prog.value_expression)
+        t = self.expr(prog.test_expression)
+        if re.search(t, v, flags=re.I):
+            return self.expr(prog.match_expression)
+        return self.expr(prog.not_match_expression)
+
     NODE_OPS = {
         Node.NODE_IF:             do_node_if,
         Node.NODE_ASSIGN:         do_node_assign,
@@ -648,6 +668,7 @@ class _Interpreter(object):
         Node.NODE_FIRST_NON_EMPTY:do_node_first_non_empty,
         Node.NODE_FOR:            do_node_for,
         Node.NODE_GLOBALS:        do_node_globals,
+        Node.NODE_CONTAINS:       do_node_contains,
         }
 
     def expr(self, prog):
