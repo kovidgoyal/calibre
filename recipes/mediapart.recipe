@@ -7,7 +7,8 @@
 # been added through custom entries in the function my_parse_index.
 #   3) Fix the cover image so it doesnt disappear from the Kindle menu
 # ( cover image format is changed to .jpeg)
-#
+# 14 Jan 2021 - Add Mediapart Logo url as masthead_url and change cover
+#   by adding overlaying the date on top of the Mediapart cover
 from __future__ import unicode_literals
 
 __license__ = 'GPL v3'
@@ -18,7 +19,6 @@ Mediapart
 
 import re
 from datetime import date, datetime, timedelta
-
 from calibre.web.feeds import feeds_from_index
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -50,7 +50,8 @@ class Mediapart(BasicNewsRecipe):
     remove_tags = [classes('login-subscribe print-source_url')]
     conversion_options = {'smarten_punctuation': True}
 
-    cover_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
+    masthead_url = "https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart_masthead.png"
+    # cover_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
 
     # --
 
@@ -240,3 +241,51 @@ class Mediapart(BasicNewsRecipe):
             br['password'] = self.password
             br.submit()
         return br
+
+    def default_cover(self, cover_file):
+        '''
+        Create a generic cover for recipes that don't have a cover
+        '''
+        from PyQt5.Qt import QImage, QPainter, QPen, Qt, QFont, QRect
+        from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+
+        def init_environment():
+            ensure_app()
+            load_builtin_fonts()
+
+        def create_cover_mediapart(date):
+            ' Create a cover for mediapart adding the date on Mediapart Cover'
+            init_environment()
+            # Get data
+            image_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
+            data = self.index_to_soup(image_url, raw=True)
+            img  = QImage()
+            img.loadFromData(data)
+            p = QPainter(img)
+
+            pen = QPen(Qt.black)
+            pen.setWidth(4)
+            p.setPen(pen)
+
+            font = QFont()
+            font.setFamily('Times')
+            font.setBold(True)
+            font.setPointSize(78)
+            p.setFont(font)
+
+            # Add date
+            r = QRect(0, 600, 744,200)
+            p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, date)
+            p.end()
+            return pixmap_to_data(img)
+
+        try:
+            today=datetime.today()
+            date = today.strftime('%d %b %Y')
+            img_data = create_cover_mediapart(date)
+            cover_file.write(img_data)
+            cover_file.flush()
+        except Exception:
+            self.log.exception('Failed to generate default cover')
+            return False
+        return True
