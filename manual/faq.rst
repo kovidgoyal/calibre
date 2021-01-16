@@ -513,7 +513,7 @@ you have found the problem book, delete it off the Kindle and do a MOBI to MOBI
 or MOBI to AZW3 conversion in calibre and then send it back. This will most
 likely take care of the problem.
 
-Library Management
+Library management
 ------------------
 
 .. contents:: Contents
