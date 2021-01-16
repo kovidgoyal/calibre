@@ -439,7 +439,7 @@ Why does calibre not support collections on the Kindle or shelves on the Nook?
 Neither the Kindle nor the Nook provide any way to manipulate collections over
 a USB connection.  If you really care about using collections, I would urge you
 to sell your Kindle/Nook and get a Kobo.  Only Kobo seems to understand that
-life is too short to be entering collections one by one on an e-ink screen :)
+life is too short to be entering collections one by one on an e-ink screen 😇
 
 Note that in the case of the Kindle, there is a way to manipulate collections
 via USB, but it requires that the Kindle be rebooted *every time* it is
@@ -845,6 +845,18 @@ Screen Reader.
 The only way to find the culprit is to eliminate the programs one by one and
 see which one is causing the issue. Basically, stop a program, run calibre,
 check for crashes. If they still happen, stop another program and repeat.
+
+
+The calibre E-book viewer and Edit book tools do not work on Windows?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These two programs use hardware acceleration as they embed a version of the
+Chrome browser to render HTML. If they do not work it will be because of
+incompatibility with your system's GPU (graphics) drivers. Try updating these
+first, and reboot. If that does not fix it, you can set the
+``QTWEBENGINE_CHROMIUM_FLAGS`` environment variable to the value
+``--disable-gpu`` to turn off hardware acceleration. See
+`this page <https://doc.qt.io/qt-5/qtwebengine-debugging.html>`_ for details.
 
 
 Using the viewer or doing any conversions results in a permission denied error on Windows
