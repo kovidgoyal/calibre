@@ -19,15 +19,9 @@ Mediapart
 
 import re
 from datetime import date, datetime, timezone, timedelta
-import urllib.request
-from PyQt5.Qt import (
-    QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
-    QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient,
-    QPainterPath, QPen, QRectF, QTransform, QRadialGradient
-)
 from calibre.web.feeds import feeds_from_index
 from calibre.web.feeds.news import BasicNewsRecipe
-from polyglot.builtins import unicode_type
+
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -168,8 +162,8 @@ class Mediapart(BasicNewsRecipe):
 
                     date = article.find('time', datetime=True)['datetime']
                     article_date = datetime.strptime(date, '%Y-%m-%d')
-                    # Add french timezone to date of the article for date check
-                    article_date = article_date.replace(tzinfo=timezone.utc) + timedelta(hours=1)
+                    # Add French timezone to date of the article for date check
+                    article_date = article_date.replace(tzinfo=timezone.utc) + timedelta(hours=1)                    
                     if article_date < self.oldest_article_date:
                         print("article_date < self.oldest_article_date\n")
                         continue
@@ -252,32 +246,13 @@ class Mediapart(BasicNewsRecipe):
             br.submit()
         return br
 
-    # def default_cover(self, cover_file):
-    #     """
-    #     Create a generic cover for recipes that don't have a cover
-    #     This override adds time to the cover
-    #     """
-    #     try:
-    #         from calibre.ebooks import calibre_cover
-    #         title = self.title if isinstance(self.title, unicode) else \
-    #             self.title.decode('utf-8', 'replace')
-    #         date = strftime(self.timefmt)
-    #         time = strftime('%a %d %b %Y %-H:%M')
-    #         img_data = calibre_cover(title, date, time)
-    #         cover_file.write(img_data)
-    #         cover_file.flush()
-    #         print(f'title: {title}\ndate: {date}\ntime: {time}')
-    #     except:
-    #         self.log.exception('\nFAILED TO GENERATE DEFAULT COVER\n')
-    #         return False
-
-
-
     def default_cover(self, cover_file):
         '''
         Create a generic cover for recipes that don't have a cover
         '''
-        from calibre.gui2 import ensure_app, config, load_builtin_fonts, pixmap_to_data
+        from PyQt5.Qt import QImage, QPainter, QPen, Qt, QFont, QRect
+        from calibre.gui2 import ensure_app, load_builtin_fonts, pixmap_to_data
+
         def init_environment():
             ensure_app()
             load_builtin_fonts()
@@ -285,7 +260,9 @@ class Mediapart(BasicNewsRecipe):
         def create_cover_mediapart(date):
             ' Create a cover for mediapart adding the date on Mediapart Cover'
             init_environment()
-
+            # Get data
+            image_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg'
+            data = self.index_to_soup(image_url, raw=True)
             # Get date and hour corresponding to french time zone
             today = datetime.now(timezone.utc) + timedelta(hours=1)
             wkd = today.weekday()
@@ -295,8 +272,6 @@ class Mediapart(BasicNewsRecipe):
             edition = today.strftime('Édition de %Hh')
 
             # Get Cover data
-            image_url = 'https://raw.githubusercontent.com/lhoupert/calibre_contrib/main/mediapart.jpeg' #'mediapart.jpeg'
-            data = urllib.request.urlopen(image_url).read()
             img  = QImage()
             img.loadFromData(data)
 
@@ -320,15 +295,13 @@ class Mediapart(BasicNewsRecipe):
             p.setPen(pen)
             font = QFont()
             font.setFamily('Times')
-            font.setItalic(True);
+            font.setItalic(True)
             font.setPointSize(66)
             p.setFont(font)
             # Add date
             r = QRect(0, 720, 744,100)
             p.drawText(r, Qt.AlignmentFlag.AlignJustify | Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignCenter, edition)
             p.end()
-
-            print(f'create_cover_mediapart\nDate: {date}\n {edition}\n')
             return pixmap_to_data(img)
 
         try:
@@ -337,9 +310,7 @@ class Mediapart(BasicNewsRecipe):
             img_data = create_cover_mediapart(date)
             cover_file.write(img_data)
             cover_file.flush()
-        except:
+        except Exception:
             self.log.exception('Failed to generate default cover')
-            import sys
-            print(sys.argv)
             return False
         return True
