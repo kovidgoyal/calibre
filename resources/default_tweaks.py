@@ -267,8 +267,8 @@ title_sort_articles=r'^(A|The|An)\s+'
 auto_connect_to_folder = ''
 
 #: Specify renaming rules for SONY collections
-# Specify renaming rules for sony collections. This tweak is only applicable if
-# metadata management is set to automatic. Collections on Sonys are named
+# Specify renaming rules for SONY collections. This tweak is only applicable if
+# metadata management is set to automatic. Collections on SONYs are named
 # depending upon whether the field is standard or custom. A collection derived
 # from a standard field is named for the value in that field. For example, if
 # the standard 'series' column contains the value 'Darkover', then the
@@ -320,7 +320,7 @@ sony_collection_renaming_rules={}
 sony_collection_name_template='{value}{category:| (|)}'
 
 #: Specify how SONY collections are sorted
-# Specify how sony collections are sorted. This tweak is only applicable if
+# Specify how SONY collections are sorted. This tweak is only applicable if
 # metadata management is set to automatic. You can indicate which metadata is to
 # be used to sort on a collection-by-collection basis. The format of the tweak
 # is a list of metadata fields from which collections are made, followed by the

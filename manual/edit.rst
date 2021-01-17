@@ -312,15 +312,15 @@ will show you the location. Click OK once you are happy with the location.
     :alt: The Edit Table of Contents tool, how to change the location an entry points to
     :align: center
 
-Checking the Book
+Checking the book
 ^^^^^^^^^^^^^^^^^^^^^
 
-The :guilabel:`Check Book` tool searches your book for problems that could
+The :guilabel:`Check book` tool searches your book for problems that could
 prevent it working as intended on actual reader devices. Activate it via
-:guilabel:`Tools->Check Book`.
+:guilabel:`Tools->Check book`.
 
 .. image:: images/check-book.png
-    :alt: The Check Book tool
+    :alt: The Check book tool
     :align: center
 
 Any problems found are
