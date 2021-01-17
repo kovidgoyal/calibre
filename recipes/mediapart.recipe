@@ -162,6 +162,8 @@ class Mediapart(BasicNewsRecipe):
 
                     date = article.find('time', datetime=True)['datetime']
                     article_date = datetime.strptime(date, '%Y-%m-%d')
+                    # Add French timezone to date of the article for date check
+                    article_date = article_date.replace(tzinfo=timezone.utc) + timedelta(hours=1)                    
                     if article_date < self.oldest_article_date:
                         print("article_date < self.oldest_article_date\n")
                         continue
