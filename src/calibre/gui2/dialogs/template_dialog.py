@@ -22,7 +22,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import native_string_type, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class ParenPosition:
