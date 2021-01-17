@@ -241,14 +241,17 @@ class BuiltinStrlen(BuiltinFormatterFunction):
 
 class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
-    arg_count = 2
+    arg_count = -1
     category = 'Arithmetic'
-    __doc__ = doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
+    __doc__ = doc = _('add(x, y, ...) -- returns the sum of its arguments. '
+                      'Throws an exception if an argument is not a number.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x and x != 'None' else 0)
-        y = float(y if y and y != 'None' else 0)
-        return unicode_type(x + y)
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        res = 0
+        for v in args:
+            v = float(v if v and v != 'None' else 0)
+            res += v
+        return unicode_type(res)
 
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -265,14 +268,17 @@ class BuiltinSubtract(BuiltinFormatterFunction):
 
 class BuiltinMultiply(BuiltinFormatterFunction):
     name = 'multiply'
-    arg_count = 2
+    arg_count = -1
     category = 'Arithmetic'
-    __doc__ = doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
+    __doc__ = doc = _('multiply(x, y, ...) -- returns the product of its arguments. '
+                      'Throws an exception if any argument is not a number.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x and x != 'None' else 0)
-        y = float(y if y and y != 'None' else 0)
-        return unicode_type(x * y)
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        res = 1
+        for v in args:
+            v = float(v if v and v != 'None' else 0)
+            res *= v
+        return unicode_type(res)
 
 
 class BuiltinDivide(BuiltinFormatterFunction):
@@ -1888,6 +1894,19 @@ class BuiltinGlobals(BuiltinFormatterFunction):
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
+class BuiltinFieldExists(BuiltinFormatterFunction):
+    name = 'field_exists'
+    arg_count = 1
+    category = 'If-then-else'
+    __doc__ = doc = _('field_exists(field_name) -- checks if a field '
+                      '(column) named field_name exists, returning '
+                      "'1' if so and '' if not.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name):
+        if field_name.lower() in mi.all_field_keys():
+            return '1'
+        return ''
+
 
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
@@ -1897,7 +1916,8 @@ _formatter_builtins = [
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
-    BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
+    BuiltinField(), BuiltinFieldExists(),
+    BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
     BuiltinGlobals(),
