@@ -424,7 +424,11 @@ class SavedSearchQueries(object):  # {{{
             db._set_pref(self.opt_name, self.queries)
 
     def lookup(self, name):
-        return self.queries.get(self.force_unicode(name), None)
+        sn = self.force_unicode(name).lower()
+        for n, q in self.queries.items():
+            if sn == n.lower():
+                return q
+        return None
 
     def delete(self, name):
         db = self.db
