@@ -390,6 +390,7 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes
       (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using Template Program Mode.
     * ``field(name)`` -- returns the metadata field named by ``name``.
+    * ``field_exists(field_name)`` -- checks if a field (column) named ``field_name`` exists, returning '1' if so and '' if not.
     * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
       prefix, and suffix to a value in the same way as done in a template like
       ``{series_index:05.2f| - |- }``. This function is provided to ease

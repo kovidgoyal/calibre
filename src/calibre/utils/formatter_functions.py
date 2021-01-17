@@ -1894,6 +1894,19 @@ class BuiltinGlobals(BuiltinFormatterFunction):
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
+class BuiltinFieldExists(BuiltinFormatterFunction):
+    name = 'field_exists'
+    arg_count = 1
+    category = 'If-then-else'
+    __doc__ = doc = _('field_exists(field_name) -- checks if a field '
+                      '(column) named field_name exists, returning '
+                      "'1' if so and '' if not.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, field_name):
+        if field_name.lower() in mi.all_field_keys():
+            return '1'
+        return ''
+
 
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
@@ -1903,7 +1916,8 @@ _formatter_builtins = [
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
-    BuiltinField(), BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
+    BuiltinField(), BuiltinFieldExists(),
+    BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
     BuiltinFormatDate(), BuiltinFormatNumber(), BuiltinFormatsModtimes(),
     BuiltinFormatsPaths(), BuiltinFormatsSizes(), BuiltinFractionalPart(),
     BuiltinGlobals(),
