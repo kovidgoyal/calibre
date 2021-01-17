@@ -241,14 +241,17 @@ class BuiltinStrlen(BuiltinFormatterFunction):
 
 class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
-    arg_count = 2
+    arg_count = -1
     category = 'Arithmetic'
-    __doc__ = doc = _('add(x, y) -- returns x + y. Throws an exception if either x or y are not numbers.')
+    __doc__ = doc = _('add(x, y, ...) -- returns the sum of its arguments. '
+                      'Throws an exception if an argument is not a number.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x and x != 'None' else 0)
-        y = float(y if y and y != 'None' else 0)
-        return unicode_type(x + y)
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        res = 0
+        for v in args:
+            v = float(v if v and v != 'None' else 0)
+            res += v
+        return unicode_type(res)
 
 
 class BuiltinSubtract(BuiltinFormatterFunction):
@@ -265,14 +268,17 @@ class BuiltinSubtract(BuiltinFormatterFunction):
 
 class BuiltinMultiply(BuiltinFormatterFunction):
     name = 'multiply'
-    arg_count = 2
+    arg_count = -1
     category = 'Arithmetic'
-    __doc__ = doc = _('multiply(x, y) -- returns x * y. Throws an exception if either x or y are not numbers.')
+    __doc__ = doc = _('multiply(x, y, ...) -- returns the product of its arguments. '
+                      'Throws an exception if any argument is not a number.')
 
-    def evaluate(self, formatter, kwargs, mi, locals, x, y):
-        x = float(x if x and x != 'None' else 0)
-        y = float(y if y and y != 'None' else 0)
-        return unicode_type(x * y)
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        res = 1
+        for v in args:
+            v = float(v if v and v != 'None' else 0)
+            res *= v
+        return unicode_type(res)
 
 
 class BuiltinDivide(BuiltinFormatterFunction):

@@ -346,7 +346,7 @@ parameters can be statements (sequences of expressions). Note that the definitiv
 
     * ``and(value, value, ...)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. This function works
       well with test or first_non_empty. You can have as many values as you want.
-    * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
+    * ``add(x, y, ...)`` -- returns the sum of its arguments. Throws an exception if an argument is not a number.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``approximate_formats()`` -- return a comma-separated list of formats that at one point were associated with the book. There is no
       guarantee that the list is correct, although it probably is. This function can be called in Template Program Mode using the template
@@ -480,7 +480,7 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       ``separator``, as are the items in the returned list.
     * ``mod(x)`` -- returns the remainder of ``x / y``, where ``x``, ``y``, and the result are integers. Throws an exception if either ``x`` or
       ``y`` is not a number.
-    * ``multiply(x, y)`` -- returns x * y. Throws an exception if either x or y are not numbers.
+    * ``multiply(x, y, ...)`` -- returns the product of its arguments. Throws an exception if any argument is not a number.
     * ``ondevice()`` -- return the string "Yes" if ``ondevice`` is set, otherwise return the empty string
     * ``or(value, value, ...)`` -- returns the string ``"1"`` if any value is not empty, otherwise returns the empty string. This function works
       well with test or `first_non_empty`. You can have as many values as you want.
