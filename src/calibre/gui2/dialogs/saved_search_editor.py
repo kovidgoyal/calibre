@@ -4,7 +4,8 @@
 
 
 from PyQt5.Qt import (
-    QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, Qt, QVBoxLayout, QDialog, QDialogButtonBox
+    QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, Qt, QVBoxLayout, QDialog,
+    QDialogButtonBox, QPlainTextEdit
 )
 
 from calibre import prepare_string_for_xml
@@ -51,12 +52,12 @@ class AddSavedSearch(Dialog):
         l.addRow(_('&Name:'), n)
         n.setPlaceholderText(_('The Saved search name'))
 
-        self.search = s = QLineEdit(self)
+        self.search = s = QPlainTextEdit(self)
         s.setMinimumWidth(400)
         l.addRow(_('&Search:'), s)
         s.setPlaceholderText(_('The search expression'))
         if self.initial_search:
-            s.setText(self.initial_search)
+            s.setPlainText(self.initial_search)
         n.setFocus(Qt.FocusReason.OtherFocusReason)
         l.addRow(self.bb)
 
@@ -68,7 +69,7 @@ class AddSavedSearch(Dialog):
                 _('No search name'),
                 _('You must specify a name for the Saved search'),
                 show=True)
-        expression = self.search.text().strip()
+        expression = self.search.toPlainText().strip()
         if not expression:
             return error_dialog(
                 self,
@@ -182,7 +183,7 @@ class SavedSearchEditor(Dialog):
                            validate=self.validate_edit)
         d.setWindowTitle(_('Edit saved search'))
         d.sname.setText(n)
-        d.search.setText(self.searches[n])
+        d.search.setPlainText(self.searches[n])
         if d.exec_() != QDialog.DialogCode.Accepted:
             return
         name, expression = d.accepted_data
