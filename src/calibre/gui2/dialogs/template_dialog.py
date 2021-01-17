@@ -348,9 +348,11 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         func_names = sorted(self.funcs)
         self.function.clear()
         self.function.addItem('')
-        self.function.addItems(func_names)
+        for f in func_names:
+            self.function.addItem('{}  --  {}'.format(f,
+                               self.function_type_string(f, longform=False)), f)
         self.function.setCurrentIndex(0)
-        self.function.currentIndexChanged[native_string_type].connect(self.function_changed)
+        self.function.currentIndexChanged.connect(self.function_changed)
         self.textbox_changed()
         self.rule = (None, '')
 
@@ -440,8 +442,18 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.highlighter.check_cursor_pos(t[position-1], block_number,
                                               pos_in_block)
 
+    def function_type_string(self, name, longform=True):
+        if self.funcs[name].is_python:
+            if name in self.builtins:
+                return (_('Built-in template function') if longform else
+                            _('Built-in function'))
+            return (_('User defined Python template function') if longform else
+                            _('User function'))
+        else:
+            return (_('Stored user defined template') if longform else _('Stored template'))
+
     def function_changed(self, toWhat):
-        name = unicode_type(toWhat)
+        name = unicode_type(self.function.itemData(toWhat))
         self.source_code.clear()
         self.documentation.clear()
         self.func_type.clear()
@@ -451,10 +463,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.source_code.setPlainText(self.builtin_source_dict[name])
             else:
                 self.source_code.setPlainText(self.funcs[name].program_text)
-            if self.funcs[name].is_python:
-                self.func_type.setText(_('Template function in Python'))
-            else:
-                self.func_type.setText(_('Stored template'))
+            self.func_type.setText(self.function_type_string(name, longform=True))
 
     def accept(self):
         txt = unicode_type(self.textbox.toPlainText()).rstrip()
