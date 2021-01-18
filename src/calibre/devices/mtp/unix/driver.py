@@ -206,8 +206,7 @@ class MTP_DEVICE(MTPDeviceBase):
         self.dev = self._filesystem_cache = None
 
     def format_errorstack(self, errs):
-        return '\n'.join(['%d:%s'%(code, msg.decode('utf-8', 'replace')) for
-            code, msg in errs])
+        return '\n'.join('%d:%s'%(code, as_unicode(msg)) for code, msg in errs)
 
     @synchronous
     def open(self, connected_device, library_uuid):
