@@ -67,6 +67,7 @@ class WSJ(BasicNewsRecipe):
         dict(name='span', attrs={
              'data-country-code': True, 'data-ticker-code': True}),
         dict(name='meta link'.split()),
+        dict(name='button'),
     ]
 
     def preprocess_soup(self, soup):
@@ -168,14 +169,19 @@ class WSJ(BasicNewsRecipe):
     def wsj_find_articles(self, url, ahed=False):
         root = self.index_to_soup(url, as_tree=True)
         CSSSelect = Select(root)
+        # from lxml import etree
+        # from calibre.utils.ipython import ipython
+        # open('/t/section.html', 'w').write(etree.tostring(root, encoding='unicode'))
+        # ipython({'root': root, 'CSSSelect': CSSSelect})
+        # raise SystemExit(1)
         articles = []
-        for container in root.xpath('descendant::div[contains(@class, "WSJTheme--list-item-")]'):
+        for container in CSSSelect('article[class^="WSJTheme--story--"]'):
             heading = next(CSSSelect('h2, h3', container))
             a = next(CSSSelect('a', heading))
             title = self.tag_to_string(a)
             url = self.abs_wsj_url(a.get('href'))
             desc = ''
-            for p in container.xpath('descendant::p[contains(@class, "WSJTheme--description-")]'):
+            for p in container.xpath('descendant::p[contains(@class, "WSJTheme--summary--")]'):
                 q = self.tag_to_string(p)
                 if 'Subscriber Content' in q:
                     continue
@@ -187,6 +193,8 @@ class WSJ(BasicNewsRecipe):
 
             self.log('\tFound article:', title)
             self.log('\t\t', desc)
+            if self.test and len(articles) >= self.test[1]:
+                break
 
         return articles
 
@@ -238,16 +246,15 @@ class WSJ(BasicNewsRecipe):
                 break
 
         feeds = []
-        for a in CSSSelect('.WSJTheme--nav-container--2qF6xQnZ .WSJTheme--section-link--3VznjgTM'):
-            frontpage = a.get('href').endswith('frontpage')
+        for a in CSSSelect('ul[aria-label="Primary Navigation"] a[class^="style--section-link--"]'):
             title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
             if not title:
                 continue
             url = self.abs_wsj_url(a.get('href'))
             self.log('Found section:', title, 'at', url)
             self.wsj_add_feed(feeds, title, url)
-            if frontpage:
-                self.wsj_find_wn_articles(feeds, root, CSSSelect)
+            if self.test and len(feeds) >= self.test[0]:
+                break
         return feeds
 
     def test_wsj_index(self):
