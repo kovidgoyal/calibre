@@ -5,7 +5,7 @@ from __python__ import bound_methods, hash_literals
 from elementmaker import E
 
 from ajax import encode_query
-from book_list.globals import get_session_data, get_current_query
+from book_list.globals import get_current_query, get_session_data
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, clear, svgicon, unique_id
@@ -14,7 +14,7 @@ from modals import (
     create_custom_dialog, error_dialog, get_text_dialog, question_dialog,
     warning_dialog
 )
-from read_book.globals import is_dark_theme
+from read_book.globals import current_book, is_dark_theme, runtime
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -525,14 +525,32 @@ def get_container():
     return document.getElementById(get_container_id())
 
 
+def get_current_link_prefix():
+    if runtime.is_standalone_viewer:
+        return current_book().calibre_book_url
+    link_prefix = window.location.href
+    return link_prefix[:link_prefix.indexOf('#') + 1]
+
+
+def link_to_epubcfi(epubcfi, link_prefix, current_query):
+    if runtime.is_standalone_viewer:
+        current_query = {'open_at': epubcfi}
+        link = link_prefix + encode_query(current_query).replace(/\)/g, '%29')
+    else:
+        if not current_query:
+            current_query = Object.assign({}, get_current_query())
+        current_query.bookpos = epubcfi
+        link = link_prefix + encode_query(current_query)[1:].replace(/\)/g, '%29')
+    return link
+
+
 def render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=False):
     lines.push(hl.highlighted_text)
     date = Date(hl.timestamp).toLocaleString()
     if as_markdown:
         cfi = hl.start_cfi
         spine_index = (1 + hl.spine_index) * 2
-        current_query.bookpos = f'epubcfi(/{spine_index}{cfi})'
-        link = link_prefix + encode_query(current_query)[1:].replace(/\)/g, '%29')
+        link = link_to_epubcfi(f'epubcfi(/{spine_index}{cfi})', link_prefix, current_query)
         date = f'[{date}]({link})'
     lines.push(date)
     notes = hl.notes
@@ -547,7 +565,6 @@ def render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=
     lines.push('')
 
 
-
 def show_export_dialog(annotations_manager):
     sd = get_session_data()
     fmt = sd.get('highlights_export_format')
@@ -559,8 +576,7 @@ def show_export_dialog(annotations_manager):
     idx = href.indexOf('#')
     href = href[:idx+1]
     current_query = Object.assign({}, get_current_query())
-    link_prefix = window.location.href
-    link_prefix = link_prefix[:link_prefix.indexOf('#') + 1]
+    link_prefix = get_current_link_prefix()
 
     def update_text():
         if fmt is 'calibre_annotations_collection':

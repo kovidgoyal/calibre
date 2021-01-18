@@ -3,7 +3,6 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 import read_book.iframe  # noqa
 from ajax import ajax_send
@@ -11,6 +10,7 @@ from book_list.globals import get_session_data
 from book_list.theme import cached_color_to_rgba, get_color, set_ui_colors
 from book_list.ui import query_as_href
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
+from gettext import gettext as _
 from iframe_comm import IframeWrapper
 from modals import error_dialog, warning_dialog
 from read_book.annotations import AnnotationsManager
@@ -21,6 +21,8 @@ from read_book.globals import (
     set_current_spine_item, ui_operations
 )
 from read_book.goto import get_next_section
+from read_book.highlights import get_current_link_prefix, link_to_epubcfi
+from read_book.hints import Hints
 from read_book.open_book import add_book_to_recently_viewed
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
@@ -30,12 +32,11 @@ from read_book.prefs.head_foot import render_head_foot
 from read_book.prefs.scrolling import (
     MIN_SCROLL_SPEED_AUTO as SCROLL_SPEED_STEP, change_scroll_speed
 )
+from read_book.read_aloud import ReadAloud
 from read_book.resources import load_resources
 from read_book.scrollbar import BookScrollbar
 from read_book.search import SearchOverlay, find_in_spine
 from read_book.selection_bar import SelectionBar
-from read_book.read_aloud import ReadAloud
-from read_book.hints import Hints
 from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
 from read_book.toc import get_current_toc_nodes, update_visible_toc_nodes
@@ -339,6 +340,19 @@ class View:
     def copy_to_clipboard(self):
         self.iframe_wrapper.send_message('copy_selection')
 
+    def copy_current_location_to_clipboard(self, as_url):
+        link_prefix = get_current_link_prefix()
+        if not link_prefix and as_url:
+            return error_dialog(_('Not a calibre library book'), _(
+                'This book is not a part of a calibre library, so no calibre:// URL for it exists.'))
+        self.get_current_cfi('copy-location-url', def (req_id, data):
+            if as_url:
+                text = link_to_epubcfi(data.cfi, link_prefix)
+            else:
+                text = data.cfi
+            ui_operations.copy_selection(text)
+        )
+
     def set_scrollbar_visibility(self, visible):
         sd = get_session_data()
         sd.set('book_scrollbar', bool(visible))
@@ -485,6 +499,8 @@ class View:
             self.new_bookmark()
         elif data.name is 'copy_to_clipboard':
             self.copy_to_clipboard()
+        elif data.name is 'copy_location_to_clipboard' or data.name is 'copy_location_as_url_to_clipboard':
+            self.copy_current_location_to_clipboard('url' in data.name)
         elif data.name is 'toggle_inspector':
             ui_operations.toggle_inspector()
         elif data.name is 'toggle_lookup':

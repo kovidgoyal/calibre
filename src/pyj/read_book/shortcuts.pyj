@@ -206,6 +206,18 @@ def shortcuts_definition():
         _('Copy to clipboard'),
     ),
 
+    'copy_location_to_clipboard': desc(
+        v"['Alt+c']",
+        'ui',
+        _('Copy current location to clipboard'),
+    ),
+
+    'copy_location_as_url_to_clipboard': desc(
+        v"['Ctrl+Shift+c']",
+        'ui',
+        _('Copy current location as calibre:// URL to clipboard'),
+    ),
+
     'start_search': desc(
         v"['/', 'Ctrl+f']",
         'ui',
