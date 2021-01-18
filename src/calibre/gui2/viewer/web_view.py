@@ -8,12 +8,16 @@ import shutil
 import sys
 from itertools import count
 from PyQt5.Qt import (
-    QT_VERSION, QApplication, QBuffer, QByteArray, QFontDatabase, QFontInfo, QPalette, QEvent,
-    QHBoxLayout, QMimeData, QSize, Qt, QTimer, QUrl, QWidget, pyqtSignal, QIODevice, QLocale
+    QT_VERSION, QApplication, QBuffer, QByteArray, QEvent, QFontDatabase, QFontInfo,
+    QHBoxLayout, QIODevice, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl,
+    QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob, QWebEngineUrlRequestInfo
+from PyQt5.QtWebEngineCore import (
+    QWebEngineUrlRequestInfo, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler
+)
 from PyQt5.QtWebEngineWidgets import (
-    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings
+    QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings,
+    QWebEngineView
 )
 
 from calibre import as_unicode, prints
@@ -24,6 +28,7 @@ from calibre.constants import (
 from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.gui2 import choose_images, error_dialog, safe_open_url
+from calibre.gui2.viewer import link_prefix_for_location_links
 from calibre.gui2.viewer.config import viewer_config_dir, vprefs
 from calibre.gui2.viewer.tts import TTS
 from calibre.gui2.webengine import (
@@ -621,11 +626,7 @@ class WebView(RestartingWebEngineView):
 
     def start_book_load(self, initial_position=None, highlights=None, current_book_data=None):
         key = (set_book_path.path,)
-        cbd = current_book_data or {}
-        book_url = None
-        if 'calibre_library_id' in cbd:
-            lid = cbd['calibre_library_id'].encode('utf-8').hex()
-            book_url = f'calibre://view-book/_hex_-{lid}/{cbd["calibre_book_id"]}/{cbd["calibre_book_fmt"]}'
+        book_url = link_prefix_for_location_links(add_open_at=False)
         self.execute_when_ready('start_book_load', key, initial_position, set_book_path.pathtoebook, highlights or [], book_url)
 
     def execute_when_ready(self, action, *args):

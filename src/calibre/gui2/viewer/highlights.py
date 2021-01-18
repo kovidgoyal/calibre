@@ -23,7 +23,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.library.annotations import (
     Details, Export as ExportBase, render_highlight_as_text, render_notes
 )
-from calibre.gui2.viewer import get_current_book_data
+from calibre.gui2.viewer import link_prefix_for_location_links
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.search import SearchInput
 from calibre.gui2.viewer.shortcuts import get_shortcut_for, index_to_key_sequence
@@ -131,20 +131,6 @@ class Export(ExportBase):
         return _('highlights')
 
     def exported_data(self):
-        cbd = get_current_book_data()
-        link_prefix = library_id = None
-        if 'calibre_library_id' in cbd:
-            library_id = cbd['calibre_library_id']
-            book_id = cbd['calibre_book_id']
-            book_fmt = cbd['calibre_book_fmt']
-        elif cbd.get('book_library_details'):
-            bld = cbd['book_library_details']
-            book_id = bld['book_id']
-            book_fmt = bld['fmt'].upper()
-            library_id = bld['library_id']
-        if library_id:
-            library_id = '_hex_-' + library_id.encode('utf-8').hex()
-            link_prefix = f'calibre://view-book/{library_id}/{book_id}/{book_fmt}?open_at='
         fmt = self.export_format.currentData()
         if fmt == 'calibre_highlights':
             return json.dumps({
@@ -154,6 +140,7 @@ class Export(ExportBase):
             }, ensure_ascii=False, sort_keys=True, indent=2)
         lines = []
         as_markdown = fmt == 'md'
+        link_prefix = link_prefix_for_location_links()
         for hl in self.annotations:
             render_highlight_as_text(hl, lines, as_markdown=as_markdown, link_prefix=link_prefix)
         return '\n'.join(lines).strip()
