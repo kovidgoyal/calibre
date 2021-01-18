@@ -426,10 +426,10 @@ class SearchQueryParser(object):
         if query.startswith('='):
             query = query[1:]
         try:
-            if query in self.searches_seen:
+            if query.lower() in self.searches_seen:
                 raise ParseException(_('Recursive saved search: {0}').format(query))
-            if self.recurse_level > 5:
-                self.searches_seen.add(query)
+            if self.recurse_level > 10:
+                self.searches_seen.add(query.lower())
             ss = self.lookup_saved_search(query)
             if ss is None:
                 raise ParseException(_('Unknown saved search: {}').format(query))
