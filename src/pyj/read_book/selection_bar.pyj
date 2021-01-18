@@ -3,20 +3,21 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
-from uuid import short_uuid
 
 from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import change_icon_image, clear, svgicon, unique_id
-from modals import error_dialog, question_dialog, create_custom_dialog
+from gettext import gettext as _
+from modals import create_custom_dialog, error_dialog, question_dialog
 from read_book.globals import runtime, ui_operations
 from read_book.highlights import (
-    ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles, render_notes
+    ICON_SIZE, EditNotesAndColors, HighlightStyle, all_styles,
+    get_current_link_prefix, link_to_epubcfi, render_notes
 )
-from widgets import create_button
 from read_book.shortcuts import shortcut_for_key_event
-from read_book.toc import get_toc_nodes_bordering_spine_item, family_for_toc_node
+from read_book.toc import family_for_toc_node, get_toc_nodes_bordering_spine_item
+from uuid import short_uuid
+from widgets import create_button
 
 DRAG_SCROLL_ZONE_MIN_HEIGHT = 10
 BUTTON_MARGIN = '0.5rem'
@@ -193,6 +194,7 @@ def all_actions():
             'remove_highlight': a('trash', _('Remove this highlight'), 'remove_highlight', True),
             'clear': a('close', _('Clear selection'), 'clear_selection'),
             'speak': a('bullhorn', _('Read aloud'), 'speak_aloud'),
+            'cite': a('reference-mode', _('Copy citation to clipboard'), 'cite'),
         }
         qh = all_actions.ans.quick_highlight
         qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
@@ -961,6 +963,9 @@ class SelectionBar:
             ui_operations.speak_simple_text(text)
             self.spoken_aloud_at_least_once = True
 
+    def cite(self):
+        self.send_message('cite-current-selection')
+
     def create_highlight(self):
         cs = self.view.currently_showing.selection
         hs = self.current_highlight_style
@@ -1042,6 +1047,16 @@ class SelectionBar:
             self.report_failed_edit_highlight(msg.uuid)
         elif msg.type is 'double-click':
             self.last_double_click_at = window.performance.now()
+        elif msg.type is 'cite-data':
+            spine_index = self.view.currently_showing.spine_index
+            spine_index = (1 + spine_index) * 2
+            cfi = msg.bounds.start
+            link_prefix = get_current_link_prefix()
+            if not link_prefix:
+                return self.view.show_not_a_library_book_error()
+            url = link_to_epubcfi(f'epubcfi(/{spine_index}{cfi})', link_prefix)
+            text = msg.highlighted_text.replace(/\[/g, r'\[').replace(/\]/g, r'\]')
+            ui_operations.copy_selection(f'[{text}]({url})')
         else:
             print('Ignoring annotations message with unknown type:', msg.type)
 

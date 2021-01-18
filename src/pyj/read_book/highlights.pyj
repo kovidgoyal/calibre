@@ -535,13 +535,13 @@ def get_current_link_prefix():
 def link_to_epubcfi(epubcfi, link_prefix, current_query):
     if runtime.is_standalone_viewer:
         current_query = {'open_at': epubcfi}
-        link = link_prefix + encode_query(current_query).replace(/\)/g, '%29')
+        link = encode_query(current_query)
     else:
         if not current_query:
             current_query = Object.assign({}, get_current_query())
         current_query.bookpos = epubcfi
-        link = link_prefix + encode_query(current_query)[1:].replace(/\)/g, '%29')
-    return link
+        link = encode_query(current_query)[1:]
+    return link_prefix + link.replace(/\)/g, '%29').replace(/\(/g, '%28')
 
 
 def render_highlight_as_text(hl, lines, link_prefix, current_query, as_markdown=False):

@@ -849,6 +849,14 @@ class IframeBoss:
                 anchor_before=anchor_before
             )
             reset_find_caches()
+        elif dtype is 'cite-current-selection':
+            sel = window.getSelection()
+            if not sel.rangeCount:
+                return
+            bounds = cfi_for_selection()
+            anchor_before = find_anchor_before_range(sel.getRangeAt(0), self.book.manifest.toc_anchor_map, self.anchor_funcs)
+            text = sel.toString()
+            self.send_message('annotations', type='cite-data', bounds=bounds, highlighted_text=text)
         else:
             console.log('Ignoring annotations message to iframe with unknown type: ' + dtype)
 

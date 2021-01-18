@@ -340,11 +340,14 @@ class View:
     def copy_to_clipboard(self):
         self.iframe_wrapper.send_message('copy_selection')
 
+    def show_not_a_library_book_error(self):
+        error_dialog(_('Not a calibre library book'), _(
+            'This book is not a part of a calibre library, so no calibre:// URL for it exists.'))
+
     def copy_current_location_to_clipboard(self, as_url):
         link_prefix = get_current_link_prefix()
         if not link_prefix and as_url:
-            return error_dialog(_('Not a calibre library book'), _(
-                'This book is not a part of a calibre library, so no calibre:// URL for it exists.'))
+            return self.show_not_a_library_book_error()
         self.get_current_cfi('copy-location-url', def (req_id, data):
             if as_url:
                 text = link_to_epubcfi(data.cfi, link_prefix)
