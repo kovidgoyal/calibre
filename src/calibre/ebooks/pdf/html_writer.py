@@ -444,7 +444,8 @@ def add_anchors_markup(root, uuid, anchors):
         num = next(c)
         a = div.makeelement(
             XHTML('a'), href='#' + anchor,
-            style='min-width: 10px !important; min-height: 10px !important; border: solid 1px !important;'
+            style='min-width: 10px !important; min-height: 10px !important;'
+            ' border: solid 1px rgba(0, 0, 0, 0) !important; text-decoration: none !important'
         )
         a.text = a.tail = ' '
         if num % 8 == 0:
