@@ -155,7 +155,8 @@ libraries that the main calibre program knows about will be used.
         action='store_true',
         help=_(
             'Manage the database of users allowed to connect to this server.'
-            ' See also the %s option.') % '--userdb')
+            ' You can use it in automated mode by adding a --. See {0}'
+            ' for details. See also the {1} option.').format('calibre-server --manage-users -- help', '--userdb'))
     parser.get_option('--userdb').help = _(
         'Path to the user database to use for authentication. The database'
         ' is a SQLite file. To create it use {0}. You can read more'
@@ -202,7 +203,7 @@ def main(args=sys.argv):
         connect(opts.userdb, exc_class=SystemExit).close()
     if opts.manage_users:
         try:
-            manage_users_cli(opts.userdb)
+            manage_users_cli(opts.userdb, args[1:])
         except (KeyboardInterrupt, EOFError):
             raise SystemExit(_('Interrupted by user'))
         raise SystemExit(0)

@@ -7,14 +7,97 @@ from functools import partial
 
 from calibre import prints
 from calibre.constants import preferred_encoding, iswindows
+from calibre.utils.config import OptionParser
 from polyglot.builtins import iteritems, raw_input, filter, unicode_type
 
-# Manage users CLI {{{
+
+def create_subcommand_parser(name, usage):
+    usage = f'%prog --manage-users -- {name} ' + usage
+    parser = OptionParser(usage)
+    return parser
 
 
-def manage_users_cli(path=None):
+def add(user_manager, args):
+    p = create_subcommand_parser('add', _('username [password]') + '\n\n' + '''\
+Create a new user account with the specified name and password. If the password
+is not specified on the command line, it will be read from STDIN.
+''')
+    p.add_option('--readonly', action='store_true', default=False, help=_('Give this user only read access'))
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    if len(args) < 2:
+        p.print_help()
+        raise SystemExit(_('username is required'))
+    username = args[1]
+    if len(args) > 2:
+        pw = args[2]
+    else:
+        pw = sys.stdin.read()
+    user_manager.add_user(username, pw, readonly=opts.readonly)
+
+
+def remove(user_manager, args):
+    p = create_subcommand_parser('remove', _('username') + '\n\n' + '''\
+Remove the user account with the specified username.
+''')
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    if len(args) < 2:
+        p.print_help()
+        raise SystemExit(_('username is required'))
+    username = args[1]
+    user_manager.remove_user(username)
+
+
+def list_users(user_manager, args):
+    p = create_subcommand_parser('list', '\n\n' + '''\
+List all usernames.
+''')
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    for name in user_manager.all_user_names:
+        print(name)
+
+
+def chpass(user_manager, args):
+    p = create_subcommand_parser('chpass', _('username [password]') + '\n\n' + '''\
+Change the password of the new user account with the specified username. If the password
+is not specified on the command line, it will be read from STDIN.
+''')
+    opts, args = p.parse_args(['calibre-server'] + list(args))
+    if len(args) < 2:
+        p.print_help()
+        raise SystemExit(_('username is required'))
+    username = args[1]
+    if len(args) > 2:
+        pw = args[2]
+    else:
+        pw = sys.stdin.read()
+    user_manager.change_password(username, pw)
+
+
+def main(user_manager, args):
+    q, rest = args[0], args[1:]
+    if q == 'add':
+        return add(user_manager, rest)
+    if q == 'remove':
+        return remove(user_manager, rest)
+    if q == 'chpass':
+        return chpass(user_manager, rest)
+    if q == 'list':
+        return list_users(user_manager, rest)
+    if q != 'help':
+        print(_('Unknown command: {}').format(q), file=sys.stderr)
+        print()
+    print(_('Manage the user accounts for calibre-server. Available commands are:'))
+    print('add, remove, chpass, list')
+    print(_('Use {} for help on individual commands').format('calibre-server --manage-users -- command -h'))
+    raise SystemExit(1)
+
+
+def manage_users_cli(path=None, args=()):
     from calibre.srv.users import UserManager
     m = UserManager(path)
+    if args:
+        main(m, args)
+        return
     enc = getattr(sys.stdin, 'encoding', preferred_encoding) or preferred_encoding
 
     def get_input(prompt):
@@ -228,6 +311,3 @@ def manage_users_cli(path=None):
     while actions:
         actions[0]()
         del actions[0]
-
-
-# }}}
