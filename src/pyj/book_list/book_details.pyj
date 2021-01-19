@@ -328,7 +328,7 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
                 val = E.span(val).outerHTML
             else:
                 if field is 'comments' and '<' not in val:
-                    val = '\n'.join(['<p class="description">{}</p>'.format(x.pyreplace('\n', '<br>')) for x in val.split('\n\n')])
+                    val = '\n'.join(['<p class="description">{}</p>'.format(x.replace(/\n/g, '<br>')) for x in val.split('\n\n')])
             if hp is 'side':
                 add_row(name, val, is_html=True)
                 return
