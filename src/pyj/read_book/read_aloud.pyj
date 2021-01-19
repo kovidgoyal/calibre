@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
+from book_list.globals import get_session_data
 from book_list.theme import get_color
 from dom import clear, svgicon, unique_id
 from gettext import gettext as _
@@ -19,6 +20,12 @@ PLAYING = 3
 STOPPED = 4
 
 
+def is_flow_mode():
+    sd = get_session_data()
+    mode = sd.get('read_mode')
+    return mode is 'flow'
+
+
 class ReadAloud:
 
     dont_hide_on_content_loaded = True
@@ -30,11 +37,12 @@ class ReadAloud:
         container = self.container
         container.setAttribute('tabindex', '0')
         container.style.overflow = 'hidden'
-        container.style.textAlign = 'right'
+        container.style.justifyContent = 'flex-end'
+        container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
         container.appendChild(E.div(
             id=self.bar_id,
-            style='position: static; border: solid 1px currentColor; border-radius: 5px;'
-            'display: inline-flex; flex-direction: column; margin: 1rem;'
+            style='border: solid 1px currentColor; border-radius: 5px;'
+            'display: flex; flex-direction: column; margin: 1rem;'
         ))
         container.addEventListener('keydown', self.on_keydown, {'passive': False})
         container.addEventListener('click', self.container_clicked, {'passive': False})
@@ -76,7 +84,7 @@ class ReadAloud:
 
     def show(self):
         if self.state is HIDDEN:
-            self.container.style.display = 'block'
+            self.container.style.display = 'flex'
             self.state = STOPPED
             self.focus()
             if ui_operations.read_aloud_state_changed:
@@ -88,6 +96,7 @@ class ReadAloud:
     def build_bar(self, annot_id):
         if self.state is HIDDEN:
             return
+        self.container.style.alignItems = 'flex-end' if is_flow_mode() else 'flex-start'
         bar_container = self.bar
         clear(bar_container)
         bar_container.style.maxWidth = 'min(40rem, 80vw)' if self.supports_css_min_max else '40rem'
