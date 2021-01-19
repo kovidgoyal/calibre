@@ -40,10 +40,13 @@ def merge_result(oldmi, newmi, ensure_fields=None):
 
     for f in fields:
         # Optimize so that set_metadata does not have to do extra work later
-        if not f.startswith('identifier:'):
+        if not f.startswith('identifier:') and f not in ('series', 'series_index'):
             if (not newmi.is_null(f) and is_equal(getattr(newmi, f),
                     getattr(oldmi, f))):
                 setattr(newmi, f, getattr(dummy, f))
+    if (newmi.series, newmi.series_index) == (oldmi.series, oldmi.series_index):
+        newmi.series = None
+        newmi.series_index = 1
 
     return newmi
 
