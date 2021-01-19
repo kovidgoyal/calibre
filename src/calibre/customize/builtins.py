@@ -133,7 +133,7 @@ plugins += [HTML2ZIP, PML2PMLZ, TXT2TXTZ, ArchiveExtract, KPFExtract]
 class ComicMetadataReader(MetadataReaderPlugin):
 
     name = 'Read comic metadata'
-    file_types = {'cbr', 'cbz'}
+    file_types = {'cbr', 'cbz', 'cb7'}
     description = _('Extract cover from comic files')
 
     def customization_help(self, gui=False):
@@ -148,8 +148,12 @@ class ComicMetadataReader(MetadataReaderPlugin):
                 ftype = 'cbr'
             elif id_.startswith(b'PK'):
                 ftype = 'cbz'
+            elif id_.startswith(b'7z'):
+                ftype = 'cb7'
         if ftype == 'cbr':
             from calibre.utils.unrar import extract_cover_image
+        elif ftype == 'cb7':
+            from calibre.utils.seven_zip import extract_cover_image
         else:
             from calibre.libunzip import extract_cover_image
         from calibre.ebooks.metadata import MetaInformation

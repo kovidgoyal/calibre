@@ -187,15 +187,21 @@ def extract(path, dir):
     elif id_.startswith(b'PK'):
         from calibre.libunzip import extract as zipextract
         extractor = zipextract
+    elif id_.startswith(b'7z'):
+        from calibre.utils.seven_zip import extract as seven_extract
+        extractor = seven_extract
     if extractor is None:
         # Fallback to file extension
         ext = os.path.splitext(path)[1][1:].lower()
-        if ext in ['zip', 'cbz', 'epub', 'oebzip']:
+        if ext in ('zip', 'cbz', 'epub', 'oebzip'):
             from calibre.libunzip import extract as zipextract
             extractor = zipextract
-        elif ext in ['cbr', 'rar']:
+        elif ext in ('cbr', 'rar'):
             from calibre.utils.unrar import extract as rarextract
             extractor = rarextract
+        elif ext in ('cb7', '7z'):
+            from calibre.utils.seven_zip import extract as seven_extract
+            extractor = seven_extract
     if extractor is None:
         raise Exception('Unknown archive type')
     extractor(path, dir)

@@ -373,6 +373,10 @@ class BuildTest(unittest.TestCase):
         from calibre.utils.unrar import test_basic
         test_basic()
 
+    def test_7z(self):
+        from calibre.utils.seven_zip import test_basic
+        test_basic()
+
     @unittest.skipUnless(iswindows, 'WPD is windows only')
     def test_wpd(self):
         from calibre_extensions import wpd

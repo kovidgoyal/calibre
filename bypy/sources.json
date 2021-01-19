@@ -771,6 +771,25 @@
     },
 
     {
+        "name": "texttable",
+		"comment": "needed for py7zr",
+        "unix": {
+            "filename": "texttable-1.6.3.tar.gz",
+            "hash": "sha256:ce0faf21aa77d806bbff22b107cc22cce68dc9438f97a2df32c93e9afa4ce436",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
+        "name": "py7zr",
+        "unix": {
+            "filename": "py7zr-0.11.1.tar.gz",
+            "hash": "sha256:29a427f61c1be1907406fde59ae912dd7d44730771e58d643d5021f17fedba8e",
+            "urls": ["pypi"]
+        }
+    },
+
+    {
         "name": "zeroconf",
 		"python": 3,
         "unix": {
