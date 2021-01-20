@@ -153,6 +153,11 @@ behavior`.
 .. note:: On Linux, :guilabel:`Read aloud` requires `Speech Dispatcher
    <https://freebsoft.org/speechd>`_ to be installed and working.
 
+.. note:: On Windows, not all installed voices may be visible to the SAPI
+   sub-system that is used for text-to-speech. There are `instructions to
+   make all voices visible
+   <https://www.mobileread.com/forums/showpost.php?p=4084051&postcount=108>`_.
+
 
 Following links using only the keyboard
 -----------------------------------------------
