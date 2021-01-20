@@ -474,15 +474,18 @@ def find_tests():
             self.assertEqual(remove_bracketed_text('a{b}c{d[e]f(g)h'), 'ac')
 
     class TestAuthorToAuthorSort(unittest.TestCase):
-        def check_all_methods(self, name, comma=None, nocomma=None, copy=None):
-            methods = ('copy', 'comma', 'nocomma')
+        def check_all_methods(self, name, invert=None, comma=None,
+                              nocomma=None, copy=None):
+            methods = ('invert', 'copy', 'comma', 'nocomma')
+            if invert is None:
+                invert = name
             if comma is None:
-                comma = name
+                comma = invert
             if nocomma is None:
                 nocomma = comma
             if copy is None:
                 copy = name
-            results = (copy, comma, nocomma)
+            results = (invert, copy, comma, nocomma)
             for method, result in zip(methods, results):
                 self.assertEqual(author_to_author_sort(name, method), result)
 
@@ -496,7 +499,9 @@ def find_tests():
             self.check_all_methods('Senior Inc')
 
         def test_copywords(self):
-            self.check_all_methods('Don "Team" Smith', 'Smith, Don "Team"', 'Smith Don "Team"')
+            self.check_all_methods('Don "Team" Smith',
+                                   invert='Smith, Don "Team"',
+                                   nocomma='Smith Don "Team"')
             self.check_all_methods('Don Team Smith')
 
         def test_national(self):
@@ -506,7 +511,9 @@ def find_tests():
                 i = c.index('National')
             except ValueError:
                 # If "National" not found, check first without, then temporarily add
-                self.check_all_methods('National Lampoon', 'Lampoon, National', 'Lampoon National')
+                self.check_all_methods('National Lampoon',
+                                       invert='Lampoon, National',
+                                       nocomma='Lampoon National')
                 t = type(c)
                 with Tweak('author_name_copywords', c + t(['National'])):
                      self.check_all_methods('National Lampoon')
@@ -514,33 +521,59 @@ def find_tests():
                 # If "National" found, check with, then temporarily remove
                 self.check_all_methods('National Lampoon')
                 with Tweak('author_name_copywords', c[:i] + c[i + 1:]):
-                    self.check_all_methods('National Lampoon', 'Lampoon, National', 'Lampoon National')
+                    self.check_all_methods('National Lampoon',
+                                           invert='Lampoon, National',
+                                           nocomma='Lampoon National')
 
         def test_method(self):
-            self.check_all_methods('Jane Doe', 'Doe, Jane', 'Doe Jane')
+            self.check_all_methods('Jane Doe',
+                                   invert='Doe, Jane',
+                                   nocomma='Doe Jane')
+
+
+        def test_invalid_methos(self):
+            # Invalid string defaults to invert
+            name = 'Jane, Q. van Doe[ed] Jr.'
+            self.assertEqual(author_to_author_sort(name, 'invert'),
+                             author_to_author_sort(name, '__unknown__!(*T^U$'))
 
         def test_prefix_suffix(self):
-            self.check_all_methods('Mrs. Jane Q. Doe III', 'Doe, Jane Q. III', 'Doe Jane Q. III')
+            self.check_all_methods('Mrs. Jane Q. Doe III',
+                                   invert='Doe, Jane Q. III',
+                                   nocomma='Doe Jane Q. III')
 
         def test_surname_prefix(self):
             with Tweak('author_use_surname_prefixes', True):
-                self.check_all_methods('Leonardo Da Vinci', 'Da Vinci, Leonardo', 'Da Vinci Leonardo')
+                self.check_all_methods('Leonardo Da Vinci',
+                                       invert='Da Vinci, Leonardo',
+                                       nocomma='Da Vinci Leonardo')
                 self.check_all_methods('Van Gogh')
             with Tweak('author_use_surname_prefixes', False):
-                self.check_all_methods('Leonardo Da Vinci', 'Vinci, Leonardo Da', 'Vinci Leonardo Da')
-                self.check_all_methods('Van Gogh', 'Gogh, Van', 'Gogh Van')
+                self.check_all_methods('Leonardo Da Vinci',
+                                       invert='Vinci, Leonardo Da',
+                                       nocomma='Vinci Leonardo Da')
+                self.check_all_methods('Van Gogh',
+                                       invert='Gogh, Van',
+                                       nocomma='Gogh Van')
 
         def test_comma(self):
-            self.check_all_methods('James Wesley, Rawles', nocomma='Rawles James Wesley,')
+            self.check_all_methods('James Wesley, Rawles',
+                                   invert='Rawles, James Wesley,',
+                                   comma='James Wesley, Rawles',
+                                   nocomma='Rawles James Wesley,')
 
         def test_brackets(self):
-            self.check_all_methods('Seventh Author [7]', 'Author, Seventh', 'Author Seventh')
-            self.check_all_methods('John [x]von Neumann (III)', 'Neumann, John von', 'Neumann John von')
+            self.check_all_methods('Seventh Author [7]',
+                                   invert='Author, Seventh',
+                                   nocomma='Author Seventh')
+            self.check_all_methods('John [x]von Neumann (III)',
+                                   invert='Neumann, John von',
+                                   nocomma='Neumann John von')
 
         def test_falsy(self):
             self.check_all_methods('')
-            self.check_all_methods(None, '', '', '')
-            self.check_all_methods([], '', '', '')
+            self.check_all_methods(None, '', '', '', '')
+            self.check_all_methods([], '', '', '', '')
 
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(TestRemoveBracketedText)
     ans.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestAuthorToAuthorSort))
