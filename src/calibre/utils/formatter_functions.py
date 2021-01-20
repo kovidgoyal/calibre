@@ -1894,6 +1894,7 @@ class BuiltinGlobals(BuiltinFormatterFunction):
         # The globals function is implemented in-line in the formatter
         raise NotImplementedError()
 
+
 class BuiltinFieldExists(BuiltinFormatterFunction):
     name = 'field_exists'
     arg_count = 1
