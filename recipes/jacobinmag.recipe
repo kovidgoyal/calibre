@@ -11,6 +11,12 @@ www.jacobinmag.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class Jacobinmag(BasicNewsRecipe):
     title = 'Jacobin'
     __author__ = 'Darko Miletic'
@@ -29,12 +35,11 @@ class Jacobinmag(BasicNewsRecipe):
     issue_url = None
     PREFIX = 'https://www.jacobinmag.com'
     LOGIN = 'https://auth.jacobinmag.com/mini_profile?redirect=https%3A%2F%2Fwww.jacobinmag.com%2F'
-    masthead_url = 'https://www.jacobinmag.com/wp-content/themes/boukman/images/banner/type.svg'
     extra_css = """
-                               body{font-family: Antwerp, 'Times New Roman', Times, serif}
-                               img{margin-top:1em; margin-bottom: 1em; display:block}
-                               .entry-dek,.entry-author{font-family: Hurme-No3, Futura, sans-serif}
-                           """
+        body{font-family: Antwerp, 'Times New Roman', Times, serif}
+        img{margin-top:1em; margin-bottom: 1em; display:block}
+        .entry-dek,.entry-author{font-family: Hurme-No3, Futura, sans-serif}
+    """
 
     conversion_options = {
         'comment': description,
@@ -44,56 +49,50 @@ class Jacobinmag(BasicNewsRecipe):
     }
 
     remove_tags = [
-        dict(name=['meta', 'link']),
-        dict(name='div', attrs={'class': 'entry-bottom'}),
-        dict(name='div', attrs={'data-app': 'share_buttons'}),
+        dict(id=['post-header-share', 'post-print']),
+        dict(name='form'),
     ]
 
-    keep_only_tags = [dict(attrs={'class': ['entry-header', 'entry-content']})]
+    keep_only_tags = [
+        classes('po__article')
+    ]
 
     def parse_index(self):
         ans = []
         articles = []
-        lurl = self.get_issue()
-        if lurl:
-            soup = self.index_to_soup(lurl)
+        soup = self.index_to_soup('https://www.jacobinmag.com/store/issues')
+        lurl = 'https://jacobinmag.com' + soup.find('a', text='View Issue')['href']
+        feedtitle = 'Articles'
+        self.log('Loading issue from', lurl)
+        soup = self.index_to_soup(lurl)
 
-            # Find cover url
-            myimg = soup.find('img', attrs={'id': 'front-cover'})
-            if myimg:
-                self.cover_url = self.image_url_processor(None, myimg['src'])
-            # End find cover url
+        # Find cover url
+        di = soup.find('figure', attrs={'class': lambda x: x and '__cover' in x})
+        img = di.find('img')
+        self.cover_url = img['src']
+        # End find cover url
 
-            # Configure series
-            self.conversion_options.update({'series': 'Jacobin'})
+        # Get series title
+        title = soup.find('h1', attrs={'class': lambda x: x and '__heading' in x})
+        feedtitle = self.tag_to_string(title)
 
-            # Get series title
-            feedtitle = 'Articles'
-            title = soup.find('div', attrs={'id': 'iss-title-name'})
-            if title:
-                feedtitle = self.tag_to_string(title)
-
-            # Scrape article links
-            for section in soup.findAll('div', attrs={'class': 'section-articles'}):
-                for art in section.findAll('article'):
-                    urlbase = art.find('h3', attrs={'class': 'iss-hed'})
-                    if urlbase and urlbase.a[
-                        'href'
-                    ] != 'https://www.jacobinmag.com/subscribe/':
-                        url = urlbase.a['href']
-                        title = self.tag_to_string(urlbase)
-                        desc = ''
-                        descbase = urlbase = art.find(
-                            'p', attrs={'class': 'iss-dek'}
-                        )
-                        if descbase:
-                            desc = self.tag_to_string(descbase)
-                        articles.append({
-                            'title': title,
-                            'url': url,
-                            'description': desc
-                        })
-        ans.append((feedtitle, articles))
+        # Scrape article links
+        for section in soup.findAll('div', attrs={'class': lambda x: x and '__content' in x}):
+            for art in section.findAll('article'):
+                h1 = art.find('h1')
+                a = h1.find('a')
+                title = self.tag_to_string(a)
+                url = 'https://jacobinmag.com' + a['href']
+                desc = ''
+                p = art.find('p')
+                if p:
+                    desc = self.tag_to_string(p)
+                articles.append({'title': title, 'url': url, 'description': desc})
+                self.log(title, 'at', url)
+                if desc:
+                    self.log('\t', desc)
+        if articles:
+            ans.append((feedtitle, articles))
         return ans
 
     def get_browser(self):
@@ -111,11 +110,3 @@ class Jacobinmag(BasicNewsRecipe):
             if div:
                 br.open(div['data-redirect'])
         return br
-
-    def get_issue(self):
-        issue = None
-        soup = self.index_to_soup(self.PREFIX)
-        mag = soup.find('li', attrs={'class': 'magazine'})
-        if mag:
-            issue = mag.a['href']
-        return issue
