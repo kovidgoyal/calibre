@@ -53,15 +53,25 @@ authors_completer_append_separator = False
 #  comma : use 'copy' if there is a ',' in the name, otherwise use 'invert'
 #  nocomma : "fn ln" -> "ln fn" (without the comma)
 # When this tweak is changed, the author_sort values stored with each author
-# must be recomputed by right-clicking on an author in the left-hand tags panel,
-# selecting 'manage authors', and pressing 'Recalculate all author sort values'.
-# The author name suffixes are words that are ignored when they occur at the
+# must be recomputed by right-clicking on an author in the left-hand tags
+# panel, selecting 'manage authors', and pressing
+# 'Recalculate all author sort values'.
+#
+# The author_name_suffixes are words that are ignored when they occur at the
 # end of an author name. The case of the suffix is ignored and trailing
-# periods are automatically handled. The same is true for prefixes.
-# The author name copy words are a set of words which if they occur in an
-# author name cause the automatically generated author sort string to be
-# identical to the author name. This means that the sort for a string like Acme
-# Inc. will be Acme Inc. instead of Inc., Acme
+# periods are automatically handled.
+#
+# The same is true for author_name_prefixes.
+#
+# The author_name_copywords are a set of words which, if they occur in an
+# author name, cause the automatically generated author sort string to be
+# identical to the author name. This means that the sort for a string like
+# "Acme Inc." will be "Acme Inc." instead of "Inc., Acme".
+#
+# If author_use_surname_prefixes is enabled, any of the words in
+# author_surname_prefixes will be treated as a prefix to the surname, if they
+# occur before the surname. So for example, "John von Neumann" would be sorted
+# as "von Neumann, John" and not "Neumann, John von".
 author_sort_copy_method = 'comma'
 author_name_suffixes = ('Jr', 'Sr', 'Inc', 'Ph.D', 'Phd',
                         'MD', 'M.D', 'I', 'II', 'III', 'IV',
