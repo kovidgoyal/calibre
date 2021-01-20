@@ -7,6 +7,12 @@ japantimes.co.jp
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class JapanTimes(BasicNewsRecipe):
     title = 'The Japan Times'
     __author__ = 'Darko Miletic'
@@ -20,18 +26,19 @@ class JapanTimes(BasicNewsRecipe):
     use_embedded_content = False
     encoding = 'utf8'
     publication_type = 'newspaper'
-    masthead_url = 'http://www.japantimes.co.jp/wp-content/themes/jt_theme/library/img/logo-japan-times.png'
     extra_css = 'body{font-family: Geneva,Arial,Helvetica,sans-serif}'
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    remove_tags_after = dict(name='div', attrs={'class': 'entry'})
+    remove_tags_after = dict(name='div', attrs={'class': 'entry'}),
     keep_only_tags = [dict(name='div', attrs={'class': 'padding_block'})]
     remove_tags = [
-        dict(name=['iframe', 'embed', 'object', 'base']), dict(attrs={'class': [
-            'meta_extras', 'related_articles']}), dict(attrs={'id': 'content_footer_menu'})
+        dict(name=['iframe', 'embed', 'object', 'base', 'form']), dict(attrs={'class': [
+            'meta_extras', 'related_articles']}), dict(attrs={'id': 'content_footer_menu'}),
+        dict(id='no_js_blocker'),
+        classes('single-sns-area jt-related-stories'),
     ]
     feeds = [
 
