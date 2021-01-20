@@ -229,6 +229,12 @@ def postprocess_jacket(root, output_profile, has_data):
         extract_class('cbj_kindle_banner_hr')
 
 
+class Attributes:
+
+    def __getattr__(self, name):
+        return 'none'
+
+
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
         alt_publisher='', rescale_fonts=False, alt_authors=None):
@@ -282,20 +288,22 @@ def render_jacket(mi, output_profile,
     has_data = {}
 
     def generate_html(comments):
+        display = Attributes()
         args = dict(xmlns=XHTML_NS,
-                    title_str=title_str,
-                    css=css,
-                    title=title,
-                    author=author,
-                    publisher=publisher,
-                    pubdate_label=_('Published'), pubdate=pubdate,
-                    series_label=ngettext('Series', 'Series', 1), series=series,
-                    rating_label=_('Rating'), rating=rating,
-                    tags_label=_('Tags'), tags=tags,
-                    comments=comments,
-                    footer='',
-                    searchable_tags=' '.join(escape(t)+'ttt' for t in tags.tags_list),
-                    )
+            title_str=title_str,
+            css=css,
+            title=title,
+            author=author,
+            publisher=publisher,
+            pubdate_label=_('Published'), pubdate=pubdate,
+            series_label=ngettext('Series', 'Series', 1), series=series,
+            rating_label=_('Rating'), rating=rating,
+            tags_label=_('Tags'), tags=tags,
+            comments=comments,
+            footer='',
+            display=display,
+            searchable_tags=' '.join(escape(t)+'ttt' for t in tags.tags_list),
+        )
         for key in mi.custom_field_keys():
             m = mi.get_user_metadata(key, False) or {}
             try:
@@ -322,6 +330,7 @@ def render_jacket(mi, output_profile,
                 else:
                     args[dkey] = escape(val)
                 args[dkey+'_label'] = escape(display_name)
+                setattr(display, dkey, 'none' if mi.is_null(key) else 'initial')
             except Exception:
                 # if the val (custom column contents) is None, don't add to args
                 pass
@@ -336,13 +345,16 @@ def render_jacket(mi, output_profile,
         # Don't change this unless you also change it in template.xhtml
         args['_genre_label'] = args.get('_genre_label', '{_genre_label}')
         args['_genre'] = args.get('_genre', '{_genre}')
-
-        formatter = SafeFormatter()
-        generated_html = formatter.format(template, **args)
         has_data['series'] = bool(series)
         has_data['tags'] = bool(tags)
         has_data['rating'] = bool(rating)
         has_data['pubdate'] = bool(pubdate)
+        for k, v in has_data.items():
+            setattr(display, k, 'initial' if v else 'none')
+        display.title = 'initial'
+
+        formatter = SafeFormatter()
+        generated_html = formatter.format(template, **args)
 
         return strip_encoding_declarations(generated_html)
 

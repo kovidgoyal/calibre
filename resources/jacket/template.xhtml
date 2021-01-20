@@ -49,7 +49,9 @@
         label #genre, you can add it to this template with _genre_label and
         _genre. Note that the # is replaced by an underscore. For example
         
-        <div><b>{_genre_label}:</b> {_genre}</div>
+        <div style="display: display._genre"><b>{_genre_label}:</b> {_genre}</div>
+
+		If #genre is not set, then the entire <div> element will be hidden.
         -->
 
         <div class="cbj_comments">{comments}</div>
