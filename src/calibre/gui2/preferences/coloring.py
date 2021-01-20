@@ -891,6 +891,7 @@ class RulesView(QListView):  # {{{
         if self.model() and new.isValid():
             _, _, rule = self.model().data(new, Qt.ItemDataRole.UserRole)
             self.enable_convert_buttons_function(isinstance(rule, Rule))
+        return super().currentChanged(new, prev)
 # }}}
 
 
