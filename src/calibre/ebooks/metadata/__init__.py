@@ -86,9 +86,11 @@ def author_to_author_sort(author, method=None):
     if ltoks.intersection(copy_words):
         return author
 
-    author_surname_prefixes = frozenset(x.lower() for x in tweaks['author_surname_prefixes'])
-    if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
-        return author
+    author_use_surname_prefixes = tweaks['author_use_surname_prefixes']
+    if author_use_surname_prefixes:
+        author_surname_prefixes = frozenset(x.lower() for x in tweaks['author_surname_prefixes'])
+        if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
+            return author
 
     prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
     prefixes |= {y+'.' for y in prefixes}
@@ -110,9 +112,10 @@ def author_to_author_sort(author, method=None):
 
     suffix = ' '.join(tokens[last + 1:])
 
-    if last > first and tokens[last - 1].lower() in author_surname_prefixes:
-        tokens[last - 1] += ' ' + tokens[last]
-        last -= 1
+    if author_use_surname_prefixes:
+        if last > first and tokens[last - 1].lower() in author_surname_prefixes:
+            tokens[last - 1] += ' ' + tokens[last]
+            last -= 1
 
     atokens = tokens[last:last + 1] + tokens[first:last]
     num_toks = len(atokens)
@@ -448,6 +451,7 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
 
 def find_tests():
     import unittest
+    from calibre.utils.config_base import Tweak
 
     class TestRemoveBracketedText(unittest.TestCase):
         def test_brackets(self):
@@ -495,6 +499,23 @@ def find_tests():
             self.check_all_methods('Don "Team" Smith', 'Smith, Don "Team"', 'Smith Don "Team"')
             self.check_all_methods('Don Team Smith')
 
+        def test_national(self):
+            c = tweaks['author_name_copywords']
+            try:
+                # Assume that 'author_name_copywords' is a common sequence type
+                i = c.index('National')
+            except ValueError:
+                # If "National" not found, check first without, then temporarily add
+                self.check_all_methods('National Lampoon', 'Lampoon, National', 'Lampoon National')
+                t = type(c)
+                with Tweak('author_name_copywords', c + t(['National'])):
+                     self.check_all_methods('National Lampoon')
+            else:
+                # If "National" found, check with, then temporarily remove
+                self.check_all_methods('National Lampoon')
+                with Tweak('author_name_copywords', c[:i] + c[i + 1:]):
+                    self.check_all_methods('National Lampoon', 'Lampoon, National', 'Lampoon National')
+
         def test_method(self):
             self.check_all_methods('Jane Doe', 'Doe, Jane', 'Doe Jane')
 
@@ -502,15 +523,19 @@ def find_tests():
             self.check_all_methods('Mrs. Jane Q. Doe III', 'Doe, Jane Q. III', 'Doe Jane Q. III')
 
         def test_surname_prefix(self):
-            self.check_all_methods('Leonardo Da Vinci', 'Da Vinci, Leonardo', 'Da Vinci Leonardo')
-            self.check_all_methods('Van Gogh')
+            with Tweak('author_use_surname_prefixes', True):
+                self.check_all_methods('Leonardo Da Vinci', 'Da Vinci, Leonardo', 'Da Vinci Leonardo')
+                self.check_all_methods('Van Gogh')
+            with Tweak('author_use_surname_prefixes', False):
+                self.check_all_methods('Leonardo Da Vinci', 'Vinci, Leonardo Da', 'Vinci Leonardo Da')
+                self.check_all_methods('Van Gogh', 'Gogh, Van', 'Gogh Van')
 
         def test_comma(self):
             self.check_all_methods('James Wesley, Rawles', nocomma='Rawles James Wesley,')
 
         def test_brackets(self):
             self.check_all_methods('Seventh Author [7]', 'Author, Seventh', 'Author Seventh')
-            self.check_all_methods('John [x]von Neumann (III)', 'von Neumann, John', 'von Neumann John')
+            self.check_all_methods('John [x]von Neumann (III)', 'Neumann, John von', 'Neumann John von')
 
         def test_falsy(self):
             self.check_all_methods('')
