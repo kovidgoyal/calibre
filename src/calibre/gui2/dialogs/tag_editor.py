@@ -153,6 +153,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         items = self.available_tags.selectedItems() if item is None else [item]
         rows = [self.available_tags.row(i) for i in items]
         if not rows:
+            text = self.available_filter_input.text()
+            if text and text.strip():
+                self.add_tag_input.setText(text)
+                self.add_tag_input.setFocus(Qt.FocusReason.OtherFocusReason)
             return
         row = max(rows)
         tags = self._get_applied_tags_box_contents()
