@@ -1474,6 +1474,21 @@ class DB(object):
         with f:
             return True, f.read(), stat.st_mtime
 
+    def compress_covers(self, path_map, jpeg_quality, progress_callback):
+        cpath_map = {}
+        if not progress_callback:
+            progress_callback = lambda book_id, old_sz, new_sz: None
+        for book_id, path in path_map.items():
+            path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
+            try:
+                sz = os.path.getsize(path)
+            except OSError:
+                progress_callback(book_id, 0, 'ENOENT')
+            else:
+                cpath_map[book_id] = (path, sz)
+        from calibre.db.covers import compress_covers
+        compress_covers(cpath_map, jpeg_quality, progress_callback)
+
     def set_cover(self, book_id, path, data, no_processing=False):
         path = os.path.abspath(os.path.join(self.library_path, path))
         if not os.path.exists(path):

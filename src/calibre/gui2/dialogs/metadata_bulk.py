@@ -3,34 +3,36 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-import regex, numbers
+import numbers
+import regex
 from collections import defaultdict, namedtuple
 from io import BytesIO
+from PyQt5.Qt import (
+    QApplication, QComboBox, QCompleter, QCoreApplication, QDateTime, QDialog,
+    QDialogButtonBox, QFont, QGridLayout, QInputDialog, QLabel, QLineEdit,
+    QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal
+)
 from threading import Thread
 
-from PyQt5.Qt import (
-    QCompleter, QCoreApplication, QDateTime, QDialog, QDialogButtonBox, QFont, QProgressBar, QComboBox,
-    QGridLayout, QInputDialog, QLabel, QLineEdit, QSize, Qt, QVBoxLayout, pyqtSignal, QApplication
-)
-
-from calibre import prints
+from calibre import human_readable, prints
 from calibre.constants import DEBUG
 from calibre.db import _get_next_series_num_for_list
 from calibre.ebooks.metadata import authors_to_string, string_to_authors, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import (
-    UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, question_dialog
+    UNDEFINED_QDATETIME, FunctionDispatcher, error_dialog, gprefs, info_dialog,
+    question_dialog
 )
 from calibre.gui2.custom_column_widgets import populate_metadata_page
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
+from calibre.gui2.widgets import LineEditECM
 from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
-from calibre.utils.date import qt_to_dt, internal_iso_format_string
+from calibre.utils.date import internal_iso_format_string, qt_to_dt
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
-from calibre.gui2.widgets import LineEditECM
 from polyglot.builtins import (
     error_message, filter, iteritems, itervalues, native_string_type, unicode_type
 )
@@ -39,7 +41,7 @@ Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '
     'do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
     'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
-    'restore_original comments generate_cover_settings read_file_metadata casing_algorithm')
+    'restore_original comments generate_cover_settings read_file_metadata casing_algorithm do_compress_cover compress_cover_quality')
 
 null = object()
 
@@ -68,6 +70,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
         self._layout =  l = QVBoxLayout()
         self.setLayout(l)
+        self.cover_sizes = {'old': 0, 'new': 0}
         # Every Path that will be taken in do_all
         options = [
             args.cover_action == 'fromfmt' or args.read_file_metadata,
@@ -82,7 +85,7 @@ class MyBlockingBusy(QDialog):  # {{{
             is not None, args.do_series, bool(args.series) and
             args.do_autonumber, args.comments is not null,
             args.do_remove_conv, args.clear_languages, args.remove_all,
-            bool(do_sr)
+            bool(do_sr), args.do_compress_cover
         ]
         self.selected_options = sum(options)
         if DEBUG:
@@ -312,7 +315,9 @@ class MyBlockingBusy(QDialog):  # {{{
 
         elif args.cover_action == 'trim':
             self.progress_next_step_range.emit(len(self.ids))
-            from calibre.utils.img import remove_borders_from_image, image_to_data, image_from_data
+            from calibre.utils.img import (
+                image_from_data, image_to_data, remove_borders_from_image
+            )
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
                 if cdata:
@@ -435,6 +440,18 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.add or args.remove:
             self.progress_next_step_range.emit(0)
             self.db.bulk_modify_tags(self.ids, add=args.add, remove=args.remove)
+            self.progress_finished_cur_step.emit()
+
+        if args.do_compress_cover:
+            self.progress_next_step_range.emit(len(self.ids))
+
+            def pc(book_id, old_sz, new_sz):
+                if isinstance(new_sz, int):
+                    self.cover_sizes['old'] += old_sz
+                    self.cover_sizes['new'] += new_sz
+                self.progress_update.emit(1)
+
+            self.db.new_api.compress_covers(self.ids, args.compress_cover_quality, pc)
             self.progress_finished_cur_step.emit()
 
         if self.do_sr:
@@ -1182,6 +1199,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         do_auto_author = self.auto_author_sort.isChecked()
         do_title_case = self.change_title_to_title_case.isChecked()
         do_title_sort = self.update_title_sort.isChecked()
+        do_compress_cover = self.compress_cover_images.isChecked()
+        compress_cover_quality = self.compress_quality.value()
         read_file_metadata = self.read_file_metadata.isChecked()
         clear_languages = self.clear_languages.isChecked()
         restore_original = self.restore_original.isChecked()
@@ -1211,7 +1230,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             do_title_case, cover_action, clear_series, clear_pub, pubdate,
             adddate, do_title_sort, languages, clear_languages,
             restore_original, self.comments, self.generate_cover_settings,
-            read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()])
+            read_file_metadata, self.casing_map[self.casing_algorithm.currentIndex()], do_compress_cover, compress_cover_quality)
         if DEBUG:
             print('Running bulk metadata operation with settings:')
             print(args)
@@ -1239,6 +1258,14 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         dynamic['s_r_search_mode'] = self.search_mode.currentIndex()
         gprefs.set('bulk-mde-casing-algorithm', args.casing_algorithm)
         self.db.clean()
+        if args.do_compress_cover:
+            total_old, total_new = bb.cover_sizes['old'], bb.cover_sizes['new']
+            percent = (total_old - total_new) / total_old
+            info_dialog(self, _('Covers compressed'), _(
+                'Covers were compressed by {percent:.1%} from a total size of'
+                ' {old} to {new}.').format(
+                    percent=percent, old=human_readable(total_old), new=human_readable(total_new))
+                ).exec_()
         return QDialog.accept(self)
 
     def series_changed(self, *args):

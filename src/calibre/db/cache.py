@@ -763,6 +763,25 @@ class Cache(object):
         return self.backend.copy_cover_to(path, dest, use_hardlink=use_hardlink,
                                           report_file_size=report_file_size)
 
+    @write_api
+    def compress_covers(self, book_ids, jpeg_quality=100, progress_callback=None):
+        '''
+        Compress the cover images for the specified books. A compression quality of 100
+        will perform lossless compression, otherwise lossy compression.
+
+        The progress callback will be called with the book_id and the old and new sizes
+        for each book that has been processed. If an error occurs, the news size will
+        be a string with th error details.
+        '''
+        jpeg_quality = max(10, min(jpeg_quality, 100))
+        path_map = {}
+        for book_id in book_ids:
+            try:
+                path_map[book_id] = self._field_for('path', book_id).replace('/', os.sep)
+            except AttributeError:
+                continue
+        self.backend.compress_covers(path_map, jpeg_quality, progress_callback)
+
     @read_api
     def copy_format_to(self, book_id, fmt, dest, use_hardlink=False, report_file_size=None):
         '''
