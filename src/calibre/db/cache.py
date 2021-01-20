@@ -771,7 +771,7 @@ class Cache(object):
 
         The progress callback will be called with the book_id and the old and new sizes
         for each book that has been processed. If an error occurs, the news size will
-        be a string with th error details.
+        be a string with the error details.
         '''
         jpeg_quality = max(10, min(jpeg_quality, 100))
         path_map = {}
