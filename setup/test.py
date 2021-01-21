@@ -121,7 +121,7 @@ def find_tests(which_tests=None, exclude_tests=None):
         from calibre.gui2.viewer.annotations import find_tests
         a(find_tests())
     if ok('misc'):
-        from calibre.ebooks.metadata import find_tests
+        from calibre.ebooks.metadata.test_author_sort import find_tests
         a(find_tests())
         from calibre.ebooks.metadata.tag_mapper import find_tests
         a(find_tests())
