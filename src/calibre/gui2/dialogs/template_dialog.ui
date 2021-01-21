@@ -233,7 +233,7 @@
          <item row="11" column="0">
           <widget class="QLabel" name="user_label_1">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -250,7 +250,7 @@
          <item row="12" column="0">
           <widget class="QLabel" name="user_label_2">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -267,7 +267,7 @@
          <item row="13" column="0">
           <widget class="QLabel" name="user_label_3">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -284,7 +284,7 @@
          <item row="14" column="0">
           <widget class="QLabel" name="user_label_4">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -301,7 +301,7 @@
          <item row="15" column="0">
           <widget class="QLabel" name="user_label_5">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -318,7 +318,7 @@
          <item row="16" column="0">
           <widget class="QLabel" name="user_label_6">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -335,7 +335,7 @@
          <item row="17" column="0">
           <widget class="QLabel" name="user_label_7">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -352,7 +352,7 @@
          <item row="18" column="0">
           <widget class="QLabel" name="user_label_8">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
@@ -369,7 +369,7 @@
          <item row="19" column="0">
           <widget class="QLabel" name="user_label_9">
            <property name="text">
-            <string>User Label</string>
+            <string>User label</string>
            </property>
            <property name="buddy">
             <cstring>template_value</cstring>
