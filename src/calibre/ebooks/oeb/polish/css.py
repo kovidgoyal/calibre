@@ -22,21 +22,23 @@ from polyglot.builtins import iteritems, itervalues, unicode_type, filter
 from polyglot.functools import lru_cache
 
 
-def filter_used_rules(rules, log, select):
+def mark_used_selectors(rules, log, select):
+    any_unused = False
     for rule in rules:
-        used = False
         for selector in rule.selectorList:
+            if getattr(selector, 'calibre_used', False):
+                continue
             try:
                 if select.has_matches(selector.selectorText):
-                    used = True
-                    break
+                    selector.calibre_used = True
+                else:
+                    any_unused = True
+                    selector.calibre_used = False
             except SelectorError:
                 # Cannot parse/execute this selector, be safe and assume it
                 # matches something
-                used = True
-                break
-        if not used:
-            yield rule
+                selector.calibre_used = True
+    return any_unused
 
 
 def get_imported_sheets(name, container, sheets, recursion_level=10, sheet=None):
@@ -111,6 +113,25 @@ def merge_identical_properties(sheet):
     return num_merged
 
 
+def remove_unused_selectors_and_rules(rules_container, rules, removal_stats):
+    found_any = False
+    for r in rules:
+        removals = []
+        for i, sel in enumerate(r.selectorList):
+            if not getattr(sel, 'calibre_used', True):
+                removals.append(i)
+        if removals:
+            found_any = True
+            if len(removals) == len(r.selectorList):
+                rules_container.remove(r)
+                removal_stats['rules'] += 1
+            else:
+                removal_stats['selectors'] += len(removals)
+                for i in reversed(removals):
+                    del r.selectorList[i]
+    return found_any
+
+
 def remove_unused_css(container, report=None, remove_unused_classes=False, merge_rules=False, merge_rules_with_identical_properties=False):
     '''
     Remove all unused CSS rules from the book. An unused CSS rule is one that does not match any actual content.
@@ -146,7 +167,8 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
         class_map = {name:{icu_lower(x) for x in classes_in_rule_list(sheet.cssRules)} for name, sheet in iteritems(sheets)}
     style_rules = {name:tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE)) for name, sheet in iteritems(sheets)}
 
-    num_of_removed_rules = num_of_removed_classes = 0
+    removal_stats = {'rules': 0, 'selectors': 0}
+    num_of_removed_classes = 0
 
     for name, mt in iteritems(container.mime_map):
         if mt not in OEB_DOCS:
@@ -171,14 +193,12 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
                     used_classes |= {icu_lower(x) for x in classes_in_rule_list(sheet.cssRules)}
                 imports = get_imported_sheets(name, container, sheets, sheet=sheet)
                 for imported_sheet in imports:
-                    style_rules[imported_sheet] = tuple(filter_used_rules(style_rules[imported_sheet], container.log, select))
+                    mark_used_selectors(style_rules[imported_sheet], container.log, select)
                     if remove_unused_classes:
                         used_classes |= class_map[imported_sheet]
                 rules = tuple(sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE))
-                unused_rules = tuple(filter_used_rules(rules, container.log, select))
-                if unused_rules:
-                    num_of_removed_rules += len(unused_rules)
-                    [sheet.cssRules.remove(r) for r in unused_rules]
+                if mark_used_selectors(rules, container.log, select):
+                    remove_unused_selectors_and_rules(sheet.cssRules, rules, removal_stats)
                     style.text = force_unicode(sheet.cssText, 'utf-8')
                     pretty_script_or_style(container, style)
                     container.dirty(name)
@@ -187,12 +207,12 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
             sname = container.href_to_name(link.get('href'), name)
             if sname not in sheets:
                 continue
-            style_rules[sname] = tuple(filter_used_rules(style_rules[sname], container.log, select))
+            mark_used_selectors(style_rules[sname], container.log, select)
             if remove_unused_classes:
                 used_classes |= class_map[sname]
 
             for iname in import_map[sname]:
-                style_rules[iname] = tuple(filter_used_rules(style_rules[iname], container.log, select))
+                mark_used_selectors(style_rules[iname], container.log, select)
                 if remove_unused_classes:
                     used_classes |= class_map[iname]
 
@@ -211,17 +231,18 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
                     container.dirty(name)
 
     for name, sheet in iteritems(sheets):
-        unused_rules = style_rules[name]
-        if unused_rules:
-            num_of_removed_rules += len(unused_rules)
-            [sheet.cssRules.remove(r) for r in unused_rules]
+        any_found = remove_unused_selectors_and_rules(sheet.cssRules, style_rules[name], removal_stats)
+        if any_found:
             container.dirty(name)
 
-    num_changes = num_of_removed_rules + num_merged + num_of_removed_classes + num_rules_merged
+    num_changes = num_merged + num_of_removed_classes + num_rules_merged + removal_stats['rules'] + removal_stats['selectors']
     if num_changes > 0:
-        if num_of_removed_rules > 0:
+        if removal_stats['rules']:
             report(ngettext('Removed one unused CSS style rule', 'Removed {} unused CSS style rules',
-                            num_of_removed_rules).format(num_of_removed_rules))
+                            removal_stats['rules']).format(removal_stats['rules']))
+        if removal_stats['selectors']:
+            report(ngettext('Removed one unused CSS selector', 'Removed {} unused CSS selectors',
+                            removal_stats['selectors']).format(removal_stats['selectors']))
         if num_of_removed_classes > 0:
             report(ngettext('Removed one unused class from the HTML', 'Removed {} unused classes from the HTML',
                    num_of_removed_classes).format(num_of_removed_classes))
@@ -231,8 +252,10 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
         if num_rules_merged > 0:
             report(ngettext('Merged one CSS style rule with identical properties', 'Merged {} CSS style rules with identical properties',
                             num_rules_merged).format(num_rules_merged))
-    if num_of_removed_rules == 0:
+    if not removal_stats['rules']:
         report(_('No unused CSS style rules found'))
+    if not removal_stats['selectors']:
+        report(_('No unused CSS selectors found'))
     if remove_unused_classes and num_of_removed_classes == 0:
         report(_('No unused class attributes found'))
     if merge_rules and num_merged == 0:
