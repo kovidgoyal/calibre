@@ -148,9 +148,9 @@ def flow_onwheel(evt):
             # Right goes forward, so the sign is correct.
             else:
                 db = dx
-    if di:
+    if Math.abs(di) >= 1:
         scroll_viewport.scroll_by_in_inline_direction(di)
-    elif Math.abs(db) >= 1:
+    if Math.abs(db) >= 1:
         scroll_by_and_check_next_page(db)
 
 @check_for_scroll_end
