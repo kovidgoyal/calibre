@@ -21,349 +21,520 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QWidget" name="color_layout">
-     <layout class="QGridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="colored_field_label">
-        <property name="text">
-         <string>Set the color of the column:</string>
-        </property>
-        <property name="buddy">
-         <cstring>colored_field</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="colored_field">
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="color_chooser_label">
-        <property name="text">
-         <string>Copy a color name to the clipboard:</string>
-        </property>
-        <property name="buddy">
-         <cstring>color_name</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="ColorButton" name="color_name">
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QToolButton" name="color_copy_button">
-        <property name="icon">
-         <iconset resource="../../../../resources/images.qrc">
-          <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
-        </property>
-        <property name="toolTip">
-         <string>Copy the selected color name to the clipboard</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="icon_layout">
-     <layout class="QGridLayout">
-      <item row="0" column="0" colspan="2">
-       <layout class="QHBoxLayout">
-        <item>
-         <widget class="QLabel" name="icon_kind_label">
-          <property name="text">
-           <string>Kind:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="icon_kind">
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="icon_chooser_label">
-        <property name="text">
-         <string>Apply the icon to column:</string>
-        </property>
-        <property name="buddy">
-         <cstring>icon_field</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QComboBox" name="icon_field">
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="image_chooser_label">
-        <property name="text">
-         <string>Copy an icon file name to the clipboard:</string>
-        </property>
-        <property name="buddy">
-         <cstring>color_name</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="QWidget">
-        <layout class="QHBoxLayout">
-         <item>
-          <widget class="QComboBox" name="icon_files">
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="icon_copy_button">
-           <property name="icon">
-            <iconset resource="../../../../resources/images.qrc">
-             <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
-           </property>
-           <property name="toolTip">
-            <string>Copy the selected icon file name to the clipboard</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="filename_button">
+    <widget class="QScrollArea" name="scroll_area">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="wid1">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QWidget" name="color_layout">
+         <layout class="QGridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="colored_field_label">
+            <property name="text">
+             <string>Set the color of the column:</string>
+            </property>
+            <property name="buddy">
+             <cstring>colored_field</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="colored_field">
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="color_chooser_label">
+            <property name="text">
+             <string>Copy a color name to the clipboard:</string>
+            </property>
+            <property name="buddy">
+             <cstring>color_name</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="ColorButton" name="color_name">
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="color_copy_button">
+            <property name="icon">
+             <iconset resource="../../../../resources/images.qrc">
+              <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
+            </property>
+            <property name="toolTip">
+             <string>Copy the selected color name to the clipboard</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="icon_layout">
+         <layout class="QGridLayout">
+          <item row="0" column="0" colspan="2">
+           <layout class="QHBoxLayout">
+            <item>
+             <widget class="QLabel" name="icon_kind_label">
+              <property name="text">
+               <string>Kind:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="icon_kind">
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="icon_chooser_label">
+            <property name="text">
+             <string>Apply the icon to column:</string>
+            </property>
+            <property name="buddy">
+             <cstring>icon_field</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="icon_field">
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="image_chooser_label">
+            <property name="text">
+             <string>Copy an icon file name to the clipboard:</string>
+            </property>
+            <property name="buddy">
+             <cstring>color_name</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QWidget">
+            <layout class="QHBoxLayout">
+             <item>
+              <widget class="QComboBox" name="icon_files">
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="icon_copy_button">
+               <property name="icon">
+                <iconset resource="../../../../resources/images.qrc">
+                 <normaloff>:/images/edit-copy.png</normaloff>:/images/edit-copy.png</iconset>
+               </property>
+               <property name="toolTip">
+                <string>Copy the selected icon file name to the clipboard</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="filename_button">
+               <property name="text">
+                <string>Add icon</string>
+               </property>
+               <property name="toolTip">
+                <string>Add an icon file to the set of choices</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="template_name_label">
            <property name="text">
-            <string>Add icon</string>
+            <string>Template &amp;name:</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_name</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="template_name">
+           <property name="editable">
+            <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>Add an icon file to the set of choices</string>
+            <string>The name of the callable template</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel">
+           <property name="text">
+            <string>T&amp;emplate:</string>
+           </property>
+           <property name="buddy">
+            <cstring>textbox</cstring>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QPlainTextEdit" name="textbox">
+           <property name="toolTip">
+            <string>The template program text</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="new_doc_label">
+           <property name="text">
+            <string>D&amp;ocumentation:</string>
+           </property>
+           <property name="buddy">
+            <cstring>new_doc</cstring>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QTextEdit" name="new_doc">
+           <property name="toolTip">
+            <string>Documentation for the function being defined or edited</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel">
+           <property name="text">
+            <string>Template value:</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="toolTip">
+            <string>The value of the template using the current book in the library view</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="template_value">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QLabel" name="user_label_1">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <layout class="BoxLayout" name="user_layout_1" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="12" column="0">
+          <widget class="QLabel" name="user_label_2">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
+          <layout class="BoxLayout" name="user_layout_2" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="13" column="0">
+          <widget class="QLabel" name="user_label_3">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <layout class="BoxLayout" name="user_layout_3" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="14" column="0">
+          <widget class="QLabel" name="user_label_4">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="14" column="1">
+          <layout class="BoxLayout" name="user_layout_4" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="15" column="0">
+          <widget class="QLabel" name="user_label_5">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="1">
+          <layout class="BoxLayout" name="user_layout_5" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="16" column="0">
+          <widget class="QLabel" name="user_label_6">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="16" column="1">
+          <layout class="BoxLayout" name="user_layout_6" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="17" column="0">
+          <widget class="QLabel" name="user_label_7">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="1">
+          <layout class="BoxLayout" name="user_layout_7" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="18" column="0">
+          <widget class="QLabel" name="user_label_8">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="1">
+          <layout class="BoxLayout" name="user_layout_8" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="19" column="0">
+          <widget class="QLabel" name="user_label_9">
+           <property name="text">
+            <string>User Label</string>
+           </property>
+           <property name="buddy">
+            <cstring>template_value</cstring>
+           </property>
+           <property name="visible">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="1">
+          <layout class="BoxLayout" name="user_layout_9" dir="TopToBottom">
+          </layout>
+         </item>
+         <item row="20" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Font size:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="20" column="1" colspan="3">
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="1" column="0">
+            <widget class="QSpinBox" name="font_size_box"/>
+           </item>
+           <item row="1" column="1">
+            <spacer>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="1" column="2">
+            <widget class="QDialogButtonBox" name="buttonBox">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="standardButtons">
+              <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="21" column="0" colspan="5">
+          <widget class="QFrame">
+           <property name="frameShape">
+            <enum>QFrame::HLine</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="22" column="0" colspan="2">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Template Function Reference</string>
+           </property>
+           <property name="buddy">
+            <cstring>function</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Function &amp;name:</string>
+           </property>
+           <property name="buddy">
+            <cstring>function</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="23" column="1" colspan="3">
+          <widget class="QComboBox" name="function"/>
+         </item>
+         <item row="24" column="0">
+          <widget class="QLabel" name="label_22">
+           <property name="text">
+            <string>&amp;Function type:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="buddy">
+            <cstring>func_type</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="24" column="1" colspan="3">
+          <widget class="QLineEdit" name="func_type">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="25" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>&amp;Documentation:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="buddy">
+            <cstring>documentation</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="26" column="0">
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>&amp;Code:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="buddy">
+            <cstring>source_code</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="25" column="1" colspan="3">
+          <widget class="QPlainTextEdit" name="documentation">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>75</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="26" column="1" colspan="3">
+          <widget class="QPlainTextEdit" name="source_code">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>75</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item row="27" column="1">
+          <widget class="QLabel" name="template_tutorial">
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="28" column="1">
+          <widget class="QLabel" name="template_func_reference">
+           <property name="openExternalLinks">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="template_name_label">
-       <property name="text">
-        <string>Template &amp;name:</string>
-       </property>
-       <property name="buddy">
-        <cstring>template_name</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="template_name">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <property name="toolTip">
-        <string>The name of the callable template</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel">
-       <property name="text">
-        <string>T&amp;emplate:</string>
-       </property>
-       <property name="buddy">
-        <cstring>textbox</cstring>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPlainTextEdit" name="textbox">
-       <property name="toolTip">
-        <string>The template program text</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="new_doc_label">
-       <property name="text">
-        <string>D&amp;ocumentation:</string>
-       </property>
-       <property name="buddy">
-        <cstring>new_doc</cstring>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QTextEdit" name="new_doc">
-       <property name="toolTip">
-        <string>Documentation for the function being defined or edited</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel">
-       <property name="text">
-        <string>Template value:</string>
-       </property>
-       <property name="buddy">
-        <cstring>template_value</cstring>
-       </property>
-       <property name="toolTip">
-        <string>The value of the template using the current book in the library view</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="template_value">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Font size:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="1" colspan="3">
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="1" column="0">
-        <widget class="QSpinBox" name="font_size_box"/>
-       </item>
-       <item row="1" column="1">
-        <spacer>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="1" column="2">
-        <widget class="QDialogButtonBox" name="buttonBox">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="standardButtons">
-          <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-         </property>
-        </widget>
        </item>
       </layout>
-     </item>
-     <item row="7" column="0" colspan="5">
-      <widget class="QFrame">
-       <property name="frameShape">
-        <enum>QFrame::HLine</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="0" colspan="2">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Template Function Reference</string>
-       </property>
-       <property name="buddy">
-        <cstring>function</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Function &amp;name:</string>
-       </property>
-       <property name="buddy">
-        <cstring>function</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="9" column="1" colspan="3">
-      <widget class="QComboBox" name="function"/>
-     </item>
-     <item row="10" column="0">
-      <widget class="QLabel" name="label_22">
-       <property name="text">
-        <string>&amp;Function type:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-       <property name="buddy">
-        <cstring>func_type</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="10" column="1" colspan="3">
-      <widget class="QLineEdit" name="func_type">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>&amp;Documentation:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-       <property name="buddy">
-        <cstring>documentation</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>&amp;Code:</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-       </property>
-       <property name="buddy">
-        <cstring>source_code</cstring>
-       </property>
-      </widget>
-     </item>
-     <item row="11" column="1" colspan="3">
-      <widget class="QPlainTextEdit" name="documentation">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>75</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="12" column="1" colspan="3">
-      <widget class="QPlainTextEdit" name="source_code"/>
-     </item>
-     <item row="13" column="1">
-      <widget class="QLabel" name="template_tutorial">
-       <property name="openExternalLinks">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="14" column="1">
-      <widget class="QLabel" name="template_func_reference">
-       <property name="openExternalLinks">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -372,6 +543,11 @@
    <class>ColorButton</class>
    <extends>QPushButton</extends>
    <header>calibre/gui2/widgets2.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BoxLayout</class>
+   <extends>QBoxLayout</extends>
+   <header>calibre/gui2/dialogs/template_dialog_box_layout.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
