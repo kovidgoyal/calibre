@@ -92,10 +92,10 @@ author_surname_prefixes = ('da', 'de', 'di', 'la', 'le', 'van', 'von')
 authors_split_regex = r'(?i),?\s+(and|with)\s+'
 
 #: Use author sort in Tag browser
-# Set which author field to display in the tags panel (the list of authors,
+# Set which author field to display in the Tag browser (the list of authors,
 # series, publishers etc on the left hand side). The choices are author and
 # author_sort. This tweak affects only what is displayed under the authors
-# category in the tags panel and Content server. Please note that if you set this
+# category in the Tag browser and Content server. Please note that if you set this
 # to author_sort, it is very possible to see duplicate names in the list because
 # although it is guaranteed that author names are unique, there is no such
 # guarantee for author_sort values. Showing duplicates won't break anything, but
