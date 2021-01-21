@@ -13,7 +13,7 @@ import os, sys, re
 
 from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, itervalues, as_unicode
+from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, as_unicode
 from polyglot.urllib import quote, unquote, urlparse
 
 
@@ -46,17 +46,20 @@ def remove_bracketed_text(src, brackets=None):
         brackets = {'(': ')', '[': ']', '{': '}'}
     from collections import Counter
     counts = Counter()
+    total = 0
     buf = []
     src = force_unicode(src)
     rmap = {v: k for k, v in iteritems(brackets)}
     for char in src:
         if char in brackets:
             counts[char] += 1
+            total += 1
         elif char in rmap:
             idx = rmap[char]
             if counts[idx] > 0:
                 counts[idx] -= 1
-        elif sum(itervalues(counts)) < 1:
+                total -= 1
+        elif total < 1:
             buf.append(char)
     return ''.join(buf)
 
@@ -64,51 +67,57 @@ def remove_bracketed_text(src, brackets=None):
 def author_to_author_sort(author, method=None):
     if not author:
         return ''
+
+    if method is None:
+        method = tweaks['author_sort_copy_method']
+    if method == 'copy':
+        return author
+
     sauthor = remove_bracketed_text(author).strip()
+    if method == 'comma' and ',' in sauthor:
+        return author
+
     tokens = sauthor.split()
     if len(tokens) < 2:
         return author
-    if method is None:
-        method = tweaks['author_sort_copy_method']
 
     ltoks = frozenset(x.lower() for x in tokens)
     copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
     if ltoks.intersection(copy_words):
-        method = 'copy'
-
-    if method == 'copy':
         return author
+
+    author_use_surname_prefixes = tweaks['author_use_surname_prefixes']
+    if author_use_surname_prefixes:
+        author_surname_prefixes = frozenset(x.lower() for x in tweaks['author_surname_prefixes'])
+        if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
+            return author
 
     prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
     prefixes |= {y+'.' for y in prefixes}
-    while True:
-        if not tokens:
-            return author
-        tok = tokens[0].lower()
-        if tok in prefixes:
-            tokens = tokens[1:]
-        else:
+
+    for first in range(len(tokens)):
+        if tokens[first].lower() not in prefixes:
             break
+    else:
+        return author
 
     suffixes = {force_unicode(y).lower() for y in tweaks['author_name_suffixes']}
     suffixes |= {y+'.' for y in suffixes}
 
-    suffix = ''
-    while True:
-        if not tokens:
-            return author
-        last = tokens[-1].lower()
-        if last in suffixes:
-            suffix = tokens[-1] + ' ' + suffix
-            tokens = tokens[:-1]
-        else:
+    for last in range(len(tokens) - 1, first - 1, -1):
+        if tokens[last].lower() not in suffixes:
             break
-    suffix = suffix.strip()
-
-    if method == 'comma' and ',' in ''.join(tokens):
+    else:
         return author
 
-    atokens = tokens[-1:] + tokens[:-1]
+    suffix = ' '.join(tokens[last + 1:])
+
+    if author_use_surname_prefixes:
+        if last > first and tokens[last - 1].lower() in author_surname_prefixes:
+            tokens[last - 1] += ' ' + tokens[last]
+            last -= 1
+
+    atokens = tokens[last:last + 1] + tokens[first:last]
     num_toks = len(atokens)
     if suffix:
         atokens.append(suffix)
@@ -437,4 +446,135 @@ def rating_to_stars(value, allow_half_stars=False, star='★', half='⯨'):
     ans = star * (r // 2)
     if allow_half_stars and r % 2:
         ans += half
+    return ans
+
+
+def find_tests():
+    import unittest
+    from calibre.utils.config_base import Tweak
+
+    class TestRemoveBracketedText(unittest.TestCase):
+        def test_brackets(self):
+            self.assertEqual(remove_bracketed_text('a[b]c(d)e{f}g<h>i'), 'aceg<h>i')
+
+        def test_nested(self):
+            self.assertEqual(remove_bracketed_text('a[[b]c(d)e{f}]g(h(i)j[k]l{m})n{{{o}}}p'), 'agnp')
+
+        def test_mismatched(self):
+            self.assertEqual(remove_bracketed_text('a[b(c]d)e'), 'ae')
+            self.assertEqual(remove_bracketed_text('a{b(c}d)e'), 'ae')
+
+        def test_extra_closed(self):
+            self.assertEqual(remove_bracketed_text('a]b}c)d'), 'abcd')
+            self.assertEqual(remove_bracketed_text('a[b]c]d(e)f{g)h}i}j)k]l'), 'acdfijkl')
+
+        def test_unclosed(self):
+            self.assertEqual(remove_bracketed_text('a]b[c'), 'ab')
+            self.assertEqual(remove_bracketed_text('a(b[c]d{e}f'), 'a')
+            self.assertEqual(remove_bracketed_text('a{b}c{d[e]f(g)h'), 'ac')
+
+    class TestAuthorToAuthorSort(unittest.TestCase):
+        def check_all_methods(self, name, invert=None, comma=None,
+                              nocomma=None, copy=None):
+            methods = ('invert', 'copy', 'comma', 'nocomma')
+            if invert is None:
+                invert = name
+            if comma is None:
+                comma = invert
+            if nocomma is None:
+                nocomma = comma
+            if copy is None:
+                copy = name
+            results = (invert, copy, comma, nocomma)
+            for method, result in zip(methods, results):
+                self.assertEqual(author_to_author_sort(name, method), result)
+
+        def test_single(self):
+            self.check_all_methods('Aristotle')
+
+        def test_all_prefix(self):
+            self.check_all_methods('Mr. Dr Prof.')
+
+        def test_all_suffix(self):
+            self.check_all_methods('Senior Inc')
+
+        def test_copywords(self):
+            self.check_all_methods('Don "Team" Smith',
+                                   invert='Smith, Don "Team"',
+                                   nocomma='Smith Don "Team"')
+            self.check_all_methods('Don Team Smith')
+
+        def test_national(self):
+            c = tweaks['author_name_copywords']
+            try:
+                # Assume that 'author_name_copywords' is a common sequence type
+                i = c.index('National')
+            except ValueError:
+                # If "National" not found, check first without, then temporarily add
+                self.check_all_methods('National Lampoon',
+                                       invert='Lampoon, National',
+                                       nocomma='Lampoon National')
+                t = type(c)
+                with Tweak('author_name_copywords', c + t(['National'])):
+                    self.check_all_methods('National Lampoon')
+            else:
+                # If "National" found, check with, then temporarily remove
+                self.check_all_methods('National Lampoon')
+                with Tweak('author_name_copywords', c[:i] + c[i + 1:]):
+                    self.check_all_methods('National Lampoon',
+                                           invert='Lampoon, National',
+                                           nocomma='Lampoon National')
+
+        def test_method(self):
+            self.check_all_methods('Jane Doe',
+                                   invert='Doe, Jane',
+                                   nocomma='Doe Jane')
+
+        def test_invalid_methos(self):
+            # Invalid string defaults to invert
+            name = 'Jane, Q. van Doe[ed] Jr.'
+            self.assertEqual(author_to_author_sort(name, 'invert'),
+                             author_to_author_sort(name, '__unknown__!(*T^U$'))
+
+        def test_prefix_suffix(self):
+            self.check_all_methods('Mrs. Jane Q. Doe III',
+                                   invert='Doe, Jane Q. III',
+                                   nocomma='Doe Jane Q. III')
+
+        def test_surname_prefix(self):
+            with Tweak('author_use_surname_prefixes', True):
+                self.check_all_methods('Leonardo Da Vinci',
+                                       invert='Da Vinci, Leonardo',
+                                       nocomma='Da Vinci Leonardo')
+                self.check_all_methods('Van Gogh')
+                self.check_all_methods('Van')
+            with Tweak('author_use_surname_prefixes', False):
+                self.check_all_methods('Leonardo Da Vinci',
+                                       invert='Vinci, Leonardo Da',
+                                       nocomma='Vinci Leonardo Da')
+                self.check_all_methods('Van Gogh',
+                                       invert='Gogh, Van',
+                                       nocomma='Gogh Van')
+
+        def test_comma(self):
+            self.check_all_methods('James Wesley, Rawles',
+                                   invert='Rawles, James Wesley,',
+                                   comma='James Wesley, Rawles',
+                                   nocomma='Rawles James Wesley,')
+
+        def test_brackets(self):
+            self.check_all_methods('Seventh Author [7]',
+                                   invert='Author, Seventh',
+                                   nocomma='Author Seventh')
+            self.check_all_methods('John [x]von Neumann (III)',
+                                   invert='Neumann, John von',
+                                   nocomma='Neumann John von')
+
+        def test_falsy(self):
+            self.check_all_methods('')
+            self.check_all_methods(None, '', '', '', '')
+            self.check_all_methods([], '', '', '', '')
+
+    ans = unittest.defaultTestLoader.loadTestsFromTestCase(TestRemoveBracketedText)
+    ans.addTests(unittest.defaultTestLoader.loadTestsFromTestCase(TestAuthorToAuthorSort))
     return ans
