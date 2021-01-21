@@ -432,7 +432,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.template_value.setText(
                 SafeFormat().safe_format(cur_text, self.mi, _('EXCEPTION: '),
                                          self.mi, global_vars=self.global_vars,
-                                         template_functions= self.all_functions))
+                                         template_functions=self.all_functions))
 
     def text_cursor_changed(self):
         cursor = self.textbox.textCursor()
