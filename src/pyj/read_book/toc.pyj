@@ -100,10 +100,12 @@ def get_current_toc_nodes():
             before = get_border_nodes(toc, id_map)[0]
             if before:
                 ans[before.id] = True
-    ans = Object.keys(ans)
-    if ans.length:
-        return family_for_toc_node(ans[0], parent_map, id_map)
-    return v'[]'
+    r = v'[]'
+    for x in Object.keys(ans):
+        fam = family_for_toc_node(x, parent_map, id_map)
+        if fam?.length:
+            r.push(fam)
+    return r
 
 
 def get_highlighted_toc_nodes(toc, parent_map, id_map):

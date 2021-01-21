@@ -210,7 +210,7 @@ class View:
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_page_counts = {'current': 0, 'total': 0, 'pages_per_screen': 1}
         self.current_toc_node = self.current_toc_toplevel_node = None
-        self.current_toc_family = v'[]'
+        self.current_toc_families = v'[]'
         self.report_cfi_callbacks = {}
         self.get_cfi_counter = 0
         self.show_loading_callback_timer = None
@@ -1293,14 +1293,19 @@ class View:
 
     def on_update_toc_position(self, data):
         update_visible_toc_nodes(data.visible_anchors)
-        self.current_toc_family = get_current_toc_nodes()
-        if self.current_toc_family.length:
-            self.current_toc_node = self.current_toc_family[-1]
-            self.current_toc_toplevel_node = self.current_toc_family[0]
+        self.current_toc_families = get_current_toc_nodes()
+        if self.current_toc_families.length:
+            first = self.current_toc_families[0]
+            self.current_toc_node = first[-1]
+            self.current_toc_toplevel_node = first[0]
         else:
             self.current_toc_node = self.current_toc_toplevel_node = None
         if runtime.is_standalone_viewer:
-            ui_operations.update_current_toc_nodes(self.current_toc_node?.id, self.current_toc_toplevel_node?.id)
+            r = v'[]'
+            for fam in self.current_toc_families:
+                if fam.length:
+                    r.push(fam[-1].id)
+            ui_operations.update_current_toc_nodes(r)
         self.update_header_footer()
 
     def show_spine_item(self, resource_data):

@@ -113,8 +113,8 @@ class TOCView(QTreeView):
         m = self.model()
         QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
 
-    def update_current_toc_nodes(self, current_node_id, toplevel_node_id):
-        self.model().update_current_toc_nodes(current_node_id, toplevel_node_id)
+    def update_current_toc_nodes(self, families):
+        self.model().update_current_toc_nodes(families)
 
 
 class TOCSearch(QWidget):
@@ -248,13 +248,19 @@ class TOC(QStandardItemModel):
             return index
         return QModelIndex()
 
-    def update_current_toc_nodes(self, current_node_id, top_level_node_id):
-        node = self.node_id_map.get(current_node_id)
+    def update_current_toc_nodes(self, current_toc_leaves):
         viewed_nodes = set()
-        if node is not None:
-            viewed_nodes |= {x.node_id for x in node.ancestors}
-            viewed_nodes.add(node.node_id)
-            self.auto_expand_nodes.emit([n.index() for n in node.ancestors])
+        ancestors = {}
+        for node_id in current_toc_leaves:
+            node = self.node_id_map.get(node_id)
+            if node is not None:
+                viewed_nodes.add(node_id)
+                ansc = tuple(node.ancestors)
+                viewed_nodes |= {x.node_id for x in ansc}
+                for x in ansc:
+                    ancestors[x.node_id] = x.index()
+        if ancestors:
+            self.auto_expand_nodes.emit(tuple(ancestors.values()))
         for node in self.all_items:
             is_being_viewed = node.node_id in viewed_nodes
             if is_being_viewed != node.is_being_viewed:
