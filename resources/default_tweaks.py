@@ -479,7 +479,7 @@ save_original_format_when_polishing = True
 # how many should be shown, here.
 gui_view_history_size = 15
 
-#: Change the font size of book details in the interface
+#: Change the font size of the Book details panel in the interface
 # Change the font size at which book details are rendered in the side panel and
 # comments are rendered in the metadata edit dialog. Set it to a positive or
 # negative number to increase or decrease the font size.
