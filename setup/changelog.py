@@ -103,7 +103,7 @@ def parse(raw, parse_dates=True):
         if 'description' in item:
             item['description'] += stripped_line + ' '
         else:
-            item['title'] += stripped_line
+            item['title'] += ' ' + stripped_line
         return in_item
 
     state = normal
