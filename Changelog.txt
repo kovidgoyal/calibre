@@ -23,6 +23,58 @@
 # - title by author
 # }}}
 
+{{{ 5.10.0 2021-01-22
+
+:: new features
+
+- [1911888] Bulk metadata edit: Add a new control to compress the cover image files for all selected books
+
+- [1912212] Add support for the CB7 comic file file format
+
+- [1912070] E-book viewer: Allow adding a button to the selection bar that copies the
+  currently selected text along with a calibre:// URL to show the text in the book
+
+- Conversion: Insert metadata: Allow showing identifiers such as ISBN in the jacket page template
+
+- Conversion: Insert metadata: Allow hiding entries in the jacket template when they are not present in the metadata
+
+- [1912337] calibre-server --manage-users: Add a scriptable interface: calibre-server --manage-users -- help
+
+- [1912070] E-book viewer: Add keyboard shortcuts to copy the current location to the clipboard
+
+- [1912003] E-book viewer: Highlight all currently visible Table of Contents entries, not just the first
+
+- Add a new tweak under Preferences->Tweaks->Author sort name algorithm to optionally recognize
+  common surname prefixes such as von, van, de, etc. when generating sort names.
+
+:: bug fixes
+
+- [1911470] E-book viewer: Move read aloud pop-up bar to the bottom of the screen in flow mode
+
+- [1911218] E-book viewer: Fix scrolling with two fingers on touch pad on macOS not smooth
+
+- [1911466] PDF Output: When converting fixed layout input documents fix anchors inserted for navigation sometimes being rendered as blue boxes
+
+- [1904350] Edit book: Remove unused CSS: Fix selectors that don't match from CSS rules containing multiple selectors not being removed
+
+- Bulk metadata download: Fix series number not being changes if the series is the same as the existing series
+
+- E-book viewer: Fix a regression that caused non-HTML descriptions to not be displayed in the metadata page
+
+- E-book viewer: Fix clock being displayed in 24 hr format on some systems even though system locale is set to use 12 hr format.
+
+- Bulk metadata edit: Fix regression that inverted the meaning of the case sensitivity setting in the Search & replace tab
+
+- calibredb list: Fix incorrect output when redirecting to file
+
+:: improved recipes
+- Jacobin
+- Japan Times
+- The Wall Street Journal
+- Mediapart
+
+}}}
+
 {{{ 5.9.0 2021-01-08
 
 :: new features
