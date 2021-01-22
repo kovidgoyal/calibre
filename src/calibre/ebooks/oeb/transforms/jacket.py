@@ -340,8 +340,7 @@ def render_jacket(mi, output_profile,
                     args[dkey] = rating_to_stars(mi.get(key), m.get('display', {}).get('allow_half_stars', False))
                 elif dt == 'comments':
                     val = val or ''
-                    display = m.get('display', {})
-                    ctype = display.get('interpret_as') or 'html'
+                    ctype = m.get('display', {}).get('interpret_as') or 'html'
                     if ctype == 'long-text':
                         val = '<pre style="white-space:pre-wrap">%s</pre>' % escape(val)
                     elif ctype == 'short-text':
