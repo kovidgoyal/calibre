@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.10.0 2021-01-22
+{{{ 5.10.1 2021-01-22
 
 :: new features
 
@@ -66,6 +66,8 @@
 - Bulk metadata edit: Fix regression that inverted the meaning of the case sensitivity setting in the Search & replace tab
 
 - calibredb list: Fix incorrect output when redirecting to file
+
+- 5.10.1 fixes a regression in 5.10.0 that broke conversion when including metadata as a jacket page and using long text custom columns
 
 :: improved recipes
 - Jacobin
