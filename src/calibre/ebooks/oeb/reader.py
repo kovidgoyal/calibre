@@ -314,7 +314,7 @@ class OEBReader(object):
             unchecked = new
         version = int(self.oeb.version[0])
         removed_items_to_ignore = getattr(self.oeb, 'removed_items_to_ignore', ())
-        for item in sorted(extras):
+        for item in extras:
             if item.href in removed_items_to_ignore:
                 continue
             if version >= 2:
