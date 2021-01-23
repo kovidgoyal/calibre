@@ -64,7 +64,15 @@ def remove_bracketed_text(src, brackets=None):
     return ''.join(buf)
 
 
-def author_to_author_sort(author, method=None):
+def author_to_author_sort(
+        author,
+        method=None,
+        copywords=None,
+        use_surname_prefixes=None,
+        surname_prefixes=None,
+        name_prefixes=None,
+        name_suffixes=None
+):
     if not author:
         return ''
 
@@ -82,17 +90,17 @@ def author_to_author_sort(author, method=None):
         return author
 
     ltoks = frozenset(x.lower() for x in tokens)
-    copy_words = frozenset(x.lower() for x in tweaks['author_name_copywords'])
+    copy_words = frozenset(x.lower() for x in (tweaks['author_name_copywords'] if copywords is None else copywords))
     if ltoks.intersection(copy_words):
         return author
 
-    author_use_surname_prefixes = tweaks['author_use_surname_prefixes']
+    author_use_surname_prefixes = tweaks['author_use_surname_prefixes'] if use_surname_prefixes is None else use_surname_prefixes
     if author_use_surname_prefixes:
-        author_surname_prefixes = frozenset(x.lower() for x in tweaks['author_surname_prefixes'])
+        author_surname_prefixes = frozenset(x.lower() for x in (tweaks['author_surname_prefixes'] if surname_prefixes is None else surname_prefixes))
         if len(tokens) == 2 and tokens[0].lower() in author_surname_prefixes:
             return author
 
-    prefixes = {force_unicode(y).lower() for y in tweaks['author_name_prefixes']}
+    prefixes = {force_unicode(y).lower() for y in (tweaks['author_name_prefixes'] if name_prefixes is None else name_prefixes)}
     prefixes |= {y+'.' for y in prefixes}
 
     for first in range(len(tokens)):
@@ -101,7 +109,7 @@ def author_to_author_sort(author, method=None):
     else:
         return author
 
-    suffixes = {force_unicode(y).lower() for y in tweaks['author_name_suffixes']}
+    suffixes = {force_unicode(y).lower() for y in (tweaks['author_name_suffixes'] if name_suffixes is None else name_suffixes)}
     suffixes |= {y+'.' for y in suffixes}
 
     for last in range(len(tokens) - 1, first - 1, -1):
