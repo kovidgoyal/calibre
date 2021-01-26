@@ -750,9 +750,6 @@ class IframeBoss:
         else:
             self.send_message('search_result_not_found', search_result=data.search_result)
 
-    def reference_item_changed(self, ref_num_or_none):
-        self.send_message('reference_item_changed', refnum=ref_num_or_none, index=current_spine_item().index)
-
     def set_reference_mode(self, data):
         self.reference_mode_enabled = data.enabled
         if data.enabled:

@@ -254,11 +254,6 @@ class View:
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
                     )
                 ),
-                E.div(
-                    style=f'color: {get_color("window-foreground")}; background: {get_color("window-background")};' +
-                    'position: absolute; display: none; left: 0; top: 0; padding: 0.5ex; border: solid 2px; z-index: 3000',
-                    id='reference-mode-overlay'
-                ),
             ),
         )
         handlers = {
@@ -280,7 +275,6 @@ class View:
             'next_spine_item': self.on_next_spine_item,
             'print': self.on_print,
             'ready': self.on_iframe_ready,
-            'reference_item_changed': self.on_reference_item_changed,
             'report_cfi': self.on_report_cfi,
             'request_size': self.on_request_size,
             'scroll_to_anchor': self.on_scroll_to_anchor,
@@ -332,10 +326,6 @@ class View:
     @property
     def iframe(self):
         return self.iframe_wrapper.iframe
-
-    @property
-    def reference_mode_overlay(self):
-        return document.getElementById('reference-mode-overlay')
 
     def copy_to_clipboard(self):
         self.iframe_wrapper.send_message('copy_selection')
@@ -694,7 +684,6 @@ class View:
         self.overlay.hide()
         self.search_overlay.hide()
         self.content_popup_overlay.hide()
-        self.reference_mode_overlay.style.display = 'none'
         self.focus_iframe()
 
     def focus_iframe(self):
@@ -1337,7 +1326,6 @@ class View:
         self.hide_loading()
         self.set_progress_frac(data.progress_frac, data.file_progress_frac, data.page_counts)
         self.update_header_footer()
-        self.on_reference_item_changed()
         window.scrollTo(0, 0)  # ensure window is at 0 on mobile where the navbar causes issues
         if self.book_load_started:
             self.book_load_started = False
@@ -1369,20 +1357,9 @@ class View:
 
     def toggle_reference_mode(self):
         self.reference_mode_enabled = not self.reference_mode_enabled
-        self.on_reference_item_changed()
         self.iframe_wrapper.send_message('set_reference_mode', enabled=self.reference_mode_enabled)
         if ui_operations.reference_mode_changed:
             ui_operations.reference_mode_changed(self.reference_mode_enabled)
-
-    def on_reference_item_changed(self, data):
-        data = data or {'refnum': None, 'index': None}
-        refnum, index = data.refnum, data.index
-        div = self.reference_mode_overlay
-        if refnum is None:
-            div.style.display = 'none'
-        else:
-            div.style.display = 'block'
-            div.textContent = f'{index}.{refnum}'
 
     def show_search_result(self, sr):
         if self.currently_showing.name is sr.file_name:
