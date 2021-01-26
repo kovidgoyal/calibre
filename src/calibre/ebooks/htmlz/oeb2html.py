@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.base import (
     XHTML, XHTML_NS, SVG_NS, barename, namespace, OEB_IMAGES, XLINK, rewrite_links, urlnormalize)
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.utils.logging import default_log
-from polyglot.builtins import unicode_type, string_or_bytes, as_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, as_unicode
 from polyglot.urllib import urldefrag
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
@@ -131,10 +131,10 @@ class OEB2HTML(object):
                 el.attrib['id'] = self.get_link_id(page.href, el.attrib['id'])[1:]
 
     def get_css(self, oeb_book):
-        css = b''
+        css = ''
         for item in oeb_book.manifest:
             if item.media_type == 'text/css':
-                css += as_bytes(item.data.cssText) + b'\n\n'
+                css += as_unicode(item.data.cssText) + '\n\n'
         return css
 
     def prepare_string_for_html(self, raw):
@@ -337,9 +337,9 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
             output += self.dump_text(item.data.find(XHTML('body')), stylizer, item)
             output.append('\n\n')
         if self.opts.htmlz_class_style == 'external':
-            css = u'<link href="style.css" rel="stylesheet" type="text/css" />'
+            css = '<link href="style.css" rel="stylesheet" type="text/css" />'
         else:
-            css =  u'<style type="text/css">' + self.get_css(oeb_book) + u'</style>'
+            css =  '<style type="text/css">' + self.get_css(oeb_book) + '</style>'
         title = u'<title>%s</title>' % prepare_string_for_xml(self.book_title)
         output = [u'<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'] + \
             [css] + [title, u'</head><body>'] + output + [u'</body></html>']

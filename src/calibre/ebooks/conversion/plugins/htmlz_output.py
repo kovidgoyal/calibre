@@ -89,7 +89,7 @@ class HTMLZOutput(OutputFormatPlugin):
             # CSS
             if opts.htmlz_css_type == 'class' and opts.htmlz_class_style == 'external':
                 with open(os.path.join(tdir, u'style.css'), 'wb') as tf:
-                    tf.write(htmlizer.get_css(oeb_book))
+                    tf.write(htmlizer.get_css(oeb_book).encode('utf-8'))
 
             # Images
             images = htmlizer.images
