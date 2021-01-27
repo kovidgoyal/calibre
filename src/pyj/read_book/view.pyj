@@ -530,6 +530,8 @@ class View:
             self.toggle_read_aloud()
         elif data.name is 'reload_book':
             ui_operations.reload_book()
+        elif data.name is 'sync_book':
+            self.overlay.sync_book()
         elif data.name is 'next_section':
             self.on_next_section({'forward': True})
         elif data.name is 'previous_section':

@@ -4,6 +4,8 @@ from __python__ import bound_methods, hash_literals
 
 from gettext import gettext as _
 
+from read_book.globals import runtime
+
 
 def parse_key_repr(sc):
     parts = sc.split('+')
@@ -363,6 +365,14 @@ def shortcuts_definition():
     ),
 
     }
+
+    if not runtime.is_standalone_viewer:
+        ans['sync_book'] = desc(
+            v"[]",
+            'ui',
+            _('Sync last read position/annotations'),
+        )
+
     return ans
 
 
