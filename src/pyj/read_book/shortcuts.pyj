@@ -90,10 +90,8 @@ def key_as_text(evt):
     return mods + key
 
 
-def shortcuts_definition():
-    ans = shortcuts_definition.ans
-    if not ans:
-        ans = shortcuts_definition.ans = {
+def common_shortcuts():  # {{{
+    return {
     'start_of_file': desc(
         v"['Ctrl+ArrowUp', 'Ctrl+ArrowLeft', 'Home']",
         'scroll',
@@ -364,14 +362,22 @@ def shortcuts_definition():
         _('Auto scroll slower'),
     ),
 
-    }
+    }  # }}}
 
-    if not runtime.is_standalone_viewer:
-        ans['sync_book'] = desc(
-            v"[]",
-            'ui',
-            _('Sync last read position/annotations'),
-        )
+
+def shortcuts_definition():
+    ans = shortcuts_definition.ans
+    if not ans:
+        ans = shortcuts_definition.ans = common_shortcuts()
+
+        if runtime.is_standalone_viewer:
+            add_standalone_viewer_shortcuts(ans)
+        else:
+            ans['sync_book'] = desc(
+                v"[]",
+                'ui',
+                _('Sync last read position/annotations'),
+            )
 
     return ans
 
@@ -387,9 +393,8 @@ def shortcuts_group_desc():
 
 
 
-def add_standalone_viewer_shortcuts():
+def add_standalone_viewer_shortcuts(sc):
     ismacos = 'macos' in window.navigator.userAgent
-    sc = shortcuts_definition()
     sc['toggle_inspector'] = desc(
         v"['Ctrl+i']",
         'ui',
