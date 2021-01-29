@@ -342,9 +342,10 @@ class SavedSearchBox(QComboBox):  # {{{
         self.setCompleter(completer)
 
         self.setEditable(True)
+        self.setMaxVisibleItems(25)
         self.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         self.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
-        self.setMinimumContentsLength(10)
+        self.setMinimumContentsLength(25)
         self.tool_tip_text = self.toolTip()
 
     def initialize(self, _search_box, colorize=False, help_text=_('Search')):

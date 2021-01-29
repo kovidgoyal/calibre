@@ -7,18 +7,17 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from PyQt5.Qt import (
+    QActionGroup, QCoreApplication, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
+    QMenu, QObject, QSizePolicy, Qt, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+)
 
-from PyQt5.Qt import (QIcon, Qt, QWidget, QSize, QFrame,
-    pyqtSignal, QToolButton, QMenu, QLineEdit, QCoreApplication,
-    QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
-
-
+from calibre import human_readable
 from calibre.constants import __appname__
-from calibre.gui2.search_box import SearchBox2, SavedSearchBox
 from calibre.gui2.bars import BarsManager
+from calibre.gui2.search_box import SavedSearchBox, SearchBox2
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
-from calibre import human_readable
 from polyglot.builtins import unicode_type
 
 
@@ -274,8 +273,6 @@ class SearchBar(QFrame):  # {{{
         l.addWidget(x)
 
         x = parent.saved_search = SavedSearchBox(self)
-        x.setMaximumSize(QSize(150, 16777215))
-        x.setMinimumContentsLength(10)
         x.setObjectName("saved_search")
         l.addWidget(x)
         x.setVisible(tweaks['show_saved_search_box'])
