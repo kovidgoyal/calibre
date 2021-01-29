@@ -24,7 +24,7 @@
    <item>
     <widget class="QCheckBox" name="opt_docx_no_pagebreaks_between_notes">
      <property name="text">
-      <string>Do not add a page after every &amp;endnote</string>
+      <string>Do not add a page break after every &amp;endnote</string>
      </property>
     </widget>
    </item>
