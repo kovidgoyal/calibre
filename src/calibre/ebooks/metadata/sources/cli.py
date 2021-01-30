@@ -35,7 +35,7 @@ of title, authors or ISBN.
     parser.add_option('-a', '--authors', help=_('Book author(s)'))
     parser.add_option('-i', '--isbn', help=_('Book ISBN'))
     parser.add_option('-I', '--identifier', action='append', default=[], help=_(
-        'Identifiers such as ASIN/goodreads id etc. Can be specified multiple times for multiple identifiers.'
+        'Identifiers such as ASIN/Goodreads id etc. Can be specified multiple times for multiple identifiers.'
         ' For example: ') + '--identifier asin:B0082BAJA0')
     parser.add_option('-v', '--verbose', default=False, action='store_true',
                       help=_('Print the log to the console (stderr)'))
