@@ -200,6 +200,10 @@ def move_end_of_selection(pos, start):
         if start:
             if r.startContainer is not p.offsetNode or r.startOffset is not p.offset:
                 r.setStart(p.offsetNode, p.offset)
+                sel.removeAllRanges()
+                sel.addRange(r)
         else:
             if r.endContainer is not p.offsetNode or r.endOffset is not p.offset:
                 r.setEnd(p.offsetNode, p.offset)
+                sel.removeAllRanges()
+                sel.addRange(r)
