@@ -131,6 +131,7 @@ class ItemEdit(QWidget):
 
         self.search_text = s = QLineEdit(self)
         s.setPlaceholderText(_('Search for text...'))
+        s.returnPressed.connect(self.find_next)
         l.addWidget(s, 1, 0)
         self.ns_button = b = QPushButton(QIcon(I('arrow-down.png')), _('Find &next'), self)
         b.clicked.connect(self.find_next)
