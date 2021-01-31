@@ -39,7 +39,7 @@ class ZeitDe(BasicNewsRecipe):
     auto_cleanup = True
     auto_cleanup_keep = '//header[@class="article-header"]|//div[@class="gallery__media-container"]|//div[@class="article__media-container"]'
 
-    masthead_url = 'https://static.zeit.de/assets/3.538/images/structured-data-publisher-logo-zon.png'
+    masthead_url = 'https://static.zeit.de/p/zeit.web/3.714/images/structured-data-publisher-logo-zon.png'
 
     extra_css = '.figure__text { font-size: 0.9em; font-style: italic; } \
                  .figure__copyright { font-size: 0.9em; font-style: italic; color: #888; } \
