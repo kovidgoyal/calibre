@@ -88,7 +88,7 @@ def get_parser(usage):
         '--timeout',
         type=float,
         default=120,
-        help=_('The timeout, in seconds when connecting to a calibre library over the network. The default is'
+        help=_('The timeout, in seconds, when connecting to a calibre library over the network. The default is'
                ' two minutes.')
     )
 
