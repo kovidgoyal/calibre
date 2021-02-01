@@ -84,6 +84,13 @@ def get_parser(usage):
                ' for your shell.').format(
                    '<stdin>', '<f:C:/path/to/file>' if iswindows else '<f:/path/to/file>')
     )
+    go.add_option(
+        '--timeout',
+        type=float,
+        default=120,
+        help=_('The timeout, in seconds when connecting to a calibre library over the network. The default is'
+               ' two minutes.')
+    )
 
     return parser
 
@@ -122,6 +129,7 @@ class DBCtx(object):
 
     def __init__(self, opts):
         self.library_path = opts.library_path or prefs['library_path']
+        self.timeout = opts.timeout
         self.url = None
         if self.library_path is None:
             raise SystemExit(
@@ -194,7 +202,7 @@ class DBCtx(object):
         rq = Request(url, data=msgpack_dumps(args),
                      headers={'Accept': MSGPACK_MIME, 'Content-Type': MSGPACK_MIME})
         try:
-            res = self.br.open_novisit(rq)
+            res = self.br.open_novisit(rq, timeout=self.timeout)
             ans = msgpack_loads(res.read())
         except HTTPError as err:
             self.interpret_http_error(err)
@@ -209,7 +217,7 @@ class DBCtx(object):
         from mechanize import HTTPError
         url = self.url + '/ajax/library-info'
         try:
-            res = self.br.open_novisit(url)
+            res = self.br.open_novisit(url, timeout=self.timeout)
             ans = json.loads(res.read())
         except HTTPError as err:
             self.interpret_http_error(err)
