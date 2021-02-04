@@ -6,7 +6,7 @@ class LiveMint(BasicNewsRecipe):
     language = 'en_IN'
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
-    max_articles_per_feed = 25
+    max_articles_per_feed = 50
     use_embedded_content = False
 
     no_stylesheets = True
