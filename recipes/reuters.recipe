@@ -11,7 +11,7 @@ country_defs = {
     'us': ('www.reuters.com', {
         'Business': 'finance',
         'Markets': 'finance/markets',
-        'World': 'news/world',
+        'World': 'world',
         'Politics': 'politics',
         'Tech': 'news/technology',
         'Wealth': 'finance/wealth',
