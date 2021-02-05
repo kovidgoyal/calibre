@@ -220,11 +220,12 @@ add_extra_css(def():
 
 def simple_overlay_title(title, overlay, container):
     container.style.backgroundColor = get_color('window-background')
-    create_top_bar(container, title=title, icon='close', action=def (event):
-                    event.preventDefault()
-                    event.stopPropagation()
-                    overlay.hide_current_panel(event)
-    )
+    def action():
+        event = this
+        event.stopPropagation()
+        overlay.hide_current_panel(event)
+
+    create_top_bar(container, title=title, icon='close', action=action)
 
 
 class MainOverlay:  # {{{

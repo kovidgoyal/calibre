@@ -71,7 +71,10 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
                 a.setAttribute('href', interface_data.donate_link)
                 a.setAttribute('target', 'donate-to-calibre')
             if action is not None:
-                a.addEventListener('click', def(event): event.preventDefault(), action();)
+                a.addEventListener('click', def(event):
+                    event.preventDefault()
+                    action.bind(event)()
+                )
 
             if callable(title_action):
                 a = a.nextSibling
