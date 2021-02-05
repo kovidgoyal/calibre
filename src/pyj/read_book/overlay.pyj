@@ -3,8 +3,6 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
-from uuid import short_uuid
 
 from book_list.book_details import CLASS_NAME as BD_CLASS_NAME, render_metadata
 from book_list.globals import get_session_data
@@ -13,10 +11,12 @@ from book_list.library_data import (
 )
 from book_list.router import home
 from book_list.theme import get_color
+from book_list.top_bar import create_top_bar
 from book_list.ui import query_as_href, show_panel
 from dom import (
     add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
 )
+from gettext import gettext as _
 from modals import error_dialog
 from read_book.bookmarks import create_bookmarks_panel
 from read_book.globals import runtime, ui_operations
@@ -27,11 +27,12 @@ from read_book.prefs.font_size import create_font_size_panel
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
-from session import get_device_uuid, defaults as session_defaults
+from session import defaults as session_defaults, get_device_uuid
 from utils import (
     default_context_menu_should_be_allowed, full_screen_element,
     full_screen_supported, is_ios, safe_set_inner_html
 )
+from uuid import short_uuid
 from widgets import create_button, create_spinner
 
 
@@ -219,15 +220,11 @@ add_extra_css(def():
 
 def simple_overlay_title(title, overlay, container):
     container.style.backgroundColor = get_color('window-background')
-    container.appendChild(E.div(
-        style='padding: 1ex 1em; border-bottom: solid 1px currentColor; display:flex; justify-content: flex-start',
-            E.div(svgicon('close'), style='cursor:pointer', onclick=def (event):
+    create_top_bar(container, title=title, icon='close', action=def (event):
                     event.preventDefault()
                     event.stopPropagation()
                     overlay.hide_current_panel(event)
-            , class_='simple-link'),
-            E.h2(title, style='margin-left: 1ex'),
-        ))
+    )
 
 
 class MainOverlay:  # {{{
