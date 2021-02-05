@@ -78,7 +78,10 @@ def set_left_data(container, title='calibre', icon='heart', action=None, tooltip
 
             if callable(title_action):
                 a = a.nextSibling
-                a.addEventListener('click', def(event): event.preventDefault(), title_action();)
+                a.addEventListener('click', def(event):
+                    event.preventDefault()
+                    title_action.bind(event)()
+                )
 
 def set_title(container, text):
     bars = get_bars(container)
