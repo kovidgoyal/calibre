@@ -382,9 +382,12 @@ interface used by the content server. For such devices, you can simply add
 I cannot send emails using calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Because of the large amount of spam in email, sending email can be tricky, as different mail servers use different strategies to block email.
-The most common problem is if you are sending email directly (without a mail relay) in calibre. Many servers (for example, Amazon) block email
-that does not come from a well known relay. The most robust way to setup email sending in calibre is to do the following:
+Because of the large amount of spam in email, sending email can be tricky, as
+different mail servers use different strategies to block email.  The most
+common problem is if you are sending email directly (without a mail relay) in
+calibre. Many servers (for example, Amazon) block email that does not come from
+a well known relay. The most robust way to setup email sending in calibre is to
+do the following:
 
   * Create a free GMX account at `GMX <https://www.gmx.com>`_.
   * Goto :guilabel:`Preferences->Sharing->Sharing books by email` in calibre and click the :guilabel:`Use GMX` button and fill in the information asked for.
@@ -393,7 +396,11 @@ that does not come from a well known relay. The most robust way to setup email s
   * If you are sending to your Kindle, remember to update the email preferences
     on your Amazon Kindle page to allow email sent from your GMX email
     address. Also note that Amazon does not allow email delivery of AZW3 and
-    new style (KF8) MOBI files.
+    new style (KF8) MOBI files. Finally, Amazon recently started sending
+    confirmation emails that you have to click on back to your GMX account
+    before the book is actually delivered. They prefer you use Gmail to avoid
+    the confirmation emails. See the note below for setting up Gmail to work
+    with calibre.
 
 Even after doing this, you may have problems. One common source of problems is that some poorly designed antivirus
 programs block calibre from opening a connection to send email. Try adding an exclusion for calibre in your
@@ -411,8 +418,9 @@ antivirus program.
     an attempt to force everyone to use their web interface so they can
     show you more ads. They are trying to claim that SMTP is insecure,
     that is incorrect and simply an excuse. If you have trouble with
-    gmail you will need to
-    `allow "less secure" apps as described here <https://support.google.com/accounts/answer/6010255>`_.
+    Gmail you will need to `setup an app password
+    <https://support.google.com/accounts/answer/185833>`_. Use this app password
+    as the password in calibre.
 
 .. note::
     If you are concerned about giving calibre access to your email
