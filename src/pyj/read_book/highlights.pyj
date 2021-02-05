@@ -571,6 +571,10 @@ def show_export_dialog(annotations_manager):
     if v"['text', 'markdown', 'calibre_annotations_collection']".indexOf(fmt) < 0:
         fmt = 'text'
     all_highlights = annotations_manager.all_highlights()
+    selected_highlight_items = all_selected_entries()
+    if selected_highlight_items.length:
+        key = {e.dataset.uuid: True for e in selected_highlight_items}
+        all_highlights = [h for h in all_highlights if key[h.uuid]]
     ta_id = unique_id()
     href = window.location.href
     idx = href.indexOf('#')
@@ -685,8 +689,11 @@ def find_next():
 
 
 add_extra_css(def():
-    sel = '#' + get_container_id() + ' .toc-group'
     ans = ''
+    sel = '#' + get_container_id()
+    ans += build_rule(sel + ' .ac-button', margin_left='1rem', margin_top='1ex')
+    ans += build_rule(sel + ' .sel-button', display='none')
+    sel += ' .toc-group'
     ans += build_rule(sel + ' h3', display='flex', align_items='center', cursor='pointer', margin_top='1ex')
     ans += build_rule(sel + '.expanded .caret-right', display='none')
     ans += build_rule(sel + '.collapsed .caret-down', display='none')
@@ -696,6 +703,7 @@ add_extra_css(def():
     ans += build_rule(qsel + ' .notes', display='none', margin_top='1ex', max_height='20ex', overflow='auto')
     ans += build_rule(qsel + ' .actions', display='none', margin_top='1ex', justify_content='space-between')
     ans += build_rule(qsel + ' .title', display='flex', align_items='center')
+    ans += build_rule(qsel + ' .title-row', display='flex', align_items='center', justify_content='space-between')
     current = qsel + '.current'
     ans += build_rule(current + ' .title', font_weight='bold', font_size='larger')
     ans += build_rule(current + ' .notes', display='block')
@@ -762,6 +770,39 @@ def edit_notes(annot_id, notes, view, ev):
     , initial_text=notes or None)
 
 
+def all_selected_entries():
+    return [e.closest('.highlight') for e in document.querySelectorAll('.highlight input:checked')]
+
+
+def item_select_toggled():
+    entries = all_selected_entries()
+    for e in document.querySelectorAll(f'#{get_container_id()} .sel-button'):
+        e.style.display = 'block' if entries.length else 'none'
+
+
+def clear_selection():
+    for e in document.querySelectorAll('.highlight input:checked'):
+        e.checked = False
+    item_select_toggled()
+
+
+def delete_selection(annotations_manager, view):
+    selected_highlight_items = all_selected_entries()
+    if not selected_highlight_items.length:
+        return
+    text = ngettext(
+        'Do you want to permanently delete the selected highlight?',
+        'Do you want to permanently delete the {} selected highlights?',
+        selected_highlight_items.length
+    ).format(selected_highlight_items.length)
+    question_dialog(_('Are you sure?'), text, def(yes):
+        if yes:
+            for entry in selected_highlight_items:
+                entry.style.display = 'none'
+                view.highlight_action(entry.dataset.uuid, 'delete')
+    )
+
+
 def highlight_entry(h, onclick, view):
 
     def action(func, ev):
@@ -776,8 +817,14 @@ def highlight_entry(h, onclick, view):
     hs.make_swatch(swatch, is_dark_theme())
     ans = E.div(
         class_='highlight',
+        data_uuid=h.uuid,
         onclick=highlight_entry_clicked,
-        E.div(class_='title', swatch, E.div('\xa0', h.highlighted_text)),
+        E.div(
+            class_='title-row',
+            E.div(class_='title', swatch, E.div(style='margin-left: 1rem', h.highlighted_text)),
+            E.div(style='margin-left: 1rem', onclick=def(ev): ev.stopPropagation();,
+                  E.input(type='checkbox', onchange=item_select_toggled)),
+        ),
         E.div(
             class_='actions',
             button(_('Show in book'), action.bind(None, show_in_text.bind(None, h.uuid))),
@@ -796,19 +843,26 @@ def highlight_entry(h, onclick, view):
 
 
 def create_highlights_panel(annotations_manager, book, container, onclick):
-    next_button = E.div(style='margin-left: 1rem', class_='simple-link', svgicon('chevron-down'), title=_('Next match'))
-    prev_button = E.div(style='margin-left: 1rem', class_='simple-link', svgicon('chevron-up'), title=_('Previous match'))
+    next_button = E.div(class_='simple-link ac-button', svgicon('chevron-down'), title=_('Next match'))
+    prev_button = E.div(class_='simple-link ac-button', svgicon('chevron-up'), title=_('Previous match'))
     prev_button.addEventListener('click', def(ev): find_previous();)
     sb = create_search_bar(find_next, 'search-in-highlights', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button])
     sb.style.flexGrow = '10'
-    export_button = create_button(_('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager))
-    export_button.style.marginLeft = '1rem'
+    sb.classList.add('ac-button')
+    clear_button = create_button(
+        _('Clear'), 'close', clear_selection, _('Clear selection'), class_='ac-button sel-button')
+    delete_button = create_button(
+        _('Remove'), 'trash', delete_selection.bind(None, annotations_manager, annotations_manager.view), _('Remove selected highlights'),
+        class_='ac-button sel-button')
+    export_button = create_button(
+        _('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager), _('Export all or selected highlights'),
+        class_='ac-button')
     c = E.div(
         style='margin: 1rem',
         id=get_container_id(),
         E.div(
-            style='display: flex',
-            sb, next_button, prev_button, export_button
+            style='display: flex; flex-wrap: wrap; margin-top: -1ex; align-items: center',
+            sb, next_button, prev_button, clear_button, delete_button, export_button
         ),
     )
     container.appendChild(c)
