@@ -420,7 +420,7 @@ antivirus program.
     that is incorrect and simply an excuse. If you have trouble with
     Gmail you will need to `setup an app password
     <https://support.google.com/accounts/answer/185833>`_. Use this app password
-    as the password in calibre.
+    as the password for Gmail in the calibre settings.
 
 .. note::
     If you are concerned about giving calibre access to your email
