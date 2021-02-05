@@ -73,7 +73,11 @@ class Reuters(BasicNewsRecipe):
 
     def parse_reuters_section(self, base, slug):
         url = 'https://' + base + '/' + slug
-        soup = self.index_to_soup(url)
+        try:
+            soup = self.index_to_soup(url)
+        except Exception:
+            self.log.error('Failed to load Reuters section:', url)
+            return
         for div in soup.findAll(**classes('news-headline-list')):
             h3 = div.find(**classes('story-title'))
             a = h3.parent
