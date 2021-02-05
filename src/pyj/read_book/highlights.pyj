@@ -786,6 +786,11 @@ def clear_selection():
     item_select_toggled()
 
 
+def select_all():
+    for e in document.querySelectorAll('.highlight input'):
+        e.checked = True
+
+
 def delete_selection(annotations_manager, view):
     selected_highlight_items = all_selected_entries()
     if not selected_highlight_items.length:
@@ -854,6 +859,9 @@ def create_highlights_panel(annotations_manager, book, container, onclick):
     delete_button = create_button(
         _('Remove'), 'trash', delete_selection.bind(None, annotations_manager, annotations_manager.view), _('Remove selected highlights'),
         class_='ac-button sel-button')
+    all_button = create_button(
+        _('All'), 'plus', select_all, _('Select all highlights'),
+        class_='ac-button sel-button')
     export_button = create_button(
         _('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager), _('Export all or selected highlights'),
         class_='ac-button')
@@ -862,7 +870,7 @@ def create_highlights_panel(annotations_manager, book, container, onclick):
         id=get_container_id(),
         E.div(
             style='display: flex; flex-wrap: wrap; margin-top: -1ex; align-items: center',
-            sb, next_button, prev_button, clear_button, delete_button, export_button
+            sb, next_button, prev_button, clear_button, all_button, delete_button, export_button
         ),
     )
     container.appendChild(c)
