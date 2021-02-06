@@ -52,12 +52,16 @@ class FileDialog(QObject):
         adapt_menubar = gui.bars_manager.adapt_menu_bar_for_dialog if gui is not None else Dummy()
         QObject.__init__(self)
         ftext = ''
+        has_long_filter = False
         if filters:
             for filter in filters:
                 text, extensions = filter
                 extensions = ['*'+(i if i.startswith('.') else '.'+i) for i in
                         extensions]
-                ftext += '%s (%s);;'%(text, ' '.join(extensions))
+                etext = '%s (%s);;'%(text, ' '.join(extensions))
+                if len(etext) > 72:
+                    has_long_filter = True
+                ftext += etext
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
         if ftext.endswith(';;'):
@@ -93,6 +97,8 @@ class FileDialog(QObject):
             opts = QFileDialog.Option()
             if not use_native_dialog:
                 opts |= QFileDialog.Option.DontUseNativeDialog
+            if has_long_filter:
+                opts |= QFileDialog.Option.HideNameFilterDetails
             if mode == QFileDialog.FileMode.AnyFile:
                 with adapt_menubar:
                     f = QFileDialog.getSaveFileName(parent, title,
