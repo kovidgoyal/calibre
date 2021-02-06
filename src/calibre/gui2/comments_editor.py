@@ -818,6 +818,12 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
             vis = parent.toolbars_visible
             menu.addAction(_('%s toolbars') % (_('Hide') if vis else _('Show')), parent.toggle_toolbars)
         menu.addSeparator()
+        am = QMenu(_('Advanced'))
+        menu.addMenu(am)
+        am.addAction(self.action_block_style)
+        am.addAction(self.action_insert_link)
+        am.addAction(self.action_background)
+        am.addAction(self.action_color)
         menu.addAction(_('Smarten punctuation'), parent.smarten_punctuation)
         menu.exec_(ev.globalPos())
 
