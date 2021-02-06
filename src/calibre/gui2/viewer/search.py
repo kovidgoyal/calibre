@@ -202,6 +202,7 @@ def get_toc_data():
     manifest = get_manifest() or {}
     spine = manifest.get('spine') or []
     spine_toc_map = {name: [] for name in spine}
+    parent_map = {}
 
     def process_node(node):
         items = spine_toc_map.get(node['dest'])
@@ -210,6 +211,7 @@ def get_toc_data():
         children = node.get('children')
         if children:
             for child in children:
+                parent_map[id(child)] = node
                 process_node(child)
 
     toc = manifest.get('toc')
@@ -217,28 +219,40 @@ def get_toc_data():
         process_node(toc)
     return {
         'spine': tuple(spine), 'spine_toc_map': spine_toc_map,
-        'spine_idx_map': {name: idx for idx, name in enumerate(spine)}
+        'spine_idx_map': {name: idx for idx, name in enumerate(spine)},
+        'parent_map': parent_map
     }
 
 
-class ToCOffsetMap(object):
+class ToCOffsetMap:
 
-    def __init__(self, toc_nodes=(), offset_map=None, previous_toc_node=None):
+    def __init__(self, toc_nodes=(), offset_map=None, previous_toc_node=None, parent_map=None):
         self.toc_nodes = toc_nodes
         self.offset_map = offset_map or {}
         self.previous_toc_node = previous_toc_node
+        self.parent_map = parent_map or {}
 
     def toc_nodes_for_offset(self, offset):
-        found = False
+        matches = []
         for node in self.toc_nodes:
             q = self.offset_map.get(node.get('id'))
             if q is not None:
                 if q > offset:
                     break
-                yield node
-                found = True
-        if not found and self.previous_toc_node is not None:
-            yield self.previous_toc_node
+                matches.append(node)
+        if not matches and self.previous_toc_node is not None:
+            matches.append(self.previous_toc_node)
+        if matches:
+            ancestors = []
+            node = matches[-1]
+            parent = self.parent_map.get(id(node))
+            while parent is not None:
+                ancestors.append(parent)
+                parent = self.parent_map.get(id(parent))
+            if len(ancestors) > 1:
+                ancestors.pop()  # root node
+                yield from reversed(ancestors)
+            yield node
 
 
 @lru_cache(maxsize=None)
@@ -268,7 +282,7 @@ def toc_offset_map_for_name(name):
         if ptn:
             prev_toc_node = ptn[-1]
             break
-    return ToCOffsetMap(toc_nodes, offset_map, prev_toc_node)
+    return ToCOffsetMap(toc_nodes, offset_map, prev_toc_node, toc_data['parent_map'])
 
 
 def toc_nodes_for_search_result(sr):
