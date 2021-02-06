@@ -20,7 +20,7 @@ from calibre import browser as _browser, prints, random_user_agent
 from calibre.utils.monotonic import monotonic
 from calibre.utils.random_ua import accept_header_for_ua
 
-current_version = (1, 0, 5)
+current_version = (1, 0, 6)
 minimum_calibre_version = (2, 80, 0)
 
 
