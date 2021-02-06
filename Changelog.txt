@@ -99,7 +99,7 @@
 
 - [1909332] Color/icon rules editor: Fix duplicate rule button not working correctly
 
-- [1909291] Fix dropping files onto book details causing an error if the confirmation dialog is disabled
+- [1909291] Fix dropping files onto Book details causing an error if the confirmation dialog is disabled
 
 :: improved recipes
 - General Knowledge Today
@@ -192,7 +192,7 @@
 
 - [1906459] AZW3 Input: Fix a regression in calibre 5 that broke processing of files with inline flow replacements.
 
-- [1906149] Fix hiding and showing book details panel changes its size by a pixel or two.
+- [1906149] Fix hiding and showing Book details panel changes its size by a pixel or two.
 
 - [1907067] Get books: Fix amazon.fr not working because of website changes.
 
