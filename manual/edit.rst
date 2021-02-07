@@ -807,7 +807,7 @@ The HTML editor has very sophisticated syntax highlighting. Features include:
     * Invalid HTML is highlighted with a red underline
     * Spelling errors in the text inside HTML tags and attributes such as title
       are highlighted. The spell checking is language aware, based on the value
-      of the lang attribute of the current tag and the overall book language.
+      of the ``lang`` attribute of the current tag and the overall book language.
     * CSS embedded inside ``<style>`` tags is highlighted
     * Special characters that can be hard to distinguish such as non-breaking
       spaces, different types of hyphens, etc. are highlighted.
