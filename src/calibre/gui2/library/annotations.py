@@ -17,6 +17,7 @@ from urllib.parse import quote
 
 from calibre import prepare_string_for_xml
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
+from calibre.db.backend import FTSQueryError
 from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -543,22 +544,29 @@ class BrowsePanel(QWidget):
         if q == self.current_query:
             self.results_list.show_next(backwards)
             return
-        with BusyCursor():
-            db = current_db()
-            if not q['fts_engine_query']:
-                results = db.all_annotations(
-                    restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'],
-                    ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None
-                )
-            else:
-                q2 = q.copy()
-                q2['restrict_to_book_ids'] = q.get('restrict_to_book_ids') or None
-                results = db.search_annotations(
-                    highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
-                    ignore_removed=True, **q2
-                )
-            self.results_list.set_results(results, bool(q['fts_engine_query']))
-            self.current_query = q
+        try:
+            with BusyCursor():
+                db = current_db()
+                if not q['fts_engine_query']:
+                    results = db.all_annotations(
+                        restrict_to_user=q['restrict_to_user'], limit=4096, annotation_type=q['annotation_type'],
+                        ignore_removed=True, restrict_to_book_ids=q['restrict_to_book_ids'] or None
+                    )
+                else:
+                    q2 = q.copy()
+                    q2['restrict_to_book_ids'] = q.get('restrict_to_book_ids') or None
+                    results = db.search_annotations(
+                        highlight_start='\x1d', highlight_end='\x1d', snippet_size=64,
+                        ignore_removed=True, **q2
+                    )
+                self.results_list.set_results(results, bool(q['fts_engine_query']))
+                self.current_query = q
+        except FTSQueryError as err:
+            return error_dialog(self, _('Invalid search expression'), '<p>' + _(
+                'The search expression: {0} is invalid. The search syntax used is the'
+                'SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
+                    err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
+                det_msg=str(err), show=True)
 
     def effective_query_changed(self):
         self.do_find()
