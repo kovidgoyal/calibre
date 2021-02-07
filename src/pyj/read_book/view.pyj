@@ -1075,12 +1075,12 @@ class View:
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
-    def goto_cfi(self, bookpos):
+    def goto_cfi(self, bookpos, add_to_history):
         cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
         if cfiname and internal_cfi:
-            # replace_history has to be true here otherwise forward does not
-            # work after back, as back uses goto_cfi
-            pos = {'replace_history': True}
+            # Note that goto_cfi is used by back() so it must not add to
+            # history by default, otherwise forward() will not work
+            pos = {'replace_history': not add_to_history}
             name = cfiname
             pos.type, pos.cfi = 'cfi', internal_cfi
             self.show_name(name, initial_position=pos)
@@ -1386,4 +1386,4 @@ class View:
         elif which is 'goto':
             cfi = self.annotations_manager.cfi_for_highlight(uuid, spine_index)
             if cfi:
-                self.goto_cfi(cfi)
+                self.goto_cfi(cfi, True)
