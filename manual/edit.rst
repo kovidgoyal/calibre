@@ -821,7 +821,8 @@ Context sensitive help
 You can right click on an HTML tag name or a CSS property name to get help for that tag or property.
 
 You can also hold down the :kbd:`Ctrl` key and click on any filename inside a link tag
-to open that file in the editor automatically.
+to open that file in the editor automatically. Similarly, :kbd:`Ctrl` clicking
+a class name will take you to the first style rule that matches the tag and class.
 
 .. _editor_auto_complete:
 

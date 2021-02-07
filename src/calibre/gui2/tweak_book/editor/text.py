@@ -24,8 +24,8 @@ from calibre.gui2.tweak_book import (
 )
 from calibre.gui2.tweak_book.completion.popup import CompletionPopup
 from calibre.gui2.tweak_book.editor import (
-    LINK_PROPERTY, SPELL_LOCALE_PROPERTY, SPELL_PROPERTY, SYNTAX_PROPERTY,
-    store_locale
+    CLASS_ATTRIBUTE_PROPERTY, LINK_PROPERTY, SPELL_LOCALE_PROPERTY, SPELL_PROPERTY,
+    SYNTAX_PROPERTY, store_locale
 )
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.snippets import SnippetManager
@@ -93,6 +93,7 @@ class LineNumbers(QWidget):  # {{{
 class TextEdit(PlainTextEdit):
 
     link_clicked = pyqtSignal(object)
+    class_clicked = pyqtSignal(object)
     smart_highlighting_updated = pyqtSignal()
 
     def __init__(self, parent=None, expected_geometry=(100, 50)):
@@ -764,6 +765,16 @@ class TextEdit(PlainTextEdit):
         if r is not None and r.format.property(LINK_PROPERTY):
             return self.text_for_range(c.block(), r)
 
+    def class_for_position(self, pos):
+        c = self.cursorForPosition(pos)
+        r = self.syntax_range_for_cursor(c)
+        if r is not None and r.format.property(CLASS_ATTRIBUTE_PROPERTY):
+            c.select(QTextCursor.SelectionType.WordUnderCursor)
+            class_name = c.selectedText()
+            if class_name:
+                tags = self.current_tag(for_position_sync=False, cursor=c)
+                return {'class': class_name, 'sourceline_address': tags}
+
     def mousePressEvent(self, ev):
         if self.completion_popup.isVisible() and not self.completion_popup.rect().contains(ev.pos()):
             # For some reason using eventFilter for this does not work, so we
@@ -774,6 +785,11 @@ class TextEdit(PlainTextEdit):
             if url is not None:
                 ev.accept()
                 self.link_clicked.emit(url)
+                return
+            class_data = self.class_for_position(ev.pos())
+            if class_data is not None:
+                ev.accept()
+                self.class_clicked.emit(class_data)
                 return
         return PlainTextEdit.mousePressEvent(self, ev)
 
@@ -962,8 +978,12 @@ version="1.1" width="100%%" height="100%%" viewBox="0 0 {w} {h}" preserveAspectR
         if hasattr(self.smarts, 'rename_block_tag'):
             self.smarts.rename_block_tag(self, new_name)
 
-    def current_tag(self, for_position_sync=True):
-        return self.smarts.cursor_position_with_sourceline(self.textCursor(), for_position_sync=for_position_sync)
+    def current_tag(self, for_position_sync=True, cursor=None):
+        use_matched_tag = False
+        if cursor is None:
+            use_matched_tag = True
+            cursor = self.textCursor()
+        return self.smarts.cursor_position_with_sourceline(cursor, for_position_sync=for_position_sync, use_matched_tag=use_matched_tag)
 
     def goto_sourceline(self, sourceline, tags, attribute=None):
         return self.smarts.goto_sourceline(self, sourceline, tags, attribute=attribute)

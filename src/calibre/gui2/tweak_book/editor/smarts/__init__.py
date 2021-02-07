@@ -22,7 +22,7 @@ class NullSmarts(object):
     def verify_for_spellcheck(self, cursor, highlighter):
         return False
 
-    def cursor_position_with_sourceline(self, cursor, for_position_sync=True):
+    def cursor_position_with_sourceline(self, cursor, for_position_sync=True, use_matched_tag=True):
         return None, None
 
     def goto_sourceline(self, editor, sourceline, tags, attribute=None):

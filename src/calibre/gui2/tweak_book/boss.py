@@ -1102,6 +1102,22 @@ class Boss(QObject):
                 error_dialog(self.gui, _('Not found'), _(
                     'No file with the name %s was found in the book') % target, show=True)
 
+    def editor_class_clicked(self, class_data):
+        from calibre.gui2.tweak_book.jump_to_class import find_first_matching_rule, NoMatchingTagFound, NoMatchingRuleFound
+        ed = self.gui.central.current_editor
+        name = editor_name(ed)
+        try:
+            res = find_first_matching_rule(current_container(), name, ed.get_raw_data(), class_data)
+        except (NoMatchingTagFound, NoMatchingRuleFound):
+            res = None
+        if res is not None and res.file_name and res.rule_address:
+            editor = self.open_editor_for_name(res.file_name)
+            if editor:
+                editor.goto_css_rule(res.rule_address, sourceline_address=res.style_tag_address)
+        else:
+            error_dialog(self.gui, _('No matches found'), _('No style rules that match the class {} were found').format(
+                class_data['class']), show=True)
+
     def save_search(self):
         state = self.gui.central.search_panel.state
         self.show_saved_searches()
@@ -1264,9 +1280,7 @@ class Boss(QObject):
                     raise
                 self.apply_container_update_to_gui()
 
-    def link_clicked(self, name, anchor, show_anchor_not_found=False):
-        if not name:
-            return
+    def open_editor_for_name(self, name):
         if name in editors:
             editor = editors[name]
             self.gui.central.show_editor(editor)
@@ -1284,6 +1298,12 @@ class Boss(QObject):
                     self.gui, _('Unsupported file format'),
                     _('Editing files of type %s is not supported') % mt, show=True)
             editor = self.edit_file(name, syntax)
+        return editor
+
+    def link_clicked(self, name, anchor, show_anchor_not_found=False):
+        if not name:
+            return
+        editor = self.open_editor_for_name(name)
         if anchor and editor is not None:
             if editor.go_to_anchor(anchor):
                 self.gui.preview.pending_go_to_anchor = anchor
@@ -1566,6 +1586,8 @@ class Boss(QObject):
             editor.word_ignored.connect(self.word_ignored)
         if hasattr(editor, 'link_clicked'):
             editor.link_clicked.connect(self.editor_link_clicked)
+        if hasattr(editor, 'class_clicked'):
+            editor.class_clicked.connect(self.editor_class_clicked)
         if getattr(editor, 'syntax', None) == 'html':
             editor.smart_highlighting_updated.connect(self.gui.live_css.sync_to_editor)
         if hasattr(editor, 'set_request_completion'):

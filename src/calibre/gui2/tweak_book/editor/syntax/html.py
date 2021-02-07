@@ -484,6 +484,7 @@ def create_formats(highlighter, add_css=True):
     formats['spell'].setProperty(SPELL_PROPERTY, True)
     formats['class_attr'] = syntax_text_char_format(t['Special'])
     formats['class_attr'].setProperty(CLASS_ATTRIBUTE_PROPERTY, True)
+    formats['class_attr'].setToolTip(_('Hold down the Ctrl key and click to open the first matching CSS style rule'))
     formats['link'] = syntax_text_char_format(t['Link'])
     formats['link'].setProperty(LINK_PROPERTY, True)
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
