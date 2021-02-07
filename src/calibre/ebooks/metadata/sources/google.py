@@ -68,6 +68,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     # items_per_page = XPath('//openSearch:itemsPerPage')
     entry = XPath('//atom:entry')
     entry_id = XPath('descendant::atom:id')
+    url = XPath('descendant::atom:link[@href and @rel="self"]/@href')
     creator = XPath('descendant::dc:creator')
     identifier = XPath('descendant::dc:identifier')
     title = XPath('descendant::dc:title')
@@ -92,6 +93,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 
     id_url = entry_id(entry_)[0].text
     google_id = id_url.split('/')[-1]
+    details_url = url(entry_)[0]
     title_ = ': '.join([x.text for x in title(entry_)]).strip()
     authors = [x.text.strip() for x in creator(entry_) if x.text]
     if not authors:
@@ -103,7 +105,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     mi = Metadata(title_, authors)
     mi.identifiers = {'google': google_id}
     try:
-        raw = get_details(browser, id_url, timeout)
+        raw = get_details(browser, details_url, timeout)
         feed = etree.fromstring(
             xml_to_unicode(clean_ascii_chars(raw), strip_encoding_pats=True)[0],
             parser=etree.XMLParser(recover=True, no_network=True, resolve_entities=False)
@@ -174,7 +176,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 class GoogleBooks(Source):
 
     name = 'Google'
-    version = (1, 0, 1)
+    version = (1, 0, 2)
     minimum_calibre_version = (2, 80, 0)
     description = _('Downloads metadata and covers from Google Books')
 
