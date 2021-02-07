@@ -241,7 +241,6 @@ class Preferences(QDialog):
             QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.RestoreDefaults
         )
         self.bb.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept)
-        self.bb.button(QDialogButtonBox.StandardButton.Cancel).clicked.connect(self.reject)
         self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).setIcon(QIcon(I('clear_left.png')))
         self.bb.button(QDialogButtonBox.StandardButton.RestoreDefaults).clicked.connect(self.restore_defaults)
         self.wizard_button = self.bb.addButton(_('Run Welcome &wizard'), QDialogButtonBox.ButtonRole.ActionRole)
