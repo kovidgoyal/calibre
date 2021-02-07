@@ -68,7 +68,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
     # items_per_page = XPath('//openSearch:itemsPerPage')
     entry = XPath('//atom:entry')
     entry_id = XPath('descendant::atom:id')
-    url = XPath('descendant::atom:link[@href and @rel="self"]/@href')
+    url = XPath('descendant::atom:link[@rel="self"]/@href')
     creator = XPath('descendant::dc:creator')
     identifier = XPath('descendant::dc:identifier')
     title = XPath('descendant::dc:title')
@@ -191,7 +191,7 @@ class GoogleBooks(Source):
     GOOGLE_COVER = 'https://books.google.com/books?id=%s&printsec=frontcover&img=1'
 
     DUMMY_IMAGE_MD5 = frozenset(
-        {'0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f'}
+        ('0de4383ebad0adad5eeb8975cd796657', 'a64fa89d7ebc97075c1d363fc5fea71f')
     )
 
     def get_book_url(self, identifiers):  # {{{
