@@ -428,9 +428,11 @@ class MainOverlay:  # {{{
 
     def back(self):
         window.history.back()
+        self.overlay.hide()
 
     def forward(self):
         window.history.forward()
+        self.overlay.hide()
 
 # }}}
 
