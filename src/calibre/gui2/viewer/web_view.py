@@ -496,6 +496,7 @@ class WebView(RestartingWebEngineView):
         self.show_home_page_on_ready = True
         self._size_hint = QSize(int(w/3), int(w/2))
         self._page = WebPage(self)
+        self._page.linkHovered.connect(self.link_hovered)
         self.view_is_ready = False
         self.bridge.bridge_ready.connect(self.on_bridge_ready)
         self.bridge.view_created.connect(self.on_view_created)
@@ -548,6 +549,11 @@ class WebView(RestartingWebEngineView):
         if parent is not None:
             self.inspector = Inspector(parent.inspector_dock.toggleViewAction(), self)
             parent.inspector_dock.setWidget(self.inspector)
+
+    def link_hovered(self, url):
+        if url == 'javascript:void(0)':
+            url = ''
+        self.generic_action('show-status-message', {'text': url})
 
     def shutdown(self):
         self.tts.shutdown()

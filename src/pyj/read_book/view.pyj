@@ -209,6 +209,7 @@ class View:
         self.loaded_resources = {}
         self.current_progress_frac = self.current_file_progress_frac = 0
         self.current_page_counts = {'current': 0, 'total': 0, 'pages_per_screen': 1}
+        self.current_status_message = ''
         self.current_toc_node = self.current_toc_toplevel_node = None
         self.current_toc_families = v'[]'
         self.report_cfi_callbacks = {}
@@ -1244,26 +1245,35 @@ class View:
         }
         return pos
 
+    def show_status_message(self, msg):
+        self.current_status_message = msg or ''
+        self.update_header_footer()
+        if self.current_status_message:
+            window.setTimeout(def(): self.show_status_message();, 10000)
+
     def update_header_footer(self):
         sd = get_session_data()
         has_clock = False
         pos = self.current_position_data
+        if not self.book:
+            return
 
         book_length = pos.book_length * max(0, 1 - pos.progress_frac)
         chapter_length =  pos.chapter_length * max(0, 1 - pos.file_progress_frac)
         book_time = self.timers.time_for(book_length)
         chapter_time = self.timers.time_for(chapter_length)
 
-        def render_template(div, sz_attr, name):
+        def render_template(div, edge, name):
             nonlocal has_clock
             c = div.lastChild
             b = c.previousSibling
             a = b.previousSibling
-            if sd.get(sz_attr, 20) > 5:
+            if sd.get(f'margin_{edge}', 20) > 5:
                 mi = self.book.metadata
-                hca = render_head_foot(a, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                hcb = render_head_foot(b, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
-                hcc = render_head_foot(c, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos)
+                override = self.current_status_message if edge is 'bottom' else ''
+                hca = render_head_foot(a, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, override)
+                hcb = render_head_foot(b, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, '')
+                hcc = render_head_foot(c, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, '')
                 if hca or hcb or hcc:
                     has_clock = True
             else:
@@ -1273,7 +1283,7 @@ class View:
             div = document.getElementById(f'book-{edge}-margin')
             if div:
                 tname = {'left':'left-margin', 'right': 'right-margin', 'top': 'header', 'bottom': 'footer'}[edge]
-                render_template(div, f'margin_{edge}', tname)
+                render_template(div, edge, tname)
         if has_clock:
             if not self.timer_ids.clock:
                 self.timer_ids.clock = window.setInterval(self.update_header_footer, 60000)
@@ -1310,6 +1320,7 @@ class View:
         # We cannot encrypt this message because the resource data contains
         # Blob objects which do not survive encryption
         self.processing_spine_item_display = True
+        self.current_status_message = ''
         self.iframe.style.visibility = 'hidden'
         self.iframe_wrapper.send_unencrypted_message('display',
             resource_data=resource_data, book=self.book, name=self.currently_showing.name,

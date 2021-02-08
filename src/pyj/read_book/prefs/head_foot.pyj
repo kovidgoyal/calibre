@@ -165,13 +165,15 @@ def format_pos(progress_frac, length):
     return f'{pos:.1f} / {pages}'
 
 
-def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos):
+def render_head_foot(div, which, region, metadata, current_toc_node, current_toc_toplevel_node, book_time, chapter_time, pos, override):
     template = get_session_data().get(which) or {}
     field = template[region] or 'empty'
     interface_data = get_interface_data()
     text = ''
     has_clock = False
-    if field is 'progress':
+    if override:
+        text = override
+    elif field is 'progress':
         percent = min(100, max(Math.round(pos.progress_frac * 100), 0))
         text = percent + '%'
     elif field is 'title':
