@@ -220,7 +220,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
         i = 1
     try:
         i = float(i)
-    except TypeError:
+    except Exception:
         return unicode_type(i)
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
