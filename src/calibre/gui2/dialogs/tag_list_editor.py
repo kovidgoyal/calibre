@@ -297,7 +297,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         ca = m.addAction(_('Filter by {}').format(item_name))
         ca.triggered.connect(partial(self.set_filter_text, item_name))
         if self.category is not None:
-            ca = m.addAction(_("Search the library for '{0}'").format(item_name))
+            ca = m.addAction(_("Search the library for {0}").format(item_name))
             ca.triggered.connect(partial(self.search_for_books, item))
             if disable_copy_paste_search:
                 ca.setEnabled(False)
