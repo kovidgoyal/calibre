@@ -12,8 +12,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Engadget(BasicNewsRecipe):
     title = u'Engadget'
     __author__ = 'Starson17, modified by epubli'
-    __version__ = 'v1.10'
-    __date__ = '23, March 2016'
+    __version__ = 'v1.00'
+    __date__ = '08, Feb 2021'
     description = 'Tech news'
     language = 'en'
     oldest_article = 7
@@ -23,15 +23,23 @@ class Engadget(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     compress_news_images = True
-    compress_news_images_auto_size = 8
+    scale_news_images_to_device = True
     remove_attributes = ['class']
+
     keep_only_tags = [
-        dict(name='img', attrs={'class': ['stretch-img  hide@m-']}),
-        dict(name='div', attrs={'class': [
-             'article-text c-gray-1', 'article-text c-gray-1 no-review', 'o-title_mark@tp+ bc-gray-1 col-10-of-12@tl+']}),
+        dict(name='figure'),
+        dict(name='div', attrs={'data-component': 'ArticleHeader'}),
+        dict(
+            name='div',
+            attrs={'class': ['article-text', 'article-text c-gray-1 no-review']}
+        )
+    ]
+    remove_tags = [
+        dict(name='div', attrs={'data-component': 'ArticleAuthorInfo'}),
+        dict(name='span', attrs={'class': 'c-gray-7'})
     ]
 
-    feeds = [(u'Posts', u'http://www.engadget.com/rss.xml')]
+    feeds = [(u'Posts', u'https://www.engadget.com/rss.xml')]
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
@@ -39,3 +47,13 @@ class Engadget(BasicNewsRecipe):
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
     '''
+
+    def preprocess_raw_html(self, raw, url):
+        # remove sponsored articles and daily article with summaries of previous articles
+        unwanted_article_keywords = [
+            'made possible by our sponsor', 'The Morning After'
+        ]
+        for keyword in unwanted_article_keywords:
+            if keyword in raw:
+                self.abort_article('Skipping unwanted article')
+        return raw
