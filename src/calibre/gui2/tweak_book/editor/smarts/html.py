@@ -5,23 +5,27 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, re
-from operator import itemgetter
-from itertools import chain
-
+import re
+import sys
+from contextlib import contextmanager
 from css_parser import parseStyle
-from PyQt5.Qt import QTextEdit, Qt, QTextCursor
+from itertools import chain
+from operator import itemgetter
+from PyQt5.Qt import Qt, QTextCursor, QTextEdit
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
-from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.ebooks.oeb.base import css_text
+from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.gui2 import error_dialog
-from calibre.gui2.tweak_book.editor.syntax.html import ATTR_NAME, ATTR_END, ATTR_START, ATTR_VALUE
-from calibre.gui2.tweak_book import tprefs, current_container
+from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts
 from calibre.gui2.tweak_book.editor.smarts.utils import (
-    no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
-    get_text_after_cursor, smart_home, smart_backspace, smart_tab, expand_tabs)
+    expand_tabs, get_leading_whitespace_on_block, get_text_after_cursor,
+    get_text_before_cursor, no_modifiers, smart_backspace, smart_home, smart_tab
+)
+from calibre.gui2.tweak_book.editor.syntax.html import (
+    ATTR_END, ATTR_NAME, ATTR_START, ATTR_VALUE
+)
 from calibre.utils.icu import utf16_length
 from polyglot.builtins import unicode_type
 
@@ -214,24 +218,52 @@ def find_closing_tag(tag, max_tags=sys.maxsize):
 def select_tag(cursor, tag):
     cursor.setPosition(tag.start_block.position() + tag.start_offset)
     cursor.setPosition(tag.end_block.position() + tag.end_offset + 1, QTextCursor.MoveMode.KeepAnchor)
-    return unicode_type(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+    return cursor.selectedText().replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+
+
+@contextmanager
+def edit_block(cursor):
+    cursor.beginEditBlock()
+    try:
+        yield
+    finally:
+        cursor.endEditBlock()
 
 
 def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
-    cursor.beginEditBlock()
-    text = select_tag(cursor, closing_tag)
-    if insert:
-        text = '</%s>%s' % (new_name, text)
-    else:
-        text = re.sub(r'^<\s*/\s*[a-zA-Z0-9]+', '</%s' % new_name, text)
-    cursor.insertText(text)
-    text = select_tag(cursor, opening_tag)
-    if insert:
-        text += '<%s>' % new_name
-    else:
-        text = re.sub(r'^<\s*[a-zA-Z0-9]+', '<%s' % new_name, text)
-    cursor.insertText(text)
-    cursor.endEditBlock()
+    with edit_block(cursor):
+        text = select_tag(cursor, closing_tag)
+        if insert:
+            text = '</%s>%s' % (new_name, text)
+        else:
+            text = re.sub(r'^<\s*/\s*[a-zA-Z0-9]+', '</%s' % new_name, text)
+        cursor.insertText(text)
+        text = select_tag(cursor, opening_tag)
+        if insert:
+            text += '<%s>' % new_name
+        else:
+            text = re.sub(r'^<\s*[a-zA-Z0-9]+', '<%s' % new_name, text)
+        cursor.insertText(text)
+
+
+def split_tag(cursor, opening_tag, closing_tag):
+    pos = cursor.position()
+    with edit_block(cursor):
+        open_text = select_tag(cursor, opening_tag)
+        open_text = re.sub(r'''\bid\s*=\s*['"].*?['"]''', '', open_text)
+        open_text = re.sub(r'\s+', ' ', open_text)
+        tag_name = re.search(r'<\s*(\S+)', open_text).group(1).lower()
+        is_block = tag_name in BLOCK_TAG_NAMES
+        prefix = ''
+        if is_block:
+            cursor.setPosition(cursor.anchor())
+            cursor.movePosition(QTextCursor.MoveOperation.StartOfLine, QTextCursor.MoveMode.KeepAnchor)
+            x = cursor.selectedText()
+            if x and not x.strip():
+                prefix = PARAGRAPH_SEPARATOR + x
+        close_text = select_tag(cursor, closing_tag)
+        cursor.setPosition(pos)
+        cursor.insertText(f'{close_text}{prefix}{open_text}')
 
 
 def ensure_not_within_tag_definition(cursor, forward=True):
@@ -397,8 +429,27 @@ class Smarts(NullSmarts):
                     ' before trying to rename tags.') % tag.name, show=True)
             rename_tag(c, tag, closing_tag, new_name, insert=tag.name in {'body', 'td', 'th', 'li'})
         else:
-            return error_dialog(editor, _('No found'), _(
+            return error_dialog(editor, _('No tag found'), _(
                 'No suitable block level tag was found to rename'), show=True)
+
+    def split_tag(self, editor):
+        editor.highlighter.join()
+        c = editor.textCursor()
+        block, offset = c.block(), c.positionInBlock()
+        tag, closing = find_tag_definition(block, offset)
+        if tag is not None:
+            return error_dialog(editor, _('Cursor inside tag'), _(
+                'Cannot split as the cursor is inside the tag definition'), show=True)
+        tag = find_closest_containing_tag(block, offset)
+        if tag is None:
+            return error_dialog(editor, _('No tag found'), _(
+                'No suitable tag was found to split'), show=True)
+        closing_tag = find_closing_tag(tag)
+        if closing_tag is None:
+            return error_dialog(editor, _('Invalid HTML'), _(
+                'There is an unclosed %s tag. You should run the Fix HTML tool'
+                ' before trying to split tags.') % tag.name, show=True)
+        split_tag(c, tag, closing_tag)
 
     def get_smart_selection(self, editor, update=True):
         editor.highlighter.join()

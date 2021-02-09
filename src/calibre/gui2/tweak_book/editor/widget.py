@@ -120,6 +120,9 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('trash.png', _('Remove &tag'), ('remove_tag',), 'remove-tag', ('Ctrl+>'), _('Remove tag'), syntaxes=('html', 'xml'))
     ac.setToolTip(_('<h3>Remove tag</h3>Remove the currently highlighted tag'))
 
+    ac = reg('split.png', _('&Split tag'), ('split_tag',), 'split-tag', ('Ctrl+Alt+>'), _('Split current tag'), syntaxes=('html', 'xml'))
+    ac.setToolTip(_('<h3>Split tag</h3>Split the current tag at the cursor position'))
+
     editor_toolbar_actions['html']['fix-html-current'] = actions['fix-html-current']
     for s in ('xml', 'html', 'css'):
         editor_toolbar_actions[s]['pretty-current'] = actions['pretty-current']
