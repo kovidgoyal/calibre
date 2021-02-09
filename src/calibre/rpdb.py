@@ -112,6 +112,9 @@ def cli(port=4444):
     print('Connected to remote process', flush=True)
     try:
         import readline
+    except ImportError:
+        pass
+    else:
         histfile = os.path.join(cache_dir(), 'rpdb.history')
         try:
             readline.read_history_file(histfile)
@@ -121,8 +124,7 @@ def cli(port=4444):
         p = pdb.Pdb()
         readline.set_completer(p.complete)
         readline.parse_and_bind("tab: complete")
-    except ImportError:
-        pass
+
     sock.setblocking(True)
     with suppress(KeyboardInterrupt):
         end_of_input = PROMPT.encode('utf-8')
