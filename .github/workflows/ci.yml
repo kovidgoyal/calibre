@@ -31,32 +31,32 @@ jobs:
               run:
                   python setup/unix-ci.py test
 
-    archtest:
-        name: Test on Arch
-        runs-on: ubuntu-latest
-        container:
-            image: 'archlinux/base:latest'
-            env:
-                CI: 'true'
-        steps:
-            - name: Prepare the container
-              run: |
-                pacman -Syu --noconfirm
-                pacman -S --noconfirm tar
-
-            - name: Checkout source code
-              uses: actions/checkout@master
-              with:
-                fetch-depth: 10
-
-            - name: Install calibre dependencies
-              run: setup/arch-ci.sh
-
-            - name: Bootstrap calibre
-              run: runuser -u ci -- python setup.py bootstrap --ephemeral
-
-            - name: Test calibre
-              run: |
-                  set -xe
-                  runuser -u ci -- python setup.py test
-                  runuser -u ci -- python setup.py test_rs
+    # archtest:
+    #     name: Test on Arch
+    #     runs-on: ubuntu-latest
+    #     container:
+    #         image: 'archlinux/base:latest'
+    #         env:
+    #             CI: 'true'
+    #     steps:
+    #         - name: Prepare the container
+    #           run: |
+    #             pacman -Syu --noconfirm
+    #             pacman -S --noconfirm tar
+    #
+    #         - name: Checkout source code
+    #           uses: actions/checkout@master
+    #           with:
+    #             fetch-depth: 10
+    #
+    #         - name: Install calibre dependencies
+    #           run: setup/arch-ci.sh
+    #
+    #         - name: Bootstrap calibre
+    #           run: runuser -u ci -- python setup.py bootstrap --ephemeral
+    #
+    #         - name: Test calibre
+    #           run: |
+    #               set -xe
+    #               runuser -u ci -- python setup.py test
+    #               runuser -u ci -- python setup.py test_rs
