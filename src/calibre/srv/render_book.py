@@ -100,9 +100,9 @@ def create_link_replacer(container, link_uid, changed):
     def link_replacer(base, url):
         if url.startswith('#'):
             frag = urlunquote(url[1:])
-            if not frag:
-                return url
             changed.add(base)
+            if not frag:
+                return link_uid
             return resource_template.format(encode_url(base, frag))
         try:
             purl = urlparse(url)
@@ -440,10 +440,12 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
                 href = link_replacer(name, href)
             if href and href.startswith(link_uid):
                 a.set(attr, 'javascript:void(0)')
-                parts = decode_url(href.split('|')[1])
-                lname, lfrag = parts[0], parts[1]
-                link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
-                a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
+                parts = href.split('|')
+                if len(parts) > 1:
+                    parts = decode_url(parts[1])
+                    lname, lfrag = parts[0], parts[1]
+                    link_to_map.setdefault(lname, {}).setdefault(lfrag or '', set()).add(name)
+                    a.set('data-' + link_uid, json.dumps({'name':lname, 'frag':lfrag}, ensure_ascii=False))
 
         for a in link_xpath(root):
             handle_link(a)
