@@ -564,7 +564,7 @@ class BrowsePanel(QWidget):
         except FTSQueryError as err:
             return error_dialog(self, _('Invalid search expression'), '<p>' + _(
                 'The search expression: {0} is invalid. The search syntax used is the'
-                'SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
+                ' SQLite Full text Search Query syntax, <a href="{1}">described here</a>.').format(
                     err.query, 'https://www.sqlite.org/fts5.html#full_text_query_syntax'),
                 det_msg=str(err), show=True)
 
