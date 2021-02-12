@@ -23,6 +23,43 @@
 # - title by author
 # }}}
 
+{{{ 5.11.0 2021-02-12
+
+:: new features
+
+- [1912958] Edit book: Add a tool to split the tag at the current cursor position, creating a new tag with the same style and class attributes. To add the tool go to the Toolbars section in the editor preferences
+
+- [1911107] E-book viewer: Show the URL when hovering over external links
+
+- E-book viewer: Redesign the reference mode to also work on touch screens without a mouse. Now in reference mode paragraph numbers are displayed for all paragraphs
+
+- Edit book: Allow Ctrl-clicking on class names to jump to the first style rule that matches the tag and class
+
+- Content server: When browsing highlights for a book allow selecting multiple highlights to delete or export quickly
+
+- [1912954] Allow creating keyboard shortcuts to copy show and view URLs for selected books to clipboard
+
+- calibredb: Add a timeout option to control the timeout when connecting to the calibre server
+
+:: bug fixes
+
+- [1913854] Content server: Fix dragging selection handles not working in Safari
+
+- [1915303] E-book viewer: Fix links with a href of "#" not working
+
+- E-book viewer: Hide the controls when clicking the back or forward buttons
+
+- [1914921] E-book viewer: When jumping to a highlight using the highlights panel, the back button should return to position before jump
+
+- [1914157] E-book viewer: Fix incorrect tooltip when hovering over a section title in the search results list
+
+- HTMLZ Output: Fix a regression in calibre 5 that broke creating HTMLZ documents when using the option to place CSS inline
+
+:: improved recipes
+- Endgadget
+
+}}}
+
 {{{ 5.10.1 2021-01-22
 
 :: new features
