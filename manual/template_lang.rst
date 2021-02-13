@@ -460,8 +460,10 @@ parameters can be statements (sequences of expressions). Note that the definitiv
     * ``fractional_part(x)`` -- returns the value after the decimal point. For example, ``fractional_part(3.14)`` returns ``0.14``.
       Throws an exception if ``x`` is not a number.
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string.
-    * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well
-      with test or first_non_empty.
+    * ``list_contains(separator, pattern, found_val, ..., not_found_val)`` -- (Alias of ``in_list``) Interpret the field as a list
+      of items separated by `separator`, evaluating the `pattern` against each value in the list. If the `pattern` matches a value,
+      return `found_val`, otherwise return `not_found_val`. The `pattern` and `found_value` can be repeated as many times as desired,
+      permitting returning different values depending on the search. The patterns are checked in order. The first match is returned.
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from `list1` any item found in `list2`,
       using a case-insensitive comparison. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
     * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return `yes_val` if `list1` and `list2` contain the same items,
@@ -482,6 +484,8 @@ parameters can be statements (sequences of expressions). Note that the definitiv
     * ``mod(x)`` -- returns the remainder of ``x / y``, where ``x``, ``y``, and the result are integers. Throws an exception if either ``x`` or
       ``y`` is not a number.
     * ``multiply(x, y, ...)`` -- returns the product of its arguments. Throws an exception if any argument is not a number.
+    * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function works well
+      with test or first_non_empty.
     * ``ondevice()`` -- return the string "Yes" if ``ondevice`` is set, otherwise return the empty string
     * ``or(value, value, ...)`` -- returns the string ``"1"`` if any value is not empty, otherwise returns the empty string. This function works
       well with test or `first_non_empty`. You can have as many values as you want.
