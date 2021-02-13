@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import QApplication
 
+from calibre.db.categories import find_categories
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         CommaSeparatedList, AbortCommit
 from calibre.gui2.preferences.search_ui import Ui_Form
@@ -67,15 +68,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst = db.prefs.get('grouped_search_terms', {}).copy()
         self.orig_gst_keys = list(self.gst.keys())
 
-        fl = []
-        for f in db.all_field_keys():
-            fm = db.metadata_for_field(f)
-            if not fm['search_terms']:
-                continue
-            if not fm['is_category']:
-                continue
-            fl.append(f)
-        self.gst_value.update_items_cache(fl)
+        fm = db.new_api.field_metadata
+        categories = [x[0] for x in find_categories(fm) if fm[x[0]]['search_terms']]
+        self.gst_value.update_items_cache(categories)
         self.fill_gst_box(select=None)
 
         self.user_category_layout.setContentsMargins(0, 30, 0, 0)

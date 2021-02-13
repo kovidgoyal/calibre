@@ -629,6 +629,7 @@ class BuiltinInList(BuiltinFormatterFunction):
             'many times as desired, permitting returning different values '
             'depending on the search. The patterns are checked in order. The '
             'first match is returned.')
+    aliases = ['list_contains']
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, *args):
         if (len(args) % 2) != 1:
