@@ -32,7 +32,7 @@ class Slate(BasicNewsRecipe):
         classes('article__header article__content'),
     ]
     remove_tags = [
-        dict(name='ul', attrs={'class':"social-share"}),
+        classes('social-share slate-ad newsletter-signup in-article-recirc'),
     ]
 
     def preprocess_html(self, soup):
@@ -53,7 +53,7 @@ class Slate(BasicNewsRecipe):
                 ('Double X', '/articles/double_x.html'),
         ):
             url = self.INDEX + url
-            self.log('\nFound section:', sectitle)
+            self.log('\nFound section:', sectitle, url)
             articles = self.slate_section_articles(self.index_to_soup(url))
             if articles:
                 ans.append((sectitle, articles))
@@ -63,24 +63,23 @@ class Slate(BasicNewsRecipe):
 
     def slate_section_articles(self, soup):
         ans = []
-        main = soup.find('article', attrs={'class': 'main'})
+        main = soup.find('section', **classes('main'))
         if main is None:
             return ans
-        for a in main.findAll('a', attrs={'class': 'primary'}):
+        for div in main.findAll(**classes('section-feed__item')):
+            a = div.find('a')
             url = a['href']
             if url.endswith('/'):
                 continue
-            p = a.parent
-            title = p.find(attrs={'class': 'hed'})
-            if title is None:
-                continue
-            title = self.tag_to_string(title)
-            span = p.find(attrs={'class': 'byline'})
+            h = a.find(['h2', 'h3', 'h4'])
+            title = self.tag_to_string(h)
             desc = ''
-            if span is not None:
-                desc = self.tag_to_string(span)
+            for q in ('byline', 'dek'):
+                span = div.find(attrs={'class': lambda x: x and ('-' + q) in x})
+                if span is not None:
+                    desc += self.tag_to_string(span).strip()
             self.log('\t' + title)
             self.log('\t\t' + url)
-            ans.append({'title': title, 'description': desc,
+            ans.append({'title': title, 'description': desc.strip(),
                         'date': '', 'url': url})
         return ans
