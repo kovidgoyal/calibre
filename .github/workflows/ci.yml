@@ -35,7 +35,7 @@ jobs:
         name: Test on Arch
         runs-on: ubuntu-latest
         container:
-            image: 'archlinux/base:latest'
+            image: 'archlinux/archlinux:latest'
             env:
                 CI: 'true'
         steps:

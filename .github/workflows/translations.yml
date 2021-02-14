@@ -10,7 +10,7 @@ jobs:
         if: github.repository == 'kovidgoyal/calibre'
         runs-on: ubuntu-latest
         container:
-            image: 'archlinux/base:latest'
+            image: 'archlinux/archlinux:latest'
             env:
                 CI: 'true'
         steps:
