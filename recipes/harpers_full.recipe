@@ -14,13 +14,17 @@ anything in username/password fields
 '''
 
 import time
-import re
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class Harpers_full(BasicNewsRecipe):
@@ -37,30 +41,17 @@ class Harpers_full(BasicNewsRecipe):
     language = 'en'
     encoding = 'utf8'
     needs_subscription = 'optional'
-    masthead_url = 'https://harpers.org/wp-content/themes/harpers/images/pheader.gif'
     publication_type = 'magazine'
     LOGIN = 'https://harpers.org/wp-admin/admin-ajax.php'
-    extra_css             = """
-                                body{font-family: adobe-caslon-pro,serif}
-                                .category{font-size: small}
-                                .articlePost p:first-letter{display: inline; font-size: xx-large; font-weight: bold}
-                            """
-
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
     keep_only_tags = [
-        dict(name='div', attrs={'class': ['postdetailFull', 'articlePost']})]
-    remove_tags = [
-        dict(name='div', attrs={'class': 'fRight rightDivPad'}), dict(
-            name=['link', 'meta', 'object', 'embed', 'iframe'])
+        classes('article-header-text entry-content'),
     ]
-    remove_attributes = ['xmlns']
+    remove_tags = [
+        classes('related-issue-tout section-tags component-from-author component-share-buttons')
+    ]
 
     def get_browser(self):
-        # harpers ssl certificate is broken as of Jul 2017
-        br = BasicNewsRecipe.get_browser(self, verify_ssl_certificates=False)
+        br = BasicNewsRecipe.get_browser(self)
         br.open('https://harpers.org/')
         if self.username is not None and self.password is not None:
             tt = time.localtime() * 1000
@@ -72,37 +63,47 @@ class Harpers_full(BasicNewsRecipe):
     def parse_index(self):
         # find current issue
         soup = self.index_to_soup('https://harpers.org/')
-        currentIssue = soup.find('a', attrs={'id':'header-menu-dropdown-1'})
-        currentIssue_url = self.tag_to_string(currentIssue['href'])
-        self.log(currentIssue_url)
+        currentIssue_url = soup.find(attrs={'data-current-issue-url': True})['data-current-issue-url']
+        self.log('Found issue at:', currentIssue_url)
 
         # go to the current issue
-        soup1 = self.index_to_soup(currentIssue_url)
-        currentIssue_title = self.tag_to_string(soup1.head.title.string)
-        date = re.split(r'\s\|\s', currentIssue_title)[0]
-        self.timefmt = u' [%s]' % date
+        soup = self.index_to_soup(currentIssue_url)
+        self.timefmt = u' [%s]' % self.tag_to_string(soup.find('a', href=currentIssue_url))
 
         # get cover
-        self.cover_url = soup1.find(
-            'div', attrs={'class': 'picture_hp'}).find('img', src=True)['src']
-        self.log(self.cover_url)
+        self.cover_url = soup.find(**classes('past-issue')).find('img')['src']
+        self.log('Found cover at:', self.cover_url)
+        features = []
 
-        articles = []
-        count = 0
-        for item in soup1.findAll('div', attrs={'class': 'articleData'}):
-            text_links = item.findAll('h2')
-            if text_links:
-                for text_link in text_links:
-                    if count == 0:
-                        count = 1
-                    else:
-                        url = text_link.a['href']
-                        title = self.tag_to_string(text_link.a)
-                        date = strftime(' %B %Y')
-                        articles.append({
-                            'title': title, 'date': date, 'url': url, 'description': ''
-                        })
-        return [(currentIssue_title, articles)]
+        self.log('Features')
+        for item in soup.find(**classes('issue-features')).findAll(**classes('article-card')):
+            h = item.find(**classes('ac-title'))
+            a = h.parent
+            url = a['href']
+            title = self.tag_to_string(h).strip()
+            h = item.find(**classes('ac-subtitle'))
+            if h is not None:
+                st = self.tag_to_string(h).strip()
+                if st:
+                    title += ': ' + st
+            desc = ''
+            p = item.find(**classes('byline'))
+            if p is not None:
+                desc += self.tag_to_string(p)
+            self.log(' ', title, 'at', url)
+            features.append({'title': title, 'url': url, 'description': desc})
 
-    def print_version(self, url):
-        return url + '?single=1'
+        readings = []
+        self.log('Readings')
+        for item in soup.find(**classes('issue-readings')).findAll(**classes('reading-item')):
+            a = item.find('a', **classes('ac-title'))
+            title = self.tag_to_string(a).strip()
+            url = a['href']
+            desc = ''
+            a = item.find(**classes('ac-author'))
+            if a is not None:
+                desc = self.tag_to_string(a)
+            self.log(' ', title, 'at', url)
+            readings.append({'title': title, 'url': url, 'description': desc})
+
+        return [('Features', features), ('Readings', readings)]
