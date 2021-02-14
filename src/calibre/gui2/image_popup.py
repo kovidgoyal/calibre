@@ -37,6 +37,7 @@ class ImageView(QDialog):
 
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
         QDialog.__init__(self)
+        self.current_image_name = ''
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint)
         self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint)
         dw = QApplication.instance().desktop()
@@ -128,7 +129,7 @@ class ImageView(QDialog):
         filters=[('Images', ['png', 'jpeg', 'jpg'])]
         f = choose_save_file(self, 'viewer image view save dialog',
                 _('Choose a file to save to'), filters=filters,
-                all_files=False)
+                all_files=False, initial_filename=self.current_image_name or None)
         if f:
             from calibre.utils.img import save_image
             save_image(self.current_img.toImage(), f)
