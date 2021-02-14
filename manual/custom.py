@@ -373,6 +373,7 @@ def setup(app):
     from docutils.parsers.rst import roles
     monkey_patch_docutils()
     setup_man_pages(app)
+    app.add_css_file('custom.css')
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)
     app.connect('source-read', source_read_handler)
