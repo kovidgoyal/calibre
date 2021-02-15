@@ -459,6 +459,9 @@ class IframeBoss:
 
         window.setTimeout(self.update_cfi, 0)
         window.setTimeout(self.update_toc_position, 0)
+        load_event = document.createEvent('Event')
+        load_event.initEvent('load', False, False)
+        window.dispatchEvent(load_event)
 
     def calculate_progress_frac(self):
         current_name = current_spine_item().name
