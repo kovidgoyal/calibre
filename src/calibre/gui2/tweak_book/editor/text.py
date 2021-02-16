@@ -278,6 +278,8 @@ class TextEdit(PlainTextEdit):
             if self.smarts.override_tab_stop_width is not None:
                 self.tw = self.smarts.override_tab_stop_width
                 self.setTabStopWidth(self.tw * self.space_width)
+        if isinstance(text, bytes):
+            text = text.decode('utf-8', 'replace')
         self.setPlainText(unicodedata.normalize('NFC', unicode_type(text)))
         if process_template and QPlainTextEdit.find(self, '%CURSOR%'):
             c = self.textCursor()
