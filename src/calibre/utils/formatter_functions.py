@@ -1228,6 +1228,27 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
         return _('This function can be used only in the GUI')
 
 
+class BuiltinIsMarked(BuiltinFormatterFunction):
+    name = 'is_marked'
+    arg_count = 0
+    category = 'Get values from metadata'
+    __doc__ = doc = _("is_marked() -- check whether the book is 'marked' in "
+                      "calibre. If it is then return the value of the mark, "
+                      "either 'true' or the comma-separated list of named "
+                      "marks. Returns '' if the book is not marked.")
+
+    def evaluate(self, formatter, kwargs, mi, locals):
+        if hasattr(mi, '_proxy_metadata'):
+            try:
+                from calibre.gui2.ui import get_gui
+                c = get_gui().current_db.data.get_marked(mi.id)
+                return c if c else ''
+            except:
+                return _('Failed to get marked status')
+            return ''
+        return _('This function can be used only in the GUI')
+
+
 class BuiltinSeriesSort(BuiltinFormatterFunction):
     name = 'series_sort'
     arg_count = 0
@@ -1925,7 +1946,7 @@ _formatter_builtins = [
     BuiltinGlobals(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
-    BuiltinInList(), BuiltinListDifference(), BuiltinListEquals(),
+    BuiltinInList(), BuiltinIsMarked(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListSort(), BuiltinListSplit(), BuiltinListUnion(),
     BuiltinLookup(),

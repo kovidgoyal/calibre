@@ -460,6 +460,9 @@ parameters can be statements (sequences of expressions). Note that the definitiv
     * ``fractional_part(x)`` -- returns the value after the decimal point. For example, ``fractional_part(3.14)`` returns ``0.14``.
       Throws an exception if ``x`` is not a number.
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string.
+    * ``is_marked()`` -- check whether the book is `marked` in calibre. If it is then return the value of the mark,
+      either `true` (lower case) or the comma-separated list of named marks. Returns '' (the empty string) if the book is not marked.
+      This function works only in the GUI.
     * ``list_contains(separator, pattern, found_val, ..., not_found_val)`` -- (Alias of ``in_list``) Interpret the field as a list
       of items separated by `separator`, evaluating the `pattern` against each value in the list. If the `pattern` matches a value,
       return `found_val`, otherwise return `not_found_val`. The `pattern` and `found_value` can be repeated as many times as desired,
