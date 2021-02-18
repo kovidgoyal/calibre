@@ -156,7 +156,8 @@ The functions available are listed below. Note that the definitive documentation
     * ``contains(pattern, text if match, text if not match)`` -- checks if field contains matches for the regular expression `pattern`.
       Returns `text if match` if matches are found, otherwise it returns `text if no match`.
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items in the list.
-      Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`
+      Most lists use a comma as the separator, but authors uses an ampersand. Examples: `{tags:count(,)}`, `{authors:count(&)}`.
+      Aliases: ``count()``, ``list_count()``
     * ``format_number(template)`` -- interprets the field as a number and format that number using a Python formatting template such as
       "{0:5.2f}" or "{0:,d}" or "${0:5,.2f}". The field_name part of the template must be a 0 (zero) (the "{0:" in the above examples).
       You can leave off the leading "{0:" and trailing "}" if the template contains only a format. See the template language and Python
@@ -467,6 +468,7 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       of items separated by `separator`, evaluating the `pattern` against each value in the list. If the `pattern` matches a value,
       return `found_val`, otherwise return `not_found_val`. The `pattern` and `found_value` can be repeated as many times as desired,
       permitting returning different values depending on the search. The patterns are checked in order. The first match is returned.
+      Aliases: ``in_list()``, ``list_contains()``
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from `list1` any item found in `list2`,
       using a case-insensitive comparison. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
     * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return `yes_val` if `list1` and `list2` contain the same items,
@@ -481,9 +483,10 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       replacements are not optional. It uses re_group(item, search_re, template ...) when doing the replacements.
     * ``list_sort(list, direction, separator)`` -- return list sorted using a case-insensitive sort. If ``direction`` is zero, ``list`` is
       sorted ascending, otherwise descending. The list items are separated by separator, as are the items in the returned list.
-    * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in ``list1`` and ``list2``, removing duplicate items using
-      a case-insensitive comparison. If items differ in case, the one in ``list1`` is used. The items in ``list1`` and ``list2`` are separated by
-      ``separator``, as are the items in the returned list.
+    * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in ``list1`` and ``list2``, removing
+      duplicate items using a case-insensitive comparison. If items differ in case, the one in ``list1`` is used. The items 
+      in ``list1`` and ``list2`` are separated by ``separator``, as are the items in the returned list. 
+      Aliases: ``merge_lists()``, ``list_union()``
     * ``mod(x)`` -- returns the remainder of ``x / y``, where ``x``, ``y``, and the result are integers. Throws an exception if either ``x`` or
       ``y`` is not a number.
     * ``multiply(x, y, ...)`` -- returns the product of its arguments. Throws an exception if any argument is not a number.
@@ -681,12 +684,18 @@ The full method signature is:
 
 **Template writer: how to access the additional information**
 
-You access the additional information in a template using the template function ``globals(id[=expression] [, id[=expression]]*)``
+You access the additional information (the `globals dict`) in a template using the template function
+``globals(id[=expression] [, id[=expression]]*)``
 where ``id`` is any legal variable name. This function checks whether the additional information provided by the developer
-contains the name. If it does then the function assigns the provided value to a template local variable with the given name.
+contains the name. If it does then the function assigns the provided value to a template local variable with that name.
 If the name is not in the additional information and if an ``expression`` is provided, the ``expression`` is evaluated and
 the result is assigned to the local variable. If neither a value nor an expression is provided, the function assigns
 the empty string (``''``) to the local variable.
+
+A template can set a value in the globals dict using the template function
+``set_globals(id[=expression] [, id[=expression]]*)``. This function sets the globals dict key:value pair ``id:value`` where
+``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is
+set to the result of evaluating ``expression``.
 
 
 Notes on the difference between modes

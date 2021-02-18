@@ -33,7 +33,8 @@ class Node(object):
     NODE_FIRST_NON_EMPTY = 12
     NODE_FOR = 13
     NODE_GLOBALS = 14
-    NODE_CONTAINS = 15
+    NODE_SET_GLOBALS = 15
+    NODE_CONTAINS = 16
 
 
 class IfNode(Node):
@@ -89,6 +90,13 @@ class GlobalsNode(Node):
     def __init__(self, expression_list):
         Node.__init__(self)
         self.node_type = self.NODE_GLOBALS
+        self.expression_list = expression_list
+
+
+class SetGlobalsNode(Node):
+    def __init__(self, expression_list):
+        Node.__init__(self)
+        self.node_type = self.NODE_SET_GLOBALS
         self.expression_list = expression_list
 
 
@@ -447,7 +455,7 @@ class _Parser(object):
                 return FirstNonEmptyNode(arguments)
             if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
                 return AssignNode(arguments[0].name, arguments[1])
-            if id_ == 'arguments' or id_ == 'globals':
+            if id_ == 'arguments' or id_ == 'globals' or id_ == 'set_globals':
                 new_args = []
                 for arg in arguments:
                     if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
@@ -458,6 +466,8 @@ class _Parser(object):
                     new_args.append(arg)
                 if id_ == 'arguments':
                     return ArgumentsNode(new_args)
+                if id_ == 'set_globals':
+                    return SetGlobalsNode(new_args)
                 return GlobalsNode(new_args)
             if id_ == 'contains' and len(arguments) == 4:
                 return ContainsNode(arguments)
@@ -585,6 +595,12 @@ class _Interpreter(object):
             res = self.locals[arg.left] = self.global_vars.get(arg.left, self.expr(arg.right))
         return res
 
+    def do_node_set_globals(self, prog):
+        res = ''
+        for arg in prog.expression_list:
+            res = self.global_vars[arg.left] = self.locals.get(arg.left, self.expr(arg.right))
+        return res
+
     def do_node_constant(self, prog):
         return prog.value
 
@@ -668,6 +684,7 @@ class _Interpreter(object):
         Node.NODE_FIRST_NON_EMPTY:do_node_first_non_empty,
         Node.NODE_FOR:            do_node_for,
         Node.NODE_GLOBALS:        do_node_globals,
+        Node.NODE_SET_GLOBALS:    do_node_set_globals,
         Node.NODE_CONTAINS:       do_node_contains,
         }
 

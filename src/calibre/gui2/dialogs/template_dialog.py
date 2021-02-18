@@ -215,7 +215,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,
                  icon_field_key=None, icon_rule_kind=None, doing_emblem=False,
                  text_is_placeholder=False, dialog_is_st_editor=False,
-                 global_vars={}, all_functions=None, builtin_functions=None):
+                 global_vars=None, all_functions=None, builtin_functions=None):
         QDialog.__init__(self, parent)
         Ui_TemplateDialog.__init__(self)
         self.setupUi(self)
@@ -224,7 +224,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.iconing = icon_field_key is not None
         self.embleming = doing_emblem
         self.dialog_is_st_editor = dialog_is_st_editor
-        self.global_vars = global_vars
+        if global_vars is None:
+            self.global_vars = {}
+        else:
+            self.global_vars = global_vars
 
         cols = []
         if fm is not None:
@@ -316,7 +319,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.setWindowIcon(icon)
 
         self.all_functions = all_functions if all_functions else formatter_functions().get_functions()
-        self.builtins = builtin_functions if builtin_functions else formatter_functions().get_builtins()
+        self.builtins = (builtin_functions if builtin_functions else
+                         formatter_functions().get_builtins_and_aliases())
 
         self.last_text = ''
         self.highlighter = TemplateHighlighter(self.textbox.document(), builtin_functions=self.builtins)

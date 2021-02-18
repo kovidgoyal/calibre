@@ -628,7 +628,7 @@ class BuiltinInList(BuiltinFormatterFunction):
             'not_found_val. The pattern and found_value can be repeated as '
             'many times as desired, permitting returning different values '
             'depending on the search. The patterns are checked in order. The '
-            'first match is returned.')
+            'first match is returned. Aliases: in_list(), list_contains()')
     aliases = ['list_contains']
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep, *args):
@@ -814,10 +814,13 @@ class BuiltinCount(BuiltinFormatterFunction):
     name = 'count'
     arg_count = 2
     category = 'List manipulation'
+    aliases = ['list_count']
+
     __doc__ = doc = _('count(val, separator) -- interprets the value as a list of items '
             'separated by `separator`, returning the number of items in the '
             'list. Most lists use a comma as the separator, but authors '
-            'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}')
+            'uses an ampersand. Examples: {tags:count(,)}, {authors:count(&)}. '
+            'Aliases: count(), list_count()')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
         return unicode_type(len([v for v in val.split(sep) if v]))
@@ -1350,7 +1353,7 @@ class BuiltinListUnion(BuiltinFormatterFunction):
             'removing duplicate items using a case-insensitive comparison. If '
             'items differ in case, the one in list1 is used. '
             'The items in list1 and list2 are separated by separator, as are '
-            'the items in the returned list.')
+            'the items in the returned list. Aliases: list_union(), merge_lists()')
     aliases = ['merge_lists']
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
@@ -1917,6 +1920,24 @@ class BuiltinGlobals(BuiltinFormatterFunction):
         raise NotImplementedError()
 
 
+class BuiltinSetGlobals(BuiltinFormatterFunction):
+    name = 'set_globals'
+    arg_count = -1
+    category = 'other'
+    __doc__ = doc = _('globals(id[=expression] [, id[=expression]]*) '
+                      '-- Retrieves "global variables" that can be passed into '
+                      'the formatter. It both declares and initializes local '
+                      'variables with the names of the global variables passed '
+                      'in. If the corresponding variable is not provided in '
+                      'the passed-in globals then it assigns that variable the '
+                      'provided default value. If there is no default value '
+                      'then the variable is set to the empty string.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, *args):
+        # The globals function is implemented in-line in the formatter
+        raise NotImplementedError()
+
+
 class BuiltinFieldExists(BuiltinFormatterFunction):
     name = 'field_exists'
     arg_count = 1
@@ -1953,7 +1974,7 @@ _formatter_builtins = [
     BuiltinLowercase(), BuiltinMod(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
     BuiltinOr(), BuiltinPrint(), BuiltinRatingToStars(), BuiltinRawField(), BuiltinRawList(),
     BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(), BuiltinSeriesSort(),
-    BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
+    BuiltinSetGlobals(), BuiltinShorten(), BuiltinStrcat(), BuiltinStrcatMax(),
     BuiltinStrcmp(), BuiltinStrInList(), BuiltinStrlen(), BuiltinSubitems(),
     BuiltinSublist(),BuiltinSubstr(), BuiltinSubtract(), BuiltinSwapAroundArticles(),
     BuiltinSwapAroundComma(), BuiltinSwitch(),
