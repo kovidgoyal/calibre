@@ -650,7 +650,7 @@ class _Interpreter(object):
             res = getattr(self.parent_book, f, f)
             if res is not None:
                 if not isinstance(res, list):
-                    res = res.split(',')
+                    res = [r.strip() for r in res.split(',') if r.strip()]
                 ret = ''
                 for x in res:
                     self.locals[v] = x
