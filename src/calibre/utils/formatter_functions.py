@@ -1082,9 +1082,11 @@ class BuiltinSubitems(BuiltinFormatterFunction):
                 components = [item]
             try:
                 if ei == 0:
-                    rv.add('.'.join(components[si:]))
+                    t = '.'.join(components[si:]).strip()
                 else:
-                    rv.add('.'.join(components[si:ei]))
+                    t = '.'.join(components[si:ei]).strip()
+                if t:
+                    rv.add(t)
             except:
                 pass
         return ', '.join(sorted(rv, key=sort_key))
