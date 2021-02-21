@@ -407,7 +407,7 @@ class CoversGroupBox(DeviceOptionsGroupBox):
     @property
     def letterbox_fs_covers_color(self):
         return self.letterbox_fs_covers_color_button.color
-    
+
     @property
     def png_covers(self):
         return self.png_covers_checkbox.isChecked()

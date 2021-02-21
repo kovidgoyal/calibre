@@ -85,7 +85,7 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    # The firmware for these devices is not being updated. But the Kobo desktop application 
+    # The firmware for these devices is not being updated. But the Kobo desktop application
     # will update the database if the device is connected. The database structure is completely
     # backwardly compatible.
     supported_dbversion = 162
@@ -163,7 +163,6 @@ class KOBO(USBMS):
     OPT_SHOW_PREVIEWS = 4
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
-
 
     def __init__(self, *args, **kwargs):
         USBMS.__init__(self, *args, **kwargs)

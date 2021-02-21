@@ -46,7 +46,6 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
         url = '{}/книги?query={}&search_by=0'.format(self.web_url, quote_plus(query))
         yield from self._do_search(url, max_results, timeout)
 
-
     def get_details(self, search_result, timeout):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
@@ -66,7 +65,6 @@ class BiblioStore(BasicStoreConfig, StorePlugin):
                 search_result.author = ', '.join(idata.xpath('//div[@class="row product_info"]/div/div/div[@class="item-author"]/a/text()')).strip(', ')
 
         return True
-
 
     def _do_search(self, url, max_results, timeout):
         br = browser()
