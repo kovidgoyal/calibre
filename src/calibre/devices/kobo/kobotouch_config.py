@@ -14,6 +14,7 @@ from PyQt5.Qt import (QWidget, QLabel, QGridLayout, QLineEdit, QVBoxLayout,
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
 from calibre.devices.usbms.driver import debug_print
 from calibre.gui2 import error_dialog
+from calibre.gui2.widgets2 import ColorButton
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from polyglot.builtins import unicode_type
 
@@ -108,6 +109,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['upload_grayscale'] = self.upload_grayscale
         p['dithered_covers'] = self.dithered_covers
         p['letterbox_fs_covers'] = self.letterbox_fs_covers
+        p['letterbox_fs_covers_color'] = self.letterbox_fs_covers_color
         p['png_covers'] = self.png_covers
 
         p['show_recommendations'] = self.show_recommendations
@@ -341,11 +343,21 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                                ' This is probably undesirable if you disable the "Show book covers full screen"'
                                ' setting on your device.'),
                              device.get_pref('letterbox_fs_covers'))
+
+        self.letterbox_fs_covers_color_button = ColorButton(self.options_layout)
+        self.letterbox_fs_covers_color_button.setToolTip(_('Choose the color to use when letterboxing the cover.'
+                                                           ' The default color is black (#000000)'
+                                                           )
+        )
+        self.letterbox_fs_covers_color_button.color = device.get_pref('letterbox_fs_covers_color')
+
         # Make it visually depend on AR being enabled!
         self.letterbox_fs_covers_checkbox.setEnabled(device.get_pref('keep_cover_aspect'))
+        self.letterbox_fs_covers_color_button.setEnabled(device.get_pref('keep_cover_aspect') and device.get_pref('letterbox_fs_covers'))
         self.keep_cover_aspect_checkbox.toggled.connect(self.letterbox_fs_covers_checkbox.setEnabled)
         self.keep_cover_aspect_checkbox.toggled.connect(
             lambda checked: not checked and self.letterbox_fs_covers_checkbox.setChecked(False))
+        self.letterbox_fs_covers_checkbox.toggled.connect(self.letterbox_fs_covers_color_button.setEnabled)
 
         self.png_covers_checkbox = create_checkbox(
                              _('Save covers as PNG'),
@@ -362,11 +374,15 @@ class CoversGroupBox(DeviceOptionsGroupBox):
         self.upload_grayscale_checkbox.toggled.connect(
             lambda checked: not checked and self.png_covers_checkbox.setChecked(False))
 
-        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
-        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,  0, 1, 1, 1)
-        self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
-        self.options_layout.addWidget(self.dithered_covers_checkbox,      1, 1, 1, 1)
-        self.options_layout.addWidget(self.png_covers_checkbox,           2, 1, 1, 1)
+        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,          0, 0, 1, 1)
+        self.options_layout.addWidget(self.letterbox_fs_covers_checkbox,        0, 1, 1, 2)
+        self.options_layout.addWidget(self.letterbox_fs_covers_color_button,    1, 1, 1, 1)
+        self.options_layout.addWidget(self.upload_grayscale_checkbox,           2, 0, 1, 1)
+        self.options_layout.addWidget(self.dithered_covers_checkbox,            2, 1, 1, 2)
+        self.options_layout.addWidget(self.png_covers_checkbox,                 3, 1, 1, 2)
+        self.options_layout.setColumnStretch(0, 0)
+        self.options_layout.setColumnStretch(1, 0)
+        self.options_layout.setColumnStretch(2, 1)
 
     @property
     def upload_covers(self):
@@ -388,6 +404,10 @@ class CoversGroupBox(DeviceOptionsGroupBox):
     def letterbox_fs_covers(self):
         return self.letterbox_fs_covers_checkbox.isChecked()
 
+    @property
+    def letterbox_fs_covers_color(self):
+        return self.letterbox_fs_covers_color_button.color
+    
     @property
     def png_covers(self):
         return self.png_covers_checkbox.isChecked()

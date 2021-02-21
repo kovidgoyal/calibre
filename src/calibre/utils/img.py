@@ -215,7 +215,9 @@ def save_cover_data_to(
     compression_quality=90,
     minify_to=None,
     grayscale=False,
-    eink=False, letterbox=False,
+    eink=False,
+    letterbox=False,
+    letterbox_color='#000000',
     data_fmt='jpeg'
 ):
     '''
@@ -243,6 +245,8 @@ def save_cover_data_to(
         Works best with formats that actually support color indexing (i.e., PNG)
     :param letterbox: If True, in addition to fit resize_to inside minify_to,
         the image will be letterboxed (i.e., centered on a black background).
+    :param letterbox_color: If letterboxing is used, this is the background color
+        used. The default is black.
     '''
     fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
     if isinstance(data, QImage):
@@ -258,7 +262,7 @@ def save_cover_data_to(
     owidth, oheight = img.width(), img.height()
     nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
     if letterbox:
-        img = blend_on_canvas(img, nwidth, nheight, bgcolor='#000000')
+        img = blend_on_canvas(img, nwidth, nheight, bgcolor=letterbox_color)
         # Check if we were minified
         if oheight != nheight or owidth != nwidth:
             changed = True
