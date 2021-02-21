@@ -1622,17 +1622,6 @@ class StoreEbooksGratuitsStore(StoreBase):
 #     affiliate = True
 
 
-class StoreEKnigiStore(StoreBase):
-    name = 'еКниги'
-    author = 'Alex Stanev'
-    description = 'Онлайн книжарница за електронни книги и аудио риалити романи'
-    actual_plugin = 'calibre.gui2.store.stores.eknigi_plugin:eKnigiStore'
-
-    headquarters = 'BG'
-    formats = ['EPUB', 'PDF', 'HTML']
-    affiliate = True
-
-
 class StoreEmpikStore(StoreBase):
     name = 'Empik'
     author = 'Tomasz Długosz'
@@ -1908,7 +1897,6 @@ plugins += [
     StoreEbookpointStore,
     StoreEbookscomStore,
     StoreEbooksGratuitsStore,
-    StoreEKnigiStore,
     StoreEmpikStore,
     StoreFeedbooksStore,
     StoreGoogleBooksStore,
