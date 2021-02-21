@@ -38,6 +38,8 @@ from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_byt
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
 
+DEFAULT_COVER_LETTERBOX_COLOR = '#000000'
+
 # Implementation of QtQHash for strings. This doesn't seem to be in the Python implementation.
 
 
@@ -83,7 +85,10 @@ class KOBO(USBMS):
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 160
+    # The firmware for these devices is not being updated. But the Kobo desktop application 
+    # will update the database if the device is connected. The database structure is completely
+    # backwardly compatible.
+    supported_dbversion = 162
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -158,6 +163,7 @@ class KOBO(USBMS):
     OPT_SHOW_PREVIEWS = 4
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
+
 
     def __init__(self, *args, **kwargs):
         USBMS.__init__(self, *args, **kwargs)
@@ -1350,7 +1356,7 @@ class KOBOTOUCH(KOBO):
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 161
+    supported_dbversion             = 162
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1363,7 +1369,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 25, 15821)
+    max_supported_fwversion         = (4, 26, 16704)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2604,7 +2610,8 @@ class KOBOTOUCH(KOBO):
             self._upload_cover(
                 path, filename, metadata, filepath,
                 self.upload_grayscale, self.dithered_covers,
-                self.keep_cover_aspect, self.letterbox_fs_covers, self.png_covers)
+                self.keep_cover_aspect, self.letterbox_fs_covers, self.png_covers,
+                letterbox_color=self.letterbox_fs_covers_color)
         except Exception as e:
             debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, unicode_type(e)))
 
@@ -2661,7 +2668,8 @@ class KOBOTOUCH(KOBO):
 
     def _create_cover_data(
         self, cover_data, resize_to, minify_to, kobo_size,
-        upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90
+        upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90,
+        letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
 ):
         '''
         This will generate the new cover image from the cover in the library. It is a wrapper
@@ -2681,17 +2689,19 @@ class KOBOTOUCH(KOBO):
         :param letterbox:     True if we were asked to handle the letterboxing
         :param png_covers:    True if we were asked to encode those images in PNG instead of JPG
         :param quality:       0-100 Output encoding quality (or compression level for PNG, àla IM)
+        :param letterbox_color:  Colour used for letterboxing.
         '''
 
         from calibre.utils.img import save_cover_data_to
         data = save_cover_data_to(
             cover_data, resize_to=resize_to, compression_quality=quality, minify_to=minify_to, grayscale=upload_grayscale, eink=dithered_covers,
-            letterbox=letterbox, data_fmt="png" if png_covers else "jpeg")
+            letterbox=letterbox, data_fmt="png" if png_covers else "jpeg", letterbox_color=letterbox_color)
         return data
 
     def _upload_cover(
         self, path, filename, metadata, filepath, upload_grayscale,
-        dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False
+        dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False,
+        letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
 ):
         from calibre.utils.imghdr import identify
         from calibre.utils.img import optimize_png
@@ -2790,7 +2800,8 @@ class KOBOTOUCH(KOBO):
                         # Return the data resized and properly grayscaled/dithered/letterboxed if requested
                         data = self._create_cover_data(
                             cover_data, resize_to, expand_to, kobo_size, upload_grayscale,
-                            dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers, quality)
+                            dithered_covers, keep_cover_aspect, is_full_size, letterbox, png_covers, quality,
+                            letterbox_color=letterbox_color)
 
                         # NOTE: If we're writing a PNG file, go through a quick
                         # optipng pass to make sure it's encoded properly, as
@@ -3323,6 +3334,7 @@ class KOBOTOUCH(KOBO):
         c.add_opt('keep_cover_aspect', default=False)
         c.add_opt('upload_grayscale', default=False)
         c.add_opt('letterbox_fs_covers', default=False)
+        c.add_opt('letterbox_fs_covers_color', default=DEFAULT_COVER_LETTERBOX_COLOR)
         c.add_opt('png_covers', default=False)
 
         c.add_opt('show_archived_books', default=False)
@@ -3531,6 +3543,10 @@ class KOBOTOUCH(KOBO):
     @property
     def letterbox_fs_covers(self):
         return self.keep_cover_aspect and self.get_pref('letterbox_fs_covers')
+
+    @property
+    def letterbox_fs_covers_color(self):
+        return self.get_pref('letterbox_fs_covers_color')
 
     @property
     def png_covers(self):
