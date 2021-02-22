@@ -297,7 +297,10 @@ class EbookViewer(MainWindow):
         self.inspector_dock.setVisible(not visible)
 
     def toggle_toc(self):
-        self.toc_dock.setVisible(not self.toc_dock.isVisible())
+        is_visible = self.toc_dock.isVisible()
+        self.toc_dock.setVisible(not is_visible)
+        if not is_visible:
+            self.toc.scroll_to_current_toc_node()
 
     def show_search(self, text, trigger=False):
         self.search_dock.setVisible(True)

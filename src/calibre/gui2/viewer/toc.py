@@ -52,7 +52,13 @@ class TOCView(QTreeView):
 
     def setModel(self, model):
         QTreeView.setModel(self, model)
-        model.auto_expand_nodes.connect(self.auto_expand_indices, type=Qt.ConnectionType.QueuedConnection)
+        model.current_toc_nodes_changed.connect(self.current_toc_nodes_changed, type=Qt.ConnectionType.QueuedConnection)
+
+    def current_toc_nodes_changed(self, ancestors, nodes):
+        if ancestors:
+            self.auto_expand_indices(ancestors)
+        if nodes:
+            self.scrollTo(nodes[-1].index())
 
     def auto_expand_indices(self, indices):
         for idx in indices:
@@ -115,6 +121,11 @@ class TOCView(QTreeView):
 
     def update_current_toc_nodes(self, families):
         self.model().update_current_toc_nodes(families)
+
+    def scroll_to_current_toc_node(self):
+        nodes = self.model().viewed_nodes()
+        if nodes:
+            self.scrollTo(nodes[-1].index())
 
 
 class TOCSearch(QWidget):
@@ -202,7 +213,7 @@ class TOCItem(QStandardItem):
 
 class TOC(QStandardItemModel):
 
-    auto_expand_nodes = pyqtSignal(object)
+    current_toc_nodes_changed = pyqtSignal(object, object)
 
     def __init__(self, toc=None):
         QStandardItemModel.__init__(self)
@@ -259,12 +270,17 @@ class TOC(QStandardItemModel):
                 viewed_nodes |= {x.node_id for x in ansc}
                 for x in ansc:
                     ancestors[x.node_id] = x.index()
-        if ancestors:
-            self.auto_expand_nodes.emit(tuple(ancestors.values()))
+        nodes = []
         for node in self.all_items:
             is_being_viewed = node.node_id in viewed_nodes
+            if is_being_viewed:
+                nodes.append(node)
             if is_being_viewed != node.is_being_viewed:
                 node.set_being_viewed(is_being_viewed)
+        self.current_toc_nodes_changed.emit(tuple(ancestors.values()), nodes)
+
+    def viewed_nodes(self):
+        return tuple(node for node in self.all_items if node.is_being_viewed)
 
     @property
     def as_plain_text(self):
