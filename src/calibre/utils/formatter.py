@@ -47,11 +47,12 @@ class IfNode(Node):
 
 
 class ForNode(Node):
-    def __init__(self, variable, list_field_expr, block):
+    def __init__(self, variable, list_field_expr, separator, block):
         Node.__init__(self)
         self.node_type = self.NODE_FOR
         self.variable = variable
         self.list_field_expr = list_field_expr
+        self.separator = separator
         self.block = block
 
 
@@ -319,6 +320,13 @@ class _Parser(object):
         except:
             return False
 
+    def token_is_separator(self):
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'separator' and token[0] == self.LEX_ID
+        except:
+            return False
+
     def token_is_constant(self):
         try:
             return self.prog[self.lex_pos][0] == self.LEX_CONST
@@ -382,6 +390,11 @@ class _Parser(object):
             self.error(_("Missing 'in' in for statement"))
         self.consume()
         list_expr = self.infix_expr()
+        if self.token_is_separator():
+            self.consume()
+            separator = self.expr()
+        else:
+            separator = None
         if not self.token_op_is_colon():
             self.error(_("Missing colon (':') in for statement"))
         self.consume()
@@ -389,7 +402,7 @@ class _Parser(object):
         if not self.token_is_rof():
             self.error(_("Missing 'rof' in for statement"))
         self.consume()
-        return ForNode(variable, list_expr, block)
+        return ForNode(variable, list_expr, separator, block)
 
     def infix_expr(self):
         left = self.expr()
@@ -645,12 +658,13 @@ class _Interpreter(object):
 
     def do_node_for(self, prog):
         try:
+            separator = ',' if prog.separator is None else self.expr(prog.separator)
             v = prog.variable
             f = self.expr(prog.list_field_expr)
             res = getattr(self.parent_book, f, f)
             if res is not None:
                 if not isinstance(res, list):
-                    res = [r.strip() for r in res.split(',') if r.strip()]
+                    res = [r.strip() for r in res.split(separator) if r.strip()]
                 ret = ''
                 for x in res:
                     self.locals[v] = x

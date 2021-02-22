@@ -481,6 +481,9 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       If `opt_replace` is not the empty string, then apply the replacement before adding the item to the returned list.
     * ``list_re_group(src_list, separator, include_re, search_re, template_for_group_1, for_group_2, ...)`` -- Like list_re except
       replacements are not optional. It uses re_group(item, search_re, template ...) when doing the replacements.
+    * ``list_remove_duplicates(list, separator)`` -- return a list made by removing duplicate items in the source list. If items
+      differ only in case, the last of them is returned. The items in source list are separated by separator, as are
+      the items in the returned list.
     * ``list_sort(list, direction, separator)`` -- return list sorted using a case-insensitive sort. If ``direction`` is zero, ``list`` is
       sorted ascending, otherwise descending. The list items are separated by separator, as are the items in the returned list.
     * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in ``list1`` and ``list2``, removing
@@ -544,9 +547,9 @@ parameters can be statements (sequences of expressions). Note that the definitiv
 Using General Program Mode
 -----------------------------------
 
-For more complicated template programs it is often easier to avoid template syntax (all the `{` and `}` characters), instead writing a more
-classic-looking program. You can do this by beginning the template with `program:`. The template program is compiled and executed. No template
-processing (e.g., formatting, prefixes, suffixes) is done. The special variable `$` is not set.
+For more complicated template programs it is often easier to avoid template syntax (all the `{` and `}` characters), instead writing
+a more classic-looking program. You can do this by beginning the template with `program:`. The template program is compiled
+and executed. No template processing (e.g., formatting, prefixes, suffixes) is done. The special variable `$` is not set.
 
 One advantage of `program:` mode is that braces are no longer special. For example, it is not necessary to use `[[` and `]]` when using the
 `template()` function. Another advantage is readability.
@@ -568,7 +571,7 @@ Both General and Template Program Modes support **``if`` expressions** with the 
     if <<expression>> then
         <<expression_list>>
     [elif <<expression>> then <<expression_list>>]*
-    [else <<expression_list>> ]
+    [else <<expression_list>>]
     fi
 
 The elif and else parts are optional. The words ``if``, ``then``, ``elif``, ``else``, and ``fi`` are reserved; you cannot use them as
@@ -601,14 +604,15 @@ An ``if`` produces a value like any other language expression. This means that a
 
 The template language supports **``for`` expressions** with the following syntax::
 
-    for <<id>> in <<expression>>:
+    for <<id>> in <<expression>> [separator <<expression>>]:
         <<expression_list>>
     rof
 
-The expression must evaluate to either a metadata field lookup key, for example ``tags`` or ``#genre``, or a comma-separated list of
-values. If the result is a valid lookup name then the field's value is fetched, otherwise the list is broken into its
-individual values. Each resulting value in the list is assigned to the variable ``id`` then the ``expression_list``
-is evaluated.
+The expression must evaluate to either a metadata field lookup key, for example ``tags`` or ``#genre``, or a list of
+values. If the result is a valid lookup name then the field's value is fetched and the separator specified for that field type
+is used. If the result isn't a valid lookup name then it is assumed to be a list of values. If the optional keyword ``separator``
+is supplied then the list values must be separated by the result of evaluating the second ``expression``. If the separator is not specified then the list values must be separated by commas. Each resulting value in the list is assigned to the
+variable ``id`` then the ``expression_list`` is evaluated.
 
 Example: This template removes the first hierarchical name for each value in Genre (``#genre``), constructing a list with
 the new names::

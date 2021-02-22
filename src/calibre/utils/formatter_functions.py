@@ -1361,6 +1361,25 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
         res = {icu_lower(l.strip()): l.strip() for l in list2.split(separator) if l.strip()}
         res.update({icu_lower(l.strip()): l.strip() for l in list1.split(separator) if l.strip()})
+        if separator == ',':
+            separator = ', '
+        return separator.join(res.values())
+
+
+class BuiltinListRemoveDuplicates(BuiltinFormatterFunction):
+    name = 'list_remove_duplicates'
+    arg_count = 2
+    category = 'List manipulation'
+    __doc__ = doc = _('list_remove_duplicates(list, separator) -- '
+            'return a list made by removing duplicate items in the source list. '
+            'If items differ only in case, the last of them is returned. '
+            'The items in source list are separated by separator, as are '
+            'the items in the returned list.')
+
+    def evaluate(self, formatter, kwargs, mi, locals, list_, separator):
+        res = {icu_lower(l.strip()): l.strip() for l in list_.split(separator) if l.strip()}
+        if separator == ',':
+            separator = ', '
         return separator.join(res.values())
 
 
@@ -1971,8 +1990,8 @@ _formatter_builtins = [
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
     BuiltinInList(), BuiltinIsMarked(), BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
-    BuiltinListReGroup(), BuiltinListSort(), BuiltinListSplit(), BuiltinListUnion(),
-    BuiltinLookup(),
+    BuiltinListReGroup(), BuiltinListRemoveDuplicates(), BuiltinListSort(),
+    BuiltinListSplit(), BuiltinListUnion(),BuiltinLookup(),
     BuiltinLowercase(), BuiltinMod(), BuiltinMultiply(), BuiltinNot(), BuiltinOndevice(),
     BuiltinOr(), BuiltinPrint(), BuiltinRatingToStars(), BuiltinRawField(), BuiltinRawList(),
     BuiltinRe(), BuiltinReGroup(), BuiltinRound(), BuiltinSelect(), BuiltinSeriesSort(),
