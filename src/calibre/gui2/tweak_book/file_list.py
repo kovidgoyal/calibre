@@ -40,7 +40,7 @@ from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import filter, iteritems, itervalues, map, range, unicode_type
+from polyglot.builtins import filter, iteritems, map, range, unicode_type
 
 try:
     from PyQt5 import sip
@@ -314,21 +314,21 @@ class FileList(QTreeWidget, OpenWithHandler):
         for category, item in iteritems(self.categories):
             item.setExpanded(category in state['expanded'])
         self.verticalScrollBar().setValue(state['pos'])
-        for parent in itervalues(self.categories):
+        for parent in self.categories.values():
             for c in (parent.child(i) for i in range(parent.childCount())):
                 name = unicode_type(c.data(0, NAME_ROLE) or '')
                 if name in state['selected']:
                     c.setSelected(True)
 
     def item_from_name(self, name):
-        for parent in itervalues(self.categories):
+        for parent in self.categories.values():
             for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode_type(c.data(0, NAME_ROLE) or '')
                 if q == name:
                     return c
 
     def select_name(self, name, set_as_current_index=False):
-        for parent in itervalues(self.categories):
+        for parent in self.categories.values():
             for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode_type(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q == name)
@@ -338,7 +338,7 @@ class FileList(QTreeWidget, OpenWithHandler):
                         self.setCurrentItem(c)
 
     def select_names(self, names, current_name=None):
-        for parent in itervalues(self.categories):
+        for parent in self.categories.values():
             for c in (parent.child(i) for i in range(parent.childCount())):
                 q = unicode_type(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q in names)
@@ -397,7 +397,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         cover_page_name = get_cover_page_name(container)
         cover_image_name = get_raster_cover_name(container)
         manifested_names = set()
-        for names in itervalues(container.manifest_type_map):
+        for names in container.manifest_type_map.values():
             manifested_names |= set(names)
 
         def get_category(name, mt):
@@ -560,10 +560,37 @@ class FileList(QTreeWidget, OpenWithHandler):
             self.font_name_cache[key] = ans
         return self.font_name_cache[key]
 
+    def select_all_in_category(self, cname):
+        parent = self.categories[cname]
+        for c in (parent.child(i) for i in range(parent.childCount())):
+            c.setSelected(True)
+
+    def deselect_all_in_category(self, cname):
+        parent = self.categories[cname]
+        for c in (parent.child(i) for i in range(parent.childCount())):
+            c.setSelected(False)
+
     def show_context_menu(self, point):
         item = self.itemAt(point)
-        if item is None or item in tuple(itervalues(self.categories)):
+        if item is None:
             return
+        if item in self.categories.values():
+            m = self.build_category_context_menu(item)
+        else:
+            m = self.build_item_context_menu(item)
+        if m is not None and len(list(m.actions())) > 0:
+            m.popup(self.mapToGlobal(point))
+
+    def build_category_context_menu(self, item):
+        m = QMenu(self)
+        cn = str(item.data(0, NAME_ROLE) or '')
+        if cn:
+            name = item.data(0, Qt.DisplayRole)
+            m.addAction(_('Select all {} files').format(name), partial(self.select_all_in_category, cn))
+            m.addAction(_('De-select all {} files').format(name), partial(self.deselect_all_in_category, cn))
+        return m
+
+    def build_item_context_menu(self, item):
         m = QMenu(self)
         sel = self.selectedItems()
         num = len(sel)
@@ -610,7 +637,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         for item in sel:
             selected_map[unicode_type(item.data(0, CATEGORY_ROLE) or '')].append(unicode_type(item.data(0, NAME_ROLE) or ''))
 
-        for items in itervalues(selected_map):
+        for items in selected_map.values():
             items.sort(key=self.index_of_name)
 
         if selected_map['text']:
@@ -620,9 +647,7 @@ class FileList(QTreeWidget, OpenWithHandler):
             m.addAction(QIcon(I('merge.png')), _('&Merge selected text files'), partial(self.start_merge, 'text', selected_map['text']))
         if len(selected_map['styles']) > 1:
             m.addAction(QIcon(I('merge.png')), _('&Merge selected style files'), partial(self.start_merge, 'styles', selected_map['styles']))
-
-        if len(list(m.actions())) > 0:
-            m.popup(self.mapToGlobal(point))
+        return m
 
     def choose_open_with(self, file_name, fmt):
         from calibre.gui2.open_with import choose_program
@@ -850,7 +875,7 @@ class FileList(QTreeWidget, OpenWithHandler):
 
     @property
     def all_files(self):
-        return (category.child(i) for category in itervalues(self.categories) for i in range(category.childCount()))
+        return (category.child(i) for category in self.categories.values() for i in range(category.childCount()))
 
     @property
     def searchable_names(self):
