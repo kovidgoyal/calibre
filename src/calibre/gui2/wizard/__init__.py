@@ -31,11 +31,15 @@ from polyglot.builtins import iteritems, map, unicode_type
 # Devices {{{
 
 
-class Device(object):
+def gettext(name):
+    return name, __builtins__['_'](name)
+
+
+class Device:
 
     output_profile = 'generic_eink'
     output_format = 'EPUB'
-    name = _('Generic e-ink device')
+    untranslated_name, name = gettext('Generic e-ink device')
     manufacturer = 'Generic'
     id = 'default'
     supports_color = False
@@ -67,14 +71,14 @@ class Device(object):
 class Smartphone(Device):
 
     id = 'smartphone'
-    name = _('Smartphone')
+    untranslated_name, name = gettext('Smartphone')
     supports_color = True
 
 
 class Tablet(Device):
 
     id = 'tablet'
-    name = _('iPad like tablet')
+    untranslated_name, name = gettext('iPad like tablet')
     output_profile = 'tablet'
     supports_color = True
 
@@ -83,7 +87,7 @@ class Kindle(Device):
 
     output_profile = 'kindle'
     output_format  = 'MOBI'
-    name = _('Kindle Basic (all models)')
+    untranslated_name, name = gettext('Kindle Basic (all models)')
     manufacturer = 'Amazon'
     id = 'kindle'
 
@@ -115,7 +119,7 @@ class KindleDX(Kindle):
 
 
 class KindleFire(KindleDX):
-    name = _('{0} and {1}').format('Kindle Fire', 'Fire HD')
+    untranslated_name, name = gettext('Kindle Fire and Fire HD')
     id = 'kindle_fire'
     output_profile = 'kindle_fire'
     supports_color = True
@@ -136,14 +140,14 @@ class KindleVoyage(Kindle):
 class Sony505(Device):
 
     output_profile = 'sony'
-    name = _('All other SONY devices')
+    untranslated_name, name = gettext('All other SONY devices')
     output_format = 'EPUB'
     manufacturer = 'SONY'
     id = 'prs505'
 
 
 class Kobo(Device):
-    name = _('Kobo and Kobo Touch Readers')
+    untranslated_name, name = gettext('Kobo and Kobo Touch Readers')
     manufacturer = 'Kobo'
     output_profile = 'kobo'
     output_format = 'EPUB'
@@ -151,7 +155,7 @@ class Kobo(Device):
 
 
 class KoboVox(Kobo):
-    name = _('Kobo Vox, Aura and Glo families')
+    untranslated_name, name = gettext('Kobo Vox, Aura and Glo families')
     output_profile = 'tablet'
     id = 'kobo_vox'
 
@@ -191,7 +195,7 @@ class BooqCervantes(Booq):
 
 
 class BOOX(Device):
-    name = _('BOOX MAX, N96, i86, C67ML, M96, etc.')
+    untranslated_name, name = gettext('BOOX MAX, N96, i86, C67ML, M96, etc.')
     manufacturer = 'Onyx'
     output_profile = 'generic_eink_hd'
     output_format = 'EPUB'
@@ -221,7 +225,7 @@ class SonyT3(Sony505):
 
 class Nook(Sony505):
     id = 'nook'
-    name = _('{0} and {1}').format('Nook', 'Nook Simple Reader')
+    untranslated_name, name = gettext('Nook and Nook Simple Reader')
     manufacturer = 'Barnes & Noble'
     output_profile = 'nook'
 
@@ -324,7 +328,7 @@ class iPhone(Device):
 
 class Android(Device):
 
-    name = _('Android phone')
+    untranslated_name, name = gettext('Android phone')
     output_format = 'EPUB'
     manufacturer = 'Android'
     id = 'android'
@@ -341,14 +345,14 @@ class Android(Device):
 
 class AndroidTablet(Android):
 
-    name = _('Android tablet')
+    untranslated_name, name = gettext('Android tablet')
     id = 'android_tablet'
     output_profile = 'tablet'
 
 
 class AndroidPhoneWithKindle(Android):
 
-    name = _('Android phone with Kindle reader')
+    untranslated_name, name = gettext('Android phone with Kindle reader')
     output_format = 'MOBI'
     id = 'android_phone_with_kindle'
     output_profile = 'kindle'
@@ -364,7 +368,7 @@ class AndroidPhoneWithKindle(Android):
 
 class AndroidTabletWithKindle(AndroidPhoneWithKindle):
 
-    name = _('Android tablet with Kindle reader')
+    untranslated_name, name = gettext('Android tablet with Kindle reader')
     id = 'android_tablet_with_kindle'
     output_profile = 'kindle_fire'
 
@@ -737,6 +741,9 @@ class LibraryPage(QWizardPage, LibraryUI):
         lp = self.location.text()
         if lp == self.initial_library_location:
             self.set_initial_library_location()
+        for x in globals().values():
+            if type(x) is type and hasattr(x, 'untranslated_name'):
+                x.name = __builtins__['_'](x.untranslated_name)
 
     def is_library_dir_suitable(self, x):
         from calibre.db.legacy import LibraryDatabase
