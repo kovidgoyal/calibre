@@ -751,7 +751,7 @@ class SelectionBar:
             has_space_below = end.y + end.height < container.offsetHeight - bar_height - buffer
             put_below = has_space_below
         else:
-            has_space_above = end.y + bar_height - buffer > 0
+            has_space_above = end.y - bar_height - buffer > 0
             put_below = not has_space_above
         top = place_vertically(end.y + end.height if put_below else end.y, put_below)
 
