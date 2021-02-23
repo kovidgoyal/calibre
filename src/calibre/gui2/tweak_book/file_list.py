@@ -166,14 +166,21 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
     def paint(self, painter, option, index):
         top_level = not index.parent().isValid()
         hover = option.state & QStyle.StateFlag.State_MouseOver
+        cc = current_container()
+
+        def safe_size(index):
+            try:
+                return cc.filesize(str(index.data(NAME_ROLE) or ''))
+            except OSError:
+                return 0
+
         if hover:
             if top_level:
-                suffix = '%s(%d)' % (NBSP, index.model().rowCount(index))
+                count = index.model().rowCount(index)
+                total_size = human_readable(sum(safe_size(index.child(r, 0)) for r in range(count)))
+                suffix = f'{NBSP}{count}@{total_size}'
             else:
-                try:
-                    suffix = NBSP + human_readable(current_container().filesize(unicode_type(index.data(NAME_ROLE) or '')))
-                except EnvironmentError:
-                    suffix = NBSP + human_readable(0)
+                suffix = NBSP + human_readable(safe_size(index))
             br = painter.boundingRect(option.rect, Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter, suffix)
         if top_level and index.row() > 0:
             option.rect.adjust(0, 5, 0, 0)
