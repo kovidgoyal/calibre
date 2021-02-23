@@ -163,6 +163,8 @@ def get_smtp_class(use_ssl=False, debuglevel=0):
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
              port=-1, debug_output=None, verify_server_cert=False, cafile=None):
+    if isinstance(msg, str):
+        msg = msg.encode('utf-8')
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
