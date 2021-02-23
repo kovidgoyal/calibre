@@ -406,7 +406,7 @@ class _Parser(object):
 
     def infix_expr(self):
         left = self.expr()
-        if self.token_op_is_string_infix_compare():
+        if self.token_op_is_string_infix_compare() or self.token_is_in():
             operator = self.token()
             return StringInfixNode(operator, left, self.expr())
         if self.token_op_is_numeric_infix_compare():
@@ -526,6 +526,7 @@ class _Interpreter(object):
         "<=": lambda x, y: strcmp(x, y) <= 0,
         ">": lambda x, y: strcmp(x, y) > 0,
         ">=": lambda x, y: strcmp(x, y) >= 0,
+        "in": lambda x, y: re.search(x, y, flags=re.I),
         }
 
     def do_node_string_infix(self, prog):
