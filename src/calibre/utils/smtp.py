@@ -124,7 +124,7 @@ def get_mx(host, verbose=0):
     return [unicode_type(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 
-def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
+def sendmail_direct(from_, to, msg: bytes, timeout, localhost, verbose,
         debug_output=None):
     import polyglot.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
@@ -323,6 +323,8 @@ def main(args=sys.argv):
         if os.fork() != 0:
             return 0
 
+    if isinstance(msg, str):
+        msg = msg.encode('utf-8')
     try:
         sendmail(msg, efrom, eto, localhost=opts.localhost, verbose=opts.verbose,
              timeout=opts.timeout, relay=opts.relay, username=opts.username,
