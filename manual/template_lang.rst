@@ -277,7 +277,7 @@ The syntax of the language is shown by the following grammar. For a discussion o
     expression      ::= identifier | constant | function | assignment | compare | if_expression
     function        ::= identifier '(' expression [ ',' expression ]* ')'
     compare         ::= expression compare_op expression
-    compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
+    compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
     if_expression   ::= 'if' expression 'then' expression_list [elif_expression] ['else' expression_list] 'fi'
     elif_expression ::= 'elif' expression 'then' expression_list elif_expression | ''
     assignment      ::= identifier '=' expression
@@ -469,6 +469,11 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       return `found_val`, otherwise return `not_found_val`. The `pattern` and `found_value` can be repeated as many times as desired,
       permitting returning different values depending on the search. The patterns are checked in order. The first match is returned.
       Aliases: ``in_list()``, ``list_contains()``
+    * ``list_count(separator)`` -- interprets the value as a list of items separated by `separator`, returning the number of items
+      in the list. Aliases: ``count()``, ``list_count()``
+    * ``list_count_matching(list, pattern, separator)`` -- interprets ``list`` as a list of items separated by ``separator``,
+      returning the number of items in the list that match the regular expression ``pattern``.
+      Aliases: ``list_count_matching()``, ``count_matching()``
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from `list1` any item found in `list2`,
       using a case-insensitive comparison. The items in `list1` and `list2` are separated by separator, as are the items in the returned list.
     * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return `yes_val` if `list1` and `list2` contain the same items,
@@ -554,19 +559,7 @@ and executed. No template processing (e.g., formatting, prefixes, suffixes) is d
 One advantage of `program:` mode is that braces are no longer special. For example, it is not necessary to use `[[` and `]]` when using the
 `template()` function. Another advantage is readability.
 
-Template Program Mode and General Program Mode support classic **relational (comparison) operators**: ``==``, ``!=``, ``<``,
-``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive
-string comparison using lexical order. Examples:
-
-    * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo'.
-    * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
-    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo'
-      or '1632', otherwise 'no'.
-    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric comparison
-      instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case the left and right values
-      are set to zero if they are undefined or the empty string. If they are not numbers then an error is raised.
-
-Both General and Template Program Modes support **``if`` expressions** with the following syntax::
+General and Template Program Modes both support **``if`` expressions** with the following syntax::
 
     if <<expression>> then
         <<expression_list>>
@@ -601,6 +594,26 @@ An ``if`` produces a value like any other language expression. This means that a
     * ``program: if field('series') then a = 'foo' else a = 'bar' fi; a``
     * ``program: a = if field('series') then 'foo' else 'bar' fi; a``
     * ``program: a = field(if field('series') then 'series' else 'title' fi); a``
+
+Both modes support classic **relational (comparison) operators**: ``==``, ``!=``, ``<``,
+``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive
+string comparison using lexical order. The binary operator ``in`` is supported. The left hand expression is interpreted
+as a regular expression pattern. The ``in`` operator evaluates to '1' if the pattern matches the value of the right hand expression.
+The match is case-insensive.
+
+    Examples:
+
+    * ``program: field('series') == 'foo'`` returns '1' if the book's series is 'foo', otherwise ''.
+    * ``program: 'f.o' in field('series')`` returns '1' if the book's series matches the regular expression ``f.o``, otherwise ''.
+    * ``program: if field('series') != 'foo' then 'bar' else 'mumble' fi`` returns 'bar' if the book's series is not 'foo', else 'mumble'.
+    * ``program: if or(field('series') == 'foo', field('series') == '1632') then 'yes' else 'no' fi`` returns 'yes' if series is either
+      'foo' or '1632', otherwise 'no'.
+    * ``program: if '^(foo|1632)$' in field('series') then 'yes' else 'no' fi`` returns 'yes' if series is either 'foo' or '1632',
+      otherwise 'no'.
+    * ``program: if '11' > '2' then 'yes' else 'no' fi`` returns 'no' because it is doing a lexical comparison. If you want numeric
+      comparison instead of lexical comparison, use the operators ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. In this case
+      the left and right values are set to zero if they are undefined or the empty string. If they are not numbers
+      then an error is raised.
 
 The template language supports **``for`` expressions** with the following syntax::
 

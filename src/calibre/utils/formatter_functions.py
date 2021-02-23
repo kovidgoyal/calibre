@@ -826,6 +826,25 @@ class BuiltinCount(BuiltinFormatterFunction):
         return unicode_type(len([v for v in val.split(sep) if v]))
 
 
+class BuiltinListCountMatching(BuiltinFormatterFunction):
+    name = 'list_count_matching'
+    arg_count = 3
+    category = 'List manipulation'
+    aliases = ['count_matching']
+
+    __doc__ = doc = _('list_count_matching(list, pattern, separator) -- '
+            "interprets 'list' as a list of items separated by 'separator', "
+            'returning the number of items in the list that match the regular '
+            "expression 'pattern'. Aliases: list_count_matching(), count_matching()")
+
+    def evaluate(self, formatter, kwargs, mi, locals, list_, pattern, sep):
+        res = 0
+        for v in [x.strip() for x in list_.split(sep) if x.strip()]:
+            if re.search(pattern, v, flags=re.I):
+                res += 1
+        return unicode_type(res)
+
+
 class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
     arg_count = 3
@@ -1988,7 +2007,8 @@ _formatter_builtins = [
     BuiltinGlobals(),
     BuiltinHasCover(), BuiltinHumanReadable(), BuiltinIdentifierInList(),
     BuiltinIfempty(), BuiltinLanguageCodes(), BuiltinLanguageStrings(),
-    BuiltinInList(), BuiltinIsMarked(), BuiltinListDifference(), BuiltinListEquals(),
+    BuiltinInList(), BuiltinIsMarked(), BuiltinListCountMatching(),
+    BuiltinListDifference(), BuiltinListEquals(),
     BuiltinListIntersection(), BuiltinListitem(), BuiltinListRe(),
     BuiltinListReGroup(), BuiltinListRemoveDuplicates(), BuiltinListSort(),
     BuiltinListSplit(), BuiltinListUnion(),BuiltinLookup(),
