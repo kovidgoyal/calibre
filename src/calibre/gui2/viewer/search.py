@@ -51,6 +51,9 @@ quote_map= {'"':'"“”', "'": "'‘’"}
 qpat = regex.compile(r'''(['"])''')
 spat = regex.compile(r'(\s+)')
 invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
+SEARCH_RESULT_ROLE = Qt.ItemDataRole.UserRole
+RESULT_NUMBER_ROLE = SEARCH_RESULT_ROLE + 1
+SPINE_IDX_ROLE = RESULT_NUMBER_ROLE + 1
 
 
 def text_to_regex(text):
@@ -458,7 +461,7 @@ class Results(QTreeWidget):  # {{{
 
     def current_item_changed(self, current, previous):
         if current is not None:
-            r = current.data(0, Qt.ItemDataRole.UserRole)
+            r = current.data(0, SEARCH_RESULT_ROLE)
             if isinstance(r, SearchResult):
                 self.current_result_changed.emit(r)
         else:
@@ -475,10 +478,12 @@ class Results(QTreeWidget):  # {{{
                 section_id = -1
         section_key = section_id
         section = self.section_map.get(section_key)
+        spine_idx = getattr(result, 'spine_idx', -1)
         if section is None:
             section = QTreeWidgetItem([section_title], 1)
             section.setFlags(Qt.ItemFlag.ItemIsEnabled)
             section.setFont(0, self.section_font)
+            section.setData(0, SPINE_IDX_ROLE, spine_idx)
             lines = []
             for i, node in enumerate(toc_nodes):
                 lines.append('\xa0\xa0' * i + '➤ ' + (node.get('title') or _('Unknown')))
@@ -487,12 +492,19 @@ class Results(QTreeWidget):  # {{{
                 tt += '\n' + '\n'.join(lines)
                 section.setToolTip(0, tt)
             self.section_map[section_key] = section
-            self.addTopLevelItem(section)
+            for s in range(self.topLevelItemCount()):
+                ti = self.topLevelItem(s)
+                if ti.data(0, SPINE_IDX_ROLE) > spine_idx:
+                    self.insertTopLevelItem(s, section)
+                    break
+            else:
+                self.addTopLevelItem(section)
             section.setExpanded(True)
         item = QTreeWidgetItem(section, [' '], 2)
         item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
-        item.setData(0, Qt.ItemDataRole.UserRole, result)
-        item.setData(0, Qt.ItemDataRole.UserRole + 1, len(self.search_results))
+        item.setData(0, SEARCH_RESULT_ROLE, result)
+        item.setData(0, RESULT_NUMBER_ROLE, len(self.search_results))
+        item.setData(0, SPINE_IDX_ROLE, spine_idx)
         if isinstance(result, SearchResult):
             tt = '<p>…' + escape(result.before, False) + '<b>' + escape(
                 result.text, False) + '</b>' + escape(result.after, False) + '…'
@@ -507,7 +519,7 @@ class Results(QTreeWidget):  # {{{
     def item_activated(self):
         i = self.currentItem()
         if i:
-            sr = i.data(0, Qt.ItemDataRole.UserRole)
+            sr = i.data(0, SEARCH_RESULT_ROLE)
             if isinstance(sr, SearchResult):
                 if not sr.is_hidden:
                     self.show_search_result.emit(sr)
@@ -518,7 +530,7 @@ class Results(QTreeWidget):  # {{{
         item = self.currentItem()
         if item is None:
             return
-        i = int(item.data(0, Qt.ItemDataRole.UserRole + 1))
+        i = int(item.data(0, RESULT_NUMBER_ROLE))
         i += -1 if previous else 1
         i %= self.number_of_results
         self.setCurrentItem(self.item_map[i])
@@ -527,7 +539,7 @@ class Results(QTreeWidget):  # {{{
     def search_result_not_found(self, sr):
         for i in range(self.number_of_results):
             item = self.item_map[i]
-            r = item.data(0, Qt.ItemDataRole.UserRole)
+            r = item.data(0, SEARCH_RESULT_ROLE)
             if r.is_result(sr):
                 r.is_hidden = True
                 item.setIcon(0, self.not_found_icon)
@@ -537,7 +549,7 @@ class Results(QTreeWidget):  # {{{
     def current_result_is_hidden(self):
         item = self.currentItem()
         if item is not None:
-            sr = item.data(0, Qt.ItemDataRole.UserRole)
+            sr = item.data(0, SEARCH_RESULT_ROLE)
             if isinstance(sr, SearchResult) and sr.is_hidden:
                 return True
         return False
@@ -557,6 +569,11 @@ class Results(QTreeWidget):  # {{{
         if self.number_of_results:
             item = self.item_map[0]
             self.setCurrentItem(item)
+
+    def ensure_current_result_visible(self):
+        item = self.currentItem()
+        if item is not None:
+            self.scrollToItem(item)
 # }}}
 
 
@@ -648,14 +665,16 @@ class SearchPanel(QWidget):  # {{{
             if spine_idx < 0:
                 self.results_found.emit(SearchFinished(search_query))
                 continue
-            for name in spine:
+            num_in_spine = len(spine)
+            for n in range(num_in_spine):
+                idx = (spine_idx + n) % num_in_spine
+                name = spine[idx]
                 counter = Counter()
-                spine_idx = idx_map[name]
                 try:
                     for i, result in enumerate(search_in_name(name, search_query)):
                         before, text, after, offset = result
                         q = (before or '')[-5:] + text + (after or '')[:5]
-                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, spine_idx, counter[q], offset))
+                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset))
                         counter[q] += 1
                 except Exception:
                     import traceback
@@ -667,7 +686,9 @@ class SearchPanel(QWidget):  # {{{
             return
         if isinstance(result, SearchFinished):
             self.spinner.stop()
-            if not self.results.number_of_results:
+            if self.results.number_of_results:
+                self.results.ensure_current_result_visible()
+            else:
                 self.show_no_results_found()
             return
         if self.results.add_result(result) == 1:
