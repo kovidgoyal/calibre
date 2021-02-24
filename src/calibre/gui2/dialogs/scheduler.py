@@ -39,12 +39,19 @@ def convert_day_time_schedule(val):
 
 class RecipesView(QTreeView):
 
+    item_activated = pyqtSignal(object)
+
     def __init__(self, parent):
         QTreeView.__init__(self, parent)
         self.setAnimated(True)
         self.setHeaderHidden(True)
         self.setObjectName('recipes')
+        self.setExpandsOnDoubleClick(True)
+        self.doubleClicked.connect(self.double_clicked)
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+    def double_clicked(self, index):
+        self.item_activated.emit(index)
 
     def currentChanged(self, current, previous):
         QTreeView.currentChanged(self, current, previous)
@@ -241,6 +248,7 @@ class SchedulerDialog(QDialog):
         self.recipe_model.do_refresh()
         self.recipes.setModel(self.recipe_model)
         self.recipes.setFocus(Qt.FocusReason.OtherFocusReason)
+        self.recipes.item_activated.connect(self.download_clicked)
         self.setWindowTitle(_("Schedule news download [{} sources]").format(self.recipe_model.showing_count))
         self.search.search.connect(self.recipe_model.search)
         self.recipe_model.searched.connect(self.search.search_done, type=Qt.ConnectionType.QueuedConnection)
