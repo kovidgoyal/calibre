@@ -32,7 +32,7 @@ BOOK_SEARCHES = {
 
 NAMES = {
     'goodreads': _('Goodreads'),
-    'google': _('Google books'),
+    'google': _('Google Books'),
     'wikipedia': _('Wikipedia'),
     'gws': _('Google web search'),
     'amzn': _('Amazon'),

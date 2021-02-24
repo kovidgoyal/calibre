@@ -749,13 +749,13 @@ def search_internet(container_id):
     for name, url in [
         (_('Goodreads'), 'https://www.goodreads.com/book/author/{author}'),
         (_('Wikipedia'), 'https://en.wikipedia.org/w/index.php?search={author}'),
-        (_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22'),
+        (_('Google Books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22'),
     ]:
         author_links.appendChild(E.li(link_for(name, url)))
 
     for name, url in [
         (_('Goodreads'), 'https://www.goodreads.com/search?q={author}+{title}&search%5Bsource%5D=goodreads&search_type=books&tab=books'),
-        (_('Google books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22'),
+        (_('Google Books'), 'https://www.google.com/search?tbm=bks&q=inauthor:%22{author}%22+intitle:%22{title}%22'),
         (_('Amazon'), 'https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Dstripbooks&field-keywords={author}+{title}'),
     ]:
         book_links.appendChild(E.li(link_for(name, url)))
