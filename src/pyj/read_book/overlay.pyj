@@ -17,7 +17,7 @@ from dom import (
     add_extra_css, build_rule, clear, ensure_id, set_css, svgicon, unique_id
 )
 from gettext import gettext as _
-from modals import error_dialog
+from modals import error_dialog, question_dialog
 from read_book.bookmarks import create_bookmarks_panel
 from read_book.globals import runtime, ui_operations
 from read_book.goto import create_goto_panel, create_location_overlay
@@ -366,10 +366,20 @@ class MainOverlay:  # {{{
                    def(): self.overlay.hide(), ui_operations.toggle_inspector();, 'bug'),
                 ac(_('Reset interface'), _('Reset E-book viewer panels, toolbars and scrollbars to defaults'),
                     def():
-                        self.overlay.hide()
-                        ui_operations.reset_interface()
-                        sd = get_session_data()
-                        sd.set('skipped_dialogs', session_defaults.skipped_dialogs)
+                        question_dialog(
+                            _('Are you sure?'), _(
+                                'Are you sure you want to reset the viewer interface'
+                                ' to its default appearance?'
+                        ),
+                            def (yes):
+                                if yes:
+                                    self.overlay.hide()
+                                    ui_operations.reset_interface()
+                                    sd = get_session_data()
+                                    sd.set('skipped_dialogs', session_defaults.skipped_dialogs)
+                        )
+
+
                     , 'window-restore'),
                 ac(_('Quit'), _('Close the E-book viewer'),
                    def(): self.overlay.hide(), ui_operations.quit();, 'remove'),
