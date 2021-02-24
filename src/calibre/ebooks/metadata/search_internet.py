@@ -36,7 +36,7 @@ NAMES = {
     'wikipedia': _('Wikipedia'),
     'gws': _('Google web search'),
     'amzn': _('Amazon'),
-    'gimg': _('Google images'),
+    'gimg': _('Google Images'),
 }
 
 DEFAULT_AUTHOR_SOURCE = 'goodreads'
