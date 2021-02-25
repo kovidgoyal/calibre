@@ -685,7 +685,7 @@ and use it during the evaluation.
 
 **Developer: how to pass additional information**
 
-The additional information is a python dictionary containing pairs ``variable_name: variable_value`` where the values
+The additional information is a Python dictionary containing pairs ``variable_name: variable_value`` where the values
 should be strings. The template can access the dict, creating template local variables named ``variable_name`` containing the
 value ``variable_value``. The user cannot change the name so it is best to use names that won't collide with other
 template local variables, for example by prefixing the name with an underscore.

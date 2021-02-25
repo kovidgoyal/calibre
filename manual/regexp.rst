@@ -149,4 +149,4 @@ Thanks for helping with tips, corrections and such:
 For more about regexps see `The Python User Manual <https://docs.python.org/library/re.html>`_.
 The actual regular expression library used by calibre is:
 `regex <https://bitbucket.org/mrabarnett/mrab-regex/src/hg/>`_ which supports
-several useful enhancements over the python standard library one.
+several useful enhancements over the Python standard library one.
