@@ -455,13 +455,17 @@ class BuiltinField(BuiltinFormatterFunction):
 
 class BuiltinRawField(BuiltinFormatterFunction):
     name = 'raw_field'
-    arg_count = 1
+    arg_count = -1
     category = 'Get values from metadata'
-    __doc__ = doc = _('raw_field(name) -- returns the metadata field named by name '
-            'without applying any formatting.')
+    __doc__ = doc = _('raw_field(name [, optional_default]) -- returns the '
+            'metadata field named by name without applying any formatting. '
+            'It evaluates and returns the optional second argument '
+            "'default' if the field is undefined ('None').")
 
-    def evaluate(self, formatter, kwargs, mi, locals, name):
+    def evaluate(self, formatter, kwargs, mi, locals, name, default=None):
         res = getattr(mi, name, None)
+        if res is None and default is not None:
+            return default
         if isinstance(res, list):
             fm = mi.metadata_for_field(name)
             if fm is None:

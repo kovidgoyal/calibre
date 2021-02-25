@@ -505,7 +505,8 @@ parameters can be statements (sequences of expressions). Note that the definitiv
       well with test or `first_non_empty`. You can have as many values as you want.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``),
       the output will go to a black hole.
-    * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
+    * ``raw_field(name [, optional_default]))`` -- returns the metadata field named by name without applying any formatting.
+      It evaluates and returns the optional second argument ``default`` if the field is undefined (``None``).
     * ``raw_list(name, separator)`` -- returns the metadata list named by name without applying any formatting or sorting and with items separated by separator.
     * ``re_group(val, pattern, template_for_group_1, for_group_2, ...)`` --  return a string made by applying the regular expression pattern to
       the val and replacing each matched instance with the string computed by replacing each matched group by the value returned by the corresponding
