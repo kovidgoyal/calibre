@@ -492,8 +492,8 @@ parameters can be statements (sequences of expressions). Note that the definitiv
     * ``list_sort(list, direction, separator)`` -- return list sorted using a case-insensitive sort. If ``direction`` is zero, ``list`` is
       sorted ascending, otherwise descending. The list items are separated by separator, as are the items in the returned list.
     * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in ``list1`` and ``list2``, removing
-      duplicate items using a case-insensitive comparison. If items differ in case, the one in ``list1`` is used. The items 
-      in ``list1`` and ``list2`` are separated by ``separator``, as are the items in the returned list. 
+      duplicate items using a case-insensitive comparison. If items differ in case, the one in ``list1`` is used. The items
+      in ``list1`` and ``list2`` are separated by ``separator``, as are the items in the returned list.
       Aliases: ``merge_lists()``, ``list_union()``
     * ``mod(x)`` -- returns the remainder of ``x / y``, where ``x``, ``y``, and the result are integers. Throws an exception if either ``x`` or
       ``y`` is not a number.
@@ -599,7 +599,7 @@ Both modes support classic **relational (comparison) operators**: ``==``, ``!=``
 ``<=``, ``>``, ``>=``. The operators return '1' if they evaluate to True, otherwise ''. They do case-insensitive
 string comparison using lexical order. The binary operator ``in`` is supported. The left hand expression is interpreted
 as a regular expression pattern. The ``in`` operator evaluates to '1' if the pattern matches the value of the right hand expression.
-The match is case-insensive.
+The match is case-insensitive.
 
     Examples:
 
@@ -701,7 +701,7 @@ The full method signature is:
 
 **Template writer: how to access the additional information**
 
-You access the additional information (the `globals dict`) in a template using the template function
+You access the additional information (the ``globals`` dict) in a template using the template function
 ``globals(id[=expression] [, id[=expression]]*)``
 where ``id`` is any legal variable name. This function checks whether the additional information provided by the developer
 contains the name. If it does then the function assigns the provided value to a template local variable with that name.
@@ -709,8 +709,8 @@ If the name is not in the additional information and if an ``expression`` is pro
 the result is assigned to the local variable. If neither a value nor an expression is provided, the function assigns
 the empty string (``''``) to the local variable.
 
-A template can set a value in the globals dict using the template function
-``set_globals(id[=expression] [, id[=expression]]*)``. This function sets the globals dict key:value pair ``id:value`` where
+A template can set a value in the ``globals`` dict using the template function
+``set_globals(id[=expression] [, id[=expression]]*)``. This function sets the ``globals`` dict key:value pair ``id:value`` where
 ``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is
 set to the result of evaluating ``expression``.
 
