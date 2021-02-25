@@ -123,16 +123,18 @@ class SearchFinished(object):
         self.search_query = search_query
 
 
-class SearchResult(object):
+class SearchResult:
 
     __slots__ = (
         'search_query', 'before', 'text', 'after', 'q', 'spine_idx',
-        'index', 'file_name', 'is_hidden', 'offset', 'toc_nodes'
+        'index', 'file_name', 'is_hidden', 'offset', 'toc_nodes',
+        'result_num'
     )
 
-    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset):
+    def __init__(self, search_query, before, text, after, q, name, spine_idx, index, offset, result_num):
         self.search_query = search_query
         self.q = q
+        self.result_num = result_num
         self.before, self.text, self.after = before, text, after
         self.spine_idx, self.index = spine_idx, index
         self.file_name = name
@@ -149,7 +151,8 @@ class SearchResult(object):
     def for_js(self):
         return {
             'file_name': self.file_name, 'spine_idx': self.spine_idx, 'index': self.index, 'text': self.text,
-            'before': self.before, 'after': self.after, 'mode': self.search_query.mode, 'q': self.q
+            'before': self.before, 'after': self.after, 'mode': self.search_query.mode, 'q': self.q,
+            'result_num': self.result_num
         }
 
     def is_result(self, result_from_js):
@@ -514,7 +517,6 @@ class Results(QTreeWidget):  # {{{
         self.search_results.append(result)
         n = self.number_of_results
         self.count_changed.emit(n)
-        return n
 
     def item_activated(self):
         i = self.currentItem()
@@ -544,6 +546,14 @@ class Results(QTreeWidget):  # {{{
                 r.is_hidden = True
                 item.setIcon(0, self.not_found_icon)
                 break
+
+    def search_result_discovered(self, sr):
+        q = sr['result_num']
+        for i in range(self.number_of_results):
+            item = self.item_map[i]
+            r = item.data(0, SEARCH_RESULT_ROLE)
+            if r.result_num == q:
+                self.setCurrentItem(item)
 
     @property
     def current_result_is_hidden(self):
@@ -588,6 +598,7 @@ class SearchPanel(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.discovery_counter = 0
         self.last_hidden_text_warning = None
         self.current_search = None
         self.anchor_cfi = None
@@ -643,6 +654,7 @@ class SearchPanel(QWidget):  # {{{
         self.current_search = search_query
         self.last_hidden_text_warning = None
         self.search_tasks.put((search_query, current_name))
+        self.discovery_counter += 1
 
     def set_anchor_cfi(self, pos_data):
         self.anchor_cfi = pos_data['cfi']
@@ -666,6 +678,7 @@ class SearchPanel(QWidget):  # {{{
                 self.results_found.emit(SearchFinished(search_query))
                 continue
             num_in_spine = len(spine)
+            result_num = 0
             for n in range(num_in_spine):
                 idx = (spine_idx + n) % num_in_spine
                 name = spine[idx]
@@ -674,7 +687,8 @@ class SearchPanel(QWidget):  # {{{
                     for i, result in enumerate(search_in_name(name, search_query)):
                         before, text, after, offset = result
                         q = (before or '')[-5:] + text + (after or '')[:5]
-                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset))
+                        result_num += 1
+                        self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset, result_num))
                         counter[q] += 1
                 except Exception:
                     import traceback
@@ -691,10 +705,10 @@ class SearchPanel(QWidget):  # {{{
             else:
                 self.show_no_results_found()
             return
-        if self.results.add_result(result) == 1:
-            # first result
-            self.results.select_first_result()
-            self.results.item_activated()
+        self.results.add_result(result)
+        obj = result.for_js
+        obj['on_discovery'] = self.discovery_counter
+        self.show_search_result.emit(obj)
         self.update_hidden_message()
 
     def visibility_changed(self, visible):
@@ -729,6 +743,9 @@ class SearchPanel(QWidget):  # {{{
     def search_result_not_found(self, sr):
         self.results.search_result_not_found(sr)
         self.update_hidden_message()
+
+    def search_result_discovered(self, sr):
+        self.results.search_result_discovered(sr)
 
     def show_no_results_found(self):
         msg = _('No matches were found for:')

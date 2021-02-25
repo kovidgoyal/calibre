@@ -110,6 +110,17 @@ class EPUBReadingSystem:
         return self.__repr__()
 
 
+class FullBookSearch:
+
+    def __init__(self):
+        start_spine_index = current_spine_item()?.index
+        if not start_spine_index?:
+            start_spine_index = -1
+        self.start_spine_index = start_spine_index
+        self.progress_frac_at_start = progress_frac()
+        self.first_result_shown = False
+
+
 class IframeBoss:
 
     def __init__(self):
@@ -122,6 +133,7 @@ class IframeBoss:
         self.content_ready = False
         self.last_window_width = self.last_window_height = -1
         self.forward_keypresses = False
+        self.full_book_search_in_progress = None
         set_boss(self)
         handlers = {
             'change_color_scheme': self.change_color_scheme,
@@ -746,9 +758,24 @@ class IframeBoss:
             self.send_message(msg_type, text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
     def show_search_result(self, data, from_load):
+        sr = data.search_result
+        if sr.on_discovery:
+            if sr.result_num is 1:
+                self.full_book_search_in_progress = FullBookSearch()
+            elif self.full_book_search_in_progress?.first_result_shown:
+                return
         self.last_search_at = window.performance.now()
-        if select_search_result(data.search_result):
+        x, y = scroll_viewport.x(), scroll_viewport.y()
+        if select_search_result(sr):
             self.ensure_selection_visible()
+            if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
+                discovered = False
+                if progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
+                    self.full_book_search_in_progress.first_result_shown = True
+                    discovered = True
+                else:
+                    scroll_viewport.scroll_to(x, y)
+                self.send_message('search_result_discovered', search_result=data.search_result, discovered=discovered)
         else:
             self.send_message('search_result_not_found', search_result=data.search_result)
 

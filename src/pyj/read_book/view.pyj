@@ -287,10 +287,8 @@ class View:
             'update_cfi': self.on_update_cfi,
             'update_progress_frac': self.on_update_progress_frac,
             'update_toc_position': self.on_update_toc_position,
-            'search_result_not_found': def (data):
-                if ui_operations.search_result_not_found:
-                    ui_operations.search_result_not_found(data.search_result)
-            ,
+            'search_result_not_found': self.search_result_not_found,
+            'search_result_discovered': self.search_result_discovered,
             'annotations': self.on_annotations_message,
             'tts': self.on_tts_message,
             'hints': self.on_hints_message,
@@ -1374,11 +1372,39 @@ class View:
         if ui_operations.reference_mode_changed:
             ui_operations.reference_mode_changed(self.reference_mode_enabled)
 
+    def discover_search_result(self, sr):
+        if sr.result_num is 1:
+            self.search_result_discovery = {'queue': v'[]', 'on_discovery': sr.on_discovery, 'in_flight': None, 'discovered': False}
+        if not self.search_result_discovery or self.search_result_discovery.discovered or self.search_result_discovery.on_discovery is not sr.on_discovery:
+            return
+        self.search_result_discovery.queue.push(sr)
+        if not self.search_result_discovery.in_flight:
+            self.show_search_result(self.search_result_discovery.queue.shift())
+
+    def handle_search_result_discovery(self, sr, discovered):
+        if self.search_result_discovery?.on_discovery is sr.on_discovery:
+            self.search_result_discovery.in_flight = None
+            if discovered:
+                self.search_result_discovery.discovered = True
+                ui_operations.search_result_discovered(sr)
+            elif not self.search_result_discovery.discovered and self.search_result_discovery.queue.length:
+                self.show_search_result(self.search_result_discovery.queue.shift())
+
+    def search_result_discovered(self, data):
+        self.handle_search_result_discovery(data.search_result, data.discovered)
+
+    def search_result_not_found(self, data):
+        if ui_operations.search_result_not_found:
+            ui_operations.search_result_not_found(data.search_result)
+        self.handle_search_result_discovery(data.search_result, False)
+
     def show_search_result(self, sr):
         if self.currently_showing.name is sr.file_name:
             self.iframe_wrapper.send_message('show_search_result', search_result=sr)
         else:
             self.show_name(sr.file_name, initial_position={'type':'search_result', 'search_result':sr, 'replace_history':True})
+        if self.search_result_discovery?.on_discovery is sr.on_discovery:
+            self.search_result_discovery.in_flight = sr.result_num
 
     def highlight_action(self, uuid, which):
         spine = self.book.manifest.spine

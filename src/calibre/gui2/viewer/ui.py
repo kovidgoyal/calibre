@@ -168,6 +168,7 @@ class EbookViewer(MainWindow):
         self.web_view.find_next.connect(self.search_widget.find_next_requested)
         self.search_widget.show_search_result.connect(self.web_view.show_search_result)
         self.web_view.search_result_not_found.connect(self.search_widget.search_result_not_found)
+        self.web_view.search_result_discovered.connect(self.search_widget.search_result_discovered)
         self.web_view.toggle_bookmarks.connect(self.toggle_bookmarks)
         self.web_view.toggle_highlights.connect(self.toggle_highlights)
         self.web_view.new_bookmark.connect(self.bookmarks_widget.create_new_bookmark)

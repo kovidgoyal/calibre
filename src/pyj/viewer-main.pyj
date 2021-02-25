@@ -270,7 +270,10 @@ def trigger_shortcut(which):
 @from_python
 def show_search_result(sr):
     if view:
-        view.show_search_result(sr)
+        if sr.on_discovery:
+            view.discover_search_result(sr)
+        else:
+            view.show_search_result(sr)
 
 @from_python
 def prepare_for_close():
@@ -403,6 +406,8 @@ if window is window.top:
         to_python.read_aloud_state_changed(active)
     ui_operations.search_result_not_found = def(sr):
         to_python.search_result_not_found(sr)
+    ui_operations.search_result_discovered = def(sr):
+        to_python.search_result_discovered(sr)
     ui_operations.scrollbar_context_menu = def(x, y, frac):
         to_python.scrollbar_context_menu(x, y, frac)
     ui_operations.close_prep_finished = def(cfi):
