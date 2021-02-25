@@ -141,10 +141,11 @@ class FieldNode(Node):
 
 
 class RawFieldNode(Node):
-    def __init__(self, expression):
+    def __init__(self, expression, default=None):
         Node.__init__(self)
         self.node_type = self.NODE_RAW_FIELD
         self.expression = expression
+        self.default = default
 
 
 class FirstNonEmptyNode(Node):
@@ -460,8 +461,8 @@ class _Parser(object):
                 self.error(_('Missing closing parenthesis'))
             if id_ == 'field' and len(arguments) == 1:
                 return FieldNode(arguments[0])
-            if id_ == 'raw_field' and len(arguments) == 1:
-                return RawFieldNode(arguments[0])
+            if id_ == 'raw_field' and (len(arguments) in (1, 2)):
+                return RawFieldNode(*arguments)
             if id_ == 'test' and len(arguments) == 3:
                 return IfNode(arguments[0], (arguments[1],), (arguments[2],))
             if id_ == 'first_non_empty' and len(arguments) > 0:
@@ -634,6 +635,8 @@ class _Interpreter(object):
         try:
             name = self.expr(prog.expression)
             res = getattr(self.parent_book, name, None)
+            if res is None and prog.default is not None:
+                return self.expr(prog.default)
             if res is not None:
                 if isinstance(res, list):
                     fm = self.parent_book.metadata_for_field(name)
