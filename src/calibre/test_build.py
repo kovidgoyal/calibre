@@ -69,10 +69,10 @@ class BuildTest(unittest.TestCase):
         del CHMFile, chmlib
 
     def test_chardet(self):
-        from chardet import detect
+        from cchardet import detect
         raw = 'mūsi Füße'.encode('utf-8')
         data = detect(raw)
-        self.assertEqual(data['encoding'], 'utf-8')
+        self.assertEqual(data['encoding'].lower(), 'utf-8')
         self.assertGreater(data['confidence'], 0.5)
         # The following is used by html5lib
         from chardet.universaldetector import UniversalDetector

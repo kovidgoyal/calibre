@@ -102,13 +102,21 @@ def substitute_entites(raw):
     return ENTITY_PATTERN.sub(xml_entity_to_unicode, raw)
 
 
-_CHARSET_ALIASES = {"macintosh" : "mac-roman",
-                        "x-sjis" : "shift-jis"}
+_CHARSET_ALIASES = {"macintosh" : "mac-roman", "x-sjis" : "shift-jis"}
 
 
-def detect(*args, **kwargs):
-    from chardet import detect
-    return detect(*args, **kwargs)
+def detect(bytestring):
+    try:
+        from cchardet import detect as implementation
+    except ImportError:
+        from chardet import detect as implementation
+        return implementation(bytestring)
+    else:
+        ans = implementation(bytestring)
+        enc = ans.get('encoding')
+        if enc:
+            ans['encoding'] = enc.lower()
+        return ans
 
 
 def force_encoding(raw, verbose, assume_utf8=False):
