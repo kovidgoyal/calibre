@@ -14,8 +14,8 @@ class LiberationFonts(ReVendor):
     description = 'Download the Liberation fonts'
     NAME = 'liberation_fonts'
     TAR_NAME = 'liberation-fonts'
-    VERSION = '2.1.1'
-    DOWNLOAD_URL = 'https://github.com/liberationfonts/liberation-fonts/files/4743886/liberation-fonts-ttf-%s.tar.gz' % VERSION
+    VERSION = '2.1.3'
+    DOWNLOAD_URL = 'https://github.com/liberationfonts/liberation-fonts/files/6026893/liberation-fonts-ttf-%s.tar.gz' % VERSION
 
     @property
     def vendored_dir(self):
