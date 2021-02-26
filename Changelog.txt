@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 5.12.0 2021-02-26
+
+:: new features
+
+- [1915773] E-book viewer: When searching start the search from the current position, jumping to the first match at or after the current page
+
+- [1916411] E-book viewer: Have the Table of Contents view automatically scroll to keep the chapter being read currently visible
+
+- Various improvements to the calibre template language, see https://www.mobileread.com/forums/showthread.php?t=337573
+
+- Edit book: File browser: Show total size of items in category when hovering over category with mouse
+
+- Kobo driver: Add support for latest firmware and also an option to choose the color used for cover letterboxing
+
+:: bug fixes
+
+- [1915685] E-book viewer: Fix selection popup bar sometimes going off screen when dragging up to the top line of text
+
+- Get books: Update the Biblio and Chitanka stores for website changes
+
+- [1915770] Edit book: Fix editing of JavaScript files not working
+
+:: improved recipes
+- Slate
+- Harper's Magazine
+
+}}}
+
 {{{ 5.11.0 2021-02-12
 
 :: new features
