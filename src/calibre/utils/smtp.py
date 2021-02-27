@@ -112,7 +112,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
                        filename=Header(attachment_name, 'utf-8').encode())
         outer.attach(msg)
 
-    return outer.as_string()
+    return outer
 
 
 def get_mx(host, verbose=0):
@@ -124,8 +124,9 @@ def get_mx(host, verbose=0):
     return [unicode_type(x.exchange) for x in answers if hasattr(x, 'exchange')]
 
 
-def sendmail_direct(from_, to, msg: bytes, timeout, localhost, verbose,
+def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
+    from email.message import Message
     import polyglot.smtplib as smtplib
     hosts = get_mx(to.split('@')[-1].strip(), verbose)
     timeout=None  # Non blocking sockets sometimes don't work
@@ -140,7 +141,10 @@ def sendmail_direct(from_, to, msg: bytes, timeout, localhost, verbose,
     for host in hosts:
         try:
             s.connect(host, 25)
-            s.sendmail(from_, [to], msg)
+            if isinstance(msg, Message):
+                s.send_message(msg, from_, [to])
+            else:
+                s.sendmail(from_, [to], msg)
             return s.quit()
         except Exception as e:
             last_error, last_traceback = e, traceback.format_exc()
@@ -163,8 +167,7 @@ def get_smtp_class(use_ssl=False, debuglevel=0):
 def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
              relay=None, username=None, password=None, encryption='TLS',
              port=-1, debug_output=None, verify_server_cert=False, cafile=None):
-    if isinstance(msg, str):
-        msg = msg.encode('utf-8')
+    from email.message import Message
     if relay is None:
         for x in to:
             return sendmail_direct(from_, x, msg, timeout, localhost, verbose)
@@ -188,7 +191,10 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
         s.login(username, password)
     ret = None
     try:
-        s.sendmail(from_, to, msg)
+        if isinstance(msg, Message):
+            s.send_message(msg, from_, to)
+        else:
+            s.sendmail(from_, to, msg)
     finally:
         try:
             ret = s.quit()
@@ -300,16 +306,15 @@ def main(args=sys.argv):
         eto = [extract_email_address(x.strip()) for x in to.split(',')]
         efrom = extract_email_address(from_)
     else:
-        msg = sys.stdin.read()
-        from email import message_from_string
+        from email import message_from_bytes
         from email.utils import getaddresses
-        eml = message_from_string(msg)
-        tos = eml.get_all('to', [])
-        ccs = eml.get_all('cc', []) + eml.get_all('bcc', [])
+        msg = message_from_bytes(sys.stdin.buffer.read())
+        tos = msg.get_all('to', [])
+        ccs = msg.get_all('cc', []) + msg.get_all('bcc', [])
         eto = [x[1] for x in getaddresses(tos + ccs) if x[1]]
         if not eto:
             raise ValueError('Email from STDIN does not specify any recipients')
-        efrom = getaddresses(eml.get_all('from', []))
+        efrom = getaddresses(msg.get_all('from', []))
         if not efrom:
             raise ValueError('Email from STDIN does not specify a sender')
         efrom = efrom[0][1]
@@ -323,8 +328,6 @@ def main(args=sys.argv):
         if os.fork() != 0:
             return 0
 
-    if isinstance(msg, str):
-        msg = msg.encode('utf-8')
     try:
         sendmail(msg, efrom, eto, localhost=opts.localhost, verbose=opts.verbose,
              timeout=opts.timeout, relay=opts.relay, username=opts.username,
