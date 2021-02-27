@@ -372,6 +372,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
         self.font_size_box.valueChanged.connect(self.font_size_changed)
+        self.textbox.setFocus()
 
     def font_size_changed(self, toWhat):
         gprefs['gpm_template_editor_font_size'] = toWhat

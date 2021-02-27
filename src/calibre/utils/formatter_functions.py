@@ -884,9 +884,10 @@ class BuiltinSelect(BuiltinFormatterFunction):
         if not val:
             return ''
         vals = [v.strip() for v in val.split(',')]
+        tkey = key+':'
         for v in vals:
-            if v.startswith(key+':'):
-                return v[len(key)+1:]
+            if v.startswith(tkey):
+                return v[len(tkey):]
         return ''
 
 
@@ -1096,7 +1097,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
         si = int(start_index)
         ei = int(end_index)
         has_periods = '.' in val
-        items = [v.strip() for v in val.split(',')]
+        items = [v.strip() for v in val.split(',') if v.strip()]
         rv = set()
         for item in items:
             if has_periods and '.' in item:
