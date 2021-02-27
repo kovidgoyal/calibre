@@ -17,13 +17,14 @@ from multiprocessing.dummy import Pool
 from tempfile import NamedTemporaryFile
 
 from calibre import as_unicode, sanitize_file_name as sanitize_file_name_base
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, barename, iterlinks
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import TemporaryDirectory
 from calibre.web import get_download_filename_from_response
-from polyglot.builtins import iteritems
-from polyglot.urllib import urlopen, urlparse
 from polyglot.binary import from_base64_bytes
+from polyglot.builtins import iteritems
+from polyglot.urllib import unquote, urlopen, urlparse
 
 
 def is_external(url):
@@ -108,8 +109,11 @@ def download_one(tdir, timeout, progress_report, data_uri_map, url):
         data_url_key = None
         with NamedTemporaryFile(dir=tdir, delete=False) as df:
             if purl.scheme == 'file':
-                src = lopen(purl.path, 'rb')
-                filename = os.path.basename(src)
+                path = unquote(purl.path)
+                if iswindows and path.startswith('/'):
+                    path = path[1:]
+                src = lopen(path, 'rb')
+                filename = os.path.basename(path)
                 sz = (src.seek(0, os.SEEK_END), src.tell(), src.seek(0))[1]
             elif purl.scheme == 'data':
                 prefix, payload = purl.path.split(',', 1)
