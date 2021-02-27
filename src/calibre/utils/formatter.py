@@ -668,9 +668,9 @@ class _Interpreter(object):
     INFIX_STRING_COMPARE_OPS = {
         "==": lambda x, y: strcmp(x, y) == 0,
         "!=": lambda x, y: strcmp(x, y) != 0,
-        "<":  lambda x, y: strcmp(x, y) < 0,
+        "<": lambda x, y: strcmp(x, y) < 0,
         "<=": lambda x, y: strcmp(x, y) <= 0,
-        ">":  lambda x, y: strcmp(x, y) > 0,
+        ">": lambda x, y: strcmp(x, y) > 0,
         ">=": lambda x, y: strcmp(x, y) >= 0,
         "in": lambda x, y: re.search(x, y, flags=re.I),
         }
@@ -686,9 +686,9 @@ class _Interpreter(object):
     INFIX_NUMERIC_COMPARE_OPS = {
         "==#": lambda x, y: x == y,
         "!=#": lambda x, y: x != y,
-        "<#":  lambda x, y: x < y,
+        "<#": lambda x, y: x < y,
         "<=#": lambda x, y: x <= y,
-        ">#":  lambda x, y: x > y,
+        ">#": lambda x, y: x > y,
         ">=#": lambda x, y: x >= y,
         }
 
@@ -833,8 +833,8 @@ class _Interpreter(object):
         return self.expr(prog.not_match_expression)
 
     LOGICAL_BINARY_OPS = {
-        'and':      lambda self, x, y: self.expr(x) and self.expr(y),
-        'or':       lambda self, x, y: self.expr(x) or self.expr(y),
+        'and': lambda self, x, y: self.expr(x) and self.expr(y),
+        'or': lambda self, x, y: self.expr(x) or self.expr(y),
     }
 
     def do_node_logop(self, prog):
@@ -844,7 +844,7 @@ class _Interpreter(object):
             self.error(_('Error during operator evaluation. Operator {0}').format(prog.operator))
 
     LOGICAL_UNARY_OPS = {
-        'not':       lambda x: not x,
+        'not': lambda x: not x,
     }
 
     def do_node_logop_unary(self, prog):
