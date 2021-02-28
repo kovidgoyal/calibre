@@ -14,6 +14,16 @@ from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
 
 
+class FixedLaTeXHelpBuilder(LaTeXHelpBuilder):
+    # see https://github.com/sphinx-doc/sphinx/issues/8936
+
+    def visit_substitution_definition(self, node):
+        pass
+
+    def depart_substitution_definition(self, node):
+        pass
+
+
 def substitute(app, doctree):
     pass
 
@@ -375,7 +385,7 @@ def setup(app):
     setup_man_pages(app)
     app.add_css_file('custom.css')
     app.add_builder(EPUBHelpBuilder)
-    app.add_builder(LaTeXHelpBuilder)
+    app.add_builder(FixedLaTeXHelpBuilder)
     app.connect('source-read', source_read_handler)
     app.connect('doctree-read', substitute)
     app.connect('builder-inited', generate_docs)
