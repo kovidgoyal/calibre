@@ -172,7 +172,7 @@ available in the section :ref:`Function reference <template_functions_reference>
     * ``titlecase()``	-- return the value of the field in title case.
     * ``capitalize()``	-- return the value with the first letter upper case and the rest lower case.
     * ``contains(pattern, text if match, text if not match)`` -- checks if field contains matches for the
-      regular expression `pattern`. Returns `text if match` if matches are found, otherwise it 
+      regular expression `pattern`. Returns `text if match` if matches are found, otherwise it
       returns `text if no match`.
     * ``count(separator)`` -- interprets the value as a list of items separated by `separator`, returning
       the number of items in the list. Most lists use a comma as the separator, but authors uses an ampersand.
@@ -219,7 +219,7 @@ available in the section :ref:`Function reference <template_functions_reference>
     * ``shorten(left chars, middle text, right chars)`` -- Return a shortened version of the field,
       consisting of `left chars` characters from the beginning of the field, followed by `middle text`,
       followed by `right chars` characters from the end of the string. `Left chars` and
-      `right chars` must be integers. For example, assume the title of the book 
+      `right chars` must be integers. For example, assume the title of the book
       is `Ancient English Laws in the Times of Ivanhoe`, and you want it to fit in a space of at most 15
       characters. If you use ``{title:shorten(9,-,5)}``, the result will be `Ancient E-nhoe`. If the field's
       length is less than ``left chars`` + ``right chars`` + the length of ``middle text``, then the field
@@ -261,16 +261,16 @@ available in the section :ref:`Function reference <template_functions_reference>
     * ``swap_around_articles(separator)`` -- returns the val with articles moved to the end. The value ca
       be a list, in which case each member of the list is processed. If the value is a list then you must
       provide the list value separator. If no separator is provided then the value is treated as being a
-      single value, not a list. 
+      single value, not a list.
     * ``swap_around_comma()`` -- given a field with a value of the form ``B, A``, return ``A B``.
       This is most useful for converting names in LN, FN format to FN LN. If there is no comma,
-      the function returns val unchanged. 
+      the function returns val unchanged.
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair,
       checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``.
       If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs
       as you wish.
     * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not
-      empty, otherwise return `text if empty`. 
+      empty, otherwise return `text if empty`.
     * ``transliterate()`` -- Returns a string in a latin alphabet formed by approximating the sound of
       the words in the source field. For example, if the source field is ``Фёдор Миха́йлович Достоевский``
       the function returns ``Fiodor Mikhailovich Dostoievskii``.'
@@ -306,24 +306,20 @@ is shown by the following grammar:
     and_expression  ::= not_expression [ '&&' not_expression ]*
     not_expression  ::= ['!' not_expression]* | compare_exp
     compare_expr    ::= add_sub_expr [ compare_op add_sub_expr ]
-    compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' | 
-                        '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
+    compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' | '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
     add_sub_expr    ::= times_div_expr [ add_sub_op times_div_expr ]*
     add_sub_op      ::= '+' | '-'
     times_div_expr  ::= unary_op_expr [ times_div_op unary_op_expr ]*
     times_div_op    ::= '*' | '/'
     unary_op_expr   ::= [ add_sub_op unary_op_expr ]* | expression
-    expression      ::= identifier | constant | function | assignment |
-                        compare | if_expression | for_expression | '(' top_expression ')'
+    expression      ::= identifier | constant | function | assignment | compare | if_expression | for_expression | '(' top_expression ')'
     identifier      ::= sequence of letters or ``_`` characters
     constant        ::= " string " | ' string ' | number
     function        ::= identifier '(' top_expression [ ',' top_expression ]* ')'
     assignment      ::= identifier '=' top_expression
-    if_expression   ::= 'if' top_expression 'then' expression_list
-                        [elif_expression] ['else' expression_list] 'fi'
+    if_expression   ::= 'if' top_expression 'then' expression_list [elif_expression] ['else' expression_list] 'fi'
     elif_expression ::= 'elif' top_expression 'then' expression_list elif_expression | ''
-    for_expression  ::= 'for' identifier 'in' top_expression
-                        [ 'separator' top_expression ] ':' expression_list 'rof'
+    for_expression  ::= 'for' identifier 'in' top_expression [ 'separator' top_expression ] ':' expression_list 'rof'
 
 Comments are lines with a '#' character at the beginning of the line.
 
@@ -363,7 +359,7 @@ The operator precedence (order of evaluation) specified by the above grammar is:
 If expressions evaluate the first top_expression, called the condition. The condition is True if it evaluates
 to anything other than the empty string. If it is True then the expression list in the ``then`` section is
 evaluated. If it is False then the expression in the ``elif`` or ``else`` expression is evaluated. The
-``elif`` and ``else`` parts are optional. The words ``if``, ``then``, ``elif``, ``else``, and ``fi`` are 
+``elif`` and ``else`` parts are optional. The words ``if``, ``then``, ``elif``, ``else``, and ``fi`` are
 reserved; you cannot use them as identifier names. You can put newlines and white space wherever they
 make sense. The condition is a top_expression; semicolons are not allowed. The expression_lists are
 semicolon-separated sequences of template language top_expressions, including nested ifs. An if expression
@@ -430,7 +426,7 @@ the value of the last top_expression in the expression list.
 Relational operators return '1' if they evaluate to True, otherwise the empty string ('').
 
 There are two forms of relational operator: string comparisons and numeric comparisons. The supported string
-comparison operators are ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``, and ``in``. 
+comparison operators are ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``, and ``in``.
 They do case-insensitive string comparison using lexical order. For the ``in`` operator, the result of
 the left hand expression is interpreted as a regular expression pattern. The ``in`` operator is True if the
 pattern matches the value of the right hand expression. The match is case-insensitive.
@@ -744,7 +740,7 @@ For various values of series_index, the program returns:
 and :ref:`General Program Mode <general_mode>` can be used in Template Program Mode**. For functions
 documented under :ref:`Single Function Mode <single_mode>` you must supply the value the function is to act
 upon as the first parameter in addition to the documented parameters. For example,
-in :ref:`General Program Mode <general_mode>` the parameters of the `test` function 
+in :ref:`General Program Mode <general_mode>` the parameters of the `test` function
 are ``test(x, text_if_not_empty, text_if_empty)``. The `x` parameter, which is
 the value to be tested, will almost always be a variable or a function call, often `field()`.
 
@@ -752,7 +748,7 @@ the value to be tested, will almost always be a variable or a function call, oft
 Stored General Program Mode Templates
 ----------------------------------------
 
-:ref:`General Program Mode <general_mode>` supports saving templates and calling those templates from another template. 
+:ref:`General Program Mode <general_mode>` supports saving templates and calling those templates from another template.
 You save templates using :guilabel:`Preferences->Advanced->Template functions`. More information is provided in
 that dialog. You call a template the same way you call a function, passing positional arguments if desired.
 An argument can be any expression. Examples of calling a template, assuming the stored template is named ``foo``:
@@ -891,7 +887,7 @@ use 'Unknown'. We want two completely different paths, depending on the value of
 
 To accomplish this, we:
     1. Create a composite field (give it lookup name #AA) containing ``{series}/{series_index} - {title}``. If
-      the series is not empty, then this template will produce `series/series_index - title`.
+       the series is not empty, then this template will produce `series/series_index - title`.
     2. Create a composite field (give it lookup name #BB) containing ``{#genre:ifempty(Unknown)}/{author_sort}/{title}``.
        This template produces `genre/author_sort/title`, where an empty genre is replaced with `Unknown`.
     3. Set the save template to ``{series:lookup(.,#AA,#BB)}``. This template chooses composite field #AA if series is not empty,
