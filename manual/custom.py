@@ -354,24 +354,8 @@ def setup_man_pages(app):
     app.config['man_pages'] = man_pages
 
 
-def monkey_patch_docutils():
-    # fixes a bug in sphinx https://github.com/sphinx-doc/sphinx/issues/5150
-    from docutils import nodes
-
-    orig_method = nodes.document.set_duplicate_name_id
-
-    def set_duplicate_name_id(*a):
-        try:
-            return orig_method(*a)
-        except KeyError:
-            pass
-
-    nodes.document.set_duplicate_name_id = set_duplicate_name_id
-
-
 def setup(app):
     from docutils.parsers.rst import roles
-    monkey_patch_docutils()
     setup_man_pages(app)
     app.add_css_file('custom.css')
     app.add_builder(EPUBHelpBuilder)
