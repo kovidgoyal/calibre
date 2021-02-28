@@ -14,10 +14,6 @@ from epub import EPUBHelpBuilder
 from latex import LaTeXHelpBuilder
 
 
-def substitute(app, doctree):
-    pass
-
-
 def info(*a):
     getLogger(__name__).info(*a)
 
@@ -311,9 +307,9 @@ def cli_docs(language):
             update_cli_doc(cmd, raw, language)
 
 
-def generate_docs(app, config):
-    cli_docs(config.language)
-    template_docs(config.language)
+def generate_docs(language):
+    cli_docs(language)
+    template_docs(language)
 
 
 def template_docs(language):
@@ -357,12 +353,11 @@ def setup_man_pages(app):
 def setup(app):
     from docutils.parsers.rst import roles
     setup_man_pages(app)
+    generate_docs(app.config.language)
     app.add_css_file('custom.css')
     app.add_builder(EPUBHelpBuilder)
     app.add_builder(LaTeXHelpBuilder)
     app.connect('source-read', source_read_handler)
-    app.connect('doctree-read', substitute)
-    app.connect('config-inited', generate_docs)
     app.connect('html-page-context', add_html_context)
     app.connect('build-finished', finished)
     roles.register_local_role('guilabel', guilabel_role)
