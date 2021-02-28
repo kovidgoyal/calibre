@@ -531,15 +531,12 @@ OptionRecommendation(name='asciiize',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=(_('Transliterate Unicode characters to an ASCII '
             'representation. Use with care because this will replace '
-            'Unicode characters with ASCII. For instance it will replace "%s" '
-            'with "Mikhail Gorbachiov". Also, note that in '
+            'Unicode characters with ASCII. For instance it will replace "{0}" '
+            'with "{1}". Also, note that in '
             'cases where there are multiple representations of a character '
             '(characters shared by Chinese and Japanese for instance) the '
             'representation based on the current calibre interface language will be '
-            'used.')%
-            '\u041c\u0438\u0445\u0430\u0438\u043b '
-            '\u0413\u043e\u0440\u0431\u0430\u0447\u0451\u0432'
-)
+            'used.').format('Pelé', 'Pele'))
         ),
 
 OptionRecommendation(name='keep_ligatures',
