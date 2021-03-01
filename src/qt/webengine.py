@@ -4,11 +4,11 @@
 
 
 from .loader import dynamic_load
-from .webengine_name_map import name_map
+from .webengine_name_map import name_map, module_names
 
 already_imported = {}
 qt_modules = {}
 
 
 def __getattr__(name):
-    return dynamic_load(name, name_map, already_imported, qt_modules)
+    return dynamic_load(name, name_map, already_imported, qt_modules, module_names)

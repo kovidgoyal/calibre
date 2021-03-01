@@ -286,11 +286,11 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
-        from PyQt5.QtCore import QTimer
-        from PyQt5.QtWidgets import QApplication
+        from qt.core import QTimer
+        from qt.core import QApplication
         from qt.webengine import QWebEnginePage
-        from PyQt5.QtGui import QImageReader, QFontDatabase
-        from PyQt5.QtNetwork import QNetworkAccessManager
+        from qt.core import QImageReader, QFontDatabase
+        from qt.core import QNetworkAccessManager
         from calibre.utils.img import image_from_data, image_to_data, test
         # Ensure that images can be read before QApplication is constructed.
         # Note that this requires QCoreApplication.libraryPaths() to return the

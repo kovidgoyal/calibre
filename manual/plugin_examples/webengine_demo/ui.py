@@ -11,7 +11,7 @@ if False:
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
-from PyQt5.Qt import QInputDialog
+from qt.core import QInputDialog
 
 
 class InterfacePlugin(InterfaceAction):

@@ -361,7 +361,7 @@ class MainWindowMixin(object):  # {{{
             try:
                 self.setUnifiedTitleAndToolBarOnMac(True)
             except AttributeError:
-                pass  # PyQt5 seems to be missing this property
+                pass  # PyQt seems to be missing this property
 
         # And now, start adding the real widgets
         l.addWidget(self.search_bar)

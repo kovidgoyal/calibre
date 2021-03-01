@@ -10,7 +10,7 @@ from itertools import count
 from qt.core import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QEvent, QFontDatabase, QFontInfo,
     QHBoxLayout, QIODevice, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl,
-    QWidget, pyqtSignal
+    QWidget, pyqtSignal, sip
 )
 from qt.webengine import (
     QWebEngineUrlRequestInfo, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler
@@ -40,11 +40,6 @@ from calibre.utils.serialize import json_loads
 from calibre.utils.shared_file import share_open
 from polyglot.builtins import as_bytes, iteritems, unicode_type
 from polyglot.functools import lru_cache
-
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
 
 SANDBOX_HOST = FAKE_HOST.rpartition('.')[0] + '.sandbox'
 

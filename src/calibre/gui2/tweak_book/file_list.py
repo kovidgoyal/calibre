@@ -14,7 +14,7 @@ from qt.core import (
     QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget, QAbstractItemView,
     QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,
     QSpinBox, QStyle, QStyledItemDelegate, Qt, QTimer, QTreeWidget, QTreeWidgetItem,
-    QVBoxLayout, QWidget, pyqtSignal
+    QVBoxLayout, QWidget, pyqtSignal, sip
 )
 
 from calibre import human_readable, sanitize_file_name
@@ -41,11 +41,6 @@ from calibre.utils.icu import numeric_sort_key
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
 from polyglot.builtins import filter, iteritems, map, range, unicode_type
-
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
 
 
 FILE_COPY_MIME = 'application/calibre-edit-book-files'

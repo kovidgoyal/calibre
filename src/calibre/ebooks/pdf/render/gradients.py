@@ -10,11 +10,7 @@ import sys, copy
 from polyglot.builtins import map, range
 from collections import namedtuple
 
-from qt.core import QLinearGradient, QPointF
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
+from qt.core import QLinearGradient, QPointF, sip
 
 from calibre.ebooks.pdf.render.common import Name, Array, Dictionary
 

@@ -3,8 +3,8 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from qt.core import QUrl
+from qt.webengine import QWebEngineView
 
 from calibre.gui2 import Application
 

@@ -6,11 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import Qt
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
+from qt.core import Qt, sip
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo

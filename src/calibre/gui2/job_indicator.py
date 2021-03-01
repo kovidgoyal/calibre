@@ -43,7 +43,7 @@ class Pointer(QWidget):
         self.color.setAlpha(100)
         self.brush = QBrush(self.color, Qt.BrushStyle.SolidPattern)
 
-        # from PyQt5.Qt import QTimer
+        # from qt.core import QTimer
         # QTimer.singleShot(1000, self.start)
 
     @property

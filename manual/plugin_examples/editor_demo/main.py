@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
-from PyQt5.Qt import QAction, QInputDialog
+from qt.core import QAction, QInputDialog
 from css_parser.css import CSSRule
 
 # The base class that all tools must inherit from

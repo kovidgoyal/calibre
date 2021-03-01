@@ -21,11 +21,7 @@ from .catalog_epub_mobi_ui import Ui_Form
 from qt.core import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
-        QUrl, QVBoxLayout, QWidget)
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
+        QUrl, QVBoxLayout, QWidget, sip)
 
 
 class PluginWidget(QWidget,Ui_Form):

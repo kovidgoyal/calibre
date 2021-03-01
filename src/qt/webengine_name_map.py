@@ -29,4 +29,7 @@ name_map = {'PYQT_WEBENGINE_VERSION': 'PyQt5.QtWebEngine',
  'QWebEngineUrlSchemeHandler': 'PyQt5.QtWebEngineCore',
  'QWebEngineView': 'PyQt5.QtWebEngineWidgets',
  'QtWebEngine': 'PyQt5.QtWebEngine',
- 'QtWebEngineCore': 'PyQt5.QtWebEngineCore'}
+ 'QtWebEngineCore': 'PyQt5.QtWebEngineCore',
+ 'QtWebEngineWidgets': 'PyQt5.QtWebEngineWidgets'}
+module_names = frozenset(('QtWebEngine', 'QtWebEngineCore', 'QtWebEngineWidgets')
+)

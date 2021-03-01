@@ -6,7 +6,7 @@ from importlib import import_module
 import sys
 
 
-def dynamic_load(name, name_map, already_imported, qt_modules):
+def dynamic_load(name, name_map, already_imported, qt_modules, module_names=()):
     ans = already_imported.get(name, already_imported)
     if ans is not already_imported:
         return ans
@@ -26,7 +26,10 @@ def dynamic_load(name, name_map, already_imported, qt_modules):
                     file=sys.stderr
                 )
         if mod is not False:
-            q = getattr(mod, name, qt_modules)
+            if name in module_names:
+                q = mod
+            else:
+                q = getattr(mod, name, qt_modules)
             if q is not qt_modules:
                 already_imported[name] = q
                 return q

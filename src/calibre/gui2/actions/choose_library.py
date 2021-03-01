@@ -601,7 +601,7 @@ class ChooseLibraryAction(InterfaceAction):
 
         # from calibre.utils.mem import memory
         # import weakref
-        # from PyQt5.Qt import QTimer
+        # from qt.core import QTimer
         # self.dbref = weakref.ref(self.gui.library_view.model().db)
         # self.before_mem = memory()
         self.gui.library_moved(loc, allow_rebuild=True)

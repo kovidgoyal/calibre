@@ -9,11 +9,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence, QAbstractItemView,
     QApplication, QListView, QPoint, QModelIndex, QEvent,
-    QStyleOptionComboBox, QStyle, QComboBox, QTimer)
-try:
-    from PyQt5 import sip
-except ImportError:
-    import sip
+    QStyleOptionComboBox, QStyle, QComboBox, QTimer, sip)
 
 from calibre.constants import ismacos
 from calibre.utils.icu import sort_key, primary_startswith, primary_contains

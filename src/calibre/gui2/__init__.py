@@ -1468,7 +1468,6 @@ if is_running_from_develop:
 
 
 def event_type_name(ev_or_etype):
-    from PyQt5.QtCore import QEvent
     etype = ev_or_etype.type() if isinstance(ev_or_etype, QEvent) else ev_or_etype
     for name, num in iteritems(vars(QEvent)):
         if num == etype:
