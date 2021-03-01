@@ -10,7 +10,7 @@ import os, errno
 from datetime import datetime
 from functools import partial
 
-from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QApplication,
+from qt.core import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QApplication,
         QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, QCoreApplication,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, QInputDialog,
         QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)

@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QSplitter, QTableView
+from qt.core import QSplitter, QTableView
 
 from calibre.gui2.library import DEFAULT_SORT
 from calibre.gui2 import gprefs

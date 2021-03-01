@@ -5,7 +5,7 @@
 
 from threading import Thread
 
-from PyQt5.Qt import (
+from qt.core import (
     pyqtSignal, QWidget, QListWidget, QListWidgetItem, QLabel, Qt,
     QVBoxLayout, QScrollArea, QProgressBar, QGridLayout, QSize, QIcon, QDialogButtonBox)
 

@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import numbers
 from functools import partial
 
-from PyQt5.Qt import QTextBlockUserData
+from qt.core import QTextBlockUserData
 from pygments.lexer import _TokenType, Error
 
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter

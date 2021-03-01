@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import (
+from qt.core import (
     QToolButton, QSize, QPropertyAnimation, Qt, QMetaObject, pyqtProperty, QSizePolicy,
     QWidget, QIcon, QPainter, QStyleOptionToolButton, QStyle, QAbstractAnimation)
 
@@ -77,7 +77,7 @@ class ThrobbingButton(QToolButton):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication, QHBoxLayout
+    from qt.core import QApplication, QHBoxLayout
     app = QApplication([])
     w = QWidget()
     w.setLayout(QHBoxLayout())

@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from threading import Thread
 
-from PyQt5.Qt import (
+from qt.core import (
     QTextBrowser, QVBoxLayout, QDialog, QDialogButtonBox, QIcon, QLabel,
     QCheckBox, Qt, QListWidgetItem, QHBoxLayout, QListWidget, QPixmap,
     QSpinBox, QStyledItemDelegate, QSize, QStyle, QPen, QPalette,

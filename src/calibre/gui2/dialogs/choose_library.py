@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, errno
 from threading import Thread, Event
 
-from PyQt5.Qt import QDialog, QTimer, Qt, pyqtSignal
+from qt.core import QDialog, QTimer, Qt, pyqtSignal
 
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
 from calibre.gui2.dialogs.progress import ProgressDialog as PD

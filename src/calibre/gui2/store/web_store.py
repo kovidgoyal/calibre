@@ -6,11 +6,11 @@
 import json
 import os
 import shutil
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QHBoxLayout, QIcon, QLabel, QProgressBar, QPushButton, QSize, QUrl,
     QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineWidgets import QWebEngineProfile, QWebEngineView, QWebEngineDownloadItem
+from qt.webengine import QWebEngineProfile, QWebEngineView, QWebEngineDownloadItem
 
 from calibre import random_user_agent, url_slash_cleaner
 from calibre.constants import STORE_DIALOG_APP_UID, cache_dir, islinux, iswindows

@@ -12,7 +12,7 @@ from math import ceil, sqrt, cos, sin, atan2
 from polyglot.builtins import iteritems, itervalues, map, zip, string_or_bytes
 from itertools import chain
 
-from PyQt5.Qt import (
+from qt.core import (
     QImage, Qt, QFont, QPainter, QPointF, QTextLayout, QTextOption,
     QFontMetrics, QTextCharFormat, QColor, QRect, QBrush, QLinearGradient,
     QPainterPath, QPen, QRectF, QTransform, QRadialGradient
@@ -727,7 +727,7 @@ def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=F
 
 
 def test(scale=0.25):
-    from PyQt5.Qt import QLabel, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
+    from qt.core import QLabel, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     from calibre.gui2 import Application
     app = Application([])
     mi = Metadata('Unknown', ['Kovid Goyal', 'John & Doe', 'Author'])

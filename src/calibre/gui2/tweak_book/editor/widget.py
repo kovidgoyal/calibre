@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import math
 import unicodedata
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QColor, QIcon, QImage, QInputDialog, QMainWindow, QMenu,
     QPainter, QPixmap, QSize, Qt, QTextCursor, QToolButton, pyqtSignal,
     qDrawShadeRect

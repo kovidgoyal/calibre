@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys, importlib, weakref
 
-from PyQt5.Qt import QDialog, QCoreApplication, QSize, QScrollArea, QApplication, QDialogButtonBox
+from qt.core import QDialog, QCoreApplication, QSize, QScrollArea, QApplication, QDialogButtonBox
 
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
@@ -218,7 +218,7 @@ class Catalog(QDialog, Ui_Dialog):
         To add help functionality for a specific format:
         In gui2.catalog.catalog_<format>.py, add the following:
             from calibre.gui2 import open_url
-            from PyQt5.Qt import QUrl
+            from qt.core import QUrl
 
         In the PluginWidget() class, add this method:
             def show_help(self):

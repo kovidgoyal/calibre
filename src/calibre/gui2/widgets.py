@@ -7,7 +7,7 @@ Miscellaneous widgets used in the GUI
 '''
 import re, os
 
-from PyQt5.Qt import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
+from qt.core import (QIcon, QFont, QLabel, QListWidget, QAction, QEvent,
         QListWidgetItem, QTextCharFormat, QApplication, QSyntaxHighlighter,
         QCursor, QColor, QWidget, QPixmap, QSplitterHandle, QToolButton,
         Qt, pyqtSignal, QRegExp, QSize, QSplitter, QPainter, QPageSize, QPrinter,
@@ -1289,7 +1289,7 @@ class PaperSizes(QComboBox):  # {{{
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QTextEdit
+    from qt.core import QTextEdit
     app = QApplication([])
     w = QTextEdit()
     s = PythonHighlighter(w)

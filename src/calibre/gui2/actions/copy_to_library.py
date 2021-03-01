@@ -12,7 +12,7 @@ from threading import Thread
 from contextlib import closing
 from collections import defaultdict
 
-from PyQt5.Qt import (
+from qt.core import (
     QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox,
     QApplication, QLineEdit, QHBoxLayout, QFormLayout, QCheckBox, QWidget,
     QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget, QSize, QAbstractItemView)

@@ -329,7 +329,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
             return
         if not names:
             return
-        from PyQt5.Qt import QImage, Qt
+        from qt.core import QImage, Qt
         names.sort(key=numeric_sort_key)
         for name in names:
             m = re.search(r'(\d+)x\d+', name)

@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, logging, os, traceback, time
 
-from PyQt5.Qt import (
+from qt.core import (
     QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon, Qt, QCoreApplication, QThread, QScrollBar)
 
 from calibre import __appname__, setup_cli_handlers, islinux, isbsd, as_unicode

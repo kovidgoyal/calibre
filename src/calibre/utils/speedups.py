@@ -50,7 +50,7 @@ def svg_path_to_painter_path(d):
 
     :param d: The value of the d attribute of an SVG <path> tag
     '''
-    from PyQt5.Qt import QPainterPath
+    from qt.core import QPainterPath
     cmd = last_cmd = b''
     path = QPainterPath()
     moveto_abs, moveto_rel = b'M', b'm'

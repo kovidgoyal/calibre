@@ -6,10 +6,10 @@
 import os
 import sys
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QMarginsF, QPageLayout, QPageSize, Qt, QTimer, QUrl
 )
-from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
+from qt.webengine import QWebEnginePage, QWebEngineScript
 
 from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import must_use_qt

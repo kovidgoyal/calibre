@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import hashlib, numbers
 from polyglot.builtins import map, iteritems
 
-from PyQt5.Qt import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
+from qt.core import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 
 from calibre.constants import (__appname__, __version__)
 from calibre.ebooks.pdf.render.common import (

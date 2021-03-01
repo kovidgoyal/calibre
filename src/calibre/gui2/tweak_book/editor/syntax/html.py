@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from collections import namedtuple
 from functools import partial
-from PyQt5.Qt import QFont, QTextBlockUserData, QTextCharFormat
+from qt.core import QFont, QTextBlockUserData, QTextCharFormat
 
 from calibre.ebooks.oeb.polish.spell import html_spell_tags, patterns, xml_spell_tags
 from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
@@ -522,7 +522,7 @@ class XMLHighlighter(Highlighter):
 
 def profile():
     import sys
-    from PyQt5.Qt import QTextDocument
+    from qt.core import QTextDocument
 
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book import set_book_locale

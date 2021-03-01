@@ -6,7 +6,7 @@ import codecs
 import json
 import os
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QCursor, QDateTime,
     QDialog, QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon,
     QKeySequence, QLabel, QMenu, QPalette, QPlainTextEdit, QSize, QSplitter, Qt,

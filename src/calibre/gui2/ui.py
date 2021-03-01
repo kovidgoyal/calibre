@@ -20,7 +20,7 @@ import textwrap
 import time
 from collections import OrderedDict
 from io import BytesIO
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
     QUrl, pyqtSignal
 )

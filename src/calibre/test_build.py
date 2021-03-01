@@ -288,7 +288,7 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         from PyQt5.QtCore import QTimer
         from PyQt5.QtWidgets import QApplication
-        from PyQt5.QtWebEngineWidgets import QWebEnginePage
+        from qt.webengine import QWebEnginePage
         from PyQt5.QtGui import QImageReader, QFontDatabase
         from PyQt5.QtNetwork import QNetworkAccessManager
         from calibre.utils.img import image_from_data, image_to_data, test
@@ -321,7 +321,7 @@ class BuildTest(unittest.TestCase):
             na = QNetworkAccessManager()
             self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
             if iswindows:
-                from PyQt5.Qt import QtWin
+                from qt.core import QtWin
                 QtWin
             p = QWebEnginePage()
 

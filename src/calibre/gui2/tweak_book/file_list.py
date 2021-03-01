@@ -9,7 +9,7 @@ import sys
 import textwrap
 from collections import Counter, OrderedDict, defaultdict
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QFont, QFormLayout, QItemSelectionModel,
     QGridLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListWidget, QAbstractItemView,
     QListWidgetItem, QMenu, QPainter, QPixmap, QRadioButton, QScrollArea, QSize,

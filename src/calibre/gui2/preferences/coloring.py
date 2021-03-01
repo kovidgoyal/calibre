@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, textwrap, json
 
-from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
+from qt.core import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton, QItemSelectionModel,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem, QPalette,

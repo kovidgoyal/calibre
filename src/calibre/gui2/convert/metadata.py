@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re, errno
 
-from PyQt5.Qt import QPixmap
+from qt.core import QPixmap
 
 from calibre.gui2 import choose_images, error_dialog
 from calibre.gui2.convert.metadata_ui import Ui_Form

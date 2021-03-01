@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback, time, io, re, sys, weakref
 from threading import Thread, Event
 
-from PyQt5.Qt import (
+from qt.core import (
     QMenu, QAction, QActionGroup, QIcon, Qt, pyqtSignal, QDialog,
     QObject, QVBoxLayout, QDialogButtonBox, QCursor, QCoreApplication,
     QApplication, QEventLoop, QTimer)

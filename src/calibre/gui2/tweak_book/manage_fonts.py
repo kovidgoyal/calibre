@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, textwrap
 from io import BytesIO
 
-from PyQt5.Qt import (
+from qt.core import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
     QHBoxLayout, QTextEdit, QApplication, QMessageBox, QAbstractItemView, QDialog, QDialogButtonBox)

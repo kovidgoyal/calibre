@@ -5,8 +5,8 @@
 
 import json
 
-from PyQt5.Qt import QObject, Qt, pyqtSignal
-from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngineView, QWebEngineSettings
+from qt.core import QObject, Qt, pyqtSignal
+from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView, QWebEngineSettings
 
 from calibre import prints
 from calibre.utils.monotonic import monotonic
@@ -167,7 +167,7 @@ class RestartingWebEngineView(QWebEngineView):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.preview import WebPage
-    from PyQt5.Qt import QMainWindow
+    from qt.core import QMainWindow
     app = Application([])
     view = QWebEngineView()
     page = WebPage(view)

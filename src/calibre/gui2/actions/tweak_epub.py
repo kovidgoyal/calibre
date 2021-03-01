@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import time
 
-from PyQt5.Qt import QTimer, QDialog, QDialogButtonBox, QCheckBox, QVBoxLayout, QLabel, Qt
+from qt.core import QTimer, QDialog, QDialogButtonBox, QCheckBox, QVBoxLayout, QLabel, Qt
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction

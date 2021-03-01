@@ -10,7 +10,7 @@ import sys
 from collections import OrderedDict, defaultdict
 from functools import partial
 from itertools import chain
-from PyQt5.Qt import (
+from qt.core import (
     QT_VERSION_STR, QAbstractTableModel, QApplication, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QFont, QFormLayout, QGridLayout, QHBoxLayout, QIcon,
     QInputDialog, QKeySequence, QLabel, QLineEdit, QListWidget, QListWidgetItem,

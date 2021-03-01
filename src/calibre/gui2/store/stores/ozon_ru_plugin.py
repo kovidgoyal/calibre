@@ -13,7 +13,7 @@ try:
 except ImportError:
     from urllib import quote_plus
 
-from PyQt5.Qt import QUrl
+from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.chardet import xml_to_unicode

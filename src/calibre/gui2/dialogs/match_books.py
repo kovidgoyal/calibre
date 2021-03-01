@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
+from qt.core import (Qt, QDialog, QAbstractItemView, QTableWidgetItem,
                       QByteArray, QApplication, QCursor)
 
 from calibre.gui2 import gprefs, error_dialog

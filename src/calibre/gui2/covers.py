@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
     QSpinBox, pyqtSignal, QPixmap, QDialog, QVBoxLayout, QDialogButtonBox,
     QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon, QApplication,

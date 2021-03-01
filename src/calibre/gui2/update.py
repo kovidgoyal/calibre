@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, ssl, json
 from threading import Thread, Event
 
-from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
+from qt.core import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
         QLabel, QCheckBox, QDialogButtonBox, QIcon)
 
 from calibre.constants import (__appname__, __version__, iswindows, ismacos,

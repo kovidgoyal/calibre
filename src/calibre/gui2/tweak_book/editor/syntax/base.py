@@ -6,7 +6,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import defaultdict, deque
 
-from PyQt5.Qt import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
+from qt.core import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
 
 from ..themes import highlight_to_char_format
 from calibre.gui2.tweak_book.widgets import BusyCursor

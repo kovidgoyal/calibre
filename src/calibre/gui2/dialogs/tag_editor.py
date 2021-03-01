@@ -3,7 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import Qt, QDialog, QAbstractItemView, QApplication
+from qt.core import Qt, QDialog, QAbstractItemView, QApplication
 
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor

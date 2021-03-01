@@ -5,7 +5,7 @@
 
 import json
 from operator import itemgetter
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QComboBox, QGridLayout, QHBoxLayout, QIcon, QInputDialog,
     QItemSelectionModel, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt,
     QWidget, pyqtSignal

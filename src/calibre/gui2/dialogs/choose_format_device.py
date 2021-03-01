@@ -3,7 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 
-from PyQt5.Qt import QDialog, QTreeWidgetItem, QIcon, QModelIndex
+from qt.core import QDialog, QTreeWidgetItem, QIcon, QModelIndex
 
 from calibre.gui2 import file_icon_provider
 from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDialog

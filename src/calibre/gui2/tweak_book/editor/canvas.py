@@ -9,7 +9,7 @@ import sys, weakref
 from functools import wraps
 from io import BytesIO
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QTransform,
     QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage,
     QImageWriter)

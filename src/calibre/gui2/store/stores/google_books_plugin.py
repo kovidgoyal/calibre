@@ -14,7 +14,7 @@ except ImportError:
     from urllib import quote_plus
 
 from lxml import html
-from PyQt5.Qt import QUrl
+from qt.core import QUrl
 
 from calibre import browser, url_slash_cleaner
 from calibre.gui2 import open_url

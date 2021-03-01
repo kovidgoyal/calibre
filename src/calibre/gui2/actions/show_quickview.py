@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QAction
+from qt.core import QAction
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview

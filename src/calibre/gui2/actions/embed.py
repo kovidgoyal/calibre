@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from PyQt5.Qt import QTimer, QProgressDialog, Qt
+from qt.core import QTimer, QProgressDialog, Qt
 
 from calibre import force_unicode
 from calibre.gui2 import gprefs

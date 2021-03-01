@@ -5,7 +5,7 @@
 
 import re
 from itertools import count
-from PyQt5.Qt import (
+from qt.core import (
     QDialogButtonBox, QLabel, QMainWindow, Qt, QTimer, QVBoxLayout, QWidget,
     pyqtSignal
 )

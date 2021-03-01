@@ -9,7 +9,7 @@ import re
 import regex
 import textwrap
 import unicodedata
-from PyQt5.Qt import (
+from qt.core import (
     QColor, QColorDialog, QFont, QFontDatabase, QKeySequence, QPainter, QPalette,
     QPlainTextEdit, QRect, QSize, Qt, QTextCursor, QTextEdit, QTextFormat, QTimer,
     QToolTip, QWidget, pyqtSignal

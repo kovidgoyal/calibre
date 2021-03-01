@@ -14,7 +14,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 
 import dbus
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QObject, pyqtSignal, Qt, QPoint, QRect, QMenu,
     QSystemTrayIcon, QIcon)
 

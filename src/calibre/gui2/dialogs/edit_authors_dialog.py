@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 
 from functools import partial
 
-from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
+from qt.core import (Qt, QDialog, QTableWidgetItem, QAbstractItemView, QIcon,
                   QDialogButtonBox, QFrame, QLabel, QTimer, QMenu, QApplication,
                   QByteArray, QItemDelegate, QAction)
 

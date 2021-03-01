@@ -4,7 +4,7 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.Qt import Qt
+from qt.core import Qt
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction

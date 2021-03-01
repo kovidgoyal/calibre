@@ -11,7 +11,7 @@ import os
 import shutil
 from functools import partial
 from io import BytesIO
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QDialog, QIcon, QMenu, QMimeData, QModelIndex, QTimer, QUrl
 )
 

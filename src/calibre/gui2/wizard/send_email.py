@@ -10,7 +10,7 @@ import sys
 from functools import partial
 from threading import Thread
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, pyqtSignal, QDialog, Qt, QLabel, QLineEdit, QDialogButtonBox,
     QGridLayout, QCheckBox, QIcon, QVBoxLayout, QPushButton, QPlainTextEdit,
     QHBoxLayout)

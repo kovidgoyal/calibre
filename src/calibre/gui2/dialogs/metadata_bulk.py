@@ -7,7 +7,7 @@ import numbers
 import regex
 from collections import defaultdict, namedtuple
 from io import BytesIO
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QComboBox, QCompleter, QCoreApplication, QDateTime, QDialog,
     QDialogButtonBox, QFont, QGridLayout, QInputDialog, QLabel, QLineEdit,
     QProgressBar, QSize, Qt, QVBoxLayout, pyqtSignal

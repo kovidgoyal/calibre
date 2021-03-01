@@ -55,8 +55,8 @@ def compiler():
     ans = getattr(compiler, 'ans', None)
     if ans is not None:
         return ans
-    from PyQt5.Qt import QApplication, QEventLoop
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
+    from qt.core import QApplication, QEventLoop
+    from qt.webengine import QWebEnginePage, QWebEngineScript
 
     from calibre import walk
     from calibre.gui2 import must_use_qt
@@ -203,7 +203,7 @@ def module_cache_dir():
 
 
 def ok_to_import_webengine():
-    from PyQt5.Qt import QApplication
+    from qt.core import QApplication
     if QApplication.instance() is None:
         return True
     if 'PyQt5.QtWebEngineWidgets' in sys.modules:
@@ -331,8 +331,8 @@ def atomic_write(base, name, content):
 
 
 def run_rapydscript_tests():
-    from PyQt5.Qt import QApplication, QEventLoop
-    from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript
+    from qt.core import QApplication, QEventLoop
+    from qt.webengine import QWebEnginePage, QWebEngineScript
 
     from calibre.gui2 import must_use_qt
     from calibre.gui2.webengine import secure_webengine

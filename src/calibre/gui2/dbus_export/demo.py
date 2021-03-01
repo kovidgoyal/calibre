@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QMainWindow, QVBoxLayout, Qt, QKeySequence, QAction, QEvent, QStyle,
     QActionGroup, QMenu, QPushButton, QWidget, QTimer, QMessageBox, pyqtSignal)
 

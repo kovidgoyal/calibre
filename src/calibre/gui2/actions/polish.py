@@ -11,7 +11,7 @@ from collections import OrderedDict
 from functools import partial
 from polyglot.builtins import iteritems, itervalues, map, unicode_type
 
-from PyQt5.Qt import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
+from qt.core import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,
                       QSizePolicy, QTimer, QModelIndex, QTextEdit,
                       QInputDialog, QMenu)

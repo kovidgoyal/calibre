@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import shutil, os, errno
 from threading import Thread
 
-from PyQt5.Qt import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt, QSize)
+from qt.core import (QObject, pyqtSignal, QLabel, QWidget, QHBoxLayout, Qt, QSize)
 
 from calibre.constants import iswindows
 from calibre.ptempfile import PersistentTemporaryFile

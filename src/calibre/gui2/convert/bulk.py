@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt5.Qt import QModelIndex, QDialog, QApplication, QDialogButtonBox
+from qt.core import QModelIndex, QDialog, QApplication, QDialogButtonBox
 
 from calibre.gui2.convert.single import Config, GroupModel, gprefs
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget

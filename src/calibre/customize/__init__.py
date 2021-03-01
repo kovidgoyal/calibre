@@ -133,7 +133,7 @@ class Plugin(object):  # {{{
         True if the user clicks OK, False otherwise. The changes are
         automatically applied.
         '''
-        from PyQt5.Qt import QDialog, QDialogButtonBox, QVBoxLayout, \
+        from qt.core import QDialog, QDialogButtonBox, QVBoxLayout, \
                 QLabel, Qt, QLineEdit
         from calibre.gui2 import gprefs
 
@@ -148,7 +148,7 @@ class Plugin(object):  # {{{
             if geom is None:
                 config_dialog.resize(config_dialog.sizeHint())
             else:
-                from PyQt5.Qt import QApplication
+                from qt.core import QApplication
                 QApplication.instance().safe_restore_geometry(config_dialog, geom)
 
         button_box.accepted.connect(config_dialog.accept)

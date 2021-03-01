@@ -7,7 +7,7 @@ import math
 from collections import defaultdict
 from functools import lru_cache
 from itertools import chain
-from PyQt5.Qt import (
+from qt.core import (
     QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
     QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
     Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,

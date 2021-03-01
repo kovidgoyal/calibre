@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 
-from PyQt5.Qt import Qt, QTextCursor
+from qt.core import Qt, QTextCursor
 
 from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.editor.smarts import NullSmarts

@@ -11,7 +11,7 @@ import json
 from collections import defaultdict
 from threading import Thread
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter, QDialog,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout, QItemSelectionModel,

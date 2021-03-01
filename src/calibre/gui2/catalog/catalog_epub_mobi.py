@@ -18,7 +18,7 @@ from calibre.utils.localization import localize_user_manual_link
 from polyglot.builtins import native_string_type, unicode_type, zip, range
 
 from .catalog_epub_mobi_ui import Ui_Form
-from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
+from qt.core import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QDoubleSpinBox, QIcon, QInputDialog, QLineEdit, QRadioButton,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
         QUrl, QVBoxLayout, QWidget)

@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import traceback, errno, os, time, shutil
 from collections import namedtuple, defaultdict
 
-from PyQt5.Qt import QObject, Qt, pyqtSignal
+from qt.core import QObject, Qt, pyqtSignal
 
 from calibre import prints, force_unicode
 from calibre.constants import DEBUG

@@ -9,7 +9,7 @@ import regex
 import time
 from collections import Counter, OrderedDict
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractListModel, QAction, QApplication, QCheckBox, QComboBox, QFont, QFrame,
     QGridLayout, QHBoxLayout, QIcon, QItemSelection, QKeySequence, QLabel, QLineEdit,
     QListView, QMenu, QMimeData, QModelIndex, QPushButton, QScrollArea, QSize, QItemSelectionModel,

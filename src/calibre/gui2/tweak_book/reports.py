@@ -14,7 +14,7 @@ from csv import writer as csv_writer
 from io import StringIO
 
 import regex
-from PyQt5.Qt import (
+from qt.core import (
     QSize, QStackedLayout, QLabel, QVBoxLayout, Qt, QWidget, pyqtSignal,
     QAbstractTableModel, QTableView, QSortFilterProxyModel, QIcon, QListWidget,
     QListWidgetItem, QLineEdit, QStackedWidget, QSplitter, QByteArray, QPixmap,

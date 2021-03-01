@@ -11,7 +11,7 @@ from contextlib import contextmanager
 
 from html5_parser import parse
 from lxml import html
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QBrush, QByteArray, QCheckBox, QColor, QColorDialog,
     QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPalette,

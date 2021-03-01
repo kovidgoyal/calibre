@@ -6,7 +6,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QHBoxLayout, QFormLayout, QDoubleSpinBox, QCheckBox, QVBoxLayout
+from qt.core import QHBoxLayout, QFormLayout, QDoubleSpinBox, QCheckBox, QVBoxLayout
 
 from calibre.gui2.convert.pdf_output_ui import Ui_Form
 from calibre.gui2.convert import Widget

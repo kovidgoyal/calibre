@@ -10,7 +10,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, Qt, QColor, QIcon, QVBoxLayout, QLabel, QGridLayout,
     QDialogButtonBox, QWidget, QLineEdit, QHBoxLayout, QComboBox,
     QCheckBox

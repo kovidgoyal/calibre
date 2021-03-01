@@ -124,7 +124,7 @@ class QtNotifier(Notifier):
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         timeout, body, summary = self.get_msg_parms(timeout, body, summary)
-        from PyQt5.Qt import QSystemTrayIcon
+        from qt.core import QSystemTrayIcon
         if self.systray is not None:
             try:
                 hide = False

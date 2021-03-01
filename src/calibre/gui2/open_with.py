@@ -9,7 +9,7 @@ import os
 import uuid
 from contextlib import suppress
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QBuffer, QByteArray, QIcon, QInputDialog, QKeySequence, QLabel,
     QListWidget, QListWidgetItem, QPixmap, QSize, QStackedLayout, Qt, QVBoxLayout,
     QWidget, pyqtSignal, QIODevice, QDialogButtonBox

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 
-from PyQt5.Qt import Qt, QListWidgetItem
+from qt.core import Qt, QListWidgetItem
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form

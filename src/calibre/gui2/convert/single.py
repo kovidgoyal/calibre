@@ -5,7 +5,7 @@
 
 import shutil
 
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractListModel, QCheckBox, QComboBox, QCoreApplication, QDialog,
     QDialogButtonBox, QFont, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
     QListView, QModelIndex, QScrollArea, QSize, QSizePolicy, QSpacerItem,

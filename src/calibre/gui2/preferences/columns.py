@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy, sys
 
-from PyQt5.Qt import Qt, QTableWidgetItem, QIcon
+from qt.core import Qt, QTableWidgetItem, QIcon
 
 from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget

@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import glob, os, shutil
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QVBoxLayout, QListWidget, QListWidgetItem, Qt, QIcon,
     QApplication, QSize, QDialogButtonBox, QTimer, QLabel, QAbstractItemView, QListView)
 

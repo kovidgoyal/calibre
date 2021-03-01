@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, io, weakref, sys
 
-from PyQt5.Qt import (
+from qt.core import (
     pyqtSignal, QVBoxLayout, QHBoxLayout, QPlainTextEdit, QLabel, QFontMetrics,
     QSize, Qt, QApplication, QIcon, QDialogButtonBox)
 

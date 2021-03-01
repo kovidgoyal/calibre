@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import QTextCharFormat
+from qt.core import QTextCharFormat
 
 NULL_FMT = QTextCharFormat()
 

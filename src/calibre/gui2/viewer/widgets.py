@@ -4,7 +4,7 @@
 
 import re
 
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QFont, QFontMetrics, QStyle, QStyledItemDelegate, Qt, pyqtSignal, QPalette
 )
 

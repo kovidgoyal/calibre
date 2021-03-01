@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from collections import defaultdict, namedtuple
 from operator import itemgetter
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QFormLayout, QHBoxLayout, QLineEdit, QToolButton, QIcon,
     QDialogButtonBox, Qt, QSpinBox, QCheckBox)
 

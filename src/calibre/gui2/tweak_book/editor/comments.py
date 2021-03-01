@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QTextCursor, QTextDocument
+from qt.core import QTextCursor, QTextDocument
 
 opening_map = {
     'css':'/*',

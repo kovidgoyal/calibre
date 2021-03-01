@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 from zipfile import ZipFile
 
-from PyQt5.Qt import (QToolButton, QAction, QIcon, QObject, QMenu,
+from qt.core import (QToolButton, QAction, QIcon, QObject, QMenu,
         QKeySequence)
 
 from calibre import prints

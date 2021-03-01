@@ -5,11 +5,11 @@
 
 import json
 
-from PyQt5.Qt import (
+from qt.core import (
     QFrame, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QPushButton, QSize,
     QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineScript, QWebEngineView
+from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView
 
 from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.webengine import secure_webengine

@@ -9,7 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # dbus-menu.xml from the libdbusmenu project https://launchpad.net/libdbusmenu
 
 import dbus, sip
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QMenu, QIcon, QKeySequence, QObject, QEvent, QTimer, pyqtSignal, Qt)
 
 from calibre.utils.dbus_service import Object, BusName, method as dbus_method, dbus_property, signal as dbus_signal

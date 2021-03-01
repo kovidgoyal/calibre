@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, posixpath, weakref, sys
 from functools import partial
 
-from PyQt5.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
+from qt.core import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
         QCoreApplication, pyqtSignal, QVBoxLayout, QTimer, QAction)
 

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import namedtuple
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, Qt, QLabel, QVBoxLayout, QDialogButtonBox, QApplication, QTimer, QPixmap, QEvent,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout, QFontMetrics,
     QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy, QImage, QPalette)
@@ -406,7 +406,7 @@ class ProceedQuestion(QWidget):
 
 def main():
     from calibre.gui2 import Application
-    from PyQt5.Qt import QMainWindow, QStatusBar, QTimer
+    from qt.core import QMainWindow, QStatusBar, QTimer
     app = Application([])
     w = QMainWindow()
     s = QStatusBar(w)

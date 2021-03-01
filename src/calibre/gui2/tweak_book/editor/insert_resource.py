@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 import sys
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractListModel, QApplication, QCheckBox, QFormLayout, QGridLayout, QClipboard,
     QHBoxLayout, QIcon, QInputDialog, QLabel, QLineEdit, QListView, QMenu, QPainter,
     QPixmap, QRect, QSize, QSizePolicy, QSortFilterProxyModel, QStyledItemDelegate,

@@ -772,7 +772,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 else:
                     ret = f.read()
                     if as_image:
-                        from PyQt5.Qt import QImage
+                        from qt.core import QImage
                         i = QImage()
                         i.loadFromData(ret)
                         ret = i

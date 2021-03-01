@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2020, Charles Haley
 
-from PyQt5.Qt import (QDialog, QColor, QDialogButtonBox, QHeaderView,
+from qt.core import (QDialog, QColor, QDialogButtonBox, QHeaderView,
                       QApplication, QGridLayout, QTableWidget,
                       QTableWidgetItem, QVBoxLayout, QToolButton, QIcon,
                       QAbstractItemView, QComboBox)

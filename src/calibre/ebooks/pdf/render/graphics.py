@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from math import sqrt
 from collections import namedtuple
 
-from PyQt5.Qt import (
+from qt.core import (
     QBrush, QPen, Qt, QPointF, QTransform, QPaintEngine, QImage)
 
 from calibre.ebooks.pdf.render.common import (

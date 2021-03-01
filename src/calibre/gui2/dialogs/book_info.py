@@ -3,7 +3,7 @@
 
 
 import textwrap
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QBrush, QCheckBox, QCoreApplication, QDialog, QGridLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QListView, QModelIndex, QPalette,
     QPixmap, QPushButton, QShortcut, QSize, QSplitter, Qt, QTimer, QToolButton,

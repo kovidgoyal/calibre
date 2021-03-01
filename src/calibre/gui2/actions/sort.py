@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import QToolButton, QAction, pyqtSignal, QIcon
+from qt.core import QToolButton, QAction, pyqtSignal, QIcon
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key

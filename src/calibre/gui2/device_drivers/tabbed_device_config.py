@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref, textwrap
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, QLabel, QTabWidget, QGridLayout, QLineEdit, QVBoxLayout,
     QGroupBox, QComboBox, QSizePolicy, QDialog, QDialogButtonBox, QCheckBox,
     QSpacerItem)

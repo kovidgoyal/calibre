@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QDialog, QDialogButtonBox
+from qt.core import QDialog, QDialogButtonBox
 
 from calibre.gui2.convert.font_key_ui import Ui_Dialog
 from calibre.utils.localization import localize_user_manual_link
@@ -102,7 +102,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
+    from qt.core import QApplication
     app = QApplication([])
     d = FontKeyChooser()
     d.exec_()

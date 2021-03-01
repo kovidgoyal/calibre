@@ -10,7 +10,7 @@ import re, time
 from functools import partial
 
 
-from PyQt5.Qt import (
+from qt.core import (
     QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, QEvent,
     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
     QIcon, QMenu, QApplication, QKeyEvent)

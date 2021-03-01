@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import numbers
 import textwrap
-from PyQt5.Qt import (
+from qt.core import (
     QCheckBox, QComboBox, QDoubleSpinBox, QGridLayout, QGroupBox, QLabel, QLineEdit,
     QListView, QSpinBox, Qt, QVBoxLayout, QWidget
 )

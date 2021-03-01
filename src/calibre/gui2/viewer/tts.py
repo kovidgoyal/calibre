@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QDialogButtonBox, QObject, QVBoxLayout, pyqtSignal, QDialog
+from qt.core import QDialogButtonBox, QObject, QVBoxLayout, pyqtSignal, QDialog
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.viewer.config import get_pref_group, vprefs

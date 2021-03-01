@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QToolButton
+from qt.core import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 from polyglot.builtins import string_or_bytes

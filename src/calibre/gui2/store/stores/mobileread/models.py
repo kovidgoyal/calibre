@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
 
-from PyQt5.Qt import (Qt, QAbstractItemModel, QModelIndex, pyqtSignal)
+from qt.core import (Qt, QAbstractItemModel, QModelIndex, pyqtSignal)
 
 from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
 from calibre.utils.config_base import prefs

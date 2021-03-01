@@ -4,7 +4,7 @@
 
 
 import weakref
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QByteArray, QCalendarWidget, QCheckBox, QColor, QColorDialog, QFrame,
     QComboBox, QDate, QDateTime, QDateTimeEdit, QDialog, QDialogButtonBox, QFont,
     QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,

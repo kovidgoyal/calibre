@@ -11,7 +11,7 @@ Job management.
 
 import time
 
-from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt, QPainter,
+from qt.core import (QAbstractTableModel, QModelIndex, Qt, QPainter,
     QTimer, pyqtSignal, QIcon, QDialog, QAbstractItemDelegate, QApplication, QEvent,
     QSize, QStyleOptionProgressBar, QStyle, QToolTip, QWidget, QStyleOption,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction, QItemSelectionModel,

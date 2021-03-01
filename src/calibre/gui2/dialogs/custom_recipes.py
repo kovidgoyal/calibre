@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, re, textwrap, time
 
-from PyQt5.Qt import (
+from qt.core import (
     QVBoxLayout, QStackedWidget, QSize, QPushButton, QIcon, QWidget, QListView, QItemSelectionModel,
     QHBoxLayout, QAbstractListModel, Qt, QLabel, QSizePolicy, pyqtSignal, QSortFilterProxyModel,
     QFormLayout, QSpinBox, QLineEdit, QGroupBox, QListWidget, QListWidgetItem,

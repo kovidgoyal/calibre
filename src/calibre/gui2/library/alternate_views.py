@@ -10,7 +10,7 @@ import math
 import operator
 import os
 from functools import wraps
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemView, QApplication, QBuffer, QByteArray, QColor, QDrag,
     QEasingCurve, QEvent, QFont, QHelpEvent, QIcon, QImage, QItemSelection,
     QItemSelectionModel, QListView, QMimeData, QModelIndex, QPainter, QPixmap,

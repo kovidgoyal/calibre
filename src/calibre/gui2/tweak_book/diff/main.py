@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, re
 from functools import partial
 
-from PyQt5.Qt import (
+from qt.core import (
     QGridLayout, QToolButton, QIcon, QRadioButton, QMenu, QApplication, Qt,
     QSize, QWidget, QLabel, QStackedLayout, QPainter, QRect, QVBoxLayout,
     QCursor, QEventLoop, QKeySequence, pyqtSignal, QTimer, QHBoxLayout, QDialogButtonBox)

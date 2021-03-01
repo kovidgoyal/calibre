@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QBrush, QColor, QFont, QFontMetrics, QPen, QPixmap, QSplashScreen,
     Qt, QPainter
 )

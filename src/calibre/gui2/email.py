@@ -12,7 +12,7 @@ from threading import Thread
 from itertools import repeat
 from collections import defaultdict
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QDialog, QGridLayout, QIcon, QListWidget, QDialogButtonBox,
     QListWidgetItem, QLabel, QLineEdit, QPushButton)
 
@@ -504,6 +504,6 @@ class EmailMixin(object):  # {{{
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
+    from qt.core import QApplication
     app = QApplication([])  # noqa
     print(select_recipients())

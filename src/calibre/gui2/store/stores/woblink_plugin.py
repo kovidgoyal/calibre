@@ -16,7 +16,7 @@ except ImportError:
 from lxml import html
 from mechanize import Request
 
-from PyQt5.Qt import QUrl
+from qt.core import QUrl
 
 from calibre import url_slash_cleaner, browser
 from calibre.gui2 import open_url

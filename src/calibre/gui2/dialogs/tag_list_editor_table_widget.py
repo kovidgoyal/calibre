@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from PyQt5.Qt import (Qt, QTableWidget, pyqtSignal)
+from qt.core import (Qt, QTableWidget, pyqtSignal)
 
 
 class TleTableWidget(QTableWidget):

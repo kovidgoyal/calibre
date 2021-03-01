@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
+from qt.core import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
         QAbstractListModel, QListView, QSize, QApplication, QAbstractItemView
 
 from calibre.gui2 import file_icon_provider

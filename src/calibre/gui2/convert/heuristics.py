@@ -5,7 +5,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import Qt
+from qt.core import Qt
 
 from calibre.gui2 import gprefs
 from calibre.gui2.convert.heuristics_ui import Ui_Form

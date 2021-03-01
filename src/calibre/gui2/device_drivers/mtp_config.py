@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref
 
-from PyQt5.Qt import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
+from qt.core import (QWidget, QListWidgetItem, Qt, QToolButton, QLabel,
         QTabWidget, QGridLayout, QListWidget, QIcon, QLineEdit, QVBoxLayout,
         QPushButton, QGroupBox, QScrollArea, QHBoxLayout, QComboBox,
         pyqtSignal, QSizePolicy, QDialog, QDialogButtonBox, QPlainTextEdit,

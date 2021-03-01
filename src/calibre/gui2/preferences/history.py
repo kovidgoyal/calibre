@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import textwrap
 
-from PyQt5.Qt import QComboBox, Qt
+from qt.core import QComboBox, Qt
 
 from calibre.gui2 import config as gui_conf
 from polyglot.builtins import unicode_type

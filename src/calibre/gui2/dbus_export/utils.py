@@ -9,7 +9,7 @@ import sys, array, re, os, errno
 
 import dbus
 
-from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray, QIODevice
+from qt.core import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray, QIODevice
 
 from polyglot.builtins import unicode_type, iteritems
 

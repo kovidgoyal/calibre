@@ -11,7 +11,7 @@ Logic for setting up conversion jobs
 
 import os
 
-from PyQt5.Qt import QDialog, QProgressDialog, QTimer
+from qt.core import QDialog, QProgressDialog, QTimer
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2 import warning_dialog, question_dialog

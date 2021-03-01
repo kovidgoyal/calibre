@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt5.Qt import Qt, QVBoxLayout, QFormLayout, QDialog
+from qt.core import Qt, QVBoxLayout, QFormLayout, QDialog
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
     CommaSeparatedList, AbortCommit

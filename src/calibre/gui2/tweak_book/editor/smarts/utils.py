@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import Qt, QTextCursor
+from qt.core import Qt, QTextCursor
 
 
 def get_text_around_cursor(editor, before=True):

@@ -148,8 +148,8 @@ class PDFOutput(OutputFormatPlugin):
         # Ensure Qt is setup to be used with WebEngine
         # specialize_options is called early enough in the pipeline
         # that hopefully no Qt application has been constructed as yet
-        from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
-        from PyQt5.QtWebEngineWidgets import QWebEnginePage  # noqa
+        from qt.webengine import QWebEngineUrlScheme
+        from qt.webengine import QWebEnginePage  # noqa
         from calibre.gui2 import must_use_qt
         from calibre.constants import FAKE_PROTOCOL
         scheme = QWebEngineUrlScheme(FAKE_PROTOCOL.encode('ascii'))

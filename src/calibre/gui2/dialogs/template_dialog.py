@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 
 import json, os, traceback
 
-from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
+from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize, QPalette)
 

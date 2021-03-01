@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, gc, weakref
 
-from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
+from qt.core import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       QObject, QKeySequence)
 from calibre.utils.config import OptionParser
 from calibre.gui2 import error_dialog

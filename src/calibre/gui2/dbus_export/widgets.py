@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, sys, weakref
 
-from PyQt5.Qt import (
+from qt.core import (
     QObject, QMenuBar, QAction, QEvent, QSystemTrayIcon, QApplication, Qt)
 
 from calibre.constants import iswindows, ismacos

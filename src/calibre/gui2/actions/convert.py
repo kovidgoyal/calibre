@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from functools import partial
 
-from PyQt5.Qt import QModelIndex, QTimer
+from qt.core import QModelIndex, QTimer
 
 from calibre.gui2 import error_dialog, Dispatcher, gprefs
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook

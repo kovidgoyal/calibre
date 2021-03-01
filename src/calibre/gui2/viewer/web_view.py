@@ -7,15 +7,15 @@ import os
 import shutil
 import sys
 from itertools import count
-from PyQt5.Qt import (
+from qt.core import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QEvent, QFontDatabase, QFontInfo,
     QHBoxLayout, QIODevice, QLocale, QMimeData, QPalette, QSize, Qt, QTimer, QUrl,
     QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineCore import (
+from qt.webengine import (
     QWebEngineUrlRequestInfo, QWebEngineUrlRequestJob, QWebEngineUrlSchemeHandler
 )
-from PyQt5.QtWebEngineWidgets import (
+from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineSettings,
     QWebEngineView
 )

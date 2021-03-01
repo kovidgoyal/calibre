@@ -9,7 +9,7 @@ import re
 import sys
 from collections import defaultdict, namedtuple
 from hashlib import sha256
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QCursor, QDockWidget, QEvent, QMainWindow, QMenu, QMimeData,
     QModelIndex, QPixmap, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget,
     pyqtSignal

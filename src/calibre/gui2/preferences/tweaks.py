@@ -8,7 +8,7 @@ from collections import OrderedDict
 from functools import partial
 from operator import attrgetter
 
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractListModel, QApplication, QDialog, QDialogButtonBox, QFont, QGridLayout,
     QGroupBox, QIcon, QLabel, QListView, QMenu, QModelIndex, QPlainTextEdit, QComboBox,
     QPushButton, QSizePolicy, QSplitter, QStyle, QStyledItemDelegate, QAbstractItemView, QItemSelectionModel,

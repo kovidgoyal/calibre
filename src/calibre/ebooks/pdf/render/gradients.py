@@ -10,7 +10,7 @@ import sys, copy
 from polyglot.builtins import map, range
 from collections import namedtuple
 
-from PyQt5.Qt import QLinearGradient, QPointF
+from qt.core import QLinearGradient, QPointF
 try:
     from PyQt5 import sip
 except ImportError:

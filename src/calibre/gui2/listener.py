@@ -8,7 +8,7 @@ import socket
 from contextlib import closing
 from functools import partial
 from itertools import count
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractSocket, QByteArray, QLocalServer, QLocalSocket, pyqtSignal
 )
 
@@ -122,7 +122,7 @@ def send_message_via_worker(msg, address=None, timeout=5, wait_till_sent=False):
 
 
 def test():
-    from PyQt5.Qt import QApplication, QLabel, QTimer
+    from qt.core import QApplication, QLabel, QTimer
     app = QApplication([])
     l = QLabel()
     l.setText('Waiting for message...')

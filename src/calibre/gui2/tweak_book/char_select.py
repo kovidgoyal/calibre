@@ -9,7 +9,7 @@ import re
 import textwrap
 from bisect import bisect
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemModel, QAbstractListModel, QApplication, QCheckBox, QGridLayout,
     QHBoxLayout, QIcon, QInputMethodEvent, QLabel, QListView, QMenu, QMimeData,
     QModelIndex, QPen, QPushButton, QSize, QSizePolicy, QSplitter,

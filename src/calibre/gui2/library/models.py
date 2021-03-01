@@ -10,7 +10,7 @@ import functools, re, os, traceback, errno, time, numbers
 from collections import defaultdict, namedtuple
 from itertools import groupby
 
-from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, QFont,
+from qt.core import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, QFont,
         QModelIndex, QDateTime, QColor, QPixmap, QPainter, QApplication)
 
 from calibre import fit_image, force_unicode, prepare_string_for_xml, human_readable

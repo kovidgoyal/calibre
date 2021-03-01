@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QVBoxLayout
+from qt.core import QVBoxLayout
 
 from calibre.gui2.preferences import (ConfigWidgetBase, test_widget)
 from calibre.gui2.keyboard import ShortcutConfig

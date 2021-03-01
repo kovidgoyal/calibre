@@ -11,7 +11,7 @@ Module to implement the Cover Flow feature
 
 import sys, os, time
 
-from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
+from qt.core import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
         QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication, QItemSelectionModel)
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -444,7 +444,7 @@ class CoverFlowMixin(object):
 
 
 def test():
-    from PyQt5.Qt import QMainWindow
+    from qt.core import QMainWindow
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()
@@ -465,7 +465,7 @@ def main(args=sys.argv):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QMainWindow
+    from qt.core import QMainWindow
     app = QApplication([])
     w = QMainWindow()
     cf = CoverFlow()

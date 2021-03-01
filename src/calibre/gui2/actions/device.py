@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
+from qt.core import QIcon, QMenu, QTimer, QToolButton, pyqtSignal
 
 from calibre.gui2 import info_dialog, question_dialog
 from calibre.gui2.actions import InterfaceAction

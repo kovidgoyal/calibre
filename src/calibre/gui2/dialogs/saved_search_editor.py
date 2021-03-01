@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import (
+from qt.core import (
     QFormLayout, QIcon, QLabel, QLineEdit, QListWidget, Qt, QVBoxLayout, QDialog,
     QDialogButtonBox, QPlainTextEdit
 )

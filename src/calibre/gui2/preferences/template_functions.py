@@ -4,7 +4,7 @@
 
 import json
 import traceback
-from PyQt5.Qt import QDialogButtonBox
+from qt.core import QDialogButtonBox
 
 from calibre.gui2 import error_dialog, warning_dialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget

@@ -7,7 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QWidget, QListWidgetItem
+from qt.core import QWidget, QListWidgetItem
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form

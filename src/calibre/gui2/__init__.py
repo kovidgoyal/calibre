@@ -13,14 +13,13 @@ import threading
 from contextlib import contextmanager
 from threading import Lock, RLock
 
-from PyQt5.Qt import (
+from qt.core import (
     QT_VERSION, QApplication, QBuffer, QByteArray, QCoreApplication, QDateTime,
     QDesktopServices, QDialog, QEvent, QFileDialog, QFileIconProvider, QFileInfo, QPalette,
     QFont, QFontDatabase, QFontInfo, QFontMetrics, QIcon, QLocale, QColor,
     QNetworkProxyFactory, QObject, QSettings, QSocketNotifier, QStringListModel, Qt,
-    QThread, QTimer, QTranslator, QUrl, pyqtSignal, QIODevice, QDialogButtonBox
+    QThread, QTimer, QTranslator, QUrl, pyqtSignal, QIODevice, QDialogButtonBox, QStyle
 )
-from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 
 from calibre import as_unicode, prints
 from calibre.constants import (
@@ -1171,14 +1170,14 @@ class Application(QApplication):
 
     @property
     def current_custom_colors(self):
-        from PyQt5.Qt import QColorDialog
+        from qt.core import QColorDialog
 
         return [col.getRgb() for col in
                     (QColorDialog.customColor(i) for i in range(QColorDialog.customCount()))]
 
     @current_custom_colors.setter
     def current_custom_colors(self, colors):
-        from PyQt5.Qt import QColorDialog
+        from qt.core import QColorDialog
         num = min(len(colors), QColorDialog.customCount())
         for i in range(num):
             QColorDialog.setCustomColor(i, QColor(*colors[i]))
@@ -1386,7 +1385,7 @@ def elided_text(text, font=None, width=300, pos='middle'):
     rendered, replacing characters from the left, middle or right (as per pos)
     of the string with an ellipsis. Results in a string much closer to the
     limit than Qt's elidedText().'''
-    from PyQt5.Qt import QFontMetrics, QApplication
+    from qt.core import QFontMetrics, QApplication
     if font is None:
         font = QApplication.instance().font()
     fm = (font if isinstance(font, QFontMetrics) else QFontMetrics(font))

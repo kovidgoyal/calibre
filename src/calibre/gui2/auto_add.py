@@ -10,7 +10,7 @@ import os, tempfile, shutil, time
 from threading import Thread, Event
 from polyglot.builtins import map
 
-from PyQt5.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer, QApplication, QCursor)
+from qt.core import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer, QApplication, QCursor)
 
 from calibre import prints
 from calibre.db.adding import filter_filename, compile_rule

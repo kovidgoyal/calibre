@@ -5,7 +5,7 @@
 import json
 import regex
 from collections import Counter, OrderedDict
-from PyQt5.Qt import (
+from qt.core import (
     QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, Qt, QToolButton,
     QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )

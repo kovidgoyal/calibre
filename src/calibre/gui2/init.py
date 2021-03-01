@@ -7,7 +7,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import functools
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy, QSplitter,
     QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
     QToolButton, QVBoxLayout, QWidget, QDialog, QEvent

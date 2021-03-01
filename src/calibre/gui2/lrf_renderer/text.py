@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, collections, operator, copy, re, numbers
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QRectF, QFont, QColor, QPixmap, QGraphicsPixmapItem, QGraphicsItem,
     QFontMetrics, QPen, QBrush, QGraphicsRectItem)
 

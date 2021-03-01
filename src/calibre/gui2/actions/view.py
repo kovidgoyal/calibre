@@ -10,7 +10,7 @@ import json
 import os
 import time
 from functools import partial
-from PyQt5.Qt import QAction, QIcon, Qt, pyqtSignal, QDialog
+from qt.core import QAction, QIcon, Qt, pyqtSignal, QDialog
 
 from calibre.constants import ismacos, iswindows
 from calibre.gui2 import (

@@ -13,7 +13,7 @@ except ImportError:
 
 from lxml import html, etree
 
-from PyQt5.Qt import QUrl
+from qt.core import QUrl
 
 from calibre import browser
 from calibre.gui2 import open_url

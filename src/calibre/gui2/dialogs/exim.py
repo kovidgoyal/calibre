@@ -7,7 +7,7 @@ from functools import partial
 from threading import Thread, Event
 import os, stat
 
-from PyQt5.Qt import (
+from qt.core import (
     QSize, QStackedLayout, QWidget, QVBoxLayout, QLabel, QPushButton,
     QListWidget, QListWidgetItem, QIcon, Qt, pyqtSignal, QGridLayout,
     QProgressBar, QDialog, QDialogButtonBox, QScrollArea, QLineEdit, QFrame, QAbstractItemView

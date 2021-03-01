@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from PyQt5.Qt import QTimer, QApplication, Qt, QEvent
+from qt.core import QTimer, QApplication, Qt, QEvent
 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction

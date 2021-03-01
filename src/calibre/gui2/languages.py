@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QComboBox
+from qt.core import QComboBox
 from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.localization import lang_map_for_ui

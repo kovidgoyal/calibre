@@ -6,12 +6,12 @@
 import os
 from functools import partial
 
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QGroupBox, QHBoxLayout, QIcon, QKeySequence, QLabel, QListWidget,
     QListWidgetItem, QMenu, Qt, QToolBar, QToolButton, QVBoxLayout, pyqtSignal, QDialog,
     QAbstractItemView, QDialogButtonBox
 )
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from qt.webengine import QWebEnginePage
 
 from calibre.constants import ismacos
 from calibre.gui2 import elided_text

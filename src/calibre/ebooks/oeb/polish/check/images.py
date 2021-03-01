@@ -32,7 +32,7 @@ class CMYKImage(BaseError):
     level = WARN
 
     def __call__(self, container):
-        from PyQt5.Qt import QImage
+        from qt.core import QImage
         from calibre.gui2 import pixmap_to_data
         ext = container.mime_map[self.name].split('/')[-1].upper()
         if ext == 'JPG':

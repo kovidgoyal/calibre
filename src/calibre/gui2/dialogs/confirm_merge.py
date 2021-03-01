@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from PyQt5.Qt import (
+from qt.core import (
     QVBoxLayout, QSplitter, QWidget, QLabel, QCheckBox, QTextBrowser, Qt, QDialog, QDialogButtonBox
 )
 

@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import collections, itertools, glob
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QByteArray, pyqtSignal, QGraphicsRectItem, QGraphicsScene, QPen,
     QBrush, QColor, QFontDatabase, QGraphicsItem, QGraphicsLineItem)
 

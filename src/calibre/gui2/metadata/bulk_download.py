@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, time, shutil
 from threading import Thread
 
-from PyQt5.Qt import (QIcon, QDialog,
+from qt.core import (QIcon, QDialog,
         QDialogButtonBox, QLabel, QGridLayout, Qt)
 
 from calibre.gui2.threaded_jobs import ThreadedJob

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import gc
 from functools import partial
 
-from PyQt5.Qt import Qt
+from qt.core import Qt
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.tools import fetch_scheduled_recipe

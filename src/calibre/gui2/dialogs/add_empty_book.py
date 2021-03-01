@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QGridLayout, QLabel, QDialogButtonBox,  QApplication, QSpinBox,
     QToolButton, QIcon, QLineEdit, QComboBox, QCheckBox)
 from calibre.ebooks.metadata import string_to_authors

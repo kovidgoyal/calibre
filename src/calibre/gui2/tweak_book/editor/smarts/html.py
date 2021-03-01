@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from css_parser import parseStyle
 from itertools import chain
 from operator import itemgetter
-from PyQt5.Qt import Qt, QTextCursor, QTextEdit
+from qt.core import Qt, QTextCursor, QTextEdit
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.ebooks.oeb.base import css_text

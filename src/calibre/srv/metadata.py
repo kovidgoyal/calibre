@@ -567,7 +567,7 @@ def dump_categories_tree(data):
 
 
 def dump_tags_model(m):
-    from PyQt5.Qt import QModelIndex, Qt
+    from qt.core import QModelIndex, Qt
     ans, indent = [], '  '
 
     def dump_node(index, level=-1):

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from collections import defaultdict
 from functools import partial
-from PyQt5.Qt import QApplication, QDialog, QPixmap, QTimer
+from qt.core import QApplication, QDialog, QPixmap, QTimer
 
 from calibre import as_unicode, guess_type
 from calibre.constants import iswindows

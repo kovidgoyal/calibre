@@ -5,7 +5,7 @@
 
 from functools import partial
 
-from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize, QAbstractItemView,
+from qt.core import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize, QAbstractItemView,
                       QDialogButtonBox, QItemDelegate, QApplication,
                       pyqtSignal, QAction, QFrame, QLabel, QTimer, QMenu, QColor)
 

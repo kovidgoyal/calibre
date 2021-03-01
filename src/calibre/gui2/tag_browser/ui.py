@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap
 from functools import partial
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog, QComboBox, QLineEdit,
     QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 

@@ -14,7 +14,7 @@ from polyglot.builtins import (
 from itertools import product
 from copy import copy, deepcopy
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QGridLayout, QStackedWidget, QDialogButtonBox, QListWidget,
     QListWidgetItem, QIcon, QWidget, QSize, QFormLayout, Qt, QSpinBox, QListView,
     QCheckBox, pyqtSignal, QDoubleSpinBox, QComboBox, QLabel, QFont, QApplication,
@@ -348,7 +348,7 @@ class PreviewSettings(BasicSettings):  # {{{
         self.setLayout(l)
 
         def default_font(which):
-            from PyQt5.QtWebEngineWidgets import QWebEngineSettings
+            from qt.webengine import QWebEngineSettings
             s = QWebEngineSettings.defaultSettings()
             which = getattr(s, {'serif': 'SerifFont', 'sans': 'SansSerifFont', 'mono': 'FixedFont'}[which])
             return s.fontFamily(which)

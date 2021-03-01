@@ -7,7 +7,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 
-from PyQt5.Qt import QTextDocument, QTextCursor, QPlainTextDocumentLayout
+from qt.core import QTextDocument, QTextCursor, QPlainTextDocumentLayout
 
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import get_highlighter as calibre_highlighter, SyntaxHighlighter

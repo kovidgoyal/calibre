@@ -8,7 +8,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import os, re
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QByteArray, QBuffer, QIODevice, QColor, QImage, QPainter, QSvgRenderer)
 from calibre.ebooks.oeb.base import XHTML, XLINK
 from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME

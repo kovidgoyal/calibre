@@ -10,7 +10,7 @@ from collections import OrderedDict, namedtuple
 from itertools import groupby
 from operator import attrgetter, itemgetter
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit, QListView,
     QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
     QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox, QTextCursor)

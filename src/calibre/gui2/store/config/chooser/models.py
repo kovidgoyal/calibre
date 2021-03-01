@@ -6,7 +6,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemModel, QIcon, QModelIndex, QStyledItemDelegate, Qt
 )
 

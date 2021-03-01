@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, pyqtSignal, Qt, QVBoxLayout, QLabel, QFont, QProgressBar, QSize,
     QDialogButtonBox, QApplication, QFontMetrics, QHBoxLayout, QIcon)
 
@@ -168,7 +168,7 @@ class BlockingBusy(QDialog):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QTimer
+    from qt.core import QTimer
     app = QApplication([])
     d = ProgressDialog('A title', 'A message', icon='lt.png')
     d.show(), d.canceled_signal.connect(app.quit)

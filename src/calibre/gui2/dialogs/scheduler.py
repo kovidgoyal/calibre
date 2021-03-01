@@ -12,7 +12,7 @@ from datetime import timedelta
 import calendar, textwrap
 from collections import OrderedDict
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QMutex, QApplication,
     QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
     QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,

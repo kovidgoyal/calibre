@@ -10,7 +10,7 @@ import time
 import traceback
 
 import apsw
-from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
+from qt.core import QCoreApplication, QIcon, QObject, QTimer
 
 from calibre import force_unicode, prints
 from calibre.constants import (
@@ -158,7 +158,7 @@ def get_library_path(gui_runner):
     if library_path is None:  # Need to migrate to new database layout
         base = os.path.expanduser('~')
         if not base or not os.path.exists(base):
-            from PyQt5.Qt import QDir
+            from qt.core import QDir
             base = unicode_type(QDir.homePath()).replace('/', os.sep)
         candidate = gui_runner.choose_dir(base)
         if not candidate:
@@ -532,7 +532,7 @@ if __name__ == '__main__':
         if not iswindows:
             raise
         tb = traceback.format_exc()
-        from PyQt5.Qt import QErrorMessage
+        from qt.core import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             with open(logfile) as f:

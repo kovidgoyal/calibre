@@ -5,7 +5,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QWidget
+from qt.core import QWidget
 
 from calibre.gui2 import JSONConfig
 from calibre.gui2.store.config.search.search_widget_ui import Ui_Form

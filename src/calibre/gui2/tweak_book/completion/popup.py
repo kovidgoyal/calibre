@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 from math import ceil
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, Qt, QStaticText, QTextOption, QSize, QPainter, QTimer, QPalette, QEvent, QTextCursor)
 
 from calibre import prints, prepare_string_for_xml

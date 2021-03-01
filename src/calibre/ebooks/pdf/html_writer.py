@@ -14,11 +14,11 @@ from collections import namedtuple
 from html5_parser import parse
 from io import BytesIO
 from itertools import count, repeat
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal
 )
-from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
-from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineProfile
+from qt.webengine import QWebEngineUrlRequestInterceptor
+from qt.webengine import QWebEnginePage, QWebEngineProfile
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
 from calibre.constants import __version__, iswindows

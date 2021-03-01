@@ -3,7 +3,7 @@
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QDialog
+from qt.core import QDialog
 from polyglot.builtins import iteritems, map, range
 
 from calibre.gui2 import gprefs

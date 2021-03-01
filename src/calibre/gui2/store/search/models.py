@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re, string
 from operator import attrgetter
 
-from PyQt5.Qt import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
+from qt.core import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
                       pyqtSignal, QIcon, QApplication)
 
 from calibre import force_unicode

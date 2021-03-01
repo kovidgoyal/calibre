@@ -7,7 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
 import sys
-from PyQt5.Qt import QBuffer, QByteArray, QPixmap, Qt, QtWin, QIODevice
+from qt.core import QBuffer, QByteArray, QPixmap, Qt, QtWin, QIODevice
 
 from calibre.gui2 import must_use_qt
 from calibre.utils.winreg.default_programs import split_commandline

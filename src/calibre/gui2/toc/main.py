@@ -7,7 +7,7 @@ import os
 import sys
 import textwrap
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
     QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
     QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QAbstractItemView,

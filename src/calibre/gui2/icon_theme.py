@@ -11,7 +11,7 @@ from io import BytesIO
 from threading import Thread, Event
 from multiprocessing.pool import ThreadPool
 
-from PyQt5.Qt import (
+from qt.core import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
     pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap, QDialog,

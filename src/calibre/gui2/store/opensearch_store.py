@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from contextlib import closing
 
-from PyQt5.Qt import QUrl
+from qt.core import QUrl
 
 from calibre import (browser, guess_extension)
 from calibre.gui2 import open_url

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import copy, zipfile
 from functools import total_ordering
 
-from PyQt5.Qt import QAbstractItemModel, Qt, QColor, QFont, QIcon, \
+from qt.core import QAbstractItemModel, Qt, QColor, QFont, QIcon, \
         QModelIndex, pyqtSignal, QPixmap
 
 from calibre.utils.search_query_parser import SearchQueryParser

@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import datetime
 import re
 import traceback
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemView, QAbstractTableModel, QAction, QApplication, QBrush, QComboBox,
     QDialog, QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon, QLabel, QLineEdit,
     QModelIndex, QPixmap, QSize, QSortFilterProxyModel, Qt, QTableView, QUrl,

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import (
+from qt.core import (
     pyqtSignal, QMenu, QTreeView, QStyledItemDelegate, Qt, QIcon)
 
 from calibre import fit_image

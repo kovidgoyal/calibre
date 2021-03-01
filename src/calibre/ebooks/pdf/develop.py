@@ -5,8 +5,8 @@
 
 import sys
 
-from PyQt5.Qt import QApplication, QUrl, QPageLayout, QPageSize, QMarginsF
-from PyQt5.QtWebEngineWidgets import QWebEnginePage
+from qt.core import QApplication, QUrl, QPageLayout, QPageSize, QMarginsF
+from qt.webengine import QWebEnginePage
 
 from calibre.gui2 import load_builtin_fonts, must_use_qt
 from calibre.utils.podofo import get_podofo

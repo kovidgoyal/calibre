@@ -6,7 +6,7 @@
 import re
 import textwrap
 
-from PyQt5.Qt import QAbstractTableModel, QFont, Qt, QAbstractItemView
+from qt.core import QAbstractTableModel, QFont, Qt, QAbstractItemView
 
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import AbortCommit, ConfigWidgetBase, test_widget

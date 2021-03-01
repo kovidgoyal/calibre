@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QGridLayout, QToolBar, Qt, QLabel, QIcon, QDialogButtonBox, QSize,
     QApplication, QKeySequence)
 

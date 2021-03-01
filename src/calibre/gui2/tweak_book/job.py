@@ -9,7 +9,7 @@ import time
 from threading import Thread
 from functools import partial
 
-from PyQt5.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QRect, QApplication, QCursor)
+from qt.core import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QRect, QApplication, QCursor)
 
 from calibre.gui2 import Dispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator

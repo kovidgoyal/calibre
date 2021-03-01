@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import QColor, QPalette, Qt
+from qt.core import QColor, QPalette, Qt
 from calibre.constants import dark_link_color
 
 

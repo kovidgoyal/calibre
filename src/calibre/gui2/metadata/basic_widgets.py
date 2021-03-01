@@ -12,7 +12,7 @@ import shutil
 import textwrap
 import weakref
 from datetime import date, datetime
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QDateTime, QDialog, QDialogButtonBox, QDoubleSpinBox, QAbstractItemView,
     QGridLayout, QIcon, QKeySequence, QLabel, QLineEdit, QListWidgetItem, QMenu,
     QMessageBox, QPixmap, QPlainTextEdit, QSize, QSizePolicy, Qt, QToolButton, QComboBox,

@@ -7,7 +7,7 @@ import os
 import re
 from collections import namedtuple
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QAction, QApplication, QColor, QEasingCurve, QIcon, QKeySequence, QLayout, QMenu,
     QMimeData, QPainter, QPen, QPixmap, QPropertyAnimation, QRect, QSize, QClipboard,
     QSizePolicy, Qt, QUrl, QWidget, pyqtProperty, pyqtSignal

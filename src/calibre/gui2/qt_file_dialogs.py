@@ -5,7 +5,7 @@
 
 import os
 
-from PyQt5.Qt import QFileDialog, QObject
+from qt.core import QFileDialog, QObject
 
 from calibre.gui2.linux_file_dialogs import dialog_name, image_extensions
 from polyglot.builtins import unicode_type, string_or_bytes

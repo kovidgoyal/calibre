@@ -6,8 +6,8 @@
 import json
 import os
 import sys
-from PyQt5.Qt import QIcon, QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
+from qt.core import QIcon, QObject, Qt, QTimer, pyqtSignal
+from qt.webengine import QWebEngineUrlScheme
 from contextlib import closing
 
 from calibre.constants import FAKE_PROTOCOL, VIEWER_APP_UID, islinux

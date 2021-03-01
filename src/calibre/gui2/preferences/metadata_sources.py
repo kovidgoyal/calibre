@@ -7,7 +7,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from operator import attrgetter
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractListModel, QAbstractTableModel, QDialogButtonBox, QFrame, QIcon, QLabel,
     QScrollArea, Qt, QVBoxLayout, QWidget, pyqtSignal, QDialog
 )

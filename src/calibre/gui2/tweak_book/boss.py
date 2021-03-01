@@ -10,7 +10,7 @@ import sys
 import tempfile
 from functools import partial, wraps
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
     QInputDialog, QLabel, QMimeData, QObject, QSize, Qt, QTimer, QUrl, QVBoxLayout,
     pyqtSignal

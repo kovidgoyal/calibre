@@ -10,7 +10,7 @@ import textwrap, re
 from functools import partial
 from collections import OrderedDict
 
-from PyQt5.Qt import (
+from qt.core import (
     Qt, QIcon, QFont, QWidget, QScrollArea, QStackedWidget, QVBoxLayout,
     QLabel, QFrame, QToolBar, QSize, pyqtSignal, QDialogButtonBox,
     QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF,

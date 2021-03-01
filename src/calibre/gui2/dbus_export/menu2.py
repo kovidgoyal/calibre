@@ -13,7 +13,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 # Partial spec: https://wiki.gnome.org/Projects/GLib/GApplication/DBusAPI
 
 import dbus
-from PyQt5.Qt import QObject, pyqtSignal, QTimer, Qt
+from qt.core import QObject, pyqtSignal, QTimer, Qt
 
 from calibre.utils.dbus_service import Object, method as dbus_method, signal as dbus_signal
 from calibre.gui2.dbus_export.utils import set_X_window_properties

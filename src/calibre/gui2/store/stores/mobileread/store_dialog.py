@@ -7,7 +7,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import (Qt, QDialog, QIcon, QComboBox, QApplication)
+from qt.core import (Qt, QDialog, QIcon, QComboBox, QApplication)
 
 from calibre.gui2.store.stores.mobileread.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.stores.mobileread.models import BooksModel

@@ -7,7 +7,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-from PyQt5.Qt import QDialog
+from qt.core import QDialog
 from calibre.gui2.dialogs.drm_error_ui import Ui_Dialog
 from polyglot.builtins import unicode_type
 

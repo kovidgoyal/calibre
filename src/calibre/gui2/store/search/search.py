@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from random import shuffle
 
-from PyQt5.Qt import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
+from qt.core import (Qt, QDialog, QDialogButtonBox, QTimer, QCheckBox, QLabel,
                       QVBoxLayout, QIcon, QWidget, QTabWidget, QGridLayout, QApplication, QStyle)
 
 from calibre.gui2 import JSONConfig, info_dialog, error_dialog

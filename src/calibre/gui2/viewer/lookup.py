@@ -6,12 +6,12 @@
 import os
 import sys
 import textwrap
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFormLayout, QAbstractItemView,
     QHBoxLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPushButton,
     QSize, Qt, QTimer, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineWidgets import (
+from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView
 )
 

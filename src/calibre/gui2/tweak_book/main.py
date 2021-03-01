@@ -7,8 +7,8 @@ import os
 import sys
 import time
 
-from PyQt5.Qt import QIcon
-from PyQt5.QtWebEngineCore import QWebEngineUrlScheme
+from qt.core import QIcon
+from qt.webengine import QWebEngineUrlScheme
 
 from calibre.constants import EDITOR_APP_UID, FAKE_PROTOCOL, islinux
 from calibre.ebooks.oeb.polish.check.css import shutdown as shutdown_css_check_pool

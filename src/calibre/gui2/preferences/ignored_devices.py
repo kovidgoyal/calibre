@@ -5,7 +5,7 @@
 
 import textwrap
 
-from PyQt5.Qt import (
+from qt.core import (
     QIcon, QLabel, QListWidget, QListWidgetItem, QPushButton, Qt, QVBoxLayout
 )
 

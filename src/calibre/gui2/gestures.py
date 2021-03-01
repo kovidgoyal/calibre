@@ -5,7 +5,7 @@
 
 import sys, os
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QEvent, QMouseEvent, QObject, QPointF, QScroller, Qt, QTouchDevice,
     pyqtSignal
 )

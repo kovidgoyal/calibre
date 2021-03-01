@@ -8,7 +8,7 @@ import subprocess
 import sys
 from threading import Thread
 
-from PyQt5.Qt import (
+from qt.core import (
     QCheckBox, QDoubleSpinBox, QFormLayout, QHBoxLayout, QIcon, QLabel, QDialog,
     QLineEdit, QPageSize, QProgressDialog, QTimer, QToolButton, QVBoxLayout
 )

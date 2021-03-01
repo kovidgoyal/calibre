@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, textwrap, unicodedata
 from collections import OrderedDict
 
-from PyQt5.Qt import (
+from qt.core import (
     QGridLayout, QLabel, QLineEdit, QVBoxLayout, QFormLayout, QHBoxLayout,
     QToolButton, QIcon, QApplication, Qt, QWidget, QPoint, QSizePolicy,
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel, QItemSelectionModel,

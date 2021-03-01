@@ -6,7 +6,7 @@
 from collections import defaultdict
 from threading import Thread
 
-from PyQt5.Qt import (
+from qt.core import (
     QCheckBox, QHBoxLayout, QIcon, QInputDialog, QLabel, QProgressBar, QSizePolicy,
     QStackedWidget, Qt, QTextBrowser, QVBoxLayout, QWidget, pyqtSignal, QDialogButtonBox
 )

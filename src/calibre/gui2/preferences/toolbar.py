@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import QAbstractListModel, Qt, QIcon, QItemSelectionModel
+from qt.core import QAbstractListModel, Qt, QIcon, QItemSelectionModel
 
 from calibre import force_unicode
 from calibre.gui2.preferences.toolbar_ui import Ui_Form

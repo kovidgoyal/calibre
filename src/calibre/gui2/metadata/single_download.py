@@ -14,7 +14,7 @@ from threading import Thread, Event
 from operator import attrgetter
 from io import BytesIO
 
-from PyQt5.Qt import (
+from qt.core import (
     QStyledItemDelegate, QTextDocument, QRectF, QIcon, Qt, QApplication,
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
     QWidget, QTableView, QGridLayout, QPalette, QTimer, pyqtSignal,

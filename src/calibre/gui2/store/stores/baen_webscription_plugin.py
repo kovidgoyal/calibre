@@ -15,7 +15,7 @@ except ImportError:
 
 from lxml import html
 
-from PyQt5.Qt import QUrl
+from qt.core import QUrl
 
 from calibre import browser
 from calibre.ebooks.metadata import authors_to_string

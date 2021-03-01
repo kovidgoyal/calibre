@@ -10,7 +10,7 @@ import errno, os
 from functools import partial
 from collections import Counter
 
-from PyQt5.Qt import QObject, QTimer, QModelIndex, QDialog
+from qt.core import QObject, QTimer, QModelIndex, QDialog
 
 from calibre.constants import ismacos
 from calibre.gui2 import error_dialog, question_dialog

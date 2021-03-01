@@ -6,7 +6,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, copy
 from datetime import date
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QDialogButtonBox, QFrame, QLabel, QComboBox, QIcon, QVBoxLayout, Qt,
     QSize, QHBoxLayout, QTabWidget, QLineEdit, QWidget, QGroupBox, QFormLayout,
     QSpinBox, QRadioButton

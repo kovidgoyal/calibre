@@ -172,7 +172,7 @@ def run_file_dialog(
     if app_uid:
         data.append(serialize_string('APP_UID', app_uid))
 
-    from PyQt5.Qt import QEventLoop, Qt, pyqtSignal
+    from qt.core import QEventLoop, Qt, pyqtSignal
 
     class Loop(QEventLoop):
 

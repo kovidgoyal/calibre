@@ -10,7 +10,7 @@ from collections import OrderedDict, namedtuple
 from functools import partial
 from polyglot.builtins import iteritems, itervalues, zip, unicode_type, range, map
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
     QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea,

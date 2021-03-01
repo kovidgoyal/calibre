@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 
-from PyQt5.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
+from qt.core import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
             QListWidget, QAbstractItemView, QSizePolicy)
 
 

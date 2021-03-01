@@ -6,7 +6,7 @@
 from collections import OrderedDict
 import textwrap
 
-from PyQt5.Qt import (
+from qt.core import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon, QDialog,
     QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate, QAbstractItemView,
     QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal, QPalette, QItemSelectionModel, QDialogButtonBox

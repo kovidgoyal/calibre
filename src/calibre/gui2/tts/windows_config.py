@@ -3,7 +3,7 @@
 # License: GPL v3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>
 
 from contextlib import suppress
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemView, QAbstractTableModel, QByteArray, QComboBox, QFontMetrics,
     QFormLayout, QItemSelectionModel, QSlider, QSortFilterProxyModel, Qt, QTableView,
     QWidget

@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
 
-from PyQt5.Qt import (
+from qt.core import (
     QColor, QBrush, QFont, QApplication, QPalette, QComboBox,
     QPushButton, QIcon, QFormLayout, QLineEdit, QWidget, QScrollArea,
     QVBoxLayout, Qt, QHBoxLayout, pyqtSignal, QPixmap, QColorDialog, QDialog,

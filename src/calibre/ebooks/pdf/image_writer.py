@@ -3,7 +3,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QMarginsF, QPageLayout, QPageSize, QSizeF
+from qt.core import QMarginsF, QPageLayout, QPageSize, QSizeF
 
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.pdf.render.common import cicero, cm, didot, inch, mm, pica

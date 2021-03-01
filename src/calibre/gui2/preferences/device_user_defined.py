@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 
 import numbers
-from PyQt5.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
+from qt.core import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
     QDialogButtonBox, QPushButton, QApplication, QIcon, QMessageBox
 
 

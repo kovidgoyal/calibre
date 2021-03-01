@@ -10,7 +10,7 @@ import itertools, operator
 from functools import partial
 from collections import OrderedDict
 
-from PyQt5.Qt import (
+from qt.core import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView, QEvent,
     QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics, QApplication)

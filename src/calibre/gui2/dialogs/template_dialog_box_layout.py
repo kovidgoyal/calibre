@@ -4,7 +4,7 @@ Created on 20 Jan 2021
 @author: Charles Haley
 '''
 
-from PyQt5.Qt import (QBoxLayout)
+from qt.core import (QBoxLayout)
 
 
 class BoxLayout(QBoxLayout):

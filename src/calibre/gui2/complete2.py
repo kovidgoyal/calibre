@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import (
+from qt.core import (
     QLineEdit, QAbstractListModel, Qt, pyqtSignal, QObject, QKeySequence, QAbstractItemView,
     QApplication, QListView, QPoint, QModelIndex, QEvent,
     QStyleOptionComboBox, QStyle, QComboBox, QTimer)
@@ -519,7 +519,7 @@ class EditWithComplete(EnComboBox):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QDialog, QVBoxLayout
+    from qt.core import QDialog, QVBoxLayout
     from calibre.gui2 import Application
     app = Application([])
     d = QDialog()

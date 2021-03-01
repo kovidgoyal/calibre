@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from PyQt5.Qt import (
+from qt.core import (
     QDialog, QLabel, QObject, QSizePolicy, QStackedLayout, QStackedWidget, Qt,
     QVBoxLayout, QWidget, pyqtSignal
 )
@@ -119,7 +119,7 @@ class WaitLayout(QStackedLayout):
 
 
 def develop():
-    from PyQt5.Qt import QPainter, QPalette
+    from qt.core import QPainter, QPalette
 
     from calibre.gui2 import Application
     from calibre_extensions.progress_indicator import SpinAnimator

@@ -14,7 +14,7 @@ from difflib import SequenceMatcher
 from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes, map
 
 import regex
-from PyQt5.Qt import (
+from qt.core import (
     QSplitter, QApplication, QTimer, QEvent,
     QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
     QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath, QPlainTextEdit,

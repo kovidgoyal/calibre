@@ -6,7 +6,7 @@
 import re
 from functools import partial
 
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QFont, QHBoxLayout, QIcon, QMenu, QModelIndex, QStandardItem,
     QStandardItemModel, QStyledItemDelegate, Qt, QToolButton, QToolTip, QTreeView,
     QWidget, pyqtSignal, QEvent

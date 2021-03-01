@@ -3,7 +3,7 @@
 # License: GPL v3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from PyQt5.Qt import QWidget, Qt, QFontInfo, QLabel, QVBoxLayout, QPalette
+from qt.core import QWidget, Qt, QFontInfo, QLabel, QVBoxLayout, QPalette
 
 from calibre.gui2.progress_indicator import ProgressIndicator
 

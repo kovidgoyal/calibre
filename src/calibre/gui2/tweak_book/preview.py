@@ -8,12 +8,12 @@ import textwrap
 import time
 from collections import defaultdict
 from functools import partial
-from PyQt5.Qt import (
+from qt.core import (
     QApplication, QByteArray, QHBoxLayout, QIcon, QLabel, QMenu, QSize, QSizePolicy,
     QStackedLayout, Qt, QTimer, QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
-from PyQt5.QtWebEngineCore import QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob, QWebEngineUrlRequestInfo
-from PyQt5.QtWebEngineWidgets import (
+from qt.webengine import QWebEngineUrlSchemeHandler, QWebEngineUrlRequestJob, QWebEngineUrlRequestInfo
+from qt.webengine import (
     QWebEnginePage, QWebEngineProfile, QWebEngineScript, QWebEngineView, QWebEngineSettings, QWebEngineContextMenuData
 )
 from threading import Thread

@@ -10,7 +10,7 @@ import copy
 import os
 import traceback
 from collections import OrderedDict, namedtuple
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractItemModel, QFont, QIcon, QMimeData, QModelIndex, QObject, Qt,
     pyqtSignal
 )

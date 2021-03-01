@@ -10,7 +10,7 @@ import os
 import re
 import traceback
 from contextlib import closing, suppress
-from PyQt5.Qt import (
+from qt.core import (
     QAbstractListModel, QDir, QIcon, QItemSelection, QItemSelectionModel, Qt,
     QWizard, QWizardPage, pyqtSignal
 )
