@@ -3,6 +3,12 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
 
+import sys
+from time import monotonic
+
+from calibre.constants import DEBUG
+
+
 def get_current_book_data(set_val=False):
     if set_val is not False:
         setattr(get_current_book_data, 'ans', set_val)
@@ -27,3 +33,21 @@ def link_prefix_for_location_links(add_open_at=True):
         if add_open_at:
             link_prefix += '?open_at='
     return link_prefix
+
+
+class PerformanceMonitor:
+
+    def __init__(self):
+        self.start_time = monotonic()
+
+    def __call__(self, desc='', reset=False):
+        if DEBUG:
+            at = monotonic()
+            if reset:
+                self.start_time = at
+            if desc:
+                ts = at - self.start_time
+                print(f'[{ts:.3f}] {desc}', file=sys.stderr)
+
+
+performance_monitor = PerformanceMonitor()
