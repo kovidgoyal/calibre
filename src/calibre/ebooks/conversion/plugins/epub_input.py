@@ -33,7 +33,7 @@ class EPUBInput(InputFormatPlugin):
 
     name        = 'EPUB Input'
     author      = 'Kovid Goyal'
-    description = 'Convert EPUB files (.epub) to HTML'
+    description = _('Convert EPUB files (.epub) to HTML')
     file_types  = {'epub'}
     output_encoding = None
     commit_name = 'epub_input'

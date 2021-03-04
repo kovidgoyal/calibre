@@ -28,7 +28,7 @@ class HTMLInput(InputFormatPlugin):
 
     name        = 'HTML Input'
     author      = 'Kovid Goyal'
-    description = 'Convert HTML and OPF files to an OEB'
+    description = _('Convert HTML and OPF files to an OEB')
     file_types  = {'opf', 'html', 'htm', 'xhtml', 'xhtm', 'shtm', 'shtml'}
     commit_name = 'html_input'
 

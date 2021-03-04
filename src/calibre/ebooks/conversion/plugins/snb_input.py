@@ -23,7 +23,7 @@ class SNBInput(InputFormatPlugin):
 
     name        = 'SNB Input'
     author      = 'Li Fanxi'
-    description = 'Convert SNB files to OEB'
+    description = _('Convert SNB files to OEB')
     file_types  = {'snb'}
     commit_name = 'snb_input'
 

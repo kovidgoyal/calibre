@@ -19,7 +19,7 @@ class FB2Input(InputFormatPlugin):
 
     name        = 'FB2 Input'
     author      = 'Anatoly Shipitsin'
-    description = 'Convert FB2 and FBZ files to HTML'
+    description = _('Convert FB2 and FBZ files to HTML')
     file_types  = {'fb2', 'fbz'}
     commit_name = 'fb2_input'
 

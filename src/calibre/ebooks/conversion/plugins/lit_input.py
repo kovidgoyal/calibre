@@ -13,7 +13,7 @@ class LITInput(InputFormatPlugin):
 
     name        = 'LIT Input'
     author      = 'Marshall T. Vandegrift'
-    description = 'Convert LIT files to HTML'
+    description = _('Convert LIT files to HTML')
     file_types  = {'lit'}
     commit_name = 'lit_input'
 

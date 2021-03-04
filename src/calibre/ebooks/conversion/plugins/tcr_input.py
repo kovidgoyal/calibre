@@ -14,7 +14,7 @@ class TCRInput(InputFormatPlugin):
 
     name        = 'TCR Input'
     author      = 'John Schember'
-    description = 'Convert TCR files to HTML'
+    description = _('Convert TCR files to HTML')
     file_types  = {'tcr'}
     commit_name = 'tcr_input'
 

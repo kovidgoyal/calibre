@@ -13,7 +13,7 @@ class AZW4Input(InputFormatPlugin):
 
     name        = 'AZW4 Input'
     author      = 'John Schember'
-    description = 'Convert AZW4 to HTML'
+    description = _('Convert AZW4 to HTML')
     file_types  = {'azw4'}
     commit_name = 'azw4_input'
 

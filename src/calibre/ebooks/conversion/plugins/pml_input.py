@@ -18,7 +18,7 @@ class PMLInput(InputFormatPlugin):
 
     name        = 'PML Input'
     author      = 'John Schember'
-    description = 'Convert PML to OEB'
+    description = _('Convert PML to OEB')
     # pmlz is a zip file containing pml files and png images.
     file_types  = {'pml', 'pmlz'}
     commit_name = 'pml_input'

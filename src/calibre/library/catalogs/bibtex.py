@@ -23,7 +23,7 @@ class BIBTEX(CatalogPlugin):
     Option = namedtuple('Option', 'option, default, dest, action, help')
 
     name = 'Catalog_BIBTEX'
-    description = 'BIBTEX catalog generator'
+    description = _('BIBTEX catalog generator')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Sengian'
     version = (1, 0, 0)

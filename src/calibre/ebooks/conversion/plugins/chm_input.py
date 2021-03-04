@@ -17,7 +17,7 @@ class CHMInput(InputFormatPlugin):
 
     name        = 'CHM Input'
     author      = 'Kovid Goyal and Alex Bramley'
-    description = 'Convert CHM files to OEB'
+    description = _('Convert CHM files to OEB')
     file_types  = {'chm'}
     commit_name = 'chm_input'
 

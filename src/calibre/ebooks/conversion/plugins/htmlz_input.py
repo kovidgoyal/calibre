@@ -16,7 +16,7 @@ class HTMLZInput(InputFormatPlugin):
 
     name        = 'HTLZ Input'
     author      = 'John Schember'
-    description = 'Convert HTML files to HTML'
+    description = _('Convert HTMLZ files to HTML')
     file_types  = {'htmlz'}
     commit_name = 'htmlz_input'
 

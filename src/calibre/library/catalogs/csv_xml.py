@@ -22,7 +22,7 @@ class CSV_XML(CatalogPlugin):
     Option = namedtuple('Option', 'option, default, dest, action, help')
 
     name = 'Catalog_CSV_XML'
-    description = 'CSV/XML catalog generator'
+    description = _('CSV/XML catalog generator')
     supported_platforms = ['windows', 'osx', 'linux']
     author = 'Greg Riker'
     version = (1, 0, 0)

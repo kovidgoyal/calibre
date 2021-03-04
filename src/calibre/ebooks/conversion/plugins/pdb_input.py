@@ -13,7 +13,7 @@ class PDBInput(InputFormatPlugin):
 
     name        = 'PDB Input'
     author      = 'John Schember'
-    description = 'Convert PDB to HTML'
+    description = _('Convert PDB to HTML')
     file_types  = {'pdb', 'updb'}
     commit_name = 'pdb_input'
 

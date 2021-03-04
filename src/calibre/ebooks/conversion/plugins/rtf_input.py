@@ -43,7 +43,7 @@ class RTFInput(InputFormatPlugin):
 
     name        = 'RTF Input'
     author      = 'Kovid Goyal'
-    description = 'Convert RTF files to HTML'
+    description = _('Convert RTF files to HTML')
     file_types  = {'rtf'}
     commit_name = 'rtf_input'
 

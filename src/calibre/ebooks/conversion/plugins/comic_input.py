@@ -20,7 +20,7 @@ class ComicInput(InputFormatPlugin):
 
     name        = 'Comic Input'
     author      = 'Kovid Goyal'
-    description = 'Optimize comic files (.cbz, .cbr, .cbc) for viewing on portable devices'
+    description = _('Optimize comic files (.cbz, .cbr, .cbc) for viewing on portable devices')
     file_types  = {'cbz', 'cbr', 'cb7', 'cbc'}
     is_image_collection = True
     commit_name = 'comic_input'

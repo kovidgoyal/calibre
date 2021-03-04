@@ -15,7 +15,7 @@ class PDFInput(InputFormatPlugin):
 
     name        = 'PDF Input'
     author      = 'Kovid Goyal and John Schember'
-    description = 'Convert PDF files to HTML'
+    description = _('Convert PDF files to HTML')
     file_types  = {'pdf'}
     commit_name = 'pdf_input'
 

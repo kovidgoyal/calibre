@@ -36,7 +36,7 @@ class TXTInput(InputFormatPlugin):
 
     name        = 'TXT Input'
     author      = 'John Schember'
-    description = 'Convert TXT files to HTML'
+    description = _('Convert TXT files to HTML')
     file_types  = {'txt', 'txtz', 'text', 'md', 'textile', 'markdown'}
     commit_name = 'txt_input'
     ui_data = {

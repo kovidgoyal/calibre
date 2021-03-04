@@ -14,7 +14,7 @@ class MOBIInput(InputFormatPlugin):
 
     name        = 'MOBI Input'
     author      = 'Kovid Goyal'
-    description = 'Convert MOBI files (.mobi, .prc, .azw) to HTML'
+    description = _('Convert MOBI files (.mobi, .prc, .azw) to HTML')
     file_types  = {'mobi', 'prc', 'azw', 'azw3', 'pobi'}
     commit_name = 'mobi_input'
 
