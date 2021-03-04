@@ -32,11 +32,11 @@ class ReVendor(Command):
         for i in range(num):
             try:
                 raw = download_securely(url)
-            except Exception:
+            except Exception as err:
                 if i == num - 1:
                     raise
-            self.info('Download failed, sleeping and retrying...')
-            time.sleep(2)
+                self.info(f'Download failed with error "{err}" sleeping and retrying...')
+                time.sleep(2)
         with tarfile.open(fileobj=BytesIO(raw)) as tf:
             tf.extractall(tdir)
             if len(os.listdir(tdir)) == 1:
