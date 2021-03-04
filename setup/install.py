@@ -328,6 +328,7 @@ class Sdist(Command):
 
         self.info('\tCreating tarfile...')
         dest = self.DEST.rpartition('.')[0]
+        shutil.rmtree(os.path.join(tdir, '.github'))
         subprocess.check_call(['tar', '-cf', self.a(dest), 'calibre-%s' % __version__], cwd=self.d(tdir))
         self.info('\tCompressing tarfile...')
         if os.path.exists(self.a(self.DEST)):
