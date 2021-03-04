@@ -78,7 +78,7 @@ def assert_true(x, msg, call_site=None):
         raise_fail(f'{x} is not truthy', msg, call_site)
 
 
-def assert_fale(x, msg, call_site=None):
+def assert_false(x, msg, call_site=None):
     if x:
         raise_fail(f'{x} is truthy', msg, call_site)
 
