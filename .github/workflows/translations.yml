@@ -7,16 +7,22 @@ on:
 jobs:
     Push-To-Transifex:
         name: Update translations on Transifex
-        if: github.repository == 'kovidgoyal/calibre-disabled-because-arch-not-running-in-docker'
+        if: github.repository == 'kovidgoyal/calibre'
         runs-on: ubuntu-latest
         container:
             image: 'archlinux/base:latest'
             env:
                 CI: 'true'
         steps:
-            - name: Prepare the container
+            - name: Setup container
+              # WORKAROUND for glibc 2.33 and old Docker
+              # See https://github.com/actions/virtual-environments/issues/2658
+              # Thanks to https://github.com/lxqt/lxqt-panel/pull/1562
               run: |
-                pacman -Syu --noconfirm
+                patched_glibc=glibc-linux4-2.33-4-x86_64.pkg.tar.zst
+                curl -LO "https://repo.archlinuxcn.org/x86_64/$patched_glibc"
+                bsdtar -C / -xf "$patched_glibc"
+                pacman -Syu --noconfirm --ignore glibc
                 pacman -S --noconfirm tar
 
             - name: Checkout source code
