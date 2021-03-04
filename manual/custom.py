@@ -11,7 +11,6 @@ from sphinx.util.logging import getLogger
 
 from calibre.linux import cli_index_strings, entry_points
 from epub import EPUBHelpBuilder
-from latex import LaTeXHelpBuilder
 
 
 def info(*a):
@@ -356,7 +355,6 @@ def setup(app):
     generate_docs(app.config.language)
     app.add_css_file('custom.css')
     app.add_builder(EPUBHelpBuilder)
-    app.add_builder(LaTeXHelpBuilder)
     app.connect('source-read', source_read_handler)
     app.connect('html-page-context', add_html_context)
     app.connect('build-finished', finished)

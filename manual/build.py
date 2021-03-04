@@ -42,7 +42,7 @@ def build_manual(language, base):
     sb = partial(sphinx_build, language, base)
     onlinedir = sb(t='online')
     epubdir = sb('myepub', 'epub')
-    latexdir = sb('mylatex', 'latex')
+    latexdir = sb('latex', 'latex')
     pwd = os.getcwd()
     os.chdir(latexdir)
 
