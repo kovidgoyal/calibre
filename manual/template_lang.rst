@@ -108,7 +108,7 @@ If you use series indices with fractional values, e.g., 1.1, you might want the 
 
 If you want only the first two letters of the data, use:
 
-   ``{author_sort:.2}`` - Only the first two letter of the author sort name
+   ``{author_sort:.2}`` - Only the first two letters of the author sort name
 
 Much of the calibre template language comes from Python. For more details on the syntax of these advanced formatting operations see the `Python documentation <https://docs.python.org/3/library/string.html#formatstrings>`_.
 
@@ -116,7 +116,7 @@ Much of the calibre template language comes from Python. For more details on the
 Using templates to define custom columns
 -----------------------------------------
 
-Templates are used to display information that isn't in calibre metadata, or to display metadata differently from calibre's normal format. For example, you might want to show the ``ISBN``, a field that calibre does not display. You can accoplish this creating a custom column with the type `Column built from other columns` (hereafter called composite columns) and providing a template to generate the displayed text. The column will display the result of evaluating the template. For example, to display the ISBN, create the column and enter ``{identifiers:select(isbn)}`` into the template box. To display a column containing the values of two series custom columns, separated by a comma, use ``{#series1:||,}{#series2}``.
+Templates are used to display information that isn't in calibre metadata, or to display metadata differently from calibre's normal format. For example, you might want to show the ``ISBN``, a field that calibre does not display. You can accomplish this creating a custom column with the type `Column built from other columns` (hereafter called composite columns) and providing a template to generate the displayed text. The column will display the result of evaluating the template. For example, to display the ISBN, create the column and enter ``{identifiers:select(isbn)}`` into the template box. To display a column containing the values of two series custom columns, separated by a comma, use ``{#series1:||,}{#series2}``.
 
 Composite columns can use any template option including formatting.
 
