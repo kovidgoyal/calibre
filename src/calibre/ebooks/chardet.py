@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, codecs
+import re, codecs, sys
 from polyglot.builtins import unicode_type
 
 _encoding_pats = (
@@ -106,32 +106,30 @@ _CHARSET_ALIASES = {"macintosh" : "mac-roman", "x-sjis" : "shift-jis"}
 
 
 def detect(bytestring):
-    try:
-        from cchardet import detect as implementation
-    except ImportError:
-        from chardet import detect as implementation
-        return implementation(bytestring)
-    else:
-        ans = implementation(bytestring)
-        enc = ans.get('encoding')
-        if enc:
-            ans['encoding'] = enc.lower()
-        return ans
+    from cchardet import detect as implementation
+    ans = implementation(bytestring)
+    enc = ans.get('encoding')
+    if enc:
+        ans['encoding'] = enc.lower()
+    elif enc is None:
+        ans['encoding'] = ''
+    if ans.get('confidence') is None:
+        ans['confidence'] = 0
+    return ans
 
 
 def force_encoding(raw, verbose, assume_utf8=False):
     from calibre.constants import preferred_encoding
-
     try:
         chardet = detect(raw[:1024*50])
-    except:
+    except Exception:
         chardet = {'encoding':preferred_encoding, 'confidence':0}
     encoding = chardet['encoding']
-    if chardet['confidence'] < 1 and assume_utf8:
-        encoding = 'utf-8'
-    if chardet['confidence'] < 1 and verbose:
-        print('WARNING: Encoding detection confidence for %s is %d%%'%(
-            chardet['encoding'], chardet['confidence']*100))
+    if chardet['confidence'] < 1:
+        if verbose:
+            print(f'WARNING: Encoding detection confidence for {chardet["encoding"]} is {chardet["confidence"]}', file=sys.stderr)
+        if assume_utf8:
+            encoding = 'utf-8'
     if not encoding:
         encoding = preferred_encoding
     encoding = encoding.lower()
