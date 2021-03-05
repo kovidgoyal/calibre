@@ -335,9 +335,8 @@ class BuiltinMod(BuiltinFormatterFunction):
     name = 'mod'
     arg_count = 2
     category = 'Arithmetic'
-    __doc__ = doc = _('mod(x) -- returns the remainder of x / y, where x, y, '
-                      'and the result are integers. Throws an exception if '
-                      'either x or y is not a number.')
+    __doc__ = doc = _('mod(x) -- returns floor(remainder of x / y). '
+                      'Throws an exception if either x or y is not a number.')
 
     def evaluate(self, formatter, kwargs, mi, locals, x, y):
         x = float(x if x and x != 'None' else 0)
