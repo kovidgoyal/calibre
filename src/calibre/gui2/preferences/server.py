@@ -395,7 +395,7 @@ class MainTab(QWidget):  # {{{
 
     def change_auth_desc(self):
         self.auth_desc.setText(
-            _('Remember to create some user accounts in the "User accounts" tab')
+            _('Remember to create at least one user account in the "User accounts" tab')
             if self.opt_auth.isChecked() else _(
                 'Requiring a username/password prevents unauthorized people from'
                 ' accessing your calibre library. It is also needed for some features'
