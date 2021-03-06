@@ -236,6 +236,7 @@ class ExtensionsImporter:
             'icu',
             'speedup',
             'html_as_json',
+            'fast_css_transform',
             'unicode_names',
             'html_syntax_highlighter',
             'hyphen',

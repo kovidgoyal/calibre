@@ -115,6 +115,11 @@
 		"needs_c++11": true
     },
     {
+        "name": "fast_css_transform",
+        "sources": "calibre/srv/fast_css_transform.cpp",
+		"needs_c++11": true
+    },
+    {
         "name": "pictureflow",
         "sources": "calibre/gui2/pictureflow/pictureflow.cpp",
         "headers": "calibre/gui2/pictureflow/pictureflow.h",
