@@ -325,7 +325,7 @@ Note: the last line in the template, ``new_tags``, isn't strictly necessary in t
 
 Relational operators return '1' if they evaluate to True, otherwise the empty string ('').
 
-There are two forms of relational operators: string comparisons and numeric comparisons. They string comparisons do case-insensitive string comparison using lexical order. The supported string comparison operators are ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``, and ``in``.
+There are two forms of relational operators: string comparisons and numeric comparisons. The string comparisons do case-insensitive string comparison using lexical order. The supported string comparison operators are ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``, and ``in``.
 For the ``in`` operator, the result of the left hand expression is interpreted as a regular expression pattern. The ``in`` operator is True if the pattern matches the result of the right hand expression. The match is case-insensitive.
 
 The numeric comparison operators are ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. The left and right expressions must evaluate to numeric values with two exceptions: the string value "None" (undefined field) and the empty string evaluate to the value zero.
