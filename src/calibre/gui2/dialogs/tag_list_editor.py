@@ -319,7 +319,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
 
     def search_for_books(self, item):
         from calibre.gui2.ui import get_gui
-        get_gui().search.set_search_string('{0}:"{1}"'.format(self.category,
+        get_gui().search.set_search_string('{0}:"={1}"'.format(self.category,
                                    unicode_type(item.text()).replace(r'"', r'\"')))
 
         qv = get_quickview_action_plugin()

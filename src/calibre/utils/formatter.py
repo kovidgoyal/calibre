@@ -568,7 +568,7 @@ class _Parser(object):
     def expr(self):
         if self.token_op_is_lparen():
             self.consume()
-            rv = self.top_expr()
+            rv = self.expression_list()
             if not self.token_op_is_rparen():
                 self.error(_('Missing )'))
             self.consume()
@@ -598,7 +598,7 @@ class _Parser(object):
             arguments = list()
             while not self.token_op_is_rparen():
                 # evaluate the expression (recursive call)
-                arguments.append(self.top_expr())
+                arguments.append(self.expression_list())
                 if not self.token_op_is_comma():
                     break
                 self.consume()
@@ -906,6 +906,8 @@ class _Interpreter(object):
 
     def expr(self, prog):
         try:
+            if isinstance(prog, list):
+                return self.expression_list(prog)
             return self.NODE_OPS[prog.node_type](self, prog)
         except ValueError as e:
             raise e
