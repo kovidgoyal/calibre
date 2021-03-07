@@ -217,7 +217,7 @@ General Program Mode replaces the template with a program written in the `templa
     top_expression  ::= or_expression
     or_expression   ::= and_expression [ '||' and_expression ]*
     and_expression  ::= not_expression [ '&&' not_expression ]*
-    not_expression  ::= ['!' not_expression]* | compare_exp
+    not_expression  ::= [ '!' not_expression ]* | compare_exp
     compare_expr    ::= add_sub_expr [ compare_op add_sub_expr ]
     compare_op      ::= '==' | '!=' | '>=' | '>' | '<=' | '<' | 'in' |
                         '==#' | '!=#' | '>=#' | '>#' | '<=#' | '<#'
@@ -227,13 +227,13 @@ General Program Mode replaces the template with a program written in the `templa
     times_div_op    ::= '*' | '/'
     unary_op_expr   ::= [ add_sub_op unary_op_expr ]* | expression
     expression      ::= identifier | constant | function | assignment |
-                        if_expression | for_expression | '(' top_expression ')'
+                        if_expression | for_expression | '(' expression_list ')'
     identifier      ::= sequence of letters or ``_`` characters
     constant        ::= " string " | ' string ' | number
-    function        ::= identifier '(' top_expression [ ',' top_expression ]* ')'
+    function        ::= identifier '(' expression_list [ ',' expression_list ]* ')'
     assignment      ::= identifier '=' top_expression
     if_expression   ::= 'if' condition 'then' expression_list
-                        [elif_expression] ['else' expression_list] 'fi'
+                        [ elif_expression ] [ 'else' expression_list ] 'fi'
     condition       ::= top_expression
     elif_expression ::= 'elif' condition 'then' expression_list elif_expression | ''
     for_expression  ::= 'for' identifier 'in' list_expression
