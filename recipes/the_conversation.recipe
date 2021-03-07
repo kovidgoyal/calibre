@@ -1,7 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-class Politics(BasicNewsRecipe):
+class TheConversation(BasicNewsRecipe):
     title = u'The Conversation'
     language = 'en'
     __author__ = 'Krittika Goyal'
@@ -13,16 +13,25 @@ class Politics(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('All Articles',
-         'http://theconversation.com/articles.atom'),
-        ('Arts + Culture',
-         'http://theconversation.com/us/arts/articles.atom'),
-        ('Business + Economy',
-         'http://theconversation.com/us/business/articles.atom'),
-        ('Health + Medicine',
-         'http://theconversation.com/us/health/articles.atom'),
-        ('Politics + Society',
-         'http://theconversation.com/us/politics/articles.atom'),
-        ('Science + Technology',
-         'http://theconversation.com/us/technology/articles.atom'),
+        ('All Articles', 'https://theconversation.com/au/articles.atom'),
+        ('Arts + Culture', 'https://theconversation.com/au/arts/articles.atom'),
+        (
+            'Business + Economy',
+            'https://theconversation.com/au/business/articles.atom'
+        ),
+        ('Cities', 'https://theconversation.com/au/cities/articles.atom'),
+        ('Education', 'https://theconversation.com/au/education/articles.atom'),
+        (
+            'Enviroment + Energy',
+            'https://theconversation.com/au/environment/articles.atom'
+        ),
+        ('Health + Medicine', 'https://theconversation.com/au/health/articles.atom'),
+        (
+            'Politics + Society',
+            'https://theconversation.com/au/politics/articles.atom'
+        ),
+        (
+            'Science + Technology',
+            'https://theconversation.com/au/technology/articles.atom'
+        ),
     ]
