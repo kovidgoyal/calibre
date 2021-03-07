@@ -5,7 +5,7 @@ class Politics(BasicNewsRecipe):
     title = u'The Conversation'
     language = 'en'
     __author__ = 'Krittika Goyal'
-    oldest_article = 2  # days
+    oldest_article = 4  # days
     max_articles_per_feed = 20
     use_embedded_content = False
 
