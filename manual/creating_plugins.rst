@@ -30,7 +30,7 @@ and enter the following Python code into it:
     :lines: 10-
 
 That's all. To add this code to calibre as a plugin, simply run the following in
-the directory in which you created :file:`__init__.py`::
+the folder in which you created :file:`__init__.py`::
 
     calibre-customize -b .
 
@@ -71,7 +71,7 @@ The first thing to note is that this ZIP file has a lot more files in it, explai
         The prefix ``calibre_plugins`` must always be present. ``some_name`` comes from the filename of the empty text file.
         ``some_module`` refers to  :file:`some_module.py` file inside the ZIP file. Note that this importing is just as
         powerful as regular Python imports. You can create packages and subpackages of .py modules inside the ZIP file,
-        just like you would normally (by defining __init__.py in each sub-directory), and everything should "just work".
+        just like you would normally (by defining __init__.py in each sub-folder), and everything should "just work".
 
         The name you use for ``some_name`` enters a global namespace shared by all plugins, **so make it as unique as possible**.
         But remember that it must be a valid Python identifier (only alphabets, numbers and the underscore).
@@ -139,7 +139,7 @@ calibre's plugin loading system defines a couple of built-in functions that allo
 
     **get_resources(name_or_list_of_names)**
         This function should be called with a list of paths to files inside the ZIP file. For example to access the file icon.png in
-        the directory images in the ZIP file, you would use: ``images/icon.png``. Always use a forward slash as the path separator,
+        the folder images in the ZIP file, you would use: ``images/icon.png``. Always use a forward slash as the path separator,
         even on Windows. When you pass in a single name, the function will return the raw bytes of that file or None if the name
         was not found in the ZIP file. If you pass in more than one name then it returns a dict mapping the names to bytes.
         If a name is not found, it will not be present in the returned dict.
@@ -254,7 +254,7 @@ Running User Interface plugins in a separate process
 If you are writing a user interface plugin that needs to make use
 of Qt WebEngine, it cannot be run in the main calibre process as it
 is not possible to use WebEngine there. Instead you can copy the data
-your plugin needs to a temporary directory and run the plugin with that
+your plugin needs to a temporary folder and run the plugin with that
 data in a separate process. A simple example plugin follows that shows how
 to do this.
 
@@ -338,7 +338,7 @@ You can insert print statements anywhere in your plugin code, they will be outpu
 You can quickly test changes to your plugin by using the following command
 line::
 
-    calibre-debug -s; calibre-customize -b /path/to/your/plugin/directory; calibre
+    calibre-debug -s; calibre-customize -b /path/to/your/plugin/folder; calibre
 
 This will shutdown a running calibre, wait for the shutdown to complete, then update your plugin in calibre and relaunch calibre.
 

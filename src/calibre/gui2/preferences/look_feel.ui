@@ -623,7 +623,7 @@ A value of zero means calculate automatically.</string>
            <item row="4" column="1">
             <widget class="QPushButton" name="cover_grid_open_cache">
              <property name="text">
-              <string>&amp;Open cache directory</string>
+              <string>&amp;Open cache folder</string>
              </property>
             </widget>
            </item>

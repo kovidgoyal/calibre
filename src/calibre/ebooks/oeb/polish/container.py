@@ -225,7 +225,7 @@ class Container(ContainerBase):  # {{{
     A container represents an Open E-Book as a directory full of files and an
     opf file. There are two important concepts:
 
-        * The root directory. This is the base of the e-book. All the e-books
+        * The root folder. This is the base of the e-book. All the e-books
           files are inside this directory or in its sub-directories.
 
         * Names: These are paths to the books' files relative to the root

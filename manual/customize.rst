@@ -83,7 +83,7 @@ choose to install calibre.
 You should not change the files in this resources folder, as your changes will
 get overwritten the next time you update calibre. Instead, go to
 :guilabel:`Preferences->Advanced->Miscellaneous` and click
-:guilabel:`Open calibre configuration directory`. In this configuration directory, create a
+:guilabel:`Open calibre configuration folder`. In this configuration directory, create a
 sub-folder called resources and place the files you want to override in it.
 Place the files in the appropriate sub folders, for example place images in
 :file:`resources/images`, etc. calibre will automatically use your custom file

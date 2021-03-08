@@ -327,7 +327,7 @@ class OutputFormatPlugin(Plugin):
         :class:`calibre.ebooks.oeb.OEBBook`) to the file specified by output.
 
         :param output: Either a file like object or a string. If it is a string
-                       it is the path to a directory that may or may not exist. The output
+                       it is the path to a folder that may or may not exist. The output
                        plugin should write its output into that directory. If it is a file like
                        object, the output plugin should write its output into the file.
         :param input_plugin: The input plugin that was used at the beginning of
