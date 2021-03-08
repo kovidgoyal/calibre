@@ -148,6 +148,8 @@ Functions are evaluated before format specifications and the prefix/suffix. See 
 
 Some functions require regular expressions. In the template language regular expression matching is case-insensitive.
 
+In the function documentation below, the notation ``[something]*`` means that `something` can be repeated zero or more times. The notation ``[something]+`` means that the `something` is repeated one or more times (must exist at least one time).
+
 The functions intended for use in Single Function Mode are:
 
 
@@ -164,9 +166,9 @@ The functions intended for use in Single Function Mode are:
     * ``lowercase()`` -- returns the value of the field in lower case.
     * ``rating_to_stars(use_half_stars)`` -- Returns the rating as string of star (``★``) characters. The value must be a number between 0 and 5. Set use_half_stars to 1 if you want half star characters for fractional numbers available with custom ratings columns.
     * ``re(pattern, replacement)`` -- return the value after applying the regular expression. All instances of ``pattern`` in the value are replaced with ``replacement``. The template language uses case insensitive `Python regular expressions <https://docs.python.org/3/library/re.html>`_.
-    * ``select(key)`` -- interpret the value as a comma-separated list of items with each item having the form ``id:value`` (the calibre ``identifier`` format). The function finds the first pair with the id equal to key and returns the corresponding value.
+    * ``select(key)`` -- interpret the value as a comma-separated list of items with each item having the form ``id:value`` (the calibre ``identifier`` format). The function finds the first pair with the id equal to key and returns the corresponding value. If no id matches then the function returns the empty string.
     * ``shorten(left chars, middle text, right chars)`` -- Return a shortened version of the value, consisting of ``left chars`` characters from the beginning of the value, followed by ``middle text``, followed by ``right chars`` characters from the end of the value. ``Left chars`` and ``right chars`` must be non-negative integers. Example: assume you want to display the title with a length of at most 15 characters in length. One template that does this is ``{title:shorten(9,-,5)}``. For a book with the title `Ancient English Laws in the Times of Ivanhoe` the result will be `Ancient E-nhoe`: the first 9 characters of the title, a ``-``, then the last 5 characters. If the value's length is less than ``left chars`` + ``right chars`` + the length of ``middle text`` then the value will be returned unchanged. For example, the title `The Dome` would not be changed.
-    * ``str_in_list(separator, [ string, found_val, ]* not_found_val)`` -- interpret the value as a list of items separated by ``separator`` then compare ``string`` against each value in the list. The ``string`` is not a regular expression. If ``string`` equals any item (ignoring case) then return the corresponding ``found_val``. If ``string`` contains ``separators`` then it is also treated as a list and each subvalue is checked. The ``string`` and ``found_value`` pairs can be repeated as many times as desired, permitting returning different values depending on string's value. If none of the strings match then ``not_found_value`` is returned. The strings are checked in order. The first match is returned.
+    * ``str_in_list(separator, [ string, found_val, ]+ not_found_val)`` -- interpret the value as a list of items separated by ``separator`` then compare ``string`` against each value in the list. The ``string`` is not a regular expression. If ``string`` is equal to any item (ignoring case) then return the corresponding ``found_val``. If ``string`` contains ``separators`` then it is also treated as a list and each subvalue is checked. The ``string`` and ``found_value`` pairs can be repeated as many times as desired, permitting returning different values depending on string's value. If none of the strings match then ``not_found_value`` is returned. The strings are checked in order. The first match is returned.
     * ``subitems(start_index, end_index)`` -- This function breaks apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. It returns a new list made by extracting from each item the components from ``start_index`` to ``end_index``, then merging the results back together. Duplicates are removed. The first subitem in a period-separated list has an index of zero. If an index is negative then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list.
 
       Examples::
@@ -189,7 +191,7 @@ The functions intended for use in Single Function Mode are:
 
     * ``swap_around_articles(separator)`` -- returns the value with articles moved to the end. The value can be a list, in which case each item in the list is processed. If the value is a list then you must provide the ``separator``. If no ``separator`` is provided then the value is treated as being a single value, not a list. The `articles` are those used by calibre to generate the ``title_sort``.
     * ``swap_around_comma()`` -- given a value of the form ``B, A``, return ``A B``. This is most useful for converting names in LN, FN format to FN LN. If there is no comma in the value then the function returns the value unchanged.
-    * ``switch(pattern, value, [ pattern, value, ]* else_value)`` -- for each ``pattern, value`` pair, checks if the value matches the regular expression ``pattern`` and if so returns the associated ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you wish. The first match is returned.
+    * ``switch([pattern, value,]+ else_value)`` -- for each ``pattern, value`` pair, checks if the value matches the regular expression ``pattern`` and if so returns the associated ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you wish. The first match is returned.
     * ``test(text if not empty, text if empty)`` -- return ``text if not empty`` if the value is not empty, otherwise return ``text if empty``.
     * ``titlecase()`` -- returns the value of the field in title case.
     * ``transliterate()`` -- Return a string in a latin alphabet formed by approximating the sound of the words in the source field. For example, if the source field is ``Фёдор Миха́йлович Достоевский`` this function returns ``Fiodor Mikhailovich Dostoievskii``.
@@ -254,7 +256,7 @@ is 3.
 
 The operator precedence (order of evaluation) specified by the above grammar, from highest to lowest is:
 
-    * Function calls, constants, parenthesized expressions, statement expressions, assignment expressions. In the template language, ``if``, ``for``, and assignments return a value (see below).
+    * Function calls, constants, parenthesized expressions, statement expressions, assignment expressions.
     * Unary plus (``+``) and minus (``-``). These operators evaluate right to left. These and all the other arithmetic operators return integers if the expression results in a fractional part equal to zero. Example: if an expression returns ``3.0`` it is changed to ``3``.
     * Multiply (``*``) and divide (``/``). These operators are associative and evaluate left to right. Use parentheses if you want to change the order of evaluation.
     * Add (``+``) and subtract (``-``). These operators are associative and evaluate left to right.
@@ -323,12 +325,12 @@ Note: the last line in the template, ``new_tags``, isn't strictly necessary in t
 
 **Relational Operators**
 
-Relational operators return '1' if they evaluate to True, otherwise the empty string ('').
+Relational operators return ``'1'`` if they evaluate to True, otherwise the empty string ('').
 
 There are two forms of relational operators: string comparisons and numeric comparisons. The string comparisons do case-insensitive string comparison using lexical order. The supported string comparison operators are ``==``, ``!=``, ``<``, ``<=``, ``>``, ``>=``, and ``in``.
-For the ``in`` operator, the result of the left hand expression is interpreted as a regular expression pattern. The ``in`` operator is True if the pattern matches the result of the right hand expression. The match is case-insensitive.
+For the ``in`` operator, the result of the left hand expression is interpreted as a regular expression pattern. The ``in`` operator is True if the value of left-hand expression interpreted as a regular expression matches the value of the right hand expression. The match is case-insensitive.
 
-The numeric comparison operators are ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. The left and right expressions must evaluate to numeric values with two exceptions: the string value "None" (undefined field) and the empty string evaluate to the value zero.
+The numeric comparison operators are ``==#``, ``!=#``, ``<#``, ``<=#``, ``>#``, ``>=#``. The left and right expressions must evaluate to numeric values with two exceptions: both the string value "None" (undefined field) and the empty string evaluate to the value zero.
 
 Examples:
 
@@ -344,10 +346,10 @@ Examples:
 
 The following functions are available in addition to those described in :ref:`Single Function Mode <single_mode>`.
 
-In General Program Mode the functions described in `Single Function Mode` require an additional first parameter specifying the value to operate upon. All parameters are top_expressions (see the grammar above).
+In General Program Mode the functions described in `Single Function Mode` all require an additional first parameter specifying the value to operate upon. All parameters are expression_lists (see the grammar above).
 
-    * ``add(x, y, ...)`` -- returns the sum of its arguments. Throws an exception if an argument is not a number. In most cases you can use the ``+`` operator instead of this function.
-    * ``and(value, value, ...)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. You can have as many values as you want. In most cases you can use the ``&&`` operator instead of this function.  One reason not to replace ``and`` with ``&&`` is if short-circuiting can changes the results because of side effects. For example, ``and(a=4,b=5)`` will always do both assignments, where the ``&&`` operator won't do the second.
+    * ``add(x [, y]*)`` -- returns the sum of its arguments. Throws an exception if an argument is not a number. In most cases you can use the ``+`` operator instead of this function.
+    * ``and(value [, value]*)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. You can have as many values as you want. In most cases you can use the ``&&`` operator instead of this function.  One reason not to replace ``and`` with ``&&`` is if short-circuiting can change the results because of side effects. For example, ``and(a='',b=5)`` will always do both assignments, where the ``&&`` operator won't do the second.
     * ``assign(id, val)`` -- assigns ``val`` to ``id``, then returns ``val``. ``id`` must be an identifier, not an expression. In most cases you can use the ``=`` operator instead of this function.
     * ``approximate_formats()`` -- return a comma-separated list of formats associated with the book. There is no guarantee that the list is correct, although it probably is. This and other zero-parameter functions can be called in Template Program Mode (see below) using the template ``{:'approximate_formats()'}``. Note that resulting format names are always uppercase, as in EPUB. The ``approximate_formats()`` function is significantly faster than the ``formats_...`` functions discussed below.
     * ``author_links(val_separator, pair_separator)`` -- returns a string containing a list of authors and those authors' link values in the form:
@@ -363,7 +365,7 @@ In General Program Mode the functions described in `Single Function Mode` requir
 
       returns ``'yes'`` if the yes/no field ``"#bool"`` is either undefined (neither True nor False) or True. More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
     * ``ceiling(x)`` -- returns the smallest integer greater than or equal to ``x``. Throws an exception if ``x`` is not a number.
-    * ``cmp(x, y, lt, eq, gt)`` -- compares ``x`` and ``y`` after converting both to numbers. Returns ``lt`` if ``x <# y``, ``eq`` if ``x ==# y``, otherwise ``gt``.
+    * ``cmp(x, y, lt, eq, gt)`` -- compares ``x`` and ``y`` after converting both to numbers. Returns ``lt`` if ``x <# y``, ``eq`` if ``x ==# y``, otherwise ``gt``. This function can usually be replaced with one of the numeric compare operators (``==#``, ``<#``, ``>#``, etc).
     * ``connected_device_name(storage_location_key)`` -- if a device is connected then return the device name, otherwise return the empty string. Each storage location on a device has its own device name. The ``storage_location_key`` names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
     * ``connected_device_uuid(storage_location_key)`` -- if a device is connected then return the device uuid (unique id), otherwise return the empty string. Each storage location on a device has a different uuid. The ``storage_location_key`` location names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
     * ``current_library_name()`` -- return the last name on the path to the current calibre library.
@@ -371,7 +373,7 @@ In General Program Mode the functions described in `Single Function Mode` requir
     * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
     * ``divide(x, y)`` -- returns ``x / y``. Throws an exception if either ``x`` or ``y`` are not numbers. This function can usually be replaced by the ``/`` operator.
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables. This permits using the template processor to construct complex results from local variables. In Template Program Mode (see below), because the `{` and `}` characters are interpreted before the template is evaluated you must use `[[` for the `{` character and `]]` for the ``}`` character. They are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using Template Program Mode.
-    * ``field(name)`` -- returns the value of the metadata field with lookup name ``name``.
+    * ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
     * ``field_exists(field_name)`` -- checks if a field (column) with the lookup name ``field_name`` exists, returning ``'1'`` if so and the empty string if not.
     * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to General Program Mode Templates. For example, the following program produces the same output as the above template::
 
@@ -392,7 +394,7 @@ In General Program Mode the functions described in `Single Function Mode` requir
 
       returns "large". The same example with a first value of 16 returns "giant".
 
-    * ``first_non_empty(value, value, ...)`` -- returns the first ``value`` that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
+    * ``first_non_empty(value [, value]*)`` -- returns the first ``value`` that is not empty. If all values are empty, then the empty string is returned. You can have as many values as you want.
     * ``floor(x)`` -- returns the largest integer less than or equal to ``x``. Throws an exception if ``x`` is not a number.
     * ``format_date(val, format_string)`` -- format the value, which must be a date string, using the format_string, returning a string. The formatting codes are::
 
@@ -424,26 +426,26 @@ In General Program Mode the functions described in `Single Function Mode` requir
     * ``has_cover()`` -- return ``'Yes'`` if the book has a cover, otherwise the empty string.
     * ``is_marked()`` -- check whether the book is `marked` in calibre. If it is then return the value of the mark, either ``'true'`` (lower case) or a comma-separated list of named marks. Returns ``''`` (the empty string) if the book is not marked. This function works only in the GUI.
     * ``language_codes(lang_strings)`` -- return the `language codes <https://www.loc.gov/standards/iso639-2/php/code_list.php>`_ for the language names passed in `lang_strings`. The strings must be in the language of the current locale. ``Lang_strings`` is a comma-separated list.
-    * ``list_contains(separator, [ pattern, found_val, ]* not_found_val)`` -- (Alias of ``in_list``) Interpret the value as a list of items separated by ``separator``, evaluating the ``pattern`` against each value in the list. If the ``pattern`` matches any value, return ``found_val``, otherwise return ``not_found_val``. The ``pattern`` and ``found_value`` can be repeated as many times as desired, permitting returning different values depending on the search. The patterns are checked in order. The first match is returned. Aliases: ``in_list()``, ``list_contains()``
-    * ``list_count(separator)`` -- interprets the value as a list of items separated by ``separator``, returning the number of items in the list. Aliases: ``count()``, ``list_count()``
+    * ``list_contains(value, separator, [ pattern, found_val, ]* not_found_val)`` -- (Alias of ``in_list``) Interpreting the value as a list of items separated by ``separator``, evaluate the ``pattern`` against each value in the list. If the ``pattern`` matches any value then return ``found_val``, otherwise return ``not_found_val``. The ``pattern`` and ``found_value`` can be repeated as many times as desired, permitting returning different values depending on the search. The patterns are checked in order. The first match is returned. Aliases: ``in_list()``, ``list_contains()``
+    * ``list_count(value, separator)`` -- interprets ``value`` as a list of items separated by ``separator``, returning the count of items in the list. Aliases: ``count()``, ``list_count()``
     * ``list_count_matching(list, pattern, separator)`` -- interprets ``list`` as a list of items separated by ``separator``, returning the number of items in the list that match the regular expression ``pattern``. Aliases: ``list_count_matching()``, ``count_matching()``
     * ``list_difference(list1, list2, separator)`` -- return a list made by removing from ``list1`` any item found in ``list2`` using a case-insensitive comparison. The items in ``list1`` and ``list2`` are separated by separator, as are the items in the returned list.
     * ``list_equals(list1, sep1, list2, sep2, yes_val, no_val)`` -- return ``yes_val`` if ``list1`` and `list2` contain the same items, otherwise return ``no_val``. The items are determined by splitting each list using the appropriate separator character (``sep1`` or ``sep2``). The order of items in the lists is not relevant. The comparison is case-insensitive.
     * ``list_intersection(list1, list2, separator)`` -- return a list made by removing from ``list1`` any item not found in ``list2``, using a case-insensitive comparison. The items in ``list1`` and ``list2`` are separated by separator, as are the items in the returned list.
     * ``list_re(src_list, separator, include_re, opt_replace)`` -- Construct a list by first separating ``src_list`` into items using the ``separator`` character. For each item in the list, check if it matches ``include_re``. If it does then add it to the list to be returned. If ``opt_replace`` is not the empty string then apply the replacement before adding the item to the returned list.
-    * ``list_re_group(src_list, separator, include_re, search_re, template_for_group_1, for_group_2, ...)`` -- Like list_re except replacements are not optional. It uses ``re_group(item, search_re, template ...)`` when doing the replacements.
+    * ``list_re_group(src_list, separator, include_re, search_re [, template_for_group]*)`` -- Like list_re except replacements are not optional. It uses ``re_group(item, search_re, template ...)`` when doing the replacements.
     * ``list_remove_duplicates(list, separator)`` -- return a list made by removing duplicate items in ``list``. If items differ only in case then the last is returned. The items in ``list`` are separated by ``separator``, as are the items in the returned list.
     * ``list_sort(list, direction, separator)`` -- return ``list`` sorted using a case-insensitive lexical sort. If ``direction`` is zero, ``list`` is sorted ascending, otherwise descending. The list items are separated by ``separator``, as are the items in the returned list.
     * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in ``list1`` and ``list2``, removing duplicate items using a case-insensitive comparison. If items differ in case, the one in ``list1`` is used. The items in ``list1`` and ``list2`` are separated by ``separator``, as are the items in the returned list. Aliases: ``merge_lists()``, ``list_union()``
     * ``mod(x, y)`` -- returns the ``floor`` of the remainder of ``x / y``. Throws an exception if either ``x`` or ``y`` is not a number.
-    * ``multiply(x, y, ...)`` -- returns the product of its arguments. Throws an exception if any argument is not a number. This function can usually be replaced by the ``*`` operator.
+    * ``multiply(x [, y]*)`` -- returns the product of its arguments. Throws an exception if any argument is not a number. This function can usually be replaced by the ``*`` operator.
     * ``not(value)`` -- returns the string "1" if the value is empty, otherwise returns the empty string. This function can usually be replaced with the unary not (``!``) operator.
     * ``ondevice()`` -- return the string ``'Yes'`` if ``ondevice`` is set, otherwise return the empty string.
-    * ``or(value, value, ...)`` -- returns the string ``"1"`` if any value is not empty, otherwise returns the empty string. You can have as many values as you want. This function can usually be replaced by the ``||`` operator. A reason it cannot be replaced is if short-circuiting will change the results because of side effects.
-    * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole. The ``print`` function always returns the empty string.
+    * ``or(value [, value]*)`` -- returns the string ``'1'`` if any value is not empty, otherwise returns the empty string. You can have as many values as you want. This function can usually be replaced by the ``||`` operator. A reason it cannot be replaced is if short-circuiting will change the results because of side effects.
+    * ``print(a [, b]*)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole. The ``print`` function always returns the empty string.
     * ``raw_field(lookup_name [, optional_default])`` -- returns the metadata field named by ``lookup_name`` without applying any formatting. It evaluates and returns the optional second argument ``optional_default`` if the field's value is undefined (``None``).
     * ``raw_list(lookup_name, separator)`` -- returns the metadata list named by ``lookup_name`` without applying any formatting or sorting, with the items separated by separator.
-    * ``re_group(value, pattern, template_for_group_1, for_group_2, ...)`` --  return a string made by applying the regular expression pattern to ``value`` and replacing each matched instance with the the value returned by the corresponding template. In Template Program Mode, like for the ``template`` and the ``eval`` functions, you use ``[[`` for ``{`` and ``]]`` for ``}``.
+    * ``re_group(value, pattern [, template_for_group]*)`` --  return a string made by applying the regular expression pattern to ``value`` and replacing each matched instance with the the value returned by the corresponding template. In Template Program Mode, like for the ``template`` and the ``eval`` functions, you use ``[[`` for ``{`` and ``]]`` for ``}``.
 
       The following example looks for a series with more than one word and uppercases the first word::
 
@@ -451,11 +453,11 @@ In General Program Mode the functions described in `Single Function Mode` requir
 
     * ``round(x)`` -- returns the nearest integer to ``x``. Throws an exception if ``x`` is not a number.
     * ``series_sort()`` -- returns the series sort value.
-    * ``split(list_val, sep, id_prefix)`` -- splits ``list_val`` into separate values using ``sep``, then assigns the values to variables named ``id_prefix_N`` where N is the position of the value in the list. The first item has position 0 (zero). The function returns the last element in the list.
+    * ``split(list_val, sep, id_prefix)`` -- splits ``list_val`` into separate values using ``sep``, then assigns the values to local variables named ``id_prefix_N`` where N is the position of the value in the list. The first item has position 0 (zero). The function returns the last element in the list.
 
       Example::
 
-        split('one, two, foo', ',', 'var')
+        split('one:two:foo', ':', 'var')
 
       is equivalent to::
 
@@ -463,9 +465,9 @@ In General Program Mode the functions described in `Single Function Mode` requir
         var_1 = 'two';
         var_3 = 'foo
 
-    * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
-    * ``strcat_max(max, string1, prefix2, string2, ...)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to ``string1``. Strings made from ``prefix, string`` pairs are added to the end of the value as long as the resulting string length is less than ``max``. Prefixes can be empty. Returns ``string1`` even if ``string1`` is longer than ``max``. You can pass as many ``prefix, string`` pairs as you wish.
-    * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive lexical comparison of ``x`` and ``y``. Returns ``lt`` if ``x < y``, ``eq`` if ``x == y``, otherwise ``gt``.
+    * ``strcat(a [, b]*)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
+    * ``strcat_max(max, string1 [, prefix2, string2]*)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to ``string1``. Strings made from ``prefix, string`` pairs are added to the end of the value as long as the resulting string length is less than ``max``. Prefixes can be empty. Returns ``string1`` even if ``string1`` is longer than ``max``. You can pass as many ``prefix, string`` pairs as you wish.
+    * ``strcmp(x, y, lt, eq, gt)`` -- does a case-insensitive lexical comparison of ``x`` and ``y``. Returns ``lt`` if ``x < y``, ``eq`` if ``x == y``, otherwise ``gt``. This function can often be replaced by one of the lexical comparison operators (``==``, ``>``, ``<``, etc.)
     * ``strlen(value)`` -- Returns the length of the string ``value``.
     * ``substr(str, start, end)`` -- returns the ``start``'th through the ``end``'th characters of ``str``. The first character in ``str`` is the zero'th character. If ``end`` is negative, then it indicates that many characters counting from the right. If ``end`` is zero, then it indicates the last character. For example, ``substr('12345', 1, 0)`` returns ``'2345'``, and ``substr('12345', 1, -1)`` returns ``'234'``.
     * ``subtract(x, y)`` -- returns ``x - y``. Throws an exception if either ``x`` or ``y`` are not numbers. This function can usually be replaced by the ``-`` operator.
