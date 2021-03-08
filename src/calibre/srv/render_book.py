@@ -281,7 +281,10 @@ def find_epub_cover(container):
     cover_image = find_cover_image(container)
     marked_title_page = find_cover_page(container)
     cover_image_in_first_page = None
-    first_page_name = next(container.spine_names)[0]
+    try:
+        first_page_name = next(container.spine_names)[0]
+    except StopIteration:
+        return None, None
     if not marked_title_page:
         cover_image_in_first_page = find_cover_image_in_page(container, first_page_name)
 
