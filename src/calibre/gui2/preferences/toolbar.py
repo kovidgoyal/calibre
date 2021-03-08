@@ -259,6 +259,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             ]
 
     def genesis(self, gui):
+        self.all_actions.doubleClicked.connect(self.add_single_action)
+        self.current_actions.doubleClicked.connect(self.remove_single_action)
         self.models = {}
         self.what.addItem(_('Click to choose toolbar or menu to customize'),
                 'blank')
@@ -300,13 +302,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.current_actions.setModel(self.models[key][1])
 
     def add_action(self, *args):
-        x = self.all_actions.selectionModel().selectedIndexes()
-        names = self.all_actions.model().names(x)
+        self._add_action(self.all_actions.selectionModel().selectedIndexes())
+
+    def add_single_action(self, index):
+        self._add_action([index])
+
+    def _add_action(self, indices):
+        names = self.all_actions.model().names(indices)
         if names:
             not_added = self.current_actions.model().add(names)
             ns = {y.name for y in not_added}
             added = set(names) - ns
-            self.all_actions.model().remove(x, added)
+            self.all_actions.model().remove(indices, added)
             if not_added:
                 warning_dialog(self, _('Cannot add'),
                         _('Cannot add the actions %s to this location') %
@@ -319,10 +326,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 self.changed_signal.emit()
 
     def remove_action(self, *args):
-        x = self.current_actions.selectionModel().selectedIndexes()
-        names = self.current_actions.model().names(x)
+        self._remove_action(self.current_actions.selectionModel().selectedIndexes())
+
+    def remove_single_action(self, index):
+        self._remove_action([index])
+
+    def _remove_action(self, indices):
+        names = self.current_actions.model().names(indices)
         if names:
-            not_removed = self.current_actions.model().remove(x)
+            not_removed = self.current_actions.model().remove(indices)
             ns = {y.name for y in not_removed}
             removed = set(names) - ns
             self.all_actions.model().add(removed)
