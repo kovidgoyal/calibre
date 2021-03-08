@@ -808,7 +808,7 @@ def delete_selection(annotations_manager, view):
     )
 
 
-def highlight_entry(h, onclick, view):
+def highlight_entry(h, onclick, view, hide_panel):
 
     def action(func, ev):
         ev.stopPropagation(), ev.preventDefault()
@@ -828,7 +828,12 @@ def highlight_entry(h, onclick, view):
             class_='title-row',
             E.div(class_='title', swatch, E.div(style='margin-left: 1rem', h.highlighted_text)),
             E.div(style='margin-left: 1rem', onclick=def(ev): ev.stopPropagation();,
-                  E.input(type='checkbox', onchange=item_select_toggled)),
+                  E.input(type='checkbox', onchange=item_select_toggled, onkeydown=def(ev):
+                        if ev.key is 'Escape':
+                            ev.stopPropagation()
+                            ev.preventDefault()
+                            hide_panel()
+            )),
         ),
         E.div(
             class_='actions',
@@ -847,7 +852,7 @@ def highlight_entry(h, onclick, view):
     return ans
 
 
-def create_highlights_panel(annotations_manager, book, container, onclick):
+def create_highlights_panel(annotations_manager, hide_panel, book, container, onclick):
     next_button = E.div(class_='simple-link ac-button', svgicon('chevron-down'), title=_('Next match'))
     prev_button = E.div(class_='simple-link ac-button', svgicon('chevron-up'), title=_('Previous match'))
     prev_button.addEventListener('click', def(ev): find_previous();)
@@ -917,5 +922,5 @@ def create_highlights_panel(annotations_manager, book, container, onclick):
         c.appendChild(g)
         ic = g.lastChild
         for h in highlights:
-            ic.appendChild(highlight_entry(h, onclick, annotations_manager.view))
+            ic.appendChild(highlight_entry(h, onclick, annotations_manager.view, hide_panel))
 # }}}
