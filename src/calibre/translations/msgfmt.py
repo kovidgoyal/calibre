@@ -50,7 +50,7 @@ def usage(code, msg=''):
 
 def add(ctxt, id, str, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
-    if not fuzzy and str:
+    if (not fuzzy or not id) and str:
         if id:
             STATS['translated'] += 1
         if ctxt is None:
@@ -134,6 +134,15 @@ def make(filename, outfile):
     # until we know the exact encoding
     encoding = 'latin-1'
 
+    def check_encoding():
+        nonlocal encoding
+        if not msgid and msgstr:
+            # See whether there is an encoding declaration
+            p = HeaderParser()
+            charset = p.parsestr(msgstr.decode(encoding)).get_content_charset()
+            if charset:
+                encoding = charset
+
     # Parse the catalog
     lno = 0
     for l in lines:
@@ -142,6 +151,7 @@ def make(filename, outfile):
         # If we get a comment line after a msgstr, this is a new entry
         if l[0] == '#' and section == STR:
             add(msgctxt, msgid, msgstr, fuzzy)
+            check_encoding()
             section = msgctxt = None
             fuzzy = 0
         # Record a fuzzy mark
@@ -154,23 +164,13 @@ def make(filename, outfile):
         if l.startswith('msgctxt'):
             if section == STR:
                 add(msgctxt, msgid, msgstr, fuzzy)
+                check_encoding()
             section = CTXT
             l = l[7:]
             msgctxt = b''
         elif l.startswith('msgid') and not l.startswith('msgid_plural'):
             if section == STR:
                 add(msgctxt, msgid, msgstr, fuzzy)
-                if not msgid:
-                    # See whether there is an encoding declaration
-                    p = HeaderParser()
-                    if sys.version_info.major > 2:
-                        charset = p.parsestr(msgstr.decode(encoding)).get_content_charset()
-                    else:
-                        charset = p.parsestr(msgstr.decode(encoding).encode('ascii', 'replace')).get_content_charset()
-                        if isinstance(charset, bytes):
-                            charset = charset.decode('ascii')
-                    if charset:
-                        encoding = charset
             section = ID
             l = l[5:]
             msgid = msgstr = b''
