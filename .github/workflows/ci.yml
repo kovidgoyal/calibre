@@ -35,19 +35,13 @@ jobs:
         name: Test on Arch
         runs-on: ubuntu-latest
         container:
-            image: 'archlinux/base:latest'
+            image: 'archlinux/archlinux:latest'
             env:
                 CI: 'true'
         steps:
             - name: Setup container
-              # WORKAROUND for glibc 2.33 and old Docker
-              # See https://github.com/actions/virtual-environments/issues/2658
-              # Thanks to https://github.com/lxqt/lxqt-panel/pull/1562
               run: |
-                patched_glibc=glibc-linux4-2.33-4-x86_64.pkg.tar.zst
-                curl -LO "https://repo.archlinuxcn.org/x86_64/$patched_glibc"
-                bsdtar -C / -xf "$patched_glibc"
-                pacman -Syu --noconfirm --ignore glibc
+                pacman -Syu --noconfirm
                 pacman -S --noconfirm tar
 
             - name: Checkout source code
