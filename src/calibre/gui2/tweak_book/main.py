@@ -34,6 +34,7 @@ files inside the book which will be opened for editing automatically.
         )
     )
     setup_gui_option_parser(parser)
+    parser.add_option('--select-text', default=None, help=_('The text to select on open'))
     return parser
 
 
@@ -79,7 +80,7 @@ def _run(args, notify=None):
     main.show()
     app.shutdown_signal_received.connect(main.boss.quit)
     if len(args) > 1:
-        main.boss.open_book(args[1], edit_file=args[2:], clear_notify_data=False)
+        main.boss.open_book(args[1], edit_file=args[2:], clear_notify_data=False, search_text=opts.select_text)
     else:
         for path in reversed(app.file_event_hook.events):
             main.boss.open_book(path)

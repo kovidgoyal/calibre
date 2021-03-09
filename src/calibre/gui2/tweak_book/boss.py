@@ -286,7 +286,7 @@ class Boss(QObject):
                 return get_container(dest, tdir=tdir)
             self.gui.blocking_job('import_book', _('Importing book, please wait...'), self.book_opened, func, src, dest, tdir=self.mkdtemp())
 
-    def open_book(self, path=None, edit_file=None, clear_notify_data=True, open_folder=False):
+    def open_book(self, path=None, edit_file=None, clear_notify_data=True, open_folder=False, search_text=None):
         '''
         Open the e-book at ``path`` for editing. Will show an error if the e-book is not in a supported format or the current book has unsaved changes.
 
@@ -336,13 +336,15 @@ class Boss(QObject):
         # temp file cleaners from nuking ebooks. See https://bugs.launchpad.net/bugs/1740460
         self.tdir = tdir_in_cache('ee')
         self._edit_file_on_open = edit_file
+        self._search_text_on_open = search_text
         self._clear_notify_data = clear_notify_data
         self.gui.blocking_job('open_book', _('Opening book, please wait...'), self.book_opened, get_container, path, tdir=self.mkdtemp())
 
     def book_opened(self, job):
         ef = getattr(self, '_edit_file_on_open', None)
         cn = getattr(self, '_clear_notify_data', True)
-        self._edit_file_on_open = None
+        st = getattr(self, '_search_text_on_open', None)
+        self._edit_file_on_open = self._search_text_on_open = None
 
         if job.traceback is not None:
             if 'DRMError:' in job.traceback:
@@ -396,6 +398,8 @@ class Boss(QObject):
                     self.restore_book_edit_state()
             self.gui.toc_view.update_if_visible()
             self.add_savepoint(_('Start of editing session'))
+            if st:
+                self.find_initial_text(st)
 
     def update_editors_from_container(self, container=None, names=None):
         c = container or current_container()
@@ -1050,6 +1054,23 @@ class Boss(QObject):
         ed = ret is True and self.gui.central.current_editor
         if getattr(ed, 'has_line_numbers', False):
             ed.editor.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def find_initial_text(self, text):
+        from calibre.gui2.tweak_book.search import get_search_regex
+        from calibre.gui2.tweak_book.text_search import file_matches_pattern
+        search = {'find': text, 'mode': 'normal', 'case_sensitive': True, 'direction': 'down'}
+        pat = get_search_regex(search)
+        searchable_names = set(self.gui.file_list.searchable_names['text'])
+        for name, ed in iteritems(editors):
+            searchable_names.discard(name)
+            if ed.find_text(pat, complete=True):
+                self.show_editor(name)
+                return
+        for name in searchable_names:
+            if file_matches_pattern(name, pat):
+                self.edit_file(name)
+                if editors[name].find_text(pat, complete=True):
+                    return
 
     def find_word(self, word, locations):
         # Go to a word from the spell check dialog

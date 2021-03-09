@@ -155,6 +155,15 @@ class TextSearch(QWidget):
 # }}}
 
 
+def file_matches_pattern(fname, pat):
+    root = current_container().parsed(fname)
+    if hasattr(root, 'xpath'):
+        raw = tostring(root, method='text', encoding='unicode', with_tail=True)
+    else:
+        raw = current_container().raw_data(fname)
+    return pat.search(raw) is not None
+
+
 def run_text_search(search, current_editor, current_editor_name, searchable_names, gui_parent, show_editor, edit_file):
     try:
         pat = get_search_regex(search)
@@ -176,12 +185,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
                     show_editor(fname)
                     return True
             else:
-                root = current_container().parsed(fname)
-                if hasattr(root, 'xpath'):
-                    raw = tostring(root, method='text', encoding='unicode', with_tail=True)
-                else:
-                    raw = current_container().raw_data(fname)
-                if pat.search(raw) is not None:
+                if file_matches_pattern(fname, pat):
                     edit_file(fname, syntax)
                     if editors[fname].find_text(pat, complete=True):
                         return True
