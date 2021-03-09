@@ -84,9 +84,10 @@ class TrimImage(QDialog):
 
     def selection_area_changed(self, rect):
         if rect:
-            w = int(rect.width())
-            h = int(rect.height())
-            text = f'{w}x{h}'
+            w = rect.width()
+            h = rect.height()
+            text = f'{int(w)}x{int(h)}'
+            text = _('Size: {0} Aspect ratio: {1:.2g}').format(text, w / h)
         else:
             text = ''
         self.tr_sz.setText(text)
