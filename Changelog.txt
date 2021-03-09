@@ -1481,7 +1481,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - [1656573] Viewer: Fix hang when using --open-at with single instance viewer and the specified location is already open.
 
-- [1853232] Viewer: Fix opening .txt files in the standalone viewer leaving behind a temporary index.html file in the directory of the txt file.
+- [1853232] Viewer: Fix opening .txt files in the standalone viewer leaving behind a temporary index.html file in the folder of the txt file.
 
 - Linux: Make some cache removal code robust against un-decodeable filenames in the cache directories
 

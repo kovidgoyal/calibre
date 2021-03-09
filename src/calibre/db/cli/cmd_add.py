@@ -307,8 +307,8 @@ def option_parser(get_parser, args):
             '''\
 %prog add [options] file1 file2 file3 ...
 
-Add the specified files as books to the database. You can also specify directories, see
-the directory related options below.
+Add the specified files as books to the database. You can also specify folders, see
+the folder related options below.
 '''
         )
     )
@@ -413,7 +413,7 @@ the directory related options below.
         action='store_true',
         default=False,
         help=_(
-            'Assume that each directory has only a single logical book and that all files in it are different e-book formats of that book'
+            'Assume that each folder has only a single logical book and that all files in it are different e-book formats of that book'
         )
     )
     g.add_option(
@@ -421,7 +421,7 @@ the directory related options below.
         '--recurse',
         action='store_true',
         default=False,
-        help=_('Process directories recursively')
+        help=_('Process folders recursively')
     )
 
     def fadd(opt, action, help):
@@ -441,14 +441,14 @@ the directory related options below.
     fadd(
         '--ignore', 'ignore',
         _(
-            'A filename (glob) pattern, files matching this pattern will be ignored when scanning directories for files.'
+            'A filename (glob) pattern, files matching this pattern will be ignored when scanning folders for files.'
             ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all pdf files'
         )
     )
     fadd(
         '--add', 'add',
         _(
-            'A filename (glob) pattern, files matching this pattern will be added when scanning directories for files,'
+            'A filename (glob) pattern, files matching this pattern will be added when scanning folders for files,'
             ' even if they are not of a known e-book file type. Can be specified multiple times for multiple patterns.'
         )
     )

@@ -108,7 +108,7 @@ changes, then run::
     git commit -am "Comment describing your changes"
     git format-patch origin/master --stdout > my-changes
 
-This will create a :file:`my-changes` file in the current directory,
+This will create a :file:`my-changes` file in the current folder,
 simply attach that to a ticket on the calibre `bug tracker <https://bugs.launchpad.net/calibre>`_.
 Note that this will include *all* the commits you have made. If you only want
 to send some commits, you have to change ``origin/master`` above. To send only
@@ -158,13 +158,13 @@ Windows development environment
 .. note:: You must also get the calibre source code separately as described above.
 
 Install calibre normally, using the Windows installer. Then open a Command Prompt and change to
-the previously checked out calibre code directory. For example::
+the previously checked out calibre code folder. For example::
 
     cd C:\Users\kovid\work\calibre
 
-calibre is the directory that contains the src and resources sub-directories.
+calibre is the folder that contains the src and resources sub-folders.
 
-The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
+The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src folder.
 So, following the example above, it would be ``C:\Users\kovid\work\calibre\src``. `Here is a short
 guide <https://docs.python.org/using/windows.html#excursus-setting-environment-variables>`_ to setting environment
 variables on Windows.
@@ -192,17 +192,17 @@ macOS development environment
 .. note:: You must also get the calibre source code separately as described above.
 
 Install calibre normally using the provided .dmg. Then open a Terminal and change to
-the previously checked out calibre code directory, for example::
+the previously checked out calibre code folder, for example::
 
     cd /Users/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories.
+calibre is the folder that contains the src and resources sub-folders.
 The calibre command line tools are found inside the calibre app bundle, in
 :file:`/Applications/calibre.app/Contents/MacOS`
-you should add this directory to your PATH environment variable, if you want to
+you should add this folder to your PATH environment variable, if you want to
 run the command line tools easily.
 
-The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory when running calibre in debug mode.
+The next step is to create a bash script that will set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src folder when running calibre in debug mode.
 
 Create a plain text file::
 
@@ -233,13 +233,13 @@ used in Windows and macOS. Alternatively, you can install calibre from source. I
 environment from source are in the INSTALL file in the source tree. Here we will address using the binary as a runtime, which is the
 recommended method.
 
-Install calibre using the binary installer. Then open a terminal and change to the previously checked out calibre code directory, for example::
+Install calibre using the binary installer. Then open a terminal and change to the previously checked out calibre code folder, for example::
 
     cd /home/kovid/work/calibre
 
-calibre is the directory that contains the src and resources sub-directories.
+calibre is the folder that contains the src and resources sub-folders.
 
-The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src directory.
+The next step is to set the environment variable ``CALIBRE_DEVELOP_FROM`` to the absolute path of the src folder.
 So, following the example above, it would be ``/home/kovid/work/calibre/src``. How to set environment variables depends on
 your Linux distribution and what shell you are using.
 
@@ -350,10 +350,10 @@ Using the debugger in your favorite Python IDE
 
 It is possible to use the builtin debugger in your favorite Python IDE, if it
 supports remote debugging. The first step is to add the calibre src checkout to
-the ``PYTHONPATH`` in your IDE. In other words, the directory you set as
+the ``PYTHONPATH`` in your IDE. In other words, the folder you set as
 ``CALIBRE_DEVELOP_FROM`` above, must also be in the ``PYTHONPATH`` of your IDE.
 
-Then place the IDE's remote debugger module into the :file:`src` subdirectory
+Then place the IDE's remote debugger module into the :file:`src` sub-folder
 of the calibre source code checkout. Add whatever code is needed to launch the
 remote debugger to calibre at the point of interest, for example in the main
 function. Then run calibre as normal. Your IDE should now be able to connect to

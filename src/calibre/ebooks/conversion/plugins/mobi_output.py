@@ -81,7 +81,7 @@ class MOBIOutput(OutputFormatPlugin):
         ),
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
-                'specified directory. The contents of the directory are first '
+                'specified folder. The contents of the folder are first '
                 'deleted, so be careful.') % 'MOBI'
         ),
         OptionRecommendation(name='share_not_sync', recommended_value=False,
@@ -298,7 +298,7 @@ class AZW3Output(OutputFormatPlugin):
         ),
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
-                'specified directory. The contents of the directory are first '
+                'specified folder. The contents of the folder are first '
                 'deleted, so be careful.') % 'AZW3'),
         OptionRecommendation(name='share_not_sync', recommended_value=False,
             help=_('Enable sharing of book content via Facebook etc. '

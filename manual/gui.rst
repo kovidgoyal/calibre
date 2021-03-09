@@ -45,9 +45,9 @@ Add books
 |adbi| The :guilabel:`Add books` action has seven variations accessed by doing a right-click on the button.
 
 
-    1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the e-book reader device, the books will be uploaded to the device, and so on.
+    1. **Add books from a single folder**: Opens a file chooser dialog and allows you to specify which books in a folder should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the e-book reader device, the books will be uploaded to the device, and so on.
 
-    2. **Add books from directories and sub-directories**: Allows you to choose a directory. The directory and all its sub-directories are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single directory to a single book record or multiple book records. calibre assumes that each directory contains a single book. All e-book files in a directory are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per directory mode, with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
+    2. **Add books from folders and sub-folders**: Allows you to choose a folder. The folder and all its sub-folders are scanned recursively, and any e-books found are added to the library. You can choose whether to have calibre add all files present in a single folder to a single book record or multiple book records. calibre assumes that each folder contains a single book. All e-book files in a folder are assumed to be the same book in different formats. This action is the inverse of the :ref:`Save to disk <save_to_disk_multiple>` action, i.e. you can :guilabel:`Save to disk`, delete the books and re-add them in single book per folder mode, with no lost information except for the date (this assumes you have not changed any of the setting for the Save to disk action).
 
     3. **Add multiple books from archive (ZIP/RAR)**: Allows you to add multiple e-books that are stored inside the selected ZIP or RAR files. It is a convenient shortcut that avoids having to first unzip the archive and then add the books via one of the above two options.
 
@@ -211,7 +211,7 @@ Save to disk
 
 .. _save_to_disk_multiple:
 
-    1. **Save to disk**: Saves the selected books to disk organized in directories. The directory structure looks like::
+    1. **Save to disk**: Saves the selected books to disk organized in folders. The folder structure looks like::
 
             Author_(sort)
                 Title
@@ -222,15 +222,15 @@ Save to disk
 
 .. _save_to_disk_single:
 
-    2. **Save to disk in a single directory**: Saves the selected books to disk in a single directory.
+    2. **Save to disk in a single folder**: Saves the selected books to disk in a single folder.
 
     For 1. and 2., all available formats, as well as metadata, are stored to disk for each selected book. Metadata is stored in an OPF file. Saved books can be re-imported to the library without any loss of information by using the :ref:`Add books <add_books>` action.
 
-    3. **Save only *<your preferred>* format to disk**: Saves the selected books to disk in the directory structure as shown in (1.) but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
+    3. **Save only *<your preferred>* format to disk**: Saves the selected books to disk in the folder structure as shown in (1.) but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
 
-    4. **Save only *<your preferred>* format to disk in a single directory**: Saves the selected books to disk in a single directory but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
+    4. **Save only *<your preferred>* format to disk in a single folder**: Saves the selected books to disk in a single folder but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
 
-    5. **Save single format to disk...**: Saves the selected books to disk in the directory structure as shown in (1.) but only in the format you select from the pop-out list.
+    5. **Save single format to disk...**: Saves the selected books to disk in the folder structure as shown in (1.) but only in the format you select from the pop-out list.
 
 .. _connect_share:
 

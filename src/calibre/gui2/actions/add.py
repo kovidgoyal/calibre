@@ -53,7 +53,7 @@ class AddAction(InterfaceAction):
             , _('A'))
     action_type = 'current'
     action_add_menu = True
-    action_menu_clone_qaction = _('Add books from a single directory')
+    action_menu_clone_qaction = _('Add books from a single folder')
 
     def genesis(self):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
@@ -262,7 +262,7 @@ class AddAction(InterfaceAction):
 
     def add_from_archive(self):
         single = question_dialog(self.gui, _('Type of archive'), _(
-            'Will the archive have a single book per internal directory?'))
+            'Will the archive have a single book per internal folder?'))
         paths = choose_files(
             self.gui, 'recursive-archive-add', _('Choose archive file'),
             filters=[(_('Archives'), ('zip', 'rar'))], all_files=False, select_only_single_file=False)
@@ -301,7 +301,7 @@ class AddAction(InterfaceAction):
 
     def add_recursive_question(self):
         single =  question_dialog(self.gui, _('Multi-file books?'), _(
-            'Assume all e-book files in a single directory are the same book in different formats?'))
+            'Assume all e-book files in a single folder are the same book in different formats?'))
         self.add_recursive(single)
 
     def add_empty(self, *args):

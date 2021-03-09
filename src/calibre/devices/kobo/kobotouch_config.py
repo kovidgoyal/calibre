@@ -199,7 +199,7 @@ class BookUploadsGroupBox(DeviceOptionsGroupBox):
                 _("Modify CSS"),
                 _('This allows addition of user CSS rules and removal of some CSS. '
                 'When sending a book, the driver adds the contents of {0} to all stylesheets in the EPUB. '
-                'This file is searched for in the root directory of the main memory of the device. '
+                'This file is searched for in the root folder of the main memory of the device. '
                 'As well as this, if the file contains settings for the "orphans" or "widows", '
                 'these are removed for all styles in the original stylesheet.').format(device.KOBO_EXTRA_CSSFILE),
                 device.get_pref('modify_css')

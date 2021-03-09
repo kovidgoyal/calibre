@@ -94,16 +94,16 @@ def config(defaults=None):
             help=_('Comma separated list of formats to save for each book.'
                 ' By default all available formats are saved.'))
     x('template', default=DEFAULT_TEMPLATE,
-            help=_('The template to control the filename and directory structure of the saved files. '
+            help=_('The template to control the filename and folder structure of the saved files. '
                 'Default is "%(templ)s" which will save books into a per-author '
-                'subdirectory with filenames containing title and author. '
+                'subfolder with filenames containing title and author. '
                 'Available controls are: {%(controls)s}')%dict(
                     templ=DEFAULT_TEMPLATE, controls=', '.join(sorted(FORMAT_ARGS))))
     x('send_template', default=DEFAULT_SEND_TEMPLATE,
-            help=_('The template to control the filename and directory structure of files '
+            help=_('The template to control the filename and folder structure of files '
                 'sent to the device. '
                 'Default is "%(templ)s" which will save books into a per-author '
-                'directory with filenames containing title and author. '
+                'folder with filenames containing title and author. '
                 'Available controls are: {%(controls)s}')%dict(
                     templ=DEFAULT_SEND_TEMPLATE, controls=', '.join(FORMAT_ARGS)))
     x('asciiize', default=False,
@@ -123,8 +123,8 @@ def config(defaults=None):
     x('replace_whitespace', default=False,
             help=_('Replace whitespace with underscores.'))
     x('single_dir', default=False,
-            help=_('Save into a single directory, ignoring the template'
-                ' directory structure'))
+            help=_('Save into a single folder, ignoring the template'
+                ' folder structure'))
     return c
 
 

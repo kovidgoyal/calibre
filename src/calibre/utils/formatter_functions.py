@@ -412,8 +412,7 @@ class BuiltinAssign(BuiltinFormatterFunction):
     arg_count = 2
     category = 'Other'
     __doc__ = doc = _('assign(id, val) -- assigns val to id, then returns val. '
-            'id must be an identifier, not an expression.  In most cases you can '
-            'use the ``=`` operator instead of this function. '
+            'id must be an identifier, not an expression. '
             'This function can often be replaced with the = operator.')
 
     def evaluate(self, formatter, kwargs, mi, locals, target, value):

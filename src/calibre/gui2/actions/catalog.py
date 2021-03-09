@@ -92,7 +92,7 @@ class GenerateCatalogAction(InterfaceAction):
         self.gui.status_bar.show_message(_('Catalog generated.'), 3000)
         self.gui.sync_catalogs()
         if not dynamic.get('catalog_add_to_library', True) or job.fmt not in {'EPUB','MOBI', 'AZW3'}:
-            export_dir = choose_dir(self.gui, _('Export Catalog Folder'),
+            export_dir = choose_dir(self.gui, _('Export catalog folder'),
                     _('Select destination for %(title)s.%(fmt)s') % dict(
                         title=job.catalog_title, fmt=job.fmt.lower()))
             if export_dir:

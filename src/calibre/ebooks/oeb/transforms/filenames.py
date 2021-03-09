@@ -142,7 +142,7 @@ class UniqueFilenames(object):  # {{{
 
 class FlatFilenames(object):  # {{{
 
-    'Ensure that every item in the manifest has a unique filename without subdirectories.'
+    'Ensure that every item in the manifest has a unique filename without subfolders.'
 
     def __call__(self, oeb, opts):
         self.log = oeb.logger

@@ -398,7 +398,7 @@ def input_unicode(prompt):
 def run_exporter(export_dir=None, args=None):
     if args:
         if len(args) < 2:
-            raise SystemExit('You must specify the export dir and libraries to export')
+            raise SystemExit('You must specify the export folder and libraries to export')
         export_dir = args[0]
         if not os.path.exists(export_dir):
             os.makedirs(export_dir)

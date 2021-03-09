@@ -23,23 +23,23 @@ from calibre.constants import __version__
 from polyglot.builtins import unicode_type, string_or_bytes, map
 
 DEBUG_README=b'''
-This debug directory contains snapshots of the e-book as it passes through the
+This debug folder contains snapshots of the e-book as it passes through the
 various stages of conversion. The stages are:
 
     1. input - This is the result of running the input plugin on the source
-    file. Use this directory to debug the input plugin.
+    file. Use this folder to debug the input plugin.
 
     2. parsed - This is the result of preprocessing and parsing the output of
     the input plugin. Note that for some input plugins this will be identical to
-    the input sub-directory. Use this directory to debug structure detection,
+    the input sub-folder. Use this folder to debug structure detection,
     etc.
 
     3. structure - This corresponds to the stage in the pipeline when structure
-    detection has run, but before the CSS is flattened. Use this directory to
+    detection has run, but before the CSS is flattened. Use this folder to
     debug the CSS flattening, font size conversion, etc.
 
     4. processed - This corresponds to the e-book as it is passed to the output
-    plugin. Use this directory to debug the output plugin.
+    plugin. Use this folder to debug the output plugin.
 
 '''
 
@@ -89,7 +89,7 @@ class Plumber(object):
             override_input_metadata=False, for_regex_wizard=False, view_kepub=False):
         '''
         :param input: Path to input file.
-        :param output: Path to output file/directory
+        :param output: Path to output file/folder
         '''
         if isbytestring(input):
             input = input.decode(filesystem_encoding)
@@ -123,7 +123,7 @@ OptionRecommendation(name='debug_pipeline',
             short_switch='d',
             help=_('Save the output from different stages of the conversion '
                    'pipeline to the specified '
-                   'directory. Useful if you are unsure at which stage '
+                   'folder. Useful if you are unsure at which stage '
                    'of the conversion process a bug is occurring.')
         ),
 

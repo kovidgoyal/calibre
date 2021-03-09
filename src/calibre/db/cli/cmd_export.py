@@ -59,14 +59,14 @@ an opf file). You can get id numbers from the search command.
         '--to-dir',
         default='.',
         help=(
-            _('Export books to the specified directory. Default is') + ' %default'
+            _('Export books to the specified folder. Default is') + ' %default'
         )
     )
     parser.add_option(
         '--single-dir',
         default=False,
         action='store_true',
-        help=_('Export all books into a single directory')
+        help=_('Export all books into a single folder')
     )
     parser.add_option(
         '--progress',

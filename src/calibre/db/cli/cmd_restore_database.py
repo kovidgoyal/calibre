@@ -22,7 +22,7 @@ def option_parser(get_parser, args):
 %prog restore_database [options]
 
 Restore this database from the metadata stored in OPF files in each
-directory of the calibre library. This is useful if your metadata.db file
+folder of the calibre library. This is useful if your metadata.db file
 has been corrupted.
 
 WARNING: This command completely regenerates your database. You will lose

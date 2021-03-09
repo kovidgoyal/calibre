@@ -28,13 +28,13 @@ class SaveToDiskAction(InterfaceAction):
         self.qaction.triggered.connect(self.save_to_disk)
         self.save_menu = self.qaction.menu()
         cm = partial(self.create_menu_action, self.save_menu)
-        cm('single dir', _('Save to disk in a single directory'),
+        cm('single dir', _('Save to disk in a single folder'),
                 triggered=partial(self.save_to_single_dir, False))
         cm('single format', _('Save only %s format to disk')%
                 prefs['output_format'].upper(),
                 triggered=partial(self.save_single_format_to_disk, False))
         cm('single dir and format',
-                _('Save only %s format to disk in a single directory')%
+                _('Save only %s format to disk in a single folder')%
                 prefs['output_format'].upper(),
                 triggered=partial(self.save_single_fmt_to_single_dir, False))
         cm('specific format', _('Save single format to disk...'),
@@ -50,7 +50,7 @@ class SaveToDiskAction(InterfaceAction):
             _('Save only %s format to disk')%
             prefs['output_format'].upper())
         self.save_menu.actions()[3].setText(
-            _('Save only %s format to disk in a single directory')%
+            _('Save only %s format to disk in a single folder')%
             prefs['output_format'].upper())
 
     def save_single_format_to_disk(self, checked):
@@ -83,7 +83,7 @@ class SaveToDiskAction(InterfaceAction):
             return error_dialog(self.gui, _('Cannot save to disk'),
                     _('No books selected'), show=True)
         path = choose_dir(self.gui, 'save to disk dialog',
-                _('Choose destination directory'))
+                _('Choose destination folder'))
         if not path:
             return
         dpath = os.path.abspath(path).replace('/', os.sep)+os.sep

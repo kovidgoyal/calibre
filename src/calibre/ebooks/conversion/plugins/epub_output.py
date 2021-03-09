@@ -54,7 +54,7 @@ class EPUBOutput(OutputFormatPlugin):
     options = {
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
-                'specified directory. The contents of the directory are first '
+                'specified folder. The contents of the folder are first '
                 'deleted, so be careful.') % 'EPUB'),
 
         OptionRecommendation(name='dont_split_on_page_breaks',

@@ -256,7 +256,7 @@ end:
 
 // }}}
 
-// Find calibre portable directory and install/upgrade into it {{{
+// Find calibre portable folder and install/upgrade into it {{{
 
 static BOOL directory_exists( LPCWSTR path )
 {
@@ -529,7 +529,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     hr = CoInitialize(NULL);
     if (FAILED(hr)) { show_error(L"Failed to initialize COM"); return ret; }
 
-    // Get the target directory for installation
+    // Get the target folder for installation
     argv = CommandLineToArgvW(GetCommandLine(), &argc);
     if (argv == NULL) { show_last_error(L"Failed to get command line"); return ret; }
     if (argc > 1) {
@@ -549,7 +549,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     if (!directory_exists(tgt)) {
-        show_detailed_error(L"The specified directory does not exist: ",
+        show_detailed_error(L"The specified folder does not exist: ",
                 tgt, 1);
         goto end;
     }
@@ -589,10 +589,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     // Make a temp dir to unpack into
-    if (!SetCurrentDirectoryW(fdest)) { show_detailed_error(L"Failed to change to unzip directory: ", fdest, 0); goto end; }
+    if (!SetCurrentDirectoryW(fdest)) { show_detailed_error(L"Failed to change to unzip folder: ", fdest, 0); goto end; }
 
     if ( (unpack_dir = make_unpack_dir()) == NULL ) goto end;
-    if (!SetCurrentDirectoryW(unpack_dir)) { show_detailed_error(L"Failed to change to unpack directory: ", fdest, 0); goto end; }
+    if (!SetCurrentDirectoryW(unpack_dir)) { show_detailed_error(L"Failed to change to unpack folder: ", fdest, 0); goto end; }
 
     // Extract files
     if (!extract(cdata, csz)) goto end;

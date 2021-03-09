@@ -73,7 +73,7 @@ Everything after the -- is passed to the script.
     parser.add_option('-t', '--edit-book', action='store_true',
             help=_('Launch the calibre "Edit book" tool in debug mode.'))
     parser.add_option('-x', '--explode-book', default=False, action='store_true',
-            help=_('Explode the book into the specified directory.\nUsage: '
+            help=_('Explode the book into the specified folder.\nUsage: '
             '-x file.epub output_dir\n'
             'Exports the book as a collection of HTML '
             'files and metadata, which you can edit using standard HTML '
@@ -85,9 +85,9 @@ Everything after the -- is passed to the script.
         ' specify the same file type as was used when exploding.'))
     parser.add_option('--export-all-calibre-data', default=False, action='store_true',
         help=_('Export all calibre data (books/settings/plugins). Normally, you will'
-            ' be asked for the export dir and the libraries to export. You can also specify them'
+            ' be asked for the export folder and the libraries to export. You can also specify them'
             ' as command line arguments to skip the questions.'
-            ' Use absolute paths for the export directory and libraries.'
+            ' Use absolute paths for the export folder and libraries.'
             ' The special keyword "all" can be used to export all libraries.'))
     parser.add_option('--import-calibre-data', default=False, action='store_true',
         help=_('Import previously exported calibre data'))

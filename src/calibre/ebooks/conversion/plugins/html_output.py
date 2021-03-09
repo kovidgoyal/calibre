@@ -36,7 +36,7 @@ class HTMLOutput(OutputFormatPlugin):
 
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated ZIP file to the '
-                'specified directory. WARNING: The contents of the directory '
+                'specified folder. WARNING: The contents of the folder '
                 'will be deleted.')
         ),
     }

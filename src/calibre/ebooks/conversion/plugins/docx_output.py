@@ -43,7 +43,7 @@ class DOCXOutput(OutputFormatPlugin):
 
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
-                'specified directory. The contents of the directory are first '
+                'specified folder. The contents of the folder are first '
                 'deleted, so be careful.') % 'DOCX'),
 
         OptionRecommendation(name='docx_page_margin_left', recommended_value=72.0,

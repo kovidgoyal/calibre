@@ -167,7 +167,7 @@ class EximDialog(Dialog):
         w.l = l = QVBoxLayout(w)
         w.la = la = QLabel('<p>' + _(
             'You can export all calibre data, including your books, settings and plugins'
-            ' into a single directory. Then, you can use this tool to re-import all that'
+            ' into a single folder. Then, you can use this tool to re-import all that'
             ' data into a different calibre install, for example, on another computer.') + '<p>' +
         _(
             'This is a simple way to move your calibre installation with all its data to'
@@ -342,12 +342,12 @@ class EximDialog(Dialog):
         self.stack.setCurrentIndex({'export':1, 'import':2}.get(which, 0))
 
     def validate_export(self):
-        path = choose_dir(self, 'export-calibre-dir', _('Choose a directory to export to'))
+        path = choose_dir(self, 'export-calibre-dir', _('Choose a folder to export to'))
         if not path:
             return False
         if os.listdir(path):
-            error_dialog(self, _('Export dir not empty'), _(
-                'The directory you choose to export the data to must be empty.'), show=True)
+            error_dialog(self, _('Export folder not empty'), _(
+                'The folder you choose to export the data to must be empty.'), show=True)
             return False
         self.export_dir = path
         return True
