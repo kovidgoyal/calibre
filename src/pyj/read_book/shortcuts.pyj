@@ -433,7 +433,7 @@ def add_standalone_viewer_shortcuts(sc):
     )
 
     sc['edit_book'] = desc(
-        "Ctrl+Alt+e",
+        "Ctrl+d",
         'ui',
         _('Edit this book')
     )
