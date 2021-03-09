@@ -3,10 +3,11 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from complete import create_simple_input_with_history
 from dom import clear, svgicon, unique_id
+from gettext import gettext as _
 from read_book.globals import is_dark_theme
 from read_book.highlights import all_styles
 from read_book.prefs.utils import create_button_box
@@ -157,7 +158,11 @@ def create_selection_panel(container, apply_func, cancel_func):
         return E.div(style='margin-top:1ex', E.label(ans, '\xa0' + text))
 
     def url(name, text, title):
-        ans = E.input(type='url', name=name, value=sd.get(name), size='50', title=title or '', style='margin-top: 1ex')
+        ans = create_simple_input_with_history(name, input_type='url')
+        inp = ans.querySelector(f'input[name={name}]')
+        inp.value = sd.get(name) or ''
+        inp.setAttribute('size', '50')
+        inp.style.marginTop = '1ex'
         return E.div(style='margin-top:1ex', E.label(text, E.br(), ans))
 
     container.appendChild(cb(
@@ -193,6 +198,9 @@ def commit_selection(onchange):
     sd = get_session_data()
     container = get_container()
     changed = False
+    save_ev = new Event('save_history')
+    for x in container.querySelectorAll('[data-calibre-history-input]'):
+        x.dispatchEvent(save_ev)
     for control in container.querySelectorAll('input[name]'):
         name = control.getAttribute('name')
         if control.type is 'checkbox':

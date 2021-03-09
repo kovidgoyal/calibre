@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import ensure_id
+from dom import ensure_id, unique_id, clear
 from elementmaker import E
 from session import local_storage
 from popups import CompletionPopup
@@ -108,7 +108,73 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
             ewc.add_associated_widget(w)
     return parent
 
+
+def create_simple_input_with_history_native(name, tooltip=None, placeholder=None, history_size=100, input_type='text'):
+    # cannot use in standalone viewer because of: https://bugreports.qt.io/browse/QTBUG-54433
+    dl_id = unique_id()
+    dl = document.createElement('datalist')
+    dl.id = dl_id
+    history_name = f'simple_input_history_{name}'
+
+    def update_completion_items(x):
+        items = local_storage().get(history_name)
+        dl = x or document.getElementById(dl_id)
+        if dl:
+            clear(dl)
+            if items?.length:
+                for item in items:
+                    dl.appendChild(E.option(value=item))
+
+    def save_completion_items():
+        text = document.getElementById(dl_id).nextSibling.value
+        if text and text.strip():
+            items = local_storage().get(history_name) or v'[]'
+            idx = items.indexOf(text)
+            if idx > -1:
+                items.splice(idx, 1)
+            items.unshift(text)
+            local_storage().set(history_name, uniq(items[:history_size]))
+            update_completion_items()
+
+    update_completion_items(dl)
+    ans = E.span(
+        data_calibre_history_input='1',
+        dl,
+        E.input(type=input_type, name=name, list=dl_id, title=tooltip or '', placeholder=placeholder or ''),
+    )
+    ans.addEventListener('save_history', save_completion_items)
+    return ans
+
+
+def create_simple_input_with_history(name, tooltip=None, placeholder=None, history_size=100, input_type='text'):
+    # to use simply add the returned element to the DOM and when you want to
+    # save a new completion item, use dispatchEvent to send a 'save_history'
+    # event to it.
+    parent = E.span(data_calibre_history_input='1')
+    ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder, input_type=input_type)
+    history_name = f'simple_input_history_{name}'
+
+    def update_completion_items():
+        items = local_storage().get(history_name)
+        if items?.length:
+            ewc.set_all_items(items)
+    update_completion_items()
+
+    def save_completion_items():
+        text = ewc.text_input.value
+        if text and text.strip():
+            items = local_storage().get(history_name) or v'[]'
+            idx = items.indexOf(text)
+            if idx > -1:
+                items.splice(idx, 1)
+            items.unshift(text)
+            local_storage().set(history_name, uniq(items[:history_size]))
+            update_completion_items()
+
+    parent.addEventListener('save_history', save_completion_items)
+    return parent
 # }}}
+
 
 def main(container):
     container.appendChild(create_search_bar(print, 'test-search-bar', placeholder='Testing search bar'))
