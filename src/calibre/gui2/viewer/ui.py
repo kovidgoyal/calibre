@@ -2,11 +2,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 
-
 import json
 import os
 import re
 import sys
+import time
 from collections import defaultdict, namedtuple
 from hashlib import sha256
 from qt.core import (
@@ -643,6 +643,7 @@ class EbookViewer(MainWindow):
 
     def edit_book(self, file_name, progress_frac, selected_text):
         import subprocess
+
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
         try:
@@ -664,8 +665,11 @@ class EbookViewer(MainWindow):
         cmd = [exe]
         if selected_text:
             cmd += ['--select-text', selected_text]
+        from calibre.gui2.tweak_book.widgets import BusyCursor
         with sanitize_env_vars():
             subprocess.Popen(cmd + [path, file_name])
+            with BusyCursor():
+                time.sleep(2)
 
     def save_state(self):
         with vprefs:
