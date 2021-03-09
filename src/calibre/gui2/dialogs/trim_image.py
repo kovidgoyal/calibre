@@ -5,11 +5,12 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os
-
+import os
+import sys
 from qt.core import (
-    QDialog, QGridLayout, QToolBar, Qt, QLabel, QIcon, QDialogButtonBox, QSize,
-    QApplication, QKeySequence)
+    QApplication, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QKeySequence,
+    QLabel, QSize, Qt, QToolBar, QVBoxLayout
+)
 
 from calibre.gui2 import gprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
@@ -19,8 +20,7 @@ class TrimImage(QDialog):
 
     def __init__(self, img_data, parent=None):
         QDialog.__init__(self, parent)
-        self.l = l = QGridLayout(self)
-        self.setLayout(l)
+        self.l = l = QVBoxLayout(self)
         self.setWindowTitle(_('Trim Image'))
 
         self.bar = b = QToolBar(self)
@@ -29,7 +29,8 @@ class TrimImage(QDialog):
         b.setIconSize(QSize(32, 32))
 
         self.msg = la = QLabel('\xa0' + _(
-            'Select a region by dragging with your mouse on the image, and then click trim'))
+            'Select a region by dragging with your mouse, and then click trim'))
+        self.msg_txt = self.msg.text()
         self.sz = QLabel('')
 
         self.canvas = c = Canvas(self)
@@ -45,6 +46,7 @@ class TrimImage(QDialog):
                                    ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
         ac.setEnabled(False)
         c.selection_state_changed.connect(self.selection_changed)
+        c.selection_area_changed.connect(self.selection_area_changed)
         l.addWidget(c)
         self.bar.addAction(self.trim_action)
         self.bar.addSeparator()
@@ -58,7 +60,12 @@ class TrimImage(QDialog):
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        self.tr_sz = QLabel('')
+        h.addWidget(self.tr_sz)
+        h.addStretch(10)
+        h.addWidget(bb)
 
         self.resize(QSize(900, 600))
         geom = gprefs.get('image-trim-dialog-geometry', None)
@@ -73,7 +80,16 @@ class TrimImage(QDialog):
 
     def selection_changed(self, has_selection):
         self.trim_action.setEnabled(has_selection)
-        self.msg.setVisible(not has_selection)
+        self.msg.setText(_('Adjust selection by dragging corners') if has_selection else self.msg_txt)
+
+    def selection_area_changed(self, rect):
+        if rect:
+            w = int(rect.width())
+            h = int(rect.height())
+            text = f'{w}x{h}'
+        else:
+            text = ''
+        self.tr_sz.setText(text)
 
     def image_changed(self, qimage):
         self.sz.setText('\xa0' + _('Size:') + ' ' + '%dx%d' % (qimage.width(), qimage.height()))
@@ -96,7 +112,8 @@ class TrimImage(QDialog):
 
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     fname = sys.argv[-1]
     with open(fname, 'rb') as f:
         data = f.read()

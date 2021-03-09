@@ -227,6 +227,7 @@ class Canvas(QWidget):
     SELECT_PEN = QPen(QColor(Qt.GlobalColor.white))
 
     selection_state_changed = pyqtSignal(object)
+    selection_area_changed = pyqtSignal(object)
     undo_redo_state_changed = pyqtSignal(object, object)
     image_changed = pyqtSignal(object)
 
@@ -460,6 +461,10 @@ class Canvas(QWidget):
         else:
             ans = Qt.CursorShape.SizeBDiagCursor if dc in {('left', 'bottom'), ('right', 'top')} else Qt.CursorShape.SizeFDiagCursor
         return ans
+
+    def update(self):
+        super().update()
+        self.selection_area_changed.emit(self.selection_state.rect)
 
     def move_edge(self, edge, dp):
         sr = self.selection_state.rect
