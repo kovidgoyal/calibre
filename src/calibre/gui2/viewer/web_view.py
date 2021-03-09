@@ -273,7 +273,7 @@ class ViewerBridge(Bridge):
     open_url = from_js(object)
     speak_simple_text = from_js(object)
     tts = from_js(object, object)
-    edit_book = from_js(object, object)
+    edit_book = from_js(object, object, object)
 
     create_view = to_js()
     start_book_load = to_js()
@@ -473,7 +473,7 @@ class WebView(RestartingWebEngineView):
     scrollbar_context_menu = pyqtSignal(object, object, object)
     close_prep_finished = pyqtSignal(object)
     highlights_changed = pyqtSignal(object)
-    edit_book = pyqtSignal(object, object)
+    edit_book = pyqtSignal(object, object, object)
     shortcuts_changed = pyqtSignal(object)
     paged_mode_changed = pyqtSignal()
     standalone_misc_settings_changed = pyqtSignal(object)

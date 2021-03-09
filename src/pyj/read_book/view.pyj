@@ -556,7 +556,7 @@ class View:
         elif data.name is 'metadata':
             self.overlay.show_metadata()
         elif data.name is 'edit_book':
-            ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac)
+            ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac, self.currently_showing?.selection?.text)
         elif data.name is 'goto_location':
             self.overlay.show_ask_for_location()
         elif data.name is 'shrink_selection_by_word':

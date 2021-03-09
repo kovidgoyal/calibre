@@ -641,7 +641,7 @@ class EbookViewer(MainWindow):
         self.highlights_widget.refresh(highlights)
         self.save_annotations()
 
-    def edit_book(self, file_name, progress_frac):
+    def edit_book(self, file_name, progress_frac, selected_text):
         import subprocess
         from calibre.ebooks.oeb.polish.main import SUPPORTED
         from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
@@ -661,8 +661,11 @@ class EbookViewer(MainWindow):
             exe = os.path.join(macos_edit_book_bundle_path(), exe)
         else:
             exe = exe_path(exe)
+        cmd = [exe]
+        if selected_text:
+            cmd += ['--select-text', selected_text]
         with sanitize_env_vars():
-            subprocess.Popen([exe, path, file_name])
+            subprocess.Popen(cmd + [path, file_name])
 
     def save_state(self):
         with vprefs:

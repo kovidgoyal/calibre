@@ -419,8 +419,8 @@ if window is window.top:
         to_python.speak_simple_text(text)
     ui_operations.tts = def(action, data):
         to_python.tts(action, data or v'{}')
-    ui_operations.edit_book = def (spine_name, frac):
-        to_python.edit_book(spine_name, frac)
+    ui_operations.edit_book = def (spine_name, frac, selected_text):
+        to_python.edit_book(spine_name, frac, selected_text or '')
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
