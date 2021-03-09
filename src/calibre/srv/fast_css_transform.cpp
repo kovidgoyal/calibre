@@ -496,7 +496,7 @@ class Parser {
 
         // hash {{{
         void enter_at_keyword() {
-            states.push(ParseState::hash);
+            states.push(ParseState::at_keyword);
             token_queue.add_at_keyword();
         }
 
