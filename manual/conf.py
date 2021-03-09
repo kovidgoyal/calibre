@@ -93,7 +93,8 @@ unused_docs = ['global', 'cli/global']
 
 locale_dirs = ['locale/']
 title = '%s User Manual' % __appname__
-if language not in {'en', 'eng'}:
+needs_localization = language not in {'en', 'eng'}
+if needs_localization:
     import gettext
     try:
         t = gettext.translation('simple_index', locale_dirs[0], [language])
@@ -174,6 +175,7 @@ def sort_languages(x):
 html_context['other_languages'].sort(key=sort_languages)
 html_context['support_text'] = _('Support calibre')
 html_context['support_tooltip'] = _('Contribute to support calibre development')
+html_context['homepage_url'] = 'http://calibre-ebook.com' + (f'/{language}' if needs_localization else '')
 del sort_languages, get_language
 
 epub_author      = u'Kovid Goyal'
