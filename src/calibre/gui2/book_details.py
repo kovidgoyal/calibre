@@ -653,10 +653,13 @@ class CoverView(QWidget):  # {{{
 
     def generate_cover(self, *args):
         book_id = self.data.get('id')
-        if book_id is not None:
+        if book_id is None:
+            return
+        from calibre.gui2.ui import get_gui
+        mi = get_gui().current_db.new_api.get_metadata(book_id)
+        if not mi.has_cover or confirm(
+                _('Are you sure you want to replace the cover? The existing cover will be permanently lost.'), 'book_details_generate_cover'):
             from calibre.ebooks.covers import generate_cover
-            from calibre.gui2.ui import get_gui
-            mi = get_gui().current_db.new_api.get_metadata(book_id)
             cdata = generate_cover(mi)
             self.update_cover(cdata=cdata)
 
