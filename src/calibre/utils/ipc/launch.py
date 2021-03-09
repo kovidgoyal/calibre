@@ -30,6 +30,33 @@ def renice(niceness):
         pass
 
 
+def macos_edit_book_bundle_path():
+    base = os.path.dirname(sys.executables_location)
+    return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/MacOS/')
+
+
+def exe_path(exe_name):
+    if hasattr(sys, 'running_from_setup'):
+        return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
+    if getattr(sys, 'run_local', False):
+        return [sys.executable, sys.run_local, exe_name]
+    e = exe_name
+    if iswindows:
+        return os.path.join(os.path.dirname(sys.executable),
+                e+'.exe' if isfrozen else 'Scripts\\%s.exe'%e)
+    if ismacos:
+        return os.path.join(sys.executables_location, e)
+
+    if isfrozen:
+        return os.path.join(sys.executables_location, e)
+
+    if hasattr(sys, 'executables_location'):
+        c = os.path.join(sys.executables_location, e)
+        if os.access(c, os.X_OK):
+            return c
+    return e
+
+
 class Worker:
     '''
     Platform independent object for launching child processes. All processes
@@ -47,25 +74,7 @@ class Worker:
 
     @property
     def executable(self):
-        if hasattr(sys, 'running_from_setup'):
-            return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
-        if getattr(sys, 'run_local', False):
-            return [sys.executable, sys.run_local, self.exe_name]
-        e = self.exe_name
-        if iswindows:
-            return os.path.join(os.path.dirname(sys.executable),
-                   e+'.exe' if isfrozen else 'Scripts\\%s.exe'%e)
-        if ismacos:
-            return os.path.join(sys.executables_location, e)
-
-        if isfrozen:
-            return os.path.join(sys.executables_location, e)
-
-        if hasattr(sys, 'executables_location'):
-            c = os.path.join(sys.executables_location, e)
-            if os.access(c, os.X_OK):
-                return c
-        return e
+        return exe_path(self.exe_name)
 
     @property
     def gui_executable(self):
@@ -74,8 +83,7 @@ class Worker:
                 base = os.path.dirname(sys.executables_location)
                 return os.path.join(base, 'ebook-viewer.app/Contents/MacOS/', self.exe_name)
             if self.job_name == 'ebook-edit':
-                base = os.path.dirname(sys.executables_location)
-                return os.path.join(base, 'ebook-viewer.app/Contents/ebook-edit.app/Contents/MacOS/', self.exe_name)
+                return os.path.join(macos_edit_book_bundle_path(), self.exe_name)
 
             return os.path.join(sys.executables_location, self.exe_name)
 

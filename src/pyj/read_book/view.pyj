@@ -17,7 +17,7 @@ from read_book.annotations import AnnotationsManager
 from read_book.bookmarks import create_new_bookmark
 from read_book.content_popup import ContentPopupOverlay
 from read_book.globals import (
-    current_book, is_dark_theme, rtl_page_progression, runtime,
+    current_book, current_spine_item, is_dark_theme, rtl_page_progression, runtime,
     set_current_spine_item, ui_operations
 )
 from read_book.goto import get_next_section
@@ -555,6 +555,8 @@ class View:
             self.show_chrome({'initial_panel': 'show_prefs'})
         elif data.name is 'metadata':
             self.overlay.show_metadata()
+        elif data.name is 'edit_book':
+            ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac)
         elif data.name is 'goto_location':
             self.overlay.show_ask_for_location()
         elif data.name is 'shrink_selection_by_word':

@@ -17,9 +17,10 @@ from qt.core import (
 from threading import Thread
 
 from calibre import prints
+from calibre.constants import ismacos
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
-from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2 import choose_files, error_dialog, sanitize_env_vars
 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
 from calibre.gui2.image_popup import ImagePopup
 from calibre.gui2.main_window import MainWindow
@@ -189,6 +190,7 @@ class EbookViewer(MainWindow):
         self.web_view.scrollbar_context_menu.connect(self.scrollbar_context_menu)
         self.web_view.close_prep_finished.connect(self.close_prep_finished)
         self.web_view.highlights_changed.connect(self.highlights_changed)
+        self.web_view.edit_book.connect(self.edit_book)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
@@ -638,6 +640,29 @@ class EbookViewer(MainWindow):
         amap['highlight'] = highlights
         self.highlights_widget.refresh(highlights)
         self.save_annotations()
+
+    def edit_book(self, file_name, progress_frac):
+        import subprocess
+        from calibre.ebooks.oeb.polish.main import SUPPORTED
+        from calibre.utils.ipc.launch import exe_path, macos_edit_book_bundle_path
+        try:
+            path = set_book_path.pathtoebook
+        except AttributeError:
+            return error_dialog(self, _('Cannot edit book'), _(
+                'No book is currently open'), show=True)
+        fmt = path.rpartition('.')[-1].upper().replace('ORIGINAL_', '')
+        if fmt not in SUPPORTED:
+            return error_dialog(self, _('Cannot edit book'), _(
+                'The book must be in the %s formats to edit.'
+                '\n\nFirst convert the book to one of these formats.'
+            ) % (_(' or ').join(SUPPORTED)), show=True)
+        exe = 'ebook-edit'
+        if ismacos:
+            exe = os.path.join(macos_edit_book_bundle_path(), exe)
+        else:
+            exe = exe_path(exe)
+        with sanitize_env_vars():
+            subprocess.Popen([exe, path, file_name])
 
     def save_state(self):
         with vprefs:

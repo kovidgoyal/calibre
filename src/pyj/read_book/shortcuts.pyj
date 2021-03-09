@@ -432,6 +432,13 @@ def add_standalone_viewer_shortcuts(sc):
         _('Toggle the highlights panel')
     )
 
+    sc['edit_book'] = desc(
+        "Ctrl+Alt+e",
+        'ui',
+        _('Edit this book')
+    )
+
+
 
 def create_shortcut_map(custom_shortcuts):
     ans = {}

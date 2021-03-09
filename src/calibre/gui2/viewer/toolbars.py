@@ -68,6 +68,7 @@ def all_actions():
             'toggle_read_aloud': Action('bullhorn.png', _('Read aloud'), 'toggle_read_aloud'),
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
             'select_all': Action('edit-select-all.png', _('Select all text in the current file')),
+            'edit_book': Action('edit_book.png', _('Edit this book'), 'edit_book'),
         }
         all_actions.ans = Actions(amap)
     return all_actions.ans
@@ -193,6 +194,7 @@ class ActionsToolBar(ToolBar):
         self.print_action = shortcut_action('print')
         self.preferences_action = shortcut_action('preferences')
         self.metadata_action = shortcut_action('metadata')
+        self.edit_book_action = shortcut_action('edit_book')
         self.update_mode_action()
         self.color_scheme_action = a = QAction(aa.color_scheme.icon, aa.color_scheme.text, self)
         self.color_scheme_menu = m = QMenu(self)
