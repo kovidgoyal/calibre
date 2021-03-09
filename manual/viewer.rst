@@ -109,9 +109,8 @@ When you select text in the viewer, a little popup bar appears next to the
 selection. You can click the highlight button in that bar to create a
 highlight. You can add notes and change the color of the highlight. On a touch
 screen, long tap a word to select it and show the popup bar. Once in highlight
-mode you can tap the :guilabel:`Adjust selection` button to change what text is
-selected, using touch screen friendly selection handles.  Drag
-the handles to the top or bottom margins to scroll while selecting.
+mode you can change what text is selected, using touch screen friendly selection
+handles. Drag the handles to the top or bottom margins to scroll while selecting.
 
 You can use the :guilabel:`Highlights` button in the viewer
 controls to show a separate panel with a list of all highlights in the book,
