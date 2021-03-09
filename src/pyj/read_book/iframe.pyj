@@ -186,6 +186,7 @@ class IframeBoss:
     def modify_selection(self, data):
         sel = window.getSelection()
         sel.modify('extend', data.direction, data.granularity)
+        self.ensure_selection_visible()
 
     def initialize(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
