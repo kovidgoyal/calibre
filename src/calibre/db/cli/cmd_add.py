@@ -442,7 +442,7 @@ the folder related options below.
         '--ignore', 'ignore',
         _(
             'A filename (glob) pattern, files matching this pattern will be ignored when scanning folders for files.'
-            ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all pdf files'
+            ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all PDF files'
         )
     )
     fadd(
