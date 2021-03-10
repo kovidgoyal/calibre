@@ -506,7 +506,19 @@ def jump_to_anchor(name):
     scroll_to_elem(elem)
 
 
+def scrollable_element(elem):
+    # bounding rect calculation for an inline element containing a block
+    # element that spans multiple columns is incorrect. Detet the common case
+    # of this and avoid it.
+    if not in_paged_mode() or window.getComputedStyle(elem).display.indexOf('inline') < 0 or not elem.firstElementChild:
+        return elem
+    if window.getComputedStyle(elem.firstElementChild).display.indexOf('block') > -1:
+        return elem.firstElementChild
+    return elem
+
+
 def scroll_to_elem(elem):
+    elem = scrollable_element(elem)
     scroll_viewport.scroll_into_view(elem)
 
     if in_paged_mode():
@@ -786,6 +798,7 @@ anchor_funcs = {
     'pos_for_elem': def pos_for_elem(elem):
         if not elem:
             return 0
+        elem = scrollable_element(elem)
         br = elem.getBoundingClientRect()
         pos = scroll_viewport.viewport_to_document_inline(
             scroll_viewport.rect_inline_start(br))
