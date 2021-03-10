@@ -233,7 +233,7 @@ computer/user account, you can also manage users using just the command-line.
 
 You can manage user accounts using the ``--manage-users`` option
 to the standalone ``calibre-server`` program. Suppose you want to store
-the user database in the directory ``/srv/calibre``, then you create it
+the user database in the folder ``/srv/calibre``, then you create it
 by running::
 
     calibre-server --userdb /srv/calibre/users.sqlite --manage-users
@@ -364,7 +364,7 @@ based Linux system. Just create the file
     Type=simple
     User=mylinuxuser
     Group=mylinuxgroup
-    ExecStart=/opt/calibre/calibre-server "/path/to/calibre library directory"
+    ExecStart=/opt/calibre/calibre-server "/path/to/calibre library folder"
 
     [Install]
     WantedBy=multi-user.target
@@ -372,9 +372,9 @@ based Linux system. Just create the file
 
 Change ``mylinuxuser`` and ``mylinuxgroup`` to whatever user and group you want
 the server to run as. This should be the same user and group that own the files
-in the calibre library directory. Note that it is generally not a good idea to
+in the calibre library folder. Note that it is generally not a good idea to
 run the server as root. Also change the path to the calibre library
-directory to suit your system. You can add multiple libraries if needed. See
+folder to suit your system. You can add multiple libraries if needed. See
 the help for the ``calibre-server`` command.
 
 Now run::

@@ -186,7 +186,7 @@ If your device appears as a USB disk to the operating system, adding support for
 We just need some information from you:
 
   * Complete list of e-book formats that your device supports.
-  * Is there a special directory on the device in which all e-book files should be placed? Also does the device detect files placed in sub-folders?
+  * Is there a special folder on the device in which all e-book files should be placed? Also does the device detect files placed in sub-folders?
   * We also need information about your device that calibre will collect automatically. First, if your
     device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file
@@ -586,10 +586,10 @@ With all this flexibility, it is possible to have calibre manage your author nam
         * Press OK, at which point calibre will change the authors in all your books. This can take a while.
 
 
-Why doesn't calibre let me store books in my own directory structure?
+Why doesn't calibre let me store books in my own folder structure?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The whole point of calibre's library management features is that they provide a search and sort based interface for locating books that is *much* more efficient than any possible directory scheme you could come up with for your collection. Indeed, once you become comfortable using calibre's interface to find, sort and browse your collection, you wont ever feel the need to hunt through the files on your disk to find a book again. By managing books in its own directory structure of Author -> Title -> Book files, calibre is able to achieve a high level of reliability and standardization. To illustrate why a search/tagging based interface is superior to folders, consider the following. Suppose your book collection is nicely sorted into folders with the following scheme::
+The whole point of calibre's library management features is that they provide a search and sort based interface for locating books that is *much* more efficient than any possible folder scheme you could come up with for your collection. Indeed, once you become comfortable using calibre's interface to find, sort and browse your collection, you wont ever feel the need to hunt through the files on your disk to find a book again. By managing books in its own folder structure of Author -> Title -> Book files, calibre is able to achieve a high level of reliability and standardization. To illustrate why a search/tagging based interface is superior to folders, consider the following. Suppose your book collection is nicely sorted into folders with the following scheme::
 
     Genre -> Author -> Series -> ReadStatus
 
@@ -673,7 +673,7 @@ then import it on another computer. First let's see how to export the data:
     to the previously copied folder. If the computer you are transferring to
     already has a calibre installation, then the :guilabel:`Welcome wizard` wont run. In
     that case, right-click the calibre icon in the toolbar and point it to the
-    newly copied directory. You will now have two calibre libraries on your
+    newly copied folder. You will now have two calibre libraries on your
     computer and you can switch between them by clicking the calibre icon on
     the toolbar. Transferring your library in this manner preserver all your
     metadata, tags, custom columns, etc.
@@ -771,7 +771,7 @@ only TrueType and OpenType (.ttf and .otf) fonts. Most fonts on macOS systems
 are in .dfont format, thus they cannot be embedded. calibre shows only TrueType
 and OpenType fonts found on your system. You can obtain many such fonts on the
 web. Simply download the .ttf/.otf files and add them to the Library/Fonts
-directory in your home directory.
+folder in your home folder.
 
 calibre is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -959,7 +959,7 @@ The most important thing to backup is the calibre library folder, that contains 
 
 You can switch calibre to using a backed up library folder by simply clicking the calibre icon on the toolbar and choosing your backup library folder. A backed up library folder backs up your custom columns and saved searches as well as all your books and metadata.
 
-If you want to backup the calibre configuration/plugins, you have to backup the config directory. You can find this config directory via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration directories is not officially supported, but should work in most cases. Just copy the contents of the backup directory into the current configuration directory to restore.
+If you want to backup the calibre configuration/plugins, you have to backup the config folder. You can find this config folder via :guilabel:`Preferences->Miscellaneous`. Note that restoring configuration folders is not officially supported, but should work in most cases. Just copy the contents of the backup folder into the current configuration folder to restore.
 
 How do I use purchased EPUB books with calibre (or what do I do with .acsm files)?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -329,7 +329,7 @@
 
 :: bug fixes
 
-- [1904310] Windows: Fix calibre portable launcher not working correctly from root directory in calibre 5.5
+- [1904310] Windows: Fix calibre portable launcher not working correctly from root folder in calibre 5.5
 
 - [1904505] macOS: Fix rendering of space after punctuation incorrect in Big Sur
 
@@ -418,7 +418,7 @@
 
 :: new features
 
-- [1900761] Windows: Allow adding of books to calibre from directories whose path length is larger than 260 characters
+- [1900761] Windows: Allow adding of books to calibre from folders whose path length is larger than 260 characters
 
 - Tag browser: Add an option in Preferences->Look & feel->Tag browser to allow the tag browser to get keyboard focus
 
@@ -460,7 +460,7 @@
 
 - [1901957] Conversion: Fix a regression in calibre 5 that broke processing of some PDB files with images.
 
-- [1901278] Conversion: Fix regression in calibre 5 in the handling of @import() rules in stylesheets that import from directories above themselves.
+- [1901278] Conversion: Fix regression in calibre 5 in the handling of @import() rules in stylesheets that import from folders above themselves.
 
 - [1901232 1901230] Content server: Fix various controls on the book details page not working when viewing a random book.
 
@@ -1508,7 +1508,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - [1853232] Viewer: Fix opening .txt files in the standalone viewer leaving behind a temporary index.html file in the folder of the txt file.
 
-- Linux: Make some cache removal code robust against un-decodeable filenames in the cache directories
+- Linux: Make some cache removal code robust against un-decodeable filenames in the cache folders
 
 - [1851933] Viewer: Fix scrolling of panels in preferences causing artifacts.
 
@@ -1752,7 +1752,7 @@ If you turn on dark mode under the Windows Settings->Personalisation->Colors and
 
 - Comments editor: Workaround for Qt converting ids into anchors
 
-- Possible workaround for some Windows machines where the viewer is getting access denied errors while renaming a directory
+- Possible workaround for some Windows machines where the viewer is getting access denied errors while renaming a folder
 
 - Viewer: When there is empty text for an header footer section render it as blank instead of moving the remaining sections to the left
 

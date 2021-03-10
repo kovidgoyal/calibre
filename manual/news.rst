@@ -294,7 +294,7 @@ them to the EPUB file :file:`myrecipe.epub`. The ``-vv`` option makes
 ebook-convert spit out a lot of information about what it is doing. The
 :option:`ebook-convert-recipe-input --test` option makes it download only a couple of articles from at most two
 feeds. In addition, ebook-convert will put the downloaded HTML into the
-``debug/input`` directory, where ``debug`` is the directory you specified in
+``debug/input`` folder, where ``debug`` is the folder you specified in
 the :option:`ebook-convert --debug-pipeline` option.
 
 Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`debug/input/index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate e-books in different formats as shown below::
