@@ -48,7 +48,7 @@ class DebugWidget(Widget, Ui_Form):
         except:
             import traceback
             det_msg = traceback.format_exc()
-            error_dialog(self, _('Invalid debug directory'),
+            error_dialog(self, _('Invalid debug folder'),
                     _('Failed to create debug directory')+': '+ unicode_type(self.opt_debug_pipeline.text()),
                         det_msg=det_msg, show=True)
             return False

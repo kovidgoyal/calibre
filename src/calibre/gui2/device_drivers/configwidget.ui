@@ -89,7 +89,7 @@
       <string>If checked, books are placed into sub-folders based on their metadata on the device. If unchecked, books are all put into the top level folder.</string>
      </property>
      <property name="text">
-      <string>Use sub-directories</string>
+      <string>Use sub-folders</string>
      </property>
     </widget>
    </item>

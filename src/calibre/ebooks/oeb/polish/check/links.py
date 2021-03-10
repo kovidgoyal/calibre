@@ -333,7 +333,7 @@ def check_links(container):
                             # or the link is a directory
                             apath = container.name_to_abspath(tname)
                             if os.path.isdir(apath):
-                                a(BadLink(_('The linked resource %s is a directory') % fl(href), name, lnum, col))
+                                a(BadLink(_('The linked resource %s is a folder') % fl(href), name, lnum, col))
                             else:
                                 a(CaseMismatch(href, actual_case_for_name(container, tname), name, lnum, col))
                     else:

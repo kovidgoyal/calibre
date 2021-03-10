@@ -21,7 +21,7 @@ class PML2PMLZ(FileTypePlugin):
     name = 'PML to PMLZ'
     author = 'John Schember'
     description = _('Create a PMLZ archive containing the PML file '
-        'and all images in the directory pmlname_img or images. '
+        'and all images in the folder pmlname_img or images. '
         'This plugin is run every time you add '
         'a PML file to the library.')
     version = numeric_version

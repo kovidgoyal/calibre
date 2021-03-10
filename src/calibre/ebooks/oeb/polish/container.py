@@ -226,7 +226,7 @@ class Container(ContainerBase):  # {{{
     opf file. There are two important concepts:
 
         * The root folder. This is the base of the e-book. All the e-books
-          files are inside this directory or in its sub-directories.
+          files are inside this folder or in its sub-folders.
 
         * Names: These are paths to the books' files relative to the root
           directory. They always contain POSIX separators and are unquoted. They
@@ -402,7 +402,7 @@ class Container(ContainerBase):  # {{{
 
     def rename(self, current_name, new_name):
         ''' Renames a file from current_name to new_name. It automatically
-        rebases all links inside the file if the directory the file is in
+        rebases all links inside the file if the folder the file is in
         changes. Note however, that links are not updated in the other files
         that could reference this file. This is for performance, such updates
         should be done once, in bulk. '''

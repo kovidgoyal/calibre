@@ -143,7 +143,7 @@ def implode(output_dir, ebook_file):
         with lopen(efmt_path, 'rb') as f:
             efmt = f.read()
     except Exception:
-        raise SystemExit('The directory %s does not seem to have been created by --explode-book' % output_dir)
+        raise SystemExit('The folder %s does not seem to have been created by --explode-book' % output_dir)
     if efmt != fmt:
         raise SystemExit('You must use the same format of file as was used when exploding the book')
     os.remove(efmt_path)

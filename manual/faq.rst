@@ -186,7 +186,7 @@ If your device appears as a USB disk to the operating system, adding support for
 We just need some information from you:
 
   * Complete list of e-book formats that your device supports.
-  * Is there a special directory on the device in which all e-book files should be placed? Also does the device detect files placed in sub-directories?
+  * Is there a special directory on the device in which all e-book files should be placed? Also does the device detect files placed in sub-folders?
   * We also need information about your device that calibre will collect automatically. First, if your
     device supports SD cards, insert them. Then connect your device to the computer. In calibre go to :guilabel:`Preferences->Miscellaneous`
     and click the "Debug device detection" button. This will create some debug output. Copy it to a file

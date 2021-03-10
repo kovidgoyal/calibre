@@ -1362,7 +1362,7 @@ class OPFCreator(Metadata):
     def __init__(self, base_path, other):
         '''
         Initialize.
-        @param base_path: An absolute path to the directory in which this OPF file
+        @param base_path: An absolute path to the folder in which this OPF file
         will eventually be. This is used by the L{create_manifest} method
         to convert paths to files into relative paths.
         '''

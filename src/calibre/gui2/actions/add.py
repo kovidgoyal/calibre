@@ -59,7 +59,7 @@ class AddAction(InterfaceAction):
         self._add_filesystem_book = self.Dispatcher(self.__add_filesystem_book)
         self.add_menu = self.qaction.menu()
         ma = partial(self.create_menu_action, self.add_menu)
-        ma('recursive-add', _('Add from directories and sub-directories')).triggered.connect(self.add_recursive_question)
+        ma('recursive-add', _('Add from folders and sub-folders')).triggered.connect(self.add_recursive_question)
         ma('archive-add-book', _('Add multiple books from archive (ZIP/RAR)')).triggered.connect(self.add_from_archive)
         self.add_menu.addSeparator()
         ma('add-empty', _('Add empty book (Book entry with no formats)'),
