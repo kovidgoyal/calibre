@@ -68,7 +68,7 @@ class CSSPreProcessor(cssp):
 
 
 def clone_dir(src, dest):
-    ' Clone a directory using hard links for the files, dest must already exist '
+    ' Clone a folder using hard links for the files, dest must already exist '
     for x in os.listdir(src):
         dpath = os.path.join(dest, x)
         spath = os.path.join(src, x)
@@ -222,17 +222,17 @@ class ContainerBase(object):  # {{{
 class Container(ContainerBase):  # {{{
 
     '''
-    A container represents an Open E-Book as a directory full of files and an
+    A container represents an Open E-Book as a folder full of files and an
     opf file. There are two important concepts:
 
         * The root folder. This is the base of the e-book. All the e-books
           files are inside this folder or in its sub-folders.
 
         * Names: These are paths to the books' files relative to the root
-          directory. They always contain POSIX separators and are unquoted. They
+          folder. They always contain POSIX separators and are unquoted. They
           can be thought of as canonical identifiers for files in the book.
           Most methods on the container object work with names. Names are always
-          in the NFC unicode normal form.
+          in the NFC Unicode normal form.
 
         * Clones: the container object supports efficient on-disk cloning, which is used to
           implement checkpoints in the e-book editor. In order to make this work, you should
@@ -507,7 +507,7 @@ class Container(ContainerBase):  # {{{
         '''
         Convert an absolute path to a canonical name relative to :attr:`root`
 
-        :param root: The base directory. By default the root for this container object is used.
+        :param root: The base folder. By default the root for this container object is used.
         '''
         # OS X silently changes all file names to NFD form. The EPUB
         # spec requires all text including filenames to be in NFC form.
@@ -524,7 +524,7 @@ class Container(ContainerBase):  # {{{
         return name_to_abspath(name, self.root)
 
     def exists(self, name):
-        ''' True iff a file/directory corresponding to the canonical name exists. Note
+        ''' True iff a file/folder corresponding to the canonical name exists. Note
         that this function suffers from the limitations of the underlying OS
         filesystem, in particular case (in)sensitivity. So on a case
         insensitive filesystem this will return True even if the case of name

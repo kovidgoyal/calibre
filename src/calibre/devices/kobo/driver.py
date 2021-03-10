@@ -986,7 +986,7 @@ class KOBO(USBMS):
         '''
         Upload book cover to the device. Default implementation does nothing.
 
-        :param path: The full path to the directory where the associated book is located.
+        :param path: The full path to the folder where the associated book is located.
         :param filename: The name of the book file without the extension.
         :param metadata: metadata belonging to the book. Use metadata.thumbnail
                          for cover
@@ -2585,7 +2585,7 @@ class KOBOTOUCH(KOBO):
         '''
         Upload book cover to the device. Default implementation does nothing.
 
-        :param path: The full path to the directory where the associated book is located.
+        :param path: The full path to the folder where the associated book is located.
         :param filename: The name of the book file without the extension.
         :param metadata: metadata belonging to the book. Use metadata.thumbnail
                          for cover
@@ -2747,7 +2747,7 @@ class KOBOTOUCH(KOBO):
 
                 image_dir = os.path.dirname(os.path.abspath(path))
                 if not os.path.exists(image_dir):
-                    debug_print("KoboTouch:_upload_cover - Image directory does not exist. Creating path='%s'" % (image_dir))
+                    debug_print("KoboTouch:_upload_cover - Image folder does not exist. Creating path='%s'" % (image_dir))
                     os.makedirs(image_dir)
 
                 with lopen(cover, 'rb') as f:

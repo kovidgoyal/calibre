@@ -400,7 +400,7 @@ class Diff(Dialog):
 
     def dir_diff(self, left, right, identical_msg=None):
         with self:
-            identical = self.apply_diff(identical_msg or _('The directories are identical'), *dir_diff(left, right))
+            identical = self.apply_diff(identical_msg or _('The folders are identical'), *dir_diff(left, right))
             self.view.finalize()
         if identical:
             self.reject()

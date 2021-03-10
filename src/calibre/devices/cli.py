@@ -258,7 +258,7 @@ def main():
             for book in dev.books(oncard='cardb'):
                 print(book)
         elif command == "mkdir":
-            parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with / or card:/")
+            parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a folder on the device\n\npath must begin with / or card:/")
             if len(args) != 1:
                 parser.print_help()
                 sys.exit(1)
@@ -268,7 +268,7 @@ def main():
             parser.add_option(
                 "-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.",  # noqa
                 dest="ll", action="store_true", default=False)
-            parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted",
+            parser.add_option("-R", help="Recursively list subfolders encountered. /dev and /proc are omitted",
                               dest="recurse", action="store_true", default=False)
             parser.remove_option("-h")
             parser.add_option("-h", "--human-readable", help="show sizes in human readable format", dest="hrs", action="store_true", default=False)
@@ -285,7 +285,7 @@ def main():
             "dev:mountpoint/my/path\n"+\
             "where mountpoint is one of / or carda: or cardb:/\n\n"+\
             "source must point to a file for which you have read permissions\n"+\
-            "destination must point to a file or directory for which you have write permissions"
+            "destination must point to a file or folder for which you have write permissions"
             parser = OptionParser(usage=usage)
             parser.add_option('-f', '--force', dest='force', action='store_true', default=False,
                               help='Overwrite the destination file if it exists already.')
@@ -336,7 +336,7 @@ def main():
             outfile = sys.stdout
             dev.get_file(path, outfile)
         elif command == "rm":
-            parser = OptionParser(usage="usage: %prog rm path\nDelete files from the device\n\npath should point to a file or empty directory on the device "+
+            parser = OptionParser(usage="usage: %prog rm path\nDelete files from the device\n\npath should point to a file or empty folder on the device "+
                                   "and must begin with / or card:/\n\n"+
                                   "rm will DELETE the file. Be very CAREFUL")
             options, args = parser.parse_args(args)

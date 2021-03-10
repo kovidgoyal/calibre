@@ -202,9 +202,9 @@ class InputFormatPlugin(Plugin):
         '''
         This method must be implemented in sub-classes. It must return
         the path to the created OPF file or an :class:`OEBBook` instance.
-        All output should be contained in the current directory.
+        All output should be contained in the current folder.
         If this plugin creates files outside the current
-        directory they must be deleted/marked for deletion before this method
+        folder they must be deleted/marked for deletion before this method
         returns.
 
         :param stream:   A file like object that contains the input file.
@@ -328,7 +328,7 @@ class OutputFormatPlugin(Plugin):
 
         :param output: Either a file like object or a string. If it is a string
                        it is the path to a folder that may or may not exist. The output
-                       plugin should write its output into that directory. If it is a file like
+                       plugin should write its output into that folder. If it is a file like
                        object, the output plugin should write its output into the file.
         :param input_plugin: The input plugin that was used at the beginning of
                              the conversion pipeline.

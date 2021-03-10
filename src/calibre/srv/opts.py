@@ -166,7 +166,7 @@ raw_options = (
     _('Path to user database'),
     'userdb', None,
     _('Path to a file in which to store the user and password information. Normally a'
-    ' file in the calibre configuration directory is used.'),
+    ' file in the calibre configuration folder is used.'),
 
     _('Choose the type of authentication used'), 'auth_mode', Choices('auto', 'basic', 'digest'),
     _('Set the HTTP authentication mode used by the server. Set to "basic" if you are'

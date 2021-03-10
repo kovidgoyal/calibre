@@ -21,7 +21,7 @@ def option_parser(get_parser, args):
 %prog backup_metadata [options]
 
 Backup the metadata stored in the database into individual OPF files in each
-books directory. This normally happens automatically, but you can run this
+books folder. This normally happens automatically, but you can run this
 command to force re-generation of the OPF files, with the --all option.
 
 Note that there is normally no need to do this, as the OPF files are backed up

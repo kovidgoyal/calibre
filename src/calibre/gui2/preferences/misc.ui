@@ -107,7 +107,7 @@
    <item row="9" column="0" colspan="2">
     <widget class="QPushButton" name="button_open_config_dir">
      <property name="text">
-      <string>Open calibre &amp;configuration directory</string>
+      <string>Open calibre &amp;configuration folder</string>
      </property>
     </widget>
    </item>

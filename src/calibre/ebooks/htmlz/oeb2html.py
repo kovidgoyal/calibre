@@ -32,7 +32,7 @@ class OEB2HTML(object):
     content. Also, callers should use oeb2html to get the transformed html.
     links and images can be retrieved after calling oeb2html to get the mapping
     of OEB links and images to the new names used in the html returned by oeb2html.
-    Images will always be referenced as if they are in an images directory.
+    Images will always be referenced as if they are in an images folder.
 
     Use get_css to get the CSS classes for the OEB document as a string.
     '''

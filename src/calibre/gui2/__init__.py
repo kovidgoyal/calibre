@@ -804,8 +804,8 @@ def show_temp_dir_error(err):
     extra = _('Click "Show details" for more information.')
     if 'CALIBRE_TEMP_DIR' in os.environ:
         extra = _('The %s environment variable is set. Try unsetting it.') % 'CALIBRE_TEMP_DIR'
-    error_dialog(None, _('Could not create temporary directory'), _(
-        'Could not create temporary directory, calibre cannot start.') + ' ' + extra, det_msg=traceback.format_exc(), show=True)
+    error_dialog(None, _('Could not create temporary folder'), _(
+        'Could not create temporary folder, calibre cannot start.') + ' ' + extra, det_msg=traceback.format_exc(), show=True)
 
 
 def setup_hidpi():
@@ -908,7 +908,7 @@ class Application(QApplication):
         except EnvironmentError as err:
             if not headless:
                 show_temp_dir_error(err)
-            raise SystemExit('Failed to create temporary directory')
+            raise SystemExit('Failed to create temporary folder')
         if DEBUG and not headless:
             prints('devicePixelRatio:', self.devicePixelRatio())
             s = self.primaryScreen()

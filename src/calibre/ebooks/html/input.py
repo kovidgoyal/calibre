@@ -43,7 +43,7 @@ class Link(object):
     def __init__(self, url, base):
         '''
         :param url:  The url this link points to. Must be an unquoted unicode string.
-        :param base: The base directory that relative URLs are with respect to.
+        :param base: The base folder that relative URLs are with respect to.
                      Must be a unicode string.
         '''
         assert isinstance(url, unicode_type) and isinstance(base, unicode_type)

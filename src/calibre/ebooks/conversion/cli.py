@@ -33,8 +33,8 @@ output_file. output_file can also be of the special format .EXT where \
 EXT is the output file extension. In this case, the name of the output \
 file is derived from the name of the input file. Note that the filenames must \
 not start with a hyphen. Finally, if output_file has no extension, then \
-it is treated as a directory and an "open e-book" (OEB) consisting of HTML \
-files is written to that directory. These files are the files that would \
+it is treated as a folder and an "open e-book" (OEB) consisting of HTML \
+files is written to that folder. These files are the files that would \
 normally have been passed to the output plugin.
 
 After specifying the input \

@@ -597,7 +597,7 @@ class RecursiveFetcher(object):
 def option_parser(usage=_('%prog URL\n\nWhere URL is for example https://google.com')):
     parser = OptionParser(usage=usage)
     parser.add_option('-d', '--base-dir',
-                      help=_('Base directory into which URL is saved. Default is %default'),
+                      help=_('Base folder into which URL is saved. Default is %default'),
                       default='.', type='string', dest='dir')
     parser.add_option('-t', '--timeout',
                       help=_('Timeout in seconds to wait for a response from the server. Default: %default s'),

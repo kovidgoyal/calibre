@@ -87,13 +87,13 @@ class TrimImage(QDialog):
             w = rect.width()
             h = rect.height()
             text = f'{int(w)}x{int(h)}'
-            text = _('Size: {0} Aspect ratio: {1:.2g}').format(text, w / h)
+            text = _('Size: {0}px Aspect ratio: {1:.2g}').format(text, w / h)
         else:
             text = ''
         self.tr_sz.setText(text)
 
     def image_changed(self, qimage):
-        self.sz.setText('\xa0' + _('Size:') + ' ' + '%dx%d' % (qimage.width(), qimage.height()))
+        self.sz.setText('\xa0' + _('Size: {0}x{1}px').format(qimage.width(), qimage.height()))
 
     def cleanup(self):
         self.canvas.break_cycles()
