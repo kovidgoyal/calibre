@@ -480,6 +480,11 @@ class SelectionBar:
             self.hide_editor(True)
         if self.state is WAITING:
             now = window.performance.now()
+            if ev.shiftKey:
+                pos = {'x': ev.clientX, 'y': ev.clientY}
+                map_to_iframe_coords(pos, get_margins())
+                self.send_message('extend-to-point', pos=pos)
+                return
             if self.last_double_click_at and now - self.last_double_click_at < 500:
                 self.send_message('extend-to-paragraph')
                 return

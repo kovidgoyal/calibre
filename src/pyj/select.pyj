@@ -197,6 +197,16 @@ def move_end_of_selection(pos, start):
     p = caret_position_from_point(pos.x, pos.y)
     if p:
         r = sel.getRangeAt(0)
+        if start is None:
+            q = document.createRange()
+            q.setStart(p.offsetNode, p.offset)
+            q.setEnd(p.offsetNode, p.offset)
+            if r.compareBoundaryPoints(window.Range.START_TO_START, q) >= 0:
+                start = True
+            elif r.compareBoundaryPoints(window.Range.END_TO_END, q) <= 0:
+                start = False
+            else:
+                return
         if start:
             if r.startContainer is not p.offsetNode or r.startOffset is not p.offset:
                 r.setStart(p.offsetNode, p.offset)
