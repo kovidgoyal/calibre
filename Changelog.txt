@@ -27,7 +27,7 @@
 
 :: new features
 
-- [1917967] E-book Viewer: Allow editing the current book by pressing Ctrl+Alt+e or adding a button for it to the viewer tool bar
+- [1917967] E-book Viewer: Allow editing the current book by pressing Ctrl+d or adding a button for it to the viewer tool bar
 
 - Edit book: Add a command line flag to allow selecting the specified text when opening a book
 
