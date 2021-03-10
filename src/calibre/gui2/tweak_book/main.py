@@ -34,7 +34,7 @@ files inside the book which will be opened for editing automatically.
         )
     )
     setup_gui_option_parser(parser)
-    parser.add_option('--select-text', default=None, help=_('The text to select on open'))
+    parser.add_option('--select-text', default=None, help=_('The text to select in the book when it is opened for editing'))
     return parser
 
 

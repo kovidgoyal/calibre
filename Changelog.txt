@@ -23,6 +23,31 @@
 # - title by author
 # }}}
 
+{{{ 5.13.0 2021-03-10
+
+:: new features
+
+- [1917967] E-book Viewer: Allow editing the current book by pressing Ctrl+Alt+e or adding a button for it to the viewer tool bar
+
+- Edit book: Add a command line flag to allow selecting the specified text when opening a book
+
+- [1917363] Edit metadata dialog: When trimming covers, show the size of the current trim region
+
+:: bug fixes
+
+- Fix a regression in the previous release that broke sending of emails with text longer than 900 characters
+
+- E-book viewer: Fix using keyboard to extend selection not turning pages
+
+- [1918030] Fix searching for items from the Manage dialog not working correctly
+
+- [1917386] PDF input: Replace paragraph separator characters with spaces
+
+:: improved recipes
+- The Conversation
+
+}}}
+
 {{{ 5.12.0 2021-02-26
 
 :: new features
