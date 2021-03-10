@@ -230,7 +230,7 @@ Save to disk
 
     4. **Save only *<your preferred>* format to disk in a single folder**: Saves the selected books to disk in a single folder but only in your preferred e-book format. You can set your preferred format in :guilabel:`Preferences->Interface->Behaviour->Preferred output format`
 
-    5. **Save single format to disk...**: Saves the selected books to disk in the folder structure as shown in (1.) but only in the format you select from the pop-out list.
+    5. **Save single format to disk...**: Saves the selected books to disk in the folder structure as shown in (1.) but only in the format you select from the popup list.
 
 .. _connect_share:
 
