@@ -616,7 +616,8 @@ class _Parser(object):
                 return AssignNode(arguments[0].name, arguments[1])
             if id_ == 'arguments' or id_ == 'globals' or id_ == 'set_globals':
                 new_args = []
-                for arg in arguments:
+                for arg_list in arguments:
+                    arg = arg_list[0]
                     if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
                         self.error(_("Parameters to '{}' must be "
                                      "variables or assignments").format(id_))
