@@ -509,7 +509,8 @@ def jump_to_anchor(name):
 def scrollable_element(elem):
     # bounding rect calculation for an inline element containing a block
     # element that spans multiple columns is incorrect. Detet the common case
-    # of this and avoid it.
+    # of this and avoid it. See https://bugs.launchpad.net/calibre/+bug/1918437
+    # for a test case.
     if not in_paged_mode() or window.getComputedStyle(elem).display.indexOf('inline') < 0 or not elem.firstElementChild:
         return elem
     if window.getComputedStyle(elem.firstElementChild).display.indexOf('block') > -1:
