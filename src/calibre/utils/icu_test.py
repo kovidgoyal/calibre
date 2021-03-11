@@ -13,13 +13,13 @@ from polyglot.builtins import iteritems, unicode_type, cmp
 
 
 @contextmanager
-def make_collation_func(name, locale, numeric=True, template='_sort_key_template', func='strcmp'):
-    c = icu._icu.Collator(locale)
-    cname = '%s_test_collator%s' % (name, template)
-    setattr(icu, cname, c)
-    c.numeric = numeric
-    yield icu._make_func(getattr(icu, template), name, collator=cname, collator_func='not_used_xxx', func=func)
-    delattr(icu, cname)
+def make_collation_func(name, locale, numeric=True, maker=icu.make_sort_key_func, func='strcmp'):
+    def coll():
+        ans = icu._icu.Collator(locale)
+        ans.numeric = numeric
+        return ans
+
+    yield maker(coll, func)
 
 
 class TestICU(unittest.TestCase):
@@ -46,23 +46,23 @@ class TestICU(unittest.TestCase):
         self.ae(0, icu.strcmp(s, s.encode(sys.getdefaultencoding())))
 
         # Test locales
-        with make_collation_func('dsk', 'de', func='sort_key') as dsk:
+        with make_collation_func('dsk', 'de', maker=icu.make_sort_key_func, func='sort_key') as dsk:
             self.ae(german_good, sorted(german, key=dsk))
-            with make_collation_func('dcmp', 'de', template='_strcmp_template') as dcmp:
+            with make_collation_func('dcmp', 'de', maker=icu.make_two_arg_func, func='strcmp') as dcmp:
                 for x in german:
                     for y in german:
                         self.ae(cmp(dsk(x), dsk(y)), dcmp(x, y))
 
-        with make_collation_func('fsk', 'fr', func='sort_key') as fsk:
+        with make_collation_func('fsk', 'fr', maker=icu.make_sort_key_func, func='sort_key') as fsk:
             self.ae(french_good, sorted(french, key=fsk))
-            with make_collation_func('fcmp', 'fr', template='_strcmp_template') as fcmp:
+            with make_collation_func('fcmp', 'fr', maker=icu.make_two_arg_func) as fcmp:
                 for x in french:
                     for y in french:
                         self.ae(cmp(fsk(x), fsk(y)), fcmp(x, y))
 
-        with make_collation_func('ssk', 'es', func='sort_key') as ssk:
+        with make_collation_func('ssk', 'es', maker=icu.make_sort_key_func, func='sort_key') as ssk:
             self.assertNotEqual(ssk('peña'), ssk('pena'))
-            with make_collation_func('scmp', 'es', template='_strcmp_template') as scmp:
+            with make_collation_func('scmp', 'es', maker=icu.make_two_arg_func) as scmp:
                 self.assertNotEqual(0, scmp('pena', 'peña'))
 
         for k, v in iteritems({u'pèché': u'peche', u'flüße':u'Flusse', u'Štepánek':u'ŠtepaneK'}):

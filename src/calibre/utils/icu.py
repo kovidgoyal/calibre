@@ -110,109 +110,94 @@ def case_sensitive_collator():
         _case_sensitive_collator.upper_first = True
     return _case_sensitive_collator
 
-# Templates that will be used to generate various concrete
-# function implementations based on different collators, to allow lazy loading
-# of collators, with maximum runtime performance
 
+def make_sort_key_func(collator_function, func_name='sort_key'):
+    func = None
 
-_sort_key_template = '''
-def {name}(obj):
-    try:
+    def sort_key(a):
+        nonlocal func
+        if func is None:
+            func = getattr(collator_function(), func_name)
+
         try:
-            return {collator}.{func}(obj)
-        except AttributeError:
-            pass
-        return {collator_func}().{func}(obj)
-    except TypeError:
-        if isinstance(obj, bytes):
-            try:
-                obj = obj.decode(sys.getdefaultencoding())
-            except ValueError:
-                return obj
-            return {collator}.{func}(obj)
-    return b''
-'''
+            return func(a)
+        except TypeError:
+            if isinstance(a, bytes):
+                try:
+                    a = a.decode(sys.getdefaultencoding())
+                except ValueError:
+                    return a
+                return func(a)
+        return b''
 
-_strcmp_template = '''
-def {name}(a, b):
-    try:
+    return sort_key
+
+
+def make_two_arg_func(collator_function, func_name='strcmp'):
+    func = None
+
+    def two_args(a, b):
+        nonlocal func
+        if func is None:
+            func = getattr(collator_function(), func_name)
+
         try:
-            return {collator}.{func}(a, b)
-        except AttributeError:
-            pass
-        return {collator_func}().{func}(a, b)
-    except TypeError:
-        if isinstance(a, bytes):
-            try:
-                a = a.decode(sys.getdefaultencoding())
-            except ValueError:
-                return cmp(a, b)
-        elif a is None:
-            a = u''
-        if isinstance(b, bytes):
-            try:
-                b = b.decode(sys.getdefaultencoding())
-            except ValueError:
-                return cmp(a, b)
-        elif b is None:
-            b = u''
-        return {collator}.{func}(a, b)
-'''
+            return func(a, b)
+        except TypeError:
+            if isinstance(a, bytes):
+                try:
+                    a = a.decode(sys.getdefaultencoding())
+                except Exception:
+                    return cmp(a, b)
+            elif a is None:
+                a = ''
+            if isinstance(b, bytes):
+                try:
+                    b = b.decode(sys.getdefaultencoding())
+                except Exception:
+                    return cmp(a, b)
+            elif b is None:
+                b = ''
+            return func(a, b)
 
-_change_case_template = '''
-def {name}(x):
-    try:
+    return two_args
+
+
+def make_change_case_func(which):
+
+    def change_case(x):
         try:
-            return _icu.change_case(x, _icu.{which}, _locale)
-        except NotImplementedError:
-            pass
-        collator()  # sets _locale
-        return _icu.change_case(x, _icu.{which}, _locale)
-    except TypeError:
-        if isinstance(x, bytes):
             try:
-                x = x.decode(sys.getdefaultencoding())
-            except ValueError:
-                return x
-            return _icu.change_case(x, _icu.{which}, _locale)
-        raise
-'''
-
-
-def _make_func(template, name, **kwargs):
-    l = globals()
-    kwargs['name'] = name
-    kwargs['func'] = kwargs.get('func', 'sort_key')
-    exec(template.format(**kwargs), l)
-    return l[name]
-
-
+                return _icu.change_case(x, which, _locale)
+            except NotImplementedError:
+                pass
+            collator()  # sets _locale
+            return _icu.change_case(x, which, _locale)
+        except TypeError:
+            if isinstance(x, bytes):
+                try:
+                    x = x.decode(sys.getdefaultencoding())
+                except ValueError:
+                    return x
+                return _icu.change_case(x, which, _locale)
+            raise
+    return change_case
 # }}}
 
+
 # ################ The string functions ########################################
-sort_key = _make_func(_sort_key_template, 'sort_key', collator='_sort_collator', collator_func='sort_collator')
+sort_key = make_sort_key_func(sort_collator)
+numeric_sort_key = make_sort_key_func(numeric_collator)
+primary_sort_key = make_sort_key_func(primary_collator)
+case_sensitive_sort_key = make_sort_key_func(case_sensitive_collator)
+collation_order = make_sort_key_func(sort_collator, 'collation_order')
 
-numeric_sort_key = _make_func(_sort_key_template, 'numeric_sort_key', collator='_numeric_collator', collator_func='numeric_collator')
-
-primary_sort_key = _make_func(_sort_key_template, 'primary_sort_key', collator='_primary_collator', collator_func='primary_collator')
-
-case_sensitive_sort_key = _make_func(_sort_key_template, 'case_sensitive_sort_key',
-                                     collator='_case_sensitive_collator', collator_func='case_sensitive_collator')
-
-collation_order = _make_func(_sort_key_template, 'collation_order', collator='_sort_collator', collator_func='sort_collator', func='collation_order')
-
-strcmp = _make_func(_strcmp_template, 'strcmp', collator='_sort_collator', collator_func='sort_collator', func='strcmp')
-
-case_sensitive_strcmp = _make_func(
-    _strcmp_template, 'case_sensitive_strcmp', collator='_case_sensitive_collator', collator_func='case_sensitive_collator', func='strcmp')
-
-primary_strcmp = _make_func(_strcmp_template, 'primary_strcmp', collator='_primary_collator', collator_func='primary_collator', func='strcmp')
-
-upper = _make_func(_change_case_template, 'upper', which='UPPER_CASE')
-
-lower = _make_func(_change_case_template, 'lower', which='LOWER_CASE')
-
-title_case = _make_func(_change_case_template, 'title_case', which='TITLE_CASE')
+strcmp = make_two_arg_func(sort_collator)
+case_sensitive_strcmp = make_two_arg_func(case_sensitive_collator)
+primary_strcmp = make_two_arg_func(primary_collator)
+upper = make_change_case_func(_icu.UPPER_CASE)
+lower = make_change_case_func(_icu.LOWER_CASE)
+title_case = make_change_case_func(_icu.TITLE_CASE)
 
 
 def capitalize(x):
@@ -227,20 +212,13 @@ try:
 except AttributeError:  # For people running from source
     swapcase = lambda x:x.swapcase()
 
-find = _make_func(_strcmp_template, 'find', collator='_collator', collator_func='collator', func='find')
-
-primary_find = _make_func(_strcmp_template, 'primary_find', collator='_primary_collator', collator_func='primary_collator', func='find')
-
-contains = _make_func(_strcmp_template, 'contains', collator='_collator', collator_func='collator', func='contains')
-
-primary_contains = _make_func(_strcmp_template, 'primary_contains', collator='_primary_collator', collator_func='primary_collator', func='contains')
-
-startswith = _make_func(_strcmp_template, 'startswith', collator='_collator', collator_func='collator', func='startswith')
-
-primary_startswith = _make_func(_strcmp_template, 'primary_startswith', collator='_primary_collator', collator_func='primary_collator', func='startswith')
-
+find = make_two_arg_func(collator, 'find')
+primary_find = make_two_arg_func(primary_collator, 'find')
+contains = make_two_arg_func(collator, 'contains')
+primary_contains = make_two_arg_func(primary_collator, 'contains')
+startswith = make_two_arg_func(collator, 'startswith')
+primary_startswith = make_two_arg_func(primary_collator, 'startswith')
 safe_chr = _icu.chr
-
 ord_string = _icu.ord_string
 
 
