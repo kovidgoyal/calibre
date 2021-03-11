@@ -657,7 +657,7 @@ class Cache(object):
             self.backend.prefs.set_namespaced(namespace, name, val)
             return
         self.backend.prefs.set(name, val)
-        if name == 'grouped_search_terms':
+        if name in ('grouped_search_terms', 'virtual_libraries'):
             self._clear_search_caches()
         if name in dynamic_category_preferences:
             self._initialize_dynamic_categories()
