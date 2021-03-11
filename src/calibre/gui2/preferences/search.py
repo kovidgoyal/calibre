@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import QApplication
+from qt.core import QApplication, QTimer
 
 from calibre.db.categories import find_categories
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
@@ -34,9 +34,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('limit_search_columns', prefs)
         r('use_primary_find_in_search', prefs)
         r('case_sensitive', prefs)
-        r('limit_search_columns_to', prefs, setting=CommaSeparatedList)
         fl = db.field_metadata.get_search_terms()
-        self.opt_limit_search_columns_to.update_items_cache(fl)
+        r('limit_search_columns_to', prefs, setting=CommaSeparatedList, choices=fl)
         self.clear_history_button.clicked.connect(self.clear_histories)
 
         self.gst_explanation.setText('<p>' + _(
@@ -71,7 +70,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         fm = db.new_api.field_metadata
         categories = [x[0] for x in find_categories(fm) if fm[x[0]]['search_terms']]
         self.gst_value.update_items_cache(categories)
-        self.fill_gst_box(select=None)
+        QTimer.singleShot(0, self.fill_gst_box)
 
         self.user_category_layout.setContentsMargins(0, 30, 0, 0)
         self.gst_names.lineEdit().setPlaceholderText(

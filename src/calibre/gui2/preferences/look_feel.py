@@ -501,7 +501,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
           choices=sorted(choices, key=sort_key))
 
         choices -= {'authors', 'publisher', 'formats', 'news', 'identifiers'}
-        self.opt_categories_using_hierarchy.update_items_cache(choices)
         r('categories_using_hierarchy', db.prefs, setting=CommaSeparatedList,
           choices=sorted(choices, key=sort_key))
 
