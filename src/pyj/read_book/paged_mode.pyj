@@ -515,7 +515,7 @@ def scrollable_element(elem):
     # for a test case.
     if not in_paged_mode() or window.getComputedStyle(elem).display.indexOf('inline') < 0 or not elem.firstElementChild:
         return elem
-    if window.getComputedStyle(elem.firstElementChild).display.indexOf('block') > -1:
+    if window.getComputedStyle(elem.firstElementChild).display.indexOf('block') > -1 and elem.getBoundingClientRect().top < -100:
         return elem.firstElementChild
     return elem
 
