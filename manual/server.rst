@@ -193,10 +193,7 @@ Browser support
 
 The new calibre server makes lots of use of advanced HTML 5 and CSS 3 features.
 As such it requires an up-to-date browser to use. It has been tested on Android
-Chrome and iOS Safari as well as Chrome and Firefox on the desktop. It is known
-not to work with Internet Explorer and Microsoft Edge (hopefully Edge will
-start working when Microsoft gets around to implementing a few missing
-standards).
+Chrome and iOS Safari as well as Chrome and Firefox on the desktop.
 
 The server is careful to use functionality that has either been already
 standardised or is on the standards track. As such if it does not currently

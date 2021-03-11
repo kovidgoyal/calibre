@@ -923,7 +923,7 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
     * Similarly, if the installer is failing/rolling and you have Microsoft PowerToys running, quit it.
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <https://www.wisecleaner.com>`_.
     * Try a clean install. That is, uninstall calibre, delete :file:`C:\\Program Files\\Calibre2` (or wherever you previously chose to install calibre). Then re-install calibre. Note that uninstalling does not touch your books or settings.
-    * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
+    * Try downloading the installer with an alternate browser. For example if you are using Microsoft Edge, try using Firefox or Chrome instead.
     * If you get an error about a missing DLL on Windows, then most likely, the
       permissions on your temporary folder are incorrect. Go to the folder
       :file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows explorer and then
@@ -993,7 +993,7 @@ How do I get calibre to use my HTTP proxy?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, calibre uses whatever proxy settings are set in your OS. Sometimes
-these are incorrect, for example, on Windows if you don't use Internet Explorer
+these are incorrect, for example, on Windows if you don't use Microsoft Edge
 then the proxy settings may not be up to date. You can tell calibre to use a
 particular proxy server by setting the ``http_proxy`` and ``https_proxy``
 environment variables. The format of the variable is:
