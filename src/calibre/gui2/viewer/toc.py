@@ -231,7 +231,7 @@ class TOC(QStandardItemModel):
     def find_items(self, query):
         for item in self.all_items:
             text = item.text()
-            if text and primary_contains(query, text):
+            if not query or (text and primary_contains(query, text)):
                 yield item
 
     def node_id_for_text(self, query):
