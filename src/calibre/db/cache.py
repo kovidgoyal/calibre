@@ -141,6 +141,7 @@ class Cache(object):
         self.format_metadata_cache = defaultdict(dict)
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
+        self.vls_for_books_cache = None
         self.dirtied_sequence = 0
         self.cover_caches = set()
         self.clear_search_cache_count = 0
@@ -249,6 +250,7 @@ class Cache(object):
     def clear_search_caches(self, book_ids=None):
         self.clear_search_cache_count += 1
         self._search_api.update_or_clear(self, book_ids)
+        self.vls_for_books_cache = None
 
     @read_api
     def last_modified(self):
@@ -2207,14 +2209,22 @@ class Cache(object):
 
     @read_api
     def virtual_libraries_for_books(self, book_ids):
-        libraries = self._pref('virtual_libraries', {})
-        ans = {book_id:[] for book_id in book_ids}
-        for lib, expr in iteritems(libraries):
-            books = self._search(expr)  # We deliberately dont use book_ids as we want to use the search cache
-            for book in book_ids:
-                if book in books:
-                    ans[book].append(lib)
-        return {k:tuple(sorted(v, key=sort_key)) for k, v in iteritems(ans)}
+        if self.vls_for_books_cache is None:
+            # Using a list is slightly faster than a set.
+            c = defaultdict(list)
+            libraries = self._pref('virtual_libraries', {})
+            for lib, expr in libraries.items():
+                for book in self._search(expr):
+                    c[book].append(lib)
+            self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
+        if not book_ids:
+            book_ids = self._all_book_ids()
+        # book_ids is usually 1 long. The loop will be faster than a comprehension
+        r = {}
+        default = ()
+        for b in book_ids:
+            r[b] = self.vls_for_books_cache.get(b, default)
+        return r
 
     @read_api
     def user_categories_for_books(self, book_ids, proxy_metadata_map=None):
