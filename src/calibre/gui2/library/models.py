@@ -1706,7 +1706,7 @@ class DeviceBooksModel(BooksModel):  # {{{
             text = self.headers[cname]
             return '<b>{}</b>: {}'.format(
                 prepare_string_for_xml(text),
-                prepare_string_for_xml(_('The lookup/search name is <i>{0}</i>').format(self.column_map[section])))
+                prepare_string_for_xml(_('The lookup/search name is')) + ' <i>{}</i>'.format(self.column_map[section]))
         if DEBUG and role == Qt.ItemDataRole.ToolTipRole and orientation == Qt.Orientation.Vertical:
             return (_('This book\'s UUID is "{0}"').format(self.db[self.map[section]].uuid))
         if role != Qt.ItemDataRole.DisplayRole:
