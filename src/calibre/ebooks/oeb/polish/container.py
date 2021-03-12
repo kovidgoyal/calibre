@@ -222,8 +222,8 @@ class ContainerBase(object):  # {{{
 class Container(ContainerBase):  # {{{
 
     '''
-    A container represents an Open E-Book as a folder full of files and an
-    opf file. There are two important concepts:
+    A container represents an open e-book as a folder full of files and an
+    OPF file. There are two important concepts:
 
         * The root folder. This is the base of the e-book. All the e-books
           files are inside this folder or in its sub-folders.
