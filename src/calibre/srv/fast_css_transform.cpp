@@ -78,6 +78,7 @@ class Token {
         TokenType type;
         std::u32string text;
         unsigned unit_at;
+		size_t out_pos;
 
         void clear() {
             type = TokenType::whitespace;
@@ -86,14 +87,33 @@ class Token {
         }
 
     public:
-        Token() : type(TokenType::whitespace), text(), unit_at(0) { text.reserve(16); }
-        Token(const TokenType type, const char32_t ch) : type(type), text(), unit_at(0) { text.reserve(16); text.push_back(ch); }
-        Token(const Token& other) : type(other.type), text(other.text), unit_at(other.unit_at) {} // copy constructor
-        Token(Token&& other) : type(other.type), text(std::move(other.text)), unit_at(other.unit_at) {} // move constructor
-        Token& operator=(const Token& other) { type = other.type; text = other.text; unit_at = other.unit_at; return *this; } // copy assignment
-        Token& operator=(Token&& other) { type = other.type; text = std::move(other.text); unit_at = other.unit_at; return *this; } // move assignment
+        Token() :
+			type(TokenType::whitespace), text(), unit_at(0), out_pos(0) {
+				text.reserve(16);
+			}
+
+        Token(const TokenType type, const char32_t ch, size_t out_pos) :
+			type(type), text(), unit_at(0), out_pos(out_pos) {
+				text.reserve(16);
+				text.push_back(ch);
+			}
+
+        Token(const Token& other) :
+			type(other.type), text(other.text), unit_at(other.unit_at), out_pos(other.out_pos) {} // copy constructor
+
+        Token(Token&& other) :
+			type(other.type), text(std::move(other.text)), unit_at(other.unit_at), out_pos(other.out_pos) {} // move constructor
+
+        Token& operator=(const Token& other) { // copy assignment
+			type = other.type; text = other.text; unit_at = other.unit_at; out_pos = other.out_pos; return *this;
+		}
+
+        Token& operator=(Token&& other) { // move assignment
+			type = other.type; text = std::move(other.text); unit_at = other.unit_at; out_pos = other.out_pos; return *this;
+		}
 
         void set_type(const TokenType q) { type = q; }
+		void set_output_position(const size_t val) { out_pos = val; }
         bool is_type(const TokenType q) const { return type == q; }
         void add_char(const char32_t ch) { text.push_back(ch); }
         void mark_unit() { unit_at = text.size(); }
@@ -120,22 +140,33 @@ class TokenQueue {
     private:
         std::stack<Token> pool;
         std::vector<Token> queue;
+        std::u32string out;
 
         void new_token(const TokenType type, const char32_t ch = 0) {
-            if (pool.empty()) queue.emplace_back(type, ch);
+            if (pool.empty()) queue.emplace_back(type, ch, current_output_position());
             else {
                 queue.push_back(std::move(pool.top())); pool.pop();
                 queue.back().set_type(type);
+                queue.back().set_output_position(current_output_position());
                 if (ch) queue.back().add_char(ch);
             }
         }
+
+		size_t current_output_position() const { return out.size(); }
 
         void add_char_of_type(const TokenType type, const char32_t ch) {
             if (!queue.empty() && queue.back().is_type(type)) queue.back().add_char(ch);
             else new_token(type, ch);
         }
+
     public:
-        TokenQueue() : pool(), queue() {}
+        TokenQueue(const size_t src_sz) : pool(), queue(), out() { out.reserve(src_sz * 2); }
+
+		void rewind_output() { out.pop_back(); }
+
+        void write_to_output(const char32_t what) { out.push_back(what); }
+
+		void swap_result_to(std::u32string &result) { out.swap(result); }
 
         bool current_token_text_equals_case_insensitive(const char *lowercase_text) const {
             if (queue.empty()) return false;
@@ -266,7 +297,6 @@ class Parser {
         std::stack<ParseState> states;
         char escape_buf[16];
         size_t escape_buf_pos, declaration_pos;
-        std::u32string out;
         TokenQueue token_queue;
         InputStream input;
 
@@ -275,8 +305,8 @@ class Parser {
         bool qualified_rules_allowed() const { return block_types.top()[QUALIFIED_RULES_ALLOWED]; }
 
         // testing stream contents {{{
-        void rewind_output() { out.pop_back(); }
-        void write_to_output(const char32_t what) { out.push_back(what); }
+        void rewind_output() { token_queue.rewind_output(); }
+        void write_to_output(const char32_t what) { token_queue.write_to_output(what); }
         void reconsume() { input.rewind(); rewind_output(); }
 
         char32_t peek(int which = 0) const { return which < 0 ? ch : input.peek(which); }
@@ -494,7 +524,7 @@ class Parser {
         }
         // }}}
 
-        // hash {{{
+        // at_keyword {{{
         void enter_at_keyword() {
             states.push(ParseState::at_keyword);
             token_queue.add_at_keyword();
@@ -602,9 +632,8 @@ class Parser {
         Parser(const char32_t *src, const size_t src_sz, const bool is_declaration) :
             ch(0), end_string_with('"'), prev_ch(0), block_types(), states(), escape_buf(),
             escape_buf_pos(0), declaration_pos(0),
-            out(), token_queue(), input(src, src_sz)
+            token_queue(src_sz), input(src, src_sz)
         {
-            out.reserve(src_sz * 2);
             BlockTypeFlags initial_block_type;
             initial_block_type.set(DECLARATIONS_ALLOWED);
             if (!is_declaration) {
@@ -620,7 +649,7 @@ class Parser {
                 if (!ch) break;
                 dispatch_current_char();
             }
-            out.swap(result);
+			token_queue.swap_result_to(result);
         }
 
 };
