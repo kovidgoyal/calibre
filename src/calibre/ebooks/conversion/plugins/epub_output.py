@@ -125,6 +125,12 @@ class EPUBOutput(OutputFormatPlugin):
                 ' actually need it.')
         ),
 
+        OptionRecommendation(name='primary_writing_mode', recommended_value=None,
+            help=_('The `primary-writing-mode` metadata for controlling page rendering order,'
+                ' reading mode and reader navigation. Valid values are: %s' %
+                ['horizontal-lr', 'horizontal-rl', 'vertical-lr', 'vertical-rl'])
+        ),
+
         }
 
     recommendations = {('pretty_print', True, OptionRecommendation.HIGH)}
@@ -235,6 +241,12 @@ class EPUBOutput(OutputFormatPlugin):
             from uuid import uuid4
             uuid = unicode_type(uuid4())
             oeb.metadata.add('identifier', uuid, scheme='uuid', id=uuid)
+
+        valid_writing_mode = ['horizontal-lr', 'horizontal-rl', 'vertical-lr', 'vertical-rl']
+        if opts.primary_writing_mode in valid_writing_mode:
+            self.oeb.metadata.add('primary-writing-mode', opts.primary_writing_mode)
+            _, direction = opts.primary_writing_mode.split('-')
+            self.oeb.spine.page_progression_direction = 'rtl' if direction == 'rl' else 'ltr'
 
         if encrypted_fonts and not uuid.startswith('urn:uuid:'):
             # Apparently ADE requires this value to start with urn:uuid:

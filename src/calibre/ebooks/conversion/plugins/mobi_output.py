@@ -306,6 +306,11 @@ class AZW3Output(OutputFormatPlugin):
                 ' the book will not auto sync its last read position '
                 ' on multiple devices. Complain to Amazon.')
         ),
+        OptionRecommendation(name='primary_writing_mode', recommended_value=None,
+            help=_('The `primary-writing-mode` metadata for controlling page rendering order,'
+                ' reading mode and reader navigation. Valid values are: %s' %
+                ['horizontal-lr', 'horizontal-rl', 'vertical-lr', 'vertical-rl'])
+        ),
     }
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
@@ -317,6 +322,12 @@ class AZW3Output(OutputFormatPlugin):
         opts.mobi_periodical = self.is_periodical
         passthrough = getattr(opts, 'mobi_passthrough', False)
         remove_duplicate_anchors(oeb)
+
+        valid_writing_mode = ['horizontal-lr', 'horizontal-rl', 'vertical-lr', 'vertical-rl']
+        if opts.primary_writing_mode in valid_writing_mode:
+            self.oeb.metadata.add('primary-writing-mode', opts.primary_writing_mode)
+            _, direction = opts.primary_writing_mode.split('-')
+            self.oeb.spine.page_progression_direction = 'rtl' if direction == 'rl' else 'ltr'
 
         resources = Resources(self.oeb, self.opts, self.is_periodical,
                 add_fonts=True, process_images=False)
