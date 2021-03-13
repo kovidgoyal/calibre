@@ -3,19 +3,20 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 from book_list.item_list import build_list, create_item
-from dom import clear, ensure_id, svgicon
+from book_list.top_bar import create_top_bar, set_title
+from dom import clear, ensure_id
+from gettext import gettext as _
 from read_book.globals import runtime
 from read_book.prefs.colors import commit_colors, create_colors_panel
 from read_book.prefs.fonts import commit_fonts, create_fonts_panel
 from read_book.prefs.head_foot import commit_head_foot, create_head_foot_panel
 from read_book.prefs.keyboard import commit_keyboard, create_keyboard_panel
-from read_book.prefs.selection import commit_selection, create_selection_panel
-from read_book.prefs.scrolling import commit_scrolling, create_scrolling_panel
 from read_book.prefs.layout import commit_layout, create_layout_panel
 from read_book.prefs.misc import commit_misc, create_misc_panel
+from read_book.prefs.scrolling import commit_scrolling, create_scrolling_panel
+from read_book.prefs.selection import commit_selection, create_selection_panel
 from read_book.prefs.user_stylesheet import (
     commit_user_stylesheet, create_user_stylesheet_panel
 )
@@ -26,17 +27,19 @@ class Prefs:
     def __init__(self, container, close_func, on_change):
         self.close_func = close_func
         self.on_change = on_change
-        title = E.h2()
-        self.title_id = ensure_id(title)
+        self.main_title = _('Configure book reader')
         container.appendChild(E.div(
-            style='display: flex; justify-content: flex-start; padding: 1ex 1em; border-bottom: solid 1px currentColor',
-            E.div(svgicon('close'), onclick=self.onclose, style='cursor:pointer; margin-right: 1ex'),
-            title,
+            style='contain: paint; width: 100%; height: 100%; display: flex; flex-direction: column',
+            E.div(), E.div(style='flex-grow: 100; overflow: auto')
         ))
-        container.appendChild(E.div())
+        container = container.firstChild
+        create_top_bar(container.firstChild, title=self.main_title, icon='close', action=self.onclose)
         self.container_id = ensure_id(container.lastChild)
         self.stack = v'["top"]'
         self.display_top(container.lastChild)
+
+    def set_top_title(self, val):
+        set_title(self.container.parentNode, val)
 
     def onchange(self):
         self.on_change()
@@ -57,7 +60,7 @@ class Prefs:
             self.close_func()
 
     def create_panel(self, container, which, create_func, needs_onchange):
-        document.getElementById(self.title_id).textContent = self.title_map[which] or which
+        self.set_top_title(self.title_map[which] or which)
         if needs_onchange:
             create_func(container, self.onclose, self.cancel, self.onchange)
         else:
@@ -77,7 +80,7 @@ class Prefs:
         self.display_panel(which)
 
     def display_top(self, container):
-        document.getElementById(self.title_id).textContent = _('Configure book reader')
+        self.set_top_title(self.main_title)
         c = E.div()
         container.appendChild(c)
         self.title_map = {}
