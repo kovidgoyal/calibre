@@ -566,6 +566,9 @@ class SelectionBar:
         if ev.key is 'Escape':
             self.clear_selection()
             return
+        if ev.key is 'Delete':
+            self.remove_highlight()
+            return
         if ev.key and ev.key.toLowerCase() is 'c' and ev.ctrlKey:
             self.copy_to_clipboard()
             return
