@@ -26,7 +26,7 @@ def classes(classes):
 
 class JournalOfAccountancy(BasicNewsRecipe):
     __author__ = 'Jose Ortiz'
-    language = 'en_US'
+    language = 'en'
     title = u'Journal of Accountancy'
     description = (
         'A monthly journal of tax, financial reporting, auditing and other'
