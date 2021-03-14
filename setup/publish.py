@@ -177,6 +177,8 @@ class Manual(Command):
         if not parallel_build(jobs[1:], self.info):
             raise SystemExit(1)
         cwd = os.getcwd()
+        with open('resources/localization/website-languages.txt') as wl:
+            languages = frozenset(filter(None, (x.strip() for x in wl.read().split())))
         try:
             os.chdir(self.j(tdir, 'en', 'html'))
             for x in os.listdir(tdir):
@@ -184,7 +186,10 @@ class Manual(Command):
                     shutil.copytree(self.j(tdir, x, 'html'), x)
                     self.replace_with_symlinks(x)
                 else:
-                    os.symlink('..', 'en')
+                    os.symlink('.', 'en')
+            for x in languages:
+                if x and not os.path.exists(x):
+                    os.symlink('.', x)
             self.info(
                 'Built manual for %d languages in %s minutes' %
                 (len(jobs), int((time.time() - st) / 60.))
