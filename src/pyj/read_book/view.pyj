@@ -563,6 +563,10 @@ class View:
             self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='word')
         elif data.name is 'extend_selection_by_word':
             self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='word')
+        elif data.name is 'shrink_selection_by_line':
+            self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='line')
+        elif data.name is 'extend_selection_by_line':
+            self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='line')
         elif data.name is 'scrollspeed_increase':
             self.update_scroll_speed(SCROLL_SPEED_STEP)
         elif data.name is 'scrollspeed_decrease':
