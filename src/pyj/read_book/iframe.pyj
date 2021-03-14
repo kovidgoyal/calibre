@@ -429,9 +429,10 @@ class IframeBoss:
         if runtime.is_standalone_viewer:
             self.listen_for_image_double_clicks()
         self.content_ready = True
-        # this is the loading styles used to suppress scrollbars during load
-        # added in unserialize_html
-        document.head.removeChild(document.head.firstChild)
+        if document.head?.firstChild:
+            # this is the loading styles used to suppress scrollbars during load
+            # added in unserialize_html
+            document.head.removeChild(document.head.firstChild)
 
         csi = current_spine_item()
         if csi.initial_position:
