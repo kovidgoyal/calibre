@@ -18,7 +18,8 @@ def bookmark_get_cfi(b):
 def highlight_get_cfi(hl):
     cfi = hl.start_cfi
     if cfi:
-        return cfi[8:-1]
+        si = hl.spine_index or 9999999999
+        return f'/{si}/{cfi}'
 
 
 def sort_annot_list(annots, get_cfi_func):
