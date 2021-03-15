@@ -564,9 +564,12 @@ class SelectionBar:
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
         if ev.key is 'Escape':
-            self.clear_selection()
+            if self.state is EDITING:
+                self.hide_editor()
+            else:
+                self.clear_selection()
             return
-        if ev.key is 'Delete':
+        if ev.key is 'Delete' and self.state is WAITING:
             self.remove_highlight()
             return
         if ev.key and ev.key.toLowerCase() is 'c' and ev.ctrlKey:
