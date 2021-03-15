@@ -212,7 +212,7 @@ Note that you can use the prefix and suffix as well. If you want the number to a
 General Program Mode
 -----------------------------------
 
-General Program Mode replaces the template with a program written in the `template language`. The syntax of the language is defined by the following grammar::
+`General Program Mode` (`GPM`) replaces the template with a program written in the `template language`. The syntax of the language is defined by the following grammar::
 
     program         ::= 'program:' expression_list
     expression_list ::= top_expression [ ';' top_expression ]*
@@ -346,7 +346,7 @@ Examples:
 
 The following functions are available in addition to those described in :ref:`Single Function Mode <single_mode>`.
 
-In General Program Mode the functions described in `Single Function Mode` all require an additional first parameter specifying the value to operate upon. All parameters are expression_lists (see the grammar above).
+In `GPM` the functions described in `Single Function Mode` all require an additional first parameter specifying the value to operate upon. All parameters are expression_lists (see the grammar above).
 
     * ``add(x [, y]*)`` -- returns the sum of its arguments. Throws an exception if an argument is not a number. In most cases you can use the ``+`` operator instead of this function.
     * ``and(value [, value]*)`` -- returns the string "1" if all values are not empty, otherwise returns the empty string. You can have as many values as you want. In most cases you can use the ``&&`` operator instead of this function.  One reason not to replace ``and`` with ``&&`` is if short-circuiting can change the results because of side effects. For example, ``and(a='',b=5)`` will always do both assignments, where the ``&&`` operator won't do the second.
@@ -375,7 +375,7 @@ In General Program Mode the functions described in `Single Function Mode` all re
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables. This permits using the template processor to construct complex results from local variables. In Template Program Mode (see below), because the `{` and `}` characters are interpreted before the template is evaluated you must use `[[` for the `{` character and `]]` for the ``}`` character. They are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using Template Program Mode.
     * ``field(lookup_name)`` -- returns the value of the metadata field with lookup name ``lookup_name``.
     * ``field_exists(field_name)`` -- checks if a field (column) with the lookup name ``field_name`` exists, returning ``'1'`` if so and the empty string if not.
-    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to General Program Mode Templates. For example, the following program produces the same output as the above template::
+    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to `GPM` Templates. For example, the following program produces the same output as the above template::
 
             program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
 
@@ -479,26 +479,27 @@ In General Program Mode the functions described in `Single Function Mode` all re
 More complex programs in templates - Template Program Mode
 -------------------------------------------------------------
 
-Template Program Mode is a blend of :ref:`General Program Mode <general_mode>` and
-:ref:`Single Function Mode <single_mode>`. Template Program Mode differs from
-Single Function Mode in that it permits writing template expressions that refer to other metadata fields, use nested functions, modify variables, and do arithmetic. It differs from General Program Mode in that the template is contained between ``{`` and ``}`` characters and doesn't begin with the word ``program:``. The program portion of the template is a General Program Mode expression list.
+`Template Program Mode` (`TPM`) is a blend of :ref:`General Program Mode <general_mode>` and
+:ref:`Single Function Mode <single_mode>`. `TPM` differs from Single Function Mode in that it permits writing template expressions that refer to other metadata fields, use nested functions, modify variables, and do arithmetic. It differs from `General Program Mode` in that the template is contained between ``{`` and ``}`` characters and doesn't begin with the word ``program:``. The program portion of the template is a General Program Mode expression list.
 
 Example: assume you want a template to show the series for a book if it has one, otherwise show
-the value of a custom field #genre. You cannot do this in the :ref:`Single Function Mode <single_mode>` because you cannot make reference to another metadata field within a template expression. In Template Program Mode you can, as the following expression demonstrates::
+the value of a custom field #genre. You cannot do this in the :ref:`Single Function Mode <single_mode>` because you cannot make reference to another metadata field within a template expression. In `TPM` you can, as the following expression demonstrates::
 
     {#series:'ifempty($, field('#genre'))'}
 
 The example shows several things:
 
-    * Template Program Mode is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be in :ref:`Single Function Mode <single_mode>`.
+    * `TPM` is used if the expression begins with ``:'`` and ends with ``'``. Anything else is assumed to be in :ref:`Single Function Mode <single_mode>`.
     * the variable ``$`` stands for the field named in the template: the expression is operating upon, ``#series`` in this case.
     * functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field.
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
 
-All the functions listed under `Single Function Mode` and `General Program Mode` can be used in `Template Program Mode`.
+All the functions listed under `Single Function Mode` and `General Program Mode` can be used in `TPM`.
 
-As with `General Program Mode`, for functions documented under :ref:`Single Function Mode <single_mode>` you must supply the value the function is to act upon as the first parameter in addition to the documented parameters. In Template Program Mode you can use ``$`` to access the value specified by the ``lookup name`` for the template expression.
+In `TPM`, using ``{`` and ``}`` characters in string literals can lead to errors or unexpected results because they confuse the template processor. It tries to treat them as template boundaries, not characters. In some but not all cases you can replace a ``{`` with ``[[`` and a ``}`` with `]]`. Generally, if your program contains ``{`` and ``}`` characters then you should use `General Program Mode`.
+
+As with `General Program Mode`, for functions documented under :ref:`Single Function Mode <single_mode>` you must supply the value the function is to act upon as the first parameter in addition to the documented parameters. In `TPM` you can use ``$`` to access the value specified by the ``lookup name`` for the template expression.
 
 Stored General Program Mode Templates
 ----------------------------------------
@@ -552,21 +553,20 @@ A template can set a value in the ``globals`` dict using the template function::
 
 This function sets the ``globals`` dict key:value pair ``id:value`` where ``value`` is the value of the template local variable ``id``. If that local variable doesn't exist then ``value`` is set to the result of evaluating ``expression``.
 
-
 Notes on the difference between modes
 -----------------------------------------
 
-The three program modes, :ref:`Single Function Mode <single_mode>` (SFM), :ref:`Template Program Mode <template_mode>` (TPM), and :ref:`General Program Mode <general_mode>` (GPM), work differently. SFM is intended to be 'simple' so it hides a lot of programming language bits. For example, the value of the column is always passed as an 'invisible' first argument to a function included in the template. SFM also doesn't support the difference between variables and strings; all values are strings.
+The three program modes, :ref:`Single Function Mode <single_mode>` (SFM), :ref:`Template Program Mode <template_mode>` (`TPM`), and :ref:`General Program Mode <general_mode>` (`GPM`), work differently. SFM is intended to be 'simple' so it hides a lot of programming language bits. For example, the value of the column is always passed as an 'invisible' first argument to a function included in the template. SFM also doesn't support the difference between variables and strings; all values are strings.
 
 Example: the following SFM template returns either the series name or the string "no series"::
 
     {series:ifempty(no series)}
 
-The equivalent template in TPM is ::
+The equivalent template in `TPM` is ::
 
     {series:'ifempty($, 'no series')'}
 
-The equivalent template in GPM is::
+The equivalent template in `GPM` is::
 
     program: ifempty(field('series'), 'no series')
 
@@ -578,13 +578,15 @@ Nested functions, where a function calls another function to compute an argument
 
     {series:uppercase(substr(0,5))}
 
-TPM and GPM support nested functions. The above template in TPM would be::
+`TPM` and `GPM` support nested functions. The above template in `TPM` would be::
 
     {series:'uppercase(substr($, 0,5))'}
 
-In GPM it would be::
+In `GPM` it would be::
 
     program: uppercase(substr(field('series'), 0,5))
+
+As noted in the above :ref:`Template Program Mode <template_mode>` section, using ``{`` and ``}`` characters in `TPM` string literals can lead to errors or unexpected results because they confuse the template processor. It tries to treat them as template boundaries, not characters. In some but not all cases you can replace a ``{`` with ``[[`` and a ``}`` with `]]`. Generally, if your program contains ``{`` and ``}`` characters then you should use `General Program Mode`.
 
 
 User-defined Python template functions
