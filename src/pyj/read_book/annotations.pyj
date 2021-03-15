@@ -32,8 +32,8 @@ def sort_annot_list(annots, get_cfi_func):
             key_map[cfi] = cfi_sort_key(cfi)
     cfi_cmp = create_cfi_cmp(key_map)
     annots.sort(def (a, b):
-        acfi = get_cfi_func(a) or no_cfi
-        bcfi = get_cfi_func(b) or no_cfi
+        acfi = get_cfi_func(a)
+        bcfi = get_cfi_func(b)
         return cfi_cmp(acfi, bcfi)
     )
 
