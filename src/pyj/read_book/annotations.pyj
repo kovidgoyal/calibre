@@ -20,7 +20,7 @@ def highlight_get_cfi(hl):
     cfi = hl.start_cfi
     if cfi:
         si = f'/{hl.spine_index}' if hl.spine_index? else no_cfi
-        return f'{si}{cfi}'
+        return si + cfi
     return no_cfi
 
 
