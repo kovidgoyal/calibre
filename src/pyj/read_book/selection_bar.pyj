@@ -576,19 +576,11 @@ class SelectionBar:
             self.copy_to_clipboard()
             return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
-        if ev.key is 'ArrowRight' and ev.shiftKey and not ev.altKey:
-            sc_name = 'extend_selection_by_word'
-        elif ev.key is 'ArrowLeft' and ev.shiftKey and not ev.altKey:
-            sc_name = 'shrink_selection_by_word'
-
         if not sc_name:
             return
         forwarded = {
             'toggle_highlights': True,
             'edit_book': True,
-            'extend_selection_by_word': True, 'shrink_selection_by_word': True,
-            'extend_selection_by_character': True, 'shrink_selection_by_character': True,
-            'extend_selection_by_line': True, 'shrink_selection_by_line': True,
         }
         if sc_name is 'show_chrome':
             self.clear_selection()
@@ -600,7 +592,7 @@ class SelectionBar:
             self.book_search()
         elif sc_name is 'new_bookmark':
             self.new_bookmark()
-        elif forwarded[sc_name]:
+        elif sc_name.startsWith('shrink_selection_by_') or sc_name.startsWith('extend_selection_by_') or forwarded[sc_name]:
             self.view.on_handle_shortcut({'name': sc_name})
 
     def report_failed_edit_highlight(self, annot_id):
