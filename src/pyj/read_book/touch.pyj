@@ -26,6 +26,14 @@ def copy_touch(t):
         'active':True, 'mtimes':v'[now]', 'ctime':now, 'is_held':False, 'x_velocity': 0, 'y_velocity': 0
     }
 
+
+def update_touch(t, touch):
+    now = window.performance.now()
+    t.mtimes.push(now)
+    t.page_x.push(touch.pageX), t.page_y.push(touch.pageY)
+    t.viewport_x.push(touch.clientX), t.viewport_y.push(touch.clientY)
+
+
 def max_displacement(points):
     ans = 0
     first = points[0]
@@ -184,18 +192,12 @@ class TouchHandler:
         if len(self.ongoing_touches) > 0:
             self.start_hold_timer()
 
-    def update_touch(self, t, touch):
-        now = window.performance.now()
-        t.mtimes.push(now)
-        t.page_x.push(touch.pageX), t.page_y.push(touch.pageY)
-        t.viewport_x.push(touch.clientX), t.viewport_y.push(touch.clientY)
-
     def handle_touchmove(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
             t = self.ongoing_touches[touch_id(touch)]
             if t:
-                self.update_touch(t, touch)
+                update_touch(t, touch)
                 self.dispatch_gesture()
 
     def handle_touchend(self, ev):
@@ -204,7 +206,7 @@ class TouchHandler:
             t = self.ongoing_touches[touch_id(touch)]
             if t:
                 t.active = False
-                self.update_touch(t, touch)
+                update_touch(t, touch)
         self.prune_expired_touches()
         if not self.has_active_touches:
             self.dispatch_gesture()
@@ -285,8 +287,8 @@ main_touch_handler = BookTouchHandler()
 left_margin_handler = BookTouchHandler('left')
 right_margin_handler = BookTouchHandler('right')
 
-def install_handlers(elem, handler):
-    options = {'capture': True, 'passive': False}
+def install_handlers(elem, handler, passive):
+    options = {'capture': True, 'passive': v'!!passive'}
     elem.addEventListener('touchstart', handler.handle_touchstart, options)
     elem.addEventListener('touchmove', handler.handle_touchmove, options)
     elem.addEventListener('touchend', handler.handle_touchend, options)
