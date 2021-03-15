@@ -573,9 +573,9 @@ class SelectionBar:
             self.copy_to_clipboard()
             return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
-        if ev.key is 'ArrowRight' and ev.shiftKey:
+        if ev.key is 'ArrowRight' and ev.shiftKey and not ev.altKey:
             sc_name = 'extend_selection_by_word'
-        elif ev.key is 'ArrowLeft' and ev.shiftKey:
+        elif ev.key is 'ArrowLeft' and ev.shiftKey and not ev.altKey:
             sc_name = 'shrink_selection_by_word'
 
         if not sc_name:
@@ -584,6 +584,7 @@ class SelectionBar:
             'toggle_highlights': True,
             'edit_book': True,
             'extend_selection_by_word': True, 'shrink_selection_by_word': True,
+            'extend_selection_by_character': True, 'shrink_selection_by_character': True,
             'extend_selection_by_line': True, 'shrink_selection_by_line': True,
         }
         if sc_name is 'show_chrome':

@@ -326,6 +326,18 @@ def common_shortcuts():  # {{{
         _('Alter the current selection backwards by a word'),
     ),
 
+    'extend_selection_by_character': desc(
+        v"['Alt+Shift+ArrowRight']",
+        'ui',
+        _('Alter the current selection forward by a character'),
+    ),
+
+    'shrink_selection_by_character': desc(
+        v"['Alt+Shift+ArrowLeft']",
+        'ui',
+        _('Alter the current selection backwards by a character'),
+    ),
+
     'extend_selection_by_line': desc(
         v"['Ctrl+Shift+ArrowDown', 'Shift+ArrowDown']",
         'ui',

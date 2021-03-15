@@ -563,6 +563,10 @@ class View:
             self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='word')
         elif data.name is 'extend_selection_by_word':
             self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='word')
+        elif data.name is 'shrink_selection_by_character':
+            self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='character')
+        elif data.name is 'extend_selection_by_character':
+            self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='character')
         elif data.name is 'shrink_selection_by_line':
             self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='line')
         elif data.name is 'extend_selection_by_line':
