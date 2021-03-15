@@ -152,7 +152,7 @@ class DeviceManager(Thread):  # {{{
         self.unmanaged_devices = [x for x in self.devices if
                 x.MANAGES_DEVICE_PRESENCE]
         self.sleep_time     = sleep_time
-        self.connected_slot = connected_slot
+        self.connected_slot = connected_slot  # see DeviceMixin.device_connected()
         self.allow_connect_slot = allow_connect_slot
         self.jobs           = queue.Queue(0)
         self.job_steps      = queue.Queue(0)
@@ -250,8 +250,9 @@ class DeviceManager(Thread):  # {{{
             pass
         if self.connected_device in self.ejected_devices:
             self.ejected_devices.remove(self.connected_device)
+            call_connected_slot = False
         else:
-            self.connected_slot(False, self.connected_device_kind)
+            call_connected_slot = True
         if self.call_shutdown_on_disconnect:
             # The current device is an instance of a plugin class instantiated
             # to handle this connection, probably as a mounted device. We are
@@ -263,6 +264,8 @@ class DeviceManager(Thread):  # {{{
         device_prefs.set_overrides()
         self.connected_device = currently_connected_device._device = None
         self._device_information = None
+        if call_connected_slot:
+            self.connected_slot(False, None)
 
     def detect_device(self):
         self.scanner.scan()
@@ -877,7 +880,9 @@ class DeviceSignals(QObject):  # {{{
 
     #: This signal is emitted once when the device is detected and once when
     #: it is disconnected. If the parameter is True, then it is a connection,
-    #: otherwise a disconnection.
+    #: otherwise a disconnection. Device information is not available in either
+    # case. If you need device information when connecting then use the
+    # device_metadata_available signal.
     device_connection_changed = pyqtSignal(object)
 
 
@@ -1069,6 +1074,8 @@ class DeviceMixin(object):  # {{{
     def device_detected(self, connected, device_kind):
         '''
         Called when a device is connected to the computer.
+
+        If connected is False then device_kind is None.
         '''
         # This can happen as this function is called in a queued connection and
         # the user could have yanked the device in the meantime
