@@ -2,10 +2,9 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-import traceback
 from elementmaker import E
-from gettext import gettext as _
 
+import traceback
 from ajax import ajax, ajax_send, encode_query_component
 from book_list.delete_book import refresh_after_delete, start_delete_book
 from book_list.globals import get_session_data
@@ -22,14 +21,17 @@ from book_list.ui import query_as_href, set_panel_handler, show_panel
 from book_list.views import search_query_for
 from date import format_date
 from dom import add_extra_css, build_rule, clear, ensure_id, svgicon, unique_id
+from gettext import gettext as _
 from modals import create_custom_dialog, error_dialog, warning_dialog
+from read_book.touch import (
+    copy_touch, install_handlers, interpret_single_gesture, touch_id, update_touch
+)
 from session import get_interface_data
 from utils import (
     conditional_timeout, debounce, fmt_sidx, human_readable, parse_url_params,
     safe_set_inner_html, sandboxed_html
 )
 from widgets import create_button, create_spinner
-from utils import human_readable
 
 bd_counter = 0
 
@@ -116,6 +118,15 @@ def setup_iframe(iframe):
     de = adjust_iframe_height(iframe)
     for a in de.querySelectorAll('a[href]'):
         a.setAttribute('target', '_blank')
+
+    def forward_touch_events(ev):
+        container = window.top.document.getElementById(render_book.container_id)
+        if container:
+            dup = v'new ev.constructor(ev.type, ev)'
+            container.dispatchEvent(dup)
+
+    for key in ('start', 'move', 'end', 'cancel'):
+        iframe.contentWindow.addEventListener(f'touch{key}', forward_touch_events)
 
 
 def adjust_all_iframes(ev):
@@ -467,10 +478,12 @@ def next_book(book_id, delta):
 
 def render_book(container_id, book_id):
     render_book.book_id = book_id
+    render_book.container_id = container_id
     is_random = parse_url_params().book_id is '0'
     c = document.getElementById(container_id)
     if not c:
         return
+    install_touch_handlers(c, book_id)
     metadata = book_metadata(book_id)
     render_book.title = metadata.title
     set_title(c, metadata.title)
@@ -595,6 +608,59 @@ def fetch_metadata(container_id, book_id, proceed):
         style='margin: 1ex 1em',
         create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
     ))
+
+
+def install_touch_handlers(container, book_id):
+    ongoing_touches = {}
+    gesture_id = 0
+    container_id = container.id
+
+    def has_active_touches():
+        for tid in ongoing_touches:
+            t = ongoing_touches[tid]
+            if t.active:
+                return True
+        return False
+
+    def handle_touch(ev):
+        nonlocal gesture_id, ongoing_touches
+        container = document.getElementById(container_id)
+        if not container:
+            return
+        if ev.type is 'touchstart':
+            for touch in ev.changedTouches:
+                ongoing_touches[touch_id(touch)] = copy_touch(touch)
+                gesture_id += 1
+        elif ev.type is 'touchmove':
+            for touch in ev.changedTouches:
+                t = ongoing_touches[touch_id(touch)]
+                if t:
+                    update_touch(t, touch)
+        elif ev.type is 'touchcancel':
+            for touch in ev.changedTouches:
+                v'delete ongoing_touches[touch_id(touch)]'
+        elif ev.type is 'touchend':
+            for touch in ev.changedTouches:
+                t = ongoing_touches[touch_id(touch)]
+                if t:
+                    t.active = False
+                    update_touch(t, touch)
+                    if not has_active_touches():
+                        touches = ongoing_touches
+                        ongoing_touches = {}
+                        num = len(touches)
+                        if num is 1:
+                            gesture = interpret_single_gesture(touches[Object.keys(touches)[0]], gesture_id)
+                            if gesture.type is 'swipe' and gesture.axis is 'horizontal':
+                                delta = -1 if gesture.direction is 'right' else 1
+                                next_book(book_id, delta)
+
+    install_handlers(container, {
+        'handle_touchstart': handle_touch,
+        'handle_touchmove': handle_touch,
+        'handle_touchend': handle_touch,
+        'handle_touchcancel': handle_touch,
+    }, True)
 
 
 def create_book_details(container):
