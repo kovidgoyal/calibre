@@ -352,7 +352,7 @@ class DeviceManager(Thread):  # {{{
                 self.connected_device.eject()
                 if self.connected_device_kind != 'unmanaged-device':
                     self.ejected_devices.add(self.connected_device)
-                self.connected_slot(False, self.connected_device_kind)
+                self.connected_slot(False, None)
             elif hasattr(self.connected_device, 'unmount_device'):
                 # As we are on the wrong thread, this call must *not* do
                 # anything besides set a flag that the right thread will see.
@@ -508,7 +508,7 @@ class DeviceManager(Thread):  # {{{
             self._device_information['info'] = tuple(info)
 
     def get_current_device_information(self):
-        return self._device_information
+        return self._device_information if self.is_device_present else None
 
     def _books(self):
         '''Get metadata from device'''
