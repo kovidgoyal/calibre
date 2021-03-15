@@ -13,13 +13,15 @@ no_cfi = '/99999999'
 def bookmark_get_cfi(b):
     if b.pos_type is 'epubcfi':
         return b.pos[8:-1]
+    return no_cfi
 
 
 def highlight_get_cfi(hl):
     cfi = hl.start_cfi
     if cfi:
-        si = hl.spine_index or 9999999999
-        return f'/{si}/{cfi}'
+        si = f'/{hl.spine_index}' if hl.spine_index? else no_cfi
+        return f'{si}/{cfi}'
+    return no_cfi
 
 
 def sort_annot_list(annots, get_cfi_func):
