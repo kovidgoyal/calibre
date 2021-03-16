@@ -185,7 +185,7 @@ Edit book plugins
 
 Now let's change gears for a bit and look at creating a plugin to add tools to
 the calibre book editor. The plugin is available here:
-`editor_demo_plugin.zip  <https://calibre-ebook.com/downloads/editor_demo_plugin.zip>`_.
+`editor_demo_plugin.zip <https://calibre-ebook.com/downloads/editor_demo_plugin.zip>`_.
 
 The first step, as for all plugins is to create the
 import name empty txt file, as described :ref:`above <import_name_txt>`.

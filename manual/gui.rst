@@ -121,7 +121,7 @@ View
     :class: float-right-img
 
 |vi| The :guilabel:`View` action displays the book in an e-book viewer program.
-calibre has a built-in viewer for many e-book formats.  For other formats it
+calibre has a built-in viewer for many e-book formats. For other formats it
 uses the default operating system application. You can configure which formats
 should open with the internal viewer via
 :guilabel:`Preferences->Interface->Behavior`. If a book has more than one
