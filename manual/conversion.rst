@@ -325,11 +325,15 @@ remove all non-breaking-space entities, or may include false positive matches re
     will re-number the heading tags to prevent splitting.
 
 :guilabel:`Delete blank lines between paragraphs`
-    This option will cause calibre to analyze blank lines included within the document.  If every paragraph is interleaved
-    with a blank line, then calibre will remove all those blank paragraphs.  Sequences of multiple blank lines will be
-    considered scene breaks and retained as a single paragraph.  This option differs from the 'Remove Paragraph Spacing'
-    option under 'Look and Feel' in that it actually modifies the HTML content, while the other option modifies the document
-    styles.  This option can also remove paragraphs which were inserted using calibre's 'Insert blank line' option.
+    This option will cause calibre to analyze blank lines included within the
+    document.  If every paragraph is interleaved with a blank line, then
+    calibre will remove all those blank paragraphs.  Sequences of multiple
+    blank lines will be considered scene breaks and retained as a single
+    paragraph. This option differs from the :guilabel:`Remove paragraph
+    spacing` option under :guilabel:`Look and Feel` in that it actually
+    modifies the HTML content, while the other option modifies the document
+    styles.  This option can also remove paragraphs which were inserted using
+    calibre's :guilabel:`Insert blank line` option.
 
 :guilabel:`Ensure scene breaks are consistently formatted`
     With this option calibre will attempt to detect common scene-break markers and ensure that they are center aligned.

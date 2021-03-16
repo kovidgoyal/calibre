@@ -717,7 +717,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.gui.status_bar.showMessage(_('Plugin installed: %s') % display_plugin.name)
             d = info_dialog(self.gui, _('Success'),
                     _('Plugin <b>{0}</b> successfully installed under <b>'
-                        ' {1} plugins</b>. You may have to restart calibre '
+                        '{1}</b>. You may have to restart calibre '
                         'for the plugin to take effect.').format(plugin.name, plugin.type),
                     show_copy_button=False)
             b = d.bb.addButton(_('&Restart calibre now'), QDialogButtonBox.ButtonRole.AcceptRole)
