@@ -50,6 +50,8 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
         if not standalone_proceed_data.event_listender_added:
             standalone_proceed_data.event_listender_added = True
             document.documentElement.addEventListener("calibre-mathjax-typeset-done", standalone_proceed)
+        if standalone_proceed_data.proceed:
+            print('MathJax apply called while a previous apply is still running')
         standalone_proceed_data.link_uid = link_uid
         standalone_proceed_data.proceed = proceed
         load_mathjax(f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/mathjax/startup.js')

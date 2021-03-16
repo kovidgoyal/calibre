@@ -153,7 +153,7 @@ from its bases, documented below. A typical basic USBMS based driver looks like 
    :members:
    :member-order: bysource
 
-User Interface actions
+User interface actions
 --------------------------
 
 If you are adding your own plugin in a ZIP file, you should subclass both InterfaceActionBase and InterfaceAction. The
