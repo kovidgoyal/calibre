@@ -60,7 +60,7 @@ else:
 def run(*args):
     if len(args) == 1:
         args = shlex.split(args[0])
-    print(' '.join(args))
+    print(' '.join(args), flush=True)
     ret = subprocess.Popen(args).wait()
     if ret != 0:
         raise SystemExit(ret)
