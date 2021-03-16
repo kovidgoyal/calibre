@@ -583,7 +583,7 @@ class HeuristicProcessor(object):
 
     def detect_scene_breaks(self, html):
         scene_break_regex = self.line_open+'(?!('+self.common_in_text_beginnings+'|.*?'+self.common_in_text_endings+ \
-                                             '<))(?P<break>((?P<break_char>((?!\\s)\\W))\\s*(?P=break_char)?)+)\\s*'+self.line_close
+                                             '<))(?P<break>((?P<break_char>((?!\\s)\\W))\\s*(?P=break_char)?){1,10})\\s*'+self.line_close
         scene_breaks = re.compile(r'%s' % scene_break_regex, re.IGNORECASE|re.UNICODE)
         html = scene_breaks.sub(self.scene_break_open+'\\g<break>'+'</p>', html)
         return html
