@@ -411,7 +411,9 @@ class EbookViewer(MainWindow):
         if msg:
             self.loading_overlay(msg)
         else:
-            performance_monitor('loading finished')
+            if not hasattr(self, 'initial_loading_performace_reported'):
+                performance_monitor('loading finished')
+                self.initial_loading_performace_reported = True
             self.loading_overlay.hide()
 
     def show_error(self, title, msg, details):
