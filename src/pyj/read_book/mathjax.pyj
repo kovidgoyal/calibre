@@ -31,12 +31,27 @@ def load_mathjax(src):
     document.head.appendChild(script)
 
 
+standalone_proceed_data = {
+    'link_uid': None,
+    'proceed': None,
+    'event_listender_added': False,
+}
+
+
+def standalone_proceed():
+    if standalone_proceed_data.proceed:
+        postprocess(standalone_proceed_data.link_uid)
+        standalone_proceed_data.proceed()
+        standalone_proceed_data.proceed = None
+
+
 def apply_mathjax(mathjax_files, link_uid, proceed):
     if runtime.is_standalone_viewer:
-        document.documentElement.addEventListener("calibre-mathjax-typeset-done", def(ev):
-            postprocess(link_uid)
-            proceed()
-        )
+        if not standalone_proceed_data.event_listender_added:
+            standalone_proceed_data.event_listender_added = True
+            document.documentElement.addEventListener("calibre-mathjax-typeset-done", standalone_proceed)
+        standalone_proceed_data.link_uid = link_uid
+        standalone_proceed_data.proceed = proceed
         load_mathjax(f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/mathjax/startup.js')
         return
     window.MathJax = v'{}'
@@ -65,7 +80,7 @@ def apply_mathjax(mathjax_files, link_uid, proceed):
     }
 
     # also do any changes in pdf-mathjax-loader.js for the standalone
-    # viewer/editor/pdf outpu
+    # viewer/editor/pdf output
     window.MathJax.loader = {
         'load': v"['input/tex-full', 'input/asciimath', 'input/mml', 'output/chtml']",
         'require': def (url):
