@@ -16,6 +16,7 @@
 #include <exception>
 #include <stdexcept>
 #include <string>
+#include <functional>
 
 // character classes {{{
 static inline bool
@@ -145,6 +146,7 @@ class Token {
         void set_type(const TokenType q) { type = q; }
 		void set_output_position(const size_t val) { out_pos = val; }
         bool is_type(const TokenType q) const { return type == q; }
+        bool is_delimiter(const char32_t ch) const { return type == TokenType::delimiter && text.size() == 1 && text[0] == ch; }
         void add_char(const char32_t ch) { text.push_back(ch); }
         void mark_unit() { unit_at = text.size(); }
         void clear_text() { text.clear(); }
@@ -160,6 +162,10 @@ class Token {
             }
             return true;
         }
+
+		bool is_keyword_case_insensitive(const char *lowercase_text) const {
+			return type == TokenType::ident && text_equals_case_insensitive(lowercase_text);
+		}
 
         void trim_trailing_whitespace() {
             while(text.size() && is_whitespace(text.back())) text.pop_back();
@@ -262,6 +268,33 @@ class TokenQueue {
 		}
 
 		bool process_declaration() {
+			bool changed = false;
+			bool colon_found = false, key_found = false;
+			std::function<bool(std::vector<Token>::iterator)> process_values;
+
+			for (auto it = queue.begin(); it < queue.end(); it++) {
+				if (!it->is_significant()) continue;
+				if (key_found) {
+					if (colon_found) {
+						if (process_values) process_values(it);
+						break;
+					} else {
+						if (!it->is_delimiter(':')) break;  // no colon found
+						colon_found = true;
+					}
+				} else {
+					if (it->is_type(TokenType::ident)) {
+						key_found = true;
+						if (it->text_equals_case_insensitive("font") || it->text_equals_case_insensitive("font-size")) {
+							process_values = std::bind(&TokenQueue::process_font_sizes, this, std::placeholders::_1);
+						}
+					} else break;  // no property key found
+				}
+			}
+			return changed;
+		}
+
+		bool process_font_sizes(std::vector<Token>::iterator) {
 			bool changed = false;
 			return changed;
 		}
