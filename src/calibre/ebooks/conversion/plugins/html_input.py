@@ -20,6 +20,7 @@ from polyglot.builtins import unicode_type, zip, getcwd, as_unicode
 
 def sanitize_file_name(x):
     ans = re.sub(r'\s+', ' ', re.sub(r'[?&=;#]', '_', ascii_filename(x))).strip().rstrip('.')
+    ans = re.sub(r'\%2[fF]', '_', ans)
     ans, ext = ans.rpartition('.')[::2]
     return (ans.strip() + '.' + ext.strip()).rstrip('.')
 
