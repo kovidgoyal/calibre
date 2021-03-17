@@ -54,6 +54,32 @@ is_name(char32_t ch) {
 }
 // }}}
 
+class python_error : public std::runtime_error {
+	public:
+		python_error(const char *msg) : std::runtime_error(msg) {}
+};
+
+class pyobject_raii {
+	private:
+		PyObject *handle;
+		pyobject_raii( const pyobject_raii & ) ;
+		pyobject_raii & operator=( const pyobject_raii & ) ;
+
+	public:
+		pyobject_raii() : handle(NULL) {}
+		pyobject_raii(PyObject* h) : handle(h) {}
+
+		~pyobject_raii() { Py_CLEAR(handle); }
+
+		PyObject *ptr() { return handle; }
+		void set_ptr(PyObject *val) { handle = val; }
+		PyObject **address() { return &handle; }
+		explicit operator bool() const { return handle != NULL; }
+        PyObject *detach() { PyObject *ans = handle; handle = NULL; return ans; }
+};
+
+
+
 enum class TokenType : unsigned int {
     whitespace,
     delimiter,
@@ -112,6 +138,10 @@ class Token {
 			type = other.type; text = std::move(other.text); unit_at = other.unit_at; out_pos = other.out_pos; return *this;
 		}
 
+		void reset() {
+			text.clear(); unit_at = 0; out_pos = 0; type = TokenType::whitespace;
+		}
+
         void set_type(const TokenType q) { type = q; }
 		void set_output_position(const size_t val) { out_pos = val; }
         bool is_type(const TokenType q) const { return type == q; }
@@ -134,6 +164,31 @@ class Token {
         void trim_trailing_whitespace() {
             while(text.size() && is_whitespace(text.back())) text.pop_back();
         }
+
+		bool is_significant() const {
+			switch(type) {
+				case TokenType::whitespace:
+				case TokenType::comment:
+				case TokenType::cdo:
+				case TokenType::cdc:
+					return false;
+				default:
+					return true;
+			}
+		}
+
+		PyObject* text_as_python_string() const {
+			PyObject *ans = PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, text.data(), text.size());
+			if (ans == NULL) throw python_error("Failed to convert token value to python unicode object");
+			return ans;
+		}
+
+		void set_text_from_python_string(const PyObject* src) {
+			if (PyUnicode_READY(src) != 0) throw python_error("Failed to set token value from unicode object as readying the unicode obect failed");
+			text.clear();
+			int kind = PyUnicode_KIND(src); void *data = PyUnicode_DATA(src);
+			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text.push_back(PyUnicode_READ(kind, data, i));
+		}
 };
 
 class TokenQueue {
@@ -141,6 +196,7 @@ class TokenQueue {
         std::stack<Token> pool;
         std::vector<Token> queue;
         std::u32string out;
+		pyobject_raii url_callback;
 
         void new_token(const TokenType type, const char32_t ch = 0) {
             if (pool.empty()) queue.emplace_back(type, ch, current_output_position());
@@ -159,8 +215,59 @@ class TokenQueue {
             else new_token(type, ch);
         }
 
+		void return_tokens_to_pool() {
+			while (queue.size()) {
+				queue.back().reset();
+				pool.push(std::move(queue.back()));
+				queue.pop_back();
+			}
+		}
+
+		const Token* leading_token_of_type(TokenType q) const {
+			for (const auto& tok : queue) {
+				if (tok.is_significant()) {
+					return tok.is_type(q) ? &tok : NULL;
+				}
+			}
+			return NULL;
+		}
+
+		Token* leading_token_of_type(TokenType q) {
+			for (auto& tok : queue) {
+				if (tok.is_significant()) {
+					return tok.is_type(q) ? &tok : NULL;
+				}
+			}
+			return NULL;
+		}
+
+		bool process_urls(const TokenType type = TokenType::url) {
+			bool changed = false;
+			if (url_callback) {
+				for (auto& tok : queue) {
+					if (tok.is_type(type)) {
+						pyobject_raii url(tok.text_as_python_string());
+						pyobject_raii new_url(PyObject_CallFunctionObjArgs(url_callback.ptr(), url.ptr(), NULL));
+						if (!new_url) { PyErr_Print(); }
+						else {
+							if (PyUnicode_Check(new_url.ptr()) && new_url.ptr() != url.ptr()) {
+								tok.set_text_from_python_string(new_url.ptr());
+								changed = true;
+							}
+						}
+					}
+				}
+			}
+			return changed;
+		}
+
+		bool process_declaration() {
+			bool changed = false;
+			return changed;
+		}
+
     public:
-        TokenQueue(const size_t src_sz) : pool(), queue(), out() { out.reserve(src_sz * 2); }
+        TokenQueue(const size_t src_sz, PyObject *url_callback=NULL) : pool(), queue(), out(), url_callback(url_callback) { out.reserve(src_sz * 2); }
 
 		void rewind_output() { out.pop_back(); }
 
@@ -216,6 +323,30 @@ class TokenQueue {
         void trim_trailing_whitespace() {
             if (!queue.empty()) queue.back().trim_trailing_whitespace();
         }
+
+		void commit_tokens(const char32_t flush_char) {
+			bool changed = false;
+			if (flush_char == ';') {
+				const Token *att = leading_token_of_type(TokenType::at_keyword);
+				if (process_urls()) changed = true;
+				if (att) {
+					if (att->text_equals_case_insensitive("import")) {
+						if (process_urls(TokenType::string)) changed = true;
+					}
+				} else {
+					if (process_declaration()) changed = true;
+				}
+			} else if (flush_char == '{') {
+				if (process_urls()) changed = true;
+				const Token *att = leading_token_of_type(TokenType::at_keyword);
+				if (att && att->text_equals_case_insensitive("import")) {
+					if (process_urls(TokenType::string)) changed = true;
+				}
+			} else {
+				if (process_declaration()) changed = true;
+			}
+			return_tokens_to_pool();
+		}
 };
 
 enum class ParseState : unsigned int {
@@ -553,12 +684,15 @@ class Parser {
                 case ')':
                 case '[':
                 case ']':
-                case '{':
-                case '}':
                 case ',':
                 case ':':
-                case ';':
                     token_queue.add_delimiter(ch);
+                    break;
+                case ';':
+				case '{':
+				case '}':
+                    token_queue.add_delimiter(ch);
+					token_queue.commit_tokens(ch);
                     break;
                 case '+':
                     if (is_digit(peek()) || (peek() == '.' && is_digit(peek(1)))) { enter_number_mode(); }
@@ -663,6 +797,8 @@ transform_properties(const char32_t *src, size_t src_sz, bool is_declaration) {
         return PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, result.data(), result.size());
     } catch (std::bad_alloc &ex) {
         return PyErr_NoMemory();
+    } catch (python_error &ex) {
+        return NULL;
     } catch (std::exception &ex) {
         PyErr_SetString(PyExc_Exception, ex.what());
         return NULL;
