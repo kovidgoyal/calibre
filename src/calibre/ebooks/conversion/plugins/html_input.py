@@ -6,21 +6,27 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, tempfile, os
+import os
+import re
+import tempfile
 from functools import partial
+from urllib.parse import quote
 
-from calibre.constants import islinux, isbsd
-from calibre.customize.conversion import (InputFormatPlugin,
-        OptionRecommendation)
-from calibre.utils.localization import get_lang
+from calibre.constants import isbsd, islinux
+from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
-from polyglot.builtins import unicode_type, zip, getcwd, as_unicode
+from calibre.utils.localization import get_lang
+from polyglot.builtins import as_unicode, getcwd, unicode_type, zip
 
 
 def sanitize_file_name(x):
-    ans = re.sub(r'\s+', ' ', re.sub(r'[?&=;#]', '_', ascii_filename(x))).strip().rstrip('.')
-    ans = re.sub(r'\%2[fF]', '_', ans)
+    ans = re.sub(r'\s+', ' ', ascii_filename(x))
+    for ch in '?&=;#/\\':
+        ans = ans.replace(ch, '_')
+        q = quote(ch, safe='')
+        ans = re.sub(f'\{q}', '_', ans, flags=re.I)
+    ans = ans.strip().rstrip('.')
     ans, ext = ans.rpartition('.')[::2]
     return (ans.strip() + '.' + ext.strip()).rstrip('.')
 
@@ -98,18 +104,20 @@ class HTMLInput(InputFormatPlugin):
         return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath, basedir, opts, log, mi):
+        import css_parser
+        import logging
         import uuid
-        from calibre.ebooks.conversion.plumber import create_oebbook
-        from calibre.ebooks.oeb.base import (DirContainer,
-            rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES,
-            xpath, urlquote)
+
         from calibre import guess_type
-        from calibre.ebooks.oeb.transforms.metadata import \
-            meta_info_to_oeb_metadata
+        from calibre.ebooks.conversion.plumber import create_oebbook
         from calibre.ebooks.html.input import get_filelist
         from calibre.ebooks.metadata import string_to_authors
+        from calibre.ebooks.oeb.base import (
+            BINARY_MIME, OEB_STYLES, DirContainer, rewrite_links, urldefrag,
+            urlnormalize, urlquote, xpath
+        )
+        from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
         from calibre.utils.localization import canonicalize_lang
-        import css_parser, logging
         css_parser.log.setLevel(logging.WARN)
         self.OEB_STYLES = OEB_STYLES
         oeb = create_oebbook(log, None, opts, self,
