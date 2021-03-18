@@ -44,42 +44,6 @@ ref_as_integer(pdf_objnum num, pdf_gennum gen) {
 static inline uint64_t
 ref_as_integer(const PdfReference &ref) { return ref_as_integer(ref.ObjectNumber(), ref.GenerationNumber()); }
 
-
-static inline void
-replace_font_references_in_resources(PdfDictionary &resources, const std::unordered_map<uint64_t, uint64_t> &ref_map) {
-    const PdfObject* f = resources.GetKey("Font");
-    if (f && f->IsDictionary()) {
-        const PdfDictionary &font = f->GetDictionary();
-        PdfDictionary new_font = PdfDictionary(font);
-        bool changed = false;
-        for (auto &k : font.GetKeys()) {
-            if (k.second->IsReference()) {
-                uint64_t key = ref_as_integer(k.second->GetReference()), r;
-                try {
-                    r = ref_map.at(key);
-                } catch (const std::out_of_range &err) { (void)err; continue; }
-                PdfReference new_ref(static_cast<pdf_objnum>(r & 0xffffffff), static_cast<pdf_gennum>(r >> 32));
-                new_font.AddKey(k.first.GetName(), new_ref);
-                changed = true;
-            }
-        }
-        if (changed) resources.AddKey("Font", new_font);
-    }
-}
-
-static inline void
-replace_font_references(PDFDoc *self, const std::unordered_map<uint64_t, uint64_t> &ref_map) {
-    const PdfVecObjects &objects = self->doc->GetObjects();
-    for (auto &k : objects) {
-        if (!k->IsDictionary()) continue;
-        PdfDictionary &dict = k->GetDictionary();
-        if (dict.HasKey("Resources") && dict.GetKey("Resources")->IsDictionary()) {
-            PdfDictionary &res = dict.GetKey("Resources")->GetDictionary();
-            replace_font_references_in_resources(res, ref_map);
-        }
-    }
-}
-
 static void
 used_fonts_in_canvas(PdfCanvas *canvas, unordered_reference_set &ans) {
     PdfContentsTokenizer tokenizer(canvas);
@@ -133,24 +97,6 @@ convert_w_array(const PdfArray &w) {
         if (PyList_Append(ans.get(), item.get()) != 0) return NULL;
     }
     return ans.release();
-}
-
-static void
-convert_w_array(PyObject *src, PdfArray &dest) {
-    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(src); i++) {
-        PyObject *item = PyList_GET_ITEM(src, i);
-        if (PyFloat_Check(item)) {
-            dest.push_back(PdfObject(PyFloat_AS_DOUBLE(item)));
-        } else if (PyList_Check(item)) {
-            PdfArray sub;
-            convert_w_array(item, sub);
-            dest.push_back(sub);
-        } else {
-            pdf_int64 val = PyLong_AsLongLong(item);
-            if (val == -1 && PyErr_Occurred()) { PyErr_Print(); continue; }
-            dest.push_back(PdfObject(val));
-        }
-    }
 }
 
 static PyObject*
