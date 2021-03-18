@@ -6,22 +6,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, re
+import os, subprocess, re, shutil
 from distutils.spawn import find_executable
 
 from setup import ismacos, iswindows, is64bit, islinux, ishaiku
-is64bit
 
-NMAKE = RC = msvc = MT = win_inc = win_lib = None
+NMAKE = RC = msvc = MT = win_inc = win_lib = win_cc = win_ld = None
 if iswindows:
-    from distutils import msvc9compiler
-    msvc = msvc9compiler.MSVCCompiler()
-    msvc.initialize()
-    NMAKE = msvc.find_exe('nmake.exe')
-    RC = msvc.find_exe('rc.exe')
-    MT = msvc.find_exe('mt.exe')
-    win_inc = [x for x in os.environ['include'].split(';') if x]
-    win_lib = [x for x in os.environ['lib'].split(';') if x]
+    from setup.vcvars import query_vcvarsall
+    env = query_vcvarsall(is64bit)
+    NMAKE = shutil.which('nmake.exe', path=env['PATH'])
+    RC = shutil.which('rc.exe', path=env['PATH'])
+    MT = shutil.which('mt.exe', path=env['PATH'])
+    win_cc = shutil.which('cl.exe', path=env['PATH'])
+    win_ld = shutil.which('link.exe', path=env['PATH'])
+    win_inc = [x for x in env['INCLUDE'].split(';') if x]
+    win_lib = [x for x in env['LIB'].split(';') if x]
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):

@@ -166,7 +166,7 @@ def read_extensions():
 
 
 def init_env():
-    from setup.build_environment import msvc, is64bit, win_inc, win_lib, NMAKE
+    from setup.build_environment import win_ld, is64bit, win_inc, win_lib, NMAKE, win_cc
     from distutils import sysconfig
     linker = None
     if isunix:
@@ -211,7 +211,7 @@ def init_env():
         cflags.append('-I'+sysconfig.get_python_inc())
 
     if iswindows:
-        cc = cxx = msvc.cc
+        cc = cxx = win_cc
         cflags = '/c /nologo /MD /W3 /EHsc /utf-8 /DNDEBUG'.split()
         ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
         # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
@@ -226,7 +226,7 @@ def init_env():
                 ldflags.append('/LIBPATH:'+p)
         cflags.append('-I%s'%sysconfig.get_python_inc())
         ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
-        linker = msvc.linker
+        linker = win_ld
     return namedtuple('Environment', 'cc cxx cflags ldflags linker make')(
         cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, linker=linker, make=NMAKE if iswindows else 'make')
 
