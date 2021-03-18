@@ -32,8 +32,11 @@ if iswindows:
     MT = 'mt.exe'
     win_cc = 'cl.exe'
     win_ld = 'link.exe'
-    win_inc = [x for x in env['INCLUDE'].split(';') if x]
-    win_lib = [x for x in env['LIB'].split(';') if x]
+    win_inc = [x for x in env['INCLUDE'].split(os.pathsep) if x]
+    win_lib = [x for x in env['LIB'].split(os.pathsep) if x]
+    for key in env:
+        if key != 'PATH':
+            os.environ[key] = env[key]
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
