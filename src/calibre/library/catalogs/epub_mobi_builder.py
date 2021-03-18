@@ -3069,7 +3069,7 @@ class CatalogBuilder(object):
             section_header = tocTitle
         navPointTag = self.generate_ncx_section_header('bydescription-ID', section_header, "content/book_%d.html" % int(self.books_by_description[0]['id']))
 
-        self.update_progress_full_step(_("NCX for Descriptions"))
+        self.update_progress_full_step(_("NCX for descriptions"))
 
         # --- Construct the 'Descriptions' section ---
         # Add the section navPoint
