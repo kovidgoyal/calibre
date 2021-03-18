@@ -138,7 +138,7 @@ static ParsedNumber
 parse_css_number(const T &src, size_t limit = 0) {
 	int sign = 1, exponent_sign = 1;
 	integer_type integer_part = 0, fractional_part = 0, exponent_part = 0;
-	unsigned num_of_fractional_digits = 0;
+	size_t num_of_fractional_digits = 0;
 	size_t first_digit = 0, last_digit = 0;
 	const size_t src_sz = limit ? limit : src.size();
 	size_t pos = 0;
@@ -163,7 +163,7 @@ parse_css_number(const T &src, size_t limit = 0) {
 		read_integer(exponent_part);
 	}
 	if (fractional_part || (exponent_part && exponent_sign == -1)) {
-		double ans = integer_part;
+		double ans = (double)integer_part;
 		if (fractional_part) ans += ((double) fractional_part) / ((double)(ipow(10, num_of_fractional_digits)));
 		if (exponent_part) {
 			if (exponent_sign == -1) ans /= (double)ipow(10, exponent_part);
@@ -238,8 +238,7 @@ class Token {
     private:
         TokenType type;
         std::u32string text;
-        unsigned unit_at;
-		size_t out_pos;
+        size_t unit_at, out_pos;
 
         void clear() {
             type = TokenType::whitespace;
@@ -726,10 +725,10 @@ class Parser {
                     token_queue.add_char(ch);
                     return;
                 }
-                escape_buf[escape_buf_pos++] = ch;
+                escape_buf[escape_buf_pos++] = (char)ch;
                 return;
             }
-            if (is_hex_char(ch) && escape_buf_pos < 6) { escape_buf[escape_buf_pos++] = ch; return; }
+            if (is_hex_char(ch) && escape_buf_pos < 6) { escape_buf[escape_buf_pos++] = (char)ch; return; }
             if (is_whitespace(ch)) return;  // a single whitespace character is absorbed into escape
             reconsume();
             states.pop();
@@ -1023,8 +1022,10 @@ class Parser {
 
 #define handle_exceptions(msg) \
 	catch (std::bad_alloc &ex) { \
+        (void)ex; \
         return PyErr_NoMemory(); \
     } catch (python_error &ex) { \
+        (void)ex; \
         return NULL; \
     } catch (std::exception &ex) { \
         PyErr_SetString(PyExc_Exception, ex.what()); \
