@@ -435,6 +435,34 @@ class TagBrowserMixin(object):  # {{{
     def drag_drop_finished(self, ids):
         self.library_view.model().refresh_ids(ids)
 
+    def tb_category_visibility(self, category, operation):
+        '''
+        Hide or show categories in the tag browser. 'category' is the lookup key.
+        Operation can be:
+        - 'show' to show the category in the tag browser
+        - 'hide' to hide the category
+        - 'toggle' to invert its visibility
+        - 'is_visible' returns True if the category is currently visible, False otherwise
+        '''
+        if category not in self.tags_view.model().categories:
+            raise ValueError(_('change_tb_category_visibility: category %s does not exist') % category)
+        cats = self.tags_view.hidden_categories
+        if operation == 'hide':
+            cats.add(category)
+        elif operation == 'show':
+            cats.discard(category)
+        elif operation == 'toggle':
+            if category in cats:
+                cats.remove(category)
+            else:
+                cats.add(category)
+        elif operation == 'is_visible':
+            return category not in cats
+        else:
+            raise ValueError(_('change_tb_category_visibility: invalid operation %s') % operation)
+        self.library_view.model().db.new_api.set_pref('tag_browser_hidden_categories', list(cats))
+        self.tags_view.recount()
+
 # }}}
 
 
