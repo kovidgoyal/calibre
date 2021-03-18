@@ -17,6 +17,8 @@
 #include <stdexcept>
 #include <string>
 #include <functional>
+#include <frozen/unordered_map.h>
+#include <frozen/string.h>
 
 // character classes {{{
 static inline bool
@@ -53,6 +55,12 @@ static inline bool
 is_name(char32_t ch) {
     return is_name_start(ch) || is_digit(ch) || ch == '-';
 }
+
+static inline bool
+is_printable_ascii(char32_t ch) {
+	return ch >= ' ' && ch <= '~';
+}
+
 // }}}
 
 class python_error : public std::runtime_error {
@@ -79,6 +87,129 @@ class pyobject_raii {
         PyObject *detach() { PyObject *ans = handle; handle = NULL; return ans; }
 };
 
+typedef long long integer_type;
+
+class ParsedNumber {
+	public:
+		bool is_integer;
+		integer_type integer_value;
+		double float_value;
+		ParsedNumber(integer_type val) : is_integer(true), integer_value(val), float_value(0) {}
+		ParsedNumber(double val) : is_integer(false), integer_value(0), float_value(val) {}
+};
+
+static const double base_font_size = 16.0, dpi = 96.0, pt_to_px = dpi / 72.0, pt_to_rem = pt_to_px / base_font_size;
+
+static double
+convert_font_size(double val, double factor) {
+	return (factor == 0.0) ? val / base_font_size : (val * factor * pt_to_rem);
+}
+
+static integer_type
+ipow(integer_type base, integer_type exp) {
+    integer_type result = 1;
+    while(true) {
+        if (exp & 1) result *= base;
+        exp >>= 1;
+        if (!exp) break;
+        base *= base;
+    }
+    return result;
+}
+
+template <typename T>
+static integer_type
+parse_integer(const T &src, const size_t first, size_t last) {
+	integer_type ans = 0, base = 1;
+    while(true) {
+		integer_type digit = src[last] - '0';
+		ans += digit * base;
+        if (last == first) break;
+        last--;
+        base *= 10;
+    }
+    return ans;
+}
+
+template <typename T>
+static ParsedNumber
+parse_css_number(const T &src) {
+	int sign = 1, exponent_sign = 1;
+	integer_type integer_part = 0, fractional_part = 0, exponent_part = 0;
+	unsigned num_of_fractional_digits = 0;
+	size_t first_digit = 0, last_digit = 0;
+	const size_t src_sz = src.size();
+	size_t pos = 0;
+#define read_sign(which) { if (pos < src_sz && (src[pos] == '+' || src[pos] == '-')) { if (src[pos++] == '-') which = -1; }}
+#define read_integer(which) { \
+	if (pos < src_sz && is_digit(src[pos])) { \
+		first_digit = pos; \
+		while (pos + 1 < src_sz && is_digit(src[pos+1])) pos++; \
+		last_digit = pos++; \
+		which = parse_integer<T>(src, first_digit, last_digit); \
+	}}
+	read_sign(sign);
+	read_integer(integer_part);
+	if (pos < src_sz && src[pos] == '.') {
+		pos++;
+		read_integer(fractional_part);
+		if (fractional_part) num_of_fractional_digits = last_digit - first_digit + 1;
+	}
+	if (pos < src_sz && (src[pos] == 'e' || src[pos] == 'E')) {
+        pos++;
+		read_sign(exponent_sign);
+		read_integer(exponent_part);
+	}
+	if (fractional_part || (exponent_part && exponent_sign == -1)) {
+		double ans = integer_part;
+		if (fractional_part) ans += ((double) fractional_part) / ((double)(ipow(10, num_of_fractional_digits)));
+		if (exponent_part) {
+			if (exponent_sign == -1) ans /= (double)ipow(10, exponent_part);
+			else ans *= ipow(10, exponent_part);
+		}
+		return ParsedNumber(sign * ans);
+	}
+	return ParsedNumber(sign * integer_part * ipow(10, exponent_part));
+#undef read_sign
+#undef read_integer
+}
+
+enum class PropertyType : unsigned int {
+	font_size, page_break, non_standard_writing_mode
+};
+
+constexpr auto known_properties = frozen::make_unordered_map<frozen::string, PropertyType>({
+		{"font-size", PropertyType::font_size},
+		{"font", PropertyType::font_size},
+
+		{"page-break-before", PropertyType::page_break},
+		{"page-break-after", PropertyType::page_break},
+		{"page-break-inside", PropertyType::page_break},
+
+		{"-webkit-writing-mode", PropertyType::non_standard_writing_mode},
+		{"-epub-writing-mode", PropertyType::non_standard_writing_mode},
+});
+
+constexpr auto font_size_keywords = frozen::make_unordered_map<frozen::string, frozen::string>({
+		{"xx-small", "0.5rem"},
+		{"x-small", "0.625rem"},
+		{"small", "0.8rem"},
+		{"medium", "1rem"},
+		{"large", "1.125rem"},
+		{"x-large", "1.5rem"},
+		{"xx-large", "2rem"},
+		{"xxx-large", "2.55rem"}
+});
+
+constexpr auto absolute_length_units = frozen::make_unordered_map<frozen::string, double>({
+	{"mm", 2.8346456693},
+	{"cm", 28.346456693},
+	{"in", 72},
+	{"pc", 12},
+	{"q", 0.708661417325},
+	{"px", 0.0},
+	{"pt", 1.0}
+});
 
 
 enum class TokenType : unsigned int {
@@ -97,7 +228,7 @@ enum class TokenType : unsigned int {
     comment,
     cdo,
     cdc
-} TokenTypes;
+};
 
 
 class Token {
@@ -143,6 +274,7 @@ class Token {
 			text.clear(); unit_at = 0; out_pos = 0; type = TokenType::whitespace;
 		}
 
+		TokenType get_type() const { return type; }
         void set_type(const TokenType q) { type = q; }
 		void set_output_position(const size_t val) { out_pos = val; }
         bool is_type(const TokenType q) const { return type == q; }
@@ -162,6 +294,17 @@ class Token {
             }
             return true;
         }
+
+		bool text_as_ascii_lowercase(std::string &scratch) {
+			scratch.clear();
+			for (auto ch : text) {
+				if (is_printable_ascii(ch)) {
+					if ('A' <= ch && ch <= 'Z') ch += 'a' - 'A';
+					scratch.push_back(ch);
+				} else return false;
+			}
+			return true;
+		}
 
 		bool is_keyword_case_insensitive(const char *lowercase_text) const {
 			return type == TokenType::ident && text_equals_case_insensitive(lowercase_text);
@@ -183,18 +326,37 @@ class Token {
 			}
 		}
 
-		PyObject* text_as_python_string() const {
+		PyObject* get_text() const {
 			PyObject *ans = PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, text.data(), text.size());
 			if (ans == NULL) throw python_error("Failed to convert token value to python unicode object");
 			return ans;
 		}
 
-		void set_text_from_python_string(const PyObject* src) {
+		void erase_text_substring(size_t pos, size_t len) {
+			text.replace(pos, len, (size_t)0u, 0);
+		}
+
+		void set_text(const PyObject* src) {
 			if (PyUnicode_READY(src) != 0) throw python_error("Failed to set token value from unicode object as readying the unicode obect failed");
 			text.clear();
 			int kind = PyUnicode_KIND(src); void *data = PyUnicode_DATA(src);
 			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text.push_back(PyUnicode_READ(kind, data, i));
 		}
+
+		void set_text(const char* src) {
+			text.clear();
+			while(*src) text.push_back(*(src++));
+		}
+
+		void set_text(const frozen::string &src) {
+			text.clear();
+			for (size_t i = 0; i < src.size(); i++) text.push_back(src[i]);
+		}
+
+		bool parse_dimension(std::string &scratch) {
+			if (!text_as_ascii_lowercase(scratch)) return false;
+		}
+
 };
 
 class TokenQueue {
@@ -202,6 +364,7 @@ class TokenQueue {
         std::stack<Token> pool;
         std::vector<Token> queue;
         std::u32string out;
+		std::string scratch, scratch2;
 		pyobject_raii url_callback;
 
         void new_token(const TokenType type, const char32_t ch = 0) {
@@ -252,12 +415,12 @@ class TokenQueue {
 			if (url_callback) {
 				for (auto& tok : queue) {
 					if (tok.is_type(type)) {
-						pyobject_raii url(tok.text_as_python_string());
+						pyobject_raii url(tok.get_text());
 						pyobject_raii new_url(PyObject_CallFunctionObjArgs(url_callback.ptr(), url.ptr(), NULL));
 						if (!new_url) { PyErr_Print(); }
 						else {
 							if (PyUnicode_Check(new_url.ptr()) && new_url.ptr() != url.ptr()) {
-								tok.set_text_from_python_string(new_url.ptr());
+								tok.set_text(new_url.ptr());
 								changed = true;
 							}
 						}
@@ -269,10 +432,10 @@ class TokenQueue {
 
 		bool process_declaration() {
 			bool changed = false;
-			bool colon_found = false, key_found = false;
+			bool colon_found = false, key_found = false, keep_going = true;
 			std::function<bool(std::vector<Token>::iterator)> process_values;
 
-			for (auto it = queue.begin(); it < queue.end(); it++) {
+			for (auto it = queue.begin(); keep_going && it < queue.end(); it++) {
 				if (!it->is_significant()) continue;
 				if (key_found) {
 					if (colon_found) {
@@ -285,8 +448,22 @@ class TokenQueue {
 				} else {
 					if (it->is_type(TokenType::ident)) {
 						key_found = true;
-						if (it->text_equals_case_insensitive("font") || it->text_equals_case_insensitive("font-size")) {
-							process_values = std::bind(&TokenQueue::process_font_sizes, this, std::placeholders::_1);
+						if (!it->text_as_ascii_lowercase(scratch)) break; // not a printable ascii property name
+						frozen::string property_name(scratch.data(), scratch.size());
+						auto pit = known_properties.find(property_name);
+						if (pit == known_properties.end()) break; // not a known property
+						switch(pit->second) {
+							case PropertyType::font_size:
+								process_values = std::bind(&TokenQueue::process_font_sizes, this, std::placeholders::_1);
+								break;
+							case PropertyType::page_break:
+								it->erase_text_substring(0, 5);
+								changed = true; keep_going = false;
+								break;
+							case PropertyType::non_standard_writing_mode:
+								it->set_text("writing-mode");
+								changed = true; keep_going = false;
+								break;
 						}
 					} else break;  // no property key found
 				}
@@ -294,13 +471,34 @@ class TokenQueue {
 			return changed;
 		}
 
-		bool process_font_sizes(std::vector<Token>::iterator) {
+		bool process_font_sizes(std::vector<Token>::iterator it) {
 			bool changed = false;
+			for (; it < queue.end(); it++) {
+				switch (it->get_type()) {
+					case TokenType::ident:
+						if (it->text_as_ascii_lowercase(scratch2)) {
+							frozen::string key(scratch2.data(), scratch2.size());
+							auto fsm = font_size_keywords.find(key);
+							if (fsm != font_size_keywords.end()) {
+								it->set_text(fsm->second);
+								changed = true;
+							}
+						}
+						break;
+					case TokenType::dimension:
+						break;
+					default:
+						break;
+				}
+			}
 			return changed;
 		}
 
     public:
-        TokenQueue(const size_t src_sz, PyObject *url_callback=NULL) : pool(), queue(), out(), url_callback(url_callback) { out.reserve(src_sz * 2); }
+        TokenQueue(const size_t src_sz, PyObject *url_callback=NULL) :
+			pool(), queue(), out(), scratch(), scratch2(), url_callback(url_callback) {
+				out.reserve(src_sz * 2); scratch.reserve(16); scratch2.reserve(16);
+			}
 
 		void rewind_output() { out.pop_back(); }
 
@@ -820,6 +1018,20 @@ class Parser {
 
 };
 
+#define handle_exceptions(msg) \
+	catch (std::bad_alloc &ex) { \
+        return PyErr_NoMemory(); \
+    } catch (python_error &ex) { \
+        return NULL; \
+    } catch (std::exception &ex) { \
+        PyErr_SetString(PyExc_Exception, ex.what()); \
+        return NULL; \
+    } catch (...) { \
+        PyErr_SetString(PyExc_Exception, msg); \
+        return NULL; \
+    }
+
+
 static PyObject*
 transform_properties(const char32_t *src, size_t src_sz, bool is_declaration) {
     try {
@@ -827,21 +1039,30 @@ transform_properties(const char32_t *src, size_t src_sz, bool is_declaration) {
         Parser parser(src, src_sz, is_declaration);
         parser.parse(result);
         return PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, result.data(), result.size());
-    } catch (std::bad_alloc &ex) {
-        return PyErr_NoMemory();
-    } catch (python_error &ex) {
-        return NULL;
-    } catch (std::exception &ex) {
-        PyErr_SetString(PyExc_Exception, ex.what());
-        return NULL;
-    } catch (...) {
-        PyErr_SetString(PyExc_Exception, "Unknown error while parsing CSS");
-        return NULL;
-    }
+    } handle_exceptions("Unknown error while parsing CSS");
 }
 
+static PyObject*
+parse_css_number_python(PyObject *self, PyObject *src) {
+	if (!PyUnicode_Check(src)) { PyErr_SetString(PyExc_TypeError, "Unicode string required"); return NULL; }
+    if (PyUnicode_READY(src) != 0) { return NULL; }
+	try {
+		std::u32string text;
+		text.reserve(PyUnicode_GET_LENGTH(src));
+		int kind = PyUnicode_KIND(src); void *data = PyUnicode_DATA(src);
+		for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text.push_back(PyUnicode_READ(kind, data, i));
 
+		ParsedNumber ans = parse_css_number<std::u32string>(text);
+		if (ans.is_integer) return PyLong_FromLongLong(ans.integer_value);
+		return PyFloat_FromDouble(ans.float_value);
+	} handle_exceptions("Unknown error while parsing CSS number");
+}
+
+#undef handle_exceptions
 static PyMethodDef methods[] = {
+    {"parse_css_number", parse_css_number_python, METH_O,
+     "Parse a CSS number form a string"
+    },
     {NULL, NULL, 0, NULL}
 };
 

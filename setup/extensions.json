@@ -117,7 +117,8 @@
     {
         "name": "fast_css_transform",
         "sources": "calibre/srv/fast_css_transform.cpp",
-		"needs_c++11": true
+		"inc_dirs": "perfect-hashing",
+		"needs_c++14": true
     },
     {
         "name": "pictureflow",

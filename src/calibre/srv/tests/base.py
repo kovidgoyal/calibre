@@ -17,12 +17,15 @@ from polyglot import http_client
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
 
-class BaseTest(unittest.TestCase):
+class SimpleTest(unittest.TestCase):
 
     longMessage = True
     maxDiff = None
 
     ae = unittest.TestCase.assertEqual
+
+
+class BaseTest(SimpleTest):
 
     def run(self, result=None):
         # we retry failing server tests since they are flaky on CI
