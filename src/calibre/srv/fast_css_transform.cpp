@@ -302,7 +302,7 @@ class Token {
 			for (auto ch : text) {
 				if (is_printable_ascii(ch)) {
 					if ('A' <= ch && ch <= 'Z') ch += 'a' - 'A';
-					scratch.push_back(ch);
+					scratch.push_back((char)ch);
 				} else return false;
 			}
 			return true;
