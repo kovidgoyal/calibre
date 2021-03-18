@@ -460,7 +460,7 @@ class Parser {
         std::stack<BlockTypeFlags> block_types;
         std::stack<ParseState> states;
         char escape_buf[16];
-        size_t escape_buf_pos, declaration_pos;
+        size_t escape_buf_pos;
         TokenQueue token_queue;
         InputStream input;
 
@@ -798,8 +798,7 @@ class Parser {
     public:
         Parser(const char32_t *src, const size_t src_sz, const bool is_declaration) :
             ch(0), end_string_with('"'), prev_ch(0), block_types(), states(), escape_buf(),
-            escape_buf_pos(0), declaration_pos(0),
-            token_queue(src_sz), input(src, src_sz)
+            escape_buf_pos(0), token_queue(src_sz), input(src, src_sz)
         {
             BlockTypeFlags initial_block_type;
             initial_block_type.set(DECLARATIONS_ALLOWED);
