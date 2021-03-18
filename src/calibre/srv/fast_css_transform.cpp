@@ -181,7 +181,7 @@ enum class PropertyType : unsigned int {
 	font_size, page_break, non_standard_writing_mode
 };
 
-constexpr auto known_properties = frozen::make_unordered_map<frozen::string, PropertyType>({
+constexpr const auto known_properties = frozen::make_unordered_map<frozen::string, PropertyType>({
 		{"font-size", PropertyType::font_size},
 		{"font", PropertyType::font_size},
 
@@ -193,7 +193,7 @@ constexpr auto known_properties = frozen::make_unordered_map<frozen::string, Pro
 		{"-epub-writing-mode", PropertyType::non_standard_writing_mode},
 });
 
-constexpr auto font_size_keywords = frozen::make_unordered_map<frozen::string, frozen::string>({
+constexpr const auto font_size_keywords = frozen::make_unordered_map<frozen::string, frozen::string>({
 		{"xx-small", "0.5rem"},
 		{"x-small", "0.625rem"},
 		{"small", "0.8rem"},
@@ -204,7 +204,7 @@ constexpr auto font_size_keywords = frozen::make_unordered_map<frozen::string, f
 		{"xxx-large", "2.55rem"}
 });
 
-constexpr auto absolute_length_units = frozen::make_unordered_map<frozen::string, double>({
+constexpr const auto absolute_length_units = frozen::make_unordered_map<frozen::string, double>({
 	{"mm", 2.8346456693},
 	{"cm", 28.346456693},
 	{"in", 72},
