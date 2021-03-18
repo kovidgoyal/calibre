@@ -50,6 +50,8 @@ class Extension(object):
         self.cflags = d['cflags'] = kwargs.get('cflags', [])
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
+            if self.needs_cxx and kwargs.get('needs_c++14'):
+                self.cflags.insert(0, '/std:c++14')
         else:
             return_type = 'PyObject*'
             extern_decl = 'extern "C"' if self.needs_cxx else ''
@@ -58,10 +60,14 @@ class Extension(object):
                 '-DCALIBRE_MODINIT_FUNC='
                 '{} __attribute__ ((visibility ("default"))) {}'.format(extern_decl, return_type))
 
-            if not self.needs_cxx and kwargs.get('needs_c99'):
-                self.cflags.insert(0, '-std=c99')
-            if self.needs_cxx and kwargs.get('needs_c++11'):
-                self.cflags.insert(0, '-std=c++11')
+            if self.needs_cxx:
+                if kwargs.get('needs_c++11'):
+                    self.cflags.insert(0, '-std=c++11')
+                elif kwargs.get('needs_c++14'):
+                    self.cflags.insert(0, '-std=c++14')
+            else:
+                if kwargs.get('needs_c99'):
+                    self.cflags.insert(0, '-std=c99')
 
         self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
         self.optional = d['options'] = kwargs.get('optional', False)
