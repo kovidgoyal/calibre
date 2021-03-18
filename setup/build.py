@@ -405,7 +405,7 @@ class Build(Command):
 
         If something is missing (qmake e.g.) you get a non-informative error
          self.check_call(qmc + [ext.name+'.pro'])
-         so you would have to look a the source to see the actual command.
+         so you would have to look at the source to see the actual command.
         """
         try:
             subprocess.check_call(*args, **kwargs)
