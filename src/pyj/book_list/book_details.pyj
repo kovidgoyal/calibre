@@ -252,12 +252,19 @@ def render_metadata(mi, table, book_id, iframe_css):  # {{{
             add_row(name, stars, is_searchable=field, search_text=val/2 + '')
 
     def process_identifiers(field, fm, name, val):
+
+        def ids_sorter(url_map, k):
+            x = url_map[k]
+            if not x:
+                return ''
+            return (x[0] or '').toLowerCase()
+
         if val:
             keys = Object.keys(val)
             if keys.length:
                 td = E.td()
                 url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
-                for k in keys:
+                for k in sorted(keys, key=ids_sorter.bind(None, url_map)):
                     idval = val[k]
                     x = url_map[k]
                     if x:

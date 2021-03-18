@@ -6,26 +6,26 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import time, re
+import re
+import time
 from datetime import datetime
-from threading import Thread
 from io import StringIO
 from operator import attrgetter
-from polyglot.urllib import urlparse, quote
+from threading import Thread
 
-from calibre.customize.ui import metadata_plugins, all_metadata_plugins
-from calibre.ebooks.metadata import check_issn, authors_to_sort_string
+from calibre.customize.ui import all_metadata_plugins, metadata_plugins
+from calibre.ebooks.metadata import authors_to_sort_string, check_issn
+from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.ebooks.metadata.xisbn import xisbn
-from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.date import utc_tz, as_utc
-from calibre.utils.html2text import html2text
-from calibre.utils.icu import lower
-from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.date import UNDEFINED_DATE, as_utc, utc_tz
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.html2text import html2text
+from calibre.utils.icu import lower, primary_sort_key
 from polyglot.builtins import iteritems, itervalues, unicode_type
-from polyglot.queue import Queue, Empty
+from polyglot.queue import Empty, Queue
+from polyglot.urllib import quote, urlparse
 
 # Download worker {{{
 
@@ -505,7 +505,7 @@ def identify(log, abort,  # {{{
         from calibre.ebooks.metadata.tag_mapper import map_tags
     am_rules = msprefs['author_map_rules']
     if am_rules:
-        from calibre.ebooks.metadata.author_mapper import map_authors, compile_rules
+        from calibre.ebooks.metadata.author_mapper import compile_rules, map_authors
         am_rules = compile_rules(am_rules)
 
     max_tags = msprefs['max_tags']
@@ -539,7 +539,7 @@ def identify(log, abort,  # {{{
 # }}}
 
 
-def urls_from_identifiers(identifiers):  # {{{
+def urls_from_identifiers(identifiers, sort_results=False):  # {{{
     identifiers = {k.lower():v for k, v in iteritems(identifiers)}
     ans = []
     keys_left = set(identifiers)
@@ -605,6 +605,12 @@ def urls_from_identifiers(identifiers):  # {{{
                 parts = urlparse(url)
                 name = parts.netloc or parts.path
                 add(name, k, url, url)
+    if sort_results:
+
+        def url_key(x):
+            return primary_sort_key(str(x[0]))
+
+        ans = sorted(ans, key=url_key)
     return ans
 # }}}
 
@@ -612,8 +618,9 @@ def urls_from_identifiers(identifiers):  # {{{
 if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e
     # src/calibre/ebooks/metadata/sources/identify.py
-    from calibre.ebooks.metadata.sources.test import (test_identify,
-            title_test, authors_test)
+    from calibre.ebooks.metadata.sources.test import (
+        authors_test, test_identify, title_test
+    )
     tests = [
             (
                 {'title':'Magykal Papers',

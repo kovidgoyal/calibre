@@ -203,7 +203,7 @@ def mi_to_html(
                     for x in data]
             ans.append((field, row % (name, ', '.join(fmts))))
         elif field == 'identifiers':
-            urls = urls_from_identifiers(mi.identifiers)
+            urls = urls_from_identifiers(mi.identifiers, sort_results=True)
             links = [
                 '<a href="%s" title="%s:%s">%s</a>' % (
                     action('identifier', url=url, name=namel, id_type=id_typ, value=id_val, field='identifiers', book_id=book_id),
