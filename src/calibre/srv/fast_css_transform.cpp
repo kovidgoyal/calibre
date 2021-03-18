@@ -87,6 +87,8 @@ class pyobject_raii {
         PyObject *detach() { PyObject *ans = handle; handle = NULL; return ans; }
 };
 
+// Parse numbers {{{
+
 typedef long long integer_type;
 
 class ParsedNumber {
@@ -133,12 +135,12 @@ parse_integer(const T &src, const size_t first, size_t last) {
 
 template <typename T>
 static ParsedNumber
-parse_css_number(const T &src) {
+parse_css_number(const T &src, size_t limit = 0) {
 	int sign = 1, exponent_sign = 1;
 	integer_type integer_part = 0, fractional_part = 0, exponent_part = 0;
 	unsigned num_of_fractional_digits = 0;
 	size_t first_digit = 0, last_digit = 0;
-	const size_t src_sz = src.size();
+	const size_t src_sz = limit ? limit : src.size();
 	size_t pos = 0;
 #define read_sign(which) { if (pos < src_sz && (src[pos] == '+' || src[pos] == '-')) { if (src[pos++] == '-') which = -1; }}
 #define read_integer(which) { \
@@ -173,6 +175,7 @@ parse_css_number(const T &src) {
 #undef read_sign
 #undef read_integer
 }
+// }}}
 
 enum class PropertyType : unsigned int {
 	font_size, page_break, non_standard_writing_mode
