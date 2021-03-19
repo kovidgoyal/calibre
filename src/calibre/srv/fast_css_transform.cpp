@@ -557,6 +557,8 @@ class TokenQueue {
             if (!queue.empty()) queue.back().trim_trailing_whitespace();
         }
 
+        bool starts_with_at_keyword() const { return leading_token_of_type(TokenType::at_keyword) != NULL; }
+
 		void commit_tokens(const char32_t flush_char) {
 			bool changed = false;
 			if (flush_char == ';') {
@@ -582,83 +584,96 @@ class TokenQueue {
 		}
 };
 
-enum class ParseState : unsigned int {
-    normal,
-    escape,
-    comment,
-    string,
-    hash,
-    number,
-    digits,
-    dimension,
-    ident,
-    url, url_start, url_string, url_after_string,
-    at_keyword,
-};
-
-typedef enum {
-    DECLARATIONS_ALLOWED,
-    AT_RULES_ALLOWED,
-    QUALIFIED_RULES_ALLOWED,
-    NUM_OF_BLOCK_TYPE_FLAGS
-} BlockTypesEnum;
-
-typedef std::bitset<NUM_OF_BLOCK_TYPE_FLAGS> BlockTypeFlags;
-
-class InputStream {
-    private:
-        int kind;
-        void *data;
-        const size_t src_sz;
-        size_t pos;
-
-        char32_t read(size_t i) const { return PyUnicode_READ(kind, data, i); }
-
-        char32_t peek_one(size_t at, unsigned *consumed) const {
-            if (at >= src_sz) { *consumed = 0; return 0; }
-            *consumed = 1;
-            char32_t ch = read(at);
-            if (ch == 0xc) ch = '\n';
-            else if (ch == '\r') {
-                ch = '\n';
-                if (at + 1 < src_sz && read(at + 1) == '\n') *consumed = 2;
-            }
-            else if (ch == 0 || is_surrogate(ch)) ch = 0xfffd;
-            return ch;
-        }
-
-    public:
-        InputStream(PyObject *src) : kind(PyUnicode_KIND(src)), data(PyUnicode_DATA(src)), src_sz(PyUnicode_GET_LENGTH(src)), pos(0) { }
-
-        char32_t next() {
-            unsigned last_step_size;
-            char32_t ans = peek_one(pos, &last_step_size);
-            pos += last_step_size;
-            return ans;
-        }
-
-        void rewind() {
-            if (!pos) throw std::logic_error("Cannot rewind already at start of stream");
-            pos -= (read(pos-1) == '\n' && pos >= 2 && read(pos-2) == '\r') ? 2 : 1;
-        }
-
-        char32_t peek(unsigned amt = 0) const {
-            char32_t ans = 0;
-            size_t at = pos;
-            unsigned consumed;
-            while(true) {
-                ans = peek_one(at, &consumed);
-                if (!amt || !ans) break;
-                at += consumed;
-                amt--;
-            }
-            return ans;
-        }
-}; // end InputStream
-
 class Parser {
-
     private:
+        enum class ParseState : unsigned {
+            normal,
+            escape,
+            comment,
+            string,
+            hash,
+            number,
+            digits,
+            dimension,
+            ident,
+            url, url_start, url_string, url_after_string,
+            at_keyword,
+        };
+
+        class InputStream { // {{{
+            private:
+                int kind;
+                void *data;
+                const size_t src_sz;
+                size_t pos;
+
+                char32_t read(size_t i) const { return PyUnicode_READ(kind, data, i); }
+
+                char32_t peek_one(size_t at, unsigned *consumed) const {
+                    if (at >= src_sz) { *consumed = 0; return 0; }
+                    *consumed = 1;
+                    char32_t ch = read(at);
+                    if (ch == 0xc) ch = '\n';
+                    else if (ch == '\r') {
+                        ch = '\n';
+                        if (at + 1 < src_sz && read(at + 1) == '\n') *consumed = 2;
+                    }
+                    else if (ch == 0 || is_surrogate(ch)) ch = 0xfffd;
+                    return ch;
+                }
+
+            public:
+                InputStream(PyObject *src) : kind(PyUnicode_KIND(src)), data(PyUnicode_DATA(src)), src_sz(PyUnicode_GET_LENGTH(src)), pos(0) { }
+
+                char32_t next() {
+                    unsigned last_step_size;
+                    char32_t ans = peek_one(pos, &last_step_size);
+                    pos += last_step_size;
+                    return ans;
+                }
+
+                void rewind() {
+                    if (!pos) throw std::logic_error("Cannot rewind already at start of stream");
+                    pos -= (read(pos-1) == '\n' && pos >= 2 && read(pos-2) == '\r') ? 2 : 1;
+                }
+
+                char32_t peek(unsigned amt = 0) const {
+                    char32_t ans = 0;
+                    size_t at = pos;
+                    unsigned consumed;
+                    while(true) {
+                        ans = peek_one(at, &consumed);
+                        if (!amt || !ans) break;
+                        at += consumed;
+                        amt--;
+                    }
+                    return ans;
+                }
+        }; // end InputStream }}}
+
+        class BlockTypeFlags : public std::bitset<4> { // {{{
+            enum class Fields : unsigned {
+                declarations_allowed, qualified_rules_allowed, at_rules_allowed, top_level
+            };
+            public:
+                BlockTypeFlags(bool declarations_allowed=true, bool qualified_rules_allowed=false, bool at_rules_allowed=false, bool top_level=false) : std::bitset<4>() {
+                    set((unsigned)Fields::declarations_allowed, declarations_allowed);
+                    set((unsigned)Fields::qualified_rules_allowed, qualified_rules_allowed);
+                    set((unsigned)Fields::at_rules_allowed, at_rules_allowed);
+                    set((unsigned)Fields::top_level, top_level);
+                }
+
+#define PROP(which) \
+                void set_##which(bool allowed = true) { set((unsigned)Fields::which, allowed); } \
+                bool which() const { return (*this)[(unsigned)Fields::which]; }
+
+                PROP(declarations_allowed)
+                PROP(qualified_rules_allowed)
+                PROP(at_rules_allowed)
+                PROP(top_level)
+#undef PROP
+        }; // }}}
+
         char32_t ch, end_string_with, prev_ch;
         std::stack<BlockTypeFlags> block_types;
         std::stack<ParseState> states;
@@ -667,9 +682,16 @@ class Parser {
         TokenQueue token_queue;
         InputStream input;
 
-        bool declarations_allowed() const { return block_types.top()[DECLARATIONS_ALLOWED]; }
-        bool at_rules_allowed() const { return block_types.top()[AT_RULES_ALLOWED]; }
-        bool qualified_rules_allowed() const { return block_types.top()[QUALIFIED_RULES_ALLOWED]; }
+        // block types {{{
+        bool declarations_allowed() const { return block_types.top().declarations_allowed(); }
+        bool qualified_rules_allowed() const { return block_types.top().qualified_rules_allowed(); }
+        bool at_rules_allowed() const { return block_types.top().at_rules_allowed(); }
+        bool is_top_level() const { return block_types.top().top_level(); }
+        void push_block_type(bool declarations_allowed=true, bool qualified_rules_allowed=false, bool at_rules_allowed=false, bool top_level=false) {
+            block_types.emplace(declarations_allowed, qualified_rules_allowed, at_rules_allowed, top_level);
+        }
+        void pop_block_type() { if (block_types.size() > 1) block_types.pop(); }
+        // }}}
 
         // testing stream contents {{{
         void rewind_output() { token_queue.rewind_output(); }
@@ -925,8 +947,19 @@ class Parser {
                     token_queue.add_delimiter(ch);
                     break;
                 case ';':
+                    token_queue.add_delimiter(ch);
+					token_queue.commit_tokens(ch);
+                    break;
 				case '{':
+                    if (at_rules_allowed() || qualified_rules_allowed()) {
+                        const bool is_at_rule = token_queue.starts_with_at_keyword();
+                        push_block_type(true, is_at_rule, is_at_rule);
+                    }
+                    token_queue.add_delimiter(ch);
+					token_queue.commit_tokens(ch);
+                    break;
 				case '}':
+                    pop_block_type();
                     token_queue.add_delimiter(ch);
 					token_queue.commit_tokens(ch);
                     break;
@@ -936,7 +969,7 @@ class Parser {
                     break;
                 case '-':
                     if (is_digit(peek()) || (peek() == '.' && is_digit(peek(1)))) { enter_number_mode(); }
-                    else if (peek() == '-' && peek(1) == '>') { token_queue.add_cdc(); write_to_output(input.next()); write_to_output(input.next()); }
+                    else if (is_top_level() && peek() == '-' && peek(1) == '>') { token_queue.add_cdc(); write_to_output(input.next()); write_to_output(input.next()); }
                     else if (has_identifier()) { enter_ident_mode(ch); }
                     else token_queue.add_delimiter(ch);
                     break;
@@ -945,11 +978,11 @@ class Parser {
                     else token_queue.add_delimiter(ch);
                     break;
                 case '<':
-                    if (peek() == '-' && peek(1) == '-') { token_queue.add_cdo(); write_to_output(input.next()); write_to_output(input.next()); }
+                    if (is_top_level() && peek() == '-' && peek(1) == '-') { token_queue.add_cdo(); write_to_output(input.next()); write_to_output(input.next()); }
                     else token_queue.add_delimiter(ch);
                     break;
                 case '@':
-                    if (has_identifier_next()) enter_at_keyword();
+                    if (at_rules_allowed() && has_identifier_next()) enter_at_keyword();
                     else token_queue.add_delimiter(ch);
                     break;
                 case '\\':
@@ -1003,13 +1036,7 @@ class Parser {
             ch(0), end_string_with('"'), prev_ch(0), block_types(), states(), escape_buf(),
             escape_buf_pos(0), token_queue(PyUnicode_GET_LENGTH(src), url_callback), input(src)
         {
-            BlockTypeFlags initial_block_type;
-            initial_block_type.set(DECLARATIONS_ALLOWED);
-            if (!is_declaration) {
-                initial_block_type.set(AT_RULES_ALLOWED);
-                initial_block_type.set(QUALIFIED_RULES_ALLOWED);
-            }
-            block_types.push(initial_block_type);
+            if (is_declaration) push_block_type(); else push_block_type(true, true, true, true);
         }
 
         void parse(std::u32string &result) {
