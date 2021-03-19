@@ -607,25 +607,28 @@ typedef std::bitset<NUM_OF_BLOCK_TYPE_FLAGS> BlockTypeFlags;
 
 class InputStream {
     private:
-        const char32_t *src;
-        size_t pos;
+        int kind;
+        void *data;
         const size_t src_sz;
+        size_t pos;
+
+        char32_t read(size_t i) const { return PyUnicode_READ(kind, data, i); }
 
         char32_t peek_one(size_t at, unsigned *consumed) const {
             if (at >= src_sz) { *consumed = 0; return 0; }
             *consumed = 1;
-            char32_t ch = src[at];
+            char32_t ch = read(at);
             if (ch == 0xc) ch = '\n';
             else if (ch == '\r') {
                 ch = '\n';
-                if (at + 1 < src_sz && src[at + 1] == '\n') *consumed = 2;
+                if (at + 1 < src_sz && read(at + 1) == '\n') *consumed = 2;
             }
             else if (ch == 0 || is_surrogate(ch)) ch = 0xfffd;
             return ch;
         }
 
     public:
-        InputStream(const char32_t *src, size_t sz) : src(src), pos(0), src_sz(sz) { }
+        InputStream(PyObject *src) : kind(PyUnicode_KIND(src)), data(PyUnicode_DATA(src)), src_sz(PyUnicode_GET_LENGTH(src)), pos(0) { }
 
         char32_t next() {
             unsigned last_step_size;
@@ -636,7 +639,7 @@ class InputStream {
 
         void rewind() {
             if (!pos) throw std::logic_error("Cannot rewind already at start of stream");
-            pos -= (src[pos-1] == '\n' && pos >= 2 && src[pos-2] == '\r') ? 2 : 1;
+            pos -= (read(pos-1) == '\n' && pos >= 2 && read(pos-2) == '\r') ? 2 : 1;
         }
 
         char32_t peek(unsigned amt = 0) const {
@@ -996,9 +999,9 @@ class Parser {
 
 
     public:
-        Parser(const char32_t *src, const size_t src_sz, const bool is_declaration) :
+        Parser(PyObject *src, PyObject *url_callback = NULL, const bool is_declaration = false) :
             ch(0), end_string_with('"'), prev_ch(0), block_types(), states(), escape_buf(),
-            escape_buf_pos(0), token_queue(src_sz), input(src, src_sz)
+            escape_buf_pos(0), token_queue(PyUnicode_GET_LENGTH(src), url_callback), input(src)
         {
             BlockTypeFlags initial_block_type;
             initial_block_type.set(DECLARATIONS_ALLOWED);
@@ -1037,13 +1040,24 @@ class Parser {
 
 
 static PyObject*
-transform_properties(const char32_t *src, size_t src_sz, bool is_declaration) {
+transform_properties(PyObject *src, PyObject *url_callback = NULL, bool is_declaration = false) {
     try {
         std::u32string result;
-        Parser parser(src, src_sz, is_declaration);
+        Parser parser(src, url_callback, is_declaration);
         parser.parse(result);
         return PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, result.data(), result.size());
     } handle_exceptions("Unknown error while parsing CSS");
+}
+
+static PyObject*
+transform_properties_python(PyObject *self, PyObject *args, PyObject *kw) {
+    static const char* kwlist[] = {"url_callback", "is_declaration", NULL};
+    PyObject *raw, *url_callback = NULL; int is_declaration = 0;
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "U|Op", (char**)kwlist, &raw, &url_callback, &is_declaration)) return NULL;
+    if (url_callback && !PyCallable_Check(url_callback)) { PyErr_SetString(PyExc_TypeError, "url_callback must be a callable"); return NULL; }
+    if (PyUnicode_READY(raw) != 0) return NULL;
+    PyObject *result = transform_properties(raw, url_callback, is_declaration);
+    return result;
 }
 
 static PyObject*
@@ -1066,6 +1080,9 @@ parse_css_number_python(PyObject *self, PyObject *src) {
 static PyMethodDef methods[] = {
     {"parse_css_number", parse_css_number_python, METH_O,
      "Parse a CSS number form a string"
+    },
+    {"transform_properties", (PyCFunction)transform_properties_python, METH_VARARGS | METH_KEYWORDS,
+     "Transform a CSS stylesheet or declaration"
     },
     {NULL, NULL, 0, NULL}
 };
