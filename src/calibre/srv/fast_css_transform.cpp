@@ -98,6 +98,7 @@ class ParsedNumber {
 		double float_value;
 		ParsedNumber(integer_type val) : is_integer(true), integer_value(val), float_value(0) {}
 		ParsedNumber(double val) : is_integer(false), integer_value(0), float_value(val) {}
+        double as_double() const { return is_integer ? (double)integer_value : float_value; }
 };
 
 static const double base_font_size = 16.0, dpi = 96.0, pt_to_px = dpi / 72.0, pt_to_rem = pt_to_px / base_font_size;
@@ -340,25 +341,39 @@ class Token {
 
 		void set_text(const PyObject* src) {
 			if (PyUnicode_READY(src) != 0) throw python_error("Failed to set token value from unicode object as readying the unicode obect failed");
-			text.clear();
 			int kind = PyUnicode_KIND(src); void *data = PyUnicode_DATA(src);
-			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text.push_back(PyUnicode_READ(kind, data, i));
+            text.resize(PyUnicode_GET_LENGTH(src));
+			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text[i] = PyUnicode_READ(kind, data, i);
 		}
 
 		void set_text(const char* src) {
-			text.clear();
-			while(*src) text.push_back(*(src++));
+			text.resize(strlen(src));
+            for (size_t i = 0; i < text.size(); i++) text[i] = src[i];
 		}
 
 		void set_text(const frozen::string &src) {
-			text.clear();
-			for (size_t i = 0; i < src.size(); i++) text.push_back(src[i]);
+            text.resize(src.size());
+            for (size_t i = 0; i < text.size(); i++) text[i] = src[i];
 		}
 
-		bool parse_dimension(std::string &scratch) {
-			if (!text_as_ascii_lowercase(scratch)) return false;
-		}
+        void set_text(const std::string &src) {
+            text.resize(src.size());
+            for (size_t i = 0; i < text.size(); i++) text[i] = src[i];
+        }
 
+        bool convert_absolute_font_size(std::string &scratch) {
+            if (!unit_at || !text_as_ascii_lowercase(scratch)) return false;
+            frozen::string unit(scratch.data() + unit_at, scratch.size() - unit_at);
+            auto lit = absolute_length_units.find(unit);
+            if (lit == absolute_length_units.end()) return false;
+            double val = parse_css_number<std::string>(scratch, unit_at).as_double();
+            double new_val = convert_font_size(val, lit->second);
+            if (val == new_val) return false;
+            scratch.reserve(128); scratch.clear();
+            scratch.resize(std::snprintf(&scratch[0], scratch.capacity(), "%grem", new_val));
+            set_text(scratch);
+            return true;
+        }
 };
 
 class TokenQueue {
@@ -488,6 +503,7 @@ class TokenQueue {
 						}
 						break;
 					case TokenType::dimension:
+                        if (it->convert_absolute_font_size(scratch2)) changed = true;
 						break;
 					default:
 						break;
