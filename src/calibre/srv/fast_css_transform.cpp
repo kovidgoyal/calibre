@@ -32,7 +32,7 @@ is_surrogate(char32_t ch) {
 }
 
 static inline bool
-is_hex_char(char32_t ch) {
+is_hex_digit(char32_t ch) {
     return ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'f') || ('A' <= ch || ch <= 'F');
 }
 
@@ -42,13 +42,18 @@ is_letter(char32_t ch) {
 }
 
 static inline bool
+is_digit(char32_t ch) {
+    return '0' <= ch && ch <= '9';
+}
+
+static inline bool
 is_name_start(char32_t ch) {
     return is_letter(ch) || ch == '_' || ch >= 0x80;
 }
 
 static inline bool
-is_digit(char32_t ch) {
-    return '0' <= ch && ch <= '9';
+is_name_body(char32_t ch) {
+    return is_name_start(ch) || is_digit(ch) || ch == '-';
 }
 
 static inline bool
@@ -220,7 +225,6 @@ enum class TokenType : unsigned int {
     whitespace,
     delimiter,
     ident,
-    function,
     at_keyword,
     hash,
     string,
@@ -228,7 +232,6 @@ enum class TokenType : unsigned int {
     function_start,
     number,
     dimension,
-    percentage,
     comment,
     cdo,
     cdc
@@ -236,6 +239,8 @@ enum class TokenType : unsigned int {
 
 
 class Token {
+    enum class NameSerializeState : unsigned { start, one_hyphen, body };
+
     private:
         TokenType type;
         std::u32string text;
@@ -245,6 +250,55 @@ class Token {
             type = TokenType::whitespace;
             text.clear();
             unit_at = 0;
+        }
+
+        void serialize_escaped_char(const char32_t ch, std::u32string &out) const {
+            out.push_back('\\');
+            if (is_whitespace(ch) || is_hex_digit(ch)) {
+                char buf[8];
+                int num = std::snprintf(buf, sizeof(buf), "%x ", ch);
+                if (num > 0) {
+                    out.resize(out.size() + num);
+                    for (int i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
+                } else throw std::runtime_error("Failed to convert character to hexedecimal escape");
+            } else out.push_back(ch);
+        }
+
+        void serialize_ident(std::u32string &out) const {
+            NameSerializeState state = NameSerializeState::start;
+            for (const auto ch : text) {
+                switch(state) {
+                    case NameSerializeState::start:
+                        if (is_name_start(ch)) { out.push_back(ch); state = NameSerializeState::body; }
+                        else if (ch == '-') { out.push_back(ch); state = NameSerializeState::one_hyphen; }
+                        else throw std::logic_error("Unable to serialize ident because of invalid start character");
+                        break;
+                    case NameSerializeState::one_hyphen:
+                        if (is_name_start(ch) || ch == '-') { out.push_back(ch); state = NameSerializeState::body; }
+                        else serialize_escaped_char(ch, out);
+                        break;
+                    case NameSerializeState::body:
+                        if (is_name_body(ch)) out.push_back(ch);
+                        else serialize_escaped_char(ch, out);
+                        break;
+                }
+            }
+        }
+
+        void serialize_hash(std::u32string &out) const {
+            for (const auto ch : text) {
+                if (is_name_body(ch)) out.push_back(ch);
+                else serialize_escaped_char(ch, out);
+            }
+        }
+
+        void serialize_string(std::u32string &out) const {
+            const char32_t delim = text.find('"') == std::u32string::npos ? '"' : '\'';
+            for (const auto ch : text) {
+                if (ch == '\n') out.append({'\\', '\n'});
+                else if (ch == delim || ch == '\\') serialize_escaped_char(ch, out);
+                else out.push_back(ch);
+            }
         }
 
     public:
@@ -279,6 +333,7 @@ class Token {
 
 		TokenType get_type() const { return type; }
         void set_type(const TokenType q) { type = q; }
+        size_t get_output_position() const { return out_pos; }
 		void set_output_position(const size_t val) { out_pos = val; }
         bool is_type(const TokenType q) const { return type == q; }
         bool is_delimiter(const char32_t ch) const { return type == TokenType::delimiter && text.size() == 1 && text[0] == ch; }
@@ -374,6 +429,53 @@ class Token {
             set_text(scratch);
             return true;
         }
+
+        void serialize(std::u32string &out) const {
+            switch (type) {
+                case TokenType::whitespace:
+                case TokenType::delimiter:
+                    out.append(text);
+                    break;
+                case TokenType::ident:
+                    serialize_ident(out);
+                    break;
+                case TokenType::at_keyword:
+                    out.push_back('@');
+                    serialize_ident(out);
+                    break;
+                case TokenType::hash:
+                    out.push_back('#');
+                    serialize_hash(out);
+                    break;
+                case TokenType::string:
+                    serialize_string(out);
+                    break;
+                case TokenType::url:
+                    out.append({'u', 'r', 'l', '('});
+                    serialize_string(out);
+                    out.push_back(')');
+                    break;
+                case TokenType::function_start:
+                    serialize_ident(out);
+                    out.push_back('(');
+                    break;
+                case TokenType::number:
+                case TokenType::dimension:
+                    out.append(text);
+                    break;
+                case TokenType::comment:
+                    out.append({'/', '*'});
+                    out.append(text);
+                    out.append({'*', '/'});
+                    break;
+                case TokenType::cdo:
+                    out.append({'<', '!', '-', '-'});
+                    break;
+                case TokenType::cdc:
+                    out.append({'-', '-', '>'});
+                    break;
+            }
+        }
 };
 
 class TokenQueue {
@@ -384,6 +486,8 @@ class TokenQueue {
 		std::string scratch, scratch2;
 		pyobject_raii url_callback;
 
+		size_t current_output_position() const { return out.size(); }
+
         void new_token(const TokenType type, const char32_t ch = 0) {
             if (pool.empty()) queue.emplace_back(type, ch, current_output_position());
             else {
@@ -393,8 +497,6 @@ class TokenQueue {
                 if (ch) queue.back().add_char(ch);
             }
         }
-
-		size_t current_output_position() const { return out.size(); }
 
         void add_char_of_type(const TokenType type, const char32_t ch) {
             if (!queue.empty() && queue.back().is_type(type)) queue.back().add_char(ch);
@@ -552,16 +654,16 @@ class TokenQueue {
 
         void add_delimiter(const char32_t ch) { new_token(TokenType::delimiter, ch); }
 
-        void add_hash() { new_token(TokenType::hash, '#'); }
+        void add_hash() { new_token(TokenType::hash); }
 
-        void add_at_keyword() { new_token(TokenType::at_keyword, '@'); }
+        void add_at_keyword() { new_token(TokenType::at_keyword); }
 
         void add_number(const char32_t ch) { new_token(TokenType::number, ch); }
 
         void add_ident(const char32_t ch) { new_token(TokenType::ident, ch); }
 
-        void add_cdc() { new_token(TokenType::cdc, '-'); queue.back().add_char('-'); queue.back().add_char('>'); }
-        void add_cdo() { new_token(TokenType::cdo, '<'); queue.back().add_char('-'); queue.back().add_char('-'); }
+        void add_cdc() { new_token(TokenType::cdc); }
+        void add_cdo() { new_token(TokenType::cdo); }
 
         void mark_unit() {
             if (queue.empty()) throw std::logic_error("Attempting to mark unit with no token present");
@@ -596,6 +698,10 @@ class TokenQueue {
 			} else {
 				if (process_declaration()) changed = true;
 			}
+            if (changed && queue.size()) {
+                out.resize(queue[0].get_output_position());
+                for (auto tok : queue) tok.serialize(out);
+            }
 			return_tokens_to_pool();
 		}
 };
@@ -761,7 +867,7 @@ class Parser {
         void handle_escape() {
             if (!escape_buf_pos) {
                 if (ch == '\n') { reconsume(); states.pop(); return; }
-                if (!is_hex_char(ch)) {
+                if (!is_hex_digit(ch)) {
                     states.pop();
                     token_queue.add_char(ch);
                     return;
@@ -769,7 +875,7 @@ class Parser {
                 escape_buf[escape_buf_pos++] = (char)ch;
                 return;
             }
-            if (is_hex_char(ch) && escape_buf_pos < 6) { escape_buf[escape_buf_pos++] = (char)ch; return; }
+            if (is_hex_digit(ch) && escape_buf_pos < 6) { escape_buf[escape_buf_pos++] = (char)ch; return; }
             if (is_whitespace(ch)) return;  // a single whitespace character is absorbed into escape
             reconsume();
             states.pop();
@@ -994,7 +1100,7 @@ class Parser {
                     else token_queue.add_delimiter(ch);
                     break;
                 case '<':
-                    if (is_top_level() && peek() == '-' && peek(1) == '-') { token_queue.add_cdo(); write_to_output(input.next()); write_to_output(input.next()); }
+                    if (is_top_level() && peek() == '!' && peek(1) == '-' && peek(2) == '-') { token_queue.add_cdo(); write_to_output(input.next()); write_to_output(input.next()); }
                     else token_queue.add_delimiter(ch);
                     break;
                 case '@':
