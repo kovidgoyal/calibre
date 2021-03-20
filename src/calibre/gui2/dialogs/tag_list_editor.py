@@ -330,7 +330,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
                 current_row = rows[0].row()
                 current_col = view.column_map.index(self.category)
                 index = view.model().index(current_row, current_col)
-                qv.change_quickview_column(index)
+                qv.change_quickview_column(index, show=False)
 
     def copy_to_clipboard(self, item):
         cb = QApplication.clipboard()
