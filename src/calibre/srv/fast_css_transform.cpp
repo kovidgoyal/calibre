@@ -737,6 +737,7 @@ class TokenQueue {
 class Parser {
     private:
         enum class ParseState : unsigned {
+            normal,
             escape,
             comment,
             string,
@@ -843,6 +844,7 @@ class Parser {
         // }}}
 
         // testing stream contents {{{
+        void pop_state() { if (states.size() > 1) states.pop(); }
         void rewind_output() { token_queue.rewind_output(); }
         void write_to_output(const char32_t what) { token_queue.write_to_output(what); }
         void reconsume() { input.rewind(); rewind_output(); }
@@ -893,9 +895,9 @@ class Parser {
 
         void handle_escape() {
             if (!escape_buf_pos) {
-                if (ch == '\n') { reconsume(); states.pop(); return; }
+                if (ch == '\n') { reconsume(); pop_state(); return; }
                 if (!is_hex_digit(ch)) {
-                    states.pop();
+                    pop_state();
                     token_queue.add_char(ch);
                     return;
                 }
@@ -905,7 +907,7 @@ class Parser {
             if (is_hex_digit(ch) && escape_buf_pos < 6) { escape_buf[escape_buf_pos++] = (char)ch; return; }
             if (is_whitespace(ch)) return;  // a single whitespace character is absorbed into escape
             reconsume();
-            states.pop();
+            pop_state();
             escape_buf[escape_buf_pos] = 0;
             long kch = strtol(escape_buf, NULL, 16);
             if (kch > 0 && !is_surrogate(kch)) token_queue.add_char(kch);
@@ -925,7 +927,7 @@ class Parser {
                 if (peek() == '\n') input.next();
                 else enter_escape_mode();
             }
-            else if (ch == end_string_with) states.pop();
+            else if (ch == end_string_with) pop_state();
             else token_queue.add_char(ch);
         } // }}}
 
@@ -937,7 +939,7 @@ class Parser {
 
         void handle_comment() {
             token_queue.add_char(ch);
-            if (ch == '/' && prev_ch == '*') states.pop();
+            if (ch == '/' && prev_ch == '*') pop_state();
         } // }}}
 
         // hash {{{
@@ -951,7 +953,7 @@ class Parser {
             else if (has_valid_escape()) enter_escape_mode();
             else {
                 reconsume();
-                states.pop();
+                pop_state();
             }
         }
 
@@ -967,18 +969,18 @@ class Parser {
 
         void handle_number() {
             if (is_digit(ch)) { token_queue.add_char(ch); return; }
-            if (ch == '.' && is_digit(peek())) { states.pop(); enter_digits_mode(); return; }
+            if (ch == '.' && is_digit(peek())) { pop_state(); enter_digits_mode(); return; }
             if ((ch == 'e' || ch == 'E')) {
                 char32_t next = peek();
                 if (is_digit(next) || ((next == '+' || next == '-') && is_digit(peek(1)))) {
                     token_queue.add_char(input.next()); token_queue.add_char(input.next());
-                    states.pop();
+                    pop_state();
                     enter_digits_mode();
                     return;
                 }
             }
             reconsume();
-            states.pop();
+            pop_state();
             if (has_identifier_next()) { enter_dimension_mode(); }
         }  // }}}
 
@@ -991,7 +993,7 @@ class Parser {
             if (is_digit(ch)) { token_queue.add_char(ch); }
             else {
                 reconsume();
-                states.pop();
+                pop_state();
                 if (has_identifier_next()) { enter_dimension_mode(); }
             }
         } // }}}
@@ -1006,7 +1008,7 @@ class Parser {
             if (is_name(ch)) { token_queue.add_char(ch); return; }
             if (has_valid_escape()) { enter_escape_mode(); return; }
             reconsume();
-            states.pop();
+            pop_state();
         } // }}}
 
         // ident {{{
@@ -1026,7 +1028,7 @@ class Parser {
                 return;
             }
             reconsume();
-            states.pop();
+            pop_state();
         } // }}}
 
         // url {{{
@@ -1037,9 +1039,9 @@ class Parser {
 
         void handle_url_start() {
             if (is_whitespace(ch)) return;
-            if (starting_string()) { states.pop(); end_string_with = ch; states.push(ParseState::url_string); return; }
-            if (ch == ')') { states.pop(); return; }
-            states.pop(); states.push(ParseState::url);
+            if (starting_string()) { pop_state(); end_string_with = ch; states.push(ParseState::url_string); return; }
+            if (ch == ')') { pop_state(); return; }
+            pop_state(); states.push(ParseState::url);
         }
 
         void handle_url_string() {
@@ -1057,7 +1059,7 @@ class Parser {
         }
 
         void exit_url_mode(bool trim=false) {
-            states.pop();
+            pop_state();
             if (trim) token_queue.trim_trailing_whitespace();
         }
         // }}}
@@ -1146,8 +1148,9 @@ class Parser {
 
         void dispatch_current_char() {
             write_to_output(ch);
-            if (!states.size()) { handle_normal(); return; }
             switch (states.top()) {
+                case ParseState::normal:
+                    handle_normal(); break;
                 case ParseState::comment:
                     handle_comment(); break;
                 case ParseState::escape:
@@ -1185,6 +1188,7 @@ class Parser {
             escape_buf_pos(0), token_queue(PyUnicode_GET_LENGTH(src), url_callback), input(src)
         {
             if (is_declaration) push_block_type(); else push_block_type(true, true, true, true);
+            states.push(ParseState::normal);
         }
 
         void parse(std::u32string &result) {
