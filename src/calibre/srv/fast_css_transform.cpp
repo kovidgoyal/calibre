@@ -737,7 +737,6 @@ class TokenQueue {
 class Parser {
     private:
         enum class ParseState : unsigned {
-            normal,
             escape,
             comment,
             string,
@@ -1147,6 +1146,7 @@ class Parser {
 
         void dispatch_current_char() {
             write_to_output(ch);
+            if (!states.size()) { handle_normal(); return; }
             switch (states.top()) {
                 case ParseState::comment:
                     handle_comment(); break;
@@ -1174,8 +1174,6 @@ class Parser {
                     handle_url_after_string(); break;
                 case ParseState::at_keyword:
                     handle_at_keyword(); break;
-                case ParseState::normal:
-                    handle_normal(); break;
             }
             prev_ch = ch;
         }

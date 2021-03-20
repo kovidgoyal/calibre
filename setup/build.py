@@ -276,7 +276,7 @@ class Build(Command):
         parser.add_option('--debug', default=False, action='store_true',
             help='Build in debug mode')
         parser.add_option('--sanitize', default=False, action='store_true',
-            help='Build with sanitization support. Run with LD_PREFLOAD=$(gcc -print-file-name=libasan.so)')
+            help='Build with sanitization support. Run with LD_PRELOAD=$(gcc -print-file-name=libasan.so)')
 
     def run(self, opts):
         from setup.parallel_build import parallel_build, create_job
