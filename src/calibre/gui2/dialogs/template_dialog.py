@@ -292,7 +292,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         if mi:
             if not isinstance(mi, list):
                 mi = (mi, )
-            self.mi = mi
         else:
             mi = Metadata(_('Title'), [_('Author')])
             mi.author_sort = _('Author Sort')
@@ -314,7 +313,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                       get_gui().current_db.new_api.field_metadata.custom_field_metadata())
             for col in mi.get_all_user_metadata(False):
                 mi.set(col, (col,), 0)
-            mi = [mi,]
+            mi = (mi, )
+        self.mi = mi
 
         # Set up the display table
         self.table_column_widths = None
