@@ -15,8 +15,11 @@
 #include <stack>
 #include <exception>
 #include <stdexcept>
+#include <iostream>
 #include <string>
 #include <functional>
+#include <locale>
+#include <codecvt>
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
 
@@ -384,11 +387,24 @@ class Token {
 			}
 		}
 
-		PyObject* get_text() const {
+		PyObject* get_text_as_python() const {
 			PyObject *ans = PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, text.data(), text.size());
 			if (ans == NULL) throw python_error("Failed to convert token value to python unicode object");
 			return ans;
 		}
+
+        const std::u32string& get_text() const {
+            return text;
+        }
+
+        const char* type_name() const {
+#define n(x) case TokenType::x: return #x;
+            switch(type) {
+                n(whitespace); n(comment); n(cdo); n(cdc); n(ident); n(string); n(number);
+                n(function_start); n(dimension); n(url); n(delimiter); n(at_keyword); n(hash);
+            }
+#undef n
+        }
 
 		void erase_text_substring(size_t pos, size_t len) {
 			text.replace(pos, len, (size_t)0u, 0);
@@ -431,6 +447,7 @@ class Token {
         }
 
         void serialize(std::u32string &out) const {
+            out.reserve(text.size() + 8);
             switch (type) {
                 case TokenType::whitespace:
                 case TokenType::delimiter:
@@ -476,7 +493,18 @@ class Token {
                     break;
             }
         }
+
+        friend std::ostream& operator<<(std::ostream& os, const Token& tok);
 };
+
+std::ostream& operator<<(std::ostream& os, const Token& tok) {
+    std::u32string rep;
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> cv;
+    tok.serialize(rep);
+    os << cv.to_bytes(rep);
+    return os;
+}
+
 
 class TokenQueue {
     private:
@@ -534,7 +562,7 @@ class TokenQueue {
 			if (url_callback) {
 				for (auto& tok : queue) {
 					if (tok.is_type(type)) {
-						pyobject_raii url(tok.get_text());
+						pyobject_raii url(tok.get_text_as_python());
 						pyobject_raii new_url(PyObject_CallFunctionObjArgs(url_callback.ptr(), url.ptr(), NULL));
 						if (!new_url) { PyErr_Print(); }
 						else {
@@ -1167,6 +1195,7 @@ class Parser {
                 if (!ch) break;
                 dispatch_current_char();
             }
+            token_queue.commit_tokens(';');
 			token_queue.swap_result_to(result);
         }
 
@@ -1200,9 +1229,10 @@ transform_properties(PyObject *src, PyObject *url_callback = NULL, bool is_decla
 
 static PyObject*
 transform_properties_python(PyObject *self, PyObject *args, PyObject *kw) {
-    static const char* kwlist[] = {"url_callback", "is_declaration", NULL};
+    static const char* kwlist[] = {"src", "url_callback", "is_declaration", NULL};
     PyObject *raw, *url_callback = NULL; int is_declaration = 0;
     if (!PyArg_ParseTupleAndKeywords(args, kw, "U|Op", (char**)kwlist, &raw, &url_callback, &is_declaration)) return NULL;
+    if (url_callback == Py_None) url_callback = NULL;
     if (url_callback && !PyCallable_Check(url_callback)) { PyErr_SetString(PyExc_TypeError, "url_callback must be a callable"); return NULL; }
     if (PyUnicode_READY(raw) != 0) return NULL;
     PyObject *result = transform_properties(raw, url_callback, is_declaration);
@@ -1228,7 +1258,7 @@ parse_css_number_python(PyObject *self, PyObject *src) {
 #undef handle_exceptions
 static PyMethodDef methods[] = {
     {"parse_css_number", parse_css_number_python, METH_O,
-     "Parse a CSS number form a string"
+     "Parse a CSS number from a string"
     },
     {"transform_properties", (PyCFunction)transform_properties_python, METH_VARARGS | METH_KEYWORDS,
      "Transform a CSS stylesheet or declaration"
