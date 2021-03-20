@@ -263,7 +263,7 @@ class Token {
                 if (num > 0) {
                     out.resize(out.size() + num);
                     for (int i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
-                } else throw std::runtime_error("Failed to convert character to hexedecimal escape");
+                } else throw std::logic_error("Failed to convert character to hexedecimal escape");
             } else out.push_back(ch);
         }
 
@@ -586,8 +586,7 @@ class TokenQueue {
 				if (!it->is_significant()) continue;
 				if (key_found) {
 					if (colon_found) {
-						if (process_values) process_values(it);
-						break;
+						if (process_values && process_values(it)) changed = true;;
 					} else {
 						if (!it->is_delimiter(':')) break;  // no colon found
 						colon_found = true;
@@ -727,7 +726,8 @@ class TokenQueue {
 				if (process_declaration()) changed = true;
 			}
             if (changed && queue.size()) {
-                out.resize(queue[0].get_output_position());
+                const size_t pos = queue[0].get_output_position();
+                out.resize(pos ? pos - 1: 0);
                 for (auto tok : queue) tok.serialize(out);
             }
 			return_tokens_to_pool();
