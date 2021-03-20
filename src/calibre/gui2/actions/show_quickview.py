@@ -164,12 +164,13 @@ class ShowQuickviewAction(InterfaceAction):
         if self.current_instance and not self.current_instance.is_closed:
             self.current_instance.refresh(idx)
 
-    def change_quickview_column(self, idx):
+    def change_quickview_column(self, idx, show=True):
         '''
         Called from the column header context menu to change the QV query column
         '''
-        self.focus_quickview()
-        self.current_instance.slave(idx)
+        if show or (self.current_instance and not self.current_instance.is_closed):
+            self.focus_quickview()
+            self.current_instance.slave(idx)
 
     def library_changed(self, db):
         '''
