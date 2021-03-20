@@ -183,7 +183,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="2" column="0" colspan="4">
           <widget class="QPlainTextEdit" name="textbox">
            <property name="toolTip">
             <string>The template program text</string>
@@ -223,11 +223,8 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="template_value">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
+         <item row="6" column="0" colspan="4">
+          <widget class="QTableWidget" name="template_value">
           </widget>
          </item>
          <item row="11" column="0">
@@ -420,7 +417,7 @@
            </item>
           </layout>
          </item>
-         <item row="21" column="0" colspan="5">
+         <item row="21" column="0" colspan="4">
           <widget class="QFrame">
            <property name="frameShape">
             <enum>QFrame::HLine</enum>
