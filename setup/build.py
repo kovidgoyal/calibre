@@ -165,17 +165,16 @@ def read_extensions():
     return ans
 
 
-def init_env():
+def init_env(debug=False):
     from setup.build_environment import win_ld, is64bit, win_inc, win_lib, NMAKE, win_cc
     from distutils import sysconfig
     linker = None
     if isunix:
         cc = os.environ.get('CC', 'gcc')
         cxx = os.environ.get('CXX', 'g++')
-        debug = ''
-        # debug = '-ggdb'
+        debug = '-ggdb' if debug else ''
         cflags = os.environ.get('OVERRIDE_CFLAGS',
-            '-Wall -DNDEBUG %s -fno-strict-aliasing -pipe' % debug)
+            f'-Wall -DNDEBUG {debug} -fno-strict-aliasing -pipe')
         cflags = shlex.split(cflags) + ['-fPIC']
         ldflags = os.environ.get('OVERRIDE_LDFLAGS', '-Wall')
         ldflags = shlex.split(ldflags)
@@ -212,8 +211,13 @@ def init_env():
 
     if iswindows:
         cc = cxx = win_cc
-        cflags = '/c /nologo /MD /W3 /EHsc /utf-8 /DNDEBUG'.split()
-        ldflags = '/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt.lib'.split()
+        cflags = '/c /nologo /W3 /EHsc /utf-8'.split()
+        cflags.append('/Zi' if debug else '/DNDEBUG')
+        suffix = ('d' if debug else '')
+        cflags.append('/MD' + suffix)
+        ldflags = f'/DLL /nologo /INCREMENTAL:NO /NODEFAULTLIB:libcmt{suffix}.lib'.split()
+        if debug:
+            ldflags.append('/DEBUG')
         # cflags = '/c /nologo /Ox /MD /W3 /EHsc /Zi'.split()
         # ldflags = '/DLL /nologo /INCREMENTAL:NO /DEBUG'.split()
         if is64bit:
@@ -266,13 +270,15 @@ class Build(Command):
             help='Path to directory in which to place object files during the build process, defaults to "build"')
         parser.add_option('--output-dir', default=None,
             help='Path to directory in which to place the built extensions. Defaults to src/calibre/plugins')
+        parser.add_option('--debug', default=False, action='store_true',
+            help='Build in debug mode')
 
     def run(self, opts):
         from setup.parallel_build import parallel_build, create_job
         if opts.no_compile:
             self.info('--no-compile specified, skipping compilation')
             return
-        self.env = init_env()
+        self.env = init_env(debug=opts.debug)
         all_extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
         self.build_dir = os.path.abspath(opts.build_dir or self.DEFAULT_BUILDDIR)
         self.output_dir = os.path.abspath(opts.output_dir or self.DEFAULT_OUTPUTDIR)
