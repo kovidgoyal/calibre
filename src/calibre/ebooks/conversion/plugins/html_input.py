@@ -25,7 +25,7 @@ def sanitize_file_name(x):
     for ch in '?&=;#/\\':
         ans = ans.replace(ch, '_')
         q = quote(ch, safe='')
-        ans = re.sub(f'\{q}', '_', ans, flags=re.I)
+        ans = re.sub(f'\\{q}', '_', ans, flags=re.I)
     ans = ans.strip().rstrip('.')
     ans, ext = ans.rpartition('.')[::2]
     return (ans.strip() + '.' + ext.strip()).rstrip('.')

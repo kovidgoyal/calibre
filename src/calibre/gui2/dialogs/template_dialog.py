@@ -332,8 +332,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         # Set the height of the table
         h = tv.rowHeight(0) * min(len(mi), 5)
         h += 2 * tv.frameWidth() + tv.horizontalHeader().height()
-        tv.setMinimumHeight(h);
-        tv.setMaximumHeight(h);
+        tv.setMinimumHeight(h)
+        tv.setMaximumHeight(h)
         # Set the size of the title column
         if self.table_column_widths:
             tv.setColumnWidth(0, self.table_column_widths[0])
@@ -416,9 +416,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             geom = gprefs.get('template_editor_dialog_geometry', None)
             if geom is not None:
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
-        except:
+        except Exception:
             pass
-
 
     def font_size_changed(self, toWhat):
         gprefs['gpm_template_editor_font_size'] = toWhat
