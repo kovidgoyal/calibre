@@ -9,8 +9,7 @@ import json, os, traceback
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize, QPalette, QTableWidgetItem, QStyledItemDelegate,
-                      QByteArray)
+                      QIcon, QSize, QPalette, QLineEdit, QByteArray)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -340,6 +339,14 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             tv.setColumnWidth(0, self.table_column_widths[0])
         else:
             tv.setColumnWidth(0, tv.fontMetrics().averageCharWidth() * 10)
+        # Use our own widget to get rid of elision. setTextElideMode() doesn't work
+        for r in range(0, len(mi)):
+            w = QLineEdit(tv)
+            w.setReadOnly(True)
+            tv.setCellWidget(r, 0, w)
+            w = QLineEdit(tv)
+            w.setReadOnly(True)
+            tv.setCellWidget(r, 1, w)
 
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -478,11 +485,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
     def display_values(self, txt):
         tv = self.template_value
         for r,mi in enumerate(self.mi):
-            tv.setItem(r, 0, QTableWidgetItem(mi.title))
+            w = tv.cellWidget(r, 0)
+            w.setText(mi.title)
+            w.setCursorPosition(0)
             v = SafeFormat().safe_format(txt, mi, _('EXCEPTION: '),
                                          mi, global_vars=self.global_vars,
                                          template_functions=self.all_functions)
-            tv.setItem(r, 1, QTableWidgetItem(v))
+            w = tv.cellWidget(r, 1)
+            w.setText(v)
+            w.setCursorPosition(0)
 
     def text_cursor_changed(self):
         cursor = self.textbox.textCursor()
