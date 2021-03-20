@@ -165,7 +165,7 @@ def read_extensions():
     return ans
 
 
-def init_env(debug=False):
+def init_env(debug=False, sanitize=False):
     from setup.build_environment import win_ld, is64bit, win_inc, win_lib, NMAKE, win_cc
     from distutils import sysconfig
     linker = None
@@ -181,6 +181,9 @@ def init_env(debug=False):
         cflags += shlex.split(os.environ.get('CFLAGS', ''))
         ldflags += shlex.split(os.environ.get('LDFLAGS', ''))
         cflags += ['-fvisibility=hidden']
+        if sanitize:
+            cflags.append('-fsanitize-address')
+            ldflags.append('-shared-libasan')
 
     if islinux:
         cflags.append('-pthread')
@@ -272,6 +275,8 @@ class Build(Command):
             help='Path to directory in which to place the built extensions. Defaults to src/calibre/plugins')
         parser.add_option('--debug', default=False, action='store_true',
             help='Build in debug mode')
+        parser.add_option('--sanitize', default=False, action='store_true',
+            help='Build with sanitization support. Run with LD_PREFLOAD=$(gcc -print-file-name=libasan.so)')
 
     def run(self, opts):
         from setup.parallel_build import parallel_build, create_job
