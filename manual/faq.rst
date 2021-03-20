@@ -832,7 +832,7 @@ There are several possible things I know of, that can cause this:
 
     * If the crashes happen specifically when you are using a file dialog, like
       clicking on the :guilabel:`Add books` button or the :guilabel:`Save to
-      Disk button`, then you have some software that has installed broken Shell
+      Disk` button, then you have some software that has installed broken Shell
       extensions on your computer. Known culprits include: *SpiderOak*, *odrive
       sync* and *Dell Backup and Recovery* and *NetDrive*. If you have one of
       these, uninstall them and you will be fine. You can also use the `NirSoft
