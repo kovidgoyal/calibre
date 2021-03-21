@@ -17,9 +17,7 @@ import re
 import sys
 import textwrap
 import time
-from collections import (
-    OrderedDict, deque
-)
+from collections import OrderedDict, deque
 from io import BytesIO
 from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
