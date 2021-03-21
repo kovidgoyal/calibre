@@ -718,6 +718,7 @@ class TokenQueue {
 					if (process_urls(TokenType::string)) changed = true;
 				}
 			} else {
+				if (process_urls()) changed = true;
 				if (process_declaration()) changed = true;
 			}
             if (changed && queue.size()) {

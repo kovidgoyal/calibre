@@ -31,6 +31,7 @@ class TestTransform(SimpleTest):
         def s(src, expected, url_callback=upper_case):
             return d(src, expected, url_callback=url_callback, is_declaration=False)
 
+        s('.c{x:url(y)}', '.c{x:url("Y")}')
         s('@im/* c */port "x.y";', '@import "X.Y";')
         s('@import url("narrow.css") supports(display: flex) handheld and (max-width: 400px);',
           '@import url("NARROW.CSS") supports(display: flex) handheld and (max-width: 400px);')
@@ -57,3 +58,28 @@ class TestTransform(SimpleTest):
 
         d('-epub-writing-mode: a; -web/* */kit-writing-mode: b; writing-mode: c', 'writing-mode: a; writing-mode: b; writing-mode: c')
         d('xxx:yyy', 'xxx:yyy')
+
+        sheet = '''
+@import "loc.test";
+@media screen {
+    font: 16px calc(20vw - 30rem);
+
+    .cls {
+        color: red;
+        font-size: 16px;
+        background: url("loc.test")
+    }
+
+    #moo.cat {
+        x: url("loc.test")
+    }
+
+    @zoo {
+        not(.woo) and why {
+            font: 16px "something something" 16;
+        }
+    }
+}
+.why { font: 16px}
+'''
+        s(sheet, sheet.replace('16px', '1rem').replace('loc.test', 'LOC.TEST'))
