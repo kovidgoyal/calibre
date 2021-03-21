@@ -28,6 +28,14 @@ class TestTransform(SimpleTest):
         def u(src, expected, is_declaration=True, url_callback=upper_case):
             return d(src, expected, url_callback=url_callback, is_declaration=is_declaration)
 
+        def s(src, expected, url_callback=upper_case):
+            return d(src, expected, url_callback=url_callback, is_declaration=False)
+
+        s('@import url("narrow.css") supports(display: flex) handheld and (max-width: 400px);',
+          '@import url("NARROW.CSS") supports(display: flex) handheld and (max-width: 400px);')
+        s('@import "x.y";', '@import "X.Y";')
+        s('@import url( x.y);', '@import url("X.Y");')
+
         u('background: url(  te  st.gif  ); src: url(x)', 'background: url("TE  ST.GIF"); src: url("X")')
         u('background: url(test.gif); xxx: url()', 'background: url("TEST.GIF"); xxx: url()')
         u(r'background: url(t\)est.gif)', 'background: url("T)EST.GIF")')
@@ -36,7 +44,7 @@ class TestTransform(SimpleTest):
 
         d(r'f\ont-s\69z\65 : 16\px', 'font-size: 1rem')
         d('font -size: 16px', 'font -size: 16px')
-        d('font-size: 16px', 'font-size: 1rem')
+        d('font-size: 16px !important', 'font-size: 1rem !important')
         d('fOnt-size :16px', 'fOnt-size :1rem')
         d('font-size:2%', 'font-size:2%')
         d('font-size: 72pt; margin: 20px; font-size: 2in', 'font-size: 6rem; margin: 20px; font-size: 12rem')

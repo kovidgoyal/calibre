@@ -1025,15 +1025,11 @@ class Parser {
         void handle_ident() {
             if (is_name(ch)) { token_queue.add_char(ch); return; }
             if (has_valid_escape()) { enter_escape_mode(); return; }
-            if (ch == '(') {
-                if (token_queue.current_token_text_equals_case_insensitive("url")) {
-                    enter_url_start_mode();
-                }
-                else token_queue.make_function_start();
-                return;
-            }
-            reconsume();
             pop_state();
+            if (ch == '(') {
+                if (token_queue.current_token_text_equals_case_insensitive("url")) enter_url_start_mode();
+                else token_queue.make_function_start();
+            } else reconsume();
         } // }}}
 
         // url {{{
