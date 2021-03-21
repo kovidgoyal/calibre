@@ -31,23 +31,23 @@ class TestTransform(SimpleTest):
         def s(src, expected, url_callback=upper_case):
             return d(src, expected, url_callback=url_callback, is_declaration=False)
 
+        s('@im/* c */port "x.y";', '@import "X.Y";')
         s('@import url("narrow.css") supports(display: flex) handheld and (max-width: 400px);',
           '@import url("NARROW.CSS") supports(display: flex) handheld and (max-width: 400px);')
-        s('@import "x.y";', '@import "X.Y";')
         s('@import url( x.y);', '@import url("X.Y");')
 
         u('background: url(  te  st.gif  ) 12; src: url(x)', 'background: url("TE  ST.GIF") 12; src: url("X")')
-        u('background: url(test.gif); xxx: url()', 'background: url("TEST.GIF"); xxx: url()')
+        u('background: url(te/**/st.gif); xxx: url()', 'background: url("TEST.GIF"); xxx: url()')
         u(r'background: url(t\)est.gif)', 'background: url("T)EST.GIF")')
-        u('a:url(  "( )"  )', 'a:url("( )")')
-        u('a:url(  "()"  )', 'a:url(  "()"  )', url_callback=lambda x: x)
+        u('a:url(  "( )" /**/ )', 'a:url("( )")')
+        u('a:url(  "(/*)"  )', 'a:url(  "(/*)"  )', url_callback=lambda x: x)
 
         d(r'f\ont-s\69z\65 : 16\px', 'font-size: 1rem')
         d('font -size: 16px', 'font -size: 16px')
-        d('font-size: 16px !important', 'font-size: 1rem !important')
+        d('font-/* */size: 1/*x*/6/**/p/**/x !important', 'font-size: 1rem !important')
         d('fOnt-size :16px', 'fOnt-size :1rem')
         d('font-size:2%', 'font-size:2%')
-        d('font-size: 72pt; margin: 20px; font-size: 2in', 'font-size: 6rem; margin: 20px; font-size: 12rem')
+        d('font-size: 72pt; margin: /*here*/ 20px; font-size: 2in', 'font-size: 6rem; margin: /*here*/ 20px; font-size: 12rem')
         d(r'''font: "some 'name" 32px''', 'font: "some \'name" 2rem')
         d(r'''font: 'some "name' 32px''', 'font: \'some "name\' 2rem')
         d(r'''font: 'some \n ame' 32px''', 'font: "some n ame" 2rem')
@@ -55,5 +55,5 @@ class TestTransform(SimpleTest):
         d('font: sans-serif 16px/3', 'font: sans-serif 1rem/3')
         d('font: sans-serif small/17', 'font: sans-serif 0.8rem/17')
 
-        d('-epub-writing-mode: a; -webkit-writing-mode: b; writing-mode: c', 'writing-mode: a; writing-mode: b; writing-mode: c')
+        d('-epub-writing-mode: a; -web/* */kit-writing-mode: b; writing-mode: c', 'writing-mode: a; writing-mode: b; writing-mode: c')
         d('xxx:yyy', 'xxx:yyy')

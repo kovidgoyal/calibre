@@ -235,7 +235,6 @@ enum class TokenType : unsigned int {
     function_start,
     number,
     dimension,
-    comment,
     cdo,
     cdc
 };
@@ -382,7 +381,6 @@ class Token {
 		bool is_significant() const {
 			switch(type) {
 				case TokenType::whitespace:
-				case TokenType::comment:
 				case TokenType::cdo:
 				case TokenType::cdc:
 					return false;
@@ -404,7 +402,7 @@ class Token {
         const char* type_name() const {
 #define n(x) case TokenType::x: return #x;
             switch(type) {
-                n(whitespace); n(comment); n(cdo); n(cdc); n(ident); n(string); n(number);
+                n(whitespace); n(cdo); n(cdc); n(ident); n(string); n(number);
                 n(function_start); n(dimension); n(url); n(delimiter); n(at_keyword); n(hash);
             }
 #undef n
@@ -484,11 +482,6 @@ class Token {
                 case TokenType::number:
                 case TokenType::dimension:
                     out.append(text);
-                    break;
-                case TokenType::comment:
-                    out.append({'/', '*'});
-                    out.append(text);
-                    out.append({'*', '/'});
                     break;
                 case TokenType::cdo:
                     out.append({'<', '!', '-', '-'});
@@ -668,10 +661,6 @@ class TokenQueue {
 
         void start_string() {
             if (queue.empty() || !queue.back().is_type(TokenType::string)) new_token(TokenType::string);
-        }
-
-        void add_comment(const char32_t ch) {
-            new_token(TokenType::comment, ch);
         }
 
         void add_char(const char32_t ch) {
@@ -940,11 +929,9 @@ class Parser {
         // comment {{{
         void enter_comment_mode() {
             states.push(ParseState::comment);
-            token_queue.add_comment(ch);
         }
 
         void handle_comment() {
-            token_queue.add_char(ch);
             if (ch == '/' && prev_ch == '*') pop_state();
         } // }}}
 
@@ -957,6 +944,7 @@ class Parser {
         void handle_name() {
             if (is_name(ch)) token_queue.add_char(ch);
             else if (has_valid_escape()) enter_escape_mode();
+            else if (starting_comment()) enter_comment_mode();
             else {
                 reconsume();
                 pop_state();
@@ -976,6 +964,7 @@ class Parser {
         void handle_number() {
             if (is_digit(ch)) { token_queue.add_char(ch); return; }
             if (ch == '.' && is_digit(peek())) { pop_state(); enter_digits_mode(); return; }
+            if (starting_comment()) { enter_comment_mode(); return; }
             if ((ch == 'e' || ch == 'E')) {
                 char32_t next = peek();
                 if (is_digit(next) || ((next == '+' || next == '-') && is_digit(peek(1)))) {
@@ -997,6 +986,7 @@ class Parser {
 
         void handle_digits() {
             if (is_digit(ch)) { token_queue.add_char(ch); }
+            else if (starting_comment()) enter_comment_mode();
             else {
                 reconsume();
                 pop_state();
@@ -1013,6 +1003,7 @@ class Parser {
         void handle_dimension() {
             if (is_name(ch)) { token_queue.add_char(ch); return; }
             if (has_valid_escape()) { enter_escape_mode(); return; }
+            if (starting_comment()) { enter_comment_mode(); return; }
             reconsume();
             pop_state();
         } // }}}
@@ -1026,6 +1017,7 @@ class Parser {
         void handle_ident() {
             if (is_name(ch)) { token_queue.add_char(ch); return; }
             if (has_valid_escape()) { enter_escape_mode(); return; }
+            if (starting_comment()) { enter_comment_mode(); return; }
             pop_state();
             if (ch == '(') {
                 if (token_queue.current_token_text_equals_case_insensitive("url")) enter_url_start_mode();
@@ -1043,6 +1035,7 @@ class Parser {
             if (is_whitespace(ch)) return;
             if (starting_string()) { pop_state(); end_string_with = ch; states.push(ParseState::url_string); return; }
             if (ch == ')') { pop_state(); return; }
+            if (starting_comment()) { enter_comment_mode(); return; }
             pop_state(); states.push(ParseState::url);
             token_queue.add_char(ch);
         }
@@ -1053,12 +1046,14 @@ class Parser {
         }
 
         void handle_url_after_string() {
+            if (starting_comment()) { enter_comment_mode(); return; }
             if (!is_whitespace(ch)) exit_url_mode();
         }
 
         void handle_url() {
             if (ch == '\\' && has_valid_escape()) enter_escape_mode();
             else if (ch == ')') exit_url_mode(true);
+            else if (starting_comment()) enter_comment_mode();
             else token_queue.add_char(ch);
         }
 
