@@ -36,7 +36,7 @@ class TestTransform(SimpleTest):
         s('@import "x.y";', '@import "X.Y";')
         s('@import url( x.y);', '@import url("X.Y");')
 
-        u('background: url(  te  st.gif  ); src: url(x)', 'background: url("TE  ST.GIF"); src: url("X")')
+        u('background: url(  te  st.gif  ) 12; src: url(x)', 'background: url("TE  ST.GIF") 12; src: url("X")')
         u('background: url(test.gif); xxx: url()', 'background: url("TEST.GIF"); xxx: url()')
         u(r'background: url(t\)est.gif)', 'background: url("T)EST.GIF")')
         u('a:url(  "( )"  )', 'a:url("( )")')
@@ -53,6 +53,7 @@ class TestTransform(SimpleTest):
         d(r'''font: 'some \n ame' 32px''', 'font: "some n ame" 2rem')
         d('''font: 'some \\\nname' 32px''', 'font: "some name" 2rem')
         d('font: sans-serif 16px/3', 'font: sans-serif 1rem/3')
+        d('font: sans-serif small/17', 'font: sans-serif 0.8rem/17')
 
         d('-epub-writing-mode: a; -webkit-writing-mode: b; writing-mode: c', 'writing-mode: a; writing-mode: b; writing-mode: c')
         d('xxx:yyy', 'xxx:yyy')

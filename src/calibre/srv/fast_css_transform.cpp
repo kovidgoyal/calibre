@@ -263,7 +263,7 @@ class Token {
                 if (num > 0) {
                     out.resize(out.size() + num);
                     for (int i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
-                } else throw std::logic_error("Failed to convert character to hexedecimal escape");
+                } else throw std::logic_error("Failed to convert character to hexadecimal escape");
             } else out.push_back(ch);
         }
 
@@ -632,6 +632,7 @@ class TokenQueue {
 							auto fsm = font_size_keywords.find(key);
 							if (fsm != font_size_keywords.end()) {
 								it->set_text(fsm->second);
+                                it->set_type(TokenType::dimension);
 								changed = true;
 							}
 						}
