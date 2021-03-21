@@ -82,9 +82,15 @@ class TemplateHighlighter(QSyntaxHighlighter):
         self.highlighted_paren = False
 
     def initializeFormats(self):
-        font = gprefs.get('gpm_template_editor_font', 'monospace')
+        font_name = gprefs.get('gpm_template_editor_font', None)
+        size = gprefs['gpm_template_editor_font_size']
+        if font_name is None:
+            font = QFont()
+            font.setFixedPitch(True)
+            font.setPointSize(size)
+            font_name = font.family()
         Config = self.Config
-        Config["fontfamily"] = font
+        Config["fontfamily"] = font_name
         pal = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),
@@ -100,7 +106,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             Config["%sfontitalic" % name] = italic
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamily(Config["fontfamily"])
-        Config["fontsize"] = gprefs['gpm_template_editor_font_size']
+        Config["fontsize"] = size
         baseFormat.setFontPointSize(Config["fontsize"])
 
         for name in ("normal", "keyword", "builtin", "comment",
@@ -421,19 +427,26 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             pass
 
     def set_up_font_boxes(self):
-        family = gprefs.get('gpm_template_editor_font', 'monospace')
+        font_name = gprefs.get('gpm_template_editor_font', None)
         size = gprefs['gpm_template_editor_font_size']
-        font = QFont(family, pointSize=size)
+        if font_name is None:
+            font = QFont()
+            font.setFixedPitch(True)
+            font.setPointSize(size)
+        else:
+            font = QFont(font_name, pointSize=size)
         self.font_box.setWritingSystem(QFontDatabase.Latin)
         self.font_box.setCurrentFont(font)
         self.font_box.setEditable(False)
+        gprefs['gpm_template_editor_font'] = unicode_type(font.family())
+        self.font_size_box.setValue(size)
         self.font_box.currentFontChanged.connect(self.font_changed)
-        self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
         self.font_size_box.valueChanged.connect(self.font_size_changed)
+        self.highlighter.initializeFormats()
+        self.highlighter.rehighlight()
 
     def font_changed(self, font):
         fi = QFontInfo(font)
-        gprefs['gpm_template_editor_font_size'] = fi.pointSize()
         gprefs['gpm_template_editor_font'] = unicode_type(fi.family())
         self.highlighter.initializeFormats()
         self.highlighter.rehighlight()
