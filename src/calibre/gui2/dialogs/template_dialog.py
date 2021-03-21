@@ -9,7 +9,8 @@ import json, os, traceback
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize, QPalette, QLineEdit, QByteArray)
+                      QIcon, QSize, QPalette, QLineEdit, QByteArray,
+                      QFontInfo, QFontDatabase)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -81,8 +82,9 @@ class TemplateHighlighter(QSyntaxHighlighter):
         self.highlighted_paren = False
 
     def initializeFormats(self):
+        font = gprefs.get('gpm_template_editor_font', 'monospace')
         Config = self.Config
-        Config["fontfamily"] = "monospace"
+        Config["fontfamily"] = font
         pal = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),
@@ -408,8 +410,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             '<a href="%s">%s</a>' % (
                 localize_user_manual_link('https://manual.calibre-ebook.com/generated/en/template_ref.html'), tt))
 
-        self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
-        self.font_size_box.valueChanged.connect(self.font_size_changed)
+        self.set_up_font_boxes()
         self.textbox.setFocus()
         # Now geometry
         try:
@@ -418,6 +419,24 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
+
+    def set_up_font_boxes(self):
+        family = gprefs.get('gpm_template_editor_font', 'monospace')
+        size = gprefs['gpm_template_editor_font_size']
+        font = QFont(family, pointSize=size)
+        self.font_box.setWritingSystem(QFontDatabase.Latin)
+        self.font_box.setCurrentFont(font)
+        self.font_box.setEditable(False)
+        self.font_box.currentFontChanged.connect(self.font_changed)
+        self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
+        self.font_size_box.valueChanged.connect(self.font_size_changed)
+
+    def font_changed(self, font):
+        fi = QFontInfo(font)
+        gprefs['gpm_template_editor_font_size'] = fi.pointSize()
+        gprefs['gpm_template_editor_font'] = unicode_type(fi.family())
+        self.highlighter.initializeFormats()
+        self.highlighter.rehighlight()
 
     def font_size_changed(self, toWhat):
         gprefs['gpm_template_editor_font_size'] = toWhat

@@ -380,42 +380,53 @@
           <layout class="BoxLayout" name="user_layout_9" dir="TopToBottom">
           </layout>
          </item>
-         <item row="20" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Font size:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="1" colspan="3">
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="1" column="0">
-            <widget class="QSpinBox" name="font_size_box"/>
+         <item row="20" column="0" colspan="2">
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QLabel" name="font_name_label">
+             <property name="text">
+              <string>Current font:</string>
+             </property>
+             <property name="buddy">
+              <cstring>font_box</cstring>
+             </property>
+            </widget>
            </item>
-           <item row="1" column="1">
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item>
+            <widget class="QFontComboBox" name="font_box">
+             <property name="toolTip">
+              <string>Select the font for the Template box</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
+            </widget>
            </item>
-           <item row="1" column="2">
-            <widget class="QDialogButtonBox" name="buttonBox">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item>
+            <widget class="QLabel" name="font_size_label">
+             <property name="text">
+              <string>Size:</string>
              </property>
-             <property name="standardButtons">
-              <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+             <property name="buddy">
+              <cstring>font_size_box</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="font_size_box">
+             <property name="toolTip">
+              <string>Select the font size for the Template box</string>
              </property>
             </widget>
            </item>
           </layout>
+         </item>
+         <item row="20" column="3">
+          <widget class="QDialogButtonBox" name="buttonBox">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="standardButtons">
+            <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+           </property>
+          </widget>
          </item>
          <item row="21" column="0" colspan="4">
           <widget class="QFrame">
@@ -424,94 +435,95 @@
            </property>
           </widget>
          </item>
-         <item row="22" column="0" colspan="2">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Template Function Reference</string>
-           </property>
-           <property name="buddy">
-            <cstring>function</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="23" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Function &amp;name:</string>
-           </property>
-           <property name="buddy">
-            <cstring>function</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="23" column="1" colspan="3">
-          <widget class="QComboBox" name="function"/>
-         </item>
-         <item row="24" column="0">
-          <widget class="QLabel" name="label_22">
-           <property name="text">
-            <string>&amp;Function type:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <property name="buddy">
-            <cstring>func_type</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="24" column="1" colspan="3">
-          <widget class="QLineEdit" name="func_type">
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="25" column="0">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>&amp;Documentation:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <property name="buddy">
-            <cstring>documentation</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="26" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>&amp;Code:</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <property name="buddy">
-            <cstring>source_code</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="25" column="1" colspan="3">
-          <widget class="QPlainTextEdit" name="documentation">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>75</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item row="26" column="1" colspan="3">
-          <widget class="QPlainTextEdit" name="source_code">
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>75</height>
-            </size>
-           </property>
-          </widget>
+         <item row="22" column="0" colspan="4">
+          <layout class="QGridLayout">
+           <item row="0" column="0" colspan="2">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Template Function Reference</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Function &amp;name:</string>
+             </property>
+             <property name="buddy">
+              <cstring>function</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="function"/>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_22">
+             <property name="text">
+              <string>&amp;Function type:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="buddy">
+              <cstring>func_type</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="func_type">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>&amp;Documentation:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="buddy">
+              <cstring>documentation</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPlainTextEdit" name="documentation">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>75</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&amp;Code:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+             </property>
+             <property name="buddy">
+              <cstring>source_code</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QPlainTextEdit" name="source_code">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>75</height>
+              </size>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="27" column="1">
           <widget class="QLabel" name="template_tutorial">
