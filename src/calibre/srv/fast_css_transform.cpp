@@ -417,8 +417,8 @@ class Token {
 			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text[i] = PyUnicode_READ(kind, data, i);
 		}
 
-		void set_text(const char* src) {
-			text.resize(strlen(src));
+		void set_text(const char* src, size_t len=0) {
+			text.resize(len ? len : strlen(src));
             for (size_t i = 0; i < text.size(); i++) text[i] = src[i];
 		}
 
@@ -440,9 +440,10 @@ class Token {
             double val = parse_css_number<std::string>(scratch, unit_at).as_double();
             double new_val = convert_font_size(val, lit->second);
             if (val == new_val) return false;
-            scratch.reserve(128); scratch.clear();
-            scratch.resize(std::snprintf(&scratch[0], scratch.capacity(), "%grem", new_val));
-            set_text(scratch);
+            char buf[64];
+            int num = std::snprintf(buf, sizeof(buf), "%grem", new_val);
+            if (num <= 0) throw std::runtime_error("Failed to format font size");
+            set_text(buf, num);
             return true;
         }
 
