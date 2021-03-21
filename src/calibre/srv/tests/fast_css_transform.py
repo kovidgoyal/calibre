@@ -22,5 +22,8 @@ class TestTransform(SimpleTest):
         def d(src, expected, is_declaration=True, url_callback=None):
             self.ae(transform_properties(src, is_declaration=is_declaration, url_callback=url_callback), expected)
 
+        d(r'f\ont-s\69z\65 : 16\px', 'font-size: 1rem')
         d('font-size: 16px', 'font-size: 1rem')
-        d('color: red', 'color: red')
+        d('fOnt-size :16px', 'fOnt-size :1rem')
+        d('font-size:2%', 'font-size:2%')
+        d('font-size: 72pt; color: red; font-size: 2in', 'font-size: 6rem; color: red; font-size: 12rem')

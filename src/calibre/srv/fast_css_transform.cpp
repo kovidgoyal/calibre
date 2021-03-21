@@ -36,7 +36,7 @@ is_surrogate(char32_t ch) {
 
 static inline bool
 is_hex_digit(char32_t ch) {
-    return ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'f') || ('A' <= ch || ch <= 'F');
+    return ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'f') || ('A' <= ch && ch <= 'F');
 }
 
 static inline bool
@@ -357,13 +357,15 @@ class Token {
         }
 
 		bool text_as_ascii_lowercase(std::string &scratch) {
-			scratch.clear();
+			scratch.resize(text.size());
+            size_t i = 0;
 			for (auto ch : text) {
 				if (is_printable_ascii(ch)) {
 					if ('A' <= ch && ch <= 'Z') ch += 'a' - 'A';
-					scratch.push_back((char)ch);
+					scratch[i++] = (char)ch;
 				} else return false;
 			}
+            scratch.resize(i);
 			return true;
 		}
 
@@ -417,9 +419,8 @@ class Token {
 			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text[i] = PyUnicode_READ(kind, data, i);
 		}
 
-		void set_text(const char* src, size_t len=0) {
-			text.resize(len ? len : strlen(src));
-            for (size_t i = 0; i < text.size(); i++) text[i] = src[i];
+		void set_text(const char32_t *src) {
+            text = src;
 		}
 
 		void set_text(const frozen::string &src) {
@@ -440,10 +441,11 @@ class Token {
             double val = parse_css_number<std::string>(scratch, unit_at).as_double();
             double new_val = convert_font_size(val, lit->second);
             if (val == new_val) return false;
-            char buf[64];
-            int num = std::snprintf(buf, sizeof(buf), "%grem", new_val);
+            scratch.reserve(128); scratch.clear(); scratch.resize(128);
+            int num = std::snprintf(&scratch[0], scratch.capacity(), "%grem", new_val);
             if (num <= 0) throw std::runtime_error("Failed to format font size");
-            set_text(buf, num);
+            scratch.resize(num);
+            set_text(scratch);
             return true;
         }
 
@@ -608,7 +610,7 @@ class TokenQueue {
 								changed = true; keep_going = false;
 								break;
 							case PropertyType::non_standard_writing_mode:
-								it->set_text("writing-mode");
+								it->set_text(U"writing-mode");
 								changed = true; keep_going = false;
 								break;
 						}
@@ -829,7 +831,7 @@ class Parser {
         std::stack<BlockTypeFlags> block_types;
         std::stack<ParseState> states;
         char escape_buf[16];
-        size_t escape_buf_pos;
+        unsigned escape_buf_pos;
         TokenQueue token_queue;
         InputStream input;
 
