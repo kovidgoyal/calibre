@@ -9,7 +9,8 @@ import json, os, traceback
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
-                      QIcon, QSize, QPalette, QLineEdit, QByteArray)
+                      QIcon, QSize, QPalette, QLineEdit, QByteArray,
+                      QFontInfo, QFontDatabase)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -81,8 +82,15 @@ class TemplateHighlighter(QSyntaxHighlighter):
         self.highlighted_paren = False
 
     def initializeFormats(self):
+        font_name = gprefs.get('gpm_template_editor_font', None)
+        size = gprefs['gpm_template_editor_font_size']
+        if font_name is None:
+            font = QFont()
+            font.setFixedPitch(True)
+            font.setPointSize(size)
+            font_name = font.family()
         Config = self.Config
-        Config["fontfamily"] = "monospace"
+        Config["fontfamily"] = font_name
         pal = QApplication.instance().palette()
         for name, color, bold, italic in (
                 ("normal", None, False, False),
@@ -98,7 +106,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
             Config["%sfontitalic" % name] = italic
         baseFormat = QTextCharFormat()
         baseFormat.setFontFamily(Config["fontfamily"])
-        Config["fontsize"] = gprefs['gpm_template_editor_font_size']
+        Config["fontsize"] = size
         baseFormat.setFontPointSize(Config["fontsize"])
 
         for name in ("normal", "keyword", "builtin", "comment",
@@ -408,8 +416,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             '<a href="%s">%s</a>' % (
                 localize_user_manual_link('https://manual.calibre-ebook.com/generated/en/template_ref.html'), tt))
 
-        self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
-        self.font_size_box.valueChanged.connect(self.font_size_changed)
+        self.set_up_font_boxes()
         self.textbox.setFocus()
         # Now geometry
         try:
@@ -418,6 +425,31 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
+
+    def set_up_font_boxes(self):
+        font_name = gprefs.get('gpm_template_editor_font', None)
+        size = gprefs['gpm_template_editor_font_size']
+        if font_name is None:
+            font = QFont()
+            font.setFixedPitch(True)
+            font.setPointSize(size)
+        else:
+            font = QFont(font_name, pointSize=size)
+        self.font_box.setWritingSystem(QFontDatabase.Latin)
+        self.font_box.setCurrentFont(font)
+        self.font_box.setEditable(False)
+        gprefs['gpm_template_editor_font'] = unicode_type(font.family())
+        self.font_size_box.setValue(size)
+        self.font_box.currentFontChanged.connect(self.font_changed)
+        self.font_size_box.valueChanged.connect(self.font_size_changed)
+        self.highlighter.initializeFormats()
+        self.highlighter.rehighlight()
+
+    def font_changed(self, font):
+        fi = QFontInfo(font)
+        gprefs['gpm_template_editor_font'] = unicode_type(fi.family())
+        self.highlighter.initializeFormats()
+        self.highlighter.rehighlight()
 
     def font_size_changed(self, toWhat):
         gprefs['gpm_template_editor_font_size'] = toWhat
