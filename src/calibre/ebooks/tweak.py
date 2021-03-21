@@ -126,7 +126,7 @@ def explode(ebook_file, output_dir):
         return
     h = '_' if iswindows else '.'
     with lopen(os.path.join(output_dir, h + '__explode_fmt__'), 'wb') as f:
-        f.write(fmt)
+        f.write(fmt.encode('utf-8'))
     prints('Book extracted to', output_dir)
     prints('Make your changes and once you are done, use --implode-book to rebuild')
 
@@ -141,7 +141,7 @@ def implode(output_dir, ebook_file):
     efmt_path = os.path.join(output_dir, h + '__explode_fmt__')
     try:
         with lopen(efmt_path, 'rb') as f:
-            efmt = f.read()
+            efmt = f.read().decode('utf-8')
     except Exception:
         raise SystemExit('The folder %s does not seem to have been created by --explode-book' % output_dir)
     if efmt != fmt:
