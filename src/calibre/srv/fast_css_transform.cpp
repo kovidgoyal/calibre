@@ -84,7 +84,7 @@ class pyobject_raii {
 
 	public:
 		pyobject_raii() : handle(NULL) {}
-		pyobject_raii(PyObject* h) : handle(h) {}
+		pyobject_raii(PyObject* h, bool incref=false) : handle(h) { if (incref && handle) Py_INCREF(handle); }
 
 		~pyobject_raii() { Py_CLEAR(handle); }
 
@@ -648,7 +648,7 @@ class TokenQueue {
 
     public:
         TokenQueue(const size_t src_sz, PyObject *url_callback=NULL) :
-			pool(), queue(), out(), scratch(), scratch2(), url_callback(url_callback) {
+			pool(), queue(), out(), scratch(), scratch2(), url_callback(url_callback, true) {
 				out.reserve(src_sz * 2); scratch.reserve(16); scratch2.reserve(16);
 			}
 
@@ -1047,6 +1047,7 @@ class Parser {
             if (starting_string()) { pop_state(); end_string_with = ch; states.push(ParseState::url_string); return; }
             if (ch == ')') { pop_state(); return; }
             pop_state(); states.push(ParseState::url);
+            token_queue.add_char(ch);
         }
 
         void handle_url_string() {
@@ -1059,8 +1060,9 @@ class Parser {
         }
 
         void handle_url() {
-            if (has_valid_escape()) enter_escape_mode();
+            if (ch == '\\' && has_valid_escape()) enter_escape_mode();
             else if (ch == ')') exit_url_mode(true);
+            else token_queue.add_char(ch);
         }
 
         void exit_url_mode(bool trim=false) {
