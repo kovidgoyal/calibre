@@ -297,11 +297,13 @@ class Token {
 
         void serialize_string(std::u32string &out) const {
             const char32_t delim = text.find('"') == std::u32string::npos ? '"' : '\'';
+            out.push_back(delim);
             for (const auto ch : text) {
                 if (ch == '\n') out.append({'\\', '\n'});
                 else if (ch == delim || ch == '\\') serialize_escaped_char(ch, out);
                 else out.push_back(ch);
             }
+            out.push_back(delim);
         }
 
     public:
@@ -313,7 +315,7 @@ class Token {
         Token(const TokenType type, const char32_t ch, size_t out_pos) :
 			type(type), text(), unit_at(0), out_pos(out_pos) {
 				text.reserve(16);
-				text.push_back(ch);
+				if (ch) text.push_back(ch);
 			}
 
         Token(const Token& other) :

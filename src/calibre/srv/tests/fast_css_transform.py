@@ -23,7 +23,15 @@ class TestTransform(SimpleTest):
             self.ae(transform_properties(src, is_declaration=is_declaration, url_callback=url_callback), expected)
 
         d(r'f\ont-s\69z\65 : 16\px', 'font-size: 1rem')
+        d('font -size: 16px', 'font -size: 16px')
         d('font-size: 16px', 'font-size: 1rem')
         d('fOnt-size :16px', 'fOnt-size :1rem')
         d('font-size:2%', 'font-size:2%')
-        d('font-size: 72pt; color: red; font-size: 2in', 'font-size: 6rem; color: red; font-size: 12rem')
+        d('font-size: 72pt; margin: 20px; font-size: 2in', 'font-size: 6rem; margin: 20px; font-size: 12rem')
+        d(r'''font: "some 'name" 32px''', 'font: "some \'name" 2rem')
+        d(r'''font: 'some "name' 32px''', 'font: \'some "name\' 2rem')
+        d(r'''font: 'some \n ame' 32px''', 'font: "some n ame" 2rem')
+        d('''font: 'some \\\nname' 32px''', 'font: "some name" 2rem')
+        d('font: sans-serif 16px/3', 'font: sans-serif 1rem/3')
+
+        d('-epub-writing-mode: a; -webkit-writing-mode: b; writing-mode: c', 'writing-mode: a; writing-mode: b; writing-mode: c')
