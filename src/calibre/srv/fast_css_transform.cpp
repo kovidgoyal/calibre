@@ -5,6 +5,8 @@
  * Distributed under terms of the GPL3 license.
  */
 
+// See https://www.w3.org/TR/css-syntax-3
+
 #define PY_SSIZE_T_CLEAN
 #define UNICODE
 #define _UNICODE
