@@ -16,6 +16,7 @@ from calibre.constants import iswindows, islinux, ismacos, plugins_loc
 from polyglot.builtins import iteritems, map, unicode_type, getenv
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
+is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
 
 
 class BuildTest(unittest.TestCase):
@@ -286,6 +287,8 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipIf('SKIP_QT_BUILD_TEST' in os.environ, 'Skipping Qt build test as it causes crashes in the macOS VM')
     def test_qt(self):
+        if is_sanitized:
+            raise unittest.SkipTest('Skipping Qt build test as sanitizer is enabled')
         from qt.core import QTimer
         from qt.core import QApplication
         from qt.webengine import QWebEnginePage

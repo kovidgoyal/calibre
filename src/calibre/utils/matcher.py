@@ -269,10 +269,12 @@ class CScorer(object):
 
 
 def test(return_tests=False):
+    is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
     import unittest
 
     class Test(unittest.TestCase):
 
+        @unittest.skipIf(is_sanitized, 'Sanitizer enabled will cant check for leaks')
         def test_mem_leaks(self):
             import gc
             from calibre.utils.mem import get_memory as memory
