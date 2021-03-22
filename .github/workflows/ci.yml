@@ -53,10 +53,10 @@ jobs:
               run: setup/arch-ci.sh
 
             - name: Bootstrap calibre
-              run: runuser -u ci -- python setup.py bootstrap --ephemeral
+              run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
 
             - name: Test calibre
               run: |
                   set -xe
-                  runuser -u ci -- python setup.py test
+                  runuser -u ci -- python setup.py test --under-sanitize
                   runuser -u ci -- python setup.py test_rs
