@@ -12,7 +12,7 @@ from functools import partial
 from qt.core import (
     Qt, QDialog, QAbstractItemView, QTableWidgetItem, QIcon, QListWidgetItem,
     QCoreApplication, QEvent, QObject, QApplication, pyqtSignal, QByteArray, QMenu,
-    QShortcut)
+    QShortcut, QTimer)
 
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import gprefs
@@ -29,13 +29,18 @@ class TableItem(QTableWidgetItem):
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
     '''
 
-    def __init__(self, val, sort, idx=0):
-        self.sort = sort
-        self.sort_idx = idx
-        QTableWidgetItem.__init__(self, val)
+    def __init__(self, getter=None):
+        self.val = ''
+        self.sort = None
+        self.sort_idx = 0
+        self.getter = getter
+        self.resolved = False
+        QTableWidgetItem.__init__(self, '')
         self.setFlags(Qt.ItemFlag.ItemIsEnabled|Qt.ItemFlag.ItemIsSelectable)
 
     def __ge__(self, other):
+        self.get_data()
+        other.get_data()
         if self.sort is None:
             if other.sort is None:
                 # None == None therefore >=
@@ -59,6 +64,8 @@ class TableItem(QTableWidgetItem):
         return 0
 
     def __lt__(self, other):
+        self.get_data()
+        other.get_data()
         if self.sort is None:
             if other.sort is None:
                 # None == None therefore not <
@@ -80,6 +87,17 @@ class TableItem(QTableWidgetItem):
         if l == r:
             return self.sort_idx < other.sort_idx
         return 0
+
+    def get_data(self):
+        if not self.resolved and self.getter:
+            self.resolved = True
+            self.val, self.sort, self.sort_idx = self.getter()
+
+    def data(self, role):
+        self.get_data()
+        if role == Qt.DisplayRole:
+            return self.val
+        return QTableWidgetItem.data(self, role)
 
 
 IN_WIDGET_ITEMS = 0
@@ -228,7 +246,7 @@ class Quickview(QDialog, Ui_Quickview):
         # resizeRowsToContents can word wrap long cell contents, creating
         # double-high rows
         self.books_table.setRowCount(1)
-        self.books_table.setItem(0, 0, TableItem('A', ''))
+        self.books_table.setItem(0, 0, TableItem())
         self.books_table.resizeRowsToContents()
         self.books_table_row_height = self.books_table.rowHeight(0)
         self.books_table.setRowCount(0)
@@ -236,10 +254,13 @@ class Quickview(QDialog, Ui_Quickview):
         # Add the data
         self.refresh(row)
 
-        self.view.clicked.connect(self.slave)
-        self.view.selectionModel().currentColumnChanged.connect(self.column_slave)
+        self.slave_timers = [QTimer(), QTimer(), QTimer()]
+        self.view.clicked.connect(partial(self.delayed_slave, func=self.slave, dex=0))
+        self.view.selectionModel().currentColumnChanged.connect(
+                        partial(self.delayed_slave, func=self.column_slave, dex=1))
         QCoreApplication.instance().aboutToQuit.connect(self.save_state)
-        self.view.model().new_bookdisplay_data.connect(self.book_was_changed)
+        self.view.model().new_bookdisplay_data.connect(
+                           partial(self.delayed_slave, func=self.book_was_changed, dex=2))
 
         self.close_button.setDefault(False)
         self.close_button_tooltip = _('The Quickview shortcut ({0}) shows/hides the Quickview panel')
@@ -284,6 +305,14 @@ class Quickview(QDialog, Ui_Quickview):
             toggle_sc.setEnabled(True)
             self.close_button.setToolTip(_('Alternate shortcut: ') +
                                          toggle_shortcut.toString())
+
+    def delayed_slave(self, current, func=None, dex=None):
+        self.slave_timers[dex].stop()
+        t = self.slave_timers[dex] = QTimer()
+        t.timeout.connect(partial(func, current))
+        t.setSingleShot(True)
+        t.setInterval(200)
+        t.start()
 
     def item_doubleclicked(self, item):
         tb = self.gui.stack.tb_widget
@@ -513,7 +542,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.items.clear()
         self.books_table.setRowCount(0)
 
-        mi = self.db.get_metadata(book_id, index_is_id=True, get_user_categories=False)
+        mi = self.db.new_api.get_proxy_metadata(book_id)
         vals = mi.get(key, None)
         if self.fm[key]['datatype'] == 'composite' and self.fm[key]['is_multiple']:
             sep = self.fm[key]['is_multiple'].get('cache_to_list', ',')
@@ -605,47 +634,12 @@ class Quickview(QDialog, Ui_Quickview):
               'which also changes the selected book.'
               ) + '</p>')
         for row, b in enumerate(books):
-            mi = self.db.new_api.get_proxy_metadata(b)
             for col in self.column_order:
-                try:
-                    if col == 'title':
-                        a = TableItem(mi.title, mi.title_sort)
-                        if b == self.current_book_id:
-                            select_item = a
-                    elif col == 'authors':
-                        a = TableItem(' & '.join(mi.authors), mi.author_sort)
-                    elif col == 'series':
-                        series = mi.format_field('series')[1]
-                        if series is None:
-                            a = TableItem('', '', 0)
-                        else:
-                            a = TableItem(series, mi.series, mi.series_index)
-                    elif col == 'size':
-                        v = mi.get('book_size')
-                        if v is not None:
-                            a = TableItem('{:n}'.format(v), v)
-                            a.setTextAlignment(Qt.AlignmentFlag.AlignRight)
-                        else:
-                            a = TableItem(' ', None)
-                    elif self.fm[col]['datatype'] == 'series':
-                        v = mi.format_field(col)[1]
-                        a = TableItem(v, mi.get(col), mi.get(col+'_index'))
-                    elif self.fm[col]['datatype'] == 'datetime':
-                        v = mi.format_field(col)[1]
-                        d = mi.get(col)
-                        if d is None:
-                            d = UNDEFINED_DATE
-                        a = TableItem(v, timestampfromdt(d))
-                    elif self.fm[col]['datatype'] in ('float', 'int'):
-                        v = mi.format_field(col)[1]
-                        sort_val = mi.get(col)
-                        a = TableItem(v, sort_val)
-                    else:
-                        v = mi.format_field(col)[1]
-                        a = TableItem(v, v)
-                except:
-                    traceback.print_exc()
-                    a = TableItem(_('Something went wrong while filling in the table'), '')
+                a = TableItem(partial(self.get_item_data, b, col))
+                if col == 'title':
+                    if b == self.current_book_id:
+                        select_item = a
+                # The data is supplied on demand when the item is displayed
                 a.setData(Qt.ItemDataRole.UserRole, b)
                 a.setToolTip(tt)
                 self.books_table.setItem(row, self.key_to_table_widget_column(col), a)
@@ -656,6 +650,45 @@ class Quickview(QDialog, Ui_Quickview):
             self.books_table.setCurrentItem(select_item)
             self.books_table.scrollToItem(select_item, QAbstractItemView.ScrollHint.PositionAtCenter)
         self.set_search_text(sv)
+
+    def get_item_data(self, book_id, col):
+        mi = self.db.new_api.get_proxy_metadata(book_id)
+        try:
+            if col == 'title':
+                return (mi.title, mi.title_sort, 0)
+            elif col == 'authors':
+                return (' & '.join(mi.authors), mi.author_sort, 0)
+            elif col == 'series':
+                series = mi.format_field('series')[1]
+                if series is None:
+                    return ('', None, 0)
+                else:
+                    return (series, mi.series, mi.series_index)
+            elif col == 'size':
+                v = mi.get('book_size')
+                if v is not None:
+                    return ('{:n}'.format(v), v, 0)
+                else:
+                    return ('', None, 0)
+            elif self.fm[col]['datatype'] == 'series':
+                v = mi.format_field(col)[1]
+                return (v, mi.get(col), mi.get(col+'_index'))
+            elif self.fm[col]['datatype'] == 'datetime':
+                v = mi.format_field(col)[1]
+                d = mi.get(col)
+                if d is None:
+                    d = UNDEFINED_DATE
+                return (v, timestampfromdt(d), 0)
+            elif self.fm[col]['datatype'] in ('float', 'int'):
+                v = mi.format_field(col)[1]
+                sort_val = mi.get(col)
+                return (v, sort_val, 0)
+            else:
+                v = mi.format_field(col)[1]
+                return (v, v, 0)
+        except:
+            traceback.print_exc()
+            return (_('Something went wrong while filling in the table'), '', 0)
 
     # Deal with sizing the table columns. Done here because the numbers are not
     # correct until the first paint.
