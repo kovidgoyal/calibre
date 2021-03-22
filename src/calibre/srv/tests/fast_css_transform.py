@@ -39,7 +39,7 @@ class TestTransform(SimpleTest):
 
         u('background: url(  te  st.gif  ) 12; src: url(x)', 'background: url("TE  ST.GIF") 12; src: url("X")')
         u('background: url(te/**/st.gif); xxx: url()', 'background: url("TEST.GIF"); xxx: url()')
-        u(r'background: url(t\)est.gif)', 'background: url("T)EST.GIF")')
+        u(r'background: uRl(t\)est.gif)', 'background: url("T)EST.GIF")')
         u('a:url(  "( )" /**/ )', 'a:url("( )")')
         u('a:url(  "(/*)"  )', 'a:url(  "(/*)"  )', url_callback=lambda x: x)
 
