@@ -42,6 +42,7 @@ EXTH_CODES = {
     'language': 524,
     'primary_writing_mode': 525,
     'page_progression_direction': 527,
+    'override_kindle_fonts': 528,
 }
 
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
@@ -220,6 +221,10 @@ def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         exth.write(pack(b'>II', EXTH_CODES['page_progression_direction'], len(ppd) + 8))
         exth.write(ppd)
         nrecs += 1
+
+    exth.write(pack(b'>II', EXTH_CODES['override_kindle_fonts'], len(b'true') + 8))
+    exth.write(b'true')
+    nrecs += 1
 
     exth = exth.getvalue()
     trail = len(exth) % 4
