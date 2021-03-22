@@ -4,9 +4,11 @@
 
 
 import os
+import subprocess
+import sys
 import unittest
 
-from setup import Command, islinux, ismacos, iswindows, SRC
+from setup import SRC, Command, islinux, ismacos, iswindows
 
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc dbcli ebooks'.split())
 
@@ -176,9 +178,19 @@ class Test(Command):
                           ' Choices: %s' % ', '.join(sorted(TEST_MODULES)))
         parser.add_option('--exclude-test-name', default=[], action='append',
                           help='The name of an individual test to be excluded from the test run. Can be specified more than once for multiple tests.')
+        parser.add_option('--under-sanitize', default=False, action='store_true',
+                          help='Run the test suite with the sanitizer preloaded')
 
     def run(self, opts):
-        from calibre.utils.run_tests import run_cli, filter_tests_by_name, remove_tests_by_name
+        if opts.under_sanitize and 'libasan' not in os.environ.get('LD_PRELOAD', ''):
+            os.environ['LD_PRELOAD'] = os.path.abspath(subprocess.check_output('gcc -print-file-name=libasan.so'.split()).decode('utf-8').strip())
+            os.environ['ASAN_OPTIONS'] = 'detect_leaks=0'
+            self.info(f'Re-execing with LD_PRELOAD={os.environ["LD_PRELOAD"]}')
+            sys.stdout.flush()
+            os.execl('setup.py', *sys.argv)
+        from calibre.utils.run_tests import (
+            filter_tests_by_name, remove_tests_by_name, run_cli
+        )
         tests = find_tests(which_tests=frozenset(opts.test_module), exclude_tests=frozenset(opts.exclude_test_module))
         if opts.test_name:
             tests = filter_tests_by_name(tests, *opts.test_name)
