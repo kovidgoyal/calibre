@@ -35,11 +35,11 @@ class TestTransform(SimpleTest):
         s('@im/* c */port "x.y";', '@import "X.Y";')
         s('@import url("narrow.css") supports(display: flex) handheld and (max-width: 400px);',
           '@import url("NARROW.CSS") supports(display: flex) handheld and (max-width: 400px);')
-        s('@import url( x.y);', '@import url("X.Y");')
+        s('@import url( x/*a*/.y);', '@import url("X.Y");')
 
         u('background: url(  te  st.gif  ) 12; src: url(x)', 'background: url("TE  ST.GIF") 12; src: url("X")')
         u('background: url(te/**/st.gif); xxx: url()', 'background: url("TEST.GIF"); xxx: url()')
-        u(r'background: uRl(t\)est.gif)', 'background: url("T)EST.GIF")')
+        u(r'background: uRl(t\)e/st.gif)', 'background: url("T)E/ST.GIF")')
         u('a:url(  "( )" /**/ )', 'a:url("( )")')
         u('a:url(  "(/*)"  )', 'a:url(  "(/*)"  )', url_callback=lambda x: x)
 
@@ -60,18 +60,18 @@ class TestTransform(SimpleTest):
         d('xxx:yyy', 'xxx:yyy')
 
         sheet = '''
-@import "loc.test";
+@import "b/loc.test";
 @media screen {
     font: 16px calc(20vw - 30rem);
 
     .cls {
         color: red;
         font-size: 16px;
-        background: url("loc.test")
+        background: url("b/loc.test")
     }
 
     #moo.cat {
-        x: url("loc.test")
+        x: url("b/loc.test")
     }
 
     @zoo {
@@ -82,4 +82,4 @@ class TestTransform(SimpleTest):
 }
 .why { font: 16px}
 '''
-        s(sheet, sheet.replace('16px', '1rem').replace('loc.test', 'LOC.TEST'))
+        s(sheet, sheet.replace('16px', '1rem').replace('b/loc.test', 'B/LOC.TEST'))
