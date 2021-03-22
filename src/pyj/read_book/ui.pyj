@@ -72,7 +72,7 @@ class ReadUI:
         ui_operations.goto_cfi = self.goto_cfi.bind(self)
         ui_operations.goto_frac = self.goto_frac.bind(self)
         ui_operations.goto_book_position = self.goto_book_position.bind(self)
-        ui_operations.goto_book_position = self.goto_reference.bind(self)
+        ui_operations.goto_reference = self.goto_reference.bind(self)
         ui_operations.delete_book = self.delete_book.bind(self)
         ui_operations.focus_iframe = self.focus_iframe.bind(self)
         ui_operations.toggle_toc = self.toggle_toc.bind(self)

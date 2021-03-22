@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
+import traceback
 from elementmaker import E
 from gettext import gettext as _
 
@@ -125,7 +126,7 @@ def create_location_overlay(current_position_data, book, overlay, container):
             ui_operations.goto_book_position(float(src))
         except:
             error_dialog(_('Not a valid book position'), _(
-                '{} is not a valid book position').format(src))
+                '{} is not a valid book position').format(src), traceback.format_exc())
         else:
             overlay.hide()
 
