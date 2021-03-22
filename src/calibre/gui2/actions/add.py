@@ -14,7 +14,7 @@ from qt.core import QApplication, QDialog, QPixmap, QTimer
 from calibre import as_unicode, guess_type
 from calibre.constants import iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, normalize_isbn
 from calibre.gui2 import (
     choose_dir, choose_files, error_dialog, gprefs, info_dialog, question_dialog,
     warning_dialog
@@ -363,8 +363,35 @@ class AddAction(InterfaceAction):
             for path in temp_files:
                 os.remove(path)
 
-    def add_isbns(self, books, add_tags=[]):
-        self.isbn_books = list(books)
+    def check_for_existing_isbns(self, books):
+        db = self.gui.current_db.new_api
+        book_id_identifiers = db.all_field_for('identifiers', db.all_book_ids(tuple))
+        existing_isbns = {normalize_isbn(ids.get('isbn', '')): book_id for book_id, ids in book_id_identifiers.items()}
+        existing_isbns.pop('', None)
+        ok = []
+        duplicates = []
+        for book in books:
+            q = normalize_isbn(book['isbn'])
+            if q and q in existing_isbns:
+                duplicates.append((book, existing_isbns[q]))
+            else:
+                ok.append(book)
+        if duplicates:
+            det_msg = '\n'.join(f'{book["isbn"]}: {db.field_for("title", book_id)}' for book, book_id in duplicates)
+            if question_dialog(self.gui, _('Duplicates found'), _(
+                'Books with some of the specified ISBNs already exist in the calibre library.'
+                ' Click "Show details" for the full list. Do you want to add them anyway?'), det_msg=det_msg
+            ):
+                ok += [x[0] for x in duplicates]
+        return ok
+
+    def add_isbns(self, books, add_tags=[], check_for_existing=False):
+        books = list(books)
+        if check_for_existing:
+            books = self.check_for_existing_isbns(books)
+            if not books:
+                return
+        self.isbn_books = books
         self.add_by_isbn_ids = set()
         self.isbn_add_tags = add_tags
         QTimer.singleShot(10, self.do_one_isbn_add)
@@ -490,7 +517,7 @@ class AddAction(InterfaceAction):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
         d = AddFromISBN(self.gui)
         if d.exec_() == QDialog.DialogCode.Accepted and d.books:
-            self.add_isbns(d.books, add_tags=d.set_tags)
+            self.add_isbns(d.books, add_tags=d.set_tags, check_for_existing=d.check_for_existing)
 
     def add_books(self, *args):
         '''

@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
 import os, sys, re
+from contextlib import suppress
 
 from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
@@ -374,44 +375,57 @@ def MetaInformation(title, authors=(_('Unknown'),)):
     return Metadata(title, authors, other=mi)
 
 
+def check_digit_for_isbn10(isbn):
+    check = sum((i+1)*int(isbn[i]) for i in range(9)) % 11
+    return 'X' if check == 10 else str(check)
+
+
+def check_digit_for_isbn13(isbn):
+    check = 10 - sum((1 if i%2 ==0 else 3)*int(isbn[i]) for i in range(12)) % 10
+    if check == 10:
+        check = 0
+    return str(check)
+
+
 def check_isbn10(isbn):
-    try:
-        digits = tuple(map(int, isbn[:9]))
-        products = [(i+1)*digits[i] for i in range(9)]
-        check = sum(products)%11
-        if (check == 10 and isbn[9] == 'X') or check == int(isbn[9]):
-            return isbn
-    except Exception:
-        pass
-    return None
+    with suppress(Exception):
+        return check_digit_for_isbn10(isbn) == isbn[9]
+    return False
 
 
 def check_isbn13(isbn):
-    try:
-        digits = tuple(map(int, isbn[:12]))
-        products = [(1 if i%2 ==0 else 3)*digits[i] for i in range(12)]
-        check = 10 - (sum(products)%10)
-        if check == 10:
-            check = 0
-        if unicode_type(check) == isbn[12]:
-            return isbn
-    except Exception:
-        pass
-    return None
+    with suppress(Exception):
+        return check_digit_for_isbn13(isbn) == isbn[12]
+    return False
 
 
 def check_isbn(isbn):
     if not isbn:
         return None
     isbn = re.sub(r'[^0-9X]', '', isbn.upper())
+    il = len(isbn)
+    if il not in (10, 13):
+        return None
     all_same = re.match(r'(\d)\1{9,12}$', isbn)
     if all_same is not None:
         return None
-    if len(isbn) == 10:
-        return check_isbn10(isbn)
-    if len(isbn) == 13:
-        return check_isbn13(isbn)
+    if il == 10:
+        return isbn if check_isbn10(isbn) else None
+    if il == 13:
+        return isbn if check_isbn13(isbn) else None
     return None
+
+
+def normalize_isbn(isbn):
+    if not isbn:
+        return isbn
+    ans = check_isbn(isbn)
+    if ans is None:
+        return isbn
+    if len(ans) == 10:
+        ans = '978' + ans[:9]
+        ans += check_digit_for_isbn13(ans)
+    return ans
 
 
 def check_issn(issn):
