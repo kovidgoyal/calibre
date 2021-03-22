@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 '''The main GUI'''
 
 import apsw
-import collections
 import errno
 import gc
 import os
@@ -18,7 +17,7 @@ import re
 import sys
 import textwrap
 import time
-from collections import OrderedDict
+from collections import OrderedDict, deque
 from io import BytesIO
 from qt.core import (
     QAction, QApplication, QDialog, QFont, QIcon, QMenu, QSystemTrayIcon, Qt, QTimer,
@@ -241,7 +240,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.metadata_dialogs = []
         self.default_thumbnail = None
         self.tb_wrapper = textwrap.TextWrapper(width=40)
-        self.viewers = collections.deque()
+        self.viewers = deque()
         self.system_tray_icon = None
         do_systray = config['systray_icon'] or opts.start_in_tray
         if do_systray:
