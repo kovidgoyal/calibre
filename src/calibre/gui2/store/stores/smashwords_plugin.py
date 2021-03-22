@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -27,7 +27,7 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 
-def search(query, max_results=10, timeout=60):
+def search(query, max_results=10, timeout=60, save_raw=None):
     url = 'https://www.smashwords.com/books/search?query=' + quote(query)
 
     br = browser()
@@ -38,23 +38,24 @@ def search(query, max_results=10, timeout=60):
 
     counter = max_results
     with closing(br.open(url, timeout=timeout)) as f:
-        doc = html.fromstring(f.read())
-        for data in doc.xpath('//div[@id="pageContent"]//div[@class="library-book"]'):
+        raw = f.read()
+        if save_raw:
+            with open(save_raw, 'wb') as r:
+                r.write(raw)
+        doc = html.fromstring(raw)
+        for data in doc.xpath('//div[@id="pageContent"]//div[contains(@class, "library-book")]'):
             if counter <= 0:
                 break
             data = html.fromstring(html.tostring(data))
 
-            id = None
-            id_a = ''.join(data.xpath('//a[contains(@class, "library-title")]/@href'))
-            if id_a:
-                id = id_a.split('/')[-1]
-            if not id:
+            id_a = ''.join(data.xpath('//span[contains(@class, "library-title")]/a/@href'))
+            if not id_a:
                 continue
 
             cover_url = ''.join(data.xpath('//img[contains(@class, "book-list-image")]/@src'))
 
-            title = ''.join(data.xpath('.//a[contains(@class, "library-title")]/text()'))
-            author = ''.join(data.xpath('.//a[@itemprop="author"]//text()'))
+            title = ''.join(data.xpath('.//span[contains(@class, "library-title")]//text()'))
+            author = ''.join(data.xpath('.//span[contains(@class, "library-by-line")]/a//text()'))
 
             price = ''.join(data.xpath('.//div[@class="subnote"]//text()'))
             if 'Price:' in price:
@@ -74,7 +75,7 @@ def search(query, max_results=10, timeout=60):
             s.title = title.strip()
             s.author = author.strip()
             s.price = price
-            s.detail_item = '/books/view/' + id.strip()
+            s.detail_item = id_a
             s.drm = SearchResult.DRM_UNLOCKED
 
             yield s
@@ -119,5 +120,5 @@ class SmashwordsStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
-    for r in search(' '.join(sys.argv[1:])):
+    for r in search(' '.join(sys.argv[1:]), save_raw='/t/raw.html'):
         print(r)
