@@ -153,6 +153,15 @@ def get_default_library_path():
     return x
 
 
+def try_other_known_library_paths():
+    stats = gprefs.get('library_usage_stats', {})
+    if stats:
+        for candidate in sorted(stats.keys(), key=stats.__getitem__, reverse=True):
+            candidate = os.path.abspath(candidate)
+            if os.path.exists(candidate):
+                return candidate
+
+
 def get_library_path(gui_runner):
     library_path = prefs['library_path']
     if library_path is None:  # Need to migrate to new database layout
@@ -164,6 +173,10 @@ def get_library_path(gui_runner):
         if not candidate:
             candidate = os.path.join(base, 'Calibre Library')
         library_path = os.path.abspath(candidate)
+    elif not os.path.exists(library_path):
+        q = try_other_known_library_paths()
+        if q:
+            library_path = q
     if not os.path.exists(library_path):
         try:
             os.makedirs(library_path)
