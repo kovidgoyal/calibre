@@ -720,6 +720,8 @@ def onkeydown(container_id, close_action, ev):
             elif ev.key is 'Delete':
                 ev.preventDefault(), ev.stopPropagation()
                 delete_book()
+            elif ev.key is 'v' or ev.key is 'V':
+                read_book(render_book.book_id)
 
 
 def init(container_id):
