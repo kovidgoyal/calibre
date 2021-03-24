@@ -578,8 +578,13 @@ class _Parser(object):
         if self.token_is_for():
             return self.for_expression()
         if self.token_is_id():
-            # We have an identifier. Determine if it is a function
             id_ = self.token()
+            # We have an identifier. Check if it is a field reference
+            if len(id_) > 1 and id_[0] == '$':
+                if id_[1] == '$':
+                    return RawFieldNode(ConstantNode(id_[2:]))
+                return FieldNode(ConstantNode(id_[1:]))
+            # Determine if it is a function
             if not self.token_op_is_lparen():
                 if self.token_op_is_equals():
                     # classic assignment statement
@@ -992,6 +997,7 @@ class TemplateFormatter(string.Formatter):
             (r'(\|\||&&|!)',             lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'[(),=;:\+\-*/]',          lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
+            (r'\$\$?#?\w+',              lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'\$',                      lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa

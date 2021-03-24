@@ -228,9 +228,12 @@ General Program Mode
     times_div_expr  ::= unary_op_expr [ times_div_op unary_op_expr ]*
     times_div_op    ::= '*' | '/'
     unary_op_expr   ::= [ add_sub_op unary_op_expr ]* | expression
-    expression      ::= identifier | constant | function | assignment |
+    expression      ::= identifier | constant | function | assignment | field_reference |
                         if_expression | for_expression | '(' expression_list ')'
-    identifier      ::= sequence of letters or ``_`` characters
+    field_reference ::= '$' [ '$' ] [ '#' ] identifier
+    identifier      ::= id_start [ id_rest ]*
+    id_start        ::= letter | underscore
+    id_rest         ::= id_start | digit
     constant        ::= " string " | ' string ' | number
     function        ::= identifier '(' expression_list [ ',' expression_list ]* ')'
     assignment      ::= identifier '=' top_expression
@@ -256,7 +259,7 @@ is 3.
 
 The operator precedence (order of evaluation) specified by the above grammar, from highest to lowest is:
 
-    * Function calls, constants, parenthesized expressions, statement expressions, assignment expressions.
+    * Function calls, constants, parenthesized expressions, statement expressions, assignment expressions, field references.
     * Unary plus (``+``) and minus (``-``). These operators evaluate right to left. These and all the other arithmetic operators return integers if the expression results in a fractional part equal to zero. Example: if an expression returns ``3.0`` it is changed to ``3``.
     * Multiply (``*``) and divide (``/``). These operators are associative and evaluate left to right. Use parentheses if you want to change the order of evaluation.
     * Add (``+``) and subtract (``-``). These operators are associative and evaluate left to right.
@@ -264,6 +267,15 @@ The operator precedence (order of evaluation) specified by the above grammar, fr
     * Unary logical not (``!``). This operator returns '1' if the expression is False (evaluates to the empty string), otherwise ``''``.
     * Logical and (``&&``). This operator returns '1' if both the left-hand and right-hand expressions are True, or the empty string ``''`` if either is False. It is associative, evaluates left to right, and does `short-circuiting <https://chortle.ccsu.edu/java5/Notes/chap40/ch40_2.html>`_.
     * Logical or (``||``). This operator returns ``'1'`` if either the left-hand or right-hand expression is True, or ``''`` if both are False. It is associative, evaluates left to right, and does short-circuiting. The operator is an inclusive or, returning '1' if both the left- and right-hand expressions are True.
+
+**Field References**
+
+A ``field_reference`` evaluates to the value of the metadata field named by lookup key that follows the ``$`` or ``$$``. Using ``$`` is equivalent to using the ``field()`` function. Using ``$$`` is equivalent to using the ``raw_field`` function. Examples::
+
+  * $authors ==> field('authors')
+  * $#genre ==> field('#genre')
+  * $$pubdate ==> raw_field('pubdate')
+  * $$#my_int ==> raw_field('#my_int')
 
 **If Expressions**
 
