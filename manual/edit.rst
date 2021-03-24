@@ -824,6 +824,10 @@ You can also hold down the :kbd:`Ctrl` key and click on any filename inside a li
 to open that file in the editor automatically. Similarly, :kbd:`Ctrl` clicking
 a class name will take you to the first style rule that matches the tag and class.
 
+Right clicking a class name in an HTML file will allow you to rename the class,
+changing all occurrences of the class throughout the book and all its
+stylesheets.
+
 .. _editor_auto_complete:
 
 Auto-complete

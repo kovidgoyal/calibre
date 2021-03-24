@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.container import (
 from calibre.ebooks.oeb.polish.cover import (
     mark_as_cover, mark_as_titlepage, set_cover
 )
-from calibre.ebooks.oeb.polish.css import filter_css
+from calibre.ebooks.oeb.polish.css import filter_css, rename_class
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import (
@@ -956,6 +956,22 @@ class Boss(QObject):
             else:
                 ed.action_triggered(action)
 
+    def rename_class(self, class_name):
+        self.commit_all_editors_to_container()
+        text, ok = QInputDialog.getText(self.gui, _('New class name'), _(
+            'Rename the class {} to?').format(class_name))
+        if ok:
+            self.add_savepoint(_('Before: Rename {}').format(class_name))
+            with BusyCursor():
+                changed = rename_class(current_container(), class_name, text.strip())
+            if changed:
+                self.apply_container_update_to_gui()
+                self.show_current_diff()
+            else:
+                self.rewind_savepoint()
+                return info_dialog(self.gui, _('No matches'), _(
+                    'No class {} found to change').format(class_name), show=True)
+
     def set_semantics(self):
         self.commit_all_editors_to_container()
         c = current_container()
@@ -1609,6 +1625,8 @@ class Boss(QObject):
             editor.link_clicked.connect(self.editor_link_clicked)
         if hasattr(editor, 'class_clicked'):
             editor.class_clicked.connect(self.editor_class_clicked)
+        if hasattr(editor, 'rename_class'):
+            editor.rename_class.connect(self.rename_class)
         if getattr(editor, 'syntax', None) == 'html':
             editor.smart_highlighting_updated.connect(self.gui.live_css.sync_to_editor)
         if hasattr(editor, 'set_request_completion'):

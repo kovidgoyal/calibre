@@ -5,6 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import re
 from collections import defaultdict
 from functools import partial
 from operator import itemgetter
@@ -463,3 +464,55 @@ def add_stylesheet_links(container, name, text):
         head.append(link)
     pretty_xml_tree(head)
     return serialize(root, 'text/html')
+
+
+def rename_class_in_rule_list(css_rules, old_name, new_name):
+    pat = re.compile(rf'\b{re.escape(old_name)}\b')
+    changed = False
+    for rule in css_rules:
+        if rule.type == rule.STYLE_RULE:
+            old = rule.selectorText
+            q = pat.sub(new_name, old)
+            if q != old:
+                changed = True
+                rule.selectorText = q
+        elif hasattr(rule, 'cssRules'):
+            if rename_class_in_rule_list(rule.cssRules, old_name, new_name):
+                changed = True
+    return changed
+
+
+def rename_class_in_doc(container, root, old_name, new_name):
+    changed = False
+    pat = re.compile(rf'\b{re.escape(old_name)}\b')
+    for elem in root.xpath('//*[@class]'):
+        old = elem.get('class')
+        if old:
+            new = pat.sub(new_name, old)
+            if new != old:
+                changed = True
+                elem.set('class', new)
+    for style in root.xpath('//*[local-name()="style"]'):
+        if style.get('type', 'text/css') == 'text/css' and style.text:
+            sheet = container.parse_css(style.text)
+            if rename_class_in_rule_list(sheet.cssRules, old_name, new_name):
+                changed = True
+                style.text = force_unicode(sheet.cssText, 'utf-8')
+    return changed
+
+
+def rename_class(container, old_name, new_name):
+    changed = False
+    if not old_name or old_name == new_name:
+        return changed
+    for sheet_name in container.manifest_items_of_type(lambda mt: mt in OEB_STYLES):
+        sheet = container.parsed(sheet_name)
+        if rename_class_in_rule_list(sheet.cssRules, old_name, new_name):
+            container.dirty(sheet_name)
+            changed = True
+    for doc_name in container.manifest_items_of_type(lambda mt: mt in OEB_DOCS):
+        doc = container.parsed(doc_name)
+        if rename_class_in_doc(container, doc, old_name, new_name):
+            container.dirty(doc_name)
+            changed = True
+    return changed

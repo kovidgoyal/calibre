@@ -23,7 +23,8 @@ from calibre.gui2.tweak_book import (
     editors, tprefs, update_mark_text_action
 )
 from calibre.gui2.tweak_book.editor import (
-    CSS_PROPERTY, LINK_PROPERTY, SPELL_PROPERTY, TAG_NAME_PROPERTY
+    CLASS_ATTRIBUTE_PROPERTY, CSS_PROPERTY, LINK_PROPERTY, SPELL_PROPERTY,
+    TAG_NAME_PROPERTY
 )
 from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
@@ -142,6 +143,7 @@ class Editor(QMainWindow):
     word_ignored = pyqtSignal(object, object)
     link_clicked = pyqtSignal(object)
     class_clicked = pyqtSignal(object)
+    rename_class = pyqtSignal(object)
     smart_highlighting_updated = pyqtSignal()
 
     def __init__(self, syntax, parent=None):
@@ -578,6 +580,12 @@ class Editor(QMainWindow):
         if origr is not None and origr.format.property(LINK_PROPERTY):
             href = self.editor.text_for_range(origc.block(), origr)
             m.addAction(_('Open %s') % href, partial(self.link_clicked.emit, href))
+
+        if origr is not None and origr.format.property(CLASS_ATTRIBUTE_PROPERTY):
+            cls = self.editor.class_for_position(pos)
+            if cls:
+                class_name = cls['class']
+                m.addAction(_('Rename the class {}').format(class_name), partial(self.rename_class.emit, class_name))
 
         if origr is not None and (origr.format.property(TAG_NAME_PROPERTY) or origr.format.property(CSS_PROPERTY)):
             word = self.editor.text_for_range(origc.block(), origr)
