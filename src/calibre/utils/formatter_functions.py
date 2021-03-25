@@ -424,7 +424,7 @@ class BuiltinListSplit(BuiltinFormatterFunction):
     name = 'list_split'
     arg_count = 3
     category = 'List manipulation'
-    __doc__ = doc = _('split(list_val, sep, id_prefix) -- splits the list_val '
+    __doc__ = doc = _('list_split(list_val, sep, id_prefix) -- splits the list_val '
                     "into separate values using 'sep', then assigns the values "
                     "to variables named 'id_prefix_N' where N is the position "
                     "of the value in the list. The first item has position 0 (zero). "
