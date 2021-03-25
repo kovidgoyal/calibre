@@ -658,7 +658,7 @@ class MetadataSingleDialogBase(QDialog):
         self.save_state()
         if self.was_data_edited and not confirm(
                 title=_('Are you sure?'), name='confirm-cancel-edit-single-metadata', msg=_(
-                    'You will lose all unsaved changes, are you sure?'), parent=self):
+                    'You will lose all unsaved changes. Are you sure?'), parent=self):
             return
         QDialog.reject(self)
 
