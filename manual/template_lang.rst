@@ -62,17 +62,13 @@ In addition to metadata substitution, templates can conditionally include additi
 
 Sometimes you want text to appear in the output only if a field is not empty. A common case is ``series`` and ``series_index`` where you want either nothing or the two values separated by a hyphen. calibre handles this case using a special ``template expression`` syntax.
 
-For example and using the above Foundation example, assume you want the template to produce:
+For example and using the above Foundation example, assume you want the template to produce `Foundation - 3 - Second Foundation`. This template produces that output:
 
-  Foundation - 3 - Second Foundation
+  ``{series} - {series_index} - {title}``
 
-This template produces that output::
+However, if a book has no series the template will produce `- - the title`, which is probably not what you want. Generally, people want the result be the title without the extraneous hyphens. You can accomplish this using the following template syntax:
 
-  {series} - {series_index} - {title}
-
-However, if a book has no series the template will produce ``- - title``, which is probably not what you want. Generally, people want the result be the title without the extraneous hyphens. You can accomplish this using the following template syntax::
-
-  {field:|prefix_text|suffix_text}
+  ``{field:|prefix_text|suffix_text}``
 
 This ``template expression`` says that if ``field`` has the the value `XXXX` then the result will be `prefix_textXXXXXsuffix_text`. If ``field`` is empty (has no value) then the result will be the empty string (nothing) because the prefix and suffix are ignored. The prefix and suffix can contain blanks.
 
@@ -80,11 +76,9 @@ This ``template expression`` says that if ``field`` has the the value `XXXX` the
 
 Using this syntax, we can solve the above no-series problem with the template::
 
-        {series}{series_index:| - | - }{title}
+  {series}{series_index:| - | - }{title}
 
-The hyphens will be included only if the book has a series index, which it has only if it has a series. Continuing the Foundation example again, the template will produce::
-
-  Foundation - 1 - Second Foundation
+The hyphens will be included only if the book has a series index, which it has only if it has a series. Continuing the Foundation example again, the template will produce `Foundation - 1 - Second Foundation`.
 
 Notes:
 
