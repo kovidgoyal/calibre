@@ -13,6 +13,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback, numbers
+from datetime import datetime
 from math import trunc, floor, ceil, modf
 
 from calibre import human_readable, prints
@@ -1151,14 +1152,23 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
             'ss   : the seconds with a leading 0 (00 to 59) '
             'ap   : use a 12-hour clock instead of a 24-hour clock, with "ap" replaced by the localized string for am or pm '
             'AP   : use a 12-hour clock instead of a 24-hour clock, with "AP" replaced by the localized string for AM or PM '
-            'iso  : the date with time and timezone. Must be the only format present')
+            'iso  : the date with time and timezone. Must be the only format present '
+            'to_number: the date as a floating point number '
+            'from_number[:fmt]: format the timestamp using fmt if present otherwise iso')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, format_string):
         if not val or val == 'None':
             return ''
         try:
-            dt = parse_date(val)
-            s = format_date(dt, format_string)
+            if format_string == 'to_number':
+                s = parse_date(val).timestamp()
+            elif format_string.startswith('from_number'):
+                val = datetime.fromtimestamp(float(val))
+                f = format_string[12:]
+                s = format_date(val, f if f else 'iso')
+            else:
+                s = format_date(parse_date(val), format_string)
+            return s
         except:
             s = 'BAD DATE'
         return s
