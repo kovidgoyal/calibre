@@ -47,6 +47,7 @@ class TestTransform(SimpleTest):
         d('font -size: 16px', 'font -size: 16px')
         d('font-/* */size: 1/*x*/6/**/p/**/x !important', 'font-size: 1rem !important')
         d('fOnt-size :16px', 'fOnt-size :1rem')
+        d('fönt-size :16px', 'fönt-size :16px')
         d('font-size:2%', 'font-size:2%')
         d('font-size: 72pt; margin: /*here*/ 20px; font-size: 2in', 'font-size: 6rem; margin: /*here*/ 20px; font-size: 12rem')
         d(r'''font: "some 'name" 32px''', 'font: "some \'name" 2rem')
