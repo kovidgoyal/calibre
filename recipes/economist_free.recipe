@@ -49,6 +49,8 @@ def process_node(node, html_parent):
 def load_article_from_json(raw, root):
     data = json.loads(raw)['props']['pageProps']['content']
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2, sort_keys=True))
+    if isinstance(data, list):
+        data = data[0]
     body = root.xpath('//body')[0]
     for child in tuple(body):
         body.remove(child)
