@@ -35,7 +35,7 @@
 
 - [1918047] Content server: Allow swiping left and right to show next/previous book on the book details page
 
-- [1919072] E-book viewer: Make the commonly used shift+arrow key shortcuts for modifying selections using the keyboard work. Also add shorcuts for selecting by character, line and paragraph.
+- [1919072] E-book viewer: Make the commonly used shift+arrow key shortcuts for modifying selections using the keyboard work. Also add shortcuts for selecting by character, line and paragraph.
 
 :: bug fixes
 
@@ -45,7 +45,7 @@
 
 - [1918436] Content server viewer: Fix highlights not sorted correctly in the highlights panel
 
-- [1918737] Get books: Fix smashwords plugin not working because of website changes
+- [1918737] Get books: Fix Smashwords plugin not working because of website changes
 
 - [1920733] Improve the performance of QuickView especially when using composite columns
 
