@@ -59,6 +59,10 @@ RENDER_VERSION = 1
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa
 
 
+class Spineless(ValueError):
+    pass
+
+
 def XPath(expr):
     ans = XPath.cache.get(expr)
     if ans is None:
@@ -841,6 +845,12 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
             book_hash=book_hash, save_bookmark_data=extract_annotations,
             book_metadata=mi, virtualize_resources=virtualize_resources
         )
+        try:
+            has_spine = next(container.spine_names)
+        except StopIteration:
+            has_spine = False
+        if not has_spine:
+            raise Spineless('Book is empty, no content in spine')
         if serialize_metadata:
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
             d = metadata_as_dict(mi)

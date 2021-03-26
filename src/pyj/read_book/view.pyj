@@ -927,6 +927,9 @@ class View:
         if ui_operations.update_last_read_time:
             ui_operations.update_last_read_time(book)
         pos = {'replace_history':True}
+        if not book.manifest.spine.length:
+            ui_operations.show_error(_('Invalid book'), _('This book is empty, with no items in the spine'))
+            return
         name = book.manifest.spine[0]
         cfi = None
         if initial_position and initial_position.type is 'cfi' and initial_position.data.startswith('epubcfi(/'):
