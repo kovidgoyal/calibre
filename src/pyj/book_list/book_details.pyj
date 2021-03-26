@@ -707,14 +707,15 @@ def check_for_books_loaded():
 
 def onkeydown(container_id, close_action, ev):
     if render_book.book_id:
-        if not ev.altKey and not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+        if ev.altKey:
             if ev.key is 'ArrowLeft':
                 next_book(render_book.book_id, -1)
                 ev.preventDefault(), ev.stopPropagation()
             elif ev.key is 'ArrowRight':
                 next_book(render_book.book_id, 1)
                 ev.preventDefault(), ev.stopPropagation()
-            elif ev.key is 'Escape':
+        elif not ev.ctrlKey and not ev.metaKey and not ev.shiftKey:
+            if ev.key is 'Escape':
                 ev.preventDefault(), ev.stopPropagation()
                 close_action()
             elif ev.key is 'Delete':
