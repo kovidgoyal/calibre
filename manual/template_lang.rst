@@ -431,6 +431,8 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
   * ``ap   :`` use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
   * ``AP   :`` use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
   * ``iso  :`` the date with time and timezone. Must be the only format present.
+  * ``to_number   :`` convert the date & time into a floating point number (a `timestamp`)
+  * ``from_number :`` convert a floating point number (a `timestamp`) into an ``iso`` formatted date. If you want a different date format then add the desired formatting string after ``from_number`` and a colon (``:``). Example: ``from_number:MMM dd yyyy``
 
   You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the date format tweaks to contain ``MMMM``. In this case, instead of using the ``field()`` function as in::
 
