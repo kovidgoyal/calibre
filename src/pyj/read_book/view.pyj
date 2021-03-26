@@ -1095,7 +1095,7 @@ class View:
         if not self.book or not self.book.manifest:
             return
         index, refnum = reference.split('.')
-        index, refnum = int(index), int(refnum)
+        index, refnum = int(index), (int(refnum) if refnum else 1)
         chapter_name = self.book.manifest.spine[index]
         if not chapter_name:
             return False
