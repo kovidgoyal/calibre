@@ -559,6 +559,8 @@ class View:
             ui_operations.edit_book(current_spine_item(), self.current_file_progress_frac, self.currently_showing?.selection?.text)
         elif data.name is 'goto_location':
             self.overlay.show_ask_for_location()
+        elif data.name is 'select_all':
+            self.iframe_wrapper.send_message('modify_selection', granularity='all')
         elif data.name.startsWith('shrink_selection_by_'):
             self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity=data.name.rpartition('_')[-1])
         elif data.name.startsWith('extend_selection_by_'):

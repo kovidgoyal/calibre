@@ -344,6 +344,12 @@ def common_shortcuts():  # {{{
         _('Alter the current selection forward by a line'),
     ),
 
+    'select_all': desc(
+        v'["Ctrl+a"]',
+        'ui',
+        _('Select all')
+    ),
+
     'shrink_selection_by_line': desc(
         v"['Shift+ArrowUp']",
         'ui',

@@ -185,11 +185,17 @@ class IframeBoss:
 
     def modify_selection(self, data):
         sel = window.getSelection()
-        try:
-            sel.modify('extend', data.direction, data.granularity)
-        except:
-            if data.granularity is 'paragraph':
-                sel.modify('extend', data.direction, 'line')
+        if data.granularity is 'all':
+            r = document.createRange()
+            r.selectNode(document.body)
+            sel.removeAllRanges()
+            sel.addRange(r)
+        else:
+            try:
+                sel.modify('extend', data.direction, data.granularity)
+            except:
+                if data.granularity is 'paragraph':
+                    sel.modify('extend', data.direction, 'line')
         self.ensure_selection_visible()
 
     def initialize(self, data):

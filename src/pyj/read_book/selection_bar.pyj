@@ -581,6 +581,7 @@ class SelectionBar:
         forwarded = {
             'toggle_highlights': True,
             'edit_book': True,
+            'select_all': True,
         }
         if sc_name is 'show_chrome':
             self.clear_selection()
