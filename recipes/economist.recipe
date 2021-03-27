@@ -264,8 +264,9 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_parse_index(self, soup):
-        if (tag := soup.select_one("script#__NEXT_DATA__")) is not None:
-            data = json.loads(tag.string)
+        script_tag = soup.select_one("script#__NEXT_DATA__")
+        if script_tag is not None:
+            data = json.loads(script_tag.string)
             self.cover_url = data['props']['pageProps']['content']['image']['main']['url']['canonical']
             self.log('Got cover:', self.cover_url)
         feeds = []
