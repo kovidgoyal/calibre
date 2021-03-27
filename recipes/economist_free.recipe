@@ -264,20 +264,10 @@ class Economist(BasicNewsRecipe):
         return ans
 
     def economist_parse_index(self, soup):
-        img = None
-        if edition_date:
-            archive_url = "https://www.economist.com/weeklyedition/archive?year={}".format(edition_date[:4])
-            archive = self.index_to_soup(archive_url)
-            q = edition_date.replace('-', '')
-            q = '/print-covers/{}_'.format(q)
-            img = archive.find('img', srcset=lambda x: x and q in x)
-        else:
-            archive = self.index_to_soup("https://www.economist.com/weeklyedition/archive")
-            div = archive.find(attrs={'class': 'edition-teaser__image'})
-            if div is not None:
-                img = div.find('img', srcset=True)
-        if img:
-            self.cover_url = img['srcset'].split(',')[-1].split()[0]
+        script_tag = soup.select_one("script#__NEXT_DATA__")
+        if script_tag is not None:
+            data = json.loads(script_tag.string)
+            self.cover_url = data['props']['pageProps']['content']['image']['main']['url']['canonical']
             self.log('Got cover:', self.cover_url)
         feeds = []
         for section in soup.findAll(**classes('layout-weekly-edition-section')):
