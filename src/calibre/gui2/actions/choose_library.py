@@ -445,7 +445,7 @@ class ChooseLibraryAction(InterfaceAction):
                     newloc, show=True)
         if (iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
-                    _('Path to library too long. Must be less than'
+                    _('Path to library too long. It must be less than'
                     ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
         if not os.path.exists(loc):
@@ -505,7 +505,7 @@ class ChooseLibraryAction(InterfaceAction):
         db = m.db
         if (iswindows and len(db.library_path) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
             return error_dialog(self.gui, _('Too long'),
-                    _('Path to library too long. Must be less than'
+                    _('Path to library too long. It must be less than'
                     ' %d characters. Move your library to a location with'
                     ' a shorter path using Windows Explorer, then point'
                     ' calibre to the new location and try again.')%

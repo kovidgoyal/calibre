@@ -307,7 +307,7 @@ def _config():  # {{{
     # This option is no longer used. It remains for compatibility with upgrades
     # so the value can be migrated
     c.add_opt('tag_browser_hidden_categories', default=set(),
-            help=_('tag browser categories not to display'))
+            help=_('Tag browser categories not to display'))
 
     c.add_opt
     return ConfigProxy(c)

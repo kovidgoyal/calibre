@@ -469,7 +469,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
     var_0 = 'one';
     var_1 = 'two';
-    var_3 = 'foo
+    var_2 = 'foo
 
 * ``list_union(list1, list2, separator)`` -- return a list made by merging the items in ``list1`` and ``list2``, removing duplicate items using a case-insensitive comparison. If items differ in case, the one in ``list1`` is used. The items in ``list1`` and ``list2`` are separated by ``separator``, as are the items in the returned list. Aliases: ``merge_lists()``, ``list_union()``
 * ``mod(x, y)`` -- returns the ``floor`` of the remainder of ``x / y``. Throws an exception if either ``x`` or ``y`` is not a number.

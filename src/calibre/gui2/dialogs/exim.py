@@ -305,7 +305,7 @@ class EximDialog(Dialog):
                     continue
                 if iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
                     error_dialog(self, _('Too long'),
-                        _('Path to library ({0}) too long. Must be less than'
+                        _('Path to library ({0}) too long. It must be less than'
                         ' {1} characters.').format(newloc, LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT), show=True)
                     return False
                 if not os.path.isdir(newloc):

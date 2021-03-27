@@ -431,7 +431,7 @@ class BuiltinListSplit(BuiltinFormatterFunction):
                     "of the value in the list. The first item has position 0 (zero). "
                     "The function returns the last element in the list. "
                     "Example: split('one:two:foo', ':', 'var') is equivalent "
-                    "to var_0 = 'one'; var_1 = 'two'; var_3 = 'foo'.")
+                    "to var_0 = 'one'; var_1 = 'two'; var_2 = 'foo'.")
 
     def evaluate(self, formatter, kwargs, mi, locals, list_val, sep, id_prefix):
         l = [v.strip() for v in list_val.split(sep)]

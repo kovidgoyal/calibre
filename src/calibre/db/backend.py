@@ -420,7 +420,7 @@ class DB(object):
 
         if iswindows and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
             raise ValueError(_(
-                'Path to library ({0}) too long. Must be less than'
+                'Path to library ({0}) too long. It must be less than'
                 ' {1} characters.').format(self.library_path, 259-4*self.PATH_LIMIT-10))
         exists = self._exists = os.path.exists(self.dbpath)
         if not exists:
@@ -428,7 +428,7 @@ class DB(object):
             # allowed for max path lengths of 265 chars.
             if (iswindows and len(self.library_path) > self.WINDOWS_LIBRARY_PATH_LIMIT):
                 raise ValueError(_(
-                    'Path to library too long. Must be less than'
+                    'Path to library too long. It must be less than'
                     ' %d characters.')%self.WINDOWS_LIBRARY_PATH_LIMIT)
 
         if read_only and os.path.exists(self.dbpath):

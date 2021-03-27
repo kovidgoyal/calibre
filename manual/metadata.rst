@@ -25,7 +25,7 @@ Click the book you want to edit and then click the :guilabel:`Edit metadata` but
 Downloading metadata
 ^^^^^^^^^^^^^^^^^^^^^
 
-The nicest feature of the edit metadata dialog is its ability to automatically fill in many metadata fields by getting metadata from various websites. Currently, calibre uses isbndb.com, Google Books, Amazon and Library Thing. The metadata download can fill in Title, author, series, tags, rating, description and ISBN for you.
+The nicest feature of the edit metadata dialog is its ability to automatically fill in many metadata fields by getting metadata from various websites. Currently, calibre uses Google Books and Amazon. The metadata download can fill in Title, author, series, tags, rating, description and ISBN for you.
 
 To use the download, fill in the title and author fields and click the :guilabel:`Fetch metadata` button. calibre will present you with a list of books that most closely match the title and author. If you fill in the ISBN field first, it will be used in preference to the title and author. If no matches are found, try making your search a little less specific by including only some key words in the title and only the author last name.
 

@@ -766,7 +766,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         if x:
             if (iswindows and len(x) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
                 return error_dialog(self, _('Too long'),
-                    _('Path to library too long. Must be less than'
+                    _('Path to library too long. It must be less than'
                     ' %d characters.')%(LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT),
                     show=True)
             if not os.path.exists(x):

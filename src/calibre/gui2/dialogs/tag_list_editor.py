@@ -556,7 +556,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         indexes = self.table.selectionModel().selectedRows()
         if not indexes:
             error_dialog(self, _('No item selected'),
-                         _('You must select one item from the list of Available items.')).exec_()
+                         _('You must select one item from the list of available items.')).exec_()
             return
 
         if not confirm(
@@ -581,7 +581,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
     def _rename_tag(self, item):
         if item is None:
             error_dialog(self, _('No item selected'),
-                         _('You must select one item from the list of Available items.')).exec_()
+                         _('You must select one item from the list of available items.')).exec_()
             return
         for col_zero_item in self.table.selectedItems():
             if col_zero_item.is_deleted:

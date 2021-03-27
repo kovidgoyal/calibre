@@ -102,7 +102,7 @@ get_app_dir(std::wstring& ans, std::wstring& exe_name) {
         std::wstring msg;
         msg.append(L"Path to Calibre Portable (");
         msg.append(ans);
-        msg.append(L") too long. Must be less than 59 characters.");
+        msg.append(L") too long. It must be less than 59 characters.");
         show_error(msg.c_str());
         return false;
 	}

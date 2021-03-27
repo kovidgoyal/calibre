@@ -566,7 +566,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         if (wcslen(fdest) > 58) {
             _snwprintf_s(buf, 4*MAX_PATH, _TRUNCATE,
-                L"Path to Calibre Portable (%s) too long. Must be less than 59 characters.", fdest);
+                L"Path to Calibre Portable (%s) too long. It must be less than 59 characters.", fdest);
             if (!existing) RemoveDirectory(fdest);
             show_error(buf);
             tgt = get_directory_from_user();

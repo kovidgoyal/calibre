@@ -39,7 +39,7 @@
 
 :: bug fixes
 
-- [1920613] MOBI Output: Fix latest kindle firmware not displaying select publisher font option for calibre produced azw3 files
+- [1920613] MOBI Output: Fix latest Kindle firmware not displaying select publisher font option for calibre produced AZW3 files
 
 - [1919033] E-book viewer: Fix errors when viewing books with mathematics that are split over multiple internal files
 

@@ -121,7 +121,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             if (iswindows and len(loc) >
                     LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT):
                 error_dialog(self, _('Too long'),
-                    _('Path to library too long. Must be less than'
+                    _('Path to library too long. It must be less than'
                     ' %d characters.')%LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT,
                     show=True)
                 return False

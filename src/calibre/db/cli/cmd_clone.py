@@ -54,7 +54,7 @@ def main(opts, args, dbctx):
         )
     if iswindows and len(loc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
         raise SystemExit(
-            _('Path to library too long. Must be less than'
+            _('Path to library too long. It must be less than'
               ' %d characters.') % LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT
         )
     LibraryDatabase(loc, default_prefs=prefs)
