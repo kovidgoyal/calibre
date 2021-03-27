@@ -158,10 +158,10 @@ class Export(Dialog):  # {{{
         self.accept()
 
     def save_to_file(self):
-        filters = [(self.export_format.currentText(), self.export_format.currentData())]
+        filters = [(self.export_format.currentText(), [self.export_format.currentData()])]
         path = choose_save_file(
             self, 'annots-export-save', _('File for exports'), filters=filters,
-            initial_filename=self.initial_filename() + '.' + filters[0][1])
+            initial_filename=self.initial_filename() + '.' + filters[0][1][0])
         if path:
             data = self.exported_data().encode('utf-8')
             with open(path, 'wb') as f:
