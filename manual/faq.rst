@@ -1006,7 +1006,7 @@ I want some feature added to calibre. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
  1. Create a patch by hacking on calibre and send it to me for review and inclusion. See `Development <https://calibre-ebook.com/get-involved>`_.
- 2. `Open a bug requesting the feature <https://calibre-ebook.com/bugs>`_ . Remember that while you may think your feature request is extremely important/essential, calibre developers might not agree. Fortunately, calibre is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, calibre has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
+ 2. `Open a bug requesting the feature <https://calibre-ebook.com/bugs>`_. Remember that while you may think your feature request is extremely important/essential, calibre developers might not agree. Fortunately, calibre is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, calibre has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
 
 Why doesn't calibre have an automatic update?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

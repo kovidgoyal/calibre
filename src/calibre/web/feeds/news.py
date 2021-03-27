@@ -1709,14 +1709,14 @@ class BasicNewsRecipe(Recipe):
         '''
         Convenience method to take a
         `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
-        `Tag` and extract the text from it recursively, including any CDATA sections
+        :code:`Tag` and extract the text from it recursively, including any CDATA sections
         and alt tag attributes. Return a possibly empty Unicode string.
 
         `use_alt`: If `True` try to use the alt attribute for tags that don't
         have any textual content
 
         `tag`: `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs4/doc/>`_
-        `Tag`
+        :code:`Tag`
         '''
         if tag is None:
             return ''

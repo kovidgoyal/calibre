@@ -304,7 +304,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
     dt = data['type']
 
     def add_copy_action(name):
-        copy_menu.addAction(QIcon(I('edit-copy.png')), _('Copy {} to clipboard').format(name), lambda: QApplication.instance().clipboard().setText(name))
+        copy_menu.addAction(QIcon(I('edit-copy.png')), _('The text: {}').format(name), lambda: QApplication.instance().clipboard().setText(name))
 
     if dt == 'format':
         add_format_entries(menu, data, book_info, copy_menu, search_menu)
@@ -313,7 +313,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         if data['url'] != 'calibre':
             ac = book_info.copy_link_action
             ac.current_url = data['url']
-            ac.setText(_('&Copy author link'))
+            ac.setText(_('&Author link'))
             copy_menu.addAction(ac)
         add_copy_action(author)
         init_find_in_tag_browser(search_menu, find_action, 'authors', author)
@@ -338,7 +338,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
         if isinstance(path, int):
             path = get_gui().library_view.model().db.abspath(path, index_is_id=True)
         ac.current_url = path
-        ac.setText(_('Copy path'))
+        ac.setText(_('The location of the book'))
         copy_menu.addAction(ac)
     else:
         field = data.get('field')
@@ -348,7 +348,7 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
             if field == 'identifiers':
                 ac = book_info.copy_link_action
                 ac.current_url = value
-                ac.setText(_('&Copy identifier'))
+                ac.setText(_('&Identifier'))
                 copy_menu.addAction(ac)
                 remove_value = data['id_type']
                 init_find_in_tag_browser(search_menu, find_action, field, remove_value)

@@ -59,7 +59,7 @@
 
 - [1918437] E-book viewer: Fix incorrect ToC navigation in books that link the entries to inline tags that wrap block tags that span multiple pages
 
-- [1920592] Category editor: Searching in library shouldn't automatically opens Quickview
+- [1920592] Category editor: Searching in library shouldn't automatically open Quickview
 
 - [1919260] Conversion: Fix a hang caused by long sequences of non-word characters when heuristics are enabled, either explicitly or for some input formats such as TXT
 

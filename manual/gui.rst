@@ -529,7 +529,7 @@ page for the author.  This can be customized by right clicking on the author
 name and selecting Manage this author.
 
 Similarly, if you download metadata for the book, the Book details panel will
-automatically show you links pointing to the web pages for the book on amazon,
+automatically show you links pointing to the web pages for the book on Amazon,
 worldcat, etc. from where the metadata was downloaded.
 
 You can right click on individual e-book formats in the Book details panel to
