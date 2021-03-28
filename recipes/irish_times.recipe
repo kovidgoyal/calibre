@@ -70,7 +70,7 @@ class IrishTimes(BasicNewsRecipe):
         raw = r.read()
         data = json.loads(raw)
         # print(data)
-        if r.code != 200 or 'user_id' not in raw:
+        if r.code != 200 or b'user_id' not in raw:
             raise ValueError('Failed to log in check username/password')
 
         # Set cookie
