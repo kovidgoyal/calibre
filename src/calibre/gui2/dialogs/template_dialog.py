@@ -11,11 +11,11 @@ from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize, QPalette, QLineEdit, QByteArray, QFontInfo,
                       QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
-                      QComboBox)
+                      QComboBox, QAbstractItemView)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
-from calibre.gui2 import gprefs, error_dialog, choose_files, pixmap_to_data
+from calibre.gui2 import gprefs, error_dialog, choose_files, choose_save_file, pixmap_to_data
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import sort_key
@@ -363,6 +363,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             w = QLineEdit(tv)
             w.setReadOnly(True)
             tv.setCellWidget(r, 1, w)
+        tv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
 
         # Remove help icon on title bar
         icon = self.windowIcon()
@@ -395,6 +396,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             text = ''
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
+
+        self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.textbox.customContextMenuRequested.connect(self.show_context_menu)
+
         self.color_copy_button.clicked.connect(self.color_to_clipboard)
         self.filename_button.clicked.connect(self.filename_button_clicked)
         self.icon_copy_button.clicked.connect(self.icon_to_clipboard)
@@ -445,6 +450,35 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
+
+    def show_context_menu(self, point):
+        m = self.textbox.createStandardContextMenu()
+        m.addSeparator()
+        ca = m.addAction(_('Load template from file'))
+        ca.triggered.connect(self.load_template)
+        ca = m.addAction(_('Save template to file'))
+        ca.triggered.connect(self.store_template)
+        m.exec_(self.textbox.mapToGlobal(point))
+
+    def load_template(self):
+        filename = choose_files(self, 'template_dialog_save_templates',
+                _('Load template from file'),
+                filters=[
+                    (_('Template file'), ['txt'])
+                    ], select_only_single_file=True)
+        if filename:
+            with open(filename[0], 'r') as f:
+                self.textbox.setPlainText(f.read())
+
+    def store_template(self):
+        filename = choose_save_file(self, 'template_dialog_save_templates',
+                _('Save template to file'),
+                filters=[
+                    (_('Template file'), ['txt'])
+                    ])
+        if filename:
+            with open(filename, 'w') as f:
+                f.write(unicode_type(self.textbox.toPlainText()))
 
     def get_current_font(self):
         font_name = gprefs.get('gpm_template_editor_font', None)
@@ -509,10 +543,12 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.textbox.set_clicked_line_numbers(cln)
 
     def break_reporter(self, txt, val, locals_={}, line_number=0):
+        l = self.template_value.selectionModel().selectedRows()
+        mi_to_use = self.mi[0 if len(l) == 0 else l[0].row()]
         if self.break_box.isChecked():
             if line_number not in self.textbox.clicked_line_numbers:
                 return
-            self.break_reporter_dialog = BreakReporter(self, self.mi[0],
+            self.break_reporter_dialog = BreakReporter(self, mi_to_use,
                                                        txt, val, locals_, line_number)
             if not self.break_reporter_dialog.exec_():
                 raise ValueError(_('Stop requested'))
@@ -675,7 +711,7 @@ class BreakReporterItem(QTableWidgetItem):
 
     def __init__(self, txt):
         super().__init__(txt)
-        self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsEditable))
+        self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsEditable|Qt.ItemFlag.ItemIsSelectable))
 
 
 class BreakReporter(QDialog):
