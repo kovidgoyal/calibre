@@ -11,7 +11,6 @@ __docformat__ = 'restructuredtext en'
 
 import re, string, traceback, numbers
 from math import modf
-from functools import partial
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -1122,8 +1121,8 @@ class TemplateFormatter(string.Formatter):
             (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
             (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
-            (r'\n#.*?(?:(?=\n)|$)',      lambda x,t: _Parser.LEX_NEWLINE),
-            (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
+            (r'\n#.*?(?:(?=\n)|$)',      lambda x,t: _Parser.LEX_NEWLINE),  # noqa
+            (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),  # noqa
         ], flags=re.DOTALL)
 
     def _eval_program(self, val, prog, column_name, global_vars, break_reporter):

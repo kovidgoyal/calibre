@@ -7,12 +7,14 @@ Based on classes in calibre.gui2.tweak_book.editor
 License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 '''
 
-from qt.core import (Qt, QWidget, QSize, QPlainTextEdit, QPainter,
-                     QRect, QFont, QPalette, QTextEdit, QTextFormat)
+from qt.core import (
+    QFont, QPainter, QPalette, QPlainTextEdit, QRect, Qt, QTextEdit, QTextFormat
+)
 
-from calibre.gui2.tweak_book.editor.themes import (get_theme, theme_color)
 from calibre.gui2.tweak_book.editor.text import LineNumbers
+from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from polyglot.builtins import unicode_type
+
 
 class LineNumberArea(LineNumbers):
 
@@ -25,7 +27,6 @@ class CodeEditor(QPlainTextEdit):
 
     def __init__(self, parent):
         QPlainTextEdit.__init__(self, parent)
-
 
         # Use the default theme from the book editor
         theme = get_theme(None)

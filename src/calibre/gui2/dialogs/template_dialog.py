@@ -11,7 +11,7 @@ from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize, QPalette, QLineEdit, QByteArray, QFontInfo,
                       QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
-                      QFontComboBox, QComboBox)
+                      QComboBox)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -699,7 +699,7 @@ class BreakReporter(QDialog):
         except:
             t.setColumnWidth(0, t.fontMetrics().averageCharWidth() * 20)
         t.horizontalHeader().sectionResized.connect(self.table_column_resized)
-        t.horizontalHeader().setStretchLastSection(True);
+        t.horizontalHeader().setStretchLastSection(True)
 
         bb = QDialogButtonBox()
         b = bb.addButton(_('&Continue'), QDialogButtonBox.ButtonRole.AcceptRole)
