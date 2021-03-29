@@ -716,7 +716,7 @@ class TextEdit(PlainTextEdit):
         c = self.textCursor()
         c.setPosition(block.position() + r.start)
         c.setPosition(c.position() + r.length, QTextCursor.MoveMode.KeepAnchor)
-        return unicode_type(c.selectedText())
+        return self.selected_text_from_cursor(c)
 
     def spellcheck_locale_for_cursor(self, c):
         with store_locale:
@@ -767,12 +767,41 @@ class TextEdit(PlainTextEdit):
         if r is not None and r.format.property(LINK_PROPERTY):
             return self.text_for_range(c.block(), r)
 
+    def select_class_name_at_cursor(self, cursor):
+        valid = re.compile(r'[\w_0-9\-]+', flags=re.UNICODE)
+
+        def keep_going():
+            q = cursor.selectedText()
+            m = valid.match(q)
+            return m is not None and m.group() == q
+
+        def run_loop(forward=True):
+            cursor.setPosition(pos)
+            n, p = QTextCursor.MoveOperation.NextCharacter, QTextCursor.MoveOperation.PreviousCharacter
+            if not forward:
+                n, p = p, n
+            while True:
+                if not cursor.movePosition(n, QTextCursor.MoveMode.KeepAnchor):
+                    break
+                if not keep_going():
+                    cursor.movePosition(p, QTextCursor.MoveMode.KeepAnchor)
+                    break
+            ans = cursor.position()
+            cursor.setPosition(pos)
+            return ans
+
+        pos = cursor.position()
+        forwards_limit = run_loop()
+        backwards_limit = run_loop(forward=False)
+        cursor.setPosition(backwards_limit)
+        cursor.setPosition(forwards_limit, QTextCursor.MoveMode.KeepAnchor)
+        return self.selected_text_from_cursor(cursor)
+
     def class_for_position(self, pos):
         c = self.cursorForPosition(pos)
         r = self.syntax_range_for_cursor(c)
         if r is not None and r.format.property(CLASS_ATTRIBUTE_PROPERTY):
-            c.select(QTextCursor.SelectionType.WordUnderCursor)
-            class_name = c.selectedText()
+            class_name = self.select_class_name_at_cursor(c)
             if class_name:
                 tags = self.current_tag(for_position_sync=False, cursor=c)
                 return {'class': class_name, 'sourceline_address': tags}
