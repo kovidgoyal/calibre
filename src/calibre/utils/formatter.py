@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, string, traceback, numbers
 from math import modf
+from functools import partial
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -40,11 +41,20 @@ class Node(object):
     NODE_UNARY_LOGOP = 18
     NODE_BINARY_ARITHOP = 19
     NODE_UNARY_ARITHOP = 20
+    NODE_PRINT = 21
+    NODE_LINE_NUMBER = 22
+
+    def __init__(self, line_number, name):
+        self.line_number = line_number
+        self.my_node_name = name
+
+    def node_name(self):
+        return self.my_node_name
 
 
 class IfNode(Node):
-    def __init__(self, condition, then_part, else_part):
-        Node.__init__(self)
+    def __init__(self, line_number, condition, then_part, else_part):
+        Node.__init__(self, line_number, 'IF')
         self.node_type = self.NODE_IF
         self.condition = condition
         self.then_part = then_part
@@ -52,8 +62,8 @@ class IfNode(Node):
 
 
 class ForNode(Node):
-    def __init__(self, variable, list_field_expr, separator, block):
-        Node.__init__(self)
+    def __init__(self, line_number, variable, list_field_expr, separator, block):
+        Node.__init__(self, line_number, 'FOR')
         self.node_type = self.NODE_FOR
         self.variable = variable
         self.list_field_expr = list_field_expr
@@ -62,53 +72,53 @@ class ForNode(Node):
 
 
 class AssignNode(Node):
-    def __init__(self, left, right):
-        Node.__init__(self)
+    def __init__(self, line_number, left, right):
+        Node.__init__(self, line_number, 'ASSIGN')
         self.node_type = self.NODE_ASSIGN
         self.left = left
         self.right = right
 
 
 class FunctionNode(Node):
-    def __init__(self, function_name, expression_list):
-        Node.__init__(self)
+    def __init__(self, line_number, function_name, expression_list):
+        Node.__init__(self, line_number, 'FUNCTION CALL')
         self.node_type = self.NODE_FUNC
         self.name = function_name
         self.expression_list = expression_list
 
 
 class CallNode(Node):
-    def __init__(self, function, expression_list):
-        Node.__init__(self)
+    def __init__(self, line_number, function, expression_list):
+        Node.__init__(self, line_number, 'TEMPLATE CALL')
         self.node_type = self.NODE_CALL
         self.function = function
         self.expression_list = expression_list
 
 
 class ArgumentsNode(Node):
-    def __init__(self, expression_list):
-        Node.__init__(self)
+    def __init__(self, line_number, expression_list):
+        Node.__init__(self, line_number, 'ARGUMENTS')
         self.node_type = self.NODE_ARGUMENTS
         self.expression_list = expression_list
 
 
 class GlobalsNode(Node):
-    def __init__(self, expression_list):
-        Node.__init__(self)
+    def __init__(self, line_number, expression_list):
+        Node.__init__(self, line_number, 'GLOBALS')
         self.node_type = self.NODE_GLOBALS
         self.expression_list = expression_list
 
 
 class SetGlobalsNode(Node):
-    def __init__(self, expression_list):
-        Node.__init__(self)
+    def __init__(self, line_number, expression_list):
+        Node.__init__(self, line_number, 'SET_GLOBALS')
         self.node_type = self.NODE_SET_GLOBALS
         self.expression_list = expression_list
 
 
 class StringCompareNode(Node):
-    def __init__(self, operator, left, right):
-        Node.__init__(self)
+    def __init__(self, line_number, operator, left, right):
+        Node.__init__(self, line_number, 'COMPARE STRING')
         self.node_type = self.NODE_COMPARE_STRING
         self.operator = operator
         self.left = left
@@ -116,8 +126,8 @@ class StringCompareNode(Node):
 
 
 class NumericCompareNode(Node):
-    def __init__(self, operator, left, right):
-        Node.__init__(self)
+    def __init__(self, line_number, operator, left, right):
+        Node.__init__(self, line_number, 'COMPARE NUMBERS')
         self.node_type = self.NODE_COMPARE_NUMERIC
         self.operator = operator
         self.left = left
@@ -125,8 +135,8 @@ class NumericCompareNode(Node):
 
 
 class LogopBinaryNode(Node):
-    def __init__(self, operator, left, right):
-        Node.__init__(self)
+    def __init__(self, line_number, operator, left, right):
+        Node.__init__(self, line_number, 'BINARY LOGICAL OP')
         self.node_type = self.NODE_BINARY_LOGOP
         self.operator = operator
         self.left = left
@@ -134,16 +144,16 @@ class LogopBinaryNode(Node):
 
 
 class LogopUnaryNode(Node):
-    def __init__(self, operator, expr):
-        Node.__init__(self)
+    def __init__(self, line_number, operator, expr):
+        Node.__init__(self, line_number, 'UNARY LOGICAL OP')
         self.node_type = self.NODE_UNARY_LOGOP
         self.operator = operator
         self.expr = expr
 
 
 class NumericBinaryNode(Node):
-    def __init__(self, operator, left, right):
-        Node.__init__(self)
+    def __init__(self, line_number, operator, left, right):
+        Node.__init__(self, line_number, 'BINARY ARITHMETIC OP')
         self.node_type = self.NODE_BINARY_ARITHOP
         self.operator = operator
         self.left = left
@@ -151,57 +161,70 @@ class NumericBinaryNode(Node):
 
 
 class NumericUnaryNode(Node):
-    def __init__(self, operator, expr):
-        Node.__init__(self)
+    def __init__(self, line_number, operator, expr):
+        Node.__init__(self, line_number, 'UNARY ARITHMETIC OP')
         self.node_type = self.NODE_UNARY_ARITHOP
         self.operator = operator
         self.expr = expr
 
 
 class ConstantNode(Node):
-    def __init__(self, value):
-        Node.__init__(self)
+    def __init__(self, line_number, value):
+        Node.__init__(self, line_number, 'CONSTANT')
         self.node_type = self.NODE_CONSTANT
         self.value = value
 
 
 class VariableNode(Node):
-    def __init__(self, name):
-        Node.__init__(self)
+    def __init__(self, line_number, name):
+        Node.__init__(self, line_number, 'VARIABLE')
         self.node_type = self.NODE_RVALUE
         self.name = name
 
 
 class FieldNode(Node):
-    def __init__(self, expression):
-        Node.__init__(self)
+    def __init__(self, line_number, expression):
+        Node.__init__(self, line_number, 'FIELD FUNCTION')
         self.node_type = self.NODE_FIELD
         self.expression = expression
 
 
 class RawFieldNode(Node):
-    def __init__(self, expression, default=None):
-        Node.__init__(self)
+    def __init__(self, line_number, expression, default=None):
+        Node.__init__(self, line_number, 'RAW_FIELD FUNCTION')
         self.node_type = self.NODE_RAW_FIELD
         self.expression = expression
         self.default = default
 
 
 class FirstNonEmptyNode(Node):
-    def __init__(self, expression_list):
-        Node.__init__(self)
+    def __init__(self, line_number, expression_list):
+        Node.__init__(self, line_number, 'FIRST_NON_EMPTY FUNCTION')
         self.node_type = self.NODE_FIRST_NON_EMPTY
         self.expression_list = expression_list
 
 
 class ContainsNode(Node):
-    def __init__(self, arguments):
-        Node.__init__(self)
+    def __init__(self, line_number, arguments):
+        Node.__init__(self, line_number, 'CONTAINS FUNCTION')
         self.node_type = self.NODE_CONTAINS
         self.value_expression = arguments[0]
         self.test_expression = arguments[1]
         self.match_expression = arguments[2]
         self.not_match_expression = arguments[3]
+
+
+class PrintNode(Node):
+    def __init__(self, line_number, arguments):
+        Node.__init__(self, line_number, 'PRINT')
+        self.node_type = self.NODE_PRINT
+        self.arguments = arguments
+
+
+class LineNumberNode(Node):
+    def __init__(self, line_number):
+        Node.__init__(self, line_number, 'LINE NUMBER')
+        self.node_type = self.NODE_LINE_NUMBER
 
 
 class _Parser(object):
@@ -212,21 +235,33 @@ class _Parser(object):
     LEX_STRING_INFIX = 5
     LEX_NUMERIC_INFIX = 6
     LEX_KEYWORD = 7
+    LEX_NEWLINE = 8
 
     def error(self, message):
+        ln = None
         try:
             tval = "'" + self.prog[self.lex_pos-1][1] + "'"
         except Exception:
             tval = _('Unknown')
-        if self.lex_pos > 0:
+        if self.lex_pos > 0 and self.lex_pos < self.prog_len:
             location = tval
-        elif self.lex_pos < self.prog_len:
-            location = tval
+            ln = self.line_number
         else:
             location = _('the end of the program')
-        raise ValueError(_('{0}: {1} near {2}').format('Formatter', message, location))
+        if ln:
+            raise ValueError(_('{0}: {1} near {2} on line {3}').format(
+                                          'Formatter', message, location, ln))
+        else:
+            raise ValueError(_('{0}: {1} near {2}').format(
+                                          'Formatter', message, location))
+
+    def check_eol(self):
+        while self.lex_pos < len(self.prog) and self.prog[self.lex_pos] == self.LEX_NEWLINE:
+            self.line_number += 1
+            self.consume()
 
     def token(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos][1]
             self.lex_pos += 1
@@ -238,6 +273,7 @@ class _Parser(object):
         self.lex_pos += 1
 
     def token_op_is_equals(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '=' and token[0] == self.LEX_OP
@@ -245,18 +281,21 @@ class _Parser(object):
             return False
 
     def token_op_is_string_infix_compare(self):
+        self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_STRING_INFIX
         except:
             return False
 
     def token_op_is_numeric_infix_compare(self):
+        self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_NUMERIC_INFIX
         except:
             return False
 
     def token_op_is_lparen(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '(' and token[0] == self.LEX_OP
@@ -264,6 +303,7 @@ class _Parser(object):
             return False
 
     def token_op_is_rparen(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == ')' and token[0] == self.LEX_OP
@@ -271,6 +311,7 @@ class _Parser(object):
             return False
 
     def token_op_is_comma(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == ',' and token[0] == self.LEX_OP
@@ -278,6 +319,7 @@ class _Parser(object):
             return False
 
     def token_op_is_semicolon(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == ';' and token[0] == self.LEX_OP
@@ -285,6 +327,7 @@ class _Parser(object):
             return False
 
     def token_op_is_colon(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == ':' and token[0] == self.LEX_OP
@@ -292,6 +335,7 @@ class _Parser(object):
             return False
 
     def token_op_is_plus(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '+' and token[0] == self.LEX_OP
@@ -299,6 +343,7 @@ class _Parser(object):
             return False
 
     def token_op_is_minus(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '-' and token[0] == self.LEX_OP
@@ -306,6 +351,7 @@ class _Parser(object):
             return False
 
     def token_op_is_times(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '*' and token[0] == self.LEX_OP
@@ -313,6 +359,7 @@ class _Parser(object):
             return False
 
     def token_op_is_divide(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '/' and token[0] == self.LEX_OP
@@ -320,6 +367,7 @@ class _Parser(object):
             return False
 
     def token_op_is_and(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '&&' and token[0] == self.LEX_OP
@@ -327,6 +375,7 @@ class _Parser(object):
             return False
 
     def token_op_is_or(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '||' and token[0] == self.LEX_OP
@@ -334,19 +383,25 @@ class _Parser(object):
             return False
 
     def token_op_is_not(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == '!' and token[0] == self.LEX_OP
         except:
             return False
 
+    def token_is_newline(self):
+        return self.lex_pos < len(self.prog) and self.prog[self.lex_pos] == self.LEX_NEWLINE
+
     def token_is_id(self):
+        self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_ID
         except:
             return False
 
     def token_is_call(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'call' and token[0] == self.LEX_KEYWORD
@@ -354,6 +409,7 @@ class _Parser(object):
             return False
 
     def token_is_if(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'if' and token[0] == self.LEX_KEYWORD
@@ -361,6 +417,7 @@ class _Parser(object):
             return False
 
     def token_is_then(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'then' and token[0] == self.LEX_KEYWORD
@@ -368,6 +425,7 @@ class _Parser(object):
             return False
 
     def token_is_else(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'else' and token[0] == self.LEX_KEYWORD
@@ -375,6 +433,7 @@ class _Parser(object):
             return False
 
     def token_is_elif(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'elif' and token[0] == self.LEX_KEYWORD
@@ -382,6 +441,7 @@ class _Parser(object):
             return False
 
     def token_is_fi(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'fi' and token[0] == self.LEX_KEYWORD
@@ -389,6 +449,7 @@ class _Parser(object):
             return False
 
     def token_is_for(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'for' and token[0] == self.LEX_KEYWORD
@@ -396,6 +457,7 @@ class _Parser(object):
             return False
 
     def token_is_in(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'in' and token[0] == self.LEX_KEYWORD
@@ -403,6 +465,7 @@ class _Parser(object):
             return False
 
     def token_is_rof(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'rof' and token[0] == self.LEX_KEYWORD
@@ -410,6 +473,7 @@ class _Parser(object):
             return False
 
     def token_is_separator(self):
+        self.check_eol()
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'separator' and token[0] == self.LEX_ID
@@ -417,18 +481,21 @@ class _Parser(object):
             return False
 
     def token_is_constant(self):
+        self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_CONST
         except:
             return False
 
     def token_is_eof(self):
+        self.check_eol()
         try:
             return self.prog[self.lex_pos][0] == self.LEX_EOF
         except:
             return True
 
     def program(self, parent, funcs, prog):
+        self.line_number = 1
         self.lex_pos = 0
         self.parent = parent
         self.funcs = funcs
@@ -444,22 +511,30 @@ class _Parser(object):
 
     def expression_list(self):
         expr_list = []
-        while not self.token_is_eof():
-            expr_list.append(self.top_expr())
-            if not self.token_op_is_semicolon():
+        while True:
+            while self.token_is_newline():
+                self.line_number += 1
+                expr_list.append(LineNumberNode(self.line_number))
+                self.consume()
+            if self.token_is_eof():
                 break
-            self.consume()
+            expr_list.append(self.top_expr())
+            if self.token_op_is_semicolon():
+                self.consume()
+            else:
+                break
         return expr_list
 
     def if_expression(self):
         self.consume()
+        line_number = self.line_number
         condition = self.top_expr()
         if not self.token_is_then():
             self.error(_("Missing 'then' in if statement"))
         self.consume()
         then_part = self.expression_list()
         if self.token_is_elif():
-            return IfNode(condition, then_part, [self.if_expression(),])
+            return IfNode(line_number, condition, then_part, [self.if_expression(),])
         if self.token_is_else():
             self.consume()
             else_part = self.expression_list()
@@ -468,7 +543,7 @@ class _Parser(object):
         if not self.token_is_fi():
             self.error(_("Missing 'fi' in if statement"))
         self.consume()
-        return IfNode(condition, then_part, else_part)
+        return IfNode(line_number, condition, then_part, else_part)
 
     def for_expression(self):
         self.consume()
@@ -491,7 +566,7 @@ class _Parser(object):
         if not self.token_is_rof():
             self.error(_("Missing 'rof' in for statement"))
         self.consume()
-        return ForNode(variable, list_expr, separator, block)
+        return ForNode(self.line_number, variable, list_expr, separator, block)
 
     def top_expr(self):
         return self.or_expr()
@@ -501,7 +576,7 @@ class _Parser(object):
         while self.token_op_is_or():
             self.consume()
             right = self.and_expr()
-            left = LogopBinaryNode('or', left, right)
+            left = LogopBinaryNode(self.line_number, 'or', left, right)
         return left
 
     def and_expr(self):
@@ -509,23 +584,23 @@ class _Parser(object):
         while self.token_op_is_and():
             self.consume()
             right = self.not_expr()
-            left = LogopBinaryNode('and', left, right)
+            left = LogopBinaryNode(self.line_number, 'and', left, right)
         return left
 
     def not_expr(self):
         if self.token_op_is_not():
             self.consume()
-            return LogopUnaryNode('not', self.not_expr())
+            return LogopUnaryNode(self.line_number, 'not', self.not_expr())
         return self.compare_expr()
 
     def compare_expr(self):
         left = self.add_subtract_expr()
         if self.token_op_is_string_infix_compare() or self.token_is_in():
             operator = self.token()
-            return StringCompareNode(operator, left, self.add_subtract_expr())
+            return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
             operator = self.token()
-            return NumericCompareNode(operator, left, self.add_subtract_expr())
+            return NumericCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         return left
 
     def add_subtract_expr(self):
@@ -533,7 +608,7 @@ class _Parser(object):
         while self.token_op_is_plus() or self.token_op_is_minus():
             operator = self.token()
             right = self.times_divide_expr()
-            left = NumericBinaryNode(operator, left, right)
+            left = NumericBinaryNode(self.line_number, operator, left, right)
         return left
 
     def times_divide_expr(self):
@@ -541,16 +616,16 @@ class _Parser(object):
         while self.token_op_is_times() or self.token_op_is_divide():
             operator = self.token()
             right = self.unary_plus_minus_expr()
-            left = NumericBinaryNode(operator, left, right)
+            left = NumericBinaryNode(self.line_number, operator, left, right)
         return left
 
     def unary_plus_minus_expr(self):
         if self.token_op_is_plus():
             self.consume()
-            return NumericUnaryNode('+', self.unary_plus_minus_expr())
+            return NumericUnaryNode(self.line_number, '+', self.unary_plus_minus_expr())
         if self.token_op_is_minus():
             self.consume()
-            return NumericUnaryNode('-', self.unary_plus_minus_expr())
+            return NumericUnaryNode(self.line_number, '-', self.unary_plus_minus_expr())
         return self.expr()
 
     def call_expression(self, name, arguments):
@@ -563,7 +638,7 @@ class _Parser(object):
             subprog = _Parser().program(self, self.funcs,
                                         self.parent.lex_scanner.scan(text))
             self.funcs[name].cached_parse_tree = subprog
-        return CallNode(subprog, arguments)
+        return CallNode(self.line_number, subprog, arguments)
 
     def expr(self):
         if self.token_op_is_lparen():
@@ -582,15 +657,15 @@ class _Parser(object):
             # We have an identifier. Check if it is a field reference
             if len(id_) > 1 and id_[0] == '$':
                 if id_[1] == '$':
-                    return RawFieldNode(ConstantNode(id_[2:]))
-                return FieldNode(ConstantNode(id_[1:]))
+                    return RawFieldNode(self.line_number, ConstantNode(self.line_number, id_[2:]))
+                return FieldNode(self.line_number, ConstantNode(self.line_number, id_[1:]))
             # Determine if it is a function
             if not self.token_op_is_lparen():
                 if self.token_op_is_equals():
                     # classic assignment statement
                     self.consume()
-                    return AssignNode(id_, self.top_expr())
-                return VariableNode(id_)
+                    return AssignNode(self.line_number, id_, self.top_expr())
+                return VariableNode(self.line_number, id_)
 
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
@@ -610,15 +685,15 @@ class _Parser(object):
             if self.token() != ')':
                 self.error(_('Missing closing parenthesis'))
             if id_ == 'field' and len(arguments) == 1:
-                return FieldNode(arguments[0])
+                return FieldNode(self.line_number, arguments[0])
             if id_ == 'raw_field' and (len(arguments) in (1, 2)):
-                return RawFieldNode(*arguments)
+                return RawFieldNode(self.line_number, *arguments)
             if id_ == 'test' and len(arguments) == 3:
-                return IfNode(arguments[0], (arguments[1],), (arguments[2],))
+                return IfNode(self.line_number, arguments[0], (arguments[1],), (arguments[2],))
             if id_ == 'first_non_empty' and len(arguments) > 0:
-                return FirstNonEmptyNode(arguments)
+                return FirstNonEmptyNode(self.line_number, arguments)
             if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
-                return AssignNode(arguments[0].name, arguments[1])
+                return AssignNode(self.line_number, arguments[0].name, arguments[1])
             if id_ == 'arguments' or id_ == 'globals' or id_ == 'set_globals':
                 new_args = []
                 for arg_list in arguments:
@@ -627,48 +702,66 @@ class _Parser(object):
                         self.error(_("Parameters to '{}' must be "
                                      "variables or assignments").format(id_))
                     if arg.node_type == Node.NODE_RVALUE:
-                        arg = AssignNode(arg.name, ConstantNode(''))
+                        arg = AssignNode(self.line_number, arg.name, ConstantNode(self.line_number, ''))
                     new_args.append(arg)
                 if id_ == 'arguments':
-                    return ArgumentsNode(new_args)
+                    return ArgumentsNode(self.line_number, new_args)
                 if id_ == 'set_globals':
-                    return SetGlobalsNode(new_args)
-                return GlobalsNode(new_args)
+                    return SetGlobalsNode(self.line_number, new_args)
+                return GlobalsNode(self.line_number, new_args)
             if id_ == 'contains' and len(arguments) == 4:
-                return ContainsNode(arguments)
+                return ContainsNode(self.line_number, arguments)
+            if id_ == 'print':
+                return PrintNode(self.line_number, arguments)
             if id_ in self.func_names and not self.funcs[id_].is_python:
                 return self.call_expression(id_, arguments)
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
                 self.error(_('Incorrect number of arguments for function {0}').format(id_))
-            return FunctionNode(id_, arguments)
+            return FunctionNode(self.line_number, id_, arguments)
         elif self.token_is_constant():
             # String or number
-            return ConstantNode(self.token())
+            return ConstantNode(self.line_number, self.token())
         else:
             self.error(_('Expression is not function or constant'))
 
 
 class _Interpreter(object):
     def error(self, message):
-        m = 'Interpreter: ' + message
+        m = _('Interpreter: {0} - line number {1}').format(message, self.line_number)
         raise ValueError(m)
 
-    def program(self, funcs, parent, prog, val, is_call=False, args=None, global_vars=None):
+    def program(self, funcs, parent, prog, val, is_call=False, args=None,
+                global_vars=None, break_reporter=None):
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
+        self.line_number = 1
         self.funcs = funcs
         self.locals = {'$':val}
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
+        if break_reporter:
+            self.break_reporter = self.call_break_reporter
+            self.real_break_reporter = break_reporter
+        else:
+            self.break_reporter = None
+
         if is_call:
-            return self.do_node_call(CallNode(prog, None), args=args)
+            return self.do_node_call(CallNode(self.line_number, prog, None), args=args)
         return self.expression_list(prog)
+
+    def call_break_reporter(self, txt, val, line_number=None):
+        self.real_break_reporter(txt, val, self.locals,
+                                 line_number if line_number else self.line_number)
 
     def expression_list(self, prog):
         val = ''
         for p in prog:
             val = self.expr(p)
+            if (self.break_reporter and
+                     p.node_type != Node.NODE_LINE_NUMBER and
+                     p.node_type != Node.NODE_IF):
+                self.break_reporter(p.node_name(), val)
         return val
 
     INFIX_STRING_COMPARE_OPS = {
@@ -712,11 +805,20 @@ class _Interpreter(object):
             self.error(_('Value used in comparison is not a number. Operator {0}').format(prog.operator))
 
     def do_node_if(self, prog):
+        line_number = prog.line_number
         test_part = self.expr(prog.condition)
+        if self.break_reporter:
+            self.break_reporter('if: condition', test_part, line_number=line_number)
         if test_part:
-            return self.expression_list(prog.then_part)
+            v = self.expression_list(prog.then_part)
+            if self.break_reporter:
+                self.break_reporter('if: then part', v, line_number=line_number)
+            return v
         elif prog.else_part:
-            return self.expression_list(prog.else_part)
+            v = self.expression_list(prog.else_part)
+            if self.break_reporter:
+                self.break_reporter('if: else part', v, line_number=line_number)
+            return v
         return ''
 
     def do_node_rvalue(self, prog):
@@ -821,10 +923,15 @@ class _Interpreter(object):
                 if not isinstance(res, list):
                     res = [r.strip() for r in res.split(separator) if r.strip()]
                 ret = ''
+                if self.break_reporter:
+                    self.break_reporter(_("'for' value list"), separator.join(res))
                 for x in res:
                     self.locals[v] = x
                     ret = self.expression_list(prog.block)
                 return ret
+            elif self.break_reporter:
+                self.break_reporter(_("'for' value list"), '')
+
             self.error(_('The field {0} is not a list').format(f))
         except ValueError as e:
             raise e
@@ -887,6 +994,17 @@ class _Interpreter(object):
         except:
             self.error(_('Error during arithmetic operator evaluation. Operator {0}').format(prog.operator))
 
+    def do_node_print(self, prog):
+        res = []
+        for arg in prog.arguments:
+            res.append(self.expr(arg))
+        print(res)
+        return res[0] if res else ''
+
+    def do_node_line_number(self, prog):
+        self.line_number = prog.line_number
+        return ''
+
     NODE_OPS = {
         Node.NODE_IF:             do_node_if,
         Node.NODE_ASSIGN:         do_node_assign,
@@ -908,6 +1026,8 @@ class _Interpreter(object):
         Node.NODE_UNARY_LOGOP:    do_node_logop_unary,
         Node.NODE_BINARY_ARITHOP: do_node_binary_arithop,
         Node.NODE_UNARY_ARITHOP:  do_node_unary_arithop,
+        Node.NODE_PRINT:          do_node_print,
+        Node.NODE_LINE_NUMBER:    do_node_line_number,
         }
 
     def expr(self, prog):
@@ -1002,11 +1122,11 @@ class TemplateFormatter(string.Formatter):
             (r'\w+',                     lambda x,t: (_Parser.LEX_ID, t)),  # noqa
             (r'".*?((?<!\\)")',          lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
             (r'\'.*?((?<!\\)\')',        lambda x,t: (_Parser.LEX_CONST, t[1:-1])),  # noqa
-            (r'\n#.*?(?:(?=\n)|$)',      None),
-            (r'\s',                      None),
+            (r'\n#.*?(?:(?=\n)|$)',      lambda x,t: _Parser.LEX_NEWLINE),
+            (r'\s',                      lambda x,t: _Parser.LEX_NEWLINE if t == '\n' else None),
         ], flags=re.DOTALL)
 
-    def _eval_program(self, val, prog, column_name, global_vars):
+    def _eval_program(self, val, prog, column_name, global_vars, break_reporter):
         if column_name is not None and self.template_cache is not None:
             tree = self.template_cache.get(column_name, None)
             if not tree:
@@ -1014,7 +1134,8 @@ class TemplateFormatter(string.Formatter):
                 self.template_cache[column_name] = tree
         else:
             tree = self.gpm_parser.program(self, self.funcs, self.lex_scanner.scan(prog))
-        return self.gpm_interpreter.program(self.funcs, self, tree, val, global_vars=global_vars)
+        return self.gpm_interpreter.program(self.funcs, self, tree, val,
+                                global_vars=global_vars, break_reporter=break_reporter)
 
     def _eval_sfm_call(self, template_name, args, global_vars):
         func = self.funcs[template_name]
@@ -1050,7 +1171,7 @@ class TemplateFormatter(string.Formatter):
             if p >= 0:
                 p += 1
         if p >= 0 and fmt[-1] == '\'':
-            val = self._eval_program(val, fmt[p+1:-1], None, self.global_vars)
+            val = self._eval_program(val, fmt[p+1:-1], None, self.global_vars, None)
             colon = fmt[0:p].find(':')
             if colon < 0:
                 dispfmt = ''
@@ -1103,10 +1224,10 @@ class TemplateFormatter(string.Formatter):
             return ''
         return prefix + val + suffix
 
-    def evaluate(self, fmt, args, kwargs, global_vars):
+    def evaluate(self, fmt, args, kwargs, global_vars, break_reporter=None):
         if fmt.startswith('program:'):
             ans = self._eval_program(kwargs.get('$', None), fmt[8:],
-                                     self.column_name, global_vars)
+                                     self.column_name, global_vars, break_reporter)
         else:
             ans = self.vformat(fmt, args, kwargs)
         if self.strip_results:
@@ -1130,7 +1251,7 @@ class TemplateFormatter(string.Formatter):
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
-                    global_vars=None):
+                    global_vars=None, break_reporter=None):
         self.strip_results = strip_results
         self.column_name = column_name
         self.template_cache = template_cache
@@ -1144,7 +1265,8 @@ class TemplateFormatter(string.Formatter):
         self.composite_values = {}
         self.locals = {}
         try:
-            ans = self.evaluate(fmt, [], kwargs, self.global_vars)
+            ans = self.evaluate(fmt, [], kwargs, self.global_vars,
+                                break_reporter=break_reporter)
         except Exception as e:
             if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()
