@@ -330,6 +330,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            <property name="toolTip">
             <string>The template program text</string>
            </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
           </widget>
          </item>
          <item row="3" column="0">
