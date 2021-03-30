@@ -397,9 +397,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.buttonBox.button(QDialogButtonBox.StandardButton.Ok).setText(_('&OK'))
         self.buttonBox.button(QDialogButtonBox.StandardButton.Cancel).setText(_('&Cancel'))
 
-        self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        self.textbox.customContextMenuRequested.connect(self.show_context_menu)
-
         self.color_copy_button.clicked.connect(self.color_to_clipboard)
         self.filename_button.clicked.connect(self.filename_button_clicked)
         self.icon_copy_button.clicked.connect(self.icon_to_clipboard)
@@ -443,6 +440,9 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.set_up_font_boxes()
         self.toggle_button.clicked.connect(self.toggle_button_pressed)
         self.remove_all_button.clicked.connect(self.remove_all_button_pressed)
+
+        self.load_button.clicked.connect(self.load_template)
+        self.save_button.clicked.connect(self.save_template)
         # Now geometry
         try:
             geom = gprefs.get('template_editor_dialog_geometry', None)
@@ -450,15 +450,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
-
-    def show_context_menu(self, point):
-        m = self.textbox.createStandardContextMenu()
-        m.addSeparator()
-        ca = m.addAction(_('Load template from file'))
-        ca.triggered.connect(self.load_template)
-        ca = m.addAction(_('Save template to file'))
-        ca.triggered.connect(self.store_template)
-        m.exec_(self.textbox.mapToGlobal(point))
 
     def load_template(self):
         filename = choose_files(self, 'template_dialog_save_templates',
@@ -470,7 +461,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             with open(filename[0], 'r') as f:
                 self.textbox.setPlainText(f.read())
 
-    def store_template(self):
+    def save_template(self):
         filename = choose_save_file(self, 'template_dialog_save_templates',
                 _('Save template to file'),
                 filters=[
