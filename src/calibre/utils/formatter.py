@@ -41,19 +41,23 @@ class Node(object):
     NODE_BINARY_ARITHOP = 19
     NODE_UNARY_ARITHOP = 20
     NODE_PRINT = 21
-    NODE_LINE_NUMBER = 22
 
     def __init__(self, line_number, name):
-        self.line_number = line_number
+        self.my_line_number = line_number
         self.my_node_name = name
 
+    @property
     def node_name(self):
         return self.my_node_name
+
+    @property
+    def line_number(self):
+        return self.my_line_number
 
 
 class IfNode(Node):
     def __init__(self, line_number, condition, then_part, else_part):
-        Node.__init__(self, line_number, 'IF')
+        Node.__init__(self, line_number, 'if ...')
         self.node_type = self.NODE_IF
         self.condition = condition
         self.then_part = then_part
@@ -62,7 +66,7 @@ class IfNode(Node):
 
 class ForNode(Node):
     def __init__(self, line_number, variable, list_field_expr, separator, block):
-        Node.__init__(self, line_number, 'FOR')
+        Node.__init__(self, line_number, 'for ...:')
         self.node_type = self.NODE_FOR
         self.variable = variable
         self.list_field_expr = list_field_expr
@@ -72,7 +76,7 @@ class ForNode(Node):
 
 class AssignNode(Node):
     def __init__(self, line_number, left, right):
-        Node.__init__(self, line_number, 'ASSIGN')
+        Node.__init__(self, line_number, 'assign to ' + left)
         self.node_type = self.NODE_ASSIGN
         self.left = left
         self.right = right
@@ -80,7 +84,7 @@ class AssignNode(Node):
 
 class FunctionNode(Node):
     def __init__(self, line_number, function_name, expression_list):
-        Node.__init__(self, line_number, 'FUNCTION CALL')
+        Node.__init__(self, line_number, function_name + '()')
         self.node_type = self.NODE_FUNC
         self.name = function_name
         self.expression_list = expression_list
@@ -88,7 +92,7 @@ class FunctionNode(Node):
 
 class CallNode(Node):
     def __init__(self, line_number, function, expression_list):
-        Node.__init__(self, line_number, 'TEMPLATE CALL')
+        Node.__init__(self, line_number, 'call template: ' + function)
         self.node_type = self.NODE_CALL
         self.function = function
         self.expression_list = expression_list
@@ -96,28 +100,28 @@ class CallNode(Node):
 
 class ArgumentsNode(Node):
     def __init__(self, line_number, expression_list):
-        Node.__init__(self, line_number, 'ARGUMENTS')
+        Node.__init__(self, line_number, 'arguments()')
         self.node_type = self.NODE_ARGUMENTS
         self.expression_list = expression_list
 
 
 class GlobalsNode(Node):
     def __init__(self, line_number, expression_list):
-        Node.__init__(self, line_number, 'GLOBALS')
+        Node.__init__(self, line_number, 'globals()')
         self.node_type = self.NODE_GLOBALS
         self.expression_list = expression_list
 
 
 class SetGlobalsNode(Node):
     def __init__(self, line_number, expression_list):
-        Node.__init__(self, line_number, 'SET_GLOBALS')
+        Node.__init__(self, line_number, 'set_globals()')
         self.node_type = self.NODE_SET_GLOBALS
         self.expression_list = expression_list
 
 
 class StringCompareNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'COMPARE STRING')
+        Node.__init__(self, line_number, 'comparision: ' + operator)
         self.node_type = self.NODE_COMPARE_STRING
         self.operator = operator
         self.left = left
@@ -126,7 +130,7 @@ class StringCompareNode(Node):
 
 class NumericCompareNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'COMPARE NUMBERS')
+        Node.__init__(self, line_number, 'comparison: ' + operator)
         self.node_type = self.NODE_COMPARE_NUMERIC
         self.operator = operator
         self.left = left
@@ -135,7 +139,7 @@ class NumericCompareNode(Node):
 
 class LogopBinaryNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'BINARY LOGICAL OP')
+        Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_LOGOP
         self.operator = operator
         self.left = left
@@ -144,7 +148,7 @@ class LogopBinaryNode(Node):
 
 class LogopUnaryNode(Node):
     def __init__(self, line_number, operator, expr):
-        Node.__init__(self, line_number, 'UNARY LOGICAL OP')
+        Node.__init__(self, line_number, 'unary operator: ' + operator)
         self.node_type = self.NODE_UNARY_LOGOP
         self.operator = operator
         self.expr = expr
@@ -152,7 +156,7 @@ class LogopUnaryNode(Node):
 
 class NumericBinaryNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'BINARY ARITHMETIC OP')
+        Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_ARITHOP
         self.operator = operator
         self.left = left
@@ -161,7 +165,7 @@ class NumericBinaryNode(Node):
 
 class NumericUnaryNode(Node):
     def __init__(self, line_number, operator, expr):
-        Node.__init__(self, line_number, 'UNARY ARITHMETIC OP')
+        Node.__init__(self, line_number, 'unary operator: '+ operator)
         self.node_type = self.NODE_UNARY_ARITHOP
         self.operator = operator
         self.expr = expr
@@ -169,28 +173,28 @@ class NumericUnaryNode(Node):
 
 class ConstantNode(Node):
     def __init__(self, line_number, value):
-        Node.__init__(self, line_number, 'CONSTANT')
+        Node.__init__(self, line_number, 'constant: ' + value)
         self.node_type = self.NODE_CONSTANT
         self.value = value
 
 
 class VariableNode(Node):
     def __init__(self, line_number, name):
-        Node.__init__(self, line_number, 'VARIABLE')
+        Node.__init__(self, line_number, 'variable: ' + name)
         self.node_type = self.NODE_RVALUE
         self.name = name
 
 
 class FieldNode(Node):
     def __init__(self, line_number, expression):
-        Node.__init__(self, line_number, 'FIELD FUNCTION')
+        Node.__init__(self, line_number, 'field()')
         self.node_type = self.NODE_FIELD
         self.expression = expression
 
 
 class RawFieldNode(Node):
     def __init__(self, line_number, expression, default=None):
-        Node.__init__(self, line_number, 'RAW_FIELD FUNCTION')
+        Node.__init__(self, line_number, 'raw_field()')
         self.node_type = self.NODE_RAW_FIELD
         self.expression = expression
         self.default = default
@@ -198,14 +202,14 @@ class RawFieldNode(Node):
 
 class FirstNonEmptyNode(Node):
     def __init__(self, line_number, expression_list):
-        Node.__init__(self, line_number, 'FIRST_NON_EMPTY FUNCTION')
+        Node.__init__(self, line_number, 'first_non_empty()')
         self.node_type = self.NODE_FIRST_NON_EMPTY
         self.expression_list = expression_list
 
 
 class ContainsNode(Node):
     def __init__(self, line_number, arguments):
-        Node.__init__(self, line_number, 'CONTAINS FUNCTION')
+        Node.__init__(self, line_number, 'contains()')
         self.node_type = self.NODE_CONTAINS
         self.value_expression = arguments[0]
         self.test_expression = arguments[1]
@@ -215,15 +219,9 @@ class ContainsNode(Node):
 
 class PrintNode(Node):
     def __init__(self, line_number, arguments):
-        Node.__init__(self, line_number, 'PRINT')
+        Node.__init__(self, line_number, 'print')
         self.node_type = self.NODE_PRINT
         self.arguments = arguments
-
-
-class LineNumberNode(Node):
-    def __init__(self, line_number):
-        Node.__init__(self, line_number, 'LINE NUMBER')
-        self.node_type = self.NODE_LINE_NUMBER
 
 
 class _Parser(object):
@@ -513,7 +511,6 @@ class _Parser(object):
         while True:
             while self.token_is_newline():
                 self.line_number += 1
-                expr_list.append(LineNumberNode(self.line_number))
                 self.consume()
             if self.token_is_eof():
                 break
@@ -529,7 +526,7 @@ class _Parser(object):
         line_number = self.line_number
         condition = self.top_expr()
         if not self.token_is_then():
-            self.error(_("Missing 'then' in if statement"))
+            self.error(_("Expected '%s' in '%s' statement")%('then', 'if'))
         self.consume()
         then_part = self.expression_list()
         if self.token_is_elif():
@@ -540,17 +537,18 @@ class _Parser(object):
         else:
             else_part = None
         if not self.token_is_fi():
-            self.error(_("Missing 'fi' in if statement"))
+            self.error(_("Expected '%s' in '%s' statement")%('fi', 'if'))
         self.consume()
         return IfNode(line_number, condition, then_part, else_part)
 
     def for_expression(self):
+        line_number = self.line_number
         self.consume()
         if not self.token_is_id():
-            self.error(_("Missing identifier in for statement"))
+            self.error(_("Expected identifier in '%s' statement")%'for')
         variable = self.token()
         if not self.token_is_in():
-            self.error(_("Missing 'in' in for statement"))
+            self.error(_("Expected '%s' in '%s' statement")%('in', 'for'))
         self.consume()
         list_expr = self.top_expr()
         if self.token_is_separator():
@@ -559,13 +557,13 @@ class _Parser(object):
         else:
             separator = None
         if not self.token_op_is_colon():
-            self.error(_("Missing colon (':') in for statement"))
+            self.error(_("Expected colon in '%s' statement")%'for')
         self.consume()
         block = self.expression_list()
         if not self.token_is_rof():
-            self.error(_("Missing 'rof' in for statement"))
+            self.error(_("Expected '%s' in '%s' statement")%('rof', 'for'))
         self.consume()
-        return ForNode(self.line_number, variable, list_expr, separator, block)
+        return ForNode(line_number, variable, list_expr, separator, block)
 
     def top_expr(self):
         return self.or_expr()
@@ -644,7 +642,7 @@ class _Parser(object):
             self.consume()
             rv = self.expression_list()
             if not self.token_op_is_rparen():
-                self.error(_('Missing )'))
+                self.error(_("Expected a right parenthesis"))
             self.consume()
             return rv
         if self.token_is_if():
@@ -652,19 +650,20 @@ class _Parser(object):
         if self.token_is_for():
             return self.for_expression()
         if self.token_is_id():
+            line_number = self.line_number
             id_ = self.token()
             # We have an identifier. Check if it is a field reference
             if len(id_) > 1 and id_[0] == '$':
                 if id_[1] == '$':
-                    return RawFieldNode(self.line_number, ConstantNode(self.line_number, id_[2:]))
-                return FieldNode(self.line_number, ConstantNode(self.line_number, id_[1:]))
+                    return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))
+                return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))
             # Determine if it is a function
             if not self.token_op_is_lparen():
                 if self.token_op_is_equals():
                     # classic assignment statement
                     self.consume()
-                    return AssignNode(self.line_number, id_, self.top_expr())
-                return VariableNode(self.line_number, id_)
+                    return AssignNode(line_number, id_, self.top_expr())
+                return VariableNode(line_number, id_)
 
             # We have a function.
             # Check if it is a known one. We do this here so error reporting is
@@ -682,17 +681,17 @@ class _Parser(object):
                     break
                 self.consume()
             if self.token() != ')':
-                self.error(_('Missing closing parenthesis'))
+                self.error(_("Expected a closing right parenthesis for function call"))
             if id_ == 'field' and len(arguments) == 1:
-                return FieldNode(self.line_number, arguments[0])
+                return FieldNode(line_number, arguments[0])
             if id_ == 'raw_field' and (len(arguments) in (1, 2)):
-                return RawFieldNode(self.line_number, *arguments)
+                return RawFieldNode(line_number, *arguments)
             if id_ == 'test' and len(arguments) == 3:
-                return IfNode(self.line_number, arguments[0], (arguments[1],), (arguments[2],))
+                return IfNode(line_number, arguments[0], (arguments[1],), (arguments[2],))
             if id_ == 'first_non_empty' and len(arguments) > 0:
-                return FirstNonEmptyNode(self.line_number, arguments)
+                return FirstNonEmptyNode(line_number, arguments)
             if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
-                return AssignNode(self.line_number, arguments[0].name, arguments[1])
+                return AssignNode(line_number, arguments[0].name, arguments[1])
             if id_ == 'arguments' or id_ == 'globals' or id_ == 'set_globals':
                 new_args = []
                 for arg_list in arguments:
@@ -701,23 +700,23 @@ class _Parser(object):
                         self.error(_("Parameters to '{}' must be "
                                      "variables or assignments").format(id_))
                     if arg.node_type == Node.NODE_RVALUE:
-                        arg = AssignNode(self.line_number, arg.name, ConstantNode(self.line_number, ''))
+                        arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))
                     new_args.append(arg)
                 if id_ == 'arguments':
-                    return ArgumentsNode(self.line_number, new_args)
+                    return ArgumentsNode(line_number, new_args)
                 if id_ == 'set_globals':
-                    return SetGlobalsNode(self.line_number, new_args)
-                return GlobalsNode(self.line_number, new_args)
+                    return SetGlobalsNode(line_number, new_args)
+                return GlobalsNode(line_number, new_args)
             if id_ == 'contains' and len(arguments) == 4:
-                return ContainsNode(self.line_number, arguments)
+                return ContainsNode(line_number, arguments)
             if id_ == 'print':
-                return PrintNode(self.line_number, arguments)
+                return PrintNode(line_number, arguments)
             if id_ in self.func_names and not self.funcs[id_].is_python:
                 return self.call_expression(id_, arguments)
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
                 self.error(_('Incorrect number of arguments for function {0}').format(id_))
-            return FunctionNode(self.line_number, id_, arguments)
+            return FunctionNode(line_number, id_, arguments)
         elif self.token_is_constant():
             # String or number
             return ConstantNode(self.line_number, self.token())
@@ -726,8 +725,8 @@ class _Parser(object):
 
 
 class _Interpreter(object):
-    def error(self, message):
-        m = _('Interpreter: {0} - line number {1}').format(message, self.line_number)
+    def error(self, message, line_number):
+        m = _('Interpreter: {0} - line number {1}').format(message, line_number)
         raise ValueError(m)
 
     def program(self, funcs, parent, prog, val, is_call=False, args=None,
@@ -735,7 +734,6 @@ class _Interpreter(object):
         self.parent = parent
         self.parent_kwargs = parent.kwargs
         self.parent_book = parent.book
-        self.line_number = 1
         self.funcs = funcs
         self.locals = {'$':val}
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
@@ -746,21 +744,16 @@ class _Interpreter(object):
             self.break_reporter = None
 
         if is_call:
-            return self.do_node_call(CallNode(self.line_number, prog, None), args=args)
+            return self.do_node_call(CallNode(1, prog, None), args=args)
         return self.expression_list(prog)
 
-    def call_break_reporter(self, txt, val, line_number=None):
-        self.real_break_reporter(txt, val, self.locals,
-                                 line_number if line_number else self.line_number)
+    def call_break_reporter(self, txt, val, line_number):
+        self.real_break_reporter(txt, val, self.locals, line_number)
 
     def expression_list(self, prog):
         val = ''
         for p in prog:
             val = self.expr(p)
-            if (self.break_reporter and
-                     p.node_type != Node.NODE_LINE_NUMBER and
-                     p.node_type != Node.NODE_IF):
-                self.break_reporter(p.node_name(), val)
         return val
 
     INFIX_STRING_COMPARE_OPS = {
@@ -777,9 +770,14 @@ class _Interpreter(object):
         try:
             left = self.expr(prog.left)
             right = self.expr(prog.right)
-            return ('1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else '')
+            res = '1' if self.INFIX_STRING_COMPARE_OPS[prog.operator](left, right) else ''
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except:
-            self.error(_('Error during string comparison. Operator {0}').format(prog.operator))
+            self.error(
+               _('Error during string comparison. Operator {0}').format(prog.operator),
+               prog.line_number)
 
     INFIX_NUMERIC_COMPARE_OPS = {
         "==#": lambda x, y: x == y,
@@ -799,32 +797,40 @@ class _Interpreter(object):
         try:
             left = self.float_deal_with_none(self.expr(prog.left))
             right = self.float_deal_with_none(self.expr(prog.right))
-            return '1' if self.INFIX_NUMERIC_COMPARE_OPS[prog.operator](left, right) else ''
+            res = '1' if self.INFIX_NUMERIC_COMPARE_OPS[prog.operator](left, right) else ''
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except:
-            self.error(_('Value used in comparison is not a number. Operator {0}').format(prog.operator))
+            self.error(
+               _('Value used in comparison is not a number. Operator {0}').format(prog.operator),
+               prog.line_number)
 
     def do_node_if(self, prog):
         line_number = prog.line_number
         test_part = self.expr(prog.condition)
         if self.break_reporter:
-            self.break_reporter('if: condition', test_part, line_number=line_number)
+            self.break_reporter("'if': condition value", test_part, line_number)
         if test_part:
             v = self.expression_list(prog.then_part)
             if self.break_reporter:
-                self.break_reporter('if: then part', v, line_number=line_number)
+                self.break_reporter("'if': then-block value", v, line_number)
             return v
         elif prog.else_part:
             v = self.expression_list(prog.else_part)
             if self.break_reporter:
-                self.break_reporter('if: else part', v, line_number=line_number)
+                self.break_reporter("'if': else-block value", v, line_number)
             return v
         return ''
 
     def do_node_rvalue(self, prog):
         try:
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, self.locals[prog.name], prog.line_number)
             return self.locals[prog.name]
         except:
-            self.error(_('Unknown identifier {0}').format(prog.name))
+            self.error(_('Unknown identifier {0}').format(prog.name),
+                       prog.line_number)
 
     def do_node_func(self, prog):
         args = list()
@@ -834,8 +840,11 @@ class _Interpreter(object):
         # Evaluate the function.
         id_ = prog.name.strip()
         cls = self.funcs[id_]
-        return cls.eval_(self.parent, self.parent_kwargs,
+        res = cls.eval_(self.parent, self.parent_kwargs,
                         self.parent_book, self.locals, *args)
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, res, prog.line_number)
+        return res
 
     def do_node_call(self, prog, args=None):
         if args is None:
@@ -849,53 +858,78 @@ class _Interpreter(object):
             self.locals['*arg_'+ str(dex)] = v
         val = self.expression_list(prog.function)
         self.locals = saved_locals
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, val, prog.line_number)
         return val
 
     def do_node_arguments(self, prog):
         for dex, arg in enumerate(prog.expression_list):
             self.locals[arg.left] = self.locals.get('*arg_'+ str(dex), self.expr(arg.right))
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
     def do_node_globals(self, prog):
         res = ''
         for arg in prog.expression_list:
             res = self.locals[arg.left] = self.global_vars.get(arg.left, self.expr(arg.right))
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
     def do_node_set_globals(self, prog):
         res = ''
         for arg in prog.expression_list:
             res = self.global_vars[arg.left] = self.locals.get(arg.left, self.expr(arg.right))
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, res, prog.line_number)
         return res
 
     def do_node_constant(self, prog):
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, prog.value, prog.line_number)
         return prog.value
 
     def do_node_field(self, prog):
         try:
             name = self.expr(prog.expression)
             try:
-                return self.parent.get_value(name, [], self.parent_kwargs)
+                res = self.parent.get_value(name, [], self.parent_kwargs)
+                if (self.break_reporter):
+                    self.break_reporter(prog.node_name, res, prog.line_number)
+                return res
             except:
-                self.error(_('Unknown field {0}').format(name))
+                self.error(_('Unknown field {0}').format(name),
+                           prog.line_number)
         except ValueError as e:
             raise e
         except:
-            self.error(_('Unknown field {0}').format('internal parse error'))
+            self.error(_('Unknown field {0}').format('internal parse error'),
+                       prog.line_number)
 
     def do_node_raw_field(self, prog):
         try:
             name = self.expr(prog.expression)
             res = getattr(self.parent_book, name, None)
             if res is None and prog.default is not None:
-                return self.expr(prog.default)
+                res = self.expr(prog.default)
+                if (self.break_reporter):
+                    self.break_reporter(prog.node_name, res, prog.line_number)
+                return res
             if res is not None:
                 if isinstance(res, list):
                     fm = self.parent_book.metadata_for_field(name)
                     if fm is None:
-                        return ', '.join(res)
-                    return fm['is_multiple']['list_to_ui'].join(res)
-            return unicode_type(res)
+                        res = ', '.join(res)
+                    else:
+                        res = fm['is_multiple']['list_to_ui'].join(res)
+                else:
+                    res = unicode_type(res)
+            else:
+                res = unicode_type(res) # Should be the string "None"
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except ValueError as e:
             raise e
         except:
@@ -904,15 +938,22 @@ class _Interpreter(object):
     def do_node_assign(self, prog):
         t = self.expr(prog.right)
         self.locals[prog.left] = t
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, t, prog.line_number)
         return t
 
     def do_node_first_non_empty(self, prog):
         for expr in prog.expression_list:
             if v := self.expr(expr):
+                if (self.break_reporter):
+                    self.break_reporter(prog.node_name, v, prog.line_number)
                 return v
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, '', prog.line_number)
         return ''
 
     def do_node_for(self, prog):
+        line_number = prog.line_number
         try:
             separator = ',' if prog.separator is None else self.expr(prog.separator)
             v = prog.variable
@@ -923,26 +964,33 @@ class _Interpreter(object):
                     res = [r.strip() for r in res.split(separator) if r.strip()]
                 ret = ''
                 if self.break_reporter:
-                    self.break_reporter(_("'for' value list"), separator.join(res))
+                    self.break_reporter("'for' list value", separator.join(res), line_number)
                 for x in res:
                     self.locals[v] = x
                     ret = self.expression_list(prog.block)
-                return ret
+                if (self.break_reporter):
+                    self.break_reporter("'for' block value", ret, line_number)
             elif self.break_reporter:
-                self.break_reporter(_("'for' value list"), '')
-
-            self.error(_('The field {0} is not a list').format(f))
+                # Shouldn't get here
+                self.break_reporter("'for' list value", '', line_number)
+                ret = ''
+            return ret
         except ValueError as e:
             raise e
         except Exception as e:
-            self.error(_('Unhandled exception {0}').format(e))
+            self.error(_('Unhandled exception {0}').format(e), line_number)
 
     def do_node_contains(self, prog):
         v = self.expr(prog.value_expression)
         t = self.expr(prog.test_expression)
         if re.search(t, v, flags=re.I):
-            return self.expr(prog.match_expression)
-        return self.expr(prog.not_match_expression)
+            res = self.expr(prog.match_expression)
+        else:
+            res = self.expr(prog.not_match_expression)
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, res, prog.line_number)
+        return res
+
 
     LOGICAL_BINARY_OPS = {
         'and': lambda self, x, y: self.expr(x) and self.expr(y),
@@ -951,9 +999,14 @@ class _Interpreter(object):
 
     def do_node_logop(self, prog):
         try:
-            return ('1' if self.LOGICAL_BINARY_OPS[prog.operator](self, prog.left, prog.right) else '')
+            res = ('1' if self.LOGICAL_BINARY_OPS[prog.operator](self, prog.left, prog.right) else '')
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except:
-            self.error(_('Error during operator evaluation. Operator {0}').format(prog.operator))
+            self.error(
+               _('Error during operator evaluation. Operator {0}').format(prog.operator),
+               prog.line_number)
 
     LOGICAL_UNARY_OPS = {
         'not': lambda x: not x,
@@ -962,9 +1015,14 @@ class _Interpreter(object):
     def do_node_logop_unary(self, prog):
         try:
             expr = self.expr(prog.expr)
-            return ('1' if self.LOGICAL_UNARY_OPS[prog.operator](expr) else '')
+            res = ('1' if self.LOGICAL_UNARY_OPS[prog.operator](expr) else '')
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except:
-            self.error(_('Error during operator evaluation. Operator {0}').format(prog.operator))
+            self.error(
+               _('Error during operator evaluation. Operator {0}').format(prog.operator),
+               prog.line_number)
 
     ARITHMETIC_BINARY_OPS = {
         '+': lambda x, y: x + y,
@@ -977,9 +1035,14 @@ class _Interpreter(object):
         try:
             answer = self.ARITHMETIC_BINARY_OPS[prog.operator](float(self.expr(prog.left)),
                                                                float(self.expr(prog.right)))
-            return unicode_type(answer if modf(answer)[0] != 0 else int(answer))
+            res = unicode_type(answer if modf(answer)[0] != 0 else int(answer))
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except:
-            self.error(_('Error during arithmetic operator evaluation. Operator {0}').format(prog.operator))
+            self.error(
+               _('Error during operator evaluation. Operator {0}').format(prog.operator),
+               prog.line_number)
 
     ARITHMETIC_UNARY_OPS = {
         '+': lambda x: x,
@@ -989,9 +1052,14 @@ class _Interpreter(object):
     def do_node_unary_arithop(self, prog):
         try:
             expr = self.ARITHMETIC_UNARY_OPS[prog.operator](float(self.expr(prog.expr)))
-            return unicode_type(expr if modf(expr)[0] != 0 else int(expr))
+            res = unicode_type(expr if modf(expr)[0] != 0 else int(expr))
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, res, prog.line_number)
+            return res
         except:
-            self.error(_('Error during arithmetic operator evaluation. Operator {0}').format(prog.operator))
+            self.error(
+               _('Error during operator evaluation. Operator {0}').format(prog.operator),
+               prog.line_number)
 
     def do_node_print(self, prog):
         res = []
@@ -999,10 +1067,6 @@ class _Interpreter(object):
             res.append(self.expr(arg))
         print(res)
         return res[0] if res else ''
-
-    def do_node_line_number(self, prog):
-        self.line_number = prog.line_number
-        return ''
 
     NODE_OPS = {
         Node.NODE_IF:             do_node_if,
@@ -1026,7 +1090,6 @@ class _Interpreter(object):
         Node.NODE_BINARY_ARITHOP: do_node_binary_arithop,
         Node.NODE_UNARY_ARITHOP:  do_node_unary_arithop,
         Node.NODE_PRINT:          do_node_print,
-        Node.NODE_LINE_NUMBER:    do_node_line_number,
         }
 
     def expr(self, prog):
@@ -1039,7 +1102,7 @@ class _Interpreter(object):
         except:
             if (DEBUG):
                 traceback.print_exc()
-            self.error(_('Internal error evaluating an expression'))
+            self.error(_('Internal error evaluating an expression'), prog.line_number)
 
 
 class TemplateFormatter(string.Formatter):

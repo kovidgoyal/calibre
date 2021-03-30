@@ -274,12 +274,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
              <property name="maximum">
               <number>999</number>
              </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight</set>
-            </property>
+             <property name="value">
+              <number>1</number>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight</set>
+             </property>
             </widget>
            </item>
            <item>
@@ -329,6 +329,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           <widget class="CodeEditor" name="textbox">
            <property name="toolTip">
             <string>The template program text</string>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
            </property>
           </widget>
          </item>
@@ -523,7 +529,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            <item>
             <widget class="QLabel" name="font_name_label">
              <property name="text">
-              <string>Current font:</string>
+              <string>Font:</string>
              </property>
              <property name="buddy">
               <cstring>font_box</cstring>
@@ -557,14 +563,51 @@ you the value as well as all the local variables&lt;/p&gt;</string>
           </layout>
          </item>
          <item row="24" column="3">
-          <widget class="QDialogButtonBox" name="buttonBox">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="standardButtons">
-            <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QFrame" name="frame">
+             <property name="frameShape">
+              <enum>QFrame::VLine</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <property name="lineWidth">
+              <number>3</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="load_button">
+             <property name="text">
+              <string>Lo&amp;ad</string>
+             </property>
+             <property name="toolTip">
+              <string>Load the template from a file</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="save_button">
+             <property name="text">
+              <string>&amp;Save</string>
+             </property>
+             <property name="toolTip">
+              <string>Save the template in a file</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDialogButtonBox" name="buttonBox">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="standardButtons">
+              <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item row="25" column="0" colspan="4">
           <widget class="QFrame">
