@@ -926,7 +926,7 @@ class _Interpreter(object):
                 else:
                     res = unicode_type(res)
             else:
-                res = unicode_type(res) # Should be the string "None"
+                res = unicode_type(res)  # Should be the string "None"
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
@@ -990,7 +990,6 @@ class _Interpreter(object):
         if (self.break_reporter):
             self.break_reporter(prog.node_name, res, prog.line_number)
         return res
-
 
     LOGICAL_BINARY_OPS = {
         'and': lambda self, x, y: self.expr(x) and self.expr(y),
