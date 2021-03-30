@@ -76,7 +76,7 @@ class ForNode(Node):
 
 class AssignNode(Node):
     def __init__(self, line_number, left, right):
-        Node.__init__(self, line_number, 'Assign to ' + left)
+        Node.__init__(self, line_number, 'assign to ' + left)
         self.node_type = self.NODE_ASSIGN
         self.left = left
         self.right = right
@@ -92,7 +92,7 @@ class FunctionNode(Node):
 
 class CallNode(Node):
     def __init__(self, line_number, function, expression_list):
-        Node.__init__(self, line_number, 'Call template: ' + function)
+        Node.__init__(self, line_number, 'call template: ' + function)
         self.node_type = self.NODE_CALL
         self.function = function
         self.expression_list = expression_list
@@ -121,7 +121,7 @@ class SetGlobalsNode(Node):
 
 class StringCompareNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'Comparision: ' + operator)
+        Node.__init__(self, line_number, 'comparision: ' + operator)
         self.node_type = self.NODE_COMPARE_STRING
         self.operator = operator
         self.left = left
@@ -130,7 +130,7 @@ class StringCompareNode(Node):
 
 class NumericCompareNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'Comparison: ' + operator)
+        Node.__init__(self, line_number, 'comparison: ' + operator)
         self.node_type = self.NODE_COMPARE_NUMERIC
         self.operator = operator
         self.left = left
@@ -139,7 +139,7 @@ class NumericCompareNode(Node):
 
 class LogopBinaryNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'Binary op: ' + operator)
+        Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_LOGOP
         self.operator = operator
         self.left = left
@@ -148,7 +148,7 @@ class LogopBinaryNode(Node):
 
 class LogopUnaryNode(Node):
     def __init__(self, line_number, operator, expr):
-        Node.__init__(self, line_number, 'Unary op: ' + operator)
+        Node.__init__(self, line_number, 'unary operator: ' + operator)
         self.node_type = self.NODE_UNARY_LOGOP
         self.operator = operator
         self.expr = expr
@@ -156,7 +156,7 @@ class LogopUnaryNode(Node):
 
 class NumericBinaryNode(Node):
     def __init__(self, line_number, operator, left, right):
-        Node.__init__(self, line_number, 'Binary op: ' + operator)
+        Node.__init__(self, line_number, 'binary operator: ' + operator)
         self.node_type = self.NODE_BINARY_ARITHOP
         self.operator = operator
         self.left = left
@@ -165,7 +165,7 @@ class NumericBinaryNode(Node):
 
 class NumericUnaryNode(Node):
     def __init__(self, line_number, operator, expr):
-        Node.__init__(self, line_number, 'Unary op: '+ operator)
+        Node.__init__(self, line_number, 'unary operator: '+ operator)
         self.node_type = self.NODE_UNARY_ARITHOP
         self.operator = operator
         self.expr = expr
@@ -219,7 +219,7 @@ class ContainsNode(Node):
 
 class PrintNode(Node):
     def __init__(self, line_number, arguments):
-        Node.__init__(self, line_number, 'PRINT')
+        Node.__init__(self, line_number, 'print')
         self.node_type = self.NODE_PRINT
         self.arguments = arguments
 
