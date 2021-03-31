@@ -530,7 +530,7 @@ name and selecting Manage this author.
 
 Similarly, if you download metadata for the book, the Book details panel will
 automatically show you links pointing to the web pages for the book on Amazon,
-worldcat, etc. from where the metadata was downloaded.
+WorldCat, etc. from where the metadata was downloaded.
 
 You can right click on individual e-book formats in the Book details panel to
 delete them, compare them to their original versions, save them to disk, open

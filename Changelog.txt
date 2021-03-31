@@ -35,7 +35,7 @@
 
 - [1918047] Content server: Allow swiping left and right to show next/previous book on the book details page
 
-- [1919072] E-book viewer: Make the commonly used shift+arrow key shortcuts for modifying selections using the keyboard work. Also add shortcuts for selecting by character, line and paragraph.
+- [1919072] E-book viewer: Make the commonly used Shift+Arrow key shortcuts for modifying selections using the keyboard work. Also add shortcuts for selecting by character, line and paragraph.
 
 :: bug fixes
 
@@ -75,7 +75,7 @@
 
 :: new features
 
-- [1917967] E-book Viewer: Allow editing the current book by pressing Ctrl+d or adding a button for it to the viewer tool bar
+- [1917967] E-book Viewer: Allow editing the current book by pressing Ctrl+D or adding a button for it to the viewer tool bar
 
 - Edit book: Add a command line flag to allow selecting the specified text when opening a book
 

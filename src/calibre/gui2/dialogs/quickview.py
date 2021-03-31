@@ -274,7 +274,7 @@ class Quickview(QDialog, Ui_Quickview):
             self.gui.quickview_splitter.add_quickview_dialog(self)
             self.close_button.setVisible(False)
         else:
-            self.dock_button.setToolTip(_('Embed the quickview panel into the main calibre window'))
+            self.dock_button.setToolTip(_('Embed the Quickview panel into the main calibre window'))
             self.dock_button.setIcon(QIcon(I('arrow-down.png')))
         self.set_focus()
 

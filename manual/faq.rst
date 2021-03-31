@@ -549,7 +549,7 @@ author names. The first thing to understand is that books and authors are
 separate entities in calibre. A book can have more than one author, and an
 author can have more than one book. You can manage the authors of a book by the
 edit metadata dialog. You can manage individual authors by right clicking on
-the author in the Tag browser on the left of the main calibre screen and
+the author in the Tag browser on the left of the main calibre window and
 selecting :guilabel:`Manage authors`. Using this dialog you can change the name
 of an author and also how that name is sorted. This will automatically change
 the name of the author in all the books of that author. When a book has

@@ -345,7 +345,7 @@ This will shutdown a running calibre, wait for the shutdown to complete, then up
 More plugin examples
 ----------------------
 
-You can find a list of many, sophisticated calibre plugins `here <https://www.mobileread.com/forums/showthread.php?t=118764>`_.
+You can find a list of many sophisticated calibre plugins `here <https://www.mobileread.com/forums/showthread.php?t=118764>`_.
 
 Sharing your plugins with others
 ----------------------------------
