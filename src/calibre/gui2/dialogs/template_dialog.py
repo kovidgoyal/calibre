@@ -318,7 +318,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             mi.languages = ['eng']
             mi.id = 1
             if fm is not None:
-                self.mi.set_all_user_metadata(fm.custom_field_metadata())
+                mi.set_all_user_metadata(fm.custom_field_metadata())
             else:
                 # No field metadata. Grab a copy from the current library so
                 # that we can validate any custom column names. The values for
