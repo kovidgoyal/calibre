@@ -607,6 +607,8 @@ class SelectionBar:
             self.clear_selection()
         elif sc_name is 'copy_to_clipboard':
             self.copy_to_clipboard()
+        elif sc_name is 'toggle_lookup':
+            self.lookup()
         elif sc_name in ('up', 'down', 'pageup', 'pagedown', 'left', 'right'):
             self.send_message('trigger-shortcut', name=sc_name)
         elif sc_name is 'start_search':
