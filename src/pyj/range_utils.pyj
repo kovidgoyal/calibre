@@ -190,7 +190,7 @@ def get_annot_id_for(node, offset, annot_id_uuid_map):
                 return annot_id_uuid_map[node.firstChild.dataset.calibreRangeWrapper]
         elif offset < node.childNodes.length:
             node = node.childNodes[offset]
-            return get_annot_id_for(node, 0)
+            return get_annot_id_for(node, 0, annot_id_uuid_map)
     elif node.nodeType is Node.TEXT_NODE:
         if node.parentNode?.nodeType is Node.ELEMENT_NODE and node.parentNode.dataset.calibreRangeWrapper:
             return annot_id_uuid_map[node.parentNode.dataset.calibreRangeWrapper]
