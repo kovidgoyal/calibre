@@ -182,8 +182,8 @@ class CoverSettingsWidget(QWidget):
 
         for x, label, size_label in (
                 ('title', _('&Title font family:'), _('&Title font size:')),
-                ('subtitle', _('&Subtitle font family'), _('&Subtitle font size:')),
-                ('footer', _('&Footer font family'), _('&Footer font size')),
+                ('subtitle', _('&Subtitle font family:'), _('&Subtitle font size:')),
+                ('footer', _('&Footer font family:'), _('&Footer font size:')),
         ):
             attr = '%s_font_family' % x
             ff = FontFamilyChooser(fp)
