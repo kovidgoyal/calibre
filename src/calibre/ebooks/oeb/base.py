@@ -1145,13 +1145,6 @@ class Manifest(object):
             href = os.path.normpath(href).replace('\\', '/')
             return href
 
-        def convert_webp(self):
-            from calibre.utils.img import image_and_format_from_data, image_to_data
-            img, fmt = image_and_format_from_data(self.data)
-            if fmt == 'webp' and not img.isNull():
-                self.data = image_to_data(img, fmt='PNG')
-                self.media_type = 'image/png'
-
     def __init__(self, oeb):
         self.oeb = oeb
         self.items = set()
