@@ -691,6 +691,23 @@ class Worker(Thread):  # Get details {{{
                             s[0], encoding='unicode', method='text', with_tail=False).strip()
                         if series:
                             ans = (series, series_index)
+        else:
+            series = root.xpath('//div[@id="seriesBullet_feature_div"]')
+            if series:
+                series = series[0]
+                spans = series.xpath('descendant::span')
+                if spans:
+                    span = spans[0]
+                    b = span.xpath('./b')
+                    a = span.xpath('./a')
+                    if a and b:
+                        series = self.tostring(a[0], encoding='unicode', method='text', with_tail=False).strip()
+                        if series:
+                            raw = self.tostring(b[0], encoding='unicode', method='text', with_tail=False).strip()
+                            m = re.search(r'[0-9.]+', raw)
+                            if m is not None:
+                                ans = (series, float(m.group()))
+
         # This is found on Kindle edition pages on amazon.com
         if ans == (None, None):
             for span in root.xpath('//div[@id="aboutEbooksSection"]//li/span'):
