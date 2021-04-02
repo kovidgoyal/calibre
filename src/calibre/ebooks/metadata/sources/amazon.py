@@ -908,7 +908,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 15)
+    version = (1, 2, 16)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1178,9 +1178,6 @@ class Amazon(Source):
         if not for_amazon:
             return terms, domain
 
-        if domain == 'jp':
-            # magic parameter to enable Japanese Shift_JIS encoding.
-            q['__mk_ja_JP'] = 'カタカナ'
         if domain == 'nl':
             q['__mk_nl_NL'] = 'ÅMÅŽÕÑ'
             if 'field-keywords' not in q:
@@ -1189,17 +1186,15 @@ class Amazon(Source):
                 q['field-keywords'] += ' ' + q.pop(f, '')
             q['field-keywords'] = q['field-keywords'].strip()
 
-        encode_to = 'Shift_JIS' if domain == 'jp' else 'utf-8'
-        encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
-                                                                'ignore')) for x, y in q.items()])
+        encoded_q = dict([(x.encode('utf-8', 'ignore'), y.encode(
+            'utf-8', 'ignore')) for x, y in q.items()])
         url_query = urlencode(encoded_q)
-        if encode_to == 'utf-8':
-            # amazon's servers want IRIs with unicode characters not percent esaped
-            parts = []
-            for x in url_query.split(b'&' if isinstance(url_query, bytes) else '&'):
-                k, v = x.split(b'=' if isinstance(x, bytes) else '=', 1)
-                parts.append('{}={}'.format(iri_quote_plus(unquote_plus(k)), iri_quote_plus(unquote_plus(v))))
-            url_query = '&'.join(parts)
+        # amazon's servers want IRIs with unicode characters not percent esaped
+        parts = []
+        for x in url_query.split(b'&' if isinstance(url_query, bytes) else '&'):
+            k, v = x.split(b'=' if isinstance(x, bytes) else '=', 1)
+            parts.append('{}={}'.format(iri_quote_plus(unquote_plus(k)), iri_quote_plus(unquote_plus(v))))
+        url_query = '&'.join(parts)
         url = 'https://www.amazon.%s/s/?' % self.get_website_domain(
             domain) + url_query
         return url, domain
