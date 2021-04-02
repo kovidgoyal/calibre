@@ -187,18 +187,29 @@ class Export(Dialog):  # {{{
         for a in self.annotations:
             bid_groups.setdefault(a['book_id'], []).append(a)
         for book_id, group in bid_groups.items():
+            chapter_groups = {}
+            def_chap = (_('Unknown chapter'),)
+            for a in group:
+                toc_titles = a.get('toc_family_titles', def_chap)
+                chapter_groups.setdefault(toc_titles[0], []).append(a)
+
             lines.append('## ' + db.field_for('title', book_id))
             lines.append('')
-            for a in group:
-                atype = a['type']
-                if library_id:
-                    link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
-                else:
-                    link_prefix = None
-                if atype == 'highlight':
-                    render_highlight_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
-                elif atype == 'bookmark':
-                    render_bookmark_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+
+            for chapter, group in chapter_groups.items():
+                if len(chapter_groups) > 1:
+                    lines.append('### ' + chapter)
+                    lines.append('')
+                for a in group:
+                    atype = a['type']
+                    if library_id:
+                        link_prefix = f'calibre://view-book/{library_id}/{book_id}/{a["format"]}?open_at='
+                    else:
+                        link_prefix = None
+                    if atype == 'highlight':
+                        render_highlight_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
+                    elif atype == 'bookmark':
+                        render_bookmark_as_text(a, lines, as_markdown=as_markdown, link_prefix=link_prefix)
             lines.append('')
         return '\n'.join(lines).strip()
 # }}}
