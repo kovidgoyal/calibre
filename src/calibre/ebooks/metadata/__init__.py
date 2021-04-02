@@ -399,10 +399,13 @@ def check_isbn13(isbn):
     return False
 
 
-def check_isbn(isbn):
+def check_isbn(isbn, simple_sanitize=False):
     if not isbn:
         return None
-    isbn = re.sub(r'[^0-9X]', '', isbn.upper())
+    if simple_sanitize:
+        isbn = isbn.upper().replace('-', '').strip().replace(' ', '')
+    else:
+        isbn = re.sub(r'[^0-9X]', '', isbn.upper())
     il = len(isbn)
     if il not in (10, 13):
         return None
