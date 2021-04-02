@@ -425,15 +425,18 @@ class Worker(Thread):  # Get details {{{
             self.cover_url = self.cover_url_processor(self.cover_url)
         mi.has_cover = bool(self.cover_url)
 
+        detail_bullets = root.xpath('//*[@data-feature-name="detailBullets"]')
         non_hero = tuple(self.selector(
             'div#bookDetails_container_div div#nonHeroSection'))
-        if non_hero:
-            # New style markup
+        if detail_bullets:
+            self.parse_detail_bullets(root, mi, detail_bullets[0])
+        elif non_hero:
             try:
                 self.parse_new_details(root, mi, non_hero[0])
             except:
                 self.log.exception(
                     'Failed to parse new-style book details section')
+
         else:
             pd = root.xpath(self.pd_xpath)
             if pd:
@@ -840,36 +843,46 @@ class Worker(Thread):  # Get details {{{
                 if url:
                     return url
 
+    def parse_detail_bullets(self, root, mi, container):
+        ul = next(self.selector('.detail-bullet-list', root=container))
+        for span in self.selector('.a-list-item', root=ul):
+            cells = span.xpath('./span')
+            if len(cells) >= 2:
+                self.parse_detail_cells(mi, cells[0], cells[1])
+
     def parse_new_details(self, root, mi, non_hero):
         table = non_hero.xpath('descendant::table')[0]
         for tr in table.xpath('descendant::tr'):
             cells = tr.xpath('descendant::td')
             if len(cells) == 2:
-                name = self.totext(cells[0])
-                val = self.totext(cells[1])
-                if not val:
-                    continue
-                if name in self.language_names:
-                    ans = self.lang_map.get(val, None)
-                    if not ans:
-                        ans = canonicalize_lang(val)
-                    if ans:
-                        mi.language = ans
-                elif name in self.publisher_names:
-                    pub = val.partition(';')[0].partition('(')[0].strip()
-                    if pub:
-                        mi.publisher = pub
-                    date = val.rpartition('(')[-1].replace(')', '').strip()
-                    try:
-                        from calibre.utils.date import parse_only_date
-                        date = self.delocalize_datestr(date)
-                        mi.pubdate = parse_only_date(date, assume_utc=True)
-                    except:
-                        self.log.exception('Failed to parse pubdate: %s' % val)
-                elif name in {'ISBN', 'ISBN-10', 'ISBN-13'}:
-                    ans = check_isbn(val)
-                    if ans:
-                        self.isbn = mi.isbn = ans
+                self.parse_detail_cells(mi, cells[0], cells[1])
+
+    def parse_detail_cells(self, mi, c1, c2):
+        name = self.totext(c1).strip().strip(':').strip()
+        val = self.totext(c2)
+        if not val:
+            return
+        if name in self.language_names:
+            ans = self.lang_map.get(val, None)
+            if not ans:
+                ans = canonicalize_lang(val)
+            if ans:
+                mi.language = ans
+        elif name in self.publisher_names:
+            pub = val.partition(';')[0].partition('(')[0].strip()
+            if pub:
+                mi.publisher = pub
+            date = val.rpartition('(')[-1].replace(')', '').strip()
+            try:
+                from calibre.utils.date import parse_only_date
+                date = self.delocalize_datestr(date)
+                mi.pubdate = parse_only_date(date, assume_utc=True)
+            except:
+                self.log.exception('Failed to parse pubdate: %s' % val)
+        elif name in {'ISBN', 'ISBN-10', 'ISBN-13'}:
+            ans = check_isbn(val)
+            if ans:
+                self.isbn = mi.isbn = ans
 
     def parse_isbn(self, pd):
         items = pd.xpath(
@@ -925,7 +938,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 16)
+    version = (1, 2, 17)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -1568,7 +1581,7 @@ def manual_tests(domain, **kw):  # {{{
         (   # Paperback with series
             {'identifiers': {'amazon': '1423146786'}},
             [title_test('The Heroes of Olympus, Book Five The Blood of Olympus',
-                        exact=True), series_test('Heroes of Olympus', 5)]
+                        exact=True), series_test('The Heroes of Olympus', 5)]
         ),
 
         (   # Kindle edition with series
@@ -1604,7 +1617,7 @@ def manual_tests(domain, **kw):  # {{{
         (  # No specific problems
             {'identifiers': {'isbn': '0743273567'}},
             [title_test('The great gatsby', exact=True),
-             authors_test(['F. Scott Fitzgerald'])]
+             authors_test(['Francis Scott Fitzgerald'])]
         ),
 
     ]
