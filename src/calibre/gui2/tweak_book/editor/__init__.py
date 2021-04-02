@@ -24,7 +24,7 @@ def syntax_from_mime(name, mime):
     if mime.startswith('text/'):
         return 'text'
     if mime.startswith('image/') and mime.partition('/')[-1].lower() in {
-        'jpeg', 'jpg', 'gif', 'png'}:
+        'jpeg', 'jpg', 'gif', 'png', 'webp'}:
         return 'raster_image'
     if mime.endswith('+xml'):
         return 'xml'
