@@ -321,6 +321,7 @@ GIF_MIME       = types_map['.gif']
 JPEG_MIME      = types_map['.jpeg']
 PNG_MIME       = types_map['.png']
 SVG_MIME       = types_map['.svg']
+WEBP_MIME      = types_map['.webp']
 BINARY_MIME    = 'application/octet-stream'
 
 XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
@@ -328,7 +329,7 @@ XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
 OEB_STYLES        = {CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css', 'xhtml/css'}
 OEB_DOCS          = {XHTML_MIME, 'text/html', OEB_DOC_MIME,
                          'text/x-oeb-document'}
-OEB_RASTER_IMAGES = {GIF_MIME, JPEG_MIME, PNG_MIME}
+OEB_RASTER_IMAGES = {GIF_MIME, JPEG_MIME, PNG_MIME, WEBP_MIME}
 OEB_IMAGES        = {GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME}
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
@@ -1143,6 +1144,13 @@ class Manifest(object):
             href = os.path.join(dirname, href)
             href = os.path.normpath(href).replace('\\', '/')
             return href
+
+        def convert_webp(self):
+            from calibre.utils.img import image_and_format_from_data, image_to_data
+            img, fmt = image_and_format_from_data(self.data)
+            if fmt == 'webp' and not img.isNull():
+                self.data = image_to_data(img, fmt='PNG')
+                self.media_type = 'image/png'
 
     def __init__(self, oeb):
         self.oeb = oeb

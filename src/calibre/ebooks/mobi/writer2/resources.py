@@ -88,6 +88,9 @@ class Resources(object):
         for item in self.oeb.manifest.values():
             if item.media_type not in OEB_RASTER_IMAGES:
                 continue
+            if item.media_type.lower() == 'image/webp':
+                self.log.info(f'Converting WebP image {item.href} to PNG')
+                item.convert_webp()
             try:
                 data = self.process_image(item.data)
             except:
