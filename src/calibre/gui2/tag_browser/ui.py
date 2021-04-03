@@ -826,7 +826,7 @@ class TagBrowserWidget(QFrame):  # {{{
         self.not_found_label.setVisible(False)
 
     def keyPressEvent(self, ev):
-        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and self.find_text:
+        if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return) and self.item_search.hasFocus():
             self.find()
             ev.accept()
             return
