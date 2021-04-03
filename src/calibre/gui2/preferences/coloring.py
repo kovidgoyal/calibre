@@ -12,7 +12,8 @@ from qt.core import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton, QItemSelectionModel,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem, QPalette,
-        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QAbstractItemView)
+        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QAbstractItemView,
+        QColor, QBrush, QPixmap, QPainter)
 
 from calibre import prepare_string_for_xml, sanitize_file_name, as_unicode
 from calibre.constants import config_dir
@@ -21,7 +22,7 @@ from calibre.gui2 import (error_dialog, choose_files, pixmap_to_data, gprefs,
                           choose_save_file, open_local_file)
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
-from calibre.gui2.widgets2 import ColorButton
+from calibre.gui2.widgets2 import ColorButton, FlowLayout
 from calibre.library.coloring import (Rule, conditionable_columns,
     displayable_columns, rule_from_template, color_row_key)
 from calibre.utils.localization import lang_map
@@ -895,6 +896,33 @@ class RulesView(QListView):  # {{{
 # }}}
 
 
+class Separator(QWidget):  # {{{
+
+    def __init__(self, parent, widget_for_height):
+        QWidget.__init__(self, parent)
+        self.bcol = QColor(QPalette.ColorRole.Text)
+        self.update_brush()
+        self.widget_for_height = widget_for_height
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding)
+
+    def update_brush(self):
+        self.brush = QBrush(self.bcol)
+        self.update()
+
+    def sizeHint(self):
+        return QSize(1, self.widget_for_height.height())
+
+    def paintEvent(self, ev):
+        painter = QPainter(self)
+        # Purely subjective: shorten the line a bit to look 'better'
+        r = ev.rect()
+        r.setTop(r.top() + 3)
+        r.setBottom(r.bottom() - 3)
+        painter.fillRect(r, self.brush)
+        painter.end()
+# }}}
+
+
 class EditRules(QWidget):  # {{{
 
     changed = pyqtSignal()
@@ -949,7 +977,7 @@ class EditRules(QWidget):  # {{{
         self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add ad&vanced rule'), self)
         b.clicked.connect(self.add_advanced)
-        self.hb = hb = QHBoxLayout()
+        self.hb = hb = FlowLayout()
         l.addLayout(hb, l.rowCount(), 0, 1, 2)
         hb.addWidget(b)
         self.duplicate_rule_button = b = QPushButton(QIcon(I('edit-copy.png')),
@@ -962,13 +990,16 @@ class EditRules(QWidget):  # {{{
         b.clicked.connect(self.convert_to_advanced)
         b.setEnabled(False)
         hb.addWidget(b)
-        hb.addStretch(10)
+        sep = Separator(self, b)
+        hb.addWidget(sep)
+
         self.open_icon_folder_button = b = QPushButton(QIcon(I('icon_choose.png')),
                 _('Open icon folder'), self)
         connect_lambda(b.clicked, self,
                        lambda _: open_local_file(os.path.join(config_dir, 'cc_icons')))
         hb.addWidget(b)
-        hb.addStretch(10)
+        sep = Separator(self, b)
+        hb.addWidget(sep)
         self.export_button = b = QPushButton(_('E&xport'), self)
         b.clicked.connect(self.export_rules)
         b.setToolTip(_('Export these rules to a file'))
