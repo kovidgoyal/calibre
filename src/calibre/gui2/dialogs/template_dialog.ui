@@ -224,7 +224,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="go_button">
+            <widget class="QToolButton" name="go_button">
              <property name="text">
               <string>&amp;Go</string>
              </property>
@@ -232,8 +232,8 @@ you the value as well as all the local variables&lt;/p&gt;</string>
               <iconset resource="../../../../resources/images.qrc">
                <normaloff>:/images/sync-right.png</normaloff>:/images/sync-right.png</iconset>
              </property>
-             <property name="styleSheet">
-              <string notr="true">padding: 5; padding-left: 1;</string>
+             <property name="toolButtonStyle">
+              <set>Qt::ToolButtonTextBesideIcon</set>
              </property>
              <property name="toolTip">
               <string>If 'Enable breakpoints' is checked then click this button to run your template</string>
@@ -286,12 +286,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="toggle_button">
+            <widget class="QToolButton" name="toggle_button">
              <property name="text">
               <string>&amp;Toggle</string>
              </property>
-             <property name="styleSheet">
-              <string notr="true">padding: 5; padding-left: 1;</string>
+             <property name="toolButtonStyle">
+              <set>Qt::ToolButtonTextBesideIcon</set>
              </property>
              <property name="icon">
               <iconset resource="../../../../resources/images.qrc">
@@ -316,12 +316,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="remove_all_button">
+            <widget class="QToolButton" name="remove_all_button">
              <property name="text">
               <string>&amp;Remove all</string>
              </property>
-             <property name="styleSheet">
-              <string notr="true">padding: 5; padding-left: 1;</string>
+             <property name="toolButtonStyle">
+              <set>Qt::ToolButtonTextBesideIcon</set>
              </property>
              <property name="icon">
               <iconset resource="../../../../resources/images.qrc">
@@ -333,12 +333,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="set_all_button">
+            <widget class="QToolButton" name="set_all_button">
              <property name="text">
               <string>&amp;Set all</string>
              </property>
-             <property name="styleSheet">
-              <string notr="true">padding: 5; padding-left: 1;</string>
+             <property name="toolButtonStyle">
+              <set>Qt::ToolButtonTextBesideIcon</set>
              </property>
              <property name="icon">
               <iconset resource="../../../../resources/images.qrc">
