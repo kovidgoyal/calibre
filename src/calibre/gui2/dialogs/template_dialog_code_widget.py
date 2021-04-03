@@ -8,7 +8,8 @@ License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
 '''
 
 from qt.core import (
-    QFont, QPainter, QPalette, QPlainTextEdit, QRect, Qt, QTextEdit, QTextFormat
+    QFont, QPainter, QPalette, QPlainTextEdit, QRect, Qt, QTextEdit,
+    QTextFormat, QTextCursor
 )
 
 from calibre.gui2.tweak_book.editor.text import LineNumbers
@@ -91,6 +92,9 @@ class CodeEditor(QPlainTextEdit):
             self.clicked_line_numbers.add(line)
         self.update(self.line_number_area.geometry())
 
+    def number_of_lines(self):
+        return self.blockCount()
+
     def set_clicked_line_numbers(self, new_set):
         self.clicked_line_numbers = new_set
         self.update(self.line_number_area.geometry())
@@ -131,3 +135,86 @@ class CodeEditor(QPlainTextEdit):
             top = bottom
             bottom = top + int(self.blockBoundingRect(block).height())
             num += 1
+
+    def keyPressEvent(self, ev):
+        if ev.key() == Qt.Key.Key_Insert:
+            self.setOverwriteMode(self.overwriteMode() ^ True)
+            ev.accept()
+            return
+        key = ev.key()
+        if key == Qt.Key_Tab or key == Qt.Key_Backtab:
+            '''
+            Handle indenting usingTab and Shift Tab. This is remarkably
+            difficult because of the way Qt represents the edit buffer.
+
+            Selections represent the start and end as character positions in the
+            buffer. To convert a position into a line number we must get the
+            block number containing that position. You so this by setting a
+            cursor to that position.
+
+            To get the text of a line we must convert the line number (the
+            block number) to a block and then fetch the text from that.
+
+            To change text we must create a cursor that selects all the text on
+            the line. Because cursors use document positions, not block numbers
+            or blocks, we must convert line numbers to blocks then get the
+            position of the first character of the block. We then "extend" the
+            selection to the end by computing the end position: the start + the
+            length of the text on the line. We then uses that cursor to
+            "insert" the new text, which magically replaces the selected text.
+            '''
+            # Get the position of the start and end of the selection.
+            cursor = self.textCursor()
+            start_position = cursor.selectionStart()
+            end_position = cursor.selectionEnd()
+
+            # Now convert positions into block (line) numbers
+            cursor.setPosition(start_position)
+            start_block = cursor.block().blockNumber()
+            cursor.setPosition(end_position)
+            end_block = cursor.block().blockNumber()
+
+            def select_block(block_number, curs):
+                # Note the side effect: 'curs' is changed to select the line
+                blk = self.document().findBlockByNumber(block_number)
+                txt = blk.text()
+                pos = blk.position()
+                curs.setPosition(pos)
+                curs.setPosition(pos+len(txt), QTextCursor.KeepAnchor)
+                return txt
+
+            # Check if there is a selection. If not then only Shift-Tab is valid
+            if start_position == end_position:
+                if key == Qt.Key_Backtab:
+                    txt = select_block(start_block, cursor)
+                    if txt.startswith('\t'):
+                        # This works because of the side effect in select_block()
+                        cursor.insertText(txt[1:])
+                    cursor.setPosition(start_position-1)
+                    self.setTextCursor(cursor)
+                    ev.accept()
+                else:
+                    QPlainTextEdit.keyPressEvent(self, ev)
+                return
+            # There is a selection so both Tab and Shift-Tab do indenting operations
+            for bn in range(start_block, end_block+1):
+                txt = select_block(bn, cursor)
+                if key == Qt.Key_Backtab:
+                    if txt.startswith('\t'):
+                        cursor.insertText(txt[1:])
+                        if bn == start_block:
+                            start_position -= 1
+                        end_position -= 1
+                else:
+                    cursor.insertText('\t' + txt)
+                    if bn == start_block:
+                        start_position += 1
+                    end_position += 1
+            # Restore the selection, adjusted for the added or deleted tabs
+            cursor.setPosition(start_position)
+            cursor.setPosition(end_position, QTextCursor.KeepAnchor)
+            self.setTextCursor(cursor)
+            ev.accept()
+            return
+        QPlainTextEdit.keyPressEvent(self, ev)
+

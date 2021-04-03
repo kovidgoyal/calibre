@@ -430,6 +430,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         s = gprefs.get('template_editor_break_on_print', False)
         self.go_button.setEnabled(s)
         self.remove_all_button.setEnabled(s)
+        self.set_all_button.setEnabled(s)
         self.toggle_button.setEnabled(s)
         self.breakpoint_line_box.setEnabled(s)
         self.breakpoint_line_box_label.setEnabled(s)
@@ -440,6 +441,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.set_up_font_boxes()
         self.toggle_button.clicked.connect(self.toggle_button_pressed)
         self.remove_all_button.clicked.connect(self.remove_all_button_pressed)
+        self.set_all_button.clicked.connect(self.set_all_button_pressed)
 
         self.load_button.clicked.connect(self.load_template)
         self.save_button.clicked.connect(self.save_template)
@@ -511,6 +513,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         gprefs['template_editor_break_on_print'] = new_state != 0
         self.go_button.setEnabled(new_state != 0)
         self.remove_all_button.setEnabled(new_state != 0)
+        self.set_all_button.setEnabled(new_state != 0)
         self.toggle_button.setEnabled(new_state != 0)
         self.breakpoint_line_box.setEnabled(new_state != 0)
         self.breakpoint_line_box_label.setEnabled(new_state != 0)
@@ -520,6 +523,9 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def remove_all_button_pressed(self):
         self.textbox.set_clicked_line_numbers(set())
+
+    def set_all_button_pressed(self):
+        self.textbox.set_clicked_line_numbers({i for i in range(1, self.textbox.blockCount()+1)})
 
     def toggle_button_pressed(self):
         ln = self.breakpoint_line_box.value()
