@@ -267,7 +267,7 @@ Author matching is exact.</string>
        <item row="18" column="1">
         <widget class="QPushButton" name="add_filter_rules_button">
          <property name="toolTip">
-          <string>&lt;p&gt;You can specify rules to add/ignore files here. These will be used when recursively adding books from directories.</string>
+          <string>&lt;p&gt;You can specify rules to add/ignore files here. These will be used when recursively adding books from folders.</string>
          </property>
          <property name="text">
           <string>Rules to filter added &amp;files</string>

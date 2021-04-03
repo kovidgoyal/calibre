@@ -394,9 +394,9 @@ the folder related options below.
 
     g = OptionGroup(
         parser,
-        _('ADDING FROM DIRECTORIES'),
+        _('ADDING FROM FOLDERS'),
         _(
-            'Options to control the adding of books from directories. By default only files that have extensions of known e-book file types are added.'
+            'Options to control the adding of books from folders. By default only files that have extensions of known e-book file types are added.'
         )
     )
 

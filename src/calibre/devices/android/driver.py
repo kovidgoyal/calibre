@@ -214,10 +214,10 @@ class ANDROID(USBMS):
             }
     EBOOK_DIR_MAIN = ['eBooks/import', 'wordplayer/calibretransfer', 'Books',
             'sdcard/ebooks']
-    EXTRA_CUSTOMIZATION_MESSAGE = [_('Comma separated list of directories to '
+    EXTRA_CUSTOMIZATION_MESSAGE = [_('Comma separated list of folders to '
             'send e-books to on the device\'s <b>main memory</b>. The first one that exists will '
             'be used'),
-            _('Comma separated list of directories to '
+            _('Comma separated list of folders to '
             'send e-books to on the device\'s <b>storage cards</b>. The first one that exists will '
             'be used')
             ]

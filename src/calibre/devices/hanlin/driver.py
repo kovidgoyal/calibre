@@ -136,7 +136,7 @@ class BOOX(HANLINV3):
     STORAGE_CARD_VOLUME_LABEL = 'BOOX Storage Card'
 
     EBOOK_DIR_MAIN = ['MyBooks']
-    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of directories to '
+    EXTRA_CUSTOMIZATION_MESSAGE = _('Comma separated list of folders to '
             'send e-books to on the device. The first one that exists will '
             'be used.')
     EXTRA_CUSTOMIZATION_DEFAULT = ', '.join(EBOOK_DIR_MAIN)
