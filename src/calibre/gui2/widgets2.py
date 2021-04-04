@@ -10,7 +10,7 @@ from qt.core import (
     QFontInfo, QFontMetrics, QIcon, QKeySequence, QLabel, QLayout, QMenu, QMimeData,
     QPalette, QPixmap, QPoint, QPushButton, QRect, QScrollArea, QSize, QSizePolicy,
     QStyle, QStyledItemDelegate, Qt, QTabWidget, QTextBrowser, QToolButton, QTextCursor,
-    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal
+    QUndoCommand, QUndoStack, QUrl, QWidget, pyqtSignal, QBrush, QPainter
 )
 
 from calibre.ebooks.metadata import rating_to_stars
@@ -437,6 +437,42 @@ class FlowLayout(QLayout):  # {{{
         cb.addItems(['Item one'])
         l.addWidget(cb)
         return w
+# }}}
+
+class Separator(QWidget):  # {{{
+
+    ''' Vertical separator lines usable in FlowLayout '''
+
+    def __init__(self, parent, widget_for_height=None):
+        '''
+        You must provide a widget in the layout either here or with setBuddy.
+        The height of the separator is computed using this widget,
+        '''
+        QWidget.__init__(self, parent)
+        self.bcol = QColor(QPalette.ColorRole.Text)
+        self.update_brush()
+        self.widget_for_height = widget_for_height
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding)
+
+    def update_brush(self):
+        self.brush = QBrush(self.bcol)
+        self.update()
+
+    def setBuddy(self, widget_for_height):
+        ''' See __init__. This is repurposed to support Qt Designer .ui files. '''
+        self.widget_for_height = widget_for_height
+
+    def sizeHint(self):
+        return QSize(1, 1 if self.widget_for_height is None else self.widget_for_height.height())
+
+    def paintEvent(self, ev):
+        painter = QPainter(self)
+        # Purely subjective: shorten the line a bit to look 'better'
+        r = ev.rect()
+        r.setTop(r.top() + 3)
+        r.setBottom(r.bottom() - 3)
+        painter.fillRect(r, self.brush)
+        painter.end()
 # }}}
 
 

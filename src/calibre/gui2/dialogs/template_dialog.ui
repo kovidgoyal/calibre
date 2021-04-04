@@ -170,9 +170,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" colspan="4">
-          <layout class="QHBoxLayout">
-           <item>
+         <item row="1" column="0">
             <widget class="QLabel">
              <property name="text">
               <string>T&amp;emplate:</string>
@@ -184,20 +182,9 @@
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>1</width>
-               <height>0</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
+         </item>
+         <item row="1" column="1" colspan="3">
+          <layout class="FlowLayout">
            <item>
             <widget class="QCheckBox" name="break_box">
              <property name="text">
@@ -211,15 +198,9 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame">
-             <property name="frameShape">
-              <enum>QFrame::VLine</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <property name="lineWidth">
-              <number>3</number>
+            <widget class="Separator">
+             <property name="buddy">
+              <cstring>go_button</cstring>
              </property>
             </widget>
            </item>
@@ -241,15 +222,9 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame">
-             <property name="frameShape">
-              <enum>QFrame::VLine</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <property name="lineWidth">
-              <number>3</number>
+            <widget class="Separator">
+             <property name="buddy">
+              <cstring>go_button</cstring>
              </property>
             </widget>
            </item>
@@ -303,15 +278,9 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame">
-             <property name="frameShape">
-              <enum>QFrame::VLine</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <property name="lineWidth">
-              <number>3</number>
+            <widget class="Separator">
+             <property name="buddy">
+              <cstring>go_button</cstring>
              </property>
             </widget>
            </item>
@@ -774,9 +743,19 @@ you the value as well as all the local variables&lt;/p&gt;</string>
    <header>calibre/gui2/widgets2.h</header>
   </customwidget>
   <customwidget>
+   <class>FlowLayout</class>
+   <extends>QLayout</extends>
+   <header>calibre/gui2/widgets2.h</header>
+  </customwidget>
+  <customwidget>
    <class>BoxLayout</class>
    <extends>QBoxLayout</extends>
    <header>calibre/gui2/dialogs/template_dialog_box_layout.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Separator</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/widgets2.h</header>
   </customwidget>
   <customwidget>
    <class>CodeEditor</class>
