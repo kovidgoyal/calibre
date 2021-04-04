@@ -450,7 +450,7 @@ class Separator(QWidget):  # {{{
         The height of the separator is computed using this widget,
         '''
         QWidget.__init__(self, parent)
-        self.bcol = QColor(QPalette.ColorRole.Text)
+        self.bcol = QApplication.instance().palette().color(QPalette.ColorRole.Text)
         self.update_brush()
         self.widget_for_height = widget_for_height
         self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.MinimumExpanding)
