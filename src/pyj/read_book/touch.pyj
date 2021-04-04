@@ -10,7 +10,6 @@ TAP_THRESHOLD = 8  # pixels
 SWIPE_THRESHOLD = 64  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 PINCH_THRESHOLD = 20  # pixels
-LONG_TAP_THRESHOLD = 500  # milliseconds
 
 gesture_id = 0
 
@@ -159,7 +158,7 @@ class TouchHandler:
 
     def start_hold_timer(self):
         self.stop_hold_timer()
-        self.hold_timer = window.setTimeout(self.check_for_hold, 100)
+        self.hold_timer = window.setTimeout(self.check_for_hold, 50)
 
     def stop_hold_timer(self):
         if self.hold_timer is not None:
@@ -243,7 +242,7 @@ class BookTouchHandler(TouchHandler):
         gesture.from_side_margin = self.for_side_margin
         if gesture.type is 'tap':
             if gesture.is_held:
-                if not self.for_side_margin and not self.handled_tap_hold and window.performance.now() - gesture.start_time >= LONG_TAP_THRESHOLD:
+                if not self.for_side_margin and not self.handled_tap_hold and window.performance.now() - gesture.start_time >= HOLD_THRESHOLD:
                     self.handled_tap_hold = True
                     gesture.type = 'long-tap'
                     get_boss().handle_gesture(gesture)
