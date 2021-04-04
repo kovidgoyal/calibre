@@ -233,7 +233,7 @@ def _config():  # {{{
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF e-book viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT',
-        'MOBI', 'PRC', 'POBI', 'AZW', 'AZW3', 'HTML', 'FB2', 'PDB', 'RB',
+        'MOBI', 'PRC', 'POBI', 'AZW', 'AZW3', 'HTML', 'FB2', 'FBZ', 'PDB', 'RB',
         'SNB', 'HTMLZ', 'KEPUB'], help=_(
             'Formats that are viewed using the internal viewer'))
     c.add_opt('column_map', default=ALL_COLUMNS,
