@@ -624,12 +624,12 @@ def progress_frac(frac):
     if in_paged_mode():
         limit = scroll_viewport.paged_content_inline_size() - scroll_viewport.inline_size()
         if limit <= 0:
-            return 0.0
+            return 1  # ensures that if the book ends with a single page file the last shown percentage is 100%
         return current_scroll_offset() / limit
     # In flow mode, we scroll in the block direction, so use that
     limit = scroll_viewport.document_block_size() - scroll_viewport.block_size()
     if limit <= 0:
-        return 0.0
+        return 1
     return Math.max(0, Math.min(scroll_viewport.block_pos() / limit, 1))
 
 
