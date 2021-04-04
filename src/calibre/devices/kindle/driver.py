@@ -541,23 +541,37 @@ class KINDLE2(KINDLE):
         if not os.path.exists(dest_dir) or not os.path.exists(src_dir):
             return
         count = 0
+        no_imgage_available_md5 = b"'R?`\xcf%\xf9\xfd:\xd6\xe87\xf4\xd4\xcc\xa3"
         for name, src_stat_result in get_files_in(src_dir):
             dest_path = os.path.join(dest_dir, name)
+            src_path = os.path.join(src_dir, name)
+            needs_sync = False
             try:
-                dest_stat_result = os.lstat(dest_path)
+                os.lstat(dest_path)
             except EnvironmentError:
                 needs_sync = True
             else:
-                needs_sync = src_stat_result.st_size != dest_stat_result.st_size
+                dest_md5 = self.get_cover_md5(dest_path)
+                if dest_md5 == no_imgage_available_md5:
+                    needs_sync = True
+                elif dest_md5 != self.get_cover_md5(src_path):
+                    os.remove(src_path)
             if needs_sync:
                 count += 1
                 if DEBUG:
                     prints('Restoring cover thumbnail:', name)
-                with lopen(os.path.join(src_dir, name), 'rb') as src, lopen(dest_path, 'wb') as dest:
+                with lopen(src_path, 'rb') as src, lopen(dest_path, 'wb') as dest:
                     shutil.copyfileobj(src, dest)
                     fsync(dest)
         if DEBUG:
             prints('Restored {} cover thumbnails that were destroyed by Amazon'.format(count))
+
+    def get_cover_md5(self, cover_path):
+        import hashlib
+        with lopen(cover_path, 'rb') as f:
+            m = hashlib.md5()
+            m.update(f.read())
+            return m.digest()
 
     def delete_single_book(self, path):
         try:
