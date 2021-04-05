@@ -77,6 +77,8 @@ class CHMReader(CHMFile):
                 ans = lcid[0]
         if ans:
             try:
+                if isinstance(ans, bytes):
+                    ans = ans.decode('ascii')
                 codecs.lookup(ans)
             except Exception:
                 ans = None
