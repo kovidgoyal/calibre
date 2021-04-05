@@ -357,7 +357,7 @@ right IP address to use.
 
 You can now browse your book collection and download books from calibre
 to your device to open with whatever e-book reading software you have on your
-android device.
+Android device.
 
 Calibre Companion and many reading apps support browsing the calibre library
 directly. For example, in Aldiko, click My Catalogs, then + to add a catalog,

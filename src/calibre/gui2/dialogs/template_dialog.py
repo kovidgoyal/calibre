@@ -768,7 +768,7 @@ class BreakReporter(QDialog):
         bb.rejected.connect(self.reject)
         self.setLayout(l)
 
-        self.setWindowTitle(_('Break: line {0}, Book {1}').format(line_number, self.mi.title))
+        self.setWindowTitle(_('Break: line {0}, book {1}').format(line_number, self.mi.title))
 
         local_names = sorted(locals_.keys())
         rows = len(local_names)
