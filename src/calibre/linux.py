@@ -1092,7 +1092,7 @@ TryExec=lrfviewer
 Exec=lrfviewer %f
 Icon=calibre-viewer
 MimeType=application/x-sony-bbeb;
-Categories=Graphics;Viewer;
+Categories=Office;Viewer;
 '''
 
 EVIEWER = '''\
@@ -1105,7 +1105,7 @@ Comment=Viewer for E-books in all the major formats
 TryExec=ebook-viewer
 Exec=ebook-viewer --detach %f
 Icon=calibre-viewer
-Categories=Graphics;Viewer;
+Categories=Office;Viewer;
 '''
 
 ETWEAK = '''\
@@ -1118,7 +1118,7 @@ Comment=Edit E-books in various formats
 TryExec=ebook-edit
 Exec=ebook-edit --detach %f
 Icon=calibre-ebook-edit
-Categories=Office;
+Categories=Office;WordProcessor
 '''
 
 GUI = '''\
