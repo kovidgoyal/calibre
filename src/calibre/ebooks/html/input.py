@@ -152,7 +152,7 @@ class HTMLFile(object):
         return hash(self.path)
 
     def __str__(self):
-        return 'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
+        return 'HTMLFile:%d:%s:%r'%(self.level, 'b' if self.is_binary else 'a', self.path)
 
     def __repr__(self):
         return unicode_type(self)
