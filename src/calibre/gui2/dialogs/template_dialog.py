@@ -11,7 +11,7 @@ from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize, QPalette, QLineEdit, QByteArray, QFontInfo,
                       QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
-                      QComboBox, QAbstractItemView)
+                      QComboBox, QAbstractItemView, QTextOption)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -187,14 +187,14 @@ class TemplateHighlighter(QSyntaxHighlighter):
         QSyntaxHighlighter.rehighlight(self)
         QApplication.restoreOverrideCursor()
 
-    def check_cursor_pos(self, chr, block, pos_in_block):
+    def check_cursor_pos(self, chr_, block, pos_in_block):
         found_pp = -1
         for i, pp in enumerate(self.paren_positions):
             pp.set_highlight(False)
             if pp.block == block and pp.pos == pos_in_block:
                 found_pp = i
 
-        if chr not in ['(', ')']:
+        if chr_ not in ['(', ')']:
             if self.highlighted_paren:
                 self.rehighlight()
                 self.highlighted_paren = False
@@ -202,12 +202,12 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
         if found_pp >= 0:
             stack = 0
-            if chr == '(':
-                list = self.paren_positions[found_pp+1:]
+            if chr_ == '(':
+                list_ = self.paren_positions[found_pp+1:]
             else:
-                list = reversed(self.paren_positions[0:found_pp])
-            for pp in list:
-                if pp.paren == chr:
+                list_ = reversed(self.paren_positions[0:found_pp])
+            for pp in list_:
+                if pp.paren == chr_:
                     stack += 1
                 elif stack:
                     stack -= 1
@@ -445,6 +445,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
         self.load_button.clicked.connect(self.load_template)
         self.save_button.clicked.connect(self.save_template)
+
+        self.textbox.setWordWrapMode(QTextOption.WordWrap)
+        self.textbox.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.textbox.customContextMenuRequested.connect(self.show_context_menu)
         # Now geometry
         try:
             geom = gprefs.get('template_editor_dialog_geometry', None)
@@ -452,6 +456,20 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
+
+    def show_context_menu(self, point):
+        m = self.textbox.createStandardContextMenu()
+        m.addSeparator()
+        ca = m.addAction(_('Toggle word wrap'))
+        to_what = (QTextOption.NoWrap if self.textbox.wordWrapMode() == QTextOption.WordWrap
+                   else QTextOption.WordWrap)
+        ca.triggered.connect(lambda: self.textbox.setWordWrapMode(to_what))
+        m.addSeparator()
+        ca = m.addAction(_('Load template from file'))
+        ca.triggered.connect(self.load_template)
+        ca = m.addAction(_('Save template to file'))
+        ca.triggered.connect(self.save_template)
+        m.exec_(self.textbox.mapToGlobal(point))
 
     def load_template(self):
         filename = choose_files(self, 'template_dialog_save_templates',
@@ -517,6 +535,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.toggle_button.setEnabled(new_state != 0)
         self.breakpoint_line_box.setEnabled(new_state != 0)
         self.breakpoint_line_box_label.setEnabled(new_state != 0)
+        if new_state == 0:
+            self.display_values(unicode_type(self.textbox.toPlainText()))
 
     def go_button_pressed(self):
         self.display_values(unicode_type(self.textbox.toPlainText()))
@@ -748,7 +768,7 @@ class BreakReporter(QDialog):
         bb.rejected.connect(self.reject)
         self.setLayout(l)
 
-        self.setWindowTitle(_('Book "%s": break on line number %d') % (self.mi.title,line_number))
+        self.setWindowTitle(_('Break: line {0}, Book {1}').format(line_number, self.mi.title))
 
         local_names = sorted(locals_.keys())
         rows = len(local_names)

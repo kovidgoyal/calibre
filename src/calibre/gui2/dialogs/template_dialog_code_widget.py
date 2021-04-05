@@ -48,7 +48,9 @@ class CodeEditor(QPlainTextEdit):
 
     def highlight_cursor_line(self):
         sel = QTextEdit.ExtraSelection()
-        sel.format.setBackground(self.palette().alternateBase())
+        # Don't highlight if no text so that the placeholder text shows
+        if not (self.blockCount() == 1 and len(self.toPlainText().strip()) == 0):
+            sel.format.setBackground(self.palette().alternateBase())
         sel.format.setProperty(QTextFormat.Property.FullWidthSelection, True)
         sel.cursor = self.textCursor()
         sel.cursor.clearSelection()
