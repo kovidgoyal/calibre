@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
 import json, os, traceback
+from polyglot.builtins import unicode_type
 
 from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
@@ -15,15 +16,15 @@ from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
-from calibre.gui2 import gprefs, error_dialog, choose_files, choose_save_file, pixmap_to_data
-from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
-from calibre.utils.formatter_functions import formatter_functions
-from calibre.utils.icu import sort_key
-from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.formatter import SafeFormat
+from calibre.gui2 import gprefs, error_dialog, choose_files, choose_save_file, pixmap_to_data
+from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.library.coloring import (displayable_columns, color_row_key)
-from polyglot.builtins import unicode_type
+from calibre.utils.formatter_functions import formatter_functions
+from calibre.utils.formatter import StopException
+from calibre.utils.icu import sort_key
+from calibre.utils.localization import localize_user_manual_link
 
 
 class ParenPosition:
@@ -46,7 +47,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
     BN_FACTOR = 1000
 
     KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'in',
-                'separator', 'rof']
+                'separator', 'rof', 'break', 'continue']
 
     def __init__(self, parent=None, builtin_functions=None):
         super(TemplateHighlighter, self).__init__(parent)
@@ -577,7 +578,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.break_reporter_dialog = BreakReporter(self, mi_to_use,
                                                        txt, val, locals_, line_number)
             if not self.break_reporter_dialog.exec_():
-                raise ValueError(_('Stop requested'))
+                raise StopException()
 
     def filename_button_clicked(self):
         try:
