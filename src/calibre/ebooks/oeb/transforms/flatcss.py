@@ -489,7 +489,7 @@ class CSSFlattener(object):
                     cssdict[x] = popval
 
         if cssdict:
-            if self.lineh and self.fbase and tag != 'body':
+            if self.lineh and self.fbase and tag not in ('body', 'html'):
                 self.clean_edges(cssdict, style, psize)
             if 'display' in cssdict and cssdict['display'] == 'in-line':
                 cssdict['display'] = 'inline'
@@ -506,7 +506,7 @@ class CSSFlattener(object):
             if 'vertical-align' in cssdict \
                and cssdict['vertical-align'] == 'sup':
                 cssdict['vertical-align'] = 'super'
-        if self.lineh and 'line-height' not in cssdict:
+        if self.lineh and 'line-height' not in cssdict and tag != 'html':
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
 
