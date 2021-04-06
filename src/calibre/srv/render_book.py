@@ -12,17 +12,12 @@ from collections import defaultdict
 from datetime import datetime
 from functools import partial
 from itertools import count
-from math import ceil
-
-from css_parser import replaceUrls
-from css_parser.css import CSSRule
 from lxml.etree import Comment
+from math import ceil
 
 from calibre import detect_ncpus, force_unicode, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.customize.ui import plugin_for_input_format
-from calibre.ebooks import parse_css_length
-from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.base import (
     OEB_DOCS, OEB_STYLES, OPF, XHTML, XHTML_NS, XLINK, XPath as _XPath,
     rewrite_links, urlunquote
@@ -32,7 +27,7 @@ from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import (
     find_cover_image, find_cover_image_in_page, find_cover_page
 )
-from calibre.ebooks.oeb.polish.css import transform_inline_styles
+from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.ebooks.oeb.polish.toc import from_xpaths, get_landmarks, get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -46,13 +41,14 @@ from calibre.utils.serialize import (
     json_dumps, json_loads, msgpack_dumps, msgpack_loads
 )
 from calibre.utils.short_uuid import uuid4
+from calibre_extensions import speedup
+from calibre_extensions.fast_css_transform import transform_properties
 from polyglot.binary import (
     as_base64_unicode as encode_component, from_base64_bytes,
     from_base64_unicode as decode_component
 )
 from polyglot.builtins import as_bytes, iteritems, map, unicode_type
 from polyglot.urllib import quote, urlparse
-from calibre_extensions import speedup
 
 RENDER_VERSION = 1
 
@@ -83,19 +79,6 @@ def encode_url(name, frag=''):
 def decode_url(x):
     parts = x.split('#', 1)
     return decode_component(parts[0]), (parts[1] if len(parts) > 1 else '')
-
-
-absolute_units = frozenset('px mm cm pt in pc q'.split())
-length_factors = {'mm':2.8346456693, 'cm':28.346456693, 'in': 72, 'pc': 12, 'q':0.708661417325}
-
-
-def convert_fontsize(length, unit, base_font_size=16.0, dpi=96.0):
-    ' Convert font size to rem so that font size scaling works. Assumes the document has the specified base font size in px '
-    if unit == 'px':
-        return length/base_font_size
-    pt_to_px = dpi / 72.0
-    pt_to_rem = pt_to_px / base_font_size
-    return length * length_factors.get(unit, 1) * pt_to_rem
 
 
 def create_link_replacer(container, link_uid, changed):
@@ -132,65 +115,6 @@ def create_link_replacer(container, link_uid, changed):
         return url
 
     return link_replacer
-
-
-page_break_properties = ('page-break-before', 'page-break-after', 'page-break-inside')
-absolute_font_sizes = {
-    'xx-small': '0.5rem', 'x-small': '0.625rem', 'small': '0.8rem',
-    'medium': '1rem',
-    'large': '1.125rem', 'x-large': '1.5rem', 'xx-large': '2rem', 'xxx-large': '2.55rem'
-}
-nonstandard_writing_mode_property_names = ('-webkit-writing-mode', '-epub-writing-mode')
-
-
-def transform_declaration(decl):
-    decl = StyleDeclaration(decl)
-    changed = False
-    nonstandard_writing_mode_props = {}
-    standard_writing_mode_props = {}
-
-    for prop, parent_prop in tuple(decl):
-        if prop.name in page_break_properties:
-            changed = True
-            name = prop.name.partition('-')[2]
-            for prefix in ('', '-webkit-column-'):
-                # Note that Firefox does not support break-after at all
-                # https://bugzil.la/549114
-                decl.set_property(prefix + name, prop.value, prop.priority)
-            decl.remove_property(prop, parent_prop)
-        elif prop.name == 'font-size':
-            raw = prop.value
-            afs = absolute_font_sizes.get(raw)
-            if afs is not None:
-                changed = True
-                decl.change_property(prop, parent_prop, afs)
-                continue
-            l, unit = parse_css_length(raw)
-            if unit in absolute_units:
-                changed = True
-                l = convert_fontsize(l, unit)
-                decl.change_property(prop, parent_prop, unicode_type(l) + 'rem')
-        elif prop.name in nonstandard_writing_mode_property_names:
-            nonstandard_writing_mode_props[prop.value] = prop.priority
-        elif prop.name == 'writing-mode':
-            standard_writing_mode_props[prop.value] = True
-
-    # Add standard writing-mode properties if they don't exist so that
-    # all of the browsers supported by the viewer work in vertical modes
-    for value, priority in nonstandard_writing_mode_props.items():
-        if value not in standard_writing_mode_props:
-            decl.set_property('writing-mode', value, priority)
-            changed = True
-
-    return changed
-
-
-def transform_sheet(sheet):
-    changed = False
-    for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
-        if transform_declaration(rule.style):
-            changed = True
-    return changed
 
 
 def check_for_maths(root):
@@ -361,27 +285,25 @@ def create_cover_page(container, input_fmt, is_comic, book_metadata=None):
 
 def transform_style_sheet(container, name, link_uid, virtualize_resources, virtualized_names):
     changed = False
-    sheet = container.parsed(name)
+    link_replacer = None
     if virtualize_resources:
         changed_names = set()
-        link_replacer = create_link_replacer(container, link_uid, changed_names)
-        replaceUrls(sheet, partial(link_replacer, name))
+        link_replacer = partial(create_link_replacer(container, link_uid, changed_names), name)
         if name in changed_names:
             changed = True
             virtualized_names.add(name)
-    if transform_sheet(sheet):
+    raw = container.raw_data(name, decode=True)
+    nraw = transform_properties(raw, is_declaration=False, url_callback=link_replacer)
+    if nraw != raw:
         changed = True
-    if changed:
-        raw = container.serialize_item(name)
-    else:
-        raw = container.raw_data(name, decode=False)
+        raw = nraw
     raw = raw.lstrip()
-    if not raw.startswith(b'@charset'):
-        raw = b'@charset "UTF-8";\n' + raw
+    if not raw.startswith('@charset'):
+        raw = '@charset "UTF-8";\n' + raw
         changed = True
     if changed:
         with container.open(name, 'wb') as f:
-            f.write(raw)
+            f.write(raw.encode('utf-8'))
 
 
 def transform_svg_image(container, name, link_uid, virtualize_resources, virtualized_names):
@@ -400,6 +322,26 @@ def transform_svg_image(container, name, link_uid, virtualize_resources, virtual
         virtualized_names.add(name)
         container.dirty(name)
         container.commit_item(name)
+
+
+def transform_inline_styles(container, name, transform_sheet, transform_style):
+    root = container.parsed(name)
+    changed = False
+    for style in root.xpath('//*[local-name()="style"]'):
+        if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
+            nraw = transform_sheet(style.text)
+            if nraw != style.text:
+                changed = True
+                style.text = nraw
+                pretty_script_or_style(container, style)
+    for elem in root.xpath('//*[@style]'):
+        text = elem.get('style', None)
+        if text:
+            ntext = transform_style(text)
+            if ntext != text:
+                changed = True
+                elem.set('style', ntext)
+    return changed
 
 
 def transform_html(container, name, virtualize_resources, link_uid, link_to_map, virtualized_names):
@@ -425,17 +367,21 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
         if ltype != 'text/css' or rel != 'stylesheet':
             link.attrib.clear()
 
-    def transform_and_virtualize_sheet(sheet):
-        changed = transform_sheet(sheet)
-        if virtualize_resources:
-            replaceUrls(sheet, partial(link_replacer, name))
-            if name in changed_names:
-                virtualized_names.add(name)
-                changed = True
-        return changed
+    # URLs in the inline CSS will be replaced in virtualize_html
+    def transform_sheet(sheet_text):
+        ans = transform_properties(sheet_text, is_declaration=False)
+        if name in changed_names:
+            virtualized_names.add(name)
+        return ans
+
+    def transform_declaration(decl_text):
+        ans = transform_properties(decl_text, is_declaration=True)
+        if name in changed_names:
+            virtualized_names.add(name)
+        return ans
 
     # Transform <style> and style=""
-    transform_inline_styles(container, name, transform_sheet=transform_and_virtualize_sheet, transform_style=transform_declaration)
+    transform_inline_styles(container, name, transform_sheet=transform_sheet, transform_style=transform_declaration)
 
     if virtualize_resources:
         virtualize_html(container, name, link_uid, link_to_map, virtualized_names)
@@ -835,8 +781,8 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
     with RenderManager(max_workers) as render_manager:
         mi = None
         if serialize_metadata:
-            from calibre.ebooks.metadata.meta import get_metadata
             from calibre.customize.ui import quick_metadata
+            from calibre.ebooks.metadata.meta import get_metadata
             with lopen(pathtoebook, 'rb') as f, quick_metadata:
                 mi = get_metadata(f, os.path.splitext(pathtoebook)[1][1:].lower())
         book_fmt, opfpath, input_fmt = extract_book(pathtoebook, output_dir, log=default_log)
@@ -915,10 +861,12 @@ def develop():
     from calibre.ptempfile import TemporaryDirectory
     path = sys.argv[-1]
     with TemporaryDirectory() as tdir:
-        return render(
+        render(
             path, tdir, serialize_metadata=True,
-            extract_annotations=True, virtualize_resources=False, max_workers=1
+            extract_annotations=True, virtualize_resources=True, max_workers=1
         )
+        print('Extracted to:', tdir)
+        input('Press Enter to quit')
 
 
 if __name__ == '__main__':
