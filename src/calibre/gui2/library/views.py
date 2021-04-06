@@ -239,12 +239,16 @@ class BooksView(QTableView):  # {{{
                 wv.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
 
             wv.setEditTriggers(QAbstractItemView.EditTrigger.EditKeyPressed)
-            if tweaks['doubleclick_on_library_view'] == 'edit_cell':
+            tval = tweaks['doubleclick_on_library_view']
+            if tval == 'edit_cell':
                 wv.setEditTriggers(QAbstractItemView.EditTrigger.DoubleClicked|wv.editTriggers())
-            elif tweaks['doubleclick_on_library_view'] == 'open_viewer':
+            elif tval == 'open_viewer':
                 wv.setEditTriggers(QAbstractItemView.EditTrigger.SelectedClicked|wv.editTriggers())
                 wv.doubleClicked.connect(parent.iactions['View'].view_triggered)
-            elif tweaks['doubleclick_on_library_view'] == 'edit_metadata':
+            elif tval == 'show_book_details':
+                wv.setEditTriggers(QAbstractItemView.EditTrigger.SelectedClicked|wv.editTriggers())
+                wv.doubleClicked.connect(parent.iactions['Show Book Details'].show_book_info)
+            elif tval == 'edit_metadata':
                 # Must not enable single-click to edit, or the field will remain
                 # open in edit mode underneath the edit metadata dialog
                 if use_edit_metadata_dialog:

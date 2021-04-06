@@ -781,10 +781,13 @@ class GridView(QListView):
 
     def double_clicked(self, index):
         self.start_view_animation(index)
-        if tweaks['doubleclick_on_library_view'] == 'open_viewer':
+        tval = tweaks['doubleclick_on_library_view']
+        if tval == 'open_viewer':
             self.gui.iactions['View'].view_triggered(index)
-        elif tweaks['doubleclick_on_library_view'] in {'edit_metadata', 'edit_cell'}:
+        elif tval in {'edit_metadata', 'edit_cell'}:
             self.gui.iactions['Edit Metadata'].edit_metadata(False, False)
+        elif tval == 'show_book_details':
+            self.gui.iactions['Show Book Details'].show_book_info()
 
     def animation_value_changed(self, value):
         if self.delegate.animating is not None:

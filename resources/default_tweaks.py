@@ -376,10 +376,10 @@ sort_dates_using_visible_fields = False
 cover_trim_fuzz_value = 10
 
 #: Control behavior of the book list
-# You can control the behavior of double clicks and pressing enter on the books list.
-# Choices: open_viewer, do_nothing,
-# edit_cell, edit_metadata. Selecting anything other than open_viewer has the
-# side effect of disabling editing a field using a single click.
+# You can control the behavior of double clicks and pressing enter on the books
+# list. Choices: open_viewer, do_nothing, show_book_details, edit_cell,
+# edit_metadata. Selecting anything other than open_viewer or show_book_details
+# has the side effect of disabling editing a field using a single click.
 # Default: open_viewer.
 # Example: doubleclick_on_library_view = 'do_nothing'
 # You can also control whether the book list scrolls horizontal per column or
