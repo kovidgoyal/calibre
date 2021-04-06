@@ -75,20 +75,20 @@ class ScrollViewport:
         else:
             window.scrollTo(x, y)
 
-    def scroll_to_in_inline_direction(self, pos):
+    def scroll_to_in_inline_direction(self, pos, preserve_other):
         # Lines flow vertically, so inline is vertical.
         if self.vertical_writing_mode:
-            self.scroll_to(0, pos)
+            self.scroll_to(self.x() if preserve_other else 0, pos)
         else:
-            self.scroll_to(pos, 0)
+            self.scroll_to(pos, self.y() if preserve_other else 0)
 
-    def scroll_to_in_block_direction(self, pos):
+    def scroll_to_in_block_direction(self, pos, preserve_other):
         # In horizontal modes, the block direction is vertical.
         if self.horizontal_writing_mode:
-            self.scroll_to(0, pos)
+            self.scroll_to(self.x() if preserve_other else 0, pos)
         # In vertical modes, the block direction is horizontal.
         else:
-            self.scroll_to(pos, 0)
+            self.scroll_to(pos, self.y() if preserve_other else 0)
 
     def flow_scroll_into_view(self, elem):
         elem.scrollIntoView()

@@ -566,6 +566,23 @@ def snap_to_selection():
         # selection
         scroll_to_pos(pos+5)
 
+
+def ensure_selection_boundary_visible(use_end):
+    sel = window.getSelection()
+    rr = sel.getRangeAt(0)
+    if rr:
+        r = rr.getBoundingClientRect()
+        if r:
+            cnum = column_at_current_scroll_offset()
+            scroll_to_column(cnum)
+            node = sel.focusNode if use_end else sel.anchorNode
+            # Columns are in the inline direction, so get the beginning of the element in the inline
+            x = scroll_viewport.rect_inline_end(r) if use_end else scroll_viewport.rect_inline_start(r)
+            if x < 0 or x >= scroll_viewport.inline_size():
+                pos = scroll_viewport.viewport_to_document_inline(x, doc=node.ownerDocument)
+                scroll_to_pos(pos+5)
+
+
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
     # indicator.

@@ -7,11 +7,9 @@ from fs_images import fix_fullscreen_svg_images
 from gettext import gettext as _
 from iframe_comm import IframeClient
 from range_utils import (
-    highlight_associated_with_selection,
-    last_span_for_crw, reset_highlight_counter, select_crw, unwrap_all_crw,
-    unwrap_crw, wrap_text_in_range
+    highlight_associated_with_selection, last_span_for_crw, reset_highlight_counter,
+    select_crw, unwrap_all_crw, unwrap_crw, wrap_text_in_range
 )
-from read_book.hints import hint_visible_links, unhint_links, apply_prefix_to_hints
 from read_book.cfi import cfi_for_selection, range_from_cfi
 from read_book.extract import get_elements
 from read_book.find import (
@@ -19,10 +17,12 @@ from read_book.find import (
 )
 from read_book.flow_mode import (
     anchor_funcs as flow_anchor_funcs, auto_scroll_action as flow_auto_scroll_action,
-    cancel_drag_scroll as cancel_drag_scroll_flow, ensure_selection_visible,
-    flow_onwheel, flow_to_scroll_fraction, handle_gesture as flow_handle_gesture,
-    handle_shortcut as flow_handle_shortcut, jump_to_cfi as flow_jump_to_cfi,
-    layout as flow_layout, scroll_by_page as flow_scroll_by_page,
+    cancel_drag_scroll as cancel_drag_scroll_flow,
+    ensure_selection_boundary_visible as ensure_selection_boundary_visible_flow,
+    ensure_selection_visible, flow_onwheel, flow_to_scroll_fraction,
+    handle_gesture as flow_handle_gesture, handle_shortcut as flow_handle_shortcut,
+    jump_to_cfi as flow_jump_to_cfi, layout as flow_layout,
+    scroll_by_page as flow_scroll_by_page,
     scroll_to_extend_annotation as flow_annotation_scroll,
     start_drag_scroll as start_drag_scroll_flow
 )
@@ -33,11 +33,13 @@ from read_book.globals import (
     set_toc_anchor_map
 )
 from read_book.highlights import highlight_style_as_css
+from read_book.hints import apply_prefix_to_hints, hint_visible_links, unhint_links
 from read_book.mathjax import apply_mathjax
 from read_book.paged_mode import (
     anchor_funcs as paged_anchor_funcs,
     auto_scroll_action as paged_auto_scroll_action, calc_columns_per_screen,
     cancel_drag_scroll as cancel_drag_scroll_paged, current_cfi,
+    ensure_selection_boundary_visible as ensure_selection_boundary_visible_paged,
     get_columns_per_screen_data, handle_gesture as paged_handle_gesture,
     handle_shortcut as paged_handle_shortcut, jump_to_cfi as paged_jump_to_cfi,
     layout as paged_layout, onwheel as paged_onwheel, page_counts,
@@ -65,7 +67,7 @@ from read_book.touch import (
 )
 from read_book.viewport import scroll_viewport
 from select import (
-    move_end_of_selection, selection_extents, word_at_point, first_visible_word
+    first_visible_word, move_end_of_selection, selection_extents, word_at_point
 )
 from utils import debounce, is_ios
 
@@ -185,18 +187,20 @@ class IframeBoss:
 
     def modify_selection(self, data):
         sel = window.getSelection()
+        use_end = False
         if data.granularity is 'all':
             r = document.createRange()
             r.selectNode(document.body)
             sel.removeAllRanges()
             sel.addRange(r)
         else:
+            use_end = data.direction is 'forward' or data.direction is 'right'
             try:
                 sel.modify('extend', data.direction, data.granularity)
             except:
                 if data.granularity is 'paragraph':
                     sel.modify('extend', data.direction, 'line')
-        self.ensure_selection_visible()
+        self.ensure_selection_boundary_visible(use_end)
 
     def initialize(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
@@ -271,6 +275,7 @@ class IframeBoss:
             self.auto_scroll_action = flow_auto_scroll_action
             self.scroll_to_extend_annotation = flow_annotation_scroll
             self.ensure_selection_visible = ensure_selection_visible
+            self.ensure_selection_boundary_visible = ensure_selection_boundary_visible_flow
             self.start_drag_scroll = start_drag_scroll_flow
             paged_auto_scroll_action('stop')
         else:
@@ -284,6 +289,7 @@ class IframeBoss:
             self.auto_scroll_action = paged_auto_scroll_action
             self.scroll_to_extend_annotation = paged_annotation_scroll
             self.ensure_selection_visible = snap_to_selection
+            self.ensure_selection_boundary_visible = ensure_selection_boundary_visible_paged
             self.start_drag_scroll = start_drag_scroll_paged
             flow_auto_scroll_action('stop')
         update_settings(data.settings)

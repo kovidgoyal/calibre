@@ -626,6 +626,27 @@ def ensure_selection_visible():
         unwrap(wrapper)
 
 
+def ensure_selection_boundary_visible(use_end):
+    sel = window.getSelection()
+    rr = sel.getRangeAt(0)
+    if rr:
+        r = rr.getBoundingClientRect()
+        if r:
+            node = sel.focusNode if use_end else sel.anchorNode
+            x = scroll_viewport.rect_inline_end(r) if use_end else scroll_viewport.rect_inline_start(r)
+            if x < 0 or x >= window.innerWidth:
+                x = scroll_viewport.viewport_to_document_inline(x, doc=node.ownerDocument)
+                if use_end:
+                    x -= line_height()
+                scroll_viewport.scroll_to_in_inline_direction(x, True)
+            y = scroll_viewport.rect_block_end(r) if use_end else scroll_viewport.rect_block_start(r)
+            if y < 0 or y >= window.innerHeight:
+                y = scroll_viewport.viewport_to_document_block(y, doc=node.ownerDocument)
+                if use_end:
+                    y -= line_height()
+                scroll_viewport.scroll_to_in_block_direction(y, True)
+
+
 def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
     # indicator.
