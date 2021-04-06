@@ -246,6 +246,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.global_vars = global_vars
 
         cols = []
+        self.fm = fm
         if fm is not None:
             for key in sorted(displayable_columns(fm),
                               key=lambda k: sort_key(fm[k]['name'] if k != color_row_key else 0)):
@@ -305,66 +306,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             self.template_name_label.setVisible(False)
             self.template_name.setVisible(False)
 
-        if mi:
-            if not isinstance(mi, list):
-                mi = (mi, )
-        else:
-            mi = Metadata(_('Title'), [_('Author')])
-            mi.author_sort = _('Author Sort')
-            mi.series = ngettext('Series', 'Series', 1)
-            mi.series_index = 3
-            mi.rating = 4.0
-            mi.tags = [_('Tag 1'), _('Tag 2')]
-            mi.languages = ['eng']
-            mi.id = 1
-            if fm is not None:
-                mi.set_all_user_metadata(fm.custom_field_metadata())
-            else:
-                # No field metadata. Grab a copy from the current library so
-                # that we can validate any custom column names. The values for
-                # the columns will all be empty, which in some very unusual
-                # cases might cause formatter errors. We can live with that.
-                from calibre.gui2.ui import get_gui
-                mi.set_all_user_metadata(
-                      get_gui().current_db.new_api.field_metadata.custom_field_metadata())
-            for col in mi.get_all_user_metadata(False):
-                mi.set(col, (col,), 0)
-            mi = (mi, )
-        self.mi = mi
-
-        # Set up the display table
-        self.table_column_widths = None
-        try:
-            self.table_column_widths = \
-                        gprefs.get('template_editor_table_widths', None)
-        except:
-            pass
-        tv = self.template_value
-        tv.setRowCount(len(mi))
-        tv.setColumnCount(2)
-        tv.setHorizontalHeaderLabels((_('Book title'), _('Template value')))
-        tv.horizontalHeader().setStretchLastSection(True)
-        tv.horizontalHeader().sectionResized.connect(self.table_column_resized)
-        # Set the height of the table
-        h = tv.rowHeight(0) * min(len(mi), 5)
-        h += 2 * tv.frameWidth() + tv.horizontalHeader().height()
-        tv.setMinimumHeight(h)
-        tv.setMaximumHeight(h)
-        # Set the size of the title column
-        if self.table_column_widths:
-            tv.setColumnWidth(0, self.table_column_widths[0])
-        else:
-            tv.setColumnWidth(0, tv.fontMetrics().averageCharWidth() * 10)
-        # Use our own widget to get rid of elision. setTextElideMode() doesn't work
-        for r in range(0, len(mi)):
-            w = QLineEdit(tv)
-            w.setReadOnly(True)
-            tv.setCellWidget(r, 0, w)
-            w = QLineEdit(tv)
-            w.setReadOnly(True)
-            tv.setCellWidget(r, 1, w)
-        tv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
@@ -373,6 +314,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.all_functions = all_functions if all_functions else formatter_functions().get_functions()
         self.builtins = (builtin_functions if builtin_functions else
                          formatter_functions().get_builtins_and_aliases())
+
+        # Set up the display table
+        self.table_column_widths = None
+        try:
+            self.table_column_widths = \
+                        gprefs.get('template_editor_table_widths', None)
+        except:
+            pass
+        self.set_mi(mi, fm)
 
         self.last_text = ''
         self.highlighter = TemplateHighlighter(self.textbox.document(), builtin_functions=self.builtins)
@@ -415,7 +365,6 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                                self.function_type_string(f, longform=False)), f)
         self.function.setCurrentIndex(0)
         self.function.currentIndexChanged.connect(self.function_changed)
-        self.display_values(text)
         self.rule = (None, '')
 
         tt = _('Template language tutorial')
@@ -456,6 +405,66 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
+
+    def set_mi(self, mi, fm):
+        '''
+        This sets the metadata for the test result books table. It doesn't reset
+        the contents of the field selectors for editing rules.
+        '''
+        self.fm = fm
+        if mi:
+            if not isinstance(mi, list):
+                mi = (mi, )
+        else:
+            mi = Metadata(_('Title'), [_('Author')])
+            mi.author_sort = _('Author Sort')
+            mi.series = ngettext('Series', 'Series', 1)
+            mi.series_index = 3
+            mi.rating = 4.0
+            mi.tags = [_('Tag 1'), _('Tag 2')]
+            mi.languages = ['eng']
+            mi.id = 1
+            if self.fm is not None:
+                mi.set_all_user_metadata(self.fm.custom_field_metadata())
+            else:
+                # No field metadata. Grab a copy from the current library so
+                # that we can validate any custom column names. The values for
+                # the columns will all be empty, which in some very unusual
+                # cases might cause formatter errors. We can live with that.
+                from calibre.gui2.ui import get_gui
+                mi.set_all_user_metadata(
+                      get_gui().current_db.new_api.field_metadata.custom_field_metadata())
+            for col in mi.get_all_user_metadata(False):
+                mi.set(col, (col,), 0)
+            mi = (mi, )
+        self.mi = mi
+        tv = self.template_value
+        tv.setColumnCount(2)
+        tv.setHorizontalHeaderLabels((_('Book title'), _('Template value')))
+        tv.horizontalHeader().setStretchLastSection(True)
+        tv.horizontalHeader().sectionResized.connect(self.table_column_resized)
+        tv.setRowCount(len(mi))
+        # Set the height of the table
+        h = tv.rowHeight(0) * min(len(mi), 5)
+        h += 2 * tv.frameWidth() + tv.horizontalHeader().height()
+        tv.setMinimumHeight(h)
+        tv.setMaximumHeight(h)
+        # Set the size of the title column
+        if self.table_column_widths:
+            tv.setColumnWidth(0, self.table_column_widths[0])
+        else:
+            tv.setColumnWidth(0, tv.fontMetrics().averageCharWidth() * 10)
+        tv.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        tv.setRowCount(len(mi))
+        # Use our own widget to get rid of elision. setTextElideMode() doesn't work
+        for r in range(0, len(mi)):
+            w = QLineEdit(tv)
+            w.setReadOnly(True)
+            tv.setCellWidget(r, 0, w)
+            w = QLineEdit(tv)
+            w.setReadOnly(True)
+            tv.setCellWidget(r, 1, w)
+        self.display_values('')
 
     def show_context_menu(self, point):
         m = self.textbox.createStandardContextMenu()

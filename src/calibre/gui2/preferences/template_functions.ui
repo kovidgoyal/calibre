@@ -80,6 +80,29 @@
            </property>
           </spacer>
          </item>
+         <item>
+          <widget class="QPushButton" name="st_test_template_button">
+           <property name="text">
+            <string>Test</string>
+           </property>
+           <property name="toolTip">
+            <string>Open a template tester dialog to use a template to test stored templates</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
         </layout>
        </item>
       </layout>

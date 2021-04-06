@@ -35,7 +35,7 @@ class ShowTemplateTesterAction(InterfaceAction):
         rows = view.selectionModel().selectedRows()
         if not rows:
             return error_dialog(self.gui, _('No books selected'),
-                    _('One book must be selected'), show=True)
+                    _('At least one book must be selected'), show=True)
         mi = []
         db = view.model().db
         for row in rows:

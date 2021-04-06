@@ -91,8 +91,8 @@ class FunctionNode(Node):
 
 
 class CallNode(Node):
-    def __init__(self, line_number, function, expression_list):
-        Node.__init__(self, line_number, 'call template: ' + function)
+    def __init__(self, line_number, name, function, expression_list):
+        Node.__init__(self, line_number, 'call template: ' + name)
         self.node_type = self.NODE_CALL
         self.function = function
         self.expression_list = expression_list
@@ -635,7 +635,7 @@ class _Parser(object):
             subprog = _Parser().program(self, self.funcs,
                                         self.parent.lex_scanner.scan(text))
             self.funcs[name].cached_parse_tree = subprog
-        return CallNode(self.line_number, subprog, arguments)
+        return CallNode(self.line_number, name, subprog, arguments)
 
     def expr(self):
         if self.token_op_is_lparen():
