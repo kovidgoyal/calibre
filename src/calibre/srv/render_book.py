@@ -610,6 +610,9 @@ def process_exploded_book(
     spineq = frozenset(spine)
     landmarks = [l for l in get_landmarks(container) if l['dest'] in spineq]
 
+    if not spineq:
+        raise Spineless('Book is empty, no content in spine')
+
     page_progression_direction = None
     try:
         page_progression_direction = container.opf_xpath('//opf:spine/@page-progression-direction')[0]
@@ -791,12 +794,6 @@ def render(pathtoebook, output_dir, book_hash=None, serialize_metadata=False, ex
             book_hash=book_hash, save_bookmark_data=extract_annotations,
             book_metadata=mi, virtualize_resources=virtualize_resources
         )
-        try:
-            has_spine = next(container.spine_names)
-        except StopIteration:
-            has_spine = False
-        if not has_spine:
-            raise Spineless('Book is empty, no content in spine')
         if serialize_metadata:
             from calibre.ebooks.metadata.book.serialize import metadata_as_dict
             d = metadata_as_dict(mi)
