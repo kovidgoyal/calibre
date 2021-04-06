@@ -41,6 +41,8 @@ class Node(object):
     NODE_BINARY_ARITHOP = 19
     NODE_UNARY_ARITHOP = 20
     NODE_PRINT = 21
+    NODE_BREAK = 22
+    NODE_CONTINUE = 23
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -72,6 +74,18 @@ class ForNode(Node):
         self.list_field_expr = list_field_expr
         self.separator = separator
         self.block = block
+
+
+class BreakNode(Node):
+    def __init__(self, line_number):
+        Node.__init__(self, line_number, 'break')
+        self.node_type = self.NODE_BREAK
+
+
+class ContinueNode(Node):
+    def __init__(self, line_number):
+        Node.__init__(self, line_number, 'continue')
+        self.node_type = self.NODE_CONTINUE
 
 
 class AssignNode(Node):
@@ -477,6 +491,22 @@ class _Parser(object):
         except:
             return False
 
+    def token_is_break(self):
+        self.check_eol()
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'break' and token[0] == self.LEX_KEYWORD
+        except:
+            return False
+
+    def token_is_continue(self):
+        self.check_eol()
+        try:
+            token = self.prog[self.lex_pos]
+            return token[1] == 'continue' and token[0] == self.LEX_KEYWORD
+        except:
+            return False
+
     def token_is_constant(self):
         self.check_eol()
         try:
@@ -649,6 +679,12 @@ class _Parser(object):
             return self.if_expression()
         if self.token_is_for():
             return self.for_expression()
+        if self.token_is_break():
+            self.consume()
+            return BreakNode(self.line_number)
+        if self.token_is_continue():
+            self.consume()
+            return ContinueNode(self.line_number)
         if self.token_is_id():
             line_number = self.line_number
             id_ = self.token()
@@ -724,6 +760,33 @@ class _Parser(object):
             self.error(_('Expression is not function or constant'))
 
 
+class ExecutionBase(Exception):
+    def __init__(self, name):
+        super().__init__(_('{0} outside of for loop').format(name))
+        self.value = ''
+
+    def set_value(self, v):
+        self.value = v
+
+    def get_value(self):
+        return self.value
+
+
+class ContinueExecuted(ExecutionBase):
+    def __init__(self):
+        super().__init__('continue')
+
+
+class BreakExecuted(ExecutionBase):
+    def __init__(self):
+        super().__init__('break')
+
+
+class StopException(Exception):
+    def __init__(self):
+        super().__init__('Template evaluation stopped')
+
+
 class _Interpreter(object):
     def error(self, message, line_number):
         m = _('Interpreter: {0} - line number {1}').format(message, line_number)
@@ -752,8 +815,12 @@ class _Interpreter(object):
 
     def expression_list(self, prog):
         val = ''
-        for p in prog:
-            val = self.expr(p)
+        try:
+            for p in prog:
+                val = self.expr(p)
+        except (BreakExecuted, ContinueExecuted) as e:
+            e.set_value(val)
+            raise e
         return val
 
     INFIX_STRING_COMPARE_OPS = {
@@ -774,6 +841,8 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
+        except (StopException, ValueError) as e:
+            raise e
         except:
             self.error(
                _('Error during string comparison. Operator {0}').format(prog.operator),
@@ -801,6 +870,8 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
+        except (StopException, ValueError) as e:
+            raise e
         except:
             self.error(
                _('Value used in comparison is not a number. Operator {0}').format(prog.operator),
@@ -901,7 +972,7 @@ class _Interpreter(object):
             except:
                 self.error(_('Unknown field {0}').format(name),
                            prog.line_number)
-        except ValueError as e:
+        except (StopException, ValueError) as e:
             raise e
         except:
             self.error(_('Unknown field {0}').format('internal parse error'),
@@ -930,7 +1001,7 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
-        except ValueError as e:
+        except (StopException, ValueError) as e:
             raise e
         except:
             self.error(_('Unknown field {0}').format('internal parse error'))
@@ -965,9 +1036,15 @@ class _Interpreter(object):
                 ret = ''
                 if self.break_reporter:
                     self.break_reporter("'for' list value", separator.join(res), line_number)
-                for x in res:
-                    self.locals[v] = x
-                    ret = self.expression_list(prog.block)
+                try:
+                    for x in res:
+                        try:
+                            self.locals[v] = x
+                            ret = self.expression_list(prog.block)
+                        except ContinueExecuted as e:
+                            ret = e.get_value()
+                except BreakExecuted as e:
+                    ret = e.get_value()
                 if (self.break_reporter):
                     self.break_reporter("'for' block value", ret, line_number)
             elif self.break_reporter:
@@ -975,10 +1052,20 @@ class _Interpreter(object):
                 self.break_reporter("'for' list value", '', line_number)
                 ret = ''
             return ret
-        except ValueError as e:
+        except (StopException, ValueError) as e:
             raise e
         except Exception as e:
             self.error(_('Unhandled exception {0}').format(e), line_number)
+
+    def do_node_break(self, prog):
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, '', prog.line_number)
+        raise BreakExecuted()
+
+    def do_node_continue(self, prog):
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, '', prog.line_number)
+        raise ContinueExecuted()
 
     def do_node_contains(self, prog):
         v = self.expr(prog.value_expression)
@@ -1002,6 +1089,8 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
+        except (StopException, ValueError) as e:
+            raise e
         except:
             self.error(
                _('Error during operator evaluation. Operator {0}').format(prog.operator),
@@ -1018,6 +1107,8 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
+        except (StopException, ValueError) as e:
+            raise e
         except:
             self.error(
                _('Error during operator evaluation. Operator {0}').format(prog.operator),
@@ -1038,6 +1129,8 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
+        except (StopException, ValueError) as e:
+            raise e
         except:
             self.error(
                _('Error during operator evaluation. Operator {0}').format(prog.operator),
@@ -1055,6 +1148,8 @@ class _Interpreter(object):
             if (self.break_reporter):
                 self.break_reporter(prog.node_name, res, prog.line_number)
             return res
+        except (StopException, ValueError) as e:
+            raise e
         except:
             self.error(
                _('Error during operator evaluation. Operator {0}').format(prog.operator),
@@ -1089,6 +1184,8 @@ class _Interpreter(object):
         Node.NODE_BINARY_ARITHOP: do_node_binary_arithop,
         Node.NODE_UNARY_ARITHOP:  do_node_unary_arithop,
         Node.NODE_PRINT:          do_node_print,
+        Node.NODE_BREAK:          do_node_break,
+        Node.NODE_CONTINUE:       do_node_continue,
         }
 
     def expr(self, prog):
@@ -1096,7 +1193,7 @@ class _Interpreter(object):
             if isinstance(prog, list):
                 return self.expression_list(prog)
             return self.NODE_OPS[prog.node_type](self, prog)
-        except ValueError as e:
+        except (ValueError, ContinueExecuted, BreakExecuted, StopException) as e:
             raise e
         except:
             if (DEBUG):
@@ -1175,6 +1272,7 @@ class TemplateFormatter(string.Formatter):
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(for|in|rof)\b',          lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(break|continue)\b',      lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(\|\||&&|!)',             lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'[(),=;:\+\-*/]',          lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
@@ -1328,6 +1426,8 @@ class TemplateFormatter(string.Formatter):
         try:
             ans = self.evaluate(fmt, [], kwargs, self.global_vars,
                                 break_reporter=break_reporter)
+        except StopException as e:
+            ans = error_message(e)
         except Exception as e:
             if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()
