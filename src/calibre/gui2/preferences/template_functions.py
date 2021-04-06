@@ -75,16 +75,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         ''')
         self.textBrowser.setHtml(help_text)
         help_text = '<p>' + _('''
-        Here you can add and remove stored templates used in template processing.
-        You use a stored template in another template with the '{0}' template
-        function, as in '{0}(some_name, arguments...)'. Stored templates must use
-        General Program Mode -- they must begin with the text '{1}'.
-        In the stored template you retrieve the arguments using the '{2}()'
-        template function, as in '{2}(var1, var2, ...)'. The calling arguments
-        are copied to the named variables. See the template language tutorial
-        for more information.
+        Here you can create, edit (replace), and delete stored templates used
+        in template processing. You use a stored template in another template as
+        if it were a template function, for example 'some_name(arg1, arg2...)'.
+        Stored templates must use General Program Mode -- they must begin with
+        the text '{0}'. You retrieve arguments passed to a stored template using
+        the '{1}()' template function, as in '{1}(var1, var2, ...)'. The passed
+        arguments are copied to the named variables. See the template language
+        tutorial for more information.
         ''') + '</p>'
-        self.st_textBrowser.setHtml(help_text.format('call', 'program:', 'arguments'))
+        self.st_textBrowser.setHtml(help_text.format('program:', 'arguments'))
         self.st_textBrowser.adjustSize()
 
     def initialize(self):

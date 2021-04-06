@@ -226,7 +226,8 @@ General Program Mode
     times_div_op    ::= '*' | '/'
     unary_op_expr   ::= [ add_sub_op unary_op_expr ]* | expression
     expression      ::= identifier | constant | function | assignment | field_reference |
-                        if_expression | for_expression | '(' expression_list ')'
+                        if_expr | for_expr | break_expr | continue_expr |
+                        '(' expression_list ')'
     field_reference ::= '$' [ '$' ] [ '#' ] identifier
     identifier      ::= id_start [ id_rest ]*
     id_start        ::= letter | underscore
@@ -234,13 +235,15 @@ General Program Mode
     constant        ::= " string " | ' string ' | number
     function        ::= identifier '(' expression_list [ ',' expression_list ]* ')'
     assignment      ::= identifier '=' top_expression
-    if_expression   ::= 'if' condition 'then' expression_list
-                        [ elif_expression ] [ 'else' expression_list ] 'fi'
+    if_expr         ::= 'if' condition 'then' expression_list
+                        [ elif_expr ] [ 'else' expression_list ] 'fi'
     condition       ::= top_expression
-    elif_expression ::= 'elif' condition 'then' expression_list elif_expression | ''
-    for_expression  ::= 'for' identifier 'in' list_expression
+    elif_expr       ::= 'elif' condition 'then' expression_list elif_expr | ''
+    for_expr        ::= 'for' identifier 'in' list_expr
                         [ 'separator' separator_expr ] ':' expression_list 'rof'
-    list_expression ::= top_expression
+    list_expr       ::= top_expression
+    break_expr      ::= 'break'
+    continue_expr   ::= 'continue'
     separator_expr  ::= top_expression
 
 Notes:
@@ -317,7 +320,7 @@ As a last example, this program returns the value of the ``series`` column if th
 
 **For Expressions**
 
-The ``for`` expression iterates over a list of values, processing them one at a time. The ``list_expression`` must evaluate to either a metadata field ``lookup name``, for example ``tags`` or ``#genre``, or a list of values. If the result is a valid ``lookup name`` then the field's value is fetched and the separator specified for that field type is used. If the result isn't a valid lookup name then it is assumed to be a list of values. The list is assumed to be separated by commas unless the optional keyword ``separator`` is supplied, in which case the list values must be separated by the result of evaluating the ``separator_expr``. Each value in the list is assigned to the specified variable then the ``expression_list`` is evaluated.
+The ``for`` expression iterates over a list of values, processing them one at a time. The ``list_expression`` must evaluate to either a metadata field ``lookup name``, for example ``tags`` or ``#genre``, or a list of values. If the result is a valid ``lookup name`` then the field's value is fetched and the separator specified for that field type is used. If the result isn't a valid lookup name then it is assumed to be a list of values. The list is assumed to be separated by commas unless the optional keyword ``separator`` is supplied, in which case the list values must be separated by the result of evaluating the ``separator_expr``. Each value in the list is assigned to the specified variable then the ``expression_list`` is evaluated. You can use ``break`` to jump out of the loop, and ``continue`` to jump to the beginning of the loop for the next iteration.
 
 Example: This template removes the first hierarchical name for each value in Genre (``#genre``), constructing a list with the new names::
 
