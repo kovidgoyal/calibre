@@ -707,7 +707,7 @@ def check_for_books_loaded():
 
 def onkeydown(container_id, close_action, ev):
     if render_book.book_id:
-        if ev.altKey:
+        if ev.ctrlKey:
             if ev.key is 'ArrowLeft':
                 next_book(render_book.book_id, -1)
                 ev.preventDefault(), ev.stopPropagation()
