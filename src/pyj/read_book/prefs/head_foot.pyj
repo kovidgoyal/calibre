@@ -14,7 +14,7 @@ from utils import fmt_sidx
 CONTAINER = unique_id('reader-hf-prefs')
 
 
-def create_item(region, label):
+def create_item(region, label, style):
     def sep():
         return E.option('\xa0', disabled=True)
 
@@ -22,6 +22,7 @@ def create_item(region, label):
         return E.option(label, id=name, value=name, selected=bool(selected))
 
     return E.tr(
+        style = style or '',
         E.td(label + ':', style='padding: 1ex 1rem'),
         E.td(E.select(
             data_region=region,
@@ -52,6 +53,13 @@ def create_items(which):
         ans = E.table(
             data_which=which,
             create_item('left', _('Left')),
+            create_item('middle', _('Middle')),
+            create_item('right', _('Right'))
+        )
+    elif which is 'controls_footer':
+        ans = E.table(
+            data_which=which,
+        create_item('left', _('Left'), 'display: none'),
             create_item('middle', _('Middle')),
             create_item('right', _('Right'))
         )
