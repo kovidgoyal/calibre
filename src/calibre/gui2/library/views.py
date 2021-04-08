@@ -51,8 +51,8 @@ class HeaderView(QHeaderView):  # {{{
         if self.orientation() == Qt.Orientation.Horizontal:
             self.setSectionsMovable(True)
             self.setSectionsClickable(True)
-            self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
             self.setTextElideMode(Qt.TextElideMode.ElideRight)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.hover = -1
         self.current_font = QFont(self.font())
         self.current_font.setBold(True)
@@ -319,6 +319,7 @@ class BooksView(QTableView):  # {{{
             self.pin_view.column_header.customContextMenuRequested.connect(partial(self.show_column_header_context_menu, view=self.pin_view))
         self.row_header = HeaderView(Qt.Orientation.Vertical, self)
         self.row_header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+        self.row_header.customContextMenuRequested.connect(self.show_row_header_context_menu)
         self.setVerticalHeader(self.row_header)
         # }}}
 
@@ -497,6 +498,15 @@ class BooksView(QTableView):  # {{{
             ans.addAction(
                     QIcon(I('column.png')), _('Add your own columns'), partial(handler, action='addcustcol'))
         return ans
+
+    def show_row_header_context_menu(self, pos):
+        menu = QMenu(self)
+        menu.addAction(_('Hide row numbers'), self.hide_row_numbers)
+        menu.popup(self.mapToGlobal(pos))
+
+    def hide_row_numbers(self):
+        gprefs['row_numbers_in_book_list'] = False
+        self.set_row_header_visibility()
 
     def show_column_header_context_menu(self, pos, view=None):
         view = view or self
