@@ -841,6 +841,10 @@ class Preferences(QDialog):
             elif key.startswith('skip_ask_to_show_current_diff_for_'):
                 del tprefs[key]
                 changed += 1
+            elif key == 'questions_to_auto_skip':
+                changed += len(tprefs[key] or ())
+                del tprefs[key]
+
         msg = _('There are no disabled confirmation prompts')
         if changed:
             msg = ngettext(

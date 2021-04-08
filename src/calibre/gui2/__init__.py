@@ -412,11 +412,12 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     yes_text=None, no_text=None, yes_icon=None, no_icon=None,
 ):
     from calibre.gui2.dialogs.message_box import MessageBox
+    prefs = gui_prefs()
 
     if not isinstance(skip_dialog_name, unicode_type):
         skip_dialog_name = None
     try:
-        auto_skip = set(gprefs.get('questions_to_auto_skip', ()))
+        auto_skip = set(prefs.get('questions_to_auto_skip', ()))
     except Exception:
         auto_skip = set()
     if (skip_dialog_name is not None and skip_dialog_name in auto_skip):
@@ -438,7 +439,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
 
     if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
         auto_skip.add(skip_dialog_name)
-        gprefs.set('questions_to_auto_skip', list(auto_skip))
+        prefs.set('questions_to_auto_skip', list(auto_skip))
 
     return ret
 
