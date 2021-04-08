@@ -84,8 +84,7 @@ class Config(QDialog):
         self.input_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.groups.setSpacing(5)
-        self.groups.activated[(QModelIndex)].connect(self.show_pane)
-        self.groups.clicked[(QModelIndex)].connect(self.show_pane)
+        self.groups.selectionModel().currentChanged.connect(self.current_group_changed)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
         rb.setText(_('Restore &defaults'))
@@ -96,6 +95,9 @@ class Config(QDialog):
             QApplication.instance().safe_restore_geometry(self, geom)
         else:
             self.resize(self.sizeHint())
+
+    def current_group_changed(self, cur, prev):
+        self.show_pane(cur)
 
     def setupUi(self):
         self.setObjectName("Dialog")
