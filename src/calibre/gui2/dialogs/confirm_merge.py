@@ -51,6 +51,9 @@ class ConfirmMerge(Dialog):
     def __init__(self, msg, name, parent, mi):
         self.msg, self.mi, self.conf_name = msg, mi, name
         Dialog.__init__(self, _('Are you sure?'), 'confirm-merge-dialog', parent)
+        needed, sz = self.sizeHint(), self.size()
+        if needed.width() > sz.width() or needed.height() > sz.height():
+            self.resize(needed)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
