@@ -79,7 +79,7 @@ def get_customization(action, name, parent):
         if action == 'remove_unused_css':
             customize_remove_unused_css(name, parent, ans)
         elif action == 'upgrade_book':
-            ans['remove_ncx'] = question_dialog(
+            ans['remove_ncx'] = tprefs['remove_ncx'] = question_dialog(
                 parent, _('Remove NCX ToC file'),
                 _('Remove the legacy Table of Contents in NCX form?'),
                 _('This form of Table of Contents is superseded by the new HTML based Table of Contents.'
@@ -87,6 +87,7 @@ def get_customization(action, name, parent):
                   ' old devices that lack proper support for EPUB 3'),
                 skip_dialog_name='edit-book-remove-ncx',
                 skip_dialog_msg=_('Ask this question again in the future'),
+                skip_dialog_skipped_value=tprefs['remove_ncx'],
                 yes_text=_('Remove NCX'), no_text=_('Keep NCX')
             )
     except Abort:
