@@ -1256,17 +1256,27 @@ class View:
         if self.current_status_message:
             window.setTimeout(def(): self.show_status_message();, 10000)
 
-    def update_header_footer(self):
-        sd = get_session_data()
-        has_clock = False
-        pos = self.current_position_data
+    def create_template_renderer(self):
         if not self.book:
             return
-
+        pos = self.current_position_data
         book_length = pos.book_length * max(0, 1 - pos.progress_frac)
         chapter_length =  pos.chapter_length * max(0, 1 - pos.file_progress_frac)
         book_time = self.timers.time_for(book_length)
         chapter_time = self.timers.time_for(chapter_length)
+        mi = self.book.metadata
+
+        def render(div, name, which, override):
+            return render_head_foot(div, name, which, mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, override)
+
+        return render
+
+    def update_header_footer(self):
+        renderer = self.create_template_renderer()
+        if not renderer:
+            return
+        sd = get_session_data()
+        has_clock = False
 
         def render_template(div, edge, name):
             nonlocal has_clock
@@ -1274,11 +1284,10 @@ class View:
             b = c.previousSibling
             a = b.previousSibling
             if sd.get(f'margin_{edge}', 20) > 5:
-                mi = self.book.metadata
                 override = self.current_status_message if edge is 'bottom' else ''
-                hca = render_head_foot(a, name, 'left', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, override)
-                hcb = render_head_foot(b, name, 'middle', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, '')
-                hcc = render_head_foot(c, name, 'right', mi, self.current_toc_node, self.current_toc_toplevel_node, book_time, chapter_time, pos, '')
+                hca = renderer(a, name, 'left', override)
+                hcb = renderer(b, name, 'middle', '')
+                hcc = renderer(c, name, 'right', '')
                 if hca or hcb or hcc:
                     has_clock = True
             else:

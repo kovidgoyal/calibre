@@ -414,14 +414,22 @@ class MainOverlay:  # {{{
         ), user_select='none', background_color=get_color('window-background')))
 
         container.appendChild(
-            set_css(E.div( # bottom bar
-                svgicon('close', icon_size, icon_size), '\xa0', _('Close'),
+            E.div( # bottom bar
+                  style='position: fixed; width: 100%; bottom: 0; display: flex; justify-content: space-between; align-items: center;'
+                        'user-select: none; background-color: {}'.format(get_color('window-background')),
+                E.div(
+                    style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem',
+                    svgicon('close', icon_size, icon_size), '\xa0', _('Close')
+                ),
+                E.div(style='padding: 0.5ex 1rem', '\xa0'), E.div(style='padding: 0.5ex 1rem', '\xa0'),
             ),
-            cursor='pointer', position='fixed', width='100vw', bottom='0', display='flex', justify_content='center', align_items='center', padding='0.5ex 1em',
-            user_select='none', background_color=get_color('window-background'),
-            )
         )
-
+        renderer = self.overlay.view.create_template_renderer()
+        if renderer:
+            c = container.lastChild.lastChild
+            b = c.previousSibling
+            renderer(b, 'controls_footer', 'middle', '')
+            renderer(c, 'controls_footer', 'right', '')
 
         self.on_hide()
         self.timer = setInterval(self.update_time, 1000)

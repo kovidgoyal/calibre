@@ -36,6 +36,7 @@ defaults = {
     'current_color_scheme': 'system',
     'footer': {'right': 'progress'},
     'header': {},
+    'controls_footer': {'right': 'progress'},
     'left-margin': {},
     'right-margin': {},
     'hide_tooltips': False,
