@@ -22,6 +22,7 @@ DEFAULTS = {
     'sync_annots_user': '',
     'singleinstance': False,
     'auto_hide_mouse': True,
+    'restore_docks': True,
 }
 
 
@@ -74,6 +75,7 @@ def create_misc_panel(container, apply_func, cancel_func):
     container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
     container.append(cb('hide_tooltips', _('Hide mouse-over tooltips in the book text')))
     container.append(cb('auto_hide_mouse', _('Auto hide the mouse cursor when unused for a few seconds')))
+    container.append(cb('restore_docks', _('Restore open panels such as Table of Contents, Search, etc. on restart')))
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 

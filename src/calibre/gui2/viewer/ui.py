@@ -685,7 +685,7 @@ class EbookViewer(MainWindow):
             QApplication.instance().safe_restore_geometry(self, geom)
         else:
             QApplication.instance().ensure_window_on_screen(self)
-        if state:
+        if state and get_session_pref('restore_docks', True):
             self.restoreState(state, self.MAIN_WINDOW_STATE_VERSION)
             self.inspector_dock.setVisible(False)
 
