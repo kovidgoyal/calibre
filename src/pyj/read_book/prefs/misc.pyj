@@ -70,12 +70,12 @@ def create_misc_panel(container, apply_func, cancel_func):
         create_button(_('Customize toolbar'), action=ui_operations.customize_toolbar))
     container.append(cb('show_actions_toolbar_in_fullscreen', _('Keep the toolbar in full screen mode (needs restart)')))
     container.append(cb('remember_last_read', _('Remember current page when quitting')))
+    container.append(cb('restore_docks', _('Restore open panels such as Table of Contents, Search, etc. on restart')))
     container.append(cb('save_annotations_in_ebook', _('Keep a copy of annotations/bookmarks in the e-book file, for easy sharing')))
     container.append(sync_annots)
     container.append(cb('singleinstance', _('Allow only a single instance of the viewer (needs restart)')))
     container.append(cb('hide_tooltips', _('Hide mouse-over tooltips in the book text')))
     container.append(cb('auto_hide_mouse', _('Auto hide the mouse cursor when unused for a few seconds')))
-    container.append(cb('restore_docks', _('Restore open panels such as Table of Contents, Search, etc. on restart')))
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 
