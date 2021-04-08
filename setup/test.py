@@ -184,7 +184,9 @@ class Test(Command):
     def run(self, opts):
         if opts.under_sanitize and 'libasan' not in os.environ.get('LD_PRELOAD', ''):
             os.environ['LD_PRELOAD'] = os.path.abspath(subprocess.check_output('gcc -print-file-name=libasan.so'.split()).decode('utf-8').strip())
-            os.environ['ASAN_OPTIONS'] = 'detect_leaks=0'
+            # we ignore new_delete type mismatch as the patched version of Qt
+            # used in Arch does that.
+            os.environ['ASAN_OPTIONS'] = 'detect_leaks=0:new_delete_type_mismatch=0'
             self.info(f'Re-execing with LD_PRELOAD={os.environ["LD_PRELOAD"]}')
             sys.stdout.flush()
             os.execl('setup.py', *sys.argv)
