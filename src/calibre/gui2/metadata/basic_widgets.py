@@ -1678,6 +1678,8 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                 for name, template in rule:
                     try:
                         url_pattern = formatter.safe_format(template, vals, '', vals)
+                        if url_pattern.startswith('http:') or url_pattern.startswith('https:'):
+                            url_pattern = '(?:http|https):' + url_pattern.partition(':')[2]
                         new_id = re.compile(url_pattern)
                         new_id = new_id.search(text).group('new_id')
                         if new_id:
