@@ -35,6 +35,7 @@ if path not in sys.path:
 sys.resources_location = os.environ.get('CALIBRE_RESOURCES_PATH', {resources!r})
 sys.extensions_location = os.environ.get('CALIBRE_EXTENSIONS_PATH', {extensions!r})
 sys.executables_location = os.environ.get('CALIBRE_EXECUTABLES_PATH', {executables!r})
+sys.system_plugins_location = {system_plugins_loc!r}
 
 '''
 
@@ -77,6 +78,8 @@ class Develop(Command):
     def add_options(self, parser):
         parser.add_option('--prefix',
                 help='Binaries will be installed in <prefix>/bin')
+        parser.add_option('--system-plugins-location',
+                help='Path to a directory from which the installed calibre will load plugins')
         self.add_postinstall_options(parser)
 
     def consolidate_paths(self):
@@ -111,6 +114,7 @@ class Develop(Command):
 
         self.staging_libdir = opts.staging_libdir = self.j(self.staging_libdir, 'calibre')
         self.staging_sharedir = opts.staging_sharedir = self.j(self.staging_sharedir, 'calibre')
+        self.system_plugins_loc = opts.system_plugins_location
 
         if self.__class__.__name__ == 'Develop':
             self.libdir = self.SRC
@@ -189,8 +193,9 @@ class Develop(Command):
             'path':self.libdir,
             'resources':self.sharedir,
             'executables':self.bindir,
-            'extensions':self.j(self.libdir, 'calibre', 'plugins')
-            }
+            'extensions':self.j(self.libdir, 'calibre', 'plugins'),
+            'system_plugins_loc': self.system_plugins_loc,
+        }
 
     def write_template(self, name, mod, func):
         template = COMPLETE_TEMPLATE if name == 'calibre-complete' else TEMPLATE
