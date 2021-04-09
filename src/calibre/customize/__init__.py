@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, zipfile, importlib
+import os, sys, zipfile, importlib, enum
 
 from calibre.constants import numeric_version, iswindows, ismacos
 from calibre.ptempfile import PersistentTemporaryFile
@@ -24,10 +24,17 @@ class InvalidPlugin(ValueError):
     pass
 
 
+class PluginInstallationType(enum.Enum):
+    BUILTIN = enum.auto()
+    SYSTEM = enum.auto()
+    EXTERNAL = enum.auto()
+
+
 class Plugin(object):  # {{{
     '''
     A calibre plugin. Useful members include:
 
+       * ``self.installation_type``: Stores how the plugin was installed.
        * ``self.plugin_path``: Stores path to the ZIP file that contains
                                this plugin or None if it is a builtin
                                plugin
@@ -72,6 +79,9 @@ class Plugin(object):  # {{{
 
     #: The earliest version of calibre this plugin requires
     minimum_calibre_version = (0, 4, 118)
+
+    #: The way this plugin is installed
+    installation_type  = None
 
     #: If False, the user will not be able to disable this plugin. Use with
     #: care.

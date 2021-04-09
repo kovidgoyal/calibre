@@ -28,6 +28,7 @@ from calibre import detect_ncpus, force_unicode, prints
 from calibre.constants import (
     DEBUG, __appname__, config_dir, filesystem_encoding, ismacos, iswindows
 )
+from calibre.customize import PluginInstallationType
 from calibre.customize.ui import available_store_plugins, interface_actions
 from calibre.db.legacy import LibraryDatabase
 from calibre.gui2 import (
@@ -127,7 +128,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.iactions = OrderedDict()
         # Actions
         for action in interface_actions():
-            if opts.ignore_plugins and action.plugin_path is not None:
+            if opts.ignore_plugins \
+                    and action.installation_type is not PluginInstallationType.BUILTIN:
                 continue
             try:
                 ac = self.init_iaction(action)
@@ -139,7 +141,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 except Exception:
                     if action.plugin_path:
                         print('Failed to load Interface Action plugin:', action.plugin_path, file=sys.stderr)
-                if action.plugin_path is None:
+                if action.installation_type is PluginInstallationType.BUILTIN:
                     raise
                 continue
             ac.plugin_path = action.plugin_path
@@ -166,7 +168,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         from calibre.gui2.store.loader import Stores
         self.istores = Stores()
         for store in available_store_plugins():
-            if self.opts.ignore_plugins and store.plugin_path is not None:
+            if self.opts.ignore_plugins \
+                    and store.installation_type is not PluginInstallationType.BUILTIN:
                 continue
             try:
                 st = self.init_istore(store)
@@ -175,7 +178,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 # Ignore errors in loading user supplied plugins
                 import traceback
                 traceback.print_exc()
-                if store.plugin_path is None:
+                if store.installation_type is PluginInstallationType.BUILTIN:
                     raise
                 continue
         self.istores.builtins_loaded()
@@ -369,7 +372,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except:
                 import traceback
                 traceback.print_exc()
-                if ac.plugin_path is None:
+                if ac.installation_type is PluginInstallationType.BUILTIN:
                     raise
 
         if config['autolaunch_server']:
@@ -389,7 +392,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             except:
                 import traceback
                 traceback.print_exc()
-                if ac.plugin_path is None:
+                if ac.installation_type is PluginInstallationType.BUILTIN:
                     raise
         self.set_current_library_information(current_library_name(), db.library_id,
                                              db.field_metadata)
