@@ -274,6 +274,7 @@ class ViewerBridge(Bridge):
     speak_simple_text = from_js(object)
     tts = from_js(object, object)
     edit_book = from_js(object, object, object)
+    show_book_folder = from_js()
 
     create_view = to_js()
     start_book_load = to_js()
@@ -535,6 +536,7 @@ class WebView(RestartingWebEngineView):
         self.bridge.close_prep_finished.connect(self.close_prep_finished)
         self.bridge.highlights_changed.connect(self.highlights_changed)
         self.bridge.edit_book.connect(self.edit_book)
+        self.bridge.show_book_folder.connect(self.show_book_folder)
         self.bridge.open_url.connect(safe_open_url)
         self.bridge.speak_simple_text.connect(self.tts.speak_simple_text)
         self.bridge.tts.connect(self.tts.action)
@@ -736,3 +738,7 @@ class WebView(RestartingWebEngineView):
 
     def tts_settings_changed(self, ui_settings):
         self.execute_when_ready('tts_event', 'configured', ui_settings)
+
+    def show_book_folder(self):
+        path = os.path.dirname(os.path.abspath(set_book_path.pathtoebook))
+        safe_open_url(QUrl.fromLocalFile(path))

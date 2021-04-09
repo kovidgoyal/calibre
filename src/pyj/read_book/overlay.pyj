@@ -787,7 +787,16 @@ class Overlay:
             if pathtoebook:
                 container.lastChild.appendChild(E.div(
                     style='margin-top: 1ex; padding-top: 1ex; border-top: solid 1px',
-                    _('Path: {}').format(pathtoebook)))
+                    _('Path:'), ' ',
+                    E.a(
+                        href='javascript: void(0)',
+                        class_='blue-link', title=_('Click to open the folder the book is in'),
+                        onclick=def():
+                            ui_operations.show_book_folder()
+                        ,
+                        pathtoebook)
+                    )
+                )
 
         book = self.view.book
         key = book.key or v'[null, 0]'

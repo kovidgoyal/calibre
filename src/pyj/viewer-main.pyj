@@ -421,6 +421,8 @@ if window is window.top:
         to_python.tts(action, data or v'{}')
     ui_operations.edit_book = def (spine_name, frac, selected_text):
         to_python.edit_book(spine_name, frac, selected_text or '')
+    ui_operations.show_book_folder = def():
+        to_python.show_book_folder()
 
     document.body.appendChild(E.div(id='view'))
     window.onerror = onerror
