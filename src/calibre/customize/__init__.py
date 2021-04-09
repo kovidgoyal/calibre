@@ -24,10 +24,10 @@ class InvalidPlugin(ValueError):
     pass
 
 
-class PluginInstallationType(enum.Enum):
-    BUILTIN = enum.auto()
-    SYSTEM = enum.auto()
-    EXTERNAL = enum.auto()
+class PluginInstallationType(enum.IntEnum):
+    EXTERNAL = 1
+    SYSTEM = 2
+    BUILTIN = 3
 
 
 class Plugin(object):  # {{{

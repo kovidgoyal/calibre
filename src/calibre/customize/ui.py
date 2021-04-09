@@ -348,15 +348,7 @@ def reread_metadata_plugins():
     # Ensure the following metadata plugin preference is used:
     # external > system > builtin
     def key(plugin):
-        installation_type = plugin.installation_type
-        if installation_type is PluginInstallationType.BUILTIN:
-            order = 2
-        elif installation_type is PluginInstallationType.SYSTEM:
-            order = 1
-        elif installation_type is PluginInstallationType.EXTERNAL:
-            order = 0
-        else:
-            raise ValueError(installation_type)
+        order = sys.maxsize if plugin.installation_type is None else plugin.installation_type
         return order, plugin.name
 
     for group in (_metadata_readers, _metadata_writers):
@@ -486,7 +478,7 @@ def add_plugin(path_to_zip_file):
     if plugin.name in builtin_names:
         raise NameConflict(
             'A builtin plugin with the name %r already exists' % plugin.name)
-    if plugin.name in _list_system_plugins():
+    if plugin.name in get_system_plugins():
         raise NameConflict(
             'A system plugin with the name %r already exists' % plugin.name)
     plugin = initialize_plugin(plugin, path_to_zip_file, PluginInstallationType.EXTERNAL)
@@ -693,29 +685,30 @@ def has_external_plugins():
     return bool(config['plugins'])
 
 
-@functools.lru_cache(maxsize=None)
-def _list_system_plugins():
+@functools.lru_cache(maxsize=2)
+def get_system_plugins():
     if not system_plugins_loc:
-        return
+        return {}
 
     try:
         plugin_file_names = os.listdir(system_plugins_loc)
     except OSError:
-        return
+        return {}
 
+    ans = []
     for plugin_file_name in plugin_file_names:
         plugin_path = os.path.join(system_plugins_loc, plugin_file_name)
         if os.path.isfile(plugin_path) and plugin_file_name.endswith('.zip'):
-            yield (os.path.splitext(plugin_file_name)[0], plugin_path)
+            ans.append((os.path.splitext(plugin_file_name)[0], plugin_path))
+    return dict(ans)
 
 
 def initialize_plugins(perf=False):
-    global _initialized_plugins, _system_plugins
+    global _initialized_plugins
     _initialized_plugins = []
-    _system_plugins = []
-    system_plugins = dict(_list_system_plugins())
-    conflicts = [name for name in config['plugins'] if name in
-            builtin_names or name in system_plugins]
+    system_plugins = get_system_plugins().copy()
+    conflicts = {name for name in config['plugins'] if name in
+            builtin_names or name in system_plugins}
     for p in conflicts:
         remove_plugin(p)
     system_conflicts = [name for name in system_plugins if name in

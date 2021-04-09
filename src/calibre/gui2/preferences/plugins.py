@@ -54,7 +54,7 @@ class PluginModel(QAbstractItemModel, AdaptSQP):  # {{{
     def populate(self):
         self._data = {}
         for plugin in initialized_plugins():
-            if (getattr(plugin, 'plugin_path', None) is None and self.show_only_user_plugins):
+            if (getattr(plugin, 'installation_type', None) is not PluginInstallationType.EXTERNAL and self.show_only_user_plugins):
                 continue
             if plugin.type not in self._data:
                 self._data[plugin.type] = [plugin]

@@ -198,7 +198,7 @@ class DisplayPlugin(object):
         self.uninstall_plugins = plugin['uninstall'] or []
         self.has_changelog = plugin['history']
         self.is_deprecated = plugin['deprecated']
-        self.installation_type = plugin['installation_type']
+        self.installation_type = PluginInstallationType.EXTERNAL
 
     def is_disabled(self):
         if self.plugin is None:

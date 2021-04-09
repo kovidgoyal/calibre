@@ -207,7 +207,9 @@ def print_basic_debug_info(out=None):
     out('Interface language:', unicode_type(set_translators.lang))
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
-        names = ('{0} {1}'.format(p.name, p.version) for p in initialized_plugins() if getattr(p, 'plugin_path', None) is not None)
+        from calibre.customize import PluginInstallationType
+        names = ('{0} {1}'.format(p.name, p.version) for p in initialized_plugins()
+                 if getattr(p, 'installation_type', None) is not PluginInstallationType.BUILTIN)
         out('Successfully initialized third party plugins:', ' && '.join(names))
 
 

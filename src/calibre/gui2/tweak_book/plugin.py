@@ -10,6 +10,7 @@ import sys
 from qt.core import QToolButton
 
 from calibre import prints
+from calibre.customize import PluginInstallationType
 from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.boss import get_boss
@@ -171,7 +172,7 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
         try:
             tools = tuple(load_plugin_tools(plugin))
         except Exception:
-            if not plugin.plugin_path:
+            if plugin.installation_type is PluginInstallationType.BUILTIN:
                 raise
             print('Failed to load third-party plugin:', plugin.name, file=sys.stderr)
             import traceback

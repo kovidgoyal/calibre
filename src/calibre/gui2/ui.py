@@ -217,7 +217,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 # Ignore errors in third party plugins
                 import traceback
                 traceback.print_exc()
-                if getattr(ac, 'plugin_path', None) is None:
+                if getattr(ac, 'installation_type', None) is PluginInstallationType.BUILTIN:
                     raise
         self.donate_action = QAction(QIcon(I('donate.png')),
                 _('&Donate to support calibre'), self)
