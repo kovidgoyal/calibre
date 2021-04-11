@@ -151,26 +151,32 @@
        <item>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="template_name_label">
-           <property name="text">
-            <string>Template &amp;name:</string>
-           </property>
-           <property name="buddy">
-            <cstring>template_name</cstring>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout">
+           <item>
+            <widget class="QLabel" name="template_name_label">
+             <property name="text">
+              <string>Template &amp;name:</string>
+             </property>
+             <property name="buddy">
+              <cstring>template_name</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="template_name">
+             <property name="editable">
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>The name of the callable template</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="template_name">
-           <property name="editable">
-            <bool>true</bool>
-           </property>
-           <property name="toolTip">
-            <string>The name of the callable template</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
+         <item row="1" column="0" colspan="3">
+          <layout class="FlowLayout">
+           <item>
             <widget class="QLabel">
              <property name="text">
               <string>T&amp;emplate:</string>
@@ -178,13 +184,21 @@
              <property name="buddy">
               <cstring>textbox</cstring>
              </property>
+             <property name="toolTip">
+              <string>The text of the template program goes into the box below</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
              </property>
             </widget>
-         </item>
-         <item row="1" column="1" colspan="3">
-          <layout class="FlowLayout">
+           </item>
+           <item>
+            <widget class="QLabel">
+             <property name="text">
+              <string>        </string>
+             </property>
+            </widget>
+           </item>
            <item>
             <widget class="QCheckBox" name="break_box">
              <property name="text">
@@ -320,10 +334,12 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            </item>
           </layout>
          </item>
-         <item row="2" column="0" colspan="4">
+         <item row="2" column="0" colspan="3">
           <widget class="CodeEditor" name="textbox">
            <property name="toolTip">
-            <string>The template program text</string>
+            <string>&lt;p&gt;The text of the template program goes in this box.
+            Don't forget that a General Program Mode template must begin with
+            the word "program:".&lt;/p&gt;</string>
            </property>
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -346,7 +362,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="4" column="0" colspan="3">
           <widget class="QTextEdit" name="new_doc">
            <property name="toolTip">
             <string>Documentation for the function being defined or edited</string>
@@ -366,7 +382,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="8" column="0" colspan="4">
+         <item row="8" column="0" colspan="3">
           <widget class="QTableWidget" name="template_value">
           </widget>
          </item>
@@ -519,7 +535,7 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            </property>
           </widget>
          </item>
-         <item row="24" column="0" colspan="2">
+         <item row="24" column="0" colspan="3">
           <layout class="QHBoxLayout">
            <item>
             <widget class="QLabel" name="font_name_label">
@@ -555,10 +571,6 @@ you the value as well as all the local variables&lt;/p&gt;</string>
              </property>
             </widget>
            </item>
-          </layout>
-         </item>
-         <item row="24" column="3">
-          <layout class="QHBoxLayout">
            <item>
             <widget class="QFrame" name="frame">
              <property name="frameShape">
@@ -606,6 +618,19 @@ you the value as well as all the local variables&lt;/p&gt;</string>
             </widget>
            </item>
            <item>
+            <spacer>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
             <widget class="QDialogButtonBox" name="buttonBox">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -617,14 +642,14 @@ you the value as well as all the local variables&lt;/p&gt;</string>
            </item>
           </layout>
          </item>
-         <item row="25" column="0" colspan="4">
+         <item row="25" column="0" colspan="3">
           <widget class="QFrame">
            <property name="frameShape">
             <enum>QFrame::HLine</enum>
            </property>
           </widget>
          </item>
-         <item row="30" column="0" colspan="4">
+         <item row="30" column="0" colspan="3">
           <layout class="QGridLayout">
            <item row="0" column="0" colspan="2">
             <widget class="QLabel" name="label">

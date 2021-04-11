@@ -299,14 +299,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 self.icon_kind.setCurrentIndex(dex)
                 self.icon_field.setCurrentIndex(self.icon_field.findData(icon_field_key))
 
-        if dialog_is_st_editor:
-            self.buttonBox.setVisible(False)
-        else:
-            self.new_doc_label.setVisible(False)
-            self.new_doc.setVisible(False)
-            self.template_name_label.setVisible(False)
-            self.template_name.setVisible(False)
-
+        self.setup_saved_template_editor(not dialog_is_st_editor, dialog_is_st_editor)
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowType.WindowContextHelpButtonHint))
@@ -406,6 +399,13 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                 QApplication.instance().safe_restore_geometry(self, QByteArray(geom))
         except Exception:
             pass
+
+    def setup_saved_template_editor(self, show_buttonbox, show_doc_and_name):
+        self.buttonBox.setVisible(show_buttonbox)
+        self.new_doc_label.setVisible(show_doc_and_name)
+        self.new_doc.setVisible(show_doc_and_name)
+        self.template_name_label.setVisible(show_doc_and_name)
+        self.template_name.setVisible(show_doc_and_name)
 
     def set_mi(self, mi, fm):
         '''
