@@ -215,6 +215,20 @@ class Worker(Thread):  # Get details {{{
                 11: ['noviembre'],
                 12: ['diciembre'],
             },
+            'se': {
+                1: ['januari'],
+                2: ['februari'],
+                3: ['mars'],
+                4: ['april'],
+                5: ['maj'],
+                6: ['juni'],
+                7: ['juli'],
+                8: ['augusti'],
+                9: ['september'],
+                10: ['oktober'],
+                11: ['november'],
+                12: ['december'],
+            },
             'jp': {
                 1: ['1月'],
                 2: ['2月'],
@@ -260,13 +274,14 @@ class Worker(Thread):  # Get details {{{
                     starts-with(text(), "Editor:") or \
                     starts-with(text(), "Editora:") or \
                     starts-with(text(), "Uitgever:") or \
+                    starts-with(text(), "Utgivare:") or \
                     starts-with(text(), "出版社:")]
             '''
         self.pubdate_xpath = '''
             descendant::*[starts-with(text(), "Publication Date:") or \
                     starts-with(text(), "Audible.com Release Date:")]
         '''
-        self.publisher_names = {'Publisher', 'Uitgever', 'Verlag',
+        self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Utgivare',
                                 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
 
         self.language_xpath =    '''
@@ -278,10 +293,11 @@ class Worker(Thread):  # Get details {{{
                 or text() = "Idioma:" \
                 or starts-with(text(), "Langue") \
                 or starts-with(text(), "言語") \
+                or starts-with(text(), "Språk") \
                 or starts-with(text(), "语种")
                 ]
             '''
-        self.language_names = {'Language', 'Sprache',
+        self.language_names = {'Language', 'Sprache', 'Språk',
                                'Lingua', 'Idioma', 'Langue', '言語', 'Taal', '语种'}
 
         self.tags_xpath = '''
@@ -297,12 +313,14 @@ class Worker(Thread):  # Get details {{{
         '''
 
         self.ratings_pat = re.compile(
-            r'([0-9.,]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren)){0,1}')
+            r'([0-9.,]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de|av) '
+            r'([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren|stjärnor)){0,1}'
+        )
         self.ratings_pat_cn = re.compile('平均([0-9.]+)')
         self.ratings_pat_jp = re.compile(r'\d+つ星のうち([\d\.]+)')
 
         lm = {
-            'eng': ('English', 'Englisch', 'Engels'),
+            'eng': ('English', 'Englisch', 'Engels', 'Engelska'),
             'fra': ('French', 'Français'),
             'ita': ('Italian', 'Italiano'),
             'deu': ('German', 'Deutsch'),
@@ -311,6 +329,7 @@ class Worker(Thread):  # Get details {{{
             'por': ('Portuguese', 'Português'),
             'nld': ('Dutch', 'Nederlands',),
             'chs': ('Chinese', '中文', '简体中文'),
+            'swe': ('Swedish', 'Svenska'),
         }
         self.lang_map = {}
         for code, names in lm.items():
@@ -427,7 +446,8 @@ class Worker(Thread):  # Get details {{{
 
         detail_bullets = root.xpath('//*[@data-feature-name="detailBullets"]')
         non_hero = tuple(self.selector(
-            'div#bookDetails_container_div div#nonHeroSection'))
+            'div#bookDetails_container_div div#nonHeroSection')) or tuple(self.selector(
+                '#productDetails_techSpec_sections'))
         if detail_bullets:
             self.parse_detail_bullets(root, mi, detail_bullets[0])
         elif non_hero:
@@ -527,6 +547,7 @@ class Worker(Thread):  # Get details {{{
                 '#byline .author a.a-link-normal',
                 '#bylineInfo .author .contributorNameID',
                 '#bylineInfo .author a.a-link-normal',
+                '#bylineInfo #bylineContributor',
         ):
             matches = tuple(self.selector(sel))
             if matches:
@@ -671,6 +692,10 @@ class Worker(Thread):  # Get details {{{
                 except Exception as e:
                     self.log.warn(
                         'Parsing of obfuscated product description failed with error: %s' % as_unicode(e))
+            else:
+                desc = root.xpath('//div[@id="productDescription_fullView"]')
+                if desc:
+                    ans += self._render_comments(desc[0])
 
         return ans
 
@@ -853,7 +878,7 @@ class Worker(Thread):  # Get details {{{
     def parse_new_details(self, root, mi, non_hero):
         table = non_hero.xpath('descendant::table')[0]
         for tr in table.xpath('descendant::tr'):
-            cells = tr.xpath('descendant::td')
+            cells = tr.xpath('descendant::*[local-name()="td" or local-name()="th"]')
             if len(cells) == 2:
                 self.parse_detail_cells(mi, cells[0], cells[1])
 
@@ -938,7 +963,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 17)
+    version = (1, 2, 18)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
@@ -963,6 +988,7 @@ class Amazon(Source):
         'nl': _('Netherlands'),
         'cn': _('China'),
         'ca': _('Canada'),
+        'se': _('Sweden'),
     }
 
     SERVERS = {
@@ -1681,6 +1707,16 @@ def manual_tests(domain, **kw):  # {{{
         (
             {'identifiers': {'isbn': '8483460831'}},
             [title_test('Tiempos Interesantes',
+                        exact=False), authors_test(['Terry Pratchett'])
+             ]
+
+        ),
+    ]  # }}}
+
+    all_tests['se'] = [  # {{{
+        (
+            {'identifiers': {'isbn': '9780552140287'}},
+            [title_test('Men At Arms: A Discworld Novel: 14',
                         exact=False), authors_test(['Terry Pratchett'])
              ]
 
