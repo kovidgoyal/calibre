@@ -256,6 +256,8 @@ class Install(Develop):
             help='Where to put the calibre binaries. Default is <root>/bin')
         parser.add_option('--staging-sharedir',
             help='Where to put the calibre data files. Default is <root>/share')
+        parser.add_option('--system-plugins-location',
+                help='Path to a directory from which the installed calibre will load plugins')
         self.add_postinstall_options(parser)
 
     def install_files(self):
