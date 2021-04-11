@@ -74,18 +74,66 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         </p>
         ''')
         self.textBrowser.setHtml(help_text)
-        help_text = '<p>' + _('''
+        self.textBrowser_showing = True
+        self.textBrowser.adjustSize()
+        self.show_hide_help_button.clicked.connect(self.show_hide_help)
+        help_text = _('''
+        <p>
         Here you can create, edit (replace), and delete stored templates used
         in template processing. You use a stored template in another template as
-        if it were a template function, for example 'some_name(arg1, arg2...)'.
-        Stored templates must use General Program Mode -- they must begin with
+        if it were a template function, for example 'some_name(arg1, arg2...)'.</p>
+
+        <p>Stored templates must use General Program Mode -- they must begin with
         the text '{0}'. You retrieve arguments passed to a stored template using
         the '{1}()' template function, as in '{1}(var1, var2, ...)'. The passed
-        arguments are copied to the named variables. See the template language
-        tutorial for more information.
-        ''') + '</p>'
+        arguments are copied to the named variables.</p>
+
+        <p>For example, this stored template checks if any items are in a
+        list, returning '1' if any are found and '' if not.</p>
+        <p>
+        Template name: items_in_list<br>
+        Template contents:<pre>
+        program:
+            arguments(lst='No list argument given', items='');
+            r = '';
+            for l in items:
+                if str_in_list(lst, ',', l, '1', '') then
+                    r = '1';
+                    break
+                fi
+            rof;
+            r</pre>
+        You call the stored template like this:<pre>
+        program: items_in_list($#genre, 'comics, foo')</pre>
+        See the template language tutorial for more information.</p>
+        </p>
+        ''')
         self.st_textBrowser.setHtml(help_text.format('program:', 'arguments'))
+        self.st_textBrowser_showing = True
         self.st_textBrowser.adjustSize()
+        self.st_show_hide_help_button.clicked.connect(self.st_show_hide_help)
+
+    def st_show_hide_help(self):
+        if self.st_textBrowser_showing:
+            self.st_textBrowser_height = self.st_textBrowser.height()
+            self.st_textBrowser.setMaximumHeight(self.st_show_hide_help_button.height())
+            self.st_textBrowser_showing = False
+            self.st_show_hide_help_button.setText(_('Show help'))
+        else:
+            self.st_textBrowser.setMaximumHeight(self.st_textBrowser_height)
+            self.st_textBrowser_showing = True
+            self.st_show_hide_help_button.setText(_('Hide help'))
+
+    def show_hide_help(self):
+        if self.textBrowser_showing:
+            self.textBrowser_height = self.textBrowser.height()
+            self.textBrowser.setMaximumHeight(self.show_hide_help_button.height())
+            self.textBrowser_showing = False
+            self.show_hide_help_button.setText(_('Show help'))
+        else:
+            self.textBrowser.setMaximumHeight(self.textBrowser_height)
+            self.textBrowser_showing = True
+            self.show_hide_help_button.setText(_('Hide help'))
 
     def initialize(self):
         try:
@@ -308,6 +356,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def st_build_function_names_box(self, scroll_to=''):
         self.te_name.blockSignals(True)
         func_names = sorted(self.st_funcs)
+        self.te_name.setMinimumContentsLength(40)
         self.te_name.clear()
         self.te_name.addItem('')
         self.te_name.addItems(func_names)
