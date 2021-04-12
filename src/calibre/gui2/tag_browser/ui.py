@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap
+import copy, textwrap
 from functools import partial
 
 from qt.core import (
@@ -87,6 +87,7 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.ConnectionType.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
+        self.tags_view.tag_identifier_delete.connect(self.delete_identifier)
         self.tags_view.apply_tag_to_selected.connect(self.apply_tag_to_selected)
         self.populate_tb_manage_menu(db)
         self.tags_view.model().user_categories_edited.connect(self.user_categories_edited,
@@ -378,6 +379,33 @@ class TagBrowserMixin(object):  # {{{
                     si = db.get_next_series_num_for(item_name, field=field_name)
                     db.set_field(series_index_field, {book_id: si})
             self.library_view.model().refresh_ids(set(changes), current_row=self.library_view.currentIndex().row())
+            self.tags_view.recount_with_position_based_index()
+
+    def delete_identifier(self, name, in_vl):
+        d = self.current_db.new_api
+        changed = False
+        books_to_use = self.tags_view.model().get_book_ids_to_use() if in_vl else d.all_book_ids()
+        ids = d.all_field_for('identifiers', books_to_use)
+        new_ids = {}
+        for id_ in ids:
+            for identifier_type in ids[id_]:
+                if identifier_type == name:
+                    new_ids[id_] = copy.copy(ids[id_])
+                    new_ids[id_].pop(name)
+                    changed = True
+        if changed:
+            if in_vl:
+                msg = _('The identifier %s will be deleted from books in the '
+                        'current virtual library. Are you sure?')%name
+            else:
+                msg= _('The identifier %s will be deleted from all books. Are you sure?')%name
+            if not question_dialog(self,
+                title=_('Delete identifier'),
+                msg=msg,
+                skip_dialog_name='tag_browser_delete_identifiers',
+                skip_dialog_msg=_('Show this confirmation again')):
+                return
+            d.set_field('identifiers', new_ids)
             self.tags_view.recount_with_position_based_index()
 
     def edit_enum_values(self, parent, db, key):

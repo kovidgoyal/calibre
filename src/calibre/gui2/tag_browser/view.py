@@ -174,6 +174,7 @@ class TagsView(QTreeView):  # {{{
     drag_drop_finished      = pyqtSignal(object)
     restriction_error       = pyqtSignal()
     tag_item_delete         = pyqtSignal(object, object, object, object, object)
+    tag_identifier_delete   = pyqtSignal(object, object)
     apply_tag_to_selected   = pyqtSignal(object, object, object)
     edit_enum_values        = pyqtSignal(object, object, object)
 
@@ -530,6 +531,12 @@ class TagsView(QTreeView):  # {{{
                 self.tag_item_delete.emit(key, id_, tag.original_name,
                                           None, children)
                 return
+            if action == 'delete_identifier':
+                self.tag_identifier_delete.emit(index.tag.name, False)
+                return
+            if action == 'delete_identifier_in_vl':
+                self.tag_identifier_delete.emit(index.tag.name, True)
+                return
             if action == 'open_editor':
                 self.tags_list_edit.emit(category, key, is_first_letter)
                 return
@@ -766,6 +773,20 @@ class TagsView(QTreeView):  # {{{
                                 _('Delete Saved search %s')%display_name(tag),
                                 partial(self.context_menu_handler,
                                         action='delete_search', key=tag.original_name))
+                    elif key == 'identifiers':
+                        if self.model().get_in_vl():
+                            self.context_menu.addAction(self.delete_icon,
+                                    _('Delete %s in Virtual Library')%display_name(tag),
+                                    partial(self.context_menu_handler,
+                                            action='delete_identifier_in_vl',
+                                            key=key, index=tag_item))
+                        else:
+                            self.context_menu.addAction(self.delete_icon,
+                                    _('Delete %s')%display_name(tag),
+                                    partial(self.context_menu_handler,
+                                            action='delete_identifier',
+                                            key=key, index=tag_item))
+
                     if key.startswith('@') and not item.is_gst:
                         self.context_menu.addAction(self.user_category_icon,
                             _('Remove %(item)s from category %(cat)s')%
