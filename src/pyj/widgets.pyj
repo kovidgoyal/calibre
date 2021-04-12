@@ -4,6 +4,7 @@ from __python__ import hash_literals
 
 from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image, add_extra_css, ensure_id
 from elementmaker import E
+from utils import is_ios
 
 from book_list.theme import get_color
 
@@ -214,6 +215,20 @@ add_extra_css(def():
     ans += create_button.style + '\n'
     ans += create_spinner.style + '\n'
     ans += Breadcrumbs.STYLE_RULES + '\n'
+    if is_ios:
+        # Apple sets the default font size for these too small in its
+        # browser css and then zooms in on them making them unusable.
+        # This of course means we need to hardcode a font size for these so in
+        # the future when Apple's idiot designers decide they want to change
+        # the default font sizes, things will break again
+        # https://blog.osmosys.asia/2017/01/05/prevent-ios-from-zooming-in-on-input-fields/
+        ans += '''
+    select, textarea, input[type="text"], input[type="password"],
+    input[type="datetime"], input[type="datetime-local"],
+    input[type="date"], input[type="month"], input[type="time"],
+    input[type="week"], input[type="number"], input[type="email"],
+    input[type="url"] { font-size: 16px }
+    '''
     return ans
 )
 
