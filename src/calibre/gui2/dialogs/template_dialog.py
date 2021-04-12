@@ -47,7 +47,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
     BN_FACTOR = 1000
 
     KEYWORDS = ["program", 'if', 'then', 'else', 'elif', 'fi', 'for', 'in',
-                'separator', 'rof', 'break', 'continue']
+                'separator', 'rof', 'break', 'continue', 'return']
 
     def __init__(self, parent=None, builtin_functions=None):
         super(TemplateHighlighter, self).__init__(parent)
@@ -573,7 +573,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         l = self.template_value.selectionModel().selectedRows()
         mi_to_use = self.mi[0 if len(l) == 0 else l[0].row()]
         if self.break_box.isChecked():
-            if line_number not in self.textbox.clicked_line_numbers:
+            if line_number is None or line_number not in self.textbox.clicked_line_numbers:
                 return
             self.break_reporter_dialog = BreakReporter(self, mi_to_use,
                                                        txt, val, locals_, line_number)
@@ -640,6 +640,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def display_values(self, txt):
         tv = self.template_value
+        l = self.template_value.selectionModel().selectedRows()
+        break_on_mi = 0 if len(l) == 0 else l[0].row()
         for r,mi in enumerate(self.mi):
             w = tv.cellWidget(r, 0)
             w.setText(mi.title)
@@ -647,7 +649,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             v = SafeFormat().safe_format(txt, mi, _('EXCEPTION: '),
                              mi, global_vars=self.global_vars,
                              template_functions=self.all_functions,
-                             break_reporter=self.break_reporter if r == 0 else None)
+                             break_reporter=self.break_reporter if r == break_on_mi else None)
             w = tv.cellWidget(r, 1)
             w.setText(v)
             w.setCursorPosition(0)

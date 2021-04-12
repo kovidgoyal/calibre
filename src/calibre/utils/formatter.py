@@ -43,6 +43,7 @@ class Node(object):
     NODE_PRINT = 21
     NODE_BREAK = 22
     NODE_CONTINUE = 23
+    NODE_RETURN = 24
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -86,6 +87,13 @@ class ContinueNode(Node):
     def __init__(self, line_number):
         Node.__init__(self, line_number, 'continue')
         self.node_type = self.NODE_CONTINUE
+
+
+class ReturnNode(Node):
+    def __init__(self, line_number, expr):
+        Node.__init__(self, line_number, 'return')
+        self.expr = expr
+        self.node_type = self.NODE_RETURN
 
 
 class AssignNode(Node):
@@ -283,11 +291,11 @@ class _Parser(object):
     def consume(self):
         self.lex_pos += 1
 
-    def token_op_is_equals(self):
+    def token_op_is(self, op):
         self.check_eol()
         try:
             token = self.prog[self.lex_pos]
-            return token[1] == '=' and token[0] == self.LEX_OP
+            return token[1] == op and token[0] == self.LEX_OP
         except:
             return False
 
@@ -305,102 +313,6 @@ class _Parser(object):
         except:
             return False
 
-    def token_op_is_lparen(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '(' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_rparen(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == ')' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_comma(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == ',' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_semicolon(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == ';' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_colon(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == ':' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_plus(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '+' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_minus(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '-' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_times(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '*' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_divide(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '/' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_and(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '&&' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_or(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '||' and token[0] == self.LEX_OP
-        except:
-            return False
-
-    def token_op_is_not(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == '!' and token[0] == self.LEX_OP
-        except:
-            return False
-
     def token_is_newline(self):
         return self.lex_pos < len(self.prog) and self.prog[self.lex_pos] == self.LEX_NEWLINE
 
@@ -411,75 +323,11 @@ class _Parser(object):
         except:
             return False
 
-    def token_is_call(self):
+    def token_is(self, candidate):
         self.check_eol()
         try:
             token = self.prog[self.lex_pos]
-            return token[1] == 'call' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_if(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'if' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_then(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'then' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_else(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'else' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_elif(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'elif' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_fi(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'fi' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_for(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'for' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_in(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'in' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_rof(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'rof' and token[0] == self.LEX_KEYWORD
+            return token[1] == candidate and token[0] == self.LEX_KEYWORD
         except:
             return False
 
@@ -488,22 +336,6 @@ class _Parser(object):
         try:
             token = self.prog[self.lex_pos]
             return token[1] == 'separator' and token[0] == self.LEX_ID
-        except:
-            return False
-
-    def token_is_break(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'break' and token[0] == self.LEX_KEYWORD
-        except:
-            return False
-
-    def token_is_continue(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'continue' and token[0] == self.LEX_KEYWORD
         except:
             return False
 
@@ -521,6 +353,13 @@ class _Parser(object):
         except:
             return True
 
+    def token_text(self):
+        self.check_eol()
+        try:
+            return self.prog[self.lex_pos][1]
+        except:
+            return _("'End Of Program'")
+
     def program(self, parent, funcs, prog):
         self.line_number = 1
         self.lex_pos = 0
@@ -530,10 +369,10 @@ class _Parser(object):
         self.prog = prog[0]
         self.prog_len = len(self.prog)
         if prog[1] != '':
-            self.error(_('Failed to scan program. Invalid input {0}').format(prog[1]))
+            self.error(_("Failed to scan program. Invalid input '{0}'").format(prog[1]))
         tree = self.expression_list()
         if not self.token_is_eof():
-            self.error(_('Syntax error - program ends before EOF'))
+            self.error(_("Expected end of program, found '{0}'").format(self.token_text()))
         return tree
 
     def expression_list(self):
@@ -545,7 +384,7 @@ class _Parser(object):
             if self.token_is_eof():
                 break
             expr_list.append(self.top_expr())
-            if self.token_op_is_semicolon():
+            if self.token_op_is(';'):
                 self.consume()
             else:
                 break
@@ -555,19 +394,21 @@ class _Parser(object):
         self.consume()
         line_number = self.line_number
         condition = self.top_expr()
-        if not self.token_is_then():
-            self.error(_("Expected '%s' in '%s' statement")%('then', 'if'))
+        if not self.token_is('then'):
+            self.error(_("{0} statement: expected '{1}', "
+                         "found '{2}'").format('if', 'then', self.token_text()))
         self.consume()
         then_part = self.expression_list()
-        if self.token_is_elif():
+        if self.token_is('elif'):
             return IfNode(line_number, condition, then_part, [self.if_expression(),])
-        if self.token_is_else():
+        if self.token_is('else'):
             self.consume()
             else_part = self.expression_list()
         else:
             else_part = None
-        if not self.token_is_fi():
-            self.error(_("Expected '%s' in '%s' statement")%('fi', 'if'))
+        if not self.token_is('fi'):
+            self.error(_("{0} statement: expected '{1}', "
+                         "found '{2}'").format('if', 'fi', self.token_text()))
         self.consume()
         return IfNode(line_number, condition, then_part, else_part)
 
@@ -575,10 +416,11 @@ class _Parser(object):
         line_number = self.line_number
         self.consume()
         if not self.token_is_id():
-            self.error(_("Expected identifier in '%s' statement")%'for')
+            self.error(_("'{0}' statement: expected an identifier").format('for'))
         variable = self.token()
-        if not self.token_is_in():
-            self.error(_("Expected '%s' in '%s' statement")%('in', 'for'))
+        if not self.token_is('in'):
+            self.error(_("{0} statement: expected '{1}', "
+                         "found '{2}'").format('for', 'in', self.token_text()))
         self.consume()
         list_expr = self.top_expr()
         if self.token_is_separator():
@@ -586,12 +428,14 @@ class _Parser(object):
             separator = self.expr()
         else:
             separator = None
-        if not self.token_op_is_colon():
-            self.error(_("Expected colon in '%s' statement")%'for')
+        if not self.token_op_is(':'):
+            self.error(_("{0} statement: expected '{1}', "
+                         "found '{2}'").format('for', ':', self.token_text()))
         self.consume()
         block = self.expression_list()
-        if not self.token_is_rof():
-            self.error(_("Expected '%s' in '%s' statement")%('rof', 'for'))
+        if not self.token_is('rof'):
+            self.error(_("{0} statement: expected '{1}', "
+                         "found '{2}'").format('for', 'rof', self.token_text()))
         self.consume()
         return ForNode(line_number, variable, list_expr, separator, block)
 
@@ -600,7 +444,7 @@ class _Parser(object):
 
     def or_expr(self):
         left = self.and_expr()
-        while self.token_op_is_or():
+        while self.token_op_is('||'):
             self.consume()
             right = self.and_expr()
             left = LogopBinaryNode(self.line_number, 'or', left, right)
@@ -608,21 +452,21 @@ class _Parser(object):
 
     def and_expr(self):
         left = self.not_expr()
-        while self.token_op_is_and():
+        while self.token_op_is('&&'):
             self.consume()
             right = self.not_expr()
             left = LogopBinaryNode(self.line_number, 'and', left, right)
         return left
 
     def not_expr(self):
-        if self.token_op_is_not():
+        if self.token_op_is('!'):
             self.consume()
             return LogopUnaryNode(self.line_number, 'not', self.not_expr())
         return self.compare_expr()
 
     def compare_expr(self):
         left = self.add_subtract_expr()
-        if self.token_op_is_string_infix_compare() or self.token_is_in():
+        if self.token_op_is_string_infix_compare() or self.token_is('in'):
             operator = self.token()
             return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
@@ -632,7 +476,7 @@ class _Parser(object):
 
     def add_subtract_expr(self):
         left = self.times_divide_expr()
-        while self.token_op_is_plus() or self.token_op_is_minus():
+        while self.token_op_is('+') or self.token_op_is('-'):
             operator = self.token()
             right = self.times_divide_expr()
             left = NumericBinaryNode(self.line_number, operator, left, right)
@@ -640,17 +484,17 @@ class _Parser(object):
 
     def times_divide_expr(self):
         left = self.unary_plus_minus_expr()
-        while self.token_op_is_times() or self.token_op_is_divide():
+        while self.token_op_is('*') or self.token_op_is('/'):
             operator = self.token()
             right = self.unary_plus_minus_expr()
             left = NumericBinaryNode(self.line_number, operator, left, right)
         return left
 
     def unary_plus_minus_expr(self):
-        if self.token_op_is_plus():
+        if self.token_op_is('+'):
             self.consume()
             return NumericUnaryNode(self.line_number, '+', self.unary_plus_minus_expr())
-        if self.token_op_is_minus():
+        if self.token_op_is('-'):
             self.consume()
             return NumericUnaryNode(self.line_number, '-', self.unary_plus_minus_expr())
         return self.expr()
@@ -660,7 +504,7 @@ class _Parser(object):
         if subprog is None:
             text = self.funcs[name].program_text
             if not text.startswith('program:'):
-                self.error(_('A stored template must begin with {0}').format('program:'))
+                self.error(_("A stored template must begin with '{0}'").format('program:'))
             text = text[len('program:'):]
             subprog = _Parser().program(self, self.funcs,
                                         self.parent.lex_scanner.scan(text))
@@ -668,23 +512,26 @@ class _Parser(object):
         return CallNode(self.line_number, name, subprog, arguments)
 
     def expr(self):
-        if self.token_op_is_lparen():
+        if self.token_op_is('('):
             self.consume()
             rv = self.expression_list()
-            if not self.token_op_is_rparen():
-                self.error(_("Expected a right parenthesis"))
+            if not self.token_op_is(')'):
+                self.error(_("Expected '{0}', found '{1}'").format(')', self.token_text()))
             self.consume()
             return rv
-        if self.token_is_if():
+        if self.token_is('if'):
             return self.if_expression()
-        if self.token_is_for():
+        if self.token_is('for'):
             return self.for_expression()
-        if self.token_is_break():
+        if self.token_is('break'):
             self.consume()
             return BreakNode(self.line_number)
-        if self.token_is_continue():
+        if self.token_is('continue'):
             self.consume()
             return ContinueNode(self.line_number)
+        if self.token_is('return'):
+            self.consume()
+            return ReturnNode(self.line_number, self.expr())
         if self.token_is_id():
             line_number = self.line_number
             id_ = self.token()
@@ -694,8 +541,8 @@ class _Parser(object):
                     return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))
                 return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))
             # Determine if it is a function
-            if not self.token_op_is_lparen():
-                if self.token_op_is_equals():
+            if not self.token_op_is('('):
+                if self.token_op_is('='):
                     # classic assignment statement
                     self.consume()
                     return AssignNode(line_number, id_, self.top_expr())
@@ -710,14 +557,15 @@ class _Parser(object):
             # Eat the paren
             self.consume()
             arguments = list()
-            while not self.token_op_is_rparen():
+            while not self.token_op_is(')'):
                 # evaluate the expression (recursive call)
                 arguments.append(self.expression_list())
-                if not self.token_op_is_comma():
+                if not self.token_op_is(','):
                     break
                 self.consume()
             if self.token() != ')':
-                self.error(_("Expected a closing right parenthesis for function call"))
+                self.error(_("Expected a '{0}' for function call, "
+                             "found '{1}'").format(')', self.token_text()))
             if id_ == 'field' and len(arguments) == 1:
                 return FieldNode(line_number, arguments[0])
             if id_ == 'raw_field' and (len(arguments) in (1, 2)):
@@ -733,7 +581,7 @@ class _Parser(object):
                 for arg_list in arguments:
                     arg = arg_list[0]
                     if arg.node_type not in (Node.NODE_ASSIGN, Node.NODE_RVALUE):
-                        self.error(_("Parameters to '{}' must be "
+                        self.error(_("Parameters to '{0}' must be "
                                      "variables or assignments").format(id_))
                     if arg.node_type == Node.NODE_RVALUE:
                         arg = AssignNode(line_number, arg.name, ConstantNode(self.line_number, ''))
@@ -757,12 +605,12 @@ class _Parser(object):
             # String or number
             return ConstantNode(self.line_number, self.token())
         else:
-            self.error(_('Expression is not function or constant'))
+            self.error(_("Expected an expression, found '{0}''").format(self.token_text()))
 
 
 class ExecutionBase(Exception):
     def __init__(self, name):
-        super().__init__(_('{0} outside of for loop').format(name))
+        super().__init__(_('{0} outside of for loop').format(name) if name else '')
         self.value = ''
 
     def set_value(self, v):
@@ -782,6 +630,11 @@ class BreakExecuted(ExecutionBase):
         super().__init__('break')
 
 
+class ReturnExecuted(ExecutionBase):
+    def __init__(self):
+        super().__init__('return')
+
+
 class StopException(Exception):
     def __init__(self):
         super().__init__('Template evaluation stopped')
@@ -799,6 +652,7 @@ class _Interpreter(object):
         self.parent_book = parent.book
         self.funcs = funcs
         self.locals = {'$':val}
+        self.override_line_number = None
         self.global_vars = global_vars if isinstance(global_vars, dict) else {}
         if break_reporter:
             self.break_reporter = self.call_break_reporter
@@ -806,12 +660,19 @@ class _Interpreter(object):
         else:
             self.break_reporter = None
 
-        if is_call:
-            return self.do_node_call(CallNode(1, prog, None), args=args)
-        return self.expression_list(prog)
+        try:
+            if is_call:
+                ret =  self.do_node_call(CallNode(1, prog, None), args=args)
+            else:
+                ret = self.expression_list(prog)
+        except ReturnExecuted as e:
+            ret = e.get_value()
+        return ret
 
     def call_break_reporter(self, txt, val, line_number):
-        self.real_break_reporter(txt, val, self.locals, line_number)
+        self.real_break_reporter(txt, val, self.locals,
+                                 self.override_line_number if self.override_line_number
+                                     else line_number)
 
     def expression_list(self, prog):
         val = ''
@@ -844,9 +705,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(
-               _('Error during string comparison. Operator {0}').format(prog.operator),
-               prog.line_number)
+            self.error(_("Error during string comparison: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     INFIX_NUMERIC_COMPARE_OPS = {
         "==#": lambda x, y: x == y,
@@ -873,9 +733,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(
-               _('Value used in comparison is not a number. Operator {0}').format(prog.operator),
-               prog.line_number)
+            self.error(_("Value used in comparison is not a number: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     def do_node_if(self, prog):
         line_number = prog.line_number
@@ -900,8 +759,7 @@ class _Interpreter(object):
                 self.break_reporter(prog.node_name, self.locals[prog.name], prog.line_number)
             return self.locals[prog.name]
         except:
-            self.error(_('Unknown identifier {0}').format(prog.name),
-                       prog.line_number)
+            self.error(_("Unknown identifier '{0}'").format(prog.name), prog.line_number)
 
     def do_node_func(self, prog):
         args = list()
@@ -918,6 +776,8 @@ class _Interpreter(object):
         return res
 
     def do_node_call(self, prog, args=None):
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, _('before evaluating arguments'), prog.line_number)
         if args is None:
             args = []
             for arg in prog.expression_list:
@@ -927,10 +787,19 @@ class _Interpreter(object):
         self.locals = {}
         for dex, v in enumerate(args):
             self.locals['*arg_'+ str(dex)] = v
-        val = self.expression_list(prog.function)
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, _('after evaluating arguments'), prog.line_number)
+            saved_line_number = self.override_line_number
+            self.override_line_number = (self.override_line_number if self.override_line_number
+                                         else prog.line_number)
+        try:
+            val = self.expression_list(prog.function)
+        except ReturnExecuted as e:
+            val = e.get_value()
+        self.override_line_number = saved_line_number
         self.locals = saved_locals
         if (self.break_reporter):
-            self.break_reporter(prog.node_name, val, prog.line_number)
+            self.break_reporter(prog.node_name + _(' returned value'), val, prog.line_number)
         return val
 
     def do_node_arguments(self, prog):
@@ -970,12 +839,11 @@ class _Interpreter(object):
                     self.break_reporter(prog.node_name, res, prog.line_number)
                 return res
             except:
-                self.error(_('Unknown field {0}').format(name),
-                           prog.line_number)
+                self.error(_("Unknown field '{0}'").format(name), prog.line_number)
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(_('Unknown field {0}').format('internal parse error'),
+            self.error(_("Unknown field '{0}'").format('internal parse error'),
                        prog.line_number)
 
     def do_node_raw_field(self, prog):
@@ -1004,7 +872,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(_('Unknown field {0}').format('internal parse error'))
+            self.error(_("Unknown field '{0}'").format('internal parse error'),
+                       prog.line_number)
 
     def do_node_assign(self, prog):
         t = self.expr(prog.right)
@@ -1055,7 +924,7 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except Exception as e:
-            self.error(_('Unhandled exception {0}').format(e), line_number)
+            self.error(_("Unhandled exception '{0}'").format(e), line_number)
 
     def do_node_break(self, prog):
         if (self.break_reporter):
@@ -1066,6 +935,14 @@ class _Interpreter(object):
         if (self.break_reporter):
             self.break_reporter(prog.node_name, '', prog.line_number)
         raise ContinueExecuted()
+
+    def do_node_return(self, prog):
+        v = self.expr(prog.expr)
+        if (self.break_reporter):
+            self.break_reporter(prog.node_name, v, prog.line_number)
+        e = ReturnExecuted()
+        e.set_value(v)
+        raise e
 
     def do_node_contains(self, prog):
         v = self.expr(prog.value_expression)
@@ -1092,9 +969,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(
-               _('Error during operator evaluation. Operator {0}').format(prog.operator),
-               prog.line_number)
+            self.error(_("Error during operator evaluation: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     LOGICAL_UNARY_OPS = {
         'not': lambda x: not x,
@@ -1110,9 +986,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(
-               _('Error during operator evaluation. Operator {0}').format(prog.operator),
-               prog.line_number)
+            self.error(_("Error during operator evaluation: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     ARITHMETIC_BINARY_OPS = {
         '+': lambda x, y: x + y,
@@ -1132,9 +1007,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(
-               _('Error during operator evaluation. Operator {0}').format(prog.operator),
-               prog.line_number)
+            self.error(_("Error during operator evaluation: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     ARITHMETIC_UNARY_OPS = {
         '+': lambda x: x,
@@ -1151,9 +1025,8 @@ class _Interpreter(object):
         except (StopException, ValueError) as e:
             raise e
         except:
-            self.error(
-               _('Error during operator evaluation. Operator {0}').format(prog.operator),
-               prog.line_number)
+            self.error(_("Error during operator evaluation: "
+                         "operator '{0}'").format(prog.operator), prog.line_number)
 
     def do_node_print(self, prog):
         res = []
@@ -1186,6 +1059,7 @@ class _Interpreter(object):
         Node.NODE_PRINT:          do_node_print,
         Node.NODE_BREAK:          do_node_break,
         Node.NODE_CONTINUE:       do_node_continue,
+        Node.NODE_RETURN:         do_node_return,
         }
 
     def expr(self, prog):
@@ -1193,12 +1067,13 @@ class _Interpreter(object):
             if isinstance(prog, list):
                 return self.expression_list(prog)
             return self.NODE_OPS[prog.node_type](self, prog)
-        except (ValueError, ContinueExecuted, BreakExecuted, StopException) as e:
+        except (ValueError, ExecutionBase, StopException) as e:
             raise e
-        except:
+        except Exception as e:
             if (DEBUG):
                 traceback.print_exc()
-            self.error(_('Internal error evaluating an expression'), prog.line_number)
+            self.error(_("Internal error evaluating an expression: '{0}'").format(str(e)),
+                       prog.line_number)
 
 
 class TemplateFormatter(string.Formatter):
@@ -1268,10 +1143,10 @@ class TemplateFormatter(string.Formatter):
     # ################# Template language lexical analyzer ######################
 
     lex_scanner = re.Scanner([
-            (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),
+            (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),  # noqa
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(for|in|rof)\b',          lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(for|in|rof|return)\b',   lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(break|continue)\b',      lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(\|\||&&|!)',             lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'[(),=;:\+\-*/]',          lambda x,t: (_Parser.LEX_OP, t)),  # noqa
