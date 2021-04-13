@@ -99,6 +99,7 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
             local_storage().set(history_name, uniq(items[:history_size]))
             update_completion_items()
     ewc.onenterkey = trigger
+    parent.querySelector('input').addEventListener('search', trigger)
 
     if button:
         ewc.add_associated_widget(button)

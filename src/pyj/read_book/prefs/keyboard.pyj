@@ -6,6 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.globals import get_session_data
+from complete import create_search_bar
 from book_list.item_list import create_item, create_item_list
 from dom import clear, svgicon, unique_id
 from read_book.shortcuts import (
@@ -144,6 +145,15 @@ def customize_shortcut(sc_name):
     ))
 
 
+def run_search():
+    container = get_container()
+    query = container.querySelector(f'[name=search-for-sc]').value or ''
+    query = query.toLowerCase()
+    for item in get_container().querySelectorAll('[data-user-data]'):
+        q = item.textContent.toLowerCase()
+        matches = not query or q.indexOf(query) > -1
+        item.style.display = 'list-item' if matches else 'none'
+
 
 def create_keyboard_panel(container, apply_func, cancel_func, onchange):
     create_keyboard_panel.onchange = onchange
@@ -151,9 +161,16 @@ def create_keyboard_panel(container, apply_func, cancel_func, onchange):
     container = container.lastChild
     container.dataset.changed = 'false'
     get_container.id = container.id
+    search_button = create_button(_('Search'), icon='search')
+    sb = create_search_bar(
+        run_search, 'search-for-sc', placeholder=_('Search for shortcut'), button=search_button)
+    container.appendChild(E.div(
+        style='margin-bottom: 1ex; display: flex; width: 100%; justify-content: space-between', sb, E.span('\xa0\xa0'), search_button
+    ))
+    container.firstChild.firstChild.style.flexGrow = '100'
     container.appendChild(E.div())
     container.appendChild(E.div(style='display: none'))
-    container = container.firstChild
+    container = container.firstChild.nextSibling
     sd = get_session_data()
     custom_shortcuts = sd.get('keyboard_shortcuts')
     groups = as_groups(shortcuts_definition())
