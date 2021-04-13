@@ -358,7 +358,7 @@ class _Parser(object):
         try:
             return self.prog[self.lex_pos][1]
         except:
-            return _("'End Of Program'")
+            return _("'End of program'")
 
     def program(self, parent, funcs, prog):
         self.line_number = 1
@@ -605,7 +605,7 @@ class _Parser(object):
             # String or number
             return ConstantNode(self.line_number, self.token())
         else:
-            self.error(_("Expected an expression, found '{0}''").format(self.token_text()))
+            self.error(_("Expected an expression, found '{0}'").format(self.token_text()))
 
 
 class ExecutionBase(Exception):
