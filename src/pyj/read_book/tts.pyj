@@ -205,7 +205,7 @@ class Client:
                 parent_div.appendChild(E.input(type='range', id=rate_id, min=(self.min_rate * 10) + '', max=(self.max_rate * 10) + '', value=((self.current_rate or 1) * 10) + ''))
                 parent_div.appendChild(E.div(_('Pick a voice below:')))
                 parent_div.appendChild(select)
-                if select.options.selectedIndex?:
+                if select.options.selectedIndex? and select.options[select.options.selectedIndex]:
                     select.options[select.options.selectedIndex].scrollIntoView()
                 parent_div.appendChild(E.div(
                         style='margin: 1rem; display: flex; justify-content: space-between; align-items: flex-start',
