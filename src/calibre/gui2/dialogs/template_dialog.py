@@ -386,7 +386,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.remove_all_button.clicked.connect(self.remove_all_button_pressed)
         self.set_all_button.clicked.connect(self.set_all_button_pressed)
 
-        self.load_button.clicked.connect(self.load_template)
+        self.load_button.clicked.connect(self.load_template_from_file)
         self.save_button.clicked.connect(self.save_template)
 
         self.textbox.setWordWrapMode(QTextOption.WordWrap)
@@ -475,13 +475,25 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                    else QTextOption.WordWrap)
         ca.triggered.connect(lambda: self.textbox.setWordWrapMode(to_what))
         m.addSeparator()
+        ca = m.addAction(_('Load template from the Template tester'))
+        ca.triggered.connect(self.load_last_template_text)
+        m.addSeparator()
         ca = m.addAction(_('Load template from file'))
-        ca.triggered.connect(self.load_template)
+        ca.triggered.connect(self.load_template_from_file)
         ca = m.addAction(_('Save template to file'))
         ca.triggered.connect(self.save_template)
         m.exec_(self.textbox.mapToGlobal(point))
 
-    def load_template(self):
+    def load_last_template_text(self):
+        from calibre.customize.ui import find_plugin
+        tt = find_plugin('Template Tester')
+        if tt and tt.actual_plugin_:
+            self.textbox.setPlainText(tt.actual_plugin_.last_template_text())
+        else:
+            # I don't think we can get here, but just in case ...
+            self.textbox.setPlainText(_('No Template tester text is available'))
+
+    def load_template_from_file(self):
         filename = choose_files(self, 'template_dialog_save_templates',
                 _('Load template from file'),
                 filters=[
