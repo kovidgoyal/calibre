@@ -1143,57 +1143,7 @@ using the mouse.&lt;/p&gt;</string>
        <string>Cover &amp;browser</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_11">
-       <item row="5" column="1">
-        <widget class="QLineEdit" name="opt_cover_browser_title_template">
-         <property name="toolTip">
-          <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.</string>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>&amp;Number of covers to show in browse mode (needs restart):</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_cover_flow_queue_length</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="9" column="0" colspan="2">
-        <spacer name="verticalSpacer_4">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>690</width>
-           <height>283</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_23">
-         <property name="text">
-          <string>&amp;Template for caption:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_cover_browser_title_template</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="2">
-        <widget class="QPushButton" name="cover_browser_title_template_button">
-         <property name="text">
-          <string>Template &amp;editor</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" colspan="2">
-        <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
-       </item>
-       <item row="7" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cb_fullscreen">
          <property name="text">
           <string>When showing in a separate window, show it &amp;fullscreen</string>
@@ -1207,7 +1157,54 @@ using the mouse.&lt;/p&gt;</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="3">
+       <item row="3" column="1" colspan="2">
+        <widget class="QSpinBox" name="opt_cover_flow_queue_length"/>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>&amp;Number of covers to show in browse mode (needs restart):</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_cover_flow_queue_length</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QPushButton" name="cover_browser_title_template_button">
+         <property name="text">
+          <string>Template &amp;editor</string>
+         </property>
+        </widget>
+       </item>
+       <item row="11" column="0" colspan="2">
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>690</width>
+           <height>283</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="opt_cover_browser_title_template">
+         <property name="toolTip">
+          <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0" colspan="3">
+        <widget class="QCheckBox" name="opt_cover_browser_reflections">
+         <property name="text">
+          <string>Show &amp;reflections</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0" colspan="3">
         <widget class="QCheckBox" name="opt_cb_preserve_aspect_ratio">
          <property name="toolTip">
           <string>Show covers in their original aspect ratio instead of resizing
@@ -1218,14 +1215,30 @@ them to all have the same width and height</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" colspan="3">
-        <widget class="QCheckBox" name="opt_cover_browser_reflections">
+       <item row="8" column="1" colspan="2">
+        <widget class="QComboBox" name="opt_cover_browser_subtitle_field"/>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_23">
          <property name="text">
-          <string>Show &amp;reflections</string>
+          <string>&amp;Template for caption:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_cover_browser_title_template</cstring>
          </property>
         </widget>
        </item>
-       <item row="8" column="0" colspan="3">
+       <item row="8" column="0">
+        <widget class="QLabel" name="label_24">
+         <property name="text">
+          <string>Fie&amp;ld for sub-title:</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_cover_browser_subtitle_field</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
         <widget class="QLabel" name="fs_help_msg">
          <property name="styleSheet">
           <string notr="true">margin-left: 1.5em</string>
@@ -1237,19 +1250,6 @@ them to all have the same width and height</string>
           <bool>true</bool>
          </property>
         </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_24">
-         <property name="text">
-          <string>Fie&amp;ld for sub-title:</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_cover_browser_subtitle_field</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1" colspan="2">
-        <widget class="QComboBox" name="opt_cover_browser_subtitle_field"/>
        </item>
       </layout>
      </widget>
