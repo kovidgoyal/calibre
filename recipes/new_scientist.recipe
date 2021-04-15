@@ -29,6 +29,12 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class NewScientist(BasicNewsRecipe):
     title = 'New Scientist - Online News w. subscription'
     description = 'Science news and science articles from New Scientist.'
@@ -39,7 +45,6 @@ class NewScientist(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    masthead_url = 'http://www.newscientist.com/img/misc/ns_logo.jpg'
     encoding = 'utf-8'
     needs_subscription = 'optional'
     remove_empty_feeds = True
@@ -58,26 +63,25 @@ class NewScientist(BasicNewsRecipe):
                                  .wp-caption-text{font-family: "Lato Bold", sans-serif; font-size:x-small;}
                                 """
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-    preprocess_regexps = [(re.compile(
-        r'</title>.*?</head>', re.DOTALL | re.IGNORECASE), lambda match: '</title></head>')]
-
     keep_only_tags = [
-        dict(attrs={'class': ['article-header', 'article-content']})]
-    remove_tags_after = dict(name='p', attrs={'class': 'print-headline'})
+        classes('article-header article-conten')
+    ]
 
-    # Whether to convert images to grayscale for eInk readers.
-    Convert_Grayscale = False
+    remove_tags = [
+        classes('social__button-container')
+    ]
+
+    def get_article_url(self, article):
+        ans = BasicNewsRecipe.get_article_url(self, article)
+        return ans.partition('?')[0]
 
     def is_login_form(self, form):
         return "action" in form.attrs and form.attrs['action'] == "/ns-login.php"
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
-        br.open('http://www.newscientist.com/')
         if self.username is not None and self.password is not None:
+            br.open('http://www.newscientist.com/')
             try:
                 br.open('https://www.newscientist.com/login/')
                 br.select_form(predicate=self.is_login_form)
@@ -89,32 +93,17 @@ class NewScientist(BasicNewsRecipe):
                     'Unable to locate login form! Switching to free mode.')
         return br
 
-    remove_tags = [
-        dict(name=['link', 'base', 'meta', 'iframe', 'object', 'embed']), dict(attrs={
-            'class': ['ad-leaderboard', 'article-topics']}), dict(attrs={'id': 'mpu-mid-article'})
-    ]
-
     feeds = [
-
-    (u'Latest Headlines', u'http://feeds.newscientist.com/science-news'),
-    (u'Magazine', u'http://feeds.newscientist.com/magazine'),
-    (u'Health', u'http://feeds.newscientist.com/health'),
-    (u'Life', u'http://feeds.newscientist.com/life'),
-    (u'Space', u'http://feeds.newscientist.com/space'),
-    (u'Physics and Mathematics', u'http://feeds.newscientist.com/physics-math'),
-    (u'Environment', u'http://feeds.newscientist.com/environment'),
-    (u'Science in Society', u'http://feeds.newscientist.com/science-in-society'),
-    (u'Tech', u'http://feeds.newscientist.com/tech')
+        ('News', 'https://www.newscientist.com/section/news/feed/'),
+        ('Features', 'https://www.newscientist.com/section/features/feed/'),
+        ('Physics', 'https://www.newscientist.com/subject/physics/feed/'),
+        ('Technology', 'https://www.newscientist.com/subject/technology/feed/'),
+        ('Space', 'https://www.newscientist.com/subject/space/feed/'),
+        ('Life', 'https://www.newscientist.com/subject/life/feed/'),
+        ('Earth', 'https://www.newscientist.com/subject/earth/feed/'),
+        ('Health', 'https://www.newscientist.com/subject/health/feed/'),
+        ('Humans', 'https://www.newscientist.com/subject/humans/feed/'),
     ]
-
-    def get_article_url(self, article):
-        articleurl = BasicNewsRecipe.get_article_url(self, article)
-        # resolve redirect.
-        urlverified = self.browser.open_novisit(articleurl).geturl()
-        if '?' in urlverified:
-            pleft, ppart, pright = urlverified.rpartition('?')
-            urlverified = pleft
-        return urlverified
 
     def get_cover_url(self):
         cover_url = None
