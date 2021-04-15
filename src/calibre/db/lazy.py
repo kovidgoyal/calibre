@@ -258,6 +258,11 @@ def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache
 
 
 def virtual_libraries_getter(dbref, book_id, cache):
+    '''
+    This method is deprecated because it doesn't (and can't) return virtual
+    library names when the VL search references marked books. It is replaced
+    by db.view.get_virtual_libraries_for_books()
+    '''
     try:
         return cache['virtual_libraries']
     except KeyError:

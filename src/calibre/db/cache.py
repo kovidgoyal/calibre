@@ -2208,13 +2208,13 @@ class Cache(object):
             self._restore_annotations(book_id, annotations)
 
     @read_api
-    def virtual_libraries_for_books(self, book_ids):
+    def virtual_libraries_for_books(self, book_ids, virtual_fields=None):
         if self.vls_for_books_cache is None:
             # Using a list is slightly faster than a set.
             c = defaultdict(list)
             libraries = self._pref('virtual_libraries', {})
             for lib, expr in libraries.items():
-                for book in self._search(expr):
+                for book in self._search(expr, virtual_fields=virtual_fields):
                     c[book].append(lib)
             self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
         if not book_ids:
