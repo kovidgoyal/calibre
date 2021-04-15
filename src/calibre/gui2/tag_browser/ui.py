@@ -99,9 +99,10 @@ class TagBrowserMixin(object):  # {{{
     def user_categories_edited(self):
         self.library_view.model().refresh()
 
-    def do_restriction_error(self):
+    def do_restriction_error(self, e):
         error_dialog(self.tags_view, _('Invalid search restriction'),
-                         _('The current search restriction is invalid'), show=True)
+                         _('The current search restriction is invalid'),
+                         det_msg=str(e) if e else '', show=True)
 
     def do_add_subcategory(self, on_category_key, new_category_name=None):
         '''
