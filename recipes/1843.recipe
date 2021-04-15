@@ -29,7 +29,7 @@ class E1843(BasicNewsRecipe):
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('https://economist.com/1843/')
+        soup = self.index_to_soup('https://economist.com/1843')
         ans = []
 
         for a in soup.findAll(**classes('headline-link')):
