@@ -172,7 +172,7 @@ class TagsView(QTreeView):  # {{{
     tag_item_renamed        = pyqtSignal()
     search_item_renamed     = pyqtSignal()
     drag_drop_finished      = pyqtSignal(object)
-    restriction_error       = pyqtSignal()
+    restriction_error       = pyqtSignal(object)
     tag_item_delete         = pyqtSignal(object, object, object, object, object)
     tag_identifier_delete   = pyqtSignal(object, object)
     apply_tag_to_selected   = pyqtSignal(object, object, object)

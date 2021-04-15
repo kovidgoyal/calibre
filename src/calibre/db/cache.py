@@ -1086,17 +1086,18 @@ class Cache(object):
         return self._search_api(self, query, restriction, virtual_fields=virtual_fields, book_ids=book_ids)
 
     @read_api
-    def books_in_virtual_library(self, vl, search_restriction=None):
+    def books_in_virtual_library(self, vl, search_restriction=None, virtual_fields=None):
         ' Return the set of books in the specified virtual library '
         vl = self._pref('virtual_libraries', {}).get(vl) if vl else None
         if not vl and not search_restriction:
             return self.all_book_ids()
         # We utilize the search restriction cache to speed this up
+        srch = partial(self._search, virtual_fields=virtual_fields)
         if vl:
             if search_restriction:
-                return frozenset(self._search('', vl) & self._search('', search_restriction))
-            return frozenset(self._search('', vl))
-        return frozenset(self._search('', search_restriction))
+                return frozenset(srch('', vl) & srch('', search_restriction))
+            return frozenset(srch('', vl))
+        return frozenset(srch('', search_restriction))
 
     @read_api
     def number_of_books_in_virtual_library(self, vl=None, search_restriction=None):
@@ -2214,8 +2215,11 @@ class Cache(object):
             c = defaultdict(list)
             libraries = self._pref('virtual_libraries', {})
             for lib, expr in libraries.items():
-                for book in self._search(expr, virtual_fields=virtual_fields):
-                    c[book].append(lib)
+                try:
+                    for book in self._search(expr, virtual_fields=virtual_fields):
+                        c[book].append(lib)
+                except Exception as e:
+                    c[book].append(_('[Error in virtual library {0}: {1}]').format(lib, str(e)))
             self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
         if not book_ids:
             book_ids = self._all_book_ids()

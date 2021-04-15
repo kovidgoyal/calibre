@@ -312,7 +312,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     search_item_renamed = pyqtSignal()
     tag_item_renamed = pyqtSignal()
     refresh_required = pyqtSignal()
-    restriction_error = pyqtSignal()
+    restriction_error = pyqtSignal(object)
     drag_drop_finished = pyqtSignal(object)
     user_categories_edited = pyqtSignal(object, object)
     user_category_added = pyqtSignal()
@@ -1113,12 +1113,11 @@ class TagsModel(QAbstractItemModel):  # {{{
             data = self.db.new_api.get_categories(sort=sort,
                     book_ids=self.get_book_ids_to_use(),
                     first_letter_sort=self.collapse_model == 'first letter')
-        except:
-            import traceback
+        except Exception as e:
             traceback.print_exc()
             data = self.db.new_api.get_categories(sort=sort,
                     first_letter_sort=self.collapse_model == 'first letter')
-            self.restriction_error.emit()
+            self.restriction_error.emit(str(e))
 
         if self.filter_categories_by:
             if self.filter_categories_by.startswith('='):

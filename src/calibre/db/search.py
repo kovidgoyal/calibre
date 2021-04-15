@@ -513,7 +513,8 @@ class Parser(SearchQueryParser):  # {{{
             if not vl:
                 raise ParseException(_('No such Virtual library: {}').format(query))
             try:
-                return candidates & self.dbcache.books_in_virtual_library(query)
+                return candidates & self.dbcache.books_in_virtual_library(
+                            query, virtual_fields=self.virtual_fields)
             except RuntimeError:
                 raise ParseException(_('Virtual library search is recursive: {}').format(query))
 
