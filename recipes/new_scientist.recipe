@@ -64,12 +64,20 @@ class NewScientist(BasicNewsRecipe):
                                 """
 
     keep_only_tags = [
-        classes('article-header article-conten')
+        classes('article-header article__content')
     ]
 
     remove_tags = [
         classes('social__button-container')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        for img in soup.findAll('img', attrs={'data-srcset': True}):
+            img['src'] = img['data-srcset'].split(',')[-1].strip().split()[0]
+            img['width'] = img['height'] = ''
+        return soup
 
     def get_article_url(self, article):
         ans = BasicNewsRecipe.get_article_url(self, article)
