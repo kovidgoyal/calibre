@@ -10,6 +10,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re, string, traceback, numbers
+from functools import partial
 from math import modf
 
 from calibre import prints
@@ -466,7 +467,8 @@ class _Parser(object):
 
     def compare_expr(self):
         left = self.add_subtract_expr()
-        if self.token_op_is_string_infix_compare() or self.token_is('in'):
+        if (self.token_op_is_string_infix_compare() or
+                self.token_is('in') or self.token_is('inlist')):
             operator = self.token()
             return StringCompareNode(self.line_number, operator, left, self.add_subtract_expr())
         if self.token_op_is_numeric_infix_compare():
@@ -692,6 +694,8 @@ class _Interpreter(object):
         ">": lambda x, y: strcmp(x, y) > 0,
         ">=": lambda x, y: strcmp(x, y) >= 0,
         "in": lambda x, y: re.search(x, y, flags=re.I),
+        "inlist": lambda x, y: list(filter(partial(re.search, x, flags=re.I),
+                                           [v.strip() for v in y.split(',') if v.strip()]))
         }
 
     def do_node_string_infix(self, prog):
@@ -1146,8 +1150,9 @@ class TemplateFormatter(string.Formatter):
             (r'(==#|!=#|<=#|<#|>=#|>#)', lambda x,t: (_Parser.LEX_NUMERIC_INFIX, t)),  # noqa
             (r'(==|!=|<=|<|>=|>)',       lambda x,t: (_Parser.LEX_STRING_INFIX, t)),  # noqa
             (r'(if|then|else|elif|fi)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
-            (r'(for|in|rof|return)\b',   lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(for|in|rof|separator)\b',lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(break|continue)\b',      lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
+            (r'(return|inlist)\b',       lambda x,t: (_Parser.LEX_KEYWORD, t)),  # noqa
             (r'(\|\||&&|!)',             lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'[(),=;:\+\-*/]',          lambda x,t: (_Parser.LEX_OP, t)),  # noqa
             (r'-?[\d\.]+',               lambda x,t: (_Parser.LEX_CONST, t)),  # noqa
