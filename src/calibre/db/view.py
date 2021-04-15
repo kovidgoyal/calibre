@@ -232,6 +232,10 @@ class View(object):
             ans = [':::'.join((adata[aid]['name'], adata[aid]['sort'], adata[aid]['link'])) for aid in ids if aid in adata]
         return ':#:'.join(ans) if ans else default_value
 
+    def get_virtual_libraries_for_books(self, ids):
+        return self.cache.virtual_libraries_for_books(
+            ids, virtual_fields={'marked':MarkedVirtualField(self.marked_ids)})
+
     def _do_sort(self, ids_to_sort, fields=(), subsort=False):
         fields = [(sanitize_sort_field_name(self.field_metadata, x), bool(y)) for x, y in fields]
         keys = self.field_metadata.sortable_field_keys()
@@ -377,7 +381,9 @@ class View(object):
         # This invalidates all searches in the cache even though the cache may
         # be shared by multiple views. This is not ideal, but...
         cmids = set(self.marked_ids)
-        self.cache.clear_search_caches(old_marked_ids | cmids)
+        changed_ids = old_marked_ids | cmids
+        self.cache.clear_search_caches(changed_ids)
+        self.cache.clear_caches(book_ids=changed_ids)
         if old_marked_ids != cmids:
             for funcref in itervalues(self.marked_listeners):
                 func = funcref()

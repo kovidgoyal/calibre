@@ -1714,7 +1714,9 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals_):
         if hasattr(mi, '_proxy_metadata'):
-            return mi._proxy_metadata.virtual_libraries
+            from calibre.gui2.ui import get_gui
+            a = get_gui().current_db.data.get_virtual_libraries_for_books((mi.id,))
+            return ', '.join(a[mi.id])
         return _('This function can be used only in the GUI')
 
 
