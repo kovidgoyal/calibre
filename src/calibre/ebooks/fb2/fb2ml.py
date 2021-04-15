@@ -79,7 +79,7 @@ class FB2MLizer(object):
         text = re.sub(r'(?mu)<(strong|emphasis|strikethrough|sub|sup)>(\s*)</\1>', r'\2', text)
 
         # Clean up paragraphs endings.
-        text = re.sub(r'(?mu)\s+</p>', '</p>', text)
+        text = re.sub(r'(?ma)\s+</p>', '</p>', text)
         # Condense empty paragraphs into a line break.
         text = re.sub(r'(?mu)(?:<p></p>\s*){3,}', '<empty-line/>', text)
         # Remove empty paragraphs.
