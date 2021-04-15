@@ -970,6 +970,12 @@ class ActionOpenFolder(InterfaceActionBase):
             ' calibre library')
 
 
+class ActionAutoscrollBooks(InterfaceActionBase):
+    name = 'Autoscroll Books'
+    actual_plugin = 'calibre.gui2.actions.auto_scroll:AutoscrollBooksAction'
+    description = _('Auto scroll through the list of books')
+
+
 class ActionSendToDevice(InterfaceActionBase):
     name = 'Send To Device'
     actual_plugin = 'calibre.gui2.actions.device:SendToDeviceAction'
@@ -1115,7 +1121,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
         ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper, ActionAuthorMapper,
-        ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions]
+        ActionVirtualLibrary, ActionBrowseAnnotations, ActionTemplateFunctions, ActionAutoscrollBooks]
 
 # }}}
 

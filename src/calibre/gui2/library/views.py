@@ -1290,6 +1290,14 @@ class BooksView(QTableView):  # {{{
                 self.set_current_row(row, select=False)
                 break
 
+    def show_next_book(self):
+        ci = self.currentIndex()
+        if not ci.isValid():
+            self.set_current_row()
+            return
+        n = (ci.row() + 1) % self.model().rowCount(QModelIndex())
+        self.set_current_row(n)
+
     @property
     def next_id(self):
         '''

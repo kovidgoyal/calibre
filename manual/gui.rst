@@ -782,3 +782,5 @@ calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Re-apply the current sort
     * - :kbd:`Ctrl+Q`
       - Quit calibre
+    * - :kbd:`X`
+      - Toggle autoscroll of the book list

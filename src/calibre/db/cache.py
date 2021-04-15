@@ -2219,7 +2219,7 @@ class Cache(object):
                     for book in self._search(expr, virtual_fields=virtual_fields):
                         c[book].append(lib)
                 except Exception as e:
-                    c[book].append(_('[Error in virtual library {0}: {1}]').format(lib, str(e)))
+                    c[book].append(_('[Error in Virtual library {0}: {1}]').format(lib, str(e)))
             self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
         if not book_ids:
             book_ids = self._all_book_ids()

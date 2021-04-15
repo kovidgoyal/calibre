@@ -1518,6 +1518,7 @@ void PictureFlow::timerEvent(QTimerEvent* event)
 
 void PictureFlow::dataChanged() { d->dataChanged(); }
 void PictureFlow::emitcurrentChanged(int index) { emit currentChanged(index); }
+int PictureFlow::count() const { return d->slideCount(); }
 
 int FlowImages::count() { return 0; }
 QImage FlowImages::image(int index) { Q_UNUSED(index); return QImage(); }

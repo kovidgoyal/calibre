@@ -35,6 +35,7 @@ public :
   PictureFlow(QWidget *parent /TransferThis/ = 0, int queueLength = 3);
 
   void setImages(FlowImages *images);
+  int count();
   
   QSize slideSize() const;
 

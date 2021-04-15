@@ -9,15 +9,19 @@ __docformat__ = 'restructuredtext en'
 Module to implement the Cover Flow feature
 '''
 
-import sys, os, time
+import os
+import sys
+import time
+from qt.core import (
+    QAction, QApplication, QDialog, QFont, QImage, QItemSelectionModel,
+    QKeySequence, QLabel, QSize, QSizePolicy, QStackedLayout, Qt, QTimer, pyqtSignal
+)
 
-from qt.core import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
-        QStackedLayout, QLabel, pyqtSignal, QKeySequence, QFont, QApplication, QItemSelectionModel)
-
-from calibre.ebooks.metadata import rating_to_stars
 from calibre.constants import islinux
-from calibre.gui2 import (config, available_height, available_width, gprefs,
-        rating_font)
+from calibre.ebooks.metadata import rating_to_stars
+from calibre.gui2 import (
+    available_height, available_width, config, gprefs, rating_font
+)
 from calibre_extensions import pictureflow
 
 
@@ -190,6 +194,12 @@ class CoverFlow(pictureflow.PictureFlow):
         if not gprefs['cover_browser_reflections']:
             self.setShowReflections(False)
 
+    def one_auto_scroll(self):
+        if self.currentSlide() >= self.count() - 1:
+            self.setCurrentSlide(0)
+        else:
+            self.showNext()
+
     def set_subtitle_font(self, for_ratings=True):
         if for_ratings:
             self.setSubtitleFont(QFont(rating_font()))
@@ -294,6 +304,28 @@ class CoverFlowMixin(object):
 
     def __init__(self, *args, **kwargs):
         pass
+
+    def one_auto_scroll(self):
+        cb_visible = self.cover_flow is not None and self.cb_splitter.button.isChecked()
+        if cb_visible:
+            self.cover_flow.one_auto_scroll()
+        else:
+            self.library_view.show_next_book()
+
+    def toggle_auto_scroll(self):
+        if not hasattr(self, 'auto_scroll_timer'):
+            self.auto_scroll_timer = t = QTimer(self)
+            t.timeout.connect(self.one_auto_scroll)
+        if self.auto_scroll_timer.isActive():
+            self.auto_scroll_timer.stop()
+        else:
+            self.one_auto_scroll()
+            self.auto_scroll_timer.start(int(1000 * gprefs['books_autoscroll_time']))
+
+    def update_auto_scroll_timeout(self):
+        if hasattr(self, 'auto_scroll_timer') and self.auto_scroll_timer.isActive():
+            self.auto_scroll_timer.stop()
+            self.toggle_auto_scroll()
 
     def init_cover_flow_mixin(self):
         self.cover_flow = None

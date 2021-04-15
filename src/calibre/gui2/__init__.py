@@ -124,7 +124,8 @@ def create_defs():
             'Edit Metadata', 'Send To Device', 'Save To Disk',
             'Connect Share', 'Copy To Library', None,
             'Convert Books', 'View', 'Open Folder', 'Show Book Details',
-            'Similar Books', 'Tweak ePub', None, 'Remove Books',
+            'Similar Books', 'Tweak ePub', None, 'Remove Books', None,
+            'Autoscroll Books'
             )
 
     defs['show_splash_screen'] = True
@@ -198,6 +199,7 @@ def create_defs():
     defs['browse_annots_restrict_to_type'] = None
     defs['browse_annots_use_stemmer'] = True
     defs['annots_export_format'] = 'txt'
+    defs['books_autoscroll_time'] = 2.0
 
 
 create_defs()

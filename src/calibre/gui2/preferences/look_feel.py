@@ -425,6 +425,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cover_grid_show_title', gprefs)
         r('tag_browser_show_counts', gprefs)
         r('tag_browser_item_padding', gprefs)
+        r('books_autoscroll_time', gprefs)
 
         r('qv_respects_vls', gprefs)
         r('qv_dclick_changes_column', gprefs)
@@ -806,6 +807,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             getattr(gui, view + '_view').set_row_header_visibility()
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
+        gui.update_auto_scroll_timeout()
         qv = get_quickview_action_plugin()
         if qv:
             qv.refill_quickview()
