@@ -199,8 +199,15 @@ class Highlights(QTreeWidget):
     def current_item_changed(self, current, previous):
         self.current_highlight_changed.emit(current.data(0, Qt.ItemDataRole.UserRole) if current is not None else None)
 
-    def load(self, highlights):
+    def load(self, highlights, preserve_state=False):
         s = self.style()
+        expanded_chapters = set()
+        if preserve_state:
+            root = self.invisibleRootItem()
+            for i in range(root.childCount()):
+                chapter = root.child(i)
+                if chapter.isExpanded():
+                    expanded_chapters.add(chapter.data(0, Qt.ItemDataRole.DisplayRole))
         icon_size = s.pixelMetric(QStyle.PixelMetric.PM_SmallIconSize, None, self)
         dpr = self.devicePixelRatioF()
         is_dark = is_dark_theme()
@@ -234,7 +241,7 @@ class Highlights(QTreeWidget):
             if tt:
                 section.setToolTip(0, tt)
             self.addTopLevelItem(section)
-            section.setExpanded(True)
+            section.setExpanded(not preserve_state or sec in expanded_chapters)
             for itemnum, h in enumerate(items):
                 txt = h.get('highlighted_text')
                 txt = txt.replace('\n', ' ')
@@ -268,7 +275,7 @@ class Highlights(QTreeWidget):
 
     def refresh(self, highlights):
         h = self.current_highlight
-        self.load(highlights)
+        self.load(highlights, preserve_state=True)
         if h is not None:
             idx = self.uuid_map.get(h['uuid'])
             if idx is not None:
