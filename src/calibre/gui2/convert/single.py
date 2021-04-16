@@ -84,7 +84,6 @@ class Config(QDialog):
         self.input_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.output_formats.currentIndexChanged[native_string_type].connect(self.setup_pipeline)
         self.groups.setSpacing(5)
-        self.groups.selectionModel().currentChanged.connect(self.current_group_changed)
         self.groups.entered[(QModelIndex)].connect(self.show_group_help)
         rb = self.buttonBox.button(QDialogButtonBox.StandardButton.RestoreDefaults)
         rb.setText(_('Restore &defaults'))
@@ -249,6 +248,7 @@ class Config(QDialog):
         idx = oidx if -1 < oidx < self._groups_model.rowCount() else 0
         self.groups.setCurrentIndex(self._groups_model.index(idx))
         self.show_pane(idx)
+        self.groups.selectionModel().currentChanged.connect(self.current_group_changed)
         try:
             shutil.rmtree(self.plumber.archive_input_tdir, ignore_errors=True)
         except Exception:
