@@ -24,6 +24,7 @@ from read_book.goto import create_goto_panel, create_location_overlay
 from read_book.highlights import create_highlights_panel
 from read_book.open_book import create_open_book
 from read_book.prefs.font_size import create_font_size_panel
+from read_book.prefs.head_foot import time_formatter
 from read_book.prefs.main import create_prefs_panel
 from read_book.toc import create_toc_panel
 from read_book.word_actions import create_word_actions_panel
@@ -406,7 +407,7 @@ class MainOverlay:  # {{{
 
             set_css(E.div(  # top row
                 E.div(self.overlay.view.book?.metadata?.title or _('Unknown'), style='max-width: 90%; text-overflow: ellipsis; font-weight: bold; white-space: nowrap; overflow: hidden'),
-                E.div(self.date_formatter.format(Date()), id=timer_id(), style='max-width: 9%; white-space: nowrap; overflow: hidden'),
+                E.div(time_formatter.format(Date()), id=timer_id(), style='max-width: 9%; white-space: nowrap; overflow: hidden'),
                 ),
                 display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1ex', border_bottom='solid 1px currentColor'
             ),
