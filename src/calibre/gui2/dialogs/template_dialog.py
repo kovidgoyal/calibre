@@ -710,19 +710,22 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def accept(self):
         txt = unicode_type(self.textbox.toPlainText()).rstrip()
+        if (self.coloring or self.iconing or self.embleming) and not txt:
+            error_dialog(self, _('No template provided'),
+                _('The template box cannot be empty'), show=True)
+            return
         if self.coloring:
             if self.colored_field.currentIndex() == -1:
                 error_dialog(self, _('No column chosen'),
                     _('You must specify a column to be colored'), show=True)
                 return
-            if not txt:
-                error_dialog(self, _('No template provided'),
-                    _('The template box cannot be empty'), show=True)
-                return
-
             self.rule = (unicode_type(self.colored_field.itemData(
                                 self.colored_field.currentIndex()) or ''), txt)
         elif self.iconing:
+            if self.icon_field.currentIndex() == -1:
+                error_dialog(self, _('No column chosen'),
+                    _('You must specify the column where the icons are applied'), show=True)
+                return
             rt = unicode_type(self.icon_kind.itemData(self.icon_kind.currentIndex()) or '')
             self.rule = (rt,
                          unicode_type(self.icon_field.itemData(
