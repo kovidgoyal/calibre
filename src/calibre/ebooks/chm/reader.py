@@ -134,6 +134,8 @@ class CHMReader(CHMFile):
         return toc
 
     def ResolveObject(self, path):
+        # filenames are utf-8 encoded in the chm index as far as I can
+        # determine, see https://tika.apache.org/1.11/api/org/apache/tika/parser/chm/accessor/ChmPmgiHeader.html
         if not isinstance(path, bytes):
             path = path.encode('utf-8')
         return CHMFile.ResolveObject(self, path)
@@ -318,6 +320,7 @@ class CHMReader(CHMFile):
 
         def get_paths(chm, ui, ctx):
             # these are supposed to be UTF-8 in CHM as best as I can determine
+            # see https://tika.apache.org/1.11/api/org/apache/tika/parser/chm/accessor/ChmPmgiHeader.html
             path = as_unicode(ui.path, 'utf-8')
             # skip directories
             # note this path refers to the internal CHM structure
