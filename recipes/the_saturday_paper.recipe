@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2021, Alistair Francis <alistair@alistair23.me>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class SaturdayPaper(BasicNewsRecipe):
+    title = 'The Saturday Paper'
+    __author__ = 'Alistair Francis'
+    description = 'The Saturday Paper is a weekly newspaper, dedicated to narrative journalism. It offers the biggest names and best writing in news, culture, and analysis, with a particular focus on Australia. '
+    language = 'en_AU'
+    no_stylesheets = True
+    remove_javascript = True
+    encoding = 'utf-8'
+
+    keep_only_tags = [
+        classes('article-page__content article__text article-page__title article-page__image')
+    ]
+    remove_tags = [
+        classes('social-icons-article-bottom-container article-page__sidebar')
+    ]
+
+    def parse_index(self):
+        feeds = [
+            ('News', 'https://www.thesaturdaypaper.com.au/news'),
+            ('Opinion', 'https://www.thesaturdaypaper.com.au/opinion'),
+            ('Culture', 'https://www.thesaturdaypaper.com.au/culture'),
+            ('Life', 'https://www.thesaturdaypaper.com.au/life'),
+            ('Food', 'https://www.thesaturdaypaper.com.au/food/latest'),
+            ('Puzzles', 'https://www.thesaturdaypaper.com.au/puzzles'),
+            ('Sport', 'https://www.thesaturdaypaper.com.au/sport'),
+        ]
+
+        articles = []
+
+        for (feed, link) in feeds:
+            soup = self.index_to_soup(link)
+            news = []
+
+            for a in soup.findAll(**classes('article')):
+                title = a.find(class_='article__title')
+                title = self.tag_to_string(title)
+
+                url = a.find(class_="article__title_link")
+                if url == None:
+                    continue
+                url = url['href']
+                if url.startswith('/'):
+                    url = 'https://www.thesaturdaypaper.com.au' + url
+
+                desc = a.find(class_='article__text')
+                desc = self.tag_to_string(desc)
+
+                self.log(title, ' at ', url)
+
+                news.append({'title': title, 'url': url, 'description': desc})
+
+            articles.append((feed, news))
+
+        return articles
+
