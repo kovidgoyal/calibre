@@ -1,18 +1,6 @@
 " Scan the following dirs (recursively for tags
 let g:project_tags_dirs = ['src/calibre']
 
-" Include directories for C++ modules
-let g:syntastic_cpp_include_dirs = [ 
-            \'/usr/include/podofo', 
-            \'/usr/include/qt/QtCore', 
-            \'/usr/include/qt/QtGui', 
-            \'/usr/include/qt',
-            \'/usr/include/freetype2',
-            \'/usr/include/fontconfig',
-            \]
-let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
-let g:syntastic_python_flake8_args = '--filename='. shellescape('*.py,*.recipe')
-
 set wildignore+=resources/mathjax/*
 set wildignore+=resources/rapydscript/lib/*
 set wildignore+=build/*
