@@ -202,7 +202,7 @@ up.
 
 If you are using a particularly old or limited browser or you don't like to run
 JavaScript, you can use the *mobile* view, by simply adding ``/mobile`` to the
-the server address.
+server address.
 
 .. note::
     On iOS, Apple allows only a single browser engine, so Firefox, Chrome and
