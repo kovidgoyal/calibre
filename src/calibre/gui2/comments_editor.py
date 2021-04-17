@@ -458,9 +458,9 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
     def do_alignment(self, which):
         with self.editing_cursor() as c:
             c = self.textCursor()
-            fmt = c.blockFormat()
+            fmt = QTextBlockFormat()
             fmt.setAlignment(which)
-            c.setBlockFormat(fmt)
+            c.mergeBlockFormat(fmt)
 
     def do_align_left(self):
         self.do_alignment(Qt.AlignmentFlag.AlignLeft)
