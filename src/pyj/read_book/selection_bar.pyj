@@ -592,7 +592,7 @@ class SelectionBar:
             if k is 'x':
                 self.cite()
                 return
-            if k is 'Delete':
+            if k is 'delete':
                 self.remove_highlight()
                 return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
