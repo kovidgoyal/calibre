@@ -23,6 +23,29 @@
 # - title by author
 # }}}
 
+{{{ 5.16.0 2021-04-17
+
+:: new features
+
+:: bug fixes
+
+- [1924703] CHM Input: Fix handling of some CHM files that use non-ASCII internal filenames and dont specify a character encoding in their metadata
+
+- [1924824] Fix a regression in the previous release that prevented calibre from starting if there was a failure in a third party plugin
+
+- Content server viewer: Fix a regression in the previous that broke handling of URLs in stylesheets
+
+- [1924767] Fix a regression in the previous release that broke changing sections in the convert single book dialog after changing the input or output formats
+
+- [1924675] Fix using 'is set' rules not working for column rules with rating values
+
+:: improved recipes
+
+:: new recipes
+- The Saturday paper by Alistair Francis
+
+}}}
+
 {{{ 5.15.0 2021-04-16
 
 :: new features
@@ -1329,7 +1352,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - [1863438] Viewer: Fix current reading position not preserved when changing preferences and auto scroll is active.
 
-- [1863487] Viewer: Fix stopping autoscroll at end of chapter not stopping next chapter jump.
+- [1863487] Viewer: Fix stopping auto scroll at end of chapter not stopping next chapter jump.
 
 - Fix for viewer window going off screen even when not restoring window geometry
 
@@ -1370,7 +1393,7 @@ For books sent with this release of calibre, reconnecting the Kindle to calibre 
 
 - Catalog generation: Ignore invalid pubdates
 
-- [1861621] Viewer: Stop autoscroll when changing page layout mode.
+- [1861621] Viewer: Stop auto scroll when changing page layout mode.
 
 - [1860889] zipfile: Fix regression that broke handling of zipfiles with internal filenames not encoded in UTF-8.
 
