@@ -15,7 +15,9 @@ def classes(classes):
 class SaturdayPaper(BasicNewsRecipe):
     title = 'The Saturday Paper'
     __author__ = 'Alistair Francis'
-    description = 'The Saturday Paper is a weekly newspaper, dedicated to narrative journalism. It offers the biggest names and best writing in news, culture, and analysis, with a particular focus on Australia. '
+    description = (
+        'The Saturday Paper is a weekly newspaper, dedicated to narrative journalism.'
+        ' It offers the biggest names and best writing in news, culture, and analysis, with a particular focus on Australia. ')
     language = 'en_AU'
     no_stylesheets = True
     remove_javascript = True
@@ -50,7 +52,7 @@ class SaturdayPaper(BasicNewsRecipe):
                 title = self.tag_to_string(title)
 
                 url = a.find(class_="article__title_link")
-                if url == None:
+                if url is None:
                     continue
                 url = url['href']
                 if url.startswith('/'):
@@ -66,4 +68,3 @@ class SaturdayPaper(BasicNewsRecipe):
             articles.append((feed, news))
 
         return articles
-
