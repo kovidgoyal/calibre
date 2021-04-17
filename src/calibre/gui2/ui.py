@@ -153,6 +153,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         ac = action.load_actual_plugin(self)
         ac.plugin_path = action.plugin_path
         ac.interface_action_base_plugin = action
+        ac.installation_type = action.installation_type
         action.actual_iaction_plugin_loaded = True
         return ac
 
@@ -186,6 +187,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def init_istore(self, store):
         st = store.load_actual_plugin(self)
         st.plugin_path = store.plugin_path
+        st.installation_type = store.installation_type
         st.base_plugin = store
         store.actual_istore_plugin_loaded = True
         return st
