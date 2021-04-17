@@ -64,7 +64,8 @@ def key_widget(key):
 
 def close_customize_shortcut(apply_changes):
     container = get_container()
-    container.firstChild.style.display = 'block'
+    container.firstChild.style.display = 'flex'
+    container.firstChild.nextSibling.style.display = 'block'
     container.lastChild.style.display = 'none'
     if close_customize_shortcut.shortcut_being_customized:
         for item in container.firstChild.querySelectorAll('[data-user-data]'):
@@ -118,6 +119,7 @@ def add_key_widget():
 def customize_shortcut(sc_name):
     container = get_container()
     container.firstChild.style.display = 'none'
+    container.firstChild.nextSibling.style.display = 'none'
     container.lastChild.style.display = 'block'
     close_customize_shortcut.shortcut_being_customized = sc_name
     shortcuts = v'[]'
