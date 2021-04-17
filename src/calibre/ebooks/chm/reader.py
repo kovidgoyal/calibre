@@ -56,40 +56,62 @@ class CHMReader(CHMFile):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
         self.input_encoding = input_encoding
-        self.chm_encoding = self.get_encoding() or 'cp1252'
         self._sourcechm = input
         self._contents = None
         self._playorder = 0
         self._metadata = False
         self._extracted = False
         self.re_encoded_files = set()
+        self.get_encodings()
         if self.home:
-            self.home = as_unicode(self.home, self.chm_encoding)
+            self.home = self.decode_hhp_filename(self.home)
         if self.topics:
-            self.topics = as_unicode(self.topics, self.chm_encoding)
+            self.topics = self.decode_hhp_filename(self.topics)
 
         # location of '.hhc' file, which is the CHM TOC.
-        if self.topics is None:
-            self.root, ext = os.path.splitext(self.home.lstrip('/'))
-            self.hhc_path = self.root + ".hhc"
-        else:
-            self.root, ext = os.path.splitext(self.topics.lstrip('/'))
-            self.hhc_path = self.root + ".hhc"
+        base = self.topics or self.home
+        self.root = os.path.splitext(base.lstrip('/'))[0]
+        self.hhc_path = self.root + ".hhc"
+
+    def decode_hhp_filename(self, path):
+        if isinstance(path, str):
+            return path
+        for enc in (self.encoding_from_system_file, self.encoding_from_lcid, 'cp1252', 'cp1251', 'latin1', 'utf-8'):
+            if enc:
+                try:
+                    q = path.decode(enc)
+                except UnicodeDecodeError:
+                    continue
+                res, ui = self.ResolveObject(q)
+                if res == chmlib.CHM_RESOLVE_SUCCESS:
+                    return q
+
+    def get_encodings(self):
+        self.encoding_from_system_file = self.encoding_from_lcid = None
+        q = self.GetEncoding()
+        if q:
+            try:
+                if isinstance(q, bytes):
+                    q = q.decode('ascii')
+                    codecs.lookup(q)
+                    self.encoding_from_system_file = q
+            except Exception:
+                pass
+
+        lcid = self.GetLCID()
+        if lcid is not None:
+            q = lcid[0]
+            if q:
+                try:
+                    if isinstance(q, bytes):
+                        q = q.decode('ascii')
+                        codecs.lookup(q)
+                        self.encoding_from_lcid = q
+                except Exception:
+                    pass
 
     def get_encoding(self):
-        ans = self.GetEncoding()
-        if ans is None:
-            lcid = self.GetLCID()
-            if lcid is not None:
-                ans = lcid[0]
-        if ans:
-            try:
-                if isinstance(ans, bytes):
-                    ans = ans.decode('ascii')
-                codecs.lookup(ans)
-            except Exception:
-                ans = None
-        return ans
+        return self.encoding_from_system_file or self.encoding_from_lcid or 'cp1252'
 
     def _parse_toc(self, ul, basedir=getcwd()):
         toc = TOC(play_order=self._playorder, base_path=basedir, text='')
@@ -112,14 +134,9 @@ class CHMReader(CHMFile):
         return toc
 
     def ResolveObject(self, path):
-        opath = path
         if not isinstance(path, bytes):
-            path = path.encode(self.chm_encoding)
-        ans = CHMFile.ResolveObject(self, path)
-        if ans[0] != chmlib.CHM_RESOLVE_SUCCESS and not isinstance(opath, bytes):
-            path = opath.encode('utf-8')
-            ans = CHMFile.ResolveObject(self, path)
-        return ans
+            path = path.encode('utf-8')
+        return CHMFile.ResolveObject(self, path)
 
     def GetFile(self, path):
         # have to have abs paths for ResolveObject, but Contents() deliberately
@@ -132,16 +149,16 @@ class CHMReader(CHMFile):
             raise CHMError(f"Unable to locate {path!r} within CHM file {self.filename!r}")
         size, data = self.RetrieveObject(ui)
         if size == 0:
-            raise CHMError("'%s' is zero bytes in length!"%(path,))
+            raise CHMError(f"{path!r} is zero bytes in length!")
         return data
+
+    def get_home(self):
+        return self.GetFile(self.home)
 
     def ExtractFiles(self, output_dir=getcwd(), debug_dump=False):
         html_files = set()
-        enc = self.chm_encoding
         for path in self.Contents():
             fpath = path
-            if not isinstance(path, unicode_type):
-                fpath = path.decode(enc)
             lpath = os.path.join(output_dir, fpath)
             self._ensure_dir(lpath)
             try:
@@ -300,11 +317,8 @@ class CHMReader(CHMFile):
         paths = []
 
         def get_paths(chm, ui, ctx):
-            try:
-                path = as_unicode(ui.path, self.chm_encoding)
-            except UnicodeDecodeError:
-                path = as_unicode(ui.path, 'utf-8')
-
+            # these are supposed to be UTF-8 in CHM as best as I can determine
+            path = as_unicode(ui.path, 'utf-8')
             # skip directories
             # note this path refers to the internal CHM structure
             if path[-1] != '/':

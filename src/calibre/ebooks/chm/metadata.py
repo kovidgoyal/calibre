@@ -137,7 +137,7 @@ def _get_cover(soup, rdr):
 
 
 def get_metadata_from_reader(rdr):
-    raw = rdr.GetFile(rdr.home)
+    raw = rdr.get_home()
     home = BeautifulSoup(xml_to_unicode(raw, strip_encoding_pats=True,
         resolve_entities=True)[0])
 
