@@ -44,7 +44,14 @@ class CHMReader(CHMFile):
     def __init__(self, input, log, input_encoding=None):
         CHMFile.__init__(self)
         if isinstance(input, unicode_type):
-            input = input.encode(filesystem_encoding)
+            enc = 'mbcs' if iswindows else filesystem_encoding
+            try:
+                input = input.encode(enc)
+            except UnicodeEncodeError:
+                from calibre.ptempfile import PersistentTemporaryFile
+                with PersistentTemporaryFile(suffix='.chm') as t:
+                    t.write(open(input, 'rb').read())
+                input = t.name
         if not self.LoadCHM(input):
             raise CHMError("Unable to open CHM file '%s'"%(input,))
         self.log = log
@@ -122,7 +129,7 @@ class CHMReader(CHMFile):
             path = '/' + path
         res, ui = self.ResolveObject(path)
         if res != chmlib.CHM_RESOLVE_SUCCESS:
-            raise CHMError("Unable to locate '%s' within CHM file '%s'"%(path, self.filename))
+            raise CHMError(f"Unable to locate {path!r} within CHM file {self.filename!r}")
         size, data = self.RetrieveObject(ui)
         if size == 0:
             raise CHMError("'%s' is zero bytes in length!"%(path,))
