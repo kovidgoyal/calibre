@@ -289,11 +289,12 @@ def transform_style_sheet(container, name, link_uid, virtualize_resources, virtu
     if virtualize_resources:
         changed_names = set()
         link_replacer = partial(create_link_replacer(container, link_uid, changed_names), name)
+    raw = container.raw_data(name, decode=True)
+    nraw = transform_properties(raw, is_declaration=False, url_callback=link_replacer)
+    if virtualize_resources:
         if name in changed_names:
             changed = True
             virtualized_names.add(name)
-    raw = container.raw_data(name, decode=True)
-    nraw = transform_properties(raw, is_declaration=False, url_callback=link_replacer)
     if nraw != raw:
         changed = True
         raw = nraw
