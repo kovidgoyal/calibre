@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+__license__ = 'GPL v3'
+__copyright__ = '2021, Alistair Francis alistair@alistair23.me'
+__docformat__ = 'restructuredtext en'
+
+from urllib.parse import urlencode
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class Crikey(BasicNewsRecipe):
+    title = 'Crikey'
+    description = 'Australian News'
+    __author__ = 'Alistair Francis'
+    language = 'en_AU'
+
+    use_embedded_content = True
+    needs_subscription = True
+
+    keep_only_tags = [
+        classes('article-body'),
+    ]
+
+    feeds = [
+        ('Politics', 'https://www.crikey.com.au/politics/feed'),
+        ('World', 'https://www.crikey.com.au/world/feed'),
+        ('Media', 'https://www.crikey.com.au/media/feed'),
+        ('Buisness', 'https://www.crikey.com.au/business/feed'),
+        ('Coronavirus', 'https://www.crikey.com.au/coronavirus/feed'),
+        ('Culture', 'https://www.crikey.com.au/life/feed'),
+
+    ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open('https://www.crikey.com.au/')
+
+        if self.username is not None and self.password is not None:
+            postdata = urlencode({
+                'username': self.username,
+                'password': self.password
+            })
+            br.open(
+                'https://www.crikey.com.au',
+                data=postdata,
+                timeout=self.timeout
+            )
+
+            br.set_handle_refresh(True)
+
+        return br
