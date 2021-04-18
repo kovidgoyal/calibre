@@ -24,10 +24,10 @@ class SaturdayPaper(BasicNewsRecipe):
     encoding = 'utf-8'
 
     keep_only_tags = [
-        classes('article-page__content article__text article-page__title article-page__image')
+        classes('article-page__content article__text article__image article-page__title article-page__image')
     ]
     remove_tags = [
-        classes('social-icons-article-bottom-container article-page__sidebar')
+        classes('social-icons-article-top-container social-icons-article-bottom-container article-page__sidebar article-page__social__icons share-wrapper article-footer-container')
     ]
 
     def parse_index(self):
