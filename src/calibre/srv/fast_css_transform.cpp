@@ -313,7 +313,7 @@ class Token {
 				text.reserve(16);
 			}
 
-        Token(const TokenType type, const char32_t ch, size_t out_pos) :
+        Token(const TokenType type, const char32_t ch, size_t out_pos = 0) :
 			type(type), text(), unit_at(0), out_pos(out_pos) {
 				text.reserve(16);
 				if (ch) text.push_back(ch);
@@ -391,6 +391,17 @@ class Token {
 			}
 		}
 
+		bool is_property_terminator() const {
+			switch(type) {
+				case TokenType::whitespace:
+					return text.size() > 0 && text.find_first_of('\n') != std::string::npos;
+				case TokenType::delimiter:
+					return text.size() == 1 && (text[0] == ';' || text[0] == '}');
+				default:
+					return false;
+			}
+		}
+
 		PyObject* get_text_as_python() const {
 			PyObject *ans = PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, text.data(), text.size());
 			if (ans == NULL) throw python_error("Failed to convert token value to python unicode object");
@@ -412,6 +423,10 @@ class Token {
 
 		void erase_text_substring(size_t pos, size_t len) {
 			text.replace(pos, len, (size_t)0u, 0);
+		}
+
+		void prepend(const char32_t *src) {
+			text.insert(0, src);
 		}
 
 		void set_text(const PyObject* src) {
@@ -602,9 +617,21 @@ class TokenQueue {
 							case PropertyType::font_size:
 								process_values = std::bind(&TokenQueue::process_font_sizes, this, std::placeholders::_1);
 								break;
-							case PropertyType::page_break:
+							case PropertyType::page_break: {
 								it->erase_text_substring(0, 5);
+								size_t pos = std::distance(queue.begin(), it);
+								std::vector<Token> copies;
+								copies.reserve(queue.size());
+								while (it < queue.end() && !it->is_property_terminator()) { copies.push_back(*(it++)); }
+								if (copies.size()) {
+									queue.insert(queue.begin() + pos, std::make_move_iterator(copies.begin()), std::make_move_iterator(copies.end()));
+									size_t idx = pos + copies.size();
+									queue[idx].prepend(U"-webkit-column-");
+									queue.emplace(queue.begin() + idx, TokenType::whitespace, ' ');
+									queue.emplace(queue.begin() + idx, TokenType::delimiter, ';');
+								}
 								changed = true; keep_going = false;
+							}
 								break;
 							case PropertyType::non_standard_writing_mode:
 								it->set_text(U"writing-mode");

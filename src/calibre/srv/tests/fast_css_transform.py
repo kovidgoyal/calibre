@@ -31,6 +31,13 @@ class TestTransform(SimpleTest):
         def s(src, expected, url_callback=upper_case):
             return d(src, expected, url_callback=url_callback, is_declaration=False)
 
+        s('.c { page-break-after: 1 always }', '.c { break-after: 1 always ; -webkit-column-break-after: 1 always }')
+        s('.c { page-break-after: always\ncolor:red }', '.c { break-after: always; -webkit-column-break-after: always\ncolor:red }')
+        s('.c { page-break-after: always\n}', '.c { break-after: always; -webkit-column-break-after: always\n}')
+        s('.c { page-break-after: always;color:red }', '.c { break-after: always; -webkit-column-break-after: always;color:red }')
+        s('.c { page-break-after: /**/always }', '.c { break-after: always ; -webkit-column-break-after: always }')
+        s('.c { page-break-after: always !important }', '.c { break-after: always !important ; -webkit-column-break-after: always !important }')
+        s('.c { page-break-after: always;}', '.c { break-after: always; -webkit-column-break-after: always;}')
         s('.c{x:url(y)}', '.c{x:url("Y")}')
         s('@im/* c */port "x.y";', '@import "X.Y";')
         s('@import url("narrow.css") supports(display: flex) handheld and (max-width: 400px);',
@@ -59,6 +66,7 @@ class TestTransform(SimpleTest):
 
         d('-epub-writing-mode: a; -web/* */kit-writing-mode: b; writing-mode: c', 'writing-mode: a; writing-mode: b; writing-mode: c')
         d('xxx:yyy', 'xxx:yyy')
+        d('page-break-before: always', 'break-before: always; -webkit-column-break-before: always')
 
         sheet = '''
 @import "b/loc.test";
@@ -78,9 +86,10 @@ class TestTransform(SimpleTest):
     @zoo {
         not(.woo) and why {
             font: 16px "something something" 16;
+            page-break-before: avoid
         }
     }
 }
 .why { font: 16px}
 '''
-        s(sheet, sheet.replace('16px', '1rem').replace('b/loc.test', 'B/LOC.TEST'))
+        s(sheet, sheet.replace('16px', '1rem').replace('b/loc.test', 'B/LOC.TEST').replace('page-', 'break-before: avoid; -webkit-column-'))
