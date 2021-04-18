@@ -235,7 +235,7 @@ class ActionsToolBar(ToolBar):
 
     def update_read_aloud_action(self, active):
         self.toggle_read_aloud_action.setChecked(active)
-        self.autoscroll_action.setToolTip(
+        self.toggle_read_aloud_action.setToolTip(
             _('Stop reading') if active else _('Read the text of the book aloud'))
 
     def update_reference_mode_action(self, enabled):
