@@ -12,7 +12,7 @@ from qt.core import (Qt, QDialog, QDialogButtonBox, QSyntaxHighlighter, QFont,
                       QRegExp, QApplication, QTextCharFormat, QColor, QCursor,
                       QIcon, QSize, QPalette, QLineEdit, QByteArray, QFontInfo,
                       QFontDatabase, QVBoxLayout, QTableWidget, QTableWidgetItem,
-                      QComboBox, QAbstractItemView, QTextOption)
+                      QComboBox, QAbstractItemView, QTextOption, QFontMetrics)
 
 from calibre import sanitize_file_name
 from calibre.constants import config_dir
@@ -21,6 +21,7 @@ from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2 import gprefs, error_dialog, choose_files, choose_save_file, pixmap_to_data
 from calibre.gui2.dialogs.template_dialog_ui import Ui_TemplateDialog
 from calibre.library.coloring import (displayable_columns, color_row_key)
+from calibre.utils.config_base import tweaks
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.formatter import StopException
 from calibre.utils.icu import sort_key
@@ -322,10 +323,8 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.highlighter = TemplateHighlighter(self.textbox.document(), builtin_functions=self.builtins)
         self.textbox.cursorPositionChanged.connect(self.text_cursor_changed)
         self.textbox.textChanged.connect(self.textbox_changed)
-        self.textbox.setFont(self.get_current_font())
+        self.set_editor_font()
 
-        self.textbox.setTabStopWidth(10)
-        self.source_code.setTabStopWidth(10)
         self.documentation.setReadOnly(True)
         self.source_code.setReadOnly(True)
 
@@ -524,6 +523,17 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             font = QFont(font_name, pointSize=size)
         return font
 
+    def set_editor_font(self):
+        font = self.get_current_font()
+        fm = QFontMetrics(font)
+        chars = tweaks['template_editor_tab_stop_width']
+        w = fm.averageCharWidth() * chars
+        self.textbox.setTabStopDistance(w)
+        self.source_code.setTabStopDistance(w)
+        self.textbox.setFont(font)
+        self.highlighter.initializeFormats()
+        self.highlighter.rehighlight()
+
     def set_up_font_boxes(self):
         font = self.get_current_font()
         self.font_box.setWritingSystem(QFontDatabase.Latin)
@@ -533,21 +543,15 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         self.font_size_box.setValue(font.pointSize())
         self.font_box.currentFontChanged.connect(self.font_changed)
         self.font_size_box.valueChanged.connect(self.font_size_changed)
-        self.highlighter.initializeFormats()
-        self.highlighter.rehighlight()
 
     def font_changed(self, font):
         fi = QFontInfo(font)
         gprefs['gpm_template_editor_font'] = unicode_type(fi.family())
-        self.textbox.setFont(self.get_current_font())
-        self.highlighter.initializeFormats()
-        self.highlighter.rehighlight()
+        self.set_editor_font()
 
     def font_size_changed(self, toWhat):
         gprefs['gpm_template_editor_font_size'] = toWhat
-        self.textbox.setFont(self.get_current_font())
-        self.highlighter.initializeFormats()
-        self.highlighter.rehighlight()
+        self.set_editor_font()
 
     def break_box_changed(self, new_state):
         gprefs['template_editor_break_on_print'] = new_state != 0
