@@ -796,6 +796,8 @@ class _Interpreter(object):
             saved_line_number = self.override_line_number
             self.override_line_number = (self.override_line_number if self.override_line_number
                                          else prog.line_number)
+        else:
+            saved_line_number = None
         try:
             val = self.expression_list(prog.function)
         except ReturnExecuted as e:

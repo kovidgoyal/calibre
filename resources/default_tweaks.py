@@ -570,3 +570,8 @@ exclude_fields_on_paste = []
 # Useful if for some reason your operating systems network checking
 # facilities are not reliable (for example NetworkManager on Linux).
 skip_network_check = False
+
+#: Tab stop width in the template editor
+# Sets the width of the tab stop in the template editor in "average characters".
+# For example, a value of 1 results in a space the width of one average character.
+template_editor_tab_stop_width = 4
