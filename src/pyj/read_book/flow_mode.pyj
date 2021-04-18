@@ -574,6 +574,7 @@ anchor_funcs = {
             q = -q
 
         if q + 1 < scroll_viewport.block_pos():
+            # the + 1 is needed for visibility when top aligned, see: https://bugs.launchpad.net/calibre/+bug/1924890
             return -1
         if q <= scroll_viewport.block_pos() + scroll_viewport.block_size():
             return 0
