@@ -6,32 +6,44 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import functools, re, os, traceback, errno, time, numbers
+import errno
+import functools
+import numbers
+import os
+import re
+import time
+import traceback
 from collections import defaultdict, namedtuple
 from itertools import groupby
+from qt.core import (
+    QAbstractTableModel, QApplication, QColor, QDateTime, QFont, QIcon, QImage,
+    QModelIndex, QPainter, QPixmap, Qt, pyqtSignal
+)
 
-from qt.core import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage, QFont,
-        QModelIndex, QDateTime, QColor, QPixmap, QPainter, QApplication)
-
-from calibre import fit_image, force_unicode, prepare_string_for_xml, human_readable
-from calibre.gui2 import error_dialog
-from calibre.utils.search_query_parser import ParseException
-from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
+from calibre import (
+    fit_image, force_unicode, human_readable, isbytestring, prepare_string_for_xml,
+    strftime
+)
+from calibre.constants import DEBUG, config_dir, filesystem_encoding
+from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx, string_to_authors
 from calibre.ebooks.metadata.book.formatter import SafeFormat
-from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.config import tweaks, device_prefs, prefs
-from calibre.utils.date import dt_factory, qt_to_dt, as_local_time, UNDEFINED_DATE
-from calibre.utils.icu import sort_key
-from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.db.search import _match, CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH
-from calibre.library.caches import force_to_bool
-from calibre.library.save_to_disk import find_plugboard
-from calibre import strftime, isbytestring
-from calibre.constants import filesystem_encoding, DEBUG, config_dir
+from calibre.gui2 import error_dialog
 from calibre.gui2.library import DEFAULT_SORT
-from calibre.utils.localization import calibre_langcode_to_name
+from calibre.library.caches import force_to_bool
 from calibre.library.coloring import color_row_key
-from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes, range, map
+from calibre.library.save_to_disk import find_plugboard
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.utils.config import device_prefs, prefs, tweaks
+from calibre.utils.date import (
+    UNDEFINED_DATE, as_local_time, dt_factory, is_date_undefined, qt_to_dt
+)
+from calibre.utils.icu import sort_key
+from calibre.utils.localization import calibre_langcode_to_name
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from polyglot.builtins import (
+    iteritems, itervalues, map, range, string_or_bytes, unicode_type
+)
 
 Counts = namedtuple('Counts', 'library_total total current')
 
@@ -827,7 +839,8 @@ class BooksModel(QAbstractTableModel):  # {{{
                             return (fffunc(field_obj, idfunc(idx), default_value=''))
             elif dt == 'datetime':
                 def func(idx):
-                    return (QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
+                    val = fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE)
+                    return None if is_date_undefined(val) else QDateTime(as_local_time(val))
             elif dt == 'rating':
                 rating_fields[field] = m['display'].get('allow_half_stars', False)
 
