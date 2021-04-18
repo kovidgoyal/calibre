@@ -83,22 +83,19 @@ class NewScientist(BasicNewsRecipe):
         ans = BasicNewsRecipe.get_article_url(self, article)
         return ans.partition('?')[0]
 
-    def is_login_form(self, form):
-        return "action" in form.attrs and form.attrs['action'] == "/ns-login.php"
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://www.newscientist.com/')
-            try:
-                br.open('https://www.newscientist.com/login/')
-                br.select_form(predicate=self.is_login_form)
-                br['log'] = self.username
-                br['pwd'] = self.password
-                br.submit()
-            except:
-                self.log.exception(
-                    'Unable to locate login form! Switching to free mode.')
+            def is_login_form(form):
+                return "action" in form.attrs and form.attrs['action'] == "/login/"
+
+            br.open('https://www.newscientist.com/login/')
+            br.select_form(predicate=is_login_form)
+            br['email'] = self.username
+            br['password'] = self.password
+            res = br.submit().read()
+            if b'>Log out<' not in res:
+                raise ValueError('Failed to log in to New Scientist, check your username and password')
         return br
 
     feeds = [
