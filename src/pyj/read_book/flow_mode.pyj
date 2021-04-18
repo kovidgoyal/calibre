@@ -628,7 +628,10 @@ def ensure_selection_visible():
 
 def ensure_selection_boundary_visible(use_end):
     sel = window.getSelection()
-    rr = sel.getRangeAt(0)
+    try:
+        rr = sel.getRangeAt(0)
+    except:
+        rr = None
     if rr:
         r = rr.getBoundingClientRect()
         if r:
