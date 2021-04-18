@@ -17,6 +17,12 @@ force_issue_download = None
 # Adapted from https://gist.github.com/FlyingTopHat/7cfdd5434ec704916174
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 def plus_with_unknown_component(first_comp, second_comp, result):
     if result is None:
         return first_comp + second_comp
@@ -152,26 +158,6 @@ def text2num(s):
 ##################################################################
 
 
-##################################################################
-# Utilities
-def absurl(url):
-    if url.startswith('/'):
-        url = 'https://www.granta.com' + url
-    return url
-
-
-def stripstyle(tag):
-    if tag is not None:
-        del tag['style']
-
-
-def get_innermost_string(tag):
-    while hasattr(tag, 'contents') and len(tag.contents) > 0 and tag.contents[0] is not None:
-        tag = tag.contents[0]
-    return str(tag).strip()
-##################################################################
-
-
 class Granta(BasicNewsRecipe):
 
     title = u'Granta'
@@ -180,17 +166,17 @@ class Granta(BasicNewsRecipe):
 
     __author__ = 'Gary Arnold'
 
-    needs_subscription = True
+    needs_subscription = 'optional'
 
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'article-feature-image-container'}),
-        dict(name='div', attrs={'class': 'col-xs-12 col-sm-12 col-md-12 article-header'}),
-        dict(name='div', attrs={'class': 'carousel-inner'}),
-        dict(name='div', attrs={'class': 'article-content'}),
+        classes(
+            'article-header article-content article-feature-image-standard-container article-feature-image-full-width-container'
+        ),
     ]
-
-    preprocess_regexps = [(re.compile(r'<head>.*?</head>', re.DOTALL), lambda
-                           m:'<head></head>')]
+    remove_tags = [
+        classes('social-share-container'),
+    ]
+    remove_attributes = ['style']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -219,26 +205,10 @@ class Granta(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        articleHeader = soup.find(
-            'div', attrs={'class': 'article-feature-image-container'})
-        if articleHeader is None:
-            articleHeader = soup.find(
-                    'div', attrs={'class': lambda x: x and 'article-header' in x.split()})
-        if articleHeader is not None:
-            image = articleHeader.find(
-                'div', attrs={'class': 'article-feature-image'})
-            if image is not None and image.attrs is not None:
-                style = dict(image.attrs)['style']
-                if style is not None:
-                    m = re.search(r'url\(([^\)]*)\)', style)
-                    if m.group(1) is not None:
-                        stripstyle(image)
-                        image.name = 'img'
-                        image['src'] = m.group(1)
-
-            stripstyle(articleHeader.find('h1'))
-            stripstyle(articleHeader.find('h2'))
-
+        for div in soup.findAll(attrs={'data-background': True}):
+            img = soup.new_tag('img')
+            img['src'] = div['data-background']
+            div.append(img)
         return soup
 
     def parse_index(self):
@@ -246,51 +216,38 @@ class Granta(BasicNewsRecipe):
             soup = self.index_to_soup('https://granta.com/')
 
             # Get latest issue
-            issueInfo = soup.find(
-                    'div', attrs={'class': lambda x: x and 'dnd_container__heading' in x.split()})
-
-            issueAnchor = issueInfo.find('a')
-            issueTitle = issueAnchor.contents[0]
+            issueInfo = soup.find(**classes('featured_product__image'))
+            issueAnchor = issueInfo.findParent('a', href=True)
             issueLink = issueAnchor.get('href')
         else:
             issueLink = force_issue_download
-            issueTitle = ''
 
+        self.log('Fetching issue:', issueLink)
         soup = self.index_to_soup(issueLink)
+        # open('/t/raw.html', 'w').write(str(soup))
 
         # Find cover
-        cover = soup.find('div', attrs={'class': 'product-img-container'})
+        cover = soup.find(**classes('single-issue__cover-image'))
         if cover is not None:
-            img = cover.find('img', src=True)
-            self.cover_url = absurl(img['src'])
+            self.cover_url = cover['data-background']
             self.log.info('Found cover at:', self.cover_url)
 
-        # Find TOC
-        tocs = soup.findAll('div', attrs={'class': 'product-article'})
-        articles = []
-        for toc in tocs:
-            if (self.username and self.password) or (toc.find('img') is None):
-                # Either user is logged in or the article is unlocked
-                h1 = toc.find('h1')
-                h2 = toc.find('h2')
-                if h1.find('a') is not None and len(h1.find('a').contents) > 0 and h1.find('a').contents[0] is not None:
-                    title = get_innermost_string(h1.find('a').contents[0])
-                elif len(h1.contents) > 0 and h1.contents[0] is not None:
-                    title = get_innermost_string(h1.contents[0])
-                else:
-                    title = ''
-                if h2.find('a') is not None and len(h2.find('a').contents) > 0 and h2.find('a').contents[0] is not None:
-                    author = get_innermost_string(h2.find('a').contents[0])
-                    title = title + u' (%s)' % author
-                elif len(h2.contents) > 0 and h2.contents[0] is not None:
-                    author = get_innermost_string(h2.contents[0])
-                    title = title + u' (%s)' % author
-                else:
-                    author = ''
-                url = absurl(h1.find('a', href=True)['href'])
-                self.log.info('Found article:', title)
-                self.log.info('\t', url)
-                articles.append({'title': title, 'url': url,
-                                 'date': '', 'description': ''})
+        sections = {}
+        for item in soup.findAll(**classes('single-contributor_related-row_container')):
+            h6 = item.find('h6')
+            section = self.tag_to_string(h6.find('a')).strip()
+            sections.setdefault(section, [])
+            h1 = item.find('h1')
+            title = self.tag_to_string(h1).strip()
+            url = h1.findParent('a')['href']
+            author = self.tag_to_string(item.findAll('h3')[-1]).strip()
+            desc = ''
+            for p in item.findAll('p'):
+                desc += self.tag_to_string(p)
+            sections[section].append({
+                'title': title, 'url': url, 'description': 'by ' + author + '. ' + desc})
 
-        return [(issueTitle, articles)]
+            self.log.info('Found article:', title)
+            self.log.info('\t', url)
+
+        return [(sec, sections[sec]) for sec in sections]
