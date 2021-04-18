@@ -573,7 +573,7 @@ anchor_funcs = {
         if scroll_viewport.vertical_writing_mode and scroll_viewport.rtl:
             q = -q
 
-        if q < scroll_viewport.block_pos():
+        if q + 1 < scroll_viewport.block_pos():
             return -1
         if q <= scroll_viewport.block_pos() + scroll_viewport.block_size():
             return 0
