@@ -253,8 +253,7 @@ class CBDialog(QDialog):
             self.resize(w, h)
         self.action_fs_toggle = a = QAction(self)
         self.addAction(a)
-        a.setShortcuts([QKeySequence('F11', QKeySequence.SequenceFormat.PortableText),
-            QKeySequence('Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)])
+        a.setShortcuts([QKeySequence(QKeySequence.StandardKey.FullScreen)])
         a.triggered.connect(self.toggle_fullscreen)
         self.action_esc_fs = a = QAction(self)
         a.triggered.connect(self.show_normal)

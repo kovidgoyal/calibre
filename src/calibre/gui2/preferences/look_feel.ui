@@ -1244,7 +1244,7 @@ them to all have the same width and height</string>
           <string notr="true">margin-left: 1.5em</string>
          </property>
          <property name="text">
-          <string>You can press the %s keys to toggle full screen mode.</string>
+          <string>You can press the %s key to toggle full screen mode.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

@@ -550,8 +550,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         keys = [QKeySequence('F11', QKeySequence.SequenceFormat.PortableText), QKeySequence(
             'Ctrl+Shift+F', QKeySequence.SequenceFormat.PortableText)]
         keys = [unicode_type(x.toString(QKeySequence.SequenceFormat.NativeText)) for x in keys]
-        self.fs_help_msg.setText(unicode_type(self.fs_help_msg.text())%(
-            _(' or ').join(keys)))
+        self.fs_help_msg.setText(self.fs_help_msg.text()%(
+            QKeySequence(QKeySequence.StandardKey.FullScreen).toString(QKeySequence.SequenceFormat.NativeText)))
         self.size_calculated.connect(self.update_cg_cache_size, type=Qt.ConnectionType.QueuedConnection)
         self.tabWidget.currentChanged.connect(self.tab_changed)
 
