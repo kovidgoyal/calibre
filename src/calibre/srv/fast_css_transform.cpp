@@ -621,14 +621,14 @@ class TokenQueue {
 								it->erase_text_substring(0, 5);
 								size_t pos = std::distance(queue.begin(), it);
 								std::vector<Token> copies;
-								copies.reserve(queue.size());
+								copies.reserve(queue.size() + 2);
 								while (it < queue.end() && !it->is_property_terminator()) { copies.push_back(*(it++)); }
 								if (copies.size()) {
+									copies.emplace_back(TokenType::delimiter, ';');
+									copies.emplace_back(TokenType::whitespace, ' ');
 									queue.insert(queue.begin() + pos, std::make_move_iterator(copies.begin()), std::make_move_iterator(copies.end()));
 									size_t idx = pos + copies.size();
 									queue[idx].prepend(U"-webkit-column-");
-									queue.emplace(queue.begin() + idx, TokenType::whitespace, ' ');
-									queue.emplace(queue.begin() + idx, TokenType::delimiter, ';');
 								}
 								changed = true; keep_going = false;
 							}
