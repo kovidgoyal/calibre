@@ -27,7 +27,8 @@ class SaturdayPaper(BasicNewsRecipe):
         classes('article-page__content article__text article__image article-page__title article-page__image')
     ]
     remove_tags = [
-        classes('social-icons-article-top-container social-icons-article-bottom-container article-page__sidebar article-page__social__icons share-wrapper article-footer-container')
+        classes('social-icons-article-top-container social-icons-article-bottom-container'
+                ' article-page__sidebar article-page__social__icons share-wrapper article-footer-container')
     ]
 
     def parse_index(self):
