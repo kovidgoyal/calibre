@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.16.0 2021-04-17
+{{{ 5.16.1 2021-04-17
 
 :: new features
 
@@ -39,10 +39,25 @@
 
 - [1924675] Fix using 'is set' rules not working for column rules with rating values
 
+- E-book viewer: Fix a regression in 5.15 that causes the viewer to ignore page-break CSS properties (in 5.16.1)
+
+- Fix a regression that broke using stored templates (in 5.16.1)
+
+- [1924875] Fix auto scroll books shortcut not working in standalone cover browser window (in 5.16.1)
+
+- [1924890] E-book viewer: Fix jumping to previous section sometimes not working in flow mode (in 5.16.1)
+
+- [1924853] E-book viewer: Fix a regression in 5.15 that broke changing keyboard shortcuts in the viewer preferences (in 5.16.1)
+
+- E-book viewer: Fix a regression in 5.15 that broke using the delete key to delete highlights (in 5.16.1)
+
 :: improved recipes
+- Granta
+- New Scientist
 
 :: new recipes
 - The Saturday paper by Alistair Francis
+- Crikey by Alistair Francis
 
 }}}
 
