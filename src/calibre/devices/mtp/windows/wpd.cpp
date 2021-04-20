@@ -131,7 +131,7 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
 static PyObject *
 wpd_device_info(PyObject *self, PyObject *args) {
     PyObject *ans = NULL;
-    IPortableDevice *device = NULL;
+    CComPtr<IPortableDevice> device = NULL;
 
     ENSURE_WPD(NULL);
 
@@ -142,12 +142,10 @@ wpd_device_info(PyObject *self, PyObject *args) {
     CComPtr<IPortableDeviceValues> client_information = get_client_information();
     if (client_information) {
         device = open_device(pnp_id.ptr(), client_information);
-        if (device != NULL) {
-            ans = get_device_information(device, NULL);
-        }
+        if (device) ans = get_device_information(device, NULL);
     }
 
-    if (device != NULL) {device->Close(); device->Release();}
+    if (device) device->Close();
     return ans;
 } // }}}
 

@@ -40,11 +40,10 @@ extern ClientInfo client_info;
 typedef struct {
     PyObject_HEAD
     // Type-specific fields go here.
-    wchar_t *pnp_id;
-    IPortableDevice *device;
+    wchar_raii pnp_id;
+    CComPtr<IPortableDevice> device;
     PyObject *device_information;
-    IPortableDevicePropertiesBulk *bulk_properties;
-
+    CComPtr<IPortableDevicePropertiesBulk> bulk_properties;
 } Device;
 extern PyTypeObject DeviceType;
 
@@ -56,7 +55,7 @@ int pump_waiting_messages();
 
 extern IPortableDeviceValues* get_client_information();
 extern IPortableDevice* open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information);
-extern PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
+extern PyObject* get_device_information(CComPtr<IPortableDevice> &device, IPortableDevicePropertiesBulk **bulk_properties);
 extern PyObject* get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback);
 extern PyObject* get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback);
 extern PyObject* create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name);

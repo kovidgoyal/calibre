@@ -10,14 +10,13 @@
 namespace wpd {
 
 IPortableDeviceValues *get_client_information() { // {{{
-    IPortableDeviceValues *client_information;
     HRESULT hr;
 
     ENSURE_WPD(NULL);
+    CComPtr<IPortableDeviceValues> client_information;
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = CoCreateInstance(CLSID_PortableDeviceValues, NULL,
-            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&client_information));
+	hr = client_information.CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDeviceValues", hr); return NULL; }
 
@@ -43,7 +42,7 @@ IPortableDeviceValues *get_client_information() { // {{{
     hr = client_information->SetUnsignedIntegerValue(WPD_CLIENT_SECURITY_QUALITY_OF_SERVICE, SECURITY_IMPERSONATION);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to set quality of service", hr); return NULL; }
-    return client_information;
+    return client_information.Detach();
 } // }}}
 
 IPortableDevice *open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information) { // {{{
@@ -207,7 +206,8 @@ end:
     return ans;
 } // }}}
 
-PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **pb) { // {{{
+PyObject*
+get_device_information(CComPtr<IPortableDevice> &device, IPortableDevicePropertiesBulk **pb) { // {{{
     IPortableDeviceContent *content = NULL;
     IPortableDeviceProperties *properties = NULL;
     IPortableDevicePropertiesBulk *properties_bulk = NULL;

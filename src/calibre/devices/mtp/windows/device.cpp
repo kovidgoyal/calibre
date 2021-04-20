@@ -12,15 +12,13 @@ using namespace wpd;
 static void
 dealloc(Device* self)
 {
-    if (self->pnp_id != NULL) free(self->pnp_id);
-    self->pnp_id = NULL;
+	self->pnp_id.release();
+    if (self->bulk_properties) self->bulk_properties.Release();
 
-    if (self->bulk_properties != NULL) { self->bulk_properties->Release(); self->bulk_properties = NULL; }
-
-    if (self->device != NULL) {
+    if (self->device) {
         Py_BEGIN_ALLOW_THREADS;
-        self->device->Close(); self->device->Release();
-        self->device = NULL;
+        self->device->Close();
+		self->device.Release();
         Py_END_ALLOW_THREADS;
     }
 
@@ -32,28 +30,21 @@ dealloc(Device* self)
 static int
 init(Device *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *pnp_id;
     int ret = -1;
-
-    if (!PyArg_ParseTuple(args, "O", &pnp_id)) return -1;
-
-    self->pnp_id = unicode_to_wchar(pnp_id);
-    if (self->pnp_id == NULL) return -1;
-
-    self->bulk_properties = NULL;
-
+    if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &self->pnp_id)) return -1;
+    self->bulk_properties.Release();
     CComPtr<IPortableDeviceValues> client_information = get_client_information();
     if (client_information) {
-        self->device = open_device(self->pnp_id, client_information);
-        if (self->device != NULL) {
-            self->device_information = get_device_information(self->device, &(self->bulk_properties));
-            if (self->device_information != NULL) {
-                ret = 0;
-            }
-
+        self->device = open_device(self->pnp_id.ptr(), client_information);
+        if (self->device) {
+			IPortableDevicePropertiesBulk *bulk_properties = NULL;
+            self->device_information = get_device_information(self->device, &bulk_properties);
+            if (self->device_information) {
+				ret = 0;
+				self->bulk_properties = bulk_properties;
+			}
         }
     }
-
     return ret;
 }
 
