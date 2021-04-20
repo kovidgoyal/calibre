@@ -560,7 +560,7 @@ class MTP_DEVICE(BASE):
     # }}}
 
 
-if __name__ == '__main__':
+def main():
     dev = MTP_DEVICE(None)
     dev.startup()
     try:
@@ -577,3 +577,7 @@ if __name__ == '__main__':
         print('Prefix for main mem:', dev.prefix_for_location(None))
     finally:
         dev.shutdown()
+
+
+if __name__ == '__main__':
+    main()

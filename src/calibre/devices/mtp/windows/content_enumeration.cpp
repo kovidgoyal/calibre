@@ -9,7 +9,7 @@
 
 #include <new>
 
-#define ADDPROP(x) hr = properties->Add(x); if (FAILED(hr)) { hresult_set_exc("Failed to add property to filesystem properties collection", hr); properties->Release(); return NULL; }
+#define ADDPROP(x) hr = properties->Add(x); if (FAILED(hr)) { hresult_set_exc("Failed to add property " #x " to filesystem properties collection", hr); properties->Release(); return NULL; }
 
 namespace wpd {
 
@@ -34,6 +34,7 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_ISHIDDEN);
     ADDPROP(WPD_OBJECT_CAN_DELETE);
     ADDPROP(WPD_OBJECT_SIZE);
+    ADDPROP(WPD_OBJECT_DATE_CREATED);
     ADDPROP(WPD_OBJECT_DATE_MODIFIED);
 
     return properties;
@@ -82,16 +83,14 @@ static void set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *py
     }
 }
 
-static void set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, IPortableDeviceValues *properties) {
-    FLOAT val = 0;
-    SYSTEMTIME st;
-    unsigned int microseconds;
-    PyObject *t;
-
-    if (SUCCEEDED(properties->GetFloatValue(key, &val))) {
-        if (VariantTimeToSystemTime(val, &st)) {
-            microseconds = 1000 * st.wMilliseconds;
-            t = Py_BuildValue("H H H H H H I", (unsigned short)st.wYear,
+static void
+set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, IPortableDeviceValues *properties) {
+	PROPVARIANT ts = {0};
+    if (SUCCEEDED(properties->GetValue(key, &ts))) {
+		SYSTEMTIME st;
+        if (ts.vt == VT_DATE && VariantTimeToSystemTime(ts.date, &st)) {
+            const unsigned int microseconds = 1000 * st.wMilliseconds;
+            PyObject *t = Py_BuildValue("H H H H H H I", (unsigned short)st.wYear,
                     (unsigned short)st.wMonth, (unsigned short)st.wDay,
                     (unsigned short)st.wHour, (unsigned short)st.wMinute,
                     (unsigned short)st.wSecond, microseconds);
@@ -123,7 +122,7 @@ static void set_properties(PyObject *obj, IPortableDeviceValues *values) {
 
     set_size_property(obj, WPD_OBJECT_SIZE, "size", values);
     set_date_property(obj, WPD_OBJECT_DATE_MODIFIED, "modified", values);
-
+    set_date_property(obj, WPD_OBJECT_DATE_CREATED, "created", values);
 }
 
 // }}}
@@ -398,6 +397,15 @@ static IPortableDeviceValues* create_object_properties(const wchar_t *parent_id,
     IPortableDeviceValues *values = NULL;
     HRESULT hr;
     BOOL ok = FALSE;
+	PROPVARIANT timestamp = {0};
+	SYSTEMTIME  systemtime;
+	GetLocalTime(&systemtime);
+	timestamp.vt = VT_DATE;
+	if (!SystemTimeToVariantTime(&systemtime, &timestamp.date)) {
+		LONG err = GetLastError();
+		hr = HRESULT_FROM_WIN32(err);
+		hresult_set_exc("Failed to convert system time to variant time", hr); goto end;
+	}
 
     hr = CoCreateInstance(CLSID_PortableDeviceValues, NULL,
             CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&values));
@@ -417,6 +425,11 @@ static IPortableDeviceValues* create_object_properties(const wchar_t *parent_id,
 
     hr = values->SetGuidValue(WPD_OBJECT_CONTENT_TYPE, content_type);
     if (FAILED(hr)) { hresult_set_exc("Failed to set content_type value", hr); goto end; }
+
+	hr = values->SetValue(WPD_OBJECT_DATE_CREATED, &timestamp);
+	if (FAILED(hr)) { hresult_set_exc("Failed to set created timestamp", hr); goto end; }
+	hr = values->SetValue(WPD_OBJECT_DATE_MODIFIED, &timestamp);
+	if (FAILED(hr)) { hresult_set_exc("Failed to set modified timestamp", hr); goto end; }
 
     if (!IsEqualGUID(WPD_CONTENT_TYPE_FOLDER, content_type)) {
         hr = values->SetUnsignedLargeIntegerValue(WPD_OBJECT_SIZE, size);
