@@ -97,9 +97,11 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) return hresult_set_exc("Failed to refresh the list of portable devices", hr);
 
+    Py_BEGIN_ALLOW_THREADS;
     hr = portable_device_manager->GetDevices(NULL, &num_of_devices);
-    num_of_devices += 15; // Incase new devices were connected between this call and the next
+    Py_END_ALLOW_THREADS;
     if (FAILED(hr)) return hresult_set_exc("Failed to get number of devices on the system", hr);
+    num_of_devices += 15; // Incase new devices were connected between this call and the next
     pnp_device_ids = (PWSTR*)calloc(num_of_devices, sizeof(PWSTR));
     if (pnp_device_ids == NULL) return PyErr_NoMemory();
 
@@ -111,7 +113,7 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
         ans = PyTuple_New(num_of_devices);
         if (ans != NULL) {
             for(i = 0; i < num_of_devices; i++) {
-                temp = PyUnicode_FromWideChar(pnp_device_ids[i], wcslen(pnp_device_ids[i]));
+                temp = PyUnicode_FromWideChar(pnp_device_ids[i], -1);
                 if (temp == NULL) { PyErr_NoMemory(); Py_DECREF(ans); ans = NULL; break;}
                 PyTuple_SET_ITEM(ans, i, temp);
             }
@@ -129,7 +131,7 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
     pnp_device_ids = NULL;
     Py_END_ALLOW_THREADS;
 
-    return Py_BuildValue("N", ans);
+    return ans;
 } // }}}
 
 // device_info() {{{
@@ -144,8 +146,8 @@ wpd_device_info(PyObject *self, PyObject *args) {
 
     if (!PyArg_ParseTuple(args, "O", &py_pnp_id)) return NULL;
     pnp_id = unicode_to_wchar(py_pnp_id);
-    if (wcslen(pnp_id) < 1) { PyErr_SetString(WPDError, "The PNP id must not be empty."); return NULL; }
     if (pnp_id == NULL) return NULL;
+    if (wcslen(pnp_id) < 1) { PyErr_SetString(WPDError, "The PNP id must not be empty."); return NULL; }
 
     client_information = get_client_information();
     if (client_information != NULL) {
