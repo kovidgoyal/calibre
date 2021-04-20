@@ -7,10 +7,6 @@
 
 #include "global.h"
 
-extern IPortableDevice* wpd::open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
-extern IPortableDeviceValues* wpd::get_client_information();
-extern PyObject* wpd::get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **pb);
-
 using namespace wpd;
 // Device.__init__() {{{
 static void
@@ -27,8 +23,6 @@ dealloc(Device* self)
         self->device = NULL;
         Py_END_ALLOW_THREADS;
     }
-
-    if (self->client_information != NULL) { self->client_information->Release(); self->client_information = NULL; }
 
     Py_XDECREF(self->device_information); self->device_information = NULL;
 
@@ -48,9 +42,9 @@ init(Device *self, PyObject *args, PyObject *kwds)
 
     self->bulk_properties = NULL;
 
-    self->client_information = get_client_information();
-    if (self->client_information != NULL) {
-        self->device = open_device(self->pnp_id, self->client_information);
+    CComPtr<IPortableDeviceValues> client_information = get_client_information();
+    if (client_information) {
+        self->device = open_device(self->pnp_id, client_information);
         if (self->device != NULL) {
             self->device_information = get_device_information(self->device, &(self->bulk_properties));
             if (self->device_information != NULL) {

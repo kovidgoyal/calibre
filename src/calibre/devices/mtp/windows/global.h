@@ -8,6 +8,7 @@
 #pragma once
 #define UNICODE
 #include <Windows.h>
+#include <atlbase.h>
 #include <Python.h>
 
 #include <Objbase.h>
@@ -40,7 +41,6 @@ typedef struct {
     PyObject_HEAD
     // Type-specific fields go here.
     wchar_t *pnp_id;
-    IPortableDeviceValues *client_information;
     IPortableDevice *device;
     PyObject *device_information;
     IPortableDevicePropertiesBulk *bulk_properties;
@@ -55,7 +55,7 @@ PyObject *wchar_to_unicode(const wchar_t *o);
 int pump_waiting_messages();
 
 extern IPortableDeviceValues* get_client_information();
-extern IPortableDevice* open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
+extern IPortableDevice* open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information);
 extern PyObject* get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
 extern PyObject* get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback);
 extern PyObject* get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback);

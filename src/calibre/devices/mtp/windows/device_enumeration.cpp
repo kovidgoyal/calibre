@@ -46,7 +46,7 @@ IPortableDeviceValues *get_client_information() { // {{{
     return client_information;
 } // }}}
 
-IPortableDevice *open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information) { // {{{
+IPortableDevice *open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information) { // {{{
     IPortableDevice *device = NULL;
     HRESULT hr;
 

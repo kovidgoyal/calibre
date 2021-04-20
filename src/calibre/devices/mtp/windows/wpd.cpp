@@ -20,10 +20,6 @@ static int _com_initialized = 0;
 // Application Info
 wpd::ClientInfo wpd::client_info = {0};
 
-extern IPortableDeviceValues* wpd::get_client_information();
-extern IPortableDevice* wpd::open_device(const wchar_t *pnp_id, IPortableDeviceValues *client_information);
-extern PyObject* wpd::get_device_information(IPortableDevice *device, IPortableDevicePropertiesBulk **bulk_properties);
-
 // Module startup/shutdown {{{
 static PyObject *
 wpd_init(PyObject *self, PyObject *args) {
@@ -135,7 +131,6 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
 static PyObject *
 wpd_device_info(PyObject *self, PyObject *args) {
     PyObject *ans = NULL;
-    IPortableDeviceValues *client_information = NULL;
     IPortableDevice *device = NULL;
 
     ENSURE_WPD(NULL);
@@ -144,15 +139,14 @@ wpd_device_info(PyObject *self, PyObject *args) {
     if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &pnp_id)) return NULL;
     if (wcslen(pnp_id.ptr()) < 1) { PyErr_SetString(WPDError, "The PNP id must not be empty."); return NULL; }
 
-    client_information = get_client_information();
-    if (client_information != NULL) {
+    CComPtr<IPortableDeviceValues> client_information = get_client_information();
+    if (client_information) {
         device = open_device(pnp_id.ptr(), client_information);
         if (device != NULL) {
             ans = get_device_information(device, NULL);
         }
     }
 
-    if (client_information != NULL) client_information->Release();
     if (device != NULL) {device->Close(); device->Release();}
     return ans;
 } // }}}
