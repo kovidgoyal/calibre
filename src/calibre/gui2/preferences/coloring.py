@@ -9,13 +9,14 @@ __docformat__ = 'restructuredtext en'
 import json
 import os
 import textwrap
+from functools import partial
 from qt.core import (
     QAbstractItemView, QAbstractListModel, QApplication, QCheckBox, QComboBox,
     QDialog, QDialogButtonBox, QDoubleValidator, QFrame, QGridLayout, QIcon,
     QIntValidator, QItemSelectionModel, QLabel, QLineEdit, QListView, QMenu,
     QPalette, QPushButton, QScrollArea, QSize, QSizePolicy, QSpacerItem,
     QStandardItem, QStandardItemModel, Qt, QToolButton, QVBoxLayout, QWidget,
-    pyqtSignal
+    QItemSelection, pyqtSignal
 )
 
 from calibre import as_unicode, prepare_string_for_xml, sanitize_file_name
@@ -942,12 +943,12 @@ class EditRules(QWidget):  # {{{
         self.up_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-up.png')))
         b.setToolTip(_('Move the selected rule up'))
-        b.clicked.connect(self.move_up)
+        b.clicked.connect(partial(self.move_rows, moving_up=True))
         g.addWidget(b, 0, 1, 1, 1, Qt.AlignmentFlag.AlignTop)
         self.down_button = b = QToolButton(self)
         b.setIcon(QIcon(I('arrow-down.png')))
         b.setToolTip(_('Move the selected rule down'))
-        b.clicked.connect(self.move_down)
+        b.clicked.connect(partial(self.move_rows, moving_up=False))
         g.addWidget(b, 1, 1, 1, 1, Qt.AlignmentFlag.AlignBottom)
 
         l.addLayout(g, l.rowCount(), 0, 1, 2)
@@ -1142,34 +1143,26 @@ class EditRules(QWidget):  # {{{
                 self.model.remove_rule(row)
             self.changed.emit()
 
-    def move_up(self):
+    def move_rows(self, moving_up=True):
         sm = self.rules_view.selectionModel()
-        rows = sorted(list(sm.selectedRows()))
+        rows = sorted(list(sm.selectedRows()), reverse=not moving_up)
         if rows:
-            if rows[0].row() == 0:
+            if rows[0].row() == (0 if moving_up else self.model.rowCount() - 1):
                 return
             sm.clear()
+            indices_to_select = []
             for idx in rows:
                 if idx.isValid():
-                    idx = self.model.move(idx, -1)
+                    idx = self.model.move(idx, -1 if moving_up else 1)
                     if idx is not None:
-                        sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
-                        self.rules_view.setCurrentIndex(idx)
-            self.changed.emit()
-
-    def move_down(self):
-        sm = self.rules_view.selectionModel()
-        rows = sorted(list(sm.selectedRows()))
-        if rows:
-            if rows[-1].row() == self.model.rowCount() - 1:
-                return
-            sm.clear()
-            for idx in rows:
-                if idx.isValid():
-                    idx = self.model.move(idx, 1)
-                    if idx is not None:
-                        sm.select(idx, QItemSelectionModel.SelectionFlag.Toggle)
-                        self.rules_view.setCurrentIndex(idx)
+                        indices_to_select.append(idx)
+            if indices_to_select:
+                new_selections = QItemSelection()
+                for idx in indices_to_select:
+                    new_selections.merge(QItemSelection(idx, idx),
+                                         QItemSelectionModel.SelectionFlag.Select)
+                sm.select(new_selections, QItemSelectionModel.SelectionFlag.Select)
+                self.rules_view.scrollTo(indices_to_select[0])
             self.changed.emit()
 
     def clear(self):
