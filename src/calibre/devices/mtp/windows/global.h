@@ -17,7 +17,7 @@
 #include "../../../utils/windows/common.h"
 
 #define ENSURE_WPD(retval) \
-    if (portable_device_manager == NULL) { PyErr_SetString(NoWPD, "No WPD service available."); return retval; }
+    if (!portable_device_manager) { PyErr_SetString(NoWPD, "No WPD service available."); return retval; }
 
 namespace wpd {
 
@@ -25,7 +25,7 @@ namespace wpd {
 extern PyObject *WPDError, *NoWPD, *WPDFileBusy;
 
 // The global device manager
-extern IPortableDeviceManager *portable_device_manager;
+extern CComPtr<IPortableDeviceManager> portable_device_manager;
 
 // Application info
 typedef struct {

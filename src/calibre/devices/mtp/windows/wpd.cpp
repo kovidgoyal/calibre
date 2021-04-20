@@ -13,7 +13,7 @@ using namespace wpd;
 PyObject *wpd::WPDError = NULL, *wpd::NoWPD = NULL, *wpd::WPDFileBusy = NULL;
 
 // The global device manager
-IPortableDeviceManager *wpd::portable_device_manager = NULL;
+CComPtr<IPortableDeviceManager> wpd::portable_device_manager = NULL;
 
 // Flag indicating if COM has been initialized
 static int _com_initialized = 0;
@@ -34,14 +34,13 @@ wpd_init(PyObject *self, PyObject *args) {
         else {PyErr_SetString(WPDError, "Failed to initialize COM"); return NULL;}
     }
 
-    if (portable_device_manager == NULL) {
+    if (!portable_device_manager) {
         Py_BEGIN_ALLOW_THREADS;
-        hr = CoCreateInstance(CLSID_PortableDeviceManager, NULL,
-                CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&portable_device_manager));
+        hr = portable_device_manager.CoCreateInstance(CLSID_PortableDeviceManager, NULL, CLSCTX_INPROC_SERVER);
         Py_END_ALLOW_THREADS;
 
         if (FAILED(hr)) {
-            portable_device_manager = NULL;
+            portable_device_manager.Release();
             PyErr_SetString((hr == REGDB_E_CLASSNOTREG) ? NoWPD : WPDError, (hr == REGDB_E_CLASSNOTREG) ?
                 "This computer is not running the Windows Portable Device framework. You may need to install Windows Media Player 11 or newer." :
                 "Failed to create the WPD device manager interface");
@@ -54,11 +53,10 @@ wpd_init(PyObject *self, PyObject *args) {
 
 static PyObject *
 wpd_uninit(PyObject *self, PyObject *args) {
-    if (portable_device_manager != NULL) {
+    if (portable_device_manager) {
         Py_BEGIN_ALLOW_THREADS;
-        portable_device_manager->Release();
+        portable_device_manager.Release();
         Py_END_ALLOW_THREADS;
-        portable_device_manager = NULL;
     }
 
     if (_com_initialized) {
