@@ -6,28 +6,12 @@
  */
 
 #include "global.h"
+#include "../../../utils/windows/common.h"
 
 using namespace wpd;
 
 PyObject *wpd::hresult_set_exc(const char *msg, HRESULT hr) {
-    PyObject *o = NULL, *mess;
-    LPWSTR desc = NULL;
-
-    FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, hr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&desc, 0, NULL);
-    if (desc == NULL) {
-        o = PyUnicode_FromString("No description available.");
-    } else {
-        o = PyUnicode_FromWideChar(desc, wcslen(desc));
-        LocalFree(desc);
-    }
-    if (o == NULL) return PyErr_NoMemory();
-    mess = PyUnicode_FromFormat("%s: hr=%lu facility=%u error_code=%u description: %U", msg, hr, HRESULT_FACILITY(hr), HRESULT_CODE(hr), o);
-    Py_XDECREF(o);
-    if (mess == NULL) return PyErr_NoMemory();
-    PyErr_SetObject(WPDError, mess);
-    Py_DECREF(mess);
-    return NULL;
+	return error_from_hresult(hr, msg);
 }
 
 wchar_t *wpd::unicode_to_wchar(PyObject *o) {
@@ -46,7 +30,7 @@ wchar_t *wpd::unicode_to_wchar(PyObject *o) {
 PyObject *wpd::wchar_to_unicode(const wchar_t *o) {
     PyObject *ans;
     if (o == NULL) return NULL;
-    ans = PyUnicode_FromWideChar(o, wcslen(o));
+    ans = PyUnicode_FromWideChar(o, -1);
     if (ans == NULL) PyErr_NoMemory();
     return ans;
 }
