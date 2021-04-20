@@ -13,6 +13,7 @@
 #include <Objbase.h>
 #include <PortableDeviceApi.h>
 #include <PortableDevice.h>
+#include "../../../utils/windows/common.h"
 
 #define ENSURE_WPD(retval) \
     if (portable_device_manager == NULL) { PyErr_SetString(NoWPD, "No WPD service available."); return retval; }
@@ -27,7 +28,7 @@ extern IPortableDeviceManager *portable_device_manager;
 
 // Application info
 typedef struct {
-    wchar_t *name;
+    wchar_raii name;
     unsigned int major_version;
     unsigned int minor_version;
     unsigned int revision;
@@ -63,4 +64,3 @@ extern PyObject* delete_object(IPortableDevice *device, const wchar_t *object_id
 extern PyObject* put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback);
 
 }
-

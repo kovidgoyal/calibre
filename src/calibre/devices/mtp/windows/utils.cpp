@@ -6,7 +6,6 @@
  */
 
 #include "global.h"
-#include "../../../utils/windows/common.h"
 
 using namespace wpd;
 

@@ -22,7 +22,7 @@ IPortableDeviceValues *get_client_information() { // {{{
     if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDeviceValues", hr); return NULL; }
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = client_information->SetStringValue(WPD_CLIENT_NAME, client_info.name);
+    hr = client_information->SetStringValue(WPD_CLIENT_NAME, client_info.name.ptr());
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to set client name", hr); return NULL; }
     Py_BEGIN_ALLOW_THREADS;

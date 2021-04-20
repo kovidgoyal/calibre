@@ -36,7 +36,8 @@ class wchar_raii {
 		wchar_raii() : handle(NULL) {}
 		wchar_raii(wchar_t *h) : handle(h) {}
 
-		~wchar_raii() {
+		~wchar_raii() { release(); }
+		void release() {
 			if (handle) {
 				PyMem_Free(handle);
 				handle = NULL;
