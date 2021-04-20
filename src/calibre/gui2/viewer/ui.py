@@ -17,7 +17,7 @@ from qt.core import (
 from threading import Thread
 
 from calibre import prints
-from calibre.constants import ismacos
+from calibre.constants import ismacos, iswindows
 from calibre.customize.ui import available_input_formats
 from calibre.db.annotations import merge_annotations
 from calibre.gui2 import choose_files, error_dialog, sanitize_env_vars
@@ -289,6 +289,7 @@ class EbookViewer(MainWindow):
 
     def toggle_full_screen(self):
         self.set_full_screen(not self.isFullScreen())
+
     # }}}
 
     # Docks (ToC, Bookmarks, Lookup, etc.) {{{
@@ -743,11 +744,16 @@ class EbookViewer(MainWindow):
         t.start()
 
     def eventFilter(self, obj, ev):
-        if ev.type() == QEvent.Type.MouseMove:
+        et = ev.type()
+        if et == QEvent.Type.MouseMove:
             if self.cursor_hidden:
                 self.cursor_hidden = False
                 QApplication.instance().restoreOverrideCursor()
             self.hide_cursor_timer.start()
+        elif et == QEvent.Type.FocusIn:
+            if iswindows and obj and obj.objectName() == 'EbookViewerClassWindow' and self.isFullScreen():
+                # See https://bugs.launchpad.net/calibre/+bug/1918591
+                self.web_view.repair_after_fullscreen_switch()
         return False
 
     def hide_cursor(self):

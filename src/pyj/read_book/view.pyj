@@ -1255,11 +1255,13 @@ class View:
         }
         return pos
 
-    def show_status_message(self, msg):
+    def show_status_message(self, msg, timeout):
         self.current_status_message = msg or ''
         self.update_header_footer()
         if self.current_status_message:
-            window.setTimeout(def(): self.show_status_message();, 10000)
+            if not timeout?:
+                timeout = 10000
+            window.setTimeout(def(): self.show_status_message();, timeout)
 
     def create_template_renderer(self):
         if not self.book:

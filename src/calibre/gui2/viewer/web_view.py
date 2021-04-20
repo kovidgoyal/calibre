@@ -291,6 +291,7 @@ class ViewerBridge(Bridge):
     generic_action = to_js()
     show_search_result = to_js()
     prepare_for_close = to_js()
+    repair_after_fullscreen_switch = to_js()
     viewer_font_size_changed = to_js()
     tts_event = to_js()
 
@@ -742,3 +743,6 @@ class WebView(RestartingWebEngineView):
     def show_book_folder(self):
         path = os.path.dirname(os.path.abspath(set_book_path.pathtoebook))
         safe_open_url(QUrl.fromLocalFile(path))
+
+    def repair_after_fullscreen_switch(self):
+        self.execute_when_ready('repair_after_fullscreen_switch')

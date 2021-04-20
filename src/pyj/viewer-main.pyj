@@ -284,6 +284,12 @@ def prepare_for_close():
 
 
 @from_python
+def repair_after_fullscreen_switch():
+    if view:
+        view.show_status_message('...', 200)
+
+
+@from_python
 def viewer_font_size_changed():
     if view:
         view.viewer_font_size_changed()
