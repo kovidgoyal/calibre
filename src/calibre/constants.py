@@ -395,6 +395,13 @@ def get_version():
     return v
 
 
+def get_appname_for_display():
+    ans = __appname__
+    if isportable:
+        ans = _('{} portable').format(ans)
+    return ans
+
+
 def get_portable_base():
     'Return path to the directory that contains calibre-portable.exe or None'
     if isportable:

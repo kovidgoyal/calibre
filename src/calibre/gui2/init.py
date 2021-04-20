@@ -8,12 +8,12 @@ __docformat__ = 'restructuredtext en'
 
 import functools
 from qt.core import (
-    QAction, QApplication, QIcon, QLabel, QMenu, QPainter, QSizePolicy, QSplitter,
-    QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt, QTabBar, QTimer,
-    QToolButton, QVBoxLayout, QWidget, QDialog, QEvent
+    QAction, QApplication, QDialog, QEvent, QIcon, QLabel, QMenu, QPainter,
+    QSizePolicy, QSplitter, QStackedWidget, QStatusBar, QStyle, QStyleOption, Qt,
+    QTabBar, QTimer, QToolButton, QVBoxLayout, QWidget
 )
 
-from calibre.constants import __appname__, get_version, ismacos
+from calibre.constants import get_appname_for_display, get_version, ismacos
 from calibre.customize.ui import find_plugin
 from calibre.gui2 import (
     config, error_dialog, gprefs, is_widescreen, open_local_file, open_url
@@ -266,7 +266,7 @@ class StatusBar(QStatusBar):  # {{{
     def __init__(self, parent=None):
         QStatusBar.__init__(self, parent)
         self.version = get_version()
-        self.base_msg = '%s %s' % (__appname__, self.version)
+        self.base_msg = f'{get_appname_for_display()} {self.version}'
         self.device_string = ''
         self.update_label = UpdateLabel('')
         self.total = self.current = self.selected = self.library_total = 0
