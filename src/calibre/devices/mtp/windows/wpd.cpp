@@ -18,7 +18,7 @@ CComPtr<IPortableDeviceManager> wpd::portable_device_manager = NULL;
 // Flag indicating if COM has been initialized
 static int _com_initialized = 0;
 // Application Info
-wpd::ClientInfo wpd::client_info = {0};
+wpd::ClientInfo wpd::client_info;
 
 // Module startup/shutdown {{{
 static PyObject *

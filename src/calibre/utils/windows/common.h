@@ -34,11 +34,11 @@ class generic_raii {
 		generic_raii & operator=( const generic_raii & ) ;
 
 	public:
-		generic_raii(T h = null) : handle(h) {}
+		explicit generic_raii(T h = null) : handle(h) {}
 		~generic_raii() { release(); }
 
 		void release() {
-			if (handle) {
+			if (handle != null) {
 				free_T(handle);
 				handle = null;
 			}
@@ -49,7 +49,6 @@ class generic_raii {
 		void set_ptr(T val) { handle = val; }
 		T* address() { return &handle; }
 		explicit operator bool() const { return handle != null; }
-		T operator->() { return handle; }
 };
 
 typedef generic_raii<wchar_t*, PyMem_Free, NULL> wchar_raii;
