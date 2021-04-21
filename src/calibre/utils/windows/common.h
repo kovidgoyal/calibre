@@ -26,97 +26,38 @@ set_error_from_hresult(const char *file, const int line, const HRESULT hr, const
 }
 #define error_from_hresult(hr, ...) set_error_from_hresult(__FILE__, __LINE__, hr, __VA_ARGS__)
 
-class wchar_raii {
+template<typename T, void free_T(void*), T null>
+class generic_raii {
 	private:
-		wchar_t *handle;
-		wchar_raii( const wchar_raii & ) ;
-		wchar_raii & operator=( const wchar_raii & ) ;
+		T handle;
+		generic_raii( const generic_raii & ) ;
+		generic_raii & operator=( const generic_raii & ) ;
 
 	public:
-		wchar_raii() : handle(NULL) {}
-		wchar_raii(wchar_t *h) : handle(h) {}
+		generic_raii(T h = null) : handle(h) {}
+		~generic_raii() { release(); }
 
-		~wchar_raii() { release(); }
 		void release() {
 			if (handle) {
-				PyMem_Free(handle);
-				handle = NULL;
+				free_T(handle);
+				handle = null;
 			}
 		}
 
-		wchar_t *ptr() { return handle; }
-		wchar_t *detach() { wchar_t *ans = handle; handle = NULL; return ans; }
-		void set_ptr(wchar_t *val) { handle = val; }
-		wchar_t **address() { return &handle; }
-		explicit operator bool() const { return handle != NULL; }
+		T ptr() { return handle; }
+		T detach() { T ans = handle; handle = null; return ans; }
+		void set_ptr(T val) { handle = val; }
+		T* address() { return &handle; }
+		explicit operator bool() const { return handle != null; }
+		T operator->() { return handle; }
 };
 
-
-class com_wchar_raii {
-	private:
-		wchar_t *handle;
-		com_wchar_raii( const com_wchar_raii & ) ;
-		com_wchar_raii & operator=( const com_wchar_raii & ) ;
-
-	public:
-		com_wchar_raii() : handle(NULL) {}
-
-		~com_wchar_raii() {
-			if (handle) {
-                CoTaskMemFree(handle);
-				handle = NULL;
-			}
-		}
-
-		wchar_t *ptr() { return handle; }
-		void set_ptr(wchar_t *val) { handle = val; }
-		wchar_t *detach() { wchar_t *ans = handle; handle = NULL; return ans; }
-		wchar_t **address() { return &handle; }
-		explicit operator bool() const { return handle != NULL; }
-};
-
-class pyobject_raii {
-	private:
-		PyObject *handle;
-		pyobject_raii( const pyobject_raii & ) ;
-		pyobject_raii & operator=( const pyobject_raii & ) ;
-
-	public:
-		pyobject_raii() : handle(NULL) {}
-		pyobject_raii(PyObject* h) : handle(h) {}
-
-		~pyobject_raii() { Py_CLEAR(handle); }
-
-		PyObject *ptr() { return handle; }
-		void set_ptr(PyObject *val) { handle = val; }
-		PyObject **address() { return &handle; }
-		explicit operator bool() const { return handle != NULL; }
-        PyObject *detach() { PyObject *ans = handle; handle = NULL; return ans; }
-};
-
-
-class handle_raii {
-	private:
-		HANDLE handle;
-		handle_raii( const handle_raii & ) ;
-		handle_raii & operator=( const handle_raii & ) ;
-
-	public:
-		handle_raii() : handle(INVALID_HANDLE_VALUE) {}
-		handle_raii(HANDLE h) : handle(h) {}
-
-		~handle_raii() {
-			if (handle != INVALID_HANDLE_VALUE) {
-				CloseHandle(handle);
-				handle = INVALID_HANDLE_VALUE;
-			}
-		}
-
-		HANDLE ptr() const { return handle; }
-		void set_ptr(HANDLE val) { handle = val; }
-		explicit operator bool() const { return handle != INVALID_HANDLE_VALUE; }
-
-};
+typedef generic_raii<wchar_t*, PyMem_Free, NULL> wchar_raii;
+typedef generic_raii<wchar_t*, CoTaskMemFree, NULL> com_wchar_raii;
+static inline void python_object_destructor(void *p) { PyObject *x = reinterpret_cast<PyObject*>(p); Py_XDECREF(x); }
+typedef generic_raii<PyObject*, python_object_destructor, NULL> pyobject_raii;
+static inline void handle_destructor(HANDLE p) { CloseHandle(p); }
+typedef generic_raii<HANDLE, handle_destructor, INVALID_HANDLE_VALUE> handle_raii;
 
 
 static int
