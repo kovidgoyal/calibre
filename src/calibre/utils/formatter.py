@@ -332,14 +332,6 @@ class _Parser(object):
         except:
             return False
 
-    def token_is_separator(self):
-        self.check_eol()
-        try:
-            token = self.prog[self.lex_pos]
-            return token[1] == 'separator' and token[0] == self.LEX_ID
-        except:
-            return False
-
     def token_is_constant(self):
         self.check_eol()
         try:
@@ -366,7 +358,7 @@ class _Parser(object):
         self.lex_pos = 0
         self.parent = parent
         self.funcs = funcs
-        self.func_names = frozenset(set(self.funcs.keys()))
+        self.func_names = frozenset(set(self.funcs.keys()) | set(('newline',)))
         self.prog = prog[0]
         self.prog_len = len(self.prog)
         if prog[1] != '':
@@ -424,7 +416,7 @@ class _Parser(object):
                          "found '{2}'").format('for', 'in', self.token_text()))
         self.consume()
         list_expr = self.top_expr()
-        if self.token_is_separator():
+        if self.token_is('separator'):
             self.consume()
             separator = self.expr()
         else:
@@ -513,6 +505,35 @@ class _Parser(object):
             self.funcs[name].cached_parse_tree = subprog
         return CallNode(self.line_number, name, subprog, arguments)
 
+    # {keyword: tuple(preprocessor, node builder) }
+    keyword_nodes = {
+            'if':       (lambda self:None, if_expression),
+            'for':      (lambda self:None, for_expression),
+            'break':    (lambda self: self.consume(), lambda self: BreakNode(self.line_number)),
+            'continue': (lambda self: self.consume(), lambda self: ContinueNode(self.line_number)),
+            'return':   (lambda self: self.consume(), lambda self: ReturnNode(self.line_number, self.expr())),
+    }
+
+    # {inlined_function_name: tuple(constraint on number of length, node builder) }
+    inlined_function_nodes = {
+        'newline':          (lambda args: len(args) == 0,
+                             lambda ln, _: ConstantNode(ln, '\n')),
+        'field':            (lambda args: len(args) == 1,
+                             lambda ln, args: FieldNode(ln, args[0])),
+        'raw_field':        (lambda args: len(args) == 1,
+                             lambda ln, args: RawFieldNode(ln, *args)),
+        'test':             (lambda args: len(args) == 1,
+                             lambda ln, args: IfNode(ln, args[0], (args[1],), (args[2],))),
+        'first_non_empty':  (lambda args: len(args) == 1,
+                             lambda ln, args: FirstNonEmptyNode(ln, args)),
+        'assign':           (lambda args: len(args) == 2 and args[0].node_type == Node.NODE_RVALUE,
+                             lambda ln, args: AssignNode(ln, args[0].name, args[1])),
+        'contains':         (lambda args: len(args) == 4,
+                             lambda ln, args: ContainsNode(ln, args)),
+        'print':            (lambda _: True,
+                             lambda ln, args: PrintNode(ln, args)),
+    }
+
     def expr(self):
         if self.token_op_is('('):
             self.consume()
@@ -521,29 +542,29 @@ class _Parser(object):
                 self.error(_("Expected '{0}', found '{1}'").format(')', self.token_text()))
             self.consume()
             return rv
-        if self.token_is('if'):
-            return self.if_expression()
-        if self.token_is('for'):
-            return self.for_expression()
-        if self.token_is('break'):
-            self.consume()
-            return BreakNode(self.line_number)
-        if self.token_is('continue'):
-            self.consume()
-            return ContinueNode(self.line_number)
-        if self.token_is('return'):
-            self.consume()
-            return ReturnNode(self.line_number, self.expr())
+
+        # Check if we have a keyword-type expression
+        t = self.token_text()
+        kw_tuple = self.keyword_nodes.get(t, None)
+        if kw_tuple:
+            # These are keywords, so there can't be ambiguity between these, ids,
+            # and functions.
+            kw_tuple[0](self)
+            return kw_tuple[1](self)
+
+        # Not a keyword. Check if we have an id reference or a function call
         if self.token_is_id():
+            # We have an identifier. Check if it is a shorthand field reference
             line_number = self.line_number
             id_ = self.token()
-            # We have an identifier. Check if it is a field reference
             if len(id_) > 1 and id_[0] == '$':
                 if id_[1] == '$':
                     return RawFieldNode(line_number, ConstantNode(self.line_number, id_[2:]))
                 return FieldNode(line_number, ConstantNode(self.line_number, id_[1:]))
-            # Determine if it is a function
+
+            # Do we have a function call?
             if not self.token_op_is('('):
+                # Nope. We must have an lvalue (identifier) or an assignment
                 if self.token_op_is('='):
                     # classic assignment statement
                     self.consume()
@@ -556,28 +577,26 @@ class _Parser(object):
             id_ = id_.strip()
             if id_ not in self.func_names:
                 self.error(_('Unknown function {0}').format(id_))
-            # Eat the paren
+
+            # Eat the opening paren, parse the argument list, then eat the closing paren
             self.consume()
             arguments = list()
             while not self.token_op_is(')'):
-                # evaluate the expression (recursive call)
+                # parse an argument expression (recursive call)
                 arguments.append(self.expression_list())
                 if not self.token_op_is(','):
                     break
                 self.consume()
-            if self.token() != ')':
+            t = self.token()
+            if t != ')':
                 self.error(_("Expected a '{0}' for function call, "
-                             "found '{1}'").format(')', self.token_text()))
-            if id_ == 'field' and len(arguments) == 1:
-                return FieldNode(line_number, arguments[0])
-            if id_ == 'raw_field' and (len(arguments) in (1, 2)):
-                return RawFieldNode(line_number, *arguments)
-            if id_ == 'test' and len(arguments) == 3:
-                return IfNode(line_number, arguments[0], (arguments[1],), (arguments[2],))
-            if id_ == 'first_non_empty' and len(arguments) > 0:
-                return FirstNonEmptyNode(line_number, arguments)
-            if (id_ == 'assign' and len(arguments) == 2 and arguments[0].node_type == Node.NODE_RVALUE):
-                return AssignNode(line_number, arguments[0].name, arguments[1])
+                             "found '{1}'").format(')', t))
+
+            # Check for an inlined function
+            function_tuple = self.inlined_function_nodes.get(id_, None)
+            if function_tuple and function_tuple[0](arguments):
+                return function_tuple[1](line_number, arguments)
+            # More complicated special cases
             if id_ == 'arguments' or id_ == 'globals' or id_ == 'set_globals':
                 new_args = []
                 for arg_list in arguments:
@@ -593,12 +612,11 @@ class _Parser(object):
                 if id_ == 'set_globals':
                     return SetGlobalsNode(line_number, new_args)
                 return GlobalsNode(line_number, new_args)
-            if id_ == 'contains' and len(arguments) == 4:
-                return ContainsNode(line_number, arguments)
-            if id_ == 'print':
-                return PrintNode(line_number, arguments)
+            # Check for calling a stored template
             if id_ in self.func_names and not self.funcs[id_].is_python:
                 return self.call_expression(id_, arguments)
+            # We must have a reference to a formatter function. Check if
+            # the right number of arguments were supplied
             cls = self.funcs[id_]
             if cls.arg_count != -1 and len(arguments) != cls.arg_count:
                 self.error(_('Incorrect number of arguments for function {0}').format(id_))
@@ -607,6 +625,7 @@ class _Parser(object):
             # String or number
             return ConstantNode(self.line_number, self.token())
         else:
+            # Who knows what?
             self.error(_("Expected an expression, found '{0}'").format(self.token_text()))
 
 
