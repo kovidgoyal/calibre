@@ -339,9 +339,9 @@ get_device_information(CComPtr<IPortableDevice> &device, IPortableDeviceProperti
         pyobject_raii storage(get_storage_info(device));
         if (!storage) {
 			pyobject_raii exc_type, exc_value, exc_tb;
-            PyErr_Fetch(exc_type.address(), exc_value.address(), exc_tb.address());
+            PyErr_Fetch(&exc_type, &exc_value, &exc_tb);
             if (exc_type) {
-                PyErr_NormalizeException(exc_type.address(), exc_value.address(), exc_tb.address());
+                PyErr_NormalizeException(&exc_type, &exc_value, &exc_tb);
                 PyDict_SetItemString(ans, "storage_error", exc_value.ptr());
             } else {
                 PyDict_SetItemString(ans, "storage_error", PyUnicode_FromString("get_storage_info() failed without an error set"));

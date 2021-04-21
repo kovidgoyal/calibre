@@ -49,6 +49,7 @@ class generic_raii {
 		void set_ptr(T val) { handle = val; }
 		T* address() { return &handle; }
 		explicit operator bool() const { return handle != null; }
+		T* operator &() { return &handle; }
 };
 
 typedef generic_raii<wchar_t*, PyMem_Free, NULL> wchar_raii;
