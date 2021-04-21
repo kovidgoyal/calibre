@@ -59,17 +59,12 @@ update_data(Device *self, PyObject *args) {
 // get_filesystem() {{{
 static PyObject*
 py_get_filesystem(Device *self, PyObject *args) {
-    PyObject *storage_id, *ret, *callback;
-    wchar_t *storage;
+    PyObject *callback;
+	wchar_raii storage;
 
-    if (!PyArg_ParseTuple(args, "OO", &storage_id, &callback)) return NULL;
+    if (!PyArg_ParseTuple(args, "O&O", py_to_wchar_no_none, &storage, &callback)) return NULL;
     if (!PyCallable_Check(callback)) { PyErr_SetString(PyExc_TypeError, "callback is not a callable"); return NULL; }
-    storage = unicode_to_wchar(storage_id);
-    if (storage == NULL) return NULL;
-
-    ret = wpd::get_filesystem(self->device, storage, self->bulk_properties, callback);
-    free(storage);
-    return ret;
+    return wpd::get_filesystem(self->device, storage.ptr(), self->bulk_properties, callback);
 } // }}}
 
 // get_file() {{{

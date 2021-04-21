@@ -46,7 +46,7 @@ typedef generic_raii<PyObject*, python_object_destructor> pyobject_raii;
 
 
 static inline int
-py_to_wchar(PyObject *obj, wchar_raii *output) {
+py_to_wchar(PyObject *obj, wchar_t **output) {
 	if (!PyUnicode_Check(obj)) {
 		if (obj == Py_None) { return 1; }
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
@@ -54,18 +54,18 @@ py_to_wchar(PyObject *obj, wchar_raii *output) {
 	}
     wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
     if (!buf) { PyErr_NoMemory(); return 0; }
-	output->attach(buf);
+	*output = buf;
 	return 1;
 }
 
 static inline int
-py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
+py_to_wchar_no_none(PyObject *obj, wchar_t **output) {
 	if (!PyUnicode_Check(obj)) {
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
 		return 0;
 	}
     wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
     if (!buf) { PyErr_NoMemory(); return 0; }
-	output->attach(buf);
+	*output = buf;
 	return 1;
 }
