@@ -42,7 +42,7 @@ typedef struct {
     // Type-specific fields go here.
     wchar_raii pnp_id;
     CComPtr<IPortableDevice> device;
-    PyObject *device_information;
+    pyobject_raii device_information;
     CComPtr<IPortableDevicePropertiesBulk> bulk_properties;
 } Device;
 extern PyTypeObject DeviceType;

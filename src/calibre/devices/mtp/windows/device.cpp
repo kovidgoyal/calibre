@@ -22,8 +22,7 @@ dealloc(Device* self)
         Py_END_ALLOW_THREADS;
     }
 
-    Py_XDECREF(self->device_information); self->device_information = NULL;
-
+	self->device_information.release();
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -37,7 +36,7 @@ init(Device *self, PyObject *args, PyObject *kwds)
     if (client_information) {
         self->device = open_device(self->pnp_id.ptr(), client_information);
         if (self->device) {
-            self->device_information = get_device_information(self->device, self->bulk_properties);
+            self->device_information.attach(get_device_information(self->device, self->bulk_properties));
             if (self->device_information) ret = 0;
         }
     }
@@ -53,7 +52,7 @@ update_data(Device *self, PyObject *args) {
     CComPtr<IPortableDevicePropertiesBulk> bulk_properties;
     di = get_device_information(self->device, bulk_properties);
     if (di == NULL) return NULL;
-    Py_XDECREF(self->device_information); self->device_information = di;
+    self->device_information.attach(di);
     Py_RETURN_NONE;
 } // }}}
 
@@ -171,7 +170,8 @@ static PyMethodDef Device_methods[] = {
 // Device.data {{{
 static PyObject *
 Device_data(Device *self, void *closure) {
-    Py_INCREF(self->device_information); return self->device_information;
+	PyObject *ans = self->device_information.ptr();
+	Py_INCREF(ans); return ans;
 } // }}}
 
 
