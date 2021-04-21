@@ -832,8 +832,7 @@ get_long_path_name(PyObject *self, PyObject *args) {
     Py_END_ALLOW_THREADS
     if (needed_size >= current_size - 32) {
         current_size = needed_size + 32;
-        PyMem_Free(buf.ptr());
-        buf.set_ptr((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
+        buf.attach((wchar_t*)PyMem_Malloc(current_size * sizeof(wchar_t)));
         if (!buf) return PyErr_NoMemory();
         Py_BEGIN_ALLOW_THREADS
         needed_size = GetLongPathNameW(path.ptr(), buf.ptr(), current_size);

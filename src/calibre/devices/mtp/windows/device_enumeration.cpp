@@ -127,7 +127,7 @@ get_storage_info(IPortableDevice *device) { // {{{
         Py_END_ALLOW_THREADS;
         if (SUCCEEDED(hr)) {
 			com_wchar_raii cleanup[arraysz(object_ids)];
-            for (i = 0; i < arraysz(object_ids); i++) { cleanup[i].set_ptr(object_ids[i]); };
+            for (i = 0; i < arraysz(object_ids); i++) { cleanup[i].attach(object_ids[i]); };
             for(i = 0; i < fetched; i++) {
 				CComPtr<IPortableDeviceValues> values;
                 Py_BEGIN_ALLOW_THREADS;

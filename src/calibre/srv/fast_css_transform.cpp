@@ -24,6 +24,7 @@
 #include <codecvt>
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
+#include "../utils/cpp_binding.h"
 
 // character classes {{{
 static inline bool
@@ -76,25 +77,6 @@ is_printable_ascii(char32_t ch) {
 class python_error : public std::runtime_error {
 	public:
 		python_error(const char *msg) : std::runtime_error(msg) {}
-};
-
-class pyobject_raii {
-	private:
-		PyObject *handle;
-		pyobject_raii( const pyobject_raii & ) ;
-		pyobject_raii & operator=( const pyobject_raii & ) ;
-
-	public:
-		pyobject_raii() : handle(NULL) {}
-		pyobject_raii(PyObject* h, bool incref=false) : handle(h) { if (incref && handle) Py_INCREF(handle); }
-
-		~pyobject_raii() { Py_CLEAR(handle); }
-
-		PyObject *ptr() { return handle; }
-		void set_ptr(PyObject *val) { handle = val; }
-		PyObject **address() { return &handle; }
-		explicit operator bool() const { return handle != NULL; }
-        PyObject *detach() { PyObject *ans = handle; handle = NULL; return ans; }
 };
 
 // Parse numbers {{{
@@ -670,9 +652,10 @@ class TokenQueue {
 		}
 
     public:
-        TokenQueue(const size_t src_sz, PyObject *url_callback=NULL) :
-			pool(), queue(), out(), scratch(), scratch2(), url_callback(url_callback, true) {
+        TokenQueue(const size_t src_sz, PyObject *url_callback_pointer=NULL) :
+			pool(), queue(), out(), scratch(), scratch2(), url_callback(url_callback_pointer) {
 				out.reserve(src_sz * 2); scratch.reserve(16); scratch2.reserve(16);
+				Py_XINCREF(url_callback.ptr());
 			}
 
 		void rewind_output() { out.pop_back(); }
