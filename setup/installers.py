@@ -222,7 +222,7 @@ class ExtDev(Command):
 
     def run(self, opts):
         which, ext = opts.cli_args[:2]
-        cmd = opts.cli_args[2:]
+        cmd = opts.cli_args[2:] or ['calibre-debug', '--test-build']
         bitness = '64' if which == 'windows' else ''
         ext_dir = build_only(which, bitness, ext)
         if which == 'windows':
