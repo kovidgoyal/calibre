@@ -35,9 +35,8 @@ class generic_raii {
 		T ptr() noexcept { return handle; }
 		T detach() noexcept { T ans = handle; handle = null; return ans; }
 		void attach(T val) noexcept { release(); handle = val; }
-		T* address() noexcept { return &handle; }
+		T* unsafe_address() noexcept { return &handle; }
 		explicit operator bool() const noexcept { return handle != null; }
-		T* operator &() noexcept { return &handle; }
 };
 
 typedef generic_raii<wchar_t*, PyMem_Free> wchar_raii;
@@ -46,26 +45,26 @@ typedef generic_raii<PyObject*, python_object_destructor> pyobject_raii;
 
 
 static inline int
-py_to_wchar(PyObject *obj, wchar_t **output) {
+py_to_wchar(PyObject *obj, wchar_raii *output) {
 	if (!PyUnicode_Check(obj)) {
-		if (obj == Py_None) { *output = NULL; return 1; }
+		if (obj == Py_None) { output->release(); return 1; }
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
 		return 0;
 	}
     wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
     if (!buf) { PyErr_NoMemory(); return 0; }
-	*output = buf;
+	output->attach(buf);
 	return 1;
 }
 
 static inline int
-py_to_wchar_no_none(PyObject *obj, wchar_t **output) {
+py_to_wchar_no_none(PyObject *obj, wchar_raii *output) {
 	if (!PyUnicode_Check(obj)) {
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
 		return 0;
 	}
     wchar_t *buf = PyUnicode_AsWideCharString(obj, NULL);
     if (!buf) { PyErr_NoMemory(); return 0; }
-	*output = buf;
+	output->attach(buf);
 	return 1;
 }

@@ -254,7 +254,7 @@ get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevice
 
 #define S(what, key) { \
 	com_wchar_raii temp; \
-    if (SUCCEEDED(values->GetStringValue(what, &temp))) { \
+    if (SUCCEEDED(values->GetStringValue(what, temp.unsafe_address()))) { \
         pyobject_raii t(PyUnicode_FromWideChar(temp.ptr(), -1)); \
         if (t) if (PyDict_SetItemString(ans, key, t.ptr()) != 0) PyErr_Clear(); \
     }}
@@ -305,9 +305,9 @@ get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevice
         pyobject_raii storage(get_storage_info(device));
         if (!storage) {
 			pyobject_raii exc_type, exc_value, exc_tb;
-            PyErr_Fetch(&exc_type, &exc_value, &exc_tb);
+            PyErr_Fetch(exc_type.unsafe_address(), exc_value.unsafe_address(), exc_tb.unsafe_address());
             if (exc_type) {
-                PyErr_NormalizeException(&exc_type, &exc_value, &exc_tb);
+                PyErr_NormalizeException(exc_type.unsafe_address(), exc_value.unsafe_address(), exc_tb.unsafe_address());
                 PyDict_SetItemString(ans, "storage_error", exc_value.ptr());
             } else {
 				pyobject_raii t(PyUnicode_FromString("get_storage_info() failed without an error set"));
