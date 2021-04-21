@@ -247,6 +247,8 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             val = now()
         else:
             val = index.data(Qt.ItemDataRole.EditRole)
+            if is_date_undefined(val):
+                val = now()
         editor.setDateTime(val)
 
 # }}}

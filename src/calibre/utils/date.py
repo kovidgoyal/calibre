@@ -157,6 +157,8 @@ safeyear = lambda x: min(max(x, MINYEAR), MAXYEAR)
 
 def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     o = qdate_or_qdatetime
+    if o is None:
+        return UNDEFINED_DATE
     if hasattr(o, 'toUTC'):
         # QDateTime
         o = o.toUTC()
