@@ -45,6 +45,7 @@ class Node(object):
     NODE_BREAK = 22
     NODE_CONTINUE = 23
     NODE_RETURN = 24
+    NODE_CHARACTER = 25
 
     def __init__(self, line_number, name):
         self.my_line_number = line_number
@@ -247,6 +248,13 @@ class PrintNode(Node):
         self.arguments = arguments
 
 
+class CharacterNode(Node):
+    def __init__(self, line_number, expression):
+        Node.__init__(self, line_number, 'character')
+        self.node_type = self.NODE_CHARACTER
+        self.expression = expression
+
+
 class _Parser(object):
     LEX_OP = 1
     LEX_ID = 2
@@ -332,6 +340,13 @@ class _Parser(object):
         except:
             return False
 
+    def token_is_keyword(self):
+        self.check_eol()
+        try:
+            return self.prog[self.lex_pos][0] == self.LEX_KEYWORD
+        except:
+            return False
+
     def token_is_constant(self):
         self.check_eol()
         try:
@@ -358,7 +373,7 @@ class _Parser(object):
         self.lex_pos = 0
         self.parent = parent
         self.funcs = funcs
-        self.func_names = frozenset(set(self.funcs.keys()) | set(('newline',)))
+        self.func_names = frozenset(set(self.funcs.keys()))
         self.prog = prog[0]
         self.prog_len = len(self.prog)
         if prog[1] != '':
@@ -516,8 +531,6 @@ class _Parser(object):
 
     # {inlined_function_name: tuple(constraint on number of length, node builder) }
     inlined_function_nodes = {
-        'newline':          (lambda args: len(args) == 0,
-                             lambda ln, _: ConstantNode(ln, '\n')),
         'field':            (lambda args: len(args) == 1,
                              lambda ln, args: FieldNode(ln, args[0])),
         'raw_field':        (lambda args: len(args) == 1,
@@ -530,6 +543,8 @@ class _Parser(object):
                              lambda ln, args: AssignNode(ln, args[0].name, args[1])),
         'contains':         (lambda args: len(args) == 4,
                              lambda ln, args: ContainsNode(ln, args)),
+        'character':        (lambda args: len(args) == 1,
+                             lambda ln, args: CharacterNode(ln, args[0])),
         'print':            (lambda _: True,
                              lambda ln, args: PrintNode(ln, args)),
     }
@@ -544,13 +559,14 @@ class _Parser(object):
             return rv
 
         # Check if we have a keyword-type expression
-        t = self.token_text()
-        kw_tuple = self.keyword_nodes.get(t, None)
-        if kw_tuple:
-            # These are keywords, so there can't be ambiguity between these, ids,
-            # and functions.
-            kw_tuple[0](self)
-            return kw_tuple[1](self)
+        if self.token_is_keyword():
+            t = self.token_text()
+            kw_tuple = self.keyword_nodes.get(t, None)
+            if kw_tuple:
+                # These are keywords, so there can't be ambiguity between these,
+                # ids, and functions.
+                kw_tuple[0](self)
+                return kw_tuple[1](self)
 
         # Not a keyword. Check if we have an id reference or a function call
         if self.token_is_id():
@@ -1053,6 +1069,20 @@ class _Interpreter(object):
             self.error(_("Error during operator evaluation: "
                          "operator '{0}'").format(prog.operator), prog.line_number)
 
+    characters = {
+        'return':    '\r',
+        'newline':   '\n',
+        'tab':       '\t',
+        'backslash': '\\',
+    }
+    def do_node_character(self, prog):
+        key = self.expr(prog.expression)
+        ret = self.characters.get(key, None)
+        if ret is None:
+            self.error(_("Function {0}: invalid character name '{1}")
+                       .format('character', key), prog.line_number)
+        return ret
+
     def do_node_print(self, prog):
         res = []
         for arg in prog.arguments:
@@ -1085,6 +1115,7 @@ class _Interpreter(object):
         Node.NODE_BREAK:          do_node_break,
         Node.NODE_CONTINUE:       do_node_continue,
         Node.NODE_RETURN:         do_node_return,
+        Node.NODE_CHARACTER:      do_node_character,
         }
 
     def expr(self, prog):
@@ -1290,8 +1321,10 @@ class TemplateFormatter(string.Formatter):
                                      self.column_name, global_vars, break_reporter)
         else:
             ans = self.vformat(fmt, args, kwargs)
+            if self.strip_results:
+                ans = self.compress_spaces.sub(' ', ans)
         if self.strip_results:
-            return self.compress_spaces.sub(' ', ans).strip()
+            ans = ans.strip(' ')
         return ans
 
     # ######### a formatter that throws exceptions ############

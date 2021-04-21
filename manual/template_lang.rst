@@ -383,6 +383,7 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 
   More than one of ``is_undefined``, ``is_false``, or ``is_true`` can be set to 1.
 * ``ceiling(x)`` -- returns the smallest integer greater than or equal to ``x``. Throws an exception if ``x`` is not a number.
+* ``character(character_name)`` -- returns the character named by character_name. For example, ``character('newline')`` returns a newline character (``'\n'``). The supported character names are ``newline``, ``return``, ``tab``, and ``backslash``.
 * ``cmp(x, y, lt, eq, gt)`` -- compares ``x`` and ``y`` after converting both to numbers. Returns ``lt`` if ``x <# y``, ``eq`` if ``x ==# y``, otherwise ``gt``. This function can usually be replaced with one of the numeric compare operators (``==#``, ``<#``, ``>#``, etc).
 * ``connected_device_name(storage_location_key)`` -- if a device is connected then return the device name, otherwise return the empty string. Each storage location on a device has its own device name. The ``storage_location_key`` names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
 * ``connected_device_uuid(storage_location_key)`` -- if a device is connected then return the device uuid (unique id), otherwise return the empty string. Each storage location on a device has a different uuid. The ``storage_location_key`` location names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
