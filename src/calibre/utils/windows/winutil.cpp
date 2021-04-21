@@ -61,7 +61,7 @@ PyGUID_dealloc(PyGUID *self) { }
 static PyObject*
 PyGUID_repr(PyGUID *self) {
 	com_wchar_raii s;
-	HRESULT hr = StringFromIID(self->guid, s.address());
+	HRESULT hr = StringFromIID(self->guid, s.unsafe_address());
 	if (FAILED(hr)) return error_from_hresult(hr);
 	return PyUnicode_FromWideChar(s.ptr(), -1);
 }
@@ -317,7 +317,7 @@ known_folder_path(PyObject *self, PyObject *args) {
 	DWORD flags = KF_FLAG_DEFAULT;
 	if (!PyArg_ParseTuple(args, "O!|k", &PyGUIDType, &id, &flags)) return NULL;
 	com_wchar_raii path;
-	HRESULT hr = SHGetKnownFolderPath(id->guid, flags, NULL, path.address());
+	HRESULT hr = SHGetKnownFolderPath(id->guid, flags, NULL, path.unsafe_address());
 	return PyUnicode_FromWideChar(path.ptr(), -1);
 }
 

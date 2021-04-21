@@ -242,7 +242,7 @@ class Token {
             out.push_back('\\');
             if (is_whitespace(ch) || is_hex_digit(ch)) {
                 char buf[8];
-                int num = std::snprintf(buf, sizeof(buf), "%x ", ch);
+                int num = std::snprintf(buf, sizeof(buf), "%x ", (unsigned int)ch);
                 if (num > 0) {
                     out.resize(out.size() + num);
                     for (int i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
