@@ -665,9 +665,10 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
             v = SafeFormat().safe_format(txt, mi, _('EXCEPTION: '),
                              mi, global_vars=self.global_vars,
                              template_functions=self.all_functions,
+                             strip_results=False,
                              break_reporter=self.break_reporter if r == break_on_mi else None)
             w = tv.cellWidget(r, 1)
-            w.setText(v)
+            w.setText(v.replace('\n', '\\n'))
             w.setCursorPosition(0)
 
     def text_cursor_changed(self):
@@ -758,7 +759,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
 class BreakReporterItem(QTableWidgetItem):
 
     def __init__(self, txt):
-        super().__init__(txt)
+        super().__init__(txt.replace('\n', '\\n') if txt else txt)
         self.setFlags(self.flags() & ~(Qt.ItemFlag.ItemIsEditable|Qt.ItemFlag.ItemIsSelectable))
 
 
