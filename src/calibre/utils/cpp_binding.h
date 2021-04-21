@@ -17,9 +17,11 @@
 template<typename T, void free_T(void*), T null=reinterpret_cast<T>(NULL)>
 class generic_raii {
 	private:
-		T handle;
 		generic_raii( const generic_raii & ) noexcept;
 		generic_raii & operator=( const generic_raii & ) noexcept ;
+
+	protected:
+		T handle;
 
 	public:
 		explicit generic_raii(T h = null) noexcept : handle(h) {}
@@ -39,7 +41,14 @@ class generic_raii {
 		explicit operator bool() const noexcept { return handle != null; }
 };
 
-typedef generic_raii<wchar_t*, PyMem_Free> wchar_raii;
+class wchar_raii : public generic_raii<wchar_t*, PyMem_Free> {
+	public:
+		explicit wchar_raii() noexcept {}
+		explicit wchar_raii(PyObject *unicode_object) noexcept {
+			if (!unicode_object || !PyUnicode_Check(unicode_object)) { PyErr_SetString(PyExc_TypeError, "Not a unicode object"); return; }
+			handle = PyUnicode_AsWideCharString(unicode_object, NULL);
+		}
+};
 static inline void python_object_destructor(void *p) { PyObject *x = reinterpret_cast<PyObject*>(p); Py_XDECREF(x); }
 typedef generic_raii<PyObject*, python_object_destructor> pyobject_raii;
 

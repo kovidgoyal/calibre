@@ -27,15 +27,6 @@ extern PyObject *WPDError, *NoWPD, *WPDFileBusy;
 // The global device manager
 extern CComPtr<IPortableDeviceManager> portable_device_manager;
 
-// Application info
-typedef struct {
-    wchar_raii name;
-    unsigned int major_version;
-    unsigned int minor_version;
-    unsigned int revision;
-} ClientInfo;
-extern ClientInfo client_info;
-
 // Device type
 typedef struct {
     PyObject_HEAD
@@ -48,10 +39,6 @@ typedef struct {
 extern PyTypeObject DeviceType;
 
 #define hresult_set_exc(msg, hr) set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, msg)
-
-wchar_t *unicode_to_wchar(PyObject *o);
-PyObject *wchar_to_unicode(const wchar_t *o);
-int pump_waiting_messages();
 
 extern IPortableDeviceValues* get_client_information();
 extern IPortableDevice* open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information);

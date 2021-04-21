@@ -9,42 +9,6 @@
 
 namespace wpd {
 
-IPortableDeviceValues *get_client_information() { // {{{
-    HRESULT hr;
-
-    ENSURE_WPD(NULL);
-    CComPtr<IPortableDeviceValues> client_information;
-
-    Py_BEGIN_ALLOW_THREADS;
-	hr = client_information.CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER);
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDeviceValues", hr); return NULL; }
-
-    Py_BEGIN_ALLOW_THREADS;
-    hr = client_information->SetStringValue(WPD_CLIENT_NAME, client_info.name.ptr());
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to set client name", hr); return NULL; }
-    Py_BEGIN_ALLOW_THREADS;
-    hr = client_information->SetUnsignedIntegerValue(WPD_CLIENT_MAJOR_VERSION, client_info.major_version);
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to set major version", hr); return NULL; }
-    Py_BEGIN_ALLOW_THREADS;
-    hr = client_information->SetUnsignedIntegerValue(WPD_CLIENT_MINOR_VERSION, client_info.minor_version);
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to set minor version", hr); return NULL; }
-    Py_BEGIN_ALLOW_THREADS;
-    hr = client_information->SetUnsignedIntegerValue(WPD_CLIENT_REVISION, client_info.revision);
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to set revision", hr); return NULL; }
-    //  Some device drivers need to impersonate the caller in order to function correctly.  Since our application does not
-    //  need to restrict its identity, specify SECURITY_IMPERSONATION so that we work with all devices.
-    Py_BEGIN_ALLOW_THREADS;
-    hr = client_information->SetUnsignedIntegerValue(WPD_CLIENT_SECURITY_QUALITY_OF_SERVICE, SECURITY_IMPERSONATION);
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to set quality of service", hr); return NULL; }
-    return client_information.Detach();
-} // }}}
-
 IPortableDevice*
 open_device(const wchar_t *pnp_id, CComPtr<IPortableDeviceValues> &client_information) { // {{{
     CComPtr<IPortableDevice> device;
@@ -151,7 +115,7 @@ get_storage_info(IPortableDevice *device) { // {{{
                         pyobject_raii so(Py_BuildValue("{s:K, s:K, s:K, s:K, s:O, s:O}",
                                 "capacity", capacity, "capacity_objects", capacity_objects, "free_space", free_space, "free_objects", free_objects, "rw", paccess, "id", soid.ptr()));
                         if (!so) return NULL;
-#define A(which, key) { com_wchar_raii buf; if (SUCCEEDED(values->GetStringValue(which, buf.address()))) { \
+#define A(which, key) { com_wchar_raii buf; if (SUCCEEDED(values->GetStringValue(which, buf.unsafe_address()))) { \
 							pyobject_raii d(PyUnicode_FromWideChar(buf.ptr(), -1)); \
 							if (d) PyDict_SetItemString(so.ptr(), key, d.ptr()); \
 							else PyErr_Clear(); \
