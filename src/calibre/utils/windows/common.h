@@ -16,11 +16,9 @@
 static inline PyObject*
 set_error_from_hresult(PyObject *exc_type, const char *file, const int line, const HRESULT hr, const char *prefix="", PyObject *name=NULL) {
     _com_error err(hr);
-    LPCWSTR msg = err.ErrorMessage();
-    PyObject *pmsg = PyUnicode_FromWideChar(msg, -1);
-    PyObject *ans;
-    if (name) ans = PyErr_Format(exc_type, "%s:%d:%s:[%li] %V: %S", file, line, prefix, hr, pmsg, "Out of memory", name);
-    else ans = PyErr_Format(exc_type, "%s:%d:%s:[%li] %V", file, line, prefix, hr, pmsg, "Out of memory");
+    PyObject *pmsg = PyUnicode_FromWideChar(err.ErrorMessage(), -1);
+    if (name) PyErr_Format(exc_type, "%s:%d:%s:[%li] %V: %S", file, line, prefix, hr, pmsg, "Out of memory", name);
+    else PyErr_Format(exc_type, "%s:%d:%s:[%li] %V", file, line, prefix, hr, pmsg, "Out of memory");
     Py_CLEAR(pmsg);
     return NULL;
 }
