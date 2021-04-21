@@ -2022,11 +2022,26 @@ class BuiltinFieldExists(BuiltinFormatterFunction):
         return ''
 
 
+class BuiltinCharacter(BuiltinFormatterFunction):
+    name = 'character'
+    arg_count = 1
+    category = 'String manipulation'
+    __doc__ = doc = _('character(character_name) -- returns the '
+                      'character named by character_name. For example, '
+                      "character('newline') returns a newline character ('\n'). "
+                      "The supported character names are 'newline', 'return', "
+                      "'tab', and 'backslash'.")
+
+    def evaluate(self, formatter, kwargs, mi, locals, character_name):
+        # The globals function is implemented in-line in the formatter
+        raise NotImplementedError()
+
+
 _formatter_builtins = [
     BuiltinAdd(), BuiltinAnd(), BuiltinApproximateFormats(), BuiltinArguments(),
     BuiltinAssign(),
     BuiltinAuthorLinks(), BuiltinAuthorSorts(), BuiltinBooksize(),
-    BuiltinCapitalize(), BuiltinCheckYesNo(), BuiltinCeiling(),
+    BuiltinCapitalize(), BuiltinCharacter(), BuiltinCheckYesNo(), BuiltinCeiling(),
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
