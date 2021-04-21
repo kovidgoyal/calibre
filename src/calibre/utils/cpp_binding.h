@@ -48,7 +48,7 @@ typedef generic_raii<PyObject*, python_object_destructor> pyobject_raii;
 static inline int
 py_to_wchar(PyObject *obj, wchar_t **output) {
 	if (!PyUnicode_Check(obj)) {
-		if (obj == Py_None) { return 1; }
+		if (obj == Py_None) { *output = NULL; return 1; }
 		PyErr_SetString(PyExc_TypeError, "unicode object expected");
 		return 0;
 	}

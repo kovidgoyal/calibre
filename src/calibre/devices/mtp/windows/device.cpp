@@ -70,68 +70,41 @@ py_get_filesystem(Device *self, PyObject *args) {
 // get_file() {{{
 static PyObject*
 py_get_file(Device *self, PyObject *args) {
-    PyObject *object_id, *stream, *callback = NULL, *ret;
-    wchar_t *object;
+    PyObject *stream, *callback = NULL;
+    wchar_raii object;
 
-    if (!PyArg_ParseTuple(args, "OO|O", &object_id, &stream, &callback)) return NULL;
-    object = unicode_to_wchar(object_id);
-    if (object == NULL) return NULL;
-
+    if (!PyArg_ParseTuple(args, "O&O|O", py_to_wchar, &object, &stream, &callback)) return NULL;
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
-
-    ret = wpd::get_file(self->device, object, stream, callback);
-    free(object);
-    return ret;
+    return wpd::get_file(self->device, object.ptr(), stream, callback);
 } // }}}
 
 // create_folder() {{{
 static PyObject*
 py_create_folder(Device *self, PyObject *args) {
-    PyObject *pparent_id, *pname, *ret;
-    wchar_t *parent_id, *name;
-
-    if (!PyArg_ParseTuple(args, "OO", &pparent_id, &pname)) return NULL;
-    parent_id = unicode_to_wchar(pparent_id);
-    name = unicode_to_wchar(pname);
-    if (parent_id == NULL || name == NULL) return NULL;
-
-    ret = wpd::create_folder(self->device, parent_id, name);
-    free(parent_id); free(name);
-    return ret;
+    wchar_raii parent_id, name;
+    if (!PyArg_ParseTuple(args, "O&O&", py_to_wchar, &parent_id, py_to_wchar, &name)) return NULL;
+    return wpd::create_folder(self->device, parent_id.ptr(), name.ptr());
 } // }}}
 
 // delete_object() {{{
 static PyObject*
 py_delete_object(Device *self, PyObject *args) {
-    PyObject *pobject_id, *ret;
-    wchar_t *object_id;
+    wchar_raii object_id;
 
-    if (!PyArg_ParseTuple(args, "O", &pobject_id)) return NULL;
-    object_id = unicode_to_wchar(pobject_id);
-    if (object_id == NULL) return NULL;
-
-    ret =  wpd::delete_object(self->device, object_id);
-    free(object_id);
-    return ret;
+    if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &object_id)) return NULL;
+    return wpd::delete_object(self->device, object_id.ptr());
 } // }}}
 
-// get_file() {{{
+// put_file() {{{
 static PyObject*
 py_put_file(Device *self, PyObject *args) {
-    PyObject *pparent_id, *pname, *stream, *callback = NULL, *ret;
-    wchar_t *parent_id, *name;
+    PyObject *stream, *callback = NULL;
+    wchar_raii parent_id, name;
     unsigned long long size;
 
-    if (!PyArg_ParseTuple(args, "OOOK|O", &pparent_id, &pname, &stream, &size, &callback)) return NULL;
-    parent_id = unicode_to_wchar(pparent_id);
-    name = unicode_to_wchar(pname);
-    if (parent_id == NULL || name == NULL) return NULL;
-
+    if (!PyArg_ParseTuple(args, "O&O&OK|O", py_to_wchar, &parent_id, py_to_wchar, &name, &stream, &size, &callback)) return NULL;
     if (callback == NULL || !PyCallable_Check(callback)) callback = NULL;
-
-    ret = wpd::put_file(self->device, parent_id, name, stream, size, callback);
-    free(parent_id); free(name);
-    return ret;
+    return wpd::put_file(self->device, parent_id.ptr(), name.ptr(), stream, size, callback);
 } // }}}
 
 static PyMethodDef Device_methods[] = {
