@@ -18,26 +18,26 @@ template<typename T, void free_T(void*), T null=reinterpret_cast<T>(NULL)>
 class generic_raii {
 	private:
 		T handle;
-		generic_raii( const generic_raii & ) ;
-		generic_raii & operator=( const generic_raii & ) ;
+		generic_raii( const generic_raii & ) noexcept;
+		generic_raii & operator=( const generic_raii & ) noexcept ;
 
 	public:
-		explicit generic_raii(T h = null) : handle(h) {}
-		~generic_raii() { release(); }
+		explicit generic_raii(T h = null) noexcept : handle(h) {}
+		~generic_raii() noexcept { release(); }
 
-		void release() {
+		void release() noexcept {
 			if (handle != null) {
 				free_T(handle);
 				handle = null;
 			}
 		}
 
-		T ptr() { return handle; }
-		T detach() { T ans = handle; handle = null; return ans; }
-		void attach(T val) { release(); handle = val; }
-		T* address() { return &handle; }
-		explicit operator bool() const { return handle != null; }
-		T* operator &() { return &handle; }
+		T ptr() noexcept { return handle; }
+		T detach() noexcept { T ans = handle; handle = null; return ans; }
+		void attach(T val) noexcept { release(); handle = val; }
+		T* address() noexcept { return &handle; }
+		explicit operator bool() const noexcept { return handle != null; }
+		T* operator &() noexcept { return &handle; }
 };
 
 typedef generic_raii<wchar_t*, PyMem_Free> wchar_raii;
