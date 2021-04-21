@@ -9,10 +9,6 @@
 
 using namespace wpd;
 
-PyObject *wpd::hresult_set_exc(const char *msg, HRESULT hr) {
-	return error_from_hresult(hr, msg);
-}
-
 wchar_t *wpd::unicode_to_wchar(PyObject *o) {
     wchar_t *buf;
     Py_ssize_t len;

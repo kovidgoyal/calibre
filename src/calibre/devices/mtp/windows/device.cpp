@@ -37,12 +37,8 @@ init(Device *self, PyObject *args, PyObject *kwds)
     if (client_information) {
         self->device = open_device(self->pnp_id.ptr(), client_information);
         if (self->device) {
-			IPortableDevicePropertiesBulk *bulk_properties = NULL;
-            self->device_information = get_device_information(self->device, &bulk_properties);
-            if (self->device_information) {
-				ret = 0;
-				self->bulk_properties = bulk_properties;
-			}
+            self->device_information = get_device_information(self->device, self->bulk_properties);
+            if (self->device_information) ret = 0;
         }
     }
     return ret;
@@ -54,7 +50,8 @@ init(Device *self, PyObject *args, PyObject *kwds)
 static PyObject*
 update_data(Device *self, PyObject *args) {
     PyObject *di = NULL;
-    di = get_device_information(self->device, NULL);
+    CComPtr<IPortableDevicePropertiesBulk> bulk_properties;
+    di = get_device_information(self->device, bulk_properties);
     if (di == NULL) return NULL;
     Py_XDECREF(self->device_information); self->device_information = di;
     Py_RETURN_NONE;

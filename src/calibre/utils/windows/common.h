@@ -14,17 +14,17 @@
 #define arraysz(x) (sizeof(x)/sizeof(x[0]))
 
 static inline PyObject*
-set_error_from_hresult(const char *file, const int line, const HRESULT hr, const char *prefix="", PyObject *name=NULL) {
+set_error_from_hresult(PyObject *exc_type, const char *file, const int line, const HRESULT hr, const char *prefix="", PyObject *name=NULL) {
     _com_error err(hr);
     LPCWSTR msg = err.ErrorMessage();
     PyObject *pmsg = PyUnicode_FromWideChar(msg, -1);
     PyObject *ans;
-    if (name) ans = PyErr_Format(PyExc_OSError, "%s:%d:%s:[%li] %V: %S", file, line, prefix, hr, pmsg, "Out of memory", name);
-    else ans = PyErr_Format(PyExc_OSError, "%s:%d:%s:[%li] %V", file, line, prefix, hr, pmsg, "Out of memory");
+    if (name) ans = PyErr_Format(exc_type, "%s:%d:%s:[%li] %V: %S", file, line, prefix, hr, pmsg, "Out of memory", name);
+    else ans = PyErr_Format(exc_type, "%s:%d:%s:[%li] %V", file, line, prefix, hr, pmsg, "Out of memory");
     Py_CLEAR(pmsg);
-    return ans;
+    return NULL;
 }
-#define error_from_hresult(hr, ...) set_error_from_hresult(__FILE__, __LINE__, hr, __VA_ARGS__)
+#define error_from_hresult(hr, ...) set_error_from_hresult(PyExc_OSError, __FILE__, __LINE__, hr, __VA_ARGS__)
 
 template<typename T, void free_T(void*), T null>
 class generic_raii {

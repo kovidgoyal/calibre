@@ -189,83 +189,77 @@ get_storage_info(IPortableDevice *device) { // {{{
 } // }}}
 
 PyObject*
-get_device_information(CComPtr<IPortableDevice> &device, IPortableDevicePropertiesBulk **pb) { // {{{
-    IPortableDeviceContent *content = NULL;
-    IPortableDeviceProperties *properties = NULL;
-    IPortableDevicePropertiesBulk *properties_bulk = NULL;
-    IPortableDeviceKeyCollection *keys = NULL;
-    IPortableDeviceValues *values = NULL;
-    IPortableDeviceCapabilities *capabilities = NULL;
-    IPortableDevicePropVariantCollection *categories = NULL;
+get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevicePropertiesBulk> &pb) { // {{{
+    CComPtr<IPortableDeviceContent> content = NULL;
+    CComPtr<IPortableDeviceProperties> properties = NULL;
+    CComPtr<IPortableDeviceKeyCollection> keys = NULL;
+    CComPtr<IPortableDeviceValues> values = NULL;
+    CComPtr<IPortableDeviceCapabilities> capabilities = NULL;
+    CComPtr<IPortableDevicePropVariantCollection> categories = NULL;
     HRESULT hr;
     DWORD num_of_categories, i;
-    LPWSTR temp;
     ULONG ti;
-    PyObject *t, *ans = NULL;
+    PyObject *ans = NULL;
     const char *type = NULL;
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
-            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&keys));
+    hr = keys.CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL, CLSCTX_INPROC_SERVER);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) {hresult_set_exc("Failed to create IPortableDeviceKeyCollection", hr); goto end;}
+    if (FAILED(hr)) return hresult_set_exc("Failed to create IPortableDeviceKeyCollection", hr);
 
-    Py_BEGIN_ALLOW_THREADS;
-    hr = keys->Add(WPD_DEVICE_PROTOCOL);
+#define A(what) hr = keys->Add(what); if (FAILED(hr)) { return hresult_set_exc("Failed to add key " #what " to IPortableDeviceKeyCollection", hr); }
+    A(WPD_DEVICE_PROTOCOL);
     // Despite the MSDN documentation, this does not exist in PortableDevice.h
     // hr = keys->Add(WPD_DEVICE_TRANSPORT);
-    hr = keys->Add(WPD_DEVICE_FRIENDLY_NAME);
-    hr = keys->Add(WPD_DEVICE_MANUFACTURER);
-    hr = keys->Add(WPD_DEVICE_MODEL);
-    hr = keys->Add(WPD_DEVICE_SERIAL_NUMBER);
-    hr = keys->Add(WPD_DEVICE_FIRMWARE_VERSION);
-    hr = keys->Add(WPD_DEVICE_TYPE);
-    Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) {hresult_set_exc("Failed to add keys to IPortableDeviceKeyCollection", hr); goto end;}
+    A(WPD_DEVICE_FRIENDLY_NAME);
+    A(WPD_DEVICE_MANUFACTURER);
+    A(WPD_DEVICE_MODEL);
+    A(WPD_DEVICE_SERIAL_NUMBER);
+    A(WPD_DEVICE_FIRMWARE_VERSION);
+    A(WPD_DEVICE_TYPE);
+#undef A
 
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Content(&content);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) {hresult_set_exc("Failed to get IPortableDeviceContent", hr); goto end; }
+    if (FAILED(hr)) return hresult_set_exc("Failed to get IPortableDeviceContent", hr);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->Properties(&properties);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) {hresult_set_exc("Failed to get IPortableDeviceProperties", hr); goto end; }
+    if (FAILED(hr)) return hresult_set_exc("Failed to get IPortableDeviceProperties", hr);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = properties->GetValues(WPD_DEVICE_OBJECT_ID, keys, &values);
     Py_END_ALLOW_THREADS;
-    if(FAILED(hr)) {hresult_set_exc("Failed to get device info", hr); goto end; }
+    if(FAILED(hr)) return hresult_set_exc("Failed to get device info", hr);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Capabilities(&capabilities);
     Py_END_ALLOW_THREADS;
-    if(FAILED(hr)) {hresult_set_exc("Failed to get device capabilities", hr); goto end; }
+    if(FAILED(hr)) return hresult_set_exc("Failed to get device capabilities", hr);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = capabilities->GetFunctionalCategories(&categories);
     Py_END_ALLOW_THREADS;
-    if(FAILED(hr)) {hresult_set_exc("Failed to get device functional categories", hr); goto end; }
+    if(FAILED(hr)) return hresult_set_exc("Failed to get device functional categories", hr);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = categories->GetCount(&num_of_categories);
     Py_END_ALLOW_THREADS;
-    if(FAILED(hr)) {hresult_set_exc("Failed to get device functional categories number", hr); goto end; }
+    if(FAILED(hr)) return hresult_set_exc("Failed to get device functional categories number", hr);
 
     ans = PyDict_New();
-    if (ans == NULL) {PyErr_NoMemory(); goto end;}
+    if (ans == NULL) return NULL;
 
-    if (SUCCEEDED(values->GetStringValue(WPD_DEVICE_PROTOCOL, &temp))) {
-        t = PyUnicode_FromWideChar(temp, wcslen(temp));
-        if (t != NULL) {PyDict_SetItemString(ans, "protocol", t); Py_DECREF(t);}
-        CoTaskMemFree(temp);
-    }
+#define S(what, key) { \
+	com_wchar_raii temp; \
+    if (SUCCEEDED(values->GetStringValue(what, &temp))) { \
+        pyobject_raii t(PyUnicode_FromWideChar(temp.ptr(), -1)); \
+        if (t) if (PyDict_SetItemString(ans, key, t.ptr()) != 0) PyErr_Clear(); \
+    }}
 
-    // if (SUCCEEDED(values->GetUnsignedIntegerValue(WPD_DEVICE_TRANSPORT, &ti))) {
-    //     PyDict_SetItemString(ans, "isusb", (ti == WPD_DEVICE_TRANSPORT_USB) ? Py_True : Py_False);
-    //     t = PyLong_FromUnsignedLong(ti);
-    // }
+	S(WPD_DEVICE_PROTOCOL, "protocol");
 
     if (SUCCEEDED(values->GetUnsignedIntegerValue(WPD_DEVICE_TYPE, &ti))) {
 		type = "unknown";
@@ -285,57 +279,29 @@ get_device_information(CComPtr<IPortableDevice> &device, IPortableDeviceProperti
             case WPD_DEVICE_TYPE_GENERIC:
                 break;
         }
-        t = PyUnicode_FromString(type);
-        if (t != NULL) {
-            PyDict_SetItemString(ans, "type", t); Py_DECREF(t);
-        }
+		pyobject_raii t(PyUnicode_FromString(type));
+		if (t) PyDict_SetItemString(ans, "type", t.ptr());
     }
 
-    if (SUCCEEDED(values->GetStringValue(WPD_DEVICE_FRIENDLY_NAME, &temp))) {
-        t = PyUnicode_FromWideChar(temp, wcslen(temp));
-        if (t != NULL) {PyDict_SetItemString(ans, "friendly_name", t); Py_DECREF(t);}
-        CoTaskMemFree(temp);
-    }
+	S(WPD_DEVICE_FRIENDLY_NAME, "friendly_name");
+	S(WPD_DEVICE_MANUFACTURER, "manufacturer_name");
+	S(WPD_DEVICE_MODEL, "model_name");
+	S(WPD_DEVICE_SERIAL_NUMBER, "serial_number");
+	S(WPD_DEVICE_FIRMWARE_VERSION, "device_version");
+#undef S
 
-    if (SUCCEEDED(values->GetStringValue(WPD_DEVICE_MANUFACTURER, &temp))) {
-        t = PyUnicode_FromWideChar(temp, wcslen(temp));
-        if (t != NULL) {PyDict_SetItemString(ans, "manufacturer_name", t); Py_DECREF(t);}
-        CoTaskMemFree(temp);
-    }
-
-    if (SUCCEEDED(values->GetStringValue(WPD_DEVICE_MODEL, &temp))) {
-        t = PyUnicode_FromWideChar(temp, wcslen(temp));
-        if (t != NULL) {PyDict_SetItemString(ans, "model_name", t); Py_DECREF(t);}
-        CoTaskMemFree(temp);
-    }
-
-    if (SUCCEEDED(values->GetStringValue(WPD_DEVICE_SERIAL_NUMBER, &temp))) {
-        t = PyUnicode_FromWideChar(temp, wcslen(temp));
-        if (t != NULL) {PyDict_SetItemString(ans, "serial_number", t); Py_DECREF(t);}
-        CoTaskMemFree(temp);
-    }
-
-    if (SUCCEEDED(values->GetStringValue(WPD_DEVICE_FIRMWARE_VERSION, &temp))) {
-        t = PyUnicode_FromWideChar(temp, wcslen(temp));
-        if (t != NULL) {PyDict_SetItemString(ans, "device_version", t); Py_DECREF(t);}
-        CoTaskMemFree(temp);
-    }
-
-    t = Py_False;
-    for (i = 0; i < num_of_categories; i++) {
+    bool has_storage = false;
+    for (i = 0; i < num_of_categories && !has_storage; i++) {
         PROPVARIANT pv;
         PropVariantInit(&pv);
         if (SUCCEEDED(categories->GetAt(i, &pv)) && pv.puuid != NULL) {
-            if (IsEqualGUID(WPD_FUNCTIONAL_CATEGORY_STORAGE, *pv.puuid)) {
-                t = Py_True;
-            }
+            if (IsEqualGUID(WPD_FUNCTIONAL_CATEGORY_STORAGE, *pv.puuid)) has_storage = true;
         }
         PropVariantClear(&pv);
-        if (t == Py_True) break;
     }
-    PyDict_SetItemString(ans, "has_storage", t);
+    PyDict_SetItemString(ans, "has_storage", has_storage ? Py_True : Py_False);
 
-    if (t == Py_True) {
+    if (has_storage) {
         pyobject_raii storage(get_storage_info(device));
         if (!storage) {
 			pyobject_raii exc_type, exc_value, exc_tb;
@@ -344,7 +310,8 @@ get_device_information(CComPtr<IPortableDevice> &device, IPortableDeviceProperti
                 PyErr_NormalizeException(&exc_type, &exc_value, &exc_tb);
                 PyDict_SetItemString(ans, "storage_error", exc_value.ptr());
             } else {
-                PyDict_SetItemString(ans, "storage_error", PyUnicode_FromString("get_storage_info() failed without an error set"));
+				pyobject_raii t(PyUnicode_FromString("get_storage_info() failed without an error set"));
+                if (t) PyDict_SetItemString(ans, "storage_error", t.ptr());
 			}
         } else {
 			PyDict_SetItemString(ans, "storage", storage.ptr());
@@ -352,19 +319,9 @@ get_device_information(CComPtr<IPortableDevice> &device, IPortableDeviceProperti
     }
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = properties->QueryInterface(IID_PPV_ARGS(&properties_bulk));
+    hr = properties->QueryInterface(IID_PPV_ARGS(&pb));
     Py_END_ALLOW_THREADS;
     PyDict_SetItemString(ans, "has_bulk_properties", (FAILED(hr)) ? Py_False: Py_True);
-    if (pb != NULL) *pb = (SUCCEEDED(hr)) ? properties_bulk : NULL;
-
-end:
-    if (keys != NULL) keys->Release();
-    if (values != NULL) values->Release();
-    if (properties != NULL) properties->Release();
-    if (properties_bulk != NULL && pb == NULL) properties_bulk->Release();
-    if (content != NULL) content->Release();
-    if (capabilities != NULL) capabilities->Release();
-    if (categories != NULL) categories->Release();
     return ans;
 } // }}}
 
