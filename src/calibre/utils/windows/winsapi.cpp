@@ -94,12 +94,12 @@ Voice_get_all_sound_outputs(Voice *self, PyObject *args) {
         pyobject_raii dict(PyDict_New());
         if (!dict) return NULL;
         com_wchar_raii id, description;
-        if (FAILED(hr = token->GetId(id.address()))) continue;
+        if (FAILED(hr = token->GetId(id.unsafe_address()))) continue;
         pyobject_raii idpy(PyUnicode_FromWideChar(id.ptr(), -1));
         if (!idpy) return NULL;
         if (PyDict_SetItemString(dict.ptr(), "id", idpy.ptr()) != 0) return NULL;
 
-        if (FAILED(hr = SpGetDescription(token, description.address(), NULL))) continue;
+        if (FAILED(hr = SpGetDescription(token, description.unsafe_address(), NULL))) continue;
         pyobject_raii descriptionpy(PyUnicode_FromWideChar(description.ptr(), -1));
         if (!descriptionpy) return NULL;
         if (PyDict_SetItemString(dict.ptr(), "description", descriptionpy.ptr()) != 0) return NULL;
@@ -116,7 +116,7 @@ Voice_get_current_sound_output(Voice *self, PyObject *args) {
     if (FAILED(hr = self->voice->GetOutputObjectToken(&token))) return error_from_hresult(hr, "Failed to get current output object token");
     if (hr == S_FALSE) Py_RETURN_NONE;
     com_wchar_raii id;
-    if (FAILED(hr = token->GetId(id.address()))) return error_from_hresult(hr, "Failed to get ID for current audio output token");
+    if (FAILED(hr = token->GetId(id.unsafe_address()))) return error_from_hresult(hr, "Failed to get ID for current audio output token");
     return PyUnicode_FromWideChar(id.ptr(), -1);
 }
 
@@ -148,7 +148,7 @@ Voice_get_current_voice(Voice *self, PyObject *args) {
         return error_from_hresult(hr, "Failed to get current voice");
     }
     com_wchar_raii id;
-    if (FAILED(hr = token->GetId(id.address()))) return error_from_hresult(hr, "Failed to get ID for current voice");
+    if (FAILED(hr = token->GetId(id.unsafe_address()))) return error_from_hresult(hr, "Failed to get ID for current voice");
     return PyUnicode_FromWideChar(id.ptr(), -1);
 }
 
@@ -185,12 +185,12 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
         if (!dict) return NULL;
 
         com_wchar_raii id, description;
-        if (FAILED(hr = token->GetId(id.address()))) continue;
+        if (FAILED(hr = token->GetId(id.unsafe_address()))) continue;
         pyobject_raii idpy(PyUnicode_FromWideChar(id.ptr(), -1));
         if (!idpy) return NULL;
         if (PyDict_SetItemString(dict.ptr(), "id", idpy.ptr()) != 0) return NULL;
 
-        if (FAILED(hr = SpGetDescription(token, description.address(), NULL))) continue;
+        if (FAILED(hr = SpGetDescription(token, description.unsafe_address(), NULL))) continue;
         pyobject_raii descriptionpy(PyUnicode_FromWideChar(description.ptr(), -1));
         if (!descriptionpy) return NULL;
         if (PyDict_SetItemString(dict.ptr(), "description", descriptionpy.ptr()) != 0) return NULL;
@@ -198,7 +198,7 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
         if (FAILED(hr = token->OpenKey(L"Attributes", &attributes))) continue;
 #define ATTR(name) {\
     com_wchar_raii val; \
-    if (SUCCEEDED(attributes->GetStringValue(TEXT(#name), val.address()))) { \
+    if (SUCCEEDED(attributes->GetStringValue(TEXT(#name), val.unsafe_address()))) { \
         pyobject_raii pyval(PyUnicode_FromWideChar(val.ptr(), -1)); if (!pyval) return NULL; \
         if (PyDict_SetItemString(dict.ptr(), #name, pyval.ptr()) != 0) return NULL; \
     }\
@@ -206,7 +206,7 @@ Voice_get_all_voices(Voice *self, PyObject *args) {
         ATTR(gender); ATTR(name); ATTR(vendor); ATTR(age);
 #undef ATTR
         com_wchar_raii val;
-        if (SUCCEEDED(attributes->GetStringValue(L"language", val.address()))) {
+        if (SUCCEEDED(attributes->GetStringValue(L"language", val.unsafe_address()))) {
             int lcid = wcstol(val.ptr(), NULL, 16);
             wchar_t buf[LOCALE_NAME_MAX_LENGTH];
             if (LCIDToLocaleName(lcid, buf, LOCALE_NAME_MAX_LENGTH, 0) > 0) {
