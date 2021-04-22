@@ -326,44 +326,36 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
      * The child ids are put into object_ids. Returns False if any errors
      * occurred (also sets the python exception).
      */
-    IEnumPortableDeviceObjectIDs *children;
+    CComPtr<IEnumPortableDeviceObjectIDs> children;
     HRESULT hr = S_OK, hr2 = S_OK;
     PWSTR child_ids[10];
-    DWORD fetched, i;
-    PROPVARIANT pv;
-    bool ok = true;
-
-    PropVariantInit(&pv);
-    pv.vt      = VT_LPWSTR;
+	prop_variant pv(VT_LPWSTR);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->EnumObjects(0, parent_id, NULL, &children);
     Py_END_ALLOW_THREADS;
 
-    if (FAILED(hr)) {hresult_set_exc("Failed to get children from device", hr); ok = false; goto end;}
+    if (FAILED(hr)) {hresult_set_exc("Failed to get children from device", hr); return false;}
 
     hr = S_OK;
 
     while (hr == S_OK) {
+		DWORD fetched;
         Py_BEGIN_ALLOW_THREADS;
-        hr = children->Next(10, child_ids, &fetched);
+        hr = children->Next(arraysz(child_ids), child_ids, &fetched);
         Py_END_ALLOW_THREADS;
         if (SUCCEEDED(hr)) {
-            for(i = 0; i < fetched; i++) {
+			com_wchar_raii cleanup[arraysz(child_ids)];
+            for(DWORD i = 0; i < fetched; i++) { cleanup[i].attach(child_ids[i]); }
+            for(DWORD i = 0; i < fetched; i++) {
                 pv.pwszVal = child_ids[i];
                 hr2 = object_ids->Add(&pv);
                 pv.pwszVal = NULL;
-                if (FAILED(hr2)) { hresult_set_exc("Failed to add child ids to propvariantcollection", hr2); break; }
+                if (FAILED(hr2)) { hresult_set_exc("Failed to add child ids to propvariantcollection", hr2); return false; }
             }
-            for (i = 0; i < fetched; i++) { CoTaskMemFree(child_ids[i]); child_ids[i] = NULL; }
-            if (FAILED(hr2) || !ok) { ok = false; goto end; }
         }
     }
-
-end:
-    if (children != NULL) children->Release();
-    PropVariantClear(&pv);
-    return ok;
+	return true;
 } // }}}
 
 // Single get filesystem {{{

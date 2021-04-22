@@ -27,3 +27,11 @@ set_error_from_hresult(PyObject *exc_type, const char *file, const int line, con
 typedef generic_raii<wchar_t*, CoTaskMemFree, NULL> com_wchar_raii;
 static inline void handle_destructor(HANDLE p) { CloseHandle(p); }
 typedef generic_raii<HANDLE, handle_destructor, INVALID_HANDLE_VALUE> handle_raii;
+
+struct prop_variant : PROPVARIANT {
+	prop_variant(VARTYPE vt=VT_EMPTY) noexcept : PROPVARIANT{} { PropVariantInit(this); this->vt = vt;  }
+
+    ~prop_variant() noexcept { clear(); }
+
+    void clear() noexcept { PropVariantClear(this); }
+};

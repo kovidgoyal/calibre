@@ -256,12 +256,10 @@ get_device_information(CComPtr<IPortableDevice> &device, CComPtr<IPortableDevice
 
     bool has_storage = false;
     for (i = 0; i < num_of_categories && !has_storage; i++) {
-        PROPVARIANT pv;
-        PropVariantInit(&pv);
+        prop_variant pv;
         if (SUCCEEDED(categories->GetAt(i, &pv)) && pv.puuid != NULL) {
             if (IsEqualGUID(WPD_FUNCTIONAL_CATEGORY_STORAGE, *pv.puuid)) has_storage = true;
         }
-        PropVariantClear(&pv);
     }
     PyDict_SetItemString(ans, "has_storage", has_storage ? Py_True : Py_False);
 
