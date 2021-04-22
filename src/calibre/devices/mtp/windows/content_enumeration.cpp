@@ -422,54 +422,37 @@ single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &conte
 }
 // }}}
 
-static IPortableDeviceValues* create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GUID content_type, unsigned PY_LONG_LONG size) { // {{{
-    IPortableDeviceValues *values = NULL;
+static IPortableDeviceValues*
+create_object_properties(const wchar_t *parent_id, const wchar_t *name, const GUID content_type, unsigned PY_LONG_LONG size) { // {{{
+    CComPtr<IPortableDeviceValues> values;
     HRESULT hr;
-    BOOL ok = FALSE;
-	PROPVARIANT timestamp = {0};
+    bool ok = false;
+	prop_variant timestamp(VT_DATE);
 	SYSTEMTIME  systemtime;
 	GetLocalTime(&systemtime);
-	timestamp.vt = VT_DATE;
 	if (!SystemTimeToVariantTime(&systemtime, &timestamp.date)) {
 		LONG err = GetLastError();
 		hr = HRESULT_FROM_WIN32(err);
-		hresult_set_exc("Failed to convert system time to variant time", hr); goto end;
+		hresult_set_exc("Failed to convert system time to variant time", hr); return NULL;
 	}
 
-    hr = CoCreateInstance(CLSID_PortableDeviceValues, NULL,
-            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&values));
-    if (FAILED(hr)) { hresult_set_exc("Failed to create values interface", hr); goto end; }
+    hr = values.CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER);
+    if (FAILED(hr)) { hresult_set_exc("Failed to create values interface", hr); return NULL; }
 
-    hr = values->SetStringValue(WPD_OBJECT_PARENT_ID, parent_id);
-    if (FAILED(hr)) { hresult_set_exc("Failed to set parent_id value", hr); goto end; }
-
-    hr = values->SetStringValue(WPD_OBJECT_NAME, name);
-    if (FAILED(hr)) { hresult_set_exc("Failed to set name value", hr); goto end; }
-
-    hr = values->SetStringValue(WPD_OBJECT_ORIGINAL_FILE_NAME, name);
-    if (FAILED(hr)) { hresult_set_exc("Failed to set original_file_name value", hr); goto end; }
-
-    hr = values->SetGuidValue(WPD_OBJECT_FORMAT, WPD_OBJECT_FORMAT_UNSPECIFIED);
-    if (FAILED(hr)) { hresult_set_exc("Failed to set object_format value", hr); goto end; }
-
-    hr = values->SetGuidValue(WPD_OBJECT_CONTENT_TYPE, content_type);
-    if (FAILED(hr)) { hresult_set_exc("Failed to set content_type value", hr); goto end; }
-
-	hr = values->SetValue(WPD_OBJECT_DATE_CREATED, &timestamp);
-	if (FAILED(hr)) { hresult_set_exc("Failed to set created timestamp", hr); goto end; }
-	hr = values->SetValue(WPD_OBJECT_DATE_MODIFIED, &timestamp);
-	if (FAILED(hr)) { hresult_set_exc("Failed to set modified timestamp", hr); goto end; }
-
+#define A(func, name, key) hr = values->func(name, key); \
+	if (FAILED(hr)) { hresult_set_exc("Failed to set " #name " value", hr); return NULL; }
+	A(SetStringValue, WPD_OBJECT_PARENT_ID, parent_id);
+	A(SetStringValue, WPD_OBJECT_NAME, name);
+	A(SetStringValue, WPD_OBJECT_ORIGINAL_FILE_NAME, name);
+	A(SetGuidValue, WPD_OBJECT_FORMAT, WPD_OBJECT_FORMAT_UNSPECIFIED);
+	A(SetGuidValue, WPD_OBJECT_CONTENT_TYPE, content_type);
+	A(SetValue, WPD_OBJECT_DATE_CREATED, &timestamp);
+	A(SetValue, WPD_OBJECT_DATE_MODIFIED, &timestamp);
     if (!IsEqualGUID(WPD_CONTENT_TYPE_FOLDER, content_type)) {
-        hr = values->SetUnsignedLargeIntegerValue(WPD_OBJECT_SIZE, size);
-        if (FAILED(hr)) { hresult_set_exc("Failed to set size value", hr); goto end; }
+		A(SetUnsignedLargeIntegerValue, WPD_OBJECT_SIZE, size);
     }
-
-    ok = TRUE;
-
-end:
-    if (!ok && values != NULL) { values->Release(); values = NULL; }
-    return values;
+#undef A
+    return values.Detach();
 } // }}}
 
 static bool
@@ -518,7 +501,8 @@ wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortabl
     return ans.detach();
 } // }}}
 
-PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
+PyObject*
+wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
     IPortableDeviceContent *content = NULL;
     IPortableDeviceResources *resources = NULL;
     IPortableDeviceProperties *devprops = NULL;
@@ -617,7 +601,8 @@ end:
     Py_RETURN_NONE;
 } // }}}
 
-PyObject* wpd::create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name) { // {{{
+PyObject*
+wpd::create_folder(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name) { // {{{
     IPortableDeviceContent *content = NULL;
     IPortableDeviceValues *values = NULL;
     IPortableDeviceProperties *devprops = NULL;
@@ -656,7 +641,8 @@ end:
 
 } // }}}
 
-PyObject* wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
+PyObject*
+wpd::delete_object(IPortableDevice *device, const wchar_t *object_id) { // {{{
     IPortableDeviceContent *content = NULL;
     HRESULT hr;
     BOOL ok = FALSE;
@@ -696,7 +682,8 @@ end:
 
 } // }}}
 
-PyObject* wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback) { // {{{
+PyObject*
+wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback) { // {{{
     IPortableDeviceContent *content = NULL;
     IPortableDeviceValues *values = NULL;
     IPortableDeviceProperties *devprops = NULL;
