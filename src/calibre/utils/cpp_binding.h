@@ -43,11 +43,11 @@ class generic_raii {
 
 class wchar_raii : public generic_raii<wchar_t*, PyMem_Free> {
 	public:
-		explicit wchar_raii() noexcept {}
-		explicit wchar_raii(wchar_t *h) noexcept {}
+		explicit wchar_raii() noexcept { handle = NULL; }
+		explicit wchar_raii(wchar_t *h) noexcept { handle = h; }
 		explicit wchar_raii(PyObject *unicode_object) noexcept {
-			if (!unicode_object || !PyUnicode_Check(unicode_object)) { PyErr_SetString(PyExc_TypeError, "Not a unicode object"); return; }
-			handle = PyUnicode_AsWideCharString(unicode_object, NULL);
+			if (!unicode_object || !PyUnicode_Check(unicode_object)) { handle = NULL; PyErr_SetString(PyExc_TypeError, "Not a unicode object"); }
+			else handle = PyUnicode_AsWideCharString(unicode_object, NULL);
 		}
 };
 static inline void python_object_destructor(void *p) { PyObject *x = reinterpret_cast<PyObject*>(p); Py_XDECREF(x); }
