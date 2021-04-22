@@ -9,11 +9,10 @@
 
 #include <new>
 
-#define ADDPROP(x) hr = properties->Add(x); if (FAILED(hr)) { hresult_set_exc("Failed to add property " #x " to filesystem properties collection", hr); properties->Release(); return NULL; }
-
 namespace wpd {
+
 static int
-pump_waiting_messages() {
+_pump_waiting_messages() {
 	UINT firstMsg = 0, lastMsg = 0;
     MSG msg;
 	int result = 0;
@@ -32,16 +31,18 @@ pump_waiting_messages() {
     return result;
 }
 
-static IPortableDeviceKeyCollection* create_filesystem_properties_collection() { // {{{
-    IPortableDeviceKeyCollection *properties = NULL;
+static IPortableDeviceKeyCollection*
+create_filesystem_properties_collection() { // {{{
+    CComPtr<IPortableDeviceKeyCollection> properties;
     HRESULT hr;
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
-            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&properties));
+    hr = properties.CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL, CLSCTX_INPROC_SERVER);
     Py_END_ALLOW_THREADS;
 
     if (FAILED(hr)) { hresult_set_exc("Failed to create filesystem properties collection", hr); return NULL; }
+
+#define ADDPROP(x) hr = properties->Add(x); if (FAILED(hr)) { hresult_set_exc("Failed to add property " #x " to filesystem properties collection", hr); return NULL; }
 
     ADDPROP(WPD_OBJECT_CONTENT_TYPE);
     ADDPROP(WPD_OBJECT_PARENT_ID);
@@ -55,14 +56,15 @@ static IPortableDeviceKeyCollection* create_filesystem_properties_collection() {
     ADDPROP(WPD_OBJECT_SIZE);
     ADDPROP(WPD_OBJECT_DATE_CREATED);
     ADDPROP(WPD_OBJECT_DATE_MODIFIED);
+#undef ADDPROP
 
-    return properties;
+    return properties.Detach();
 
 } // }}}
 
 // Convert properties from COM to python {{{
 static void
-set_string_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComPtr<IPortableDeviceValues> &properties) {
+set_string_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, const CComPtr<IPortableDeviceValues> &properties) {
     HRESULT hr;
 	com_wchar_raii property;
     hr = properties->GetStringValue(key, property.unsafe_address());
@@ -73,7 +75,7 @@ set_string_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComP
 }
 
 static void
-set_bool_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComPtr<IPortableDeviceValues> &properties) {
+set_bool_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, const CComPtr<IPortableDeviceValues> &properties) {
     BOOL ok = 0;
     HRESULT hr;
 
@@ -84,7 +86,7 @@ set_bool_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComPtr
 }
 
 static void
-set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComPtr<IPortableDeviceValues> &properties) {
+set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, const CComPtr<IPortableDeviceValues> &properties) {
     ULONGLONG val = 0;
     HRESULT hr;
     hr = properties->GetUnsignedLargeIntegerValue(key, &val);
@@ -97,23 +99,23 @@ set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComPtr
 }
 
 static void
-set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, CComPtr<IPortableDeviceValues> &properties) {
+set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, const CComPtr<IPortableDeviceValues> &properties) {
 	PROPVARIANT ts = {0};
     if (SUCCEEDED(properties->GetValue(key, &ts))) {
 		SYSTEMTIME st;
         if (ts.vt == VT_DATE && VariantTimeToSystemTime(ts.date, &st)) {
             const unsigned int microseconds = 1000 * st.wMilliseconds;
-            PyObject *t = Py_BuildValue("H H H H H H I", (unsigned short)st.wYear,
+			pyobject_raii t(Py_BuildValue("H H H H H H I", (unsigned short)st.wYear,
                     (unsigned short)st.wMonth, (unsigned short)st.wDay,
                     (unsigned short)st.wHour, (unsigned short)st.wMinute,
-                    (unsigned short)st.wSecond, microseconds);
-            if (t != NULL) { PyDict_SetItemString(dict, pykey, t); Py_DECREF(t); }
+                    (unsigned short)st.wSecond, microseconds));
+			if (t) if (PyDict_SetItemString(dict, pykey, t.ptr()) != 0) PyErr_Clear();
         }
     }
 }
 
 static void
-set_content_type_property(PyObject *dict, CComPtr<IPortableDeviceValues> &properties) {
+set_content_type_property(PyObject *dict, const CComPtr<IPortableDeviceValues> &properties) {
     GUID guid = GUID_NULL;
     BOOL is_folder = 0;
 
@@ -122,7 +124,7 @@ set_content_type_property(PyObject *dict, CComPtr<IPortableDeviceValues> &proper
 }
 
 static void
-set_properties(PyObject *obj, CComPtr<IPortableDeviceValues> &values) {
+set_properties(PyObject *obj, const CComPtr<IPortableDeviceValues> &values) {
     set_content_type_property(obj, values);
 
     set_string_property(obj, WPD_OBJECT_PARENT_ID, "parent_id", values);
@@ -143,9 +145,9 @@ set_properties(PyObject *obj, CComPtr<IPortableDeviceValues> &values) {
 // }}}
 
 // Bulk get filesystem {{{
-class GetBulkCallback : public IPortableDevicePropertiesBulkCallback {
 
-public:
+class GetBulkPropertiesCallback : public IPortableDevicePropertiesBulkCallback {
+private:
     PyObject *items;
     PyObject *subfolders;
     unsigned int level;
@@ -154,21 +156,69 @@ public:
     PyThreadState *thread_state;
     PyObject *callback;
 
-    GetBulkCallback(PyObject *items_dict, PyObject *subfolders, unsigned int level, HANDLE ev, PyObject* pycallback) : items(items_dict), subfolders(subfolders), level(level), complete(ev), self_ref(1), thread_state(NULL), callback(pycallback) {}
-    ~GetBulkCallback() {}
+	void release_python_gil() { if (thread_state == NULL) thread_state = PyEval_SaveThread(); }
+    void acquire_python_gil() { PyEval_RestoreThread(thread_state); thread_state = NULL; }
+
+	void do_one_object(CComPtr<IPortableDeviceValues> &properties) {
+		com_wchar_raii property;
+		if (!SUCCEEDED(properties->GetStringValue(WPD_OBJECT_ID, property.unsafe_address()))) return;
+		pyobject_raii temp(PyUnicode_FromWideChar(property.ptr(), -1));
+		if (!temp) { PyErr_Clear(); return; }
+		pyobject_raii obj(PyDict_GetItem(this->items, temp.ptr()));
+		if (!obj) {
+			obj.attach(Py_BuildValue("{s:O}", "id", temp.ptr()));
+			if (!obj) { PyErr_Clear(); return; }
+			if (PyDict_SetItem(this->items, temp.ptr(), obj.ptr()) != 0) { PyErr_Clear(); return; }
+		} else Py_INCREF(obj.ptr());
+		set_properties(obj.ptr(), properties);
+		pyobject_raii r(PyObject_CallFunction(callback, "OI", obj.ptr(), this->level));
+		if (!r) PyErr_Clear();
+		else if (r && PyObject_IsTrue(r.ptr())) {
+			PyObject *borrowed = PyDict_GetItemString(obj.ptr(), "id");
+			if (borrowed) if (PyList_Append(this->subfolders, borrowed) != 0) PyErr_Clear();
+		}
+	}
+
+	void handle_values(IPortableDeviceValuesCollection* values) {
+		DWORD num = 0;
+		if (!items) return;
+		if (!SUCCEEDED(values->GetCount(&num))) return;
+		acquire_python_gil();
+
+		for (DWORD i = 0; i < num; i++) {
+			CComPtr<IPortableDeviceValues> properties;
+			if (SUCCEEDED(values->GetAt(i, &properties))) do_one_object(properties);
+		}
+
+		release_python_gil();
+	}
+
+
+public:
+	GetBulkPropertiesCallback() : items(NULL), subfolders(NULL), level(0), complete(INVALID_HANDLE_VALUE), self_ref(0), thread_state(NULL), callback(NULL) {}
+    ~GetBulkPropertiesCallback() { if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete); complete = INVALID_HANDLE_VALUE; }
+
+	bool start_processing(PyObject *items, PyObject *subfolders, unsigned int level, PyObject *callback) {
+		complete = CreateEvent(NULL, FALSE, FALSE, NULL);
+		if (complete == NULL || complete == INVALID_HANDLE_VALUE) return false;
+
+		this->items = items; this->subfolders = subfolders; this->level = level; this->callback = callback;
+		self_ref = 0;
+		return true;
+	}
+	void end_processing() {
+		if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete);
+		items = NULL; subfolders = NULL; level = 0; complete = INVALID_HANDLE_VALUE; callback = NULL; thread_state = NULL;
+	}
 
     HRESULT __stdcall OnStart(REFGUID Context) { return S_OK; }
-
-    HRESULT __stdcall OnEnd(REFGUID Context, HRESULT hrStatus) { SetEvent(this->complete); return S_OK; }
-
+    HRESULT __stdcall OnEnd(REFGUID Context, HRESULT hrStatus) { if (complete != INVALID_HANDLE_VALUE) SetEvent(complete); return S_OK; }
     ULONG __stdcall AddRef() { InterlockedIncrement((long*) &self_ref); return self_ref; }
-
     ULONG __stdcall Release() {
         ULONG refcnt = self_ref - 1;
         if (InterlockedDecrement((long*) &self_ref) == 0) { delete this; return 0; }
         return refcnt;
     }
-
     HRESULT __stdcall QueryInterface(REFIID riid, LPVOID* obj) {
         HRESULT hr = S_OK;
         if (obj == NULL) { hr = E_INVALIDARG; return hr; }
@@ -183,106 +233,94 @@ public:
         }
         return hr;
     }
+	HRESULT __stdcall GetBulkPropertiesCallback::OnProgress(REFGUID Context, IPortableDeviceValuesCollection* values) {
+		handle_values(values);
+		return S_OK;
+	}
 
-    HRESULT __stdcall OnProgress(REFGUID Context, IPortableDeviceValuesCollection* values) {
-        DWORD num = 0, i;
-        HRESULT hr;
+	DWORD wait_for_messages(int seconds=60) {
+		release_python_gil();
+		DWORD wait_result = MsgWaitForMultipleObjects(1, &complete, FALSE, seconds * 1000, QS_ALLEVENTS);
+		acquire_python_gil();
+		return wait_result;
+	}
 
-        if (SUCCEEDED(values->GetCount(&num))) {
-            PyEval_RestoreThread(this->thread_state);
-            for (i = 0; i < num; i++) {
-				CComPtr<IPortableDeviceValues> properties;
-                hr = values->GetAt(i, &properties);
-                if (SUCCEEDED(hr)) {
-					com_wchar_raii property;
-                    hr = properties->GetStringValue(WPD_OBJECT_ID, property.unsafe_address());
-                    if (!SUCCEEDED(hr)) continue;
-					pyobject_raii temp(PyUnicode_FromWideChar(property.ptr(), -1));
-					if (!temp) { PyErr_Clear(); continue; }
-					pyobject_raii obj(PyDict_GetItem(this->items, temp.ptr()));
-                    if (!obj) {
-						obj.attach(Py_BuildValue("{s:O}", "id", temp.ptr()));
-						if (!obj) { PyErr_Clear(); continue; }
-                        if (PyDict_SetItem(this->items, temp.ptr(), obj.ptr()) != 0) { PyErr_Clear(); continue; }
-                    } else Py_INCREF(obj.ptr());
-                    set_properties(obj.ptr(), properties);
-					pyobject_raii r(PyObject_CallFunction(callback, "OI", obj.ptr(), this->level));
-					if (!r) PyErr_Clear();
-					else if (r && PyObject_IsTrue(r.ptr())) {
-						PyObject *borrowed = PyDict_GetItemString(obj.ptr(), "id");
-						if (borrowed) if (PyList_Append(this->subfolders, borrowed) != 0) PyErr_Clear();
-                    }
-                }
-            } // end for loop
-            this->thread_state = PyEval_SaveThread();
-        }
-
-        return S_OK;
-    }
-
+	int pump_waiting_messages() {
+		release_python_gil();
+		int pump_result = _pump_waiting_messages();
+		acquire_python_gil();
+		return pump_result;
+	}
 };
 
-static bool bulk_get_filesystem(unsigned int level, IPortableDevice *device, IPortableDevicePropertiesBulk *bulk_properties, IPortableDevicePropVariantCollection *object_ids, PyObject *pycallback, PyObject *ans, PyObject *subfolders) {
-    GUID guid_context = GUID_NULL;
-    HANDLE ev = NULL;
-    IPortableDeviceKeyCollection *properties;
-    GetBulkCallback *callback = NULL;
+
+static bool
+bulk_get_filesystem(
+		unsigned int level, IPortableDevice *device, IPortableDevicePropertiesBulk *bulk_properties,
+		CComPtr<IPortableDevicePropVariantCollection> &object_ids,
+		PyObject *pycallback, PyObject *ans, PyObject *subfolders
+) {
+    CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection());
+    if (!properties) return false;
+
+	GetBulkPropertiesCallback *bulk_properties_callback = new (std::nothrow) GetBulkPropertiesCallback();
+	if (!bulk_properties_callback) { PyErr_NoMemory(); return false; }
+
+    GUID guid_context;
     HRESULT hr;
-    DWORD wait_result;
-    int pump_result;
-    bool ok = true;
-
-    ev = CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (ev == NULL) {PyErr_NoMemory(); return false; }
-
-    properties = create_filesystem_properties_collection();
-    if (properties == NULL) goto end;
-
-    callback = new (std::nothrow) GetBulkCallback(ans, subfolders, level, ev, pycallback);
-    if (callback == NULL) { PyErr_NoMemory(); goto end; }
-
-    hr = bulk_properties->QueueGetValuesByObjectList(object_ids, properties, callback, &guid_context);
-    if (FAILED(hr)) { hresult_set_exc("Failed to queue bulk property retrieval", hr); goto end; }
+	if (!bulk_properties_callback->start_processing(ans, subfolders, level, pycallback)) {
+		delete bulk_properties_callback;
+		PyErr_NoMemory();
+		return false;
+	}
+    hr = bulk_properties->QueueGetValuesByObjectList(object_ids, properties, bulk_properties_callback, &guid_context);
+    if (FAILED(hr)) {
+		bulk_properties_callback->end_processing();
+		delete bulk_properties_callback;
+		hresult_set_exc("Failed to queue bulk property retrieval", hr);
+		return false;
+	}
 
     hr = bulk_properties->Start(guid_context);
-    if (FAILED(hr)) { hresult_set_exc("Failed to start bulk operation", hr); goto end; }
+    if (FAILED(hr)) {
+		bulk_properties_callback->end_processing();
+		delete bulk_properties_callback;
+		hresult_set_exc("Failed to start bulk operation", hr);
+		return false;
+	}
 
-    callback->thread_state = PyEval_SaveThread();
-    while (TRUE) {
-        wait_result = MsgWaitForMultipleObjects(1, &(callback->complete), FALSE, 60000, QS_ALLEVENTS);
+    while (!PyErr_Occurred()) {
+		DWORD wait_result = bulk_properties_callback->wait_for_messages();
+
         if (wait_result == WAIT_OBJECT_0) {
             break; // Event was signalled, bulk operation complete
         } else if (wait_result == WAIT_OBJECT_0 + 1) { // Messages need to be dispatched
-            pump_result = pump_waiting_messages();
-            if (pump_result == 1) { PyErr_SetString(PyExc_RuntimeError, "Application has been asked to quit."); ok = false; break;}
+            int pump_result = bulk_properties_callback->pump_waiting_messages();
+            if (pump_result == 1) PyErr_SetString(PyExc_RuntimeError, "Application has been asked to quit.");
         } else if (wait_result == WAIT_TIMEOUT) {
             // 60 seconds with no updates, looks bad
-            PyErr_SetString(WPDError, "The device seems to have hung."); ok = false; break;
+            PyErr_SetString(WPDError, "The device seems to have hung.");
         } else if (wait_result == WAIT_ABANDONED_0) {
             // This should never happen
-            PyErr_SetString(WPDError, "An unknown error occurred (mutex abandoned)"); ok = false; break;
+            PyErr_SetString(WPDError, "An unknown error occurred (mutex abandoned)");
         } else {
             // The wait failed for some reason
-            PyErr_SetFromWindowsErr(0); ok = FALSE; break;
+            PyErr_SetFromWindowsErr(0);
         }
     }
-    PyEval_RestoreThread(callback->thread_state);
-    if (!ok) {
+	bulk_properties_callback->end_processing();
+    if (PyErr_Occurred()) {
         bulk_properties->Cancel(guid_context);
-        pump_waiting_messages();
+        bulk_properties_callback->pump_waiting_messages();
     }
-end:
-    if (ev != NULL) CloseHandle(ev);
-    if (properties != NULL) properties->Release();
-    if (callback != NULL) callback->Release();
-
-    return ok;
+    return PyErr_Occurred() ? false : true;
 }
 
 // }}}
 
 // find_objects_in() {{{
-static bool find_objects_in(IPortableDeviceContent *content, IPortableDevicePropVariantCollection *object_ids, const wchar_t *parent_id) {
+static bool
+find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevicePropVariantCollection> &object_ids, const wchar_t *parent_id) {
     /*
      * Find all children of the object identified by parent_id.
      * The child ids are put into object_ids. Returns False if any errors
@@ -348,54 +386,47 @@ get_object_properties(IPortableDeviceProperties *devprops, IPortableDeviceKeyCol
     return ans;
 }
 
-static bool single_get_filesystem(unsigned int level, IPortableDeviceContent *content, IPortableDevicePropVariantCollection *object_ids, PyObject *callback, PyObject *ans, PyObject *subfolders) {
-    DWORD num, i;
+static bool
+single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevicePropVariantCollection> &object_ids, PyObject *callback, PyObject *ans, PyObject *subfolders) {
+    DWORD num;
     PROPVARIANT pv;
     HRESULT hr;
-    bool ok = true;
-    PyObject *item = NULL, *r = NULL, *recurse = NULL;
-    IPortableDeviceProperties *devprops = NULL;
-    IPortableDeviceKeyCollection *properties = NULL;
+    CComPtr<IPortableDeviceProperties> devprops;
 
     hr = content->Properties(&devprops);
-    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return false; }
 
-    properties = create_filesystem_properties_collection();
-    if (properties == NULL) goto end;
+    CComPtr<IPortableDeviceKeyCollection> properties(create_filesystem_properties_collection());
+    if (!properties) return false;
 
     hr = object_ids->GetCount(&num);
-    if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); return false; }
 
-    for (i = 0; i < num; i++) {
-        ok = false;
-        recurse = NULL;
+    for (DWORD i = 0; i < num; i++) {
+        bool ok = false;
         PropVariantInit(&pv);
         hr = object_ids->GetAt(i, &pv);
+		pyobject_raii recurse;
         if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
-            item = get_object_properties(devprops, properties, pv.pwszVal);
-            if (item != NULL) {
-                r = PyObject_CallFunction(callback, "OI", item, level);
-                if (r != NULL && PyObject_IsTrue(r)) recurse = item;
-                Py_XDECREF(r);
-                PyDict_SetItem(ans, PyDict_GetItemString(item, "id"), item);
-                Py_DECREF(item); item = NULL;
+            pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal));
+            if (item) {
+				PyObject_Print(item.ptr(), stdout, 0);
+				printf("\n");
+                pyobject_raii r(PyObject_CallFunction(callback, "OI", item.ptr(), level));
+                PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr());
+                if (r && PyObject_IsTrue(r.ptr())) recurse.attach(item.detach());
                 ok = true;
             }
         } else hresult_set_exc("Failed to get item from IPortableDevicePropVariantCollection", hr);
 
         PropVariantClear(&pv);
-        if (!ok) break;
-        if (recurse != NULL) {
-            if (PyList_Append(subfolders, PyDict_GetItemString(recurse, "id")) == -1) ok = false;
+        if (!ok) return false;
+        if (recurse) {
+            if (PyList_Append(subfolders, PyDict_GetItemString(recurse.ptr(), "id")) == -1) ok = false;
         }
-        if (!ok) break;
+        if (!ok) return false;
     }
-
-end:
-    if (devprops != NULL) devprops->Release();
-    if (properties != NULL) properties->Release();
-
-    return ok;
+    return true;
 }
 // }}}
 
@@ -449,60 +480,50 @@ end:
     return values;
 } // }}}
 
-static bool get_files_and_folders(unsigned int level, IPortableDevice *device, IPortableDeviceContent *content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *callback, PyObject *ans) { // {{{
-    bool ok = true;
-    IPortableDevicePropVariantCollection *object_ids = NULL;
-    PyObject *subfolders = NULL;
+static bool
+get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPortableDeviceContent> &content, IPortableDevicePropertiesBulk *bulk_properties, const wchar_t *parent_id, PyObject *callback, PyObject *ans) { // {{{
+    CComPtr<IPortableDevicePropVariantCollection> object_ids;
     HRESULT hr;
 
-    subfolders = PyList_New(0);
-    if (subfolders == NULL) { ok = false; goto end; }
+    pyobject_raii subfolders(PyList_New(0));
+    if (!subfolders) return false;
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL,
-            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&object_ids));
+    hr = object_ids.CoCreateInstance(CLSID_PortableDevicePropVariantCollection, NULL, CLSCTX_INPROC_SERVER);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); ok = false; goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); return false; }
 
-    ok = find_objects_in(content, object_ids, parent_id);
-    if (!ok) goto end;
+    if (!find_objects_in(content, object_ids, parent_id)) return false;
 
-    if (bulk_properties != NULL) ok = bulk_get_filesystem(level, device, bulk_properties, object_ids, callback, ans, subfolders);
-    else ok = single_get_filesystem(level, content, object_ids, callback, ans, subfolders);
-    if (!ok) goto end;
+    if (bulk_properties != NULL) {
+		if (!bulk_get_filesystem(level, device, bulk_properties, object_ids, callback, ans, subfolders.ptr())) return false;
+	} else {
+		if (!single_get_filesystem(level, content, object_ids, callback, ans, subfolders.ptr())) return false;
+	}
 
-    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(subfolders); i++) {
-		wchar_raii child_id(PyList_GET_ITEM(subfolders, i));
-        if (!child_id) { PyErr_Clear(); ok = false; break; }
-        ok = get_files_and_folders(level+1, device, content, bulk_properties, child_id.ptr(), callback, ans);
-        if (!ok) break;
+    for (Py_ssize_t i = 0; i < PyList_GET_SIZE(subfolders.ptr()); i++) {
+		wchar_raii child_id(PyList_GET_ITEM(subfolders.ptr(), i));
+        if (!child_id) return false;
+        if (!get_files_and_folders(level+1, device, content, bulk_properties, child_id.ptr(), callback, ans)) return false;
     }
-end:
-    if (object_ids != NULL) object_ids->Release();
-    Py_XDECREF(subfolders);
-    return ok;
+    return true;
 } // }}}
 
-PyObject* wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback) { // {{{
-    PyObject *ans = NULL;
-    IPortableDeviceContent *content = NULL;
+PyObject*
+wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortableDevicePropertiesBulk *bulk_properties, PyObject *callback) { // {{{
+    CComPtr<IPortableDeviceContent> content;
     HRESULT hr;
 
-    ans = PyDict_New();
-    if (ans == NULL) return PyErr_NoMemory();
+    pyobject_raii ans(PyDict_New());
+	if (!ans) return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Content(&content);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); return NULL; }
 
-    if (!get_files_and_folders(0, device, content, bulk_properties, storage_id, callback, ans)) {
-        Py_DECREF(ans); ans = NULL;
-    }
-
-end:
-    if (content != NULL) content->Release();
-    return ans;
+    if (!get_files_and_folders(0, device, content, bulk_properties, storage_id, callback, ans.ptr())) return NULL;
+    return ans.detach();
 } // }}}
 
 PyObject* wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
