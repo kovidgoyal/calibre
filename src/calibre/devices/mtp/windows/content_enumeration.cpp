@@ -502,7 +502,7 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
 	}
 
     for (Py_ssize_t i = 0; i < PyList_GET_SIZE(subfolders.ptr()); i++) {
-		wchar_raii child_id(PyList_GET_ITEM(subfolders.ptr(), i));
+		wchar_raii child_id(PyUnicode_AsWideCharString(PyList_GET_ITEM(subfolders.ptr(), i), NULL));
         if (!child_id) return false;
         if (!get_files_and_folders(level+1, device, content, bulk_properties, child_id.ptr(), callback, ans)) return false;
     }
