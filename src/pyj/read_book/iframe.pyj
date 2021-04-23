@@ -975,7 +975,7 @@ class IframeBoss:
     def mark_word_being_spoken(self, occurrence_number):
         self.last_search_at = window.performance.now()
         if select_tts_mark(occurrence_number):
-            self.ensure_selection_visible()
+            self.ensure_selection_boundary_visible()
 
     def hints_msg_received(self, data):
         if data.type is 'show':
