@@ -577,13 +577,15 @@ def main():
         dev.filesystem_cache.dump()
         print('Prefix for main mem:', dev.prefix_for_location(None), flush=True)
         raw = os.urandom(32 * 1024)
-        f = dev.put_file(dev.filesystem_cache.entries[0], 'developing-mtp-driver.bin', io.BytesIO(raw), len(raw))
+        folder = dev.create_folder(dev.filesystem_cache.entries[0], 'developing-mtp-driver')
+        f = dev.put_file(folder, 'developing-mtp-driver.bin', io.BytesIO(raw), len(raw))
         print('Put file:', f, flush=True)
         buf = io.BytesIO()
         dev.get_file(f.mtp_id_path, buf)
         if buf.getvalue() != raw:
             raise ValueError('Getting previously put file did not return expected data')
         print('Successfully got previously put file', flush=True)
+        dev.recursive_delete(f)
     finally:
         dev.shutdown()
 
