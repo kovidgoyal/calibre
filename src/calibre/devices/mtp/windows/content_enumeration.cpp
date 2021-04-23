@@ -100,7 +100,7 @@ set_size_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, const C
 
 static void
 set_date_property(PyObject *dict, REFPROPERTYKEY key, const char *pykey, const CComPtr<IPortableDeviceValues> &properties) {
-	PROPVARIANT ts = {0};
+	prop_variant ts;
     if (SUCCEEDED(properties->GetValue(key, &ts))) {
 		SYSTEMTIME st;
         if (ts.vt == VT_DATE && VariantTimeToSystemTime(ts.date, &st)) {
@@ -381,7 +381,6 @@ get_object_properties(IPortableDeviceProperties *devprops, IPortableDeviceKeyCol
 static bool
 single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevicePropVariantCollection> &object_ids, PyObject *callback, PyObject *ans, PyObject *subfolders) {
     DWORD num;
-    PROPVARIANT pv;
     HRESULT hr;
     CComPtr<IPortableDeviceProperties> devprops;
 
@@ -395,28 +394,20 @@ single_get_filesystem(unsigned int level, CComPtr<IPortableDeviceContent> &conte
     if (FAILED(hr)) { hresult_set_exc("Failed to get object id count", hr); return false; }
 
     for (DWORD i = 0; i < num; i++) {
-        bool ok = false;
-        PropVariantInit(&pv);
+		prop_variant pv;
         hr = object_ids->GetAt(i, &pv);
 		pyobject_raii recurse;
         if (SUCCEEDED(hr) && pv.pwszVal != NULL) {
             pyobject_raii item(get_object_properties(devprops, properties, pv.pwszVal));
-            if (item) {
-				PyObject_Print(item.ptr(), stdout, 0);
-				printf("\n");
-                pyobject_raii r(PyObject_CallFunction(callback, "OI", item.ptr(), level));
-                PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr());
-                if (r && PyObject_IsTrue(r.ptr())) recurse.attach(item.detach());
-                ok = true;
-            }
-        } else hresult_set_exc("Failed to get item from IPortableDevicePropVariantCollection", hr);
+			if (!item) return false;
+			pyobject_raii r(PyObject_CallFunction(callback, "OI", item.ptr(), level));
+			if (PyDict_SetItem(ans, PyDict_GetItemString(item.ptr(), "id"), item.ptr()) != 0) return false;
+			if (r && PyObject_IsTrue(r.ptr())) recurse.attach(item.detach());
+        } else { hresult_set_exc("Failed to get item from IPortableDevicePropVariantCollection", hr); return false; }
 
-        PropVariantClear(&pv);
-        if (!ok) return false;
         if (recurse) {
-            if (PyList_Append(subfolders, PyDict_GetItemString(recurse.ptr(), "id")) == -1) ok = false;
+            if (PyList_Append(subfolders, PyDict_GetItemString(recurse.ptr(), "id")) == -1) return false;
         }
-        if (!ok) return false;
     }
     return true;
 }
