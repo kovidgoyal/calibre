@@ -12,7 +12,7 @@
 namespace wpd {
 
 static int
-_pump_waiting_messages() {
+pump_waiting_messages() {
 	UINT firstMsg = 0, lastMsg = 0;
     MSG msg;
 	int result = 0;
@@ -153,11 +153,7 @@ private:
     unsigned int level;
     HANDLE complete;
     ULONG self_ref;
-    PyThreadState *thread_state;
     PyObject *callback;
-
-	void release_python_gil() { if (thread_state == NULL) thread_state = PyEval_SaveThread(); }
-    void acquire_python_gil() { PyEval_RestoreThread(thread_state); thread_state = NULL; }
 
 	void do_one_object(CComPtr<IPortableDeviceValues> &properties) {
 		com_wchar_raii property;
@@ -183,19 +179,15 @@ private:
 		DWORD num = 0;
 		if (!items) return;
 		if (!SUCCEEDED(values->GetCount(&num))) return;
-		acquire_python_gil();
-
 		for (DWORD i = 0; i < num; i++) {
 			CComPtr<IPortableDeviceValues> properties;
 			if (SUCCEEDED(values->GetAt(i, &properties))) do_one_object(properties);
 		}
-
-		release_python_gil();
 	}
 
 
 public:
-	GetBulkPropertiesCallback() : items(NULL), subfolders(NULL), level(0), complete(INVALID_HANDLE_VALUE), self_ref(0), thread_state(NULL), callback(NULL) {}
+	GetBulkPropertiesCallback() : items(NULL), subfolders(NULL), level(0), complete(INVALID_HANDLE_VALUE), self_ref(0), callback(NULL) {}
     ~GetBulkPropertiesCallback() { if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete); complete = INVALID_HANDLE_VALUE; }
 
 	bool start_processing(PyObject *items, PyObject *subfolders, unsigned int level, PyObject *callback) {
@@ -208,7 +200,7 @@ public:
 	}
 	void end_processing() {
 		if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete);
-		items = NULL; subfolders = NULL; level = 0; complete = INVALID_HANDLE_VALUE; callback = NULL; thread_state = NULL;
+		items = NULL; subfolders = NULL; level = 0; complete = INVALID_HANDLE_VALUE; callback = NULL;
 	}
 
     HRESULT __stdcall OnStart(REFGUID Context) { return S_OK; }
@@ -239,18 +231,13 @@ public:
 	}
 
 	DWORD wait_for_messages(int seconds=60) {
-		release_python_gil();
-		DWORD wait_result = MsgWaitForMultipleObjects(1, &complete, FALSE, seconds * 1000, QS_ALLEVENTS);
-		acquire_python_gil();
+		DWORD wait_result;
+		Py_BEGIN_ALLOW_THREADS;
+		wait_result = MsgWaitForMultipleObjects(1, &complete, FALSE, seconds * 1000, QS_ALLEVENTS);
+		Py_END_ALLOW_THREADS;
 		return wait_result;
 	}
 
-	int pump_waiting_messages() {
-		release_python_gil();
-		int pump_result = _pump_waiting_messages();
-		acquire_python_gil();
-		return pump_result;
-	}
 };
 
 
@@ -291,11 +278,10 @@ bulk_get_filesystem(
 
     while (!PyErr_Occurred()) {
 		DWORD wait_result = bulk_properties_callback->wait_for_messages();
-
         if (wait_result == WAIT_OBJECT_0) {
             break; // Event was signalled, bulk operation complete
         } else if (wait_result == WAIT_OBJECT_0 + 1) { // Messages need to be dispatched
-            int pump_result = bulk_properties_callback->pump_waiting_messages();
+            int pump_result = pump_waiting_messages();
             if (pump_result == 1) PyErr_SetString(PyExc_RuntimeError, "Application has been asked to quit.");
         } else if (wait_result == WAIT_TIMEOUT) {
             // 60 seconds with no updates, looks bad
@@ -311,7 +297,7 @@ bulk_get_filesystem(
 	bulk_properties_callback->end_processing();
     if (PyErr_Occurred()) {
         bulk_properties->Cancel(guid_context);
-        bulk_properties_callback->pump_waiting_messages();
+        pump_waiting_messages();
     }
     return PyErr_Occurred() ? false : true;
 }
