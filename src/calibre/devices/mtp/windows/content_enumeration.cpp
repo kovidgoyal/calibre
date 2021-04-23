@@ -503,49 +503,46 @@ wpd::get_filesystem(IPortableDevice *device, const wchar_t *storage_id, IPortabl
 
 PyObject*
 wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest, PyObject *callback) { // {{{
-    IPortableDeviceContent *content = NULL;
-    IPortableDeviceResources *resources = NULL;
-    IPortableDeviceProperties *devprops = NULL;
-    IPortableDeviceValues *values = NULL;
-    IPortableDeviceKeyCollection *properties = NULL;
-    IStream *stream = NULL;
+    CComPtr<IPortableDeviceContent> content;
+    CComPtr<IPortableDeviceResources> resources;
+    CComPtr<IPortableDeviceProperties> devprops;
+    CComPtr<IPortableDeviceValues> values;
+    CComPtr<IPortableDeviceKeyCollection> properties;
+    CComPtr<IStream> stream;
+
     HRESULT hr;
     DWORD bufsize = 4096;
-    char *buf = NULL;
     ULONG bytes_read = 0, total_read = 0;
-    BOOL ok = FALSE;
-    PyObject *res = NULL;
     ULONGLONG filesize = 0;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Content(&content);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); return NULL; }
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->Properties(&devprops);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
 
     Py_BEGIN_ALLOW_THREADS;
-    hr = CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL,
-            CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&properties));
+    hr = properties.CoCreateInstance(CLSID_PortableDeviceKeyCollection, NULL, CLSCTX_INPROC_SERVER);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create filesystem properties collection", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create filesystem properties collection", hr); return NULL; }
     hr = properties->Add(WPD_OBJECT_SIZE);
-    if (FAILED(hr)) { hresult_set_exc("Failed to add filesize property to properties collection", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to add filesize property to properties collection", hr); return NULL; }
 
     Py_BEGIN_ALLOW_THREADS;
     hr = devprops->GetValues(object_id, properties, &values);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize for object", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize for object", hr); return NULL; }
     hr = values->GetUnsignedLargeIntegerValue(WPD_OBJECT_SIZE, &filesize);
-    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize from values collection", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get filesize from values collection", hr); return NULL; }
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->Transfer(&resources);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create resources interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create resources interface", hr); return NULL; }
 
     Py_BEGIN_ALLOW_THREADS;
     hr = resources->GetStream(object_id, WPD_RESOURCE_DEFAULT, STGM_READ, &bufsize, &stream);
@@ -554,50 +551,41 @@ wpd::get_file(IPortableDevice *device, const wchar_t *object_id, PyObject *dest,
         if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
             PyErr_SetString(WPDFileBusy, "Object is in use");
         } else hresult_set_exc("Failed to create stream interface to read from object", hr);
-        goto end;
+		return NULL;
     }
 
-    buf = (char *)calloc(bufsize+10, 1);
-    if (buf == NULL) { PyErr_NoMemory(); goto end; }
+	generic_raii<char*, PyMem_Free> buf(reinterpret_cast<char*>(PyMem_Malloc(bufsize)));
+	if (!buf) return PyErr_NoMemory();
 
-    while (TRUE) {
+    while (total_read < filesize) {
         bytes_read = 0;
         Py_BEGIN_ALLOW_THREADS;
-        hr = stream->Read(buf, bufsize, &bytes_read);
+        hr = stream->Read(buf.ptr(), bufsize, &bytes_read);
         Py_END_ALLOW_THREADS;
-        total_read = total_read + bytes_read;
         if (hr == STG_E_ACCESSDENIED) {
-            PyErr_SetString(PyExc_IOError, "Read access is denied to this object"); break;
+			PyErr_SetFromWindowsErr(ERROR_ACCESS_DENIED);
+			return NULL;
         } else if (SUCCEEDED(hr)) {
             if (bytes_read > 0) {
-                res = PyObject_CallMethod(dest, "write", "y#", buf, bytes_read);
-                if (res == NULL) break;
-                Py_DECREF(res); res = NULL;
-                if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_read, filesize));
+				total_read = total_read + bytes_read;
+                pyobject_raii res(PyObject_CallMethod(dest, "write", "y#", buf.ptr(), bytes_read));
+				if (!res) { return NULL; }
+                if (callback != NULL) {
+					pyobject_raii r(PyObject_CallFunction(callback, "kK", total_read, filesize));
+				}
             }
-        } else { hresult_set_exc("Failed to read file from device", hr); break; }
+        } else { hresult_set_exc("Failed to read file from device", hr); return NULL; }
 
         if (bytes_read == 0) {
-            ok = TRUE;
-            Py_XDECREF(PyObject_CallMethod(dest, "flush", NULL));
+            pyobject_raii r(PyObject_CallMethod(dest, "flush", NULL));
             break;
         }
     }
 
-    if (ok && total_read != filesize) {
-        ok = FALSE;
+    if (total_read < filesize) {
         PyErr_SetString(WPDError, "Failed to read all data from file");
+		return NULL;
     }
-
-end:
-    if (content != NULL) content->Release();
-    if (devprops != NULL) devprops->Release();
-    if (resources != NULL) resources->Release();
-    if (stream != NULL) stream->Release();
-    if (values != NULL) values->Release();
-    if (properties != NULL) properties->Release();
-    if (buf != NULL) free(buf);
-    if (!ok) return NULL;
     Py_RETURN_NONE;
 } // }}}
 
@@ -684,34 +672,30 @@ end:
 
 PyObject*
 wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *name, PyObject *src, unsigned PY_LONG_LONG size, PyObject *callback) { // {{{
-    IPortableDeviceContent *content = NULL;
-    IPortableDeviceValues *values = NULL;
-    IPortableDeviceProperties *devprops = NULL;
-    IPortableDeviceKeyCollection *properties = NULL;
-    IStream *temp = NULL;
-    IPortableDeviceDataStream *dest = NULL;
-    char *buf = NULL;
-    wchar_t *newid = NULL;
-    PyObject *ans = NULL, *raw;
+    CComPtr<IPortableDeviceContent> content;
+    CComPtr<IPortableDeviceValues> values;
+    CComPtr<IPortableDeviceProperties> devprops;
+    CComPtr<IPortableDeviceKeyCollection> properties;
+    CComPtr<IStream> temp;
+    CComPtr<IPortableDeviceDataStream> dest;
     HRESULT hr;
     DWORD bufsize = 0;
-    BOOL ok = FALSE;
     Py_ssize_t bytes_read = 0;
     ULONG bytes_written = 0, total_written = 0;
 
     values = create_object_properties(parent_id, name, WPD_CONTENT_TYPE_GENERIC_FILE, size);
-    if (values == NULL) goto end;
+    if (!values) return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = device->Content(&content);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create content interface", hr); return NULL; }
 
     hr = content->Properties(&devprops);
-    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get IPortableDeviceProperties interface", hr); return NULL; }
 
     properties = create_filesystem_properties_collection();
-    if (properties == NULL) goto end;
+    if (!properties) return NULL;
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->CreateObjectWithPropertiesAndData(values, &temp, &bufsize, NULL);
@@ -720,53 +704,46 @@ wpd::put_file(IPortableDevice *device, const wchar_t *parent_id, const wchar_t *
         if (HRESULT_FROM_WIN32(ERROR_BUSY) == hr) {
             PyErr_SetString(WPDFileBusy, "Object is in use");
         } else hresult_set_exc("Failed to create stream interface to write to object", hr);
-        goto end;
+        return NULL;
     }
 
     hr = temp->QueryInterface(IID_PPV_ARGS(&dest));
-    if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDeviceStream", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to create IPortableDeviceStream", hr); return NULL; }
 
-    while(TRUE) {
-        raw = PyObject_CallMethod(src, "read", "k", bufsize);
-        if (raw == NULL) break;
-        PyBytes_AsStringAndSize(raw, &buf, &bytes_read);
+    while(true) {
+#define ABORT { dest->Revert(); return NULL; }
+        pyobject_raii raw(PyObject_CallMethod(src, "read", "k", bufsize));
+		if (!raw) ABORT;
+		char *buffer;
+        if (PyBytes_AsStringAndSize(raw.ptr(), &buffer, &bytes_read) == -1) ABORT;
         if (bytes_read > 0) {
             Py_BEGIN_ALLOW_THREADS;
-            hr = dest->Write(buf, (ULONG)bytes_read, &bytes_written);
+            hr = dest->Write(buffer, (ULONG)bytes_read, &bytes_written);
             Py_END_ALLOW_THREADS;
-            Py_DECREF(raw);
-            if (hr == STG_E_MEDIUMFULL) { PyErr_SetString(WPDError, "Cannot write to device as it is full"); break; }
-            if (hr == STG_E_ACCESSDENIED) { PyErr_SetString(WPDError, "Cannot write to file as access is denied"); break; }
-            if (hr == STG_E_WRITEFAULT) { PyErr_SetString(WPDError, "Cannot write to file as there was a disk I/O error"); break; }
-            if (FAILED(hr)) { hresult_set_exc("Cannot write to file", hr); break; }
-            if (bytes_written != bytes_read) { PyErr_SetString(WPDError, "Writing to file failed, not all bytes were written"); break; }
+            if (hr == STG_E_MEDIUMFULL) { PyErr_SetString(WPDError, "Cannot write to device as it is full"); ABORT; }
+            if (hr == STG_E_ACCESSDENIED) { PyErr_SetExcFromWindowsErr(WPDError, ERROR_ACCESS_DENIED); ABORT; }
+            if (hr == STG_E_WRITEFAULT) { PyErr_SetString(WPDError, "Cannot write to file as there was a disk I/O error"); ABORT; }
+            if (FAILED(hr)) { hresult_set_exc("Cannot write to file", hr); ABORT; }
+            if (bytes_written != bytes_read) { PyErr_SetString(WPDError, "Writing to file failed, not all bytes were written"); ABORT; }
             total_written += bytes_written;
-            if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_written, size));
-        } else Py_DECREF(raw);
-        if (bytes_read == 0) { ok = TRUE; break; }
+            if (callback != NULL) { pyobject_raii r(PyObject_CallFunction(callback, "kK", total_written, size)); }
+        }
+        if (bytes_read == 0) { break; }
+#undef ABORT
     }
-    if (!ok) {dest->Revert(); goto end;}
     Py_BEGIN_ALLOW_THREADS;
     hr = dest->Commit(STGC_DEFAULT);
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to write data to file, commit failed", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to write data to file, commit failed", hr); return NULL; }
     if (callback != NULL) Py_XDECREF(PyObject_CallFunction(callback, "kK", total_written, size));
 
+	com_wchar_raii newid;
     Py_BEGIN_ALLOW_THREADS;
-    hr = dest->GetObjectID(&newid);
+    hr = dest->GetObjectID(newid.unsafe_address());
     Py_END_ALLOW_THREADS;
-    if (FAILED(hr)) { hresult_set_exc("Failed to get id of newly created file", hr); goto end; }
+    if (FAILED(hr)) { hresult_set_exc("Failed to get id of newly created file", hr); return NULL; }
 
-    ans = get_object_properties(devprops, properties, newid);
-end:
-    if (content != NULL) content->Release();
-    if (values != NULL) values->Release();
-    if (devprops != NULL) devprops->Release();
-    if (properties != NULL) properties->Release();
-    if (temp != NULL) temp->Release();
-    if (dest != NULL) dest->Release();
-    if (newid != NULL) CoTaskMemFree(newid);
-    return ans;
+    return get_object_properties(devprops, properties, newid.ptr());
 
 } // }}}
 
