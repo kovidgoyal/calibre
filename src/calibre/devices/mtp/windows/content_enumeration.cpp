@@ -162,13 +162,13 @@ private:
 	void do_one_object(CComPtr<IPortableDeviceValues> &properties) {
 		com_wchar_raii property;
 		if (!SUCCEEDED(properties->GetStringValue(WPD_OBJECT_ID, property.unsafe_address()))) return;
-		pyobject_raii temp(PyUnicode_FromWideChar(property.ptr(), -1));
-		if (!temp) { PyErr_Clear(); return; }
-		pyobject_raii obj(PyDict_GetItem(this->items, temp.ptr()));
+		pyobject_raii object_id(PyUnicode_FromWideChar(property.ptr(), -1));
+		if (!object_id) { PyErr_Clear(); return; }
+		pyobject_raii obj(PyDict_GetItem(this->items, object_id.ptr()));
 		if (!obj) {
-			obj.attach(Py_BuildValue("{s:O}", "id", temp.ptr()));
+			obj.attach(Py_BuildValue("{s:O}", "id", object_id.ptr()));
 			if (!obj) { PyErr_Clear(); return; }
-			if (PyDict_SetItem(this->items, temp.ptr(), obj.ptr()) != 0) { PyErr_Clear(); return; }
+			if (PyDict_SetItem(this->items, object_id.ptr(), obj.ptr()) != 0) { PyErr_Clear(); return; }
 		} else Py_INCREF(obj.ptr());
 		set_properties(obj.ptr(), properties);
 		pyobject_raii r(PyObject_CallFunction(callback, "OI", obj.ptr(), this->level));
