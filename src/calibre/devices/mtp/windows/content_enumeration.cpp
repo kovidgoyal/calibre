@@ -314,8 +314,6 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
      */
     CComPtr<IEnumPortableDeviceObjectIDs> children;
     HRESULT hr = S_OK, hr2 = S_OK;
-    PWSTR child_ids[10];
-	prop_variant pv(VT_LPWSTR);
 
     Py_BEGIN_ALLOW_THREADS;
     hr = content->EnumObjects(0, parent_id, NULL, &children);
@@ -327,13 +325,13 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
 
     while (hr == S_OK) {
 		DWORD fetched;
+		prop_variant pv(VT_LPWSTR);
+		generic_raii_array<wchar_t*, CoTaskMemFree, 16> child_ids;
         Py_BEGIN_ALLOW_THREADS;
-        hr = children->Next(arraysz(child_ids), child_ids, &fetched);
+        hr = children->Next((ULONG)child_ids.size(), child_ids.ptr(), &fetched);
         Py_END_ALLOW_THREADS;
         if (SUCCEEDED(hr)) {
-			com_wchar_raii cleanup[arraysz(child_ids)];
-            for(DWORD i = 0; i < fetched; i++) { cleanup[i].attach(child_ids[i]); }
-            for(DWORD i = 0; i < fetched; i++) {
+            for (DWORD i = 0; i < fetched; i++) {
                 pv.pwszVal = child_ids[i];
                 hr2 = object_ids->Add(&pv);
                 pv.pwszVal = NULL;

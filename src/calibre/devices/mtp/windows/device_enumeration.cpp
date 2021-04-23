@@ -85,13 +85,11 @@ get_storage_info(IPortableDevice *device) { // {{{
 
     hr = S_OK;
     while (hr == S_OK) {
-		wchar_t* object_ids[16] = {0};
+		generic_raii_array<wchar_t*, CoTaskMemFree, 16> object_ids;
         Py_BEGIN_ALLOW_THREADS;
-        hr = objects->Next(arraysz(object_ids), object_ids, &fetched);
+        hr = objects->Next((ULONG)object_ids.size(), object_ids.ptr(), &fetched);
         Py_END_ALLOW_THREADS;
         if (SUCCEEDED(hr)) {
-			com_wchar_raii cleanup[arraysz(object_ids)];
-            for (i = 0; i < arraysz(object_ids); i++) { cleanup[i].attach(object_ids[i]); };
             for(i = 0; i < fetched; i++) {
 				CComPtr<IPortableDeviceValues> values;
                 Py_BEGIN_ALLOW_THREADS;
