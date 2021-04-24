@@ -860,7 +860,7 @@ class PocketBookPro912Output(OutputProfile):
 class PocketBookLuxOutput(OutputProfile):
 
     author = 'William Ouwehand'
-    name = 'PocketBook Lux (1-5) and Basic 4'
+    name = _('PocketBook Lux (1-5) and Basic 4')
     short_name = 'pocketbook_lux'
     description = _('This profile is intended for the PocketBook Lux (1-5) and Basic 4 series of devices.')
 
@@ -884,7 +884,7 @@ class PocketBookHDOutput(OutputProfile):
 class PocketBookInkpad3Output(OutputProfile):
 
     author = 'William Ouwehand'
-    name = 'PocketBook Inkpad 3 (Pro) and X'
+    name = _('PocketBook Inkpad 3 (Pro) and X')
     short_name = 'pocketbook_inkpad3'
     description = _('This profile is intended for the PocketBook Inkpad 3 and X series of devices.')
 
