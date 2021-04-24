@@ -248,7 +248,7 @@
      <item row="3" column="3">
       <widget class="QToolButton" name="unapply_button">
        <property name="toolTip">
-        <string>Unapply (remove) tag from current tag category</string>
+        <string>Unapply (remove) selected tags from current tag category</string>
        </property>
        <property name="text">
         <string>...</string>

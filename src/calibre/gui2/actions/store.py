@@ -134,7 +134,7 @@ class StoreAction(InterfaceAction):
         confirm(('<p>' +
             _('calibre helps you find the e-books you want by searching '
             'the websites of various commercial and public domain '
-            'book sources for you.') +
+            'book sources.') +
             '<p>' +
             _('Using the integrated search you can easily find which '
             'store has the book you are looking for, at the best price. '

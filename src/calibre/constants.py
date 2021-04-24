@@ -398,7 +398,7 @@ def get_version():
 def get_appname_for_display():
     ans = __appname__
     if isportable:
-        ans = _('{} portable').format(ans)
+        ans = _('{} Portable').format(ans)
     return ans
 
 

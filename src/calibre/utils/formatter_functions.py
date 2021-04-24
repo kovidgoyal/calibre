@@ -2028,7 +2028,7 @@ class BuiltinCharacter(BuiltinFormatterFunction):
     category = 'String manipulation'
     __doc__ = doc = _('character(character_name) -- returns the '
                       'character named by character_name. For example, '
-                      "character('newline') returns a newline character ('\n'). "
+                      r"character('newline') returns a newline character ('\n'). "
                       "The supported character names are 'newline', 'return', "
                       "'tab', and 'backslash'.")
 
