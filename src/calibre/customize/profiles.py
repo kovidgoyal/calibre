@@ -857,6 +857,42 @@ class PocketBookPro912Output(OutputProfile):
     comic_screen_size         = screen_size
 
 
+class PocketBookLuxOutput(OutputProfile):
+
+    author = 'William Ouwehand'
+    name = 'PocketBook Lux (1-5) and Basic 4'
+    short_name = 'pocketbook_lux'
+    description = _('This profile is intended for the PocketBook Lux (1-5) and Basic 4 series of devices.')
+
+    screen_size               = (758, 1024)
+    dpi                       = 212.0
+    comic_screen_size         = screen_size
+
+
+class PocketBookHDOutput(OutputProfile):
+
+    author = 'William Ouwehand'
+    name = 'PocketBook PocketBook HD Touch (1-3)'
+    short_name = 'pocketbook_hd'
+    description = _('This profile is intended for the PocketBook HD Touch (1-3) series of devices.')
+
+    screen_size               = (1072, 1448)
+    dpi                       = 300.0
+    comic_screen_size         = screen_size
+
+
+class PocketBookInkpad3Output(OutputProfile):
+
+    author = 'William Ouwehand'
+    name = 'PocketBook Inkpad 3 (Pro) and X'
+    short_name = 'pocketbook_inkpad3'
+    description = _('This profile is intended for the PocketBook Inkpad 3 and X series of devices.')
+
+    screen_size               = (1404, 1872)
+    dpi                       = 227.0
+    comic_screen_size         = screen_size
+
+
 output_profiles = [
     OutputProfile, SonyReaderOutput, SonyReader300Output, SonyReader900Output,
     SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
@@ -865,7 +901,8 @@ output_profiles = [
     SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
     IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
     NookColorOutput, PocketBook900Output,
-    PocketBookPro912Output, GenericEink, GenericEinkLarge, GenericEinkHD,
+    PocketBookPro912Output, PocketBookLuxOutput, PocketBookHDOutput,
+    PocketBookInkpad3Output, GenericEink, GenericEinkLarge, GenericEinkHD,
     KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput,
     KindlePaperWhite3Output, KindleOasisOutput
 ]
