@@ -361,7 +361,7 @@ class EditNotesAndColors:  # {{{
             E.textarea(
                 current_notes or '',
                 placeholder=_('Add notes for this highlight. Double click or long tap on a highlight to read its notes.'),
-                rows='10', spellcheck='true', style='resize: none; width: 90%;',
+                rows='10', spellcheck='true', style='width: 90%;',
                 onkeydown=handle_keypress,
             ),
 
