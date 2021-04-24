@@ -135,7 +135,7 @@ def get_warnings():
 
 def edit_file(path):
     return subprocess.Popen([
-        'vim', '-c', 'SyntasticCheck', '-c', 'll', '-S', os.path.join(SRC, '../session.vim'), '-f', path
+        'vim', '-c', 'ALELint', '-c', 'ALEFirst', '-S', os.path.join(SRC, '../session.vim'), '-f', path
     ]).wait() == 0
 
 
