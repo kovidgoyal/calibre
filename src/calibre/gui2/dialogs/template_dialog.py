@@ -235,6 +235,7 @@ translate_table = str.maketrans({
     '\\': '\\\\',
 })
 
+
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 
     def __init__(self, parent, text, mi=None, fm=None, color_field=None,

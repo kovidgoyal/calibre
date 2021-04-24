@@ -1075,6 +1075,7 @@ class _Interpreter(object):
         'tab':       '\t',
         'backslash': '\\',
     }
+
     def do_node_character(self, prog):
         try:
             key = self.expr(prog.expression)
