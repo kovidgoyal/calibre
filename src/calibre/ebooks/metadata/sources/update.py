@@ -82,7 +82,10 @@ def patch_plugins():
             continue
         if name == 'search_engines':
             patch_search_engines(val)
-        p = load_plugin(val)
+        try:
+            p = load_plugin(val)
+        except Exception:
+            p = None
         if p is not None:
             patches[p.name] = p
     patch_metadata_plugins(patches)
