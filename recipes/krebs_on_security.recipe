@@ -4,6 +4,12 @@ __copyright__ = 'Jelle van der Waa <jelle@vdwaa.nl>'
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class KrebsOnSecurity(BasicNewsRecipe):
 
     title = u'Krebs on Security'
@@ -12,19 +18,15 @@ class KrebsOnSecurity(BasicNewsRecipe):
     description = 'In-depth Security news and investigation'
     category = 'security, news'
     cover_url = 'http://krebsonsecurity.com/wp-content/themes/krebsads/krebsads/images/header.jpg'
-    oldest_article = 7
+    oldest_article = 14
     max_articles_per_feed = 100
     remove_javascript = True
     no_stylesheets = True
     use_embedded_content = False
     language = 'en'
     remove_empty_feeds = True
-    keep_only_tags = [dict(name='h2', attrs={'class': 'post-title'}),
-                      dict(name='div', attrs={'class': ['entry']})]
-    remove_tags = [dict(name='p', attrs={'class': ['small',
-                                                   'mid-banner',
-                                                   'metadata alt',
-                                                   'postmetadata alt',
-                                                   'insider_continue']}),
-                   dict(attrs={'alt': ['pinterest', 'facebook', 'twitter', 'reddit', 'mail', 'linkedin', 'google_plus']})]
+    keep_only_tags = [
+        classes('entry-header entry-content entry-meta')
+    ]
+    remove_attributes = ['width', 'height']
     feeds = [(u'Krebs on security', u'http://feeds.feedburner.com/KrebsOnSecurity')]
