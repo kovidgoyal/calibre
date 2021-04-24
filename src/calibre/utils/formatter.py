@@ -250,7 +250,7 @@ class PrintNode(Node):
 
 class CharacterNode(Node):
     def __init__(self, line_number, expression):
-        Node.__init__(self, line_number, 'character')
+        Node.__init__(self, line_number, 'character()')
         self.node_type = self.NODE_CHARACTER
         self.expression = expression
 
@@ -1076,11 +1076,16 @@ class _Interpreter(object):
         'backslash': '\\',
     }
     def do_node_character(self, prog):
-        key = self.expr(prog.expression)
-        ret = self.characters.get(key, None)
-        if ret is None:
-            self.error(_("Function {0}: invalid character name '{1}")
-                       .format('character', key), prog.line_number)
+        try:
+            key = self.expr(prog.expression)
+            ret = self.characters.get(key, None)
+            if ret is None:
+                self.error(_("Function {0}: invalid character name '{1}")
+                           .format('character', key), prog.line_number)
+            if (self.break_reporter):
+                self.break_reporter(prog.node_name, ret, prog.line_number)
+        except (StopException, ValueError) as e:
+            raise e
         return ret
 
     def do_node_print(self, prog):
