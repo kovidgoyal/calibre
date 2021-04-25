@@ -245,6 +245,7 @@ class SelectionBar:
         container = self.container
         container.style.overflow = 'hidden'
         container.addEventListener('click', self.container_clicked, {'passive': False})
+        container.addEventListener('contextmenu', self.container_context_menu_requested, {'passive': False})
         container.addEventListener('mouseup', self.mouseup_on_container, {'passive': False})
         container.addEventListener('mousemove', self.mousemove_on_container, {'passive': False})
         container.addEventListener('touchmove', self.touchmove_on_container, {'passive': False})
@@ -474,6 +475,11 @@ class SelectionBar:
         r = handle.getBoundingClientRect()
         self.position_in_handle.x = Math.round(ev.clientX - r.left)
         self.position_in_handle.y = Math.round(ev.clientY - r.top)
+
+    def container_context_menu_requested(self, ev):
+        pos = {'x': ev.clientX, 'y': ev.clientY}
+        map_to_iframe_coords(pos, get_margins())
+        self.send_message('extend-to-point', pos=pos)
 
     def container_clicked(self, ev):
         ev.stopPropagation(), ev.preventDefault()
