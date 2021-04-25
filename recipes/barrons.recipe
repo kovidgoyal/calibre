@@ -2,8 +2,21 @@
 # vim:fileencoding=utf-8
 # License: GPLv3 Copyright: 2019, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
+import json
 
+from mechanize import Request
+from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
+from base64 import standard_b64encode
+
+try:
+    import urllib.parse as urlparse
+except ImportError:
+    import urlparse
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
 
 
 def classes(classes):
@@ -12,18 +25,86 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
+MAGAZINE_INDEX = 'https://www.barrons.com/magazine'
+
+
 class BarronsMagazine(BasicNewsRecipe):
     title = 'Barron\'s Magazine'
     __author__ = 'Kovid Goyal'
     description = 'Financial news from the publisher of the WSJ'
     language = 'en'
+    needs_subscription = True
+    no_stylesheets = True
 
     keep_only_tags = [
         classes('article__headline article__body'),
     ]
 
+    def get_browser(self, *a, **kw):
+        # To understand the login logic read app-min.js from
+        # https://sso.accounts.dowjones.com/login
+        kw['user_agent'] = random_user_agent(allow_ie=False)
+        br = super().get_browser(*a, **kw)
+        if not self.username or not self.password:
+            self.barrons_itp_page = br.open(MAGAZINE_INDEX).read()
+            return br
+        itp = quote(MAGAZINE_INDEX, safe='')
+        start_url = 'https://accounts.barrons.com/login?target=' + itp
+        self.log('Starting login process...')
+        res = br.open(start_url)
+        sso_url = res.geturl()
+        query =  urlparse.parse_qs(urlparse.urlparse(sso_url).query)
+        query = {k:v[0] for k, v in query.items()}
+        request_query = {
+            'username': self.username,
+            'password': self.password,
+            'client_id': query['client'],
+            'sso': 'true',
+            'tenant': 'sso',
+            '_intstate': 'deprecated',
+            'connection': 'DJldap',
+        }
+        for k in 'scope connection nonce state ui_locales ns protocol redirect_uri'.split():
+            if k in query:
+                request_query[k] = query[k]
+        login_url = 'https://sso.accounts.dowjones.com/usernamepassword/login'
+        # you can get the version below from lib-min.js
+        # search for: str: "x.x.x"
+        # This might need to be updated in the future
+        auth0_client = json.dumps({"name": "auth0.js", "version": "7.0.3"})
+        if not isinstance(auth0_client, bytes):
+            auth0_client = auth0_client.encode('utf-8')
+        auth0_client = standard_b64encode(auth0_client)
+        if isinstance(auth0_client, bytes):
+            auth0_client = auth0_client.decode('ascii')
+        rq = Request(login_url, headers={
+            'Accept': 'text/html',
+            'Accept-Language': 'en-US,en;q=0.8',
+            'Auth0-Client': auth0_client.rstrip('='),
+            'X-HTTP-Method-Override': 'POST',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Remote-User': self.username
+        }, data=request_query)
+        self.log('Sending login request...')
+        try:
+            res = br.open(rq)
+        except Exception as err:
+            if hasattr(err, 'read'):
+                raise Exception('Login request failed with error: {} and body: {}'.format(err, err.read().decode('utf-8', 'replace')))
+            raise
+        if res.code != 200:
+            raise ValueError('Failed to login, check your username and password')
+        br.select_form(nr=0)
+        self.log('Performing login callback...')
+        res = br.submit()
+        self.barrons_itp_page = raw = res.read()
+        if b'/logout' not in raw:
+            raise ValueError(
+                'Failed to login (callback URL failed), check username and password')
+        return br
+
     def parse_index(self):
-        soup = self.index_to_soup('https://www.barrons.com/magazine')
+        soup = self.index_to_soup(self.barrons_itp_page)
         articles = []
         for art in soup.findAll('article'):
             h = art.find(['h2', 'h3'])
