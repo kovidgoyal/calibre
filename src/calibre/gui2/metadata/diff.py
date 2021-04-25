@@ -93,6 +93,11 @@ class LineEdit(EditWithComplete):
         self.setText(val)
         self.setCursorPosition(0)
 
+    def set_undoable(self, val):
+        self.selectAll()
+        self.insert(val)
+        self.setCursorPosition(0)
+
     @property
     def is_blank(self):
         val = self.current_val.strip()
@@ -137,6 +142,9 @@ class LanguagesEdit(LE):
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
+    def set_undoable(self, val):
+        self.set_lang_codes(val, True)
 
 
 class RatingsEdit(RatingEdit):
@@ -190,6 +198,9 @@ class DateEdit(PubdateEdit):
 
     def same_as(self, other):
         return self.text() == other.text()
+
+    def set_undoable(self, val):
+        self.set_value(val)
 
 
 class SeriesEdit(LineEdit):
@@ -272,6 +283,10 @@ class CommentsEdit(Editor):
     @current_val.setter
     def current_val(self, val):
         self.html = val or ''
+        self.changed.emit()
+
+    def set_undoable(self, val):
+        self.set_html(val, allow_undo=True)
         self.changed.emit()
 
     def from_mi(self, mi):
@@ -486,7 +501,10 @@ class CompareSingle(QWidget):
     def revert(self, field):
         widgets = self.widgets[field]
         neww, oldw = widgets[:2]
-        neww.current_val = oldw.current_val
+        if hasattr(neww, 'set_undoable'):
+            neww.set_undoable(oldw.current_val)
+        else:
+            neww.current_val = oldw.current_val
 
     def merge_identifiers(self):
         widgets = self.widgets['identifiers']
