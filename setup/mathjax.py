@@ -18,7 +18,7 @@ class MathJax(ReVendor):
     description = 'Create the MathJax bundle'
     NAME = 'mathjax'
     TAR_NAME = 'MathJax'
-    VERSION = '3.0.5'
+    VERSION = '3.1.4'
     DOWNLOAD_URL = 'https://github.com/mathjax/MathJax/archive/%s.tar.gz' % VERSION
 
     def add_file_pre(self, name, raw):
