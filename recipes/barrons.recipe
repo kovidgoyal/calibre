@@ -19,8 +19,7 @@ class BarronsMagazine(BasicNewsRecipe):
     language = 'en'
 
     keep_only_tags = [
-        dict(name='h1'),
-        dict(id='js-article__body'),
+        classes('article__headline article__body'),
     ]
 
     def parse_index(self):
