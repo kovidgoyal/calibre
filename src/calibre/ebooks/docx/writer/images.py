@@ -51,7 +51,11 @@ class ImagesManager(object):
     def read_image(self, href):
         if href not in self.images:
             item = self.oeb.manifest.hrefs.get(href) or self.oeb.manifest.hrefs.get(urlquote(href))
-            if item is None or not isinstance(item.data, bytes):
+            try:
+                if item is None or not isinstance(item.data, bytes):
+                    self.log.warning('Failed to find image:', href)
+                    return
+            except FileNotFoundError:
                 self.log.warning('Failed to find image:', href)
                 return
             try:
