@@ -227,7 +227,6 @@ class TOC(QStandardItemModel):
             for t in toc['children']:
                 self.appendRow(TOCItem(t, 0, depth_first, normal_font, emphasis_font))
         self.node_id_map = {x.node_id: x for x in self.all_items}
-        self.currently_viewed_entry = None
 
     def find_items(self, query):
         for item in self.all_items:
@@ -283,6 +282,12 @@ class TOC(QStandardItemModel):
 
     def viewed_nodes(self):
         return tuple(node for node in self.all_items if node.is_being_viewed)
+
+    @property
+    def title_for_current_node(self):
+        for node in reversed(self.all_items):
+            if node.is_being_viewed:
+                return node.title
 
     @property
     def as_plain_text(self):

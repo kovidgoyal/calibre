@@ -92,6 +92,7 @@ class BookmarkManager(QWidget):
         self.l = l = QGridLayout(self)
         l.setContentsMargins(0, 0, 0, 0)
         self.setLayout(l)
+        self.toc = parent.toc
 
         self.bookmarks_list = bl = BookmarksList(self)
         bl.itemChanged.connect(self.item_changed)
@@ -340,7 +341,7 @@ class BookmarkManager(QWidget):
                 import_current_bookmarks(imported)
 
     def create_new_bookmark(self, pos_data):
-        base_default_title = _('Bookmark')
+        base_default_title = self.toc.model().title_for_current_node or _('Bookmark')
         all_titles = {bm['title'] for bm in self.get_bookmarks()}
         c = 0
         while True:
