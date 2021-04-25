@@ -202,9 +202,9 @@ custom stylesheets used by calibre's users, see `the forums
 Dictionary lookup
 -------------------
 
-You can look up the meaning of words in the current book by opening the
-:guilabel:`Lookup/search word panel` via the viewer controls. Then simply double
-click on any word and its definition will be displayed in the Lookup panel.
+You can look up the meaning of words in the current book by double clicking
+or long tapping the word you want to lookup and then clicking the lookup button
+that looks like a library.
 
 
 Copying text and images
