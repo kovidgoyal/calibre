@@ -26,7 +26,7 @@ from read_book.hints import Hints
 from read_book.open_book import add_book_to_recently_viewed
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
-from read_book.prefs.font_size import change_font_size_by
+from read_book.prefs.font_size import change_font_size_by, restore_default_font_size
 from read_book.prefs.fonts import current_zoom_step_size
 from read_book.prefs.head_foot import render_head_foot
 from read_book.prefs.scrolling import (
@@ -521,6 +521,8 @@ class View:
             self.bump_font_size({'increase': True})
         elif data.name is 'decrease_font_size':
             self.bump_font_size({'increase': False})
+        elif data.name is 'default_font_size':
+            restore_default_font_size()
         elif data.name is 'toggle_full_screen':
             ui_operations.toggle_full_screen()
         elif data.name is 'toggle_reference_mode':

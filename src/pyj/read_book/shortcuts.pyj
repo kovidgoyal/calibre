@@ -248,6 +248,12 @@ def common_shortcuts():  # {{{
         _('Decrease font size'),
     ),
 
+    'default_font_size': desc(
+        "Ctrl+0",
+        'ui',
+        _('Restore default font size'),
+    ),
+
     'increase_number_of_columns': desc(
         v"['Ctrl+]']",
         'ui',

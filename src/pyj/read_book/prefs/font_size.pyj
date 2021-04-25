@@ -10,6 +10,7 @@ from book_list.theme import get_color
 from dom import add_extra_css, rule, unique_id
 from read_book.globals import ui_operations
 from widgets import create_button
+from session import defaults
 
 CONTAINER = unique_id('font-size-prefs')
 MIN_FONT_SIZE = 8
@@ -54,6 +55,10 @@ def change_font_size_by(frac):
     nsz = int(sz + amt)
     nsz = max(MIN_FONT_SIZE, min(nsz, MAX_FONT_SIZE))
     change_font_size(nsz)
+
+
+def restore_default_font_size():
+    change_font_size(defaults.base_font_size)
 
 
 def display_changed_font_size(sz):
