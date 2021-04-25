@@ -318,7 +318,7 @@ class PocketBookPro912(PocketBook):
 
 class PocketBookLux(PocketBook):
 
-    name = 'PocketBook Lux (1-5) and Basic 4'
+    untranslated_name, name = gettext('PocketBook Lux (1-5) and Basic 4')
     id = 'pocketbooklux'
     short_name = 'pocketbook_lux'
 
@@ -332,7 +332,7 @@ class PocketBookHD(PocketBook):
 
 class PocketBookInkpad3(PocketBook):
 
-    name = 'PocketBook Inkpad 3 (Pro) and X'
+    untranslated_name, name = gettext('PocketBook Inkpad 3 (Pro) and X')
     id = 'pocketbookinkpad3'
     short_name = 'pocketbook_inkpad3'
 
