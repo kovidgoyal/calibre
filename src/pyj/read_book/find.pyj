@@ -45,7 +45,8 @@ def index_for_node(node, node_list):
 
 
 def tts_word_regex():
-    return /[\p{Letter}\p{Mark}\p{Number}\p{Punctuation}]{1,50}/gu
+    # Cf is Other, formatting, including soft hyphens zero-width joiners, etc
+    return /[\p{Letter}\p{Mark}\p{Number}\p{Punctuation}\p{Cf}]{1,50}/gu
 
 
 def tts_data(text_node, offset):
