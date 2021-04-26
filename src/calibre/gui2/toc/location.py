@@ -161,7 +161,7 @@ class ItemEdit(QWidget):
         la.setWordWrap(True)
         l.addWidget(la)
 
-        f.la2 = la = QLabel('<b>'+_('&Name of the ToC entry:'))
+        f.la2 = la = QLabel('<b>'+_('Na&me of the ToC entry:'))
         l.addWidget(la)
         self.name = QLineEdit(self)
         self.name.setPlaceholderText(_('(Untitled)'))
