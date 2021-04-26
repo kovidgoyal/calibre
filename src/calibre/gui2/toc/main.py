@@ -1063,7 +1063,6 @@ class TOCEditor(QDialog):  # {{{
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
                   ' more information.')%self.book_title, det_msg=tb, show=True)
-            self.prefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             super(TOCEditor, self).reject()
             return
 
