@@ -996,6 +996,11 @@ class Application(QApplication):
 
     def ensure_window_on_screen(self, widget):
         screen_rect = self.desktop().availableGeometry(widget)
+        g = widget.geometry()
+        w = min(screen_rect.width(), g.width())
+        h = min(screen_rect.height(), g.height())
+        if w != g.width() or h != g.height():
+            widget.resize(w, h)
         if not widget.geometry().intersects(screen_rect):
             w = min(widget.width(), screen_rect.width() - 10)
             h = min(widget.height(), screen_rect.height() - 10)
