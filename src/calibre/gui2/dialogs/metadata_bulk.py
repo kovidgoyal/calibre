@@ -510,7 +510,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         all_tags = self.db.new_api.all_field_names('tags')
         self.tags.update_items_cache(all_tags)
+        self.tags.set_elide_mode(Qt.TextElideMode.ElideMiddle)
         self.remove_tags.update_items_cache(all_tags)
+        self.remove_tags.set_elide_mode(Qt.TextElideMode.ElideMiddle)
 
         self.initialize_combos()
 

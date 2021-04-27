@@ -1379,6 +1379,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
+        self.set_elide_mode(Qt.TextElideMode.ElideMiddle)
         self.currentTextChanged.connect(self.data_changed)
         self.lineEdit().setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
         self.books_to_refresh = set()

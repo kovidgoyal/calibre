@@ -335,6 +335,9 @@ class LineEdit(QLineEdit, LineEditECM):
     @disable_popup.setter
     def disable_popup(self, val):
         self.mcompleter.disable_popup = bool(val)
+
+    def set_elide_mode(self, val):
+        self.mcompleter.setTextElideMode(val)
     # }}}
 
     def event(self, ev):
@@ -474,6 +477,9 @@ class EditWithComplete(EnComboBox):
     @disable_popup.setter
     def disable_popup(self, val):
         self.lineEdit().disable_popup = bool(val)
+
+    def set_elide_mode(self, val):
+        self.lineEdit().set_elide_mode(val)
     # }}}
 
     def text(self):
