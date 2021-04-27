@@ -5,11 +5,28 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from qt.core import QToolButton, QAction, pyqtSignal, QIcon
+from contextlib import suppress
+from functools import partial
+from qt.core import QAction, QIcon, QToolButton, pyqtSignal
 
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
 from polyglot.builtins import iteritems
+
+SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
+
+
+def change_hidden(key, visible):
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    if gui is not None:
+        db = gui.current_db.new_api
+        val = set(db.pref(SORT_HIDDEN_PREF) or ())
+        if visible:
+            val.discard(key)
+        else:
+            val.add(key)
+        db.set_pref(SORT_HIDDEN_PREF, tuple(val))
 
 
 class SortAction(QAction):
@@ -64,7 +81,11 @@ class SortByAction(InterfaceAction):
     def update_menu(self, menu=None):
         menu = self.qaction.menu() if menu is None else menu
         for action in menu.actions():
-            action.sort_requested.disconnect()
+            if hasattr(action, 'sort_requested'):
+                action.sort_requested.disconnect()
+                with suppress(TypeError):
+                    action.toggled.disconnect()
+
         menu.clear()
         lv = self.gui.library_view
         m = lv.model()
@@ -75,9 +96,23 @@ class SortByAction(InterfaceAction):
             sort_col, order = 'date', True
         fm = db.field_metadata
         name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
-        for name in sorted(name_map, key=sort_key):
+        hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
+        hidden_items_menu = menu.addMenu(_('Select sortable columns'))
+        menu.addSeparator()
+        all_names = sorted(name_map, key=sort_key)
+        for name in all_names:
+            key = name_map[name]
+            ac = hidden_items_menu.addAction(name)
+            ac.setCheckable(True)
+            ac.setChecked(key not in hidden)
+            ac.setObjectName(key)
+            ac.toggled.connect(partial(change_hidden, key))
+
+        for name in all_names:
             key = name_map[name]
             if key == 'ondevice' and self.gui.device_connected is None:
+                continue
+            if key in hidden:
                 continue
             ascending = None
             if key == sort_col:
