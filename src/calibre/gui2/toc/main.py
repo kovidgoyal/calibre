@@ -8,10 +8,11 @@ import sys
 import textwrap
 from functools import partial
 from qt.core import (
-    QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox, QFrame, QGridLayout,
-    QIcon, QInputDialog, QItemSelectionModel, QKeySequence, QLabel, QMenu,
-    QPushButton, QScrollArea, QSize, QSizePolicy, QStackedWidget, Qt, QAbstractItemView,
-    QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal, QEvent
+    QAbstractItemView, QApplication, QCheckBox, QCursor, QDialog, QDialogButtonBox,
+    QEvent, QFrame, QGridLayout, QIcon, QInputDialog, QItemSelectionModel,
+    QKeySequence, QLabel, QMenu, QPushButton, QScrollArea, QSize, QSizePolicy,
+    QStackedWidget, Qt, QToolButton, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
+    QWidget, pyqtSignal
 )
 from threading import Thread
 
@@ -21,12 +22,13 @@ from calibre.ebooks.oeb.polish.toc import (
     TOC, add_id, commit_toc, from_files, from_links, from_xpaths, get_toc
 )
 from calibre.gui2 import (
-    Application, error_dialog, gprefs, info_dialog, question_dialog, set_app_uid
+    Application, error_dialog, info_dialog, question_dialog, set_app_uid
 )
 from calibre.gui2.convert.xpath_wizard import XPathEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.toc.location import ItemEdit
 from calibre.ptempfile import reset_base_dir
+from calibre.utils.config import JSONConfig
 from calibre.utils.lock import ExclusiveFile
 from calibre.utils.logging import GUILog
 from polyglot.builtins import map, range, unicode_type
@@ -974,6 +976,10 @@ class TOCView(QWidget):  # {{{
 
 # }}}
 
+
+te_prefs = JSONConfig('toc-editor')
+
+
 class TOCEditor(QDialog):  # {{{
 
     explode_done = pyqtSignal(object)
@@ -981,7 +987,7 @@ class TOCEditor(QDialog):  # {{{
 
     def __init__(self, pathtobook, title=None, parent=None, prefs=None):
         QDialog.__init__(self, parent)
-        self.prefs = prefs or gprefs
+        self.prefs = prefs or te_prefs
         self.pathtobook = pathtobook
         self.working = True
 
