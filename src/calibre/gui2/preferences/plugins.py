@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os
 from collections import OrderedDict
 
-from qt.core import (Qt, QModelIndex, QAbstractItemModel, QIcon,
+from qt.core import (Qt, QMenu, QModelIndex, QAbstractItemModel, QIcon,
         QBrush, QDialog, QItemSelectionModel, QAbstractItemView)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -250,6 +250,14 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.previous_button.clicked.connect(self.find_previous)
         self.changed_signal.connect(self.reload_store_plugins)
         self.user_installed_plugins.stateChanged.connect(self.show_user_installed_plugins)
+        self.plugin_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.plugin_view.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        menu = QMenu(self)
+        menu.addAction(_('Expand all'), self.plugin_view.expandAll)
+        menu.addAction(_('Collapse all'), self.plugin_view.collapseAll)
+        menu.exec_(self.plugin_view.mapToGlobal(pos))
 
     def show_user_installed_plugins(self, state):
         self._plugin_model.toggle_shown_plugins(self.user_installed_plugins.isChecked())
