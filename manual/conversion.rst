@@ -586,7 +586,7 @@ instead of using the text inside the tag. Note the trailing ``/@title`` on the
 XPath expression, you can use this form to tell calibre to get the text from any
 attribute you like.
 
-How options are set/saved for Conversion
+How options are set/saved for conversion
 -------------------------------------------
 
 There are two places where conversion options can be set in calibre. The first is

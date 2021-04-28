@@ -16,8 +16,8 @@ If you want to read the book on your reader, connect it to the computer, wait ti
 To get started with more advanced usage, you should read about :doc:`gui`. For even more power and versatility, learn the :doc:`generated/en/cli-index`. You will find the list of :doc:`faq` useful as well.
 
 If you have more questions, or want to discuss calibre with other users or ask
-for help with specific things, there are `forums and other help resources
-available <https://calibre-ebook.com/help>`_.
+for help with specific things, there are :website:`forums and other help resources
+available <help>`.
 
 .. only:: online
 

@@ -1,14 +1,14 @@
 .. _typesetting_math:
 
 
-Typesetting Math in e-books
-============================
+Typesetting mathematics in e-books
+====================================
 
-The calibre E-book viewer has the ability to display math embedded in e-books
-(EPUB and HTML files). You can typeset the math directly with TeX or MathML or
+The calibre E-book viewer has the ability to display mathematics embedded in e-books
+(EPUB and HTML files). You can typeset the mathematics directly with TeX or MathML or
 AsciiMath. The calibre E-book viewer uses the excellent `MathJax
 <https://www.mathjax.org>`_ library to do this. This is a brief tutorial on
-creating e-books with math in them that work well with the calibre E-book viewer.
+creating e-books with mathematics in them that work well with the calibre E-book viewer.
 
 
 A simple HTML file with mathematics
@@ -20,7 +20,7 @@ TeX notation for mathematics. You will see that you can use normal TeX
 commands, with the small caveat that ampersands and less than and greater than
 signs have to be written as &amp; &lt; and &gt; respectively.
 
-The first step is to tell calibre that this will contains maths. You do this by
+The first step is to tell calibre that this will contains mathematics. You do this by
 adding the following snippet of code to the <head> section of the HTML file::
 
     <script type="text/x-mathjax-config"></script>
@@ -60,6 +60,5 @@ More information
 -----------------
 
 Since the calibre E-book viewer uses the MathJax library to render mathematics, the best
-place to find out more about math in e-books and get help is the `MathJax
+place to find out more about mathematics in e-books and get help is the `MathJax
 website <https://www.mathjax.org>`_.
-

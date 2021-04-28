@@ -31,7 +31,7 @@ needs_sphinx = '1.2'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'custom', 'sidebar_toc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'custom', 'sidebar_toc', 'sphinx.ext.viewcode', 'sphinx.ext.extlinks']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['templates']
@@ -175,7 +175,10 @@ def sort_languages(x):
 html_context['other_languages'].sort(key=sort_languages)
 html_context['support_text'] = _('Support calibre')
 html_context['support_tooltip'] = _('Contribute to support calibre development')
-html_context['homepage_url'] = 'http://calibre-ebook.com' + (f'/{language}' if needs_localization else '')
+html_context['homepage_url'] = 'https://calibre-ebook.com' + (f'/{language}' if needs_localization else '')
+extlinks = {
+    'website': (html_context['homepage_url'] + '/%s', None),
+}
 del sort_languages, get_language
 
 epub_author      = u'Kovid Goyal'
