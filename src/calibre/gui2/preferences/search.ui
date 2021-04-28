@@ -309,7 +309,7 @@ to be shown as user categories</string>
            <widget class="QLabel" name="label">
             <property name="text">
              <string>&lt;p&gt;When you search for similar books by right clicking the
-         book and selecting &quot;Similar books...&quot;,
+         book and selecting &quot;Similar books&quot;,
          calibre constructs a search using the column lookup names specified below.
          By changing the lookup name to a grouped search term you can
          search multiple columns at once.&lt;/p&gt;</string>

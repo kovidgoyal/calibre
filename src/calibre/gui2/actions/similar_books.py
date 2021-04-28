@@ -16,7 +16,7 @@ from polyglot.builtins import string_or_bytes
 class SimilarBooksAction(InterfaceAction):
 
     name = 'Similar Books'
-    action_spec = (_('Similar books...'), 'similar.png', _('Show books similar to the current book'), None)
+    action_spec = (_('Similar books'), 'similar.png', _('Show books similar to the current book'), None)
     popup_type = QToolButton.ToolButtonPopupMode.InstantPopup
     action_type = 'current'
     action_add_menu = True
