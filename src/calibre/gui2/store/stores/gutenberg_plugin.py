@@ -52,7 +52,10 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
         a = next(CSSSelect('a.link', li))
         s.detail_item = absurl(a.get('href'))
         s.title = etree.tostring(next(CSSSelect('span.title', li)), method='text', encoding='unicode').strip()
-        s.author = etree.tostring(next(CSSSelect('span.subtitle', li)), method='text', encoding='unicode').strip()
+        try:
+            s.author = etree.tostring(next(CSSSelect('span.subtitle', li)), method='text', encoding='unicode').strip()
+        except StopIteration:
+            s.author = ""
         for img in CSSSelect('img.cover-thumb', li):
             s.cover_url = absurl(img.get('src'))
             break
