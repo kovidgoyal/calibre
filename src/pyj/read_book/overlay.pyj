@@ -212,8 +212,9 @@ add_extra_css(def():
     sel += '> li'
     style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', flex_wrap='wrap', align_items='center', cursor='pointer')
     style += build_rule(sel + ':last-child', border_right_style='none')
-    style += build_rule(sel + ':hover > *:first-child', color=get_color('window-hover-foreground'))
-    style += build_rule(sel + ':active > *:first-child', transform='scale(1.8)')
+    style += build_rule(sel + ':hover > *:first-child, .main-overlay-button:hover > *:first-child',
+                        color=get_color('window-hover-foreground'))
+    style += build_rule(sel + ':active > *:first-child, .main-overlay-button:active > *:first-child', transform='scale(1.8)')
     style += f'@media screen and (max-width: 350px) {{ #{timer_id()} {{ display: none; }} }}'
     return style
 )
@@ -419,7 +420,7 @@ class MainOverlay:  # {{{
                   style='position: fixed; width: 100%; bottom: 0; display: flex; justify-content: space-between; align-items: center;'
                         'user-select: none; background-color: {}'.format(get_color('window-background')),
                 E.div(
-                    style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem',
+                    style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
                     svgicon('close', icon_size, icon_size), '\xa0', _('Close')
                 ),
                 E.div(style='padding: 0.5ex 1rem', '\xa0'), E.div(style='padding: 0.5ex 1rem', '\xa0'),
