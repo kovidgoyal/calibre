@@ -1027,12 +1027,16 @@ class SelectionBar:
         cs = self.view.currently_showing.selection
         if cs.text:
             if cs.annot_id:
-                self.create_highlight()
+                am = self.annotations_manager
+                self.current_notes = am.notes_for_highlight(cs.annot_id) or ''
+                self.send_message(
+                    'apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), existing=cs.annot_id, has_notes=v'!!self.current_notes'
+        )
             else:
                 self.current_notes = ''
                 self.send_message('apply-highlight', style=self.current_highlight_style.style, uuid=short_uuid(), has_notes=False)
-                self.state = WAITING
-                self.update_position()
+            self.state = WAITING
+            self.update_position()
 
     def quick_highlight_with_style(self, hs):
         self.current_highlight_style = hs
