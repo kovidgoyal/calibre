@@ -19,10 +19,9 @@ base = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base)
 sys.path.insert(0, os.path.dirname(base))
 from setup import __appname__, __version__
-import calibre.utils.localization as l  # Ensure calibre translations are installed
+from calibre.utils.localization import localize_website_link
 import custom
 del sys.path[0]
-del l
 custom
 # General configuration
 # ---------------------
@@ -175,7 +174,9 @@ def sort_languages(x):
 html_context['other_languages'].sort(key=sort_languages)
 html_context['support_text'] = _('Support calibre')
 html_context['support_tooltip'] = _('Contribute to support calibre development')
-html_context['homepage_url'] = 'https://calibre-ebook.com' + (f'/{language}' if needs_localization else '')
+html_context['homepage_url'] = 'https://calibre-ebook.com'
+if needs_localization:
+    html_context['homepage_url'] = localize_website_link(html_context['homepage_url'])
 extlinks = {
     'website': (html_context['homepage_url'] + '/%s', None),
 }
