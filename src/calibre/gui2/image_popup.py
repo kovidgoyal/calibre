@@ -6,12 +6,16 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from qt.core import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
-        QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon,
-        Qt, QTransform, QSvgRenderer, QImage, QPainter, QHBoxLayout, QCheckBox)
+from qt.core import (
+    QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QImage,
+    QLabel, QPainter, QPalette, QPixmap, QScrollArea, QSize, QSizePolicy,
+    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal
+)
 
 from calibre import fit_image
-from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING, max_available_height
+from calibre.gui2 import (
+    NO_URL_FORMATTING, choose_save_file, gprefs, max_available_height
+)
 from polyglot.builtins import unicode_type
 
 
@@ -33,6 +37,41 @@ def render_svg(widget, path):
     return img
 
 
+class Label(QLabel):
+
+    dragged = pyqtSignal(int, int)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setBackgroundRole(QPalette.ColorRole.Text if QApplication.instance().is_dark_theme else QPalette.ColorRole.Base)
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
+        self.setScaledContents(True)
+        self.default_cursor = self.cursor()
+        self.in_drag = False
+        self.prev_drag_position = None
+
+    def mousePressEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton:
+            self.setCursor(Qt.CursorShape.ClosedHandCursor)
+            self.in_drag = True
+            self.prev_drag_position = ev.globalPos()
+        return super().mousePressEvent(ev)
+
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton and self.in_drag:
+            self.setCursor(self.default_cursor)
+            self.in_drag = False
+            self.prev_drag_position = None
+        return super().mousePressEvent(ev)
+
+    def mouseMoveEvent(self, ev):
+        if self.prev_drag_position is not None:
+            p = self.prev_drag_position
+            self.prev_drag_position = pos = ev.globalPos()
+            self.dragged.emit(pos.x() - p.x(), pos.y() - p.y())
+        return super().mouseMoveEvent(ev)
+
+
 class ImageView(QDialog):
 
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
@@ -47,10 +86,8 @@ class ImageView(QDialog):
         self.factor = 1.0
         self.geom_name = geom_name
 
-        self.label = l = QLabel(self)
-        l.setBackgroundRole(QPalette.ColorRole.Text if QApplication.instance().is_dark_theme else QPalette.ColorRole.Base)
-        l.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
-        l.setScaledContents(True)
+        self.label = l = Label(self)
+        l.dragged.connect(self.dragged)
 
         self.scrollarea = sa = QScrollArea()
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
@@ -200,6 +237,14 @@ class ImageView(QDialog):
         if abs(d) > 0 and not self.scrollarea.verticalScrollBar().isVisible():
             event.accept()
             (self.zoom_out if d < 0 else self.zoom_in)()
+
+    def dragged(self, dx, dy):
+        h = self.scrollarea.horizontalScrollBar()
+        if h.isVisible():
+            h.setValue(h.value() + dx)
+        v = self.scrollarea.verticalScrollBar()
+        if v.isVisible():
+            v.setValue(v.value() + dy)
 
 
 class ImagePopup(object):
