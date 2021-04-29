@@ -184,17 +184,17 @@ def all_actions():
 
     if not all_actions.ans:
         all_actions.ans = {
-            'copy': a('copy', _('Copy to clipboard') + ' [Ctrl+c]', 'copy_to_clipboard'),
-            'lookup': a('library', _('Lookup/search selected word') + ' [l]', 'lookup'),
-            'quick_highlight': a('highlight', _('Quick highlight in current style') + ' [q]', 'quick_highlight'),
-            'highlight': a('highlight', _('Highlight selection') + ' [h]', 'create_highlight'),
-            'search': a('search', _('Search for selection in the book') + ' [f]', 'book_search'),
-            'bookmark': a('bookmark', _('Create a bookmark') + ' [Ctrl+Alt+b]', 'new_bookmark'),
-            'search_net': a('global-search', _('Search for selection on the net') + ' [s]', 'internet_search'),
+            'copy': a('copy', _('Copy to clipboard') + ' [Ctrl+C]', 'copy_to_clipboard'),
+            'lookup': a('library', _('Lookup/search selected word') + ' [L]', 'lookup'),
+            'quick_highlight': a('highlight', _('Quick highlight in current style') + ' [Q]', 'quick_highlight'),
+            'highlight': a('highlight', _('Highlight selection') + ' [H]', 'create_highlight'),
+            'search': a('search', _('Search for selection in the book') + ' [F]', 'book_search'),
+            'bookmark': a('bookmark', _('Create a bookmark') + ' [Ctrl+Alt+B]', 'new_bookmark'),
+            'search_net': a('global-search', _('Search for selection on the net') + ' [S]', 'internet_search'),
             'remove_highlight': a('trash', _('Remove this highlight') + ' [Delete]', 'remove_highlight', True),
             'clear': a('close', _('Clear selection') + ' [Esc]', 'clear_selection'),
-            'speak': a('bullhorn', _('Read aloud') + ' [t]', 'speak_aloud'),
-            'cite': a('reference-mode', _('Copy citation to clipboard') + ' [x]', 'cite'),
+            'speak': a('bullhorn', _('Read aloud') + ' [T]', 'speak_aloud'),
+            'cite': a('reference-mode', _('Copy citation to clipboard') + ' [X]', 'cite'),
         }
         qh = all_actions.ans.quick_highlight
         qh.icon_function = quick_highlight_icon.bind(None, qh.icon, qh.text)
