@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QImage,
     QLabel, QPainter, QPalette, QPixmap, QScrollArea, QSize, QSizePolicy,
-    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal
+    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout
 )
 
 from calibre import fit_image
@@ -39,19 +39,22 @@ def render_svg(widget, path):
 
 class Label(QLabel):
 
-    dragged = pyqtSignal(int, int)
-
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, scrollarea):
+        super().__init__(scrollarea)
         self.setBackgroundRole(QPalette.ColorRole.Text if QApplication.instance().is_dark_theme else QPalette.ColorRole.Base)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
         self.setScaledContents(True)
         self.default_cursor = self.cursor()
         self.in_drag = False
         self.prev_drag_position = None
+        self.scrollarea = scrollarea
+
+    @property
+    def is_pannable(self):
+        return self.scrollarea.verticalScrollBar().isVisible() or self.scrollarea.horizontalScrollBar().isVisible()
 
     def mousePressEvent(self, ev):
-        if ev.button() == Qt.MouseButton.LeftButton:
+        if ev.button() == Qt.MouseButton.LeftButton and self.is_pannable:
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
             self.in_drag = True
             self.prev_drag_position = ev.globalPos()
@@ -68,8 +71,16 @@ class Label(QLabel):
         if self.prev_drag_position is not None:
             p = self.prev_drag_position
             self.prev_drag_position = pos = ev.globalPos()
-            self.dragged.emit(pos.x() - p.x(), pos.y() - p.y())
+            self.dragged(pos.x() - p.x(), pos.y() - p.y())
         return super().mouseMoveEvent(ev)
+
+    def dragged(self, dx, dy):
+        h = self.scrollarea.horizontalScrollBar()
+        if h.isVisible():
+            h.setValue(h.value() - dx)
+        v = self.scrollarea.verticalScrollBar()
+        if v.isVisible():
+            v.setValue(v.value() - dy)
 
 
 class ImageView(QDialog):
@@ -86,12 +97,10 @@ class ImageView(QDialog):
         self.factor = 1.0
         self.geom_name = geom_name
 
-        self.label = l = Label(self)
-        l.dragged.connect(self.dragged)
-
         self.scrollarea = sa = QScrollArea()
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         sa.setBackgroundRole(QPalette.ColorRole.Dark)
+        self.label = l = Label(sa)
         sa.setWidget(l)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
@@ -237,14 +246,6 @@ class ImageView(QDialog):
         if abs(d) > 0 and not self.scrollarea.verticalScrollBar().isVisible():
             event.accept()
             (self.zoom_out if d < 0 else self.zoom_in)()
-
-    def dragged(self, dx, dy):
-        h = self.scrollarea.horizontalScrollBar()
-        if h.isVisible():
-            h.setValue(h.value() + dx)
-        v = self.scrollarea.verticalScrollBar()
-        if v.isVisible():
-            v.setValue(v.value() + dy)
 
 
 class ImagePopup(object):
