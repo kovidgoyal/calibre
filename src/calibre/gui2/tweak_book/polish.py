@@ -66,11 +66,12 @@ def customize_remove_unused_css(name, parent, ans):
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
     d.bb.accepted.connect(d.accept)
-    if d.exec_() != QDialog.DialogCode.Accepted:
-        raise Abort()
+    ret = d.exec_()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
     ans['merge_rules_with_identical_properties'] = tprefs['merge_rules_with_identical_properties'] = p.isChecked()
+    if ret != QDialog.DialogCode.Accepted:
+        raise Abort()
 
 
 def get_customization(action, name, parent):
