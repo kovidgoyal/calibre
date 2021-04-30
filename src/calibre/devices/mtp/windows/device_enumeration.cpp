@@ -85,7 +85,7 @@ get_storage_info(IPortableDevice *device) { // {{{
 
     hr = S_OK;
     while (hr == S_OK) {
-		generic_raii_array<wchar_t*, CoTaskMemFree, 16> object_ids;
+		generic_raii_array<wchar_t*, co_task_mem_free, 16> object_ids;
         Py_BEGIN_ALLOW_THREADS;
         hr = objects->Next((ULONG)object_ids.size(), object_ids.ptr(), &fetched);
         Py_END_ALLOW_THREADS;
