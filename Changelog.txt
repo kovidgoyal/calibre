@@ -23,6 +23,56 @@
 # - title by author
 # }}}
 
+{{{ 5.17.0 2021-04-30
+
+:: new features
+
+- [1926484] E-book viewer: Image popup: Allow dragging with the mouse to pan the image
+
+- [1923724] Sort button: Allow selecting which columns are in the popup sort menu
+
+- [1851908] E-book viewer: When suggesting a default bookmark title, use the name of the current chapter
+
+- [1925038] E-book viewer: When searching the Table of Contents allow holding the Shift key to search backwards
+
+- [1925294] E-book viewer: Add a shortcut Ctrl+0 to restore default font size
+
+:: bug fixes
+
+- Windows MTP driver: Rewrite parts of the driver in the hope of fixing some rare and hard to reproduce crashes
+
+- Windows MTP driver: Set modified and created times when putting files/folders on device. Also read modified time correctly.
+
+- [1918591] Windows: E-book viewer: Fix switching away from viewer while in full screen and switching back causing some corruption until the page is scrolled
+
+- [1925378] Fix a regression in the previous release that caused errors when editing empty date values
+
+- Get books: Update Gutenberg plugin for website changes
+
+- [1926518] E-book viewer: The quick highlight button should replace the style of an existing highlight, when one is selected
+
+- [1925247] Elide long items in the middle when showing the completion popup for tags, to make it easier to use with hierarchical tags
+
+- [1925988] E-book viewer: Read aloud: Fix soft hyphens causing read aloud words to be broken up
+
+- [1925390] E-book viewer: Right clicking when text is selected should extend the selection instead of doing nothing
+
+- Fix settings in the ToC Editor tool being forgotten when calibre is closed
+
+- [1926025] DOCX Output: Fix conversion failing if the input document has missing images
+
+- [1925961] Content server viewer: Fix mouse wheel scrolling not working on the box used to edit notes for highlights
+
+- E-book viewer: Fix read aloud word tracking in flow mode not very reliable
+
+- E-book viewer: Fix navigation shortcuts not working in Read aloud mode
+
+:: improved recipes
+- Barrons
+- Krebs On Security
+
+}}}
+
 {{{ 5.16.1 2021-04-17
 
 :: new features
