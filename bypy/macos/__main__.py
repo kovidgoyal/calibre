@@ -747,7 +747,7 @@ class Freeze(object):
                                                  'lib', 'python' + py_ver))
 
     @flush
-    def makedmg(self, d, volname, internet_enable=True):
+    def makedmg(self, d, volname):
         ''' Copy a directory d into a dmg named volname '''
         print('\nSigning...')
         sys.stdout.flush()
@@ -780,8 +780,6 @@ class Freeze(object):
         print('\nCreating dmg...')
         with timeit() as times:
             subprocess.check_call(cmd + [dmg])
-            if internet_enable:
-                subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         print('dmg created in %d minutes and %d seconds' % tuple(times))
         shutil.rmtree(tdir)
         size = os.stat(dmg).st_size / (1024 * 1024.)
