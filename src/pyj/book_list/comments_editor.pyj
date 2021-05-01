@@ -6,8 +6,8 @@ from elementmaker import E
 from gettext import gettext as _
 
 from book_list.theme import get_color, get_color_as_rgba
-from dom import add_extra_css, build_rule, clear, ensure_id, svgicon
-from iframe_comm import IframeClient, IframeWrapper
+from dom import add_extra_css, build_rule, clear, svgicon
+from iframe_comm import IframeClient, create_wrapped_iframe
 from modals import create_custom_dialog
 from utils import html_escape
 from widgets import create_button
@@ -348,17 +348,19 @@ def add_editor(editor):
 
 class Editor:
 
-    def __init__(self, iframe):
+    def __init__(self, iframe_kw):
         handlers = {
             'ready': self.on_iframe_ready,
             'html': self.on_html_received,
             'update_state': self.update_state,
         }
-        self.iframe_wrapper = IframeWrapper(handlers, iframe, 'book_list.comments_editor', _('Loading comments editor...'))
-        self.id = ensure_id(iframe)
+        iframe, self.iframe_wrapper = create_wrapped_iframe(
+            handlers, _('Loading comments editor...'), 'book_list.comments_editor', iframe_kw)
+        self.id = iframe.id
         self.ready = False
         self.pending_set_html = None
         self.get_html_callbacks = v'[]'
+        self.iframe_obj = iframe
 
     def init(self):
         self.iframe_wrapper.init()
@@ -421,8 +423,12 @@ class Editor:
 
 
 def create_editor():
-    iframe = E.iframe(sandbox='allow-scripts', seamless=True, style='flex-grow: 10; border: solid 1px currentColor', id=self.id)
-    editor = Editor(iframe)
+    iframe_kw = {
+        'sandbox': 'allow-scripts', 'seamless': True, 'style': 'flex-grow: 10; border: solid 1px currentColor'
+    }
+    editor = Editor(iframe_kw)
+    iframe = editor.iframe_obj
+    v'delete editor.iframe_obj'
     add_editor(editor)
     return iframe, editor
 

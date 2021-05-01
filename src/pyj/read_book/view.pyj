@@ -11,7 +11,7 @@ from book_list.theme import cached_color_to_rgba, get_color, set_ui_colors
 from book_list.ui import query_as_href
 from dom import add_extra_css, build_rule, clear, set_css, svgicon, unique_id
 from gettext import gettext as _
-from iframe_comm import IframeWrapper
+from iframe_comm import create_wrapped_iframe
 from modals import error_dialog, warning_dialog
 from read_book.annotations import AnnotationsManager
 from read_book.bookmarks import create_new_bookmark
@@ -229,38 +229,6 @@ class View:
         set_left_margin_handler(left_margin)
         right_margin = side_margin_elem(self, sd, 'right')
         set_right_margin_handler(right_margin)
-        iframe_id = unique_id('read-book-iframe')
-        sandbox = 'allow-popups allow-scripts allow-popups-to-escape-sandbox'
-        if runtime.is_standalone_viewer:
-            sandbox += '  allow-same-origin'
-        container.appendChild(
-            E.div(style='max-height: 100vh; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
-                oncontextmenu=def (ev):
-                    if not default_context_menu_should_be_allowed(ev):
-                        ev.preventDefault()
-                ,
-
-                E.div(style='max-height: 100vh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
-                    E.div(style='max-height: 100vh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
-                        left_margin,
-                        E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
-                            margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
-                            E.iframe(id=iframe_id, seamless=True, sandbox=sandbox, style='flex-grow: 2', allowfullscreen='true'),
-                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
-                        ),
-                        right_margin,
-                        self.book_scrollbar.create(),
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-selection-bar-overlay'),  # selection bar overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-read-aloud-overlay'),  # read aloud overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-hints-overlay'),  # hints overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
-                    )
-                ),
-            ),
-        )
         handlers = {
             'autoscroll_state_changed': def(data):
                 self.autoscroll_active = v'!!data.running'
@@ -304,15 +272,51 @@ class View:
                     ui_operations.view_image(data.calibre_src)
             ,
         }
-        entry_point = None if runtime.is_standalone_viewer else 'read_book.iframe'
+
+        iframe_id = unique_id('read-book-iframe')
+        if runtime.is_standalone_viewer:
+            entry_point = f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__index__'
+        else:
+            entry_point = 'read_book.iframe'
+        iframe_kw = {
+            'id': iframe_id, 'seamless': True,
+            'sandbox': 'allow-popups allow-scripts allow-popups-to-escape-sandbox',
+            'style': 'flex-grow: 2', 'allowfullscreen': 'true',
+        }
+        iframe, self.iframe_wrapper = create_wrapped_iframe(handlers, _('Bootstrapping book reader...'), entry_point, iframe_kw)
+        container.appendChild(
+            E.div(style='max-height: 100vh; width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+                oncontextmenu=def (ev):
+                    if not default_context_menu_should_be_allowed(ev):
+                        ev.preventDefault()
+                ,
+
+                E.div(style='max-height: 100vh; display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
+                    E.div(style='max-height: 100vh; flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+                        left_margin,
+                        E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
+                            margin_elem(sd, 'margin_top', 'book-top-margin', self.top_margin_clicked, self.margin_context_menu.bind(None, 'top')),
+                            iframe,
+                            margin_elem(sd, 'margin_bottom', 'book-bottom-margin', self.bottom_margin_clicked, self.margin_context_menu.bind(None, 'bottom')),
+                        ),
+                        right_margin,
+                        self.book_scrollbar.create(),
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-selection-bar-overlay'),  # selection bar overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-read-aloud-overlay'),  # read aloud overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none;', id='book-hints-overlay'),  # hints overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-content-popup-overlay'),  # content popup overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; overflow: auto; display:none', id='book-overlay'),  # main overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='controls-help-overlay'),  # controls help overlay
+                    )
+                ),
+            ),
+        )
         self.current_color_scheme = resolve_color_scheme()
         if runtime.is_standalone_viewer:
             document.documentElement.addEventListener('keydown', self.handle_keypress, {'passive': False})
             set_ui_colors(self.current_color_scheme.is_dark_theme)
         is_dark_theme(self.current_color_scheme.is_dark_theme)
-        self.iframe_wrapper = IframeWrapper(
-            handlers, document.getElementById(iframe_id), entry_point, _('Bootstrapping book reader...'),
-            f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__index__')
         self.search_overlay = SearchOverlay(self)
         self.content_popup_overlay = ContentPopupOverlay(self)
         self.overlay = Overlay(self)
@@ -914,7 +918,7 @@ class View:
         self.book_load_started = True
         if not is_current_book:
             self.iframe_wrapper.reset()
-            self.content_popup_overlay.iframe_wrapper.reset()
+            self.content_popup_overlay.reset()
             self.loaded_resources = {}
             self.content_popup_overlay.loaded_resources = {}
             self.timers.start_book(book)

@@ -6,7 +6,7 @@ from elementmaker import E
 from gettext import gettext as _
 
 from dom import add_extra_css, build_rule, clear, svgicon
-from iframe_comm import IframeWrapper
+from iframe_comm import create_wrapped_iframe
 from read_book.globals import runtime, ui_operations
 from read_book.resources import load_resources
 
@@ -42,29 +42,35 @@ class ContentPopupOverlay:
         self.loaded_resources = {}
         c = self.container
         c.classList.add(CLASS_NAME)
-        sandbox = 'allow-scripts'
-        if runtime.is_standalone_viewer:
-            sandbox += ' allow-same-origin'
-        iframe = E.iframe(seamless=True, sandbox=sandbox, style='width: 100%; max-height: 70vh')
-
-        c.appendChild(E.div(
-            E.div(),
-            iframe
-        ))
+        c.appendChild(E.div(E.div()))
         c.addEventListener('click', self.hide)
         c.firstChild.addEventListener('click', def(ev):
             ev.stopPropagation(), ev.preventDefault()
         )
+        self.pending_load = None
+
+    def reset(self):
+        if self.iframe_wrapper:
+            self.iframe_wrapper.reset()
+
+    def create_iframe(self):
         handlers = {
             'ready': self.on_iframe_ready,
             'error': self.view.on_iframe_error,
             'content_loaded': self.on_content_loaded,
         }
-        entry_point = None if runtime.is_standalone_viewer else 'read_book.footnotes'
-        self.iframe_wrapper = IframeWrapper(
-            handlers, iframe, entry_point, _('Loading data, please wait...'),
-            f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__popup__')
-        self.pending_load = None
+        iframe_kw = {
+            'seamless': True, 'sandbox': 'allow-scripts', 'style': 'width: 100%; max-height: 70vh'
+        }
+        if runtime.is_standalone_viewer:
+            entry_point = f'{runtime.FAKE_PROTOCOL}://{runtime.SANDBOX_HOST}/book/__popup__'
+        else:
+            entry_point = 'read_book.footnotes'
+        iframe, self.iframe_wrapper = create_wrapped_iframe(
+            handlers, _('Loading data, please wait...'), entry_point, iframe_kw
+        )
+        c = self.container
+        c.firstChild.appendChild(iframe)
 
     @property
     def container(self):
@@ -117,6 +123,8 @@ class ContentPopupOverlay:
         load_resources(self.view.book, name, self.loaded_resources, cb)
 
     def show_footnote(self, data):
+        if not self.iframe_wrapper:
+            self.create_iframe()
         self.current_footnote_data = data
         width = 100 // data.cols_per_screen
         c = self.container.firstChild

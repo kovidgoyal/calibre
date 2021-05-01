@@ -2,14 +2,14 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-import traceback
 from aes import GCM
-from gettext import gettext as _, install
+from elementmaker import E
 
+import traceback
 from book_list.globals import get_translations, main_js
 from book_list.theme import get_font_family
 from dom import ensure_id
-
+from gettext import gettext as _, install
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -58,16 +58,22 @@ class Messenger:
 
 class IframeWrapper:
 
-    def __init__(self, handlers, iframe, entry_point, bootstrap_text, url):
+    def __init__(self, handlers, iframe, entry_point, bootstrap_text):
         self.messenger = Messenger()
         self.iframe_id = ensure_id(iframe, 'content-iframe')
-        self.needs_init = True
+        if ':' in entry_point:
+            self.needs_init = False
+            self.srcdoc_created = True
+            self.constructor_url = entry_point
+            self.entry_point = None
+        else:
+            self.needs_init = True
+            self.srcdoc_created = False
+            self.constructor_url = None
+            self.entry_point = entry_point
         self.ready = False
         self.encrypted_communications = False
-        self.srcdoc_created = False
-        self.constructor_url = url
-        self.entry_point = entry_point
-        self.bootstrap_text = bootstrap_text
+        self.bootstrap_text = bootstrap_text or ''
         self.handlers = {k: handlers[k] for k in handlers}
         self.on_ready_handler = self.handlers.ready
         self.handlers.ready = self.on_iframe_ready
@@ -162,6 +168,15 @@ class IframeWrapper:
         self.encrypted_communications = True
         if callback:
             callback()
+
+
+def create_wrapped_iframe(handlers, bootstrap_text, entry_point, kw):
+    if ':' in entry_point:
+        kw.src = entry_point
+        kw.sandbox = (kw.sandbox or '') + ' allow-same-origin'
+    iframe = E.iframe(**kw)
+    ans = IframeWrapper(handlers, iframe, entry_point, bootstrap_text)
+    return iframe, ans
 
 
 class IframeClient:
