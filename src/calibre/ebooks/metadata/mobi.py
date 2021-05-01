@@ -325,7 +325,7 @@ class MetadataUpdater(object):
             stop, = unpack('>I', self.data[offoff + 8:offoff + 12])
         return StreamSlicer(self.stream, start, stop)
 
-    def update(self, mi):
+    def update(self, mi, asin=None):
         mi.title = normalize(mi.title)
 
         def update_exth_record(rec):
@@ -399,6 +399,11 @@ class MetadataUpdater(object):
                 not added_501 and not share_not_sync):
             from uuid import uuid4
             update_exth_record((113, unicode_type(uuid4()).encode(self.codec)))
+
+        if asin is not None:
+            update_exth_record((113, asin.encode(self.codec)))
+            update_exth_record((504, asin.encode(self.codec)))
+
         # Add a 112 record with actual UUID
         if getattr(mi, 'uuid', None):
             update_exth_record((112,
