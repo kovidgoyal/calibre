@@ -6,6 +6,7 @@
 import errno
 import json
 import os
+from contextlib import suppress
 from threading import Thread
 
 from calibre import as_unicode
@@ -32,7 +33,8 @@ def read_json(path):
         if err.errno != errno.ENOENT:
             raise
         return
-    return json.loads(raw)
+    with suppress(json.JSONDecodeError):
+        return json.loads(raw)
 
 
 def custom_list_template():
