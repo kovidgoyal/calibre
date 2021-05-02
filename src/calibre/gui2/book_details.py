@@ -350,6 +350,9 @@ def add_item_specific_entries(menu, data, book_info, copy_menu, search_menu):
                 ac.current_url = value
                 ac.setText(_('&Identifier'))
                 copy_menu.addAction(ac)
+                if data.get('url'):
+                    book_info.copy_identifiers_url_action.current_url = data['url']
+                    copy_menu.addAction(book_info.copy_identifiers_url_action)
                 remove_value = data['id_type']
                 init_find_in_tag_browser(search_menu, find_action, field, remove_value)
                 init_find_in_grouped_search(search_menu, field, remove_value, book_info)
@@ -732,6 +735,9 @@ class BookInfo(HTMLDisplay):
         self.remove_item_action = ac = QAction(QIcon(I('minus.png')), '...', self)
         ac.data = (None, None, None)
         ac.triggered.connect(self.remove_item_triggered)
+        self.copy_identifiers_url_action = ac = QAction(QIcon(I('edit-copy.png')), _('Identifier &URL'), self)
+        ac.triggered.connect(self.copy_id_url_triggerred)
+        ac.current_url = ac.current_fmt = None
         self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setDefaultStyleSheet(css())
 
@@ -769,6 +775,10 @@ class BookInfo(HTMLDisplay):
 
     def copy_link_triggerred(self):
         self.context_action_triggered('copy_link')
+
+    def copy_id_url_triggerred(self):
+        if self.copy_identifiers_url_action.current_url:
+            self.copy_link.emit(self.copy_identifiers_url_action.current_url)
 
     def find_in_tag_browser_triggerred(self):
         if self.find_in_tag_browser_action.current_fmt:
