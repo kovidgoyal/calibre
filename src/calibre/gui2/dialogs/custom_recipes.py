@@ -271,10 +271,11 @@ class RecipeList(QWidget):  # {{{
     def remove(self):
         idx = self.view.currentIndex()
         if idx.isValid():
-            self.model.remove((idx.row(),))
-            self.select_row()
-            if self.model.rowCount() == 0:
-                self.stacks.setCurrentIndex(0)
+            if confirm_delete(_('Are you sure you want to permanently remove this recipe?'), 'remove-custom-recipe', parent=self):
+                self.model.remove((idx.row(),))
+                self.select_row()
+                if self.model.rowCount() == 0:
+                    self.stacks.setCurrentIndex(0)
 
     def download(self):
         idx = self.view.currentIndex()
