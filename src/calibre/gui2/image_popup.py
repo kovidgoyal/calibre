@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from qt.core import (
     QApplication, QCheckBox, QDialog, QDialogButtonBox, QHBoxLayout, QIcon, QImage,
     QLabel, QPainter, QPalette, QPixmap, QScrollArea, QSize, QSizePolicy,
-    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout
+    QSvgRenderer, Qt, QTransform, QUrl, QVBoxLayout, pyqtSignal
 )
 
 from calibre import fit_image
@@ -38,6 +38,8 @@ def render_svg(widget, path):
 
 
 class Label(QLabel):
+
+    toggle_fit = pyqtSignal()
 
     def __init__(self, scrollarea):
         super().__init__(scrollarea)
@@ -82,6 +84,10 @@ class Label(QLabel):
         if v.isVisible():
             v.setValue(v.value() - dy)
 
+    def mouseDoubleClickEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton:
+            self.toggle_fit.emit()
+
 
 class ImageView(QDialog):
 
@@ -101,6 +107,7 @@ class ImageView(QDialog):
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         sa.setBackgroundRole(QPalette.ColorRole.Dark)
         self.label = l = Label(sa)
+        l.toggle_fit.connect(self.toggle_fit)
         sa.setWidget(l)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
@@ -189,6 +196,9 @@ class ImageView(QDialog):
             self.factor = 1
             self.adjust_image(1)
 
+    def toggle_fit(self):
+        self.fit_image.toggle()
+
     def adjust_image(self, factor):
         if self.fit_image.isChecked():
             self.set_to_viewport_size()
@@ -272,6 +282,7 @@ class ImagePopup(object):
 
 if __name__ == '__main__':
     import sys
+
     from calibre.gui2 import Application
     app = Application([])
     p = QPixmap()
