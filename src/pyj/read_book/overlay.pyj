@@ -260,8 +260,8 @@ class MainOverlay:  # {{{
         sync_action = ac(_('Sync'), _('Get last read position and annotations from the server'), self.overlay.sync_book, 'cloud-download')
         delete_action = ac(_('Delete'), _('Delete this book from local storage'), self.overlay.delete_book, 'trash')
         reload_action = ac(_('Reload'), _('Reload this book from the {}').format( _('computer') if runtime.is_standalone_viewer else _('server')), self.overlay.reload_book, 'refresh')
-        back_action = ac(_('Back'), None, self.back, 'arrow-left')
-        forward_action = ac(_('Forward'), None, self.forward, 'arrow-right')
+        back_action = ac(_('Back'), _('Go back'), self.back, 'arrow-left')
+        forward_action = ac(_('Forward'), _('Go forward'), self.forward, 'arrow-right')
         nav_actions = E.ul(back_action, forward_action)
         if runtime.is_standalone_viewer:
             reload_actions = E.ul(
@@ -271,14 +271,13 @@ class MainOverlay:  # {{{
         else:
             reload_actions = E.ul(sync_action, delete_action, reload_action)
 
-        bookmarks_action = ac(_('Bookmarks'), None, self.overlay.show_bookmarks, 'bookmark')
+        bookmarks_action = ac(_('Bookmarks'), _('Browse all bookmarks'), self.overlay.show_bookmarks, 'bookmark')
         highlights_action = ac(
             _('Highlights'), _('Browse all highlights'), def():
                 self.overlay.show_highlights()
             , 'image')
 
-        toc_actions = E.ul(ac(_('Table of Contents'), None, self.overlay.show_toc, 'toc'))
-
+        toc_actions = E.ul(ac(_('Table of Contents'), _('Browse the Table of Contents'), self.overlay.show_toc, 'toc'))
         toc_actions.appendChild(ac(_('Reference mode'), _('Toggle the Reference mode'), self.overlay.toggle_reference_mode, 'reference-mode'))
 
         actions_div = E.div( # actions
@@ -313,7 +312,7 @@ class MainOverlay:  # {{{
         if runtime.is_standalone_viewer:
             text = _('Exit full screen') if runtime.viewer_in_full_screen else _('Enter full screen')
             full_screen_actions.push(
-                ac(text, '', def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen'))
+                ac(text, _('Toggle full screen mode'), def(): self.overlay.hide(), ui_operations.toggle_full_screen();, 'full-screen'))
             full_screen_actions.push(
                 ac(_('Print'), _('Print book to PDF'), def(): self.overlay.hide(), ui_operations.print_book();, 'print'))
         else:
@@ -421,6 +420,7 @@ class MainOverlay:  # {{{
                         'user-select: none; background-color: {}'.format(get_color('window-background')),
                 E.div(
                     style='display: flex; align-items: center; cursor: pointer; padding: 0.5ex 1rem', class_='main-overlay-button',
+                    title=_('Close the viewer controls'),
                     svgicon('close', icon_size, icon_size), '\xa0', _('Close')
                 ),
                 E.div(style='padding: 0.5ex 1rem', '\xa0'), E.div(style='padding: 0.5ex 1rem', '\xa0'),
