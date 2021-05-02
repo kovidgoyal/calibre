@@ -80,11 +80,11 @@ class PrivateEyeRecipe(BasicNewsRecipe):
         return url
 
     urls = []
-    publication_date = ""
+    edition_date = ""
 
     def add_article(self, title, url, description="", date=None):
         if date is None:
-            date = self.publication_date
+            date = self.edition_date
         if url and url not in self.urls:
             self.urls.append(url)
             self.log.info(
@@ -139,9 +139,9 @@ class PrivateEyeRecipe(BasicNewsRecipe):
                     date = datetime.strptime(
                         " ".join((day, month, year)), "%d %B %Y")
                     date = date - timedelta(11)
-                    self.publication_date = datetime.strftime(
+                    self.edition_date = datetime.strftime(
                         date, "%d %B %Y").lstrip("0")
-                    self.log.debug("Publication date: %s" % self.publication_date)
+                    self.log.debug("Publication date: %s" % self.edition_date)
                     self.title_with_date = self.title + datetime.strftime(
                         date, " %Y-%m-%d")
                     break
