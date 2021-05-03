@@ -1,10 +1,10 @@
 
-.. _dmr:
+.. _drm:
 
 Digital Rights Management (DRM)
 ===============================================
 
-Digital rights management (DRM) is a generic term for access control
+Digital Rights Management (DRM) is a generic term for access control
 technologies that can be used by hardware manufacturers, publishers, copyright
 holders and individuals to try to impose limitations on the usage of digital
 content and devices. It is also, sometimes, disparagingly described as Digital
