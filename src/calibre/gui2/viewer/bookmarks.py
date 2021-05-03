@@ -16,7 +16,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.utils.date import EPOCH, utcnow
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import range, unicode_type
 
 
@@ -163,8 +163,8 @@ class BookmarkManager(QWidget):
 
     def set_bookmarks(self, bookmarks=()):
         csb = self.current_sort_by
-        if csb == 'name':
-            sk = lambda x: sort_key(x['title'])
+        if csb in ('name', 'title'):
+            sk = lambda x: primary_sort_key(x['title'])
         elif csb == 'timestamp':
             sk = itemgetter('timestamp')
         else:
