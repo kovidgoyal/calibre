@@ -202,6 +202,7 @@ public:
 		if (complete != INVALID_HANDLE_VALUE) CloseHandle(complete);
 		items = NULL; subfolders = NULL; level = 0; complete = INVALID_HANDLE_VALUE; callback = NULL;
 	}
+	bool handle_is_valid() const { return complete != INVALID_HANDLE_VALUE; }
 
     HRESULT __stdcall OnStart(REFGUID Context) { return S_OK; }
     HRESULT __stdcall OnEnd(REFGUID Context, HRESULT hrStatus) { if (complete != INVALID_HANDLE_VALUE) SetEvent(complete); return S_OK; }
@@ -232,6 +233,7 @@ public:
 
 	DWORD wait_for_messages(int seconds=60) {
 		DWORD wait_result;
+		if (complete == INVALID_HANDLE_VALUE) return WAIT_OBJECT_0;
 		Py_BEGIN_ALLOW_THREADS;
 		wait_result = MsgWaitForMultipleObjects(1, &complete, FALSE, seconds * 1000, QS_ALLEVENTS);
 		Py_END_ALLOW_THREADS;
@@ -276,6 +278,7 @@ bulk_get_filesystem(
 		return false;
 	}
 
+	bulk_properties_callback->AddRef();
     while (!PyErr_Occurred()) {
 		DWORD wait_result = bulk_properties_callback->wait_for_messages();
         if (wait_result == WAIT_OBJECT_0) {
@@ -291,7 +294,9 @@ bulk_get_filesystem(
             PyErr_SetString(WPDError, "An unknown error occurred (mutex abandoned)");
         } else {
             // The wait failed for some reason
-            PyErr_SetFromWindowsErr(0);
+			const char buf[256] = {0};
+			_snprintf_s((char *const)buf, sizeof(buf) - 1, _TRUNCATE, "handle wait failed in bulk filesystem get at file: %s line: %d", __FILE__, __LINE__);
+			PyErr_SetExcFromWindowsErrWithFilename(WPDError, 0, buf);
         }
     }
 	bulk_properties_callback->end_processing();
@@ -299,6 +304,7 @@ bulk_get_filesystem(
         bulk_properties->Cancel(guid_context);
         pump_waiting_messages();
     }
+	bulk_properties_callback->Release();
     return PyErr_Occurred() ? false : true;
 }
 
