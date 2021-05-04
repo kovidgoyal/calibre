@@ -354,6 +354,12 @@ class ResultsList(QTreeWidget):
             self.delete_requested.emit()
             ev.accept()
             return
+        if ev.key() == Qt.Key.Key_F2:
+            item = self.currentItem()
+            if item:
+                self.edit_notes(item)
+                ev.accept()
+                return
         return QTreeWidget.keyPressEvent(self, ev)
 
 
