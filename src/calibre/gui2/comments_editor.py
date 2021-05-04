@@ -241,6 +241,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
+        self.insert_link_shortcut = QKeySequence('Ctrl+l', QKeySequence.SequenceFormat.PortableText)
         self.setTabChangesFocus(True)
         self.document().setDefaultStyleSheet(css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         font = self.font()
@@ -255,44 +256,47 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self._parent = weakref.ref(parent)
         self.comments_pat = re.compile(r'<!--.*?-->', re.DOTALL)
 
-        for rec in (
-            ('bold', 'format-text-bold', _('Bold'), True),
-            ('italic', 'format-text-italic', _('Italic'), True),
-            ('underline', 'format-text-underline', _('Underline'), True),
-            ('strikethrough', 'format-text-strikethrough', _('Strikethrough'), True),
-            ('superscript', 'format-text-superscript', _('Superscript'), True),
-            ('subscript', 'format-text-subscript', _('Subscript'), True),
-            ('ordered_list', 'format-list-ordered', _('Ordered list'), True),
-            ('unordered_list', 'format-list-unordered', _('Unordered list'), True),
-
-            ('align_left', 'format-justify-left', _('Align left'), True),
-            ('align_center', 'format-justify-center', _('Align center'), True),
-            ('align_right', 'format-justify-right', _('Align right'), True),
-            ('align_justified', 'format-justify-fill', _('Align justified'), True),
-            ('undo', 'edit-undo', _('Undo'), ),
-            ('redo', 'edit-redo', _('Redo'), ),
-            ('remove_format', 'edit-clear', _('Remove formatting'), ),
-            ('copy', 'edit-copy', _('Copy'), ),
-            ('paste', 'edit-paste', _('Paste'), ),
-            ('paste_and_match_style', 'edit-paste', _('Paste and match style'), ),
-            ('cut', 'edit-cut', _('Cut'), ),
-            ('indent', 'format-indent-more', _('Increase indentation'), ),
-            ('outdent', 'format-indent-less', _('Decrease indentation'), ),
-            ('select_all', 'edit-select-all', _('Select all'), ),
-
-            ('color', 'format-text-color', _('Foreground color')),
-            ('background', 'format-fill-color', _('Background color')),
-            ('insert_link', 'insert-link', _('Insert link or image'),),
-            ('insert_hr', 'format-text-hr', _('Insert separator'),),
-            ('clear', 'trash', _('Clear')),
-        ):
-            name, icon, text = rec[:3]
-            checkable = len(rec) == 4
+        def r(name, icon, text, checkable=False, shortcut=None):
             ac = QAction(QIcon(I(icon + '.png')), text, self)
             if checkable:
                 ac.setCheckable(checkable)
             setattr(self, 'action_'+name, ac)
             ac.triggered.connect(getattr(self, 'do_' + name))
+            if shortcut is not None:
+                sc = shortcut if isinstance(shortcut, QKeySequence) else QKeySequence(shortcut)
+                ac.setShortcut(sc)
+                ac.setToolTip(text + f' [{sc.toString(QKeySequence.SequenceFormat.NativeText)}]')
+            self.addAction(ac)
+
+        r('bold', 'format-text-bold', _('Bold'), True, QKeySequence.StandardKey.Bold)
+        r('italic', 'format-text-italic', _('Italic'), True, QKeySequence.StandardKey.Italic)
+        r('underline', 'format-text-underline', _('Underline'), True, QKeySequence.StandardKey.Underline)
+        r('strikethrough', 'format-text-strikethrough', _('Strikethrough'), True)
+        r('superscript', 'format-text-superscript', _('Superscript'), True)
+        r('subscript', 'format-text-subscript', _('Subscript'), True)
+        r('ordered_list', 'format-list-ordered', _('Ordered list'), True)
+        r('unordered_list', 'format-list-unordered', _('Unordered list'), True)
+
+        r('align_left', 'format-justify-left', _('Align left'), True)
+        r('align_center', 'format-justify-center', _('Align center'), True)
+        r('align_right', 'format-justify-right', _('Align right'), True)
+        r('align_justified', 'format-justify-fill', _('Align justified'), True)
+        r('undo', 'edit-undo', _('Undo'), shortcut=QKeySequence.StandardKey.Undo)
+        r('redo', 'edit-redo', _('Redo'), shortcut=QKeySequence.StandardKey.Redo)
+        r('remove_format', 'edit-clear', _('Remove formatting'))
+        r('copy', 'edit-copy', _('Copy'), shortcut=QKeySequence.StandardKey.Copy)
+        r('paste', 'edit-paste', _('Paste'), shortcut=QKeySequence.StandardKey.Paste)
+        r('paste_and_match_style', 'edit-paste', _('Paste and match style'))
+        r('cut', 'edit-cut', _('Cut'), shortcut=QKeySequence.StandardKey.Cut)
+        r('indent', 'format-indent-more', _('Increase indentation'))
+        r('outdent', 'format-indent-less', _('Decrease indentation'))
+        r('select_all', 'edit-select-all', _('Select all'), shortcut=QKeySequence.StandardKey.SelectAll)
+
+        r('color', 'format-text-color', _('Foreground color'))
+        r('background', 'format-fill-color', _('Background color'))
+        r('insert_link', 'insert-link', _('Insert link or image'), shortcut=self.insert_link_shortcut)
+        r('insert_hr', 'format-text-hr', _('Insert separator'),)
+        r('clear', 'trash', _('Clear'))
 
         self.action_block_style = QAction(QIcon(I('format-text-heading.png')),
                 _('Style text block'), self)
@@ -331,21 +335,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         self.cursorPositionChanged.connect(self.update_cursor_position_actions)
         self.textChanged.connect(self.data_changed)
         self.update_cursor_position_actions()
-
-    def keyPressEvent(self, ev):
-        if ev.matches(QKeySequence.StandardKey.Bold):
-            ev.accept()
-            self.action_bold.toggle(), self.action_bold.trigger()
-            return
-        if ev.matches(QKeySequence.StandardKey.Italic):
-            ev.accept()
-            self.action_italic.toggle(), self.action_italic.trigger()
-            return
-        if ev.matches(QKeySequence.StandardKey.Underline):
-            ev.accept()
-            self.action_underline.toggle(), self.action_underline.trigger()
-            return
-        return QTextEdit.keyPressEvent(self, ev)
 
     def update_clipboard_actions(self, copy_available):
         self.action_copy.setEnabled(copy_available)
