@@ -306,6 +306,7 @@ class ResultsList(QTreeWidget):
             section = QTreeWidgetItem([entry['title']], 1)
             section.setFlags(Qt.ItemFlag.ItemIsEnabled)
             section.setFont(0, self.section_font)
+            section.setData(0, Qt.ItemDataRole.UserRole, book_id)
             self.addTopLevelItem(section)
             section.setExpanded(True)
             for result in entry['matches']:
@@ -361,6 +362,31 @@ class ResultsList(QTreeWidget):
                 ev.accept()
                 return
         return QTreeWidget.keyPressEvent(self, ev)
+
+    @property
+    def tree_state(self):
+        ans = {'closed': set()}
+        item = self.currentItem()
+        if item is not None:
+            ans['current'] = item.data(0, Qt.ItemDataRole.UserRole)
+        for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            if not item.isExpanded():
+                ans['closed'].add(item.data(0, Qt.ItemDataRole.UserRole))
+        return ans
+
+    @tree_state.setter
+    def tree_state(self, state):
+        closed = state['closed']
+        for item in (self.topLevelItem(i) for i in range(self.topLevelItemCount())):
+            if item.data(0, Qt.ItemDataRole.UserRole) in closed:
+                item.setExpanded(False)
+
+        cur = state.get('current')
+        if cur is not None:
+            for item in self.item_map:
+                if item.data(0, Qt.ItemDataRole.UserRole) == cur:
+                    self.setCurrentItem(item)
+                    break
 
 
 class Restrictions(QWidget):
@@ -612,6 +638,12 @@ class BrowsePanel(QWidget):
     def selected_annotations(self):
         return self.results_list.selected_annotations
 
+    def save_tree_state(self):
+        return self.results_list.tree_state
+
+    def restore_tree_state(self, state):
+        self.results_list.tree_state = state
+
 
 class Details(QTextBrowser):
 
@@ -748,7 +780,8 @@ class EditNotes(Dialog):
 
     def __init__(self, notes, parent=None):
         self.initial_notes = notes
-        Dialog.__init__(self, _('Edit notes for highlight'), 'library-annotations-browser-edit-notes', parent=parent)
+        Dialog.__init__(
+            self, _('Edit notes for highlight'), 'library-annotations-browser-edit-notes', parent=parent)
 
     def setup_ui(self):
         self.notes_edit = QPlainTextEdit(self)
@@ -771,7 +804,8 @@ class AnnotationsBrowser(Dialog):
     show_book = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser', parent=parent)
+        self.current_restriction = None
+        Dialog.__init__(self, _('Annotations browser'), 'library-annotations-browser', parent=parent, default_buttons=QDialogButtonBox.StandardButton.Close)
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
         self.setWindowIcon(QIcon(I('highlight.png')))
 
@@ -829,6 +863,10 @@ class AnnotationsBrowser(Dialog):
         b.setToolTip(_('Export the selected annotations'))
         b.setIcon(QIcon(I('save.png')))
         b.clicked.connect(self.export_selected)
+        self.refresh_button = b = self.bb.addButton(_('Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip(_('Refresh annotations in case they have been changed since this window was opened'))
+        b.setIcon(QIcon(I('restart.png')))
+        b.clicked.connect(self.refresh)
 
     def delete_selected(self):
         ids = frozenset(self.browse_panel.selected_annot_ids)
@@ -889,7 +927,14 @@ class AnnotationsBrowser(Dialog):
             self.browse_panel.selection_changed(gui.library_view.get_selected_ids(as_set=True))
 
     def reinitialize(self, restrict_to_book_ids=None):
+        self.current_restriction = restrict_to_book_ids
         self.browse_panel.re_initialize(restrict_to_book_ids or set())
+
+    def refresh(self, current_restriction):
+        state = self.browse_panel.save_tree_state()
+        self.browse_panel.re_initialize(self.current_restriction)
+        self.browse_panel.effective_query_changed()
+        self.browse_panel.restore_tree_state(state)
 
 
 if __name__ == '__main__':
