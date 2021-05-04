@@ -8,10 +8,10 @@ from collections import defaultdict
 from functools import lru_cache
 from itertools import chain
 from qt.core import (
-    QColor, QFont, QHBoxLayout, QIcon, QImage, QItemSelectionModel, QKeySequence,
-    QLabel, QMenu, QPainter, QPainterPath, QPixmap, QPushButton, QRect, QSizePolicy,
-    Qt, QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal,
-    QAbstractItemView, QDialog, QPalette, QStyle
+    QAbstractItemView, QColor, QDialog, QFont, QHBoxLayout, QIcon, QImage,
+    QItemSelectionModel, QKeySequence, QLabel, QMenu, QPainter, QPainterPath,
+    QPalette, QPixmap, QPushButton, QRect, QSizePolicy, QStyle, Qt, QTextCursor,
+    QTextEdit, QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 
 from calibre.constants import (
@@ -381,6 +381,7 @@ class NotesEditDialog(Dialog):
         qte.setMinimumWidth(600)
         if self.initial_notes:
             qte.setPlainText(self.initial_notes)
+            qte.moveCursor(QTextCursor.MoveOperation.End)
         l.addWidget(qte)
         l.addWidget(self.bb)
 
