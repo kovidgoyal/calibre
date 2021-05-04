@@ -241,7 +241,6 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
     def __init__(self, parent=None):
         QTextEdit.__init__(self, parent)
-        self.insert_link_shortcut = QKeySequence('Ctrl+l', QKeySequence.SequenceFormat.PortableText)
         self.setTabChangesFocus(True)
         self.document().setDefaultStyleSheet(css() + '\n\nli { margin-top: 0.5ex; margin-bottom: 0.5ex; }')
         font = self.font()
@@ -294,7 +293,8 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         r('color', 'format-text-color', _('Foreground color'))
         r('background', 'format-fill-color', _('Background color'))
-        r('insert_link', 'insert-link', _('Insert link or image'), shortcut=self.insert_link_shortcut)
+        r('insert_link', 'insert-link', _('Insert link or image'),
+          shortcut=QKeySequence('Ctrl+l', QKeySequence.SequenceFormat.PortableText))
         r('insert_hr', 'format-text-hr', _('Insert separator'),)
         r('clear', 'trash', _('Clear'))
 
