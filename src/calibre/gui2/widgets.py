@@ -413,6 +413,7 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
         self.scene = QGraphicsScene()
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
+        self.setBackgroundBrush(self.palette().color(QPalette.ColorRole.Window))
 
     def paintEvent(self, ev):
         QGraphicsView.paintEvent(self, ev)
