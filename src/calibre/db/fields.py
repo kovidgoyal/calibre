@@ -338,7 +338,7 @@ class CompositeField(OneToOneField):
             vals = self.get_value_with_cache(book_id, get_metadata)
             if splitter:
                 length = len(list(vv.strip() for vv in vals.split(splitter) if vv.strip()))
-            elif vals.strip:
+            elif vals.strip():
                 length = 1
             else:
                 length = 0
