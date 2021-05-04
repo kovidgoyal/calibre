@@ -172,12 +172,16 @@ class Dialog(QDialog):
     for the first time.
     '''
 
-    def __init__(self, title, name, parent=None, prefs=gprefs):
+    def __init__(
+            self, title,
+            name, parent=None, prefs=gprefs,
+            default_buttons=QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+    ):
         QDialog.__init__(self, parent)
         self.prefs_for_persistence = prefs
         self.setWindowTitle(title)
         self.name = name
-        self.bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self.bb = QDialogButtonBox(default_buttons)
         self.bb.accepted.connect(self.accept)
         self.bb.rejected.connect(self.reject)
 
