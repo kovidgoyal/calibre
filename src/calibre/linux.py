@@ -1217,7 +1217,7 @@ def make_appdata_releases():
         # Formatting of release description tries to resemble that of
         # https://calibre-ebook.com/whats-new while taking into account the limits imposed by
         # https://www.freedesktop.org/software/appstream/docs/chap-Metadata.html#tag-description
-        description = E.description('{http://www.w3.org/XML/1998/namespace}lang', 'en')
+        description = E.description(**{'{http://www.w3.org/XML/1998/namespace}lang': 'en'})
         if 'new features' in revision:
             description.append(E.p('New features:'))
             description.append(E.ol(
@@ -1261,8 +1261,7 @@ def write_appdata(key, entry, base, translators):
         for lang, t in iteritems(translators):
             tp = t.gettext(para)
             if tp != para:
-                description.append(E.p(tp))
-                description[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+                description.append(E.p(tp, **{'{http://www.w3.org/XML/1998/namespace}lang': lang}))
 
     root = E.component(
         E.id(key + '.desktop'),
@@ -1287,8 +1286,7 @@ def write_appdata(key, entry, base, translators):
     for lang, t in iteritems(translators):
         tp = t.gettext(entry['summary'])
         if tp != entry['summary']:
-            root.append(E.summary(tp))
-            root[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+            root.append(E.summary(tp, **{'{http://www.w3.org/XML/1998/namespace}lang': lang}))
     if entry.get('include-releases', False):
         try:
             root.append(make_appdata_releases())
