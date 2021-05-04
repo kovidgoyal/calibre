@@ -359,7 +359,6 @@ class EditNotesAndColors:  # {{{
             onclick=def(ev): ev.stopPropagation();,
             id=unique_id(), E.div(
             E.textarea(
-                current_notes or '',
                 placeholder=_('Add notes for this highlight. Double click or long tap on a highlight to read its notes.'),
                 rows='10', spellcheck='true', style='width: 90%;',
                 onkeydown=handle_keypress,
@@ -406,6 +405,8 @@ class EditNotesAndColors:  # {{{
 
         self.set_visibility_of_remove_button()
         window.setTimeout(self.notes_edit.focus.bind(self.notes_edit), 0)
+        if current_notes:
+            self.notes_edit.value = current_notes
 
     def hide_add_style(self, new_style):
         c = self.container
