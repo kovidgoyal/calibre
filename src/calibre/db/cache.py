@@ -686,8 +686,7 @@ class Cache(object):
                 composite_cache_needs_to_be_cleared = True
         if composite_cache_needs_to_be_cleared:
             try:
-                with self.write_lock:
-                    self.clear_composite_caches()
+                self.clear_composite_caches()
             except LockingError:
                 # We can't clear the composite caches because a read lock is set.
                 # As a consequence the value of a composite column that calls
