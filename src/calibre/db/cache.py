@@ -142,6 +142,7 @@ class Cache(object):
         self.formatter_template_cache = {}
         self.dirtied_cache = {}
         self.vls_for_books_cache = None
+        self.vls_for_books_cache_is_loading = False
         self.dirtied_sequence = 0
         self.cover_caches = set()
         self.clear_search_cache_count = 0
@@ -251,6 +252,7 @@ class Cache(object):
         self.clear_search_cache_count += 1
         self._search_api.update_or_clear(self, book_ids)
         self.vls_for_books_cache = None
+        self.vls_for_books_cache_is_loading = False
 
     @read_api
     def last_modified(self):
@@ -2213,14 +2215,35 @@ class Cache(object):
         if self.vls_for_books_cache is None:
             # Using a list is slightly faster than a set.
             c = defaultdict(list)
+            if self.vls_for_books_cache_is_loading:
+                # We get here if resolving the books in a VL triggers another VL
+                # calculation. This can be 'real' recursion, in which case the
+                # eventual answer might be wrong. It can also be a
+                # search using a  location of 'all' that causes a composite that
+                # references virtual libraries to be evaluated. If the composite
+                # isn't used in a VL then the eventual answer will be correct.
+                return c
+            self.vls_for_books_cache_is_loading = True
             libraries = self._pref('virtual_libraries', {})
             for lib, expr in libraries.items():
+                book = None
                 try:
                     for book in self._search(expr, virtual_fields=virtual_fields):
                         c[book].append(lib)
                 except Exception as e:
-                    c[book].append(_('[Error in Virtual library {0}: {1}]').format(lib, str(e)))
+                    if book:
+                        c[book].append(_('[Error in Virtual library {0}: {1}]').format(lib, str(e)))
             self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
+            # Clear the proxy_metadata composite caches so that any template
+            # evaluation returned during recursion avoidance (above) will be
+            # recomputed with correct data.
+            # Note that clear_composite_caches() normally uses a write lock. That
+            # won't work here because the call chain has already obtained a read
+            # lock that we can't upgrade. It is safe to call clear_composite_caches
+            # using the read lock because multiple threads will merely clear the
+            # cache multiple times, perhaps wasting a bit of time recomputing
+            # values. The GIL prevents corruption during the clearing process.
+            self._clear_composite_caches()
         if not book_ids:
             book_ids = self._all_book_ids()
         # book_ids is usually 1 long. The loop will be faster than a comprehension
