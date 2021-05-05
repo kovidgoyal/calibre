@@ -403,6 +403,7 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
         self.pixmap_size = 0, 0
         if self.show_size:
             self.setViewportUpdateMode(QGraphicsView.ViewportUpdateMode.FullViewportUpdate)
+        self.set_background()
 
     def get_pixmap(self):
         for item in self.scene.items():
@@ -413,7 +414,9 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
         self.scene = QGraphicsScene()
         self.scene.addPixmap(pmap)
         self.setScene(self.scene)
-        self.setBackgroundBrush(self.palette().color(QPalette.ColorRole.Window))
+
+    def set_background(self, brush=None):
+        self.setBackgroundBrush(brush or self.palette().color(QPalette.ColorRole.Window))
 
     def paintEvent(self, ev):
         QGraphicsView.paintEvent(self, ev)

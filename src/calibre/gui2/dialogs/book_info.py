@@ -27,6 +27,9 @@ class Cover(CoverView):
     open_with_requested = pyqtSignal(object)
     choose_open_with_requested = pyqtSignal()
 
+    def __init__(self, parent, show_size=False):
+        CoverView.__init__(self, parent, show_size=show_size)
+
     def build_context_menu(self):
         ans = CoverView.build_context_menu(self)
         create_open_cover_with_menu(self, ans)
@@ -41,6 +44,13 @@ class Cover(CoverView):
     def mouseDoubleClickEvent(self, ev):
         ev.accept()
         self.open_with_requested.emit(None)
+
+    def set_marked(self, marked):
+        if marked:
+            marked_brush = QBrush(Qt.GlobalColor.darkGray if QApplication.instance().is_dark_theme else Qt.GlobalColor.lightGray)
+            self.set_background(marked_brush)
+        else:
+            self.set_background()
 
 
 class Configure(Dialog):
@@ -125,8 +135,6 @@ class BookInfo(QDialog):
 
     def __init__(self, parent, view, row, link_delegate):
         QDialog.__init__(self, parent)
-        self.normal_brush = QBrush(Qt.GlobalColor.white)
-        self.marked_brush = QBrush(Qt.GlobalColor.lightGray)
         self.marked = None
         self.gui = parent
         self.splitter = QSplitter(self)
@@ -275,6 +283,7 @@ class BookInfo(QDialog):
 
     def resize_cover(self):
         if self.cover_pixmap is None:
+            self.cover.set_marked(self.marked)
             return
         pixmap = self.cover_pixmap
         if self.fit_cover.isChecked():
@@ -290,6 +299,7 @@ class BookInfo(QDialog):
                         Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
                 pixmap.setDevicePixelRatio(dpr)
         self.cover.set_pixmap(pixmap)
+        self.cover.set_marked(self.marked)
         self.update_cover_tooltip()
 
     def update_cover_tooltip(self):
@@ -331,11 +341,10 @@ class BookInfo(QDialog):
         except AttributeError:
             dpr = self.devicePixelRatio()
         self.cover_pixmap.setDevicePixelRatio(dpr)
+        self.marked = mi.marked
         self.resize_cover()
         html = render_html(mi, True, self, pref_name='popup_book_display_fields')
         set_html(mi, html, self.details)
-        self.marked = mi.marked
-        self.cover.setBackgroundBrush(self.marked_brush if mi.marked else self.normal_brush)
         self.update_cover_tooltip()
 
     def open_with(self, entry):
