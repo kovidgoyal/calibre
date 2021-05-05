@@ -674,8 +674,23 @@ class Cache(object):
         cover_as_data is True then as mi.cover_data.
         '''
 
+        # Check if virtual_libraries_for_books rebuilt its cache. If it did then
+        # we must clear the composite caches so the new data can be taken into
+        # account. Clearing the caches requires getting a write lock, so it must
+        # be done outside of the closure of _get_metadata().
+        vl_cache_was_none = self.vls_for_books_cache is None
         with self.safe_read_lock:
             mi = self._get_metadata(book_id, get_user_categories=get_user_categories)
+        if vl_cache_was_none and self.vls_for_books_cache is not None:
+            try:
+                with self.write_lock:
+                    self.clear_composite_caches()
+            except DowngradeLockError:
+                # We can't clear the composite caches because a read lock is set.
+                # As a consequence the value of a composite column that calls
+                # virtual_libraries() might be wrong. Oh well. Log and keep running.
+                print("Couldn't get write lock after vls_for_books_cache was loaded")
+                traceback.print_exc()
 
         if get_cover:
             if cover_as_data:
@@ -2218,10 +2233,11 @@ class Cache(object):
             if self.vls_for_books_cache_is_loading:
                 # We get here if resolving the books in a VL triggers another VL
                 # calculation. This can be 'real' recursion, in which case the
-                # eventual answer might be wrong. It can also be a
-                # search using a  location of 'all' that causes a composite that
-                # references virtual libraries to be evaluated. If the composite
-                # isn't used in a VL then the eventual answer will be correct.
+                # eventual answer will be wrong. It can also be a  search using
+                # a location of 'all' that causes evaluation of a composite that
+                # references virtual libraries. If the composite isn't used in a
+                # VL then the eventual answer will be correct because get_metadata
+                # will clear the caches.
                 return c
             self.vls_for_books_cache_is_loading = True
             libraries = self._pref('virtual_libraries', {})
@@ -2234,16 +2250,6 @@ class Cache(object):
                     if book:
                         c[book].append(_('[Error in Virtual library {0}: {1}]').format(lib, str(e)))
             self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
-            # Clear the proxy_metadata composite caches so that any template
-            # evaluation returned during recursion avoidance (above) will be
-            # recomputed with correct data.
-            # Note that clear_composite_caches() normally uses a write lock. That
-            # won't work here because the call chain has already obtained a read
-            # lock that we can't upgrade. It is safe to call clear_composite_caches
-            # using the read lock because multiple threads will merely clear the
-            # cache multiple times, perhaps wasting a bit of time recomputing
-            # values. The GIL prevents corruption during the clearing process.
-            self._clear_composite_caches()
         if not book_ids:
             book_ids = self._all_book_ids()
         # book_ids is usually 1 long. The loop will be faster than a comprehension
