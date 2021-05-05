@@ -9,7 +9,7 @@ from calibre.gui2.preferences.main import Preferences
 class ShowTemplateFunctionsAction(InterfaceAction):
 
     name = 'Template Functions'
-    action_spec = (_('Template Functions'), 'debug.png', None, ())
+    action_spec = (_('Template functions'), 'debug.png', None, ())
     dont_add_to = frozenset(('context-menu-device',))
     action_type = 'current'
 

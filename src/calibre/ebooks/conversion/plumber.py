@@ -134,7 +134,7 @@ OptionRecommendation(name='input_profile',
                    'conversion system information on how to interpret '
                    'various information in the input document. For '
                    'example resolution dependent lengths (i.e. lengths in '
-                   'pixels). Choices are:')+ ', '.join([
+                   'pixels). Choices are:') + ' ' + ', '.join([
                        x.short_name for x in input_profiles()])
         ),
 
