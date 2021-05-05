@@ -331,6 +331,21 @@ class CompositeField(OneToOneField):
         for val, book_ids in iteritems(val_map):
             yield val, book_ids
 
+    def iter_counts(self, candidates, get_metadata=None):
+        val_map = defaultdict(set)
+        splitter = self.splitter
+        for book_id in candidates:
+            vals = self.get_value_with_cache(book_id, get_metadata)
+            if splitter:
+                length = len(list(vv.strip() for vv in vals.split(splitter) if vv.strip()))
+            elif vals.strip():
+                length = 1
+            else:
+                length = 0
+            val_map[length].add(book_id)
+        for val, book_ids in iteritems(val_map):
+            yield val, book_ids
+
     def get_composite_categories(self, tag_class, book_rating_map, book_ids,
                                  is_multiple, get_metadata):
         ans = []
@@ -542,7 +557,7 @@ class ManyToManyField(Field):
             if book_ids:
                 yield val, book_ids
 
-    def iter_counts(self, candidates):
+    def iter_counts(self, candidates, get_metadata=None):
         val_map = defaultdict(set)
         cbm = self.table.book_col_map
         for book_id in candidates:
