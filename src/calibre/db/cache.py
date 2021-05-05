@@ -28,7 +28,7 @@ from calibre.db.categories import get_categories
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
-from calibre.db.locking import DowngradeLockError, SafeReadLock, create_locks
+from calibre.db.locking import LockingError, DowngradeLockError, SafeReadLock, create_locks
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.utils import type_safe_sort_key_function
@@ -688,7 +688,7 @@ class Cache(object):
             try:
                 with self.write_lock:
                     self.clear_composite_caches()
-            except DowngradeLockError:
+            except LockingError:
                 # We can't clear the composite caches because a read lock is set.
                 # As a consequence the value of a composite column that calls
                 # virtual_libraries() might be wrong. Oh well. Log and keep running.
