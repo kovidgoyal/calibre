@@ -82,8 +82,11 @@ class MessageBox(QDialog):  # {{{
                  q_icon=None,
                  show_copy_button=True,
                  parent=None, default_yes=True,
-                 yes_text=None, no_text=None, yes_icon=None, no_icon=None):
+                 yes_text=None, no_text=None, yes_icon=None, no_icon=None,
+                 add_abort_button=False
+    ):
         QDialog.__init__(self, parent)
+        self.aborted = False
         if q_icon is None:
             icon = {
                     self.ERROR : 'error',
@@ -139,11 +142,17 @@ class MessageBox(QDialog):  # {{{
         else:
             self.bb.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
 
+        if add_abort_button:
+            self.bb.addButton(QDialogButtonBox.StandardButton.Abort).clicked.connect(self.on_abort)
+
         if not det_msg:
             self.det_msg_toggle.setVisible(False)
 
         self.resize_needed.connect(self.do_resize, type=Qt.ConnectionType.QueuedConnection)
         self.do_resize()
+
+    def on_abort(self):
+        self.aborted = True
 
     def sizeHint(self):
         ans = QDialog.sizeHint(self)

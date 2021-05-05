@@ -400,6 +400,10 @@ def error_dialog(parent, title, msg, det_msg='', show=False,
     return d
 
 
+class Aborted(Exception):
+    pass
+
+
 def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     default_yes=True,
     # Skippable dialogs
@@ -412,6 +416,9 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     # Change the text/icons of the yes and no buttons.
     # The icons must be QIcon objects or strings for I()
     yes_text=None, no_text=None, yes_icon=None, no_icon=None,
+    # Add an Abort button which if clicked will cause this function to raise
+    # the Aborted exception
+    add_abort_button=False,
 ):
     from calibre.gui2.dialogs.message_box import MessageBox
     prefs = gui_prefs()
@@ -428,7 +435,7 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
     d = MessageBox(MessageBox.QUESTION, title, msg, det_msg, parent=parent,
                    show_copy_button=show_copy_button, default_yes=default_yes,
                    q_icon=override_icon, yes_text=yes_text, no_text=no_text,
-                   yes_icon=yes_icon, no_icon=no_icon)
+                   yes_icon=yes_icon, no_icon=no_icon, add_abort_button=add_abort_button)
 
     if skip_dialog_name is not None and skip_dialog_msg:
         tc = d.toggle_checkbox
@@ -438,6 +445,8 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
         d.resize_needed.emit()
 
     ret = d.exec_() == QDialog.DialogCode.Accepted
+    if add_abort_button and d.aborted:
+        raise Aborted()
 
     if skip_dialog_name is not None and not d.toggle_checkbox.isChecked():
         auto_skip.add(skip_dialog_name)
