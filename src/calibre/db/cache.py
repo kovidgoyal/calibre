@@ -2231,13 +2231,13 @@ class Cache(object):
 
     @read_api
     def virtual_libraries_for_books(self, book_ids, virtual_fields=None):
-        if self.vls_for_books_cache is None:
-            # Using a list is slightly faster than a set.
-            c = defaultdict(list)
-            # use a primitive lock to ensure that only one thread is updating
-            # the cache and that recursive calls don't do the update. This
-            # method can recurse via self._search()
-            with try_lock(self.vls_cache_lock) as got_lock:
+        # use a primitive lock to ensure that only one thread is updating
+        # the cache and that recursive calls don't do the update. This
+        # method can recurse via self._search()
+        with try_lock(self.vls_cache_lock) as got_lock:
+            if self.vls_for_books_cache is None:
+                # Using a list is slightly faster than a set.
+                c = defaultdict(list)
                 if not got_lock:
                     # We get here if resolving the books in a VL triggers another VL
                     # calculation. This can be 'real' recursion, in which case the
