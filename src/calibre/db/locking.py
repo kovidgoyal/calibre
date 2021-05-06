@@ -8,7 +8,18 @@ __docformat__ = 'restructuredtext en'
 
 import traceback, sys
 from threading import Lock, Condition, current_thread
+from contextlib import contextmanager
 from calibre.utils.config_base import tweaks
+
+
+@contextmanager
+def try_lock(lock):
+    got_lock = lock.acquire(blocking=False)
+    try:
+        yield got_lock
+    finally:
+        if got_lock:
+            lock.release()
 
 
 class LockingError(RuntimeError):

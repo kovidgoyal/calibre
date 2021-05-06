@@ -29,7 +29,9 @@ from calibre.db.categories import get_categories
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
-from calibre.db.locking import LockingError, DowngradeLockError, SafeReadLock, create_locks
+from calibre.db.locking import (
+    DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock
+)
 from calibre.db.search import Search
 from calibre.db.tables import VirtualTable
 from calibre.db.utils import type_safe_sort_key_function
@@ -2232,12 +2234,10 @@ class Cache(object):
         if self.vls_for_books_cache is None:
             # Using a list is slightly faster than a set.
             c = defaultdict(list)
-            got_lock = False
-            try:
-                # use a primitive lock to ensure that only one thread is updating
-                # the cache and that recursive calls don't do the update. This
-                # method can recurse via self._search()
-                got_lock = self.vls_cache_lock.acquire(blocking=False)
+            # use a primitive lock to ensure that only one thread is updating
+            # the cache and that recursive calls don't do the update. This
+            # method can recurse via self._search()
+            with try_lock(self.vls_cache_lock) as got_lock:
                 if not got_lock:
                     # We get here if resolving the books in a VL triggers another VL
                     # calculation. This can be 'real' recursion, in which case the
@@ -2258,9 +2258,6 @@ class Cache(object):
                         if book:
                             c[book].append(_('[Error in Virtual library {0}: {1}]').format(lib, str(e)))
                 self.vls_for_books_cache = {b:tuple(sorted(libs, key=sort_key)) for b, libs in c.items()}
-            finally:
-                if got_lock:
-                    self.vls_cache_lock.release()
         if not book_ids:
             book_ids = self._all_book_ids()
         # book_ids is usually 1 long. The loop will be faster than a comprehension
