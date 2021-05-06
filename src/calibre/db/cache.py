@@ -2235,18 +2235,18 @@ class Cache(object):
         # the cache and that recursive calls don't do the update. This
         # method can recurse via self._search()
         with try_lock(self.vls_cache_lock) as got_lock:
+            # Using a list is slightly faster than a set.
+            c = defaultdict(list)
+            if not got_lock:
+                # We get here if resolving the books in a VL triggers another VL
+                # calculation. This can be 'real' recursion, in which case the
+                # eventual answer will be wrong. It can also be a  search using
+                # a location of 'all' that causes evaluation of a composite that
+                # references virtual_libraries(). If the composite isn't used in a
+                # VL then the eventual answer will be correct because get_metadata
+                # will clear the caches.
+                return c
             if self.vls_for_books_cache is None:
-                # Using a list is slightly faster than a set.
-                c = defaultdict(list)
-                if not got_lock:
-                    # We get here if resolving the books in a VL triggers another VL
-                    # calculation. This can be 'real' recursion, in which case the
-                    # eventual answer will be wrong. It can also be a  search using
-                    # a location of 'all' that causes evaluation of a composite that
-                    # references virtual_libraries(). If the composite isn't used in a
-                    # VL then the eventual answer will be correct because get_metadata
-                    # will clear the caches.
-                    return c
                 self.vls_for_books_cache_is_loading = True
                 libraries = self._pref('virtual_libraries', {})
                 for lib, expr in libraries.items():
