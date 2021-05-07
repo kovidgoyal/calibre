@@ -447,14 +447,18 @@ singleinstance_name = 'GUI'
 def send_message(msg):
     try:
         send_message_in_process(msg)
-    except Exception as err:
-        print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
-        print(err, file=sys.stderr, flush=True)
-        if Application.instance():
-            error_dialog(None, _('Contacting calibre failed'), _(
-                'Failed to contact running instance of calibre, try restarting calibre'),
-                det_msg=str(err) + '\n\n' + repr(msg), show=True)
-        return False
+    except Exception:
+        time.sleep(2)
+        try:
+            send_message_in_process(msg)
+        except Exception as err:
+            print(_('Failed to contact running instance of calibre'), file=sys.stderr, flush=True)
+            print(err, file=sys.stderr, flush=True)
+            if Application.instance():
+                error_dialog(None, _('Contacting calibre failed'), _(
+                    'Failed to contact running instance of calibre, try restarting calibre'),
+                    det_msg=str(err) + '\n\n' + repr(msg), show=True)
+            return False
     return True
 
 
