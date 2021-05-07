@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="ScrollingTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -149,11 +149,8 @@
        <item row="8" column="0">
         <widget class="QCheckBox" name="opt_add_formats_to_existing">
          <property name="toolTip">
-          <string>Auto-merge: If books with similar titles and authors are found, merge the incoming formats automatically into
-existing book records. The box to the right controls what happens when an existing record already has
-the incoming format. Note that this option also affects the Copy to library action.
-
-Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.</string>
+          <string>&lt;p&gt;Auto-merge: If books with similar titles and authors are found, merge the incoming formats automatically into existing book records. The box to the right controls what happens when an existing record already has the incoming format. Note that this option also affects the Copy to library action.&lt;/p&gt;
+&lt;p&gt;Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;, &quot;an&quot;), punctuation, case, etc. Author match is exact.&lt;/p&gt;</string>
          </property>
          <property name="text">
           <string>&amp;Auto-merge added books if they already exist:</string>
