@@ -456,10 +456,10 @@ def question_dialog(parent, title, msg, det_msg='', show_copy_button=False,
 
 
 def info_dialog(parent, title, msg, det_msg='', show=False,
-        show_copy_button=True):
+        show_copy_button=True, only_copy_details=False):
     from calibre.gui2.dialogs.message_box import MessageBox
     d = MessageBox(MessageBox.INFO, title, msg, det_msg, parent=parent,
-                    show_copy_button=show_copy_button)
+                    show_copy_button=show_copy_button, only_copy_details=only_copy_details)
 
     if show:
         return d.exec_()

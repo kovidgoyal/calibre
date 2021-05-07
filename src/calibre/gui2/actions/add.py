@@ -585,7 +585,7 @@ class AddAction(InterfaceAction):
                 _('Incoming book formats were processed and merged into your '
                     'calibre database according to your auto-merge '
                     'settings. Click "Show details" to see the list of merged books.'),
-                    det_msg='\n'.join(lines), show=True)
+                    det_msg='\n'.join(lines), show=True, only_copy_details=True)
 
         if adder.number_of_books_added > 0 or adder.merged_books:
             # The formats of the current book could have changed if

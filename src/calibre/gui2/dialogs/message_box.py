@@ -83,9 +83,11 @@ class MessageBox(QDialog):  # {{{
                  show_copy_button=True,
                  parent=None, default_yes=True,
                  yes_text=None, no_text=None, yes_icon=None, no_icon=None,
-                 add_abort_button=False
+                 add_abort_button=False,
+                 only_copy_details=False
     ):
         QDialog.__init__(self, parent)
+        self.only_copy_details = only_copy_details
         self.aborted = False
         if q_icon is None:
             icon = {
@@ -170,11 +172,10 @@ class MessageBox(QDialog):  # {{{
         self.resize(self.sizeHint())
 
     def copy_to_clipboard(self, *args):
-        QApplication.clipboard().setText(
-                'calibre, version %s\n%s: %s\n\n%s' %
-                (__version__, unicode_type(self.windowTitle()),
-                    unicode_type(self.msg.text()),
-                    unicode_type(self.det_msg.toPlainText())))
+        text = self.det_msg.toPlainText()
+        if not self.only_copy_details:
+            text = f'calibre, version {__version__}\n{self.windowTitle()}: {self.msg.text()}\n\n{text}'
+        QApplication.clipboard().setText(text)
         if hasattr(self, 'ctc_button'):
             self.ctc_button.setText(_('Copied'))
 
