@@ -975,8 +975,7 @@ class EditRules(QWidget):  # {{{
 
         self.open_icon_folder_button = b = QPushButton(QIcon(I('icon_choose.png')),
                 _('Open icon folder'), self)
-        connect_lambda(b.clicked, self,
-                       lambda _: open_local_file(os.path.join(config_dir, 'cc_icons')))
+        b.clicked.connect(self.open_icon_folder)
         hb.addWidget(b)
         sep = Separator(self, b)
         hb.addWidget(sep)
@@ -988,6 +987,11 @@ class EditRules(QWidget):  # {{{
         b.setToolTip(_('Import rules from a file'))
         b.clicked.connect(self.import_rules)
         hb.addWidget(b)
+
+    def open_icon_folder(self):
+        path = os.path.join(config_dir, 'cc_icons')
+        os.makedirs(path, exist_ok=True)
+        open_local_file(path)
 
     def initialize(self, fm, prefs, mi, pref_name):
         self.pref_name = pref_name
