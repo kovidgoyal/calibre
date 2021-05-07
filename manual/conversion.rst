@@ -547,7 +547,7 @@ Using images as chapter titles when converting HTML input documents
 ---------------------------------------------------------------------
 
 Suppose you want to use an image as your chapter title, but still want calibre to be able to automatically generate a Table of Contents for you from the chapter titles.
-Use the following HTML markup to achieve this
+Use the following HTML markup to achieve this:
 
 .. code-block:: html
 
