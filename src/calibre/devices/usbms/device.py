@@ -424,6 +424,7 @@ class Device(DeviceConfig, DevicePlugin):
             return ans
         self._card_a_prefix = get_card_prefix('carda')
         self._card_b_prefix = get_card_prefix('cardb')
+        self.filter_read_only_mount_points()
 
     def find_device_nodes(self, detected_device=None):
 
