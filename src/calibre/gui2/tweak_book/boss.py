@@ -667,6 +667,8 @@ class Boss(QObject):
             self.rewind_savepoint()
 
     def manage_fonts(self):
+        if not self.ensure_book(_('No book is currently open. You must first open a book to manage fonts.')):
+            return
         self.commit_all_editors_to_container()
         self.gui.manage_fonts.display()
 
