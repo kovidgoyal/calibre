@@ -597,15 +597,19 @@ class Device(DeviceConfig, DevicePlugin):
             if mp is None:
                 return True
             path = os.path.join(mp, 'calibre_readonly_test')
+            test_dir = os.path.join(mp, self.get_main_ebook_dir(),
+                                    'calibre, test')
             ro = True
             try:
                 with lopen(path, 'wb'):
+                    os.makedirs(test_dir)
                     ro = False
             except OSError:
                 pass
             else:
                 try:
                     os.remove(path)
+                    os.rmdir(test_dir)
                 except OSError:
                     pass
             if DEBUG and ro:
