@@ -600,12 +600,12 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 with lopen(path, 'wb'):
                     ro = False
-            except:
+            except OSError:
                 pass
             else:
                 try:
                     os.remove(path)
-                except:
+                except OSError:
                     pass
             if DEBUG and ro:
                 print('\nThe mountpoint', mp, 'is readonly, ignoring it')
