@@ -4,10 +4,13 @@
  *
  * Distributed under terms of the GPLv3 license
  */
+/*jshint esversion: 6 */
 (function() {
     "use strict";
     var com_id = "COM_ID";
     var com_counter = 0;
+    var dark_css = CSS;
+    var settings = SETTINGS;
 
     function onclick(event) {
         // We dont want this event to trigger onclick on this element's parent
@@ -37,8 +40,8 @@
     }
 
     function find_blocks() {
-        for (let elem of document.body.getElementsByTagName('*')) {
-            style = window.getComputedStyle(elem);
+        for (let elem of document.body.getElementsByTagName('*')) {  
+            var style = window.getComputedStyle(elem);
             if (style.display === 'block' || style.display === 'flex-box' || style.display === 'box') {
                 elem.classList.add("calibre_toc_hover");
                 elem.onclick = onclick;
@@ -46,8 +49,34 @@
         }
     }
 
-    var style = document.createElement('style');
-    style.innerText = 'body { background-color: white  }' + '.calibre_toc_hover:hover { cursor: pointer !important; border-top: solid 5px green !important }' + '::selection {background:#ffff00; color:#000;}';
-    document.documentElement.appendChild(style);
-    find_blocks();
+    function apply_body_colors(event) {
+        if (document.documentElement) {
+            if (settings.bg) document.documentElement.style.backgroundColor = settings.bg;
+            if (settings.fg) document.documentElement.style.color = settings.fg;
+        }
+        if (document.body) {
+            if (settings.bg) document.body.style.backgroundColor = settings.bg;
+            if (settings.fg) document.body.style.color = settings.fg;
+        }
+    }
+
+    function apply_css() {
+        var css = '';
+        var border_shade = settings.is_dark_theme ? 'lightGreen' : 'green';
+        css += '.calibre_toc_hover:hover { cursor: pointer !important; border-top: solid 5px ' + border_shade + ' !important }\n\n';
+        if (settings.link) css += 'html > body :link, html > body :link * { color: ' + settings.link + ' !important; }\n\n';
+        if (settings.is_dark_theme) { css += dark_css; }
+        var style = document.createElement('style');
+        style.textContent = css;
+        document.body.appendChild(style);
+    }
+
+    apply_body_colors();
+
+    function apply_all() {
+        apply_css();
+        apply_body_colors();
+        find_blocks();
+    }
+    document.addEventListener("DOMContentLoaded", apply_all);
 })();

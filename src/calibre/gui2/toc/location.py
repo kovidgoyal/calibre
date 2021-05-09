@@ -7,7 +7,7 @@ import json
 
 from qt.core import (
     QFrame, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QPushButton, QSize,
-    QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
+    QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal, QApplication, QPalette
 )
 from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView
 
@@ -33,10 +33,21 @@ class Page(QWebEnginePage):  # {{{
         self.loadFinished.connect(self.show_frag)
         s = QWebEngineScript()
         s.setName('toc.js')
-        s.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentReady)
+        s.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentCreation)
         s.setRunsOnSubFrames(True)
         s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
-        s.setSourceCode(P('toc.js', allow_user_override=False, data=True).decode('utf-8').replace('COM_ID', self.com_id))
+        js = P('toc.js', allow_user_override=False, data=True).decode('utf-8').replace('COM_ID', self.com_id, 1)
+        pal = QApplication.instance().palette()
+        settings = {
+            'is_dark_theme': QApplication.instance().is_dark_theme,
+            'bg': pal.color(QPalette.ColorRole.Window).name(),
+            'fg': pal.color(QPalette.ColorRole.WindowText).name(),
+            'link': pal.color(QPalette.ColorRole.Link).name(),
+        }
+        js = js.replace('SETTINGS', json.dumps(settings), 1)
+        dark_mode_css = P('dark_mode.css', data=True, allow_user_override=False).decode('utf-8')
+        js = js.replace('CSS', json.dumps(dark_mode_css), 1)
+        s.setSourceCode(js)
         self.scripts().insert(s)
 
     def javaScriptConsoleMessage(self, level, msg, lineno, msgid):
