@@ -553,7 +553,10 @@ def urls_from_identifiers(identifiers, sort_results=False):  # {{{
         formatter = EvalFormatter()
         for k, val in iteritems(identifiers):
             val = val.replace('|', ',')
-            vals = {'id':unicode_type(quote(val if isinstance(val, bytes) else val.encode('utf-8')))}
+            vals = {
+                'id':unicode_type(quote(val if isinstance(val, bytes) else val.encode('utf-8'))),
+                'id_unquoted': str(val),
+            }
             items = rules.get(k) or ()
             for name, template in items:
                 try:
