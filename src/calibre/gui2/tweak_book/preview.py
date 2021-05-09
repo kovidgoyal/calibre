@@ -235,6 +235,25 @@ def uniq(vals):
     return tuple(x for x in vals if x not in seen and not seen_add(x))
 
 
+def get_editor_settings(tprefs):
+    dark = is_dark_theme()
+
+    def get_color(name, dark_val):
+        ans = tprefs[name]
+        if ans == 'auto' and dark:
+            ans = dark_val.name()
+        if ans in ('auto', 'unset'):
+            return None
+        return ans
+
+    return {
+        'is_dark_theme': dark,
+        'bg': get_color('preview_background', dark_color),
+        'fg': get_color('preview_foreground', dark_text_color),
+        'link': get_color('preview_link_color', dark_link_color),
+    }
+
+
 def create_dark_mode_script():
     dark_mode_css = P('dark_mode.css', data=True, allow_user_override=False).decode('utf-8')
     return create_script('dark-mode.js', '''
@@ -404,22 +423,7 @@ class WebView(RestartingWebEngineView, OpenWithHandler):
         return self._size_hint
 
     def update_settings(self):
-        dark = is_dark_theme()
-
-        def get_color(name, dark_val):
-            ans = tprefs[name]
-            if ans == 'auto' and dark:
-                ans = dark_val.name()
-            if ans in ('auto', 'unset'):
-                return None
-            return ans
-
-        settings = {
-            'is_dark_theme': dark,
-            'bg': get_color('preview_background', dark_color),
-            'fg': get_color('preview_foreground', dark_text_color),
-            'link': get_color('preview_link_color', dark_link_color),
-        }
+        settings = get_editor_settings(tprefs)
         p = self._page.profile()
         ua = p.httpUserAgent().split('|')[0] + '|' + json.dumps(settings)
         p.setHttpUserAgent(ua)

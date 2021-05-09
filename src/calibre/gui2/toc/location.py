@@ -4,14 +4,14 @@
 
 
 import json
-
 from qt.core import (
     QFrame, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QPushButton, QSize,
-    QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal, QApplication, QPalette
+    QSplitter, Qt, QUrl, QVBoxLayout, QWidget, pyqtSignal
 )
 from qt.webengine import QWebEnginePage, QWebEngineScript, QWebEngineView
 
-from calibre.gui2 import error_dialog, gprefs, question_dialog
+from calibre.gui2 import error_dialog, gprefs, is_dark_theme, question_dialog
+from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
@@ -23,7 +23,7 @@ class Page(QWebEnginePage):  # {{{
     elem_clicked = pyqtSignal(object, object, object, object, object)
     frag_shown = pyqtSignal(object)
 
-    def __init__(self):
+    def __init__(self, prefs):
         self.log = default_log
         self.current_frag = None
         self.com_id = unicode_type(uuid4())
@@ -37,13 +37,19 @@ class Page(QWebEnginePage):  # {{{
         s.setRunsOnSubFrames(True)
         s.setWorldId(QWebEngineScript.ScriptWorldId.ApplicationWorld)
         js = P('toc.js', allow_user_override=False, data=True).decode('utf-8').replace('COM_ID', self.com_id, 1)
-        pal = QApplication.instance().palette()
-        settings = {
-            'is_dark_theme': QApplication.instance().is_dark_theme,
-            'bg': pal.color(QPalette.ColorRole.Window).name(),
-            'fg': pal.color(QPalette.ColorRole.WindowText).name(),
-            'link': pal.color(QPalette.ColorRole.Link).name(),
-        }
+        if 'preview_background' in prefs.defaults and 'preview_foreground' in prefs.defaults:
+            from calibre.gui2.tweak_book.preview import get_editor_settings
+            settings = get_editor_settings(prefs)
+        else:
+            if is_dark_theme():
+                settings = {
+                    'is_dark_theme': True,
+                    'bg': dark_color.name(),
+                    'fg': dark_text_color.name(),
+                    'link': dark_link_color.name(),
+                }
+            else:
+                settings = {}
         js = js.replace('SETTINGS', json.dumps(settings), 1)
         dark_mode_css = P('dark_mode.css', data=True, allow_user_override=False).decode('utf-8')
         js = js.replace('CSS', json.dumps(dark_mode_css), 1)
@@ -88,9 +94,9 @@ class WebView(QWebEngineView):  # {{{
     elem_clicked = pyqtSignal(object, object, object, object, object)
     frag_shown = pyqtSignal(object)
 
-    def __init__(self, parent):
+    def __init__(self, parent, prefs):
         QWebEngineView.__init__(self, parent)
-        self._page = Page()
+        self._page = Page(prefs)
         self._page.elem_clicked.connect(self.elem_clicked)
         self._page.frag_shown.connect(self.frag_shown)
         self.setPage(self._page)
@@ -133,7 +139,7 @@ class ItemEdit(QWidget):
         w = self.w = QWidget(self)
         l = w.l = QGridLayout()
         w.setLayout(l)
-        self.view = WebView(self)
+        self.view = WebView(self, self.prefs)
         self.view.elem_clicked.connect(self.elem_clicked)
         self.view.frag_shown.connect(self.update_dest_label, type=Qt.ConnectionType.QueuedConnection)
         self.view.loadFinished.connect(self.load_finished, type=Qt.ConnectionType.QueuedConnection)

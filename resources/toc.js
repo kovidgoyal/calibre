@@ -62,8 +62,7 @@
 
     function apply_css() {
         var css = '';
-        var border_shade = settings.is_dark_theme ? 'lightGreen' : 'green';
-        css += '.calibre_toc_hover:hover { cursor: pointer !important; border-top: solid 5px ' + border_shade + ' !important }\n\n';
+        css += '.calibre_toc_hover:hover { cursor: pointer !important; border-top: solid 5px green !important }\n\n';
         if (settings.link) css += 'html > body :link, html > body :link * { color: ' + settings.link + ' !important; }\n\n';
         if (settings.is_dark_theme) { css += dark_css; }
         var style = document.createElement('style');
