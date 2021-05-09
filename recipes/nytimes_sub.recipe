@@ -105,7 +105,7 @@ class NewYorkTimes(BasicNewsRecipe):
         dict(name='a', href=lambda x: x and '#story-continues-' in x),
         dict(name='a', href=lambda x: x and '#whats-next' in x),
         dict(id=lambda x: x and 'sharetools-' in x),
-        dict(id='newsletter-promo supported-by-ad bottom-wrapper'.split()),
+        dict(id='newsletter-promo supported-by-ad bottom-wrapper top-wrapper sponsor-wrapper'.split()),
         classes('story-print-citation supported-by accessibility-ad-header visually-hidden bottom-of-article ad'),
         dict(attrs={'class': lambda x: x and (
             'SectionBar' in x or 'recirculation' in x or 'ResponsiveAd' in x or 'accessibility-visuallyHidden' in x or 'RelatedCoverage' in x)}),
