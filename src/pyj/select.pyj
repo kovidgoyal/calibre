@@ -206,7 +206,8 @@ def move_end_of_selection(pos, start):
             elif r.compareBoundaryPoints(window.Range.END_TO_END, q) <= 0:
                 start = False
             else:
-                return
+                # point is inside the selection
+                start = False
         if start:
             if r.startContainer is not p.offsetNode or r.startOffset is not p.offset:
                 r.setStart(p.offsetNode, p.offset)
