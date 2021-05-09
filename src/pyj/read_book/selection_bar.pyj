@@ -566,7 +566,8 @@ class SelectionBar:
 
     def on_wheel(self, ev):
         ev.stopPropagation(), ev.preventDefault()
-        self.view.send_wheel_event_to_iframe(ev, 'selection-mode')
+        if self.state is not EDITING:
+            self.view.send_wheel_event_to_iframe(ev, 'selection-mode')
 
     def on_keydown(self, ev):
         ev.stopPropagation(), ev.preventDefault()
