@@ -610,6 +610,8 @@ class SelectionBar:
             'toggle_highlights': True,
             'edit_book': True,
             'select_all': True,
+            'extend_selection_to_end_of_line': True,
+            'extend_selection_to_start_of_line': True,
         }
         if sc_name is 'show_chrome':
             self.clear_selection()

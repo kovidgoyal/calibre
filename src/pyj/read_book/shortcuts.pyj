@@ -350,6 +350,18 @@ def common_shortcuts():  # {{{
         _('Alter the current selection forward by a line'),
     ),
 
+    'extend_selection_to_start_of_line': desc(
+        v"['Shift+Home']",
+        'ui',
+        _('Extend current selection to the start of the line'),
+    ),
+
+    'extend_selection_to_end_of_line': desc(
+        v"['Shift+End']",
+        'ui',
+        _('Extend current selection to the end of the line'),
+    ),
+
     'select_all': desc(
         v'["Ctrl+a"]',
         'ui',

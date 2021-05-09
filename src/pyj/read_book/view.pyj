@@ -575,6 +575,10 @@ class View:
             self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity=data.name.rpartition('_')[-1])
         elif data.name.startsWith('extend_selection_by_'):
             self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity=data.name.rpartition('_')[-1])
+        elif data.name is 'extend_selection_to_start_of_line':
+            self.iframe_wrapper.send_message('modify_selection', direction='backward', granularity='lineboundary')
+        elif data.name is 'extend_selection_to_end_of_line':
+            self.iframe_wrapper.send_message('modify_selection', direction='forward', granularity='lineboundary')
         elif data.name is 'scrollspeed_increase':
             self.update_scroll_speed(SCROLL_SPEED_STEP)
         elif data.name is 'scrollspeed_decrease':
