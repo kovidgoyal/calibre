@@ -402,7 +402,7 @@ class SchedulerDialog(QDialog):
         self.recipe_model = None
 
     def search_done(self, *args):
-        if self.recipe_model.showing_count < 10:
+        if self.recipe_model.showing_count < 20:
             self.recipes.expandAll()
 
     def toggle_schedule_info(self, *args):
