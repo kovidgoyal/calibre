@@ -529,7 +529,7 @@ The Live preview panel
 ------------------------
 
 .. image:: images/live-preview.png
-    :alt: The Live preview Panel
+    :alt: The Live preview panel
     :class: float-left-img
 
 The :guilabel:`File preview` gives you an overview of the various files inside
@@ -590,7 +590,7 @@ The Live CSS panel
 ---------------------
 
 .. image:: images/live_css.png
-    :alt: The Live CSS Panel
+    :alt: The Live CSS panel
     :class: float-left-img
 
 
@@ -634,7 +634,7 @@ Checking the spelling of words in the book
 You can run a spelling checker via :guilabel:`Tools->Check spelling`.
 
 .. image:: images/edit-book-spell.png
-    :alt: The Check Spelling tool
+    :alt: The Check spelling tool
     :align: center
     :class: fit-img
 

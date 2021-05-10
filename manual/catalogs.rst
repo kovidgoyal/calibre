@@ -28,7 +28,7 @@ To begin catalog generation, select the menu item :guilabel:`Convert books > Cre
 In :guilabel:`Catalog options`, select **AZW3, EPUB or MOBI** as the Catalog format. In the :guilabel:`Catalog title` field, provide a name that will be used for the generated catalog. If a catalog of the same name and format already exists, it will be replaced with the newly-generated catalog.
 
 .. image:: images/catalog_send_to_device.png
-    :alt: Catalog send to device
+    :alt: Catalog: send to device automatically option
     :align: center
 
 Enabling :guilabel:`Send catalog to device automatically` will download the generated catalog to a connected device upon completion.

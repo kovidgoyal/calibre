@@ -115,7 +115,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             if not empty:
                 error_dialog(self, _('Not empty'),
                     _('The folder %s is not empty. Please choose an empty'
-                       ' folder')%loc,
+                       ' folder.')%loc,
                     show=True)
                 return False
             if (iswindows and len(loc) >

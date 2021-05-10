@@ -227,7 +227,7 @@ class ManageFonts(Dialog):
     subset_all_fonts = pyqtSignal()
 
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Manage Fonts'), 'manage-fonts', parent=parent)
+        Dialog.__init__(self, _('Manage fonts'), 'manage-fonts', parent=parent)
 
     def setup_ui(self):
         self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, False)
