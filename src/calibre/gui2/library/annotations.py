@@ -114,6 +114,28 @@ class AnnotsResultsDelegate(ResultsDelegate):
 # }}}
 
 
+def sorted_items(items):
+    from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+    def_spine = 999999999
+    defval = cfi_sort_key(f'/{def_spine}')
+
+    def sort_key(x):
+        x = x['annotation']
+        atype = x['type']
+        if atype == 'highlight':
+            cfi = x.get('start_cfi')
+            if cfi:
+                spine_idx = x.get('spine_index', def_spine)
+                cfi = f'/{spine_idx}/{cfi}'
+                return cfi_sort_key(cfi, only_path=False)
+        elif atype == 'bookmark':
+            if x.get('pos_type') == 'epubcfi':
+                return cfi_sort_key(x['pos'], only_path=False)
+        return defval
+
+    return sorted(items, key=sort_key)
+
+
 class Export(Dialog):  # {{{
 
     prefs = gprefs
@@ -309,7 +331,7 @@ class ResultsList(QTreeWidget):
             section.setData(0, Qt.ItemDataRole.UserRole, book_id)
             self.addTopLevelItem(section)
             section.setExpanded(True)
-            for result in entry['matches']:
+            for result in sorted_items(entry['matches']):
                 item = QTreeWidgetItem(section, [' '], 2)
                 self.item_map.append(item)
                 item.setFlags(Qt.ItemFlag.ItemIsSelectable | Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemNeverHasChildren)
