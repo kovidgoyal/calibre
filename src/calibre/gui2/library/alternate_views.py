@@ -954,7 +954,7 @@ class GridView(QListView):
         m = self.model()
         try:
             index = m.db.row(book_id)
-        except (IndexError, ValueError, KeyError):
+        except (IndexError, ValueError, KeyError, AttributeError):
             return
         self.update(m.index(index, 0))
 
