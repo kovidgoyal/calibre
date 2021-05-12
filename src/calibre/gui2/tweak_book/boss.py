@@ -469,6 +469,8 @@ class Boss(QObject):
             self.gui.update_window_title()
 
     def reorder_spine(self, items):
+        if not self.ensure_book():
+            return
         self.add_savepoint(_('Before: Re-order text'))
         c = current_container()
         c.set_spine(items)
@@ -591,6 +593,8 @@ class Boss(QObject):
             self.gui.file_list.build(current_container())
 
     def insert_inline_toc(self):
+        if not self.ensure_book():
+            return
         self.commit_all_editors_to_container()
         self.add_savepoint(_('Before: Insert inline Table of Contents'))
         name = create_inline_toc(current_container())
