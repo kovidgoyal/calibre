@@ -547,7 +547,7 @@ class ChooseLibraryAction(InterfaceAction):
                 return
         else:
             return error_dialog(self.gui, _('Failed'),
-                    _('Database integrity check failed, click Show details'
+                    _('Database integrity check failed, click "Show details"'
                         ' for details.'), show=True, det_msg=d.error[1])
 
         self.gui.status_bar.show_message(

@@ -903,7 +903,7 @@ class EditMetadataAction(InterfaceAction):
 
             error_dialog(self.gui, _('Some failures'),
                 _('Failed to apply updated metadata for some books'
-                    ' in your library. Click "Show Details" to see '
+                    ' in your library. Click "Show details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
         changed_books = len(self.applied_ids or ())
         self.refresh_gui(self.applied_ids)

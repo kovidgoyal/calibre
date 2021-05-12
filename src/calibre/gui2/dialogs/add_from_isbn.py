@@ -118,7 +118,7 @@ class AddFromISBN(QDialog):
             if self.books:
                 if not question_dialog(self, _('Some invalid ISBNs'),
                     _('Some of the ISBNs you entered were invalid. They will'
-                        ' be ignored. Click Show Details to see which ones.'
+                        ' be ignored. Click "Show details" to see which ones.'
                         ' Do you want to proceed?'), det_msg='\n'.join(bad),
                     show_copy_button=True):
                     return

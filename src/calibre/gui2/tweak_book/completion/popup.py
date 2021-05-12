@@ -276,7 +276,7 @@ class CompletionPopup(ChoosePopupWidget):
             prints(result.traceback)
             if not self.completion_error_shown:
                 error_dialog(self, _('Completion failed'), _(
-                    'Failed to get completions, click "Show Details" for more information.'
+                    'Failed to get completions, click "Show details" for more information.'
                     ' Future errors during completion will be suppressed.'), det_msg=result.traceback, show=True)
                 self.completion_error_shown = True
             self.hide()

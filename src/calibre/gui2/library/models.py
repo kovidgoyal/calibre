@@ -1152,13 +1152,13 @@ class BooksModel(QAbstractTableModel):  # {{{
                             det_msg=p+force_unicode(traceback.format_exc()), show=True)
                     return False
                 error_dialog(get_gui(), _('Failed to set data'),
-                        _('Could not set data, click Show Details to see why.'),
+                        _('Could not set data, click "Show details" to see why.'),
                         det_msg=traceback.format_exc(), show=True)
             except:
                 import traceback
                 traceback.print_exc()
                 error_dialog(get_gui(), _('Failed to set data'),
-                        _('Could not set data, click Show Details to see why.'),
+                        _('Could not set data, click "Show details" to see why.'),
                         det_msg=traceback.format_exc(), show=True)
         return False
 

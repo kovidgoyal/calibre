@@ -133,7 +133,7 @@ class AddDictionary(QDialog):  # {{{
         except:
             import traceback
             return error_dialog(self, _('Failed to import dictionaries'), _(
-                'Failed to import dictionaries from %s. Click "Show Details" for more information') % oxt,
+                'Failed to import dictionaries from %s. Click "Show details" for more information') % oxt,
                                 det_msg=traceback.format_exc(), show=True)
         if num == 0:
             return error_dialog(self, _('No dictionaries'), _(

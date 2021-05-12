@@ -518,13 +518,13 @@ class CopyToLibraryAction(InterfaceAction):
                 err, tb = self.worker.failed_books[book_id]
                 title = db.title(book_id, index_is_id=True)
                 return _('Copying: {0} failed, with error:\n{1}').format(title, tb)
-            title, msg = _('Failed to copy some books'), _('Could not copy some books, click "Show Details" for more information.')
+            title, msg = _('Failed to copy some books'), _('Could not copy some books, click "Show details" for more information.')
             tb = '\n\n'.join(map(fmt_err, self.worker.failed_books))
             tb = ngettext('Failed to copy a book, see below for details',
                           'Failed to copy {} books, see below for details', len(self.worker.failed_books)).format(
                 len(self.worker.failed_books)) + '\n\n' + tb
             if len(ids) == len(self.worker.failed_books):
-                title, msg = _('Failed to copy books'), _('Could not copy any books, click "Show Details" for more information.')
+                title, msg = _('Failed to copy books'), _('Could not copy any books, click "Show details" for more information.')
             error_dialog(self.gui, title, msg, det_msg=tb, show=True)
         return self.worker.duplicate_ids
 

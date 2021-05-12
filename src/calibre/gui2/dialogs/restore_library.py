@@ -87,7 +87,7 @@ def _show_success_msg(restorer, parent=None):
     if r.errors_occurred:
         warning_dialog(parent, _('Success'),
                 _('Restoring the database succeeded with some warnings'
-                    ' click Show details to see the details. %s')%olddb,
+                    ' click "Show details" to see the details. %s')%olddb,
                 det_msg=r.report, show=True)
     else:
         info_dialog(parent, _('Success'),
@@ -118,7 +118,7 @@ def restore_database(db, parent=None):
         return True
     if r.tb is not None:
         error_dialog(parent, _('Failed'),
-        _('Restoring database failed, click Show details to see details'),
+        _('Restoring database failed, click "Show details" to see details'),
         det_msg=r.tb, show=True)
     else:
         _show_success_msg(r, parent=parent)
@@ -133,7 +133,7 @@ def repair_library_at(library_path, parent=None, wait_time=2):
     r = d.restorer
     if r.tb is not None:
         error_dialog(parent, _('Failed to repair library'),
-        _('Restoring database failed, click Show details to see details'),
+        _('Restoring database failed, click "Show details" to see details'),
         det_msg=r.tb, show=True)
         return False
     _show_success_msg(r, parent=parent)

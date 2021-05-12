@@ -706,7 +706,7 @@ class ChooseTheme(Dialog):
         self.end_spinner()
         if not isinstance(self.themes, list):
             error_dialog(self, _('Failed to download list of themes'), _(
-                'Failed to download list of themes, click "Show Details" for more information'),
+                'Failed to download list of themes, click "Show details" for more information'),
                          det_msg=self.themes, show=True)
             self.reject()
             return
@@ -783,7 +783,7 @@ class ChooseTheme(Dialog):
 
         if self.downloaded_theme and not isinstance(self.downloaded_theme, BytesIO):
             return error_dialog(self, _('Download failed'), _(
-                'Failed to download icon theme, click "Show Details" for more information.'), show=True, det_msg=self.downloaded_theme)
+                'Failed to download icon theme, click "Show details" for more information.'), show=True, det_msg=self.downloaded_theme)
         if ret == QDialog.DialogCode.Rejected or not self.keep_downloading or d.canceled or self.downloaded_theme is None:
             return
         dt = self.downloaded_theme

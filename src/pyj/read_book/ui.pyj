@@ -329,7 +329,7 @@ class ReadUI:
             return
         if end_type is not 'load':
             return self.show_error(_('Failed to load book manifest'),
-                _('The book manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
+                _('The book manifest failed to load, click "Show details" for more information.').format(title=self.current_metadata.title),
                                 xhr.error_html)
         try:
             manifest = JSON.parse(xhr.responseText)
@@ -474,7 +474,7 @@ class ReadUI:
                 return
             if end_type is not 'load':
                 return self.show_error(_('Failed to load MathJax manifest'),
-                    _('The MathJax manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
+                    _('The MathJax manifest failed to load, click "Show details" for more information.').format(title=self.current_metadata.title),
                                     xhr.error_html)
             try:
                 manifest = JSON.parse(xhr.responseText)

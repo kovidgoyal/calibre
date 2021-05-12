@@ -737,7 +737,7 @@ class Boss(QObject):
     def rename_done(self, name_map, job, from_filelist=None):
         if job.traceback is not None:
             return error_dialog(self.gui, _('Failed to rename files'),
-                    _('Failed to rename files, click Show details for more information.'),
+                    _('Failed to rename files, click "Show details" for more information.'),
                                 det_msg=job.traceback, show=True)
         self.gui.file_list.build(current_container())
         self.set_modified()
@@ -1263,7 +1263,7 @@ class Boss(QObject):
     def copy_saved(self, job):
         if job.traceback is not None:
             return error_dialog(self.gui, _('Failed to save copy'),
-                    _('Failed to save copy, click Show details for more information.'), det_msg=job.traceback, show=True)
+                    _('Failed to save copy, click "Show details" for more information.'), det_msg=job.traceback, show=True)
         msg = _('Copy saved to %s') % job.result
         info_dialog(self.gui, _('Copy saved'), msg, show=True)
         self.gui.show_status_message(msg, 5)

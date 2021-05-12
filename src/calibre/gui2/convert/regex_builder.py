@@ -180,7 +180,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
     def open_book(self, pathtoebook):
         with TemporaryFile('_prepprocess_gui') as tf:
             err_msg = _('Failed to generate markup for testing. Click '
-                            '"Show Details" to learn more.')
+                            '"Show details" to learn more.')
             try:
                 fork_job('calibre.ebooks.oeb.iterator', 'get_preprocess_html',
                     (pathtoebook, tf))

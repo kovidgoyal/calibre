@@ -131,7 +131,7 @@ class RunAction(QDialog):
         if self.abort.is_set():
             return QDialog.reject(self)
         if self.tb is not None:
-            error_dialog(self, _('Failed'), self.err_msg + ' ' + _('Click "Show Details" for more information.'),
+            error_dialog(self, _('Failed'), self.err_msg + ' ' + _('Click "Show details" for more information.'),
                             det_msg=self.tb, show=True)
         self.accept()
 

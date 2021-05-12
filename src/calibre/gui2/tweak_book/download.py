@@ -145,7 +145,7 @@ class DownloadResources(Dialog):
             return self.reject()
         if tb is not None:
             error_dialog(self, _('Scan failed'), _(
-                'Failed to scan for external resources, click "Show Details" for more information.'),
+                'Failed to scan for external resources, click "Show details" for more information.'),
                          det_msg=tb, show=True)
             self.reject()
         else:
@@ -174,7 +174,7 @@ class DownloadResources(Dialog):
             return self.reject()
         if tb is not None:
             error_dialog(self, _('Download failed'), _(
-                'Failed to download external resources, click "Show Details" for more information.'),
+                'Failed to download external resources, click "Show details" for more information.'),
                          det_msg=tb, show=True)
             self.reject()
         else:
@@ -183,13 +183,13 @@ class DownloadResources(Dialog):
                 tb = ['{}\n\t{}\n'.format(url, err) for url, err in iteritems(failures)]
                 if not replacements:
                     error_dialog(self, _('Download failed'), _(
-                        'Failed to download external resources, click "Show Details" for more information.'),
+                        'Failed to download external resources, click "Show details" for more information.'),
                                 det_msg='\n'.join(tb), show=True)
                     self.reject()
                     return
                 else:
                     warning_dialog(self, _('Some downloads failed'), _(
-                        'Failed to download some external resources, click "Show Details" for more information.'),
+                        'Failed to download some external resources, click "Show details" for more information.'),
                                 det_msg='\n'.join(tb), show=True)
             self.state = 2
             self.wait.msg = _('Updating resources in book...')
@@ -216,7 +216,7 @@ class DownloadResources(Dialog):
     def _replace_done(self, ret, tb):
         if tb is not None:
             error_dialog(self, _('Replace failed'), _(
-                'Failed to replace external resources, click "Show Details" for more information.'),
+                'Failed to replace external resources, click "Show details" for more information.'),
                          det_msg=tb, show=True)
             Dialog.reject(self)
         else:

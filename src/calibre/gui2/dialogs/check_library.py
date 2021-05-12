@@ -120,12 +120,12 @@ class CheckLibraryDialog(QDialog):
         correct form to be a book title.</li>
         <li><b>Extra titles</b>: These are extra files in your calibre
         library that appear to be correctly-formed titles, but have no corresponding
-        entries in the database</li>
+        entries in the database.</li>
         <li><b>Invalid authors</b>: These are files appearing
         in the library where only author folders should be.</li>
         <li><b>Extra authors</b>: These are folders in the
         calibre library that appear to be authors but that do not have entries
-        in the database</li>
+        in the database.</li>
         <li><b>Missing book formats</b>: These are book formats that are in
         the database but have no corresponding format file in the book's folder.
         <li><b>Extra book formats</b>: These are book format files found in
