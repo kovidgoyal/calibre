@@ -160,5 +160,5 @@ class FetchAnnotationsAction(InterfaceAction):
                 entries.extend([title, tb, ''])
             error_dialog(self.gui, _('Some errors'),
                     _('Could not fetch annotations for some books. Click '
-                        'show details to see which ones.'),
+                        '"Show details" to see which ones.'),
                     det_msg='\n'.join(entries), show=True)
