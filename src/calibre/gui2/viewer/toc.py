@@ -137,7 +137,10 @@ class TOCView(QTreeView):
         self.model().update_current_toc_nodes(families)
 
     def scroll_to_current_toc_node(self):
-        nodes = self.model().viewed_nodes()
+        try:
+            nodes = self.model().viewed_nodes()
+        except AttributeError:
+            nodes = ()
         if nodes:
             self.scrollTo(nodes[-1].index())
 
