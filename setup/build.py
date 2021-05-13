@@ -333,10 +333,10 @@ class Build(Command):
         jobs = []
         sbf_map = {}
         for (ext, dest) in pyqt_extensions:
-            cmd, sbf = self.get_sip_commands(ext)
+            cmd, sbf, cwd = self.get_sip_commands(ext)
             sbf_map[id(ext)] = sbf
             if cmd is not None:
-                jobs.append(create_job(cmd))
+                jobs.append(create_job(cmd, cwd=cwd))
         if jobs:
             self.info(f'SIPing {len(jobs)} files...')
             if not parallel_build(jobs, self.info):
@@ -523,16 +523,18 @@ sip-file = "{os.path.basename(sipf)}"
         sipf = ext.sip_files[0]
         sbf = self.j(src_dir, self.b(sipf)+'.sbf')
         cmd = None
+        cwd = None
         if self.newer(sbf, [sipf] + ext.headers + ext.sources):
             shutil.rmtree(src_dir, ignore_errors=True)
             os.makedirs(src_dir)
             self.create_sip_build_skeleton(src_dir, ext)
+            cwd = src_dir
             cmd = [
                 sys.executable, '-c',
-                f'''import os; os.chdir({src_dir!r}); from sipbuild.tools.build import main; main();''',
+                '''from sipbuild.tools.build import main; main();''',
                 '--verbose', '--no-make', '--qmake', QMAKE
             ]
-        return cmd, sbf
+        return cmd, sbf, cwd
 
     def build_pyqt_extension(self, ext, dest, sbf):
         self.info(f'\n####### Building {ext.name} extension', '#'*7)
