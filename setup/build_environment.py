@@ -7,10 +7,24 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, subprocess, re, shutil
+from functools import lru_cache
 
 from setup import ismacos, iswindows, is64bit, islinux, ishaiku
 
 NMAKE = RC = msvc = MT = win_inc = win_lib = win_cc = win_ld = None
+
+
+@lru_cache(maxsize=2)
+def pyqt_sip_abi_version():
+    import PyQt5
+    if getattr(PyQt5, '__file__', None):
+        bindings_path = os.path.join(os.path.dirname(PyQt5.__file__), 'bindings', 'QtCore', 'QtCore.toml')
+        if os.path.exists(bindings_path):
+            with open(bindings_path) as f:
+                raw = f.read()
+                m = re.search(r'^sip-abi-version\s*=\s*"(.+?)"', raw, flags=re.MULTILINE)
+                if m is not None:
+                    return m.group(1)
 
 
 def merge_paths(a, b):

@@ -487,6 +487,10 @@ class Build(Command):
             os.rename(self.j(self.d(target), 'libheadless.dylib'), self.j(self.d(target), 'headless.so'))
 
     def create_sip_build_skeleton(self, src_dir, ext):
+        from setup.build_environment import pyqt_sip_abi_version
+        abi_version = ''
+        if pyqt_sip_abi_version():
+            abi_version = f'abi-version = "{pyqt_sip_abi_version()}"'
         sipf = ext.sip_files[0]
         needs_exceptions = 'true' if ext.needs_exceptions else 'false'
         with open(os.path.join(src_dir, 'pyproject.toml'), 'w') as f:
@@ -504,6 +508,7 @@ project-factory = "pyqtbuild:PyQtProject"
 
 [tool.sip.project]
 sip-files-dir = "."
+{abi_version}
 
 [tool.sip.bindings.pictureflow]
 headers = {ext.headers}
