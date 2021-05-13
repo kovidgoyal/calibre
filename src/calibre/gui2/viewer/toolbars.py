@@ -118,6 +118,12 @@ class ActionsToolBar(ToolBar):
         self.setObjectName('actions_toolbar')
         self.customContextMenuRequested.connect(self.show_context_menu)
 
+    def update_action_state(self, book_open):
+        for ac in self.shortcut_actions.values():
+            ac.setEnabled(book_open)
+        self.search_action.setEnabled(book_open)
+        self.color_scheme_action.setEnabled(book_open)
+
     def show_context_menu(self, pos):
         m = QMenu(self)
         a = m.addAction(_('Customize this toolbar'))

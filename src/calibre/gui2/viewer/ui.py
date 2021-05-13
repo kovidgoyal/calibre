@@ -192,6 +192,7 @@ class EbookViewer(MainWindow):
         self.web_view.highlights_changed.connect(self.highlights_changed)
         self.web_view.edit_book.connect(self.edit_book)
         self.actions_toolbar.initialize(self.web_view, self.search_dock.toggleViewAction())
+        at.update_action_state(False)
         self.setCentralWidget(self.web_view)
         self.loading_overlay = LoadingOverlay(self)
         self.restore_state()
@@ -411,11 +412,13 @@ class EbookViewer(MainWindow):
     def show_loading_message(self, msg):
         if msg:
             self.loading_overlay(msg)
+            self.actions_toolbar.update_action_state(False)
         else:
             if not hasattr(self, 'initial_loading_performace_reported'):
                 performance_monitor('loading finished')
                 self.initial_loading_performace_reported = True
             self.loading_overlay.hide()
+            self.actions_toolbar.update_action_state(True)
 
     def show_error(self, title, msg, details):
         self.loading_overlay.hide()
@@ -461,6 +464,7 @@ class EbookViewer(MainWindow):
 
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
         performance_monitor('Load of book started', reset=True)
+        self.actions_toolbar.update_action_state(False)
         self.web_view.show_home_page_on_ready = False
         if open_at:
             self.pending_open_at = open_at
@@ -501,6 +505,7 @@ class EbookViewer(MainWindow):
         open_at, self.pending_open_at = self.pending_open_at, None
         self.web_view.clear_caches()
         if not ok:
+            self.actions_toolbar.update_action_state(False)
             self.setWindowTitle(self.base_window_title)
             tb = as_unicode(data['tb'].strip(), errors='replace')
             tb = re.split(r'^calibre\.gui2\.viewer\.convert_book\.ConversionFailure:\s*', tb, maxsplit=1, flags=re.M)[-1]
