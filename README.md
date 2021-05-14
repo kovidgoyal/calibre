@@ -8,7 +8,7 @@ devices. It can go out to the internet and fetch metadata for your books.
 It can download newspapers and convert them into e-books for convenient 
 reading. It is cross platform, running on Linux, Windows and macOS.
 
-For more information, see the [calibre About page](https://calibre-ebook.com/about)
+For more information, see the [calibre About page](https://calibre-ebook.com/about).
 
 [![Build Status](https://github.com/kovidgoyal/calibre/workflows/Continuous%20Integration/badge.svg)](https://github.com/kovidgoyal/calibre/actions?query=workflow%3ACI)
 
@@ -18,11 +18,11 @@ For more information, see the [calibre About page](https://calibre-ebook.com/abo
 
 ## Usage
 
-See the [User Manual](https://manual.calibre-ebook.com)
+See the [User Manual](https://manual.calibre-ebook.com).
 
 ## Development
 
-[Setting up a development environment for calibre](https://manual.calibre-ebook.com/develop.html)
+[Setting up a development environment for calibre](https://manual.calibre-ebook.com/develop.html).
 
 A [tarball of the source code](https://calibre-ebook.com/dist/src) for the 
 current calibre release.
