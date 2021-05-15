@@ -319,7 +319,7 @@ class MainTab(QWidget):  # {{{
         fl.addRow(options['port'].shortdoc + ':', sb)
         l.addSpacing(25)
         self.opt_auth = cb = QCheckBox(
-            _('Require &username and password to access the content server')
+            _('Require &username and password to access the Content server')
         )
         l.addWidget(cb)
         self.auth_desc = la = QLabel(self)
@@ -1374,7 +1374,7 @@ class ConfigWidget(ConfigWidgetBase):
                     _('No users specified'),
                     _(
                         'You have turned on the setting to require passwords to access'
-                        ' the content server, but you have not created any user accounts.'
+                        ' the Content server, but you have not created any user accounts.'
                         ' Create at least one user account in the "User accounts" tab to proceed.'
                     ),
                     show=True

@@ -140,7 +140,7 @@ is as follows.
      found in the first step.
 
 .. note::
-    For maximum security, you should also enable HTTPS on the content server.
+    For maximum security, you should also enable HTTPS on the Content server.
     You can either do so directly in the server by providing the path to
     the HTTPS certificate to use in the advanced configuration options for
     the server, or you can setup a reverse proxy as described below, to use
@@ -362,7 +362,7 @@ based Linux system. Just create the file
 ``/etc/systemd/system/calibre-server.service`` with the contents shown below::
 
     [Unit]
-    Description=calibre content server
+    Description=calibre Content server
     After=network.target
 
     [Service]

@@ -488,7 +488,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 except EnvironmentError:
                     pass
                 warning_dialog(self, _('Content server changed!'), _(
-                    'calibre 3 comes with a completely re-written content server.'
+                    'calibre 3 comes with a completely re-written Content server.'
                     ' As such any custom configuration you have for the content'
                     ' server no longer applies. You should check and refresh your'
                     ' settings in Preferences->Sharing->Sharing over the net'), show=True)

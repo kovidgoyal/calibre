@@ -104,7 +104,7 @@ are two ways to do that:
 
     * If you plan to connect only to a server running on the same computer,
       you can simply use the ``--enable-local-write`` option of the
-      content server, to allow any program, including calibredb, running on
+      Content server, to allow any program, including calibredb, running on
       the local computer to make changes to your calibre data. When running
       the server from the main calibre program, this option is in
       :guilabel:`Preferences->Sharing over the net->Advanced`.

@@ -158,7 +158,7 @@ class DBCtx(object):
                     'Another calibre program such as {} or the main calibre program is running.'
                     ' Having multiple programs that can make changes to a calibre library'
                     ' running at the same time is a bad idea. calibredb can connect directly'
-                    ' to a running calibre content server, to make changes through it, instead.'
+                    ' to a running calibre Content server, to make changes through it, instead.'
                     ' See the documentation of the {} option for details.'
                 ).format('calibre-server' + ext, '--with-library')
                 )

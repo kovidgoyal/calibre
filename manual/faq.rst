@@ -196,7 +196,7 @@ We just need some information from you:
 
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of calibre. To send us the output, open a bug report and attach the output to it.
-See `calibre bugs <https://calibre-ebook.com/bugs>`_.
+See `how to report bugs <https://calibre-ebook.com/bugs>`_.
 
 My device is not being detected by calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -376,7 +376,7 @@ you may not be able to run the server on a port number less than 1024 because of
 this case the simplest solution is to adjust your router to forward requests on port 80 to port 8080).
 
 Also some devices do not have browsers advanced enough to run the app-like
-interface used by the content server. For such devices, you can simply add
+interface used by the Content server. For such devices, you can simply add
 ``/mobile`` to the server URL to get a simplified, non-JavaScript interface.
 
 
