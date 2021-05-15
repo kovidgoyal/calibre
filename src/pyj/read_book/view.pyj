@@ -518,9 +518,15 @@ class View:
         elif data.name is 'start_search':
             self.show_search()
         elif data.name is 'next_match':
-            self.search_overlay.find_next()
+            if ui_operations.find_next:
+                ui_operations.find_next()
+            else:
+                self.search_overlay.find_next()
         elif data.name is 'previous_match':
-            self.search_overlay.find_previous()
+            if ui_operations.find_next:
+                ui_operations.find_next(True)
+            else:
+                self.search_overlay.find_previous()
         elif data.name is 'increase_font_size':
             self.bump_font_size({'increase': True})
         elif data.name is 'decrease_font_size':
