@@ -143,7 +143,8 @@ def add_stars_to(stars, val, allow_half_stars):
         stars.appendChild(svgicon('star-half'))
 
 
-window.addEventListener('resize', debounce(adjust_all_iframes, 250))
+if window?:
+    window.addEventListener('resize', debounce(adjust_all_iframes, 250))
 
 def adjusting_sandboxed_html(html, extra_css):
     color = get_color_as_rgba('window-foreground')

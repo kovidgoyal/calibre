@@ -8,7 +8,7 @@ from book_list.theme import get_font_family
 
 
 is_ios = v'!!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform)'
-if !is_ios and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
+if !is_ios and v'!!navigator.platform' and window? and window.navigator.platform is 'MacIntel' and window.navigator.maxTouchPoints > 1:
     # iPad Safari in desktop mode https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
     is_ios = True
 

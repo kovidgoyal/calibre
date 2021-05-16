@@ -20,7 +20,6 @@ def escaper():
     return def(text):
         el.nodeValue = text
         return ser.serializeToString(el)
-escape_for_xml = escaper()
 
 
 class Client:
@@ -29,6 +28,7 @@ class Client:
     max_rate = 2
 
     def __init__(self):
+        self.escape_for_xml = escaper()
         self.stop_requested_at = None
         self.status = {'synthesizing': False, 'paused': False}
         self.queue = v'[]'
@@ -134,7 +134,7 @@ class Client:
                 # buf.push('<mark name="' + x + '"/>')
                 buf.push('')
             else:
-                buf.push(escape_for_xml(x))
+                buf.push(self.escape_for_xml(x))
             size += buf[-1].length
             if size > 24000:
                 buf = v'[]'

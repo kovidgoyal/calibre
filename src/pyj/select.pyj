@@ -3,7 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 
-if document.caretPositionFromPoint:
+if document?.caretPositionFromPoint:
     caret_position_from_point = document.caretPositionFromPoint.bind(document)
 else:
     caret_position_from_point = def(x, y):

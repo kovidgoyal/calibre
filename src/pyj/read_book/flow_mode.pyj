@@ -244,6 +244,7 @@ def handle_shortcut(sc_name, evt):
 
 
 def layout(is_single_page):
+    add_visibility_listener()
     line_height(True)
     rem_size(True)
     set_css(document.body, margin='0', border_width='0', padding='0')
@@ -258,13 +259,17 @@ def auto_scroll_resume():
     scroll_animator.sync()
 
 
-# Pause auto-scroll while minimized
-document.addEventListener("visibilitychange", def():
-    if (document.visibilityState is 'visible'):
-        scroll_animator.sync()
-    else:
-        scroll_animator.pause()
-)
+def add_visibility_listener():
+    if add_visibility_listener.done:
+        return
+    add_visibility_listener.done = True
+    # Pause auto-scroll while minimized
+    document.addEventListener("visibilitychange", def():
+        if (document.visibilityState is 'visible'):
+            scroll_animator.sync()
+        else:
+            scroll_animator.pause()
+    )
 
 
 def cancel_scroll():
