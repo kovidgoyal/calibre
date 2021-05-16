@@ -3,14 +3,16 @@
 from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
-from gettext import gettext as _
 
 from book_list.theme import get_color
 from complete import create_search_bar
 from dom import add_extra_css, build_rule, svgicon
+from gettext import gettext as _
 from read_book.globals import ui_operations
+from read_book.search_worker import worker_main
 from read_book.resources import text_from_serialized_html
 from read_book.shortcuts import shortcut_for_key_event
+from worker import start_worker
 
 CLASS_NAME = 'book-search-container'
 
@@ -42,6 +44,22 @@ class SearchOverlay:
             '\xa0', next_button, '\xa0', prev_button, '\xa0', close_button
         ))
         c.firstChild.addEventListener('keydown', self.onkeydown, {'passive': False})
+        self._worker = None
+        self.request_counter = 0
+
+    @property
+    def worker(self):
+        if not self._worker:
+            self._worker = start_worker('read_book.search')
+        return self._worker
+
+    def queue_search(self, book, current_name):
+        spine = book.manifest.spine
+        self.request_counter += 1
+        self.worker.postMessage({
+            'type': 'search', 'book_hash': book.book_hash, 'spine': spine, 'current_name': current_name,
+            'id': self.request_counter, 'stored_files': book.stored_files
+        })
 
     def onkeydown(self, event):
         if event.key is 'Escape' or event.key is 'Esc':
@@ -117,3 +135,6 @@ def find_in_spine(names, book, text, proceed):
             proceed(None)
 
     do_one()
+
+
+main = worker_main

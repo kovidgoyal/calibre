@@ -14,7 +14,7 @@ AUTO_UPDATE_THRESHOLD = 1000  # millisecs
 
 
 def worker_main(entry_point):
-    m = ρσ_get_module(window.iframe_entry_point)
+    m = ρσ_get_module(entry_point)
     main = m?.main
     if main:
         main()
@@ -69,3 +69,4 @@ if document?:
         toplevel_main()
 elif self?:
     entry_point = self.location.hash[1:]
+    worker_main(entry_point)

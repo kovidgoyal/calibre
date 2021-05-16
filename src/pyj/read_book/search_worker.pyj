@@ -1,0 +1,102 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from read_book.db import DB
+
+GET_SPINE_FAILED = 1
+CONNECT_FAILED = 2
+UNHANDLED_ERROR = 3
+DB_ERROR = 4
+
+
+class Worker:
+
+    def __init__(self):
+        self.db = None
+        self.connected_to_db = False
+        self.pending_search = None
+        self.searching = False
+        self.current_query = None
+        self.current_query_id = None
+
+    @property
+    def initialize_error_msg(self):
+        return self.db?.initialize_error_msg
+
+
+wc = Worker()
+
+
+def send_search_complete():
+    self.postMessage({'type': 'search_complete', 'id': wc.current_query_id})
+    wc.current_query = wc.current_query_id = None
+
+
+def queue_next_spine_item(spine_idx):
+    name = wc.current_query.spine[spine_idx]
+    if not name:
+        send_search_complete()
+        return
+    query = wc.current_query
+    wc.db.get_book_file(query.book_hash, query.stored_files, name, got_spine_item.bind(None, query.id, spine_idx))
+
+
+def got_spine_item(query_id, spine_idx, result):
+    if query_id is not wc.current_query_id:
+        return
+    if result.ok:
+        queue_next_spine_item(spine_idx + 1)
+    else:
+        if result.details is 'ENOENT':
+            queue_next_spine_item(spine_idx + 1)
+        else:
+            send_error(GET_SPINE_FAILED, result.details)
+            wc.current_query = wc.current_query_id = None
+
+
+def perform_search(query):
+    wc.current_query = query
+    wc.current_query_id = query.id
+    if not query.spine?.length:
+        send_search_complete()
+        return
+    idx = query.spine.indexOf(query.current_name)
+    if idx < 0:
+        idx = 0
+    queue_next_spine_item(idx)
+
+
+def worker_connection_done():
+    wc.connected_to_db = True
+    if not wc.initialize_error_msg:
+        if wc.pending_search:
+            s = wc.pending_search
+            wc.pending_search = None
+            perform_search(s)
+
+
+def send_error(code, msg, error):
+    self.postMessage({'type': 'error', 'code': code, 'msg': msg, 'id': wc.current_query_id, 'error': error})
+
+
+def on_worker_db_error(title, msg, details):
+    send_error(DB_ERROR, msg, {'title': title, 'msg': msg, 'details': details})
+
+
+def worker_main():
+    wc.db = DB(worker_connection_done, on_worker_db_error)
+
+    self.onmessage = def(e):
+        if e.data.type is 'search':
+            wc.current_query_id = e.data.id
+            if wc.connected_to_db:
+                if wc.initialize_error_msg:
+                    send_error(CONNECT_FAILED, wc.initialize_error_msg)
+                else:
+                    perform_search(e.data)
+            else:
+                wc.pending_search = e.data
+
+    self.onerror = def(e):
+        send_error(UNHANDLED_ERROR, f'{e.line}:{e.message}')

@@ -86,7 +86,7 @@ class DB:
         self.initialize_stage1()
 
     def show_error(self, title, msg, det_msg):
-        if is_reading_book():
+        if not window? or is_reading_book():
             self.show_read_book_error(title, msg, det_msg)
         else:
             error_dialog(title, msg, det_msg)
@@ -346,6 +346,24 @@ class DB:
                 result = Blob([base64decode(result)], {'type':mt})
             proceed(result, name, mt, book)
         )
+
+    def get_book_file(self, book_hash, stored_files, name, proceed):
+        stores = ['files']
+        key = file_store_name({'book_hash': book_hash}, name)
+        transaction = self.idb.transaction(stores)
+        req = transaction.objectStore(stores[0]).get(key)
+        req.onsuccess = def(event):
+            if not req.result:
+                proceed({'ok': False, 'name': name, 'details': 'ENOENT'})
+                return
+            fdata = stored_files[key]
+            mt = fdata.mimetype or 'application/octet-stream'
+            if fdata.encoded:
+                result = Blob([base64decode(result)], {'type':mt})
+            proceed({'ok': True, 'result': result, 'name': name, 'mt': mt})
+        req.onerror = def(event):
+            details = get_error_details(event)
+            proceed({'ok': False, 'name': name, 'details': details})
 
     def get_mathjax_files(self, proceed):
         c = self.idb.transaction('mathjax').objectStore('mathjax').openCursor()
