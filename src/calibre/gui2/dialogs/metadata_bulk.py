@@ -457,7 +457,9 @@ class MyBlockingBusy(QDialog):  # {{{
         if self.do_sr:
             self.progress_next_step_range.emit(len(self.ids))
             for book_id in self.ids:
-                self.s_r_func(book_id)
+                ans = self.s_r_func(book_id)
+                if isinstance(ans, bool) and not ans:
+                    break
                 self.progress_update.emit(1)
             if self.sr_calls:
                 self.progress_next_step_range.emit(len(self.sr_calls))
@@ -1066,11 +1068,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     val = ids
                 else:
                     try:
-                        val = dict(t.split(':', 1) for t in val)
-                    except Exception:
-                        raise Exception(_('Invalid identifier string. It must be a '
-                                          'comma-separated list of pairs of '
-                                          'strings separated by a colon'))
+                        val = dict([(t.split(':', maxsplit=1)) for t in val])
+                    except:
+                        import traceback
+                        ans = question_dialog(self, _('Invalid identifier string'),
+                               _('The identifier string for book "{0}" (id {1}) is '
+                                 'invalid. It must be a comma-separated list of '
+                                 'pairs of strings separated by a colon.\n\n'
+                                 'Do you want to continue processing books?').format(mi.title, mi.id),
+                               det_msg='\n'.join([_('Result identifier string: '),
+                                                 ', '.join(val), '-----', traceback.format_exc()]),
+                               show_copy_button=True)
+                        return ans
         else:
             val = self.s_r_replace_mode_separator().join(val)
             if dest == 'title' and len(val) == 0:
