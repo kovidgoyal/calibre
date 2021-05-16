@@ -29,7 +29,7 @@ class ProfileModel(QAbstractListModel):
         if role == Qt.ItemDataRole.DisplayRole:
             if profile.name.startswith('Default '):
                 return _('Default profile')
-            return profile.name
+            return __builtins__['_'](profile.name)
         if role in (Qt.ItemDataRole.ToolTipRole, Qt.ItemDataRole.StatusTipRole, Qt.ItemDataRole.WhatsThisRole):
             w, h = profile.screen_size
             if w >= 10000:
