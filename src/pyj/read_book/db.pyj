@@ -67,6 +67,14 @@ def new_book(key, metadata):
 DB_NAME = 'calibre'
 DB_VERSION = 1
 
+
+def indexed_db_api():
+    if window?:
+        return window.indexedDB
+    if self?:
+        return self.indexedDB
+
+
 class DB:
 
     def __init__(self, callback, show_read_book_error):
@@ -84,16 +92,17 @@ class DB:
             error_dialog(title, msg, det_msg)
 
     def initialize_stage1(self):
-        if not window.indexedDB:
+        idb = indexed_db_api()
+        if not idb:
             self.initialize_error_msg = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Chrome or Firefox.')
             self.initialized = True
             # Callers assume __init__ has finished before the callback is
             # called, since we are called in __init__, only callback after
             # event loop ticks over
-            window.setTimeout(self.callback, 0)
+            setTimeout(self.callback, 0)
             return
 
-        request = window.indexedDB.open(DB_NAME, DB_VERSION)
+        request = idb.open(DB_NAME, DB_VERSION)
 
         request.onupgradeneeded = def(event):
             upgrade_schema(event.target.result, event.oldVersion, event.newVersion, event.target.transaction)
@@ -160,19 +169,7 @@ class DB:
         store = store or stores[0]
         if op is 'get':
             transaction = self.idb.transaction(stores)
-            # Microsoft Edge currently does not support complex keys so the
-            # next line will throw a DataError in Edge when data is an
-            # object key like an array.
-            # https://gist.github.com/nolanlawson/a841ee23436410f37168
-            try:
-                req = transaction.objectStore(store).get(data)
-            except:
-                if /Edge\/\d+/.test(window.navigator.userAgent):
-                    self.show_error(_('Cannot read book'), _(
-                        'Reading of books is not supported on Microsoft Edge. Use a better'
-                        ' browser such as Google Chrome or Mozilla Firefox'))
-                    return
-                raise
+            req = transaction.objectStore(store).get(data)
             req.onsuccess = def(event):
                 proceed(req.result)
         elif op is 'put':
