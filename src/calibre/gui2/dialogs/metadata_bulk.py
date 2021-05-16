@@ -1066,8 +1066,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                     val = ids
                 else:
                     try:
-                        val = dict([(t.split(':')) for t in val])
-                    except:
+                        val = dict(t.split(':', 1) for t in val)
+                    except Exception:
                         raise Exception(_('Invalid identifier string. It must be a '
                                           'comma-separated list of pairs of '
                                           'strings separated by a colon'))
