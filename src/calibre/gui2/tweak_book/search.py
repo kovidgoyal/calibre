@@ -885,16 +885,11 @@ class SavedSearches(QWidget):
         self.l = l = QVBoxLayout(self)
         self.setLayout(l)
 
-        self.h = h = QHBoxLayout()
         self.filter_text = ft = QLineEdit(self)
+        ft.setClearButtonEnabled(True)
         ft.textChanged.connect(self.do_filter)
         ft.setPlaceholderText(_('Filter displayed searches'))
-        h.addWidget(ft)
-        self.cft = cft = QToolButton(self)
-        cft.setToolTip(_('Clear filter')), cft.setIcon(QIcon(I('clear_left.png')))
-        cft.clicked.connect(ft.clear)
-        h.addWidget(cft)
-        l.addLayout(h)
+        l.addWidget(ft)
 
         self.h2 = h = QHBoxLayout()
         self.searches = searches = QListView(self)
