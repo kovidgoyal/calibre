@@ -2,12 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 # License: GPLv3 Copyright: 2010, Kovid Goyal <kovid at kovidgoyal.net>
 
-import copy, json, traceback
-from qt.core import QDialogButtonBox, QDialog
+import copy
+import json
+import traceback
+from qt.core import QDialog, QDialogButtonBox
 
-from calibre.gui2 import error_dialog, warning_dialog
+from calibre.gui2 import error_dialog, question_dialog, warning_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget
+from calibre.gui2.preferences import AbortInitialize, ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils.formatter_functions import (
@@ -149,9 +151,18 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.builtins = formatter_functions().get_builtins_and_aliases()
 
         self.st_funcs = {}
-        for v in self.db.prefs.get('user_template_functions', []):
-            if not function_pref_is_python(v):
-                self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
+        try:
+            for v in self.db.prefs.get('user_template_functions', []):
+                if not function_pref_is_python(v):
+                    self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
+        except:
+            if question_dialog(self, _('Template functions'),
+                    _('The template functions saved in the library are corrupt. '
+                      "Do you want to delete them? Answering 'Yes' will delete all "
+                      "the functions."), det_msg=traceback.format_exc(),
+                               show_copy_button=True):
+                self.db.prefs['user_template_functions'] = []
+            raise AbortInitialize()
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[native_string_type].connect(self.function_index_changed)

@@ -6,22 +6,26 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, re
-from functools import partial
+import re
+import textwrap
 from collections import OrderedDict
-
+from functools import partial
 from qt.core import (
-    Qt, QIcon, QFont, QWidget, QScrollArea, QStackedWidget, QVBoxLayout,
-    QLabel, QFrame, QToolBar, QSize, pyqtSignal, QDialogButtonBox,
-    QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF,
-    QStatusTipEvent, QApplication, QTabWidget)
+    QApplication, QDialog, QDialogButtonBox, QFont, QFrame, QHBoxLayout, QIcon,
+    QLabel, QPainter, QPointF, QScrollArea, QSize, QSizePolicy, QStackedWidget,
+    QStatusTipEvent, Qt, QTabWidget, QTextLayout, QToolBar, QVBoxLayout, QWidget,
+    pyqtSignal
+)
 
 from calibre.constants import __appname__, __version__, islinux
-from calibre.gui2 import (gprefs, min_available_height, available_width,
-    show_restart_warning)
-from calibre.gui2.dialogs.message_box import Icon
-from calibre.gui2.preferences import init_gui, AbortCommit, get_plugin
 from calibre.customize.ui import preferences_plugins
+from calibre.gui2 import (
+    available_width, gprefs, min_available_height, show_restart_warning
+)
+from calibre.gui2.dialogs.message_box import Icon
+from calibre.gui2.preferences import (
+    AbortCommit, AbortInitialize, get_plugin, init_gui
+)
 from polyglot.builtins import unicode_type
 
 ICON_SIZE = 32
@@ -310,7 +314,10 @@ class Preferences(QDialog):
     def show_plugin(self, plugin):
         self.showing_widget = plugin.create_widget(self.scroll_area)
         self.showing_widget.genesis(self.gui)
-        self.showing_widget.initialize()
+        try:
+            self.showing_widget.initialize()
+        except AbortInitialize:
+            return
         self.set_tooltips_for_labels()
         self.scroll_area.setWidget(self.showing_widget)
         self.stack.setCurrentIndex(1)
@@ -425,8 +432,8 @@ class Preferences(QDialog):
 
 
 if __name__ == '__main__':
-    from calibre.gui_launch import init_dbus
     from calibre.gui2 import Application
+    from calibre.gui_launch import init_dbus
     init_dbus()
     app = Application([])
     app
