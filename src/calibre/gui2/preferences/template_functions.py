@@ -5,7 +5,7 @@
 import copy, json, traceback
 from qt.core import QDialogButtonBox, QDialog
 
-from calibre.gui2 import error_dialog, warning_dialog
+from calibre.gui2 import error_dialog, warning_dialog, question_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.template_functions_ui import Ui_Form
@@ -149,9 +149,20 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.builtins = formatter_functions().get_builtins_and_aliases()
 
         self.st_funcs = {}
-        for v in self.db.prefs.get('user_template_functions', []):
-            if not function_pref_is_python(v):
-                self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
+        try:
+            for v in self.db.prefs.get('user_template_functions', []):
+                if not function_pref_is_python(v):
+                    self.st_funcs.update({function_pref_name(v):compile_user_function(*v)})
+        except:
+            ans = question_dialog(self, _('Template functions'),
+                    _('The template functions saved in the library are corrupt. '
+                      "Do you want to delete them? Answering 'Yes' will delete all "
+                      "the functions."), det_msg=traceback.format_exc(),
+                    show_copy_button=True)
+            if ans:
+                print('remove the preference')
+                self.db.prefs['user_template_functions'] = []
+            return False
 
         self.build_function_names_box()
         self.function_name.currentIndexChanged[native_string_type].connect(self.function_index_changed)

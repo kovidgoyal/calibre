@@ -310,7 +310,9 @@ class Preferences(QDialog):
     def show_plugin(self, plugin):
         self.showing_widget = plugin.create_widget(self.scroll_area)
         self.showing_widget.genesis(self.gui)
-        self.showing_widget.initialize()
+        x = self.showing_widget.initialize()
+        if isinstance(x, bool) and not x:
+            return
         self.set_tooltips_for_labels()
         self.scroll_area.setWidget(self.showing_widget)
         self.stack.setCurrentIndex(1)

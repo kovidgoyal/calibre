@@ -59,7 +59,8 @@ class ConfigWidgetInterface(object):
     def initialize(self):
         '''
         Should set all config values to their initial values (the values
-        stored in the config files).
+        stored in the config files). A "return" statement is optional. Return
+        False if the dialog is not to be shown.
         '''
         raise NotImplementedError()
 
