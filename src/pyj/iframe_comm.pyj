@@ -32,13 +32,6 @@ __BS__
 '''.replace('end_script', '<' + '/script>')  # cannot have a closing script tag as this is embedded inside a script tag in index.html
 
 
-def iframe_js():
-    if not iframe_js.ans:
-        iframe_js.ans = main_js().replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
-        main_js(None)
-    return iframe_js.ans
-
-
 class Messenger:
 
     def __init__(self):
@@ -91,7 +84,7 @@ class IframeWrapper:
         if self.entry_point:
             data = {
                 'BS': self.bootstrap_text,
-                'SCRIPT': iframe_js(),
+                'SCRIPT': main_js(),
                 'FONT': get_font_family(),
                 'ENTRY_POINT': self.entry_point,
             }

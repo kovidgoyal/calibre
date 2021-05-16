@@ -9,11 +9,11 @@ from autoreload import create_auto_reload_watcher
 from book_list.globals import main_js
 from book_list.main import main
 
-is_running_in_iframe = False  # Changed before script is loaded in the iframe
 autoreload_enabled = False
 AUTO_UPDATE_THRESHOLD = 1000  # millisecs
 
-if is_running_in_iframe:
+
+def iframe_main():
     script = document.getElementById('bootstrap')
     if script:
         script.parentNode.removeChild(script)  # free up some memory
@@ -23,9 +23,9 @@ if is_running_in_iframe:
         main()
     else:
         console.log('iframe entry_point ' + window.iframe_entry_point + ' not found')
-else:
-    start_time = window.performance.now()
 
+
+def toplevel_main():
     script = document.currentScript or document.scripts[0]
     main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory
@@ -52,3 +52,10 @@ else:
             if data.allow_console_print:
                 print = console_print
     ).send()  # We must bypass cache as otherwise we could get stale info
+
+if document?:
+    iframe_script = document.getElementById('bootstrap')
+    if iframe_script:
+        iframe_main()
+    else:
+        toplevel_main()
