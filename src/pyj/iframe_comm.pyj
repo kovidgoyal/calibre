@@ -165,6 +165,7 @@ class IframeWrapper:
 
 def create_wrapped_iframe(handlers, bootstrap_text, entry_point, kw):
     if ':' in entry_point:
+        # this is a document loaded via the fake protocol from web_view.py
         kw.src = entry_point
         kw.sandbox = (kw.sandbox or '') + ' allow-same-origin'
     iframe = E.iframe(**kw)
