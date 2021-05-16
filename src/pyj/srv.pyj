@@ -13,10 +13,9 @@ autoreload_enabled = False
 AUTO_UPDATE_THRESHOLD = 1000  # millisecs
 
 
-def iframe_main():
-    script = document.getElementById('bootstrap')
-    if script:
-        script.parentNode.removeChild(script)  # free up some memory
+def iframe_main(script):
+    script.parentNode.removeChild(script)  # free up some memory
+    script = undefined
     m = ρσ_get_module(window.iframe_entry_point)
     main = m?.main
     if main:
@@ -56,6 +55,6 @@ def toplevel_main():
 if document?:
     iframe_script = document.getElementById('bootstrap')
     if iframe_script:
-        iframe_main()
+        iframe_main(iframe_script)
     else:
         toplevel_main()
