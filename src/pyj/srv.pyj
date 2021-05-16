@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-# globals: ρσ_get_module
+# globals: ρσ_get_module, self
 from __python__ import hash_literals
 
 import initialize  # noqa: unused-import
@@ -11,6 +11,15 @@ from book_list.main import main
 
 autoreload_enabled = False
 AUTO_UPDATE_THRESHOLD = 1000  # millisecs
+
+
+def worker_main(entry_point):
+    m = ρσ_get_module(window.iframe_entry_point)
+    main = m?.main
+    if main:
+        main()
+    else:
+        console.log('worker entry_point ' + entry_point + ' not found')
 
 
 def iframe_main(script):
@@ -58,3 +67,8 @@ if document?:
         iframe_main(iframe_script)
     else:
         toplevel_main()
+        url = window.URL.createObjectURL(Blob([main_js()]), {'type': 'text/javascript'})
+        worker = new window.Worker(url + '#moo')
+        console.log(worker)
+elif self?:
+    entry_point = self.location.hash[1:]

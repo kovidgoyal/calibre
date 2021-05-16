@@ -1,0 +1,15 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
+
+from book_list.globals import main_js
+
+
+def worker_js_url(entry_point):
+    if not worker_js_url.ans:
+        worker_js_url.ans = window.URL.createObjectURL(Blob([main_js()]), {'type': 'text/javascript'})
+    return worker_js_url.ans + '#' + entry_point
+
+
+def start_worker(entry_point):
+    return new window.Worker(worker_js_url(entry_point))
