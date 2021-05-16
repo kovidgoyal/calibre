@@ -38,7 +38,7 @@ class MultiDeleter(QObject):  # {{{
                 _('You are trying to delete %d books. '
                     'Sending so many files to the Recycle'
                     ' Bin <b>can be slow</b>. Should calibre skip the'
-                    ' Recycle Bin? If you click Yes the files'
+                    ' recycle bin? If you click Yes the files'
                     ' will be <b>permanently deleted</b>.')%len(ids),
                 add_abort_button=True
             ):

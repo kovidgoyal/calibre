@@ -94,7 +94,7 @@ class PRST1(USBMS):
         _('Set this option if you want the author on the Sony to '
           'appear the same way the T1 sets it. This means it will '
           'only show the first author for books with multiple authors. '
-          'Leave this disabled if you use Metadata Plugboards.')
+          'Leave this disabled if you use Metadata plugboards.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),

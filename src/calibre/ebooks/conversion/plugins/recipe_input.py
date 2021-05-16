@@ -22,7 +22,7 @@ class RecipeInput(InputFormatPlugin):
 
     name        = 'Recipe Input'
     author      = 'Kovid Goyal'
-    description = _('Download periodical content from the internet')
+    description = _('Download periodical content from the Internet')
     file_types  = {'recipe', 'downloaded_recipe'}
     commit_name = 'recipe_input'
 

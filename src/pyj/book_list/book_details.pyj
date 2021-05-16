@@ -507,7 +507,7 @@ def render_book(container_id, book_id):
     def prev_next_button(is_prev):
         return E.div(
             style=button_style,
-            title=_('Previous book') if is_prev else _('Next book'),
+            title=_('Previous book [Ctrl+Left]') if is_prev else _('Next book [Ctrl+Right]'),
             class_='next-book-button',
             svgicon('chevron-left' if is_prev else 'chevron-right'),
             onclick=next_book.bind(None, book_id, (-1 if is_prev else 1))

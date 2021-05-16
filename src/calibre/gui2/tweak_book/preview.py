@@ -726,9 +726,9 @@ class Preview(QWidget):
             self.refresh()
 
     def split_toggled(self, checked):
-        actions['split-in-preview'].setToolTip(textwrap.fill(_(
+        actions['split-in-preview'].setToolTip('<p>' + (_(
             'Abort file split') if checked else _(
-                'Split this file at a specified location.\n\nAfter clicking this button, click'
+                'Split this file at a specified location.<p>After clicking this button, click'
                 ' inside the preview panel above at the location you want the file to be split.')))
         if checked:
             self.split_start_requested.emit()

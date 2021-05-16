@@ -571,7 +571,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         l.addWidget(b, 1, 1)
         b.clicked.connect(self.change_cover_grid_texture)
-        self.cover_grid_default_appearance_button = b = QPushButton(_('Restore &default appearance'), self)
+        self.cover_grid_default_appearance_button = b = QPushButton(_('Restore default &appearance'), self)
         b.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         l.addWidget(b, 2, 1)
         b.clicked.connect(self.restore_cover_grid_appearance)

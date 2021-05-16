@@ -28,7 +28,7 @@ def synchronous(func):
 
 class MTPDeviceBase(DevicePlugin):
     name = 'MTP Device Interface'
-    gui_name = _('MTP Device')
+    gui_name = _('MTP device')
     icon = I('devices/tablet.png')
     description = _('Communicate with MTP devices')
     author = 'Kovid Goyal'
@@ -63,5 +63,3 @@ class MTPDeviceBase(DevicePlugin):
 
     def is_customizable(self):
         return True
-
-
