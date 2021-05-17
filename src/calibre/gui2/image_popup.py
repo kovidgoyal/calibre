@@ -94,6 +94,7 @@ class ImageView(QDialog):
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
         QDialog.__init__(self)
         self.current_image_name = ''
+        self.maximized_at_last_fullscreen = False
         self.setWindowFlag(Qt.WindowType.WindowMinimizeButtonHint)
         self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint)
         dw = QApplication.instance().desktop()
@@ -117,14 +118,18 @@ class ImageView(QDialog):
         self.zo_button = zo = bb.addButton(_('Zoom &out'), QDialogButtonBox.ButtonRole.ActionRole)
         self.save_button = so = bb.addButton(_('&Save as'), QDialogButtonBox.ButtonRole.ActionRole)
         self.rotate_button = ro = bb.addButton(_('&Rotate'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.fullscreen_buton = fo = bb.addButton(_('&Fullscreen'), QDialogButtonBox.ButtonRole.ActionRole)
         zi.setIcon(QIcon(I('plus.png')))
         zo.setIcon(QIcon(I('minus.png')))
         so.setIcon(QIcon(I('save.png')))
         ro.setIcon(QIcon(I('rotate-right.png')))
+        fo.setIcon(QIcon(I('page.png')))
         zi.clicked.connect(self.zoom_in)
         zo.clicked.connect(self.zoom_out)
         so.clicked.connect(self.save_image)
         ro.clicked.connect(self.rotate_image)
+        fo.setCheckable(True)
+        fo.toggled.connect(self.toggle_fullscreen)
 
         self.l = l = QVBoxLayout(self)
         l.addWidget(sa)
@@ -250,6 +255,17 @@ class ImageView(QDialog):
     def done(self, e):
         gprefs[self.geom_name] = bytearray(self.saveGeometry())
         return QDialog.done(self, e)
+
+    def toggle_fullscreen(self):
+        on = not self.isFullScreen()
+        if on:
+            self.maximized_at_last_fullscreen = self.isMaximized()
+            self.showFullScreen()
+        else:
+            if self.maximized_at_last_fullscreen:
+                self.showMaximized()
+            else:
+                self.showNormal()
 
     def wheelEvent(self, event):
         d = event.angleDelta().y()
