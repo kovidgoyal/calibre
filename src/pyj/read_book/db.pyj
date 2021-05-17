@@ -360,7 +360,7 @@ class DB:
             mt = fdata.mimetype or 'application/octet-stream'
             if fdata.encoded:
                 result = Blob([base64decode(result)], {'type':mt})
-            proceed({'ok': True, 'result': result, 'name': name, 'mt': mt})
+            proceed({'ok': True, 'result': req.result, 'name': name, 'mt': mt})
         req.onerror = def(event):
             details = get_error_details(event)
             proceed({'ok': False, 'name': name, 'details': details})

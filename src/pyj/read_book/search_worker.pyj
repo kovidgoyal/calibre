@@ -3,6 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from read_book.db import DB
+from read_book.resources import text_from_serialized_html
 
 GET_SPINE_FAILED = 1
 CONNECT_FAILED = 2
@@ -19,10 +20,14 @@ class Worker:
         self.searching = False
         self.current_query = None
         self.current_query_id = None
+        self.text_cache = {}
 
     @property
     def initialize_error_msg(self):
         return self.db?.initialize_error_msg
+
+    def clear_caches(self):
+        self.text_cache = {}
 
 
 wc = Worker()
@@ -33,10 +38,18 @@ def send_search_complete():
     wc.current_query = wc.current_query_id = None
 
 
+def search_in_text_of(name):
+    pass
+
+
 def queue_next_spine_item(spine_idx):
     name = wc.current_query.spine[spine_idx]
     if not name:
         send_search_complete()
+        return
+    if wc.text_cache[name]:
+        search_in_text_of(name)
+        setTimeout(queue_next_spine_item.bind(None, spine_idx + 1), 0)
         return
     query = wc.current_query
     wc.db.get_book_file(query.book_hash, query.stored_files, name, got_spine_item.bind(None, query.id, spine_idx))
@@ -46,7 +59,10 @@ def got_spine_item(query_id, spine_idx, result):
     if query_id is not wc.current_query_id:
         return
     if result.ok:
-        queue_next_spine_item(spine_idx + 1)
+        name = wc.current_query.spine[spine_idx]
+        wc.text_cache[name] = text_from_serialized_html(result.result)
+        search_in_text_of(name)
+        setTimeout(queue_next_spine_item.bind(None, spine_idx + 1), 0)
     else:
         if result.details is 'ENOENT':
             queue_next_spine_item(spine_idx + 1)
@@ -97,6 +113,8 @@ def worker_main():
                     perform_search(e.data)
             else:
                 wc.pending_search = e.data
+        elif e.data.type is 'clear_caches':
+            wc.clear_caches()
 
     self.onerror = def(e):
         send_error(UNHANDLED_ERROR, f'{e.line}:{e.message}')

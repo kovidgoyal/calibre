@@ -53,13 +53,17 @@ class SearchOverlay:
             self._worker = start_worker('read_book.search')
         return self._worker
 
-    def queue_search(self, book, current_name):
+    def queue_search(self, query, book, current_name):
         spine = book.manifest.spine
         self.request_counter += 1
         self.worker.postMessage({
             'type': 'search', 'book_hash': book.book_hash, 'spine': spine, 'current_name': current_name,
-            'id': self.request_counter, 'stored_files': book.stored_files
+        'id': self.request_counter, 'stored_files': book.stored_files, 'query': query
         })
+
+    def clear_caches(self):
+        if self._worker:
+            self.worker.postMessage({'type': 'clear_caches'})
 
     def onkeydown(self, event):
         if event.key is 'Escape' or event.key is 'Esc':
