@@ -12,7 +12,7 @@ UNHANDLED_ERROR = 3
 DB_ERROR = 4
 
 _RE_ESCAPE = /[-\/\\^$*+?.()|[\]{}]/g
-quote_map= {'"':'"“”', "'": "'‘’"}
+quote_map = {'"': '"“”', "'": "'‘’"}
 qpat = /(['"])/g
 spat = /(\s+)/g
 invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
