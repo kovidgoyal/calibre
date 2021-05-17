@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from read_book.db import DB
 from read_book.resources import text_from_serialized_html
+from traceback import format_exception
 
 GET_SPINE_FAILED = 1
 CONNECT_FAILED = 2
@@ -200,5 +201,6 @@ def worker_main():
         elif e.data.type is 'clear_caches':
             wc.clear_caches()
 
-    self.onerror = def(e):
-        send_error(UNHANDLED_ERROR, f'{e.line}:{e.message}')
+    self.addEventListener('error', def (e):
+        send_error(UNHANDLED_ERROR, f'{e.lineno}:{e.message}' + '\n\n' + format_exception(e.error).join(''))
+    )
