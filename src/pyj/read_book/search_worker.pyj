@@ -10,6 +10,45 @@ CONNECT_FAILED = 2
 UNHANDLED_ERROR = 3
 DB_ERROR = 4
 
+_RE_ESCAPE = /[-\/\\^$*+?.()|[\]{}]/g
+quote_map= {'"':'"“”', "'": "'‘’"}
+qpat = /(['"])/g
+spat = /(\s+)/g
+invisible_chars = '(?:[\u00ad\u200c\u200d]{0,1})'
+
+def escape(string):
+    return string.replace(_RE_ESCAPE, '\\$&')
+
+
+def split_string(pat, string):
+    pat.lastIndex = 0
+    return string.split(pat)
+
+
+def text_to_regex(text):
+    if text and not text.strip():
+        return r'\s+'
+    has_leading = text.lstrip() is not text
+    has_trailing = text.rstrip() is not text
+    ans = v'["\s+"]' if has_leading else v'[]'
+    for wpart in split_string(spat, text.strip()):
+        if not wpart.strip():
+            ans.push(r'\s+')
+        else:
+            for part in split_string(qpat, wpart):
+                r = quote_map[part]
+                if r:
+                    ans.push('[' + r + ']')
+                else:
+                    chars = v'[]'
+                    for ch in part:
+                        chars.push(escape(ch))
+                    chars.join(invisible_chars)
+                    ans.push(part)
+    if has_trailing:
+        ans.push(r'\s+')
+    return ans.join('')
+
 
 class Worker:
 
@@ -21,6 +60,8 @@ class Worker:
         self.current_query = None
         self.current_query_id = None
         self.text_cache = {}
+        self.regex = None
+        self.result_num = 0
 
     @property
     def initialize_error_msg(self):
@@ -39,7 +80,30 @@ def send_search_complete():
 
 
 def search_in_text_of(name):
-    print('searching in:', name)
+    ctx_size = 75
+    r = wc.regex
+    r.lastIndex = 0
+    haystack = wc.text_cache[name] or ''
+    match_counts = {}
+    spine_idx = wc.current_query.spine.indexOf(name)
+    while True:
+        m = r.exec(haystack)
+        if not m:
+            break
+        text = m[0]
+        start, end = m.index, r.lastIndex
+        before = haystack[Math.max(0, start - ctx_size):start]
+        after = haystack[end:end+ctx_size]
+        q = (before or '')[-5:] + text + (after or '')[:5]
+        match_counts[q] = match_counts[q] or 0
+        wc.result_num += 1
+        result = {
+            'file_name': name, 'spine_idx': spine_idx, 'index': match_counts[q],
+            'text': text, 'before': before, 'after': after, 'mode': wc.current_query.query.mode,
+            'q': q, 'result_num': wc.result_num, 'on_discovery': wc.query_id, 'query_id': wc.query_id
+        }
+        self.postMessage({'type': 'search_result', 'result': result})
+        match_counts[q] += 1
 
 
 def queue_next_spine_item(spine_idx, allow_current_name):
@@ -72,12 +136,31 @@ def got_spine_item(query_id, spine_idx, result):
             wc.current_query = wc.current_query_id = None
 
 
+def regex_for_query(query):
+    expr = query.text
+    flags = 'umg'
+    if not query.case_sensitive:
+        flags += 'i'
+    if query.mode is not 'regex':
+        if query.mode is 'word':
+            words = v'[]'
+            for part in expr.split(' '):
+                words.push(r'\b' + text_to_regex(part) + r'\b')
+            expr = words.join(r'\s+')
+        else:
+            expr = text_to_regex(expr)
+    return new RegExp(expr, flags)
+
+
 def perform_search(query):
     wc.current_query = query
     wc.current_query_id = query.id
-    if not query.spine?.length:
+    wc.result_num = 0
+    if not query.spine?.length or not query.query.text:
         send_search_complete()
         return
+    wc.regex = regex_for_query(query.query)
+
     idx = query.spine.indexOf(query.current_name)
     if idx < 0:
         idx = 0
