@@ -39,12 +39,13 @@ def send_search_complete():
 
 
 def search_in_text_of(name):
-    pass
+    print('searching in:', name)
 
 
-def queue_next_spine_item(spine_idx):
+def queue_next_spine_item(spine_idx, allow_current_name):
+    spine_idx %= wc.current_query.spine.length
     name = wc.current_query.spine[spine_idx]
-    if not name:
+    if not name or (not allow_current_name and name is wc.current_query.current_name):
         send_search_complete()
         return
     if wc.text_cache[name]:
@@ -80,7 +81,7 @@ def perform_search(query):
     idx = query.spine.indexOf(query.current_name)
     if idx < 0:
         idx = 0
-    queue_next_spine_item(idx)
+    queue_next_spine_item(idx, True)
 
 
 def worker_connection_done():
