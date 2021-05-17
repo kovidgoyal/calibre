@@ -100,9 +100,9 @@ def search_in_text_of(name):
         result = {
             'file_name': name, 'spine_idx': spine_idx, 'index': match_counts[q],
             'text': text, 'before': before, 'after': after, 'mode': wc.current_query.query.mode,
-            'q': q, 'result_num': wc.result_num, 'on_discovery': wc.query_id, 'query_id': wc.query_id
+            'q': q, 'result_num': wc.result_num, 'on_discovery': wc.current_query_id,
         }
-        self.postMessage({'type': 'search_result', 'result': result})
+        self.postMessage({'type': 'search_result', 'id': wc.current_query_id, 'result': result})
         match_counts[q] += 1
 
 

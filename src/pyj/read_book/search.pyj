@@ -29,6 +29,7 @@ class SearchOverlay:
 
     def __init__(self, view):
         self.view = view
+        self.search_in_flight_id = None
         c = self.container
         c.classList.add(CLASS_NAME)
         next_button = E.div(class_='simple-link', svgicon('chevron-down'), title=_('Next match'))
@@ -51,15 +52,25 @@ class SearchOverlay:
     def worker(self):
         if not self._worker:
             self._worker = start_worker('read_book.search')
+            self._worker.onmessage = self.on_worker_message
         return self._worker
 
     def queue_search(self, query, book, current_name):
         spine = book.manifest.spine
         self.request_counter += 1
+        self.search_in_flight_id = self.request_counter
         self.worker.postMessage({
             'type': 'search', 'book_hash': book.book_hash, 'spine': spine, 'current_name': current_name,
-        'id': self.request_counter, 'stored_files': book.stored_files, 'query': query
+            'id': self.request_counter, 'stored_files': book.stored_files, 'query': query
         })
+
+    def on_worker_message(self, evt):
+        msg = evt.data
+        if msg.type is 'error':
+            pass
+        elif msg.id is self.search_in_flight_id:
+            if msg.type is 'search_complete':
+                self.search_in_flight_id = None
 
     def clear_caches(self):
         if self._worker:
