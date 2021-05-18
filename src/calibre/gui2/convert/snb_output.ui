@@ -51,7 +51,7 @@
    <item row="4" column="0">
     <widget class="QCheckBox" name="opt_snb_full_screen">
      <property name="text">
-      <string>Optimize for full-&amp;screen view </string>
+      <string>Optimize for full-&amp;screen mode</string>
      </property>
     </widget>
    </item>

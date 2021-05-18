@@ -731,7 +731,7 @@ def snb_output(container):
     g.appendChild(checkbox('snb_insert_empty_line', _('Insert &empty line between paragraphs')))
     g.appendChild(checkbox('snb_dont_indent_first_line', _('Don\'t indent the &first line for each paragraph')))
     g.appendChild(checkbox('snb_hide_chapter_name', _('Hide &chapter name')))
-    g.appendChild(checkbox('snb_full_screen', _('Optimize for full-&screen view ')))
+    g.appendChild(checkbox('snb_full_screen', _('Optimize for full-&screen mode')))
 # }}}
 
 def restore_defaults():
