@@ -403,7 +403,8 @@ def unserialize_html_legacy(serialized_data, proceed, postprocess_dom, root_name
         proceeded = True
         proceed()
 
-def text_from_serialized_html(data):
+
+def text_from_serialized_html(data, get_anchor_offset_map):
     serialized_data = JSON.parse(data)
     tag_map = serialized_data.tag_map
     ans = v'[]'
@@ -415,17 +416,29 @@ def text_from_serialized_html(data):
             if child.n is 'body':
                 stack.push(child)
     ignore_text = {'script':True, 'style':True, 'title': True}
+    anchor_offset_map = {}
+    text_pos = 0
     while stack.length:
         node = stack.pop()
         if jstype(node) is 'string':
             ans.push(node)
+            text_pos += node.length
             continue
         if tag_map:
             src = tag_map[node[0]]
         else:
             src = node
+        if get_anchor_offset_map and src.a:
+            for v'var i = 0; i < src.a.length; i++':
+                x = src.a[i]
+                if x[0] is 'id':
+                    aid = x[1]
+                    if jstype(anchor_offset_map[aid]) is not 'number':
+                        anchor_offset_map[aid] = text_pos
+
         if src.n and not ignore_text[src.n] and src.x:
             ans.push(src.x)
+            text_pos += src.x.length
         if src.l:
             stack.push(src.l)
         if tag_map:
@@ -435,4 +448,7 @@ def text_from_serialized_html(data):
             if src.c:
                 for v'var i = src.c.length; i-- > 0;':
                     stack.push(v'src.c[i]')
-    return ans.join('')
+    ans = ans.join('')
+    if get_anchor_offset_map:
+        return ans, anchor_offset_map
+    return ans

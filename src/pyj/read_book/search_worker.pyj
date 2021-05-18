@@ -84,7 +84,7 @@ def search_in_text_of(name):
     ctx_size = 75
     r = wc.regex
     r.lastIndex = 0
-    haystack = wc.text_cache[name] or ''
+    haystack = wc.text_cache[name][0] or ''
     match_counts = {}
     spine_idx = wc.current_query.spine.indexOf(name)
     while True:
@@ -126,7 +126,7 @@ def got_spine_item(query_id, spine_idx, result):
         return
     if result.ok:
         name = wc.current_query.spine[spine_idx]
-        wc.text_cache[name] = text_from_serialized_html(result.result)
+        wc.text_cache[name] = text_from_serialized_html(result.result, True)
         search_in_text_of(name)
         setTimeout(queue_next_spine_item.bind(None, spine_idx + 1), 0)
     else:
