@@ -77,9 +77,9 @@ class ToCOffsetMap:
             while parent?:
                 ancestors.push(parent)
                 parent = self.parent_map[parent.id]
-            if len(ancestors) > 1:
-                ancestors.pop()  # root node
-                for v'var i = ancestors.length; i-- > 0;':
+            if ancestors.length > 1:
+                # last item in ancestors is the root node
+                for v'var i = ancestors.length - 1; i-- > 0;':
                     ans.push(ancestors[i].id)
             ans.push(node.id)
         return ans
