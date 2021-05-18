@@ -94,6 +94,7 @@ class Worker:
         self.searching = False
         self.current_query = None
         self.current_query_id = None
+        self.current_book = None
         self.text_cache = {}
         self.regex = None
         self.result_num = 0
@@ -120,7 +121,7 @@ def search_in_text_of(name):
     r.lastIndex = 0
     haystack = wc.text_cache[name][0] or ''
     match_counts = {}
-    spine_idx = wc.current_query.spine.indexOf(name)
+    spine_idx = wc.current_book.spine.indexOf(name)
     while True:
         m = r.exec(haystack)
         if not m:
@@ -142,8 +143,8 @@ def search_in_text_of(name):
 
 
 def queue_next_spine_item(spine_idx, allow_current_name):
-    spine_idx %= wc.current_query.spine.length
-    name = wc.current_query.spine[spine_idx]
+    spine_idx %= wc.current_book.spine.length
+    name = wc.current_book.spine[spine_idx]
     if not name or (not allow_current_name and name is wc.current_query.current_name):
         send_search_complete()
         return
@@ -152,14 +153,14 @@ def queue_next_spine_item(spine_idx, allow_current_name):
         setTimeout(queue_next_spine_item.bind(None, spine_idx + 1), 0)
         return
     query = wc.current_query
-    wc.db.get_book_file(query.book_hash, query.stored_files, name, got_spine_item.bind(None, query.id, spine_idx))
+    wc.db.get_book_file(wc.current_book.book_hash, wc.current_book.stored_files, name, got_spine_item.bind(None, query.id, spine_idx))
 
 
 def got_spine_item(query_id, spine_idx, result):
     if query_id is not wc.current_query_id:
         return
     if result.ok:
-        name = wc.current_query.spine[spine_idx]
+        name = wc.current_book.spine[spine_idx]
         wc.text_cache[name] = text_from_serialized_html(result.result, True)
         search_in_text_of(name)
         setTimeout(queue_next_spine_item.bind(None, spine_idx + 1), 0)
@@ -191,12 +192,12 @@ def perform_search(query):
     wc.current_query = query
     wc.current_query_id = query.id
     wc.result_num = 0
-    if not query.spine?.length or not query.query.text:
+    if not wc.current_book or not wc.current_book.spine?.length or not query.query.text:
         send_search_complete()
         return
     wc.regex = regex_for_query(query.query)
 
-    idx = query.spine.indexOf(query.current_name)
+    idx = wc.current_book.spine.indexOf(query.current_name)
     if idx < 0:
         idx = 0
     queue_next_spine_item(idx, True)
@@ -234,6 +235,7 @@ def worker_main():
                 wc.pending_search = e.data
         elif e.data.type is 'clear_caches':
             wc.clear_caches()
+            wc.current_book = e.data.book
 
     self.addEventListener('error', def (e):
         send_error(UNHANDLED_ERROR, f'{e.lineno}:{e.message}' + '\n\n' + format_exception(e.error).join(''))
