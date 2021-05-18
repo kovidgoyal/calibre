@@ -118,7 +118,7 @@ class ImageView(QDialog):
         self.zo_button = zo = bb.addButton(_('Zoom &out'), QDialogButtonBox.ButtonRole.ActionRole)
         self.save_button = so = bb.addButton(_('&Save as'), QDialogButtonBox.ButtonRole.ActionRole)
         self.rotate_button = ro = bb.addButton(_('&Rotate'), QDialogButtonBox.ButtonRole.ActionRole)
-        self.fullscreen_buton = fo = bb.addButton(_('&Fullscreen'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.fullscreen_buton = fo = bb.addButton(_('&Full screen'), QDialogButtonBox.ButtonRole.ActionRole)
         zi.setIcon(QIcon(I('plus.png')))
         zo.setIcon(QIcon(I('minus.png')))
         so.setIcon(QIcon(I('save.png')))
