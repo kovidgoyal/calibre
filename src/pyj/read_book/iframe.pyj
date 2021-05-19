@@ -145,7 +145,6 @@ class IframeBoss:
             'number_of_columns_changed': self.number_of_columns_changed,
             'change_scroll_speed': self.change_scroll_speed,
             'display': self.display,
-            'find': self.find,
             'gesture_from_margin': self.gesture_from_margin,
             'get_current_cfi': self.get_current_cfi,
             'initialize':self.initialize,
@@ -464,8 +463,6 @@ class IframeBoss:
                 self.jump_to_cfi(ipos.cfi)
             elif ipos.type is 'search_result':
                 self.show_search_result(ipos, True)
-            elif ipos.type is 'search':
-                self.find(ipos.search_data, True)
             elif ipos.type is 'edit_annotation':
                 window.setTimeout(def():
                     self.annotations_msg_received({'type': 'edit-highlight', 'uuid': ipos.uuid})
@@ -751,29 +748,6 @@ class IframeBoss:
         refnum = data.refnum
         if refnum?:
             self.scroll_to_ref(refnum)
-
-    def find(self, data, from_load):
-        self.last_search_at = window.performance.now()
-        if data.searched_in_spine:
-            window.getSelection().removeAllRanges()
-        wrap_search = from_load and data.backwards
-        found = window.find(data.text, False, data.backwards, wrap_search)
-        if not found and wrap_search:
-            # wrapping is not implemented on Firefox
-            prev_range = None
-            while window.find(data.text, False):
-                prev_range = window.getSelection().getRangeAt(0)
-            if prev_range:
-                sel = window.getSelection()
-                sel.removeAllRanges()
-                sel.addRange(prev_range)
-                found = window.find(data.text, False, True)
-        if found:
-            if current_layout_mode() is not 'flow':
-                snap_to_selection()
-        else:
-            msg_type = 'invisible_text' if from_load else 'find_in_spine'
-            self.send_message(msg_type, text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
     def show_search_result(self, data, from_load):
         sr = data.search_result

@@ -11,7 +11,6 @@ from complete import create_search_bar
 from gettext import gettext as _
 from modals import error_dialog
 from read_book.globals import current_book, ui_operations
-from read_book.resources import text_from_serialized_html
 from read_book.search_worker import (
     CONNECT_FAILED, DB_ERROR, GET_SPINE_FAILED, UNHANDLED_ERROR, worker_main
 )
@@ -181,15 +180,11 @@ class SearchOverlay:
         return document.getElementById(self.CONTAINER_ID)
 
     @property
-    def search_text(self):
-        return self.container.querySelector('input').value
-
-    @property
     def is_visible(self):
         return self.container.style.display is not 'none'
 
     def set_text(self, text):
-        self.container.querySelector('input').value = text or ''
+        self.container.querySelector('input[type=search]').value = text or ''
 
     def hide(self):
         self.container.style.display = 'none'
@@ -204,37 +199,12 @@ class SearchOverlay:
     def find(self, text, backwards):
         if not text:
             return
-        self.view.find(text, backwards)
 
     def find_next(self):
         self.find(self.search_text, False)
 
     def find_previous(self):
         self.find(self.search_text, True)
-
-
-def find_in_serialized_html(data, text):
-    haystack = text_from_serialized_html(data)
-    return haystack.toLowerCase().indexOf(text) > -1
-
-
-def find_in_spine(names, book, text, proceed):
-    text = text.toLowerCase()
-
-    def got_one(data, name, mimetype):
-        if find_in_serialized_html(data, text):
-            proceed(name)
-        else:
-            do_one()
-
-    def do_one():
-        name = names.shift()
-        if name:
-            ui_operations.get_file(book, name, got_one)
-        else:
-            proceed(None)
-
-    do_one()
 
 
 main = worker_main

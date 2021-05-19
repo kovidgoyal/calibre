@@ -35,7 +35,7 @@ from read_book.prefs.scrolling import (
 from read_book.read_aloud import ReadAloud
 from read_book.resources import load_resources
 from read_book.scrollbar import BookScrollbar
-from read_book.search import SearchOverlay, find_in_spine
+from read_book.search import SearchOverlay
 from read_book.selection_bar import SelectionBar
 from read_book.shortcuts import create_shortcut_map
 from read_book.timers import Timers
@@ -238,7 +238,6 @@ class View:
             'bump_font_size': self.bump_font_size,
             'content_loaded': self.on_content_loaded,
             'error': self.on_iframe_error,
-            'find_in_spine': self.on_find_in_spine,
             'invisible_text': self.on_invisible_text,
             'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'handle_keypress': self.on_handle_keypress,
@@ -655,44 +654,12 @@ class View:
         misc.show_actions_toolbar = v'!misc.show_actions_toolbar'
         sd.set('standalone_misc_settings', misc)
 
-    def find(self, text, backwards):
-        self.iframe_wrapper.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
-
     def on_invisible_text(self, data):
         warning_dialog(
                 _('Not found'), _('The text: <i>{}</i> is present on this page but not visible').format(html_escape(data.text)),
                 on_close=def():
                     self.search_overlay.show()
             )
-
-    def on_find_in_spine(self, data):
-        if data.searched_in_spine:
-            warning_dialog(
-                _('Not found'), _('The text: <i>{}</i> was not found in this book').format(html_escape(data.text)),
-                on_close=def():
-                    self.search_overlay.show()
-            )
-            return
-        spine = self.book.manifest.spine
-        idx = spine.indexOf(self.currently_showing.name)
-        if idx < 0:
-            error_dialog(_('Missing file'), _(
-                'Could not search as the spine item {} is missing from the book').format(self.currently_showing.name),
-                on_close=def():
-                    self.search_overlay.show()
-            )
-            return
-        names = v'[]'
-        item_groups = [range(idx-1, -1, -1), range(spine.length-1, idx, -1)] if data.backwards else [range(idx + 1, spine.length), range(idx)]
-        for items in item_groups:
-            for i in items:
-                names.push(spine[i])
-        find_in_spine(names, self.book, data.text, def(found_in):
-            if found_in:
-                self.show_name(found_in, initial_position={'type':'search', 'search_data':data, 'replace_history':True})
-            else:
-                self.iframe_wrapper.send_message('find', text=data.text, backwards=data.backwards, searched_in_spine=True)
-        )
 
     def bump_font_size(self, data):
         mult = 1 if data.increase else -1
