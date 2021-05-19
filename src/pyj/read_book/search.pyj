@@ -4,28 +4,20 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
+from book_list.globals import get_session_data
 from book_list.theme import get_color
+from book_list.top_bar import create_top_bar
 from complete import create_search_bar
-from dom import add_extra_css, build_rule, svgicon
 from gettext import gettext as _
 from modals import error_dialog
-from read_book.globals import ui_operations, current_book
+from read_book.globals import current_book, ui_operations
 from read_book.resources import text_from_serialized_html
 from read_book.search_worker import (
     CONNECT_FAILED, DB_ERROR, GET_SPINE_FAILED, UNHANDLED_ERROR, worker_main
 )
 from read_book.shortcuts import shortcut_for_key_event
+from widgets import create_button
 from worker import start_worker
-
-CLASS_NAME = 'book-search-container'
-
-add_extra_css(def():
-    sel = '.' + CLASS_NAME
-    style = build_rule(sel, text_align='right', user_select='none')
-    sel += ' > div '
-    style += build_rule(sel, display='inline-flex', align_items='center', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
-    return style
-)
 
 
 def get_toc_data(book):
@@ -57,26 +49,71 @@ def get_toc_data(book):
 
 class SearchOverlay:
 
+    display_type = 'block'
+    CONTAINER_ID = 'book-search-overlay'
+
     def __init__(self, view):
         self.view = view
-        self.search_in_flight_id = None
-        c = self.container
-        c.classList.add(CLASS_NAME)
-        next_button = E.div(class_='simple-link', svgicon('chevron-down'), title=_('Next match'))
-        prev_button = E.div(class_='simple-link', svgicon('chevron-up'), title=_('Previous match'))
-        prev_button.addEventListener('click', def(ev): self.find_previous();)
-        # We cannot use simple link for the close button as it causes the
-        # button to remain red when the search panel is re-opened
-        close_button = E.div(style='cursor:pointer', svgicon('close'), title=_('Close Search bar'))
-        close_button.addEventListener('click', def(ev): window.setTimeout(self.hide, 0);)
-        c.appendChild(E.div(
-            svgicon('search'), '\xa0',
-            create_search_bar(self.find_next, 'search-in-book', placeholder=_('Search') + '…', button=next_button, associated_widgets=[prev_button, close_button]),
-            '\xa0', next_button, '\xa0', prev_button, '\xa0', close_button
-        ))
-        c.firstChild.addEventListener('keydown', self.onkeydown, {'passive': False})
+        self.search_in_flight = {'id': None, 'mode': 'contains', 'case_sensitive': False}
         self._worker = None
         self.request_counter = 0
+        c = self.container
+        c.style.backgroundColor = get_color('window-background')
+        c.addEventListener('keydown', self.onkeydown)
+
+        create_top_bar(c, title=_('Search in book'), action=self.hide, icon='close')
+
+        next_button = create_button(_('Next'), 'chevron-down', tooltip=_('Next match'))
+        prev_button = create_button(_('Prev'), 'chevron-up', tooltip=_('Previous match'), action=self.find_previous)
+        c.appendChild(E.div(
+            style='display: flex; padding: 1rem; padding-bottom: 0.5rem; overflow: hidden',
+            create_search_bar(self.find_next, 'search-in-book', button=next_button, associated_widgets=[prev_button]),
+            E.div('\xa0\xa0'), next_button, E.div('\xa0\xa0'), prev_button
+        ))
+        c.lastChild.firstChild.style.flexGrow = '100'
+        sd = get_session_data()
+        mode = sd.get('book_search_mode')
+
+        c.appendChild(E.div(
+            style='display: flex; padding: 1rem; padding-top: 0.5rem; align-items: center; overflow: hidden',
+            E.label(
+                _('Search type:') + '\xa0',
+                E.select(
+                    name='mode',
+                    title=_('''Type of search:
+
+                    Contains: Search for the entered text anywhere
+
+                    Whole words: Search for whole words that equal the entered text
+
+                    Regex: Interpret the entered text as a regular expression
+                    '''),
+                    E.option(_('Contains'), value='contains', selected=mode=='contains'),
+                    E.option(_('Whole words'), value='word', selected=mode=='word'),
+                    E.option(_('Regex'), value='regex', selected=mode=='regex'),
+                    onchange=def(event):
+                        get_session_data().set('book_search_mode', event.target.checked)
+                ),
+            ),
+            E.div('\xa0\xa0'),
+            E.label(E.input(
+                type='checkbox', name='case_sensitive', checked=bool(sd.get('book_search_case_sensitive'))),
+                onchange=def(event):
+                        get_session_data().set('book_search_case_sensitive', event.target.value)
+                , _('Case sensitive'),
+            ),
+            E.div('\xa0\xa0'),
+            create_button(_('Return'), 'chevron-left', tooltip=_('Go back to where you were before searching'), action=self.return_to_original_position)
+        ))
+
+    @property
+    def current_query(self):
+        c = self.container
+        return {
+            'mode': c.querySelector('select[name=mode]').value,
+            'case_sensitive': c.querySelector('input[name=case_sensitive]').checked,
+            'text': c.querySelector('input[type=search]').value
+        }
 
     @property
     def worker(self):
@@ -88,7 +125,7 @@ class SearchOverlay:
 
     def queue_search(self, query, book, current_name):
         self.request_counter += 1
-        self.search_in_flight_id = self.request_counter
+        self.search_in_flight.id = self.request_counter
         self.worker.postMessage({
             'type': 'search', 'current_name': current_name, 'id': self.request_counter, 'query': query
         })
@@ -108,11 +145,11 @@ class SearchOverlay:
                 emsg = msg.error.msg
                 details = msg.error.details
             error_dialog(_('Could not search'), emsg, details)
-        elif msg.id is self.search_in_flight_id:
+        elif msg.id is self.search_in_flight.id:
             if msg.type is 'search_complete':
-                self.search_in_flight_id = None
+                self.search_in_flight.id = None
             elif msg.type is 'search_result':
-                pass
+                console.log(msg)
 
     def clear_caches(self, book):
         if self._worker:
@@ -127,21 +164,21 @@ class SearchOverlay:
     def onkeydown(self, event):
         if event.key is 'Escape' or event.key is 'Esc':
             self.hide()
-            event.preventDefault(), event.stopPropagation()
+            event.stopPropagation()
             return
         sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
         if sc_name is 'next_match':
             self.find_next()
-            event.preventDefault(), event.stopPropagation()
+            event.stopPropagation()
             return
         if sc_name is 'previous_match':
             self.find_previous()
-            event.preventDefault(), event.stopPropagation()
+            event.stopPropagation()
             return
 
     @property
     def container(self):
-        return document.getElementById('book-search-overlay')
+        return document.getElementById(self.CONTAINER_ID)
 
     @property
     def search_text(self):
@@ -160,7 +197,7 @@ class SearchOverlay:
 
     def show(self):
         c = self.container
-        c.style.display = 'block'
+        c.style.display = self.display_type
         inp = c.querySelector('input')
         inp.focus(), inp.select()
 

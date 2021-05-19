@@ -74,6 +74,8 @@ defaults = {
     'tts': v'{}',
     'tts_backend': v'{}',
     'fullscreen_when_opening': 'auto',
+    'book_search_mode': 'contains',
+    'book_search_case_sensitive': False,
 }
 
 is_local_setting = {
@@ -107,6 +109,8 @@ is_local_setting = {
     'tts_backend': True,
     'fullscreen_when_opening': True,
     'highlights_export_format': True,
+    'book_search_mode': True,
+    'book_search_case_sensitive': True,
 }
 
 
