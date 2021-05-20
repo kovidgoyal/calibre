@@ -202,7 +202,12 @@ class SearchOverlay:
             group = E.div(
                 data_toc_node_id=toc_node_id + '',
                 data_spine_index=result.spine_idx + '',
-                E.div(toc_node?.title or _('Unknown')),
+                E.div(
+                    toc_node?.title or _('Unknown'),
+                    title=_('Click to show/hide the results in this chapter'),
+                    onclick=def(ev):
+                        ev.target.parentNode.classList.toggle('collapsed')
+                ),
                 E.ul()
             )
             appended = False
@@ -226,7 +231,7 @@ class SearchOverlay:
 
         if result.before:
             entry.appendChild(E.span('…' + result.before + ' '))
-        entry.appendChild(E.b(result.text))
+        entry.appendChild(E.strong(result.text))
         if result.after:
             entry.appendChild(E.span(' ' + result.after + '…'))
         ul.appendChild(entry)
@@ -291,10 +296,12 @@ class SearchOverlay:
 add_extra_css(def():
     css = ''
     sel = f'#{SearchOverlay.CONTAINER_ID} '
-    sel += ' div[data-toc-node-id] '
+    sel += ' div[data-toc-node-id]'
     css += build_rule(sel, margin='1rem')
+    css += build_rule(sel + '.collapsed ul', display='none')
     css += build_rule(sel + ' > div', font_style='italic', font_weight='bold', cursor='pointer')
-    css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0')
+    css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0', cursor='pointer')
+    css += build_rule(sel + ' li strong', color=get_color('link-foreground'), font_style='italic')
     return css
 )
 
