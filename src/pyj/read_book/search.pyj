@@ -273,6 +273,14 @@ class SearchOverlay:
     def search_result_discovered(self, sr):
         self.make_result_current(sr.result_num)
 
+    def search_result_not_found(self, sr):
+        if sr.on_discovery:
+            return
+        error_dialog(
+            _('Search result not found'), _(
+                'This search result matches text that is hidden in the book and cannot be displayed'))
+        self.show()
+
     def result_clicked(self, rnum):
         sr = Object.assign({}, self.result_map[rnum])
         sr.on_discovery = 0
