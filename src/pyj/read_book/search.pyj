@@ -69,10 +69,10 @@ class SearchOverlay:
 
         create_top_bar(c, title=_('Search in book'), action=self.hide, icon='close')
 
-        search_button = create_button(_('Search'), 'search', action=self.run_search)
+        search_button = create_button(_('Search'), 'search')
         c.appendChild(E.div(
             style='display: flex; padding: 1rem; padding-bottom: 0.5rem; overflow: hidden',
-            create_search_bar(self.find_next, 'search-in-book', button=search_button),
+            create_search_bar(self.run_search, 'search-in-book', button=search_button),
             E.div('\xa0\xa0'), search_button,
         ))
         c.lastChild.firstChild.style.flexGrow = '100'
@@ -108,7 +108,7 @@ class SearchOverlay:
                 , _('Case sensitive'),
             ),
             E.div('\xa0\xa0'),
-            create_button(_('Return'), 'chevron-left', tooltip=_('Go back to where you were before searching'), action=self.return_to_original_position)
+            create_button(_('Return'), 'chevron-left', action=self.return_to_original_position, tooltip=_('Go back to where you were before searching'))
         ))
 
         c.appendChild(E.hr())
@@ -175,12 +175,22 @@ class SearchOverlay:
 
     def queue_search(self, query, book, current_name):
         self.request_counter += 1
+        self.original_position = self.view.currently_showing.bookpos
+        self.view.get_current_cfi('search-original-pos', self.set_original_pos)
         self.search_in_flight.id = self.request_counter
         self.worker.postMessage({
             'type': 'search', 'current_name': current_name, 'id': self.request_counter, 'query': query
         })
         self.clear_results()
         self.show_wait()
+
+    def set_original_pos(self, request_id, data):
+        self.original_position = data.cfi
+
+    def return_to_original_position(self):
+        if self.original_position:
+            self.view.goto_cfi(self.original_position)
+        self.hide()
 
     def on_worker_message(self, evt):
         msg = evt.data
