@@ -113,7 +113,7 @@ class SearchOverlay:
 
         c.appendChild(E.hr())
         c.appendChild(E.div(
-            style='display: none; overflow: auto',
+            style='display: none; overflow: auto', tabindex='0',
             E.div(
                 style='text-align: center',
                 E.div(create_spinner('4em', '4em')),
@@ -160,6 +160,7 @@ class SearchOverlay:
         c.style.display = 'block'
         c.firstChild.style.display = 'none'
         c.lastChild.style.display = 'block'
+        c.focus()
 
     def clear_results(self):
         clear(self.results_container)
