@@ -203,10 +203,11 @@ class SearchOverlay:
                 data_toc_node_id=toc_node_id + '',
                 data_spine_index=result.spine_idx + '',
                 E.div(
-                    toc_node?.title or _('Unknown'),
+                    E.span('+\xa0', style='display: none'),
+                    E.span(toc_node?.title or _('Unknown')),
                     title=_('Click to show/hide the results in this chapter'),
                     onclick=def(ev):
-                        ev.target.parentNode.classList.toggle('collapsed')
+                        ev.target.closest('[data-toc-node-id]').classList.toggle('collapsed')
                 ),
                 E.ul()
             )
@@ -298,7 +299,8 @@ add_extra_css(def():
     sel = f'#{SearchOverlay.CONTAINER_ID} '
     sel += ' div[data-toc-node-id]'
     css += build_rule(sel, margin='1rem')
-    css += build_rule(sel + '.collapsed ul', display='none')
+    css += sel + '.collapsed > div > span { display: inline !important; }'
+    css += build_rule(sel + '.collapsed > ul', display='none')
     css += build_rule(sel + ' > div', font_style='italic', font_weight='bold', cursor='pointer')
     css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0', cursor='pointer')
     css += build_rule(sel + ' li strong', color=get_color('link-foreground'), font_style='italic')
