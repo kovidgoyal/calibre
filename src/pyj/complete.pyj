@@ -11,7 +11,7 @@ from utils import uniq
 class EditWithComplete:
 
     def __init__(self, name, placeholder=None, tooltip=None, parent=None, input_type='text', onenterkey=None):
-        inpt = E.input(type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '')
+        inpt = E.input(type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '', autocomplete='off')
         self.input_id = ensure_id(inpt)
         self.onenterkey = onenterkey
         self.completion_popup = CompletionPopup(parent=parent, onselect=self.apply_completion)
