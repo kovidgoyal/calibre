@@ -131,12 +131,13 @@ def ensure_id(w, prefix):
     return ans
 
 extra_css = v'[]'
-
-def add_extra_css(func):
-    extra_css.push(func())
+add_extra_css = extra_css.push.bind(extra_css)
 
 def get_widget_css():
-    return extra_css.join('\n')
+    ans = v'[]'
+    for func in extra_css:
+        ans.push(func())
+    return ans.join('\n')
 
 
 def set_radio_group_value(parent, name, val):
