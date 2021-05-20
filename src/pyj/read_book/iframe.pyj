@@ -750,6 +750,9 @@ class IframeBoss:
             self.scroll_to_ref(refnum)
 
     def show_search_result(self, data, from_load):
+        if self.load_search_result_timer:
+            window.clearTimeout(self.load_search_result_timer)
+            self.load_search_result_timer = None
         sr = data.search_result
         if sr.on_discovery:
             if sr.result_num is 1:
@@ -759,7 +762,11 @@ class IframeBoss:
         self.last_search_at = window.performance.now()
         x, y = scroll_viewport.x(), scroll_viewport.y()
         if select_search_result(sr):
-            self.ensure_selection_visible()
+            self.ensure_selection_boundary_visible()
+            if from_load and current_layout_mode() is 'paged':
+                # workaround bug in chrome where sizes are incorrect in paged
+                # mode on initial load for some books
+                self.load_search_result_timer = window.setTimeout(self.ensure_selection_boundary_visible, 750)
             if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
                 discovered = False
                 if progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
