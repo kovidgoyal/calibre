@@ -89,6 +89,7 @@ class ReadUI:
         ui_operations.tts = self.tts.bind(self)
         ui_operations.search_result_discovered = self.view.search_overlay.search_result_discovered
         ui_operations.search_result_not_found = self.view.search_overlay.search_result_not_found
+        ui_operations.find_next = self.view.search_overlay.find_next
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text, html):

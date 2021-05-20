@@ -66,6 +66,7 @@ class SearchOverlay:
         c.style.alignItems = 'stretch'
         c.style.overflow = 'hidden'
         c.addEventListener('keydown', self.onkeydown)
+        c.addEventListener('keyup', self.onkeyup)
 
         create_top_bar(c, title=_('Search in book'), action=self.hide, icon='close')
 
@@ -292,11 +293,14 @@ class SearchOverlay:
                 'This search result matches text that is hidden in the book and cannot be displayed'))
         self.show()
 
-    def result_clicked(self, rnum):
-        sr = Object.assign({}, self.result_map[rnum])
+    def select_search_result_in_book(self, result_num):
+        sr = Object.assign({}, self.result_map[result_num])
         sr.on_discovery = 0
-        self.make_result_current(rnum)
         self.view.show_search_result(sr)
+
+    def result_clicked(self, rnum):
+        self.make_result_current(rnum)
+        self.select_search_result_in_book(rnum)
         self.hide()
 
     def clear_caches(self, book):
@@ -323,12 +327,16 @@ class SearchOverlay:
             rnum = 1
         self.make_result_current(rnum)
         self.results_container.focus()
+        cr = self.current_result_container
+        if cr:
+            self.select_search_result_in_book(cr.dataset.resultNum)
 
-    def onkeydown(self, event):
+    def onkeyup(self, event):
         if event.key is 'Escape' or event.key is 'Esc':
             self.hide()
             event.stopPropagation(), event.preventDefault()
-            return
+
+    def onkeydown(self, event):
         sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
         if sc_name is 'next_match':
             self.next_match(1)
@@ -338,6 +346,9 @@ class SearchOverlay:
             self.next_match(-1)
             event.stopPropagation(), event.preventDefault()
             return
+
+    def find_next(self, backwards):
+        self.next_match(-1 if backwards else 1)
 
     @property
     def container(self):
