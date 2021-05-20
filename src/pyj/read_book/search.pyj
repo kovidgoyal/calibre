@@ -65,6 +65,7 @@ class SearchOverlay:
         c.style.flexDirection = 'column'
         c.style.alignItems = 'stretch'
         c.style.overflow = 'hidden'
+        c.style.userSelect = 'none'
         c.addEventListener('keydown', self.onkeydown)
         c.addEventListener('keyup', self.onkeyup)
 
