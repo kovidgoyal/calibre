@@ -8,7 +8,7 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from complete import create_search_bar
-from dom import clear
+from dom import clear, add_extra_css, build_rule
 from gettext import gettext as _, ngettext
 from modals import error_dialog
 from read_book.globals import current_book, ui_operations
@@ -94,14 +94,14 @@ class SearchOverlay:
                     E.option(_('Whole words'), value='word', selected=mode=='word'),
                     E.option(_('Regex'), value='regex', selected=mode=='regex'),
                     onchange=def(event):
-                        get_session_data().set('book_search_mode', event.target.checked)
+                        get_session_data().set('book_search_mode', event.target.value)
                 ),
             ),
             E.div('\xa0\xa0'),
             E.label(E.input(
                 type='checkbox', name='case_sensitive', checked=bool(sd.get('book_search_case_sensitive'))),
                 onchange=def(event):
-                        get_session_data().set('book_search_case_sensitive', event.target.value)
+                        get_session_data().set('book_search_case_sensitive', event.target.checked)
                 , _('Case sensitive'),
             ),
             E.div('\xa0\xa0'),
@@ -199,11 +199,10 @@ class SearchOverlay:
         c = self.results_container
         group = c.querySelector(f'[data-toc-node-id="{toc_node_id}"]')
         if not group:
-            title = toc_node?.title or _('Unknown')
             group = E.div(
                 data_toc_node_id=toc_node_id + '',
                 data_spine_index=result.spine_idx + '',
-                E.div(title, style='font-style: italic'),
+                E.div(toc_node?.title or _('Unknown')),
                 E.ul()
             )
             appended = False
@@ -287,6 +286,17 @@ class SearchOverlay:
             self.show_results()
         else:
             self.queue_search(q, current_book(), self.view.currently_showing.name)
+
+
+add_extra_css(def():
+    css = ''
+    sel = f'#{SearchOverlay.CONTAINER_ID} '
+    sel += ' div[data-toc-node-id] '
+    css += build_rule(sel, margin='1rem')
+    css += build_rule(sel + ' > div', font_style='italic', font_weight='bold', cursor='pointer')
+    css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0')
+    return css
+)
 
 
 main = worker_main
