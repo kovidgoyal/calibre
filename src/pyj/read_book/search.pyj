@@ -311,19 +311,32 @@ class SearchOverlay:
             }
             self.worker.postMessage({'type': 'clear_caches', 'book': data})
 
+    def next_match(self, delta):
+        delta = delta or 1
+        num_of_results = Object.keys(self.result_map).length
+        c = self.current_result_container
+        if c:
+            rnum = parseInt(c.dataset.resultNum) - 1
+            rnum = (rnum + delta + num_of_results) % num_of_results
+            rnum += 1
+        else:
+            rnum = 1
+        self.make_result_current(rnum)
+        self.results_container.focus()
+
     def onkeydown(self, event):
         if event.key is 'Escape' or event.key is 'Esc':
             self.hide()
-            event.stopPropagation()
+            event.stopPropagation(), event.preventDefault()
             return
         sc_name = shortcut_for_key_event(event, self.view.keyboard_shortcut_map)
         if sc_name is 'next_match':
-            self.find_next()
-            event.stopPropagation()
+            self.next_match(1)
+            event.stopPropagation(), event.preventDefault()
             return
         if sc_name is 'previous_match':
-            self.find_previous()
-            event.stopPropagation()
+            self.next_match(-1)
+            event.stopPropagation(), event.preventDefault()
             return
 
     @property
