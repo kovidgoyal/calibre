@@ -8,14 +8,15 @@ from book_list.globals import get_session_data
 from book_list.theme import get_color
 from book_list.top_bar import create_top_bar
 from complete import create_search_bar
-from gettext import gettext as _
+from dom import clear
+from gettext import gettext as _, ngettext
 from modals import error_dialog
 from read_book.globals import current_book, ui_operations
 from read_book.search_worker import (
     CONNECT_FAILED, DB_ERROR, GET_SPINE_FAILED, UNHANDLED_ERROR, worker_main
 )
 from read_book.shortcuts import shortcut_for_key_event
-from widgets import create_button
+from widgets import create_button, create_spinner
 from worker import start_worker
 
 
@@ -56,25 +57,27 @@ class SearchOverlay:
         self.search_in_flight = {'id': None, 'mode': 'contains', 'case_sensitive': False}
         self._worker = None
         self.request_counter = 0
+        self.result_map = {}
         c = self.container
         c.style.backgroundColor = get_color('window-background')
+        c.style.maxHeight = '100%'
+        c.style.overflow = 'auto'
         c.addEventListener('keydown', self.onkeydown)
 
         create_top_bar(c, title=_('Search in book'), action=self.hide, icon='close')
 
-        next_button = create_button(_('Next'), 'chevron-down', tooltip=_('Next match'))
-        prev_button = create_button(_('Prev'), 'chevron-up', tooltip=_('Previous match'), action=self.find_previous)
+        search_button = create_button(_('Search'), 'search', action=self.run_search)
         c.appendChild(E.div(
             style='display: flex; padding: 1rem; padding-bottom: 0.5rem; overflow: hidden',
-            create_search_bar(self.find_next, 'search-in-book', button=next_button, associated_widgets=[prev_button]),
-            E.div('\xa0\xa0'), next_button, E.div('\xa0\xa0'), prev_button
+            create_search_bar(self.find_next, 'search-in-book', button=search_button),
+            E.div('\xa0\xa0'), search_button,
         ))
         c.lastChild.firstChild.style.flexGrow = '100'
         sd = get_session_data()
         mode = sd.get('book_search_mode')
 
         c.appendChild(E.div(
-            style='display: flex; padding: 1rem; padding-top: 0.5rem; align-items: center; overflow: hidden',
+            style='display: flex; padding: 1rem; padding-top: 0.5rem; padding-bottom: 0; align-items: center; overflow: hidden',
             E.label(
                 _('Search type:') + '\xa0',
                 E.select(
@@ -105,6 +108,18 @@ class SearchOverlay:
             create_button(_('Return'), 'chevron-left', tooltip=_('Go back to where you were before searching'), action=self.return_to_original_position)
         ))
 
+        c.appendChild(E.hr())
+        c.appendChild(E.div(
+            style='display: none',
+            E.div(
+                style='text-align: center',
+                E.div(create_spinner('4em', '4em')),
+                E.div(_('Searching, please wait…'), style='margin-top: 1ex'),
+            ),
+            E.div(
+            ),
+        ))
+
     @property
     def current_query(self):
         c = self.container
@@ -113,6 +128,30 @@ class SearchOverlay:
             'case_sensitive': c.querySelector('input[name=case_sensitive]').checked,
             'text': c.querySelector('input[type=search]').value
         }
+
+    @property
+    def bottom_container(self):
+        return self.container.lastChild
+
+    @property
+    def results_container(self):
+        return self.bottom_container.lastChild
+
+    def show_wait(self):
+        c = self.bottom_container
+        c.style.display = 'block'
+        c.firstChild.style.display = 'block'
+        c.lastChild.style.display = 'none'
+
+    def show_results(self):
+        c = self.bottom_container
+        c.style.display = 'block'
+        c.firstChild.style.display = 'none'
+        c.lastChild.style.display = 'block'
+
+    def clear_results(self):
+        clear(self.results_container)
+        self.result_map = {}
 
     @property
     def worker(self):
@@ -128,6 +167,8 @@ class SearchOverlay:
         self.worker.postMessage({
             'type': 'search', 'current_name': current_name, 'id': self.request_counter, 'query': query
         })
+        self.clear_results()
+        self.show_wait()
 
     def on_worker_message(self, evt):
         msg = evt.data
@@ -148,9 +189,52 @@ class SearchOverlay:
             if msg.type is 'search_complete':
                 self.search_in_flight.id = None
             elif msg.type is 'search_result':
-                console.log(msg)
+                self.result_received(msg.result)
+
+    def result_received(self, result):
+        self.show_results()
+        self.result_map[result.result_num] = result
+        toc_node_id = result.toc_nodes[0] if result.toc_nodes.length else -1
+        toc_node = self.toc_data.toc_id_map[toc_node_id]
+        c = self.results_container
+        group = c.querySelector(f'[data-toc-node-id="{toc_node_id}"]')
+        if not group:
+            title = toc_node?.title or _('Unknown')
+            group = E.div(
+                data_toc_node_id=toc_node_id + '',
+                data_spine_index=result.spine_idx + '',
+                E.div(title, style='font-style: italic'),
+                E.ul()
+            )
+            appended = False
+            for child in c.querySelectorAll('[data-spine-index]'):
+                csi = parseInt(child.dataset.spineIndex)
+                if csi > result.spine_idx:
+                    appended = True
+                    c.insertBefore(group, child)
+                    break
+            if not appended:
+                c.appendChild(group)
+        ul = group.getElementsByTagName('ul')[0]
+        tt = ''
+        if result.toc_nodes.length:
+            lines = v'[]'
+            for i, node_id in enumerate(result.toc_nodes):
+                lines.push('\xa0\xa0' * i + '➤ ' + (self.toc_data.toc_id_map[node_id]?.title or _('Unknown')))
+            tt = ngettext('Table of Contents section:', 'Table of Contents sections:', lines.length)
+            tt += '\n' + lines.join('\n')
+        entry = E.li(title=tt)
+
+        if result.before:
+            entry.appendChild(E.span('…' + result.before + ' '))
+        entry.appendChild(E.b(result.text))
+        if result.after:
+            entry.appendChild(E.span(' ' + result.after + '…'))
+        ul.appendChild(entry)
 
     def clear_caches(self, book):
+        self.clear_results()
+        self.bottom_container.style.display = 'none'
         if self._worker:
             book = book or current_book()
             self.toc_data = get_toc_data(book)
@@ -196,15 +280,13 @@ class SearchOverlay:
         inp = c.querySelector('input')
         inp.focus(), inp.select()
 
-    def find(self, text, backwards):
-        if not text:
-            return
-
-    def find_next(self):
-        self.find(self.search_text, False)
-
-    def find_previous(self):
-        self.find(self.search_text, True)
+    def run_search(self):
+        q = self.current_query
+        if not q.text:
+            self.clear_results()
+            self.show_results()
+        else:
+            self.queue_search(q, current_book(), self.view.currently_showing.name)
 
 
 main = worker_main
