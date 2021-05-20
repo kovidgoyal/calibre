@@ -50,14 +50,17 @@ def find_first_rule_that_matches_elem(
     if recursion_level > 16:
         return None
     rule_address = rule_address or []
+    num_comment_rules = 0
     for i, rule in enumerate(rules):
         if rule.type == CSSRule.STYLE_RULE:
             if rule_matches_elem(rule, elem, select, class_name):
-                return RuleLocation(rule_address + [i], current_file_name)
+                return RuleLocation(rule_address + [i - num_comment_rules], current_file_name)
+        elif rule.type == CSSRule.COMMENT:
+            num_comment_rules += 1
         elif rule.type == CSSRule.MEDIA_RULE:
             res = find_first_rule_that_matches_elem(
                 container, elem, select, class_name, rule.cssRules,
-                current_file_name, recursion_level + 1, rule_address + [i]
+                current_file_name, recursion_level + 1, rule_address + [i - num_comment_rules]
             )
             if res is not None:
                 return res
