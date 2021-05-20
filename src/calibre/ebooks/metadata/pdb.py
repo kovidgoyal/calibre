@@ -43,7 +43,10 @@ def get_metadata(stream, extract_cover=True):
     MetadataReader = MREADER.get(pheader.ident, None)
 
     if MetadataReader is None:
-        return MetaInformation(pheader.title, [_('Unknown')])
+        t = pheader.title
+        if isinstance(t, bytes):
+            t = t.decode('utf-8', 'replace')
+        return MetaInformation(t, [_('Unknown')])
 
     return MetadataReader(stream, extract_cover)
 
@@ -59,4 +62,4 @@ def set_metadata(stream, mi):
         MetadataWriter(stream, mi)
 
     stream.seek(0)
-    stream.write('%s\x00' % re.sub('[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace'))
+    stream.write(re.sub('[^-A-Za-z0-9 ]+', '_', mi.title).ljust(31, '\x00')[:31].encode('ascii', 'replace') + b'\x00')
