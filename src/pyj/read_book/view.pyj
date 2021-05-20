@@ -1392,8 +1392,9 @@ class View:
         if self.search_result_discovery?.on_discovery is sr.on_discovery:
             self.search_result_discovery.in_flight = None
             if discovered:
-                self.search_result_discovery.discovered = True
-                ui_operations.search_result_discovered(sr)
+                if not self.search_result_discovery.discovered:
+                    self.search_result_discovery.discovered = True
+                    ui_operations.search_result_discovered(sr)
             elif not self.search_result_discovery.discovered and self.search_result_discovery.queue.length:
                 self.show_search_result(self.search_result_discovery.queue.shift())
 

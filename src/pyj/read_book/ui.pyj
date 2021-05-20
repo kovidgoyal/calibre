@@ -87,6 +87,7 @@ class ReadUI:
         ui_operations.view_image = self.view_image.bind(self)
         ui_operations.speak_simple_text = self.speak_simple_text.bind(self)
         ui_operations.tts = self.tts.bind(self)
+        ui_operations.search_result_discovered = self.view.search_overlay.search_result_discovered
         ui_operations.open_url = def(url):
             window.open(url, '_blank')
         ui_operations.copy_selection = def(text, html):

@@ -49,7 +49,7 @@ def get_toc_data(book):
 
 class SearchOverlay:
 
-    display_type = 'block'
+    display_type = 'flex'
     CONTAINER_ID = 'book-search-overlay'
 
     def __init__(self, view):
@@ -60,8 +60,11 @@ class SearchOverlay:
         self.result_map = {}
         c = self.container
         c.style.backgroundColor = get_color('window-background')
-        c.style.maxHeight = '100%'
-        c.style.overflow = 'auto'
+        c.style.maxHeight = '100vh'
+        c.style.minHeight = '100vh'
+        c.style.flexDirection = 'column'
+        c.style.alignItems = 'stretch'
+        c.style.overflow = 'hidden'
         c.addEventListener('keydown', self.onkeydown)
 
         create_top_bar(c, title=_('Search in book'), action=self.hide, icon='close')
@@ -110,15 +113,17 @@ class SearchOverlay:
 
         c.appendChild(E.hr())
         c.appendChild(E.div(
-            style='display: none',
+            style='display: none; overflow: auto',
             E.div(
                 style='text-align: center',
                 E.div(create_spinner('4em', '4em')),
                 E.div(_('Searching, please wait…'), style='margin-top: 1ex'),
             ),
-            E.div(
-            ),
+            E.div(),
         ))
+        for child in c.childNodes:
+            if child is not c.lastChild:
+                child.style.flexShrink = '0'
 
     @property
     def current_query(self):
@@ -128,6 +133,13 @@ class SearchOverlay:
             'case_sensitive': c.querySelector('input[name=case_sensitive]').checked,
             'text': c.querySelector('input[type=search]').value
         }
+
+    @current_query.setter
+    def current_query(self, q):
+        c = self.container
+        c.querySelector('select[name=mode]').value = q.mode or 'contains'
+        c.querySelector('input[name=case_sensitive]').checked = bool(q.case_sensitive)
+        c.querySelector('input[type=search]').value = q.text or ''
 
     @property
     def bottom_container(self):
@@ -194,6 +206,8 @@ class SearchOverlay:
     def result_received(self, result):
         self.show_results()
         self.result_map[result.result_num] = result
+        sr = Object.assign({}, result)
+        self.view.discover_search_result(sr)
         toc_node_id = result.toc_nodes[0] if result.toc_nodes.length else -1
         toc_node = self.toc_data.toc_id_map[toc_node_id]
         c = self.results_container
@@ -228,14 +242,43 @@ class SearchOverlay:
                 lines.push('\xa0\xa0' * i + '➤ ' + (self.toc_data.toc_id_map[node_id]?.title or _('Unknown')))
             tt = ngettext('Table of Contents section:', 'Table of Contents sections:', lines.length)
             tt += '\n' + lines.join('\n')
-        entry = E.li(title=tt)
+        rnum = result.result_num
+        entry = E.li(title=tt, data_result_num=rnum + '', onclick=self.result_clicked.bind(None, rnum))
 
         if result.before:
-            entry.appendChild(E.span('…' + result.before + ' '))
+            entry.appendChild(E.span('…' + result.before))
         entry.appendChild(E.strong(result.text))
         if result.after:
-            entry.appendChild(E.span(' ' + result.after + '…'))
+            entry.appendChild(E.span(result.after + '…'))
         ul.appendChild(entry)
+
+    def make_query_programmatically(self, text, mode, case_sensitive):
+        self.current_query = {'text': text, 'mode': mode, 'case_sensitive': case_sensitive}
+        self.show()
+        self.run_search()
+
+    @property
+    def current_result_container(self):
+        return self.container.querySelector('.current')
+
+    def make_result_current(self, result_num):
+        q = result_num + ''
+        for li in self.container.querySelectorAll('[data-result-num]'):
+            if li.dataset.resultNum is q:
+                li.classList.add('current')
+                li.scrollIntoView()
+            else:
+                li.classList.remove('current')
+
+    def search_result_discovered(self, sr):
+        self.make_result_current(sr.result_num)
+
+    def result_clicked(self, rnum):
+        sr = Object.assign({}, self.result_map[rnum])
+        sr.on_discovery = 0
+        self.make_result_current(rnum)
+        self.view.show_search_result(sr)
+        self.hide()
 
     def clear_caches(self, book):
         self.clear_results()
@@ -303,6 +346,7 @@ add_extra_css(def():
     css += build_rule(sel + '.collapsed > ul', display='none')
     css += build_rule(sel + ' > div', font_style='italic', font_weight='bold', cursor='pointer')
     css += build_rule(sel + ' li', list_style_type='none', margin='1rem', margin_right='0', cursor='pointer')
+    css += build_rule(sel + ' li.current', border_left='solid 2px ' + get_color('link-foreground'), padding_left='2px')
     css += build_rule(sel + ' li strong', color=get_color('link-foreground'), font_style='italic')
     return css
 )
