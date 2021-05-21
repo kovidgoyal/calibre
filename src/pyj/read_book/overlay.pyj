@@ -479,6 +479,8 @@ class TOCOverlay(SimpleOverlay): # {{{
         self.title = title or _('Table of Contents')
 
     def show(self, container):
+        container.appendChild(E.div())
+        container = container.firstChild
         simple_overlay_title(self.title, self.overlay, container)
         self.create_func(self.overlay.view.book, container, self.handle_activate)
 

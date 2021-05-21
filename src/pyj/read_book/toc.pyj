@@ -172,7 +172,7 @@ def create_toc_panel(book, container, onclick):
             onclick(li.dataset.tocDest, li.dataset.tocFrag)
     toc_panel = create_toc_tree(book.manifest.toc, handle_click)
     toc_panel_id = ensure_id(toc_panel)
-    set_css(container, display='flex', flex_direction='column')
+    set_css(container, display='flex', flex_direction='column', height='100%', min_height='100%', overflow='hidden', max_height='100vh', max_width='100vw')
     set_css(toc_panel, flex_grow='10')
     container.appendChild(toc_panel)
     search_button = E.div(class_='simple-link', svgicon('search'))
@@ -180,6 +180,11 @@ def create_toc_panel(book, container, onclick):
     search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
     set_css(search_bar, flex_grow='10', margin_right='1em')
     container.appendChild(E.div(style='margin: 1ex 1em; display: flex; align-items: center', search_bar, search_button))
+    for child in container.childNodes:
+        child.style.flexShrink = '0'
+    toc_panel.style.flexGrow = '100'
+    toc_panel.style.flexShrink = '1'
+    toc_panel.style.overflow = 'auto'
 
 
 def current_toc_anchor_map(tam, anchor_funcs):
