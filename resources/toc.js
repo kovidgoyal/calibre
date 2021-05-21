@@ -67,7 +67,7 @@
         if (settings.is_dark_theme) { css += dark_css; }
         var style = document.createElement('style');
         style.textContent = css;
-        document.body.appendChild(style);
+        document.documentElement.appendChild(style);
     }
 
     apply_body_colors();
