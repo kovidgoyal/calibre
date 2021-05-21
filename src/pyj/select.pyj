@@ -190,6 +190,23 @@ def selection_extents(in_flow_mode):
     return range_extents(sel.getRangeAt(0), in_flow_mode)
 
 
+def is_start_closer_to_point(pos):
+    sel = window.getSelection()
+    if not sel.rangeCount:
+        return
+    p = caret_position_from_point(pos.x, pos.y)
+    if p:
+        r = sel.getRangeAt(0)
+        sr = document.createRange()
+        sr.setStart(r.startContainer, r.startOffset)
+        sr.setEnd(p.offsetNode, p.offset)
+        er = document.createRange()
+        er.setStart(p.offsetNode, p.offset)
+        er.setEnd(r.endContainer, r.endOffset)
+        return sr.toString().length < er.toString().length
+    return False
+
+
 def move_end_of_selection(pos, start):
     sel = window.getSelection()
     if not sel.rangeCount:

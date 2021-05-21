@@ -67,7 +67,8 @@ from read_book.touch import (
 )
 from read_book.viewport import scroll_viewport
 from select import (
-    first_visible_word, move_end_of_selection, selection_extents, word_at_point
+    first_visible_word, is_start_closer_to_point, move_end_of_selection,
+    selection_extents, word_at_point
 )
 from utils import debounce, is_ios
 
@@ -809,7 +810,7 @@ class IframeBoss:
             except:
                 (console.error or console.log)('Failed to extend selection to paragraph')
         elif dtype is 'extend-to-point':
-            move_end_of_selection(data.pos, None)
+            move_end_of_selection(data.pos, is_start_closer_to_point(data.pos))
         elif dtype is 'drag-scroll':
             self.scroll_to_extend_annotation(data.backwards)
         elif dtype is 'edit-highlight':
