@@ -28,10 +28,11 @@
 :: new features
 
 - Content server viewer: Improved search functionality
+
 Searching can now be done for whole words and regular expressions. And all search results are
 listed at once with some context for easy navigation.
 
-- [1928596] E-book viewer: Allow fullscreening the image popup
+- [1928596] E-book viewer: Allow making the image popup full screen
 
 - E-book viewer: Allow expanding/collapsing all items in the Table of Contents at a particular level by right clicking on one item of that level and choosing the option to expand/collapse
 

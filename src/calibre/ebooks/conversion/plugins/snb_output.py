@@ -46,7 +46,7 @@ class SNBOutput(OutputFormatPlugin):
             'chapter. Useful for image-only output (eg. comics).')),
         OptionRecommendation(name='snb_full_screen',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Resize all the images for full screen view. ')),
+            help=_('Resize all the images for full screen mode. ')),
      }
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
