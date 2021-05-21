@@ -43,8 +43,9 @@
         for (let elem of document.body.getElementsByTagName('*')) {  
             var style = window.getComputedStyle(elem);
             if (style.display === 'block' || style.display === 'flex-box' || style.display === 'box') {
-                elem.classList.add("calibre_toc_hover");
-                elem.onclick = onclick;
+                elem.addEventListener('click', onclick);
+                elem.addEventListener('mouseover', function(ev) { this.classList.add('calibre_toc_hover'); ev.stopPropagation(); });
+                elem.addEventListener('mouseout', function(ev) { this.classList.remove('calibre_toc_hover'); ev.stopPropagation(); });
             }
         }
     }
