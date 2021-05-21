@@ -43,8 +43,7 @@
    <item row="0" column="1">
     <widget class="QLabel" name="msg">
      <property name="text">
-      <string>&lt;p&gt;This book is locked by &lt;b&gt;DRM&lt;/b&gt;. To learn more about DRM and why you cannot read or convert this book in calibre, 
-          &lt;a href=&quot;https://manual.calibre-ebook.com/drm.html&quot;&gt;click here&lt;/a&gt;.&lt;p&gt;</string>
+      <string/>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
