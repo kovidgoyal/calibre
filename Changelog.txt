@@ -23,6 +23,51 @@
 # - title by author
 # }}}
 
+{{{ 5.18.0 2021-05-21
+
+:: new features
+
+- Content server viewer: Improved search functionality
+Searching can now be done for whole words and regular expressions. And all search results are
+listed at once with some context for easy navigation.
+
+- [1928596] E-book viewer: Allow fullscreening the image popup
+
+- E-book viewer: Allow expanding/collapsing all items in the Table of Contents at a particular level by right clicking on one item of that level and choosing the option to expand/collapse
+
+- E-book viewer: Add shortcuts shift+home and shift+end to extend current selection to start/end of line
+
+- [1927520] Book details: When creating rules to convert identifiers to URLs allow using {id_unquoted} to avoid quoting the identifier value
+
+- [1927062] Review downloaded metadata: Allow double clicking on a cover to see it at a larger size
+
+- [1927012] Annotations browser: Add a Refresh button
+
+
+:: bug fixes
+
+- Edit book: Fix ctrl-clicking on a class name jumping to the wrong CSS rule if the stylesheet contains top level comments
+
+- [1928579] Fix search and replace on identifiers not working if the replaced value has colons
+
+- [1922691] Annotations browser: Sort the entries in order of position in book
+
+- ToC editor: Dark mode: Fix colors in location selection panel not dark
+
+- [1926793] E-book viewer: Fix right or shift-clicking to extend selection not shrinking selection when the click is inside the selection
+- [1927546] Avoid spurious errors on multiple simultaneous calibre launches
+
+- [1925961] E-book viewer: Ignore mouse scroll events that would turn pages when editing notes
+
+- E-book viewer: Fix sorting bookmarks by title not working
+
+- Windows WPD driver: Fix an error reading the filesystem on some MTP based devices
+
+:: improved recipes
+- IEEE Spectrum
+
+}}}
+
 {{{ 5.17.0 2021-04-30
 
 :: new features
@@ -505,7 +550,6 @@ Useful to have a "slideshow" of book covers. The speed of scrolling can be contr
 
 }}}
 
-
 {{{ 5.6.0 2020-11-27
 
 :: new features
@@ -695,7 +739,6 @@ Useful to have a "slideshow" of book covers. The speed of scrolling can be contr
 
 }}}
 
-
 {{{ 5.3.0 2020-10-16
 :: new features
 
@@ -754,7 +797,6 @@ Only works with output formats such as EPUB that support CSS transforms
 
 }}}
 
-
 {{{ 5.2.0 2020-10-07
 :: new features
 
@@ -797,7 +839,6 @@ Only works with output formats such as EPUB that support CSS transforms
 
 }}}
 
-
 {{{ 5.1.0 2020-10-02
 :: new features
 
@@ -832,7 +873,6 @@ Only works with output formats such as EPUB that support CSS transforms
 
 }}}
 
-
 {{{ 5.0.1 2020-09-25
 :: new features
 
@@ -860,7 +900,6 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 
 }}}
-
 
 {{{ 4.23.0 2020-08-21
 :: new features
@@ -906,7 +945,6 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 }}}
 
-
 {{{ 4.22.0 2020-07-31
 :: new features
 
@@ -941,7 +979,6 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 
 }}}
-
 
 {{{ 4.21.0 2020-07-16
 :: new features
@@ -981,7 +1018,6 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 
 }}}
-
 
 {{{ 4.20.0 2020-07-03
 :: new features
@@ -1026,7 +1062,6 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 }}}
 
-
 {{{ 4.19.0 2020-06-19
 :: new features
 
@@ -1054,7 +1089,6 @@ https://manual.calibre-ebook.com/viewer.html#highlighting-text
 
 
 }}}
-
 
 {{{ 4.18.0 2020-06-05
 :: new features
