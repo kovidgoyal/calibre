@@ -1046,7 +1046,7 @@ class SavedSearches(QWidget):
 
     def stack_current_changed(self, index):
         visible = index == 0
-        for x in ('eb', 'ab', 'rb', 'upb', 'dnb', 'd2', 'filter_text', 'cft', 'd3', 'ib', 'eb2'):
+        for x in ('eb', 'ab', 'rb', 'upb', 'dnb', 'd2', 'filter_text', 'd3', 'ib', 'eb2'):
             getattr(self, x).setVisible(visible)
 
     @property
