@@ -107,11 +107,10 @@ class Sfnt(object):
         return ans
 
     def get_all_font_names(self):
+        from calibre.utils.fonts.metadata import get_font_names2, FontNames
         name_table = self.get(b'name')
-        if name_table is None:
-            return {}
-        from calibre.utils.fonts.metadata import get_font_names2
-        return get_font_names2(name_table.raw, raw_is_table=True)
+        if name_table is not None:
+            return FontNames(*get_font_names2(name_table.raw, raw_is_table=True))
 
     def __call__(self, stream=None):
         stream = BytesIO() if stream is None else stream
