@@ -6,6 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import array
 from struct import unpack_from, pack, calcsize
 
 from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
@@ -55,93 +56,132 @@ class HeadTable(UnknownTable):
         self.raw = pack(self._fmt, *vals)
 
 
+def read_metrics(raw, num_of_metrics, num_of_glyphs, table_name):
+    rawsz = 4 * num_of_metrics
+    if len(raw) < rawsz:
+        raise UnsupportedFont(f'The {table_name} table has insufficient data')
+    long_hor_metric = raw[:rawsz]
+    a = read_array(long_hor_metric)
+    advances = a[0::2]
+    a = read_array(long_hor_metric, 'h')
+    bearings = a[1::2]
+    if num_of_glyphs > num_of_metrics:
+        extra = num_of_glyphs - num_of_metrics
+        raw = raw[rawsz:]
+        rawsz = 2 * extra
+        if len(raw) < rawsz:
+            raise UnsupportedFont(f'The {table_name} table has insufficient data for trailing bearings')
+        bearings += read_array(raw, 'h')
+    return advances, bearings
+
+
+def update_metrics_table(metrics_map, mtx_table):
+    recs, aw, b = [], array.array('H'), array.array('h')
+    for glyph_id in sorted(metrics_map):
+        adv, bearing = metrics_map[glyph_id]
+        aw.append(adv)
+        b.append(bearing)
+        recs.append(pack('>Hh', adv, bearing))
+    mtx_table.raw = b''.join(recs)
+    return aw, b
+
+
 class HorizontalHeader(UnknownTable):
 
     version_number = FixedProperty('_version_number')
+    field_types = (
+        '_version_number' , 'l',
+        'ascender', 'h',
+        'descender', 'h',
+        'line_gap', 'h',
+        'advance_width_max', 'H',
+        'min_left_side_bearing', 'h',
+        'min_right_side_bearing', 'h',
+        'x_max_extent', 'h',
+        'caret_slope_rise', 'h',
+        'caret_slop_run', 'h',
+        'caret_offset', 'h',
+        'r1', 'h',
+        'r2', 'h',
+        'r3', 'h',
+        'r4', 'h',
+        'metric_data_format', 'h',
+        'number_of_h_metrics', 'H',
+    )
 
-    def read_data(self, hmtx):
-        if hasattr(self, 'ascender'):
-            return
-        field_types = (
-            '_version_number' , 'l',
-            'ascender', 'h',
-            'descender', 'h',
-            'line_gap', 'h',
-            'advance_width_max', 'H',
-            'min_left_side_bearing', 'h',
-            'min_right_side_bearing', 'h',
-            'x_max_extent', 'h',
-            'caret_slope_rise', 'h',
-            'caret_slop_run', 'h',
-            'caret_offset', 'h',
-            'r1', 'h',
-            'r2', 'h',
-            'r3', 'h',
-            'r4', 'h',
-            'metric_data_format', 'h',
-            'number_of_h_metrics', 'H',
-        )
-
-        self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
-        self._fields = field_types[0::2]
+    def read_data(self, hmtx, num_glyphs):
+        self._fmt = ('>%s'%(''.join(self.field_types[1::2]))).encode('ascii')
+        self._fields = self.field_types[0::2]
 
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
-        raw = hmtx.raw
-        num = self.number_of_h_metrics
-        if len(raw) < 4*num:
-            raise UnsupportedFont('The hmtx table has insufficient data')
-        long_hor_metric = raw[:4*num]
-        a = read_array(long_hor_metric)
-        self.advance_widths = a[0::2]
-        a = read_array(long_hor_metric, 'h')
-        self.left_side_bearings = a[1::2]
+        self.advance_widths, self.left_side_bearings = read_metrics(hmtx.raw, self.number_of_h_metrics, num_glyphs, 'hmtx')
+
+    def metrics_for(self, glyph_id):
+        lsb = self.left_side_bearings[glyph_id]
+        if glyph_id >= len(self.advance_widths):
+            glyph_id = -1
+        return self.advance_widths[glyph_id], lsb
+
+    def update(self, metrics_map, mtx_table):
+        aw, b = update_metrics_table(metrics_map, mtx_table)
+        self.advance_widths = aw
+        self.left_side_bearings = b
+        self.number_of_h_metrics = len(metrics_map)
+        self.advance_width_max = max(aw or (0,))
+        self.min_left_side_bearing = min(b or (0,))
+        data = (getattr(self, x) for x in self._fields)
+        self.raw = pack('>' + ''.join(self.field_types[1::2]), *data)
 
 
 class VerticalHeader(UnknownTable):
 
     version_number = FixedProperty('_version_number')
+    field_types = (
+        '_version_number' , 'l',
+        'ascender', 'h',
+        'descender', 'h',
+        'line_gap', 'h',
+        'advance_height_max', 'H',
+        'min_top_side_bearing', 'h',
+        'min_bottom_side_bearing', 'h',
+        'y_max_extent', 'h',
+        'caret_slope_rise', 'h',
+        'caret_slop_run', 'h',
+        'caret_offset', 'h',
+        'r1', 'h',
+        'r2', 'h',
+        'r3', 'h',
+        'r4', 'h',
+        'metric_data_format', 'h',
+        'number_of_v_metrics', 'H',
+    )
 
-    def read_data(self, vmtx):
-        if hasattr(self, 'ascender'):
-            return
-        field_types = (
-            '_version_number' , 'l',
-            'ascender', 'h',
-            'descender', 'h',
-            'line_gap', 'h',
-            'advance_height_max', 'H',
-            'min_top_side_bearing', 'h',
-            'min_bottom_side_bearing', 'h',
-            'y_max_extent', 'h',
-            'caret_slope_rise', 'h',
-            'caret_slop_run', 'h',
-            'caret_offset', 'h',
-            'r1', 'h',
-            'r2', 'h',
-            'r3', 'h',
-            'r4', 'h',
-            'metric_data_format', 'h',
-            'number_of_v_metrics', 'H',
-        )
-
-        self._fmt = ('>%s'%(''.join(field_types[1::2]))).encode('ascii')
-        self._fields = field_types[0::2]
+    def read_data(self, vmtx, num_glyphs):
+        self._fmt = ('>%s'%(''.join(self.field_types[1::2]))).encode('ascii')
+        self._fields = self.field_types[0::2]
 
         for f, val in zip(self._fields, unpack_from(self._fmt, self.raw)):
             setattr(self, f, val)
 
-        raw = vmtx.raw
-        num = self.number_of_v_metrics
-        if len(raw) < 4*num:
-            raise UnsupportedFont('The vmtx table has insufficient data')
-        long_hor_metric = raw[:4*num]
-        long_hor_metric = raw[:4*num]
-        a = read_array(long_hor_metric)
-        self.advance_heights = a[0::2]
-        a = read_array(long_hor_metric, 'h')
-        self.top_side_bearings = a[1::2]
+        self.advance_heights, self.top_side_bearings = read_metrics(vmtx.raw, self.number_of_v_metrics, num_glyphs, 'vmtx')
+
+    def metrics_for(self, glyph_id):
+        tsb = self.top_side_bearings[glyph_id]
+        if glyph_id >= len(self.advance_heights):
+            glyph_id = -1
+        return self.advance_heights[glyph_id], tsb
+
+    def update(self, metrics_map, mtx_table):
+        aw, b = update_metrics_table(metrics_map, mtx_table)
+        self.advance_heights = aw
+        self.top_side_bearings = b
+        self.number_of_v_metrics = len(metrics_map)
+        self.advance_height_max = max(aw or (0,))
+        self.min_top_side_bearing = min(b or (0,))
+        data = (getattr(self, x) for x in self._fields)
+        self.raw = pack('>' + ''.join(self.field_types[1::2]), *data)
 
 
 class OS2Table(UnknownTable):

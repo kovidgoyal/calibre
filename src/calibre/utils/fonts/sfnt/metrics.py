@@ -21,14 +21,14 @@ class FontMetrics(object):
 
     def __init__(self, sfnt):
         for table in (b'head', b'hhea', b'hmtx', b'cmap', b'OS/2', b'post',
-                      b'name'):
+                      b'name', b'maxp'):
             if table not in sfnt:
                 raise UnsupportedFont('This font has no %s table'%table)
         self.sfnt = sfnt
 
         self.head = self.sfnt[b'head']
         hhea = self.sfnt[b'hhea']
-        hhea.read_data(self.sfnt[b'hmtx'])
+        hhea.read_data(self.sfnt[b'hmtx'], self.sfnt[b'maxp'].num_glyphs)
         self.ascent = hhea.ascender
         self.descent = hhea.descender
         self.bbox = (self.head.x_min, self.head.y_min, self.head.x_max,
