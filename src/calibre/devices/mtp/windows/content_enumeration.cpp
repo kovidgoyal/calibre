@@ -312,7 +312,7 @@ bulk_get_filesystem(
 
 // find_objects_in() {{{
 static bool
-find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevicePropVariantCollection> &object_ids, const wchar_t *parent_id) {
+find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevicePropVariantCollection> &object_ids, const wchar_t *parent_id, bool *enum_failed) {
     /*
      * Find all children of the object identified by parent_id.
      * The child ids are put into object_ids. Returns False if any errors
@@ -325,7 +325,8 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
     hr = content->EnumObjects(0, parent_id, NULL, &children);
     Py_END_ALLOW_THREADS;
 
-    if (FAILED(hr)) {hresult_set_exc("Failed to get children from device", hr); return false;}
+    if (FAILED(hr)) {hresult_set_exc("Failed to get children from device", hr); *enum_failed = true; return false;}
+    *enum_failed = false;
 
     hr = S_OK;
 
@@ -449,7 +450,13 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) { hresult_set_exc("Failed to create propvariantcollection", hr); return false; }
 
-    if (!find_objects_in(content, object_ids, parent_id)) return false;
+    bool enum_failed = false;
+    if (!find_objects_in(content, object_ids, parent_id, &enum_failed)) {
+        if (!enum_failed) return false;
+        fwprintf(stderr, L"Failed to EnumObjects() for object id: %s\n", parent_id);
+        if (PyErr_Occurred()) PyErr_Print();
+        return true;
+    }
 
     if (bulk_properties != NULL) {
 		if (!bulk_get_filesystem(level, device, bulk_properties, object_ids, callback, ans, subfolders.ptr())) return false;
