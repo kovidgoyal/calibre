@@ -81,6 +81,7 @@ class DeleteBook:  # {{{
         set_css(container, background_color=get_color('window-background'))
         container.appendChild(E.div(
             style='display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%',
+            tabindex='0',
             E.div(style='margin:1ex 1em; max-width: 80%',
                 E.h2(self.question),
                 E.div(style='display:flex; justify-content:flex-end; margin-top:1rem',
@@ -88,8 +89,19 @@ class DeleteBook:  # {{{
                     E.span('\xa0'),
                     create_button(_('Cancel'), action=self.cancel),
                 )
-            )
+            ),
+            onkeyup=def(ev):
+                if ev.key is 'Escape':
+                    ev.stopPropagation(), ev.preventDefault()
+                    self.cancel()
+                elif ev.key is 'Enter' or ev.key is 'Return':
+                    ev.stopPropagation(), ev.preventDefault()
+                    self.delete_book()
         ))
+        window.setTimeout(self.focus_me, 0)
+
+    def focus_me(self):
+        document.getElementById(self.container_id).lastChild.focus()
 
     def show_working(self):
         container = document.getElementById(self.container_id)
