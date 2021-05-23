@@ -1847,7 +1847,7 @@ class DB(object):
 
     def all_annotations_for_book(self, book_id, ignore_removed=False):
         for (fmt, user_type, user, data) in self.execute(
-            'SELECT id, book, format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)
+            'SELECT format, user_type, user, annot_data FROM annotations WHERE book=?', (book_id,)
         ):
             try:
                 annot = json.loads(data)
