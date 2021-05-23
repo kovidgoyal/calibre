@@ -24,6 +24,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.tab_2_button_box.accepted.connect(self.accept)
         self.tab_2_button_box.rejected.connect(self.reject)
         self.clear_button.clicked.connect(self.clear_button_pushed)
+        self.advanced_clear_button.clicked.connect(self.clear_advanced)
         self.adv_search_used = False
         self.mc = ''
 
@@ -45,6 +46,12 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.title_box.setText('')
         self.author_box.setText('')
         self.format_box.setText('')
+
+    def clear_advanced(self):
+        self.all.setText('')
+        self.phrase.setText('')
+        self.any.setText('')
+        self.none.setText('')
 
     def tokens(self, raw):
         phrases = re.findall(r'\s*".*?"\s*', raw)
