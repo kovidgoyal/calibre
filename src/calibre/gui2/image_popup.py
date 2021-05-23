@@ -84,6 +84,11 @@ class Label(QLabel):
         if v.isVisible():
             v.setValue(v.value() - dy)
 
+
+class ScrollArea(QScrollArea):
+
+    toggle_fit = pyqtSignal()
+
     def mouseDoubleClickEvent(self, ev):
         if ev.button() == Qt.MouseButton.LeftButton:
             self.toggle_fit.emit()
@@ -104,11 +109,11 @@ class ImageView(QDialog):
         self.factor = 1.0
         self.geom_name = geom_name
 
-        self.scrollarea = sa = QScrollArea()
+        self.scrollarea = sa = ScrollArea()
         sa.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignVCenter)
         sa.setBackgroundRole(QPalette.ColorRole.Dark)
         self.label = l = Label(sa)
-        l.toggle_fit.connect(self.toggle_fit)
+        sa.toggle_fit.connect(self.toggle_fit)
         sa.setWidget(l)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
