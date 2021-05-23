@@ -1273,7 +1273,8 @@ class Cache(object):
             except:
                 # This almost certainly means that the book has been deleted while
                 # the backup operation sat in the queue.
-                pass
+                import traceback
+                traceback.print_exc()
         return mi, sequence
 
     @write_api
