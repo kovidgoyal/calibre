@@ -200,6 +200,7 @@ class EbookViewer(MainWindow):
         self.dock_visibility_changed()
         self.highlights_widget.request_highlight_action.connect(self.web_view.highlight_action)
         self.highlights_widget.web_action.connect(self.web_view.generic_action)
+        self.highlights_widget.notes_edited_signal.connect(self.notes_edited)
         if continue_reading:
             self.continue_reading()
         self.setup_mouse_auto_hide()
@@ -647,6 +648,16 @@ class EbookViewer(MainWindow):
         amap = self.current_book_data['annotations_map']
         amap['highlight'] = highlights
         self.highlights_widget.refresh(highlights)
+        self.save_annotations()
+
+    def notes_edited(self, uuid, notes):
+        for h in self.current_book_data['annotations_map']['highlight']:
+            if h.get('uuid') == uuid:
+                h['notes'] = notes
+                h['timestamp'] = utcnow().isoformat()
+                break
+        else:
+            return
         self.save_annotations()
 
     def edit_book(self, file_name, progress_frac, selected_text):

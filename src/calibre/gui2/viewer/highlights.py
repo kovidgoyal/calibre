@@ -422,6 +422,7 @@ class HighlightsPanel(QWidget):
     request_highlight_action = pyqtSignal(object, object)
     web_action = pyqtSignal(object, object)
     toggle_requested = pyqtSignal()
+    notes_edited_signal = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -471,6 +472,7 @@ class HighlightsPanel(QWidget):
         if h is not None:
             h['notes'] = text
             self.web_action.emit('set-notes-in-highlight', h)
+            self.notes_edited_signal.emit(h['uuid'], text)
 
     def set_tooltips(self, rmap):
         a = rmap.get('create_annotation')
