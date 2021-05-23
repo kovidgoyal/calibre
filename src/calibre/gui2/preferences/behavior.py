@@ -11,6 +11,7 @@ from functools import partial
 
 from qt.core import Qt, QListWidgetItem
 
+from calibre.gui2.actions.choose_library import get_change_library_action_plugin
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, Setting
 from calibre.gui2.preferences.behavior_ui import Ui_Form
 from calibre.gui2 import config, info_dialog, dynamic, gprefs
@@ -102,7 +103,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         old = config['internally_viewed_formats']
         if fmts != old:
             config['internally_viewed_formats'] = fmts
-        return ConfigWidgetBase.commit(self)
+        ret = ConfigWidgetBase.commit(self)
+        # Signal a possible change of the VL at startup opt
+        get_change_library_action_plugin().rebuild_change_library_menus.emit()
+        return ret
 
     # Internally viewed formats {{{
     def internally_viewed_formats_changed(self, *args):

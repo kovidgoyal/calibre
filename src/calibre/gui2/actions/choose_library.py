@@ -200,6 +200,17 @@ class BackupStatus(QDialog):  # {{{
 
 # }}}
 
+current_change_library_action_pi = None
+
+
+def set_change_library_action_plugin(pi):
+    global current_change_library_action_pi
+    current_change_library_action_pi = pi
+
+
+def get_change_library_action_plugin():
+    return current_change_library_action_pi
+
 
 class ChooseLibraryAction(InterfaceAction):
 
@@ -210,6 +221,7 @@ class ChooseLibraryAction(InterfaceAction):
     action_add_menu = True
     action_menu_clone_qaction = _('Switch/create library')
     restore_view_state = pyqtSignal(object)
+    rebuild_change_library_menus = pyqtSignal()
 
     def genesis(self):
         self.prev_lname = self.last_lname = ''
@@ -242,6 +254,10 @@ class ChooseLibraryAction(InterfaceAction):
             self.choose_menu.addAction(ac)
             self.delete_menu = QMenu(_('Remove library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
+            self.vl_to_apply_menu = QMenu('waiting ...')
+            self.vl_to_apply_action = self.choose_menu.addMenu(self.vl_to_apply_menu)
+            self.rebuild_change_library_menus.connect(self.build_menus,
+                                                      type=Qt.ConnectionType.QueuedConnection)
             self.choose_menu.addAction(self.action_exim)
         else:
             self.choose_menu.addAction(ac)
@@ -352,6 +368,7 @@ class ChooseLibraryAction(InterfaceAction):
 
     def initialization_complete(self):
         self.library_changed(self.gui.library_view.model().db)
+        set_change_library_action_plugin(self)
 
     def switch_to_previous_library(self):
         db = self.gui.library_view.model().db
@@ -366,6 +383,8 @@ class ChooseLibraryAction(InterfaceAction):
         if os.environ.get('CALIBRE_OVERRIDE_DATABASE_PATH', None):
             return
         db = self.gui.library_view.model().db
+        lname = self.stats.library_used(db)
+        self.vl_to_apply_action.setText(_('Apply virtual library when %s is opened') % lname)
         locations = list(self.stats.locations(db))
 
         for ac in self.switch_actions:
@@ -416,9 +435,28 @@ class ChooseLibraryAction(InterfaceAction):
         self.gui.location_manager.set_switch_actions(quick_actions,
                 rename_actions, delete_actions, qs_actions,
                 self.action_choose)
+        # VL at startup
+        self.vl_to_apply_menu.clear()
+        restrictions = sorted(db.prefs['virtual_libraries'], key=sort_key)
+        # check that the virtual library choice still exists
+        vl_at_startup = db.prefs['virtual_lib_on_startup']
+        if vl_at_startup and vl_at_startup not in restrictions:
+            vl_at_startup = db.prefs['virtual_lib_on_startup'] = ''
+        restrictions.insert(0, '')
+        for vl in restrictions:
+            if vl == vl_at_startup:
+                self.vl_to_apply_menu.addAction(QIcon(I('ok.png')), vl if vl else _('No virtual library'),
+                                                Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
+            else:
+                self.vl_to_apply_menu.addAction(vl if vl else _('No virtual library'),
+                                                Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
         # Allow the cloned actions in the OS X global menubar to update
         for a in (self.qaction, self.menuless_qaction):
             a.changed.emit()
+
+    def change_vl_at_startup_requested(self, vl):
+        self.gui.library_view.model().db.prefs['virtual_lib_on_startup'] = vl
+        self.build_menus()
 
     def location_selected(self, loc):
         enabled = loc == 'library'
