@@ -384,7 +384,7 @@ class ChooseLibraryAction(InterfaceAction):
             return
         db = self.gui.library_view.model().db
         lname = self.stats.library_used(db)
-        self.vl_to_apply_action.setText(_('Apply virtual library when %s is opened') % lname)
+        self.vl_to_apply_action.setText(_('Apply Virtual library when %s is opened') % lname)
         locations = list(self.stats.locations(db))
 
         for ac in self.switch_actions:
@@ -445,10 +445,10 @@ class ChooseLibraryAction(InterfaceAction):
         restrictions.insert(0, '')
         for vl in restrictions:
             if vl == vl_at_startup:
-                self.vl_to_apply_menu.addAction(QIcon(I('ok.png')), vl if vl else _('No virtual library'),
+                self.vl_to_apply_menu.addAction(QIcon(I('ok.png')), vl if vl else _('No Virtual library'),
                                                 Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
             else:
-                self.vl_to_apply_menu.addAction(vl if vl else _('No virtual library'),
+                self.vl_to_apply_menu.addAction(vl if vl else _('No Virtual library'),
                                                 Dispatcher(partial(self.change_vl_at_startup_requested, vl)))
         # Allow the cloned actions in the OS X global menubar to update
         for a in (self.qaction, self.menuless_qaction):
