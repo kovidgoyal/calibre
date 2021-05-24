@@ -758,7 +758,8 @@ class DetailsPanel(QWidget):
         if annot['type'] == 'bookmark':
             p(annot['title'])
         elif annot['type'] == 'highlight':
-            p(annot['highlighted_text'])
+            for line in annot['highlighted_text'].splitlines():
+                p(line)
             notes = annot.get('notes')
             if notes:
                 paras.append('<h4>{} (<a title="{}" href="calibre://edit_result">{}</a>)</h4>'.format(
