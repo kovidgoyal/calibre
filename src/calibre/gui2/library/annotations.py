@@ -126,8 +126,8 @@ def sorted_items(items):
             cfi = x.get('start_cfi')
             if cfi:
                 spine_idx = x.get('spine_index', def_spine)
-                cfi = f'/{spine_idx}/{cfi}'
-                return cfi_sort_key(cfi, only_path=False)
+                cfi = f'/{spine_idx}{cfi}'
+                return cfi_sort_key(cfi)
         elif atype == 'bookmark':
             if x.get('pos_type') == 'epubcfi':
                 return cfi_sort_key(x['pos'], only_path=False)
