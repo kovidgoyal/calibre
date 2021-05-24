@@ -791,6 +791,7 @@ class WritingTest(BaseTest):
 
         cache.set_annotations_for_book(1, 'moo', annot_list)
         amap = cache.annotations_map_for_book(1, 'moo')
+        self.assertEqual(3, len(cache.all_annotations_for_book(1)))
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
         self.assertFalse(cache.dirtied_cache)
         cache.check_dirtied_annotations()
