@@ -698,7 +698,7 @@ class WordsModel(QAbstractTableModel):
         elif col == 2:
             def key(w):
                 locale = w[1]
-                return (calibre_langcode_to_name(locale.langcode), locale.countrycode)
+                return (calibre_langcode_to_name(locale.langcode) or ''), (locale.countrycode or '')
         else:
             key = self.misspelled_text
         return key
