@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from read_book.globals import get_boss, ui_operations, ltr_page_progression
 from read_book.viewport import scroll_viewport
+from read_book.settings import opts
 
 HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 8  # pixels
@@ -253,7 +254,7 @@ class BookTouchHandler(TouchHandler):
                         gesture.type = 'show-chrome'
                     else:
                         # default, books that go left to right.
-                        if ltr_page_progression():
+                        if ltr_page_progression() and not opts.reverse_page_turn_zones:
                             if gesture.viewport_x < min(100, scroll_viewport.width() / 4):
                                 gesture.type = 'prev-page'
                             else:

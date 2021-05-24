@@ -76,6 +76,7 @@ defaults = {
     'fullscreen_when_opening': 'auto',
     'book_search_mode': 'contains',
     'book_search_case_sensitive': False,
+    'reverse_page_turn_zones': False,
 }
 
 is_local_setting = {
@@ -111,6 +112,7 @@ is_local_setting = {
     'highlights_export_format': True,
     'book_search_mode': True,
     'book_search_case_sensitive': True,
+    'reverse_page_turn_zones': True,
 }
 
 

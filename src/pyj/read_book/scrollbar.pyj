@@ -58,9 +58,9 @@ class BookScrollbar:
             bob_top = b.offsetTop
             bob_bottom = bob_top + b.offsetHeight
             if evt.clientY < bob_top:
-                self.view.left_margin_clicked(evt)
+                self.view.side_margin_clicked('left', evt)
             elif evt.clientY > bob_bottom:
-                self.view.right_margin_clicked(evt)
+                self.view.side_margin_clicked('right', evt)
 
     def on_bob_mouse_event(self, which, evt):
         c = self.container

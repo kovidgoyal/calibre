@@ -191,9 +191,9 @@ def margin_elem(sd, which, id, onclick, oncontextmenu):
     return ans
 
 
-def side_margin_elem(self, sd, which):
+def side_margin_elem(self, sd, which, icon):
     ans = E.div(
-        E.div(class_='arrow', style='order: 3', svgicon(f'caret-{which}', '100%', '100%')),
+        E.div(class_='arrow', style='order: 3', svgicon(f'caret-{icon}', '100%', '100%')),
         E.div(style='order:1'), E.div(style='order:2', class_='not-arrow'), E.div(style='order:4'),
 
         style='width:{}px; user-select: none'.format(sd.get(f'margin_{which}', 20)),
@@ -225,9 +225,9 @@ class View:
         self.keyboard_shortcut_map = create_shortcut_map(sd.get('keyboard_shortcuts'))
         if ui_operations.export_shortcut_map:
             ui_operations.export_shortcut_map(self.keyboard_shortcut_map)
-        left_margin = side_margin_elem(self, sd, 'left')
+        left_margin = side_margin_elem(self, sd, 'left', 'right' if sd.get('reverse_page_turn_zones') else 'left')
         set_left_margin_handler(left_margin)
-        right_margin = side_margin_elem(self, sd, 'right')
+        right_margin = side_margin_elem(self, sd, 'right', 'left' if sd.get('reverse_page_turn_zones') else 'right')
         set_right_margin_handler(right_margin)
         handlers = {
             'autoscroll_state_changed': def(data):
@@ -370,34 +370,21 @@ class View:
     def on_hints_message(self, data):
         self.hints.handle_message(data)
 
-    def left_margin_clicked(self, event):
-        if event.button is 0:
-            event.preventDefault(), event.stopPropagation()
-            sd = get_session_data()
-            self.iframe_wrapper.send_message(
-                'next_screen', backwards=True,
-                flip_if_rtl_page_progression=True,
-                all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
-        elif event.button is 2:
-            event.preventDefault(), event.stopPropagation()
-            window.setTimeout(self.show_chrome, 0)
-        self.focus_iframe()
-
-    def right_margin_clicked(self, event):
-        if event.button is 0:
-            event.preventDefault(), event.stopPropagation()
-            sd = get_session_data()
-            self.iframe_wrapper.send_message(
-                'next_screen', backwards=False,
-                flip_if_rtl_page_progression=True,
-                all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
-        elif event.button is 2:
-            event.preventDefault(), event.stopPropagation()
-            window.setTimeout(self.show_chrome, 0)
-        self.focus_iframe()
-
     def side_margin_clicked(self, which, event):
-        self.left_margin_clicked(event) if which is 'left' else self.right_margin_clicked(event)
+        backwards = which is 'left'
+        if get_session_data().get('reverse_page_turn_zones'):
+            backwards = not backwards
+        if event.button is 0:
+            event.preventDefault(), event.stopPropagation()
+            sd = get_session_data()
+            self.iframe_wrapper.send_message(
+                'next_screen', backwards=backwards,
+                flip_if_rtl_page_progression=True,
+                all_pages_on_screen=sd.get('paged_margin_clicks_scroll_by_screen'))
+        elif event.button is 2:
+            event.preventDefault(), event.stopPropagation()
+            window.setTimeout(self.show_chrome, 0)
+        self.focus_iframe()
 
     def top_margin_clicked(self, event):
         if event.button is 0 or event.button is 2:
@@ -999,6 +986,7 @@ class View:
             'lines_per_sec_smooth': sd.get('lines_per_sec_smooth'),
             'scroll_auto_boundary_delay': sd.get('scroll_auto_boundary_delay'),
             'scroll_stop_boundaries': sd.get('scroll_stop_boundaries'),
+            'reverse_page_turn_zones': sd.get('reverse_page_turn_zones'),
         }
 
     def show_name(self, name, initial_position=None):

@@ -50,11 +50,11 @@ def create_scrolling_panel(container, apply_func, cancel_func):
     container = container.lastChild
     sd = get_session_data()
 
-    def cb(name, text):
+    def cb(name, text, title):
         ans = E.input(type='checkbox', name=name, style='margin-left: 0')
         if sd.get(name):
             ans.checked = True
-        return E.div(style='margin-top:1ex', E.label(ans, text))
+        return E.div(style='margin-top:1ex', E.label(ans, text, title=title or ''))
 
     def spinner(name, text, **kwargs):
         ans = E.input(type='number', name=name, id=name)
@@ -121,6 +121,10 @@ def create_scrolling_panel(container, apply_func, cancel_func):
     container.appendChild(E.div(style='margin-top:1ex', _('Miscellaneous')))
     container.appendChild(E.div(style='margin-left: 1rem'))
     container.lastChild.appendChild(cb('book_scrollbar', _('Show a scrollbar')))
+    container.lastChild.appendChild(cb(
+        'reverse_page_turn_zones', _('Invert the page turn tap areas'),
+        _('Have tapping on the left side turn the page forward and the right side backwards')
+    ))
 
     container.appendChild(create_button_box(restore_defaults, apply_func, cancel_func))
 
