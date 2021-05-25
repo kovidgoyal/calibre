@@ -235,7 +235,7 @@ class Preferences(QDialog):
             self.move(gui.rect().center() - self.rect().center())
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowTitle(__appname__ + ' - ' + _('Preferences'))
+        self.setWindowTitle(__appname__ + ' — ' + _('Preferences'))
         self.setWindowIcon(QIcon(I('config.png')))
         self.l = l = QVBoxLayout(self)
 
