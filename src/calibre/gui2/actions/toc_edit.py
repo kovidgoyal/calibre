@@ -152,37 +152,31 @@ class ToCEditAction(InterfaceAction):
         self.check_for_completions()
 
     def check_for_completions(self):
-        from calibre.utils.lock import lock_file
+        from calibre.utils.filenames import retry_on_fail
         for job in tuple(self.jobs):
-            lock_path = job['path'] + '.lock'
-            if job['started']:
-                if not os.path.exists(lock_path):
-                    self.jobs.remove(job)
-                    continue
-                try:
-                    lf = lock_file(lock_path, timeout=0.01, sleep_time=0.005)
-                except EnvironmentError:
-                    continue
-                else:
-                    self.jobs.remove(job)
-                    ret = int(lf.read().decode('ascii'))
-                    lf.close()
-                    os.remove(lock_path)
-                    if ret == 0:
-                        db = self.gui.current_db
-                        if db.new_api.library_id != job['library_id']:
-                            error_dialog(self.gui, _('Library changed'), _(
-                                'Cannot save changes made to {0} by the ToC editor as'
-                                ' the calibre library has changed.').format(job['title']), show=True)
-                        else:
-                            db.new_api.add_format(job['book_id'], job['fmt'], job['path'], run_hooks=False)
-                    os.remove(job['path'])
+            started_path = job['path'] + '.started'
+            result_path = job['path'] + '.result'
+            if job['started'] and os.path.exists(result_path):
+                self.jobs.remove(job)
+                with open(result_path) as f:
+                    ret = int(f.read().strip())
+                retry_on_fail(os.remove, result_path)
+                if ret == 0:
+                    db = self.gui.current_db
+                    if db.new_api.library_id != job['library_id']:
+                        error_dialog(self.gui, _('Library changed'), _(
+                            'Cannot save changes made to {0} by the ToC editor as'
+                            ' the calibre library has changed.').format(job['title']), show=True)
+                    else:
+                        db.new_api.add_format(job['book_id'], job['fmt'], job['path'], run_hooks=False)
+                os.remove(job['path'])
             else:
                 if monotonic() - job['start_time'] > 10:
                     self.jobs.remove(job)
                     continue
-                if os.path.exists(lock_path):
+                if os.path.exists(started_path):
                     job['started'] = True
+                    retry_on_fail(os.remove, started_path)
         if self.jobs:
             QTimer.singleShot(100, self.check_for_completions)
 
