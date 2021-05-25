@@ -147,8 +147,8 @@ class SectionHeader(object):
         self.uid, = struct.unpack('>H', raw[0:2])
         self.paragraphs, = struct.unpack('>H', raw[2:4])
         self.size, = struct.unpack('>H', raw[4:6])
-        self.type, = struct.unpack('>B', raw[6])
-        self.flags, = struct.unpack('>B', raw[7])
+        self.type, = struct.unpack('>B', raw[6:7])
+        self.flags, = struct.unpack('>B', raw[7:8])
 
 
 class SectionHeaderText(object):
