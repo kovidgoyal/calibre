@@ -125,7 +125,7 @@ listed at once with some context for easy navigation.
 
 :: bug fixes
 
-- [1924703] CHM Input: Fix handling of some CHM files that use non-ASCII internal filenames and dont specify a character encoding in their metadata
+- [1924703] CHM Input: Fix handling of some CHM files that use non-ASCII internal filenames and don't specify a character encoding in their metadata
 
 - [1924824] Fix a regression in the previous release that prevented calibre from starting if there was a failure in a third party plugin
 
@@ -208,7 +208,7 @@ Useful to have a "slideshow" of book covers. The speed of scrolling can be contr
 
 - [1924598] E-book viewer: Highlights panel: Do not expand all sections when adding/deleting/modifying highlights
 
-- [1922503] CHM Input: Fix a regression in calibre 5.0 that broke opening of some files that dont specify a character encoding
+- [1922503] CHM Input: Fix a regression in calibre 5.0 that broke opening of some files that don't specify a character encoding
 
 - EPUB2 metadata: Read ISBNs in identifier elements without schemes if they are valid ISBNs and no properly identified isbns are present
 
@@ -539,7 +539,7 @@ Useful to have a "slideshow" of book covers. The speed of scrolling can be contr
 
 - Bulk metadata search/replace: Fix text transform function not being applied to the test result in character mode
 
-- [1906464] Book list: Improve rendering of column headers when they dont fit, by eliding them instead of just cutting off rendering.
+- [1906464] Book list: Improve rendering of column headers when they don't fit, by eliding them instead of just cutting off rendering.
 
 - [1906063] Fix template function "first_non_empty" fails if no argument evaluates non-empty
 
