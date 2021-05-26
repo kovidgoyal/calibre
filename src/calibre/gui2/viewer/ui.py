@@ -464,6 +464,8 @@ class EbookViewer(MainWindow):
             self.load_ebook(entry['pathtoebook'])
 
     def load_ebook(self, pathtoebook, open_at=None, reload_book=False):
+        if '.' not in os.path.basename(pathtoebook):
+            pathtoebook = os.path.abspath(os.path.realpath(pathtoebook))
         performance_monitor('Load of book started', reset=True)
         self.actions_toolbar.update_action_state(False)
         self.web_view.show_home_page_on_ready = False
