@@ -7,12 +7,11 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
-
 from qt.core import (
-    QPainter, QDialog, QIcon, QApplication, QSize, QKeySequence,
-    QAction, Qt, QTextBrowser, QDialogButtonBox, QVBoxLayout, QGridLayout,
-    QLabel, QPlainTextEdit, QTextDocument, QCheckBox, pyqtSignal, QWidget,
-    QSizePolicy)
+    QAction, QApplication, QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon,
+    QKeySequence, QLabel, QPainter, QPlainTextEdit, QSize, QSizePolicy, Qt,
+    QTextBrowser, QTextDocument, QVBoxLayout, QWidget, pyqtSignal
+)
 
 from calibre.constants import __version__, isfrozen
 from calibre.gui2 import gprefs
@@ -63,7 +62,7 @@ class MessageBox(QDialog):  # {{{
         la.setOpenExternalLinks(True)
         la.setObjectName("msg")
         l.addWidget(la, 0, 1, 1, 1)
-        self.det_msg = dm = QPlainTextEdit(self)
+        self.det_msg = dm = QTextBrowser(self)
         dm.setReadOnly(True)
         dm.setObjectName("det_msg")
         l.addWidget(dm, 1, 0, 1, 2)
@@ -106,7 +105,10 @@ class MessageBox(QDialog):  # {{{
         self.setWindowIcon(self.icon)
         self.icon_widget.set_icon(self.icon)
         self.msg.setText(msg)
-        self.det_msg.setPlainText(det_msg)
+        if det_msg and Qt.mightBeRichText(det_msg):
+            self.det_msg.setHtml(det_msg)
+        else:
+            self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
         self.toggle_checkbox.setVisible(False)
 
@@ -194,7 +196,10 @@ class MessageBox(QDialog):  # {{{
     def set_details(self, msg):
         if not msg:
             msg = ''
-        self.det_msg.setPlainText(msg)
+        if Qt.mightBeRichText(msg):
+            self.det_msg.setHtml(msg)
+        else:
+            self.det_msg.setPlainText(msg)
         self.det_msg_toggle.setText(self.show_det_msg)
         self.det_msg_toggle.setVisible(bool(msg))
         self.det_msg.setVisible(False)
@@ -488,8 +493,8 @@ class JobError(QDialog):  # {{{
 
 
 if __name__ == '__main__':
-    from calibre.gui2 import question_dialog, Application
+    from calibre.gui2 import Application, question_dialog
     app = Application([])
     print(question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
-            det_msg='det '*1000,
+            det_msg='<p>hi there <b>guy</b> '*1000,
             show_copy_button=True))
