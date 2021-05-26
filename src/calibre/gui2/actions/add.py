@@ -576,7 +576,7 @@ class AddAction(InterfaceAction):
             for author in sorted(merged, key=sort_key):
                 lines.append(author)
                 for title in sorted(merged[author], key=sort_key):
-                    lines.append('\t' + title)
+                    lines.append('  ' + title)
                 lines.append('')
             pm = ngettext('The following duplicate book was found.',
                           'The following {} duplicate books were found.',
