@@ -494,7 +494,16 @@ class JobError(QDialog):  # {{{
 
 if __name__ == '__main__':
     from calibre.gui2 import Application, question_dialog
+    from calibre import prepare_string_for_xml
     app = Application([])
+    merged = {'Kovid Goyal': ['Waterloo', 'Doomed'], 'Someone Else': ['Some other book ' * 1000]}
+    lines = []
+    for author in sorted(merged):
+        lines.append(f'<b><i>{prepare_string_for_xml(author)}</i></b><ol style="margin-top: 0">')
+        for title in sorted(merged[author]):
+            lines.append(f'<li>{prepare_string_for_xml(title)}</li>')
+        lines.append('</ol>')
+
     print(question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
-            det_msg='<p>hi there <b>guy</b> '*1000,
+            det_msg='\n'.join(lines),
             show_copy_button=True))

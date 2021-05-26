@@ -11,7 +11,7 @@ from collections import defaultdict
 from functools import partial
 from qt.core import QApplication, QDialog, QPixmap, QTimer
 
-from calibre import as_unicode, guess_type
+from calibre import as_unicode, guess_type, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import MetaInformation, normalize_isbn
@@ -574,10 +574,10 @@ class AddAction(InterfaceAction):
                 merged[author].append(title)
             lines = []
             for author in sorted(merged, key=sort_key):
-                lines.append(author)
-                for title in sorted(merged[author], key=sort_key):
-                    lines.append('  ' + title)
-                lines.append('')
+                lines.append(f'<b><i>{prepare_string_for_xml(author)}</i></b><ol style="margin-top: 0">')
+                for title in sorted(merged[author]):
+                    lines.append(f'<li>{prepare_string_for_xml(title)}</li>')
+                lines.append('</ol>')
             pm = ngettext('The following duplicate book was found.',
                           'The following {} duplicate books were found.',
                           len(adder.merged_books)).format(len(adder.merged_books))
