@@ -9,6 +9,7 @@ LIGHT_GRADIENT = 'linear-gradient(to bottom, {}, {})'.format(LIGHT, LIGHT_DARKER
 DT_DARK = '#2d2d2d'
 DT_DARK_DARKER = 'black'
 DT_DARK_LIGHTER = '#777'
+DT_DARK_LIGTHER_CONTRAST = '#1d1d1d'
 DT_LIGHT = '#ddd'
 DARK_GRADIENT = 'linear-gradient(to bottom, {}, {})'.format(DT_DARK_LIGHTER, DT_DARK)
 
@@ -27,13 +28,13 @@ DEFAULT_COLORS = {
 
     # Top bar specific colors
     'bar-background': c(DARK, DT_DARK_LIGHTER),
-    'bar-foreground': c(LIGHT, DT_DARK),
+    'bar-foreground': c(LIGHT, DT_DARK_LIGTHER_CONTRAST),
     'bar-highlight': c('yellow'),
     'heart': c('#B92111'),
 
     # Item list colors
     'list-hover-background': c(DARK, DT_DARK_LIGHTER),
-    'list-hover-foreground': c(LIGHT, DT_DARK),
+    'list-hover-foreground': c(LIGHT, DT_DARK_LIGTHER_CONTRAST),
 
     # Tree colors
     'tree-highlight-item': c(LIGHT_DARKER, DT_DARK_LIGHTER),
