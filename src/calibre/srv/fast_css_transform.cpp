@@ -97,7 +97,7 @@ static const double base_font_size = 16.0, dpi = 96.0, pt_to_px = dpi / 72.0, pt
 
 static double
 convert_font_size(double val, double factor) {
-	return (factor == 0.0) ? val / base_font_size : (val * factor * pt_to_rem);
+	return (factor == 0.0) ? (val / base_font_size) : (val * factor * pt_to_rem);
 }
 
 static integer_type
@@ -975,8 +975,7 @@ class Parser {
         }
 
         void handle_number() {
-            if (is_digit(ch)) { token_queue.add_char(ch); return; }
-            if (ch == '.' && is_digit(peek())) { pop_state(); enter_digits_mode(); return; }
+            if (is_digit(ch) || (ch == '.' && is_digit(peek()))) { token_queue.add_char(ch); return; }
             if (starting_comment()) { enter_comment_mode(); return; }
             if ((ch == 'e' || ch == 'E')) {
                 char32_t next = peek();
