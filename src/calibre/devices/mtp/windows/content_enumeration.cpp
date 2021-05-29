@@ -325,7 +325,19 @@ find_objects_in(CComPtr<IPortableDeviceContent> &content, CComPtr<IPortableDevic
     hr = content->EnumObjects(0, parent_id, NULL, &children);
     Py_END_ALLOW_THREADS;
 
-    if (FAILED(hr)) {hresult_set_exc("Failed to get children from device", hr); *enum_failed = true; return false;}
+    if (FAILED(hr)) {
+        fwprintf(stderr, L"Failed to EnumObjects() for object id: %s retrying with a sleep.\n", parent_id); fflush(stderr);
+        Py_BEGIN_ALLOW_THREADS;
+        Sleep(500);
+        hr = content->EnumObjects(0, parent_id, NULL, &children);
+        Py_END_ALLOW_THREADS;
+        if (FAILED(hr)) {
+            pyobject_raii parent_name(PyUnicode_FromWideChar(parent_id, -1));
+            set_error_from_hresult(wpd::WPDError, __FILE__, __LINE__, hr, "Failed to EnumObjects() of folder from device", parent_name.ptr());
+            *enum_failed = true;
+            return false;
+        }
+    }
     *enum_failed = false;
 
     hr = S_OK;
@@ -452,10 +464,7 @@ get_files_and_folders(unsigned int level, IPortableDevice *device, CComPtr<IPort
 
     bool enum_failed = false;
     if (!find_objects_in(content, object_ids, parent_id, &enum_failed)) {
-        if (!enum_failed) return false;
-        fwprintf(stderr, L"Failed to EnumObjects() for object id: %s\n", parent_id);
-        if (PyErr_Occurred()) PyErr_Print();
-        return true;
+        return false;
     }
 
     if (bulk_properties != NULL) {
