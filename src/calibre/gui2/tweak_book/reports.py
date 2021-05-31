@@ -7,6 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import time, textwrap, os
 from threading import Thread
+from contextlib import suppress
 from operator import itemgetter
 from functools import partial
 from collections import defaultdict
@@ -94,6 +95,7 @@ class ProxyModel(QSortFilterProxyModel):
 class FileCollection(QAbstractTableModel):
 
     COLUMN_HEADERS = ()
+    alignments = ()
 
     def __init__(self, parent=None):
         self.files = self.sort_keys = ()
@@ -107,11 +109,13 @@ class FileCollection(QAbstractTableModel):
         return len(self.files)
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
-        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
-            try:
-                return self.COLUMN_HEADERS[section]
-            except IndexError:
-                pass
+        if orientation == Qt.Orientation.Horizontal:
+            if role == Qt.ItemDataRole.DisplayRole:
+                with suppress(IndexError):
+                    return self.COLUMN_HEADERS[section]
+            elif role == Qt.ItemDataRole.TextAlignmentRole:
+                with suppress(IndexError):
+                    return self.alignments[section]
         return QAbstractTableModel.headerData(self, section, orientation, role)
 
     def location(self, index):
@@ -229,6 +233,7 @@ class FilesView(QTableView):
 class FilesModel(FileCollection):
 
     COLUMN_HEADERS = (_('Folder'), _('Name'), _('Size (KB)'), _('Type'))
+    alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignLeft
     CATEGORY_NAMES = {
         'image':_('Image'),
         'text': _('Text'),
@@ -270,9 +275,11 @@ class FilesModel(FileCollection):
                 return entry.basename
             if col == 2:
                 sz = entry.size / 1024.
-                return ('%.2f' % sz if int(sz) != sz else unicode_type(sz))
+                return '%.2f ' % sz
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
+        elif role == Qt.ItemDataRole.TextAlignmentRole:
+            return Qt.AlignVCenter | self.alignments[index.column()]
 
 
 class FilesWidget(QWidget):
@@ -423,6 +430,7 @@ class ImagesDelegate(QStyledItemDelegate):
 class ImagesModel(FileCollection):
 
     COLUMN_HEADERS = [_('Image'), _('Size (KB)'), _('Times used'), _('Resolution')]
+    alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignRight
 
     def __init__(self, parent=None):
         FileCollection.__init__(self, parent)
@@ -461,6 +469,9 @@ class ImagesModel(FileCollection):
                 return self.files[index.row()]
             except IndexError:
                 pass
+        elif role == Qt.TextAlignmentRole:
+            with suppress(IndexError):
+                return self.alignments[index.column()]
 
 
 class ImagesWidget(QWidget):
@@ -682,6 +693,7 @@ class LinksWidget(QWidget):
 class WordsModel(FileCollection):
 
     COLUMN_HEADERS = (_('Word'), _('Language'), _('Times used'))
+    alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight
     total_words = 0
 
     def __call__(self, data):
@@ -726,6 +738,9 @@ class WordsModel(FileCollection):
                 return self.files[index.row()]
             except IndexError:
                 pass
+        elif role == Qt.TextAlignmentRole:
+            with suppress(IndexError):
+                return self.alignments[index.column()]
 
     def location(self, index):
         return None
@@ -778,6 +793,7 @@ class WordsWidget(QWidget):
 class CharsModel(FileCollection):
 
     COLUMN_HEADERS = (_('Character'), _('Name'), _('Codepoint'), _('Times used'))
+    alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight
     all_chars = ()
 
     def __call__(self, data):
@@ -814,6 +830,9 @@ class CharsModel(FileCollection):
                 return self.files[index.row()]
             except IndexError:
                 pass
+        elif role == Qt.TextAlignmentRole:
+            with suppress(IndexError):
+                return self.alignments[index.column()]
 
     def location(self, index):
         return None

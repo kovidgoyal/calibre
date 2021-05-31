@@ -621,6 +621,7 @@ class WordsModel(QAbstractTableModel):
         self.filter_expression = None
         self.show_only_misspelt = True
         self.headers = (_('Word'), _('Count'), _('Language'), _('Misspelled?'))
+        self.alignments = Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignRight, Qt.AlignmentFlag.AlignLeft, Qt.AlignmentFlag.AlignHCenter
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.items)
@@ -644,6 +645,8 @@ class WordsModel(QAbstractTableModel):
                     pass
             elif role == Qt.ItemDataRole.InitialSortOrderRole:
                 return Qt.SortOrder.DescendingOrder if section == 1 else Qt.SortOrder.AscendingOrder
+            elif role == Qt.ItemDataRole.TextAlignmentRole:
+                return Qt.AlignVCenter | self.alignments[section]
 
     def misspelled_text(self, w):
         if self.spell_map[w]:
@@ -660,17 +663,17 @@ class WordsModel(QAbstractTableModel):
             if col == 0:
                 return word
             if col == 1:
-                return '%d' % len(self.words[(word, locale)])
+                return '{} '.format(len(self.words[(word, locale)]))
             if col == 2:
                 pl = calibre_langcode_to_name(locale.langcode)
                 countrycode = locale.countrycode
                 if countrycode:
-                    pl = '%s (%s)' % (pl, countrycode)
+                    pl = ' %s (%s)' % (pl, countrycode)
                 return pl
             if col == 3:
                 return self.misspelled_text((word, locale))
         if role == Qt.ItemDataRole.TextAlignmentRole:
-            return Qt.AlignmentFlag.AlignVCenter | (Qt.AlignmentFlag.AlignLeft if index.column() == 0 else Qt.AlignmentFlag.AlignHCenter)
+            return Qt.AlignmentFlag.AlignVCenter | self.alignments[index.column()]
 
     def sort(self, column, order=Qt.SortOrder.AscendingOrder):
         reverse = order != Qt.SortOrder.AscendingOrder
