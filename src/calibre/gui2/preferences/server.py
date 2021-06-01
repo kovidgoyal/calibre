@@ -1169,7 +1169,7 @@ class SearchTheInternet(QWidget):
         cu = self.current_urls
         if cu:
             with lopen(search_the_net_urls.path, 'wb') as f:
-                f.write(self.serialized_urls)
+                f.write(self.serialized_urls.encode('utf-8'))
         else:
             try:
                 os.remove(search_the_net_urls.path)
@@ -1184,7 +1184,7 @@ class SearchTheInternet(QWidget):
             filters=[(_('URL files'), ['json'])], initial_filename='search-urls.json')
         if path:
             with lopen(path, 'wb') as f:
-                f.write(self.serialized_urls)
+                f.write(self.serialized_urls.encode('utf-8'))
 
     def import_urls(self):
         paths = choose_files(self, 'search-net-urls', _('Choose URLs file'),
