@@ -171,7 +171,7 @@ class ToCEditAction(InterfaceAction):
                         db.new_api.add_format(job['book_id'], job['fmt'], job['path'], run_hooks=False)
                 os.remove(job['path'])
             else:
-                if monotonic() - job['start_time'] > 10:
+                if monotonic() - job['start_time'] > 120:
                     self.jobs.remove(job)
                     continue
                 if os.path.exists(started_path):
