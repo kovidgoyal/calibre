@@ -1,24 +1,40 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
+    )
+
+
 class JerusalemPost(BasicNewsRecipe):
 
     title = 'Jerusalem Post'
     description = 'News from Israel and the Middle East'
     use_embedded_content = False
-    auto_cleanup = True
-    auto_cleanup_keep = '//img[@id="ctl00_ContentPlaceHolder1_article_control_image"]'
     language = 'en'
+    keep_only_tags = [
+        classes('margin-container-body'),
+    ]
+    remove_tags = [
+        classes('share-buttons hide-for-premium'),
+    ]
+    remove_attributes = ['style']
+    no_stylesheets = True
 
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 10
     no_stylesheets = True
 
-    feeds = [('Front Page', 'http://www.jpost.com/Rss/RssFeedsFrontPage.aspx'),
-             ('Israel News',
-              'http://www.jpost.com/Rss/RssFeedsIsraelNews.aspx'),
-             ('Middle East News',
-              'http://www.jpost.com/Rss/RssFeedsMiddleEastNews.aspx'),
-             ('International News',
-              'http://www.jpost.com/Rss/RssFeedsPolitiqueetsocial.aspx'),
-             ]
+    feeds = [
+        ('Arab Israeli Conflict', 'https://www.jpost.com/rss/rssfeedsarabisraeliconflict.aspx'),
+        ('Jerusalem', 'https://www.jpost.com/rss/rssfeedsjerusalem.aspx'),
+        ('US Politics', 'https://www.jpost.com/rss/rssfeedsamerican-politics'),
+        ('Israel News', 'https://www.jpost.com/rss/rssfeedsisraelnews.aspx'),
+        (
+            'Middle East News',
+            'https://www.jpost.com/rss/rssfeedsmiddleeastnews.aspx'
+        ),
+        ('International News', 'https://www.jpost.com/rss/rssfeedsinternational'),
+    ]
