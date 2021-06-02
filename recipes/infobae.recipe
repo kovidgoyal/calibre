@@ -1,5 +1,8 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
-__copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2021, Darko Miletic <darko.miletic at gmail.com>'
 '''
 infobae.com
 '''
@@ -17,10 +20,15 @@ class Infobae(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
-    auto_cleanup = False
+    auto_cleanup = True
     language = 'es_AR'
     encoding = 'utf8'
     remove_empty_feeds = True
+    handle_gzip = True
+    compress_news_images = True
+    scale_news_images_to_device = True
+    ignore_duplicate_articles = {'url'}    
+    masthead_url = 'https://www.infobae.com/pf/resources/images/logo_infobae_naranja.svg?d=662'
     extra_css             = '''
                               body{font-family: Arial,Helvetica,sans-serif}
                               img{display: block}
@@ -31,20 +39,4 @@ class Infobae(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    remove_tags_before = dict(name='h1', attrs={'class': 'entry-title'})
-    remove_tags_after = dict(name='div', attrs={'class': 'narrowcontent'})
-    remove_tags = [
-        dict(name=['base', 'meta', 'link', 'iframe', 'object', 'embed', 'ins']), dict(attrs={'class': [
-            'social-hori clearfix', 'narrowcontent', 'embed_cont type_freetext']}), dict(attrs={'id': 'captcha-modal'})
-    ]
-
-    feeds = [
-
-    (u'Ahora', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/Infobae.xml'),
-    (u'Economia', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/economia.xml'),
-    (u'Cultura', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/Cultura.xml'),
-    (u'Finanzas', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/finanzas.xml'),
-    (u'Sociedad', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/sociedad.xml'),
-    (u'Politica', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/politica.xml'),
-    (u'Deportes', u'http://cdn02.ib.infobae.com/adjuntos/162/rss/deportes.xml')
-    ]
+    feeds = [(u'Ahora', u'https://www.infobae.com/feeds/rss/')]
