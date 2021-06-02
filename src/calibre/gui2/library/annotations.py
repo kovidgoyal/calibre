@@ -5,7 +5,8 @@
 import codecs
 import json
 import os
-from functools import partial
+import re
+from functools import lru_cache, partial
 from qt.core import (
     QAbstractItemView, QApplication, QCheckBox, QComboBox, QCursor, QDateTime,
     QDialog, QDialogButtonBox, QFont, QFormLayout, QFrame, QHBoxLayout, QIcon,
@@ -16,16 +17,17 @@ from qt.core import (
 from urllib.parse import quote
 
 from calibre import prepare_string_for_xml
-from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.db.backend import FTSQueryError
-from calibre.gui2 import Application, choose_save_file, config, error_dialog, gprefs
+from calibre.ebooks.metadata import authors_to_string, fmt_sidx
+from calibre.gui2 import (
+    Application, choose_save_file, config, error_dialog, gprefs, safe_open_url
+)
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from calibre.gui2.widgets2 import Dialog
 
 
 # rendering {{{
-
 def render_highlight_as_text(hl, lines, as_markdown=False, link_prefix=None):
     lines.append(hl['highlighted_text'])
     date = QDateTime.fromString(hl['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
@@ -62,11 +64,57 @@ def render_bookmark_as_text(b, lines, as_markdown=False, link_prefix=None):
     lines.append('')
 
 
+url_prefixes = 'http', 'https'
+url_delimiters = (
+    '\x00-\x09\x0b-\x20\x7f-\xa0\xad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u1680\u180e\u2000-\u200f\u2028-\u202f'
+    '\u205f-\u2064\u2066-\u206f\u3000\ud800-\uf8ff\ufeff\ufff9-\ufffb\U000110bd\U000110cd\U00013430-\U00013438'
+    '\U0001bca0-\U0001bca3\U0001d173-\U0001d17a\U000e0001\U000e0020-\U000e007f\U000f0000-\U000ffffd\U00100000-\U0010fffd'
+)
+url_pattern = r'\b(?:{})://[^{}]{{3,}}'.format('|'.join(url_prefixes), url_delimiters)
+
+
+@lru_cache(maxsize=2)
+def url_pat():
+    return re.compile(url_pattern, flags=re.I)
+
+
+closing_bracket_map = {'(': ')', '[': ']', '{': '}', '<': '>', '*': '*', '"': '"', "'": "'"}
+
+
+def url(text: str, s: int, e: int):
+    while text[e - 1] in '.,?!' and e > 1:  # remove trailing punctuation
+        e -= 1
+    # truncate url at closing bracket/quote
+    if s > 0 and e <= len(text) and text[s-1] in closing_bracket_map:
+        q = closing_bracket_map[text[s-1]]
+        idx = text.find(q, s)
+        if idx > s:
+            e = idx
+    return s, e
+
+
+def render_note_line(line):
+    urls = []
+    for m in url_pat().finditer(line):
+        s, e = url(line, m.start(), m.end())
+        urls.append((s, e))
+    if not urls:
+        yield prepare_string_for_xml(line)
+        return
+    pos = 0
+    for (s, e) in urls:
+        if s > pos:
+            yield prepare_string_for_xml(line[pos:s])
+        yield '<a href="{0}">{0}</a>'.format(prepare_string_for_xml(line[s:e], True))
+    if urls[-1][1] < len(line):
+        yield prepare_string_for_xml(line[urls[-1][1]:])
+
+
 def render_notes(notes, tag='p'):
     current_lines = []
     for line in notes.splitlines():
         if line:
-            current_lines.append(line)
+            current_lines.append(''.join(render_note_line(line)))
         else:
             if current_lines:
                 yield '<{0}>{1}</{0}>'.format(tag, '\n'.join(current_lines))
@@ -697,7 +745,10 @@ class DetailsPanel(QWidget):
         self.show_result(None)
 
     def link_clicked(self, qurl):
-        getattr(self, qurl.host())()
+        if qurl.scheme() == 'calibre':
+            getattr(self, qurl.host())()
+        else:
+            safe_open_url(qurl)
 
     def open_result(self):
         if self.current_result is not None:

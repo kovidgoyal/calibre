@@ -14,7 +14,7 @@ from modals import (
     create_custom_dialog, error_dialog, get_text_dialog, question_dialog,
     warning_dialog
 )
-from read_book.globals import current_book, is_dark_theme, runtime
+from read_book.globals import current_book, is_dark_theme, runtime, ui_operations
 from widgets import create_button
 
 ICON_SIZE_VAL = 3
@@ -712,23 +712,60 @@ add_extra_css(def():
     return ans
 )
 
+url_pat = /\bhttps?:\/\/\S{3,}/ig
+closing_bracket_map = {'(': ')', '[': ']', '{': '}', '<': '>', '*': '*', '"': '"', "'": "'"}
+opening_brackets = Object.keys(closing_bracket_map).join('')
 
-def render_notes(notes, container):
-    current_block = ''
+
+def url(text: str, s: int, e: int):
+    while '.,?!'.indexOf(text[e-1]) > -1 and e > 1:  # remove trailing punctuation
+        e -= 1
+    # truncate url at closing bracket/quote
+    if s > 0 and e <= text.length and closing_bracket_map[text[s-1]]:
+        q = closing_bracket_map[text[s-1]]
+        idx = text.indexOf(q, s)
+        if idx > s:
+            e = idx
+    return s, e
+
+
+def render_notes(notes, container, make_urls_clickable):
+    current_para = E.p()
+
     def add_para():
-        nonlocal current_block
-        container.appendChild(E.p(current_block))
+        nonlocal current_para
+        container.appendChild(current_para)
         if container.childNodes.length > 1:
             container.lastChild.style.marginTop = '2ex'
-        current_block = ''
+        current_para = E.p()
+
+    def add_line(line):
+        url_pat.lastIndex = 0
+        urls = v'[]'
+
+        while make_urls_clickable:
+            m = url_pat.exec(line)
+            if not m:
+                break
+            urls.push(url(line, m.index, url_pat.lastIndex))
+        if not urls.length:
+            current_para.appendChild(document.createTextNode(line))
+            return
+        pos = 0
+        for (s, e) in urls:
+            if s > pos:
+                current_para.appendChild(document.createTextNode(line[pos:s]))
+            current_para.appendChild(E.a(line[s:e], href='javascript: void(0)', class_='blue-link', onclick=ui_operations.open_url.bind(None, line[s:e])))
+        if urls[-1][1] < line.length:
+            current_para.appendChild(document.createTextNode(line[urls[-1][1]:]))
 
     for line in notes.splitlines():
         if not line or not line.strip():
-            if current_block:
+            if current_para.childNodes.length:
                 add_para()
                 continue
-        current_block += line + '\n'
-    if current_block:
+        add_line(line)
+    if current_para.childNodes.length:
         add_para()
     return container
 
@@ -847,7 +884,7 @@ def highlight_entry(h, onclick, view, hide_panel):
         E.div(class_='notes')
     )
     if h.notes:
-        render_notes(h.notes, ans.querySelector('.notes'))
+        render_notes(h.notes, ans.querySelector('.notes'), True)
     ans.dataset.notes = h.notes or ''
     ans.dataset.title = h.highlighted_text or ''
     return ans

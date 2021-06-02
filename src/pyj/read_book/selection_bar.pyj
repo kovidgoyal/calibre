@@ -366,7 +366,7 @@ class SelectionBar:
             c.style.maxHeight = 'min(20ex, 40vh)'
         else:
             c.style.maxHeight = '20ex'
-        render_notes(notes, c)
+        render_notes(notes, c, True)
     # }}}
 
     # accessors {{{
