@@ -4,11 +4,13 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import os
-from collections import defaultdict
-
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
@@ -19,30 +21,38 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     publisher = 'Popular Science'
     max_articles_per_feed = 100
     ignore_duplicate_articles = {'url'}
+    no_stylesheets = True
+    keep_only_tags = [
+        classes('content-body article-header featured-img'),
+    ]
+
+    def parse_section_index(self, slug):
+        soup = self.index_to_soup('https://www.popsci.com/{}/'.format(slug))
+        main = soup.find(**classes('main-module'))
+        for div in main.findAll(**classes('main-item')):
+            a = div.find('a', href=True, **classes('linkable'))
+            url = a['href']
+            title = self.tag_to_string(a.find(**classes('title')))
+            desc = ''
+            dek = a.find(**classes('dek'))
+            if dek is not None:
+                desc = self.tag_to_string(dek)
+            self.log(' ', title, url)
+            yield {'title': title, 'url': url, 'description': desc}
 
     def parse_index(self):
-        from lxml import etree
-        raw = self.index_to_soup('https://www.popsci.com/arcio/rss/', raw=True)
-        root = etree.fromstring(raw)
-        ans = defaultdict(list)
-        for item in root.iterdescendants('item'):
-            title = item.find('title').text
-            desc = item.find('description').text
-            author = item.find('dc:creator', {'dc': 'http://purl.org/dc/elements/1.1/'}).text
-            section = item.find('category').text
-            content = item.find('content:encoded', {'content': 'http://purl.org/rss/1.0/modules/content/'}).text
-            content = '<html><body><h1>{title}</h1><h3>{desc}</h3><p>{author}</p><div>{content}</div></body></html>'.format(
-                title=title, author=author, desc=desc, content=content)
-            if author:
-                desc += ' by ' + author
-            with PersistentTemporaryFile('popsci.html') as pt:
-                pt.write(content.encode('utf-8'))
-            ans[section].append({
-                'title': title,
-                'description': desc,
-                'url': 'file:///' + pt.name.replace(os.sep, '/'),
-            })
-        return [(sec, ans[sec]) for sec in sorted(ans)]
+        sections = []
+        for slug, title in {
+            'science': 'Science',
+            'technology': 'Technology',
+            'diy': 'DIY',
+            'reviews': 'Reviews',
+        }.items():
+            self.log('Section:', title)
+            articles = list(self.parse_section_index(slug))
+            if articles:
+                sections.append((title, articles))
+        return sections
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-medsrc': True}):
