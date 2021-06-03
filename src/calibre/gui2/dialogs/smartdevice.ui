@@ -30,8 +30,7 @@
       <string notr="true">QLabel { margin-bottom: 1ex; }</string>
      </property>
      <property name="text">
-      <string>&lt;p&gt;Start wireless device connections. Currently used only
-       by &lt;a href=&quot;https://calibrecompanion.co?utm_source=Calibre&amp;utm_medium=Software&amp;utm_campaign=Main&amp;utm_term=WirelessDeviceDialog&quot;&gt;Calibre Companion&lt;/a&gt;.
+      <string>&lt;p&gt;Start wireless device connections.
        &lt;p&gt;You may see some messages from your computer's firewall or anti-virus manager asking you if it is OK for calibre to connect to the network. &lt;b&gt;Please answer yes&lt;/b&gt;. If you do not, wireless connections will not work.</string>
      </property>
      <property name="wordWrap">

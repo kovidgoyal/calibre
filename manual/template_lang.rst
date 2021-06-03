@@ -389,6 +389,16 @@ In `GPM` the functions described in `Single Function Mode` all require an additi
 * ``connected_device_uuid(storage_location_key)`` -- if a device is connected then return the device uuid (unique id), otherwise return the empty string. Each storage location on a device has a different uuid. The ``storage_location_key`` location names are ``'main'``, ``'carda'`` and ``'cardb'``. This function works only in the GUI.
 * ``current_library_name()`` -- return the last name on the path to the current calibre library.
 * ``current_library_path()`` -- return the full path to the current calibre library.
+* ``date_arithmetic(date, calc_spec, fmt)`` -- Calculate a new date from ``date`` using ``calc_spec``. Return the new date formatted according to optional ``fmt``: if not supplied then the result will be in ISO format. The calc_spec is a string formed by concatenating pairs of ``vW`` (``valueWhat``) where ``v`` is a possibly-negative number and W is one of the following letters:
+
+    * ``s``: add ``v`` seconds to ``date``
+    * ``m``: add ``v`` minutes to ``date``
+    * ``h``: add ``v`` hours to ``date``
+    * ``d``: add ``v`` days to ``date``
+    * ``w``: add ``v`` weeks to ``date``
+    * ``y``: add ``v`` years to ``date``, where a year is 365 days.
+
+  Example: ``'1s3d-1m'`` will add 1 second, add 3 days, and subtract 1 month from ``date``.
 * ``days_between(date1, date2)`` -- return the number of days between ``date1`` and ``date2``. The number is positive if ``date1`` is greater than ``date2``, otherwise negative. If either ``date1`` or ``date2`` are not dates, the function returns the empty string.
 * ``divide(x, y)`` -- returns ``x / y``. Throws an exception if either ``x`` or ``y`` are not numbers. This function can usually be replaced by the ``/`` operator.
 * ``eval(string)`` -- evaluates the string as a program, passing the local variables. This permits using the template processor to construct complex results from local variables. In :ref:`Template Program Mode <template_mode>`, because the `{` and `}` characters are interpreted before the template is evaluated you must use `[[` for the `{` character and `]]` for the ``}`` character. They are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using :ref:`Template Program Mode <template_mode>`.
