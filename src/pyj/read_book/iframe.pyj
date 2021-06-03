@@ -764,10 +764,11 @@ class IframeBoss:
         x, y = scroll_viewport.x(), scroll_viewport.y()
         if select_search_result(sr):
             self.ensure_selection_boundary_visible()
-            if from_load and current_layout_mode() is 'paged':
+            need_workaround = from_load and current_layout_mode() is 'paged'
+            if need_workaround:
                 # workaround bug in chrome where sizes are incorrect in paged
                 # mode on initial load for some books
-                self.load_search_result_timer = window.setTimeout(self.ensure_selection_boundary_visible, 750)
+                self.load_search_result_timer = window.setTimeout(self.ensure_search_result_visible, 750)
             if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
                 discovered = False
                 if progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
@@ -778,6 +779,13 @@ class IframeBoss:
                 self.send_message('search_result_discovered', search_result=data.search_result, discovered=discovered)
         else:
             self.send_message('search_result_not_found', search_result=data.search_result)
+
+    def ensure_search_result_visible(self):
+        self.load_search_result_timer = None
+        sel = window.getSelection()
+        if sel.isCollapsed or sel.rangeCount is 0:
+            return
+        self.ensure_selection_boundary_visible()
 
     def set_reference_mode(self, data):
         self.reference_mode_enabled = data.enabled
