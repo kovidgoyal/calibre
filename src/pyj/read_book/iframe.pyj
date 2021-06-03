@@ -74,6 +74,7 @@ from utils import debounce, is_ios
 
 FORCE_FLOW_MODE = False
 CALIBRE_VERSION = '__CALIBRE_VERSION__'
+ONSCROLL_DEBOUNCE_TIME = 1000
 ERS_SUPPORTED_FEATURES = {'dom-manipulation', 'layout-changes', 'touch-events', 'mouse-events', 'keyboard-events', 'spine-scripting'}
 
 
@@ -205,7 +206,7 @@ class IframeBoss:
     def initialize(self, data):
         scroll_viewport.update_window_size(data.width, data.height)
         window.addEventListener('error', self.onerror)
-        window.addEventListener('scroll', debounce(self.onscroll, 1000))
+        window.addEventListener('scroll', debounce(self.onscroll, ONSCROLL_DEBOUNCE_TIME))
         window.addEventListener('scroll', self.no_latency_onscroll)
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel, {'passive': False})
@@ -485,7 +486,7 @@ class IframeBoss:
         self.auto_scroll_action('resume')
         reset_touch_handlers() # Needed to mitigate issue https://bugs.chromium.org/p/chromium/issues/detail?id=464579
 
-        window.setTimeout(self.update_cfi, 0)
+        window.setTimeout(self.update_cfi, ONSCROLL_DEBOUNCE_TIME)
         window.setTimeout(self.update_toc_position, 0)
         load_event = document.createEvent('Event')
         load_event.initEvent('load', False, False)
@@ -527,7 +528,7 @@ class IframeBoss:
         self.send_message(
             'report_cfi', cfi=None, progress_frac=0, file_progress_frac=0, page_counts=page_counts(), request_id=data.request_id)
 
-    def update_cfi(self):
+    def update_cfi(self, force_update):
         cfi = current_cfi()
         if cfi:
             index = current_spine_item().index
@@ -535,7 +536,7 @@ class IframeBoss:
                 cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
                 pf = self.calculate_progress_frac()
                 fpf = progress_frac()
-                if cfi is not self.last_cfi:
+                if cfi is not self.last_cfi or force_update:
                     self.last_cfi = cfi
                     self.send_message(
                         'update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update,
@@ -761,31 +762,38 @@ class IframeBoss:
             elif self.full_book_search_in_progress?.first_result_shown:
                 return
         self.last_search_at = window.performance.now()
-        x, y = scroll_viewport.x(), scroll_viewport.y()
+        before_select_pos = {'x': scroll_viewport.x(), 'y': scroll_viewport.y()}
         if select_search_result(sr):
             self.ensure_selection_boundary_visible()
             need_workaround = from_load and current_layout_mode() is 'paged'
             if need_workaround:
                 # workaround bug in chrome where sizes are incorrect in paged
                 # mode on initial load for some books
-                self.load_search_result_timer = window.setTimeout(self.ensure_search_result_visible, 750)
+                self.load_search_result_timer = window.setTimeout(self.ensure_search_result_visible.bind(None, before_select_pos), int(3 * ONSCROLL_DEBOUNCE_TIME / 4))
             if self.full_book_search_in_progress and not self.full_book_search_in_progress.first_result_shown and sr.on_discovery:
                 discovered = False
                 if progress_frac() >= self.full_book_search_in_progress.progress_frac_at_start or current_spine_item().index is not self.full_book_search_in_progress.start_spine_index:
                     self.full_book_search_in_progress.first_result_shown = True
                     discovered = True
                 else:
-                    scroll_viewport.scroll_to(x, y)
+                    scroll_viewport.scroll_to(before_select_pos.x, before_select_pos.y)
                 self.send_message('search_result_discovered', search_result=data.search_result, discovered=discovered)
+            if not need_workaround:
+                self.add_search_result_to_history_stack(before_select_pos)
         else:
             self.send_message('search_result_not_found', search_result=data.search_result)
 
-    def ensure_search_result_visible(self):
+    def add_search_result_to_history_stack(self, before_select_pos):
+        self.replace_history_on_next_cfi_update = False
+        self.update_cfi(True)
+
+    def ensure_search_result_visible(self, before_select_pos):
         self.load_search_result_timer = None
         sel = window.getSelection()
         if sel.isCollapsed or sel.rangeCount is 0:
             return
         self.ensure_selection_boundary_visible()
+        self.add_search_result_to_history_stack(before_select_pos)
 
     def set_reference_mode(self, data):
         self.reference_mode_enabled = data.enabled
