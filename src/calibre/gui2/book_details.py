@@ -151,19 +151,19 @@ def init_find_in_grouped_search(menu, field, value, book_info):
         m.addAction(QIcon(get_icon_path(field, '')),
                     _('in category %s')%escape_for_menu(field_name),
                     lambda g=field: book_info.search_requested(
-                            '{}:"={}"'.format(g, value.replace('"', r'\"'))))
+                            '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
         for gst in gsts_to_show:
             icon_path = get_icon_path(gst, '@')
             m.addAction(QIcon(icon_path),
                         _('in grouped search %s')%gst,
                         lambda g=gst: book_info.search_requested(
-                                '{}:"={}"'.format(g, value.replace('"', r'\"'))))
+                                '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
     else:
         menu.addAction(QIcon(I('search.png')),
             _('Search calibre for {val} in category {name}').format(
                     val=escape_for_menu(value), name=escape_for_menu(field_name)),
             lambda g=field: book_info.search_requested(
-                    '{}:"={}"'.format(g, value.replace('"', r'\"'))))
+                    '{}:"={}"'.format(g, value.replace('"', r'\"')), ''))
 
 
 def render_html(mi, vertical, widget, all_fields=False, render_data_func=None, pref_name='book_display_fields'):  # {{{
@@ -918,7 +918,7 @@ class BookDetails(QWidget):  # {{{
     show_book_info = pyqtSignal()
     open_containing_folder = pyqtSignal(int)
     view_specific_format = pyqtSignal(int, object)
-    search_requested = pyqtSignal(object)
+    search_requested = pyqtSignal(object, object)
     remove_specific_format = pyqtSignal(int, object)
     remove_metadata_item = pyqtSignal(int, object, object)
     save_specific_format = pyqtSignal(int, object)
@@ -1030,7 +1030,14 @@ class BookDetails(QWidget):  # {{{
         typ, val = link.partition(':')[::2]
 
         def search_term(field, val):
-            self.search_requested.emit('{}:"={}"'.format(field, val.replace('"', '\\"')))
+            append = ''
+            if QApplication.instance().keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
+                append = 'OR'
+
+            self.search_requested.emit(
+                '{}:"={}"'.format(field, val.replace('"', '\\"')),
+                append
+            )
 
         def browse(url):
             try:

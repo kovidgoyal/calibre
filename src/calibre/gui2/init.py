@@ -664,7 +664,7 @@ class LayoutMixin(object):  # {{{
                 type=Qt.ConnectionType.QueuedConnection)
         self.book_details.open_containing_folder.connect(self.iactions['View'].view_folder_for_id)
         self.book_details.view_specific_format.connect(self.iactions['View'].view_format_by_id)
-        self.book_details.search_requested.connect(self.search.set_search_string)
+        self.book_details.search_requested.connect(self.set_search_string_with_append)
         self.book_details.remove_specific_format.connect(
                 self.iactions['Remove Books'].remove_format_by_id)
         self.book_details.remove_metadata_item.connect(
@@ -690,6 +690,14 @@ class LayoutMixin(object):  # {{{
             m.current_changed(self.library_view.currentIndex(),
                     self.library_view.currentIndex())
         self.library_view.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def set_search_string_with_append(self, expression, append=''):
+        current = self.search.text().strip()
+        if append:
+            expr = f'{current} {append} {expression}' if current else expression
+        else:
+            expr = expression
+        self.search.set_search_string(expr)
 
     def edit_identifiers_triggerred(self):
         book_id = self.library_view.current_book
