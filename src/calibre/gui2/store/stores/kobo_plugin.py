@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-store_version = 7  # Needed for dynamic plugin loading
+store_version = 8  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -48,7 +48,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
             else:
                 cover_url = None
 
-            for p in select('p.title', item):
+            for p in select('h2.title', item):
                 title = etree.tostring(p, method='text', encoding='unicode').strip()
                 for a in select('a[href]', p):
                     url = a.get('href')
@@ -58,9 +58,12 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 break
             else:
                 title = None
+            if title:
+                for p in select('p.subtitle', item):
+                    title += ' - ' + etree.tostring(p, method='text', encoding='unicode').strip()
 
             authors = []
-            for a in select('p.contributor-list a.contributor-name', item):
+            for a in select('.contributors a.contributor-name', item):
                 authors.append(etree.tostring(a, method='text', encoding='unicode').strip())
             authors = authors_to_string(authors)
 
@@ -127,5 +130,6 @@ class KoboStore(BasicStoreConfig, StorePlugin):
 
 if __name__ == '__main__':
     import sys
+
     for result in search_kobo(' '.join(sys.argv[1:]), write_html_to='/t/kobo.html'):
         print(result)
