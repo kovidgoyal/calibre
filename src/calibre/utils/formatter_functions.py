@@ -13,7 +13,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import inspect, re, traceback, numbers
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import trunc, floor, ceil, modf
 
 from calibre import human_readable, prints
@@ -1612,6 +1612,55 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         return '%.1f'%(i.days + (i.seconds/(24.0*60.0*60.0)))
 
 
+class BuiltinDateArithmetic(BuiltinFormatterFunction):
+    name = 'date_arithmetic'
+    arg_count = -1
+    category = 'Date functions'
+    __doc__ = doc = _('date_arithmetic(date, calc_spec, fmt) -- '
+            "Calculate a new date from 'date' using 'calc_spec'. Return the "
+            "new date formatted according to optional 'fmt': if not supplied "
+            "then the result will be in iso format. The calc_spec is a string "
+            "formed by concatenating pairs of 'vW' (valueWhat) where 'v' is a "
+            "possibly-negative number and W is one of the following letters: "
+            "s: add 'v' seconds to 'date' "
+            "m: add 'v' minutes to 'date' "
+            "h: add 'v' hours to 'date' "
+            "d: add 'v' days to 'date' "
+            "w: add 'v' weeks to 'date' "
+            "y: add 'v' years to 'date', where a year is 365 days. "
+            "Example: '1s3d-1m' will add 1 second, add 3 days, and subtract 1 "
+            "month from 'date'.")
+
+    calc_ops = {
+        's': lambda v: timedelta(seconds=v),
+        'm': lambda v: timedelta(minutes=v),
+        'h': lambda v: timedelta(hours=v),
+        'd': lambda v: timedelta(days=v),
+        'w': lambda v: timedelta(weeks=v),
+        'y': lambda v: timedelta(days=v * 365),
+        }
+
+    def evaluate(self, formatter, kwargs, mi, locals, date, calc_spec, fmt=None):
+        try:
+            d = parse_date(date)
+            if d == UNDEFINED_DATE:
+                return ''
+            while calc_spec:
+                mo = re.match('([-+\d]+)([smhdwy])', calc_spec)
+                if mo is None:
+                    raise ValueError(
+                        _("{0}: invalid calculation specifier '{1}'").format(
+                            'date_arithmetic', calc_spec))
+                d += self.calc_ops[mo[2]](int(mo[1]))
+                calc_spec = calc_spec[len(mo[0]):]
+            return format_date(d, fmt if fmt else 'iso')
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            traceback.print_exc()
+            raise ValueError(_("{0}: error: {1}").format('date_arithmetic', str(e)))
+
+
 class BuiltinLanguageStrings(BuiltinFormatterFunction):
     name = 'language_strings'
     arg_count = 2
@@ -2044,6 +2093,7 @@ _formatter_builtins = [
     BuiltinCapitalize(), BuiltinCharacter(), BuiltinCheckYesNo(), BuiltinCeiling(),
     BuiltinCmp(), BuiltinConnectedDeviceName(), BuiltinConnectedDeviceUUID(), BuiltinContains(),
     BuiltinCount(), BuiltinCurrentLibraryName(), BuiltinCurrentLibraryPath(),
+    BuiltinDateArithmetic(),
     BuiltinDaysBetween(), BuiltinDivide(), BuiltinEval(), BuiltinFirstNonEmpty(),
     BuiltinField(), BuiltinFieldExists(),
     BuiltinFinishFormatting(), BuiltinFirstMatchingCmp(), BuiltinFloor(),
