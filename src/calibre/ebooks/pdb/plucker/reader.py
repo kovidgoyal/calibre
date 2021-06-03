@@ -371,7 +371,7 @@ class Reader(FormatReader):
                         html += self.process_phtml(section_data.data, section_data.header.paragraph_offsets)
                     elif section_header.type == DATATYPE_PHTML_COMPRESSED:
                         d = self.decompress_phtml(section_data.data)
-                        html += self.process_phtml(d, section_data.header.paragraph_offsets).decode(self.get_text_uid_encoding(section_header.uid), 'replace')
+                        html += self.process_phtml(d, section_data.header.paragraph_offsets)
                     html += '</body></html>'
                     htmlf.write(html.encode('utf-8'))
 
@@ -476,7 +476,7 @@ class Reader(FormatReader):
             from calibre.ebooks.compression.palmdoc import decompress_doc
             return decompress_doc(data)
 
-    def process_phtml(self, d, paragraph_offsets=[]):
+    def process_phtml(self, d, paragraph_offsets=()):
         html = u'<p id="p0">'
         offset = 0
         paragraph_open = True
@@ -728,9 +728,3 @@ class Reader(FormatReader):
             html += u'</p>'
 
         return html
-
-    def get_text_uid_encoding(self, uid):
-        # Return the user sepcified input encoding,
-        # otherwise return the alternate encoding specified for the uid,
-        # otherwise retur the default encoding for the document.
-        return self.options.input_encoding if self.options.input_encoding else self.uid_text_secion_encoding.get(uid, self.default_encoding)
