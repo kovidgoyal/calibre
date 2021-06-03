@@ -1629,7 +1629,7 @@ class BuiltinDateArithmetic(BuiltinFormatterFunction):
             "w: add 'v' weeks to 'date' "
             "y: add 'v' years to 'date', where a year is 365 days. "
             "Example: '1s3d-1m' will add 1 second, add 3 days, and subtract 1 "
-            "month from 'date'.")
+            "minute from 'date'.")
 
     calc_ops = {
         's': lambda v: timedelta(seconds=v),
@@ -1638,7 +1638,7 @@ class BuiltinDateArithmetic(BuiltinFormatterFunction):
         'd': lambda v: timedelta(days=v),
         'w': lambda v: timedelta(weeks=v),
         'y': lambda v: timedelta(days=v * 365),
-        }
+    }
 
     def evaluate(self, formatter, kwargs, mi, locals, date, calc_spec, fmt=None):
         try:
