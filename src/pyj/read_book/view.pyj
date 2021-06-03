@@ -779,10 +779,15 @@ class View:
 
     def on_iframe_error(self, data):
         title = data.title or _('There was an error processing the book')
+        msg = _('Unknown error')
+        if data.errkey:
+            if data.errkey is 'no-auto-scroll-in-paged-mode':
+                title = _('No auto scroll in paged mode')
+                msg = _('Switch to flow mode (Viewer preferences->Page layout) to enable auto scrolling')
         if data.is_non_critical:
-            warning_dialog(title, data.msg, data.details, on_close=ui_operations.focus_iframe)
+            warning_dialog(title, msg, data.details, on_close=ui_operations.focus_iframe)
             return
-        ui_operations.show_error(title, data.msg, data.details)
+        ui_operations.show_error(title, msg, data.details)
 
     def apply_color_scheme(self):
         self.current_color_scheme = ans = resolve_color_scheme()
