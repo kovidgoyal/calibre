@@ -784,6 +784,11 @@ class View:
             if data.errkey is 'no-auto-scroll-in-paged-mode':
                 title = _('No auto scroll in paged mode')
                 msg = _('Switch to flow mode (Viewer preferences->Page layout) to enable auto scrolling')
+            elif data.errkey is 'changing-columns-in-flow-mode':
+                title=_('In flow mode')
+                msg=_('Cannot change number of pages per screen in flow mode, switch to paged mode first.')
+            elif data.errkey = 'unhandled-error':
+                title = _('Unhandled error')
         if data.is_non_critical:
             warning_dialog(title, msg, data.details, on_close=ui_operations.focus_iframe)
             return

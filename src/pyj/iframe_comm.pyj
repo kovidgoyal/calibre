@@ -9,7 +9,7 @@ import traceback
 from book_list.globals import get_translations, main_js
 from book_list.theme import get_font_family
 from dom import ensure_id
-from gettext import gettext as _, install
+from gettext import install
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -227,7 +227,7 @@ class IframeClient:
                 console.log(e)
                 details = traceback.format_exc()
                 console.log(details)
-                self.send_message('error', title=_('Error in message handler'), details=details, msg=e.toString())
+                self.send_message('error', title='Error in message handler', details=details, msg=e.toString())
         else:
             print('Unknown action in message to iframe from parent: ' + data.action)
 

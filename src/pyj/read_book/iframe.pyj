@@ -4,7 +4,6 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from fs_images import fix_fullscreen_svg_images
-from gettext import gettext as _
 from iframe_comm import IframeClient
 from range_utils import (
     highlight_associated_with_selection, last_span_for_crw, reset_highlight_counter,
@@ -242,7 +241,7 @@ class IframeBoss:
                 details = traceback.format_exception(error_object).join('') if error_object else ''
                 if details:
                     console.log(details)
-                self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
+                self.send_message('error', errkey='unhandled-error', details=details, msg=msg)
             except:
                 console.log('There was an error in the iframe unhandled exception handler')
         else:
@@ -379,8 +378,7 @@ class IframeBoss:
 
     def change_number_of_columns(self, data):
         if current_layout_mode() is 'flow':
-            self.send_message('error', title=_('In flow mode'), msg=_(
-                'Cannot change number of pages per screen in flow mode, switch to paged mode first.'))
+            self.send_message('error', errkey='changing-columns-in-flow-mode')
             return
         cdata = get_columns_per_screen_data()
         delta = int(data.delta)
