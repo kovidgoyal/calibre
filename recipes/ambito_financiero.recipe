@@ -9,14 +9,8 @@ https://www.ambito.com/contenidos/edicion-impresa.html
 '''
 
 import time
-try:
-    from urllib.parse import urlencode
-except ImportError:
-    from urllib import urlencode
-import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 
 class Ambito_Financiero(BasicNewsRecipe):

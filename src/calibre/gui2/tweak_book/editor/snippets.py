@@ -5,15 +5,17 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, copy, weakref
+import copy
+import re
+import weakref
 from collections import OrderedDict, namedtuple
 from itertools import groupby
 from operator import attrgetter, itemgetter
-
 from qt.core import (
-    Qt, QObject, QSize, QVBoxLayout, QStackedLayout, QWidget, QLineEdit, QListView,
-    QToolButton, QIcon, QHBoxLayout, QPushButton, QListWidget, QListWidgetItem,
-    QGridLayout, QPlainTextEdit, QLabel, QFrame, QDialog, QDialogButtonBox, QTextCursor)
+    QDialog, QDialogButtonBox, QFrame, QGridLayout, QHBoxLayout, QIcon, QLabel,
+    QLineEdit, QListView, QListWidget, QListWidgetItem, QObject, QPushButton, QSize,
+    QStackedLayout, Qt, QTextCursor, QToolButton, QVBoxLayout, QWidget
+)
 
 from calibre.constants import ismacos
 from calibre.gui2 import error_dialog
@@ -23,7 +25,9 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, unicode_type, range
+from polyglot.builtins import (
+    codepoint_to_chr, iteritems, itervalues, range, unicode_type
+)
 
 string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key.Key_J

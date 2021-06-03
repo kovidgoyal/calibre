@@ -27,7 +27,7 @@ class Infobae(BasicNewsRecipe):
     handle_gzip = True
     compress_news_images = True
     scale_news_images_to_device = True
-    ignore_duplicate_articles = {'url'}    
+    ignore_duplicate_articles = {'url'}
     masthead_url = 'https://www.infobae.com/pf/resources/images/logo_infobae_naranja.svg?d=662'
     extra_css             = '''
                               body{font-family: Arial,Helvetica,sans-serif}
