@@ -481,7 +481,7 @@ class EditSnippet(QWidget):
         t.setPlaceholderText(_('The text used to trigger this snippet'))
         add_row(_('Tri&gger:'), t)
 
-        self.template = t = QPlainTextEdit(self)
+        self.template = t = PlainTextEdit(self)
         la.setBuddy(t)
         add_row(_('&Template:'), t)
 
