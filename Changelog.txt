@@ -23,6 +23,35 @@
 # - title by author
 # }}}
 
+{{{ 5.20.0 2021-06-04
+
+:: new features
+
+- E-book viewer: Highlights: Make URLs in the notes for highlights clickable
+
+- [1930136] Book details: Ctrl-clicking on tags now adds them to the existing search instead of replacing it
+
+- E-book viewer: Allow using the back button to return from jumping to a search result
+
+:: bug fixes
+
+- Get books: Fix the Kobo store plugin for changes to the website
+
+- [1929827] Edit book: Fix non breaking spaces in snippets being converted to normal spaces
+
+- [1930466] ToC Editor: Fix a regression that caused changes to not be saved on machines where running a worker process takes more than ten seconds
+
+- Fix error when changing the "Search the net" URLs for the Content server
+
+:: improved recipes
+- Jerusalem Post
+- Popular Science
+- Ambito Financiero
+- Ambito.com
+- Infobae
+
+}}}
+
 {{{ 5.19.0 2021-05-28
 
 :: new features
