@@ -1115,7 +1115,7 @@ Give the Tag browser keyboard focus' changes the keyboard focus without
 using the mouse.&lt;/p&gt;</string>
          </property>
          <property name="text">
-          <string>Allow the Tag browser to have keyboard focus</string>
+          <string>Allow the Tag browser to have keyboard &amp;focus</string>
          </property>
         </widget>
        </item>
