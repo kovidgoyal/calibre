@@ -112,6 +112,7 @@ class ResultsDelegate(QStyledItemDelegate):  # {{{
 class SearchBox(HistoryComboBox):  # {{{
 
     history_saved = pyqtSignal(object, object)
+    history_cleared = pyqtSignal()
     cleared = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -126,6 +127,10 @@ class SearchBox(HistoryComboBox):  # {{{
         ret = HistoryComboBox.save_history(self)
         self.history_saved.emit(self.text(), self.history)
         return ret
+
+    def clear_history(self):
+        super().clear_history()
+        self.history_cleared.emit()
 
     def contextMenuEvent(self, event):
         menu = self.lineEdit().createStandardContextMenu()
