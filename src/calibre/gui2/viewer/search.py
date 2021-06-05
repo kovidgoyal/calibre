@@ -5,17 +5,18 @@
 import json
 import regex
 from collections import Counter, OrderedDict
+from html import escape
 from qt.core import (
     QCheckBox, QComboBox, QFont, QHBoxLayout, QIcon, QLabel, Qt, QToolButton,
     QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
 from threading import Thread
-from html import escape
 
 from calibre.ebooks.conversion.search_replace import REGEX_FLAGS
 from calibre.gui2 import warning_dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
-from calibre.gui2.viewer.web_view import get_data, get_manifest, vprefs
+from calibre.gui2.viewer.config import vprefs
+from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
 from polyglot.builtins import iteritems, map, unicode_type
 from polyglot.functools import lru_cache

@@ -249,8 +249,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 config[key] = []
         self.gui.search.clear_history()
         from calibre.gui2.widgets import history
-        for key in 'bulk_edit_search_for bulk_edit_replace_with'.split():
+        for key in (
+            'bulk_edit_search_for', 'bulk_edit_replace_with',
+            'viewer-highlights-search-panel-expression',
+            'viewer-search-panel-expression',
+        ):
             history.set('lineedit_history_' + key, [])
+        from calibre.gui2.viewer.config import vprefs
+        for k in ('search', 'highlights'):
+            vprefs.set(f'saved-{k}-settings', {})
 
 
 if __name__ == '__main__':
