@@ -3674,18 +3674,17 @@ class KOBOTOUCH(KOBO):
                     ' "Attempt to support newer firmware" option.'
                     ' Doing so may require you to perform a factory reset of'
                     ' your Kobo.'
-                    ) + 
+                    ) +
                     '\n\n' +
                     _('Discussion of any new Kobo firmware can be found in the'
                       ' Kobo forum at MobileRead. This is at %s.'
-                      ) % 'https://www.mobileread.com/forums/forumdisplay.php?f=223'
-                    + 
-                    '\n' +
+                      ) % 'https://www.mobileread.com/forums/forumdisplay.php?f=223' + '\n' +
                     (
                     '\nDevice database version: %s.'
                     '\nDevice firmware version: %s'
                      ) % (self.dbversion, self.fwversion),
-                     UserFeedback.WARN)
+                    UserFeedback.WARN
+                    )
 
                 return False
             else:
