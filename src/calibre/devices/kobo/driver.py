@@ -1386,6 +1386,7 @@ class KOBOTOUCH(KOBO):
     min_fwversion_dropbox           = (4, 18, 13737)  # The Forma only at this point.
     min_fwversion_serieslist        = (4, 20, 14601)  # Series list needs the SeriesID to be set.
     min_nia_fwversion               = (4, 22, 15202)
+    min_elipsa_fwversion            = (4, 27, 16704)  # TODO: Get the correct version.
 
     has_kepubs = True
 
@@ -1412,6 +1413,7 @@ class KOBOTOUCH(KOBO):
     AURA_H2O_EDITION2_PRODUCT_ID = [0x4227]
     AURA_ONE_PRODUCT_ID = [0x4225]
     CLARA_HD_PRODUCT_ID = [0x4228]
+    ELIPSA_PRODUCT_ID   = [0x4233]
     FORMA_PRODUCT_ID    = [0x4229]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
@@ -1425,9 +1427,9 @@ class KOBOTOUCH(KOBO):
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
                           AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID + \
-                          NIA_PRODUCT_ID
+                          NIA_PRODUCT_ID + ELIPSA_PRODUCT_ID
 
-    BCD = [0x0110, 0x0326, 0x401]
+    BCD = [0x0110, 0x0326, 0x401, 0x409]
 
     # Image file name endings. Made up of: image size, min_dbversion, max_dbversion, isFullSize,
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
@@ -1481,6 +1483,7 @@ class KOBOTOUCH(KOBO):
                           #       c.f., https://github.com/shermp/Kobo-UNCaGED/pull/17#discussion_r286209827
                           ' - N3_FULL.parsed':        [(1080,1429), 0, 200,True,],
                           }
+    # Aura ONE and Elipsa have the same resolution.
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],
@@ -2669,7 +2672,7 @@ class KOBOTOUCH(KOBO):
         self, cover_data, resize_to, minify_to, kobo_size,
         upload_grayscale=False, dithered_covers=False, keep_cover_aspect=False, is_full_size=False, letterbox=False, png_covers=False, quality=90,
         letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
-):
+        ):
         '''
         This will generate the new cover image from the cover in the library. It is a wrapper
         for save_cover_data_to to allow it to be overriden in a subclass. For this reason,
@@ -2698,10 +2701,10 @@ class KOBOTOUCH(KOBO):
         return data
 
     def _upload_cover(
-        self, path, filename, metadata, filepath, upload_grayscale,
-        dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False,
-        letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
-):
+            self, path, filename, metadata, filepath, upload_grayscale,
+            dithered_covers=False, keep_cover_aspect=False, letterbox_fs_covers=False, png_covers=False,
+            letterbox_color=DEFAULT_COVER_LETTERBOX_COLOR
+            ):
         from calibre.utils.imghdr import identify
         from calibre.utils.img import optimize_png
         debug_print("KoboTouch:_upload_cover - filename='%s' upload_grayscale='%s' dithered_covers='%s' "%(filename, upload_grayscale, dithered_covers))
@@ -3386,6 +3389,9 @@ class KOBOTOUCH(KOBO):
     def isClaraHD(self):
         return self.detected_device.idProduct in self.CLARA_HD_PRODUCT_ID
 
+    def isElipsa(self):
+        return self.detected_device.idProduct in self.ELIPSA_PRODUCT_ID
+
     def isForma(self):
         return self.detected_device.idProduct in self.FORMA_PRODUCT_ID
 
@@ -3425,6 +3431,8 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
         elif self.isClaraHD():
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
+        elif self.isElipsa():
+            _cover_file_endings = self.AURA_ONE_COVER_FILE_ENDINGS
         elif self.isForma():
             _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
         elif self.isGlo():
@@ -3465,6 +3473,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Aura ONE'
         elif self.isClaraHD():
             device_name = 'Kobo Clara HD'
+        elif self.isElipsa():
+            device_name = 'Kobo Elipsa'
         elif self.isForma():
             device_name = 'Kobo Forma'
         elif self.isGlo():
@@ -3660,10 +3670,18 @@ class KOBOTOUCH(KOBO):
                     ' If you are willing to experiment and know how to reset'
                     ' your Kobo to Factory defaults, you can override this'
                     ' check by right clicking the device icon in calibre and'
-                    ' selecting "Configure this device" and then the '
+                    ' selecting "Configure this device" and then the'
                     ' "Attempt to support newer firmware" option.'
                     ' Doing so may require you to perform a factory reset of'
-                    ' your Kobo.') + (
+                    ' your Kobo.'
+                    ) + 
+                    '\n\n' +
+                    _('Discussion of any new Kobo firmware can be found in the'
+                      ' Kobo forum at MobileRead. This is at %s.'
+                      ) % 'https://www.mobileread.com/forums/forumdisplay.php?f=223'
+                    + 
+                    '\n' +
+                    (
                     '\nDevice database version: %s.'
                     '\nDevice firmware version: %s'
                      ) % (self.dbversion, self.fwversion),
