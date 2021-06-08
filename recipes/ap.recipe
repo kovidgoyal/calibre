@@ -3,45 +3,44 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
+import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 
-def classes(classes):
-    q = frozenset(classes.split(' '))
-    return dict(
-        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)}
-    )
-
-
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
+def extract_article(raw):
+    ms = re.search(r"window\['titanium-state'\]", raw)
+    me = re.search(r"window\['titanium-cacheConfig'\]", raw)
+    raw = raw[ms.start():me.start()]
+    raw = raw[raw.find('{'):]
+    data = json.loads(raw)
+    data = tuple(data['content']['data'].values())[0]
+    story_html = '<h1>' + data['headline'] + '</h1>\n'
+    story_html += '<p>' + data['bylines'] + '</p>\n'
+    story_html += '<p>' + data['published'] + '</p>\n'
+    for m in data.get('media', ()):
+        sizes = m['imageRenderedSizes']
+        if sizes:
+            sz = 800 if 800 in sizes else sizes[0]
+            url = m['gcsBaseUrl'] + '{}{}'.format(sz, m['imageFileExtension'])
+            story_html += '\n<div><img src="' + url + '"/></div>\n'
+            story_html += '<div>' + m['caption'] + '</div>\n'
+    story_html += '\n<div>' + data['storyHTML'] + '</div>'
+    return '<html><body>' + story_html + '</body></html>'
 
 
 class AssociatedPress(BasicNewsRecipe):
 
     title = u'Associated Press'
     description = 'Global news'
-    __author__ = 'Krittika Goyal'
+    __author__ = 'Kovid Goyal'
     use_embedded_content = False
     language = 'en'
     encoding = 'utf-8'
     no_stylesheets = True
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = False
-    keep_only_tags = [
-        classes('CardHeadline LeadFeature Article'),
-    ]
-    remove_tags = [
-        classes('ad-placeholder modalImageButton modalVideoButton'),
-        dict(name=['button', 'svg']),
-    ]
 
     def parse_index(self):
         feeds = []
@@ -80,10 +79,5 @@ class AssociatedPress(BasicNewsRecipe):
         self.log('')
         return articles
 
-    def preprocess_html(self, soup, *a):
-        for meta in soup.findAll('meta', attrs=dict(name="twitter:image:alt")):
-            for div in soup.findAll(**classes('LeadFeature')):
-                img = new_tag(soup, 'img')
-                img['src'] = meta['content']
-                div.insert(0, img)
-        return soup
+    def preprocess_raw_html(self, raw_html, url):
+        return extract_article(raw_html)
