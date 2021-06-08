@@ -279,7 +279,7 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 el.attrib[attrib] = new
 
     parser = CSSParser(raiseExceptions=False, log=_css_logger,
-            fetcher=lambda x:(None, None))
+            fetcher=lambda x:(None, ''))
     for el in root.iter(etree.Element):
         try:
             tag = el.tag
@@ -922,6 +922,7 @@ class Manifest(object):
             self.media_type = media_type
             self.fallback = fallback
             self.override_css_fetch = None
+            self.resolve_css_imports = True
             self.spine_position = None
             self.linear = True
             if loader is None and data is None:
@@ -986,7 +987,8 @@ class Manifest(object):
                                fetcher=self.override_css_fetch or self._fetch_css,
                                log=_css_logger)
             data = parser.parseString(data, href=self.href, validate=False)
-            data = resolveImports(data)
+            if self.resolve_css_imports:
+                data = resolveImports(data)
             for rule in tuple(data.cssRules.rulesOfType(CSSRule.PAGE_RULE)):
                 data.cssRules.remove(rule)
             return data
@@ -1053,6 +1055,9 @@ class Manifest(object):
         @data.deleter
         def data(self):
             self._data = None
+
+        def reparse_css(self):
+            self._data = self._parse_css(str(self))
 
         def unload_data_from_memory(self, memory=None):
             if isinstance(self._data, bytes):

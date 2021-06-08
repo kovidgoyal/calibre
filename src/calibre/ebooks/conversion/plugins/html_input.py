@@ -177,6 +177,7 @@ class HTMLInput(InputFormatPlugin):
         self.urlnormalize, self.DirContainer = urlnormalize, DirContainer
         self.urldefrag = urldefrag
         self.guess_type, self.BINARY_MIME = guess_type, BINARY_MIME
+        self.stylesheets_to_process = []
 
         self.log('Rewriting HTML links')
         for f in filelist:
@@ -190,15 +191,14 @@ class HTMLInput(InputFormatPlugin):
                 item = oeb.manifest.hrefs[urlnormalize(href)]
             rewrite_links(item.data, partial(self.resource_adder, base=dpath))
 
-        for item in oeb.manifest.values():
+        while self.stylesheets_to_process:
+            sheet = self.stylesheets_to_process.pop()
+            css_parser.replaceUrls(sheet.data, partial(self.resource_adder, base=sheet.html_input_dirpath))
+        for item in oeb.manifest:
             if item.media_type in self.OEB_STYLES:
-                dpath = None
-                for path, href in self.added_resources.items():
-                    if href == item.href:
-                        dpath = os.path.dirname(path)
-                        break
-                css_parser.replaceUrls(item.data,
-                        partial(self.resource_adder, base=dpath))
+                item.resolve_css_imports = True
+                item.override_css_fetch = None
+                item.reparse_css()
 
         toc = self.oeb.toc
         self.oeb.auto_generated_toc = True
@@ -272,10 +272,11 @@ class HTMLInput(InputFormatPlugin):
         if not self.is_case_sensitive(tempfile.gettempdir()):
             link = link.lower()
         if link not in self.added_resources:
+            guessed = self.guess_type(os.path.basename(link))[0]
+            media_type = guessed or self.BINARY_MIME
+            is_stylesheet = media_type in self.OEB_STYLES
             bhref = os.path.basename(link)
             id, href = self.oeb.manifest.generate(id='added', href=sanitize_file_name(bhref))
-            guessed = self.guess_type(href)[0]
-            media_type = guessed or self.BINARY_MIME
             if media_type == 'text/plain':
                 self.log.warn('Ignoring link to text file %r'%link_)
                 return None
@@ -289,7 +290,7 @@ class HTMLInput(InputFormatPlugin):
                     if img:
                         media_type = self.guess_type('dummy.'+img)[0] or self.BINARY_MIME
 
-            self.oeb.log.debug('Added', link)
+            self.oeb.log.debug('Added', link, 'with href:', href)
             self.oeb.container = self.DirContainer(os.path.dirname(link),
                     self.oeb.log, ignore_opf=True)
             # Load into memory
@@ -300,9 +301,11 @@ class HTMLInput(InputFormatPlugin):
             if isinstance(bhref, unicode_type):
                 bhref = bhref.encode('utf-8')
             item.html_input_href = as_unicode(quote(bhref))
-            if guessed in self.OEB_STYLES:
-                item.override_css_fetch = partial(
-                        self.css_import_handler, os.path.dirname(link))
+            if is_stylesheet:
+                item.html_input_dirpath = os.path.dirname(link)
+                item.resolve_css_imports = False
+                item.override_css_fetch = lambda url: (None, '')
+                self.stylesheets_to_process.append(item)
             item.data
             self.added_resources[link] = href
 
@@ -310,16 +313,3 @@ class HTMLInput(InputFormatPlugin):
         if frag:
             nlink = '#'.join((nlink, frag))
         return nlink
-
-    def css_import_handler(self, base, href):
-        link, frag = self.link_to_local_path(href, base=base)
-        if link is None or not os.access(link, os.R_OK) or os.path.isdir(link):
-            return None, None
-        try:
-            with open(link, 'rb') as f:
-                raw = f.read().decode('utf-8', 'replace')
-            raw = self.oeb.css_preprocessor(raw, add_namespace=False)
-        except:
-            self.log.exception('Failed to read CSS file: %r'%link)
-            return None, None
-        return None, raw
