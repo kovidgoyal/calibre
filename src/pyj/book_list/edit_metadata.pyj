@@ -52,7 +52,7 @@ add_extra_css(def():
     style += build_rule(sel + 'table.metadata tr:hover', color='red')
     style += build_rule(sel + 'table.metadata tr:active', transform='scale(1.5)')
 
-    style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center')
+    style += build_rule(sel + '.completions', display='flex', flex_wrap='wrap', align_items='center', margin_bottom='0.5ex')
     style += build_rule(sel + '.completions > div', margin='0.5ex 0.5rem', margin_left='0', padding='0.5ex 0.5rem', border='solid 1px currentColor', border_radius='1ex', cursor='pointer')
     style += build_rule(sel + '.completions > div:active', transform='scale(1.5)')
     style += build_rule(sel + '.completions > div:hover', background=get_color('window-foreground'), color=get_color('window-background'))
@@ -237,6 +237,19 @@ def number_edit(container_id, book_id, field, fm, div, mi):
 
 # Line edit with completions {{{
 
+def remove_item(container_id, name):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    le = c.querySelector('[data-ctype="edit"] input')
+    val = le.value or ''
+    val = value_to_json(val)
+    val = [x for x in val if x is not name]
+    le.value = val.join(update_completions.list_to_ui)
+    le.focus()
+    line_edit_updated(container_id, le.dataset.field)
+
+
 def add_completion(container_id, name):
     c = document.getElementById(container_id)
     if not c:
@@ -274,6 +287,28 @@ def query_contains(haystack, needle):
 
 def query_startswitch(haystack, needle):
     return haystack.toLowerCase().indexOf(needle) is 0
+
+
+def update_removals(container_id):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    d = c.querySelector('div[data-ctype="edit"]')
+    if not d or d.style.display is not 'block':
+        return
+    div = d.lastChild.previousSibling
+    clear(div)
+    val = d.querySelector('input').value or ''
+    val = value_to_json(val)
+    if jstype(val) is 'string' or not val.length:
+        return
+    div.appendChild(E.div(_('Tap to remove:')))
+    removals = E.div(class_='completions')
+    div.appendChild(removals)
+    for i, name in enumerate(val):
+        removals.appendChild(E.div(E.span(style='color: ' + get_color('window-error-foreground'), svgicon('eraser'), '\xa0'), name, onclick=remove_item.bind(None, container_id, name)))
+        if i >= 50:
+            break
 
 
 def update_completions(container_id, ok, field, names):
@@ -321,6 +356,7 @@ update_completions.prefix = ''
 
 def line_edit_updated(container_id, field):
     field_names_for(field, update_completions.bind(None, container_id))
+    update_removals(container_id)
 
 
 def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm, div, mi):
@@ -361,6 +397,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     else:
         value_to_json = identity
     field_names_for(field, update_completions.bind(None, container_id))
+    update_removals(container_id)
 # }}}
 
 # Series edit {{{
