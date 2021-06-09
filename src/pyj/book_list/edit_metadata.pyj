@@ -258,9 +258,11 @@ def add_completion(container_id, name):
 def show_completions(container_id, div, field, prefix, names):
     clear(div)
     completions = E.div(class_='completions')
+    if names.length:
+        div.appendChild(E.div(_('Tap to add:')))
     div.appendChild(completions)
     for i, name in enumerate(names):
-        completions.appendChild(E.div(name, onclick=add_completion.bind(None, container_id, name)))
+        completions.appendChild(E.div(E.span(style='color: green', svgicon('plus'), '\xa0'), name, onclick=add_completion.bind(None, container_id, name)))
         if i >= 50:
             break
 
