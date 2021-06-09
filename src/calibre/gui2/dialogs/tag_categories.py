@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from qt.core import (
-    Qt, QDialog, QIcon, QListWidgetItem)
+    Qt, QApplication, QDialog, QIcon, QListWidgetItem)
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -103,6 +103,7 @@ class TagCategories(QDialog, Ui_TagCategories):
             self.category_filter_box.addItem(v)
         self.current_cat_name = None
 
+        self.copy_category_name_to_clipboard.clicked.connect(self.copy_category_name_to_clipboard_clicked)
         self.apply_button.clicked.connect(self.apply_button_clicked)
         self.unapply_button.clicked.connect(self.unapply_button_clicked)
         self.add_category_button.clicked.connect(self.add_category)
@@ -127,6 +128,10 @@ class TagCategories(QDialog, Ui_TagCategories):
         if self.current_cat_name is None:
             self.category_box.setCurrentIndex(0)
             self.select_category(0)
+
+    def copy_category_name_to_clipboard_clicked(self):
+        t = self.category_box.itemText(self.category_box.currentIndex())
+        QApplication.clipboard().setText(t)
 
     def initialize_category_lists(self, book_ids):
         self.db_categories = self.db.new_api.get_categories(book_ids=book_ids)
