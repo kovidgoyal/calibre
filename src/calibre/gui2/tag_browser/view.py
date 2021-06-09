@@ -180,6 +180,7 @@ class TagsView(QTreeView):  # {{{
 
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent=None)
+        self.possible_drag_start = None
         self.setProperty('frame_for_focus', True)
         self.setMouseTracking(True)
         self.alter_tb = None
@@ -384,7 +385,12 @@ class TagsView(QTreeView):  # {{{
 
     def mousePressEvent(self, event):
         if event.buttons() & Qt.MouseButton.LeftButton:
-            self.possible_drag_start = event.pos()
+            # Only remember a possible drag start if the item is drag enabled
+            dex = self.indexAt(event.pos())
+            if self._model.flags(dex) & Qt.ItemFlag.ItemIsDragEnabled:
+                self.possible_drag_start = event.pos()
+            else:
+                self.possible_drag_start = None
         return QTreeView.mousePressEvent(self, event)
 
     def mouseMoveEvent(self, event):
@@ -399,7 +405,8 @@ class TagsView(QTreeView):  # {{{
             QTreeView.mouseMoveEvent(self, event)
             return
         # don't start drag/drop until the mouse has moved a bit.
-        if ((event.pos() - self.possible_drag_start).manhattanLength() <
+        if (self.possible_drag_start is None or
+            (event.pos() - self.possible_drag_start).manhattanLength() <
                                     QApplication.startDragDistance()):
             QTreeView.mouseMoveEvent(self, event)
             return
