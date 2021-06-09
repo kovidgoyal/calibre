@@ -1001,6 +1001,7 @@ def on_close(container_id):
                 clear(d), clear(d.previousSibling)
                 q = parse_url_params()
                 show_book(container_id, int(q.book_id))
+                c.querySelector(f'.{CLASS_NAME}').focus()
                 return
         cq = get_current_query()
         if cq.from_read_book:
