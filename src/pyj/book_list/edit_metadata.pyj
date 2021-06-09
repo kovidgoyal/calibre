@@ -303,7 +303,7 @@ def update_completions(container_id, ok, field, names):
         interface_data = get_interface_data()
         universe = update_completions.names if update_completions.prefix and needle.startswith(update_completions.prefix.toLowerCase()) else names
         q = query_contains if interface_data.completion_mode is 'contains' else query_startswitch
-        matching_names = [x for x in universe if q(x, needle)]
+        matching_names = [x for x in universe if q(x, needle) and x is not prefix]
     else:
         matching_names = []
     update_completions.prefix = prefix
@@ -343,6 +343,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
         div.appendChild(E.div(style='margin: 0.5ex 1rem', _(
             'Edit the "{0}" below.').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem'))
     div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
     le.focus(), le.select()
     if list_to_ui:
