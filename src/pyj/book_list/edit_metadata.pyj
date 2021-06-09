@@ -2,10 +2,9 @@
 # License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-import traceback
 from elementmaker import E
-from gettext import gettext as _
 
+import traceback
 from ajax import ajax_send
 from book_list.book_details import (
     add_stars_to, basic_table_rules, fetch_metadata, field_sorter, no_book,
@@ -29,7 +28,8 @@ from dom import add_extra_css, build_rule, clear, svgicon
 from file_uploads import (
     update_status_widget, upload_files_widget, upload_status_widget
 )
-from modals import error_dialog
+from gettext import gettext as _
+from modals import error_dialog, question_dialog
 from session import get_interface_data
 from utils import (
     conditional_timeout, fmt_sidx, parse_url_params, safe_set_inner_html
@@ -1055,7 +1055,15 @@ def on_close(container_id):
                 document.location.protocol + '//' + document.location.host
             )
         else:
-            back()
+            if has_changes:
+                question_dialog(_('Are you sure'), _(
+                    'Any changes you have made will be discarded.'
+                    ' Do you wish to discard all changes?'), def (yes):
+                        if yes:
+                            back()
+                )
+            else:
+                back()
 
 
 def proceed_after_succesful_fetch_metadata(container_id, book_id):
