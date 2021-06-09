@@ -253,6 +253,7 @@ def add_completion(container_id, name):
             val.push(name)
         le.value = val.join(update_completions.list_to_ui) + update_completions.list_to_ui
     le.focus()
+    line_edit_updated(container_id, le.dataset.field)
 
 
 def show_completions(container_id, div, field, prefix, names):
@@ -328,7 +329,7 @@ def multiple_line_edit(list_to_ui, ui_to_list, container_id, book_id, field, fm,
     name = fm.name or field
     le = E.input(
         type='text', name=name.replace('#', '_c_'),
-        style='width: 100%', autocomplete='off',
+        style='width: 100%', autocomplete='off', data_field=field,
         oninput=line_edit_updated.bind(None, container_id, field)
     )
     val = (resolved_metadata(mi, field) or v'[]')
