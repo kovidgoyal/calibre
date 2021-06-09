@@ -38,7 +38,7 @@
        <item row="0" column="1">
         <widget class="QComboBox" name="category_box">
          <property name="toolTip">
-          <string>Copy category name to clipboard</string>
+          <string>Select a category to edit</string>
          </property>
          <property name="editable">
           <bool>false</bool>
