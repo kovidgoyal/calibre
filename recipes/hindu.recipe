@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import string
+import string, re
 
 
 def classes(classes):
@@ -30,9 +30,25 @@ class TheHindu(BasicNewsRecipe):
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src-template': True}):
-            img['src'] = img['data-src-template'].replace('BINARY/thumbnail', 'alternates/FREE_660')
+        img = soup.find('img', attrs={'class': 'lead-img'})
+        try:
+            src = img.parent.find('source').get('srcset')
+            img['src'] = re.sub(r'(ALTERNATES)/.+?/', r'\1/FREE_660/', src)
+        except (TypeError, AttributeError):
+            pass
+        # Remove duplicate intro
+        for h in soup.findAll('h2', attrs={'class': 'intro'})[1:]:
+            h.extract()
         return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        try:
+            desc = soup.find('meta', attrs={'name': 'description'}).get('content')
+            if not desc.startswith('Todays paper'):
+                desc += '...' if len(desc) >= 199 else ''   # indicate truncation
+                article.text_summary = article.summary = desc
+        except AttributeError:
+            return
 
     def articles_from_soup(self, soup):
         ans = []
