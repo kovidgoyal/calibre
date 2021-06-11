@@ -222,7 +222,7 @@
              <string>Check this box to remove all tags from the books.</string>
             </property>
             <property name="text">
-             <string>Remove &amp;all</string>
+             <string>&amp;Clear all</string>
             </property>
            </widget>
           </item>
@@ -464,8 +464,11 @@ from the value in the box</string>
           </item>
           <item row="11" column="2">
            <widget class="QCheckBox" name="clear_languages">
+            <property name="toolTip">
+             <string>Check this box to remove all languages from the books.</string>
+            </property>
             <property name="text">
-             <string>Remove &amp;all</string>
+             <string>Clear &amp;all</string>
             </property>
            </widget>
           </item>
@@ -756,8 +759,8 @@ as that of the first selected book.</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>933</width>
-         <height>660</height>
+         <width>100</width>
+         <height>30</height>
         </rect>
        </property>
       </widget>
@@ -777,8 +780,8 @@ as that of the first selected book.</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>933</width>
-         <height>660</height>
+         <width>804</width>
+         <height>388</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="vargrid">
@@ -1256,8 +1259,8 @@ not multiple and the destination field is multiple</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>915</width>
-             <height>340</height>
+             <width>203</width>
+             <height>70</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="testgrid">
