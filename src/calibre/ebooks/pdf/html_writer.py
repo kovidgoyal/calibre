@@ -15,10 +15,11 @@ from html5_parser import parse
 from io import BytesIO
 from itertools import count, repeat
 from qt.core import (
-    QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal
+    QApplication, QMarginsF, QObject, QPageLayout, Qt, QTimer, QUrl, pyqtSignal, sip
 )
-from qt.webengine import QWebEngineUrlRequestInterceptor
-from qt.webengine import QWebEnginePage, QWebEngineProfile
+from qt.webengine import (
+    QWebEnginePage, QWebEngineProfile, QWebEngineUrlRequestInterceptor
+)
 
 from calibre import detect_ncpus, human_readable, prepare_string_for_xml
 from calibre.constants import __version__, iswindows
@@ -226,7 +227,8 @@ class Renderer(QWebEnginePage):
 
     def printing_done(self, pdf_data):
         self.working = False
-        self.work_done.emit(self, bytes(pdf_data))
+        if not sip.isdeleted(self):
+            self.work_done.emit(self, bytes(pdf_data))
 
     def convert_html_file(self, path, page_layout, settle_time=0, wait_for_title=None):
         self.working = True
