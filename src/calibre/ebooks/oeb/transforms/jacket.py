@@ -127,7 +127,7 @@ class Jacket(Base):
 
         root = render_jacket(mi, self.opts.output_profile,
                 alt_title=title, alt_tags=tags, alt_authors=authors,
-                alt_comments=comments, rescale_fonts=True)
+                alt_comments=comments, rescale_fonts=True, smarten_punctuation=self.opts.smarten_punctuation)
         id, href = self.oeb.manifest.generate('calibre_jacket', 'jacket.xhtml')
 
         jacket = self.oeb.manifest.add(id, href, guess_type(href)[0], data=root)
@@ -260,7 +260,7 @@ class Identifiers:
 
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
-        alt_publisher='', rescale_fonts=False, alt_authors=None):
+        alt_publisher='', rescale_fonts=False, alt_authors=None, smarten_punctuation=False):
     css = P('jacket/stylesheet.css', data=True).decode('utf-8')
     template = P('jacket/template.xhtml', data=True).decode('utf-8')
 
@@ -385,6 +385,9 @@ def render_jacket(mi, output_profile,
 
     from calibre.ebooks.oeb.polish.parsing import parse
     raw = generate_html(comments)
+    if smarten_punctuation:
+        from calibre.ebooks.conversion.preprocess import smarten_punctuation as sp
+        raw = sp(raw)
     root = parse(raw, line_numbers=False, force_html5_parse=True)
 
     if rescale_fonts:
