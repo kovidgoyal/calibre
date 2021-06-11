@@ -489,15 +489,19 @@ from the value in the box</string>
         </item>
         <item>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0" colspan="2">
-           <widget class="QCheckBox" name="remove_conversion_settings">
-            <property name="toolTip">
-             <string>Remove stored conversion settings for the selected books.
-
-Future conversion of these books will use the default settings.</string>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="casing_algorithm">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="text">
-             <string>Remove &amp;stored conversion settings for the selected books</string>
+            <property name="minimumSize">
+             <size>
+              <width>150</width>
+              <height>0</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -515,6 +519,18 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
             </property>
            </widget>
           </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="remove_conversion_settings">
+            <property name="toolTip">
+             <string>Remove stored conversion settings for the selected books.
+
+Future conversion of these books will use the default settings.</string>
+            </property>
+            <property name="text">
+             <string>Remove &amp;stored conversion settings for the selected books</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QCheckBox" name="change_title_to_title_case">
             <property name="toolTip">
@@ -523,16 +539,6 @@ title and author are swapped before the title case is set</string>
             </property>
             <property name="text">
              <string>Change title &amp;case to:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="casing_algorithm">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
             </property>
            </widget>
           </item>
@@ -545,6 +551,19 @@ title and author are swapped before the title case is set</string>
              <string>Update &amp;title sort</string>
             </property>
            </widget>
+          </item>
+          <item row="0" column="3">
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </item>
@@ -737,8 +756,8 @@ as that of the first selected book.</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>100</width>
-         <height>30</height>
+         <width>933</width>
+         <height>660</height>
         </rect>
        </property>
       </widget>
@@ -758,8 +777,8 @@ as that of the first selected book.</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>777</width>
-         <height>388</height>
+         <width>933</width>
+         <height>660</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="vargrid">
@@ -1237,8 +1256,8 @@ not multiple and the destination field is multiple</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>745</width>
-             <height>70</height>
+             <width>915</width>
+             <height>340</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="testgrid">
