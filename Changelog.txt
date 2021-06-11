@@ -23,6 +23,32 @@
 # - title by author
 # }}}
 
+{{{ 5.21.0 2021-06-11
+
+:: new features
+
+- Driver for the new Kobo Ellipsa
+
+- [1930958] Content server: When editing metadata for fields that take multiple values, make it easier to remove individual values by simply tapping a button
+
+- [1930900] Browser viewer: Make current color scheme setting propagate to all devices automatically when using user accounts
+
+- E-book viewer: Image popup: Show the image resolution in the popup window's titlebar
+
+:: bug fixes
+
+- [1930922] HTML Input: Fix handling of @import rules in stylesheets nested more than one level deep
+
+- [1930912] Fix viewer search context menu to clear searches not clearing search settings
+
+- E-book viewer image popup: Fix full screen button in incorrect state when starting in full screen
+
+:: improved recipes
+- Associated Press
+- The Hindu
+
+}}}
+
 {{{ 5.20.0 2021-06-04
 
 :: new features
