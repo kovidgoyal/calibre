@@ -227,6 +227,12 @@ class BooksView(QTableView):  # {{{
         QTableView.__init__(self, parent)
         self.pin_view = PinTableView(self, parent)
         self.gesture_manager = GestureManager(self)
+
+        self.setHorizontalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollMode.ScrollPerPixel)
+        self.horizontalScrollBar().setSingleStep(1)
+        self.verticalScrollBar().setSingleStep(1)
+
         self.default_row_height = self.verticalHeader().defaultSectionSize()
         self.gui = parent
         self.setProperty('highlight_current_item', 150)
