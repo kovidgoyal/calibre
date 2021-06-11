@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import string, re
+import string
 
 
 def classes(classes):
@@ -32,9 +32,11 @@ class TheHindu(BasicNewsRecipe):
     def preprocess_html(self, soup):
         img = soup.find('img', attrs={'class': 'lead-img'})
         try:
-            src = img.parent.find('source').get('srcset')
-            img['src'] = re.sub(r'(ALTERNATES)/.+?/', r'\1/FREE_660/', src)
-        except (TypeError, AttributeError):
+            for i, source in enumerate(tuple(img.parent.findAll('source', srcset=True))):
+                if i == 0:
+                    img['src'] = source['srcset'].split()[0]
+                source.extract()
+        except Exception:
             pass
         # Remove duplicate intro
         for h in soup.findAll('h2', attrs={'class': 'intro'})[1:]:
