@@ -382,11 +382,12 @@ cover_trim_fuzz_value = 10
 # has the side effect of disabling editing a field using a single click.
 # Default: open_viewer.
 # Example: doubleclick_on_library_view = 'do_nothing'
-# You can also control whether the book list scrolls horizontal per column or
-# per pixel. Default is per column.
+# You can also control whether the book list scrolls per item or
+# per pixel. Default is per item.
 doubleclick_on_library_view = 'open_viewer'
 enter_key_behavior = 'do_nothing'
-horizontal_scrolling_per_column = True
+horizontal_scrolling_per_column = False
+vertical_scrolling_per_row = False
 
 #: Language to use when sorting
 # Setting this tweak will force sorting to use the
