@@ -15,12 +15,15 @@ def classes(classes):
 class TheHindu(BasicNewsRecipe):
     title = u'The Hindu'
     language = 'en_IN'
+    epaper_url = 'https://epaper.thehindu.com'
 
     oldest_article = 1
     __author__ = 'Kovid Goyal'
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_attributes = ['style']
+    extra_css = '.lead-img-cont { text-align: center; } ' \
+                '.lead-img-caption { font-size: small; font-style: italic; }'
 
     ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [
@@ -28,6 +31,15 @@ class TheHindu(BasicNewsRecipe):
         classes('author-nm lead-img-cont mobile-author-cont photo-collage intro'),
         dict(id=lambda x: x and x.startswith('content-body-')),
     ]
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.addheaders += [('Referer', self.epaper_url)]     # needed for fetching cover
+        return br
+
+    def get_cover_url(self):
+        url = self.index_to_soup(self.epaper_url + '/Login/DefaultImage', raw=True)
+        return url.replace(br'\\', b'/').decode('utf-8')[1:-1]
 
     def preprocess_html(self, soup):
         img = soup.find('img', attrs={'class': 'lead-img'})
