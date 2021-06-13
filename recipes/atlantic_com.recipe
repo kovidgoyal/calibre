@@ -3,15 +3,9 @@ from __future__ import unicode_literals
 __license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
-Recipe for web and magazine versions of the The Atlantic
+Recipe for the web version of the The Atlantic
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
-
-
-web_version = True
-test_article = None
-# test_article = 'https://www.theatlantic.com/health/archive/2020/12/covid-19-second-surge/617415/?utm_source=feed'
-
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -32,39 +26,32 @@ def prefix_classes(classes):
         return False
     return dict(attrs={'class': test})
 
-
 class TheAtlantic(BasicNewsRecipe):
 
-    if web_version:
-        title = 'TheAtlantic.com'
-        description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
-    else:
-        title = 'The Atlantic'
-        description = 'Current affairs and politics focussed on the US'
-        INDEX = 'https://www.theatlantic.com/magazine/'
-
+    
+    title = 'TheAtlantic.com'
+    description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
     __author__ = 'Kovid Goyal'
     language = 'en'
     encoding = 'utf-8'
 
-    keep_only_tags = [
-        dict(itemprop=['headline']),
-        classes(
-            'c-article-header__hed c-rubric article-header c-article-meta c-lead-media'
-            ' lead-img article-cover-extra article-body article-magazine article-cover-content'
-        ),
-        prefix_classes(
-            'ArticleHeader_root__ ArticleLayoutSection_main__'
-        ),
-        dict(itemprop='articleBody'),
-        # these are for photos articles
-        dict(id='article-header'),
-        classes('photos'),
-    ]
+    no_stylesheets = True
+    remove_attributes = ['style']
+    extra_css = '''
+        .credit { text-align: right; font-size: 75%; display: block }
+        .figcaption { font-size: 75% }
+        .caption { font-size: 75% }
+        .lead-img { display: block }
+        p.dropcap:first-letter {
+        float: left; text-transform: uppercase; font-weight: bold; font-size: 5.55em; line-height: 0.83;
+        margin: 0; padding-right: 7px; margin-bottom: -2px; text-align: center;
+        }
+    '''
+
     remove_tags = [
         classes(
             'c-ad c-share-social c-recirculation-link social-kit-top letter-writer-info callout secondary-byline embed-wrapper'
-            ' offset-wrapper boxtop-most-popular social-icons hints read-more c-article-writer__social'
+            ' offset-wrapper boxtop-most-popular social-icons hints read-more c-article-writer__social ArticleLayoutSection_rightRail__Dy9g'
         ),
         prefix_classes('ArticleRecirc_inline__'),
         {
@@ -83,8 +70,10 @@ class TheAtlantic(BasicNewsRecipe):
         {
             'src': lambda x: x and 'spotxchange.com' in x
         },
+        dict(id='main-navigation')
     ]
     remove_tags_after = classes('article-body')
+    remove_tags_before = dict(id='article')
 
     no_stylesheets = True
     remove_attributes = ['style']
@@ -105,101 +94,39 @@ class TheAtlantic(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-srcset': True}):
-            # img['src'] = img['data-srcset'].split()[0]
-            data_srcset = img['data-srcset']
-            if ',' in data_srcset:
-                img['src'] = data_srcset.split(',')[0]
-            else:
-                img['src'] = data_srcset.split()[0]
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
+        for img in soup.findAll('img'):
+
+            if img.has_attr('data-srcset'):
+                data_srcset = img['data-srcset']
+                if ',' in data_srcset:
+                    img['src'] = data_srcset.split(',')[0]
+                else:
+                    img['src'] = data_srcset.split()[0]
+
+            if img.has_attr('src') and 'data:image/svg+xml,' in img['src']:
+                img.extract()
+
         return soup
 
-    def print_version(self, url):
-        ans = url.partition('?')[0] + '?single_page=true'
-        if '/video/' in ans:
-            ans = None
-        return ans
+    use_embedded_content = False
 
-    if web_version and not test_article:
-
-        use_embedded_content = False
-
-        feeds = [
-            ('The Atlantic', 'https://www.theatlantic.com/feed/all/'),
-            ('Best of The Atlantic', 'https://www.theatlantic.com/feed/best-of/'),
-            ('Politics | The Atlantic', 'https://www.theatlantic.com/feed/channel/politics/'),
-            ('Business | The Atlantic', 'https://www.theatlantic.com/feed/channel/business/'),
-            ('Culture | The Atlantic', 'https://www.theatlantic.com/feed/channel/entertainment/'),
-            ('Global | The Atlantic', 'https://www.theatlantic.com/feed/channel/international/'),
-            ('Technology | The Atlantic', 'https://www.theatlantic.com/feed/channel/technology/'),
-            ('U.S. | The Atlantic', 'https://www.theatlantic.com/feed/channel/national/'),
-            ('Health | The Atlantic', 'https://www.theatlantic.com/feed/channel/health/'),
-            ('Video | The Atlantic', 'https://www.theatlantic.com/feed/channel/video/'),
-            ('Sexes | The Atlantic', 'https://www.theatlantic.com/feed/channel/sexes/'),
-            ('Education | The Atlantic', 'https://www.theatlantic.com/feed/channel/education/'),
-            ('Science | The Atlantic', 'https://www.theatlantic.com/feed/channel/science/'),
-            ('News | The Atlantic', 'https://www.theatlantic.com/feed/channel/news/'),
-            ('Press Releases | The Atlantic', 'https://www.theatlantic.com/feed/channel/press-releases/'),
-            ('Newsletters | The Atlantic', 'https://www.theatlantic.com/feed/channel/newsletters/'),
-            ('The Atlantic Photo', 'https://feeds.feedburner.com/theatlantic/infocus'),
-            ('Notes | The Atlantic', 'https://feeds.feedburner.com/TheAtlanticNotes'),
-        ]
-    else:
-        def parse_index(self):
-            if test_article:
-                return [('Articles', [{'title': 'Test article', 'url': test_article}])]
-            soup = self.index_to_soup(self.INDEX)
-            figure = soup.find('figure', id='cover-image')
-            if figure is not None:
-                img = figure.find('img', src=True)
-                if img:
-                    self.cover_url = img['src']
-            current_section, current_articles = 'Cover Story', []
-            feeds = []
-            for div in soup.findAll('div', attrs={'class': lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
-                for h2 in div.findAll('h2', attrs={'class': True}):
-                    cls = h2['class']
-                    if hasattr(cls, 'split'):
-                        cls = cls.split()
-                    if 'section-name' in cls:
-                        if current_articles:
-                            feeds.append((current_section, current_articles))
-                        current_articles = []
-                        current_section = self.tag_to_string(h2)
-                        self.log('\nFound section:', current_section)
-                    elif 'hed' in cls:
-                        title = self.tag_to_string(h2)
-                        a = h2.findParent('a', href=True)
-                        if a is None:
-                            continue
-                        url = a['href']
-                        if url.startswith('/'):
-                            url = 'https://www.theatlantic.com' + url
-                        li = a.findParent(
-                            'li',
-                            attrs={'class': lambda x: x and 'article' in x.split()}
-                        )
-                        desc = ''
-                        dek = li.find(
-                            attrs={'class': lambda x: x and 'dek' in x.split()}
-                        )
-                        if dek is not None:
-                            desc += self.tag_to_string(dek)
-                        byline = li.find(
-                            attrs={'class': lambda x: x and 'byline' in x.split()}
-                        )
-                        if byline is not None:
-                            desc += ' -- ' + self.tag_to_string(byline)
-                        self.log('\t', title, 'at', url)
-                        if desc:
-                            self.log('\t\t', desc)
-                        current_articles.append({
-                            'title': title,
-                            'url': url,
-                            'description': desc
-                        })
-            if current_articles:
-                feeds.append((current_section, current_articles))
-            return feeds
+    feeds = [
+        ('The Atlantic', 'https://www.theatlantic.com/feed/all/'),
+        ('Best of The Atlantic', 'https://www.theatlantic.com/feed/best-of/'),
+        ('Politics | The Atlantic', 'https://www.theatlantic.com/feed/channel/politics/'),
+        ('Business | The Atlantic', 'https://www.theatlantic.com/feed/channel/business/'),
+        ('Culture | The Atlantic', 'https://www.theatlantic.com/feed/channel/entertainment/'),
+        ('Global | The Atlantic', 'https://www.theatlantic.com/feed/channel/international/'),
+        ('Technology | The Atlantic', 'https://www.theatlantic.com/feed/channel/technology/'),
+        ('U.S. | The Atlantic', 'https://www.theatlantic.com/feed/channel/national/'),
+        ('Health | The Atlantic', 'https://www.theatlantic.com/feed/channel/health/'),
+        ('Video | The Atlantic', 'https://www.theatlantic.com/feed/channel/video/'),
+        ('Sexes | The Atlantic', 'https://www.theatlantic.com/feed/channel/sexes/'),
+        ('Education | The Atlantic', 'https://www.theatlantic.com/feed/channel/education/'),
+        ('Science | The Atlantic', 'https://www.theatlantic.com/feed/channel/science/'),
+        ('News | The Atlantic', 'https://www.theatlantic.com/feed/channel/news/'),
+        ('Press Releases | The Atlantic', 'https://www.theatlantic.com/feed/channel/press-releases/'),
+        ('Newsletters | The Atlantic', 'https://www.theatlantic.com/feed/channel/newsletters/'),
+        ('The Atlantic Photo', 'https://feeds.feedburner.com/theatlantic/infocus'),
+        ('Notes | The Atlantic', 'https://feeds.feedburner.com/TheAtlanticNotes'),
+    ]
