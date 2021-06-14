@@ -7,13 +7,24 @@
 
 #define UNICODE
 #include <Python.h>
-
-
 #include <stdlib.h>
-
+#include <new>
 #include <sqlite3ext.h>
 SQLITE_EXTENSION_INIT1
 
+typedef int (*token_callback_func)(void *, int, const char *, int, int, int);
+
+class Tokenizer {
+public:
+    Tokenizer(const char **args, int nargs) {
+    }
+
+    int tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
+        return SQLITE_OK;
+    }
+};
+
+// boilerplate {{{
 static int
 fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
     sqlite3_stmt *pStmt = 0;
@@ -27,6 +38,33 @@ fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
     return rc;
 }
 
+static int
+tok_create(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
+    int rc = SQLITE_OK;
+    Tokenizer *p = new (std::nothrow) Tokenizer(azArg, nArg);
+    if (p) *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
+    else rc = SQLITE_NOMEM;
+    return rc;
+}
+
+static int
+tok_tokenize(Fts5Tokenizer *tokenizer_ptr, void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
+    Tokenizer *p = reinterpret_cast<Tokenizer*>(tokenizer_ptr);
+    try {
+        return p->tokenize(callback_ctx, flags, text, text_sz, callback);
+    } catch (std::bad_alloc &ex) {
+        return SQLITE_NOMEM;
+    } catch (...) {
+        return SQLITE_ERROR;
+    }
+
+}
+
+static void
+tok_delete(Fts5Tokenizer *p) {
+    Tokenizer *t = reinterpret_cast<Tokenizer*>(p);
+    delete t;
+}
 
 extern "C" {
 #ifdef _MSC_VER
@@ -48,6 +86,8 @@ calibre_sqlite_extension_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_ro
         *pzErrMsg = (char*)"FTS 5 iVersion too old or NULL pointer";
         return SQLITE_ERROR;
     }
+    fts5_tokenizer tok = {tok_create, tok_delete, tok_tokenize};
+    fts5api->xCreateTokenizer(fts5api, "calibre", reinterpret_cast<void *>(fts5api), &tok, NULL);
     return SQLITE_OK;
 }
 }
@@ -72,4 +112,4 @@ CALIBRE_MODINIT_FUNC PyInit_sqlite_extension(void) {
     module_def.m_slots    = slots;
     return PyModuleDef_Init(&module_def);
 }
-}
+} // }}}
