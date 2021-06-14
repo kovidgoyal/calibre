@@ -62,15 +62,14 @@ exec_module(PyObject *mod) { return 0; }
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
-static struct PyModuleDef module_def = {
-    .m_base     = PyModuleDef_HEAD_INIT,
-    .m_name     = "sqlite_extension",
-    .m_doc      = "Implement ICU based tokenizer for FTS5",
-    .m_methods  = methods,
-    .m_slots    = slots,
-};
-
+static struct PyModuleDef module_def = {PyModuleDef_HEAD_INIT};
 
 extern "C" {
-CALIBRE_MODINIT_FUNC PyInit_sqlite_extension(void) { return PyModuleDef_Init(&module_def); }
+CALIBRE_MODINIT_FUNC PyInit_sqlite_extension(void) {
+    module_def.m_name     = "sqlite_extension";
+    module_def.m_doc      = "Implement ICU based tokenizer for FTS5";
+    module_def.m_methods  = methods;
+    module_def.m_slots    = slots;
+    return PyModuleDef_Init(&module_def);
+}
 }
