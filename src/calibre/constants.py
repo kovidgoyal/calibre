@@ -320,6 +320,15 @@ class Plugins(collections.Mapping):
         except Exception as err:
             return None, str(err)
 
+    def load_apsw_extension(self, conn, name):
+        conn.enableloadextension(True)
+        try:
+            ext = 'pyd' if iswindows else 'so'
+            path = os.path.join(plugins_loc, f'{name}.{ext}')
+            conn.loadextension(path, f'calibre_{name}_init')
+        finally:
+            conn.enableloadextension(False)
+
 
 plugins = None
 if plugins is None:
