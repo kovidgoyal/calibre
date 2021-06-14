@@ -6,6 +6,8 @@
 .bzrignore
 .build-cache
 .cache
+compile_commands.json
+link_commands.json
 src/calibre/plugins
 resources/images.qrc
 manual/generated

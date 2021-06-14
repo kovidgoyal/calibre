@@ -307,22 +307,27 @@ class Build(Command):
         jobs = []
         objects_map = {}
         self.info(f'Building {len(extensions)+len(pyqt_extensions)} extensions')
+        ccdb = []
         for (ext, dest) in extensions:
-            cmds, objects = self.get_compile_commands(ext, dest)
+            cmds, objects = self.get_compile_commands(ext, dest, ccdb)
             objects_map[id(ext)] = objects
             for cmd in cmds:
                 jobs.append(create_job(cmd.cmd))
+        with open('compile_commands.json', 'w') as f:
+            json.dump(ccdb, f, indent=2)
         if jobs:
             self.info(f'Compiling {len(jobs)} files...')
             if not parallel_build(jobs, self.info):
                 raise SystemExit(1)
-        jobs, link_commands = [], []
+        jobs, link_commands, lddb = [], [], []
         for (ext, dest) in extensions:
             objects = objects_map[id(ext)]
-            cmd = self.get_link_command(ext, dest, objects)
+            cmd = self.get_link_command(ext, dest, objects, lddb)
             if cmd is not None:
                 link_commands.append(cmd)
                 jobs.append(create_job(cmd.cmd))
+        with open('link_commands.json', 'w') as f:
+            json.dump(lddb, f, indent=2)
         if jobs:
             self.info(f'Linking {len(jobs)} files...')
             if not parallel_build(jobs, self.info):
@@ -365,7 +370,7 @@ class Build(Command):
         suff = '.lib' if iswindows else ''
         return [pref+x+suff for x in dirs]
 
-    def get_compile_commands(self, ext, dest):
+    def get_compile_commands(self, ext, dest, db):
         compiler = self.env.cxx if ext.needs_cxx else self.env.cc
         objects = []
         ans = []
@@ -376,31 +381,34 @@ class Build(Command):
         for src in ext.sources:
             obj = self.j(obj_dir, os.path.splitext(self.b(src))[0]+'.o')
             objects.append(obj)
+            inf = '/Tp' if src.endswith('.cpp') or src.endswith('.cxx') else '/Tc'
+            sinc = [inf+src] if iswindows else ['-c', src]
+            oinc = ['/Fo'+obj] if iswindows else ['-o', obj]
+            cmd = [compiler] + self.env.cflags + ext.cflags + einc + sinc + oinc
+            db.append({'arguments': cmd, 'directory': os.getcwd(), 'file': os.path.relpath(src, os.getcwd()), 'output': os.path.relpath(obj, os.getcwd())})
             if self.newer(obj, [src]+ext.headers):
-                inf = '/Tp' if src.endswith('.cpp') or src.endswith('.cxx') else '/Tc'
-                sinc = [inf+src] if iswindows else ['-c', src]
-                oinc = ['/Fo'+obj] if iswindows else ['-o', obj]
-                cmd = [compiler] + self.env.cflags + ext.cflags + einc + sinc + oinc
                 ans.append(CompileCommand(cmd, src, obj))
         return ans, objects
 
-    def get_link_command(self, ext, dest, objects):
+    def get_link_command(self, ext, dest, objects, lddb):
         compiler = self.env.cxx if ext.needs_cxx else self.env.cc
         linker = self.env.linker if iswindows else compiler
         dest = self.dest(ext)
         elib = self.lib_dirs_to_ldflags(ext.lib_dirs)
         xlib = self.libraries_to_ldflags(ext.libraries)
+        cmd = [linker]
+        if iswindows:
+            pre_ld_flags = []
+            if ext.name in ('icu', 'matcher'):
+                # windows has its own ICU libs that dont work
+                pre_ld_flags = elib
+            cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \
+                ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
+        else:
+            cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
+        lddb.append({'arguments': cmd, 'directory': os.getcwd(), 'output': os.path.relpath(dest, os.getcwd())})
+
         if self.newer(dest, objects+ext.extra_objs):
-            cmd = [linker]
-            if iswindows:
-                pre_ld_flags = []
-                if ext.name in ('icu', 'matcher'):
-                    # windows has its own ICU libs that dont work
-                    pre_ld_flags = elib
-                cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \
-                    ['/EXPORT:' + init_symbol_name(ext.name)] + objects + ext.extra_objs + ['/OUT:'+dest]
-            else:
-                cmd += objects + ext.extra_objs + ['-o', dest] + self.env.ldflags + ext.ldflags + elib + xlib
             return LinkCommand(cmd, objects, dest)
 
     def post_link_cleanup(self, link_command):
