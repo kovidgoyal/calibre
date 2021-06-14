@@ -74,7 +74,8 @@
     {
         "name": "sqlite_extension",
         "sources": "calibre/db/sqlite_extension.cpp",
-        "inc_dirs": "!sqlite_inc_dirs"
+        "inc_dirs": "!sqlite_inc_dirs",
+		"needs_c++14": true
     },
     {
         "name": "lzx",
