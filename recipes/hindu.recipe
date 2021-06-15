@@ -23,12 +23,14 @@ class TheHindu(BasicNewsRecipe):
     no_stylesheets = True
     remove_attributes = ['style']
     extra_css = '.lead-img-cont { text-align: center; } ' \
-                '.lead-img-caption { font-size: small; font-style: italic; }'
+                '.lead-img-caption { font-size: small; font-style: italic; } ' \
+                '.mobile-author-cont { font-size: small; text-transform: uppercase; } ' \
+                '.intro ~ .intro, .update-time, .ksl-time-stamp * { display: none; } '
 
     ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [
         dict(name='h1', attrs={'class': ['title', 'special-article-heading']}),
-        classes('author-nm lead-img-cont mobile-author-cont photo-collage intro'),
+        classes('lead-img-cont mobile-author-cont photo-collage intro'),
         dict(id=lambda x: x and x.startswith('content-body-')),
     ]
 
@@ -50,9 +52,15 @@ class TheHindu(BasicNewsRecipe):
                 source.extract()
         except Exception:
             pass
-        # Remove duplicate intro
-        for h in soup.findAll('h2', attrs={'class': 'intro'})[1:]:
-            h.extract()
+        # Place intro beneath the title, skip duplicates
+        try:
+            soup.h1.insert_after(soup.find('h2', attrs={'class': 'intro'}))
+        except Exception:
+            pass
+        # Remove ',' from location tag
+        ts = soup.find('span', attrs={'class': 'ksl-time-stamp'})
+        if ts and ts.string:
+            ts.string = ts.string.split(',')[0]
         return soup
 
     def populate_article_metadata(self, article, soup, first):
