@@ -19,8 +19,8 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.txt.processor import opf_writer, HTML_TEMPLATE
 from polyglot.builtins import range, map
 
-BPDB_IDENT = b'BOOKMTIT'
-UPDB_IDENT = b'BOOKMTIU'
+BPDB_IDENT = 'BOOKMTIT'
+UPDB_IDENT = 'BOOKMTIU'
 
 punct_table = {
     u"︵": u"（",
