@@ -8,19 +8,44 @@
 #define UNICODE
 #include <Python.h>
 #include <stdlib.h>
-#include <new>
+#include <string>
+#include <locale>
 #include <sqlite3ext.h>
 SQLITE_EXTENSION_INIT1
 
 typedef int (*token_callback_func)(void *, int, const char *, int, int, int);
 
 class Tokenizer {
+private:
+    std::string ascii_folded_buf;
+
+    int ascii_tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
+        int pos = 0;
+        while (pos < text_sz) {
+            /* Skip any leading divider characters. */
+            while (pos < text_sz && !std::isalnum(text[pos], std::locale::classic())) pos++;
+            if (pos >= text_sz) break;
+            ascii_folded_buf.clear();
+            int start_pos = pos;
+            while (std::isalnum(text[pos], std::locale::classic())) {
+                char ch = text[pos++];
+                if ('A' <= ch && ch <= 'Z') ch += 'a' - 'A';
+                ascii_folded_buf.push_back(ch);
+            }
+            if (!ascii_folded_buf.empty()) {
+                int rc = callback(callback_ctx, 0, ascii_folded_buf.c_str(), ascii_folded_buf.size(), start_pos, start_pos + ascii_folded_buf.size());
+                if (rc != SQLITE_OK) return rc;
+            }
+        }
+        return SQLITE_OK;
+    }
 public:
-    Tokenizer(const char **args, int nargs) {
+    Tokenizer(const char **args, int nargs) : ascii_folded_buf() {
+        ascii_folded_buf.reserve(128);
     }
 
     int tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
-        return SQLITE_OK;
+        return ascii_tokenize(callback_ctx, flags, text, text_sz, callback);
     }
 };
 
@@ -40,11 +65,15 @@ fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
 
 static int
 tok_create(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
-    int rc = SQLITE_OK;
-    Tokenizer *p = new (std::nothrow) Tokenizer(azArg, nArg);
-    if (p) *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
-    else rc = SQLITE_NOMEM;
-    return rc;
+    try {
+        Tokenizer *p = new Tokenizer(azArg, nArg);
+        *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
+    } catch (std::bad_alloc &ex) {
+        return SQLITE_NOMEM;
+    } catch (...) {
+        return SQLITE_ERROR;
+    }
+    return SQLITE_OK;
 }
 
 static int
@@ -87,7 +116,7 @@ calibre_sqlite_extension_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_ro
         return SQLITE_ERROR;
     }
     fts5_tokenizer tok = {tok_create, tok_delete, tok_tokenize};
-    fts5api->xCreateTokenizer(fts5api, "calibre", reinterpret_cast<void *>(fts5api), &tok, NULL);
+    fts5api->xCreateTokenizer(fts5api, "unicode61", reinterpret_cast<void *>(fts5api), &tok, NULL);
     return SQLITE_OK;
 }
 }
