@@ -9,7 +9,7 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
     title = u'人民日报'
     oldest_article = 2
     max_articles_per_feed = 100
-    __author__ = 'zzh'
+    __author__ = 'ceapas'
 
     pubisher = 'people.com.cn'
     description = 'People Daily Newspaper'
@@ -70,15 +70,15 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
         # (u'中国人大新闻', u'http://www.people.com.cn/rss/14576.xml'),
         # (u'中国政协新闻', u'http://www.people.com.cn/rss/34948.xml'),
     ]
-    keep_only_tags = [
-        dict(name='div', attrs={'class': 'text_c'}),
-    ]
+    # keep_only_tags = [
+    #     dict(name='p'),
+    # ]
     remove_tags = [
-        dict(name='div', attrs={'class': 'tools'}),
+        dict(name='div', class_="channel cf")
     ]
-    remove_tags_after = [
-        dict(name='div', attrs={'id': 'p_content'}),
-    ]
+
+    remove_tags_before = [dict(name='div', class_="layout rm_txt cf")]
+    remove_tags_after = [dict(name='div', class_="edit cf")]
 
     def append_page(self, soup, appendtag, position):
         pager = soup.find('img', attrs={'src': '/img/next_b.gif'})
@@ -101,8 +101,7 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
             return None
 
     def preprocess_html(self, soup):
-        mtag = '<meta http-equiv="content-type" content="text/html;charset=GB2312" />\n<meta http-equiv="content-language" content="GB2312" />'
-        soup.head.insert(0, mtag)
+
         for item in soup.findAll(style=True):
             del item['form']
         self.append_page(soup, soup.body, 3)
@@ -115,8 +114,8 @@ class AdvancedUserRecipe1277129332(BasicNewsRecipe):
         year = time.strftime('%Y')
         month = time.strftime('%m')
         day = time.strftime('%d')
-        cover = 'http://paper.people.com.cn/rmrb/page/' + year + '-' + \
-            month + '/' + day + '/01/RMRB' + year + month + day + 'B001_b.jpg'
+        cover = 'http://paper.people.com.cn/rmrb/images/' + year + '-' + \
+            month + '/' + day + '/01/rmrb' + year + month + day + '01_b.jpg'
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
