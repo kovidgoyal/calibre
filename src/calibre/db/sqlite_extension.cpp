@@ -18,6 +18,7 @@ typedef int (*token_callback_func)(void *, int, const char *, int, int, int);
 class Tokenizer {
 private:
     std::string ascii_folded_buf;
+    bool remove_diacritics;
 
     int ascii_tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
         int pos = 0;
@@ -40,8 +41,13 @@ private:
         return SQLITE_OK;
     }
 public:
-    Tokenizer(const char **args, int nargs) : ascii_folded_buf() {
+    Tokenizer(const char **args, int nargs) : ascii_folded_buf(), remove_diacritics(false) {
         ascii_folded_buf.reserve(128);
+        for (int i = 0; i < nargs; i++) {
+            if (strcmp(args[i], "remove_diacritics") == 0) {
+                remove_diacritics = true;
+            }
+        }
     }
 
     int tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
