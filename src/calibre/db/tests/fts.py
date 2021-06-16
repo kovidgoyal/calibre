@@ -45,6 +45,9 @@ class FTSTest(BaseTest):
     def test_basic_fts(self):  # {{{
         conn = TestConn()
         conn.insert_text('two words, and a period. With another.')
-        conn.insert_text('and another')
-        self.ae(conn.term_row_counts(), {'a': 1, 'and': 2, 'another': 2, 'period': 1, 'two': 1, 'with': 1, 'words': 1})
+        conn.insert_text('and another re-init')
+        self.ae(conn.term_row_counts(), {'a': 1, 're': 1, 'init': 1, 'and': 2, 'another': 2, 'period': 1, 'two': 1, 'with': 1, 'words': 1})
+        conn = TestConn()
+        conn.insert_text('coộl')
+        self.ae(conn.term_row_counts(), {'cool': 1, 'coộl': 1})
     # }}}
