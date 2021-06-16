@@ -187,11 +187,14 @@ def simple_repl(user_ns={}):
 
 def ipython(user_ns=None):
     os.environ['IPYTHONDIR'] = ipydir
+    have_ipython = True
     try:
         from IPython.terminal.embed import InteractiveShellEmbed
         from traitlets.config.loader import Config
         from IPython.terminal.prompts import Prompts, Token
     except ImportError:
+        have_ipython = False
+    if not have_ipython:
         return simple_repl(user_ns=user_ns)
 
     class CustomPrompt(Prompts):
