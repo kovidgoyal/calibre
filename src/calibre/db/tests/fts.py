@@ -22,8 +22,7 @@ class TestConn(Connection):
         super().__init__(':memory:')
         plugins.load_apsw_extension(self, 'sqlite_extension')
         options = []
-        if remove_diacritics:
-            options.append('remove_diacritics'), options.append('2')
+        options.append('remove_diacritics'), options.append('2' if remove_diacritics else '0')
         options = ' '.join(options)
         self.execute(f'''
 CREATE VIRTUAL TABLE fts_table USING fts5(t, tokenize = 'unicode61 {options}');
