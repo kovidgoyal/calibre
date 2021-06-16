@@ -48,6 +48,7 @@ class Extension(object):
         self.error = d['error'] = kwargs.get('error', None)
         self.libraries = d['libraries'] = kwargs.get('libraries', [])
         self.cflags = d['cflags'] = kwargs.get('cflags', [])
+        self.uses_icu = 'icuuc' in self.libraries
         if iswindows:
             self.cflags.append('/DCALIBRE_MODINIT_FUNC=PyMODINIT_FUNC')
             if self.needs_cxx and kwargs.get('needs_c++14'):
@@ -399,7 +400,7 @@ class Build(Command):
         cmd = [linker]
         if iswindows:
             pre_ld_flags = []
-            if ext.name in ('icu', 'matcher'):
+            if ext.uses_icu:
                 # windows has its own ICU libs that dont work
                 pre_ld_flags = elib
             cmd += pre_ld_flags + self.env.ldflags + ext.ldflags + elib + xlib + \

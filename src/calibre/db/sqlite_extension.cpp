@@ -197,7 +197,7 @@ tok_create(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
             rc = p->constructor_error;
             delete p;
         }
-    } catch (std::bad_alloc &ex) {
+    } catch (std::bad_alloc) {
         return SQLITE_NOMEM;
     } catch (...) {
         return SQLITE_ERROR;
@@ -210,7 +210,7 @@ tok_tokenize(Fts5Tokenizer *tokenizer_ptr, void *callback_ctx, int flags, const 
     Tokenizer *p = reinterpret_cast<Tokenizer*>(tokenizer_ptr);
     try {
         return p->tokenize(callback_ctx, flags, text, text_sz, callback);
-    } catch (std::bad_alloc &ex) {
+    } catch (std::bad_alloc) {
         return SQLITE_NOMEM;
     } catch (...) {
         return SQLITE_ERROR;
