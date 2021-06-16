@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import textwrap, os, shlex, subprocess, glob, shutil, sys, json
+import textwrap, os, shlex, subprocess, glob, shutil, sys, json, errno
 from collections import namedtuple
 
 from setup import Command, islinux, isbsd, isfreebsd, ismacos, ishaiku, SRC, iswindows
@@ -279,6 +279,14 @@ class Build(Command):
         parser.add_option('--sanitize', default=False, action='store_true',
             help='Build with sanitization support. Run with LD_PRELOAD=$(gcc -print-file-name=libasan.so)')
 
+    def dump_db(self, name, db):
+        try:
+            with open(f'{name}_commands.json', 'w') as f:
+                json.dump(db, f, indent=2)
+        except OSError as err:
+            if err.errno != errno.EROFS:
+                raise
+
     def run(self, opts):
         from setup.parallel_build import parallel_build, create_job
         if opts.no_compile:
@@ -314,8 +322,7 @@ class Build(Command):
             objects_map[id(ext)] = objects
             for cmd in cmds:
                 jobs.append(create_job(cmd.cmd))
-        with open('compile_commands.json', 'w') as f:
-            json.dump(ccdb, f, indent=2)
+        self.dump_db('compile', ccdb)
         if jobs:
             self.info(f'Compiling {len(jobs)} files...')
             if not parallel_build(jobs, self.info):
@@ -327,8 +334,7 @@ class Build(Command):
             if cmd is not None:
                 link_commands.append(cmd)
                 jobs.append(create_job(cmd.cmd))
-        with open('link_commands.json', 'w') as f:
-            json.dump(lddb, f, indent=2)
+        self.dump_db('link', lddb)
         if jobs:
             self.info(f'Linking {len(jobs)} files...')
             if not parallel_build(jobs, self.info):

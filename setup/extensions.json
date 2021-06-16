@@ -74,6 +74,7 @@
     {
         "name": "sqlite_extension",
         "sources": "calibre/db/sqlite_extension.cpp",
+		"needs_c++11": true,
         "libraries": "icudata icui18n icuuc icuio",
         "windows_libraries": "icudt icuin icuuc icuio",
         "lib_dirs": "!icu_lib_dirs",
