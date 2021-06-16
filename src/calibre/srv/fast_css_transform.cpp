@@ -25,6 +25,8 @@
 #include <frozen/unordered_map.h>
 #include <frozen/string.h>
 #include "../utils/cpp_binding.h"
+#define STB_SPRINTF_IMPLEMENTATION
+#include "../utils/stb_sprintf.h"
 
 // character classes {{{
 static inline bool
@@ -242,7 +244,7 @@ class Token {
             out.push_back('\\');
             if (is_whitespace(ch) || is_hex_digit(ch)) {
                 char buf[8];
-                int num = std::snprintf(buf, sizeof(buf), "%x ", (unsigned int)ch);
+                int num = stbsp_snprintf(buf, sizeof(buf), "%x ", (unsigned int)ch);
                 if (num > 0) {
                     out.resize(out.size() + num);
                     for (int i = 0; i < num; i++) out[i + out.size() - num] = buf[i];
@@ -446,7 +448,8 @@ class Token {
             double new_val = convert_font_size(val, lit->second);
             if (val == new_val) return false;
             char txt[128];
-            int num = std::snprintf(txt, sizeof(txt), "%grem", new_val);
+            // stbsp_snprintf is locale independent unlike std::snprintf
+            int num = stbsp_snprintf(txt, sizeof(txt), "%grem", new_val);
             if (num <= 0) throw std::runtime_error("Failed to format font size");
             set_ascii_text(txt, num);
             return true;
