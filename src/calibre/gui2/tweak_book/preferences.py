@@ -166,7 +166,7 @@ class EditorSettings(BasicSettings):  # {{{
         fc = FontFamilyChooser(self)
         self('editor_font_family', widget=fc, getter=attrgetter('font_family'), setter=lambda x, val: setattr(x, 'font_family', val))
         fc.family_changed.connect(self.emit_changed)
-        l.addRow(_('Editor font family:'), fc)
+        l.addRow(_('Editor font &family:'), fc)
 
         fs = self('editor_font_size')
         fs.setMinimum(8), fs.setSuffix(' pt'), fs.setMaximum(50)
