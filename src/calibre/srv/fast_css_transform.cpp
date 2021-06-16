@@ -432,6 +432,11 @@ class Token {
             for (size_t i = 0; i < text.size(); i++) text[i] = src[i];
         }
 
+        void set_ascii_text(const char *txt, int sz) {
+            text.resize(sz);
+            for (int i = 0; i < sz; i++) text[i] = txt[i];
+        }
+
         bool convert_absolute_font_size(std::string &scratch) {
             if (!unit_at || !text_as_ascii_lowercase(scratch)) return false;
             frozen::string unit(scratch.data() + unit_at, scratch.size() - unit_at);
@@ -440,11 +445,10 @@ class Token {
             double val = parse_css_number<std::string>(scratch, unit_at).as_double();
             double new_val = convert_font_size(val, lit->second);
             if (val == new_val) return false;
-            scratch.reserve(128); scratch.clear(); scratch.resize(128);
-            int num = std::snprintf(&scratch[0], scratch.capacity(), "%grem", new_val);
+            char txt[128];
+            int num = std::snprintf(txt, sizeof(txt), "%grem", new_val);
             if (num <= 0) throw std::runtime_error("Failed to format font size");
-            scratch.resize(num);
-            set_text(scratch);
+            set_ascii_text(txt, num);
             return true;
         }
 
