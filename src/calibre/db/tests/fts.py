@@ -50,4 +50,7 @@ class FTSTest(BaseTest):
         conn = TestConn()
         conn.insert_text('coộl')
         self.ae(conn.term_row_counts(), {'cool': 1, 'coộl': 1})
+        conn = TestConn(remove_diacritics=False)
+        conn.insert_text('coộl')
+        self.ae(conn.term_row_counts(), {'coộl': 1})
     # }}}
