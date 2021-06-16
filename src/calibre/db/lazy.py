@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref
 from functools import wraps
-from collections import MutableMapping, MutableSequence
+from collections.abc import MutableMapping, MutableSequence
 from copy import deepcopy
 
 from calibre.ebooks.metadata.book.base import Metadata, SIMPLE_GET, TOP_LEVEL_IDENTIFIERS, NULL_VALUES, ALL_METADATA_FIELDS

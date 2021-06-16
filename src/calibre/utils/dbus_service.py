@@ -33,7 +33,7 @@ import sys
 import logging
 import threading
 import traceback
-from collections import Sequence
+from collections.abc import Sequence
 
 import _dbus_bindings
 from dbus import (
