@@ -48,7 +48,7 @@ class BuildTest(unittest.TestCase):
 
     def test_loaders(self):
         import importlib
-        ldr = importlib.import_module('calibre').__spec__.loader
+        ldr = importlib.import_module('calibre').__spec__.loader.get_resource_reader()
         self.assertIn('ebooks', ldr.contents())
         try:
             raw = ldr.open_resource('__init__.py').read()

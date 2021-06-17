@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import collections
+import collections.abc
 from polyglot.builtins import string_or_bytes
 
 SLICE_ALL = slice(None)
@@ -23,7 +23,7 @@ def is_iterable(obj):
     return hasattr(obj, '__iter__') and not isinstance(obj, string_or_bytes)
 
 
-class OrderedSet(collections.MutableSet):
+class OrderedSet(collections.abc.MutableSet):
     """
     An OrderedSet is a custom MutableSet that remembers its order, so that
     every entry has an index that can be looked up.

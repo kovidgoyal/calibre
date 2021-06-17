@@ -12,7 +12,8 @@ import random
 import shutil
 import sys
 import traceback
-from collections import MutableSet, Set, defaultdict
+from collections import defaultdict
+from collections.abc import MutableSet, Set
 from functools import partial, wraps
 from io import BytesIO
 from threading import Lock
