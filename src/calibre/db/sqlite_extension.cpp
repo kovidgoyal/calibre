@@ -11,12 +11,15 @@
 #include <string>
 #include <locale>
 #include <vector>
+#include <map>
+#include <cstring>
 #include <sqlite3ext.h>
 #include <unicode/unistr.h>
 #include <unicode/uchar.h>
 #include <unicode/translit.h>
 #include <unicode/errorcode.h>
 #include <unicode/brkiter.h>
+#include <unicode/uscript.h>
 #include "../utils/cpp_binding.h"
 SQLITE_EXTENSION_INIT1
 
@@ -86,6 +89,20 @@ populate_icu_string(const char *text, int text_sz, icu::UnicodeString &str, std:
 
 static char ui_language[16] = {0};
 
+class IteratorDescription {
+    public:
+        const char *language;
+        UScriptCode script;
+};
+
+struct char_cmp {
+    bool operator () (const char *a, const char *b) const
+    {
+        return strcmp(a,b)<0;
+    }
+};
+
+
 class Tokenizer {
 private:
     bool remove_diacritics;
@@ -94,7 +111,7 @@ private:
     std::string token_buf, current_ui_language;
     token_callback_func current_callback;
     void *current_callback_ctx;
-    std::unique_ptr<icu::BreakIterator> basic_word_iterator;
+    std::map<const char*, std::unique_ptr<icu::BreakIterator>, char_cmp> iterators;
 
     bool is_token_char(UChar32 ch) const {
         switch(u_charType(ch)) {
@@ -119,17 +136,51 @@ private:
         return current_callback(current_callback_ctx, flags, token_buf.c_str(), (int)token_buf.size(), byte_offsets[start_offset], byte_offsets[end_offset]);
     }
 
+    const char* iterator_language_for_script(UScriptCode script) const {
+        switch (script) {
+            default:
+                return "";
+            case USCRIPT_THAI:
+            case USCRIPT_LAO:
+                return "th_TH";
+            case USCRIPT_KHMER:
+                return "km_KH";
+            case USCRIPT_MYANMAR:
+                return "my_MM";
+            case USCRIPT_HIRAGANA:
+            case USCRIPT_KATAKANA:
+                return "ja_JP";
+            case USCRIPT_HANGUL:
+                return "ko_KR";
+            case USCRIPT_HAN:
+            case USCRIPT_SIMPLIFIED_HAN:
+            case USCRIPT_TRADITIONAL_HAN:
+            case USCRIPT_HAN_WITH_BOPOMOFO:
+                return "zh";
+        }
+    }
+
+    bool at_script_boundary(IteratorDescription &current, UChar32 next_codepoint) const {
+        UErrorCode err;
+        UScriptCode script = uscript_getScript(next_codepoint, &err);
+        if (script == USCRIPT_COMMON || script == USCRIPT_INVALID_CODE || script == USCRIPT_INHERITED) return false;
+        if (current.script == script) return false;
+        const char *lang = iterator_language_for_script(script);
+        if (strcmp(current.language, lang) == 0) return false;
+        current.script = script; current.language = lang;
+        return true;
+    }
+
     void ensure_basic_iterator(void) {
-        if (current_ui_language != ui_language || !basic_word_iterator) {
+        if (current_ui_language != ui_language || iterators.find("") == iterators.end()) {
             current_ui_language.clear(); current_ui_language = ui_language;
-            const icu::Locale locale = icu::Locale::getDefault();
             icu::ErrorCode status;
             if (current_ui_language.empty()) {
-                basic_word_iterator.reset(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+                iterators[""] = std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
             } else {
-                basic_word_iterator.reset(icu::BreakIterator::createWordInstance(icu::Locale::createCanonical(ui_language), status));
+                iterators[""] = std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createWordInstance(icu::Locale::createCanonical(ui_language), status));
                 if (status.isFailure()) {
-                    basic_word_iterator.reset(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+                    iterators[""] = std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
                 }
             }
         }
@@ -140,7 +191,7 @@ public:
     Tokenizer(const char **args, int nargs) :
         remove_diacritics(true), diacritics_remover(),
         byte_offsets(), token_buf(), current_ui_language(ui_language),
-        current_callback(NULL), current_callback_ctx(NULL), basic_word_iterator(),
+        current_callback(NULL), current_callback_ctx(NULL), iterators(),
 
         constructor_error(SQLITE_OK)
     {
