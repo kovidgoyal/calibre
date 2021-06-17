@@ -47,10 +47,27 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
         return list(self.execute(stmt, (query,)))
 
 
+def tokenize(text, flags=None, remove_diacritics=True):
+    from calibre_extensions.sqlite_extension import tokenize, FTS5_TOKENIZE_DOCUMENT
+    if flags is None:
+        flags = FTS5_TOKENIZE_DOCUMENT
+    return tokenize(text, remove_diacritics, flags)
+
+
 class FTSTest(BaseTest):
     ae = BaseTest.assertEqual
 
-    def test_basic_fts(self):  # {{{
+    def test_fts_tokenize(self):  # {{{
+        def t(x, s, e, f=0):
+            return {'text': x, 'start': s, 'end': e, 'flags': f}
+
+        self.ae(
+            tokenize("Some wörds"),
+            [t('some', 0, 4), t('wörds', 5, 11), t('words', 5, 11, 1)]
+        )
+    # }}}
+
+    def test_fts_basic(self):  # {{{
         conn = TestConn()
         conn.insert_text('two words, and a period. With another.')
         conn.insert_text('and another re-init')
@@ -60,6 +77,8 @@ class FTSTest(BaseTest):
         conn = TestConn()
         conn.insert_text('coộl')
         self.ae(conn.term_row_counts(), {'cool': 1, 'coộl': 1})
+        self.ae(conn.search("cool"), [('>coộl<',)])
+        self.ae(conn.search("coộl"), [('>coộl<',)])
         conn = TestConn(remove_diacritics=False)
         conn.insert_text('coộl')
         self.ae(conn.term_row_counts(), {'coộl': 1})

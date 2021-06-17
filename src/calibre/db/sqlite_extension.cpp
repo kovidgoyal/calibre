@@ -303,6 +303,26 @@ set_ui_language(PyObject *self, PyObject *args) {
     Py_RETURN_NONE;
 }
 
+static int
+py_callback(void *ctx, int flags, const char *text, int text_length, int start_offset, int end_offset) {
+    PyObject *ans = reinterpret_cast<PyObject*>(ctx);
+    pyobject_raii item(Py_BuildValue("{ss# si si si}", "text", text, text_length, "start", start_offset, "end", end_offset, "flags", flags));
+    if (item) PyList_Append(ans, item.ptr());
+    return SQLITE_OK;
+}
+
+static PyObject*
+tokenize(PyObject *self, PyObject *args) {
+    const char *text; int text_length, remove_diacritics = 1, flags = FTS5_TOKENIZE_DOCUMENT;
+    if (!PyArg_ParseTuple(args, "s#|pi", &text, &text_length, &remove_diacritics, &flags)) return NULL;
+    const char *targs[2] = {"remove_diacritics", "2"};
+    if (!remove_diacritics) targs[1] = "0";
+    Tokenizer t(targs, sizeof(targs)/sizeof(targs[0]));
+    pyobject_raii ans(PyList_New(0));
+    t.tokenize(ans.ptr(), flags, text, text_length, py_callback);
+    return ans.detach();
+}
+
 static PyMethodDef methods[] = {
     {"get_locales_for_break_iteration", get_locales_for_break_iteration, METH_NOARGS,
      "Get list of available locales for break iteration"
@@ -310,11 +330,21 @@ static PyMethodDef methods[] = {
     {"set_ui_language", set_ui_language, METH_VARARGS,
      "Set the current UI language"
     },
+    {"tokenize", tokenize, METH_VARARGS,
+     "Tokenize a string, useful for testing"
+    },
     {NULL, NULL, 0, NULL}
 };
 
 static int
-exec_module(PyObject *mod) { return 0; }
+exec_module(PyObject *mod) {
+    if (PyModule_AddIntMacro(mod, FTS5_TOKENIZE_QUERY) != 0) return 1;
+    if (PyModule_AddIntMacro(mod, FTS5_TOKENIZE_DOCUMENT) != 0) return 1;
+    if (PyModule_AddIntMacro(mod, FTS5_TOKENIZE_PREFIX) != 0) return 1;
+    if (PyModule_AddIntMacro(mod, FTS5_TOKENIZE_AUX) != 0) return 1;
+    if (PyModule_AddIntMacro(mod, FTS5_TOKEN_COLOCATED) != 0) return 1;
+    return 0;
+}
 
 static PyModuleDef_Slot slots[] = { {Py_mod_exec, (void*)exec_module}, {0, NULL} };
 
