@@ -23,6 +23,7 @@ SQLITE_EXTENSION_INIT1
 typedef int (*token_callback_func)(void *, int, const char *, int, int, int);
 
 
+// Converting SQLITE text to ICU strings {{{
 // UTF-8 decode taken from: https://bjoern.hoehrmann.de/utf-8/decoder/dfa/
 
 static const uint8_t utf8_data[] = {
@@ -81,14 +82,19 @@ populate_icu_string(const char *text, int text_sz, icu::UnicodeString &str, std:
     }
     byte_offsets.push_back(text_sz);
 }
+// }}}
+
+static char ui_language[16] = {0};
 
 class Tokenizer {
 private:
-    icu::Transliterator *diacritics_remover;
+    bool remove_diacritics;
+    std::unique_ptr<icu::Transliterator> diacritics_remover;
     std::vector<int> byte_offsets;
-    std::string token_buf;
+    std::string token_buf, current_ui_language;
     token_callback_func current_callback;
     void *current_callback_ctx;
+    std::unique_ptr<icu::BreakIterator> basic_word_iterator;
 
     bool is_token_char(UChar32 ch) const {
         switch(u_charType(ch)) {
@@ -113,14 +119,31 @@ private:
         return current_callback(current_callback_ctx, flags, token_buf.c_str(), (int)token_buf.size(), byte_offsets[start_offset], byte_offsets[end_offset]);
     }
 
+    void ensure_basic_iterator(void) {
+        if (current_ui_language != ui_language || !basic_word_iterator) {
+            current_ui_language.clear(); current_ui_language = ui_language;
+            const icu::Locale locale = icu::Locale::getDefault();
+            icu::ErrorCode status;
+            if (current_ui_language.empty()) {
+                basic_word_iterator.reset(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+            } else {
+                basic_word_iterator.reset(icu::BreakIterator::createWordInstance(icu::Locale::createCanonical(ui_language), status));
+                if (status.isFailure()) {
+                    basic_word_iterator.reset(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+                }
+            }
+        }
+    }
+
 public:
     int constructor_error;
     Tokenizer(const char **args, int nargs) :
-        diacritics_remover(NULL),
-        byte_offsets(), token_buf(),
-        current_callback(NULL), current_callback_ctx(NULL), constructor_error(SQLITE_OK)
+        remove_diacritics(true), diacritics_remover(),
+        byte_offsets(), token_buf(), current_ui_language(ui_language),
+        current_callback(NULL), current_callback_ctx(NULL), basic_word_iterator(),
+
+        constructor_error(SQLITE_OK)
     {
-        bool remove_diacritics = true;
         for (int i = 0; i < nargs; i++) {
             if (strcmp(args[i], "remove_diacritics") == 0) {
                 i++;
@@ -129,19 +152,18 @@ public:
         }
         if (remove_diacritics) {
             icu::ErrorCode status;
-            diacritics_remover = icu::Transliterator::createInstance("NFD; [:M:] Remove; NFC", UTRANS_FORWARD, status);
+            diacritics_remover.reset(icu::Transliterator::createInstance("NFD; [:M:] Remove; NFC", UTRANS_FORWARD, status));
             if (status.isFailure()) {
                 fprintf(stderr, "Failed to create ICU transliterator to remove diacritics with error: %s\n", status.errorName());
                 constructor_error = SQLITE_INTERNAL;
+                diacritics_remover.reset(NULL);
+                remove_diacritics = false;
             }
         }
     }
-    ~Tokenizer() {
-        if (diacritics_remover) icu::Transliterator::unregister(diacritics_remover->getID());
-        diacritics_remover = NULL;
-    }
 
     int tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
+        ensure_basic_iterator();
         current_callback = callback; current_callback_ctx = callback_ctx;
         icu::UnicodeString str(text_sz, 0, 0);
         byte_offsets.clear();
@@ -162,7 +184,7 @@ public:
                 icu::UnicodeString token(str, start_offset, offset - start_offset);
                 token.foldCase(U_FOLD_CASE_DEFAULT);
                 if ((rc = send_token(token, start_offset, offset)) != SQLITE_OK) return rc;
-                if (!for_query && diacritics_remover) {
+                if (!for_query && remove_diacritics) {
                     icu::UnicodeString tt(token);
                     diacritics_remover->transliterate(tt);
                     if (tt != token) {
@@ -273,9 +295,20 @@ get_locales_for_break_iteration(PyObject *self, PyObject *args) {
     return ans.detach();
 }
 
+static PyObject*
+set_ui_language(PyObject *self, PyObject *args) {
+    const char *val;
+    if (!PyArg_ParseTuple(args, "s", &val)) return NULL;
+    strncpy(ui_language, val, sizeof(ui_language) - 1);
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef methods[] = {
     {"get_locales_for_break_iteration", get_locales_for_break_iteration, METH_NOARGS,
      "Get list of available locales for break iteration"
+    },
+    {"set_ui_language", set_ui_language, METH_VARARGS,
+     "Set the current UI language"
     },
     {NULL, NULL, 0, NULL}
 };
