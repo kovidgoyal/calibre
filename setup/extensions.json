@@ -73,6 +73,7 @@
     },
     {
         "name": "sqlite_extension",
+        "headers": "calibre/utils/cpp_binding.h",
         "sources": "calibre/db/sqlite_extension.cpp",
 		"needs_c++11": true,
         "libraries": "icudata icui18n icuuc icuio",

@@ -16,6 +16,8 @@
 #include <unicode/uchar.h>
 #include <unicode/translit.h>
 #include <unicode/errorcode.h>
+#include <unicode/brkiter.h>
+#include "../utils/cpp_binding.h"
 SQLITE_EXTENSION_INIT1
 
 typedef int (*token_callback_func)(void *, int, const char *, int, int, int);
@@ -250,8 +252,31 @@ calibre_sqlite_extension_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_ro
 }
 }
 
+static PyObject*
+get_locales_for_break_iteration(PyObject *self, PyObject *args) {
+    std::unique_ptr<icu::StringEnumeration> locs(icu::BreakIterator::getAvailableLocales());
+    icu::ErrorCode status;
+    pyobject_raii ans(PyList_New(0));
+    if (ans) {
+        const icu::UnicodeString *item;
+        while ((item = locs->snext(status))) {
+            std::string name;
+            item->toUTF8String(name);
+            pyobject_raii pn(PyUnicode_FromString(name.c_str()));
+            if (pn) PyList_Append(ans.ptr(), pn.ptr());
+        }
+        if (status.isFailure()) {
+            PyErr_Format(PyExc_RuntimeError, "Failed to iterate over locales with error: %s", status.errorName());
+            return NULL;
+        }
+    }
+    return ans.detach();
+}
 
 static PyMethodDef methods[] = {
+    {"get_locales_for_break_iteration", get_locales_for_break_iteration, METH_NOARGS,
+     "Get list of available locales for break iteration"
+    },
     {NULL, NULL, 0, NULL}
 };
 
