@@ -169,7 +169,6 @@ public:
         byte_offsets.clear();
         byte_offsets.reserve(text_sz + 8);
         populate_icu_string(text, text_sz, str, byte_offsets);
-        str.foldCase(U_FOLD_CASE_DEFAULT);
         int32_t offset = str.getChar32Start(0);
         int rc;
         bool for_query = (flags & FTS5_TOKENIZE_QUERY) != 0;
