@@ -38,6 +38,14 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
     def term_row_counts(self):
         return dict(self.execute('SELECT term,doc FROM fts_row'))
 
+    def search(self, query, highlight_start='>', highlight_end='<', snippet_size=4):
+        snippet_size=max(1, min(snippet_size, 64))
+        stmt = (
+            f'SELECT snippet(fts_table, 0, "{highlight_start}", "{highlight_end}", "…", {snippet_size})'
+            ' FROM fts_table WHERE fts_table MATCH ? ORDER BY RANK'
+        )
+        return list(self.execute(stmt, (query,)))
+
 
 class FTSTest(BaseTest):
     ae = BaseTest.assertEqual
@@ -46,6 +54,8 @@ class FTSTest(BaseTest):
         conn = TestConn()
         conn.insert_text('two words, and a period. With another.')
         conn.insert_text('and another re-init')
+        self.ae(conn.search("another"), [('and >another< re-init',), ('…With >another<.',)])
+        self.ae(conn.search("period"), [('…a >period<. With another.',)])
         self.ae(conn.term_row_counts(), {'a': 1, 're': 1, 'init': 1, 'and': 2, 'another': 2, 'period': 1, 'two': 1, 'with': 1, 'words': 1})
         conn = TestConn()
         conn.insert_text('coộl')
