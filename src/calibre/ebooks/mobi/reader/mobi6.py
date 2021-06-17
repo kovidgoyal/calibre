@@ -6,24 +6,29 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import shutil, os, re, struct, textwrap, io
+import io
+import os
+import re
+import shutil
+import struct
+import textwrap
+from lxml import etree, html
 
-from lxml import html, etree
-
-from calibre import xml_entity_to_unicode, entity_to_unicode, guess_type
-from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
+from calibre import entity_to_unicode, guess_type, xml_entity_to_unicode
 from calibre.ebooks import DRMError, unit_convert
 from calibre.ebooks.chardet import strip_encoding_declarations
-from calibre.ebooks.mobi import MobiError
-from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
+from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.mobi import MobiError
+from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.reader.headers import BookHeader
-from calibre.utils.img import save_cover_data_to, gif_data_to_png_data, AnimatedGIF
+from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
+from calibre.utils.img import AnimatedGIF, gif_data_to_png_data, save_cover_data_to
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, unicode_type, range, map
+from calibre.utils.logging import default_log
+from polyglot.builtins import iteritems, map, range, unicode_type
 
 
 class TopazError(ValueError):
@@ -45,9 +50,9 @@ class MobiReader(object):
         re.IGNORECASE)
     IMAGE_ATTRS = ('lowrecindex', 'recindex', 'hirecindex')
 
-    def __init__(self, filename_or_stream, log, user_encoding=None, debug=None,
+    def __init__(self, filename_or_stream, log=None, user_encoding=None, debug=None,
             try_extra_data_fix=False):
-        self.log = log
+        self.log = log or default_log
         self.debug = debug
         self.embedded_mi = None
         self.warned_about_trailing_entry_corruption = False
