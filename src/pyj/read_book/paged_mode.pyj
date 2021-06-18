@@ -453,7 +453,7 @@ def previous_screen_location():
     if is_full_screen_layout:
         return -1
     cc = current_column_location()
-    ans = cc - screen_inline
+    ans = cc - cols_per_screen * col_and_gap
     if ans < 0:
         # We ignore small scrolls (less than 15px) when going to previous
         # screen
