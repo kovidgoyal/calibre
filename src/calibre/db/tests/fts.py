@@ -65,6 +65,22 @@ class FTSTest(BaseTest):
             tokenize("Some wörds"),
             [t('some', 0, 4), t('wörds', 5, 11), t('words', 5, 11, 1)]
         )
+        self.ae(
+            tokenize("don't 'bug'"),
+            [t("don't", 0, 5), t('bug', 7, 10)]
+        )
+        self.ae(
+            tokenize("a,b. c"),
+            [t("a", 0, 1), t('b', 2, 3), t('c', 5, 6)]
+        )
+        self.ae(
+            tokenize("a*b+c"),
+            [t("a", 0, 1), t('b', 2, 3), t('c', 4, 5)]
+        )
+        self.ae(
+            tokenize("a😀smile"),
+            [t("a", 0, 1), t('😀', 1, 5), t('smile', 5, 10)]
+        )
     # }}}
 
     def test_fts_basic(self):  # {{{

@@ -104,7 +104,6 @@ struct char_cmp {
 
 typedef std::unique_ptr<icu::BreakIterator> BreakIterator;
 
-
 class Tokenizer {
 private:
     bool remove_diacritics;
@@ -125,11 +124,14 @@ private:
             case U_DECIMAL_DIGIT_NUMBER:
             case U_LETTER_NUMBER:
             case U_OTHER_NUMBER:
+            case U_CURRENCY_SYMBOL:
+            case U_OTHER_SYMBOL:
             case U_PRIVATE_USE_CHAR:
                 return true;
             default:
-                return false;
+                break;;
         }
+        return false;
     }
 
     int send_token(const icu::UnicodeString &token, int32_t start_offset, int32_t end_offset, int flags = 0) {
