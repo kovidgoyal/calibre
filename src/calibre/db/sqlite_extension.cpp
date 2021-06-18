@@ -238,7 +238,7 @@ public:
     int constructor_error;
     Tokenizer(const char **args, int nargs) :
         remove_diacritics(true), diacritics_remover(),
-        byte_offsets(), token_buf(), current_ui_language(ui_language),
+        byte_offsets(), token_buf(), current_ui_language(""),
         current_callback(NULL), current_callback_ctx(NULL), iterators(),
 
         constructor_error(SQLITE_OK)
@@ -259,6 +259,8 @@ public:
                 remove_diacritics = false;
             }
         }
+        std::lock_guard<std::mutex> lock(global_mutex);
+        current_ui_language = ui_language;
     }
 
     int tokenize(void *callback_ctx, int flags, const char *text, int text_sz, token_callback_func callback) {
