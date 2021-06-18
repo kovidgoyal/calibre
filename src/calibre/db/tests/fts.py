@@ -19,6 +19,8 @@ def print(*args, **kwargs):
 class TestConn(Connection):
 
     def __init__(self, remove_diacritics=True):
+        from calibre_extensions.sqlite_extension import set_ui_language
+        set_ui_language('en')
         super().__init__(':memory:')
         plugins.load_apsw_extension(self, 'sqlite_extension')
         options = []

@@ -12,6 +12,7 @@
 #include <locale>
 #include <vector>
 #include <map>
+#include <mutex>
 #include <cstring>
 #include <sqlite3ext.h>
 #include <unicode/unistr.h>
@@ -88,6 +89,7 @@ populate_icu_string(const char *text, int text_sz, icu::UnicodeString &str, std:
 // }}}
 
 static char ui_language[16] = {0};
+static std::mutex global_mutex;
 
 class IteratorDescription {
     public:
@@ -176,6 +178,7 @@ private:
     }
 
     void ensure_basic_iterator(void) {
+        std::lock_guard<std::mutex> lock(global_mutex);
         if (current_ui_language != ui_language || iterators.find("") == iterators.end()) {
             current_ui_language.clear(); current_ui_language = ui_language;
             icu::ErrorCode status;
@@ -393,6 +396,7 @@ get_locales_for_break_iteration(PyObject *self, PyObject *args) {
 
 static PyObject*
 set_ui_language(PyObject *self, PyObject *args) {
+    std::lock_guard<std::mutex> lock(global_mutex);
     const char *val;
     if (!PyArg_ParseTuple(args, "s", &val)) return NULL;
     strncpy(ui_language, val, sizeof(ui_language) - 1);
