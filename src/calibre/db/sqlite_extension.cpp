@@ -198,6 +198,37 @@ private:
         return ans->second;
     }
 
+    int tokenize_script_block(const icu::UnicodeString &str, int32_t block_start, int32_t block_limit, bool for_query, token_callback_func callback, void *callback_ctx, BreakIterator &word_iterator) {
+        word_iterator->setText(str.tempSubStringBetween(block_start, block_limit));
+        int32_t token_start_pos = word_iterator->first() + block_start, token_end_pos;
+        int rc = SQLITE_OK;
+        do {
+            token_end_pos = word_iterator->next();
+            if (token_end_pos == icu::BreakIterator::DONE) token_end_pos = block_limit;
+            else token_end_pos += block_start;
+            if (token_end_pos > token_start_pos) {
+                bool is_token = false;
+                for (int32_t pos = token_start_pos; !is_token && pos < token_end_pos; pos = str.moveIndex32(pos, 1)) {
+                    if (is_token_char(str.char32At(pos))) is_token = true;
+                }
+                if (is_token) {
+                    icu::UnicodeString token(str, token_start_pos, token_end_pos - token_start_pos);
+                    token.foldCase(U_FOLD_CASE_DEFAULT);
+                    if ((rc = send_token(token, token_start_pos, token_end_pos)) != SQLITE_OK) return rc;
+                    if (!for_query && remove_diacritics) {
+                        icu::UnicodeString tt(token);
+                        diacritics_remover->transliterate(tt);
+                        if (tt != token) {
+                            if ((rc = send_token(tt, token_start_pos, token_end_pos, FTS5_TOKEN_COLOCATED)) != SQLITE_OK) return rc;
+                        }
+                    }
+                }
+            }
+            token_start_pos = token_end_pos;
+        } while (token_end_pos < block_limit);
+        return rc;
+    }
+
 public:
     int constructor_error;
     Tokenizer(const char **args, int nargs) :
@@ -233,29 +264,30 @@ public:
         byte_offsets.reserve(text_sz + 8);
         populate_icu_string(text, text_sz, str, byte_offsets);
         int32_t offset = str.getChar32Start(0);
-        int rc;
+        int rc = SQLITE_OK;
         bool for_query = (flags & FTS5_TOKENIZE_QUERY) != 0;
+        IteratorDescription state;
+        state.language = ""; state.script = USCRIPT_COMMON;
+        int32_t start_script_block_at = offset;
+        BreakIterator &word_iterator = ensure_lang_iterator(state.language);
         while (offset < str.length()) {
-            // soak up non-token chars
-            while (offset < str.length() && !is_token_char(str.char32At(offset))) offset = str.moveIndex32(offset, 1);
-            if (offset >= str.length()) break;
-            // get the length of the sequence of token chars
-            int32_t start_offset = offset;
-            while (offset < str.length() && is_token_char(str.char32At(offset))) offset = str.moveIndex32(offset, 1);
-            if (offset > start_offset) {
-                icu::UnicodeString token(str, start_offset, offset - start_offset);
-                token.foldCase(U_FOLD_CASE_DEFAULT);
-                if ((rc = send_token(token, start_offset, offset)) != SQLITE_OK) return rc;
-                if (!for_query && remove_diacritics) {
-                    icu::UnicodeString tt(token);
-                    diacritics_remover->transliterate(tt);
-                    if (tt != token) {
-                        if ((rc = send_token(tt, start_offset, offset, FTS5_TOKEN_COLOCATED)) != SQLITE_OK) return rc;
+            while (offset < str.length()) {
+                UChar32 ch = str.char32At(offset);
+                if (at_script_boundary(state, ch)) {
+                    if (offset > start_script_block_at) {
+                        if ((rc = tokenize_script_block(
+                            str, start_script_block_at, offset,
+                            for_query, callback, callback_ctx, word_iterator)) != SQLITE_OK) return rc;
                     }
+                    break;
                 }
+                offset = str.moveIndex32(offset, 1);
             }
         }
-        return SQLITE_OK;
+        if (offset > start_script_block_at) {
+            rc = tokenize_script_block(str, start_script_block_at, offset, for_query, callback, callback_ctx, word_iterator);
+        }
+        return rc;
     }
 };
 
