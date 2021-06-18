@@ -78,6 +78,10 @@ class FTSTest(BaseTest):
             [t("a", 0, 1), t('b', 2, 3), t('c', 4, 5)]
         )
         self.ae(
+            tokenize("a(b[{^c"),
+            [t("a", 0, 1), t('b', 2, 3), t('c', 6, 7)]
+        )
+        self.ae(
             tokenize("a😀smile"),
             [t("a", 0, 1), t('😀', 1, 5), t('smile', 5, 10)]
         )
