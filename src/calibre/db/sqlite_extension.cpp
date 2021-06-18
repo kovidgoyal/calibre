@@ -102,6 +102,8 @@ struct char_cmp {
     }
 };
 
+typedef std::unique_ptr<icu::BreakIterator> BreakIterator;
+
 
 class Tokenizer {
 private:
@@ -111,7 +113,7 @@ private:
     std::string token_buf, current_ui_language;
     token_callback_func current_callback;
     void *current_callback_ctx;
-    std::map<const char*, std::unique_ptr<icu::BreakIterator>, char_cmp> iterators;
+    std::map<const char*, BreakIterator, char_cmp> iterators;
 
     bool is_token_char(UChar32 ch) const {
         switch(u_charType(ch)) {
@@ -176,14 +178,24 @@ private:
             current_ui_language.clear(); current_ui_language = ui_language;
             icu::ErrorCode status;
             if (current_ui_language.empty()) {
-                iterators[""] = std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+                iterators[""] = BreakIterator(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
             } else {
-                iterators[""] = std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createWordInstance(icu::Locale::createCanonical(ui_language), status));
-                if (status.isFailure()) {
-                    iterators[""] = std::unique_ptr<icu::BreakIterator>(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
-                }
+                ensure_lang_iterator(ui_language);
             }
         }
+    }
+
+    BreakIterator& ensure_lang_iterator(const char *lang = "") {
+        auto ans = iterators.find(lang);
+        if (ans == iterators.end()) {
+            icu::ErrorCode status;
+            iterators[lang] = BreakIterator(icu::BreakIterator::createWordInstance(icu::Locale::createCanonical(lang), status));
+            if (status.isFailure()) {
+                iterators[lang] = BreakIterator(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+            }
+            ans = iterators.find(lang);
+        }
+        return ans->second;
     }
 
 public:
