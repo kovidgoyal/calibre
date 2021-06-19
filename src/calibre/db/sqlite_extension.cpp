@@ -421,6 +421,7 @@ tokenize(PyObject *self, PyObject *args) {
     if (!remove_diacritics) targs[1] = "0";
     Tokenizer t(targs, sizeof(targs)/sizeof(targs[0]));
     pyobject_raii ans(PyList_New(0));
+    if (!ans) return NULL;
     t.tokenize(ans.ptr(), flags, text, text_length, py_callback);
     return ans.detach();
 }

@@ -150,3 +150,13 @@ class FTSTest(BaseTest):
         self.ae(conn.search('moose AND one'), [])
 
     # }}}
+
+
+def find_tests():
+    import unittest
+    return unittest.defaultTestLoader.loadTestsFromTestCase(FTSTest)
+
+
+def run_tests():
+    from calibre.utils.run_tests import run_tests
+    run_tests(find_tests)
