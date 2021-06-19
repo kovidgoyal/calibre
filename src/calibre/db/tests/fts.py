@@ -144,4 +144,9 @@ class FTSTest(BaseTest):
         self.ae(conn.search('NEAR("one two" "three four")'), [('>one two< >three four<…',)])
         self.ae(conn.search('NEAR(one six, 2)'), [])
 
+        conn.insert_text('moose cat')
+        self.ae(conn.search('moose OR one'), [('>moose< cat',), ('>one< two three four…',)])
+        self.ae(conn.search('(moose OR one) NOT cat'), [('>one< two three four…',)])
+        self.ae(conn.search('moose AND one'), [])
+
     # }}}
