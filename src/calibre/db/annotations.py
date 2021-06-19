@@ -11,6 +11,11 @@ from polyglot.builtins import itervalues
 no_cfi_sort_key = cfi_sort_key('/99999999')
 
 
+def unicode_normalize(text):
+    from unicodedata import normalize
+    return normalize('NFKC', text)
+
+
 def bookmark_sort_key(b):
     if b.get('pos_type') == 'epubcfi':
         return cfi_sort_key(b['pos'], only_path=False)
@@ -125,4 +130,4 @@ def annot_db_data(annot):
         notes = annot.get('notes') or ''
         if notes:
             text += '\n\x1f\n' + notes
-    return aid, text
+    return aid, unicode_normalize(text)

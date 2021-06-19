@@ -19,7 +19,7 @@ from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.db import SPOOL_SIZE
-from calibre.db.annotations import annot_db_data
+from calibre.db.annotations import annot_db_data, unicode_normalize
 from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
@@ -1801,6 +1801,7 @@ class DB(object):
         fts_engine_query, use_stemming, highlight_start, highlight_end, snippet_size, annotation_type,
         restrict_to_book_ids, restrict_to_user, ignore_removed=False
     ):
+        fts_engine_query = unicode_normalize(fts_engine_query)
         fts_table = 'annotations_fts_stemmed' if use_stemming else 'annotations_fts'
         text = 'annotations.searchable_text'
         if highlight_start is not None and highlight_end is not None:

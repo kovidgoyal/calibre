@@ -9,6 +9,7 @@ from apsw import Connection
 
 from calibre.constants import plugins
 from calibre.db.tests.base import BaseTest
+from calibre.db.annotations import unicode_normalize
 
 
 def print(*args, **kwargs):
@@ -35,7 +36,7 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
         return self.cursor().execute(*a)
 
     def insert_text(self, text):
-        self.execute('INSERT INTO fts_table(t) VALUES (?)', (text,))
+        self.execute('INSERT INTO fts_table(t) VALUES (?)', (unicode_normalize(text),))
 
     def term_row_counts(self):
         return dict(self.execute('SELECT term,doc FROM fts_row'))
@@ -46,14 +47,14 @@ CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
             f'SELECT snippet(fts_table, 0, "{highlight_start}", "{highlight_end}", "…", {snippet_size})'
             ' FROM fts_table WHERE fts_table MATCH ? ORDER BY RANK'
         )
-        return list(self.execute(stmt, (query,)))
+        return list(self.execute(stmt, (unicode_normalize(query),)))
 
 
 def tokenize(text, flags=None, remove_diacritics=True):
     from calibre_extensions.sqlite_extension import tokenize, FTS5_TOKENIZE_DOCUMENT
     if flags is None:
         flags = FTS5_TOKENIZE_DOCUMENT
-    return tokenize(text, remove_diacritics, flags)
+    return tokenize(unicode_normalize(text), remove_diacritics, flags)
 
 
 class FTSTest(BaseTest):
