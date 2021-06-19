@@ -276,23 +276,20 @@ public:
         IteratorDescription state;
         state.language = ""; state.script = USCRIPT_COMMON;
         int32_t start_script_block_at = offset;
-        BreakIterator &word_iterator = ensure_lang_iterator(state.language);
         while (offset < str.length()) {
-            while (offset < str.length()) {
-                UChar32 ch = str.char32At(offset);
-                if (at_script_boundary(state, ch)) {
-                    if (offset > start_script_block_at) {
-                        if ((rc = tokenize_script_block(
-                            str, start_script_block_at, offset,
-                            for_query, callback, callback_ctx, word_iterator)) != SQLITE_OK) return rc;
-                    }
-                    break;
+            UChar32 ch = str.char32At(offset);
+            if (at_script_boundary(state, ch)) {
+                if (offset > start_script_block_at) {
+                    if ((rc = tokenize_script_block(
+                        str, start_script_block_at, offset,
+                        for_query, callback, callback_ctx, ensure_lang_iterator(state.language))) != SQLITE_OK) return rc;
                 }
-                offset = str.moveIndex32(offset, 1);
+                start_script_block_at = offset;
             }
+            offset = str.moveIndex32(offset, 1);
         }
         if (offset > start_script_block_at) {
-            rc = tokenize_script_block(str, start_script_block_at, offset, for_query, callback, callback_ctx, word_iterator);
+            rc = tokenize_script_block(str, start_script_block_at, offset, for_query, callback, callback_ctx, ensure_lang_iterator(state.language));
         }
         return rc;
     }

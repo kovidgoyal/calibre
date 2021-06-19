@@ -126,6 +126,7 @@ class FTSTest(BaseTest):
         self.ae(conn.search("mess"), [("你don't叫>mess<",)])
         self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
         self.ae(conn.search("你"), [(">你<don't叫mess",)])
+        self.ae(conn.search("叫"), [("你don't>叫<mess",)])
     # }}}
 
     def test_fts_query_syntax(self):  # {{{
