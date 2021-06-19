@@ -139,7 +139,7 @@ private:
     int send_token(const icu::UnicodeString &token, int32_t start_offset, int32_t end_offset, int flags = 0) {
         token_buf.clear(); token_buf.reserve(4 * token.length());
         token.toUTF8String(token_buf);
-        return current_callback(current_callback_ctx, flags, token_buf.c_str(), (int)token_buf.size(), byte_offsets[start_offset], byte_offsets[end_offset]);
+        return current_callback(current_callback_ctx, flags, token_buf.c_str(), (int)token_buf.size(), byte_offsets.at(start_offset), byte_offsets.at(end_offset));
     }
 
     const char* iterator_language_for_script(UScriptCode script) const {
