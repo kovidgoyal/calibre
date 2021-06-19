@@ -69,6 +69,8 @@ class FTSTest(BaseTest):
         set_ui_language('en')
 
     def test_fts_tokenize(self):  # {{{
+        from calibre_extensions.sqlite_extension import set_ui_language
+
         def t(x, s, e, f=0):
             return {'text': x, 'start': s, 'end': e, 'flags': f}
 
@@ -104,6 +106,13 @@ class FTSTest(BaseTest):
         tt('你叫什么名字', '你', '叫', '什么', '名字')
         tt('你叫abc', '你', '叫', 'abc')
         tt('a你b叫什么名字', 'a', '你', 'b', '叫', '什么', '名字')
+
+        for lang in 'de fr es sv it en'.split():
+            set_ui_language(lang)
+            tt("don't 'its' wörds", "don't", 'its', 'wörds', 'words')
+            tt("l'hospital", "l'hospital")
+            tt("x'bug'", "x'bug")
+        set_ui_language('en')
     # }}}
 
     def test_fts_basic(self):  # {{{
