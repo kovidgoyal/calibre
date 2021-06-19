@@ -136,6 +136,9 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.show_item_at_index(idx)
         # Open the editor on the new item to rename it
         if new_category_name is None:
+            item = m.get_node(idx)
+            item.use_vl = False
+            item.ignore_vl = True
             self.tags_view.edit(idx)
 
     def do_edit_user_categories(self, on_category=None):
