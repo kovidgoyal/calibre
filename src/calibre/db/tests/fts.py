@@ -63,6 +63,10 @@ class FTSTest(BaseTest):
         def t(x, s, e, f=0):
             return {'text': x, 'start': s, 'end': e, 'flags': f}
 
+        def tt(text, *expected_tokens):
+            q = tuple(x['text'] for x in tokenize(text))
+            self.ae(q, expected_tokens)
+
         self.ae(
             tokenize("Some wörds"),
             [t('some', 0, 4), t('wörds', 5, 11), t('words', 5, 11, 1)]
@@ -87,6 +91,9 @@ class FTSTest(BaseTest):
             tokenize("a😀smile"),
             [t("a", 0, 1), t('😀', 1, 5), t('smile', 5, 10)]
         )
+
+        tt('你叫什么名字', '你', '叫', '什么', '名字')
+        tt('a你b叫什么名字', 'a', '你', 'b', '叫', '什么', '名字')
     # }}}
 
     def test_fts_basic(self):  # {{{
@@ -104,4 +111,10 @@ class FTSTest(BaseTest):
         conn = TestConn(remove_diacritics=False)
         conn.insert_text('coộl')
         self.ae(conn.term_row_counts(), {'coộl': 1})
+
+        conn = TestConn()
+        conn.insert_text("你don't叫mess")
+        self.ae(conn.search("mess"), [("你don't叫>mess<",)])
+        self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
+        self.ae(conn.search("你"), [(">你<don't叫mess",)])
     # }}}
