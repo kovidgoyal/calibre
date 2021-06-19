@@ -88,7 +88,7 @@ populate_icu_string(const char *text, int text_sz, icu::UnicodeString &str, std:
 }
 // }}}
 
-static char ui_language[16] = {0};
+static char ui_language[16] = {'e', 'n', 0};
 static std::mutex global_mutex;
 
 class IteratorDescription {

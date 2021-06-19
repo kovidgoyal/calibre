@@ -18,9 +18,9 @@ def print(*args, **kwargs):
 
 class TestConn(Connection):
 
-    def __init__(self, remove_diacritics=True):
+    def __init__(self, remove_diacritics=True, language='en'):
         from calibre_extensions.sqlite_extension import set_ui_language
-        set_ui_language('en')
+        set_ui_language(language)
         super().__init__(':memory:')
         plugins.load_apsw_extension(self, 'sqlite_extension')
         options = []
@@ -58,6 +58,14 @@ def tokenize(text, flags=None, remove_diacritics=True):
 
 class FTSTest(BaseTest):
     ae = BaseTest.assertEqual
+
+    def setUp(self):
+        from calibre_extensions.sqlite_extension import set_ui_language
+        set_ui_language('en')
+
+    def tearDown(self):
+        from calibre_extensions.sqlite_extension import set_ui_language
+        set_ui_language('en')
 
     def test_fts_tokenize(self):  # {{{
         def t(x, s, e, f=0):
@@ -117,4 +125,23 @@ class FTSTest(BaseTest):
         self.ae(conn.search("mess"), [("你don't叫>mess<",)])
         self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
         self.ae(conn.search("你"), [(">你<don't叫mess",)])
+    # }}}
+
+    def test_fts_query_syntax(self):  # {{{
+        conn = TestConn()
+        conn.insert_text('one two three')
+        for q in ('"one two three"', 'one + two + three', '"one two" + three'):
+            self.ae(conn.search(q), [('>one two three<',)])
+        self.ae(conn.search('two'), [('one >two< three',)])
+        for q in ('"one two thr" *', 'one + two + thr*'):
+            self.ae(conn.search(q), [('>one two three<',)])
+        self.ae(conn.search('^one'), [('>one< two three',)])
+        self.ae(conn.search('^"one"'), [('>one< two three',)])
+        self.ae(conn.search('^two'), [])
+        conn = TestConn()
+        conn.insert_text('one two three four five six seven')
+        self.ae(conn.search('NEAR(one four)'), [('>one< two three >four<…',)])
+        self.ae(conn.search('NEAR("one two" "three four")'), [('>one two< >three four<…',)])
+        self.ae(conn.search('NEAR(one six, 2)'), [])
+
     # }}}
