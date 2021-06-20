@@ -69,9 +69,8 @@ class TheHindu(BasicNewsRecipe):
         try:
             desc = soup.find('meta', attrs={'name': 'description'}).get('content')
             if not desc.startswith('Todays paper'):
-                desc = entity_to_unicode(desc)
                 desc += '...' if len(desc) >= 199 else ''   # indicate truncation
-                article.text_summary = article.summary = desc
+                article.text_summary = article.summary = entity_to_unicode(desc)
         except AttributeError:
             return
 
