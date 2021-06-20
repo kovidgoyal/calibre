@@ -1,9 +1,11 @@
-from __future__ import with_statement
-__license__ = 'GPL 3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-from calibre.web.feeds.news import BasicNewsRecipe
 import string
+
+from calibre import entity_to_unicode
+from calibre.web.feeds.news import BasicNewsRecipe
 
 
 def classes(classes):
@@ -67,6 +69,7 @@ class TheHindu(BasicNewsRecipe):
         try:
             desc = soup.find('meta', attrs={'name': 'description'}).get('content')
             if not desc.startswith('Todays paper'):
+                desc = entity_to_unicode(desc)
                 desc += '...' if len(desc) >= 199 else ''   # indicate truncation
                 article.text_summary = article.summary = desc
         except AttributeError:
