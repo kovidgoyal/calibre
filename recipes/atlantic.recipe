@@ -54,7 +54,7 @@ class TheAtlantic(BasicNewsRecipe):
             ' lead-img article-cover-extra article-body article-magazine article-cover-content'
         ),
         prefix_classes(
-            'ArticleHeader_root__ ArticleLayoutSection_main__'
+            'ArticleHeader_root__ ArticleLayoutSection_main__ ArticleBody_root__'
         ),
         dict(itemprop='articleBody'),
         # these are for photos articles
