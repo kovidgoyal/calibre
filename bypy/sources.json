@@ -192,7 +192,7 @@
         "unix": {
             "filename": "libstemmer_c-2.1.0.tar.gz",
             "hash": "sha256:8c148d3a27745981d29db4909681ec1bc922950b1ade45a01846edea2fb161e6",
-            "urls": ["https://snowballstem.org/dist/libstemmer_c-2.1.0.tar.gz"]
+            "urls": ["https://snowballstem.org/dist/{filename}"]
         }
     },
 
