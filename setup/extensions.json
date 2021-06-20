@@ -76,8 +76,8 @@
         "headers": "calibre/utils/cpp_binding.h",
         "sources": "calibre/db/sqlite_extension.cpp",
 		"needs_c++11": true,
-        "libraries": "icudata icui18n icuuc icuio",
-        "windows_libraries": "icudt icuin icuuc icuio",
+        "libraries": "icudata icui18n icuuc icuio stemmer",
+        "windows_libraries": "icudt icuin icuuc icuio libstemmer",
         "lib_dirs": "!icu_lib_dirs",
         "inc_dirs": "!icu_inc_dirs !sqlite_inc_dirs"
     },

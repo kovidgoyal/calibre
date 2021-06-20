@@ -478,6 +478,8 @@ def find_tests():
     ans.addTests(find_tests())
     from calibre.spell.dictionary import find_tests
     ans.addTests(find_tests())
+    from calibre.db.tests.fts import find_tests
+    ans.addTests(find_tests())
     return ans
 
 
