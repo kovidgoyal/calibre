@@ -3,6 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from html import unescape
 import string
 
 
@@ -68,7 +69,7 @@ class TheHindu(BasicNewsRecipe):
             desc = soup.find('meta', attrs={'name': 'description'}).get('content')
             if not desc.startswith('Todays paper'):
                 desc += '...' if len(desc) >= 199 else ''   # indicate truncation
-                article.text_summary = article.summary = desc
+                article.text_summary = article.summary = unescape(desc)
         except AttributeError:
             return
 
