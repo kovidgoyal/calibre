@@ -782,7 +782,7 @@ class Overlay:
 
                 container.lastChild.appendChild(E.div(
                     style='text-align: right',
-                    E.a(_('Edit metadata of book in library'), class_='blue-link', onclick=def():
+                    E.a(_('Edit the metadata for this book in the library'), class_='blue-link', onclick=def():
                         container = document.getElementById(container_id)
                         clear(container)
                         container.appendChild(E.iframe(
