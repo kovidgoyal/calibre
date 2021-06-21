@@ -19,7 +19,7 @@ def print(*args, **kwargs):
 
 class TestConn(Connection):
 
-    def __init__(self, remove_diacritics=True, language='en'):
+    def __init__(self, remove_diacritics=True, language='en', stem_words=False):
         from calibre_extensions.sqlite_extension import set_ui_language
         set_ui_language(language)
         super().__init__(':memory:')
@@ -27,8 +27,9 @@ class TestConn(Connection):
         options = []
         options.append('remove_diacritics'), options.append('2' if remove_diacritics else '0')
         options = ' '.join(options)
+        tok = 'porter ' if stem_words else ''
         self.execute(f'''
-CREATE VIRTUAL TABLE fts_table USING fts5(t, tokenize = 'unicode61 {options}');
+CREATE VIRTUAL TABLE fts_table USING fts5(t, tokenize = '{tok}unicode61 {options}');
 CREATE VIRTUAL TABLE fts_row USING fts5vocab(fts_table, row);
 ''')
 
@@ -137,6 +138,26 @@ class FTSTest(BaseTest):
         self.ae(conn.search('''"don't"'''), [("你>don't<叫mess",)])
         self.ae(conn.search("你"), [(">你<don't叫mess",)])
         self.ae(conn.search("叫"), [("你don't>叫<mess",)])
+    # }}}
+
+    def test_fts_stemming(self):  # {{{
+        from calibre_extensions.sqlite_extension import stem
+
+        self.ae(stem('run'), 'run')
+        self.ae(stem('connection'), 'connect')
+        self.ae(stem('maintenaient'), 'maintenai')
+        self.ae(stem('maintenaient', 'fr'), 'mainten')
+        self.ae(stem('continué', 'fr'), 'continu')
+        self.ae(stem('maître', 'FRA'), 'maîtr')
+
+        conn = TestConn(stem_words=True)
+        conn.insert_text('a simplistic connection')
+        self.ae(conn.term_row_counts(), {'a': 1, 'connect': 1, 'simplist': 1})
+        self.ae(conn.search("connection"), [('a simplistic >connection<',),])
+        self.ae(conn.search("connect"), [('a simplistic >connection<',),])
+        self.ae(conn.search("simplistic connect"), [('a >simplistic< >connection<',),])
+        self.ae(conn.search("simplist"), [('a >simplistic< connection',),])
+
     # }}}
 
     def test_fts_query_syntax(self):  # {{{
