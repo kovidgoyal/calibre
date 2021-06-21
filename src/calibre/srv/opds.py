@@ -596,7 +596,7 @@ def opds_categorygroup(ctx, rd, category, which):
     category_name = meta.get('name', which)
     which = from_hex_unicode(which)
     feed_title = default_feed_title + ' :: ' + (_('By {0} :: {1}').format(category_name, which))
-    owhich = as_hex_unicode('N'+which)
+    owhich = as_hex_unicode('N'+category)
     up_url = rc.url_for('/opds/navcatalog', which=owhich)
     items = categories[category]
 
