@@ -99,6 +99,7 @@ def create_location_overlay(current_position_data, book, overlay, container):
                 'No location {} found').format(cfi))
 
     def goto_ref(ref):
+        ref = ref.replace(/,/g, '.')
         if ui_operations.goto_reference(ref):
             overlay.hide()
         else:
