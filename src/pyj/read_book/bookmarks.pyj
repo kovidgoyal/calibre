@@ -12,7 +12,7 @@ from widgets import create_button
 
 
 def goto_cfi(cfi, view):
-    view.goto_cfi(cfi)
+    view.goto_cfi(cfi, True)
 
 
 def remove_bookmark(annotations_manager, title, list_dom_node):

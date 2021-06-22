@@ -234,8 +234,8 @@ def goto_toc_node(node_id):
 
 
 @from_python
-def goto_cfi(cfi):
-    view.goto_cfi(cfi)
+def goto_cfi(cfi, add_to_history):
+    view.goto_cfi(cfi, v'!!add_to_history')
 
 
 @from_python

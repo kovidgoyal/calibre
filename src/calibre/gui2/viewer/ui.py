@@ -366,11 +366,11 @@ class EbookViewer(MainWindow):
         # annotations will be saved in book file on exit
         self.save_annotations(in_book_file=False)
 
-    def goto_cfi(self, cfi):
-        self.web_view.goto_cfi(cfi)
+    def goto_cfi(self, cfi, add_to_history=False):
+        self.web_view.goto_cfi(cfi, add_to_history=add_to_history)
 
     def bookmark_activated(self, cfi):
-        self.goto_cfi(cfi)
+        self.goto_cfi(cfi, add_to_history=True)
 
     def view_image(self, name):
         path = get_path_for_name(name)

@@ -649,8 +649,8 @@ class WebView(RestartingWebEngineView):
     def goto_toc_node(self, node_id):
         self.execute_when_ready('goto_toc_node', node_id)
 
-    def goto_cfi(self, cfi):
-        self.execute_when_ready('goto_cfi', cfi)
+    def goto_cfi(self, cfi, add_to_history=False):
+        self.execute_when_ready('goto_cfi', cfi, bool(add_to_history))
 
     def notify_full_screen_state_change(self, in_fullscreen_mode):
         self.execute_when_ready('full_screen_state_changed', in_fullscreen_mode)
