@@ -133,10 +133,24 @@ categories_collapsed_popularity_template = r'{first.count:d} - {last.count:d}'
 # the Tag browser. Items are named using their lookup name, and will be sorted
 # using the number supplied. The lookup name '*' stands for all names that
 # otherwise do not appear. Two names with the same value will be sorted
-# using the default order; the one used when the dict is empty.
-# Example: tag_browser_category_order = {'series':1, 'tags':2, '*':3}
-# resulting in the order series, tags, then everything else in default order.
+# using the default order, the one specified by tag_browser_category_default_sort.
+# Example:
+#   tag_browser_category_order = {'series':1, 'tags':2, '*':3}
+#
+# results in the order series, tags, then everything else in default order.
+# The tweak tag_browser_category_default_sort specifies the sort order before
+# applying the category order from the dict. The allowed values are:
+#   tag_browser_category_default_sort = 'default' # The calibre default order
+#   tag_browser_category_default_sort = 'display_name' # Sort by the display name of the category
+#   tag_browser_category_default_sort = 'lookup_name' # Sort by the lookup name of the category
+#
+# In addition and if the category default sort is not 'default' you can specify
+# whether the sort is ascending or descending. This is ignored if the sort is 'default'.
+#   tag_browser_category_default_sort_direction = 'ascending'
+#   tag_browser_category_default_sort_direction = 'descending'
 tag_browser_category_order = {'*':1}
+tag_browser_category_default_sort = 'default'
+tag_browser_category_default_sort_direction = 'ascending'
 
 
 #: Specify columns to sort the booklist by on startup

@@ -1141,6 +1141,22 @@ class TagsModel(QAbstractItemModel):  # {{{
                 self.categories[category] = tb_categories[category]['name']
 
         # Now build the list of fields in display order
+        order = tweaks.get('tag_browser_category_default_sort', None)
+        if order not in ('default', 'display_name', 'lookup_name'):
+            print('Tweak tag_browser_category_default_sort is not valid. Ignored')
+            order = 'default'
+        if order == 'default':
+            self.row_map = self.categories.keys()
+        else:
+            def key_func(val):
+                if order == 'display_name':
+                    return icu_lower(self.db.field_metadata[val]['name'])
+                return icu_lower(val[1:] if val.startswith('#') or val.startswith('@') else val)
+            direction = tweaks.get('tag_browser_category_default_sort_direction', None)
+            if direction not in ('ascending', 'descending'):
+                print('Tweak tag_browser_category_default_sort_direction is not valid. Ignored')
+                direction = 'ascending'
+            self.row_map = sorted(self.categories, key=key_func, reverse=direction == 'descending')
         try:
             order = tweaks['tag_browser_category_order']
             if not isinstance(order, dict):
@@ -1149,7 +1165,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             print('Tweak tag_browser_category_order is not valid. Ignored')
             order = {'*': 100}
         defvalue = order.get('*', 100)
-        self.row_map = sorted(self.categories, key=lambda x: order.get(x, defvalue))
+        self.row_map = sorted(self.row_map, key=lambda x: order.get(x, defvalue))
         return data
 
     def set_categories_filter(self, txt):
