@@ -246,8 +246,7 @@ private:
         if (!lang[0]) lang = current_ui_language.c_str();
         auto ans = stemmers.find(lang);
         if (ans == stemmers.end()) {
-            if (stem_words) stemmers[lang] = StemmerPtr(new Stemmer(lang));
-            else stemmers[lang] = StemmerPtr(new Stemmer());
+            stemmers[lang] = stem_words ? std::make_unique<Stemmer>(lang) : std::make_unique<Stemmer>();
             ans = stemmers.find(lang);
         }
         return ans->second;
@@ -375,10 +374,11 @@ _tok_create(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut, 
     int rc = SQLITE_OK;
     try {
         Tokenizer *p = new Tokenizer(azArg, nArg, stem_words);
-        *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
         if (p->constructor_error != SQLITE_OK)  {
             rc = p->constructor_error;
             delete p;
+        } else {
+            *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
         }
     } catch (std::bad_alloc const&) {
         return SQLITE_NOMEM;
