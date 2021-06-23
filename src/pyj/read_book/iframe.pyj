@@ -154,6 +154,7 @@ class IframeBoss:
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'scroll_to_frac': self.on_scroll_to_frac,
             'scroll_to_ref': self.on_scroll_to_ref,
+            'fake_popup_activation': self.on_fake_popup_activation,
             'set_reference_mode': self.set_reference_mode,
             'toggle_autoscroll': self.toggle_autoscroll,
             'fake_wheel_event': self.fake_wheel_event,
@@ -718,13 +719,16 @@ class IframeBoss:
             traceback.print_exc()
             is_popup = False
         if is_popup:
-            self.send_message('show_footnote', name=name, frag=frag, title=target_elem.textContent, cols_per_screen=calc_columns_per_screen())
+            self.on_fake_popup_activation({'name': name, 'frag': frag, 'title': target_elem.textContent})
             return
         if name is current_spine_item().name:
             self.replace_history_on_next_cfi_update = False
             self.scroll_to_anchor(frag)
         else:
             self.send_message('scroll_to_anchor', name=name, frag=frag)
+
+    def on_fake_popup_activation(self, data):
+        self.send_message('show_footnote', name=data.name, frag=data.frag, title=data.title, cols_per_screen=calc_columns_per_screen())
 
     def scroll_to_anchor(self, frag):
         if frag:

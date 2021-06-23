@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from dom import clear
 from iframe_comm import IframeClient
+from read_book.globals import runtime, current_spine_item, set_current_spine_item
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.settings import (
     apply_settings, set_color_scheme_class, update_settings
@@ -194,11 +195,12 @@ class PopupIframeBoss:
         self.blob_url_map = {}
         self.name = None
         self.frag = None
+        self.link_attr = None
 
     def initialize(self, data):
-        window.addEventListener('error', self.onerror)
+        window.addEventListener('error', self.on_error)
 
-    def onerror(self, evt):
+    def on_error(self, evt):
         msg = evt.message
         script_url = evt.filename
         line_number = evt.lineno
@@ -217,12 +219,51 @@ class PopupIframeBoss:
         self.book = data.book
         self.name = data.name
         self.frag = data.frag
+        self.link_attr = 'data-' + self.book.manifest.link_uid
+        spine = self.book.manifest.spine
+        index = spine.indexOf(data.name)
+        set_current_spine_item({
+            'name':data.name,
+            'is_first':index is 0,
+            'is_last':index is spine.length - 1,
+            'index': index,
+            'initial_position':data.initial_position
+        })
         update_settings(data.settings)
         for name in self.blob_url_map:
             window.URL.revokeObjectURL(self.blob_url_map[name])
         document.body.style.removeProperty('font-family')
         root_data, self.mathjax, self.blob_url_map = finalize_resources(self.book, data.name, data.resource_data)
         self.resource_urls = unserialize_html(root_data, self.content_loaded, self.show_only_footnote, data.name)
+
+    def connect_links(self):
+        for a in document.body.querySelectorAll(f'a[{self.link_attr}]'):
+            a.addEventListener('click', self.link_activated)
+        if runtime.is_standalone_viewer:
+            # links with a target get turned into requests to open a new window by Qt
+            for a in document.body.querySelectorAll('a[target]'):
+                a.removeAttribute('target')
+
+    def link_activated(self, evt):
+        try:
+            data = JSON.parse(evt.currentTarget.getAttribute(self.link_attr))
+        except:
+            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(self.link_attr)))
+            return
+        self.activate_link(data.name, data.frag, evt.currentTarget)
+
+    def activate_link(self, name, frag, target_elem):
+        if not name:
+            name = current_spine_item().name
+        try:
+            is_popup = is_footnote_link(target_elem, name, frag, current_spine_item().name, self.book.manifest.link_to_map or {})
+            title = target_elem.textContent
+        except:
+            import traceback
+            traceback.print_exc()
+            is_popup = False
+            title = ''
+        self.comm.send_message('link_activated', is_popup=is_popup, name=name, frag=frag, title=title)
 
     def on_clear(self, data):
         clear(document.head)
@@ -242,6 +283,7 @@ class PopupIframeBoss:
         if not self.comm.encrypted_communications:
             window.setTimeout(self.content_loaded, 2)
             return
+        self.connect_links()
         # this is the loading styles used to suppress scrollbars during load
         # added in unserialize_html
         document.head.removeChild(document.head.firstChild)

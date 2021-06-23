@@ -1062,6 +1062,13 @@ class View:
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
+    def link_in_content_popup_activated(self, name, frag, is_popup, title):
+        self.content_popup_overlay.hide()
+        if is_popup:
+            self.iframe_wrapper.send_message('fake_popup_activation', name=name, frag=frag, title=title)
+        else:
+            self.goto_named_destination(name, frag)
+
     def goto_cfi(self, bookpos, add_to_history):
         cfiname, internal_cfi = self.parse_cfi(bookpos, self.book)
         if cfiname and internal_cfi:
