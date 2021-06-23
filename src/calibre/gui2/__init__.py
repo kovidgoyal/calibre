@@ -1221,7 +1221,7 @@ class Application(QApplication):
 
     def signal_received(self):
         try:
-            os.read(self.signal_notifier.socket(), 1024)
+            os.read(int(self.signal_notifier.socket()), 1024)
         except OSError:
             return
         self.shutdown_signal_received.emit()

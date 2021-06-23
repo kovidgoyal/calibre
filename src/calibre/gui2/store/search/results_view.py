@@ -31,7 +31,7 @@ class ImageDelegate(QStyledItemDelegate):
                 dpr = img.devicePixelRatio()
                 scaled, nw, nh = fit_image(img.width(), img.height(), w, h)
                 if scaled:
-                    img = img.scaled(nw*dpr, nh*dpr, Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    img = img.scaled(int(nw*dpr), int(nh*dpr), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation)
             iw, ih = int(img.width()/dpr), int(img.height()/dpr)
             dx, dy = (option.rect.width() - iw) // 2, (option.rect.height() - ih) // 2
             painter.drawPixmap(option.rect.adjusted(dx, dy, -dx, -dy), img)
