@@ -168,7 +168,7 @@ def search_in_text_of(name):
         start, end = m.index, r.lastIndex
         before = haystack[Math.max(0, start - ctx_size):start]
         after = haystack[end:end+ctx_size]
-        q = (before or '')[-5:] + text + (after or '')[:5]
+        q = (before or '')[-15:] + text + (after or '')[:15]
         match_counts[q] = match_counts[q] or 0
         wc.result_num += 1
         result = {

@@ -691,7 +691,7 @@ class SearchPanel(QWidget):  # {{{
                 try:
                     for i, result in enumerate(search_in_name(name, search_query)):
                         before, text, after, offset = result
-                        q = (before or '')[-5:] + text + (after or '')[:5]
+                        q = (before or '')[-15:] + text + (after or '')[:15]
                         result_num += 1
                         self.results_found.emit(SearchResult(search_query, before, text, after, q, name, idx, counter[q], offset, result_num))
                         counter[q] += 1
