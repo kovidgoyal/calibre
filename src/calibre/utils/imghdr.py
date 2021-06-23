@@ -40,14 +40,24 @@ def identify(src):
     ''' Recognize file format and sizes. Returns format, width, height. width
     and height will be -1 if not found and fmt will be None if the image is not
     recognized. '''
-    width = height = -1
+    needs_close = False
 
     if isinstance(src, unicode_type):
         stream = lopen(src, 'rb')
+        needs_close = True
     elif isinstance(src, bytes):
         stream = ReadOnlyFileBuffer(src)
     else:
         stream = src
+    try:
+        return _identify(stream)
+    finally:
+        if needs_close:
+            stream.close()
+
+
+def _identify(stream):
+    width = height = -1
 
     pos = stream.tell()
     head = stream.read(HSIZE)

@@ -611,7 +611,8 @@ class Container(ContainerBase):  # {{{
         :param decode: If True and the file has a text based MIME type, decode it and return a unicode object instead of raw bytes.
         :param normalize_to_nfc: If True the returned unicode object is normalized to the NFC normal form as is required for the EPUB and AZW3 file formats.
         '''
-        ans = self.open(name).read()
+        with self.open(name) as nf:
+            ans = nf.read()
         mime = self.mime_map.get(name, guess_type(name))
         if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime == 'text/plain' or mime[-4:] in {'+xml', '/xml'}):
             ans = self.decode(ans, normalize_to_nfc=normalize_to_nfc)
@@ -1205,7 +1206,8 @@ class EpubContainer(Container):
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
             raise InvalidEpub('No META-INF/container.xml in epub')
-        container = safe_xml_fromstring(open(container_path, 'rb').read())
+        with open(container_path, 'rb') as cf:
+            container = safe_xml_fromstring(cf.read())
         opf_files = container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
             '[@media-type="%s" and @full-path]'%guess_type('a.opf')
