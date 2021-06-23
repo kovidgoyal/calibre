@@ -11,7 +11,7 @@
 #include <string>
 #include <locale>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <mutex>
 #include <cstring>
 #include <sqlite3ext.h>
@@ -98,13 +98,6 @@ class IteratorDescription {
         UScriptCode script;
 };
 
-struct char_cmp {
-    bool operator () (const char *a, const char *b) const
-    {
-        return strcmp(a,b)<0;
-    }
-};
-
 class Stemmer {
 private:
     struct sb_stemmer *handle;
@@ -142,6 +135,7 @@ public:
 
 typedef std::unique_ptr<icu::BreakIterator> BreakIterator;
 typedef std::unique_ptr<Stemmer> StemmerPtr;
+static const std::string empty_string("");
 
 class Tokenizer {
 private:
@@ -151,8 +145,8 @@ private:
     std::string token_buf, current_ui_language;
     token_callback_func current_callback;
     void *current_callback_ctx;
-    std::map<const char*, BreakIterator, char_cmp> iterators;
-    std::map<const char*, StemmerPtr, char_cmp> stemmers;
+    std::unordered_map<std::string, BreakIterator> iterators;
+    std::unordered_map<std::string, StemmerPtr> stemmers;
 
     bool is_token_char(UChar32 ch) const {
         switch(u_charType(ch)) {
@@ -225,11 +219,11 @@ private:
 
     void ensure_basic_iterator(void) {
         std::lock_guard<std::mutex> lock(global_mutex);
-        if (current_ui_language != ui_language || iterators.find("") == iterators.end()) {
+        if (current_ui_language != ui_language || iterators.find(empty_string) == iterators.end()) {
             current_ui_language.clear(); current_ui_language = ui_language;
             icu::ErrorCode status;
             if (current_ui_language.empty()) {
-                iterators[""] = BreakIterator(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+                iterators[empty_string] = BreakIterator(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
             } else {
                 ensure_lang_iterator(ui_language);
             }
@@ -297,7 +291,8 @@ public:
     Tokenizer(const char **args, int nargs, bool stem_words = false) :
         remove_diacritics(true), stem_words(stem_words), diacritics_remover(),
         byte_offsets(), token_buf(), current_ui_language(""),
-        current_callback(NULL), current_callback_ctx(NULL), iterators(),
+        current_callback(NULL), current_callback_ctx(NULL),
+        iterators(), stemmers(),
 
         constructor_error(SQLITE_OK)
     {
