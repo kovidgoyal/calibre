@@ -13,6 +13,7 @@ if c_tokenize_flat is None:
 else:
     tokenizers = (python_tokenize_flat, c_tokenize_flat)
 
+
 def token_api(self, tokenize):
     for css_source in [
             '(8, foo, [z])', '[8, foo, (z)]', '{8, foo, [z]}', 'func(8, foo, [z])'
@@ -20,6 +21,7 @@ def token_api(self, tokenize):
         tokens = list(regroup(tokenize(css_source)))
         self.ae(len(tokens), 1)
         self.ae(len(tokens[0].content), 7)
+
 
 def token_serialize_css(self, tokenize):
     for tokenize in tokenizers:
@@ -39,6 +41,7 @@ foo(int x) {\
                 tokens = _regroup(tokenize(css_source, ignore_comments=False))
                 result = ''.join(token.as_css() for token in tokens)
                 self.ae(result, css_source)
+
 
 def comments(self, tokenize):
     for ignore_comments, expected_tokens in [
@@ -64,6 +67,7 @@ def comments(self, tokenize):
         tokens = regroup(tokenize(css_source, ignore_comments))
         result = list(jsonify(tokens))
         self.ae(result, expected_tokens)
+
 
 def token_grouping(self, tokenize):
     for css_source, expected_tokens in [
@@ -126,6 +130,7 @@ def token_grouping(self, tokenize):
         result = list(jsonify(tokens))
         self.ae(result, expected_tokens)
 
+
 def positions(self, tokenize):
     css = '/* Lorem\nipsum */\fa {\n    color: red;\tcontent: "dolor\\\fsit" }'
     tokens = tokenize(css, ignore_comments=False)
@@ -137,6 +142,7 @@ def positions(self, tokenize):
         ('S', 4, 11), ('IDENT', 4, 12), (';', 4, 15), ('S', 4, 16),
         ('IDENT', 4, 17), (':', 4, 24), ('S', 4, 25), ('STRING', 4, 26),
         ('S', 5, 5), ('}', 5, 6)])
+
 
 def tokens(self, tokenize):
     for css_source, expected_tokens in [
@@ -175,7 +181,7 @@ foo(int x) {\
         # Escaping
 
         (r'/* Comment with a \ backslash */',
-            [('COMMENT', '/* Comment with a \ backslash */')]),  # Unchanged
+            [('COMMENT', r'/* Comment with a \ backslash */')]),  # Unchanged
 
         # backslash followed by a newline in a string: ignored
         ('"Lorem\\\nIpsum"', [('STRING', 'LoremIpsum')]),
@@ -266,4 +272,3 @@ class TestTokenizer(BaseTest):
 
     def test_tokens(self):
         self.run_test(tokens)
-
