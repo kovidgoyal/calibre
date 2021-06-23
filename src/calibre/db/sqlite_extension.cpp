@@ -207,8 +207,8 @@ private:
     }
 
     bool at_script_boundary(IteratorDescription &current, UChar32 next_codepoint) const {
-        UErrorCode err;
-        UScriptCode script = uscript_getScript(next_codepoint, &err);
+        icu::ErrorCode err;
+        UScriptCode script = uscript_getScript(next_codepoint, err);
         if (script == USCRIPT_COMMON || script == USCRIPT_INVALID_CODE || script == USCRIPT_INHERITED) return false;
         if (current.script == script) return false;
         const char *lang = iterator_language_for_script(script);
