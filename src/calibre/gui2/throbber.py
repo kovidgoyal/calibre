@@ -33,7 +33,7 @@ class ThrobbingButton(QToolButton):
         QToolButton.setIcon(self, QIcon(I('donate.png')))
         self.setText('\xa0')
         self.animation = QPropertyAnimation(self, b'icon_size', self)
-        self.animation.setDuration(60/72.*1000)
+        self.animation.setDuration(int(60/72.*1000))
         self.animation.setLoopCount(4)
         self.animation.valueChanged.connect(self.value_changed)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
