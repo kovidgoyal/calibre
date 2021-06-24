@@ -162,7 +162,8 @@ def parse_extension(ext):
 def read_extensions():
     if hasattr(read_extensions, 'extensions'):
         return read_extensions.extensions
-    ans = read_extensions.extensions = json.load(open(os.path.dirname(os.path.abspath(__file__)) + '/extensions.json', 'rb'))
+    with open(os.path.dirname(os.path.abspath(__file__)) + '/extensions.json', 'rb') as f:
+        ans = read_extensions.extensions = json.load(f)
     return ans
 
 

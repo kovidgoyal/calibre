@@ -5,6 +5,7 @@
  * Distributed under terms of the GPL3 license.
  */
 
+#define PY_SSIZE_T_CLEAN
 #define UNICODE
 #include <Python.h>
 #include <stdlib.h>
@@ -482,7 +483,7 @@ py_callback(void *ctx, int flags, const char *text, int text_length, int start_o
 
 static PyObject*
 tokenize(PyObject *self, PyObject *args) {
-    const char *text; int text_length, remove_diacritics = 1, flags = FTS5_TOKENIZE_DOCUMENT;
+    const char *text; Py_ssize_t text_length, remove_diacritics = 1, flags = FTS5_TOKENIZE_DOCUMENT;
     if (!PyArg_ParseTuple(args, "s#|pi", &text, &text_length, &remove_diacritics, &flags)) return NULL;
     const char *targs[2] = {"remove_diacritics", "2"};
     if (!remove_diacritics) targs[1] = "0";
@@ -495,7 +496,7 @@ tokenize(PyObject *self, PyObject *args) {
 
 static PyObject*
 stem(PyObject *self, PyObject *args) {
-    const char *text, *lang = "en"; int text_length;
+    const char *text, *lang = "en"; Py_ssize_t text_length;
     if (!PyArg_ParseTuple(args, "s#|s", &text, &text_length, &lang)) return NULL;
     Stemmer s(lang);
     if (!s) {
@@ -504,8 +505,9 @@ stem(PyObject *self, PyObject *args) {
     }
     int sz;
     const char* result = s.stem(text, text_length, &sz);
+    Py_ssize_t a = sz;
     if (!result) return PyErr_NoMemory();
-    return Py_BuildValue("s#", result, sz);
+    return Py_BuildValue("s#", result, a);
 }
 
 static PyMethodDef methods[] = {
