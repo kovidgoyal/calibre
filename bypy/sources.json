@@ -597,13 +597,12 @@
     },
 
     {
-        "name": "dbuspython",
-        "python": 2,
+        "name": "jeepney",
         "os": "linux",
         "unix": {
-            "filename": "dbus-python-1.2.16.tar.gz",
-            "hash": "sha256:11238f1d86c995d8aed2e22f04a1e3779f0d70e587caffeab4857f3c662ed5a4",
-            "urls": ["https://dbus.freedesktop.org/releases/dbus-python/{filename}"]
+            "filename": "jeepney-0.6.0.tar.gz",
+            "hash": "sha256:7d59b6622675ca9e993a6bd38de845051d315f8b0c72cca3aef733a20b648657",
+            "urls": ["pypi"]
         }
     },
 
