@@ -148,6 +148,7 @@ elif islinux:
         try:
             eintr_retry_call(sock.bind, address)
         except socket.error as err:
+            sock.close()
             if getattr(err, 'errno', None) == errno.EADDRINUSE:
                 return
             raise
@@ -181,6 +182,7 @@ else:
             eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             return partial(_clean_lock_file, f)
         except EnvironmentError as err:
+            f.close()
             if err.errno not in (errno.EAGAIN, errno.EACCES):
                 raise
 

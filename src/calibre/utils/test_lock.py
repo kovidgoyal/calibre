@@ -130,6 +130,7 @@ class IPCLockTest(unittest.TestCase):
         while not os.path.exists('ready'):
             time.sleep(0.01)
         child.kill()
+        child.wait()
         release_mutex = create_single_instance_mutex('test')
         self.assertIsNotNone(release_mutex)
         release_mutex()
@@ -166,13 +167,22 @@ def other1():
 
 def other2():
     release_mutex = create_single_instance_mutex('test')
-    raise SystemExit(0 if release_mutex is None else 1)
+    if release_mutex is None:
+        ret = 0
+    else:
+        ret = 1
+        release_mutex()
+    raise SystemExit(ret)
 
 
 def other3():
-    create_single_instance_mutex('test')
-    os.mkdir('ready')
-    time.sleep(30)
+    release_mutex = create_single_instance_mutex('test')
+    try:
+        os.mkdir('ready')
+        time.sleep(30)
+    finally:
+        if release_mutex is not None:
+            release_mutex()
 
 
 def other4():
