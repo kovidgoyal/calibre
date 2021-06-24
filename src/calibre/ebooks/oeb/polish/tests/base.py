@@ -56,7 +56,8 @@ def get_simple_book(fmt='epub'):
     if needs_recompile(ans, src):
         with TemporaryDirectory('bpt') as tdir:
             with CurrentDir(tdir):
-                raw = lopen(src, 'rb').read().decode('utf-8')
+                with lopen(src, 'rb') as sf:
+                    raw = sf.read().decode('utf-8')
                 raw = add_resources(raw, {
                     'LMONOI': P('fonts/liberation/LiberationMono-Italic.ttf'),
                     'LMONOR': P('fonts/liberation/LiberationMono-Regular.ttf'),
