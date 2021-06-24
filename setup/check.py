@@ -89,7 +89,8 @@ class Check(Command):
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
         try:
-            cache = json.load(open(self.cache_file, 'rb'))
+            with open(self.cache_file, 'rb') as f:
+                cache = json.load(f)
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:
                 raise
