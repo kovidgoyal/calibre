@@ -292,7 +292,7 @@ def test_normalization(return_tests=False):  # {{{
                  'line-height':'normal', 'font-variant':'small-caps'},
                 '2em A B': {'font-family': '"A B"', 'font-size': '2em'},
             }):
-                val = tuple(parseStyle('font: %s' % raw, validate=False))[0].cssValue
+                val = tuple(parseStyle('font: %s' % raw, validate=False))[0].propertyValue
                 style = normalizers['font']('font', val)
                 self.assertDictEqual(font_dict(expected), style, raw)
 
@@ -322,7 +322,7 @@ def test_normalization(return_tests=False):  # {{{
             }):
                 for edge in EDGES:
                     br = 'border-%s' % edge
-                    val = tuple(parseStyle('%s: %s' % (br, raw), validate=False))[0].cssValue
+                    val = tuple(parseStyle('%s: %s' % (br, raw), validate=False))[0].propertyValue
                     self.assertDictEqual(border_edge_dict(expected, edge), normalizers[br](br, val))
 
             for raw, expected in iteritems({
@@ -330,13 +330,13 @@ def test_normalization(return_tests=False):  # {{{
                 '1px': {'width': '1px'}, '#aaa': {'color': '#aaa'},
                 'thin groove': {'width':'thin', 'style':'groove'},
             }):
-                val = tuple(parseStyle('%s: %s' % ('border', raw), validate=False))[0].cssValue
+                val = tuple(parseStyle('%s: %s' % ('border', raw), validate=False))[0].propertyValue
                 self.assertDictEqual(border_dict(expected), normalizers['border']('border', val))
 
             for name, val in iteritems({
                 'width': '10%', 'color': 'rgb(0, 1, 1)', 'style': 'double',
             }):
-                cval = tuple(parseStyle('border-%s: %s' % (name, val), validate=False))[0].cssValue
+                cval = tuple(parseStyle('border-%s: %s' % (name, val), validate=False))[0].propertyValue
                 self.assertDictEqual(border_val_dict(val, name), normalizers['border-'+name]('border-'+name, cval))
 
         def test_edge_normalization(self):
@@ -349,7 +349,7 @@ def test_normalization(return_tests=False):  # {{{
                 '1 2 3 4': ('1', '2', '3', '4'),
             }):
                 for prefix in ('margin', 'padding'):
-                    cval = tuple(parseStyle('%s: %s' % (prefix, raw), validate=False))[0].cssValue
+                    cval = tuple(parseStyle('%s: %s' % (prefix, raw), validate=False))[0].propertyValue
                     self.assertDictEqual(edge_dict(prefix, expected), normalizers[prefix](prefix, cval))
 
         def test_list_style_normalization(self):
@@ -363,7 +363,7 @@ def test_normalization(return_tests=False):  # {{{
                 'inside square': {'position':'inside', 'type':'square'},
                 'upper-roman url(img) outside': {'position':'outside', 'type':'upper-roman', 'image':'url(img)'},
             }):
-                cval = tuple(parseStyle('list-style: %s' % raw, validate=False))[0].cssValue
+                cval = tuple(parseStyle('list-style: %s' % raw, validate=False))[0].propertyValue
                 self.assertDictEqual(ls_dict(expected), normalizers['list-style']('list-style', cval))
 
         def test_filter_css_normalization(self):
