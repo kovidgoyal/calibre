@@ -478,8 +478,8 @@ class LegacyTest(BaseTest):
                 obj, nobj  = getattr(db, attr), getattr(ndb, attr)
                 if attr not in SKIP_ARGSPEC:
                     try:
-                        argspec = inspect.getargspec(obj)
-                        nargspec = inspect.getargspec(nobj)
+                        argspec = inspect.getfullargspec(obj)
+                        nargspec = inspect.getfullargspec(nobj)
                     except (TypeError, ValueError):
                         pass
                     else:
