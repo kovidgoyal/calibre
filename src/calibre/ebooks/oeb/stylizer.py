@@ -146,7 +146,7 @@ class StylizerRules(object):
             name = prop.name
             normalizer = normalizers.get(name, None)
             if normalizer is not None:
-                style.update(normalizer(name, prop.cssValue))
+                style.update(normalizer(name, prop.propertyValue))
             elif name == 'text-align':
                 style['text-align'] = self._apply_text_align(prop.value)
             else:
@@ -514,7 +514,7 @@ class Style(object):
                 if val is not None:
                     try:
                         style = parseStyle('background: '+val, validate=False)
-                        val = style.getProperty('background').cssValue
+                        val = style.getProperty('background').propertyValue
                         try:
                             val = list(val)
                         except:
