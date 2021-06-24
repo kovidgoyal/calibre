@@ -55,7 +55,7 @@ class RevealBar(QWidget):  # {{{
             painter = QPainter(self)
             pal = self.palette()
             col = pal.color(QPalette.ColorRole.Button)
-            rect.setLeft(rect.left() + (rect.width() * self._animated_size))
+            rect.setLeft(rect.left() + int(rect.width() * self._animated_size))
             painter.setClipRect(rect)
             painter.fillRect(self.rect(), col)
 # }}}
