@@ -456,6 +456,12 @@ class Device(DeviceConfig, DevicePlugin):
             q = getattr(detected_device, attr)
             return q == val
 
+        def getnum(usb_dir):
+            def rc(q):
+                with open(j(usb_dir, q), 'rb') as f:
+                    return raw2num(f.read().decode('utf-8'))
+            return rc
+
         for x, isfile in walk('/sys/devices'):
             if isfile and x.endswith('idVendor'):
                 usb_dir = d(x)
@@ -465,8 +471,7 @@ class Device(DeviceConfig, DevicePlugin):
                         break
                 if usb_dir is None:
                     continue
-                e = lambda q : raw2num(open(j(usb_dir, q), 'rb').read().decode('utf-8'))
-                ven, prod, bcd = map(e, ('idVendor', 'idProduct', 'bcdDevice'))
+                ven, prod, bcd = map(getnum(usb_dir), ('idVendor', 'idProduct', 'bcdDevice'))
                 if not (test(ven, 'idVendor') and test(prod, 'idProduct') and
                         test(bcd, 'bcdDevice')):
                     usb_dir = None
@@ -487,7 +492,8 @@ class Device(DeviceConfig, DevicePlugin):
                     sz = j(x, 'size')
                     node = parts[idx+1]
                     try:
-                        exists = int(open(sz, 'rb').read().decode('utf-8')) > 0
+                        with open(sz, 'rb') as szf:
+                            exists = szf.read().decode('utf-8') > 0
                         if exists:
                             node = self.find_largest_partition(x)
                             ok[node] = True

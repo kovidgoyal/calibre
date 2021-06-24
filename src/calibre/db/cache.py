@@ -1528,6 +1528,7 @@ class Cache(object):
         :param run_hooks: If True, file type plugins are run on the format before and after being added.
         :param dbapi: Internal use only.
         '''
+        needs_close = False
         if run_hooks:
             # Run import plugins, the write lock is not held to cater for
             # broken plugins that might spin the event loop by popping up a
@@ -1535,6 +1536,7 @@ class Cache(object):
             npath = run_import_plugins(stream_or_path, fmt)
             fmt = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
             stream_or_path = lopen(npath, 'rb')
+            needs_close = True
             fmt = check_ebook_format(stream_or_path, fmt)
 
         with self.write_lock:
@@ -1550,8 +1552,17 @@ class Cache(object):
             if name and not replace:
                 return False
 
-            stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
-            size, fname = self._do_add_format(book_id, fmt, stream, name)
+            if hasattr(stream_or_path, 'read'):
+                stream = stream_or_path
+            else:
+                stream = lopen(stream_or_path, 'rb')
+                needs_close = True
+            try:
+                stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
+                size, fname = self._do_add_format(book_id, fmt, stream, name)
+            finally:
+                if needs_close:
+                    stream.close()
             del stream
 
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)

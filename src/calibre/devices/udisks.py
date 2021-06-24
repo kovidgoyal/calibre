@@ -20,10 +20,11 @@ def node_mountpoint(node):
         return raw.replace(b'\\040', b' ').replace(b'\\011', b'\t').replace(b'\\012',
                 b'\n').replace(b'\\0134', b'\\').decode('utf-8')
 
-    for line in open('/proc/mounts', 'rb').readlines():
-        line = line.split()
-        if line[0] == node:
-            return de_mangle(line[1])
+    with open('/proc/mounts', 'rb') as src:
+        for line in src.readlines():
+            line = line.split()
+            if line[0] == node:
+                return de_mangle(line[1])
     return None
 
 
