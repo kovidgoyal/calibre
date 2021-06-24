@@ -28,6 +28,9 @@ jobs:
                   python setup/unix-ci.py bootstrap
 
             - name: Test calibre
+              env:
+                PYTHONWARNINGS: error
+                CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
               run:
                   python setup/unix-ci.py test
 
@@ -56,6 +59,9 @@ jobs:
               run: runuser -u ci -- python setup.py bootstrap --ephemeral --debug --sanitize
 
             - name: Test calibre
+              env:
+                PYTHONWARNINGS: error
+                CALIBRE_SHOW_DEPRECATION_WARNINGS: 1
               run: |
                   set -xe
                   runuser -u ci -- python setup.py test --under-sanitize

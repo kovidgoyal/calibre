@@ -34,7 +34,11 @@ class TestImports(unittest.TestCase):
                     full_module_name = full_module_name.rpartition('.')[0]
                 if full_module_name in exclude_modules or ('.' in full_module_name and full_module_name.rpartition('.')[0] in exclude_packages):
                     continue
-                importlib.import_module(full_module_name)
+                try:
+                    importlib.import_module(full_module_name)
+                except DeprecationWarning:
+                    if 'dbus_export' not in full_module_name and 'dbus_service' not in full_module_name:
+                        raise
                 count += 1
         return count
 
