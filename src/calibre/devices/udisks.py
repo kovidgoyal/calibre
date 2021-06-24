@@ -28,55 +28,8 @@ def node_mountpoint(node):
     return None
 
 
-class NoUDisks1(Exception):
-    pass
-
-
 def basic_mount_options():
     return ['rw', 'noexec', 'nosuid', 'nodev', 'uid=%d'%os.geteuid(), 'gid=%d'%os.getegid()]
-
-
-class UDisks(object):
-
-    def __init__(self):
-        import dbus
-        self.bus = dbus.SystemBus()
-        try:
-            self.main = dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
-                        '/org/freedesktop/UDisks'), 'org.freedesktop.UDisks')
-        except dbus.exceptions.DBusException as e:
-            if getattr(e, '_dbus_error_name', None) == 'org.freedesktop.DBus.Error.ServiceUnknown':
-                raise NoUDisks1()
-            raise
-
-    def device(self, device_node_path):
-        import dbus
-        devpath = self.main.FindDeviceByDeviceFile(device_node_path)
-        return dbus.Interface(self.bus.get_object('org.freedesktop.UDisks',
-                        devpath), 'org.freedesktop.UDisks.Device')
-
-    def mount(self, device_node_path):
-        d = self.device(device_node_path)
-        try:
-            return unicode_type(d.FilesystemMount('',
-                ['auth_no_user_interaction'] + basic_mount_options()))
-        except Exception:
-            # May be already mounted, check
-            mp = node_mountpoint(unicode_type(device_node_path))
-            if mp is None:
-                raise
-            return mp
-
-    def unmount(self, device_node_path):
-        d = self.device(device_node_path)
-        d.FilesystemUnmount(['force'])
-
-    def eject(self, device_node_path):
-        parent = device_node_path
-        while parent[-1] in '0123456789':
-            parent = parent[:-1]
-        d = self.device(parent)
-        d.DriveEject([])
 
 
 class NoUDisks2(Exception):
@@ -167,42 +120,22 @@ class UDisks2(object):
                 dbus_interface=self.DRIVE)
 
 
-def get_udisks(ver=None):
-    if ver is None:
-        try:
-            u = UDisks2()
-        except NoUDisks2:
-            u = UDisks()
-        return u
-    return UDisks2() if ver == 2 else UDisks()
-
-
-def get_udisks1():
-    u = None
-    try:
-        u = UDisks()
-    except NoUDisks1:
-        try:
-            u = UDisks2()
-        except NoUDisks2:
-            pass
-    if u is None:
-        raise EnvironmentError('UDisks not available on your system')
-    return u
+def get_udisks():
+    return UDisks2()
 
 
 def mount(node_path):
-    u = get_udisks1()
+    u = get_udisks()
     u.mount(node_path)
 
 
 def eject(node_path):
-    u = get_udisks1()
+    u = get_udisks()
     u.eject(node_path)
 
 
 def umount(node_path):
-    u = get_udisks1()
+    u = get_udisks()
     u.unmount(node_path)
 
 
