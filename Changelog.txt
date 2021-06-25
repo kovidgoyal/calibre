@@ -23,7 +23,7 @@
 # - title by author
 # }}}
 
-{{{ 5.22.0 2021-06-25
+{{{ 5.22.1 2021-06-25
 
 :: new features
 
@@ -52,6 +52,8 @@
 - MOBI Input: Fix a regression in calibre 5 that broke processing of Haodoo format files
 
 - Conversion: Fix the smarten punctuation option not applying to inserted jacket page
+
+- 5.22.1 fixes a typo in the previous release that broke device detection on Linux
 
 :: improved recipes
 - TheAtlantic.com
