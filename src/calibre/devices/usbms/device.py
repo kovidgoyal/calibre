@@ -493,7 +493,7 @@ class Device(DeviceConfig, DevicePlugin):
                     node = parts[idx+1]
                     try:
                         with open(sz, 'rb') as szf:
-                            exists = szf.read().decode('utf-8') > 0
+                            exists = int(szf.read().decode('utf-8')) > 0
                         if exists:
                             node = self.find_largest_partition(x)
                             ok[node] = True
