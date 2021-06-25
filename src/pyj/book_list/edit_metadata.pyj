@@ -298,7 +298,7 @@ def update_removals(container_id):
         return
     div = d.lastChild.previousSibling
     clear(div)
-    val = d.querySelector('input').value or ''
+    val = d.querySelector('input')?.value or ''
     val = value_to_json(val)
     if jstype(val) is 'string' or not val.length:
         return
@@ -413,7 +413,7 @@ def series_edit_get_value(container):
 def series_edit(container_id, book_id, field, fm, div, mi):
     nonlocal value_to_json
     name = fm.name or field
-    le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field))
+    le = E.input(type='text', name=name.replace('#', '_c_'), style='width: 100%', oninput=line_edit_updated.bind(None, container_id, field), data_field=field)
     le.value = resolved_metadata(mi, field) or ''
     value_to_json = identity
     ne = E.input(type='number', step='any', name=name.replace('#', '_c_') + '_index')
@@ -425,6 +425,7 @@ def series_edit(container_id, book_id, field, fm, div, mi):
     form = create_form(table, series_edit_get_value, container_id, book_id, field)
     div.appendChild(E.div(style='margin: 0.5ex 1rem', _('Edit the "{}" below.').format(name)))
     div.appendChild(E.div(style='margin: 0.5ex 1rem', form))
+    div.appendChild(E.div(style='margin: 0.5ex 1rem'))
     div.appendChild(E.div(E.span(_('Loading all {}...').format(name)), style='margin: 0.5ex 1rem'))
     le.focus(), le.select()
     field_names_for(field, update_completions.bind(None, container_id))
