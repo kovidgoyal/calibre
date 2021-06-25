@@ -23,6 +23,43 @@
 # - title by author
 # }}}
 
+{{{ 5.22.0 2021-06-25
+
+:: new features
+
+- [1931646] E-book viewer: Allow clicking links in popup footnotes
+
+- Main book list: Scroll per pixel rather than per item by default. Can be returned to previous behavior via Preferences->Tweaks->Control behavior of book list
+
+- Linux: Drop support for the global menu bar
+
+:: bug fixes
+
+- [1932152] E-book viewer: Fix font sizes specified in absolute units not being honored in locales where the decimal separator is not the period
+
+- [1931566] E-book viewer: Fix searching for short strings in text with lots of similar entries displaying incorrect matches
+
+- [1932392] MOBI Output: Fix using percentage units for margins resulting in too large margins when using the tablet output profile
+
+- [1931599] E-book viewer: Fix back button not working after jumping to a bookmark
+
+- [1932992] Content server: OPDS feed: Fix incorrect up URL in category group feeds
+
+- [1933559] Content server: Fix a regression in the previous release that broke editing of series metadata
+
+- E-book viewer: Fix scrolling backwards by screen-fulls not working with very large page margins.
+
+- MOBI Input: Fix a regression in calibre 5 that broke processing of Haodoo format files
+
+- Conversion: Fix the smarten punctuation option not applying to inserted jacket page
+
+:: improved recipes
+- TheAtlantic.com
+- Hindu
+- People Daily
+
+}}}
+
 {{{ 5.21.0 2021-06-11
 
 :: new features
