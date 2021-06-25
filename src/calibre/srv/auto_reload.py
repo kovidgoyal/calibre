@@ -326,10 +326,11 @@ class Worker(object):
                 if self.uses_ssl:
                     s = ssl.wrap_socket(s)
                 s.connect(('localhost', self.port))
-                s.close()
                 return
             except socket.error:
                 time.sleep(0.01)
+            finally:
+                s.close()
         self.log.error('Restarted server did not start listening on:', self.port)
 
 # WebSocket reload notifier {{{
