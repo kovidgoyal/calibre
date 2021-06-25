@@ -373,7 +373,10 @@ class MobiMLizer(object):
             bstate.para = None
             istate.halign = style['text-align']
             rawti = style._get('text-indent')
-            istate.indent = style['text-indent']
+            try:
+                istate.indent = style['text-indent']
+            except Exception:
+                istate.indent = 0
             if hasattr(rawti, 'strip') and '%' in rawti:
                 # We have a percentage text indent, these can come out looking
                 # too large if the user chooses a wide output profile like
