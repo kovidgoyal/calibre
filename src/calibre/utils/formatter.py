@@ -1154,10 +1154,15 @@ class TemplateFormatter(string.Formatter):
         self.book = None
         self.kwargs = None
         self.strip_results = True
+        self.column_name = None
+        self.template_cache = None
+        self.global_vars = {}
         self.locals = {}
         self.funcs = formatter_functions().get_functions()
-        self.gpm_parser = _Parser()
-        self.gpm_interpreter = _Interpreter()
+        self._interpreters = []
+        self._template_parser = None
+        self.recursion_stack = []
+        self.recursion_level = -1
 
     def _do_format(self, val, fmt):
         if not fmt or not val:
@@ -1333,17 +1338,77 @@ class TemplateFormatter(string.Formatter):
             ans = ans.strip(' ')
         return ans
 
+    # It is possible for a template to indirectly invoke other templates by
+    # doing field references of composite columns. If this happens then the
+    # reference can use different parameters when calling safe_format(). Because
+    # the parameters are saved as instance variables they can possibly affect
+    # the 'calling' template. To avoid this problem, save the current formatter
+    # state when recursion is detected. There is no point in saving the level
+    # 0 state.
+
+    def save_state(self):
+        self.recursion_level += 1
+        if self.recursion_level > 0:
+            return (
+                (self.strip_results,
+                 self.column_name,
+                 self.template_cache,
+                 self.kwargs,
+                 self.book,
+                 self.global_vars,
+                 self.funcs,
+                 self.locals))
+        else:
+            return None
+
+    def restore_state(self, state):
+        self.recursion_level -= 1
+        if state is not None:
+            (self.strip_results,
+             self.column_name,
+             self.template_cache,
+             self.kwargs,
+             self.book,
+             self.global_vars,
+             self.funcs,
+             self.locals) = state
+
+    # Allocate an interpreter if the formatter encounters a GPM or TPM template.
+    # We need to allocate additional interpreters if there is composite recursion
+    # so that the templates are evaluated by separate instances. It is OK to
+    # reuse already-allocated interpreters because their state is initialized on
+    # call. As a side effect, no interpreter is instantiated if no TPM/GPM
+    # template is encountered.
+
+    @property
+    def gpm_interpreter(self):
+        if len(self._interpreters) <= self.recursion_level:
+            self._interpreters.append(_Interpreter())
+        return self._interpreters[self.recursion_level]
+
+    # Allocate a parser if needed. Parsers cannot recurse so one is sufficient.
+
+    @property
+    def gpm_parser(self):
+        if self._template_parser == None:
+            self._template_parser = _Parser()
+        return self._template_parser
+
     # ######### a formatter that throws exceptions ############
 
     def unsafe_format(self, fmt, kwargs, book, strip_results=True, global_vars=None):
-        self.strip_results = strip_results
-        self.column_name = self.template_cache = None
-        self.kwargs = kwargs
-        self.book = book
-        self.composite_values = {}
-        self.locals = {}
-        self.global_vars = global_vars if isinstance(global_vars, dict) else {}
-        return self.evaluate(fmt, [], kwargs, self.global_vars)
+        state = self.save_state()
+        try:
+            self.strip_results = strip_results
+            self.column_name = self.template_cache = None
+            self.kwargs = kwargs
+            self.book = book
+            self.composite_values = {}
+            self.locals = {}
+            self.global_vars = global_vars if isinstance(global_vars, dict) else {}
+            return self.evaluate(fmt, [], kwargs, self.global_vars)
+        finally:
+            self.restore_state(state)
 
     # ######### a formatter guaranteed not to throw an exception ############
 
@@ -1351,30 +1416,36 @@ class TemplateFormatter(string.Formatter):
                     column_name=None, template_cache=None,
                     strip_results=True, template_functions=None,
                     global_vars=None, break_reporter=None):
-        self.strip_results = strip_results
-        self.column_name = column_name
-        self.template_cache = template_cache
-        self.kwargs = kwargs
-        self.book = book
-        self.global_vars = global_vars if isinstance(global_vars, dict) else {}
-        if template_functions:
-            self.funcs = template_functions
-        else:
-            self.funcs = formatter_functions().get_functions()
-        self.composite_values = {}
-        self.locals = {}
+        state = self.save_state()
+        if self.recursion_level == 0:
+            # Initialize the composite values dict if this is the base-level
+            # call. Recursive calls will use the same dict.
+            self.composite_values = {}
         try:
-            ans = self.evaluate(fmt, [], kwargs, self.global_vars,
-                                break_reporter=break_reporter)
-        except StopException as e:
-            ans = error_message(e)
-        except Exception as e:
-            if DEBUG:  # and getattr(e, 'is_locking_error', False):
-                traceback.print_exc()
-                if column_name:
-                    prints('Error evaluating column named:', column_name)
-            ans = error_value + ' ' + error_message(e)
-        return ans
+            self.strip_results = strip_results
+            self.column_name = column_name
+            self.template_cache = template_cache
+            self.kwargs = kwargs
+            self.book = book
+            self.global_vars = global_vars if isinstance(global_vars, dict) else {}
+            if template_functions:
+                self.funcs = template_functions
+            else:
+                self.funcs = formatter_functions().get_functions()
+            self.locals = {}
+            try:
+                ans = self.evaluate(fmt, [], kwargs, self.global_vars, break_reporter=break_reporter)
+            except StopException as e:
+                ans = error_message(e)
+            except Exception as e:
+                if DEBUG:  # and getattr(e, 'is_locking_error', False):
+                    traceback.print_exc()
+                    if column_name:
+                        prints('Error evaluating column named:', column_name)
+                ans = error_value + ' ' + error_message(e)
+            return ans
+        finally:
+            self.restore_state(state)
 
 
 class ValidateFormatter(TemplateFormatter):
