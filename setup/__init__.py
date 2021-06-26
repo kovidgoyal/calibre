@@ -6,8 +6,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform, subprocess, time, errno, tempfile, shutil
+import errno
+import os
+import platform
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import hashlib
 from contextlib import contextmanager
+from functools import lru_cache
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -53,11 +63,26 @@ def dump_json(obj, path, indent=4):
         f.write(data)
 
 
+@lru_cache
+def curl_supports_etags():
+    return '--etag-compare' in subprocess.check_output(['curl', '--help', 'all']).decode('utf-8')
+
+
 def download_securely(url):
     # We use curl here as on some OSes (OS X) when bootstrapping calibre,
     # python will be unable to validate certificates until after cacerts is
     # installed
-    return subprocess.check_output(['curl', '-fsSL', url])
+    if not curl_supports_etags():
+        return subprocess.check_output(['curl', '-fsSL', url])
+    url_hash = hashlib.sha1(url.encode('utf-8')).hexdigest()
+    cache_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), '.cache', 'download', url_hash)
+    os.makedirs(cache_dir, exist_ok=True)
+    subprocess.check_call(
+        ['curl', '-fsSL', '--etag-compare', 'etag.txt', '--etag-save', 'etag.txt', '-o', 'data.bin', url],
+        cwd=cache_dir
+    )
+    with open(os.path.join(cache_dir, 'data.bin'), 'rb') as f:
+        return f.read()
 
 
 def build_cache_dir():
