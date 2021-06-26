@@ -38,15 +38,12 @@ class BuildTest(unittest.TestCase):
 
     @unittest.skipUnless(islinux, 'DBUS only used on linux')
     def test_dbus(self):
-        try:
-            import dbus
-        except SyntaxError:
-            return  # an invalid \ in a string causes a syntax error, but only in CI
+        from jeepney.io.blocking import open_dbus_connection
         if 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
-            bus = dbus.SystemBus()
-            self.assertTrue(bus.list_names(), 'Failed to list names on the system bus')
-            bus = dbus.SessionBus()
-            self.assertTrue(bus.list_names(), 'Failed to list names on the session bus')
+            bus = open_dbus_connection(bus='SYSTEM')
+            bus.close()
+            bus = open_dbus_connection(bus='SESSION')
+            bus.close()
             del bus
 
     def test_loaders(self):
