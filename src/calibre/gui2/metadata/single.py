@@ -468,7 +468,7 @@ class MetadataSingleDialogBase(QDialog):
             cdata = mi.cover_data[1]
         if cdata is None:
             error_dialog(self, _('Could not read cover'),
-                         _('Could not read cover from %s format')%ext).exec_()
+                         _('Could not read cover from %s format')%ext.upper()).exec_()
             return
         self.update_cover(cdata, ext)
 
