@@ -106,6 +106,8 @@ class BuildTest(unittest.TestCase):
 
     def test_zeroconf(self):
         import zeroconf as z, ifaddr
+        from calibre.devices.smart_device_app.driver import monkeypatch_zeroconf
+        monkeypatch_zeroconf()
         del z
         del ifaddr
 

@@ -394,10 +394,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.debug_start_time = time.time()
         self.debug_time = time.time()
         self.is_connected = False
-        # Hack to work around the newly-enforced 15 character service name limit.
-        # "monkeypatch" zeroconf with a function without the check
-        import zeroconf
-        zeroconf.service_type_name = service_type_name
+        monkeypatch_zeroconf()
 
     # Don't call this method from the GUI unless you are sure that there is no
     # network traffic in progress. Otherwise the gui might hang waiting for the
@@ -2059,7 +2056,7 @@ from zeroconf import (
 )
 
 
-def service_type_name(type_: str, *, strict: bool = True) -> str:
+def monkeypatched_service_type_name(type_: str, *, strict: bool = True) -> str:
     """
     Validate a fully qualified service name, instance or subtype. [rfc6763]
 
@@ -2178,3 +2175,14 @@ def service_type_name(type_: str, *, strict: bool = True) -> str:
             )
 
     return service_name + trailer
+
+
+def monkeypatch_zeroconf():
+    # Hack to work around the newly-enforced 15 character service name limit.
+    # "monkeypatch" zeroconf with a function without the check
+    try:
+        from zeroconf._utils.name import service_type_name
+        service_type_name.__kwdefaults__['strict'] = False
+    except ImportError:
+        import zeroconf
+        zeroconf.service_type_name = monkeypatched_service_type_name
