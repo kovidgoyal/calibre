@@ -50,7 +50,7 @@ class TestImports(unittest.TestCase):
             exclude_modules |= {
                     'calibre.linux',
                     'calibre.utils.linux_trash', 'calibre.utils.open_with.linux',
-                    'calibre.gui2.linux_file_dialogs'
+                    'calibre.gui2.linux_file_dialogs', 'calibre.devices.usbms.hal',
             }
         self.assertGreater(self.base_check(os.path.join(SRC, 'odf'), exclude_packages, exclude_modules), 10)
         base = os.path.join(SRC, 'calibre')
