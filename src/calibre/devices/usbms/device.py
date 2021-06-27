@@ -662,7 +662,6 @@ class Device(DeviceConfig, DevicePlugin):
 
         if not d.serial:
             raise DeviceError("Device has no S/N.  Can't continue")
-            return False
         from .hal import get_hal
         hal = get_hal()
         vols = hal.get_volumes(d)
