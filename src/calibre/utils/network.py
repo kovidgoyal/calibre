@@ -4,7 +4,8 @@
 
 
 from contextlib import suppress
-from calibre.constants import iswindows, islinux, isbsd
+
+from calibre.constants import isbsd, islinux, iswindows
 from calibre.utils.config_base import tweaks
 
 
@@ -20,40 +21,57 @@ class LinuxNetworkStatus:
     }
 
     def __init__(self):
+        from jeepney import DBusAddress, Properties, new_method_call
         # Prefer desktop portal interface here since it can theoretically
         # work with network management solutions other than NetworkManager
         # and is controlled by the current desktop session
         #
         # There is no difference in terms of “features” provided between
         # the two APIs from our point of view.
-        self.get_connectivity = self.connect_to_xdp()
-        if self.get_connectivity is None:
-            self.get_connectivity = self.connect_to_nm()
+        self.xdp_call = lambda : new_method_call(DBusAddress(
+            '/org/freedesktop/portal/desktop',
+            bus_name='org.freedesktop.portal.Desktop',
+            interface="org.freedesktop.portal.NetworkMonitor"), 'GetConnectivity')
+        self.nm_call = lambda : Properties(DBusAddress('/org/freedesktop/NetworkManager',
+                bus_name='org.freedesktop.NetworkManager',
+                interface="org.freedesktop.NetworkManager")).get('Connectivity')
 
-    def connect_to_xdp(self):
-        with suppress(Exception):
-            import dbus
-            bus = dbus.SessionBus()
-            proxy = bus.get_object("org.freedesktop.portal.Desktop",
-                        "/org/freedesktop/portal/desktop")
-            return proxy.get_dbus_method("GetConnectivity",
-                        "org.freedesktop.portal.NetworkMonitor")
+        if self.xdp() is not None:
+            self.get_connectivity = self.xdp
+        elif self.nm() is not None:
+            self.get_connectivity = self.nm
+        else:
+            self.get_connectivity = lambda : 4
 
-    def connect_to_nm(self):
+    def connect(self, which='SESSION'):
+        from jeepney.io.blocking import open_dbus_connection
+        if not hasattr(self, 'connection'):
+            self.connection = open_dbus_connection(which)
+
+    def xdp(self):
         with suppress(Exception):
-            import dbus
-            bus = dbus.SystemBus()
-            proxy = bus.get_object("org.freedesktop.NetworkManager",
-                        "/org/freedesktop/NetworkManager")
-            prop_getter = proxy.get_dbus_method("Get",
-                        "org.freedesktop.DBus.Properties")
-            return (lambda: self.NM_XDP_CONNECTIVITY_MAP.get(
-                 prop_getter("org.freedesktop.NetworkManager", "Connectivity"), 4
-            ))
+            self.connect('SESSION')
+            return self.send(self.xdp_call())
+        if hasattr(self, 'connection'):
+            self.connection.close()
+            del self.connection
+
+    def nm(self):
+        with suppress(RuntimeError):
+            self.connect('SYSTEM')
+            return self.NM_XDP_CONNECTIVITY_MAP.get(self.send(self.nm_call()), 4)
+        if hasattr(self, 'connection'):
+            self.connection.close()
+            del self.connection
+
+    def send(self, msg):
+        from jeepney import DBusErrorResponse, MessageType
+        reply = self.connection.send_and_get_reply(msg)
+        if reply.header.message_type is MessageType.error:
+            raise DBusErrorResponse(reply)
+        return reply.body[0]
 
     def __call__(self):
-        if self.get_connectivity is None:
-            return True
         with suppress(Exception):
             # Meanings of returned XDP/GLib connectivity values:
             #   * 1: Local only. The host is not configured with a route to the internet.
@@ -82,12 +100,12 @@ class DummyNetworkStatus:
         return True
 
 
-_network_status = WindowsNetworkStatus() if iswindows else \
-        LinuxNetworkStatus() if (islinux or isbsd) else \
-        DummyNetworkStatus()
-
-
 def internet_connected():
     if tweaks['skip_network_check']:
         return True
-    return _network_status()
+    if not hasattr(internet_connected, 'checker'):
+        internet_connected.checker = WindowsNetworkStatus() if iswindows else \
+        LinuxNetworkStatus() if (islinux or isbsd) else \
+        DummyNetworkStatus()
+
+    return internet_connected.checker()
