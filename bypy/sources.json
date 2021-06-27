@@ -809,10 +809,9 @@
 
     {
         "name": "zeroconf",
-		"python": 3,
         "unix": {
-            "filename": "zeroconf-0.28.1.tar.gz",
-            "hash": "sha256:902e6c3ca4cc752577d650d05a3e7102a897b647fe76da7c0d322cd493cbd1a3",
+            "filename": "zeroconf-0.31.0.tar.gz",
+            "hash": "sha256:53a180248471c6f81bd1fffcbce03ed93d7d8eaf10905c9121ac1ea996d19844",
             "urls": ["pypi"]
         }
     },

@@ -180,7 +180,11 @@ def unpublish(desc, service_type, port, properties=None, add_hostname=True, wait
     server = start_server()
     service = create_service(desc, service_type, port, properties, add_hostname)
     server.unregister_service(service)
-    if len(server.services) == 0:
+    try:
+        no_services = len(server.registry.services) == 0
+    except AttributeError:
+        no_services = len(server.services) == 0
+    if no_services:
         stop_server(wait_for_stop=wait_for_stop)
 
 

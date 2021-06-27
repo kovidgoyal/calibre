@@ -6,19 +6,28 @@ Created on 29 Jun 2012
 
 @author: charles
 '''
-import socket, select, json, os, traceback, time, sys, random
+import hashlib
+import json
+import os
 import posixpath
+import random
+import select
+import socket
+import sys
+import threading
+import time
+import traceback
 from collections import defaultdict
-import hashlib, threading
-
-from functools import wraps
 from errno import EAGAIN, EINTR
+from functools import wraps
 from threading import Thread
 
 from calibre import prints
-from calibre.constants import numeric_version, DEBUG, cache_dir
-from calibre.devices.errors import (OpenFailed, OpenFeedback, ControlError, TimeoutError,
-                                    InitialConnectionError, PacketError, UserFeedback)
+from calibre.constants import DEBUG, cache_dir, numeric_version
+from calibre.devices.errors import (
+    ControlError, InitialConnectionError, OpenFailed, OpenFeedback, PacketError,
+    TimeoutError, UserFeedback
+)
 from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.usbms.books import Book, CollectionsBookList
 from calibre.devices.usbms.deviceconfig import DeviceConfig
@@ -30,14 +39,15 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.library import current_library_name
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.utils.ipc import eintr_retry_call
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename as sanitize, shorten_components_to
-from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
-        unpublish_zeroconf, get_all_ips)
+from calibre.utils.ipc import eintr_retry_call
+from calibre.utils.mdns import (
+    get_all_ips, publish as publish_zeroconf, unpublish as unpublish_zeroconf
+)
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import as_bytes, unicode_type, iteritems, itervalues
 from polyglot import queue
+from polyglot.builtins import as_bytes, iteritems, itervalues, unicode_type
 
 
 def synchronous(tlockname):
@@ -423,8 +433,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     # copied from USBMS. Perhaps this could be a classmethod in usbms?
     def _update_driveinfo_record(self, dinfo, prefix, location_code, name=None):
-        from calibre.utils.date import isoformat, now
         import uuid
+
+        from calibre.utils.date import isoformat, now
         if not isinstance(dinfo, dict):
             dinfo = {}
         if dinfo.get('device_store_uuid', None) is None:
@@ -485,8 +496,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             template = "{title}_%d-%d-%d" % date
         use_subdirs = self.SUPPORTS_SUB_DIRS and settings.use_subdirs
 
-        from calibre.library.save_to_disk import get_components
-        from calibre.library.save_to_disk import config
+        from calibre.library.save_to_disk import config, get_components
         opts = config().parse()
         if not isinstance(template, unicode_type):
             template = template.decode('utf-8')
@@ -947,8 +957,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self.broadcast_socket = None
 
     def _read_file_metadata(self, temp_file_name):
-        from calibre.ebooks.metadata.meta import get_metadata
         from calibre.customize.ui import quick_metadata
+        from calibre.ebooks.metadata.meta import get_metadata
         ext = temp_file_name.rpartition('.')[-1].lower()
         with lopen(temp_file_name, 'rb') as stream:
             with quick_metadata:
@@ -1635,7 +1645,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         if not self.will_ask_for_update_books:
             return (None, False)
 
-        from calibre.utils.date import parse_date, isoformat
+        from calibre.utils.date import isoformat, parse_date
         try:
             if not hasattr(book, '_format_mtime_'):
                 return (None, False)
@@ -1664,7 +1674,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 
     @synchronous('sync_lock')
     def synchronize_with_db(self, db, id_, book, first_call):
-        from calibre.utils.date import parse_date, is_date_undefined, now
+        from calibre.utils.date import is_date_undefined, now, parse_date
 
         if first_call:
             self.have_sent_future_dated_book_message = False
@@ -2041,13 +2051,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 # Copied from https://github.com/jstasiak/python-zeroconf version 0.28.1
 
 
-from zeroconf import (BadTypeInNameException, _HAS_A_TO_Z,
-                      _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE,
-                      _HAS_ASCII_CONTROL_CHARS,
-                      _HAS_ONLY_A_TO_Z_NUM_HYPHEN)
+from zeroconf import (
+    _HAS_A_TO_Z, _HAS_ASCII_CONTROL_CHARS, _HAS_ONLY_A_TO_Z_NUM_HYPHEN,
+    _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE, _LOCAL_TRAILER,
+    _NONTCP_PROTOCOL_LOCAL_TRAILER, _TCP_PROTOCOL_LOCAL_TRAILER,
+    BadTypeInNameException
+)
 
 
-def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
+def service_type_name(type_: str, *, strict: bool = True) -> str:
     """
     Validate a fully qualified service name, instance or subtype. [rfc6763]
 
@@ -2064,9 +2076,11 @@ def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
       This is true because we are implementing mDNS and since the 'm' means
       multi-cast, the 'local.' domain is mandatory.
 
-    2) local is preceded with either '_udp.' or '_tcp.'
+    2) local is preceded with either '_udp.' or '_tcp.' unless
+       strict is False
 
-    3) service name <sn> precedes <_tcp|_udp>
+    3) service name <sn> precedes <_tcp|_udp> unless
+       strict is False
 
       The rules for Service Names [RFC6335] state that they may be no more
       than fifteen characters long (not counting the mandatory underscore),
@@ -2087,44 +2101,63 @@ def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
     :param type_: Type, SubType or service name to validate
     :return: fully qualified service name (eg: _http._tcp.local.)
     """
-    if not (type_.endswith('._tcp.local.') or type_.endswith('._udp.local.')):
-        raise BadTypeInNameException("Type '%s' must end with '._tcp.local.' or '._udp.local.'" % type_)
 
-    remaining = type_[: -len('._tcp.local.')].split('.')
-    name = remaining.pop()
-    if not name:
-        raise BadTypeInNameException("No Service name found")
-
-    if len(remaining) == 1 and len(remaining[0]) == 0:
-        raise BadTypeInNameException("Type '%s' must not start with '.'" % type_)
-
-    if name[0] != '_':
-        raise BadTypeInNameException("Service name (%s) must start with '_'" % name)
-
-    # remove leading underscore
-    name = name[1:]
-
-#     if len(name) > 15:
-#         raise BadTypeInNameException("Service name (%s) must be <= 15 bytes" % name)
-
-    if '--' in name:
-        raise BadTypeInNameException("Service name (%s) must not contain '--'" % name)
-
-    if '-' in (name[0], name[-1]):
-        raise BadTypeInNameException("Service name (%s) may not start or end with '-'" % name)
-
-    if not _HAS_A_TO_Z.search(name):
-        raise BadTypeInNameException("Service name (%s) must contain at least one letter (eg: 'A-Z')" % name)
-
-    allowed_characters_re = (
-        _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE if allow_underscores else _HAS_ONLY_A_TO_Z_NUM_HYPHEN
-    )
-
-    if not allowed_characters_re.search(name):
+    if type_.endswith(_TCP_PROTOCOL_LOCAL_TRAILER) or type_.endswith(_NONTCP_PROTOCOL_LOCAL_TRAILER):
+        remaining = type_[: -len(_TCP_PROTOCOL_LOCAL_TRAILER)].split('.')
+        trailer = type_[-len(_TCP_PROTOCOL_LOCAL_TRAILER) :]
+        has_protocol = True
+    elif strict:
         raise BadTypeInNameException(
-            "Service name (%s) must contain only these characters: "
-            "A-Z, a-z, 0-9, hyphen ('-')%s" % (name, ", underscore ('_')" if allow_underscores else "")
+            "Type '%s' must end with '%s' or '%s'"
+            % (type_, _TCP_PROTOCOL_LOCAL_TRAILER, _NONTCP_PROTOCOL_LOCAL_TRAILER)
         )
+    elif type_.endswith(_LOCAL_TRAILER):
+        remaining = type_[: -len(_LOCAL_TRAILER)].split('.')
+        trailer = type_[-len(_LOCAL_TRAILER) + 1 :]
+        has_protocol = False
+    else:
+        raise BadTypeInNameException("Type '%s' must end with '%s'" % (type_, _LOCAL_TRAILER))
+
+    if strict or has_protocol:
+        service_name = remaining.pop()
+        if not service_name:
+            raise BadTypeInNameException("No Service name found")
+
+        if len(remaining) == 1 and len(remaining[0]) == 0:
+            raise BadTypeInNameException("Type '%s' must not start with '.'" % type_)
+
+        if service_name[0] != '_':
+            raise BadTypeInNameException("Service name (%s) must start with '_'" % service_name)
+
+        test_service_name = service_name[1:]
+
+        # if len(test_service_name) > 15:
+        #     raise BadTypeInNameException("Service name (%s) must be <= 15 bytes" % test_service_name)
+
+        if '--' in test_service_name:
+            raise BadTypeInNameException("Service name (%s) must not contain '--'" % test_service_name)
+
+        if '-' in (test_service_name[0], test_service_name[-1]):
+            raise BadTypeInNameException(
+                "Service name (%s) may not start or end with '-'" % test_service_name
+            )
+
+        if not _HAS_A_TO_Z.search(test_service_name):
+            raise BadTypeInNameException(
+                "Service name (%s) must contain at least one letter (eg: 'A-Z')" % test_service_name
+            )
+
+        allowed_characters_re = (
+            _HAS_ONLY_A_TO_Z_NUM_HYPHEN if strict else _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE
+        )
+
+        if not allowed_characters_re.search(test_service_name):
+            raise BadTypeInNameException(
+                "Service name (%s) must contain only these characters: "
+                "A-Z, a-z, 0-9, hyphen ('-')%s" % (test_service_name, "" if strict else ", underscore ('_')")
+            )
+    else:
+        service_name = ''
 
     if remaining and remaining[-1] == '_sub':
         remaining.pop()
@@ -2144,4 +2177,4 @@ def service_type_name(type_: str, *, allow_underscores: bool = False) -> str:
                 "Ascii control character 0x00-0x1F and 0x7F illegal in '%s'" % remaining[0]
             )
 
-    return '_' + name + type_[-len('._tcp.local.') :]
+    return service_name + trailer
