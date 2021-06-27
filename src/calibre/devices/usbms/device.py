@@ -12,18 +12,22 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles device detection.
 '''
 
-import os, subprocess, time, re, sys, glob
-from itertools import repeat
+import glob
+import os
+import re
+import subprocess
+import sys
+import time
 from collections import namedtuple
+from itertools import repeat
 
 from calibre import prints
-from calibre.constants import DEBUG
-from calibre.devices.interface import DevicePlugin
+from calibre.constants import DEBUG, isfreebsd, islinux, ismacos, iswindows
 from calibre.devices.errors import DeviceError
+from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.deviceconfig import DeviceConfig
-from calibre.constants import iswindows, islinux, ismacos, isfreebsd
 from calibre.utils.filenames import ascii_filename as sanitize
-from polyglot.builtins import iteritems, string_or_bytes, map
+from polyglot.builtins import iteritems, map, string_or_bytes
 
 if ismacos:
     osx_sanitize_name_pat = re.compile(r'[.-]')
@@ -649,7 +653,6 @@ class Device(DeviceConfig, DevicePlugin):
 #              4.  when finished, we have a list of mount points and associated dbus nodes
 #
     def open_freebsd(self):
-        import dbus
         # There should be some way to access the -v arg...
         verbose = False
 
@@ -660,107 +663,17 @@ class Device(DeviceConfig, DevicePlugin):
         if not d.serial:
             raise DeviceError("Device has no S/N.  Can't continue")
             return False
-
-        vols=[]
-
-        bus = dbus.SystemBus()
-        manager = dbus.Interface(bus.get_object('org.freedesktop.Hal',
-                      '/org/freedesktop/Hal/Manager'), 'org.freedesktop.Hal.Manager')
-        paths = manager.FindDeviceStringMatch('usb.serial',d.serial)
-        for path in paths:
-            objif = dbus.Interface(bus.get_object('org.freedesktop.Hal', path), 'org.freedesktop.Hal.Device')
-            # Extra paranoia...
-            try:
-                if d.idVendor == objif.GetProperty('usb.vendor_id') and \
-                        d.idProduct == objif.GetProperty('usb.product_id') and \
-                        d.manufacturer == objif.GetProperty('usb.vendor') and \
-                        d.product == objif.GetProperty('usb.product') and \
-                        d.serial == objif.GetProperty('usb.serial'):
-                    midpath = manager.FindDeviceStringMatch('info.parent', path)
-                    dpaths = manager.FindDeviceStringMatch(
-                        'storage.originating_device', path) + manager.FindDeviceStringMatch('storage.originating_device', midpath[0])
-                    for dpath in dpaths:
-                        # devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
-                        try:
-                            vpaths = manager.FindDeviceStringMatch('block.storage_device', dpath)
-                            for vpath in vpaths:
-                                try:
-                                    vdevif = dbus.Interface(bus.get_object('org.freedesktop.Hal', vpath), 'org.freedesktop.Hal.Device')
-                                    if not vdevif.GetProperty('block.is_volume'):
-                                        continue
-                                    if vdevif.GetProperty('volume.fsusage') != 'filesystem':
-                                        continue
-                                    volif = dbus.Interface(bus.get_object('org.freedesktop.Hal', vpath), 'org.freedesktop.Hal.Device.Volume')
-                                    pdevif = dbus.Interface(bus.get_object('org.freedesktop.Hal', vdevif.GetProperty('info.parent')),
-                                                            'org.freedesktop.Hal.Device')
-                                    vol = {'node': pdevif.GetProperty('block.device'),
-                                            'dev': vdevif,
-                                            'vol': volif,
-                                            'label': vdevif.GetProperty('volume.label')}
-                                    vols.append(vol)
-                                except dbus.exceptions.DBusException as e:
-                                    print(e)
-                                    continue
-                        except dbus.exceptions.DBusException as e:
-                            print(e)
-                            continue
-            except dbus.exceptions.DBusException:
-                continue
-
-        vols.sort(key=lambda x: x['node'])
-
+        from .hal import get_hal
+        hal = get_hal()
+        vols = hal.get_volumes(d)
         if verbose:
             print("FBSD:	", vols)
 
-        mtd=0
-
-        for vol in vols:
-            mp = ''
-            if vol['dev'].GetProperty('volume.is_mounted'):
-                mp = vol['dev'].GetProperty('volume.mount_point')
-            else:
-                try:
-                    vol['vol'].Mount('Calibre-'+vol['label'],
-                            vol['dev'].GetProperty('volume.fstype'), [])
-                    loops = 0
-                    while not vol['dev'].GetProperty('volume.is_mounted'):
-                        time.sleep(1)
-                        loops += 1
-                        if loops > 100:
-                            print("ERROR: Timeout waiting for mount to complete")
-                            continue
-                    mp = vol['dev'].GetProperty('volume.mount_point')
-                except dbus.exceptions.DBusException as e:
-                    print("Failed to mount ", e)
-                    continue
-
-            # Mount Point becomes Mount Path
-            mp += '/'
-
-            if verbose:
-                print("FBSD:	  mounted", vol['label'], "on", mp)
-            if mtd == 0:
-                self._main_prefix = mp
-                self._main_vol = vol['vol']
-                if verbose:
-                    print("FBSD:	main = ", self._main_prefix)
-            if mtd == 1:
-                self._card_a_prefix = mp
-                self._card_a_vol = vol['vol']
-                if verbose:
-                    print("FBSD:	card a = ", self._card_a_prefix)
-            if mtd == 2:
-                self._card_b_prefix = mp
-                self._card_b_vol = vol['vol']
-                if verbose:
-                    print("FBSD:	card b = ", self._card_b_prefix)
-                # Note that mtd is used as a bool... not incrementing is fine.
-                break
-            mtd += 1
-
-        if mtd > 0:
-            return True
-        raise DeviceError(_('Unable to mount the device'))
+        ok, mv = hal.mount_volumes(vols)
+        if not ok:
+            raise DeviceError(_('Unable to mount the device'))
+        for k, v in mv.items():
+            setattr(self, k, v)
 
 #
 # ------------------------------------------------------
@@ -770,37 +683,18 @@ class Device(DeviceConfig, DevicePlugin):
 #        mounted filesystems, using the stored volume object
 #
     def eject_freebsd(self):
-        import dbus
-        # There should be some way to access the -v arg...
-        verbose = False
-
+        from .hal import get_hal
+        hal = get_hal()
         if self._main_prefix:
-            if verbose:
-                print("FBSD:	umount main:", self._main_prefix)
-            try:
-                self._main_vol.Unmount([])
-            except dbus.exceptions.DBusException as e:
-                print('Unable to eject ', e)
-
+            hal.unmount(self._main_vol)
         if self._card_a_prefix:
-            if verbose:
-                print("FBSD:	umount card a:", self._card_a_prefix)
-            try:
-                self._card_a_vol.Unmount([])
-            except dbus.exceptions.DBusException as e:
-                print('Unable to eject ', e)
-
+            hal.unmount(self._card_a_vol)
         if self._card_b_prefix:
-            if verbose:
-                print("FBSD:	umount card b:", self._card_b_prefix)
-            try:
-                self._card_b_vol.Unmount([])
-            except dbus.exceptions.DBusException as e:
-                print('Unable to eject ', e)
+            hal.unmount(self._card_b_vol)
 
-        self._main_prefix = None
-        self._card_a_prefix = None
-        self._card_b_prefix = None
+        self._main_prefix = self._main_vol = None
+        self._card_a_prefix = self._card_a_vol = None
+        self._card_b_prefix = self._card_b_vol = None
 # ------------------------------------------------------
 
     def open(self, connected_device, library_uuid):
