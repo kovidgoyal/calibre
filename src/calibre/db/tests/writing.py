@@ -814,6 +814,10 @@ class WritingTest(BaseTest):
         results = cache.search_annotations('"word"', highlight_start='[', highlight_end=']', snippet_size=3)
         self.assertEqual(results[0]['text'], '…some [word] changed…')
         self.assertRaises(FTSQueryError, cache.search_annotations, 'AND OR')
+        fts_l = [a(type='bookmark', title='路坎坷走来', seq=1),]
+        cache.set_annotations_for_book(1, 'moo', fts_l)
+        results = cache.search_annotations('路', highlight_start='[', highlight_end=']')
+        self.assertEqual(results[0]['text'], '[路]坎坷走来')
 
         annot_list[0][0]['title'] = 'changed title'
         cache.set_annotations_for_book(1, 'moo', annot_list)
