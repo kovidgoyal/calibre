@@ -78,7 +78,6 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
     def safe_mtime():
         with suppress(OSError):
             return os.path.getmtime(fname)
-        return 0
 
     with lock:
         previous_mtime = safe_mtime()
