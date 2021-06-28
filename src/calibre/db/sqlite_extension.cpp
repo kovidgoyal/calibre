@@ -520,9 +520,6 @@ static PyMethodDef methods[] = {
     {"tokenize", tokenize, METH_VARARGS,
      "Tokenize a string, useful for testing"
     },
-    {"tokenize", tokenize, METH_VARARGS,
-     "Tokenize a string, useful for testing"
-    },
     {"stem", stem, METH_VARARGS,
      "Stem a word in the specified language, defaulting to English"
     },
