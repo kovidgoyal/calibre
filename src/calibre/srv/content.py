@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno
 from io import BytesIO
 from threading import Lock
+from contextlib import suppress
 from polyglot.builtins import map, unicode_type
 from functools import partial
 
@@ -37,14 +38,11 @@ lock = Lock()
 
 # Get book formats/cover as a cached filesystem file {{{
 
-# We cannot store mtimes in the filesystem since some operating systems (OS X)
-# have only one second precision for mtimes
-mtimes = {}
 rename_counter = 0
 
 
 def reset_caches():
-    mtimes.clear()
+    pass
 
 
 def open_for_write(fname):
@@ -77,8 +75,13 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
     fname = os.path.join(base, bname)
     used_cache = 'no'
 
+    def safe_mtime():
+        with suppress(OSError):
+            return os.path.getmtime(fname)
+        return 0
+
     with lock:
-        previous_mtime = mtimes.get(bname)
+        previous_mtime = safe_mtime()
         if previous_mtime is None or previous_mtime < mtime:
             if previous_mtime is not None:
                 # File exists and may be open, so we cannot change its
@@ -94,7 +97,6 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
                 else:
                     os.remove(fname)
             ans = open_for_write(fname)
-            mtimes[bname] = mtime
             copy_func(ans)
             ans.seek(0)
         else:
@@ -105,7 +107,6 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
                 if err.errno != errno.ENOENT:
                     raise
                 ans = open_for_write(fname)
-                mtimes[bname] = mtime
                 copy_func(ans)
                 ans.seek(0)
         if ctx.testing:
