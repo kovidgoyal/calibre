@@ -791,3 +791,6 @@ CREATE TRIGGER fkc_annot_update
         END;
 
         ''')
+
+    def upgrade_version_24(self):
+        self.db.reindex_annotations()

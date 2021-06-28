@@ -7,40 +7,53 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, shutil, uuid, json, glob, time, hashlib, errno, sys
+import apsw
+import errno
+import glob
+import hashlib
+import json
+import os
+import shutil
+import sys
+import time
+import uuid
 from functools import partial
 
-import apsw
-from polyglot.builtins import (iteritems, itervalues,
-        unicode_type, reraise, string_or_bytes, cmp, native_string_type)
-
-from calibre import isbytestring, force_unicode, prints, as_unicode
-from calibre.constants import (iswindows, filesystem_encoding,
-        preferred_encoding)
-from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
+from calibre import as_unicode, force_unicode, isbytestring, prints
+from calibre.constants import (
+    filesystem_encoding, iswindows, plugins, preferred_encoding
+)
 from calibre.db import SPOOL_SIZE
 from calibre.db.annotations import annot_db_data, unicode_normalize
-from calibre.db.schema_upgrades import SchemaUpgrade
 from calibre.db.delete_service import delete_service
 from calibre.db.errors import NoSuchFormat
+from calibre.db.schema_upgrades import SchemaUpgrade
+from calibre.db.tables import (
+    AuthorsTable, CompositeTable, FormatsTable, IdentifiersTable, ManyToManyTable,
+    ManyToOneTable, OneToOneTable, PathTable, RatingTable, SizeTable, UUIDTable
+)
+from calibre.ebooks.metadata import author_to_author_sort, title_sort
 from calibre.library.field_metadata import FieldMetadata
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
 from calibre.utils import pickle_binary_string, unpickle_binary_string
-from calibre.utils.icu import sort_key
-from calibre.utils.config import to_json, from_json, prefs, tweaks
-from calibre.utils.date import utcfromtimestamp, parse_date, utcnow, EPOCH
+from calibre.utils.config import from_json, prefs, to_json, tweaks
+from calibre.utils.date import EPOCH, parse_date, utcfromtimestamp, utcnow
 from calibre.utils.filenames import (
-    is_case_sensitive, samefile, hardlink_file, ascii_filename,
-    WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty,
-    copytree_using_links, copyfile_using_links)
+    WindowsAtomicFolderMove, ascii_filename, atomic_rename, copyfile_using_links,
+    copytree_using_links, hardlink_file, is_case_sensitive, remove_dir_if_empty,
+    samefile
+)
+from calibre.utils.formatter_functions import (
+    compile_user_template_functions, formatter_functions,
+    load_user_template_functions, unload_user_template_functions
+)
+from calibre.utils.icu import sort_key
 from calibre.utils.img import save_cover_data_to
-from calibre.utils.formatter_functions import (load_user_template_functions,
-            unload_user_template_functions,
-            compile_user_template_functions,
-            formatter_functions)
-from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
-        SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
-        CompositeTable, UUIDTable, RatingTable)
+from polyglot.builtins import (
+    cmp, iteritems, itervalues, native_string_type, reraise, string_or_bytes,
+    unicode_type
+)
+
 # }}}
 
 
@@ -322,7 +335,11 @@ class Connection(apsw.Connection):  # {{{
     BUSY_TIMEOUT = 10000  # milliseconds
 
     def __init__(self, path):
-        apsw.Connection.__init__(self, path)
+        from calibre.utils.localization import get_lang
+        from calibre_extensions.sqlite_extension import set_ui_language
+        set_ui_language(get_lang())
+        super().__init__(path)
+        plugins.load_apsw_extension(self, 'sqlite_extension')
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
         self.execute('pragma cache_size=-5000')
@@ -1976,6 +1993,12 @@ class DB(object):
                  ''', (book_id,)):
             return count
         return 0
+
+    def reindex_annotations(self):
+        self.execute('''
+            INSERT INTO {0}({0}) VALUES('rebuild');
+            INSERT INTO {1}({1}) VALUES('rebuild');
+        '''.format('annotations_fts', 'annotations_fts_stemmed'))
 
     def conversion_options(self, book_id, fmt):
         for (data,) in self.conn.get('SELECT data FROM conversion_options WHERE book=? AND format=?', (book_id, fmt.upper())):

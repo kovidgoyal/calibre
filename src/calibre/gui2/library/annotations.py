@@ -24,7 +24,7 @@ from calibre.gui2 import (
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
-from calibre.gui2.widgets2 import Dialog
+from calibre.gui2.widgets2 import Dialog, RightClickButton
 
 
 # rendering {{{
@@ -937,9 +937,16 @@ class AnnotationsBrowser(Dialog):
         b.setToolTip(_('Export the selected annotations'))
         b.setIcon(QIcon(I('save.png')))
         b.clicked.connect(self.export_selected)
-        self.refresh_button = b = self.bb.addButton(_('Refresh'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.refresh_button = b = RightClickButton(self.bb)
+        self.bb.addButton(b, QDialogButtonBox.ButtonRole.ActionRole)
+        b.setText(_('Refresh'))
+        b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        self.refresh_menu = m = QMenu(self)
+        m.addAction(_('Rebuild search index')).triggered.connect(self.rebuild)
+        b.setMenu(m)
         b.setToolTip(_('Refresh annotations in case they have been changed since this window was opened'))
         b.setIcon(QIcon(I('restart.png')))
+        b.setPopupMode(QToolButton.ToolButtonPopupMode.DelayedPopup)
         b.clicked.connect(self.refresh)
 
     def delete_selected(self):
@@ -1004,11 +1011,16 @@ class AnnotationsBrowser(Dialog):
         self.current_restriction = restrict_to_book_ids
         self.browse_panel.re_initialize(restrict_to_book_ids or set())
 
-    def refresh(self, current_restriction):
+    def refresh(self):
         state = self.browse_panel.save_tree_state()
         self.browse_panel.re_initialize(self.current_restriction)
         self.browse_panel.effective_query_changed()
         self.browse_panel.restore_tree_state(state)
+
+    def rebuild(self):
+        with BusyCursor():
+            current_db().reindex_annotations()
+        self.refresh()
 
 
 if __name__ == '__main__':

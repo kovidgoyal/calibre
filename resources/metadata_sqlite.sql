@@ -633,4 +633,4 @@ CREATE TRIGGER series_update_trg
         BEGIN
           UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=24;
+pragma user_version=25;

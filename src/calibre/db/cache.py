@@ -2504,6 +2504,10 @@ class Cache(object):
                 alist.append((annot, ts))
         self._set_annotations_for_book(book_id, fmt, alist, user_type=user_type, user=user)
 
+    @write_api
+    def reindex_annotations(self):
+        self.backend.reindex_annotations()
+
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB
