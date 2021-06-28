@@ -640,7 +640,7 @@ def is_guide_ref_start(ref):
 def convert_color_for_font_tag(val):
     rgba = parse_color_string(unicode_type(val or ''))
     if rgba is None or rgba == 'currentColor':
-        return val
+        return str(val)
     clamp = lambda x: min(x, max(0, x), 1)
     rgb = map(clamp, rgba[:3])
     return '#' + ''.join(map(lambda x:'%02x' % int(x * 255), rgb))

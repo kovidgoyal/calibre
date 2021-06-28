@@ -29,6 +29,12 @@ css_parser_log.setLevel(logging.WARN)
 _html_css_stylesheet = None
 
 
+def validate_color(col):
+    return cssprofiles.validateWithProfile('color',
+                col,
+                profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
+
+
 def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
@@ -414,6 +420,7 @@ class Style(object):
         self._height = None
         self._lineHeight = None
         self._bgcolor = None
+        self._fgcolor = None
         self._pseudo_classes = {}
         stylizer._styles[element] = self
 
@@ -467,9 +474,7 @@ class Style(object):
         return self._unit_convert(self._get(name))
 
     def _get(self, name):
-        result = None
-        if name in self._style:
-            result = self._style[name]
+        result = self._style.get(name, None)
         if (result == 'inherit' or (result is None and name in INHERITED and self._has_parent())):
             stylizer = self._stylizer
             result = stylizer.style(self._element.getparent())._get(name)
@@ -492,17 +497,22 @@ class Style(object):
         return (self._profile.dpi / 72) * value
 
     @property
+    def color(self):
+        if self._fgcolor is None:
+            val = self._get('color')
+            if val and validate_color(val):
+                self._fgcolor = val
+            else:
+                self._fgcolor = DEFAULTS['color']
+        return self._fgcolor
+
+    @property
     def backgroundColor(self):
         '''
         Return the background color by parsing both the background-color and
         background shortcut properties. Note that inheritance/default values
         are not used. None is returned if no background color is set.
         '''
-
-        def validate_color(col):
-            return cssprofiles.validateWithProfile('color',
-                        col,
-                        profiles=[profiles.Profiles.CSS_LEVEL_2])[1]
 
         if self._bgcolor is None:
             col = None
