@@ -268,11 +268,12 @@ private:
                 }
                 if (is_token) {
                     icu::UnicodeString token(str, token_start_pos, token_end_pos - token_start_pos);
-                    token.foldCase(U_FOLD_CASE_DEFAULT);
+                    token.foldCase();
                     if ((rc = send_token(token, token_start_pos, token_end_pos, stemmer)) != SQLITE_OK) return rc;
                     if (!for_query && remove_diacritics) {
-                        icu::UnicodeString tt(token);
+                        icu::UnicodeString tt(str, token_start_pos, token_end_pos - token_start_pos);
                         diacritics_remover->transliterate(tt);
+                        tt.foldCase();
                         if (tt != token) {
                             if ((rc = send_token(tt, token_start_pos, token_end_pos, stemmer, FTS5_TOKEN_COLOCATED)) != SQLITE_OK) return rc;
                         }
