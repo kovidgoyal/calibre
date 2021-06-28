@@ -102,18 +102,20 @@ class IteratorDescription {
 class Stemmer {
 private:
     struct sb_stemmer *handle;
+    char lang_name[32];
 
 public:
-    Stemmer() : handle(NULL) {}
+    Stemmer() : handle(NULL), lang_name() {}
     Stemmer(const char *lang) {
-        char buf[32] = {0};
         size_t len = strlen(lang);
-        for (size_t i = 0; i < sizeof(buf) - 1 && i < len; i++) {
-            buf[i] = lang[i];
-            if ('A' <= buf[i] && buf[i] <= 'Z') buf[i] += 'a' - 'A';
+        for (size_t i = 0; i < sizeof(lang_name) - 1 && i < len; i++) {
+            lang_name[i] = lang[i];
+            if ('A' <= lang_name[i] && lang_name[i] <= 'Z') lang_name[i] += 'a' - 'A';
         }
-        handle = sb_stemmer_new(buf, NULL);
+        lang_name[std::min(len, sizeof(lang_name) - 1)] = 0;
+        handle = sb_stemmer_new(lang_name, NULL);
     }
+    const char* language_name() const { return lang_name; }
 
     ~Stemmer() {
         if (handle) {
