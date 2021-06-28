@@ -79,9 +79,10 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
         with suppress(OSError):
             return os.path.getmtime(fname)
 
+    mt = mtime if isinstance(mtime, (int, float)) else timestampfromdt(mtime)
     with lock:
         previous_mtime = safe_mtime()
-        if previous_mtime is None or previous_mtime < mtime:
+        if previous_mtime is None or previous_mtime < mt:
             if previous_mtime is not None:
                 # File exists and may be open, so we cannot change its
                 # contents, as that would lead to corrupted downloads in any
@@ -111,7 +112,7 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
         if ctx.testing:
             rd.outheaders['Used-Cache'] = used_cache
             rd.outheaders['Tempfile'] = as_hex_unicode(fname)
-        return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
+        return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mt, extra_etag_data)
 
 
 def write_generated_cover(db, book_id, width, height, destf):
