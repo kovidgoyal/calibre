@@ -805,8 +805,10 @@ class WritingTest(BaseTest):
         self.assertEqual([1, 3], [x['id'] for x in results])
         results = cache.search_annotations('"changed"', annotation_type='bookmark')
         self.assertEqual([1], [x['id'] for x in results])
-        results = cache.search_annotations('"Change"')
+        results = cache.search_annotations('"Changed"')  # changed and change stem differently in english and other euro languages
         self.assertEqual([1, 3], [x['id'] for x in results])
+        results = cache.search_annotations('"SOMe"')
+        self.assertEqual([3], [x['id'] for x in results])
         results = cache.search_annotations('"change"', use_stemming=False)
         self.assertFalse(results)
         results = cache.search_annotations('"bookmark1"', highlight_start='[', highlight_end=']')
