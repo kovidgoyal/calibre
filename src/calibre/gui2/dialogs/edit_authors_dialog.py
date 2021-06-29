@@ -338,7 +338,8 @@ class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
     def search_in_book_list(self):
         from calibre.gui2.ui import get_gui
         row = self.context_item.row()
-        get_gui().search.set_search_string(self.table.item(row, 0).text())
+        get_gui().search.set_search_string('authors:="%s"' %
+                           unicode_type(self.table.item(row, 0).text()).replace(r'"', r'\"'))
 
     def copy_to_clipboard(self):
         cb = QApplication.clipboard()
