@@ -22,7 +22,11 @@
 #include <unicode/errorcode.h>
 #include <unicode/brkiter.h>
 #include <unicode/uscript.h>
+#if __has_include(<libstemmer.h>)
 #include <libstemmer.h>
+#else
+#include <libstemmer/libstemmer.h>
+#endif
 #include "../utils/cpp_binding.h"
 SQLITE_EXTENSION_INIT1
 
