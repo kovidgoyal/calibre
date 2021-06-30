@@ -395,7 +395,7 @@ class MetadataUpdater(object):
             update_exth_record((202, pack('>I', self.thumbnail_rindex)))
         # Add a 113 record if not present to allow Amazon syncing
         if (113 not in self.original_exth_records and
-                self.original_exth_records.get(501, None) == 'EBOK' and
+                self.original_exth_records.get(501, None) == b'EBOK' and
                 not added_501 and not share_not_sync):
             from uuid import uuid4
             update_exth_record((113, unicode_type(uuid4()).encode(self.codec)))
