@@ -433,8 +433,6 @@ class Preferences(QDialog):
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
-    from calibre.gui_launch import init_dbus
-    init_dbus()
     app = Application([])
     app
     gui = init_gui()
