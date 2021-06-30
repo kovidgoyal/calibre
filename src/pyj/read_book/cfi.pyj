@@ -249,7 +249,7 @@ def node_at_index(nodes, target, index, iter_text_nodes):
     for i in range(nodes.length):
         node = nodes[i]
         is_element = node.nodeType is Node.ELEMENT_NODE
-        if is_element and node.dataset.calibreRangeWrapper:
+        if is_element and node.dataset?.calibreRangeWrapper:
             q, index = node_at_index(unwrapped_nodes(node), target, index, iter_text_nodes)
             if q:
                 return q, index
