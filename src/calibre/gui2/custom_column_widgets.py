@@ -56,6 +56,7 @@ class Base(object):
 
     def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id
+        self.book_id = None
         self.col_metadata = db.custom_column_num_map[col_id]
         self.initial_val = self.widgets = None
         self.signals_to_disconnect = []
@@ -86,6 +87,7 @@ class Base(object):
         l.addWidget(self.clear_button)
 
     def initialize(self, book_id):
+        self.book_id = book_id
         val = self.db.get_custom(book_id, num=self.col_id, index_is_id=True)
         val = self.normalize_db_val(val)
         self.setter(val)
@@ -437,7 +439,7 @@ class MultipleWidget(QWidget):
         self.tags_box = EditWithComplete(parent)
         layout.addWidget(self.tags_box, stretch=1000)
         self.editor_button = QToolButton(self)
-        self.editor_button.setToolTip(_('Open item editor'))
+        self.editor_button.setToolTip(_('Open item editor. If CTRL or SHIFT is pressed, open manage items'))
         self.editor_button.setIcon(QIcon(I('chapters.png')))
         layout.addWidget(self.editor_button)
         self.setLayout(layout)
@@ -547,6 +549,8 @@ class Text(Base):
         return val
 
     def edit(self):
+        ctrl_or_shift_pressed = (QApplication.keyboardModifiers() &
+                (Qt.KeyboardModifier.ControlModifier + Qt.KeyboardModifier.ShiftModifier))
         if (self.getter() != self.initial_val and (self.getter() or self.initial_val)):
             d = _save_dialog(self.parent, _('Values changed'),
                     _('You have changed the values. In order to use this '
@@ -560,9 +564,14 @@ class Text(Base):
                 self.initial_val = self.current_val
             else:
                 self.setter(self.initial_val)
-        d = TagEditor(self.parent, self.db, self.book_id, self.key)
-        if d.exec_() == QDialog.DialogCode.Accepted:
-            self.setter(d.tags)
+        if ctrl_or_shift_pressed:
+            from calibre.gui2.ui import get_gui
+            get_gui().do_tags_list_edit(None, self.key)
+            self.initialize(self.book_id)
+        else:
+            d = TagEditor(self.parent, self.db, self.book_id, self.key)
+            if d.exec_() == QDialog.DialogCode.Accepted:
+                self.setter(d.tags)
 
     def connect_data_changed(self, slot):
         if self.col_metadata['is_multiple']:
