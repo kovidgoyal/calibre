@@ -402,6 +402,7 @@ class MetadataUpdater(object):
 
         if asin is not None:
             update_exth_record((113, asin.encode(self.codec)))
+            update_exth_record((501, b'EBOK'))
             update_exth_record((504, asin.encode(self.codec)))
 
         # Add a 112 record with actual UUID
