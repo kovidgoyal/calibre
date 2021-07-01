@@ -8,7 +8,7 @@ from qt.core import (
 
 from calibre.gui2.dialogs.tag_categories_ui import Ui_TagCategories
 from calibre.gui2.dialogs.confirm_delete import confirm
-from calibre.gui2 import error_dialog
+from calibre.gui2 import error_dialog, warning_dialog
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, strcmp, primary_contains
 from polyglot.builtins import iteritems, unicode_type
@@ -201,6 +201,11 @@ class TagCategories(QDialog, Ui_TagCategories):
         if self.current_cat_name is None:
             return
         nodes = self.available_items_box.selectedItems() if node is None else [node]
+        if len(nodes) == 0:
+            warning_dialog(self, _('No items selected'),
+                           _('You must select items to apply'),
+                           show=True, show_copy_button=False)
+            return
         for node in nodes:
             index = self.all_items[node.data(Qt.ItemDataRole.UserRole)].index
             if index not in self.applied_items:
@@ -213,6 +218,11 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def unapply_tags(self, node=None):
         nodes = self.applied_items_box.selectedItems() if node is None else [node]
+        if len(nodes) == 0:
+            warning_dialog(self, _('No items selected'),
+                           _('You must select items to unapply'),
+                           show=True, show_copy_button=False)
+            return
         for node in nodes:
             index = self.all_items[node.data(Qt.ItemDataRole.UserRole)].index
             self.applied_items.remove(index)
