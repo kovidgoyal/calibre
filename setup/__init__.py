@@ -210,6 +210,8 @@ class Command(object):
 
     def running(self, cmd):
         from setup.commands import command_names
+        if os.environ.get('CI'):
+            self.info('::group::' + command_names[cmd])
         self.info('\n*')
         self.info('* Running', command_names[cmd])
         self.info('*\n')
@@ -224,6 +226,8 @@ class Command(object):
         self.running(cmd)
         cmd.run(opts)
         self.info('* %s took %.1f seconds' % (command_names[cmd], time.time() - st))
+        if os.environ.get('CI'):
+            self.info('::endgroup::')
 
     def run_all(self, opts):
         self.run_cmd(self, opts)
