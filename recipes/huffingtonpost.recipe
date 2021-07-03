@@ -1,6 +1,11 @@
 from __future__ import print_function
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
 class HuffingtonPostRecipe(BasicNewsRecipe):
@@ -22,10 +27,15 @@ class HuffingtonPostRecipe(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
+    keep_only_tags = [
+        classes('entry__header entry__body')
+    ]
+    remove_tags = [
+        classes('app-download-interstitial share-bar top-media--video advertisement extra-content'
+                ' below-entry entry-inline-subscription-module related-articles')
+    ]
     # Feeds from: http://www.huffingtonpost.com/syndication/
     feeds = []
-    feeds.append(
-        (u'Latest News', u'http://feeds.huffingtonpost.com/huffingtonpost/LatestNews'))
 
     feeds.append(
         (u'Politics', u'http://www.huffingtonpost.com/feeds/verticals/politics/index.xml'))
@@ -59,25 +69,6 @@ class HuffingtonPostRecipe(BasicNewsRecipe):
 
     feeds.append((u'Original Reporting',
                   u'http://www.huffingtonpost.com/tag/huffpolitics/feed'))
-
-    remove_tags = []
-    remove_tags.append(dict(name='a', attrs={'href': re.compile(
-        'http://feedads\\.g\\.doubleclick.net.*')}))
-    remove_tags.append(dict(name='div', attrs={'class': 'feedflare'}))
-    remove_tags.append(dict(name='a', attrs={'class': 'home_pixie'}))
-    remove_tags.append(dict(name='div', attrs={'id': [
-                       "top_nav", 'threeup_top_wrapper', 'breaking_news_container', "hp_social_network"]}))
-    remove_tags.append(dict(name='img', alt="Connect"))
-    # 'share_boxes_box_block_b_wraper',
-    remove_tags.append(dict(name='div', attrs={'class': ['logo']}))
-    remove_tags.append(dict(name='div', attrs={'class': [
-                       'read_more with_verticals', 'chicklets_box_outter_v05', 'blogger_menu_content', 'chicklets_bar']}))
-    remove_tags.append(dict(name='div', attrs={
-                       'class': ['sidebar_blog_first_design', 'sidebar_blog_second_design', ]}))
-    remove_tags.append(dict(name='div', attrs={'class': [
-                       'main_big_news_ontop', 'login-menu', 'sidebar_blog_third_design', 'read_more']}))
-
-    remove_tags_after = [dict(name='div', attrs={'class': 'entry_content'})]
 
     extra_css = '''
                     h1{font-family :Arial,Helvetica,sans-serif; font-size:large;}
