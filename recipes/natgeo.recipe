@@ -3,10 +3,11 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-from collections import defaultdict
+from pprint import pformat
 
-from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import prepare_string_for_xml as escape
+from calibre.utils.iso8601 import parse_iso8601
 
 
 def classes(classes):
@@ -15,32 +16,71 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-def new_tag(soup, name, attrs=()):
-    impl = getattr(soup, 'new_tag', None)
-    if impl is not None:
-        return impl(name, attrs=dict(attrs))
-    return Tag(soup, name, attrs=attrs or None)
+def extract_json(raw):
+    s = raw.find("window['__natgeo__']")
+    script = raw[s:raw.find('</script>', s)]
+    return json.loads(
+        script[script.find('{'):].rstrip(';'))['page']['content']['article']
 
 
-def entry_to_article(entry):
-    url = entry.get('uri')
-    if not url:
-        return None, None
-    section = 'Articles'
-    article = {'url': url}
-    for component in entry.get('components', ()):
-        if component.get('content_type') == 'title':
-            article['title'] = component['title']['text']
-        elif component.get('content_type') == 'kicker':
-            v = component['kicker'].get('vertical') or {}
-            if v.get('name'):
-                section = v['name']
-        elif component.get('content_type') == 'dek':
-            if component['dek'].get('text'):
-                article['description'] = component['dek']['text']
-    if 'title' in article:
-        return article, section
-    return None, None
+def parse_contributors(grp):
+    for item in grp:
+        line = '<p>' + escape(item['title']) + ' '
+        for c in item['contributors']:
+            line += escape(c['displayName'])
+        yield line + '</p>'
+
+
+def parse_lead_image(media):
+    yield '<div><img src="{}" alt="{}"></div>'.format(
+        escape(media['image']['src'], True), escape(media['image']['dsc'], True))
+    yield '<p>' + escape(media['caption']) + '</p>'
+    if 'credit' in media:
+        yield '<p>' + escape(media['credit']) + '</p>'
+
+
+def parse_body(item):
+    c = item['cntnt']
+    if item.get('type') == 'inline':
+        if c.get('cmsType') == 'listicle':
+            yield '<h3>' + escape(c['title']) + "</h3>"
+            yield c['text']
+        elif c.get('cmsType') == 'image':
+            for line in parse_lead_image(c):
+                yield line
+    else:
+        yield '<{tag}>{markup}</{tag}>'.format(
+            tag=item['type'], markup=c['mrkup'])
+
+
+def parse_article(edg):
+    sc = edg['schma']
+    yield '<h3>' + escape(edg['sctn']) + '</h3>'
+    yield '<h1>' + escape(sc['sclTtl']) + '</h1>'
+    yield '<div>' + escape(sc['sclDsc']) + '</div>'
+    for line in parse_contributors(edg['cntrbGrp']):
+        yield line
+    ts = parse_iso8601(edg['mdDt'], as_utc=False).strftime('%B %d, %Y')
+    yield '<p>Published: ' + escape(ts) + '</p>'
+    if 'readTime' in edg:
+        yield '<p>' + escape(edg['readTime']) + '</p>'
+    if edg.get('ldMda', {}).get('cmsType') == 'image':
+        for line in parse_lead_image(edg['ldMda']):
+            yield line
+    for item in edg['bdy']:
+        for line in parse_body(item):
+            yield line
+
+
+def article_parse(data):
+    yield "<html><body>"
+    for frm in data['frms']:
+        for mod in frm.get('mods', ()):
+            for edg in mod.get('edgs', ()):
+                if edg.get('cmsType') == 'ArticleBodyTile':
+                    for line in parse_article(edg):
+                        yield line
+    yield "</body></html>"
 
 
 class NatGeo(BasicNewsRecipe):
@@ -58,52 +98,19 @@ class NatGeo(BasicNewsRecipe):
     remove_attributes = ['style']
     remove_javascript = False
 
-    keep_only_tags = [
-        classes('main-title article__dek byline-component publishDate mainArt byline'),
-        dict(id='article__body'),
-    ]
-    remove_tags = [
-        classes('hide-from-mobile ad-holder enlarge-button'),
-        dict(name='svg meta'.split()),
-    ]
-
     def parse_index(self):
-        feeds = defaultdict(list)
-        br = self.get_browser()
-        # br.open('https://www.nationalgeographic.com/latest-stories/').read()
-        res = br.open_novisit(
-            'https://www.nationalgeographic.com/latest-stories/_jcr_content/content/hubfeed.promo-hub-feed-all-stories.json?offset=0&max=18')
-        entries = json.loads(res.read())
-        for entry in entries:
-            art, section = entry_to_article(entry)
-            if art is None:
-                continue
-            feeds[section].append(art)
-        ans = [(sec, feeds[sec]) for sec in sorted(feeds) if feeds[sec]]
-        for (sec, articles) in ans:
-            self.log('Found section:', sec)
-            for art in articles:
-                self.log('\t', art['title'], art['url'])
-                if 'description' in art:
-                    self.log('\t\t', art['description'])
-        return ans
+        soup = self.index_to_soup('https://www.nationalgeographic.com/latest-stories/')
+        ans = {}
+        for article in soup.findAll('article'):
+            a = article.find('a')
+            url = a['href']
+            section = self.tag_to_string(article.find(**classes('SectionLabel')))
+            title = self.tag_to_string(article.find(**classes('PromoTile__Title--truncated')))
+            articles = ans.setdefault(section, [])
+            articles.append({'title': title, 'url': url})
+        self.log(pformat(ans))
+        return list(ans.items())
 
-    def preprocess_html(self, soup):
-        for div in soup.findAll(attrs={'data-pestle-module': 'PictureFill'}):
-            script = div.find('script')
-            src = json.loads(self.tag_to_string(script))['src']
-            div.name = 'img'
-            div['src'] = src
-
-        for div in soup.findAll(attrs={'data-src': True, 'class': 'delayed-image-load'}):
-            url = div['data-src']
-            idx = url.find('.jpg/{width')
-            if idx != -1:
-                url = url[:idx + 4]
-                img = new_tag(soup, "img")
-                img['src'] = url
-                div.append(img)
-
-        for script in soup.findAll('script'):
-            script.extract()
-        return soup
+    def preprocess_raw_html(self, raw_html, url):
+        data = extract_json(raw_html)
+        return '\n'.join(article_parse(data))
