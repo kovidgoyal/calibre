@@ -28,13 +28,13 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
-from polyglot.builtins import unicode_type
+from polyglot.binary import from_base64_bytes
+from polyglot.builtins import as_bytes, unicode_type
 from polyglot.http_client import responses
 from polyglot.urllib import (
     URLError, quote, url2pathname, urljoin, urlparse, urlsplit, urlunparse,
     urlunsplit
 )
-from polyglot.binary import from_base64_bytes
 
 
 class AbortArticle(Exception):
@@ -60,6 +60,18 @@ class closing(object):
             self.thing.close()
         except Exception:
             pass
+
+
+def canonicalize_url(url):
+    # mechanize does not handle quoting automatically
+    if re.search(r'\s+', url) is not None:
+        if isinstance(url, unicode_type):
+            url = url.encode('utf-8')
+        purl = list(urlparse(url))
+        for i in range(2, 6):
+            purl[i] = as_bytes(quote(purl[i]))
+        url = urlunparse(purl).decode('utf-8')
+    return url
 
 
 bad_url_counter = 0
@@ -261,14 +273,7 @@ class RecursiveFetcher(object):
         delta = time.monotonic() - self.last_fetch_at
         if delta < self.delay:
             time.sleep(self.delay - delta)
-        # mechanize does not handle quoting automatically
-        if re.search(r'\s+', url) is not None:
-            if isinstance(url, unicode_type):
-                url = url.encode('utf-8')
-            purl = list(urlparse(url))
-            for i in range(2, 6):
-                purl[i] = quote(purl[i])
-            url = urlunparse(purl).decode('utf-8')
+        url = canonicalize_url(url)
         open_func = getattr(self.browser, 'open_novisit', self.browser.open)
         try:
             with closing(open_func(url, timeout=self.timeout)) as f:
