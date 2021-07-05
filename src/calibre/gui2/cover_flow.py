@@ -98,7 +98,7 @@ class DatabaseImages(pictureflow.FlowImages):
     def init_template(self, db):
         self.template_cache = {}
         self.template_error_reported = False
-        self.template = db.pref('cover_browser_title_template', '{title}')
+        self.template = db.pref('cover_browser_title_template', '{title}') or ''
         self.template_is_title = self.template == '{title}'
         self.template_is_empty = not self.template.strip()
 

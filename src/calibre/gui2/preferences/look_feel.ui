@@ -1193,7 +1193,7 @@ using the mouse.&lt;/p&gt;</string>
        <item row="7" column="1">
         <widget class="QLineEdit" name="opt_cover_browser_title_template">
          <property name="toolTip">
-          <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.</string>
+          <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use. Use an empty template for no text.</string>
          </property>
         </widget>
        </item>
