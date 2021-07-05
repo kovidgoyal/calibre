@@ -30,7 +30,7 @@ class ProfileModel(QAbstractListModel):
             if profile.name.startswith('Default '):
                 return _('Default profile')
             return __builtins__['_'](profile.name)
-        if role in (Qt.ItemDataRole.ToolTipRole, Qt.ItemDataRole.StatusTipRole, Qt.ItemDataRole.WhatsThisRole):
+        if role in (Qt.ItemDataRole.StatusTipRole, Qt.ItemDataRole.WhatsThisRole):
             w, h = profile.screen_size
             if w >= 10000:
                 ss = _('unlimited')
@@ -63,10 +63,8 @@ class PageSetupWidget(Widget, Ui_Form):
             x.setMouseTracking(True)
             x.entered[(QModelIndex)].connect(self.show_desc)
         self.initialize_options(get_option, get_help, db, book_id)
-        it = unicode_type(self.opt_input_profile.toolTip())
-        self.opt_input_profile.setToolTip('<p>'+it.replace('t.','t.\n<br>'))
-        it = unicode_type(self.opt_output_profile.toolTip())
-        self.opt_output_profile.setToolTip('<p>'+it.replace('t.','ce.\n<br>'))
+        self.opt_input_profile.setToolTip('')
+        self.opt_output_profile.setToolTip('')
 
     def show_desc(self, index):
         desc = unicode_type(index.model().data(index, Qt.ItemDataRole.StatusTipRole) or '')
