@@ -158,7 +158,11 @@ class TXTZOutput(TXTOutput):
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
-                mdataf.write(xml2str(oeb_book.metadata.to_opf1(), pretty_print=True))
+                root = oeb_book.metadata.to_opf1()
+                elem = root.makeelement('text-formatting')
+                elem.text = opts.txt_output_formatting
+                root.append(elem)
+                mdataf.write(xml2str(root, pretty_print=True))
 
             txtz = ZipFile(output_path, 'w')
             txtz.add_dir(tdir)
