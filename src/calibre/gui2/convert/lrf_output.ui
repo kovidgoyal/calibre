@@ -135,7 +135,11 @@
       </widget>
      </item>
      <item row="2" column="1" colspan="2">
-      <widget class="QLineEdit" name="opt_header_format"/>
+      <widget class="QLineEdit" name="opt_header_format">
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -176,13 +180,13 @@
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="FontFamilyChooser" name="opt_serif_family"/>
+       <widget class="FontFamilyChooser" name="opt_serif_family" native="true"/>
       </item>
       <item row="1" column="1">
-       <widget class="FontFamilyChooser" name="opt_sans_family"/>
+       <widget class="FontFamilyChooser" name="opt_sans_family" native="true"/>
       </item>
       <item row="2" column="1">
-       <widget class="FontFamilyChooser" name="opt_mono_family"/>
+       <widget class="FontFamilyChooser" name="opt_mono_family" native="true"/>
       </item>
      </layout>
     </widget>

@@ -138,6 +138,9 @@
          <property name="toolTip">
           <string>Change the title of this book</string>
          </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="1" column="0">
@@ -176,6 +179,9 @@
          </property>
          <property name="toolTip">
           <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

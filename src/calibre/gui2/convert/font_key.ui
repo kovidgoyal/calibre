@@ -70,7 +70,11 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QLineEdit" name="font_size_key"/>
+       <widget class="QLineEdit" name="font_size_key">
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
       <item row="0" column="2">
        <widget class="QDoubleSpinBox" name="output_base_font_size">

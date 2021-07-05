@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>415</height>
+    <height>445</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -157,7 +157,11 @@
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="opt_comic_image_size"/>
+    <widget class="QLineEdit" name="opt_comic_image_size">
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_dont_add_comic_pages_to_toc">

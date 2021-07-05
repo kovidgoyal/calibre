@@ -35,7 +35,11 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="opt_toc_title"/>
+    <widget class="QLineEdit" name="opt_toc_title">
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_mobi_toc_at_start">

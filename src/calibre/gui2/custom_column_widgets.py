@@ -15,7 +15,7 @@ from qt.core import (Qt, QComboBox, QLabel, QSpinBox, QDoubleSpinBox,
         QMessageBox, QToolButton, QPlainTextEdit, QApplication, QStyle, QDialog)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc, internal_iso_format_string
-from calibre.gui2.complete2 import EditWithComplete
+from calibre.gui2.complete2 import EditWithComplete as EWC
 from calibre.gui2.comments_editor import Editor as CommentsEditor
 from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, elided_text
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -25,6 +25,13 @@ from calibre.library.comments import comments_to_html
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
 from calibre.gui2.widgets2 import RatingEditor, DateTimeEdit as DateTimeEditBase
 from polyglot.builtins import unicode_type
+
+
+class EditWithComplete(EWC):
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        self.set_clear_button_enabled(False)
 
 
 def safe_disconnect(signal):

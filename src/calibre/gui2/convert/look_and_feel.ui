@@ -466,6 +466,9 @@
               <property name="toolTip">
                <string>Comma separated list of CSS properties to remove. For example: display, color, font-family</string>
               </property>
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>

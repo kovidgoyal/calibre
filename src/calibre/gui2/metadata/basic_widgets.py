@@ -341,6 +341,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
         self.dialog = parent
         self.books_to_refresh = set()
         EditWithComplete.__init__(self, parent)
+        self.set_clear_button_enabled(False)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.setEditable(True)
@@ -598,6 +599,7 @@ class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
+        self.set_clear_button_enabled(False)
         self.set_separator(None)
         self.dialog = parent
         self.setSizeAdjustPolicy(
@@ -1379,6 +1381,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
+        self.set_clear_button_enabled(False)
         self.set_elide_mode(Qt.TextElideMode.ElideMiddle)
         self.currentTextChanged.connect(self.data_changed)
         self.lineEdit().setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
@@ -1462,6 +1465,7 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
 
     def __init__(self, *args, **kwargs):
         LE.__init__(self, *args, **kwargs)
+        self.set_clear_button_enabled(False)
         self.textChanged.connect(self.data_changed)
         self.setToolTip(self.TOOLTIP)
 
@@ -1779,6 +1783,7 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
+        self.set_clear_button_enabled(False)
         self.currentTextChanged.connect(self.data_changed)
         self.set_separator(None)
         self.setSizeAdjustPolicy(
