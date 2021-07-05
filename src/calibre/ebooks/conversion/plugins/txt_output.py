@@ -127,9 +127,8 @@ class TXTZOutput(TXTOutput):
     file_type = 'txtz'
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
-        from calibre.ebooks.oeb.base import OEB_IMAGES
+        from calibre.ebooks.oeb.base import OEB_IMAGES, xml2str
         from calibre.utils.zipfile import ZipFile
-        from lxml import etree
 
         with TemporaryDirectory('_txtz_output') as tdir:
             # TXT
@@ -159,7 +158,7 @@ class TXTZOutput(TXTOutput):
 
             # Metadata
             with open(os.path.join(tdir, 'metadata.opf'), 'wb') as mdataf:
-                mdataf.write(etree.tostring(oeb_book.metadata.to_opf1()))
+                mdataf.write(xml2str(oeb_book.metadata.to_opf1(), pretty_print=True))
 
             txtz = ZipFile(output_path, 'w')
             txtz.add_dir(tdir)
