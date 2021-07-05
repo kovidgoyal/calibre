@@ -12,8 +12,10 @@ no_cfi_sort_key = cfi_sort_key('/99999999')
 
 
 def unicode_normalize(text):
-    from unicodedata import normalize
-    return normalize('NFKC', text)
+    if text:
+        from unicodedata import normalize
+        text = normalize('NFKC', text)
+    return text
 
 
 def bookmark_sort_key(b):
