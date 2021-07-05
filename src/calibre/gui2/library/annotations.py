@@ -17,10 +17,14 @@ from qt.core import (
 from urllib.parse import quote
 
 from calibre import prepare_string_for_xml
+from calibre.constants import (
+    builtin_colors_dark, builtin_colors_light, builtin_decorations
+)
 from calibre.db.backend import FTSQueryError
 from calibre.ebooks.metadata import authors_to_string, fmt_sidx
 from calibre.gui2 import (
-    Application, choose_save_file, config, error_dialog, gprefs, safe_open_url
+    Application, choose_save_file, config, error_dialog, gprefs, is_dark_theme,
+    safe_open_url
 )
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
@@ -182,6 +186,35 @@ def sorted_items(items):
         return defval
 
     return sorted(items, key=sort_key)
+
+
+def css_for_highlight_style(style):
+    is_dark = is_dark_theme()
+    kind = style.get('kind')
+    ans = ''
+    if kind == 'color':
+        key = 'dark' if is_dark else 'light'
+        val = style.get(key)
+        if val is None:
+            which = style.get('which')
+            val = (builtin_colors_dark if is_dark else builtin_colors_light).get(which)
+        if val is None:
+            val = style.get('background-color')
+        if val is not None:
+            ans = f'background-color: {val}'
+    elif 'background-color' in style:
+        ans = 'background-color: ' + style['background-color']
+        if 'color' in style:
+            ans += '; color: ' + style["color"]
+    elif kind == 'decoration':
+        which = style.get('which')
+        if which is not None:
+            q = builtin_decorations.get(which)
+            if q is not None:
+                ans = q
+        else:
+            ans = '; '.join(f'{k}: {v}' for k, v in style.items())
+    return ans
 
 
 class Export(Dialog):  # {{{
@@ -800,6 +833,7 @@ class DetailsPanel(QWidget):
         book_format = r['format']
         annot_text = ''
         a = prepare_string_for_xml
+        highlight_css = ''
 
         paras = []
 
@@ -819,6 +853,8 @@ class DetailsPanel(QWidget):
             else:
                 paras.append('<p><a title="{}" href="calibre://edit_result">{}</a></p>'.format(
                     _('Add notes to this highlight'), _('Add notes')))
+            if 'style' in annot:
+                highlight_css = css_for_highlight_style(annot['style'])
 
         annot_text += '\n'.join(paras)
         date = QDateTime.fromString(annot['timestamp'], Qt.DateFormat.ISODate).toLocalTime().toString(Qt.DateFormat.SystemLocaleShortDate)
@@ -830,6 +866,7 @@ class DetailsPanel(QWidget):
         <div style="text-align: center">{series}</div>
         <div>&nbsp;</div>
         <div>&nbsp;</div>
+
         <div>{dt}: {date}</div>
         <div>{ut}: {user}</div>
         <div>
@@ -837,12 +874,12 @@ class DetailsPanel(QWidget):
             <span>\xa0\xa0\xa0</span>
             <a title="{sictt}" href="calibre://show_in_library">{sic}</a>
         </div>
-        <h3 style="text-align: left">{atype}</h3>
+        <h3 style="text-align: left; {highlight_css}">{atype}</h3>
         {text}
         '''.format(
             title=a(title), authors=a(authors), series=a(series_text), book_format=a(book_format),
             atype=a(atype), text=annot_text, dt=_('Date'), date=a(date), ut=a(_('User')),
-            user=a(friendly_username(r['user_type'], r['user'])),
+            user=a(friendly_username(r['user_type'], r['user'])), highlight_css=highlight_css,
             ov=a(_('Open in viewer')), sic=a(_('Show in calibre')),
             ovtt=a(_('Open the book at this annotation in the calibre E-book viewer')),
             sictt=(_('Show this book in the main calibre book list')),
