@@ -46,7 +46,10 @@ def format_doc(doc):
             default_indent = indent
         current_indent = indent
         if indent == default_indent:
-            lines[-1] += ' ' + line
+            if lines and lines[-1]:
+                lines[-1] += ' ' + line
+            else:
+                lines.append(line)
         else:
             lines.append('    ' + line.strip())
     return '\n'.join(lines).lstrip()
