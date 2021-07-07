@@ -336,7 +336,7 @@ def init_gui():
     actions = tuple(Main.create_application_menubar())
     db = db()
     gui = Main(opts)
-    gui.initialize(db.library_path, db, None, actions, show_gui=False)
+    gui.initialize(db.library_path, db, actions, show_gui=False)
     return gui
 
 
