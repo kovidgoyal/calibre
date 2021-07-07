@@ -297,8 +297,9 @@ auto_connect_to_folder = ''
 # Specify renaming rules for SONY collections. This tweak is only applicable if
 # metadata management is set to automatic. Collections on SONYs are named
 # depending upon whether the field is standard or custom. A collection derived
-# from a standard field is named for the value in that field. For example, if
-# the standard 'series' column contains the value 'Darkover', then the
+# from a standard field is named for the value in that field.
+#
+# For example, if the standard 'series' column contains the value 'Darkover', then the
 # collection name is 'Darkover'. A collection derived from a custom field will
 # have the name of the field added to the value. For example, if a custom series
 # column named 'My Series' contains the name 'Darkover', then the collection
@@ -306,18 +307,22 @@ auto_connect_to_folder = ''
 # documentation, 'Darkover' is called the value and 'My Series' is called the
 # category. If two books have fields that generate the same collection name,
 # then both books will be in that collection.
+#
 # This set of tweaks lets you specify for a standard or custom field how
 # the collections are to be named. You can use it to add a description to a
 # standard field, for example 'Foo (Tag)' instead of the 'Foo'. You can also use
-# it to force multiple fields to end up in the same collection. For example, you
-# could force the values in 'series', '#my_series_1', and '#my_series_2' to
-# appear in collections named 'some_value (Series)', thereby merging all of the
-# fields into one set of collections.
+# it to force multiple fields to end up in the same collection.
+#
+# For example, you could force the values in 'series', '#my_series_1', and
+# '#my_series_2' to appear in collections named 'some_value (Series)', thereby
+# merging all of the fields into one set of collections.
+#
 # There are two related tweaks. The first determines the category name to use
 # for a metadata field.  The second is a template, used to determines how the
 # value and category are combined to create the collection name.
 # The syntax of the first tweak, sony_collection_renaming_rules, is:
 # {'field_lookup_name':'category_name_to_use', 'lookup_name':'name', ...}
+#
 # The second tweak, sony_collection_name_template, is a template. It uses the
 # same template language as plugboards and save templates. This tweak controls
 # how the value and category are combined together to make the collection name.
@@ -325,22 +330,28 @@ auto_connect_to_folder = ''
 # never empty. The {category} field can be empty. The default is to put the
 # value first, then the category enclosed in parentheses, it isn't empty:
 # '{value} {category:|(|)}'
+#
 # Examples: The first three examples assume that the second tweak
 # has not been changed.
-#  1: I want three series columns to be merged into one set of collections. The
-#  column lookup names are 'series', '#series_1' and '#series_2'. I want nothing
-#  in the parenthesis. The value to use in the tweak value would be:
+#
+# 1) I want three series columns to be merged into one set of collections. The
+# column lookup names are 'series', '#series_1' and '#series_2'. I want nothing
+# in the parenthesis. The value to use in the tweak value would be:
 #    sony_collection_renaming_rules={'series':'', '#series_1':'', '#series_2':''}
-#  2: I want the word '(Series)' to appear on collections made from series, and
-#  the word '(Tag)' to appear on collections made from tags. Use:
-#    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
-#  3: I want 'series' and '#myseries' to be merged, and for the collection name
-#  to have '(Series)' appended. The renaming rule is:
-#    sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
-#  4: Same as example 2, but instead of having the category name in parentheses
-#  and appended to the value, I want it prepended and separated by a colon, such
-#  as in Series: Darkover. I must change the template used to format the category name
-#  The resulting two tweaks are:
+#
+# 2) I want the word '(Series)' to appear on collections made from series, and
+# the word '(Tag)' to appear on collections made from tags. Use:
+#   sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
+#
+# 3) I want 'series' and '#myseries' to be merged, and for the collection name
+# to have '(Series)' appended. The renaming rule is:
+#   sony_collection_renaming_rules={'series':'Series', '#myseries':'Series'}
+#
+# 4) Same as example 2, but instead of having the category name in parentheses
+# and appended to the value, I want it prepended and separated by a colon, such
+# as in Series: Darkover. I must change the template used to format the category name
+#
+# The resulting two tweaks are:
 #    sony_collection_renaming_rules={'series':'Series', 'tags':'Tag'}
 #    sony_collection_name_template='{category:||: }{value}'
 sony_collection_renaming_rules={}
