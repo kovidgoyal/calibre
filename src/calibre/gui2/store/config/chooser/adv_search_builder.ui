@@ -14,7 +14,7 @@
    <string>Advanced search</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../../../../../../resources/images.qrc">
     <normaloff>:/images/search.png</normaloff>:/images/search.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
@@ -76,7 +76,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="all"/>
+             <widget class="QLineEdit" name="all">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -93,7 +97,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="phrase"/>
+             <widget class="QLineEdit" name="phrase">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -110,7 +118,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="any"/>
+             <widget class="QLineEdit" name="any">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -120,7 +132,7 @@
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
-          <string>But don&apos;t show entries that have...</string>
+          <string>But don't show entries that have...</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
@@ -136,7 +148,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="none"/>
+             <widget class="QLineEdit" name="none">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -204,6 +220,9 @@
          <property name="toolTip">
           <string>Enter the title.</string>
          </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="2" column="0">
@@ -265,10 +284,18 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="EnLineEdit" name="description_box"/>
+        <widget class="EnLineEdit" name="description_box">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="4" column="1">
-        <widget class="QLineEdit" name="format_box"/>
+        <widget class="QLineEdit" name="format_box">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="4" column="0">
         <widget class="QLabel" name="label_10">
@@ -281,7 +308,11 @@
         </widget>
        </item>
        <item row="3" column="1">
-        <widget class="EnLineEdit" name="headquarters_box"/>
+        <widget class="EnLineEdit" name="headquarters_box">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="5" column="0">
         <widget class="QLabel" name="label_9">
@@ -403,7 +434,7 @@
   <tabstop>matchkind</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../../resources/images.qrc"/>
+  <include location="../../../../../../resources/images.qrc"/>
  </resources>
  <connections>
   <connection>

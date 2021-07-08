@@ -76,7 +76,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="all"/>
+             <widget class="QLineEdit" name="all">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -93,7 +97,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="phrase"/>
+             <widget class="QLineEdit" name="phrase">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -110,7 +118,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="any"/>
+             <widget class="QLineEdit" name="any">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -136,7 +148,11 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="none"/>
+             <widget class="QLineEdit" name="none">
+              <property name="clearButtonEnabled">
+               <bool>true</bool>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -228,6 +244,9 @@
          <property name="toolTip">
           <string>Enter the title.</string>
          </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item row="2" column="0">
@@ -279,10 +298,18 @@
         </widget>
        </item>
        <item row="2" column="1">
-        <widget class="EnLineEdit" name="author_box"/>
+        <widget class="EnLineEdit" name="author_box">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="3" column="1">
-        <widget class="QLineEdit" name="format_box"/>
+        <widget class="QLineEdit" name="format_box">
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
        <item row="3" column="0">
         <widget class="QLabel" name="label_10">
