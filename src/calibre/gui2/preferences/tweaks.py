@@ -413,6 +413,7 @@ class ConfigWidget(ConfigWidgetBase):
         sb.sizePolicy().setHorizontalStretch(10)
         sb.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLength)
         sb.setMinimumContentsLength(10)
+        g.setColumnStretch(0, 100)
         g.addWidget(self.search, 0, 0, 1, 1)
         self.next_button = b = QPushButton(self)
         b.setIcon(QIcon(I("arrow-down.png")))
