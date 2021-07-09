@@ -376,8 +376,8 @@ class Main(MainWindow):
         g = QApplication.instance().desktop().availableGeometry(self)
         self.resize(g.width()-50, g.height()-50)
 
-        self.restore_state()
         self.apply_settings()
+        QTimer.singleShot(0, self.restore_state)
 
     def apply_settings(self):
         self.keyboard.finalize()
