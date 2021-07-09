@@ -1390,7 +1390,7 @@ class TemplateFormatter(string.Formatter):
 
     @property
     def gpm_parser(self):
-        if self._template_parser == None:
+        if self._template_parser is None:
             self._template_parser = _Parser()
         return self._template_parser
 
