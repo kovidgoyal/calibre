@@ -23,6 +23,40 @@
 # - title by author
 # }}}
 
+{{{ 5.23.0 2021-07-09
+
+:: new features
+
+- [1934204] Annotations browser: Show highlight color in the preview panel
+
+- TXTZ format: Store type of text formatting in the metadata and use it automatically when converting from TXTZ
+
+- [1934043] Edit metadata dialog: Allow holding Ctrl and clicking the item editor buttons to instead open the manage dialog
+
+:: bug fixes
+
+- [1929325] Annotations browser: Fix searching for words in languages such as Chinese that do not have word delimiters not working
+
+- News download: Fix URLs with spaces in them not being downloaded since calibre 5.0
+
+- [1933989] When searching for books by an author from the manage authors dialog, use exact matches
+
+- [1933797] MOBI Output: Fix invalid color specification as plain numbers causing conversion to fail
+
+- [1933684] MOBI Output: Fix invalid text indent specification causing conversion to fail
+
+- Linux: Drop the unmaintained dbus-python in favor of jeepney for DBUS
+
+- Edit book: Workaround for Qt bug that caused the panel sizes in the editor to not be remembered across sessions
+
+:: improved recipes
+- The Guardian and the Observer
+- National Geographic
+- Handelsblatt
+- Huffington Post
+
+}}}
+
 {{{ 5.22.1 2021-06-25
 
 :: new features
