@@ -121,7 +121,7 @@
        <item row="0" column="0">
         <widget class="QToolButton" name="delete_category_button">
          <property name="toolTip">
-          <string>Delete the current tag category</string>
+          <string>Delete the current user category</string>
          </property>
          <property name="text">
           <string>...</string>

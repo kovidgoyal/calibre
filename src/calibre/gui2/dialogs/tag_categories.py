@@ -288,7 +288,7 @@ class TagCategories(QDialog, Ui_TagCategories):
 
     def del_category(self):
         if self.current_cat_name is not None:
-            if not confirm('<p>'+_('The current tag category will be '
+            if not confirm('<p>'+_('The current user category will be '
                            '<b>permanently deleted</b>. Are you sure?') +
                            '</p>', 'tag_category_delete', self):
                 return
