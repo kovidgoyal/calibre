@@ -306,6 +306,7 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         if self.auto_complete_function:
             editor = EditWithComplete(parent)
             editor.set_separator(None)
+            editor.set_clear_button_enabled(False)
             complete_items = [i[1] for i in self.auto_complete_function()]
             editor.update_items_cache(complete_items)
         else:
@@ -361,6 +362,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             if col == 'tags':
                 editor.set_elide_mode(Qt.TextElideMode.ElideMiddle)
             editor.set_separator(self.sep)
+            editor.set_clear_button_enabled(False)
             editor.set_space_before_sep(self.space_before_sep)
             if self.sep == '&':
                 editor.set_add_separator(tweaks['authors_completer_append_separator'])
@@ -474,6 +476,7 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         if m.db.field_metadata[col]['datatype'] != 'comments':
             editor = EditWithComplete(parent)
             editor.set_separator(None)
+            editor.set_clear_button_enabled(False)
             complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
             editor.update_items_cache(complete_items)
         else:
