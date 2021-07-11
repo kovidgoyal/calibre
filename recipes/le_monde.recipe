@@ -1,9 +1,16 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __license__ = 'GPL v3'
 __copyright__ = '2012'
+
 '''
 lemonde.fr
 '''
-from calibre.web.feeds.recipes import BasicNewsRecipe
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 
 def classes(classes):
@@ -15,64 +22,112 @@ def classes(classes):
 class LeMonde(BasicNewsRecipe):
     title = 'Le Monde'
     __author__ = 'veezh'
-    description = u'Actualités'
-    oldest_article = 1
-    max_articles_per_feed = 100
-    no_stylesheets = True
-    use_embedded_content = False
-    encoding = 'utf-8'
-    publisher = 'lemonde.fr'
-    category = 'news, France, world'
+    description = 'Les flux RSS du Monde.fr'
+    publisher = 'Société Editrice du Monde'
+    publication_type = 'newspaper'
+    needs_subscription = 'optional'
     language = 'fr'
-    extra_css = '''
-                img{max-width:100%}
-                h1{font-size:1.2em !important; line-height:1.2em !important; }
-                h2{font-size:1em !important; line-height:1em !important; }
-                h3{font-size:1em !important; text-transform:uppercase !important; color:#666;}
-                #photo{text-align:center !important; margin:10px 0 -8px;}
-                #lgd{font-size:1em !important; line-height:1em !important;  font-style:italic; color:#333;} '''
 
-    keep_only_tags = [
-        dict(itemprop=['Headline', 'description']),
-        classes('bloc_signature'),
-        dict(itemprop=['articleBody']),
-    ]
+    oldest_article = 2
+    max_articles_per_feed = 15
+    no_stylesheets = True
     remove_empty_feeds = True
+    ignore_duplicate_articles = {'title', 'url'}
 
-    def preprocess_html(self, soup):
-        for lgd in soup.findAll(id="lgd"):
-            lgd.contents[-1].extract()
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
-        return soup
+    conversion_options = {
+        'publisher': publisher
+    }
 
-    def get_article_url(self, article):
-        url = article.get('guid', None)
-        if '/chat/' in url or '.blog' in url or '/video/' in url or '/sport/' in url or '/portfolio/' in url or '/visuel/' in url:
-            url = None
-        return url
+    masthead_url = 'http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Le_monde_logo.svg/800px-Le_monde_logo.svg.png'
 
     feeds = [
-        ('A la une', 'http://www.lemonde.fr/rss/une.xml'),
-        ('International', 'http://www.lemonde.fr/rss/tag/international.xml'),
-        ('Europe', 'http://www.lemonde.fr/rss/tag/europe.xml'),
-        (u'Société', 'http://www.lemonde.fr/rss/tag/societe.xml'),
-        ('Economie', 'http://www.lemonde.fr/rss/tag/economie.xml'),
-        (u'Médias', 'http://www.lemonde.fr/rss/tag/actualite-medias.xml'),
-        (u'Planète', 'http://www.lemonde.fr/rss/tag/planete.xml'),
-        ('Culture', 'http://www.lemonde.fr/rss/tag/culture.xml'),
-        ('Technologies', 'http://www.lemonde.fr/rss/tag/technologies.xml'),
-        ('Livres', 'http://www.lemonde.fr/rss/tag/livres.xml'),
-
+        ('A la une', 'https://www.lemonde.fr/rss/une.xml'),
+        ('International', 'https://www.lemonde.fr/international/rss_full.xml'),
+        ('Politique', 'https://www.lemonde.fr/politique/rss_full.xml'),
+        ('Société', 'https://www.lemonde.fr/societe/rss_full.xml'),
+        ('Economie', 'https://www.lemonde.fr/economie/rss_full.xml'),
+        ('Planète', 'https://www.lemonde.fr/planete/rss_full.xml'),
+        ('Sciences', 'https://www.lemonde.fr/sciences/rss_full.xml'),
+        ('Pixels', 'https://www.lemonde.fr/pixels/rss_full.xml'),
+        ('Culture', 'https://www.lemonde.fr/culture/rss_full.xml'),
+        ('Idées', 'https://www.lemonde.fr/idees/rss_full.xml')
     ]
 
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(
-            'http://www.lemonde.fr/web/monde_pdf/0,33-0,1-0,0.html')
-        link_item = soup.find('div', attrs={'class': 'pg-gch'})
+    keep_only_tags = [
+        classes('article__header'),
+        dict(name='section', attrs={'class': ['article__content', 'article__heading',
+                                              'article__wrapper']})
+    ]
 
-        if link_item and link_item.img:
-            cover_url = link_item.img['src']
+    remove_tags = [
+        classes('article__status meta__date meta__reading-time meta__social multimedia-embed'),
+        dict(name=['footer', 'link']),
+        dict(name='section', attrs={'class': ['article__reactions', 'author', 'catcher',
+                                              'portfolio', 'services-inread']})
+    ]
 
-        return cover_url
+    remove_attributes = [
+        'data-sizes', 'height', 'sizes', 'width'
+    ]
+
+    preprocess_regexps = [
+        # insert space between author name and description
+        (re.compile(r'(<span class="[^"]*author__desc[^>]*>)([^<]*</span>)',
+                    re.IGNORECASE), lambda match: match.group(1) + ' ' + match.group(2)),
+        # insert " | " between article type and description
+        (re.compile(r'(<span class="[^"]*article__kicker[^>]*>[^<]*)(</span>)',
+                    re.IGNORECASE), lambda match: match.group(1) + ' | ' + match.group(2))
+    ]
+
+    extra_css = '''
+        h2 { font-size: 1em; }
+        h3 { font-size: 1em; }
+        .article__desc { font-weight: bold; }
+        .article__fact { font-weight: bold; text-transform: uppercase; }
+        .article__kicker { text-transform: uppercase; }
+        .article__legend { font-size: 0.6em; margin-bottom: 1em; }
+        .article__title { margin-top: 0em; }
+    '''
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://secure.lemonde.fr/sfuser/connexion')
+            br.select_form(name='connection')
+            br['connection[mail]'] = self.username
+            br['connection[password]'] = self.password
+            br.submit()
+        return br
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        # skip articles without relevant content (e.g., videos)
+        for el in 'blog chat live podcasts portfolio video visuel'.split():
+            if '/' + el + '/' in url:
+                self.log(url)
+                self.abort_article()
+        return url
+
+    def preprocess_html(self, soup):
+        # when an image is available in multiple sizes, select the smallest one
+        for img in soup.find_all('img', {'data-srcset': True}):
+            data_srcset = img['data-srcset'].split()
+            if len(data_srcset) > 1:
+                img['src'] = data_srcset[-2]
+                del img['data-srcset']
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        # remove local hyperlinks
+        for a in soup.find_all('a', {'href': True}):
+            if '.lemonde.fr/' in a['href']:
+                a.replace_with(self.tag_to_string(a))
+        # clean up header
+        for ul in soup.find_all('ul', {'class': 'breadcrumb'}):
+            div = soup.new_tag('div')
+            category = ''
+            for li in ul.find_all('li', {'class': True}):
+                category += self.tag_to_string(li).strip().upper() + ' - '
+                div.string = category[:-3]
+            ul.replace_with(div)
+        return soup

@@ -1,8 +1,16 @@
+#!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 __author__ = 'S. Durand <sylvaindurand@users.noreply.github.com>'
 __license__ = 'GPL v3'
 
+'''
+lemonde.fr
+'''
+
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 
 def classes(classes):
@@ -11,29 +19,23 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-class LeMonde(BasicNewsRecipe):
-
-    title = u'Le Monde: Édition abonnés'
+class LeMondeNumerique(BasicNewsRecipe):
+    title = 'Le Monde: Édition abonnés'
     __author__ = 'Sylvain Durand'
-    description = u'La version papier du quotidien Le Monde, disponible du lundi au samedi à partir de 14 heures environ, avec tous ses cahiers.'
-    language = 'fr'
-    encoding = 'utf8'
-
+    description = 'La version numérique du quotidien Le Monde'
+    publisher = 'Société Editrice du Monde'
+    publication_type = 'newspaper'
     needs_subscription = True
+    language = 'fr'
 
-    extra_css = '''
-                img{max-width:100%}
-                h1{font-size:1.2em !important; line-height:1.2em !important; }
-                h2{font-size:1em !important; line-height:1em !important; }
-                h3{font-size:1em !important; text-transform:uppercase !important; color:#666;}
-                #photo{text-align:center !important; margin:10px 0 -8px;}
-                #lgd{font-size:1em !important; line-height:1em !important;  font-style:italic; color:#333;} '''
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
 
-    keep_only_tags = [
-        dict(itemprop=['Headline', 'description']),
-        classes('bloc_signature'),
-        dict(itemprop=['articleBody']),
-    ]
+    conversion_options = {
+        'publisher': publisher
+    }
+
+    masthead_url = 'http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/Le_monde_logo.svg/800px-Le_monde_logo.svg.png'
 
     lm_sections = [
         'international:International',
@@ -49,6 +51,42 @@ class LeMonde(BasicNewsRecipe):
         'campus:Campus'
     ]
 
+    keep_only_tags = [
+        classes('article__header'),
+        dict(name='section', attrs={'class': ['article__content', 'article__heading',
+                                              'article__wrapper']})
+    ]
+
+    remove_tags = [
+        classes('article__status meta__date meta__reading-time meta__social multimedia-embed'),
+        dict(name=['footer', 'link']),
+        dict(name='section', attrs={'class': ['article__reactions', 'author', 'catcher',
+                                              'portfolio', 'services-inread']})
+    ]
+
+    remove_attributes = [
+        'data-sizes', 'height', 'sizes', 'width'
+    ]
+
+    preprocess_regexps = [
+        # insert space between author name and description
+        (re.compile(r'(<span class="[^"]*author__desc[^>]*>)([^<]*</span>)',
+                    re.IGNORECASE), lambda match: match.group(1) + ' ' + match.group(2)),
+        # insert " | " between article type and description
+        (re.compile(r'(<span class="[^"]*article__kicker[^>]*>[^<]*)(</span>)',
+                    re.IGNORECASE), lambda match: match.group(1) + ' | ' + match.group(2))
+    ]
+
+    extra_css = '''
+        h2 { font-size: 1em; }
+        h3 { font-size: 1em; }
+        .article__desc { font-weight: bold; }
+        .article__fact { font-weight: bold; text-transform: uppercase; }
+        .article__kicker { text-transform: uppercase; }
+        .article__legend { font-size: 0.6em; margin-bottom: 1em; }
+        .article__title { margin-top: 0em; }
+    '''
+
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('https://secure.lemonde.fr/sfuser/connexion')
@@ -58,45 +96,61 @@ class LeMonde(BasicNewsRecipe):
         br.submit()
         return br
 
-    def preprocess_html(self, soup):
-        for lgd in soup.findAll(id="lgd"):
-            lgd.contents[-1].extract()
-        for img in soup.findAll('img', attrs={'data-src': True}):
-            img['src'] = img['data-src']
-        return soup
-
     def parse_index(self):
         ans = []
         for x in self.lm_sections:
             s, section_title = x.partition(':')[::2]
             self.log('Processing section', section_title, '...')
-            articles = list(self.parse_section('http://www.lemonde.fr/%s/' % s))
+            articles = list(self.parse_section('https://www.lemonde.fr/%s/' % s))
             if articles:
                 ans.append((section_title, articles))
         return ans
 
     def parse_section(self, url):
         soup = self.index_to_soup(url)
-        container = soup.find(attrs={'class':lambda x: x and 'grid_12 alpha' in x})
-        for article in container.findAll('article'):
-            h2 = article.find('h2')
-            if h2 is None:
-                h2 = article.find('h3')
-                if h2 is None:
-                    continue
-            a = h2.find('a', href=True)
+        for article in soup.find_all('section', {'class': 'teaser'}):
+            # extract URL
+            a = article.find('a', {'class': 'teaser__link'})
             if a is None:
-                a = h2.findParents('a', href=True)
-                if not a:
-                    continue
-                a = a[0]
+                continue
             url = a['href']
-            if url.startswith('/'):
-                url = 'http://www.lemonde.fr' + url
-            title = self.tag_to_string(a)
+            # skip articles without relevant content (e.g., videos)
+            for el in 'blog chat live podcasts portfolio video visuel'.split():
+                if '/' + el + '/' in url:
+                    continue
+            # extract title
+            h3 = article.find('h3', {'class': 'teaser__title'})
+            if h3 is None:
+                continue
+            title = self.tag_to_string(h3)
+            # extract description
             desc = ''
-            p = article.find('p')
+            p = article.find('p', {'class': 'teaser__desc'})
             if p is not None:
                 desc = self.tag_to_string(p)
             self.log('\tFound article', title, 'at', url)
             yield {'title': title, 'url': url, 'description': desc}
+
+    def preprocess_html(self, soup):
+        # when an image is available in multiple sizes, select the smallest one
+        for img in soup.find_all('img', {'data-srcset': True}):
+            data_srcset = img['data-srcset'].split()
+            if len(data_srcset) > 1:
+                img['src'] = data_srcset[-2]
+                del img['data-srcset']
+        return soup
+
+    def postprocess_html(self, soup, first_fetch):
+        # remove local hyperlinks
+        for a in soup.find_all('a', {'href': True}):
+            if '.lemonde.fr/' in a['href']:
+                a.replace_with(self.tag_to_string(a))
+        # clean up header
+        for ul in soup.find_all('ul', {'class': 'breadcrumb'}):
+            div = soup.new_tag('div')
+            category = ''
+            for li in ul.find_all('li', {'class': True}):
+                category += self.tag_to_string(li).strip().upper() + ' - '
+                div.string = category[:-3]
+            ul.replace_with(div)
+        return soup
