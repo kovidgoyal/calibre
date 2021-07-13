@@ -118,6 +118,16 @@ class BostonGlobeSubscription(BasicNewsRecipe):
             feeds.append(('Comics', articles))
         return feeds
 
+    def preprocess_raw_html(self, raw_html, url):
+        soup = self.index_to_soup(raw_html)
+        meta = soup.find(attrs={'name': 'description'}, content=True)
+        if meta is not None and meta['content'].startswith('Comics: '):
+            meta = soup.find(property='og:image', content=True)
+            img_url = 'https://cloudfront-us-east-1.images.arcpublishing.com/bostonglobe/' + meta['content'].split('/')[-1]
+            title = self.tag_to_string(soup.find('title'))
+            raw_html = '<html><body><h1 class="headline |">{}</h1><div class="image |"><img src="{}"></div></body></html>'.format(title, img_url)
+        return raw_html
+
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
             fs = img.get('data-src')
