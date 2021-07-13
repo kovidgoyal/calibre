@@ -369,7 +369,7 @@ class Cache(object):
 
         user_cat_vals = {}
         if get_user_categories:
-            user_cats = self.backend.prefs['user_categories']
+            user_cats = self._pref('user_categories', {})
             for ucat in user_cats:
                 res = []
                 for name,cat,ign in user_cats[ucat]:
@@ -2289,7 +2289,7 @@ class Cache(object):
         It should be a mapping of book_ids to their corresponding ProxyMetadata
         objects.
         '''
-        user_cats = self.backend.prefs['user_categories']
+        user_cats = self._pref('user_categories', {})
         pmm = proxy_metadata_map or {}
         ans = {}
 
