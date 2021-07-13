@@ -509,7 +509,9 @@ class Worker(Thread):  # Get details {{{
             self.result_queue.put(mi)
 
     def totext(self, elem):
-        return self.tostring(elem, encoding='unicode', method='text').strip()
+        res = self.tostring(elem, encoding='unicode', method='text')
+        filtered_characters = list(s for s in res if s.isprintable())
+        return ''.join(filtered_characters).strip()
 
     def parse_title(self, root):
 
@@ -908,6 +910,10 @@ class Worker(Thread):  # Get details {{{
             ans = check_isbn(val)
             if ans:
                 self.isbn = mi.isbn = ans
+        elif name in {'Publication date'}:
+            from calibre.utils.date import parse_only_date
+            date = self.delocalize_datestr(val)
+            mi.pubdate = parse_only_date(date, assume_utc=True)
 
     def parse_isbn(self, pd):
         items = pd.xpath(
