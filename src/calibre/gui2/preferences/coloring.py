@@ -333,33 +333,36 @@ class RuleEditor(QDialog):  # {{{
         self.f1.setFrameShape(QFrame.Shape.HLine)
         l.addWidget(self.f1, 1, 0, 1, 8)
 
-        self.l2 = l2 = QLabel(_('Add the emblem:') if self.rule_kind == 'emblem' else _('Set the'))
-        l.addWidget(l2, 2, 0)
+        # self.l2 = l2 = QLabel(_('Add the emblem:') if self.rule_kind == 'emblem' else _('Set the'))
+        # l.addWidget(l2, 2, 0)
 
-        if self.rule_kind == 'color':
-            l.addWidget(QLabel(_('color')))
+        if self.rule_kind == 'emblem':
+            self.l2 = l2 = QLabel(_('Add the emblem:'))
+            l.addWidget(l2, 2, 0)
+        elif self.rule_kind == 'color':
+            l.addWidget(QLabel(_('Set the color of the column:')), 2, 0)
         elif self.rule_kind == 'icon':
+            l.addWidget(QLabel(_('Set the:')), 2, 0)
             self.kind_box = QComboBox(self)
             for tt, t in icon_rule_kinds:
                 self.kind_box.addItem(tt, t)
-            l.addWidget(self.kind_box, 2, 1)
+            l.addWidget(self.kind_box, 3, 0)
             self.kind_box.setToolTip(textwrap.fill(_(
                 'If you choose composed icons and multiple rules match, then all the'
                 ' matching icons will be combined, otherwise the icon from the'
                 ' first rule to match will be used.')))
+            self.l3 = l3 = QLabel(_('of the column:'))
+            l.addWidget(l3, 2, 2)
         else:
             pass
 
-        self.l3 = l3 = QLabel(_('of the column:'))
-        l.addWidget(l3, 2, 2)
-
         self.column_box = QComboBox(self)
-        l.addWidget(self.column_box, 2, 3)
+        l.addWidget(self.column_box, 3, 0 if self.rule_kind == 'color' else 2)
 
-        self.l4 = l4 = QLabel(_('to'))
-        l.addWidget(l4, 2, 4)
+        self.l4 = l4 = QLabel(_('to:'))
+        l.addWidget(l4, 2, 5)
         if self.rule_kind == 'emblem':
-            l3.setVisible(False), self.column_box.setVisible(False), l4.setVisible(False)
+            self.column_box.setVisible(False), l4.setVisible(False)
 
         def create_filename_box():
             self.filename_box = f = QComboBox()
@@ -374,59 +377,56 @@ class RuleEditor(QDialog):  # {{{
             self.color_box = ColorButton(parent=self)
             self.color_label = QLabel('Sample text Sample text')
             self.color_label.setTextFormat(Qt.TextFormat.RichText)
-            l.addWidget(self.color_box, 2, 5)
-            l.addWidget(self.color_label, 2, 6)
+            l.addWidget(self.color_box, 3, 5)
+            l.addWidget(self.color_label, 3, 6)
             l.addItem(QSpacerItem(10, 10, QSizePolicy.Policy.Expanding), 2, 7)
         elif self.rule_kind == 'emblem':
             create_filename_box()
             self.update_filename_box()
             self.filename_button = QPushButton(QIcon(I('document_open.png')),
                                                _('&Add new image'))
-            l.addWidget(self.filename_box)
-            l.addWidget(self.filename_button, 2, 6)
-            l.addWidget(QLabel(_('(Images should be square-ish)')), 2, 7)
+            l.addWidget(self.filename_box, 3, 0)
+            l.addWidget(self.filename_button, 3, 2)
+            l.addWidget(QLabel(_('(Images should be square-ish)')), 3, 4)
             l.setColumnStretch(7, 10)
         else:
             create_filename_box()
-
-            vb = QVBoxLayout()
             self.multiple_icon_cb = QCheckBox(_('Choose &more than one icon'))
-            vb.addWidget(self.multiple_icon_cb)
+            l.addWidget(self.multiple_icon_cb, 4, 5)
             self.update_filename_box()
             self.multiple_icon_cb.clicked.connect(self.multiple_box_clicked)
-            vb.addWidget(self.filename_box)
-            l.addLayout(vb, 2, 5)
+            l.addWidget(self.filename_box, 3, 5)
 
             self.filename_button = QPushButton(QIcon(I('document_open.png')),
                                                _('&Add icon'))
-            l.addWidget(self.filename_button, 2, 6)
-            l.addWidget(QLabel(_('Icons should be square or landscape')), 2, 7)
+            l.addWidget(self.filename_button, 3, 6)
+            l.addWidget(QLabel(_('(Icons should be square or landscape)')), 4, 6)
             l.setColumnStretch(7, 10)
 
         self.l5 = l5 = QLabel(
             _('Only if the following conditions are all satisfied:'))
-        l.addWidget(l5, 3, 0, 1, 7)
+        l.addWidget(l5, 5, 0, 1, 7)
 
         self.scroll_area = sa = QScrollArea(self)
         sa.setMinimumHeight(300)
-        sa.setMinimumWidth(950)
+        sa.setMinimumWidth(700)
         sa.setWidgetResizable(True)
-        l.addWidget(sa, 4, 0, 1, 8)
+        l.addWidget(sa, 6, 0, 1, 8)
 
         self.add_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add &another condition'))
-        l.addWidget(b, 5, 0, 1, 8)
+        l.addWidget(b, 7, 0, 1, 8)
         b.clicked.connect(self.add_blank_condition)
 
         self.l6 = l6 = QLabel(_('You can disable a condition by'
             ' blanking all of its boxes'))
-        l.addWidget(l6, 6, 0, 1, 8)
+        l.addWidget(l6, 8, 0, 1, 8)
 
         self.bb = bb = QDialogButtonBox(
                 QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel)
         bb.accepted.connect(self.accept)
         bb.rejected.connect(self.reject)
-        l.addWidget(bb, 7, 0, 1, 8)
+        l.addWidget(bb, 9, 0, 1, 8)
         if self.rule_kind != 'color':
             self.remove_button = b = bb.addButton(_('&Remove icon'), QDialogButtonBox.ButtonRole.ActionRole)
             b.setIcon(QIcon(I('minus.png')))
