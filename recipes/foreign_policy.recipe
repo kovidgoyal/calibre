@@ -39,7 +39,7 @@ class ForeignPolicy(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('https://foreignpolicy.com/the-magazine')
-        img = soup.find('img', src=True, attrs={'alt': lambda x: x and 'foreign-policy-magazine-cover' in x})
+        img = soup.find('img', src=True, attrs={'alt': lambda x: x and 'foreign-policy-cover' in x})
         self.cover_url = img['src']
         current_section = None
         amap = OrderedDict()
@@ -65,6 +65,8 @@ class ForeignPolicy(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-srcset': True}):
             img['src'] = img['data-srcset'].split()[0]
+        for img in soup.findAll('img', src=False, attrs={'data-src': True}):
+            img['src'] = img['data-src']
         body = soup.find('body')
         div = soup.find(
             attrs={'class': lambda x: x and 'wide_header_bg' in x.split()})
