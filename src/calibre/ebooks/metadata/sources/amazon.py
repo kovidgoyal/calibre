@@ -508,8 +508,12 @@ class Worker(Thread):  # Get details {{{
         if self.filter_result(mi, self.log):
             self.result_queue.put(mi)
 
-    def totext(self, elem):
-        return self.tostring(elem, encoding='unicode', method='text').strip()
+    def totext(self, elem, only_printable=False):
+        res = self.tostring(elem, encoding='unicode', method='text')
+        if only_printable:
+            filtered_characters = list(s for s in res if s.isprintable())
+            res = ''.join(filtered_characters).strip()
+        return res
 
     def parse_title(self, root):
 
@@ -883,7 +887,7 @@ class Worker(Thread):  # Get details {{{
                 self.parse_detail_cells(mi, cells[0], cells[1])
 
     def parse_detail_cells(self, mi, c1, c2):
-        name = self.totext(c1).strip().strip(':').strip()
+        name = self.totext(c1, only_printable=True).strip().strip(':').strip()
         val = self.totext(c2)
         if not val:
             return
@@ -908,6 +912,10 @@ class Worker(Thread):  # Get details {{{
             ans = check_isbn(val)
             if ans:
                 self.isbn = mi.isbn = ans
+        elif name in {'Publication date'}:
+            from calibre.utils.date import parse_only_date
+            date = self.delocalize_datestr(val)
+            mi.pubdate = parse_only_date(date, assume_utc=True)
 
     def parse_isbn(self, pd):
         items = pd.xpath(
@@ -963,7 +971,7 @@ class Worker(Thread):  # Get details {{{
 class Amazon(Source):
 
     name = 'Amazon.com'
-    version = (1, 2, 18)
+    version = (1, 2, 19)
     minimum_calibre_version = (2, 82, 0)
     description = _('Downloads metadata and covers from Amazon')
 
