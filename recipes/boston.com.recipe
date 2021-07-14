@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import absolute_import, division, print_function, unicode_literals
+import json
+import pprint
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
@@ -49,6 +57,50 @@ comics_to_fetch = {
 }
 
 
+def extract_json(raw_html):
+    idx = raw_html.find('Fusion.contentCache={')
+    close_idx = raw_html.find('</script>', idx)
+    raw = raw_html[idx:close_idx].strip().rstrip(';')
+    raw = raw[raw.find('{'):]
+    data = json.loads(raw)
+    # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
+    return data
+
+
+def absolutize_url(url):
+    if url.startswith("//"):
+        return "https:" + url
+    if url.startswith('/'):
+        url = "https://www.bostonglobe.com" + url
+    return url
+
+
+def parse_section(raw_html):
+    data = extract_json(raw_html)['content-feed']
+
+    def text(e):
+        if not e:
+            return ''
+        return e.get('basic') or e.get('native', '')
+
+    for group in data.values():
+        for elem in group['data']['content_elements']:
+            title = text(elem['headlines'])
+            description = text(elem.get('description'))
+            url = absolutize_url(elem['canonical_url'])
+            yield {'title': title, 'url': url, 'description': description}
+
+
+def main():
+    for sec in 'metro world'.split():
+        for item in parse_section(open('/t/{}.html'.format(sec)).read()):
+            print(item)
+
+
+# if __name__ == '__main__':
+#     main()
+
+
 class BostonGlobeSubscription(BasicNewsRecipe):
 
     title = "Boston Globe"
@@ -70,47 +122,21 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     # simultaneous_downloads = 1
 
     def image_url_processor(self, baseurl, url):
-        return self.absolutize_url(url)
-
-    def absolutize_url(self, url):
-        if url.startswith("//"):
-            return "https:" + url
-        if url.startswith('/'):
-            url = "https://www.bostonglobe.com" + url
-        return url
+        return absolutize_url(url)
 
     def parse_index(self):
         feeds = []
-        soup = self.index_to_soup('https://www.bostonglobe.com/todays-paper/')
-        # soup = self.index_to_soup('file:///t/raw.html')
-        section = None
-        articles = []
+        for sec in 'metro sports nation world business opinion lifestyle arts'.split():
+            articles = list(parse_section(self.index_to_soup(absolutize_url('/' + sec), raw=True).decode('utf-8')))
+            if articles:
+                self.log(sec.capitalize())
+                self.log(pprint.pformat(articles))
+                feeds.append((sec.capitalize(), articles))
+                if self.test:
+                    del articles[self.test[1]:]
+                    if len(feeds) >= self.test[0]:
+                        break
 
-        for h in soup.findAll(['h2', 'h4']):
-            if h.name == 'h4':
-                if section and articles:
-                    feeds.append((section, articles))
-                section = self.tag_to_string(h)
-                articles = []
-                if section.lower().startswith('jump'):
-                    section = None
-                else:
-                    self.log(section)
-                continue
-            if not section:
-                continue
-            title = self.tag_to_string(h)
-            a = h.findParent('a', href=True)
-            url = self.absolutize_url(a['href'])
-            desc = ''
-            q = h.findNextSibling('div', **classes('deck'))
-            if q is not None:
-                desc = self.tag_to_string(q)
-            articles.append({'title': title, 'url': url, 'description': desc})
-            self.log('\t', title, url)
-
-        if section and articles:
-            feeds.append((section, articles))
         articles = []
         for title, slug in comics_to_fetch.items():
             articles.append({'title':title, 'url':'https://www.bostonglobe.com/games-comics/comics/{}/'.format(slug)})
@@ -132,6 +158,5 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         for img in soup.findAll('img'):
             fs = img.get('data-src')
             if fs:
-                remainder = fs.split('=')[-1].split('0')[-1]
-                img['src'] = 'https:/' + remainder
+                img['src'] = fs
         return soup
