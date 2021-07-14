@@ -13,7 +13,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import prints
-from calibre.ebooks.metadata import check_isbn, check_doi
+from calibre.ebooks.metadata import string_to_authors, check_isbn, check_doi
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import dump_dict
@@ -249,7 +249,7 @@ def metadata_from_xmp_packet(raw_bytes):
         mi.title = title
     authors = multiple_sequences('//dc:creator', root)
     if authors:
-        mi.authors = authors
+        mi.authors = [au for aus in authors for au in string_to_authors(aus)]
     tags = multiple_sequences('//dc:subject', root) or multiple_sequences('//pdf:Keywords', root)
     if tags:
         mi.tags = tags
