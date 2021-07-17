@@ -999,6 +999,22 @@ class TagsView(QTreeView):  # {{{
                         _("Collapse {0}").format(p[0]), partial(self.collapse_node, p[1]))
         m.addAction(self.minus_icon, _('Collapse all'), self.collapseAll)
 
+        # Ask plugins if they have any actions to add to the context menu
+        from calibre.gui2.ui import get_gui
+        first = True
+        for ac in get_gui().iactions.values():
+            try:
+                if hasattr(ac, 'tag_browser_context_action'):
+                    context_action = ac.tag_browser_context_action(index)
+                    if context_action:
+                        if first:
+                            self.context_menu.addSeparator()
+                            first = False
+                        self.context_menu.addAction(context_action)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+
         if not self.context_menu.isEmpty():
             self.context_menu.popup(self.mapToGlobal(point))
         return True
