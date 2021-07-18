@@ -354,8 +354,8 @@ class InterfaceAction(QObject):
         Called when displaying the context menu in the Tag browser. ``index`` is
         the QModelIndex that points to the Tag browser item that was right clicked.
         Test it for validity with index.valid() and get the underlying TagTreeItem
-        object with index.data(Qt.ItemDataRole.UserRole). This method must yield one
-        or more action objects that will be added to the context menu.
+        object with index.data(Qt.ItemDataRole.UserRole). Any action objects
+        yielded by this method will be added to the context menu.
         '''
         if False:
             yield QAction()
