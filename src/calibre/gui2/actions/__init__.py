@@ -39,8 +39,8 @@ class InterfaceAction(QObject):
     priority takes precedence.
 
     Sub-classes should implement the :meth:`genesis`, :meth:`library_changed`,
-    :meth:`location_selected` :meth:`shutting_down`
-    and :meth:`initialization_complete` methods.
+    :meth:`location_selected`, :meth:`shutting_down`,
+    :meth:`initialization_complete` and :meth:`tag_browser_context_action` methods.
 
     Once initialized, this plugin has access to the main calibre GUI via the
     :attr:`gui` member. You can access other plugins by name, for example::
@@ -346,6 +346,15 @@ class InterfaceAction(QObject):
         '''
         Called once per action when the initialization of the main GUI is
         completed.
+        '''
+        pass
+
+    def tag_browser_context_action(self, index):
+        '''
+        Called when displaying the context menu in the Tag browser. ``index`` is
+        the QModelIndex that points to the Tag browser item that was right clicked.
+        Test it for validitiy with index.valid() and get the underlying TagTreeItem
+        object with index.data(Qt.ItemDataRole.UserRole)
         '''
         pass
 

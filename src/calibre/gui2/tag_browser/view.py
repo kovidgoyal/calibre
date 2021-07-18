@@ -1004,13 +1004,12 @@ class TagsView(QTreeView):  # {{{
         first = True
         for ac in get_gui().iactions.values():
             try:
-                if hasattr(ac, 'tag_browser_context_action'):
-                    context_action = ac.tag_browser_context_action(index)
-                    if context_action:
-                        if first:
-                            self.context_menu.addSeparator()
-                            first = False
-                        self.context_menu.addAction(context_action)
+                context_action = ac.tag_browser_context_action(index)
+                if context_action is not None:
+                    if first:
+                        self.context_menu.addSeparator()
+                        first = False
+                    self.context_menu.addAction(context_action)
             except Exception:
                 import traceback
                 traceback.print_exc()
