@@ -1004,8 +1004,7 @@ class TagsView(QTreeView):  # {{{
         first = True
         for ac in get_gui().iactions.values():
             try:
-                context_action = ac.tag_browser_context_action(index)
-                if context_action is not None:
+                for context_action in ac.tag_browser_context_action(index):
                     if first:
                         self.context_menu.addSeparator()
                         first = False
