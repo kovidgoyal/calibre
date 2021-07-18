@@ -946,7 +946,7 @@ class BasicNewsRecipe(Recipe):
         for reg in self.filter_regexps:
             web2disk_cmdline.extend(['--filter-regexp', reg])
 
-        if options.output_profile.short_name == 'default':
+        if options.output_profile.short_name in ('default', 'tablet'):
             self.scale_news_images_to_device = False
         elif self.scale_news_images_to_device:
             self.scale_news_images = options.output_profile.screen_size

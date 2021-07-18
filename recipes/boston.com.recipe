@@ -119,6 +119,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     remove_tags_after = dict(attrs={'class': lambda x:x and x.startswith('body |')})
     remove_attributes = ['style']
     no_stylesheets = True
+    scale_news_images = 1600, 1200
     # simultaneous_downloads = 1
 
     def image_url_processor(self, baseurl, url):
