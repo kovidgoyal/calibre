@@ -452,7 +452,7 @@ def book_designer_rules():
         (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
         lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
     ]
-    return None
+    return ans
 
 
 class HTMLPreProcessor(object):
