@@ -3,9 +3,9 @@
 # License: GPLv3 Copyright: 2013, Kovid Goyal <kovid at kovidgoyal.net>
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+
 # Imports {{{
-
-
+import argparse
 import ast
 import atexit
 import bz2
@@ -308,9 +308,28 @@ def parse_metadata(raw, namelist, zf):
     raise ValueError('Could not find plugin class')
 
 
-def get_plugin_info(raw):
+def parse_plugin(raw, names, zf):
+    ans = parse_metadata(raw, names, zf)
+    if isinstance(ans, dict):
+        return ans
+    # The plugin is importing its base class from somewhere else, le sigh
+    for mod, _ in ans:
+        mod = mod.split('.')
+        if mod[0] == 'calibre_plugins':
+            mod = mod[2:]
+        mod = '/'.join(mod) + '.py'
+        if mod in names:
+            raw = zf.open(names[mod]).read()
+            ans = parse_metadata(raw, names, zf)
+            if isinstance(ans, dict):
+                return ans
+
+    raise ValueError('Failed to find plugin class')
+
+
+def get_plugin_info(raw_zip):
     metadata = None
-    with zipfile.ZipFile(io.BytesIO(raw)) as zf:
+    with zipfile.ZipFile(io.BytesIO(raw_zip)) as zf:
         names = {x.decode('utf-8') if isinstance(x, bytes) else x : x for x in zf.namelist()}
         inits = [x for x in names if x.rpartition('/')[-1] == '__init__.py']
         inits.sort(key=lambda x:x.count('/'))
@@ -325,22 +344,16 @@ def get_plugin_info(raw):
         if metadata is None:
             raise ValueError('No __init__.py found in plugin')
         raw = zf.open(metadata).read()
-        ans = parse_metadata(raw, names, zf)
-        if isinstance(ans, dict):
-            return ans
-        # The plugin is importing its base class from somewhere else, le sigh
-        for mod, _ in ans:
-            mod = mod.split('.')
-            if mod[0] == 'calibre_plugins':
-                mod = mod[2:]
-            mod = '/'.join(mod) + '.py'
-            if mod in names:
-                raw = zf.open(names[mod]).read()
-                ans = parse_metadata(raw, names, zf)
-                if isinstance(ans, dict):
-                    return ans
-
-    raise ValueError('Failed to find plugin class')
+        try:
+            return parse_plugin(raw, names, zf)
+        except (SyntaxError, TabError, IndentationError):
+            with tempfile.NamedTemporaryFile(suffix='.zip') as f:
+                f.write(raw_zip)
+                f.flush()
+                p = subprocess.Popen(['python2', __file__, f.name], stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                stdout = p.communicate(json.dumps((raw, names)).encode('utf-8'))[0]
+                return json.loads(stdout)
+            raise
 
 
 # }}}
@@ -597,7 +610,22 @@ def update_stats():
     return stats
 
 
+def py2_parse(zipfile_path):
+    raw, names = json.loads(sys.stdin.read())
+    with zipfile.ZipFile(zipfile_path) as zf:
+        ans = parse_plugin(raw, names, zf)
+        sys.stdout.write(json.dump(ans, ensure_ascii=True))
+
+
 def main():
+    p = argparse.ArgumentParser(
+        description='Mirror calibre plugins from the forums. Or parse a single plugin zip file'
+        ' if specified on the command line'
+    )
+    p.add_argument('plugin_path', nargs='?', default='', help='Path to plugin zip file to parse')
+    args = p.parse_args()
+    if args.plugin_path:
+        return py2_parse(args.plugin_path)
     try:
         os.chdir(WORKDIR)
     except OSError as err:
