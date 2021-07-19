@@ -121,7 +121,7 @@
        <item row="0" column="0">
         <widget class="QToolButton" name="delete_category_button">
          <property name="toolTip">
-          <string>Delete the current user category</string>
+          <string>Delete the current User category</string>
          </property>
          <property name="text">
           <string>...</string>
@@ -225,7 +225,7 @@
      <item row="3" column="1">
       <widget class="QToolButton" name="apply_button">
        <property name="toolTip">
-        <string>Apply tags to current tag category</string>
+        <string>Apply items to current category</string>
        </property>
        <property name="text">
         <string>...</string>
@@ -259,7 +259,7 @@
      <item row="3" column="3">
       <widget class="QToolButton" name="unapply_button">
        <property name="toolTip">
-        <string>Unapply (remove) selected tags from current tag category</string>
+        <string>Unapply (remove) selected items from current category</string>
        </property>
        <property name="text">
         <string>...</string>

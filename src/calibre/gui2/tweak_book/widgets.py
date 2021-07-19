@@ -803,7 +803,7 @@ class InsertSemantics(Dialog):
     def create_known_type_map(self):
         _ = lambda x: x
         self.known_type_map = {
-            'title-page': _('Title Page'),
+            'title-page': _('Title page'),
             'toc': _('Table of Contents'),
             'index': _('Index'),
             'glossary': _('Glossary'),

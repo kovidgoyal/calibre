@@ -506,7 +506,7 @@ class Restrictions(QWidget):
         v.addLayout(h)
         self.rla = QLabel(_('Restrict to') + ': ')
         h.addWidget(self.rla)
-        la = QLabel(_('Types:'))
+        la = QLabel(_('Type:'))
         h.addWidget(la)
         self.types_box = tb = QComboBox(self)
         tb.la = la

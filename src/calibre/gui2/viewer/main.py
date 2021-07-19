@@ -134,7 +134,7 @@ View an e-book.
         'If you want to match a substring, use the form toc-href-contains:something. '
         'The form ref:something will use Reference mode references.'))
     a('--continue', default=False, action='store_true', dest='continue_reading',
-        help=_('Continue reading at the previously opened book'))
+        help=_('Continue reading the previously opened book'))
 
     setup_gui_option_parser(parser)
     return parser

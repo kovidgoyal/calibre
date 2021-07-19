@@ -132,7 +132,7 @@ class EPUBInput(InputFormatPlugin):
         if titlepage_href is None:
             titlepage_href, titlepage_id = guide_titlepage_href, guide_titlepage_id
         if titlepage_href is not None:
-            self.set_guide_type(opf, 'titlepage', titlepage_href, 'Title Page')
+            self.set_guide_type(opf, 'titlepage', titlepage_href, 'Title page')
             spine = list(opf.iterspine())
             if len(spine) > 1:
                 for item in spine:
@@ -227,7 +227,7 @@ class EPUBInput(InputFormatPlugin):
                         f.write(renderer)
 
         # Set the titlepage guide entry
-        self.set_guide_type(opf, 'titlepage', guide_cover, 'Title Page')
+        self.set_guide_type(opf, 'titlepage', guide_cover, 'Title page')
         return removed
 
     def find_opf(self):
