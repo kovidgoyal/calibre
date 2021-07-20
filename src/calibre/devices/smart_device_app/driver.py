@@ -2048,14 +2048,6 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
 # Copied from https://github.com/jstasiak/python-zeroconf version 0.28.1
 
 
-from zeroconf import (
-    _HAS_A_TO_Z, _HAS_ASCII_CONTROL_CHARS, _HAS_ONLY_A_TO_Z_NUM_HYPHEN,
-    _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE, _LOCAL_TRAILER,
-    _NONTCP_PROTOCOL_LOCAL_TRAILER, _TCP_PROTOCOL_LOCAL_TRAILER,
-    BadTypeInNameException
-)
-
-
 def monkeypatched_service_type_name(type_: str, *, strict: bool = True) -> str:
     """
     Validate a fully qualified service name, instance or subtype. [rfc6763]
@@ -2098,6 +2090,13 @@ def monkeypatched_service_type_name(type_: str, *, strict: bool = True) -> str:
     :param type_: Type, SubType or service name to validate
     :return: fully qualified service name (eg: _http._tcp.local.)
     """
+
+    from zeroconf import (
+        _HAS_A_TO_Z, _HAS_ASCII_CONTROL_CHARS, _HAS_ONLY_A_TO_Z_NUM_HYPHEN,
+        _HAS_ONLY_A_TO_Z_NUM_HYPHEN_UNDERSCORE, _LOCAL_TRAILER,
+        _NONTCP_PROTOCOL_LOCAL_TRAILER, _TCP_PROTOCOL_LOCAL_TRAILER,
+        BadTypeInNameException
+    )
 
     if type_.endswith(_TCP_PROTOCOL_LOCAL_TRAILER) or type_.endswith(_NONTCP_PROTOCOL_LOCAL_TRAILER):
         remaining = type_[: -len(_TCP_PROTOCOL_LOCAL_TRAILER)].split('.')
