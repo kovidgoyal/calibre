@@ -221,7 +221,7 @@ class UpdateMixin(object):
         if has_calibre_update:
             plt = ''
             if has_plugin_updates:
-                plt = ngettext(' (one plugin update)', ' ({} plugin updates)', number_of_plugin_updates).format(number_of_plugin_updates)
+                plt = ngettext(' and one plugin update', ' and {} plugin updates', number_of_plugin_updates).format(number_of_plugin_updates)
             msg = ('<span style="color:green; font-weight: bold">%s: '
                     '<a href="update:%s">%s%s</a></span>') % (
                         _('Update found'), version_url, calibre_version, plt)
