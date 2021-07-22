@@ -875,7 +875,6 @@ application/x-ustar				ustar
 application/x-wais-source				src
 application/x-wingz				wz
 application/x-x509-ca-cert				crt der
-application/x-xcf				xcf
 application/x-xfig				fig
 application/x-xpinstall				xpi
 application/x400-bp
@@ -1146,6 +1145,7 @@ image/x-portable-graymap				pgm
 image/x-portable-pixmap				ppm
 image/x-rgb				rgb
 image/x-xbitmap				xbm
+image/x-xcf				xcf
 image/x-xpixmap				xpm
 image/x-xwindowdump				xwd
 message/cpim
