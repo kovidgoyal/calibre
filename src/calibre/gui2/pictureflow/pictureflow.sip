@@ -41,6 +41,9 @@ public :
 
   void setSlideSize(QSize size);
 
+  bool activateOnDoubleClick() const;
+  void setActivateOnDoubleClick(bool on);
+
   bool preserveAspectRatio() const;
 
   void setPreserveAspectRatio(bool preserve);

@@ -175,6 +175,7 @@ def create_defs():
     defs['show_highlight_toggle_button'] = False
     defs['add_comments_to_email'] = False
     defs['cb_preserve_aspect_ratio'] = False
+    defs['cb_double_click_to_activate'] = False
     defs['gpm_template_editor_font_size'] = 10
     defs['show_emblems'] = False
     defs['emblem_size'] = 32

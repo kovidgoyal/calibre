@@ -193,6 +193,8 @@ class CoverFlow(pictureflow.PictureFlow):
         self.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         if not gprefs['cover_browser_reflections']:
             self.setShowReflections(False)
+        if gprefs['cb_double_click_to_activate']:
+            self.setActivateOnDoubleClick(True)
 
     def one_auto_scroll(self):
         if self.currentSlide() >= self.count() - 1:

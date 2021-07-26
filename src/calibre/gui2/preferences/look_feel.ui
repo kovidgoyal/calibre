@@ -1185,7 +1185,7 @@ using the mouse.&lt;/p&gt;</string>
          <property name="sizeHint" stdset="0">
           <size>
            <width>690</width>
-           <height>283</height>
+           <height>20</height>
           </size>
          </property>
         </spacer>
@@ -1274,6 +1274,13 @@ them to all have the same width and height</string>
          </property>
          <property name="maximum">
           <double>100000.000000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0" colspan="2">
+        <widget class="QCheckBox" name="opt_cb_double_click_to_activate">
+         <property name="text">
+          <string>&amp;Double click to view the central book, instead of single click</string>
          </property>
         </widget>
        </item>

@@ -481,6 +481,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('separate_cover_flow', config, restart_required=True)
         r('cb_fullscreen', gprefs)
         r('cb_preserve_aspect_ratio', gprefs)
+        r('cb_double_click_to_activate', gprefs)
 
         choices = [(_('Off'), 'off'), (_('Small'), 'small'),
             (_('Medium'), 'medium'), (_('Large'), 'large')]
@@ -806,6 +807,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.library_view.set_row_header_visibility()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+        gui.cover_flow.setActivateOnDoubleClick(gprefs['cb_double_click_to_activate'])
         gui.update_cover_flow_subtitle_font()
         gui.cover_flow.template_inited = False
         for view in 'library memory card_a card_b'.split():

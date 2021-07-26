@@ -94,6 +94,7 @@ Q_OBJECT
   Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
   Q_PROPERTY(QFont subtitleFont READ subtitleFont WRITE setSubtitleFont)
   Q_PROPERTY(bool preserveAspectRatio READ preserveAspectRatio WRITE setPreserveAspectRatio)
+  Q_PROPERTY(bool activateOnDoubleClick READ activateOnDoubleClick WRITE setActivateOnDoubleClick)
 
 public:
   /*!
@@ -168,6 +169,9 @@ public:
   */
   int currentSlide() const;
 
+  bool activateOnDoubleClick() const;
+  void setActivateOnDoubleClick(bool on);
+
 public slots:
 
   /*!
@@ -215,6 +219,7 @@ protected:
   void mouseMoveEvent(QMouseEvent* event);
   void mousePressEvent(QMouseEvent* event);
   void mouseReleaseEvent(QMouseEvent* event);
+  void mouseDoubleClickEvent(QMouseEvent* event);
   void resizeEvent(QResizeEvent* event);
   void timerEvent(QTimerEvent* event);
 

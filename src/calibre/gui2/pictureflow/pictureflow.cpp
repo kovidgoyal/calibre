@@ -371,6 +371,7 @@ public:
   int    pixelDistanceMoved;
   int    pixelsToMovePerSlide;
   bool   preserveAspectRatio;
+  bool   activateOnDoubleClick;
   QFont subtitleFont;
 
   void setImages(FlowImages *images);
@@ -426,6 +427,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
   fontSize = 10;
   doReflections = true;
   preserveAspectRatio = false;
+  activateOnDoubleClick = false;
 
   centerIndex = 0;
   queueLength = queueLength_;
@@ -1246,6 +1248,16 @@ void PictureFlow::setPreserveAspectRatio(bool preserve)
   clearCaches();
 }
 
+bool PictureFlow::activateOnDoubleClick() const
+{
+  return d->activateOnDoubleClick;
+}
+
+void PictureFlow::setActivateOnDoubleClick(bool on)
+{
+  d->activateOnDoubleClick = on;
+}
+
 void PictureFlow::setSubtitleFont(QFont font)
 {
   d->subtitleFont = font;
@@ -1468,9 +1480,9 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
       showNext();
       accepted = true;
     } else {
-        if (event->button() == Qt::LeftButton) {
-              emit itemActivated(d->getTarget());
-              accepted = true;
+        if (event->button() == Qt::LeftButton && !d->activateOnDoubleClick) {
+            emit itemActivated(d->getTarget());
+            accepted = true;
         }
     }
 
@@ -1478,6 +1490,17 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
         event->accept();
     }
   }
+}
+
+void PictureFlow::mouseDoubleClickEvent(QMouseEvent* event) {
+    if (event->button() == Qt::LeftButton && d->activateOnDoubleClick) {
+        int sideWidth = (d->buffer.width() - slideSize().width()) /2;
+        int x = (int)(event->x() * device_pixel_ratio());
+        if (sideWidth < x && x < sideWidth + slideSize().width() ) {
+            emit itemActivated(d->getTarget());
+            event->accept();
+        }
+    }
 }
 
 void PictureFlow::paintEvent(QPaintEvent* event)
