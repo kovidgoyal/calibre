@@ -13,7 +13,7 @@ from qt.core import (
     Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame, QDialog, QComboBox, QLineEdit,
     QTimer, QMenu, QActionGroup, QAction, QSizePolicy, pyqtSignal)
 
-from calibre.gui2 import error_dialog, question_dialog, gprefs
+from calibre.gui2 import error_dialog, question_dialog, gprefs, config
 from calibre.gui2.widgets import HistoryLineEdit
 from calibre.library.field_metadata import category_icon_map
 from calibre.utils.icu import sort_key
@@ -665,8 +665,6 @@ class TagBrowserWidget(QFrame):  # {{{
         self.not_found_label_timer.setSingleShot(True)
         self.not_found_label_timer.timeout.connect(self.not_found_label_timer_event,
                                                    type=Qt.ConnectionType.QueuedConnection)
-        # The Alter Tag Browser button
-        l = self.alter_tb
         self.collapse_all_action = ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser collapse all',
@@ -674,6 +672,8 @@ class TagBrowserWidget(QFrame):  # {{{
                 action=ac, group=_('Tag browser'))
         connect_lambda(ac.triggered, self, lambda self: self.tags_view.collapseAll())
 
+        # The Configure Tag Browser button
+        l = self.alter_tb
         ac = QAction(parent)
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser alter',
@@ -681,6 +681,11 @@ class TagBrowserWidget(QFrame):  # {{{
                 action=ac, group=_('Tag browser'))
         ac.triggered.connect(l.showMenu)
 
+        l.m.aboutToShow.connect(self.about_to_show_configure_menu)
+        l.m.show_counts_action = ac = l.m.addAction('counts')
+        ac.triggered.connect(self.toggle_counts)
+        l.m.show_avg_rating_action = ac = l.m.addAction('avg rating')
+        ac.triggered.connect(self.toggle_avg_rating)
         sb = l.m.addAction(_('Sort by'))
         sb.m = l.sort_menu = QMenu(l.m)
         sb.setMenu(sb.m)
@@ -738,6 +743,18 @@ class TagBrowserWidget(QFrame):  # {{{
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
+
+    def about_to_show_configure_menu(self):
+        ac = self.alter_tb.m.show_counts_action
+        ac.setText(_('Hide counts') if gprefs['tag_browser_show_counts'] else _('Show counts'))
+        ac = self.alter_tb.m.show_avg_rating_action
+        ac.setText(_('Hide average rating') if config['show_avg_rating'] else _('Show average rating'))
+
+    def toggle_counts(self):
+        gprefs['tag_browser_show_counts'] ^= True
+
+    def toggle_avg_rating(self):
+        config['show_avg_rating'] ^= True
 
     def save_state(self):
         gprefs.set('tag browser search box visible', self.toggle_search_button.isChecked())
