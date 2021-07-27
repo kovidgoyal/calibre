@@ -75,6 +75,8 @@ def parse_article(edg):
 def article_parse(data):
     yield "<html><body>"
     for frm in data['frms']:
+        if not frm:
+            continue
         for mod in frm.get('mods', ()):
             for edg in mod.get('edgs', ()):
                 if edg.get('cmsType') == 'ArticleBodyTile':
