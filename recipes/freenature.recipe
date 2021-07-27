@@ -1,10 +1,16 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class NatureNews(BasicNewsRecipe):
     title = u'Nature News'
     language = 'en'
-    __author__ = 'Krittika Goyal, Starson17, adrianf0'
+    __author__ = 'Kovid Goyal'
     oldest_article = 31  # days
     remove_empty_feeds = True
     max_articles_per_feed = 50
@@ -12,38 +18,20 @@ class NatureNews(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_javascript = True
-    keep_only_tags = [dict(name='div', attrs={'id': 'article'})]
-    extra_css             = '''
-                            .author { text-align: right; font-size: small; line-height:1em; margin-top:0px; margin-left:0; margin-right:0; margin-bottom: 0; }
-                            .imagedescription { font-size: small;
-                            font-style:italic; line-height:1em; margin-top:5px;
-                            margin-left:0; margin-right:0; margin-bottom: 0; }
-                            .imagecredit { font-size: x-small; font-style: normal; font-weight: bold}
-                            '''
+    keep_only_tags = [
+        classes('container-type-article'),
+    ]
+    remove_tags = [
+        dict(id='related-articles'),
+        classes('u-hide-print hide-print visually-hidden'),
+        dict(name=['meta', 'link', 'source']),
+    ]
 
     # News and comments
-    feeds = [(u'Nature News', 'http://feeds.nature.com/NatureNewsComment')]
-    remove_tags = []
-    remove_tags.append(dict(name='div', attrs={'class': 'top-row'}))
-    remove_tags.append(dict(name='ul', attrs={'class': 'authors cleared'}))
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'cleared article-tools extra'}))
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'related-stories-box box'}))
-    remove_tags.append(dict(name='div', attrs={'id': 'related-links'}))
-    remove_tags.append(dict(name='p', attrs={'class': 'not-logged-in'}))
-    remove_tags.append(dict(name='ul', attrs={'class': 'endnotes'}))
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'author-details-below'}))
-    remove_tags.append(dict(name='div', attrs={'id': 'references'}))
-    remove_tags.append(dict(name='a', attrs={'class': 'rss-link'}))
-    remove_tags.append(dict(name='div', attrs={'class': 'comment-avatar'}))
-    remove_tags.append(dict(name='ul', attrs={'class': 'moderation'}))
-    # links to other articles, main conntent is img-middle
-    remove_tags.append(dict(name='div', attrs={'class': 'img img-right'}))
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'pullquote pullquote-left'}))
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'pullquote pullquote-right'}))
-    remove_tags.append(
-        dict(name='div', attrs={'class': 'cleared subject-terms-container'}))
+    feeds = [(u'Nature News', 'http://feeds.nature.com/nature/rss/current')]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', src=lambda x: x and x.startswith('//')):
+            img['src'] = 'https:' + img['src']
+            print(img)
+        return soup
