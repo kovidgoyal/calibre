@@ -90,8 +90,9 @@ def main(args=sys.argv):
     if opts.cover and results:
         cover = download_cover(log, title=opts.title, authors=authors,
                 identifiers=result.identifiers, timeout=int(opts.timeout))
-        if cover is None and not opts.opf:
-            prints('No cover found', file=sys.stderr)
+        if cover is None:
+            if not opts.opf:
+                prints('No cover found', file=sys.stderr)
         else:
             save_cover_data_to(cover[-1], opts.cover)
             result.cover = cf = opts.cover
