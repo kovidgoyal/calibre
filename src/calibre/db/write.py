@@ -239,7 +239,10 @@ def custom_series_index(book_id_val_map, db, field, *args):
         ids = series_field.ids_for_book(book_id)
         if ids:
             sequence.append((sidx, book_id, ids[0]))
-        field.table.book_col_map[book_id] = sidx
+        if series_field.table.book_col_map.get(book_id) is None:
+            field.table.book_col_map.pop(book_id, None)
+        else:
+            field.table.book_col_map[book_id] = sidx
     if sequence:
         db.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
                 field.metadata['table'], field.metadata['column']), sequence)
