@@ -486,7 +486,9 @@ def communicate(opts, args):
 
 
 def restart_after_quit():
-    if iswindows:
+    e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
+    is_calibre_debug_exe = os.path.splitext(e)[0].endswith('-debug')
+    if iswindows and not is_calibre_debug_exe:
         # detach the stdout/stderr/stdin handles
         winutil.prepare_for_restart()
     if after_quit_actions['debug_on_restart']:
@@ -506,9 +508,8 @@ def restart_after_quit():
             else:
                 cmd.append('calibre')
         else:
-            e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
             cmd = [e]
-            if os.path.splitext(e)[0].endswith('-debug'):
+            if is_calibre_debug_exe:
                 cmd.append('-g')
         prints('Restarting with:', ' '.join(cmd))
         subprocess.Popen(cmd)
