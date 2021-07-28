@@ -233,13 +233,19 @@ def one_one_in_other(book_id_val_map, db, field, *args):
 def custom_series_index(book_id_val_map, db, field, *args):
     series_field = field.series_field
     sequence = []
-    for book_id, sidx in iteritems(book_id_val_map):
+    for book_id, sidx in book_id_val_map.items():
         if sidx is None:
             sidx = 1.0
         ids = series_field.ids_for_book(book_id)
         if ids:
             sequence.append((sidx, book_id, ids[0]))
-        field.table.book_col_map[book_id] = sidx
+            field.table.book_col_map[book_id] = sidx
+        else:
+            # the series has been deleted from the book, which means no row for
+            # it exists in the series table. The series_index value should be
+            # removed from the in-memory table as well, to ensure this book
+            # sorts the same as other books with no series.
+            field.table.remove_books((book_id,), db)
     if sequence:
         db.executemany('UPDATE %s SET %s=? WHERE book=? AND value=?'%(
                 field.metadata['table'], field.metadata['column']), sequence)
