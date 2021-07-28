@@ -7,10 +7,16 @@ msnbc.msn.com
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class MsNBC(BasicNewsRecipe):
-    title = 'msnbc.com'
+    title = 'MSNBC'
     __author__ = 'Darko Miletic'
-    description = 'A Fuller Spectrum of News'
+    description = 'A Fuller Spectrum of News from msnbc.com and nbcnews.com'
     oldest_article = 2
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -21,27 +27,23 @@ class MsNBC(BasicNewsRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'title', 'url'}
     keep_only_tags = [
-        dict(itemprop='headline'),
-        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'byline_article', 'article_main'})}),
-        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
-            {'authors-names', 'pane-node-body'})}),
+        classes('article-hero__container article-body')
     ]
     remove_tags = [
         dict(name=['iframe', 'button', 'meta', 'link']),
-        dict(attrs={'class': lambda x: x and set(
-            x.split()).intersection({'widget_video', 'ad-container'})}),
+        classes('widget_video ad-container related'),
+        dict(attrs={'data-test': ['social-share-inline']}),
+        dict(name='source'),
     ]
 
     feeds = [
-
-    ('Latest', 'http://www.msnbc.com/feeds/latest'),
-
-    (u'US News', u'http://rss.msnbc.msn.com/id/3032524/device/rss/rss.xml'),
-    (u'Politics', u'http://rss.msnbc.msn.com/id/3032552/device/rss/rss.xml'),
-    (u'Business', u'http://rss.msnbc.msn.com/id/3032071/device/rss/rss.xml'),
-    (u'Health', u'http://rss.msnbc.msn.com/id/3088327/device/rss/rss.xml'),
-    (u'Tech & Science', u'http://rss.msnbc.msn.com/id/3032117/device/rss/rss.xml')
+        ('Latest', 'https://feeds.nbcnews.com/msnbc/public/news'),
+        ('Top stories', 'https://feeds.nbcnews.com/nbcnews/public/news'),
+        ('Politics', 'https://feeds.nbcnews.com/nbcnews/public/politics'),
+        ('U.S. News', 'https://feeds.nbcnews.com/nbcnews/public/us-news'),
+        ('World', 'https://feeds.nbcnews.com/nbcnews/public/world'),
+        ('Business', 'https://feeds.nbcnews.com/nbcnews/public/business'),
+        ('Opinion', 'https://feeds.nbcnews.com/nbcnews/public/think'),
     ]
 
     def get_article_url(self, article):
