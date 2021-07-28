@@ -8,11 +8,11 @@ __docformat__ = 'restructuredtext en'
 
 import os
 from collections import OrderedDict
+from qt.core import (
+    QCheckBox, QDialog, QDialogButtonBox, QGridLayout, QIcon, QLabel, QTimer
+)
 
-from qt.core import (QTimer, QDialog, QGridLayout, QCheckBox, QLabel,
-                      QDialogButtonBox, QIcon)
-
-from calibre.gui2 import error_dialog, gprefs
+from calibre.gui2 import error_dialog, gprefs, question_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems, unicode_type
@@ -116,6 +116,12 @@ class ToCEditAction(InterfaceAction):
                   ' formats. Convert to one of those formats before polishing.')
                          %_(' or ').join(sorted(supported)), show=True)
         ans = OrderedDict(ans)
+        if len(ans) > 5:
+            if not question_dialog(self.gui, _('Are you sure?'), _(
+                'You have chosen to edit the Table of Contents of {} books at once.'
+                ' Doing so will likely slow your computer to a crawl. Are you sure?'
+            ).format(len(ans))):
+                return
         return ans
 
     def get_books_for_editing(self):
