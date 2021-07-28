@@ -240,18 +240,19 @@ class WSJ(BasicNewsRecipe):
                 break
 
         feeds = []
-        for a in CSSSelect('.WSJTheme--nav-container--2qF6xQnZ .WSJTheme--section-link--3VznjgTM'):
-            frontpage = a.get('href').endswith('frontpage')
-            title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
-            if not title:
-                continue
-            url = self.abs_wsj_url(a.get('href'))
-            self.log('Found section:', title, 'at', url)
-            self.wsj_add_feed(feeds, title, url)
-            if frontpage:
-                self.wsj_find_wn_articles(feeds, root, CSSSelect)
-            if self.test and len(feeds) >= self.test[0]:
-                break
+        for container in root.xpath('descendant::*[contains(@class, "WSJTheme--top-menu-item--")]'):
+            for a in container.xpath('descendant::a[contains(@class, "WSJTheme--section-link--")]'):
+                frontpage = a.get('href').endswith('frontpage')
+                title = self.tag_to_string(a).capitalize().strip().replace('U.s.', 'U.S.')
+                if not title:
+                    continue
+                url = self.abs_wsj_url(a.get('href'))
+                self.log('Found section:', title, 'at', url)
+                self.wsj_add_feed(feeds, title, url)
+                if frontpage:
+                    self.wsj_find_wn_articles(feeds, root, CSSSelect)
+                if self.test and len(feeds) >= self.test[0]:
+                    break
         return feeds
 
     def test_wsj_index(self):
