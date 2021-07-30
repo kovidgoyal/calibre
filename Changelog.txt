@@ -23,6 +23,36 @@
 # - title by author
 # }}}
 
+{{{ 5.24.0 2021-07-30
+
+:: new features
+
+- Conversion: Insert metadata as jacket: Allow adding timestamp and publisher fields. Also allow controlling the formatting of date/time fields
+
+- [1937025] Cover browser: Add an option to view the central book by double clicking instead of single clicking (Preferences->Look & feel->Cover browser)
+
+- [1936891] Tag browser: Add actions to the configure menu to toggle the display of counts and average rating
+
+- [1936472] Tag browser: Allow plugins to add entries to the context menu
+
+
+:: bug fixes
+
+- [1938189] fetch-ebook-metadata: Fix an error when using the --cover option and no cover is found
+
+- [1936792] HTML Input: Fix the presence of BookDesigner markup causing conversion to fail
+
+- [1936184] TXT Input: Dont fail if the txt file references a directory as a resosource
+
+:: improved recipes
+- MSNBC
+- Nature News
+- Boston Globe
+- Foreign Policy
+- Le Monde
+
+}}}
+
 {{{ 5.23.0 2021-07-09
 
 :: new features
