@@ -645,6 +645,11 @@ class CompareMany(QDialog):
                 b.setToolTip(reject_all_tooltip)
             b.clicked.connect(self.reject_all_remaining)
             self.sb = b = bb.addButton(_('R&eject'), QDialogButtonBox.ButtonRole.ActionRole)
+            ac = QAction(self)
+            ac.setShortcut(QKeySequence(Qt.Modifier.ALT | Qt.Modifier.SHIFT | Qt.Key.Key_Right))
+            ac.triggered.connect(b.click)
+            self.addAction(ac)
+            b.setToolTip(_('Reject changes and move to next [{}]').format(ac.shortcut().toString(QKeySequence.SequenceFormat.NativeText)))
             connect_lambda(b.clicked, self, lambda self: self.next_item(False))
             b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_button_tooltip:
