@@ -42,7 +42,7 @@
 
 - [1936792] HTML Input: Fix the presence of BookDesigner markup causing conversion to fail
 
-- [1936184] TXT Input: Dont fail if the txt file references a directory as a resosource
+- [1936184] TXT Input: Do not fail if the txt file references a directory as a resource
 
 :: improved recipes
 - MSNBC
