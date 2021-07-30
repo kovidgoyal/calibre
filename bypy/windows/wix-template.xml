@@ -90,7 +90,7 @@
     <DirectoryRef Id="ApplicationProgramsFolder">
         <Component Id="StartMenuShortcuts" Guid="*">
             <Shortcut Id="s1" Name="{app}{x64} - E-book management"
-                Description="Manage your e-book collection and download news"
+                Description="Manage your e-book collection, read or edit your e-books and download news"
                 Target="[#{exe_map[calibre]}]"
                 WorkingDirectory="APPLICATIONROOTDIRECTORY" />
             <Shortcut Id="s2" Name="E-book viewer{x64}"
@@ -120,7 +120,7 @@
     <DirectoryRef Id="DesktopFolder">
         <Component Id="DesktopShortcut" Guid="*">
             <Shortcut Id="ds1" Name="{app}{x64} - E-book management"
-                Description="Manage your e-book collection and download news"
+                Description="Manage your e-book collection, read or edit your e-books and download news"
                 Target="[#{exe_map[calibre]}]"
                 WorkingDirectory="APPLICATIONROOTDIRECTORY" />
             <RegistryValue Root="HKCU" Key="Software\Microsoft\{app}{x64}" Name="desktop_shortcut_installed" Type="integer" Value="1" KeyPath="yes"/>
