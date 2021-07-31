@@ -169,13 +169,13 @@ class WSJ(BasicNewsRecipe):
         root = self.index_to_soup(url, as_tree=True)
         CSSSelect = Select(root)
         articles = []
-        for container in root.xpath('descendant::div[contains(@class, "WSJTheme--list-item-")]'):
+        for container in root.xpath('descendant::div[contains(@class, "WSJTheme--list-item--")]'):
             heading = next(CSSSelect('h2, h3', container))
             a = next(CSSSelect('a', heading))
             title = self.tag_to_string(a)
             url = self.abs_wsj_url(a.get('href'))
             desc = ''
-            for p in container.xpath('descendant::p[contains(@class, "WSJTheme--description-")]'):
+            for p in container.xpath('descendant::p[contains(@class, "WSJTheme--description--")]'):
                 q = self.tag_to_string(p)
                 if 'Subscriber Content' in q:
                     continue
@@ -184,11 +184,10 @@ class WSJ(BasicNewsRecipe):
 
             articles.append({'title': title, 'url': url,
                              'description': desc, 'date': ''})
-            if self.test and len(articles) >= self.test[1]:
-                break
-
             self.log('\tFound article:', title)
             self.log('\t\t', desc)
+            if self.test and len(articles) >= self.test[1]:
+                break
 
         return articles
 
@@ -250,7 +249,9 @@ class WSJ(BasicNewsRecipe):
                 self.log('Found section:', title, 'at', url)
                 self.wsj_add_feed(feeds, title, url)
                 if frontpage:
-                    self.wsj_find_wn_articles(feeds, root, CSSSelect)
+                    articles = self.wsj_find_wn_articles(feeds, root, CSSSelect)
+                    if articles:
+                        feeds.append(("What's News", articles))
                 if self.test and len(feeds) >= self.test[0]:
                     break
         return feeds
