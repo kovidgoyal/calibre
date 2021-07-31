@@ -57,7 +57,7 @@ class LinuxNetworkStatus:
             del self.connection
 
     def nm(self):
-        with suppress(RuntimeError):
+        with suppress(Exception):
             self.connect('SYSTEM')
             return self.NM_XDP_CONNECTIVITY_MAP.get(self.send(self.nm_call()), 4)
         if hasattr(self, 'connection'):
