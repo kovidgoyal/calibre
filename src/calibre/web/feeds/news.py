@@ -414,9 +414,8 @@ class BasicNewsRecipe(Recipe):
     #: with the URL scheme of your particular website.
     resolve_internal_links = False
 
-    #: Set to True if you want to use gziped transfers. Note that some old servers flake out with this
-    #: so it is off by default.
-    handle_gzip = False
+    #: Set to False if you dont want to use gziped transfers. Note that some old servers flake out with gzip
+    handle_gzip = True
 
     # See the built-in recipes for examples of these settings.
 
