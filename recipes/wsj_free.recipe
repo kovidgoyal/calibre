@@ -4,12 +4,11 @@
 
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
+import json, time, random
 from base64 import standard_b64encode
 
 from mechanize import Request
 
-from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 
@@ -34,7 +33,10 @@ def classes(classes):
 
 class WSJ(BasicNewsRecipe):
 
-    title = 'The Wall Street Journal (free)'
+    if needs_subscription:
+        title = 'The Wall Street Journal'
+    else:
+        title = 'The Wall Street Journal (free)'
     __author__ = 'Kovid Goyal'
     description = 'News and current affairs'
     language = 'en'
@@ -92,15 +94,22 @@ class WSJ(BasicNewsRecipe):
         self.log("\nCover unavailable")
 
     # login {{{
+
+    def get_browser_for_wsj(self, *a, **kw):
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        br.set_cookie('wsjregion', 'na,us', '.wsj.com')
+        br.set_cookie('gdprApplies', 'false', '.wsj.com')
+        br.set_cookie('ccpaApplies', 'false', '.wsj.com')
+        return br
+
     if needs_subscription:
         def get_browser(self, *a, **kw):
             # To understand the login logic read app-min.js from
             # https://sso.accounts.dowjones.com/login
             itp = quote(self.WSJ_ITP, safe='')
             start_url = 'https://accounts.wsj.com/login?target=' + itp
-            kw['user_agent'] = random_user_agent(allow_ie=False)
-            br = BasicNewsRecipe.get_browser(self, *a, **kw)
             self.log('Starting login process...')
+            br = self.get_browser_for_wsj(*a, **kw)
             res = br.open(start_url)
             sso_url = res.geturl()
             query =  urlparse.parse_qs(urlparse.urlparse(sso_url).query)
@@ -147,6 +156,7 @@ class WSJ(BasicNewsRecipe):
             br.select_form(nr=0)
             self.log('Performing login callback...')
             res = br.submit()
+            self.log('Print edition resolved url:', res.geturl())
             self.wsj_itp_page = raw = res.read()
             if b'/logout' not in raw:
                 raise ValueError(
@@ -154,9 +164,10 @@ class WSJ(BasicNewsRecipe):
             return br
     else:
         def get_browser(self, *a, **kw):
-            kw['user_agent'] = random_user_agent(allow_ie=False)
-            br = BasicNewsRecipe.get_browser(self, *a, **kw)
-            self.wsj_itp_page = br.open(self.WSJ_ITP).read()
+            br = self.get_browser_for_wsj(*a, **kw)
+            res = br.open(self.WSJ_ITP)
+            self.log('Print edition resolved url:', res.geturl())
+            self.wsj_itp_page = res.read()
             return br
     # }}}
 
@@ -217,15 +228,21 @@ class WSJ(BasicNewsRecipe):
 
     def wsj_add_feed(self, feeds, title, url):
         try:
-            articles = self.wsj_find_articles(url)
-            if not articles:
-                # retry once, sometimes these pages come up empty
+            for i in range(5):
                 articles = self.wsj_find_articles(url)
+                if articles:
+                    break
+                else:
+                    pause = random.choice((1, 1.5, 2, 2.5))
+                    self.log.warn('No articles found in', url, 'retrying after', pause, 'seconds')
+                    time.sleep(pause)
         except Exception:
             self.log.exception('Failed to parse section:', title)
             articles = []
         if articles:
             feeds.append((title, articles))
+        else:
+            self.log.warn('No articles found in', url)
 
     def parse_index(self):
         # return self.test_wsj_index()
