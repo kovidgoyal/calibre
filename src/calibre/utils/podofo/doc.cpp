@@ -10,7 +10,7 @@
 
 using namespace pdf;
 
-// Constructor/desctructor {{{
+// Constructor/destructor {{{
 static void
 PDFDoc_dealloc(PDFDoc* self)
 {
