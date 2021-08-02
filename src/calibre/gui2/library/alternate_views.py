@@ -71,6 +71,7 @@ def handle_enter_press(self, ev, special_action=None, has_edit_cell=True):
                 if special_action is not None:
                     special_action(self.currentIndex())
                 gui.iactions['View'].view_triggered(self.currentIndex())
+            gui.enter_key_pressed_in_book_list.emit(self)
             return True
 
 
