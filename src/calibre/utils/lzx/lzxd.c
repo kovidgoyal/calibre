@@ -179,7 +179,7 @@ static int lzxd_read_input(struct lzxd_stream *lzx) {
       sym <<= 1; sym |= (bit_buffer & i) ? 1 : 0;                       \
       /* hop to next node index / decoded symbol */                     \
       sym = lzx->tbl##_table[sym];                                      \
-      /* while we are still in node indicies, not decoded symbols */    \
+      /* while we are still in node indices, not decoded symbols */    \
     } while (sym >= LZX_##tbl##_MAXSYMBOLS);                            \
   }                                                                     \
   /* result */                                                          \

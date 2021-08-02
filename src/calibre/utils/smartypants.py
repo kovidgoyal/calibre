@@ -384,7 +384,7 @@ tags_to_skip_regex = re.compile(r"<(/)?(style|pre|code|kbd|script|math)[^>]*>", 
 self_closing_regex = re.compile(r'/\s*>$')
 
 
-# interal functions below here
+# internal functions below here
 
 def parse_attr(attr):
     do_dashes = do_backticks = do_quotes = do_ellipses = do_stupefy = 0

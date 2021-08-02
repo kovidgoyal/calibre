@@ -97,7 +97,7 @@ def parse_color(token):
 def parse_alpha(args):
     """
     If args is a list of a single INTEGER or NUMBER token,
-    retur its value clipped to the 0..1 range
+    return its value clipped to the 0..1 range
     Otherwise, return None.
     """
     if len(args) == 1 and args[0].type in ('NUMBER', 'INTEGER'):

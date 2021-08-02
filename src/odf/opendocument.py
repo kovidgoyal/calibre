@@ -215,7 +215,7 @@ class OpenDocument:
 
     def __manifestxml(self):
         """ Generates the manifest.xml file
-            The self.manifest isn't avaible unless the document is being saved
+            The self.manifest isn't available unless the document is being saved
         """
         xml=PolyglotBytesIO()
         xml.write(_XMLPROLOGUE)
