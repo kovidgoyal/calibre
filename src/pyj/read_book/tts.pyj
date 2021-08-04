@@ -127,19 +127,35 @@ class Client:
         self.onevent = onevent
         buf = v'[]'
         size = 0
+        limit = 24000
+
+        def commit():
+            nonlocal buf, size
+            text = buf.join('')
+            if text.length:
+                self.create_utterance(text, True)
+            buf = v'[]'
+            size = 0
+
         for x in text_segments:
             if jstype(x) is 'number':
                 # Currently the sad sack brosers dont support SSML
                 # https://github.com/WICG/speech-api/issues/37
-                # buf.push('<mark name="' + x + '"/>')
-                buf.push('')
+                # buf.push()
+                # markup = '<mark name="' + x + '"/>'
+                continue
             else:
-                buf.push(self.escape_for_xml(x))
-            size += buf[-1].length
-            if size > 24000:
-                buf = v'[]'
-                size = 0
-                self.create_utterance(buf.join(''), True)
+                markup = self.escape_for_xml(x)
+                if markup.length > limit:
+                    commit()
+                    while x.length:
+                        self.create_utterance(self.escape_for_xml(x[:4096]), True)
+                        x = x[4096:]
+                    continue
+            if size + markup.length > limit:
+                commit()
+            buf.push(markup)
+            size += markup.length
         text = buf.join('')
         if text.length:
             self.create_utterance(text)
