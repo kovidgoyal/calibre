@@ -156,9 +156,7 @@ class Client:
                 commit()
             buf.push(markup)
             size += markup.length
-        text = buf.join('')
-        if text.length:
-            self.create_utterance(text)
+        commit()
         if self.queue.length:
             window.speechSynthesis.speak(self.queue[0])
 
