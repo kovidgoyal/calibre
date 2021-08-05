@@ -126,7 +126,7 @@ class Client:
         self.onevent = onevent
         buf = v'[]'
         size = 0
-        limit = 24000
+        limit = 2048
 
         def commit():
             nonlocal buf, size
