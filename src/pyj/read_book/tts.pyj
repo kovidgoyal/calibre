@@ -28,7 +28,6 @@ class Client:
     max_rate = 2
 
     def __init__(self):
-        self.escape_for_xml = escaper()
         self.stop_requested_at = None
         self.status = {'synthesizing': False, 'paused': False}
         self.queue = v'[]'
@@ -133,7 +132,7 @@ class Client:
             nonlocal buf, size
             text = buf.join('')
             if text.length:
-                self.create_utterance(text, True)
+                self.create_utterance(text)
             buf = v'[]'
             size = 0
 
@@ -145,17 +144,16 @@ class Client:
                 # markup = '<mark name="' + x + '"/>'
                 continue
             else:
-                markup = self.escape_for_xml(x)
-                if markup.length > limit:
+                if x.length > limit:
                     commit()
                     while x.length:
-                        self.create_utterance(self.escape_for_xml(x[:4096]), True)
-                        x = x[4096:]
+                        self.create_utterance(x[:limit])
+                        x = x[limit:]
                     continue
-            if size + markup.length > limit:
+            if size + x.length > limit:
                 commit()
-            buf.push(markup)
-            size += markup.length
+            buf.push(x)
+            size += x.length
         commit()
         if self.queue.length:
             window.speechSynthesis.speak(self.queue[0])
