@@ -1642,6 +1642,9 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
         identifier_found = self.parse_clipboard_for_identifier()
         if identifier_found:
             return
+        text = unicode_type(QApplication.clipboard().text()).strip()
+        if text.startswith('http://') or text.startswith('https://'):
+            return self.paste_prefix('url')
         try:
             prefix = gprefs['paste_isbn_prefixes'][0]
         except IndexError:
