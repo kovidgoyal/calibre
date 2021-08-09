@@ -29,7 +29,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="opt_output_profile"/>
+        <widget class="QListView" name="opt_output_profile">
+         <property name="contextMenuPolicy">
+          <enum>Qt::PreventContextMenu</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -81,7 +85,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QListView" name="opt_input_profile"/>
+        <widget class="QListView" name="opt_input_profile">
+         <property name="contextMenuPolicy">
+          <enum>Qt::PreventContextMenu</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
