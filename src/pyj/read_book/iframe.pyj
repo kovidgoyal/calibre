@@ -728,7 +728,11 @@ class IframeBoss:
             self.send_message('scroll_to_anchor', name=name, frag=frag)
 
     def on_fake_popup_activation(self, data):
-        self.send_message('show_footnote', name=data.name, frag=data.frag, title=data.title, cols_per_screen=calc_columns_per_screen())
+        self.send_message(
+            'show_footnote', name=data.name, frag=data.frag, title=data.title,
+            cols_per_screen=calc_columns_per_screen(), rtl=scroll_viewport.rtl,
+            vertical_writing_mode=scroll_viewport.vertical_writing_mode
+        )
 
     def scroll_to_anchor(self, frag):
         if frag:
