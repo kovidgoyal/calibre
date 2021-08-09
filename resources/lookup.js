@@ -12,6 +12,7 @@
 
     function fix_google_markup() {
         var cc = document.getElementById('center_col');
+        var max_width = 'calc(100vw - 25px)';
         if (!cc) {
             if (++num_tries > 10) return;
             setTimeout(fix_google_markup, 100);
@@ -20,6 +21,8 @@
         cc.style.marginLeft = '0';
         cc = document.getElementById('cnt');
         if (cc) cc.style.paddingTop = '0';
+        var s = document.getElementById('search');
+        if (s) s.style.maxWidth = max_width;
         var params = new URLSearchParams(document.location.search.substring(1));
         var q = params.get('q');
         if (q && q.startsWith('define:')) {
@@ -31,9 +34,21 @@
                 var elem = document.getElementById(id);
                 if (elem) elem.style.display = 'none';
             });
+            // make definitions text wrap
+            document.querySelectorAll('[data-topic]').forEach(function(elem) { elem.style.maxWidth = max_width; });
         }
         var promo = document.getElementById('promos');
         if (promo) promo.parentNode.removeChild(promo);
+
+        // make search results wrap
+        document.querySelectorAll('[data-ved]').forEach(function(elem) { elem.style.maxWidth = max_width; });
+
+        // the above wrapping causing overlapping text of the 
+        // search results and the citation, fix that
+        document.querySelectorAll('cite').forEach(function(elem) { 
+            var d = elem.closest('div');
+            if (d) d.style.position = 'static';
+        });
     }
 
     if (window.location.hostname === 'www.google.com') {
