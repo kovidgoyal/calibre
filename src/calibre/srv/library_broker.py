@@ -228,7 +228,6 @@ class GuiLibraryBroker(LibraryBroker):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         if gui is not None:
-            db = LibraryBroker.get(self, library_id)
             with self:
                 db = self.loaded_dbs.get(library_id)
             if db is not None:
