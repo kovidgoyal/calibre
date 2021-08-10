@@ -38,6 +38,9 @@ class EventType(Enum):
     #: Arguments: (field_name, affected book ids, ids of removed items)
     items_removed = auto()
 
+    #: When a book format is edited, with arguments: (book_id, fmt)
+    book_edited = auto()
+
 
 class EventDispatcher:
 

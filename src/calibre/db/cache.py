@@ -137,6 +137,7 @@ class Cache(object):
     All table reading/sorting/searching/caching logic is re-implemented. This
     was necessary for maximum performance and flexibility.
     '''
+    EventType = EventType
 
     def __init__(self, backend):
         self.backend = backend

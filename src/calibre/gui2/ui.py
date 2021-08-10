@@ -793,6 +793,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                     db.format_metadata(book_id, fmt, allow_cache=False, update_db=True)
                     db.update_last_modified((book_id,))
                     m.refresh_ids((book_id,))
+                    db.event_dispatcher(db.EventType.book_edited, book_id, fmt)
             except Exception:
                 import traceback
                 traceback.print_exc()
