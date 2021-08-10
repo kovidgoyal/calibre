@@ -30,6 +30,7 @@ from calibre.db.categories import get_categories
 from calibre.db.errors import NoSuchBook, NoSuchFormat
 from calibre.db.fields import IDENTITY, InvalidLinkTable, create_field
 from calibre.db.lazy import FormatMetadata, FormatsList, ProxyMetadata
+from calibre.db.listeners import EventDispatcher, EventType
 from calibre.db.locking import (
     DowngradeLockError, LockingError, SafeReadLock, create_locks, try_lock
 )
@@ -139,6 +140,7 @@ class Cache(object):
 
     def __init__(self, backend):
         self.backend = backend
+        self.event_dispatcher = EventDispatcher()
         self.fields = {}
         self.composites = {}
         self.read_lock, self.write_lock = create_locks()
@@ -420,6 +422,20 @@ class Cache(object):
             self.backend.prefs.set('update_all_last_mod_dates_on_start', False)
 
     # Cache Layer API {{{
+
+    @write_api
+    def add_listener(self, event_callback_function):
+        '''
+        Register a callback function that will be called after certain actions are
+        taken on this database. The function must take two arguments, the first of
+        which is the event type (:class:`EventType`) and the second is a tuple
+        containing event type specific data.
+        '''
+        self.event_dispatcher.add_listener(event_callback_function)
+
+    @write_api
+    def remove_listener(self, event_callback_function):
+        self.event_dispatcher.remove_listener(event_callback_function)
 
     @read_api
     def field_for(self, name, book_id, default_value=None):
@@ -1231,7 +1247,7 @@ class Cache(object):
             self._update_path(dirtied, mark_as_dirtied=False)
 
         self._mark_as_dirty(dirtied)
-
+        self.event_dispatcher(EventType.metadata_changed, name, dirtied)
         return dirtied
 
     @write_api
@@ -1568,6 +1584,7 @@ class Cache(object):
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
             self.fields['size'].table.update_sizes({book_id: max_size})
             self._update_last_modified((book_id,))
+            self.event_dispatcher(EventType.format_added, book_id, fmt)
 
         if run_hooks:
             # Run post import plugins, the write lock is released so the plugin
@@ -1612,6 +1629,7 @@ class Cache(object):
         size_map = table.remove_formats(formats_map, self.backend)
         self.fields['size'].table.update_sizes(size_map)
         self._update_last_modified(tuple(formats_map))
+        self.event_dispatcher(EventType.formats_removed, formats_map)
 
     @read_api
     def get_next_series_num_for(self, series, field='series', current_indices=False):
@@ -1713,6 +1731,7 @@ class Cache(object):
             self.backend.execute('INSERT INTO books(id, title, series_index, author_sort) VALUES (?, ?, ?, ?)',
                          (force_id, mi.title, series_index, aus))
         book_id = self.backend.last_insert_rowid()
+        self.event_dispatcher(EventType.book_created, book_id)
 
         mi.timestamp = utcnow() if mi.timestamp is None else mi.timestamp
         mi.pubdate = UNDEFINED_DATE if mi.pubdate is None else mi.pubdate
@@ -1787,6 +1806,7 @@ class Cache(object):
         self._clear_caches(book_ids=book_ids, template_cache=False, search_cache=False)
         for cc in self.cover_caches:
             cc.invalidate(book_ids)
+        self.event_dispatcher(EventType.books_removed, book_ids)
 
     @read_api
     def author_sort_strings_for_books(self, book_ids):
@@ -1866,6 +1886,7 @@ class Cache(object):
                 ab, idm = self._rename_items(field, default_process_map, change_index=change_index)
                 affected_books.update(ab)
                 id_map.update(idm)
+            self.event_dispatcher(EventType.items_renamed, field, affected_books, id_map)
             return affected_books, id_map
 
         try:
@@ -1895,6 +1916,7 @@ class Cache(object):
                 for book_id in moved_books:
                     self._set_field(f.index_field.name, {book_id:self._get_next_series_num_for(self._fast_field_for(f, book_id), field=field)})
             self._mark_as_dirty(affected_books)
+        self.event_dispatcher(EventType.items_renamed, field, affected_books, id_map)
         return affected_books, id_map
 
     @write_api
@@ -1913,6 +1935,7 @@ class Cache(object):
                 self._set_field(field.index_field.name, {bid:1.0 for bid in affected_books})
             else:
                 self._mark_as_dirty(affected_books)
+        self.event_dispatcher(EventType.items_removed, field, affected_books, item_ids)
         return affected_books
 
     @write_api
@@ -2216,6 +2239,7 @@ class Cache(object):
 
     @write_api
     def close(self):
+        self.event_dispatcher.close()
         from calibre.customize.ui import available_library_closed_plugins
         for plugin in available_library_closed_plugins():
             try:
