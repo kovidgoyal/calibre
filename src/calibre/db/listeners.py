@@ -46,6 +46,7 @@ class EventDispatcher:
         self.refs = []
         self.queue = Queue()
         self.activated = False
+        self.library_id = ''
 
     def add_listener(self, callback):
         # note that we intentionally leak dead weakrefs. To not do so would
@@ -66,7 +67,7 @@ class EventDispatcher:
 
     def __call__(self, event_name, *args):
         if self.activated:
-            self.queue.put((event_name, args))
+            self.queue.put((event_name, self.library_id, args))
 
     def close(self):
         if self.activated:

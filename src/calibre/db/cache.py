@@ -427,10 +427,10 @@ class Cache(object):
     def add_listener(self, event_callback_function):
         '''
         Register a callback function that will be called after certain actions are
-        taken on this database. The function must take two arguments, the first of
-        which is the event type (:class:`EventType`) and the second is a tuple
-        containing event type specific data.
+        taken on this database. The function must take three arguments:
+        (:class:`EventType`, library_id, event_type_specific_data)
         '''
+        self.event_dispatcher.library_id = getattr(self, 'server_library_id', self.library_id)
         self.event_dispatcher.add_listener(event_callback_function)
 
     @write_api
