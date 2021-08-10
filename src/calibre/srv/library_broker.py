@@ -221,7 +221,7 @@ class GuiLibraryBroker(LibraryBroker):
     def start_listening_for_db_events(self):
         with self:
             self.listening_for_db_events = True
-            for db in self.loaded_dbs:
+            for db in self.loaded_dbs.values():
                 db.new_api.add_listener(self.on_db_event)
 
     def on_db_event(self, event_type, library_id, event_data):
