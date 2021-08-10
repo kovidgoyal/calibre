@@ -216,7 +216,7 @@ class GuiLibraryBroker(LibraryBroker):
         library_path = self.original_path_map.get(library_path, library_path)
         db = LibraryDatabase(library_path, is_second_db=True)
         if self.listening_for_db_events:
-            db.add_listener(self.on_db_event)
+            db.new_api.add_listener(gui_on_db_event)
         return db
 
     def get(self, library_id=None):
@@ -293,6 +293,8 @@ class GuiLibraryBroker(LibraryBroker):
             self.original_path_map[newloc] = original_path
             self.loaded_dbs[library_id] = db
         db.new_api.server_library_id = library_id
+        if self.listening_for_db_events:
+            db.new_api.add_listener(gui_on_db_event)
         if olddb is not None and samefile(path_for_db(olddb), path_for_db(db)):
             # This happens after a restore database, for example
             olddb.close(), olddb.break_cycles()
