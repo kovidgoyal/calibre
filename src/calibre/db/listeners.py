@@ -42,7 +42,7 @@ class EventType(Enum):
     book_edited = auto()
 
 
-class EventDispatcher:
+class EventDispatcher(Thread):
 
     def __init__(self):
         Thread.__init__(self, name='DBListener', daemon=True)

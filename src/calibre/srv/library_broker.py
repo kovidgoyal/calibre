@@ -15,6 +15,13 @@ from calibre.utils.monotonic import monotonic
 from polyglot.builtins import iteritems, itervalues
 
 
+def gui_on_db_event(event_type, library_id, event_data):
+    from calibre.gui2.ui import get_gui
+    gui = get_gui()
+    if gui is not None:
+        gui.library_broker.on_db_event(event_type, library_id, event_data)
+
+
 def canonicalize_path(p):
     if isinstance(p, bytes):
         p = p.decode(filesystem_encoding)
@@ -222,7 +229,7 @@ class GuiLibraryBroker(LibraryBroker):
         with self:
             self.listening_for_db_events = True
             for db in self.loaded_dbs.values():
-                db.new_api.add_listener(self.on_db_event)
+                db.new_api.add_listener(gui_on_db_event)
 
     def on_db_event(self, event_type, library_id, event_data):
         from calibre.gui2.ui import get_gui
