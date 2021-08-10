@@ -110,7 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     proceed_requested = pyqtSignal(object, object)
     book_converted = pyqtSignal(object, object)
     enter_key_pressed_in_book_list = pyqtSignal(object)  # used by action chains plugin
-    event_in_db = pyqtSignal(object, object, object)
+    event_in_db = pyqtSignal(object, object, object)  # (db, event_type, event_data)
     shutting_down = False
 
     def __init__(self, opts, parent=None, gui_debug=None):
