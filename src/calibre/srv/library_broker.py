@@ -201,18 +201,38 @@ class GuiLibraryBroker(LibraryBroker):
         from calibre.gui2 import gprefs
         self.last_used_times = defaultdict(lambda: -EXPIRED_AGE)
         self.gui_library_id = None
+        self.listening_for_db_events = False
         LibraryBroker.__init__(self, load_gui_libraries(gprefs))
         self.gui_library_changed(db)
 
     def init_library(self, library_path, is_default_library):
         library_path = self.original_path_map.get(library_path, library_path)
-        return LibraryDatabase(library_path, is_second_db=True)
+        db = LibraryDatabase(library_path, is_second_db=True)
+        if self.listening_for_db_events:
+            db.add_listener(self.on_db_event)
+        return db
 
     def get(self, library_id=None):
         try:
             return getattr(LibraryBroker.get(self, library_id), 'new_api', None)
         finally:
             self.last_used_times[library_id or self.default_library] = monotonic()
+
+    def start_listening_for_db_events(self):
+        with self:
+            self.listening_for_db_events = True
+            for db in self.loaded_dbs:
+                db.new_api.add_listener(self.on_db_event)
+
+    def on_db_event(self, event_type, library_id, event_data):
+        from calibre.gui2.ui import get_gui
+        gui = get_gui()
+        if gui is not None:
+            db = LibraryBroker.get(self, library_id)
+            with self:
+                db = self.loaded_dbs.get(library_id)
+            if db is not None:
+                gui.event_in_db.emit(db, event_type, event_data)
 
     def get_library(self, original_library_path):
         library_path = canonicalize_path(original_library_path)

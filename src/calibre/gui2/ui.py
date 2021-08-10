@@ -110,6 +110,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     proceed_requested = pyqtSignal(object, object)
     book_converted = pyqtSignal(object, object)
     enter_key_pressed_in_book_list = pyqtSignal(object)  # used by action chains plugin
+    event_in_db = pyqtSignal(object, object, object)
     shutting_down = False
 
     def __init__(self, opts, parent=None, gui_debug=None):
@@ -199,6 +200,13 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 stmap[st.name] = st
         else:
             stmap[st.name] = st
+
+    def add_db_listener(self, callback):
+        self.library_broker.start_listening_for_db_events()
+        self.event_in_db.connect(callback)
+
+    def remove_db_listener(self, callback):
+        self.event_in_db.disconnect(callback)
 
     def initialize(self, library_path, db, actions, show_gui=True):
         opts = self.opts
@@ -1103,6 +1111,10 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.shutting_down = True
         self.show_shutdown_message()
         self.server_change_notification_timer.stop()
+        try:
+            self.event_in_db.disconnect()
+        except Exception:
+            pass
 
         from calibre.customize.ui import has_library_closed_plugins
         if has_library_closed_plugins():
