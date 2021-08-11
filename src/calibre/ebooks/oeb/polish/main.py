@@ -44,6 +44,7 @@ CUSTOMIZATION = {
     'remove_unused_classes': False,
     'merge_identical_selectors': False,
     'merge_rules_with_identical_properties': False,
+    'remove_unreferenced_sheets': True,
     'remove_ncx': True,
 }
 
@@ -238,7 +239,8 @@ def polish_one(ebook, opts, report, customization=None):
             ebook, report,
             remove_unused_classes=customization['remove_unused_classes'],
             merge_rules=customization['merge_identical_selectors'],
-            merge_rules_with_identical_properties=customization['merge_rules_with_identical_properties']
+            merge_rules_with_identical_properties=customization['merge_rules_with_identical_properties'],
+            remove_unreferenced_sheets=customization['remove_unreferenced_sheets']
         ):
             changed = True
         report('')
