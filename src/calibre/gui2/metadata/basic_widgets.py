@@ -1361,7 +1361,8 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
         self.original_val = self.current_val
 
     def commit(self, db, id_):
-        db.set_rating(id_, self.current_val, notify=False, commit=False)
+        if self.current_val != self.original_val:
+            db.set_rating(id_, self.current_val, notify=False, commit=False)
         return True
 
     def zero(self):
@@ -1441,9 +1442,10 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
                 self.update_items_cache(db.new_api.all_field_names('tags'))
 
     def commit(self, db, id_):
-        self.books_to_refresh |= db.set_tags(
-                id_, self.current_val, notify=False, commit=False,
-                allow_case_change=True)
+        if self.changed:
+            self.books_to_refresh |= db.set_tags(
+                    id_, self.current_val, notify=False, commit=False,
+                    allow_case_change=True)
         return True
 
     def keyPressEvent(self, ev):
