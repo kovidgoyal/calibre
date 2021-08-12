@@ -17,6 +17,7 @@ import sys
 import threading
 import time
 import traceback
+from urllib.request import urlopen
 
 from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
@@ -28,7 +29,6 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
-from polyglot.binary import from_base64_bytes
 from polyglot.builtins import as_bytes, unicode_type
 from polyglot.http_client import responses
 from polyglot.urllib import (
@@ -402,9 +402,9 @@ class RecursiveFetcher(object):
         c = 0
         for tag in soup.findAll('img', src=True):
             iurl = tag['src']
-            if iurl.startswith('data:image/'):
+            if iurl.startswith('data:'):
                 try:
-                    data = from_base64_bytes(iurl.partition(',')[-1])
+                    data = urlopen(iurl).read()
                 except Exception:
                     self.log.exception('Failed to decode embedded image')
                     continue
