@@ -234,3 +234,30 @@ viewer preferences to force the viewer to break up lines of text in
 :code:`<pre>` tags::
 
     code, pre { white-space: pre-wrap }
+
+
+Designing your book to work well with the calibre viewer
+------------------------------------------------------------
+
+The calibre viewer will set the ``is-calibre-viewer`` class on the root
+element. So you can write CSS rules that apply only for it. Additionally,
+the viewer will set the following classes on the ``body`` element:
+
+``body.calibre-viewer-dark-colors``
+    Set when using a dark color scheme
+
+``body.calibre-viewer-light-colors``
+    Set when using a light color scheme
+
+``body.calibre-viewer-paginated``
+    Set when in paged mode
+
+``body.calibre-viewer-scrolling``
+    Set when in flow (non-paginated) mode
+
+Finally, you can use the calibre color scheme colors via `CSS variables
+<https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties>`_.
+The calibre viewer defines the following variables:
+``--calibre-viewer-background-color``, ``--calibre-viewer-foreground-color``
+and optionally ``--calibre-viewer-link-color`` in color themes that define
+a link color.

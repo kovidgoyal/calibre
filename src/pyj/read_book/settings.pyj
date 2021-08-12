@@ -58,6 +58,10 @@ styles_id = 'calibre-color-scheme-style-overrides'
 
 
 def apply_colors(is_content_popup):
+    document.documentElement.setProperty('--calibre-viewer-background-color', opts.color_scheme.background)
+    document.documentElement.setProperty('--calibre-viewer-foreground-color', opts.color_scheme.foreground)
+    if opts.color_scheme.link:
+        document.documentElement.setProperty('--calibre-viewer-link-color', opts.color_scheme.link)
     for elem in (document.documentElement, document.body):
         elem.style.color = opts.color_scheme.foreground
         # set background color to transparent so that the users background
@@ -176,6 +180,7 @@ def set_selection_style(style):
 
 
 def set_color_scheme_class():
+    document.documentElement.classList.add('is-calibre-viewer')
     if opts.is_dark_theme:
         document.body.classList.add('calibre-viewer-dark-colors')
         document.body.classList.remove('calibre-viewer-light-colors')
