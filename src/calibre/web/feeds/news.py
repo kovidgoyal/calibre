@@ -1007,14 +1007,15 @@ class BasicNewsRecipe(Recipe):
             for o in soup.findAll(onload=True):
                 del o['onload']
 
-        for script in list(soup.findAll('noscript')):
-            script.extract()
         for attr in self.remove_attributes:
             for x in soup.findAll(attrs={attr:True}):
                 del x[attr]
-        for base in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
-            'command', 'datalist', 'video', 'audio'])):
-            base.extract()
+        for bad_tag in list(soup.findAll(['base', 'iframe', 'canvas', 'embed',
+            'command', 'datalist', 'video', 'audio', 'noscript', 'link', 'meta'])):
+            # link tags can be used for preloading causing network activity in
+            # calibre viewer. meta tags can do all sorts of crazy things,
+            # including http-equiv refresh, viewport shenanigans, etc.
+            bad_tag.extract()
         # srcset causes some viewers, like calibre's to load images from the
         # web, and it also possible causes iBooks on iOS to barf, see
         # https://bugs.launchpad.net/bugs/1713986
