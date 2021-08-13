@@ -23,6 +23,34 @@
 # - title by author
 # }}}
 
+{{{ 5.25.0 2021-08-13
+
+:: new features
+
+- [1939469] Edit/Polish book: Remove unused CSS now also removes unreferenced stylesheets
+
+- E-book viewer: Add some CSS variables and classes that allow writing calibre specific CSS in ebooks. See https://manual.calibre-ebook.com/viewer.html#designing-your-book-to-work-well-with-the-calibre-viewer
+
+- A new framework plugins can use to be notified about changes to calibre libraries
+
+- [1938752] Edit metadata dialog: When pasting into the identifiers field if the clipboard contains a URL paste it directly as a URL identifier
+
+:: bug fixes
+
+- [1938448] E-book viewer: When displaying popup footnotes use the same writing direction as the main text for the footnote popups size and header
+
+- E-book viewer: Improve the text layout when looking up words in Google
+
+- Content server viewer: Fix read aloud not working on mobile browsers
+
+
+:: improved recipes
+- The Guardian and The Observer
+- Wall Street Journal
+- The Atlantic
+
+}}}
+
 {{{ 5.24.0 2021-07-30
 
 :: new features
