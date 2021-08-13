@@ -61,10 +61,10 @@ def customize_remove_unused_css(name, parent, ans):
         'Merge CSS rules in the same stylesheet that have identical properties.'
     ' Note that in rare cases merging can result in a change to the effective styling'
     ' of the book, so use with care.'))
-    d.p = p = QCheckBox(_('Remove &unreferenced style sheets'))
-    p.setChecked(tprefs['remove_unreferenced_sheets'])
-    l.addWidget(p)
-    d.la4 = label('<span style="font-size:small; font-style: italic">' + _(
+    d.u = u = QCheckBox(_('Remove &unreferenced style sheets'))
+    u.setChecked(tprefs['remove_unreferenced_sheets'])
+    l.addWidget(u)
+    d.la5 = label('<span style="font-size:small; font-style: italic">' + _(
         'Remove stylesheets that are not referenced by any content.'
     ))
 
@@ -76,7 +76,7 @@ def customize_remove_unused_css(name, parent, ans):
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
     ans['merge_rules_with_identical_properties'] = tprefs['merge_rules_with_identical_properties'] = p.isChecked()
-    ans['remove_unreferenced_sheets'] = tprefs['remove_unreferenced_sheets'] = p.isChecked()
+    ans['remove_unreferenced_sheets'] = tprefs['remove_unreferenced_sheets'] = u.isChecked()
     if ret != QDialog.DialogCode.Accepted:
         raise Abort()
 
