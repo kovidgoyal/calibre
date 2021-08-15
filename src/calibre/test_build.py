@@ -346,6 +346,7 @@ class BuildTest(unittest.TestCase):
             QApplication.instance().exec_()
             test_flaky = ismacos and not is_ci
             if not test_flaky:
+                self.assertTrue(hasattr(callback, 'result'), 'Qt WebEngine failed to run in 5 seconds')
                 self.assertEqual(callback.result, 2, 'Simple JS computation failed')
                 self.assertIn(b'Skia/PDF', bytes(print_callback.result), 'Print to PDF failed')
             del p
