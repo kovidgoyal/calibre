@@ -909,7 +909,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         # in obscure cases where custom columns are both edited and added, for a time
         # the column map does not accurately represent the screen. In these cases,
         # we will get asked to display columns we don't know about. Must test for this.
-        if col >= len(self.column_to_dc_map):
+        if col >= len(self.column_to_dc_map) or col < 0:
             return None
         if role == Qt.ItemDataRole.DisplayRole:
             rules = self.db.new_api.pref('column_icon_rules')
