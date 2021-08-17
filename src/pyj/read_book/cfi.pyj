@@ -183,9 +183,11 @@ def increment_index_for_children(children, index, sentinel):
 
 def non_range_wrapper_parent(node):
     p = node.parentNode
+    child = node
     while p.dataset?.calibreRangeWrapper:
+        child = p
         p = p.parentNode
-    return p
+    return p, child
 
 
 def encode(doc, node, offset, tail):
@@ -218,7 +220,7 @@ def encode(doc, node, offset, tail):
     # Construct the path to node from root
     is_first = True
     while node is not doc:
-        p = non_range_wrapper_parent(node)
+        p, sentinel = non_range_wrapper_parent(node)
         if not p:
             if node.nodeType == Node.DOCUMENT_NODE:  # Document node (iframe)
                 win = node.defaultView
@@ -229,7 +231,7 @@ def encode(doc, node, offset, tail):
             break
 
         # Find position of node in parent
-        index = increment_index_for_children(p.childNodes, 0, node)
+        index = increment_index_for_children(p.childNodes, 0, sentinel)
         if is_first:
             is_first = False
             if node.nodeType is Node.ELEMENT_NODE and node.dataset.calibreRangeWrapper:

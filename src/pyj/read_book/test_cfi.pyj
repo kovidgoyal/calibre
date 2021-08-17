@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 from elementmaker import E
 
-from read_book.cfi import encode, decode, escape_for_cfi, unescape_from_cfi
+from read_book.cfi import encode, decode, escape_for_cfi, unescape_from_cfi, cfi_for_selection
 from testing import assert_equal, test
 
 
@@ -106,3 +106,26 @@ def cfi_with_range_wrappers():
     assert_equal(decode(f'{path_to_p}/1:5'), {'node': p.firstChild.nextSibling, 'offset': 2})
     assert_equal(decode(f'{path_to_p}/1:7'), {'node': rw.firstChild, 'offset': 1})
     assert_equal(decode(f'{path_to_p}/1:11'), {'node': rw.nextSibling, 'offset': 2})
+
+    document.body.appendChild(E.p(
+        E.span('Labor is', data_calibre_range_wrapper='10'),
+        E.em(E.span('not the source', data_calibre_range_wrapper='10')),
+        E.span(' of all wealth.', data_calibre_range_wrapper='10'),
+        ' ',
+        E.em('Nature'),
+        ' is just as much. The above',
+    ))
+    p = document.body.lastChild
+    path_to_p = encode(document, p)
+    r = document.createRange()
+    em = p.querySelectorAll('em')[-1]
+    r.setStart(em.firstChild, 0)
+    r.setEnd(p.lastChild, 3)
+    assert_equal(r.toString(), 'Nature is')
+    bounds = cfi_for_selection(r)
+    s = decode(bounds.start)
+    r.setStart(s.node, s.offset)
+    e = decode(bounds.end)
+    r.setEnd(e.node, e.offset)
+    assert_equal(r.toString(), 'Nature is')
+    assert_equal(decode(bounds.end), {'node': p.lastChild, 'offset': 3})
