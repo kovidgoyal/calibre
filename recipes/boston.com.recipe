@@ -60,9 +60,12 @@ comics_to_fetch = {
 def extract_json(raw_html):
     idx = raw_html.find('Fusion.contentCache={')
     close_idx = raw_html.find('</script>', idx)
-    raw = raw_html[idx:close_idx].strip().rstrip(';')
+    raw = raw_html[idx:close_idx]
     raw = raw[raw.find('{'):]
-    data = json.loads(raw)
+    idx = raw.find(';Fusion')
+    raw = raw[:idx]
+    # open('/t/raw.html', 'w').write(raw)
+    data = json.loads(raw, strict=False)
     # open('/t/raw.json', 'w').write(json.dumps(data, indent=2))
     return data
 
