@@ -213,8 +213,16 @@ class SearchOverlay:
         elif msg.id is self.search_in_flight.id:
             if msg.type is 'search_complete':
                 self.search_in_flight.id = None
+                if Object.keys(self.result_map).length is 0:
+                    self.no_result_received()
             elif msg.type is 'search_result':
                 self.result_received(msg.result)
+
+    def no_result_received(self):
+        self.show_results()
+        self.results_container.appendChild(E.div(
+            style='margin: 1rem',
+            _('No matching results found')))
 
     def result_received(self, result):
         self.show_results()
