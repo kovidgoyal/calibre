@@ -7,6 +7,8 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
+from PIL import Image
+from io import BytesIO
 
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
@@ -18,6 +20,16 @@ from calibre.utils.imghdr import what
 from polyglot.builtins import iteritems, unicode_type
 
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa
+
+
+def ensure_jpeg_has_jfif(data: bytes) -> bytes:
+    # Amazon's MOBI renderer can render JPEG images without JFIF metadata
+    img = Image.open(BytesIO(data))
+    if img.format == 'JPEG' and not img.info:
+        out = BytesIO()
+        img.save(out, img.format)
+        data = out.getvalue()
+    return data
 
 
 class Resources(object):
@@ -44,7 +56,7 @@ class Resources(object):
             return data
         func = mobify_image if self.opts.mobi_keep_original_images else rescale_image
         try:
-            return func(data)
+            return ensure_jpeg_has_jfif(func(data))
         except Exception:
             if 'png' != what(None, data):
                 raise
