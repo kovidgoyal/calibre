@@ -151,7 +151,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.timefmt = u' [%s]' % date
         link = soup.find('link', rel='revision', href=True)['href']
         year, volnum, issue_vol = link.split('/')[-3:]
-        self.cover_url = soup.find('meta', property="og:image:secure_url")['content']
+        self.cover_url = (soup.find('img', {'class': 'subscribe-callout-image'})['data-src']
+                          .split("|", 1)[0].replace('issue_small_1x', 'issue_large_2x'))
 
         cls = soup.find('body')['class']
         if isinstance(cls, (list, tuple)):
