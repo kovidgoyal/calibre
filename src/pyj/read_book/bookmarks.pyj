@@ -58,7 +58,7 @@ def new_bookmark(container_id, annotations_manager, data, onclick, ev):
 
 def create_bookmarks_panel(annotations_manager, data, book, container, onclick):
     set_css(container, display='flex', flex_direction='column')
-    container.appendChild(E.div(style='margin: 1rem'))
+    container.appendChild(E.div(style='padding: 1rem'))
     container = container.lastChild
     container_id = ensure_id(container)
     button = create_button(_('New bookmark'), 'plus', new_bookmark.bind(None, container_id, annotations_manager, data, onclick))

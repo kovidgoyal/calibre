@@ -909,7 +909,7 @@ def create_highlights_panel(annotations_manager, hide_panel, book, container, on
         _('Export'), 'cloud-download', show_export_dialog.bind(None, annotations_manager), _('Export all or selected highlights'),
         class_='ac-button')
     c = E.div(
-        style='margin: 1rem',
+        style='padding: 1rem',
         id=get_container_id(),
         E.div(
             style='display: flex; flex-wrap: wrap; margin-top: -1ex; align-items: center',
