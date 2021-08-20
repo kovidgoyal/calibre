@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <QVector>
 #include <cmath>
+#include <set>
 
 // Macros {{{
 #define SQUARE(x) (x)*(x)
@@ -646,6 +647,7 @@ QImage normalize(const QImage &image) { // {{{
     QRgb pixel, *dest;
     unsigned char r, g, b;
     QImage img(image);
+    std::set<QRgb> all_colors;
 
     ENSURE32(img);
 
@@ -656,11 +658,13 @@ QImage normalize(const QImage &image) { // {{{
 
     for(i=0; i < count; ++i){
         pixel = *dest++;
+        all_colors.insert(pixel);
         histogram[qRed(pixel)].red++;
         histogram[qGreen(pixel)].green++;
         histogram[qBlue(pixel)].blue++;
         histogram[qAlpha(pixel)].alpha++;
     }
+    if (all_colors.size() < 2) return img;
 
     // find the histogram boundaries by locating the .01 percent levels.
     threshold_intensity = count/1000;
