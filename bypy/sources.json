@@ -753,8 +753,8 @@
     {
         "name": "pillow",
         "unix": {
-            "filename": "Pillow-7.2.0.tar.gz",
-            "hash": "sha256:97f9e7953a77d5a70f49b9a48da7776dc51e9b738151b22dacf101641594a626",
+            "filename": "Pillow-8.3.1.tar.gz",
+            "hash": "sha256:2cac53839bfc5cece8fdbe7f084d5e3ee61e1303cccc86511d351adcb9e2c792",
             "urls": ["pypi"]
         }
     },
