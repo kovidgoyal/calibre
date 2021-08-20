@@ -269,6 +269,8 @@ class Economist(BasicNewsRecipe):
             data = json.loads(script_tag.string)
             self.cover_url = data['props']['pageProps']['content']['image']['main']['url']['canonical']
             self.log('Got cover:', self.cover_url)
+        self.title = "The Economist ({})".format(
+            soup.find('span', {'class': 'weekly-edition-header__date'}).get_text())
         feeds = []
         for section in soup.findAll(**classes('layout-weekly-edition-section')):
             h2 = section.find('h2')
