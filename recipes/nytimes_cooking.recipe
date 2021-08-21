@@ -1,0 +1,39 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe, classes
+
+
+class NYTCooking(BasicNewsRecipe):
+    title          = 'NY Times Cooking'
+    description = 'NY Times Cooking Magazine'
+    __author__ = 'gourav'
+    language = 'en_US'
+    encoding = 'utf-8'
+    oldest_article = 2
+    max_articles_per_feed = 30
+    keep_only_tags = [
+        classes('recipe-title recipe-subhead recipe-intro recipe-instructions')
+    ]
+    remove_tags = [
+        classes('recipe-details-share'),
+        dict(name='source'),
+    ]
+
+    def parse_index(self):
+        url = 'https://cooking.nytimes.com/topics/what-to-cook-this-week'
+        soup = self.index_to_soup(url)
+
+        articles = soup.find_all('div', class_='card-info-wrapper')
+        feed = []
+
+        for i in articles:
+            article = {}
+            article['url'] = i.find('a')['href']
+            if article['url'].startswith('/'):
+                article['url'] = 'https://cooking.nytimes.com' + article['url']
+            article['title'] = i.find('h3').text.strip()
+            author = i.find('p', class_='card-byline')
+            article['author'] = author.text if author is not None else 'Unknown'
+            feed.append(article)
+
+        return [('Recipes', feed)]
