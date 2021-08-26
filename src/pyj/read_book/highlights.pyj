@@ -441,7 +441,7 @@ class EditNotesAndColors:  # {{{
     def set_visibility_of_remove_button(self):
         c = self.container
         item = c.querySelector('.current-swatch.custom-style')
-        c.querySelector('.remove-custom-color').style.display = 'block' if item else 'none'
+        c.querySelector('.remove-custom-color').style.display = 'flex' if item else 'none'
 
     def add_color(self, hs, at_start):
         if self.seen_colors[hs.key]:
