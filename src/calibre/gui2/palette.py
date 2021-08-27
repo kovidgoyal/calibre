@@ -28,7 +28,7 @@ def dark_palette():
     p.setColor(QPalette.ColorRole.BrightText, Qt.GlobalColor.red)
     p.setColor(QPalette.ColorRole.Link, dark_link_color)
 
-    p.setColor(QPalette.ColorRole.Highlight, QColor(0x1b, 0x65, 0xe4))
+    p.setColor(QPalette.ColorRole.Highlight, QColor(0x0b, 0x45, 0xc4))
     p.setColor(QPalette.ColorRole.HighlightedText, dark_text_color)
     p.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, disabled_color)
 
