@@ -23,6 +23,31 @@
 # - title by author
 # }}}
 
+{{{ 5.26.0 2021-08-27
+
+:: new features
+
+- [1941013] Dark color scheme: Use a darker blue for highlighted items
+
+:: bug fixes
+
+- Content server book viewer: Show a message when a search finds no matches
+
+- MOBI Output: Fix JPEG images without any JFIF metadata not being rendered on the Kindle
+
+- [1939908] Comic input: Fix single color images having their colors changed by normalization
+
+- [1940005] E-book viewer: Fix creating multiple highlights in a single paragraph that also contains some extra text formatting at the start causing the second and subsequent highlights to malfunction
+
+- [1939912] Edit book: Fix a regression in the previous release that broke the options in the Remove unused CSS dialog
+
+:: improved recipes
+- Boston Globe
+
+:: new recipes
+- NYTimes Cooking by gourav
+}}}
+
 {{{ 5.25.0 2021-08-13
 
 :: new features
