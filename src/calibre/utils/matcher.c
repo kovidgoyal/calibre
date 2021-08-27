@@ -340,7 +340,7 @@ static void free_matcher(Matcher *self) {
     }
     nullfree(self->items); nullfree(self->item_lengths);
     nullfree(self->level1); nullfree(self->level2); nullfree(self->level3);
-    if (self->collator != NULL) ucol_close(self->collator); self->collator = NULL;
+    if (self->collator != NULL) { ucol_close(self->collator); self->collator = NULL; }
 }
 static void
 Matcher_dealloc(Matcher* self)

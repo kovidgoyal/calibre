@@ -346,7 +346,7 @@ icu_Collator_collation_order(icu_Collator *self, PyObject *a_) {
     order = ucol_next(iter, &status);
     len = ucol_getOffset(iter);
 end:
-    if (iter != NULL) ucol_closeElements(iter); iter = NULL;
+    if (iter != NULL) { ucol_closeElements(iter); iter = NULL; }
     if (a != NULL) free(a);
     if (PyErr_Occurred()) return NULL;
     return Py_BuildValue("ii", order, len);
