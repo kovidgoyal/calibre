@@ -97,7 +97,8 @@ class WSJ(BasicNewsRecipe):
 
     def get_browser_for_wsj(self, *a, **kw):
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        br.set_cookie('wsjregion', 'na,us', '.wsj.com')
+        if needs_subscription:
+            br.set_cookie('wsjregion', 'na,us', '.wsj.com')
         br.set_cookie('gdprApplies', 'false', '.wsj.com')
         br.set_cookie('ccpaApplies', 'false', '.wsj.com')
         return br
