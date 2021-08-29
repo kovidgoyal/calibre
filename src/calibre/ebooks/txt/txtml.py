@@ -150,8 +150,8 @@ class TXTMLizer(object):
         text = re.sub(r'(?u)^[ \n]+', '', text)
 
         if self.opts.max_line_length:
-            max_length = self.opts.max_line_length
-            if self.opts.max_line_length < 25 and not self.opts.force_max_line_length:
+            max_length = int(self.opts.max_line_length)
+            if max_length < 25 and not self.opts.force_max_line_length:
                 max_length = 25
             short_lines = []
             lines = text.splitlines()
