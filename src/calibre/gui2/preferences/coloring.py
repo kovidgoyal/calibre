@@ -751,10 +751,15 @@ class RulesModel(QAbstractListModel):  # {{{
         if role == Qt.ItemDataRole.UserRole:
             return (kind, col, rule)
 
-    def add_rule(self, kind, col, rule):
+    def add_rule(self, kind, col, rule, selected_row=None):
         self.beginResetModel()
-        self.rules.append((kind, col, rule))
+        if selected_row:
+            self.rules.insert(selected_row.row(), (kind, col, rule))
+        else:
+            self.rules.append((kind, col, rule))
         self.endResetModel()
+        if selected_row:
+            return self.index(selected_row.row())
         return self.index(len(self.rules)-1)
 
     def replace_rule(self, index, kind, col, r):
@@ -1081,17 +1086,19 @@ class EditRules(QWidget):  # {{{
         if d.exec_() == QDialog.DialogCode.Accepted:
             kind, col, r = d.rule
             if kind and r and col:
-                idx = self.model.add_rule(kind, col, r)
+                selected_row = self.get_first_selected_row()
+                idx = self.model.add_rule(kind, col, r, selected_row=selected_row)
                 self.rules_view.scrollTo(idx)
                 self.changed.emit()
 
     def add_advanced(self):
+        selected_row = self.get_first_selected_row()
         if self.pref_name == 'column_color_rules':
             td = TemplateDialog(self, '', mi=self.mi, fm=self.fm, color_field='')
             if td.exec_() == QDialog.DialogCode.Accepted:
                 col, r = td.rule
                 if r and col:
-                    idx = self.model.add_rule('color', col, r)
+                    idx = self.model.add_rule('color', col, r, selected_row=selected_row)
                     self.rules_view.scrollTo(idx)
                     self.changed.emit()
         else:
@@ -1102,7 +1109,7 @@ class EditRules(QWidget):  # {{{
             if td.exec_() == QDialog.DialogCode.Accepted:
                 typ, col, r = td.rule
                 if typ and r and col:
-                    idx = self.model.add_rule(typ, col, r)
+                    idx = self.model.add_rule(typ, col, r, selected_row=selected_row)
                     self.rules_view.scrollTo(idx)
                     self.changed.emit()
 
@@ -1131,12 +1138,19 @@ class EditRules(QWidget):  # {{{
                 self.rules_view.scrollTo(index)
                 self.changed.emit()
 
-    def get_selected_row(self, txt):
+    def get_first_selected_row(self):
+        r = self.get_selected_row('', show_error=False)
+        if r:
+            return r[-1]
+        return None
+
+    def get_selected_row(self, txt, show_error=True):
         sm = self.rules_view.selectionModel()
         rows = list(sm.selectedRows())
         if not rows:
-            error_dialog(self, _('No rule selected'),
-                    _('No rule selected for %s.')%txt, show=True)
+            if show_error:
+                    error_dialog(self, _('No rule selected'),
+                                 _('No rule selected for %s.')%txt, show=True)
             return None
         return sorted(rows, reverse=True)
 
