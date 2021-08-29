@@ -29,7 +29,7 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.utils.logging import Log
 from calibre.web.fetch.utils import rescale_image
-from polyglot.builtins import as_bytes, unicode_type
+from polyglot.builtins import unicode_type
 from polyglot.http_client import responses
 from polyglot.urllib import (
     URLError, quote, url2pathname, urljoin, urlparse, urlsplit, urlunparse,
@@ -65,12 +65,10 @@ class closing(object):
 def canonicalize_url(url):
     # mechanize does not handle quoting automatically
     if re.search(r'\s+', url) is not None:
-        if isinstance(url, unicode_type):
-            url = url.encode('utf-8')
         purl = list(urlparse(url))
         for i in range(2, 6):
-            purl[i] = as_bytes(quote(purl[i]))
-        url = urlunparse(purl).decode('utf-8')
+            purl[i] = quote(purl[i])
+        url = urlunparse(purl)
     return url
 
 
