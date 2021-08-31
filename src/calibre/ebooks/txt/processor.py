@@ -343,7 +343,7 @@ def detect_formatting_type(txt):
     return 'heuristic'
 
 
-def get_images_from_polyglot_text(txt: str, base_dir: str = '') -> set:
+def get_images_from_polyglot_text(txt: str, base_dir: str = '', file_ext: str = 'txt') -> set:
     from calibre.ebooks.oeb.base import OEB_IMAGES
     from calibre import guess_type
     if not base_dir:
@@ -354,17 +354,19 @@ def get_images_from_polyglot_text(txt: str, base_dir: str = '') -> set:
         if path and not os.path.isabs(path) and guess_type(path)[0] in OEB_IMAGES and os.path.exists(os.path.join(base_dir, path)):
             images.add(path)
 
-    # Textile
-    for m in re.finditer(r'(?mu)(?:[\[{])?\!(?:\. )?(?P<path>[^\s(!]+)\s?(?:\(([^\)]+)\))?\!(?::(\S+))?(?:[\]}]|(?=\s|$))', txt):
-        path = m.group('path')
-        check_path(path)
+    if file_ext in ('txt', 'text', 'textile'):
+        # Textile
+        for m in re.finditer(r'(?mu)(?:[\[{])?\!(?:\. )?(?P<path>[^\s(!]+)\s?(?:\(([^\)]+)\))?\!(?::(\S+))?(?:[\]}]|(?=\s|$))', txt):
+            path = m.group('path')
+            check_path(path)
 
-    # Markdown
-    from markdown import Markdown
-    html = HTML_TEMPLATE % ('', Markdown().convert(txt))
-    from html5_parser import parse
-    root = parse(html)
-    for img in root.iterdescendants('img'):
-        path = img.get('src')
-        check_path(path)
+    if file_ext in ('txt', 'text', 'md', 'markdown'):
+        # Markdown
+        from markdown import Markdown
+        html = HTML_TEMPLATE % ('', Markdown().convert(txt))
+        from html5_parser import parse
+        root = parse(html)
+        for img in root.iterdescendants('img'):
+            path = img.get('src')
+            check_path(path)
     return images

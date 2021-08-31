@@ -54,21 +54,19 @@ class TXT2TXTZ(FileTypePlugin):
         'containing Markdown or Textile references to images. The referenced '
         'images as well as the TXT file are added to the archive.')
     version = numeric_version
-    file_types = {'txt', 'text'}
+    file_types = {'txt', 'text', 'md', 'markdown', 'textile'}
     supported_platforms = ['windows', 'osx', 'linux']
     on_import = True
 
-    def _get_image_references(self, txt, base_dir):
-        from calibre.ebooks.txt.processor import get_images_from_polyglot_text
-        return get_images_from_polyglot_text(txt, base_dir)
-
     def run(self, path_to_ebook):
         from calibre.ebooks.metadata.opf2 import metadata_to_opf
+        from calibre.ebooks.txt.processor import get_images_from_polyglot_text
 
         with open(path_to_ebook, 'rb') as ebf:
             txt = ebf.read().decode('utf-8', 'replace')
         base_dir = os.path.dirname(path_to_ebook)
-        images = self._get_image_references(txt, base_dir)
+        ext = path_to_ebook.rpartition('.')[-1].lower()
+        images = get_images_from_polyglot_text(txt, base_dir, ext)
 
         if images:
             # Create TXTZ and put file plus images inside of it.

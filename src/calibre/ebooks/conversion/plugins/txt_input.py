@@ -152,7 +152,9 @@ class TXTInput(InputFormatPlugin):
             zf.extractall('.')
 
             for x in walk('.'):
-                if os.path.splitext(x)[1].lower() in ('.txt', '.text'):
+                ext = os.path.splitext(x)[1].lower()
+                if ext in ('.txt', '.text', '.textile', '.md', '.markdown'):
+                    file_ext = ext
                     with open(x, 'rb') as tf:
                         txt += tf.read() + b'\n\n'
             if os.path.exists('metadata.opf'):
@@ -168,10 +170,17 @@ class TXTInput(InputFormatPlugin):
                     if txt_formatting is not None and txt_formatting.text:
                         txt_formatting = txt_formatting.text.strip()
                         if txt_formatting in ('plain', 'textile', 'markdown') and options.formatting_type == 'auto':
-                            log.info(f'Using metadata from TXTZ archive to set text formmating type to: {txt_formatting}')
+                            log.info(f'Using metadata from TXTZ archive to set text formating type to: {txt_formatting}')
                             options.formatting_type = txt_formatting
                             if txt_formatting != 'plain':
                                 options.paragraph_type = 'off'
+            if options.formatting_type == 'auto':
+                if file_ext == 'textile':
+                    options.formatting_type = txt_formatting
+                    options.paragraph_type = 'off'
+                elif file_ext in ('md', 'markdown'):
+                    options.formatting_type = txt_formatting
+                    options.paragraph_type = 'off'
         else:
             if getattr(stream, 'name', None):
                 base_dir = os.path.dirname(stream.name)
