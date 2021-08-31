@@ -77,7 +77,7 @@ def get_issue_data(br, log, node_id='1126213', year='2020', volnum='99', issue_v
         field_issue_volume=issue_vol, field_issue_year=year,
         field_issue_volume_number=volnum
     ))[0]['_source']
-    main_sec_title = issue_data['field_issue_sspecial_header'][0]
+    main_sec_title = issue_data['title'][0]
     main_sec_nids = issue_data['field_issue_sspecial_articles__nid']
     articles_data = get_data(make_query(nid=main_sec_nids, filter=True, size=len(main_sec_nids)))
     articles = []
