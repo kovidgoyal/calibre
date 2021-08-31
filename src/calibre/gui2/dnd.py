@@ -14,6 +14,7 @@ from qt.core import (
     QTimer, QUrl, QVBoxLayout
 )
 from threading import Thread
+from contextlib import suppress
 
 from calibre import as_unicode, browser, prints
 from calibre.constants import DEBUG, iswindows
@@ -169,8 +170,9 @@ def path_from_qurl(qurl, allow_remote=False):
     if lf:
         if iswindows:
             from calibre_extensions.winutil import get_long_path_name
-            lf = get_long_path_name(lf)
-            lf = make_long_path_useable(lf)
+            with suppress(OSError):
+                lf = get_long_path_name(lf)
+                lf = make_long_path_useable(lf)
         return lf
     if not allow_remote:
         return ''
