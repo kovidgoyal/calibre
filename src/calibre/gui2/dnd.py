@@ -172,7 +172,7 @@ def path_from_qurl(qurl, allow_remote=False):
             from calibre_extensions.winutil import get_long_path_name
             with suppress(OSError):
                 lf = get_long_path_name(lf)
-                lf = make_long_path_useable(lf)
+            lf = make_long_path_useable(lf)
         return lf
     if not allow_remote:
         return ''
