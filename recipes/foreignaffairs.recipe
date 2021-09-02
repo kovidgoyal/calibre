@@ -136,7 +136,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         classes('article-header article-body article-lead-image article-body-text'),
     ]
     remove_tags = [
-        classes('print-hidden loading-indicator paywall article-footer')
+        classes('loading-indicator paywall article-footer')
     ]
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
