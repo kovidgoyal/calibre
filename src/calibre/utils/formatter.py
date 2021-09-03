@@ -926,7 +926,7 @@ class _Interpreter(object):
     def do_node_first_non_empty(self, prog):
         for expr in prog.expression_list:
             v = self.expr(expr)
-            if v == self.expr(expr):
+            if v:
                 if self.break_reporter:
                     self.break_reporter(prog.node_name, v, prog.line_number)
                 return v
