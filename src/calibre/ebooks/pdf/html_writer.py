@@ -619,12 +619,20 @@ def annotate_toc(toc, anchor_locations, name_anchor_map, log):
         child.pdf_loc = loc
 
 
-def add_toc(pdf_parent, toc_parent):
+def add_toc(pdf_parent, toc_parent, log, pdf_doc):
     for child in toc_parent:
         title, loc = child.title, child.pdf_loc
-        pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
+        try:
+            pdf_child = pdf_parent.create(title, loc.pagenum, True, loc.left, loc.top, loc.zoom)
+        except ValueError:
+            if loc.pagenum > 1:
+                log.warn(f'TOC node: {title} at page: {loc.pagenum} is beyond end of file, moving it to last page')
+                pdf_child = pdf_parent.create(title, pdf_doc.page_count(), True, loc.left, loc.top, loc.zoom)
+            else:
+                log.warn(f'Ignoring TOC node: {title} at page: {loc.pagenum}')
+                continue
         if len(child):
-            add_toc(pdf_child, child)
+            add_toc(pdf_child, child, log, pdf_doc)
 
 
 def get_page_number_display_map(render_manager, opts, num_pages, log):
@@ -1078,7 +1086,7 @@ def convert(opf_path, opts, metadata=None, output_path=None, log=default_log, co
 
     fix_links(pdf_doc, anchor_locations, name_anchor_map, opts.pdf_mark_links, log)
     if toc and len(toc):
-        add_toc(PDFOutlineRoot(pdf_doc), toc)
+        add_toc(PDFOutlineRoot(pdf_doc), toc, log, pdf_doc)
     report_progress(0.75, _('Added links to PDF content'))
 
     pdf_metadata = PDFMetadata(metadata)
