@@ -264,24 +264,28 @@ def group_sort(locations):
 
 def get_checkable_file_names(container):
     file_names = [name for name, linear in container.spine_names] + [container.opf_name]
-    for f in (find_existing_ncx_toc, find_existing_nav_toc):
-        toc = f(container)
-        if toc is not None and container.exists(toc) and toc not in file_names:
-            file_names.append(toc)
-    return file_names, toc
+    ncx_toc = find_existing_ncx_toc(container)
+    if ncx_toc is not None and container.exists(ncx_toc) and ncx_toc not in file_names:
+        file_names.append(ncx_toc)
+    else:
+        ncx_toc = None
+    toc = find_existing_nav_toc(container)
+    if toc is not None and container.exists(toc) and toc not in file_names:
+        file_names.append(toc)
+    return file_names, ncx_toc
 
 
 def get_all_words(container, book_locale, get_word_count=False):
     words = defaultdict(list)
     words[None] = 0
-    file_names, toc = get_checkable_file_names(container)
+    file_names, ncx_toc = get_checkable_file_names(container)
     for file_name in file_names:
         if not container.exists(file_name):
             continue
         root = container.parsed(file_name)
         if file_name == container.opf_name:
             read_words_from_opf(root, words, file_name, book_locale)
-        elif file_name == toc:
+        elif file_name == ncx_toc:
             read_words_from_ncx(root, words, file_name, book_locale)
         elif hasattr(root, 'xpath'):
             read_words_from_html(root, words, file_name, book_locale)
@@ -294,14 +298,14 @@ def get_all_words(container, book_locale, get_word_count=False):
 
 def count_all_chars(container, book_locale):
     ans = CharCounter()
-    file_names, toc = get_checkable_file_names(container)
+    file_names, ncx_toc = get_checkable_file_names(container)
     for file_name in file_names:
         if not container.exists(file_name):
             continue
         root = container.parsed(file_name)
         if file_name == container.opf_name:
             count_chars_in_opf(root, ans, file_name, book_locale)
-        elif file_name == toc:
+        elif file_name == ncx_toc:
             count_chars_in_ncx(root, ans, file_name, book_locale)
         elif hasattr(root, 'xpath'):
             count_chars_in_html(root, ans, file_name, book_locale)

@@ -143,7 +143,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
                                       'the item in all books in your library. Is '
                                       'this really what you want to do?') + '</p>',
                                     yes_text=_('Yes, apply in entire library'),
-                                    no_text=_('No, apply only in VL'),
+                                    no_text=_('No, apply only in Virtual library'),
                                     skip_dialog_name='tag_item_rename_in_entire_library')
         if self.completion_data:
             editor = EditWithComplete(parent)
