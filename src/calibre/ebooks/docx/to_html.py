@@ -473,7 +473,7 @@ class Convert(object):
                     self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(itervalues(self.anchor_map)))
                     if old_anchor is not None:
                         # The previous anchor was not applied to any element
-                        for a, t in tuple(iteritems(self.anchor_map)):
+                        for a, t in tuple(self.anchor_map.items()):
                             if t == old_anchor:
                                 self.anchor_map[a] = current_anchor
             elif x.tag.endswith('}hyperlink'):
@@ -489,8 +489,18 @@ class Convert(object):
                         if t == old_anchor:
                             self.anchor_map[a] = current_anchor
         if current_anchor is not None:
-            # This paragraph had no <w:r> descendants
-            dest.set('id', current_anchor)
+            if dest.get('id'):
+                # this bookmark was at the end of the paragraph
+                if len(dest):
+                    if dest[-1].get('id'):
+                        self.anchor_map[current_anchor] = dest[-1].get('id')
+                    else:
+                        dest[-1].set('id', current_anchor)
+                else:
+                    self.anchor_map[current_anchor] = dest.get('id')
+            else:
+                # This paragraph had no <w:r> descendants
+                dest.set('id', current_anchor)
             current_anchor = None
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
