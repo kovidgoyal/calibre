@@ -56,12 +56,13 @@ class Stylizer(Sz):
 
 class TextRun(object):
 
-    ws_pat = None
+    ws_pat = soft_hyphen_pat = None
 
     def __init__(self, namespace, style, first_html_parent, lang=None):
         self.first_html_parent = first_html_parent
         if self.ws_pat is None:
             TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
+            TextRun.soft_hyphen_pat = self.soft_hyphen_pat = re.compile('(\u00ad)')
         self.style = style
         self.texts = []
         self.link = None
@@ -98,6 +99,12 @@ class TextRun(object):
         if len(rpr) > 0:
             r.append(rpr)
 
+        def add_text(text, preserve_whitespace):
+            t = makeelement(r, 'w:t')
+            t.text = text
+            if preserve_whitespace:
+                t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+
         for text, preserve_whitespace, bookmark in self.texts:
             if bookmark is not None:
                 bid = links_manager.bookmark_id
@@ -107,10 +114,14 @@ class TextRun(object):
             elif hasattr(text, 'xpath'):
                 r.append(text)
             else:
-                t = makeelement(r, 'w:t')
-                t.text = text or ''
-                if preserve_whitespace:
-                    t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+                if text:
+                    for x in self.soft_hyphen_pat.split(text):
+                        if x == '\u00ad':
+                            makeelement(r, 'w:softHyphen')
+                        elif x:
+                            add_text(x, preserve_whitespace)
+                else:
+                    add_text('', preserve_whitespace)
             if bookmark is not None:
                 makeelement(r, 'w:bookmarkEnd', w_id=unicode_type(bid))
 
