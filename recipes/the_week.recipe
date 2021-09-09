@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2021, Kovid Goyal <kovid at kovidgoyal.net>
+
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def fix_title(title):
+    return title.replace('-', ' ').capitalize()
+
+
+class TheWeek(BasicNewsRecipe):
+    title = u'The Week'
+    language = 'en_IN'
+    __author__ = 'Kovid Goyal'
+    encoding = 'utf-8'
+    oldest_article = 15  # days
+    max_articles_per_feed = 25
+    no_stylesheets = True
+    use_embedded_content = True
+    ignore_duplicate_articles = {'url'}
+
+    feeds = [
+        ('Cover Story', 'https://www.theweek.in/theweek/cover.rss'),
+        ('Sports', 'https://www.theweek.in/theweek/sports.rss'),
+        ('Current', 'https://www.theweek.in/theweek/current.rss'),
+        ('Statescan', 'https://www.theweek.in/theweek/statescan.rss'),
+        ('Leisure', 'https://www.theweek.in/theweek/leisure.rss'),
+        ('Business', 'https://www.theweek.in/theweek/business.rss'),
+        ('Specials', 'https://www.theweek.in/theweek/specials.rss'),
+        ('More', 'https://www.theweek.in/theweek/more.rss'),
+        ('Society', 'https://www.theweek.in/leisure/society.rss'),
+    ]
+
+    def get_cover_url(self):
+        soup = self.index_to_soup('https://www.theweek.in/theweek.html')
+        for img in soup.findAll('img', attrs={'data-src-web': lambda x: x and '/cover-magazine' in x}):
+            src = img['data-src-web']
+            try:
+                idx = src.rfind('.image.')
+            except Exception:
+                pass
+            else:
+                if idx > -1:
+                    src = src[:idx]
+            return 'https://img.theweek.in' + src
+
+    def preprocess_html(self, soup):
+        a = soup.find('a')
+        a.name = 'span'
+        h2 = soup.find('h2')
+        h2.string = fix_title(h2.string)
+        return soup
+
+    def populate_article_metadata(self, article, soup, first):
+        article.title = fix_title(article.title)
