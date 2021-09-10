@@ -15,7 +15,7 @@ class TheWeek(BasicNewsRecipe):
     language = 'en_IN'
     __author__ = 'Kovid Goyal'
     encoding = 'utf-8'
-    oldest_article = 15  # days
+    oldest_article = 8  # days
     max_articles_per_feed = 25
     no_stylesheets = True
     use_embedded_content = True
