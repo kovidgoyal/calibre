@@ -681,7 +681,13 @@ class BasicNewsRecipe(Recipe):
         except Exception:
             self.log.error('Failed to parse url: %r, ignoring' % url)
             return frozenset()
-        return frozenset([(parts.netloc, (parts.path or '').rstrip('/'))])
+        nl = parts.netloc
+        path = parts.path or ''
+        if isinstance(nl, bytes):
+            nl = nl.decode('utf-8', 'replace')
+        if isinstance(path, bytes):
+            path = path.decode('utf-8', 'replace')
+        return frozenset({(nl, path.rstrip('/'))})
 
     def index_to_soup(self, url_or_raw, raw=False, as_tree=False, save_raw=None):
         '''
