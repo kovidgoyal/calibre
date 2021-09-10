@@ -1,4 +1,3 @@
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -13,12 +12,9 @@ class IndiaToday(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-        ('Latest News', 'http://indiatoday.intoday.in/rss/article.jsp?sid=4'),
-        ('Cover Story', 'http://indiatoday.intoday.in/rss/article.jsp?sid=30'),
-        ('Nation', 'http://indiatoday.intoday.in/rss/article.jsp?sid=36'),
-        ('States', 'http://indiatoday.intoday.in/rss/article.jsp?sid=21'),
-        ('Economy', 'http://indiatoday.intoday.in/rss/article.jsp?sid=34'),
-        ('World', 'http://indiatoday.intoday.in/rss/article.jsp?sid=61'),
-        ('Sport', 'http://indiatoday.intoday.in/rss/article.jsp?sid=41'),
-
+        ('The Big Story', 'https://www.indiatoday.in/rss/1206614'),
+        ('Cover Story', 'https://www.indiatoday.in/rss/1206509'),
+        ('Nation', 'https://www.indiatoday.in/rss/1206514'),
+        ('States', 'https://www.indiatoday.in/rss/1206500'),
+        ('Economy', 'https://www.indiatoday.in/rss/1206513'),
     ]
