@@ -48,7 +48,7 @@ class TheWeek(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         a = soup.find('a')
-        a.name = 'span'
+        a.name = 'div'
         h2 = soup.find('h2')
         h2.string = fix_title(h2.string)
         return soup
