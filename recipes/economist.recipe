@@ -31,7 +31,7 @@ def process_node(node, html_parent):
     ntype = node.get('type')
     if ntype == 'tag':
         c = html_parent.makeelement(node['name'])
-        c.attrib.update(node.get('attribs', {}))
+        c.attrib.update({k: v or '' for k, v in node.get('attribs', {}).items()})
         html_parent.append(c)
         for nc in node.get('children', ()):
             process_node(nc, c)
@@ -236,7 +236,7 @@ class Economist(BasicNewsRecipe):
 
     def parse_index(self):
         # return [('Articles', [{'title':'test',
-        #     'url':'file:///t/raw.html'
+        #     'url':'https://www.economist.com/briefing/2021/09/11/how-america-wasted-its-unipolar-moment'
         # }])]
         if edition_date:
             url = 'https://www.economist.com/weeklyedition/' + edition_date
