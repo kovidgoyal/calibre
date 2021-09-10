@@ -23,6 +23,36 @@
 # - title by author
 # }}}
 
+{{{ 5.27.0 2021-09-10
+
+:: new features
+
+- When adding markdown (.md) or textile (.textile) files that contain references to images, automatically add them as txtz with the images
+
+:: bug fixes
+
+- DOCX Output: Correctly convert soft hyphens in the input document to DOCX soft hyphens
+
+- [1942805] DOCX Input: Fix a bookmark at the end of a paragraph causing the bookmark at the start of the paragraph to be skipped
+
+- [1942773] Edit book: Spell check: Fix EPUB 3 nav document not being spell checked when not in the spine
+
+- [1942012] PDF Output: Fix a rare failure when the input document has a ToC item pointing to the last page
+
+- [1942129] Windows: Fix a regression in calibre 5 that caused drag and drop from WinZip to not work
+
+- [1941992] TXT Output: Fix a regression in calibre 5 that caused the max line length option to not work
+
+- When auto converting added TXT files with image references to TXTZ use a full markdown parser to detect markdown images
+
+:: improved recipes
+- BBC News
+- Foreign Affairs
+
+:: new recipes
+- The Week by Kovid Goyal
+}}}
+
 {{{ 5.26.0 2021-08-27
 
 :: new features
