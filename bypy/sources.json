@@ -544,8 +544,8 @@
     {
         "name": "unrardll",
         "unix": {
-            "filename": "unrardll-0.1.3.tar.gz",
-            "hash": "sha256:5f214ab1ec24208c6ee353f2d836e536968d5379b7140129f04aa3a52bc56a5e",
+            "filename": "unrardll-0.1.5.tar.gz",
+            "hash": "sha256:8bebb480b96cd49d4290d814914f39cff75cf0fa0514c4790bb32b1757227c78",
             "urls": ["pypi"]
         }
     },
