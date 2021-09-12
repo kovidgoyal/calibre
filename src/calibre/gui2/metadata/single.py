@@ -708,13 +708,11 @@ class MetadataSingleDialogBase(QDialog):
             next_ = self.db.title(self.row_list[self.current_row+1])
 
         if next_ is not None:
-            tip = (_('Save changes and edit the metadata of %s')+
-                    ' [Alt+Right]')%next_
+            tip = _('Save changes and edit the metadata of {} [Alt+Right]').format(next_)
             self.next_button.setToolTip(tip)
         self.next_button.setEnabled(next_ is not None)
         if prev is not None:
-            tip = (_('Save changes and edit the metadata of %s')+
-                    ' [Alt+Left]')%prev
+            tip = _('Save changes and edit the metadata of {} [Alt+Left]').format(prev)
             self.prev_button.setToolTip(tip)
         self.prev_button.setEnabled(prev is not None)
         self.button_box.button(QDialogButtonBox.StandardButton.Ok).setDefault(True)
