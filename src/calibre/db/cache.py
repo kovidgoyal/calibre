@@ -1230,8 +1230,8 @@ class Cache(object):
                 else:
                     v = sid = None
                 if sid is None and name.startswith('#'):
-                    extra = self._fast_field_for(sfield, k)
-                    sid = extra or 1.0  # The value to be set the db link table
+                    sid = self._fast_field_for(sfield, k)
+                    sid = 1.0 if sid is None else sid # The value to be set the db link table
                 bimap[k] = v
                 if sid is not None:
                     simap[k] = sid
@@ -1244,11 +1244,11 @@ class Cache(object):
             sf = self.fields[f.name+'_index']
             dirtied |= sf.writer.set_books(simap, self.backend, allow_case_change=False)
 
-        if dirtied and update_path and do_path_update:
-            self._update_path(dirtied, mark_as_dirtied=False)
-
-        self._mark_as_dirty(dirtied)
-        self.event_dispatcher(EventType.metadata_changed, name, dirtied)
+        if dirtied:
+            if update_path and do_path_update:
+                self._update_path(dirtied, mark_as_dirtied=False)
+            self._mark_as_dirty(dirtied)
+            self.event_dispatcher(EventType.metadata_changed, name, dirtied)
         return dirtied
 
     @write_api
