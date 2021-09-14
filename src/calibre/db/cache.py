@@ -1231,7 +1231,7 @@ class Cache(object):
                     v = sid = None
                 if sid is None and name.startswith('#'):
                     sid = self._fast_field_for(sfield, k)
-                    sid = 1.0 if sid is None else sid # The value to be set the db link table
+                    sid = 1.0 if sid is None else sid  # The value to be set the db link table
                 bimap[k] = v
                 if sid is not None:
                     simap[k] = sid

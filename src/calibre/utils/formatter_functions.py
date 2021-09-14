@@ -15,6 +15,7 @@ __docformat__ = 'restructuredtext en'
 import inspect, re, traceback, numbers
 from datetime import datetime, timedelta
 from math import trunc, floor, ceil, modf
+from contextlib import suppress
 
 from calibre import human_readable, prints
 from calibre.constants import DEBUG
@@ -1266,12 +1267,10 @@ class BuiltinAnnotationCount(BuiltinFormatterFunction):
                       'This function works only in the GUI.')
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        try:
+        with suppress(Exception):
             from calibre.gui2.ui import get_gui
             c = get_gui().current_db.new_api.annotation_count_for_book(mi.id)
             return '' if c == 0 else unicode_type(c)
-        except:
-            pass
         return _('This function can be used only in the GUI')
 
 
@@ -1285,12 +1284,10 @@ class BuiltinIsMarked(BuiltinFormatterFunction):
                       "marks. Returns '' if the book is not marked.")
 
     def evaluate(self, formatter, kwargs, mi, locals):
-        try:
+        with suppress(Exception):
             from calibre.gui2.ui import get_gui
             c = get_gui().current_db.data.get_marked(mi.id)
             return c if c else ''
-        except:
-            pass
         return _('This function can be used only in the GUI')
 
 
@@ -1758,12 +1755,10 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
                       'column\'s value in your save/send templates')
 
     def evaluate(self, formatter, kwargs, mi, locals_):
-        try:
+        with suppress(Exception):
             from calibre.gui2.ui import get_gui
             a = get_gui().current_db.data.get_virtual_libraries_for_books((mi.id,))
             return ', '.join(a[mi.id])
-        except:
-            pass
         return _('This function can be used only in the GUI')
 
 
@@ -1861,7 +1856,7 @@ class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
                       "'carda' and 'cardb'. This function works only in the GUI.")
 
     def evaluate(self, formatter, kwargs, mi, locals, storage_location):
-        try:
+        with suppress(Exception):
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
             from calibre.gui2.ui import get_gui
@@ -1877,11 +1872,9 @@ class BuiltinConnectedDeviceName(BuiltinFormatterFunction):
                 if storage_location not in info:
                     return ''
                 return info[storage_location]['device_name']
-            except:
+            except Exception:
                 traceback.print_exc()
                 raise
-        except:
-            pass
         return _('This function can be used only in the GUI')
 
 
@@ -1897,7 +1890,7 @@ class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
                       "the GUI.")
 
     def evaluate(self, formatter, kwargs, mi, locals, storage_location):
-        try:
+        with suppress(Exception):
             # Do the import here so that we don't entangle the GUI when using
             # command line functions
             from calibre.gui2.ui import get_gui
@@ -1913,11 +1906,9 @@ class BuiltinConnectedDeviceUUID(BuiltinFormatterFunction):
                 if storage_location not in info:
                     return ''
                 return info[storage_location]['device_store_uuid']
-            except:
+            except Exception:
                 traceback.print_exc()
                 raise
-        except:
-            pass
         return _('This function can be used only in the GUI')
 
 

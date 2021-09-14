@@ -18,6 +18,8 @@ from calibre.utils.date import (
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.icu import strcmp
 
+missing = object()
+
 # Convert data into values suitable for the db {{{
 
 
@@ -196,10 +198,10 @@ def one_one_in_books(book_id_val_map, db, field, *args):
     # We can't do this for the cover because the file might change without
     # the presence-of-cover flag changing
     if field.name != 'cover':
-        book_id_val_map = {k:v for k, v in iteritems(book_id_val_map)
-            if v != field.table.book_col_map.get(k, None)}
+        g = field.table.book_col_map.get
+        book_id_val_map = {k:v for k, v in book_id_val_map.items() if v != g(k, missing)}
     if book_id_val_map:
-        sequence = ((sqlite_datetime(v), k) for k, v in iteritems(book_id_val_map))
+        sequence = ((sqlite_datetime(v), k) for k, v in book_id_val_map.items())
         db.executemany(
             'UPDATE books SET %s=? WHERE id=?'%field.metadata['column'], sequence)
         field.table.book_col_map.update(book_id_val_map)
@@ -215,15 +217,15 @@ def set_title(book_id_val_map, db, field, *args):
     ans = one_one_in_books(book_id_val_map, db, field, *args)
     # Set the title sort field if the title changed
     field.title_sort_field.writer.set_books(
-        {k:title_sort(v) for k, v in iteritems(book_id_val_map) if k in ans}, db)
+        {k:title_sort(v) for k, v in book_id_val_map.items() if k in ans}, db)
     return ans
 
 
 def one_one_in_other(book_id_val_map, db, field, *args):
     'Set a one-one field in the non-books table, like comments'
     # Ignore those items whose value is the same as the current value
-    book_id_val_map = {k:v for k, v in iteritems(book_id_val_map)
-        if v != field.table.book_col_map.get(k, None)}
+    g = field.table.book_col_map.get
+    book_id_val_map = {k:v for k, v in iteritems(book_id_val_map) if v != g(k, missing)}
     deleted = tuple((k,) for k, v in iteritems(book_id_val_map) if v is None)
     if deleted:
         db.executemany('DELETE FROM %s WHERE book=?'%field.metadata['table'],
@@ -247,7 +249,7 @@ def custom_series_index(book_id_val_map, db, field, *args):
         if sidx is None:
             sidx = 1.0
         if ids:
-            if field.table.book_col_map.get(book_id, None) != sidx:
+            if field.table.book_col_map.get(book_id, missing) != sidx:
                 sequence.append((sidx, book_id, ids[0]))
                 field.table.book_col_map[book_id] = sidx
         else:
@@ -433,11 +435,11 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
                         field.author_sort_field.writer.set_books({book_id:new_sort}, db)
 
     book_id_item_id_map = {k:tuple(val_map[v] for v in vals)
-                           for k, vals in iteritems(book_id_val_map)}
+                           for k, vals in book_id_val_map.items()}
 
     # Ignore those items whose value is the same as the current value
-    book_id_item_id_map = {k:v for k, v in iteritems(book_id_item_id_map)
-        if v != table.book_col_map.get(k, tuple())}
+    g = table.book_col_map.get
+    book_id_item_id_map = {k:v for k, v in book_id_item_id_map.items() if v != g(k, missing)}
     dirtied |= set(book_id_item_id_map)
 
     # Update the book->col and col->book maps
@@ -495,8 +497,8 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
 def identifiers(book_id_val_map, db, field, *args):  # {{{
     # Ignore those items whose value is the same as the current value
-    book_id_val_map = {k:v for k, v in iteritems(book_id_val_map)
-        if v != field.table.book_col_map.get(k, None)}
+    g = field.table.book_col_map.get
+    book_id_val_map = {k:v for k, v in book_id_val_map.items() if v != g(k, missing)}
 
     table = field.table
     updates = set()
