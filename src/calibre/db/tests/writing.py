@@ -837,3 +837,66 @@ class WritingTest(BaseTest):
         self.assertEqual([x[0] for x in annot_list], map_as_list(amap))
 
     # }}}
+
+    def test_changed_events(self):  # {{{
+        def ae(l, r):
+            # We need to sleep a bit to allow events to happen on its thread
+            import time
+            time.sleep(.001)
+            self.assertEqual(l, r)
+
+        cache = self.init_cache(self.cloned_library)
+        ae(cache.all_book_ids(), {1, 2, 3})
+
+        event_set = set()
+
+        def event_func(t, library_id, *args):
+            nonlocal event_set, ae
+            event_set.update(args[0][1])
+        cache.add_listener(event_func)
+
+        # Test that setting metadata to itself doesn't generate any events
+        for id_ in cache.all_book_ids():
+            cache.set_metadata(id_, cache.get_metadata(id_))
+
+        ae(event_set, set())
+
+        # test setting a single field
+        cache.set_field('tags', {1:'foo'})
+        ae(event_set, {1})
+
+        # test setting multiple books. Book 1 shouldn't get an event because it
+        # isn't being changed
+        event_set = set()
+        cache.set_field('tags', {1:'foo', 2:'bar', 3:'mumble'})
+        ae(event_set, {2, 3})
+
+        # test setting title
+        event_set = set()
+        cache.set_field('title', {1:'Book 1'})
+        ae(event_set, {1})
+        ae(cache.field_for('title', 1), 'Book 1')
+
+        # test setting series
+        event_set = set()
+        cache.set_field('series', {1:'GreatBooks [1]'})
+        cache.set_field('series', {2:'GreatBooks [0]'})
+        ae(event_set, {1,2})
+        ae(cache.field_for('series', 1), 'GreatBooks')
+        ae(cache.field_for('series_index', 1), 1.0)
+        ae(cache.field_for('series', 2), 'GreatBooks')
+        ae(cache.field_for('series_index', 2), 0.0)
+
+        # now series_index
+        event_set = set()
+        cache.set_field('series_index', {1:2})
+        ae(event_set, {1})
+        ae(cache.field_for('series_index', 1), 2.0)
+        event_set = set()
+        cache.set_field('series_index', {1:2, 2:3.5}) # book 1 isn't changed
+        ae(event_set, {2})
+        ae(cache.field_for('series_index', 1), 2.0)
+        ae(cache.field_for('series_index', 2), 3.5)
+
+    # }}}
+
