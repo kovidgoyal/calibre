@@ -192,6 +192,12 @@ def get_adapter(name, metadata):
 
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
+    # Ignore those items whose value is the same as the current value
+    # We can't do this for the cover because the file might change without
+    # the presence-of-cover flag changing
+    if field.name != 'cover':
+        book_id_val_map = {k:v for k, v in iteritems(book_id_val_map)
+            if v != field.table.book_col_map.get(k, None)}
     if book_id_val_map:
         sequence = ((sqlite_datetime(v), k) for k, v in iteritems(book_id_val_map))
         db.executemany(
@@ -207,14 +213,17 @@ def set_uuid(book_id_val_map, db, field, *args):
 
 def set_title(book_id_val_map, db, field, *args):
     ans = one_one_in_books(book_id_val_map, db, field, *args)
-    # Set the title sort field
+    # Set the title sort field if the title changed
     field.title_sort_field.writer.set_books(
-        {k:title_sort(v) for k, v in iteritems(book_id_val_map)}, db)
+        {k:title_sort(v) for k, v in iteritems(book_id_val_map) if k in ans}, db)
     return ans
 
 
 def one_one_in_other(book_id_val_map, db, field, *args):
     'Set a one-one field in the non-books table, like comments'
+    # Ignore those items whose value is the same as the current value
+    book_id_val_map = {k:v for k, v in iteritems(book_id_val_map)
+        if v != field.table.book_col_map.get(k, None)}
     deleted = tuple((k,) for k, v in iteritems(book_id_val_map) if v is None)
     if deleted:
         db.executemany('DELETE FROM %s WHERE book=?'%field.metadata['table'],
@@ -234,12 +243,13 @@ def custom_series_index(book_id_val_map, db, field, *args):
     series_field = field.series_field
     sequence = []
     for book_id, sidx in book_id_val_map.items():
+        ids = series_field.ids_for_book(book_id)
         if sidx is None:
             sidx = 1.0
-        ids = series_field.ids_for_book(book_id)
         if ids:
-            sequence.append((sidx, book_id, ids[0]))
-            field.table.book_col_map[book_id] = sidx
+            if field.table.book_col_map.get(book_id, None) != sidx:
+                sequence.append((sidx, book_id, ids[0]))
+                field.table.book_col_map[book_id] = sidx
         else:
             # the series has been deleted from the book, which means no row for
             # it exists in the series table. The series_index value should be
@@ -427,7 +437,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
     # Ignore those items whose value is the same as the current value
     book_id_item_id_map = {k:v for k, v in iteritems(book_id_item_id_map)
-        if v != table.book_col_map.get(k, None)}
+        if v != table.book_col_map.get(k, tuple())}
     dirtied |= set(book_id_item_id_map)
 
     # Update the book->col and col->book maps
@@ -484,6 +494,10 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
 
 def identifiers(book_id_val_map, db, field, *args):  # {{{
+    # Ignore those items whose value is the same as the current value
+    book_id_val_map = {k:v for k, v in iteritems(book_id_val_map)
+        if v != field.table.book_col_map.get(k, None)}
+
     table = field.table
     updates = set()
     for book_id, identifiers in iteritems(book_id_val_map):
