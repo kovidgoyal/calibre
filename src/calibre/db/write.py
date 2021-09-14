@@ -439,7 +439,8 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
     # Ignore those items whose value is the same as the current value
     g = table.book_col_map.get
-    book_id_item_id_map = {k:v for k, v in book_id_item_id_map.items() if v != g(k, missing)}
+    not_set = ()
+    book_id_item_id_map = {k:v for k, v in book_id_item_id_map.items() if v != g(k, not_set)}
     dirtied |= set(book_id_item_id_map)
 
     # Update the book->col and col->book maps
