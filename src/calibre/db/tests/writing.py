@@ -871,6 +871,14 @@ class WritingTest(BaseTest):
         cache.set_field('tags', {1:'foo', 2:'bar', 3:'mumble'})
         ae(event_set, {2, 3})
 
+        # test setting a many-many field to empty
+        event_set = set()
+        cache.set_field('tags', {1:''})
+        ae(event_set, {1,})
+        event_set = set()
+        cache.set_field('tags', {1:''})
+        ae(event_set, set())
+
         # test setting title
         event_set = set()
         cache.set_field('title', {1:'Book 1'})
