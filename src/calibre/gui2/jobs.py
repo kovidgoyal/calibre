@@ -518,7 +518,7 @@ class JobsButton(QWidget):  # {{{
         self._jobs.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         b = _('Click to see list of jobs')
-        self.setToolTip(b + ' [%s]'%self.shortcut)
+        self.setToolTip(b + _(' [Alt+Shift+J]')
         self.action_toggle = QAction(b, parent)
         parent.addAction(self.action_toggle)
         self.action_toggle.triggered.connect(self.toggle)
