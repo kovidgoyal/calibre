@@ -6,6 +6,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json, time, random
 from base64 import standard_b64encode
+from datetime import date, timedelta
 
 from mechanize import Request
 
@@ -97,8 +98,7 @@ class WSJ(BasicNewsRecipe):
 
     def get_browser_for_wsj(self, *a, **kw):
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        if needs_subscription:
-            br.set_cookie('wsjregion', 'na,us', '.wsj.com')
+        br.set_cookie('wsjregion', 'na,us', '.wsj.com')
         br.set_cookie('gdprApplies', 'false', '.wsj.com')
         br.set_cookie('ccpaApplies', 'false', '.wsj.com')
         return br
@@ -167,6 +167,16 @@ class WSJ(BasicNewsRecipe):
         def get_browser(self, *a, **kw):
             br = self.get_browser_for_wsj(*a, **kw)
             res = br.open(self.WSJ_ITP)
+            url = res.geturl()
+            if '/20210913/' in url:
+                today = date.today()
+                q = today.isoformat().replace('-', '')
+                try:
+                    res = br.open(url.replace('/20210913/', '/' + q + '/'))
+                except Exception:
+                    today -= timedelta(days=1)
+                    q = today.isoformat().replace('-', '')
+                    res = br.open(url.replace('/20210913/', '/' + q + '/'))
             self.log('Print edition resolved url:', res.geturl())
             self.wsj_itp_page = res.read()
             return br
