@@ -43,6 +43,9 @@ class FoxNews(BasicNewsRecipe):
         dict(name='h1'),
         classes('byline author date source article-info article-body featured-image'),
     ]
+    remove_tags = [
+        classes('featured-video video-container'),
+    ]
 
     feeds = [(u'Latest Headlines', u'http://feeds.foxnews.com/foxnews/latest'),
              (u'National', u'http://feeds.foxnews.com/foxnews/national'),
