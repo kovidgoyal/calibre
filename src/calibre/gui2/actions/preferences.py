@@ -36,6 +36,9 @@ class PreferencesAction(InterfaceAction):
             pm.addSeparator()
             cm('restart', _('Restart in debug mode'), icon='debug.png',
                     triggered=self.debug_restart, shortcut='Ctrl+Shift+R')
+        pm.addSeparator()
+        cm('restart_without_plugins', _('Restart ignoring third party plugins'), icon='debug.png',
+            triggered=self.no_plugins_restart, shortcut='Ctrl+Alt+Shift+R')
 
         self.preferences_menu = pm
         for x in (self.gui.preferences_action, self.qaction):
@@ -72,3 +75,6 @@ class PreferencesAction(InterfaceAction):
 
     def debug_restart(self, *args):
         self.gui.quit(restart=True, debug_on_restart=True)
+
+    def no_plugins_restart(self, *args):
+        self.gui.quit(restart=True, no_plugins_on_restart=True)

@@ -1060,7 +1060,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.stack.tb_widget.save_state()
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
-            confirm_quit=True):
+            confirm_quit=True, no_plugins_on_restart=False):
         if self.shutting_down:
             return
         if confirm_quit and not self.confirm_quit():
@@ -1072,6 +1072,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             traceback.print_exc()
         self.restart_after_quit = restart
         self.debug_on_restart = debug_on_restart
+        self.no_plugins_on_restart = no_plugins_on_restart
         if self.system_tray_icon is not None and self.restart_after_quit:
             # Needed on windows to prevent multiple systray icons
             self.system_tray_icon.setVisible(False)

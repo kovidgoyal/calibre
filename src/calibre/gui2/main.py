@@ -29,7 +29,7 @@ from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
 from polyglot.builtins import as_bytes, environ_item, range, unicode_type
 
-after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False}
+after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False, 'no_plugins_on_restart': False}
 if iswindows:
     from calibre_extensions import winutil
 
@@ -110,6 +110,8 @@ def find_portable_library():
 def init_qt(args):
     parser = option_parser()
     opts, args = parser.parse_args(args)
+    if os.environ.pop('CALIBRE_IGNORE_PLUGINS_ON_RESTART', '') == '1':
+        opts.ignore_plugins = True
     find_portable_library()
     if opts.with_library is not None:
         libpath = os.path.expanduser(opts.with_library)
@@ -421,6 +423,7 @@ def run_gui_(opts, args, app, gui_debug=None):
     if getattr(runner.main, 'restart_after_quit', False):
         after_quit_actions['restart_after_quit'] = True
         after_quit_actions['debug_on_restart'] = getattr(runner.main, 'debug_on_restart', False) or gui_debug is not None
+        after_quit_actions['no_plugins_on_restart'] = getattr(runner.main, 'no_plugins_on_restart', False)
     else:
         if iswindows:
             try:
@@ -491,6 +494,8 @@ def restart_after_quit():
     if iswindows and not is_calibre_debug_exe:
         # detach the stdout/stderr/stdin handles
         winutil.prepare_for_restart()
+    if after_quit_actions['no_plugins_on_restart']:
+        os.environ['CALIBRE_IGNORE_PLUGINS_ON_RESTART'] = '1'
     if after_quit_actions['debug_on_restart']:
         run_in_debug_mode()
         return
