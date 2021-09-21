@@ -172,4 +172,13 @@ def flip_images(raw):
             continue
         flip_image(img, flip)
     raw = re.sub(r'<STYLE.+?</STYLE>\s*', '', raw, flags=re.I|re.DOTALL)
+
+    counter = 0
+
+    def add_alt(m):
+        nonlocal counter
+        counter += 1
+        return m.group(1).rstrip('/') + f' alt="Image {counter}"/>'
+
+    raw = re.sub('(<IMG[^>]+)/?>', add_alt, raw, flags=re.I)
     return raw
