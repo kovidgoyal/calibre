@@ -7,7 +7,7 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os
-from PIL import Image
+from PIL import Image, ImageOps
 from io import BytesIO
 
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
@@ -22,13 +22,19 @@ from polyglot.builtins import iteritems, unicode_type
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa
 
 
-def ensure_jpeg_has_jfif(data: bytes) -> bytes:
-    # Amazon's MOBI renderer can render JPEG images without JFIF metadata
+def process_jpegs_for_amazon(data: bytes) -> bytes:
     img = Image.open(BytesIO(data))
-    if img.format == 'JPEG' and not img.info:
-        out = BytesIO()
-        img.save(out, img.format)
-        data = out.getvalue()
+    if img.format == 'JPEG':
+        # Amazon's MOBI renderer cant render JPEG images without JFIF metadata
+        # and images with EXIF data dont get displayed on the cover screen
+        changed = not img.info
+        if hasattr(img, '_getexif') and img._getexif():
+            changed = True
+            img = ImageOps.exif_transpose(img)
+        if changed:
+            out = BytesIO()
+            img.save(out, 'JPEG')
+            data = out.getvalue()
     return data
 
 
@@ -53,10 +59,10 @@ class Resources(object):
 
     def process_image(self, data):
         if not self.process_images:
-            return data
+            return process_jpegs_for_amazon(data)
         func = mobify_image if self.opts.mobi_keep_original_images else rescale_image
         try:
-            return ensure_jpeg_has_jfif(func(data))
+            return process_jpegs_for_amazon(func(data))
         except Exception:
             if 'png' != what(None, data):
                 raise
@@ -104,7 +110,7 @@ class Resources(object):
                 self.convert_webp(item)
             try:
                 data = self.process_image(item.data)
-            except:
+            except Exception:
                 self.log.warn('Bad image file %r' % item.href)
                 continue
             else:
@@ -122,13 +128,12 @@ class Resources(object):
                     self.cover_offset = self.item_map[item.href] - 1
                     self.used_image_indices.add(self.cover_offset)
                     try:
-                        data = rescale_image(item.data, dimen=MAX_THUMB_DIMEN,
-                            maxsizeb=MAX_THUMB_SIZE)
+                        tdata = rescale_image(data, dimen=MAX_THUMB_DIMEN, maxsizeb=MAX_THUMB_SIZE)
                     except:
                         self.log.warn('Failed to generate thumbnail')
                     else:
                         self.image_indices.add(len(self.records))
-                        self.records.append(data)
+                        self.records.append(tdata)
                         self.thumbnail_offset = index - 1
                         self.used_image_indices.add(self.thumbnail_offset)
                         index += 1
