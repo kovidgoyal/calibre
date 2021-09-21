@@ -701,7 +701,7 @@ def scroll_to(cfi, callback, doc):  # {{{
     if jstype(decoded.time) is 'number':
         set_current_time(decoded.node, decoded.time)
 
-    if decoded.range is not None:
+    def handle_text_node():
         # Character offset
         r = decoded.range
         so, eo = r.startOffset, r.endOffset
@@ -721,7 +721,7 @@ def scroll_to(cfi, callback, doc):  # {{{
         span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
         r.surroundContents(span)
         scroll_viewport.scroll_into_view(span)
-        fn = def():
+        return def():
             nonlocal original_node, r
             # Remove the span and get the new position now that scrolling
             # has (hopefully) completed
@@ -770,7 +770,8 @@ def scroll_to(cfi, callback, doc):  # {{{
 
             if callback:
                 callback(doc_x, doc_y)
-    else:
+
+    def handle_element_node():
         node = decoded.node
         if node.nodeType is Node.TEXT_NODE:
             node = decoded.node = node.parentNode
@@ -778,7 +779,7 @@ def scroll_to(cfi, callback, doc):  # {{{
             return
         scroll_viewport.scroll_into_view(node)
 
-        fn = def():
+        return def():
             doc_x, doc_y = decoded_node_or_spatial_offset_to_document_position(decoded)
 
             # Abort if CFI position is invalid
@@ -795,6 +796,11 @@ def scroll_to(cfi, callback, doc):  # {{{
                 doc_x += scroll_viewport.width()
             if callback:
                 callback(doc_x, doc_y)
+
+    if decoded.range is not None:
+        fn = handle_text_node()
+    else:
+        fn = handle_element_node()
 
     setTimeout(fn, 10)
 
