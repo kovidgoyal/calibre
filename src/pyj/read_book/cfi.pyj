@@ -632,6 +632,13 @@ def decoded_range_to_document_position(decoded):
     # Character offset
     # Get the bounding rect of the range, in (real) viewport space
     rect = decoded.range.getBoundingClientRect()
+    inserted_node = None
+    if not rect.width and not rect.height and not rect.left and not rect.right:
+        # this happens is range is a text node containing a newline after a
+        # <br>
+        inserted_node = document.createTextNode('\xa0')
+        decoded.range.insertNode(inserted_node)
+        rect = decoded.range.getBoundingClientRect()
 
     # Now, get the viewport-space position (vs_pos) we want to scroll to
     # This is a little complicated.
@@ -656,6 +663,8 @@ def decoded_range_to_document_position(decoded):
     else:
         block_vs_pos = scroll_viewport.rect_block_start(rect)
 
+    if inserted_node:
+        inserted_node.parentNode.removeChild(inserted_node)
     # Now, we need to convert these to document X and Y coordinates.
     return scroll_viewport.viewport_to_document_inline_block(inline_vs_pos, block_vs_pos, decoded.node.ownerDocument)
 
