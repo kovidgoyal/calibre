@@ -635,7 +635,7 @@ def decoded_range_to_document_position(decoded):
     inserted_node = None
     if not rect.width and not rect.height and not rect.left and not rect.right:
         # this happens is range is a text node containing a newline after a
-        # <br>
+        # <br> https://bugs.launchpad.net/bugs/1944433
         inserted_node = document.createTextNode('\xa0')
         decoded.range.insertNode(inserted_node)
         rect = decoded.range.getBoundingClientRect()
