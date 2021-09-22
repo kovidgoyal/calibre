@@ -122,6 +122,12 @@ def create_tree(root, populate_data, onclick):
             li.lastChild.style.display = 'none'
             change_icon_image(li.firstChild.firstChild, 'caret-right')
 
+    def bullet(icon):
+        ans = svgicon(icon, '2ex', '2ex')
+        ans.style.minWidth = '2ex'
+        ans.style.minHeight = '2ex'
+        return ans
+
     def process_node(node, parent_container, level):
         if node.children?.length:
             ul = E.div()
@@ -130,7 +136,7 @@ def create_tree(root, populate_data, onclick):
                 icon = 'caret-right' if child.children?.length else None
                 li = E.div(style='display:flex; flex-direction:column; margin: 1ex 1em; margin-left: {}em'.format(level+1),
                     E.div(style='display:flex; align-items: center',
-                        svgicon(icon),
+                        bullet(icon),
                         E.span('\xa0'),
                         E.a(
                             href='javascript: void(0)',
