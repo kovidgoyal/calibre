@@ -1,23 +1,28 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
-
+import os
 from collections import OrderedDict
-
+from contextlib import suppress
+from copy import deepcopy
 from qt.core import (
-    QWidget, QHBoxLayout, QTabWidget, QLabel, QSizePolicy, QSize, QFormLayout,
-    QSpinBox, pyqtSignal, QPixmap, QDialog, QVBoxLayout, QDialogButtonBox,
-    QListWidget, QListWidgetItem, Qt, QGridLayout, QPushButton, QIcon, QApplication,
-    QColorDialog, QToolButton, QLineEdit, QColor, QFrame, QTimer, QCheckBox)
+    QApplication, QCheckBox, QColor, QColorDialog, QDialog, QDialogButtonBox,
+    QFormLayout, QFrame, QGridLayout, QHBoxLayout, QIcon, QInputDialog, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMenu, QPixmap, QPushButton, QSize,
+    QSizePolicy, QSpinBox, Qt, QTabWidget, QTimer, QToolButton, QVBoxLayout, QWidget,
+    pyqtSignal
+)
 
-from calibre.ebooks.covers import all_styles, cprefs, generate_cover, override_prefs, default_color_themes
-from calibre.gui2 import gprefs, error_dialog
+from calibre.constants import config_dir
+from calibre.ebooks.covers import (
+    all_styles, cprefs, default_color_themes, generate_cover, override_prefs
+)
+from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.utils.date import now
-from calibre.utils.icu import sort_key
+from calibre.utils.filenames import make_long_path_useable
+from calibre.utils.icu import primary_sort_key, sort_key
 from polyglot.builtins import iteritems, itervalues
 
 
@@ -504,6 +509,20 @@ class CoverSettingsWidget(QWidget):
             for k, v in iteritems(self.current_prefs):
                 self.original_prefs[k] = v
 
+    @property
+    def serialized_prefs(self) -> bytes:
+        from calibre.utils.serialize import json_dumps
+        c = dict(deepcopy(self.original_prefs))
+        c.update(self.current_prefs)
+        return json_dumps(c, indent=2)
+
+    @serialized_prefs.setter
+    def serialized_prefs(self, val: bytes) -> None:
+        from calibre.utils.serialize import json_loads
+        prefs = json_loads(val)
+        self.apply_prefs(prefs)
+        self.update_preview()
+
 
 class CoverSettingsDialog(QDialog):
 
@@ -522,6 +541,14 @@ class CoverSettingsDialog(QDialog):
         bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         bb.b = b = bb.addButton(_('Restore &defaults'), QDialogButtonBox.ButtonRole.ActionRole)
         b.clicked.connect(self.restore_defaults)
+        bb.ld = b = bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.clicked.connect(self.export_settings)
+        b.setToolTip(_('Save the current cover generation settings for later re-use'))
+        bb.sd = b = bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        self.load_menu = QMenu(b)
+        self.load_menu.aboutToShow.connect(self.populate_load_menu)
+        b.setMenu(self.load_menu)
+        b.setToolTip(_('Load previously saved cover generation settings'))
         ss.setToolTip('<p>' + _(
             'Save the current settings as the settings to use always instead of just this time. Remember that'
             ' for styles and colors the actual style or color used is chosen at random from'
@@ -536,6 +563,33 @@ class CoverSettingsDialog(QDialog):
     def restore_defaults(self):
         self.settings.restore_defaults()
         self.settings.save_as_prefs()
+
+    def export_settings(self):
+        name, ok = QInputDialog.getText(self, _('Name for these settings'), _('Theme name:'), text=_('My cover style'))
+        if ok:
+            base = os.path.join(config_dir, 'cover-generation-themes')
+            os.makedirs(base, exist_ok=True)
+            path = make_long_path_useable(os.path.join(base, name + '.json'))
+            raw = self.settings.serialized_prefs
+            with open(path, 'wb') as f:
+                f.write(raw)
+
+    def populate_load_menu(self):
+        m = self.load_menu
+        m.clear()
+        base = os.path.join(config_dir, 'cover-generation-themes')
+        entries = ()
+        with suppress(FileNotFoundError):
+            entries = sorted((x.rpartition('.')[0] for x in os.listdir(base) if x.endswith('.json')), key=primary_sort_key)
+        for name in entries:
+            m.addAction(name, self.import_settings)
+
+    def import_settings(self):
+        fname = self.sender().text() + '.json'
+        base = os.path.join(config_dir, 'cover-generation-themes')
+        with open(os.path.join(base, fname), 'rb') as f:
+            raw = f.read()
+        self.settings.serialized_prefs = raw
 
     def _save_settings(self):
         gprefs.set('cover_generation_save_settings_for_future', self.save_settings.isChecked())
