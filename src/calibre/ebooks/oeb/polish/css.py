@@ -501,7 +501,10 @@ def add_stylesheet_links(container, name, text):
 
 
 def rename_class_in_rule_list(css_rules, old_name, new_name):
-    pat = re.compile(rf'\b{re.escape(old_name)}\b')
+    # this regex will not match class names inside attribute value selectors
+    # and it will match id selectors that contain .old_name but its the best
+    # that can be done without implementing a full parser for CSS selectors
+    pat = re.compile(rf'(?<=\.){re.escape(old_name)}\b')
     changed = False
     for rule in css_rules:
         if rule.type == rule.STYLE_RULE:
