@@ -1031,8 +1031,9 @@ class BookDetails(QWidget):  # {{{
 
         def search_term(field, val):
             append = ''
-            if QApplication.instance().keyboardModifiers() & Qt.KeyboardModifier.ControlModifier:
-                append = 'OR'
+            mods = QApplication.instance().keyboardModifiers()
+            if mods & Qt.KeyboardModifier.ControlModifier:
+                append = 'AND' if mods & Qt.KeyboardModifier.ShiftModifier else 'OR'
 
             self.search_requested.emit(
                 '{}:"={}"'.format(field, val.replace('"', '\\"')),
