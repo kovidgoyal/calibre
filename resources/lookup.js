@@ -18,7 +18,10 @@
             setTimeout(fix_google_markup, 100);
             return;
         }
+        cc.style.maxWidth = max_width;
         cc.style.marginLeft = '0';
+        var rcnt = document.getElementById('rcnt');
+        if (rcnt) rcnt.style.marginLeft = '0';
         cc = document.getElementById('cnt');
         if (cc) cc.style.paddingTop = '0';
         var s = document.getElementById('search');
@@ -29,7 +32,7 @@
             cc.style.position = 'absolute';
             cc.style.top = '0';
             cc.style.left = '0';
-            var remove = ['sfcnt', 'top_nav', 'before-appbar', 'appbar', 'searchform', 'easter-egg'];
+            var remove = ['sfcnt', 'top_nav', 'before-appbar', 'appbar', 'searchform', 'easter-egg', 'topstuff'];
             remove.forEach(function(id) {
                 var elem = document.getElementById(id);
                 if (elem) elem.style.display = 'none';
