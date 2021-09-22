@@ -1,24 +1,24 @@
-# -*- coding: utf-8 -*-
-
-
-__license__ = 'GPL 3'
-__copyright__ = '2009, John Schember <john@nachtimwald.com>'
-__docformat__ = 'restructuredtext en'
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2009, John Schember <john@nachtimwald.com>
 
 import os
+from contextlib import suppress
+from qt.core import (
+    QApplication, QBrush, QByteArray, QDialog, QDialogButtonBox, Qt, QTextCursor,
+    QTextEdit, QWidget, pyqtSignal
+)
 
-from qt.core import (QDialog, QWidget, QDialogButtonBox, QApplication,
-        QBrush, QTextCursor, QTextEdit, QByteArray, Qt, pyqtSignal)
-
+from calibre.constants import iswindows
+from calibre.ebooks.conversion.search_replace import compile_regular_expression
+from calibre.gui2 import choose_files, error_dialog, gprefs
 from calibre.gui2.convert.regex_builder_ui import Ui_RegexBuilder
 from calibre.gui2.convert.xexp_edit_ui import Ui_Form as Ui_Edit
-from calibre.gui2 import error_dialog, choose_files, gprefs
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
-from calibre.constants import iswindows
-from calibre.utils.ipc.simple_worker import fork_job, WorkerError
-from calibre.ebooks.conversion.search_replace import compile_regular_expression
 from calibre.ptempfile import TemporaryFile
-from polyglot.builtins import unicode_type, range, native_string_type
+from calibre.utils.icu import utf16_length
+from calibre.utils.ipc.simple_worker import WorkerError, fork_job
+from polyglot.builtins import native_string_type, range, unicode_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):
@@ -82,6 +82,11 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
     def do_test(self):
         selections = []
         self.match_locs = []
+
+        class Pos:
+            python: int = 0
+            qt: int = 0
+
         if self.regex_valid():
             text = unicode_type(self.preview.toPlainText())
             regex = unicode_type(self.regex.text())
@@ -89,15 +94,18 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
             extsel = QTextEdit.ExtraSelection()
             extsel.cursor = cursor
             extsel.format.setBackground(QBrush(Qt.GlobalColor.yellow))
-            try:
+            with suppress(Exception):
+                prev = Pos()
                 for match in compile_regular_expression(regex).finditer(text):
                     es = QTextEdit.ExtraSelection(extsel)
-                    es.cursor.setPosition(match.start(), QTextCursor.MoveMode.MoveAnchor)
-                    es.cursor.setPosition(match.end(), QTextCursor.MoveMode.KeepAnchor)
+                    qtchars_to_start = utf16_length(text[prev.python:match.start()])
+                    qt_pos = prev.qt + qtchars_to_start
+                    prev.python = match.end()
+                    prev.qt = qt_pos + utf16_length(match.group())
+                    es.cursor.setPosition(qt_pos, QTextCursor.MoveMode.MoveAnchor)
+                    es.cursor.setPosition(prev.qt, QTextCursor.MoveMode.KeepAnchor)
                     selections.append(es)
-                    self.match_locs.append((match.start(), match.end()))
-            except:
-                pass
+                    self.match_locs.append((qt_pos, prev.qt))
         self.preview.setExtraSelections(selections)
         if self.match_locs:
             self.next.setEnabled(True)
@@ -271,3 +279,13 @@ class RegexEdit(QWidget, Ui_Edit):
 
     def check(self):
         return True
+
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    d = RegexBuilder(None, None, 'a', doc='😉123abc XYZabc')
+    d.do_test()
+    d.exec_()
+    del d
+    del app
