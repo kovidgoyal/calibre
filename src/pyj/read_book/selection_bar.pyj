@@ -238,6 +238,7 @@ class SelectionBar:
         self.end_handle_id = unique_id('handle')
         self.bar_id = unique_id('bar')
         self.editor_id = unique_id('editor')
+        self.quick_highlight_styles = v'[]'
         # Sensible defaults until we get information from a selection message.
         self.ltr = True
         self.rtl = False
@@ -330,6 +331,7 @@ class SelectionBar:
             if ac and (not ac.needs_highlight or v'!!annot_id'):
                 bar.appendChild(cb(ac, self[ac.function_name]))
         selection_bar_quick_highlights = sd.get('selection_bar_quick_highlights')
+        self.quick_highlight_styles = v'[]'
         if selection_bar_quick_highlights?.length:
             self.show_quick_highlight_buttons(bar, selection_bar_quick_highlights)
         self.show_notes(bar_container, notes)
@@ -340,15 +342,23 @@ class SelectionBar:
         actions = [a for a in actions if all[a]]
         if not actions.length:
             return
+        actions.pysort(key=def (a): return (all[a].friendly_name or '').toLowerCase();)
+        self.quick_highlight_styles = actions
         bar.appendChild(E.div(
             style=f'background: currentColor; width: 1px; height: {ICON_SIZE}; margin-left: {BUTTON_MARGIN}; margin-right: {BUTTON_MARGIN}'
         ))
         dark = self.view.current_color_scheme.is_dark_theme
-        for key in actions:
+        for i, key in enumerate(actions):
             hs = all[key]
+            if i < 9:
+                sc = i + 1
+            elif i == 10:
+                sc = 0
+            else:
+                sc = None
             sw = E.div(
                 class_='simple-link', style=f'margin-left: {BUTTON_MARGIN}; margin-right: {BUTTON_MARGIN}',
-                title=_('Highlight using: {}').format(hs.friendly_name),
+                title=_('Highlight using: {name}{sc}').format(name=hs.friendly_name, sc=f' [{sc}]' if sc is not None else ''),
                 onclick=self.quick_highlight_with_style.bind(None, hs),
             )
             hs.make_swatch(sw, dark)
@@ -602,6 +612,19 @@ class SelectionBar:
                 return
             if k is 'delete' or k is 'd':
                 self.remove_highlight()
+                return
+            if k in '0123456789':
+                all = {x.key:x for x in all_styles()}
+                k = int(k)
+                if k is 0:
+                    k = 9
+                else:
+                    k -= 1
+                key = self.quick_highlight_styles[k]
+                if key:
+                    hs = all[key]
+                    if hs:
+                        self.quick_highlight_with_style(hs)
                 return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
         if not sc_name:
