@@ -901,10 +901,9 @@ class WritingTest(BaseTest):
         ae(event_set, {1})
         ae(cache.field_for('series_index', 1), 2.0)
         event_set = set()
-        cache.set_field('series_index', {1:2, 2:3.5}) # book 1 isn't changed
+        cache.set_field('series_index', {1:2, 2:3.5})  # book 1 isn't changed
         ae(event_set, {2})
         ae(cache.field_for('series_index', 1), 2.0)
         ae(cache.field_for('series_index', 2), 3.5)
 
     # }}}
-
