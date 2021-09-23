@@ -8,7 +8,6 @@ import re
 import weakref
 from collections import defaultdict
 from contextlib import contextmanager
-
 from html5_parser import parse
 from lxml import html
 from qt.core import (
@@ -16,16 +15,20 @@ from qt.core import (
     QDialog, QDialogButtonBox, QFont, QFontInfo, QFontMetrics, QFormLayout,
     QHBoxLayout, QIcon, QKeySequence, QLabel, QLineEdit, QMenu, QPalette,
     QPlainTextEdit, QPushButton, QSize, QSyntaxHighlighter, Qt, QTabWidget,
-    QTextBlockFormat, QTextCharFormat, QTextCursor, QTextEdit, QTextListFormat,
-    QToolBar, QUrl, QVBoxLayout, QWidget, pyqtSignal, pyqtSlot, QToolButton, QTextFormat
+    QTextBlockFormat, QTextCharFormat, QTextCursor, QTextEdit, QTextFormat,
+    QTextListFormat, QToolBar, QToolButton, QUrl, QVBoxLayout, QWidget, pyqtSignal,
+    pyqtSlot
 )
 
 from calibre import xml_replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.gui2 import NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme
+from calibre.gui2 import (
+    NO_URL_FORMATTING, choose_files, error_dialog, gprefs, is_dark_theme
+)
 from calibre.gui2.book_details import css
 from calibre.gui2.widgets import LineEditECM
 from calibre.gui2.widgets2 import to_plain_text
+from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
 from polyglot.builtins import filter, iteritems, itervalues, unicode_type
@@ -717,7 +720,10 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
         if not check and '<img' not in raw.lower():
             return ''
 
-        root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+        try:
+            root = parse(raw, maybe_xhtml=False, sanitize_names=True)
+        except Exception:
+            root = parse(clean_xml_chars(raw), maybe_xhtml=False, sanitize_names=True)
         if root.xpath('//meta[@name="calibre-dont-sanitize"]'):
             # Bypass cleanup if special meta tag exists
             return original_html
