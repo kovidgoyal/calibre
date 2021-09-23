@@ -191,7 +191,7 @@ def all_actions():
             'search': a('search', _('Search for selection in the book') + ' [F]', 'book_search'),
             'bookmark': a('bookmark', _('Create a bookmark') + ' [Ctrl+Alt+B]', 'new_bookmark'),
             'search_net': a('global-search', _('Search for selection on the net') + ' [S]', 'internet_search'),
-            'remove_highlight': a('trash', _('Remove this highlight') + ' [Delete]', 'remove_highlight', True),
+            'remove_highlight': a('trash', _('Remove this highlight') + ' [Delete or D]', 'remove_highlight', True),
             'clear': a('close', _('Clear selection') + ' [Esc]', 'clear_selection'),
             'speak': a('bullhorn', _('Read aloud') + ' [T]', 'speak_aloud'),
             'cite': a('reference-mode', _('Copy citation to clipboard') + ' [X]', 'cite'),
@@ -600,7 +600,7 @@ class SelectionBar:
             if k is 'x':
                 self.cite()
                 return
-            if k is 'delete':
+            if k is 'delete' or k is 'd':
                 self.remove_highlight()
                 return
         sc_name = shortcut_for_key_event(ev, self.view.keyboard_shortcut_map)
