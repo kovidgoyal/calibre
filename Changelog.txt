@@ -23,6 +23,38 @@
 # - title by author
 # }}}
 
+{{{ 5.28.0 2021-09-24
+
+:: new features
+
+- Edit metadata dialog: Customize cover generation: Allow saving and loading cover generation settings as "themes"
+
+- [1944614] E-book viewer: Allow pressing the 0-9 keys to apply a quick highlight style
+
+- [1943521] Book details panel: While clicking tags/authors/etc. holding down the Ctrl+Shift modifier keys now add the tag to the current search with "AND" instead of "OR" when using only Ctrl
+
+- [1944057] Add an option to the preferences drop down menu to restart calibre without third party plugins
+
+:: bug fixes
+
+- [1944562] Edit book: When renaming classes in style sheets only recognize class names preceded by a period
+
+- E-book viewer: Fix lookup in Google partially hidden due to change in Google results page markup
+
+- Conversion dialog: Search replace expression builder: Fix incorrect search result highlighting when non-BMP unicode characters are present in the text
+
+- [1943270] E-book viewer: Fix popup footnote blank when the footnote link points to a <body> tag
+
+- [1944433] E-book viewer: Fix jumping to highlights in text that occurs after a line break and newline character not working in paged mode
+
+- [1943495] Kindle Output: Strip EXIF metadata from JPEG images as the Kindle renderer has issues with it
+
+:: improved recipes
+- Аргументы и Факты
+- India Today
+
+}}}
+
 {{{ 5.27.0 2021-09-10
 
 :: new features
