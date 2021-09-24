@@ -422,6 +422,14 @@ class Smarts(NullSmarts):
         tag = find_closest_containing_block_tag(block, offset)
 
         if tag is not None:
+            if tag.name == 'body':
+                ntag = find_closest_containing_block_tag(block, offset + 1)
+                if ntag is not None and ntag.name != 'body':
+                    tag = ntag
+                elif offset > 0:
+                    ntag = find_closest_containing_block_tag(block, offset - 1)
+                    if ntag is not None and ntag.name != 'body':
+                        tag = ntag
             closing_tag = find_closing_tag(tag)
             if closing_tag is None:
                 return error_dialog(editor, _('Invalid HTML'), _(
