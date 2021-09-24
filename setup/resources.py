@@ -315,7 +315,7 @@ class Resources(Command):  # {{{
         if self.newer(dest, [src]):
             self.info('\tCreating changelog.json')
             from setup.changelog import parse
-            with open(src) as f:
+            with open(src, encoding='utf-8') as f:
                 dump_json(parse(f.read(), parse_dates=False), dest)
 
     def clean(self):
