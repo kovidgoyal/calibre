@@ -723,8 +723,10 @@ class Smarts(NullSmarts):
         if key == Qt.Key.Key_Home and smart_home(editor, ev):
             return True
 
-        if key == Qt.Key.Key_Tab and smart_tab(editor, ev):
-            return True
+        if key == Qt.Key.Key_Tab:
+            mods = ev.modifiers()
+            if not mods & Qt.KeyboardModifier.ControlModifier and smart_tab(editor, ev):
+                return True
 
         if key == Qt.Key.Key_Backspace and smart_backspace(editor, ev):
             return True
