@@ -583,7 +583,7 @@ class IdentifiersField(ManyToManyField):
                 ids = default_value.copy()  # in case default_value is a mutable dict
             except AttributeError:
                 ids = default_value
-        return ids
+        return ids.copy()
 
     def sort_keys_for_books(self, get_metadata, lang_map):
         'Sort by identifier keys'
