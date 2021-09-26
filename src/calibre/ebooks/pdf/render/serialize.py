@@ -301,6 +301,7 @@ class PDFStream(object):
         i = QImage(1, 1, QImage.Format.Format_ARGB32)
         i.fill(qRgba(0, 0, 0, 255))
         self.alpha_bit = i.constBits().asstring(4).find(b'\xff')
+        self.bw_image_color_table = frozenset((QColor(Qt.GlobalColor.black).rgba(), QColor(Qt.GlobalColor.white).rgba()))
 
     @property
     def page_tree(self):
@@ -426,9 +427,7 @@ class PDFStream(object):
 
         fmt = img.format()
         image = QImage(img)
-        if (image.depth() == 1 and img.colorTable().size() == 2 and
-            img.colorTable().at(0) == QColor(Qt.GlobalColor.black).rgba() and
-            img.colorTable().at(1) == QColor(Qt.GlobalColor.white).rgba()):
+        if image.depth() == 1 and frozenset(img.colorTable()) == self.bw_image_color_table:
             if fmt == QImage.Format.Format_MonoLSB:
                 image = image.convertToFormat(QImage.Format.Format_Mono)
             fmt = QImage.Format.Format_Mono
