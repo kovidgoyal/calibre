@@ -577,8 +577,10 @@ class ManyToManyField(Field):
 class IdentifiersField(ManyToManyField):
 
     def for_book(self, book_id, default_value=None):
-        ids = self.table.book_col_map.get(book_id, ())
-        if not ids:
+        ids = self.table.book_col_map.get(book_id, None)
+        if ids:
+            ids = ids.copy()
+        else:
             try:
                 ids = default_value.copy()  # in case default_value is a mutable dict
             except AttributeError:
