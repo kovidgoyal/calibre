@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re
+import sys, os, re, textwrap
 from functools import partial
 
 from qt.core import (
@@ -297,7 +297,12 @@ class Diff(Dialog):
         self.hl = QHBoxLayout()
         l.addLayout(self.hl, l.rowCount(), 0, 1, -1)
         self.names = QLabel('')
-        self.hl.addWidget(self.names, r)
+        self.hl.addWidget(self.names, stretch=100)
+        if self.show_open_in_editor:
+            self.edit_msg = QLabel(_('Double click right side to edit'))
+            self.edit_msg.setToolTip(textwrap.fill(_(
+                'Double click on any change in the right panel to edit that location in the editor')))
+            self.hl.addWidget(self.edit_msg)
 
         self.bb.setStandardButtons(QDialogButtonBox.StandardButton.Close)
         if self.revert_button_msg is not None:
@@ -306,7 +311,7 @@ class Diff(Dialog):
             b.clicked.connect(self.revert_requested)
             b.clicked.connect(self.reject)
         self.bb.button(QDialogButtonBox.StandardButton.Close).setDefault(True)
-        self.hl.addWidget(self.bb, r)
+        self.hl.addWidget(self.bb)
 
         self.view.setFocus(Qt.FocusReason.OtherFocusReason)
 
@@ -363,10 +368,10 @@ class Diff(Dialog):
         QApplication.restoreOverrideCursor()
 
     def set_names(self, names):
+        t = ''
         if isinstance(names, tuple):
-            self.names.setText('%s <--> %s' % names)
-        else:
-            self.names.setText('')
+            t = '%s <--> %s' % names
+        self.names.setText(t)
 
     def ebook_diff(self, path1, path2, names=None):
         self.set_names(names)
