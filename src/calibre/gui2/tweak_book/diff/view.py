@@ -1,34 +1,34 @@
 #!/usr/bin/env python
 # vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2014, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__ = 'GPL v3'
-__copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
-
-import re, unicodedata
+import re
+import regex
+import unicodedata
+from collections import OrderedDict, namedtuple
+from difflib import SequenceMatcher
+from functools import partial
 from itertools import chain
 from math import ceil
-from functools import partial
-from collections import namedtuple, OrderedDict
-from difflib import SequenceMatcher
-from polyglot.builtins import iteritems, unicode_type, zip, range, as_bytes, map
-
-import regex
 from qt.core import (
-    QSplitter, QApplication, QTimer, QEvent,
-    QTextCursor, QTextCharFormat, Qt, QRect, QPainter, QPalette, QPen, QBrush,
-    QColor, QTextLayout, QCursor, QFont, QSplitterHandle, QPainterPath, QPlainTextEdit,
-    QHBoxLayout, QWidget, QScrollBar, QEventLoop, pyqtSignal, QImage, QPixmap,
-    QMenu, QIcon, QKeySequence)
+    QApplication, QBrush, QColor, QCursor, QEvent, QEventLoop, QFont, QHBoxLayout,
+    QIcon, QImage, QKeySequence, QMenu, QPainter, QPainterPath, QPalette, QPen,
+    QPixmap, QPlainTextEdit, QRect, QScrollBar, QSplitter, QSplitterHandle, Qt,
+    QTextCharFormat, QTextCursor, QTextLayout, QTimer, QWidget, pyqtSignal
+)
 
-from calibre import human_readable, fit_image
+from calibre import fit_image, human_readable
 from calibre.gui2 import info_dialog
 from calibre.gui2.tweak_book import tprefs
-from calibre.gui2.tweak_book.editor.text import PlainTextEdit, default_font_family, LineNumbers
-from calibre.gui2.tweak_book.editor.themes import theme_color, get_theme
 from calibre.gui2.tweak_book.diff import get_sequence_matcher
 from calibre.gui2.tweak_book.diff.highlight import get_highlighter
+from calibre.gui2.tweak_book.editor.text import (
+    LineNumbers, PlainTextEdit, default_font_family
+)
+from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
+from calibre.utils.icu import utf16_length
 from calibre.utils.xml_parse import safe_xml_fromstring
+from polyglot.builtins import as_bytes, iteritems, map, range, unicode_type, zip
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
@@ -44,17 +44,19 @@ class BusyCursor(object):
 
 def beautify_text(raw, syntax):
     from lxml import etree
-    from calibre.ebooks.oeb.polish.parsing import parse
-    from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree, pretty_html_tree
+
     from calibre.ebooks.chardet import strip_encoding_declarations
+    from calibre.ebooks.oeb.polish.parsing import parse
+    from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_xml_tree
     if syntax == 'xml':
         root = safe_xml_fromstring(strip_encoding_declarations(raw))
         pretty_xml_tree(root)
     elif syntax == 'css':
         import logging
-        from calibre.ebooks.oeb.base import serialize, _css_logger
-        from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
         from css_parser import CSSParser, log
+
+        from calibre.ebooks.oeb.base import _css_logger, serialize
+        from calibre.ebooks.oeb.polish.utils import setup_css_parser_serialization
         setup_css_parser_serialization(tprefs['editor_tab_stop_width'])
         log.setLevel(logging.WARN)
         log.raiseExceptions = False
@@ -887,7 +889,7 @@ class DiffSplit(QSplitter):  # {{{
                     f = QTextLayout.FormatRange()
                     f.start, f.length, f.format = pos, len(word), fmt
                     fmts.append(f)
-                pos += len(word)
+                pos += utf16_length(word)
             return block, pos, fmts
 
         lfmts, rfmts, lpos, rpos = [], [], 0, 0
