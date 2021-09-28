@@ -38,7 +38,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        classes('author article-col article-main-content'),
+        classes('author article-col article-main-content review-items'),
     ]
     remove_tags = [
         classes('inline-ad'),
