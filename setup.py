@@ -9,12 +9,12 @@ __docformat__ = 'restructuredtext en'
 import sys, os
 
 
-def check_version_info():
+def check_version_info(minver=(3, 7, 0)):
     vi = sys.version_info
-    if vi.major > 3 or (vi.major == 3 and vi[1:3] >= (7, 0)):
-        return
-    raise SystemExit(
-        'calibre requires python >= 3.7.0. Current python version: ' + '.'.join(map(str, vi[:3])))
+    if vi < minver:
+        def fmt(v):
+            return '.'.join(map(str, v[:3]))
+        exit(f'calibre requires Python >= {fmt(minver)}. Current Python version: {fmt(vi)}')
 
 
 check_version_info()
