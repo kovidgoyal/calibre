@@ -14,7 +14,7 @@ def check_version_info(minver=(3, 7, 0)):
     if vi < minver:
         def fmt(v):
             return '.'.join(map(str, v[:3]))
-        exit(f'calibre requires Python >= {fmt(minver)}. Current Python version: {fmt(vi)}')
+        exit('calibre requires Python >= {}. Current Python version: {}'.format(fmt(minver), fmt(vi)))
 
 
 check_version_info()
