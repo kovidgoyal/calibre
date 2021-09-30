@@ -49,7 +49,7 @@ class Plot(PixmapItem):
         PixmapItem.__init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize)
 
 
-class FontLoader(object):
+class FontLoader:
 
     font_map = {
                 'Swis721 BT Roman'     : 'Liberation Sans',
@@ -93,7 +93,7 @@ class FontLoader(object):
         return qfont
 
 
-class Style(object):
+class Style:
     map = collections.defaultdict(lambda : NULL)
 
     def __init__(self, style, dpi):
@@ -150,7 +150,7 @@ class BlockStyle(Style):
         )
 
 
-class ParSkip(object):
+class ParSkip:
 
     def __init__(self, parskip):
         self.height = parskip
@@ -159,7 +159,7 @@ class ParSkip(object):
         return 'Parskip: '+unicode_type(self.height)
 
 
-class TextBlock(object):
+class TextBlock:
 
     class HeightExceeded(Exception):
         pass
@@ -577,7 +577,7 @@ class Line(QGraphicsItem):
         return unicode_type(self).encode('utf-8')
 
 
-class Word(object):
+class Word:
 
     def __init__(self, string, width, height, ts, font, valign):
         self.string, self.width, self.height = string, width, height

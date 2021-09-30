@@ -86,7 +86,7 @@ def tag_regex(tagname):
                 close=r'</\s*%(t)s\s*>'%dict(t=tagname))
 
 
-class HTMLConverter(object):
+class HTMLConverter:
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)

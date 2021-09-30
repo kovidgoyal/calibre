@@ -105,7 +105,7 @@ def getimagesize(url):
         return None
 
 
-class Textile(object):
+class Textile:
     hlgn = r'(?:\<(?!>)|(?<!<)\>|\<\>|\=|[()]+(?! ))'
     vlgn = r'[\-^~]'
     clas = r'(?:\([^)]+\))'

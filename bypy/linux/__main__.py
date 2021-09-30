@@ -58,7 +58,7 @@ def binary_includes():
     ] + list(map(qt_get_dll_path, QT_DLLS))
 
 
-class Env(object):
+class Env:
 
     def __init__(self):
         self.src_root = CALIBRE_DIR

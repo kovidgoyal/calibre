@@ -119,7 +119,7 @@ def elem_style(style_rules, cls, inherited_style):
     return style
 
 
-class SubsetFonts(object):
+class SubsetFonts:
 
     '''
     Subset all embedded fonts. Must be run after CSS flattening, as it requires

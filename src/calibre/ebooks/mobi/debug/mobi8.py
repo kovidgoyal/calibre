@@ -20,7 +20,7 @@ from calibre.utils.imghdr import what
 from polyglot.builtins import iteritems, itervalues, map, unicode_type, zip, print_to_binary_file
 
 
-class FDST(object):
+class FDST:
 
     def __init__(self, raw):
         if raw[:4] != b'FDST':
@@ -48,7 +48,7 @@ class FDST(object):
         return '\n'.join(ans)
 
 
-class File(object):
+class File:
 
     def __init__(self, skel, skeleton, text, first_aid, sections):
         self.name = 'part%04d'%skel.file_number
@@ -68,7 +68,7 @@ class File(object):
                     f.write(text)
 
 
-class MOBIFile(object):
+class MOBIFile:
 
     def __init__(self, mf):
         self.mf = mf

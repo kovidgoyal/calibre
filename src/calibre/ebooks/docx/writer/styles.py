@@ -49,7 +49,7 @@ def is_dropcaps(html_tag, tag_style):
     return len(html_tag) < 2 and len(etree.tostring(html_tag, method='text', encoding='unicode', with_tail=False)) < 5 and tag_style['float'] == 'left'
 
 
-class CombinedStyle(object):
+class CombinedStyle:
 
     def __init__(self, bs, rs, blocks, namespace):
         self.bs, self.rs, self.blocks = bs, rs, blocks
@@ -81,7 +81,7 @@ class CombinedStyle(object):
         self.rs.serialize_properties(rPr, normal_style.rs)
 
 
-class FloatSpec(object):
+class FloatSpec:
 
     def __init__(self, namespace, html_tag, tag_style):
         self.makeelement = namespace.makeelement
@@ -141,7 +141,7 @@ class FloatSpec(object):
                 bdr, 'w:'+edge, w_space=unicode_type(padding), w_val=bstyle, w_sz=unicode_type(width), w_color=getattr(self, 'border_%s_color' % edge))
 
 
-class DOCXStyle(object):
+class DOCXStyle:
 
     ALL_PROPS = ()
     TYPE = 'paragraph'
@@ -356,7 +356,7 @@ class TextStyle(DOCXStyle):
             rPr.append(bdr)
 
 
-class DescendantTextStyle(object):
+class DescendantTextStyle:
 
     def __init__(self, parent_style, child_style):
         self.id = self.name = None
@@ -632,7 +632,7 @@ class BlockStyle(DOCXStyle):
             pPr.append(makeelement(pPr, 'next', val=self.next_style))
 
 
-class StylesManager(object):
+class StylesManager:
 
     def __init__(self, namespace, log, document_lang):
         self.namespace = namespace

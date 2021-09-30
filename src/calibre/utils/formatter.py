@@ -20,7 +20,7 @@ from calibre.utils.icu import strcmp
 from polyglot.builtins import unicode_type, error_message
 
 
-class Node(object):
+class Node:
     NODE_RVALUE = 1
     NODE_IF = 2
     NODE_ASSIGN = 3
@@ -255,7 +255,7 @@ class CharacterNode(Node):
         self.expression = expression
 
 
-class _Parser(object):
+class _Parser:
     LEX_OP = 1
     LEX_ID = 2
     LEX_CONST = 3
@@ -677,7 +677,7 @@ class StopException(Exception):
         super().__init__('Template evaluation stopped')
 
 
-class _Interpreter(object):
+class _Interpreter:
     def error(self, message, line_number):
         m = _('Interpreter: {0} - line number {1}').format(message, line_number)
         raise ValueError(m)

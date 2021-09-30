@@ -30,7 +30,7 @@ class PluginInstallationType(enum.IntEnum):
     BUILTIN = 3
 
 
-class Plugin(object):  # {{{
+class Plugin:  # {{{
     '''
     A calibre plugin. Useful members include:
 

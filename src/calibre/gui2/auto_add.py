@@ -22,7 +22,7 @@ from calibre.utils.tdir_in_cache import tdir_in_cache
 AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 
 
-class AllAllowed(object):
+class AllAllowed:
 
     def __init__(self):
         self.disallowed = frozenset(gprefs['blocked_auto_formats'])

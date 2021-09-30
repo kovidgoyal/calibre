@@ -186,7 +186,7 @@ def snippets(refresh=False):
 # Editor integration {{{
 
 
-class EditorTabStop(object):
+class EditorTabStop:
 
     def __init__(self, left, tab_stops, editor):
         self.editor = weakref.ref(editor)

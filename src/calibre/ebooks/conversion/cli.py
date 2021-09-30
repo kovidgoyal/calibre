@@ -277,7 +277,7 @@ def option_parser():
     return parser
 
 
-class ProgressBar(object):
+class ProgressBar:
 
     def __init__(self, log):
         self.log = log

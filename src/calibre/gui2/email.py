@@ -51,7 +51,7 @@ class Worker(Thread):
             self.func = self.args = None
 
 
-class Sendmail(object):
+class Sendmail:
 
     MAX_RETRIES = 1
     TIMEOUT = 25 * 60  # seconds
@@ -303,7 +303,7 @@ def select_recipients(parent=None):
 # }}}
 
 
-class EmailMixin(object):  # {{{
+class EmailMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass

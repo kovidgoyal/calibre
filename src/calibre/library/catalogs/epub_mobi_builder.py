@@ -70,7 +70,7 @@ class Formatter(TemplateFormatter):
         return self.book.format_field(key, series_with_index=False)[1]
 
 
-class CatalogBuilder(object):
+class CatalogBuilder:
     '''
     Generates catalog source files from calibre database
 

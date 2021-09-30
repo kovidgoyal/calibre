@@ -431,7 +431,7 @@ class Tester(Dialog):
         return ans
 
 
-class SaveLoadMixin(object):
+class SaveLoadMixin:
 
     def save_ruleset(self):
         if not self.rules:

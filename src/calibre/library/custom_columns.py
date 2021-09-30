@@ -17,7 +17,7 @@ from calibre.utils.config import tweaks
 from polyglot.builtins import unicode_type, string_or_bytes
 
 
-class CustomColumns(object):
+class CustomColumns:
 
     CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
         'int', 'float', 'bool', 'series', 'composite', 'enumeration'])

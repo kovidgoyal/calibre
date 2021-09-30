@@ -32,7 +32,7 @@ from .element import Node
 from .text import S,LineBreak,Tab
 
 
-class WhitespaceText(object):
+class WhitespaceText:
 
     def __init__(self):
         self.textBuffer = []

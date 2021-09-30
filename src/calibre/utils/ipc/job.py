@@ -19,7 +19,7 @@ from polyglot.builtins import cmp
 job_counter = count()
 
 
-class BaseJob(object):
+class BaseJob:
 
     WAITING  = 0
     RUNNING  = 1

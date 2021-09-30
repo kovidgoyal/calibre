@@ -458,7 +458,7 @@ class SavedSearchBox(QComboBox):  # {{{
     # }}}
 
 
-class SearchBoxMixin(object):  # {{{
+class SearchBoxMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass
@@ -545,7 +545,7 @@ class SearchBoxMixin(object):  # {{{
     # }}}
 
 
-class SavedSearchBoxMixin(object):  # {{{
+class SavedSearchBoxMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass

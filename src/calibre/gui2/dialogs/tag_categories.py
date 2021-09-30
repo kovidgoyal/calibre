@@ -14,7 +14,7 @@ from calibre.utils.icu import sort_key, strcmp, primary_contains
 from polyglot.builtins import iteritems, unicode_type
 
 
-class Item(object):
+class Item:
 
     def __init__(self, name, label, index, icon, exists):
         self.name = name

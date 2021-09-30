@@ -15,7 +15,7 @@ from polyglot.builtins import range
 DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
 
 
-class BaseError(object):
+class BaseError:
 
     HELP = ''
     INDIVIDUAL_FIX = ''

@@ -161,7 +161,7 @@ class ThreadSafePrefs(MutableMapping):
         return json.loads(raw, object_hook=from_json)
 
 
-class LibraryDatabase(object):
+class LibraryDatabase:
 
     ''' Emulate the old LibraryDatabase2 interface '''
 

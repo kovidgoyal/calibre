@@ -65,7 +65,7 @@ def send(ans):
         prints(x)
 
 
-class EbookConvert(object):
+class EbookConvert:
 
     def __init__(self, comp_line, pos):
         words = split(comp_line[:pos])

@@ -6,7 +6,7 @@
 from polyglot.builtins import map
 
 
-class ChangeEvent(object):
+class ChangeEvent:
 
     def __init__(self):
         pass

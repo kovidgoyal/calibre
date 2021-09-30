@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.oeb.base import XPath
 
 
-class CSSCleanup(object):
+class CSSCleanup:
 
     def __init__(self, log, opts):
         self.log, self.opts = log, opts

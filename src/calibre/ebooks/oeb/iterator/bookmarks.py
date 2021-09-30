@@ -44,7 +44,7 @@ def parse_bookmarks(raw):
             yield {'type':'cfi', 'title':title, 'pos':pos, 'spine':spine}
 
 
-class BookmarksMixin(object):
+class BookmarksMixin:
 
     def __init__(self, copy_bookmarks_to_file=True):
         self.copy_bookmarks_to_file = copy_bookmarks_to_file

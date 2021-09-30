@@ -45,7 +45,7 @@ def compile_code(src, name='<string>'):
     return namespace
 
 
-class Function(object):
+class Function:
 
     def __init__(self, name, source=None, func=None):
         self._source = source

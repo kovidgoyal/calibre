@@ -10,7 +10,7 @@ from itertools import count
 counter = count()
 
 
-class WebStoreDialog(object):
+class WebStoreDialog:
 
     def __init__(
         self, gui, base_url, parent=None, detail_url=None, create_browser=None

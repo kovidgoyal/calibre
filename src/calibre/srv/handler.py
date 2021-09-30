@@ -18,7 +18,7 @@ from calibre.utils.search_query_parser import ParseException
 from polyglot.builtins import itervalues, filter, unicode_type
 
 
-class Context(object):
+class Context:
 
     log = None
     url_for = None
@@ -186,7 +186,7 @@ class Context(object):
 SRV_MODULES = ('ajax', 'books', 'cdb', 'code', 'content', 'legacy', 'opds', 'users_api', 'convert')
 
 
-class Handler(object):
+class Handler:
 
     def __init__(self, libraries, opts, testing=False, notify_changes=None):
         ctx = Context(libraries, opts, testing=testing, notify_changes=notify_changes)

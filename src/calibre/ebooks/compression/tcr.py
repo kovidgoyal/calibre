@@ -9,7 +9,7 @@ import re
 from polyglot.builtins import int_to_byte, range
 
 
-class TCRCompressor(object):
+class TCRCompressor:
     '''
     TCR compression takes the form header+code_dict+coded_text.
     The header is always "!!8-Bit!!". The code dict is a list of 256 strings.

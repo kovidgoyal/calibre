@@ -28,7 +28,7 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
     return unicode_type(m.hexdigest())
 
 
-class FileDest(object):
+class FileDest:
 
     def __init__(self, key, exporter, mtime=None):
         self.exporter, self.key = exporter, key
@@ -66,7 +66,7 @@ class FileDest(object):
         self.close()
 
 
-class Exporter(object):
+class Exporter:
 
     VERSION = 0
     TAIL_FMT = b'!II?'  # part_num, version, is_last
@@ -209,7 +209,7 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
 # Import {{{
 
 
-class FileSource(object):
+class FileSource:
 
     def __init__(self, f, size, digest, description, mtime, importer):
         self.f, self.size, self.digest, self.description = f, size, digest, description
@@ -235,7 +235,7 @@ class FileSource(object):
         self.hasher = self.f = None
 
 
-class Importer(object):
+class Importer:
 
     def __init__(self, path_to_export_dir):
         self.corrupted_files = []

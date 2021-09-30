@@ -86,7 +86,7 @@ def read_default_style_language(raw, mi, XPath):
 # }}}
 
 
-class DOCX(object):
+class DOCX:
 
     def __init__(self, path_or_stream, log=None, extract=True):
         self.docx_is_transitional = True

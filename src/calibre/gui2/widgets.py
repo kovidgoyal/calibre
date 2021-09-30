@@ -218,7 +218,7 @@ class FormatList(QListWidget):  # {{{
 # }}}
 
 
-class ImageDropMixin(object):  # {{{
+class ImageDropMixin:  # {{{
     '''
     Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
@@ -466,7 +466,7 @@ class BasicList(QListWidget):
 # }}}
 
 
-class LineEditECM(object):  # {{{
+class LineEditECM:  # {{{
 
     '''
     Extend the context menu of a QLineEdit to include more actions.

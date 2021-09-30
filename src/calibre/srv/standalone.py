@@ -58,7 +58,7 @@ def daemonize():  # {{{
 # }}}
 
 
-class Server(object):
+class Server:
 
     def __init__(self, libraries, opts):
         log = access_log = None

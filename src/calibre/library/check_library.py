@@ -38,7 +38,7 @@ CHECKS = [('invalid_titles',    _('Invalid titles'), True, False),
       ]
 
 
-class CheckLibrary(object):
+class CheckLibrary:
 
     def __init__(self, library_path, db):
         if isbytestring(library_path):

@@ -228,7 +228,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
     return fmt%i
 
 
-class Resource(object):
+class Resource:
 
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
@@ -309,7 +309,7 @@ class Resource(object):
         return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
 
 
-class ResourceCollection(object):
+class ResourceCollection:
 
     def __init__(self):
         self._resources = []

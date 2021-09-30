@@ -30,7 +30,7 @@ dprefs.defaults['user_dictionaries'] = [{'name':_('Default'), 'is_active':True, 
 not_present = object()
 
 
-class UserDictionary(object):
+class UserDictionary:
 
     __slots__ = ('name', 'is_active', 'words')
 
@@ -178,7 +178,7 @@ def load_dictionary(dictionary):
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
 
 
-class Dictionaries(object):
+class Dictionaries:
 
     def __init__(self):
         self.remove_hyphenation = re.compile('[\u2010-]+')

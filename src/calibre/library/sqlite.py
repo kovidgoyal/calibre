@@ -91,7 +91,7 @@ sqlite.register_converter(native_string_type('bool'), convert_bool)
 sqlite.register_converter(native_string_type('BOOL'), convert_bool)
 
 
-class DynamicFilter(object):
+class DynamicFilter:
 
     def __init__(self, name):
         self.name = name
@@ -104,7 +104,7 @@ class DynamicFilter(object):
         self.ids = frozenset(ids)
 
 
-class Concatenate(object):
+class Concatenate:
     '''String concatenation aggregator for sqlite'''
 
     def __init__(self, sep=','):
@@ -126,7 +126,7 @@ class Concatenate(object):
             raise
 
 
-class SortedConcatenate(object):
+class SortedConcatenate:
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
     sep = ','
 
@@ -156,7 +156,7 @@ class SortedConcatenateAmper(SortedConcatenate):
     sep = '&'
 
 
-class IdentifiersConcat(object):
+class IdentifiersConcat:
     '''String concatenation aggregator for the identifiers map'''
 
     def __init__(self):
@@ -174,7 +174,7 @@ class IdentifiersConcat(object):
             raise
 
 
-class AumSortedConcatenate(object):
+class AumSortedConcatenate:
     '''String concatenation aggregator for the author sort map'''
 
     def __init__(self):
@@ -368,7 +368,7 @@ def proxy(fn):
     return run
 
 
-class ConnectionProxy(object):
+class ConnectionProxy:
 
     def __init__(self, proxy):
         self.proxy = proxy

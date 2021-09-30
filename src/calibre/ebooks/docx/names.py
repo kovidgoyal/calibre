@@ -94,7 +94,7 @@ def generate_anchor(name, existing):
     return y
 
 
-class DOCXNamespace(object):
+class DOCXNamespace:
 
     def __init__(self, transitional=True):
         self.xpath_cache = {}

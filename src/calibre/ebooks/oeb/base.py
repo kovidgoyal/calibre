@@ -521,7 +521,7 @@ class OEBError(Exception):
     pass
 
 
-class NullContainer(object):
+class NullContainer:
     """An empty container.
 
     For use with book formats which do not support container-like access.
@@ -543,7 +543,7 @@ class NullContainer(object):
         return []
 
 
-class DirContainer(object):
+class DirContainer:
     """Filesystem directory container."""
 
     def __init__(self, path, log, ignore_opf=False):
@@ -623,7 +623,7 @@ class DirContainer(object):
         return names
 
 
-class Metadata(object):
+class Metadata:
     """A collection of OEB data model metadata.
 
     Provides access to the list of items associated with a particular metadata
@@ -645,7 +645,7 @@ class Metadata(object):
     OPF2_NSMAP    = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                      'xsi': XSI_NS, 'calibre': CALIBRE_NS}
 
-    class Item(object):
+    class Item:
         """An item of OEB data model metadata.
 
         The metadata term or name may be accessed via the :attr:`term` or
@@ -658,7 +658,7 @@ class Metadata(object):
         their local names using Python attribute syntax.  Only attributes
         allowed by the OPF 2.0 specification are supported.
         """
-        class Attribute(object):
+        class Attribute:
             """Smart accessor for allowed OEB metadata item attributes."""
 
             def __init__(self, attr, allowed=None):
@@ -876,7 +876,7 @@ class Metadata(object):
         return elem
 
 
-class Manifest(object):
+class Manifest:
     """Collection of files composing an OEB data model book.
 
     Provides access to the content of the files composing the book and
@@ -892,7 +892,7 @@ class Manifest(object):
         manifest items and the values are the items themselves.
     """
 
-    class Item(object):
+    class Item:
         """An OEB data model book content file.
 
         Provides the following data members for accessing the file content and
@@ -1273,7 +1273,7 @@ class Manifest(object):
         self._main_stylesheet = item
 
 
-class Spine(object):
+class Spine:
     """Collection of manifest items composing an OEB data model book's main
     textual content.
 
@@ -1356,7 +1356,7 @@ class Spine(object):
         return elem
 
 
-class Guide(object):
+class Guide:
     """Collection of references to standard frequently-occurring sections
     within an OEB data model book.
 
@@ -1364,7 +1364,7 @@ class Guide(object):
     type identifiers and the values are `Reference` objects.
     """
 
-    class Reference(object):
+    class Reference:
         """Reference to a standard book section.
 
         Provides the following instance data members:
@@ -1488,7 +1488,7 @@ class Guide(object):
         return elem
 
 
-class TOC(object):
+class TOC:
     """Represents a hierarchical table of contents or navigation tree for
     accessing arbitrary semantic sections within an OEB data model book.
 
@@ -1671,14 +1671,14 @@ class TOC(object):
                 x.play_order = y.play_order
 
 
-class PageList(object):
+class PageList:
     """Collection of named "pages" to mapped positions within an OEB data model
     book's textual content.
 
     Provides list-like access to the pages.
     """
 
-    class Page(object):
+    class Page:
         """Represents a mapping between a page name and a position within
         the book content.
 
@@ -1751,7 +1751,7 @@ class PageList(object):
         return pmap
 
 
-class OEBBook(object):
+class OEBBook:
     """Representation of a book in the IDPF OEB data model."""
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')

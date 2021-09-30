@@ -15,7 +15,7 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.opensearch.url import URL
 
 
-class Description(object):
+class Description:
     '''
     A class for representing OpenSearch Description files.
     '''

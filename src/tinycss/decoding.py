@@ -100,7 +100,7 @@ def hex2re(hex_data):
     return re.escape(from_hex_bytes(hex_data.replace(' ', '').encode('ascii')))
 
 
-class Slicer(object):
+class Slicer:
     """Slice()[start:stop:end] == slice(start, stop, end)"""
     def __getitem__(self, slice_):
         return operator.itemgetter(slice_)

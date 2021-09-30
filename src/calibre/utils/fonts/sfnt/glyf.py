@@ -27,7 +27,7 @@ SCALED_COMPONENT_OFFSET    = 0x0800  # composite designed to have the component 
 UNSCALED_COMPONENT_OFFSET  = 0x1000  # composite designed not to have the component offset scaled (designed for MS)
 
 
-class SimpleGlyph(object):
+class SimpleGlyph:
 
     def __init__(self, num_of_countours, raw):
         self.num_of_countours = num_of_countours

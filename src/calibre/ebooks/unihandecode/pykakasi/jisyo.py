@@ -9,7 +9,7 @@ from zlib import decompress
 from polyglot.builtins import unicode_type
 
 
-class jisyo (object):
+class jisyo :
     kanwadict = None
     itaijidict = None
     kanadict = None

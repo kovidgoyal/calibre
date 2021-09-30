@@ -102,7 +102,7 @@ def endpoint(route,
     return annotate
 
 
-class Route(object):
+class Route:
 
     var_pat = None
 
@@ -217,7 +217,7 @@ class Route(object):
     __unicode__ = __repr__ = __str__
 
 
-class Router(object):
+class Router:
 
     def __init__(self, endpoints=None, ctx=None, url_prefix=None, auth_controller=None):
         self.routes = {}

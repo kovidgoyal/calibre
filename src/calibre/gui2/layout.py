@@ -324,7 +324,7 @@ class Spacer(QWidget):  # {{{
 # }}}
 
 
-class MainWindowMixin(object):  # {{{
+class MainWindowMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass

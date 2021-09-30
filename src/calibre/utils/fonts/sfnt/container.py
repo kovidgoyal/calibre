@@ -24,7 +24,7 @@ from calibre.utils.fonts.utils import checksum_of_block, get_tables, verify_chec
 # OpenType spec: http://www.microsoft.com/typography/otspec/otff.htm
 
 
-class Sfnt(object):
+class Sfnt:
 
     TABLE_MAP = {
         b'head' : HeadTable,

@@ -304,7 +304,7 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     return canvas
 
 
-class Canvas(object):
+class Canvas:
 
     def __init__(self, width, height, bgcolor='#ffffff'):
         self.img = QImage(width, height, QImage.Format.Format_RGB32)

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.utils.filenames import ascii_filename
 
 
-class StorePlugin(object):  # {{{
+class StorePlugin:  # {{{
 
     '''
     A plugin representing an online ebook repository (store). The store can

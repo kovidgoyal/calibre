@@ -30,7 +30,7 @@ from calibre.gui2.languages import LanguagesEdit
 from polyglot.builtins import unicode_type
 
 
-class UpdateEditorGeometry(object):
+class UpdateEditorGeometry:
 
     def updateEditorGeometry(self, editor, option, index):
         if editor is None:

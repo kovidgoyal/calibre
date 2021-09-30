@@ -12,7 +12,7 @@ from calibre.utils.date import isoformat, DEFAULT_DATE
 from polyglot.builtins import itervalues, unicode_type
 
 
-class SchemaUpgrade(object):
+class SchemaUpgrade:
 
     def __init__(self):
         # Upgrade database

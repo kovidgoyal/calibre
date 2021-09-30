@@ -127,7 +127,7 @@ def decode_is_multiple(fm):
         fm['is_multiple'] = im
 
 
-class JsonCodec(object):
+class JsonCodec:
 
     def __init__(self, field_metadata=None):
         self.field_metadata = field_metadata or FieldMetadata()

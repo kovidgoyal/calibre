@@ -44,7 +44,7 @@ class KFXError(ValueError):
         ).format('https://www.mobileread.com/forums/showthread.php?t=283371'))
 
 
-class MobiReader(object):
+class MobiReader:
     PAGE_BREAK_PAT = re.compile(
         r'<\s*/{0,1}\s*mbp:pagebreak((?:\s+[^/>]*){0,1})/{0,1}\s*>\s*(?:<\s*/{0,1}\s*mbp:pagebreak\s*/{0,1}\s*>)*',
         re.IGNORECASE)

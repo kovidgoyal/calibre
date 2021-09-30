@@ -73,14 +73,14 @@ def read_images_from_folder(path):
     return name_map
 
 
-class Theme(object):
+class Theme:
 
     def __init__(self, title='', author='', version=-1, description='', license='Unknown', url=None, cover=None):
         self.title, self.author, self.version, self.description = title, author, version, description
         self.license, self.cover, self.url = license, cover, url
 
 
-class Report(object):
+class Report:
 
     def __init__(self, path, name_map, extra, missing, theme):
         self.path, self.name_map, self.extra, self.missing, self.theme = path, name_map, extra, missing, theme

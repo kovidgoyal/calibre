@@ -33,7 +33,7 @@ adding other fields, such as whether the search is a 'favorite'
 '''
 
 
-class SavedSearchQueries(object):
+class SavedSearchQueries:
     queries = {}
     opt_name = ''
 
@@ -139,7 +139,7 @@ base_token ::= a sequence of letters and colons, perhaps quoted
 '''
 
 
-class Parser(object):
+class Parser:
 
     def __init__(self):
         self.current_token = 0
@@ -286,7 +286,7 @@ class ParseException(Exception):
         return ""
 
 
-class SearchQueryParser(object):
+class SearchQueryParser:
     '''
     Parses a search query.
 

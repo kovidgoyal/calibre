@@ -27,7 +27,7 @@ def attrs(*args, **kw):
 # Regular templates
 
 
-class Template(object):
+class Template:
 
     IS_HTML = True
 

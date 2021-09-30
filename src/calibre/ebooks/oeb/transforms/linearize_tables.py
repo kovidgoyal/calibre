@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath, XHTML
 
 
-class LinearizeTables(object):
+class LinearizeTables:
 
     def linearize(self, root):
         for x in XPath('//h:table|//h:td|//h:tr|//h:th|//h:caption|'

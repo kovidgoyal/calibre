@@ -47,7 +47,7 @@ def get_compiled_xpath(expr):
         return ans
 
 
-class AlwaysIn(object):
+class AlwaysIn:
 
     def __contains__(self, x):
         return True
@@ -91,7 +91,7 @@ INAPPROPRIATE_PSEUDO_CLASSES = frozenset((
     'active', 'after', 'disabled', 'visited', 'link', 'before', 'focus', 'first-letter', 'enabled', 'first-line', 'hover', 'checked', 'target'))
 
 
-class Select(object):
+class Select:
 
     '''
 

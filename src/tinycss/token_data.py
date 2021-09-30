@@ -217,7 +217,7 @@ def FIND_NEWLINES(x):
     return list(re.compile(COMPILED_MACROS['nl']).finditer(x))
 
 
-class Token(object):
+class Token:
     r"""A single atomic token.
 
     .. attribute:: is_container
@@ -334,7 +334,7 @@ class Token(object):
                 .format(self, self.unit or ''))
 
 
-class ContainerToken(object):
+class ContainerToken:
     """A token that contains other (nested) tokens.
 
     .. attribute:: is_container

@@ -78,7 +78,7 @@ def tostring(raw, **kwargs):
             ans).encode(encoding)
 
 
-class Chunk(object):
+class Chunk:
 
     def __init__(self, raw, selector):
         self.raw = raw
@@ -102,7 +102,7 @@ class Chunk(object):
     __str__ = __repr__
 
 
-class Skeleton(object):
+class Skeleton:
 
     def __init__(self, file_number, item, root, chunks):
         self.file_number, self.item = file_number, item
@@ -155,7 +155,7 @@ class Skeleton(object):
         return b''.join([self.skeleton] + [x.raw for x in self.chunks])
 
 
-class Chunker(object):
+class Chunker:
 
     def __init__(self, oeb, data_func, placeholder_map):
         self.oeb, self.log = oeb, oeb.log

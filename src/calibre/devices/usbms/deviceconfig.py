@@ -9,7 +9,7 @@ from calibre.utils.config_base import Config, ConfigProxy
 from polyglot.builtins import unicode_type
 
 
-class DeviceConfig(object):
+class DeviceConfig:
 
     HELP_MESSAGE = _('Configure Device')
 

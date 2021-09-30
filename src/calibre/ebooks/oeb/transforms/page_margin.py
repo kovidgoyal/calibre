@@ -13,7 +13,7 @@ from calibre.ebooks.oeb.base import barename, XPath
 from polyglot.builtins import iteritems
 
 
-class RemoveAdobeMargins(object):
+class RemoveAdobeMargins:
     '''
     Remove margins specified in Adobe's page templates.
     '''
@@ -40,7 +40,7 @@ class NegativeTextIndent(Exception):
     pass
 
 
-class RemoveFakeMargins(object):
+class RemoveFakeMargins:
 
     '''
     Remove left and right margins from paragraph/divs if the same margin is specified

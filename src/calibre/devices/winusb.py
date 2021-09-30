@@ -443,7 +443,7 @@ def devid_pat():
     return _devid_pat
 
 
-class DeviceSet(object):
+class DeviceSet:
 
     def __init__(self, guid=GUID_DEVINTERFACE_VOLUME, enumerator=None, flags=DIGCF_PRESENT | DIGCF_DEVICEINTERFACE):
         self.guid_ref, self.enumerator, self.flags = (None if guid is None else byref(guid)), enumerator, flags

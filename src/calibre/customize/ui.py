@@ -373,7 +373,7 @@ def metadata_writers():
     return ans
 
 
-class QuickMetadata(object):
+class QuickMetadata:
 
     def __init__(self):
         self.quick = False
@@ -388,7 +388,7 @@ class QuickMetadata(object):
 quick_metadata = QuickMetadata()
 
 
-class ApplyNullMetadata(object):
+class ApplyNullMetadata:
 
     def __init__(self):
         self.apply_null = False
@@ -403,7 +403,7 @@ class ApplyNullMetadata(object):
 apply_null_metadata = ApplyNullMetadata()
 
 
-class ForceIdentifiers(object):
+class ForceIdentifiers:
 
     def __init__(self):
         self.force_identifiers = False

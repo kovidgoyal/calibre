@@ -6,7 +6,7 @@ import sys
 from functools import partial
 
 
-class FilteredLog(object):
+class FilteredLog:
 
     ' Hide AUTH credentials from the log '
 

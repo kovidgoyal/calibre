@@ -84,7 +84,7 @@ class xISBN(Thread):
             self.tb = traceback.format_exception()
 
 
-class ISBNMerge(object):
+class ISBNMerge:
 
     def __init__(self, log):
         self.pools = {}

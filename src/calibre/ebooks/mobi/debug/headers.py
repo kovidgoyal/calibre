@@ -18,9 +18,9 @@ from polyglot.builtins import iteritems, range, unicode_type
 # PalmDB {{{
 
 
-class PalmDOCAttributes(object):
+class PalmDOCAttributes:
 
-    class Attr(object):
+    class Attr:
 
         def __init__(self, name, field, val):
             self.name = name
@@ -48,7 +48,7 @@ class PalmDOCAttributes(object):
     __unicode__ = __str__
 
 
-class PalmDB(object):
+class PalmDB:
 
     def __init__(self, raw):
         self.raw = raw
@@ -108,7 +108,7 @@ class PalmDB(object):
 # }}}
 
 
-class Record(object):  # {{{
+class Record:  # {{{
 
     def __init__(self, raw, header):
         self.offset, self.flags, self.uid = header
@@ -123,7 +123,7 @@ class Record(object):  # {{{
 # EXTH {{{
 
 
-class EXTHRecord(object):
+class EXTHRecord:
 
     def __init__(self, type_, data, length):
         self.type = type_
@@ -216,7 +216,7 @@ class EXTHRecord(object):
         return '%s (%d): %r'%(self.name, self.type, self.data)
 
 
-class EXTHHeader(object):
+class EXTHHeader:
 
     def __init__(self, raw):
         self.raw = raw
@@ -265,7 +265,7 @@ class EXTHHeader(object):
 # }}}
 
 
-class MOBIHeader(object):  # {{{
+class MOBIHeader:  # {{{
 
     def __init__(self, record0, offset):
         self.raw = record0.raw
@@ -514,7 +514,7 @@ class MOBIHeader(object):  # {{{
 # }}}
 
 
-class MOBIFile(object):
+class MOBIFile:
 
     def __init__(self, stream):
         self.raw = stream.read()
@@ -586,7 +586,7 @@ class MOBIFile(object):
         self.decompress6, self.decompress8 = d6, d8
 
 
-class TextRecord(object):  # {{{
+class TextRecord:  # {{{
 
     def __init__(self, idx, record, extra_data_flags, decompress):
         self.trailing_data, self.raw = get_trailing_data(record.raw, extra_data_flags)

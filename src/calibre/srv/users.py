@@ -86,7 +86,7 @@ def connect(path, exc_class=ValueError):
             raise exc_class('Failed to open userdb database at {} with error: {}'.format(path, as_unicode(e)))
 
 
-class UserManager(object):
+class UserManager:
 
     lock = RLock()
 

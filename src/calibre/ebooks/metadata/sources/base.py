@@ -42,7 +42,7 @@ def cleanup_title(s):
 
 
 @total_ordering
-class InternalMetadataCompareKeyGen(object):
+class InternalMetadataCompareKeyGen:
 
     '''
     Generate a sort key for comparison of the relevance of Metadata objects,
@@ -162,7 +162,7 @@ def fixcase(x):
     return x
 
 
-class Option(object):
+class Option:
     __slots__ = ['type', 'default', 'label', 'desc', 'name', 'choices']
 
     def __init__(self, name, type_, default, label, desc, choices=None):

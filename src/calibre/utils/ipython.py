@@ -152,7 +152,7 @@ class Exit:
         raise SystemExit(0)
 
 
-class Helper(object):
+class Helper:
 
     def __repr__(self):
         return "Type help() for interactive help, " \

@@ -42,7 +42,7 @@ automatically, every time metadata is changed.
     return parser
 
 
-class BackupProgress(object):
+class BackupProgress:
 
     def __init__(self):
         self.total = 0

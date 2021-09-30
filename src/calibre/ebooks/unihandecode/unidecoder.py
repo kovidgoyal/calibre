@@ -66,7 +66,7 @@ from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 from polyglot.builtins import unicode_type
 
 
-class Unidecoder(object):
+class Unidecoder:
 
     codepoints = {}
 

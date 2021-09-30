@@ -22,7 +22,7 @@ from calibre.ebooks.mobi.debug.headers import TextRecord
 from polyglot.builtins import unicode_type, range, iteritems, as_bytes, print_to_binary_file
 
 
-class TagX(object):  # {{{
+class TagX:  # {{{
 
     def __init__(self, tag, num_values, bitmask, eof):
         self.tag, self.num_values, self.bitmask, self.eof = (tag, num_values,
@@ -36,7 +36,7 @@ class TagX(object):  # {{{
     # }}}
 
 
-class SecondaryIndexHeader(object):  # {{{
+class SecondaryIndexHeader:  # {{{
 
     def __init__(self, record):
         self.record = record
@@ -133,7 +133,7 @@ class SecondaryIndexHeader(object):  # {{{
 # }}}
 
 
-class IndexHeader(object):  # {{{
+class IndexHeader:  # {{{
 
     def __init__(self, record):
         self.record = record
@@ -235,7 +235,7 @@ class IndexHeader(object):  # {{{
     # }}}
 
 
-class Tag(object):  # {{{
+class Tag:  # {{{
 
     '''
     Index entries are a collection of tags. Each tag is represented by this
@@ -290,7 +290,7 @@ class Tag(object):  # {{{
 # }}}
 
 
-class IndexEntry(object):  # {{{
+class IndexEntry:  # {{{
 
     '''
     The index is made up of entries, each of which is represented by an
@@ -377,7 +377,7 @@ class IndexEntry(object):  # {{{
 # }}}
 
 
-class IndexRecord(object):  # {{{
+class IndexRecord:  # {{{
 
     '''
     Represents all indexing information in the MOBI, apart from indexing info
@@ -437,7 +437,7 @@ class IndexRecord(object):  # {{{
 # }}}
 
 
-class CNCX(object):  # {{{
+class CNCX:  # {{{
 
     '''
     Parses the records that contain the compiled NCX (all strings from the
@@ -479,7 +479,7 @@ class CNCX(object):  # {{{
 
 # }}}
 
-class ImageRecord(object):  # {{{
+class ImageRecord:  # {{{
 
     def __init__(self, idx, record, fmt):
         self.raw = record.raw
@@ -494,7 +494,7 @@ class ImageRecord(object):  # {{{
 # }}}
 
 
-class BinaryRecord(object):  # {{{
+class BinaryRecord:  # {{{
 
     def __init__(self, idx, record):
         self.raw = record.raw
@@ -514,7 +514,7 @@ class BinaryRecord(object):  # {{{
 # }}}
 
 
-class FontRecord(object):  # {{{
+class FontRecord:  # {{{
 
     def __init__(self, idx, record):
         self.raw = record.raw
@@ -534,7 +534,7 @@ class FontRecord(object):  # {{{
 # }}}
 
 
-class TBSIndexing(object):  # {{{
+class TBSIndexing:  # {{{
 
     def __init__(self, text_records, indices, doc_type):
         self.record_indices = OrderedDict()
@@ -725,7 +725,7 @@ class TBSIndexing(object):  # {{{
 # }}}
 
 
-class MOBIFile(object):  # {{{
+class MOBIFile:  # {{{
 
     def __init__(self, mf):
         for x in ('raw', 'palmdb', 'record_headers', 'records', 'mobi_header',

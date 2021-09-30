@@ -209,7 +209,7 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
 # }}}
 
 
-class ETaggedFile(object):  # {{{
+class ETaggedFile:  # {{{
 
     def __init__(self, output, etag):
         self.output, self.etag = output, etag
@@ -219,7 +219,7 @@ class ETaggedFile(object):  # {{{
 # }}}
 
 
-class RequestData(object):  # {{{
+class RequestData:  # {{{
 
     cookies = {}
     username = None
@@ -301,7 +301,7 @@ class RequestData(object):  # {{{
 # }}}
 
 
-class ReadableOutput(object):
+class ReadableOutput:
 
     def __init__(self, output, etag=None, content_length=None):
         self.src_file = output
@@ -345,7 +345,7 @@ def dynamic_output(output, outheaders, etag=None):
     return ans
 
 
-class ETaggedDynamicOutput(object):
+class ETaggedDynamicOutput:
 
     def __init__(self, func, etag):
         self.func, self.etag = func, etag
@@ -354,7 +354,7 @@ class ETaggedDynamicOutput(object):
         return self.func()
 
 
-class GeneratedOutput(object):
+class GeneratedOutput:
 
     def __init__(self, output, etag=None):
         self.output = output
@@ -363,7 +363,7 @@ class GeneratedOutput(object):
         self.accept_ranges = False
 
 
-class StaticOutput(object):
+class StaticOutput:
 
     def __init__(self, data):
         if isinstance(data, unicode_type):

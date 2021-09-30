@@ -255,7 +255,7 @@ if __name__ == '__main__':
     from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
     from calibre.customize.profiles import HanlinV3Output
 
-    class OptionValues(object):
+    class OptionValues:
         pass
 
     opts = OptionValues()

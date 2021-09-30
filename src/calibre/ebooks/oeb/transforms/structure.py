@@ -47,7 +47,7 @@ def at_start(elem):
     return False
 
 
-class DetectStructure(object):
+class DetectStructure:
 
     def __call__(self, oeb, opts):
         self.log = oeb.log

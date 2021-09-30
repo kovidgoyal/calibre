@@ -23,7 +23,7 @@ def sanitize_sort_field_name(field_metadata, field):
     return field
 
 
-class MarkedVirtualField(object):
+class MarkedVirtualField:
 
     def __init__(self, marked_ids):
         self.marked_ids = marked_ids
@@ -37,7 +37,7 @@ class MarkedVirtualField(object):
         return lambda book_id:g(book_id, '')
 
 
-class TableRow(object):
+class TableRow:
 
     def __init__(self, book_id, view):
         self.book_id = book_id
@@ -74,7 +74,7 @@ def format_identifiers(x):
     return ','.join('%s:%s'%(k, v) for k, v in iteritems(x))
 
 
-class View(object):
+class View:
 
     ''' A table view of the database, with rows and columns. Also supports
     filtering and sorting.  '''

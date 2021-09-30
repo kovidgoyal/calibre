@@ -15,7 +15,7 @@ from polyglot.builtins import unicode_type
 from polyglot.urllib import unquote
 
 
-class CoverManager(object):
+class CoverManager:
 
     SVG_TEMPLATE = textwrap.dedent('''\
         <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">

@@ -26,7 +26,7 @@ def cleanup(containers):
             pass
 
 
-class State(object):
+class State:
 
     def __init__(self, container):
         self.container = container

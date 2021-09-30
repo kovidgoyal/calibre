@@ -48,7 +48,7 @@ class Worker(Thread):
         self.result_queue.put((job_id, False, sys.exc_info()))
 
 
-class ThreadPool(object):
+class ThreadPool:
 
     def __init__(self, log, notify_server, count=10, queue_size=1000):
         self.request_queue, self.result_queue = Queue(queue_size), Queue(queue_size)
@@ -86,7 +86,7 @@ class ThreadPool(object):
         return sum(int(not w.working) for w in self.workers)
 
 
-class PluginPool(object):
+class PluginPool:
 
     def __init__(self, loop, plugins):
         self.workers = []

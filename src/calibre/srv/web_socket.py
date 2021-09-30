@@ -56,7 +56,7 @@ UNEXPECTED_ERROR = 1011
 RESERVED_CLOSE_CODES = (1004,1005,1006,)
 
 
-class ReadFrame(object):  # {{{
+class ReadFrame:  # {{{
 
     def __init__(self):
         self.header_buf = bytearray(14)
@@ -203,7 +203,7 @@ def create_frame(fin, opcode, payload, mask=None, rsv=0):
     return memoryview(frame)
 
 
-class MessageWriter(object):
+class MessageWriter:
 
     def __init__(self, buf, mask=None, chunk_size=None):
         self.buf, self.data_type, self.mask = buf, BINARY, mask
@@ -238,7 +238,7 @@ class MessageWriter(object):
 conn_id = 0
 
 
-class UTF8Decoder(object):  # {{{
+class UTF8Decoder:  # {{{
 
     def __init__(self):
         self.reset()
@@ -512,7 +512,7 @@ class WebSocketConnection(HTTPConnection):
         self.websocket_handler.handle_websocket_data(self.websocket_connection_id, data, message_starting, message_finished)
 
 
-class DummyHandler(object):
+class DummyHandler:
 
     def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
         conn = connection_ref()
@@ -533,7 +533,7 @@ class DummyHandler(object):
 # suite
 
 
-class EchoHandler(object):
+class EchoHandler:
 
     def __init__(self, *args, **kwargs):
         self.ws_connections = {}

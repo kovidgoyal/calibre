@@ -37,7 +37,7 @@ def painter(func):
     return ans
 
 
-class SelectionState(object):
+class SelectionState:
 
     __slots__ = ('last_press_point', 'current_mode', 'rect', 'in_selection', 'drag_corner', 'dragging', 'last_drag_pos')
 

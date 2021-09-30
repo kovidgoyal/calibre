@@ -15,7 +15,7 @@ from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
 from polyglot.builtins import itervalues
 
 
-class Data(object):
+class Data:
     pass
 
 

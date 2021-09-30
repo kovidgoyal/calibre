@@ -220,7 +220,7 @@ options = OrderedDict([(o.name, o) for o in sorted(options, key=attrgetter('name
 del raw_options
 
 
-class Options(object):
+class Options:
 
     __slots__ = tuple(name for name in options)
 

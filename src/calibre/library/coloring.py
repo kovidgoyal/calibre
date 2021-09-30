@@ -13,7 +13,7 @@ from polyglot.builtins import map
 color_row_key = '*row'
 
 
-class Rule(object):  # {{{
+class Rule:  # {{{
 
     SIGNATURE = '# BasicColorRule():'
 

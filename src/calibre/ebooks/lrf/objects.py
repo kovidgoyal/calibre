@@ -19,7 +19,7 @@ ruby_tags = {
 }
 
 
-class LRFObject(object):
+class LRFObject:
 
     tag_map = {
         0xF500: ['', ''],
@@ -192,7 +192,7 @@ class PageTree(LRFObject):
             yield self._document.objects[id]
 
 
-class StyleObject(object):
+class StyleObject:
 
     def _tags_to_xml(self):
         s = ''
@@ -245,7 +245,7 @@ class PageAttr(StyleObject, LRFObject):
         return ''
 
 
-class Color(object):
+class Color:
 
     def __init__(self, val):
         self.a, self.r, self.g, self.b = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
@@ -263,7 +263,7 @@ class Color(object):
         return 'rgb(%d, %d, %d)'%(self.r, self.g, self.b)
 
 
-class EmptyPageElement(object):
+class EmptyPageElement:
 
     def __iter__(self):
         for i in range(0):
@@ -486,7 +486,7 @@ class BlockAttr(StyleObject, LRFObject):
         return ans
 
 
-class TextCSS(object):
+class TextCSS:
 
     @classmethod
     def to_css(cls, obj, inline=False):
@@ -682,7 +682,7 @@ class Text(LRFStream):
            0xF5D2: 'cr',
         }
 
-    class TextTag(object):
+    class TextTag:
 
         def __init__(self, name, attrs={}, self_closing=False):
             self.name = name
@@ -1198,7 +1198,7 @@ class SimpleText(Text):
     pass
 
 
-class TocLabel(object):
+class TocLabel:
 
     def __init__(self, refpage, refobject, label):
         self.refpage, self.refobject, self.label = refpage, refobject, label

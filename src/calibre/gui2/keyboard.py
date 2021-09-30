@@ -168,7 +168,7 @@ class Manager(QObject):  # {{{
 # Model {{{
 
 
-class Node(object):
+class Node:
 
     def __init__(self, group_map, shortcut_map, name=None, shortcut=None):
         self.data = name if name is not None else shortcut

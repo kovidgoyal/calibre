@@ -18,7 +18,7 @@ from calibre import my_unichr, prepare_string_for_xml
 from calibre.ebooks.metadata.toc import TOC
 
 
-class PML_HTMLizer(object):
+class PML_HTMLizer:
 
     STATES = [
         'i',

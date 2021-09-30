@@ -16,7 +16,7 @@ from polyglot.builtins import builtins
 user_dir = os.path.join(config_dir, 'resources')
 
 
-class PathResolver(object):
+class PathResolver:
 
     def __init__(self):
         self.locations = [sys.resources_location]

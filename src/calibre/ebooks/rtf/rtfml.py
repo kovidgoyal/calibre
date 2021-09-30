@@ -95,7 +95,7 @@ def txt2rtf(text):
     return buf.getvalue()
 
 
-class RTFMLizer(object):
+class RTFMLizer:
 
     def __init__(self, log):
         self.log = log

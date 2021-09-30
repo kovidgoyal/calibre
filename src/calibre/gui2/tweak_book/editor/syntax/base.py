@@ -38,7 +38,7 @@ def run_loop(user_data, state_map, formats, text):
             break
 
 
-class SimpleState(object):
+class SimpleState:
 
     __slots__ = ('parse',)
 
@@ -63,7 +63,7 @@ class SimpleUserData(QTextBlockUserData):
         self.doc_name = doc_name
 
 
-class SyntaxHighlighter(object):
+class SyntaxHighlighter:
 
     create_formats_func = lambda highlighter: {}
     spell_attributes = ()

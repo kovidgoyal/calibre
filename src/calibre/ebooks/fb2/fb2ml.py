@@ -25,7 +25,7 @@ from polyglot.binary import as_base64_unicode
 from polyglot.urllib import urlparse
 
 
-class FB2MLizer(object):
+class FB2MLizer:
     '''
     Todo: * Include more FB2 specific tags in the conversion.
           * Handle notes and anchor links.

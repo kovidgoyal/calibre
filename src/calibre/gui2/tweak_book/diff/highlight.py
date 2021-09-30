@@ -53,7 +53,7 @@ class QtHighlighter(QTextDocument):
                 block = block.next()
 
 
-class NullHighlighter(object):
+class NullHighlighter:
 
     def __init__(self, text):
         self.lines = text.splitlines()
@@ -79,7 +79,7 @@ def pygments_lexer(filename):
         return None
 
 
-class PygmentsHighlighter(object):
+class PygmentsHighlighter:
 
     def __init__(self, text, lexer):
         theme, cache = get_theme(tprefs['editor_theme']), {}

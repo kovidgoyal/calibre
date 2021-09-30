@@ -120,7 +120,7 @@ def set_id_delta(id_delta):  # {{{
 # }}}
 
 
-class BMPTable(object):
+class BMPTable:
 
     def __init__(self, raw):
         self.raw = raw

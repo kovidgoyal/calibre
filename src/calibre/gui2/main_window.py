@@ -71,7 +71,7 @@ class GarbageCollector(QObject):
             print(obj, repr(obj), type(obj))
 
 
-class ExceptionHandler(object):
+class ExceptionHandler:
 
     def __init__(self, main_window):
         self.wref = weakref.ref(main_window)

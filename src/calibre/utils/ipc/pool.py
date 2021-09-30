@@ -89,7 +89,7 @@ class Failure(Exception):
         self.failure_message = tf.message
 
 
-class Worker(object):
+class Worker:
 
     def __init__(self, p, conn, events, name):
         self.process, self.conn = p, conn

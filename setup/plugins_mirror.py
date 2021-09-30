@@ -194,7 +194,7 @@ def convert_node(fields, x, names={}, import_data=None):
 Alias = namedtuple('Alias', 'name asname')
 
 
-class Module(object):
+class Module:
     pass
 
 

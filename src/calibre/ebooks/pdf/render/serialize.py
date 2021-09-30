@@ -23,7 +23,7 @@ from polyglot.builtins import as_unicode
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 
 
-class IndirectObjects(object):
+class IndirectObjects:
 
     def __init__(self):
         self._list = []
@@ -152,7 +152,7 @@ class Page(Stream):
         return ret
 
 
-class Path(object):
+class Path:
 
     def __init__(self):
         self.ops = []
@@ -199,7 +199,7 @@ class PageTree(Dictionary):
             return -1
 
 
-class HashingStream(object):
+class HashingStream:
 
     def __init__(self, f):
         self.f = f
@@ -259,7 +259,7 @@ class Metadata(Stream):
         d['Subtype'] = Name('XML')
 
 
-class PDFStream(object):
+class PDFStream:
 
     PATH_OPS = {
         # stroke fill   fill-rule

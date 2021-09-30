@@ -31,7 +31,7 @@ def absolutize(paths):
     return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
 
 
-class Extension(object):
+class Extension:
 
     def __init__(self, name, sources, **kwargs):
         self.data = d = {}

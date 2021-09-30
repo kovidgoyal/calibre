@@ -54,7 +54,7 @@ class Container(dict):
             self[mt] = fp
 
 
-class OCF(object):
+class OCF:
     MIMETYPE        = 'application/epub+zip'
     CONTAINER_PATH  = 'META-INF/container.xml'
     ENCRYPTION_PATH = 'META-INF/encryption.xml'
@@ -63,7 +63,7 @@ class OCF(object):
         raise NotImplementedError('Abstract base class')
 
 
-class Encryption(object):
+class Encryption:
 
     OBFUSCATION_ALGORITHMS = frozenset(['http://ns.adobe.com/pdf/enc#RC',
             'http://www.idpf.org/2008/embedding'])

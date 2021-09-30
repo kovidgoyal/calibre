@@ -63,7 +63,7 @@ def parse_html(raw):
     return ans
 
 
-class ParseItem(object):
+class ParseItem:
 
     __slots__ = ('name', 'length', 'fingerprint', 'parsing_done', 'parsed_data')
 

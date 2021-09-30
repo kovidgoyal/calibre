@@ -22,7 +22,7 @@ def as_unicode(x):
     return x
 
 
-class StreamAsPath(object):
+class StreamAsPath:
 
     def __init__(self, stream):
         self.stream = stream

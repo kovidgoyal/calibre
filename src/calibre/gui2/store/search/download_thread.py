@@ -17,7 +17,7 @@ from polyglot.queue import Queue
 from polyglot.binary import from_base64_bytes
 
 
-class GenericDownloadThreadPool(object):
+class GenericDownloadThreadPool:
     '''
     add_task must be implemented in a subclass and must
     GenericDownloadThreadPool.add_task must be called

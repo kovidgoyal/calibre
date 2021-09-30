@@ -26,7 +26,7 @@ def compile_pats(binary):
         yield re.compile(raw, flags=re.IGNORECASE)
 
 
-class LazyEncodingPats(object):
+class LazyEncodingPats:
 
     def __call__(self, binary=False):
         attr = 'binary_pats' if binary else 'unicode_pats'

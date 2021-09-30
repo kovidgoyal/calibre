@@ -32,7 +32,7 @@ class Destination(Array):
         ])
 
 
-class Links(object):
+class Links:
 
     def __init__(self, pdf, mark_links, page_size):
         self.anchors = {}

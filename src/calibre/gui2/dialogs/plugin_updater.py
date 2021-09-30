@@ -180,7 +180,7 @@ class PluginFilterComboBox(QComboBox):
         self.addItems(items)
 
 
-class DisplayPlugin(object):
+class DisplayPlugin:
 
     def __init__(self, plugin):
         self.name = plugin['index_name']

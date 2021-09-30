@@ -146,7 +146,7 @@ CategoriesSettings = namedtuple(
     ' template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories')
 
 
-class GroupedSearchTerms(object):
+class GroupedSearchTerms:
 
     __slots__ = ('keys', 'vals', 'hash')
 

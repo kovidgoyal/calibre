@@ -129,7 +129,7 @@ def get_hpos(anchor, page_width, XPath, get, width_frac):
     return 0
 
 
-class Images(object):
+class Images:
 
     def __init__(self, namespace, log):
         self.namespace = namespace

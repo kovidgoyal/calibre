@@ -52,7 +52,7 @@ class LoopTest(BaseTest):
 
     def test_plugins(self):
         'Test plugin semantics'
-        class Plugin(object):
+        class Plugin:
 
             def __init__(self):
                 self.running = Event()
@@ -136,7 +136,7 @@ class LoopTest(BaseTest):
 
     def test_ring_buffer(self):
         'Test the ring buffer used for reads'
-        class FakeSocket(object):
+        class FakeSocket:
 
             def __init__(self, data):
                 self.data = data

@@ -57,7 +57,7 @@ def html_lang(docx_lang):
             return lang
 
 
-class Convert(object):
+class Convert:
 
     def __init__(self, path_or_stream, dest_dir=None, log=None, detect_cover=True, notes_text=None, notes_nopb=False, nosupsub=False):
         self.docx = DOCX(path_or_stream, log=log)

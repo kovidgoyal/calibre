@@ -57,7 +57,7 @@ class BusyWidget(QWidget):  # {{{
 # }}}
 
 
-class Cache(object):
+class Cache:
 
     def __init__(self):
         self._left, self._right = {}, {}

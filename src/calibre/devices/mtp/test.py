@@ -15,7 +15,7 @@ from calibre.devices.scanner import DeviceScanner
 from polyglot.builtins import range
 
 
-class ProgressCallback(object):
+class ProgressCallback:
 
     def __init__(self):
         self.count = 0

@@ -38,7 +38,7 @@ WAKEUP, JOB_DONE = b'\0', b'\x01'
 IPPROTO_IPV6 = getattr(socket, "IPPROTO_IPV6", 41)
 
 
-class ReadBuffer(object):  # {{{
+class ReadBuffer:  # {{{
 
     ' A ring buffer used to speed up the readline() implementation by minimizing recv() calls '
 
@@ -153,7 +153,7 @@ def is_ip_trusted(remote_addr, trusted_ips):
     return False
 
 
-class Connection(object):  # {{{
+class Connection:  # {{{
 
     def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup):
         self.opts, self.pool, self.log, self.wakeup, self.access_log = opts, pool, log, wakeup, access_log
@@ -365,7 +365,7 @@ class Connection(object):  # {{{
 # }}}
 
 
-class ServerLoop(object):
+class ServerLoop:
 
     LISTENING_MSG = 'calibre server listening on'
 

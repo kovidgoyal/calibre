@@ -74,7 +74,7 @@ SEPARATE_TAGS = [
 ]
 
 
-class PMLMLizer(object):
+class PMLMLizer:
 
     def __init__(self, log):
         self.log = log

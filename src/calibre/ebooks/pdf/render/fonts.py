@@ -117,7 +117,7 @@ class CMap(Stream):
         self.write(self.skeleton.format(name=name, mapping='\n'.join(mapping)))
 
 
-class Font(object):
+class Font:
 
     def __init__(self, metrics, num, objects, compress):
         self.metrics, self.compress = metrics, compress
@@ -218,7 +218,7 @@ class Font(object):
         self.descendant_font['W'] = objects.add(groups)
 
 
-class FontManager(object):
+class FontManager:
 
     def __init__(self, objects, compress):
         self.objects = objects

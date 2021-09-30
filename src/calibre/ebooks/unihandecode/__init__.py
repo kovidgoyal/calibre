@@ -21,7 +21,7 @@ Tranliterate the string from unicode characters to ASCII in Chinese and others.
 import unicodedata
 
 
-class Unihandecoder(object):
+class Unihandecoder:
     preferred_encoding = None
     decoder = None
 

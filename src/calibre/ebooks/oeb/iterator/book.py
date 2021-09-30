@@ -30,7 +30,7 @@ TITLEPAGE = CoverManager.SVG_TEMPLATE.replace(
         ).replace('__width__', '600').replace('__height__', '800')
 
 
-class FakeOpts(object):
+class FakeOpts:
     verbose = 0
     breadth_first = False
     max_levels = 5

@@ -12,7 +12,7 @@ from calibre import guess_type
 from polyglot.builtins import iteritems
 
 
-class EntityDeclarationProcessor(object):  # {{{
+class EntityDeclarationProcessor:  # {{{
 
     def __init__(self, html):
         self.declared_entities = {}

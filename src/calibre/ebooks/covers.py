@@ -126,7 +126,7 @@ def parse_text_formatting(text):
     return text, formats
 
 
-class Block(object):
+class Block:
 
     def __init__(self, text='', width=0, font=None, img=None, max_height=100, align=Qt.AlignmentFlag.AlignCenter):
         self.layouts = []
@@ -340,7 +340,7 @@ def color(color_theme, name):
 # Styles {{{
 
 
-class Style(object):
+class Style:
 
     TITLE_ALIGN = SUBTITLE_ALIGN = FOOTER_ALIGN = Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignTop
 

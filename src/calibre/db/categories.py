@@ -17,7 +17,7 @@ from calibre.utils.icu import sort_key, collation_order
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
 
-class Tag(object):
+class Tag:
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
             'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',

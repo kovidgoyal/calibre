@@ -21,7 +21,7 @@ from calibre.constants import DEBUG
 from polyglot.builtins import range, as_unicode, as_bytes, unicode_type, map
 
 
-class APNXBuilder(object):
+class APNXBuilder:
     '''
     Create an APNX file using a pseudo page mapping.
     '''

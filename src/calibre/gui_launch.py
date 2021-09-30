@@ -43,7 +43,7 @@ def register_with_default_programs():
         from calibre.gui2 import gprefs
         return Register(gprefs)
     else:
-        class Dummy(object):
+        class Dummy:
 
             def __enter__(self):
                 return self

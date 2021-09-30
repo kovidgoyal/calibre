@@ -20,7 +20,7 @@ class LRFParseError(Exception):
     pass
 
 
-class PRS500_PROFILE(object):
+class PRS500_PROFILE:
     screen_width  = 600
     screen_height = 775
     dpi           = 166

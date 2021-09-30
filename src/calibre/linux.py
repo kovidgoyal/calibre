@@ -54,7 +54,7 @@ def polyglot_write(stream):
     return write
 
 
-class PreserveMIMEDefaults(object):  # {{{
+class PreserveMIMEDefaults:  # {{{
 
     def __init__(self):
         self.initial_values = {}
@@ -235,7 +235,7 @@ CALIBRE_LINUX_INSTALLER_HEREDOC
 # Completion {{{
 
 
-class ZshCompleter(object):  # {{{
+class ZshCompleter:  # {{{
 
     def __init__(self, opts):
         self.opts = opts

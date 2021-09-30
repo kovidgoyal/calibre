@@ -190,7 +190,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
 # }}}
 
 
-class OpenWithHandler(object):  # {{{
+class OpenWithHandler:  # {{{
 
     def add_open_with_actions(self, menu, file_name):
         from calibre.gui2.open_with import edit_programs, populate_menu

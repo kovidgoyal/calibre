@@ -69,7 +69,7 @@ def isspace(text):
     return text.isspace()
 
 
-class BlockState(object):
+class BlockState:
 
     def __init__(self, body):
         self.body = body
@@ -84,7 +84,7 @@ class BlockState(object):
         self.content = False
 
 
-class FormatState(object):
+class FormatState:
 
     def __init__(self):
         self.rendered = False
@@ -123,7 +123,7 @@ class FormatState(object):
         return not self.__eq__(other)
 
 
-class MobiMLizer(object):
+class MobiMLizer:
 
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables

@@ -39,7 +39,7 @@ def partial(*args, **kwargs):
     return ans
 
 
-class LibraryViewMixin(object):  # {{{
+class LibraryViewMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass
@@ -555,7 +555,7 @@ class VLTabs(QTabBar):  # {{{
 # }}}
 
 
-class LayoutMixin(object):  # {{{
+class LayoutMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass

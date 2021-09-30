@@ -81,7 +81,7 @@ def text_to_regex(text):
     return ''.join(ans)
 
 
-class Search(object):
+class Search:
 
     def __init__(self, text, mode, case_sensitive, backwards):
         self.text, self.mode = text, mode
@@ -118,7 +118,7 @@ class Search(object):
         return str(namedtuple('Search', s)(*tuple(getattr(self, x) for x in s)))
 
 
-class SearchFinished(object):
+class SearchFinished:
 
     def __init__(self, search_query):
         self.search_query = search_query

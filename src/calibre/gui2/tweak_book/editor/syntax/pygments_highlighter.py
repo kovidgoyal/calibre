@@ -100,7 +100,7 @@ def create_lexer(base_class):
     })
 
 
-class State(object):
+class State:
 
     __slots__ = ('parse', 'pygments_stack')
 

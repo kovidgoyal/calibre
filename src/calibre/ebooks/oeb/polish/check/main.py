@@ -24,7 +24,7 @@ from polyglot.builtins import as_unicode
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {'application/oebps-page-map+xml'}
 
 
-class CSSChecker(object):
+class CSSChecker:
 
     def __init__(self):
         self.jobs = []

@@ -34,7 +34,7 @@ def resolved(f):
     return wrapper
 
 
-class MutableBase(object):
+class MutableBase:
 
     @resolved
     def __str__(self):

@@ -16,7 +16,7 @@ from polyglot.builtins import iteritems
 from polyglot.io import PolyglotBytesIO
 
 
-class Checker(object):
+class Checker:
 
     def __init__(self, kw):
         for k, v in iteritems(kw):

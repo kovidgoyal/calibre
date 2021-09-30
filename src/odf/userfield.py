@@ -44,7 +44,7 @@ VALUE_TYPES = {
     }
 
 
-class UserFields(object):
+class UserFields:
     """List, view and manipulate user fields."""
 
     # these attributes can be a filename or a file like object

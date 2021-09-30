@@ -33,7 +33,7 @@ from polyglot.urllib import unquote, urldefrag, urlparse
 __all__ = ['OEBReader']
 
 
-class OEBReader(object):
+class OEBReader:
     """Read an OEBPS 1.x or OPF/OPS 2.0 file collection."""
 
     COVER_SVG_XP    = XPath('h:body//svg:svg[position() = 1]')

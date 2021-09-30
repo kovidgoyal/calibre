@@ -29,7 +29,7 @@ import sys, re
 
 from polyglot.builtins import unicode_type
 
-class Templite(object):
+class Templite:
     auto_emit = re.compile('(^[\'\"])|(^[a-zA-Z0-9_\[\]\'\"]+$)')
 
     def __init__(self, template, start='${', end='}$'):

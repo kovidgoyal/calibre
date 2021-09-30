@@ -86,7 +86,7 @@ class SpineItem(unicode_type):
         return obj
 
 
-class IndexEntry(object):
+class IndexEntry:
 
     def __init__(self, spine, toc_entry, num):
         self.num = num

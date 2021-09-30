@@ -33,7 +33,7 @@ from polyglot.builtins import as_bytes, iteritems, map, range, unicode_type, zip
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
 
-class BusyCursor(object):
+class BusyCursor:
 
     def __enter__(self):
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))

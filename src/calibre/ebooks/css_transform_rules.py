@@ -29,7 +29,7 @@ def all_properties(decl):
             yield p
 
 
-class StyleDeclaration(object):
+class StyleDeclaration:
 
     def __init__(self, css_declaration):
         self.css_declaration = css_declaration
@@ -164,7 +164,7 @@ def transform_number(val, op, raw):
     return unicode_type(v) + u
 
 
-class Rule(object):
+class Rule:
 
     def __init__(self, property='color', match_type='*', query='', action='remove', action_data=''):
         self.property_name = property.lower()

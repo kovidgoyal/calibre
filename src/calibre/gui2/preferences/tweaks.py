@@ -77,7 +77,7 @@ class Delegate(QStyledItemDelegate):  # {{{
 # }}}
 
 
-class Tweak(object):  # {{{
+class Tweak:  # {{{
 
     def __init__(self, name, doc, var_names, defaults, custom):
         translate = _

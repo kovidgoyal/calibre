@@ -220,7 +220,7 @@ def windows_repair(library_path=None):
         app.quit()
 
 
-class EventAccumulator(object):
+class EventAccumulator:
 
     def __init__(self):
         self.events = []

@@ -143,7 +143,7 @@ IN_CONTENT = 4
 IN_COMMENT_CONTENT = 5
 
 
-class CSSState(object):
+class CSSState:
 
     __slots__ = ('parse', 'blocks')
 

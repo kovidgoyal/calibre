@@ -82,7 +82,7 @@ def parse_indx_header(data):
     return ans
 
 
-class CNCX(object):  # {{{
+class CNCX:  # {{{
 
     '''
     Parses the records that contain the compiled NCX (all strings from the

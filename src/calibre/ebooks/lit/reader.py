@@ -124,7 +124,7 @@ def encode(string):
     return unicode_type(string).encode('ascii', 'xmlcharrefreplace')
 
 
-class UnBinary(object):
+class UnBinary:
     AMPERSAND_RE = re.compile(
         br'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
     OPEN_ANGLE_RE = re.compile(br'<<(?![!]--)')
@@ -384,7 +384,7 @@ class UnBinary(object):
                     state = 'get attr'
 
 
-class DirectoryEntry(object):
+class DirectoryEntry:
 
     def __init__(self, name, section, offset, size):
         self.name = name
@@ -400,7 +400,7 @@ class DirectoryEntry(object):
         return repr(self)
 
 
-class ManifestItem(object):
+class ManifestItem:
 
     def __init__(self, original, internal, mime_type, offset, root, state):
         self.original = original
@@ -442,7 +442,7 @@ def preserve(function):
     return wrapper
 
 
-class LitFile(object):
+class LitFile:
     PIECE_SIZE = 16
 
     def __init__(self, filename_or_stream, log):
@@ -889,7 +889,7 @@ class LitFile(object):
         return (tags, attrs)
 
 
-class LitContainer(object):
+class LitContainer:
     """Simple Container-interface, read-only accessor for LIT files."""
 
     def __init__(self, filename_or_stream, log):

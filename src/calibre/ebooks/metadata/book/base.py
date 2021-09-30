@@ -59,7 +59,7 @@ ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
 cv = lambda val: val.strip().replace(',', '|')
 
 
-class Metadata(object):
+class Metadata:
 
     '''
     A class representing all the metadata for a book. The various standard metadata

@@ -16,7 +16,7 @@
 from .css21 import CSS21Parser, ParseError
 
 
-class MarginRule(object):
+class MarginRule:
     """A parsed at-rule for margin box.
 
     .. attribute:: at_keyword

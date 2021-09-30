@@ -47,7 +47,7 @@ ONE_ONE, MANY_ONE, MANY_MANY = range(3)
 null = object()
 
 
-class Table(object):
+class Table:
 
     def __init__(self, name, metadata, link_table=None):
         self.name, self.metadata = name, metadata

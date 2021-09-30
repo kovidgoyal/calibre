@@ -28,7 +28,7 @@ class Pen(QPen):
                       (Qt.PenStyle.SolidLine if width > 0 else Qt.PenStyle.NoPen))
 
 
-class ContentObject(object):
+class ContentObject:
 
     has_content = True
 
@@ -300,7 +300,7 @@ class Page(_Canvas):
         self.layout_block(block, 0, self.current_y)
 
 
-class Chapter(object):
+class Chapter:
 
     num_of_pages = property(fget=lambda self: len(self.pages))
 

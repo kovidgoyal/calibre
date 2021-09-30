@@ -30,7 +30,7 @@ def string_to_num(string, alphabet_map, alphabet_len):
     return ans
 
 
-class ShortUUID(object):
+class ShortUUID:
 
     def __init__(self, alphabet=None):
         # We do not include zero and one in the default alphabet as they can be

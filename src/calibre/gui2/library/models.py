@@ -71,7 +71,7 @@ def group_numbers(numbers):
         yield first, last[1]
 
 
-class ColumnColor(object):  # {{{
+class ColumnColor:  # {{{
 
     def __init__(self, formatter):
         self.mi = None
@@ -100,7 +100,7 @@ class ColumnColor(object):  # {{{
 # }}}
 
 
-class ColumnIcon(object):  # {{{
+class ColumnIcon:  # {{{
 
     def __init__(self, formatter, model):
         self.mi = None
@@ -1316,7 +1316,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
 # }}}
 
 
-class DeviceDBSortKeyGen(object):  # {{{
+class DeviceDBSortKeyGen:  # {{{
 
     def __init__(self, attr, keyfunc, db):
         self.attr = attr

@@ -535,7 +535,7 @@ class MTP_DEVICE(BASE):
         cw.commit()
 
     def settings(self):
-        class Opts(object):
+        class Opts:
 
             def __init__(s):
                 s.format_map = self.get_pref('format_map')

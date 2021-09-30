@@ -18,7 +18,7 @@ from polyglot.builtins import unicode_type, itervalues
 
 class LRFDocument(LRFMetaFile):
 
-    class temp(object):
+    class temp:
         pass
 
     def __init__(self, stream):

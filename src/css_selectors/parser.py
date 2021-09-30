@@ -46,7 +46,7 @@ else:
 
 # Parsed objects
 
-class Selector(object):
+class Selector:
 
     """
     Represents a parsed selector.
@@ -101,7 +101,7 @@ class Selector(object):
         return a, b, c
 
 
-class Class(object):
+class Class:
 
     """
     Represents selector.class_name
@@ -120,7 +120,7 @@ class Class(object):
         return a, b, c
 
 
-class FunctionalPseudoElement(object):
+class FunctionalPseudoElement:
 
     """
     Represents selector::name(arguments)
@@ -156,7 +156,7 @@ class FunctionalPseudoElement(object):
         return a, b, c
 
 
-class Function(object):
+class Function:
 
     """
     Represents selector:name(expr)
@@ -194,7 +194,7 @@ class Function(object):
         return a, b, c
 
 
-class Pseudo(object):
+class Pseudo:
 
     """
     Represents selector:ident
@@ -213,7 +213,7 @@ class Pseudo(object):
         return a, b, c
 
 
-class Negation(object):
+class Negation:
 
     """
     Represents selector:not(subselector)
@@ -232,7 +232,7 @@ class Negation(object):
         return a1 + a2, b1 + b2, c1 + c2
 
 
-class Attrib(object):
+class Attrib:
 
     """
     Represents selector[namespace|attrib operator value]
@@ -263,7 +263,7 @@ class Attrib(object):
         return a, b, c
 
 
-class Element(object):
+class Element:
 
     """
     Represents namespace|element
@@ -288,7 +288,7 @@ class Element(object):
             return 0, 0, 0
 
 
-class Hash(object):
+class Hash:
 
     """
     Represents selector#id
@@ -307,7 +307,7 @@ class Hash(object):
         return a, b, c
 
 
-class CombinedSelector(object):
+class CombinedSelector:
 
     def __init__(self, selector, combinator, subselector):
         assert selector is not None
@@ -739,7 +739,7 @@ def tokenize(s):
     yield EOFToken(pos)
 
 
-class TokenStream(object):
+class TokenStream:
 
     def __init__(self, tokens, source=None):
         self.used = []

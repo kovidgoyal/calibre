@@ -8,7 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 from threading import Event
 
 
-class BonJour(object):  # {{{
+class BonJour:  # {{{
 
     def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True, wait_for_stop=True):
         self.service_name = name

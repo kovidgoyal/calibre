@@ -86,7 +86,7 @@ def read_index(sections, idx, codec):
     return table, cncx, indx_header, index_headers
 
 
-class Index(object):
+class Index:
 
     def __init__(self, idx, records, codec):
         self.table = self.cncx = self.header = self.records = None

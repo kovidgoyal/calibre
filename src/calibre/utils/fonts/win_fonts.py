@@ -16,7 +16,7 @@ from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
 from polyglot.builtins import iteritems, unicode_type
 
 
-class WinFonts(object):
+class WinFonts:
 
     def __init__(self, winfonts):
         self.w = winfonts

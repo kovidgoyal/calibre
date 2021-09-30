@@ -95,7 +95,7 @@ def lock_file(path, timeout=15, sleep_time=0.2):
     return f
 
 
-class ExclusiveFile(object):
+class ExclusiveFile:
 
     def __init__(self, path, timeout=15, sleep_time=0.2):
         if iswindows and isinstance(path, bytes):

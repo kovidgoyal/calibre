@@ -101,7 +101,7 @@ def meta_info_to_oeb_metadata(mi, m, log, override_input_metadata=False):
         m.add('timestamp', isoformat(now()))
 
 
-class MergeMetadata(object):
+class MergeMetadata:
     'Merge in user metadata, including cover'
 
     def __call__(self, oeb, mi, opts, override_input_metadata=False):

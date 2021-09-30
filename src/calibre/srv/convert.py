@@ -23,7 +23,7 @@ conversion_jobs = {}
 cache_lock = Lock()
 
 
-class JobStatus(object):
+class JobStatus:
 
     def __init__(self, job_id, book_id, tdir, library_id, pathtoebook, conversion_data):
         self.job_id = job_id

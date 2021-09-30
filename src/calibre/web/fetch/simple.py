@@ -45,7 +45,7 @@ class FetchError(Exception):
     pass
 
 
-class closing(object):
+class closing:
 
     'Context to automatically close something at the end of a block.'
 
@@ -125,7 +125,7 @@ def default_is_link_wanted(url, tag):
     raise NotImplementedError()
 
 
-class RecursiveFetcher(object):
+class RecursiveFetcher:
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
                 ('.exe\\s*$', '.mp3\\s*$', '.ogg\\s*$', '^\\s*mailto:', '^\\s*$'))
     # ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in

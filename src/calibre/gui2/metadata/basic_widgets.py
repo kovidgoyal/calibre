@@ -67,7 +67,7 @@ def clean_text(x):
 
 '''
 The interface common to all widgets used to set basic metadata
-class BasicMetadataWidget(object):
+class BasicMetadataWidget:
 
     LABEL = "label text"
 
@@ -87,7 +87,7 @@ class BasicMetadataWidget(object):
 '''
 
 
-class ToMetadataMixin(object):
+class ToMetadataMixin:
 
     FIELD_NAME = None
     allow_undo = False

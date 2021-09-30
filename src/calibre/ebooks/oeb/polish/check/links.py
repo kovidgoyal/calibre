@@ -53,7 +53,7 @@ class CaseMismatch(BadLink):
             nhref += '#' + frag
         orig_href = self.href
 
-        class LinkReplacer(object):
+        class LinkReplacer:
             replaced = False
 
             def __call__(self, url):

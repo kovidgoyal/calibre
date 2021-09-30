@@ -219,7 +219,7 @@ class Stream(BytesIO):
         BytesIO.write(self, raw)
 
 
-class Reference(object):
+class Reference:
 
     def __init__(self, num, obj):
         self.num, self.obj = num, obj

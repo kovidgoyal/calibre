@@ -56,7 +56,7 @@ STYLES = [
 ]
 
 
-class RBMLizer(object):
+class RBMLizer:
 
     def __init__(self, log, name_map={}):
         self.log = log
