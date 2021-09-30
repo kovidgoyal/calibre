@@ -331,13 +331,26 @@ class TagsView(QTreeView):  # {{{
     def keyPressEvent(self, event):
         # I don't see how current_index can ever be not valid, but ...
         if self.currentIndex().isValid():
-            if (gprefs['tag_browser_allow_keyboard_focus'] and
-                    event.key() == Qt.Key.Key_Return and self.state() != QAbstractItemView.State.EditingState):
-                self.toggle_current_index()
-                return
+            key = event.key()
+            if gprefs['tag_browser_allow_keyboard_focus']:
+                if key == Qt.Key.Key_Return and self.state() != QAbstractItemView.State.EditingState:
+                    self.toggle_current_index()
+                    return
+                # Check if we are moving the focus and we are at the beginning or the
+                # end of the list. The goal is to prevent moving focus away from the
+                # tag browser.
+                on_node = self.model().get_node(self.currentIndex())
+                if key == Qt.Key.Key_Tab:
+                    if on_node != self._model.root_item.children[-1]:
+                        QTreeView.keyPressEvent(self, event)
+                    return
+                if key == Qt.Key.Key_Backtab:
+                    if on_node != self._model.root_item.children[0]:
+                        QTreeView.keyPressEvent(self, event)
+                    return
             # If this is an edit request, mark the node to request whether to use VLs
             # As far as I can tell, F2 is used across all platforms
-            if event.key() == Qt.Key.Key_F2:
+            if key == Qt.Key.Key_F2:
                 node = self.model().get_node(self.currentIndex())
                 if node.type == TagTreeItem.TAG:
                     # Saved search nodes don't use the VL test/dialog
