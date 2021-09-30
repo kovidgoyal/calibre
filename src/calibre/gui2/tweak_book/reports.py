@@ -350,7 +350,7 @@ def jump_to_location(loc):
             editor.find(regex.compile(regex.escape(loc.text_on_line)))
 
 
-class Jump(object):
+class Jump:
 
     def __init__(self):
         self.pos_map = defaultdict(lambda : -1)

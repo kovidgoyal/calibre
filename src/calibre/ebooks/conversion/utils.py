@@ -14,7 +14,7 @@ from calibre.utils.wordcount import get_wordcount_obj
 from polyglot.builtins import unicode_type
 
 
-class HeuristicProcessor(object):
+class HeuristicProcessor:
 
     def __init__(self, extra_opts=None, log=None):
         self.log = default_log if log is None else log

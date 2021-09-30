@@ -5,7 +5,7 @@ __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
 
-class EasyMeta(object):
+class EasyMeta:
 
     def __init__(self, meta):
         self.meta = meta

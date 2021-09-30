@@ -126,7 +126,7 @@ def _add_default_custom_column_values(mi, fm):
 dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
 
 
-class Cache(object):
+class Cache:
 
     '''
     An in-memory cache of the metadata.db file from a calibre library.
@@ -1069,7 +1069,7 @@ class Cache(object):
         orders = tuple(1 if order else -1 for _, order in fields)
         Lazy = object()  # Lazy load the sort keys for sub-sort fields
 
-        class SortKey(object):
+        class SortKey:
 
             __slots__ = 'book_id', 'sort_key'
 

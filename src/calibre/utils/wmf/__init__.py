@@ -17,7 +17,7 @@ class NoRaster(Exception):
     pass
 
 
-class DIBHeader(object):
+class DIBHeader:
 
     '''
     See http://en.wikipedia.org/wiki/BMP_file_format

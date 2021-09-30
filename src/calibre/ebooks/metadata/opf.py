@@ -12,7 +12,7 @@ from calibre.ebooks.metadata import MetaInformation
 from polyglot.builtins import iteritems
 
 
-class DummyFile(object):
+class DummyFile:
 
     def __init__(self, raw):
         self.raw = raw

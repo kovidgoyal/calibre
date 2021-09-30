@@ -28,7 +28,7 @@ Sec-WebSocket-Version: 13\r
 Frame = namedtuple('Frame', 'fin opcode payload')
 
 
-class WSClient(object):
+class WSClient:
 
     def __init__(self, port, timeout=5):
         self.timeout = timeout

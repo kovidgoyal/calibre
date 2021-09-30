@@ -47,7 +47,7 @@ def bf():
     return _bf
 
 
-class TagTreeItem(object):  # {{{
+class TagTreeItem:  # {{{
 
     CATEGORY = 0
     TAG      = 1

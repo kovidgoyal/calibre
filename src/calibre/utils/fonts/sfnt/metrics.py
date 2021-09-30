@@ -11,7 +11,7 @@ from calibre.utils.fonts.utils import get_all_font_names
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
 
 
-class FontMetrics(object):
+class FontMetrics:
 
     '''
     Get various metrics for the specified sfnt. All the metrics are returned in

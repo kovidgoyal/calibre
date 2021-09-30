@@ -14,7 +14,7 @@ def find_imgtype(data):
     return what(None, data) or 'unknown'
 
 
-class Container(object):
+class Container:
 
     def __init__(self, data):
         self.is_image_container = False

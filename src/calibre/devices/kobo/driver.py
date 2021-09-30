@@ -68,7 +68,7 @@ def any_in(haystack, *needles):
     return False
 
 
-class DummyCSSPreProcessor(object):
+class DummyCSSPreProcessor:
 
     def __call__(self, data, add_namespace=False):
 

@@ -79,7 +79,7 @@ def default_scorer(*args, **kwargs):
         return PyScorer(*args, **kwargs)
 
 
-class Matcher(object):
+class Matcher:
 
     def __init__(
         self,
@@ -220,7 +220,7 @@ def process_item(ctx, haystack, needle):
     return final_score, final_positions
 
 
-class PyScorer(object):
+class PyScorer:
     __slots__ = (
         'level1', 'level2', 'level3', 'max_score_per_char', 'items', 'memory'
     )
@@ -246,7 +246,7 @@ class PyScorer(object):
 # }}}
 
 
-class CScorer(object):
+class CScorer:
 
     def __init__(
         self,

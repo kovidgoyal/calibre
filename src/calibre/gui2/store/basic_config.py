@@ -28,7 +28,7 @@ class BasicStoreConfigWidget(QWidget, Ui_Form):
         self.tags.setText(config.get('tags', ''))
 
 
-class BasicStoreConfig(object):
+class BasicStoreConfig:
 
     def customization_help(self, gui=False):
         return 'Customize the behavior of this store.'

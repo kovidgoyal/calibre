@@ -20,7 +20,7 @@ from calibre.ebooks.pdb.ztxt import zTXTError
 SUPPORTED_VERSION = (1, 40)
 
 
-class HeaderRecord(object):
+class HeaderRecord:
     '''
     The first record in the file is always the header record. It holds
     information related to the location of text, images, and so on

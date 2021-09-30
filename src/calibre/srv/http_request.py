@@ -125,7 +125,7 @@ def normalize_header_name(name):
     return '-'.join(parts)
 
 
-class HTTPHeaderParser(object):
+class HTTPHeaderParser:
 
     '''
     Parse HTTP headers. Use this class by repeatedly calling the created object

@@ -86,7 +86,7 @@ def used_font(style, embedded_fonts):
     return True, matching_set[0]
 
 
-class EmbedFonts(object):
+class EmbedFonts:
 
     '''
     Embed all referenced fonts, if found on system. Must be called after CSS flattening.

@@ -71,7 +71,7 @@ def load_inotify():  # {{{
 # }}}
 
 
-class INotify(object):
+class INotify:
 
     # See <sys/inotify.h> for the flags defined below
 

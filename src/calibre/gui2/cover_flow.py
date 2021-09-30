@@ -305,7 +305,7 @@ class CBDialog(QDialog):
             self.show_fullscreen()
 
 
-class CoverFlowMixin(object):
+class CoverFlowMixin:
 
     disable_cover_browser_refresh = False
 

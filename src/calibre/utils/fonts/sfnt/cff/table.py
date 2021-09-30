@@ -21,7 +21,7 @@ from polyglot.builtins import iteritems, itervalues, range
 # http://www.adobe.com/content/dam/Adobe/en/devnet/font/pdfs/5177.Type2.pdf
 
 
-class CFF(object):
+class CFF:
 
     def __init__(self, raw):
         (self.major_version, self.minor_version, self.header_size,

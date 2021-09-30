@@ -191,7 +191,7 @@ class UpdateNotification(QDialog):
         QDialog.accept(self)
 
 
-class UpdateMixin(object):
+class UpdateMixin:
 
     def __init__(self, *args, **kw):
         pass

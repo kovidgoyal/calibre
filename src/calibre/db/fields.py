@@ -39,7 +39,7 @@ class InvalidLinkTable(Exception):
         self.field_name = name
 
 
-class Field(object):
+class Field:
 
     is_many = False
     is_many_many = False
@@ -441,7 +441,7 @@ class OnDeviceField(OneToOneField):
             yield val, book_ids
 
 
-class LazySortMap(object):
+class LazySortMap:
 
     __slots__ = ('default_sort_key', 'sort_key_func', 'id_map', 'cache')
 
@@ -666,7 +666,7 @@ class FormatsField(ManyToManyField):
         return ans
 
 
-class LazySeriesSortMap(object):
+class LazySeriesSortMap:
 
     __slots__ = ('default_sort_key', 'sort_key_func', 'id_map', 'cache')
 

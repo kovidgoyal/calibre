@@ -271,7 +271,7 @@ class ServerLog(ThreadSafeLog):
     exception_traceback_level = ThreadSafeLog.WARN
 
 
-class RotatingStream(object):
+class RotatingStream:
 
     def __init__(self, filename, max_size=None, history=5):
         self.filename, self.history, self.max_size = filename, history, max_size
@@ -351,7 +351,7 @@ class RotatingLog(ServerLog):
 # }}}
 
 
-class HandleInterrupt(object):  # {{{
+class HandleInterrupt:  # {{{
 
     # On windows socket functions like accept(), recv(), send() are not
     # interrupted by a Ctrl-C in the console. So to make Ctrl-C work we have to
@@ -397,7 +397,7 @@ class HandleInterrupt(object):  # {{{
 # }}}
 
 
-class Accumulator(object):  # {{{
+class Accumulator:  # {{{
 
     'Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()'
 
@@ -435,7 +435,7 @@ def get_library_data(ctx, rd, strict_library_id=False):
     return db, library_id, library_map, default_library
 
 
-class Offsets(object):
+class Offsets:
     'Calculate offsets for a paginated view'
 
     def __init__(self, offset, delta, total):

@@ -51,11 +51,11 @@ def supported_input_formats():
     return fmts
 
 
-class OptionValues(object):
+class OptionValues:
     pass
 
 
-class CompositeProgressReporter(object):
+class CompositeProgressReporter:
 
     def __init__(self, global_min, global_max, global_reporter):
         self.global_min, self.global_max = global_min, global_max
@@ -70,7 +70,7 @@ class CompositeProgressReporter(object):
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 
 
-class Plumber(object):
+class Plumber:
 
     '''
     The `Plumber` manages the conversion pipeline. An UI should call the methods

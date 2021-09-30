@@ -27,7 +27,7 @@ Tap, TapAndHold, Flick = 'Tap', 'TapAndHold', 'Flick'
 Left, Right, Up, Down = 'Left', 'Right', 'Up', 'Down'
 
 
-class TouchPoint(object):
+class TouchPoint:
 
     def __init__(self, tp):
         self.creation_time = self.last_update_time = self.time_of_last_move = monotonic()

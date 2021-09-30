@@ -10,7 +10,7 @@ from collections import OrderedDict
 from polyglot.builtins import iteritems
 
 
-class Inherit(object):
+class Inherit:
 
     def __eq__(self, other):
         return other is self
@@ -250,7 +250,7 @@ def read_numbering(parent, dest, XPath, get):
     setattr(dest, 'numbering_level', lvl)
 
 
-class Frame(object):
+class Frame:
 
     all_attributes = ('drop_cap', 'h', 'w', 'h_anchor', 'h_rule', 'v_anchor', 'wrap',
                       'h_space', 'v_space', 'lines', 'x_align', 'y_align', 'x', 'y')
@@ -337,7 +337,7 @@ def read_frame(parent, dest, XPath, get):
 # }}}
 
 
-class ParagraphStyle(object):
+class ParagraphStyle:
 
     all_properties = (
         'adjustRightInd', 'autoSpaceDE', 'autoSpaceDN', 'bidi',

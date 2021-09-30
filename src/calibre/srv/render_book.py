@@ -412,7 +412,7 @@ def transform_html(container, name, virtualize_resources, link_uid, link_to_map,
         f.write(shtml)
 
 
-class RenderManager(object):
+class RenderManager:
 
     def __init__(self, max_workers):
         self.max_workers = max_workers
@@ -824,7 +824,7 @@ def viewer_main():
     render_for_viewer(*args)
 
 
-class Profiler(object):
+class Profiler:
 
     def __init__(self):
         try:

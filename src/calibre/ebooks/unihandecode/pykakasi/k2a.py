@@ -26,7 +26,7 @@ from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 from polyglot.builtins import range
 
 
-class K2a (object):
+class K2a :
 
     kanwa = None
 

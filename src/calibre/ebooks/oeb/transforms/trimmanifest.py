@@ -11,7 +11,7 @@ from calibre.ebooks.oeb.base import urlnormalize, iterlinks
 from polyglot.urllib import urldefrag
 
 
-class ManifestTrimmer(object):
+class ManifestTrimmer:
 
     @classmethod
     def config(cls, cfg):

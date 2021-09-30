@@ -71,7 +71,7 @@ def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=R
     modify(da)
     pw = getattr(da, 'pw', pw)
 
-    class Data(object):
+    class Data:
 
         def __init__(self):
             self.method = method

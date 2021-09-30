@@ -22,7 +22,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 from polyglot.builtins import unicode_type, range
 
 
-class HeaderRecord(object):
+class HeaderRecord:
     '''
     The first record in the file is always the header record. It holds
     information related to the location of text, images, and so on

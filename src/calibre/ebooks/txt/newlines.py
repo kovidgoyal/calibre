@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 
-class TxtNewlines(object):
+class TxtNewlines:
 
     NEWLINE_TYPES = {
                         'system'  : os.linesep,

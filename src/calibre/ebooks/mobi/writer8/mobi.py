@@ -218,7 +218,7 @@ HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
                     'flis_record', 'fcis_record', 'uid'}
 
 
-class KF8Book(object):
+class KF8Book:
 
     def __init__(self, writer, for_joint=False):
         self.build_records(writer, for_joint)

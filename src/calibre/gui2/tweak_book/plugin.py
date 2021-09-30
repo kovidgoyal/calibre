@@ -17,7 +17,7 @@ from calibre.gui2.tweak_book.boss import get_boss
 from polyglot.builtins import itervalues, unicode_type
 
 
-class Tool(object):
+class Tool:
 
     '''
     The base class for individual tools in an Edit Book plugin. Useful members include:

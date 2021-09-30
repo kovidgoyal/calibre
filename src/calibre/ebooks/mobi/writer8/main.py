@@ -39,7 +39,7 @@ XML_DOCS = OEB_DOCS | {SVG_MIME}
 to_ref = partial(to_base, base=32, min_num_digits=4)
 
 
-class KF8Writer(object):
+class KF8Writer:
 
     def __init__(self, oeb, opts, resources):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log

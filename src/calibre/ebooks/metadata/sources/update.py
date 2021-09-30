@@ -44,7 +44,7 @@ def load_plugin(src):
             return x
 
 
-class PatchedSearchEngines(object):
+class PatchedSearchEngines:
 
     def __init__(self, ns):
         self.__ns = ns

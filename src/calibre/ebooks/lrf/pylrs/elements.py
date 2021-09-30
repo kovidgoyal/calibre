@@ -5,7 +5,7 @@
 from polyglot.builtins import unicode_type, string_or_bytes
 
 
-class ElementWriter(object):
+class ElementWriter:
 
     def __init__(self, e, header=False, sourceEncoding="ascii",
                  spaceBeforeClose=True, outputEncodingName="UTF-16"):

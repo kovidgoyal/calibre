@@ -25,7 +25,7 @@ from calibre.utils.search_query_parser import ParseException
 from polyglot.builtins import iteritems, unicode_type
 
 
-class NewsTreeItem(object):
+class NewsTreeItem:
 
     def __init__(self, builtin, custom, scheduler_config, parent=None):
         self.builtin, self.custom = builtin, custom

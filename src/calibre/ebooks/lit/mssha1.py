@@ -121,7 +121,7 @@ K = [
     ]
 
 
-class mssha1(object):
+class mssha1:
     "An implementation of the MD5 hash function in pure Python."
 
     def __init__(self):

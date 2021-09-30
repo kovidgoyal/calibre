@@ -357,7 +357,7 @@ TAG_INFO = dict(
     )
 
 
-class ObjectTableEntry(object):
+class ObjectTableEntry:
 
     def __init__(self, objId, offset, size):
         self.objId = objId
@@ -368,7 +368,7 @@ class ObjectTableEntry(object):
         writeDWords(f, self.objId, self.offset, self.size, 0)
 
 
-class LrfTag(object):
+class LrfTag:
 
     def __init__(self, name, *parameters):
         try:
@@ -420,7 +420,7 @@ STREAM_FORCE_COMPRESSED = 0x8100
 STREAM_TOC = 0x0051
 
 
-class LrfStreamBase(object):
+class LrfStreamBase:
 
     def __init__(self, streamFlags, streamData=None):
         self.streamFlags = streamFlags
@@ -496,7 +496,7 @@ class LrfFileStream(LrfStreamBase):
             self.streamData = f.read()
 
 
-class LrfObject(object):
+class LrfObject:
 
     def __init__(self, name, objId):
         if objId <= 0:
@@ -618,7 +618,7 @@ class LrfToc(LrfObject):
         return streamData
 
 
-class LrfWriter(object):
+class LrfWriter:
 
     def __init__(self, sourceEncoding):
         self.sourceEncoding = sourceEncoding

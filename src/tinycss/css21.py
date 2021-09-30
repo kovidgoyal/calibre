@@ -38,7 +38,7 @@ from tinycss.parsing import (
 #  unused      : block | ATKEYWORD S* | ';' S* | CDO S* | CDC S*;
 
 
-class Stylesheet(object):
+class Stylesheet:
     """
     A parsed CSS stylesheet.
 
@@ -70,7 +70,7 @@ class Stylesheet(object):
             self, len(self.rules), len(self.errors))
 
 
-class AtRule(object):
+class AtRule:
     """
     An unparsed at-rule.
 
@@ -115,7 +115,7 @@ class AtRule(object):
                 .format(self))
 
 
-class RuleSet(object):
+class RuleSet:
     """A ruleset.
 
     .. attribute:: at_keyword
@@ -150,7 +150,7 @@ class RuleSet(object):
                 .format(self, self.selector.as_css()))
 
 
-class Declaration(object):
+class Declaration:
     """A property declaration.
 
     .. attribute:: name
@@ -191,7 +191,7 @@ class Declaration(object):
                     self, self.value.as_css(), priority))
 
 
-class PageRule(object):
+class PageRule:
     """A parsed CSS 2.1 @page rule.
 
     .. attribute:: at_keyword
@@ -237,7 +237,7 @@ class PageRule(object):
                 ' {0.selector}>'.format(self))
 
 
-class MediaRule(object):
+class MediaRule:
     """A parsed @media rule.
 
     .. attribute:: at_keyword
@@ -269,7 +269,7 @@ class MediaRule(object):
                 ' {0.media}>'.format(self))
 
 
-class ImportRule(object):
+class ImportRule:
     """A parsed @import rule.
 
     .. attribute:: at_keyword
@@ -323,7 +323,7 @@ def _remove_at_charset(tokens):
     return chain(header, tokens)
 
 
-class CSS21Parser(object):
+class CSS21Parser:
     """Parser for CSS 2.1
 
     This parser supports the core CSS syntax as well as @import, @media,

@@ -23,7 +23,7 @@ def select_initial_dir(q):
     return os.path.expanduser(u'~')
 
 
-class Dummy(object):
+class Dummy:
 
     def __enter__(self):
         pass

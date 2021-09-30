@@ -210,7 +210,7 @@ class NonUTF8(BaseError):
                 return True
 
 
-class EntitityProcessor(object):
+class EntitityProcessor:
 
     def __init__(self, mt):
         self.entities = ALL_ENTITIES if mt in OEB_DOCS else XML_ENTITIES
@@ -429,7 +429,7 @@ class BareTextInBody(BaseError):
         return True
 
 
-class ErrorHandler(object):
+class ErrorHandler:
 
     ' Replacement logger to get useful error/warning info out of css_parser during parsing '
 

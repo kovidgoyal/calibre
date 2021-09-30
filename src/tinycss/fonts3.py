@@ -186,7 +186,7 @@ def parse_font(css_string):
     return ans
 
 
-class FontFaceRule(object):
+class FontFaceRule:
 
     at_keyword = '@font-face'
     __slots__ = 'declarations', 'line', 'column'

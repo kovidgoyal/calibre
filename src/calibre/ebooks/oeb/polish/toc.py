@@ -31,7 +31,7 @@ ns.prefix = 'calibre'
 ns['lower-case'] = lambda c, x: x.lower() if hasattr(x, 'lower') else x
 
 
-class TOC(object):
+class TOC:
 
     toc_title = None
 

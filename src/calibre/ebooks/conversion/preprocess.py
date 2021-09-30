@@ -86,7 +86,7 @@ def smarten_punctuation(html, log=None):
     return substitute_entites(html)
 
 
-class DocAnalysis(object):
+class DocAnalysis:
     '''
     Provides various text analysis functions to determine how the document is structured.
     format is the type of document analysis will be done against.
@@ -191,7 +191,7 @@ class DocAnalysis(object):
             return True
 
 
-class Dehyphenator(object):
+class Dehyphenator:
     '''
     Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
     itself is as a dictionary. This method handles all languages along with uncommon, made-up, and
@@ -299,7 +299,7 @@ class Dehyphenator(object):
         return html
 
 
-class CSSPreProcessor(object):
+class CSSPreProcessor:
 
     # Remove some of the broken CSS Microsoft products
     # create
@@ -455,7 +455,7 @@ def book_designer_rules():
     return ans
 
 
-class HTMLPreProcessor(object):
+class HTMLPreProcessor:
 
     def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
         self.log = log

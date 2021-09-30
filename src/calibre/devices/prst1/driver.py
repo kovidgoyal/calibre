@@ -29,7 +29,7 @@ DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
 
 
-class ImageWrapper(object):
+class ImageWrapper:
 
     def __init__(self, image_path):
         self.image_path = image_path

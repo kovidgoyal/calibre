@@ -26,7 +26,7 @@ class StringIO(io.StringIO):
         return io.StringIO.write(self, x)
 
 
-class StreamSlicer(object):
+class StreamSlicer:
 
     def __init__(self, stream, start=0, stop=None):
         self._stream = stream
@@ -94,7 +94,7 @@ class StreamSlicer(object):
         self._stream.truncate(value)
 
 
-class MetadataUpdater(object):
+class MetadataUpdater:
 
     def __init__(self, stream):
         self.stream = stream

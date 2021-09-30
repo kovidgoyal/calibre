@@ -93,7 +93,7 @@ def db_matches(db, library_id, library_path):
     return samefile(dbpath, os.path.join(library_path, os.path.basename(dbpath)))
 
 
-class LibraryBroker(object):
+class LibraryBroker:
 
     def __init__(self, libraries):
         self.lock = Lock()

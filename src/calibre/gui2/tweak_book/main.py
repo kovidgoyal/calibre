@@ -38,7 +38,7 @@ files inside the book which will be opened for editing automatically.
     return parser
 
 
-class EventAccumulator(object):
+class EventAccumulator:
 
     def __init__(self):
         self.events = []

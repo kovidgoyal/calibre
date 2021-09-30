@@ -43,7 +43,7 @@ class SplitError(ValueError):
                             path=path, size=size))
 
 
-class Split(object):
+class Split:
 
     def __init__(self, split_on_page_breaks=True, page_breaks_xpath=None,
             max_flow_size=0, remove_css_pagebreaks=True):
@@ -186,7 +186,7 @@ class Split(object):
         return url
 
 
-class FlowSplitter(object):
+class FlowSplitter:
     'The actual splitting logic'
 
     def __init__(self, item, page_breaks, page_break_ids, max_flow_size, oeb,

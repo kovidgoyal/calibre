@@ -33,7 +33,7 @@ def asfloat(value, default):
     return float(value)
 
 
-class KeyMapper(object):
+class KeyMapper:
 
     def __init__(self, sbase, dbase, dkey):
         self.sbase = float(sbase)
@@ -83,7 +83,7 @@ class KeyMapper(object):
         return dsize
 
 
-class ScaleMapper(object):
+class ScaleMapper:
 
     def __init__(self, sbase, dbase):
         self.dscale = float(dbase) / float(sbase)
@@ -94,7 +94,7 @@ class ScaleMapper(object):
         return dsize
 
 
-class NullMapper(object):
+class NullMapper:
 
     def __init__(self):
         pass
@@ -112,7 +112,7 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
         return NullMapper()
 
 
-class EmbedFontsCSSRules(object):
+class EmbedFontsCSSRules:
 
     def __init__(self, body_font_family, rules):
         self.body_font_family, self.rules = body_font_family, rules
@@ -131,7 +131,7 @@ class EmbedFontsCSSRules(object):
         return self.href
 
 
-class CSSFlattener(object):
+class CSSFlattener:
 
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
                  untable=False, page_break_on_body=False, specializer=None,

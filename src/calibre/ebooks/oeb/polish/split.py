@@ -149,7 +149,7 @@ def do_split(split_point, log, before=True):
     return tree, tree2
 
 
-class SplitLinkReplacer(object):
+class SplitLinkReplacer:
 
     def __init__(self, base, bottom_anchors, top_name, bottom_name, container):
         self.bottom_anchors, self.bottom_name = bottom_anchors, bottom_name
@@ -298,7 +298,7 @@ def multisplit(container, name, xpath, before=True):
     return all_names[1:]
 
 
-class MergeLinkReplacer(object):
+class MergeLinkReplacer:
 
     def __init__(self, base, anchor_map, master, container):
         self.container, self.anchor_map = container, anchor_map

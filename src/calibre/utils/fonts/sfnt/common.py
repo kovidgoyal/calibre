@@ -13,7 +13,7 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 from polyglot.builtins import range, iteritems
 
 
-class Unpackable(object):
+class Unpackable:
 
     def __init__(self, raw, offset):
         self.raw, self.offset = raw, offset
@@ -171,7 +171,7 @@ def ExtensionSubstitution(raw, offset, subtable_map={}):
 CoverageRange = namedtuple('CoverageRange', 'start end start_coverage_index')
 
 
-class Coverage(object):
+class Coverage:
 
     def __init__(self, raw, offset, parent_table_name):
         data = Unpackable(raw, offset)
@@ -208,7 +208,7 @@ class Coverage(object):
         return ans
 
 
-class UnknownLookupSubTable(object):
+class UnknownLookupSubTable:
 
     formats = {}
 

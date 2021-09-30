@@ -19,7 +19,7 @@ from calibre.constants import __appname__, __version__
 TEXT_RECORD_SIZE = 4096
 
 
-class TocItem(object):
+class TocItem:
 
     def __init__(self, name, size, flags):
         self.name = name
@@ -27,7 +27,7 @@ class TocItem(object):
         self.flags = flags
 
 
-class RBWriter(object):
+class RBWriter:
 
     def __init__(self, opts, log):
         self.opts = opts

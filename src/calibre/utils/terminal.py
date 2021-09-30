@@ -102,7 +102,7 @@ def colored(text, fg=None, bg=None, bold=False):
     return prefix + text + suffix
 
 
-class Detect(object):
+class Detect:
 
     def __init__(self, stream):
         self.stream = stream or sys.stdout

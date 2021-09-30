@@ -16,13 +16,13 @@ from calibre.utils.img import (
 from calibre.utils.imghdr import identify
 
 
-class PixelWand(object):
+class PixelWand:
 
     def __init__(self):
         self.color = '#ffffff'
 
 
-class Image(object):
+class Image:
 
     def __init__(self):
         self.read_format = None

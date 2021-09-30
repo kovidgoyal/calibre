@@ -111,7 +111,7 @@ MIBNUM_TO_NAME = {
 }
 
 
-class HeaderRecord(object):
+class HeaderRecord:
     '''
     Plucker header. PDB record 0.
     '''
@@ -137,7 +137,7 @@ class HeaderRecord(object):
                 self.home_html = id
 
 
-class SectionHeader(object):
+class SectionHeader:
     '''
     Every sections (record) has this header. It gives
     details about the section such as it's uid.
@@ -151,7 +151,7 @@ class SectionHeader(object):
         self.flags, = struct.unpack('>B', raw[7:8])
 
 
-class SectionHeaderText(object):
+class SectionHeaderText:
     '''
     Sub header for text records.
     '''
@@ -176,7 +176,7 @@ class SectionHeaderText(object):
             self.paragraph_offsets.append(running_offset)
 
 
-class SectionMetadata(object):
+class SectionMetadata:
     '''
     Metadata.
 
@@ -234,7 +234,7 @@ class SectionMetadata(object):
             adv += 2*length
 
 
-class SectionText(object):
+class SectionText:
     '''
     Text data. Stores a text section header and the PHTML.
     '''
@@ -244,7 +244,7 @@ class SectionText(object):
         self.data = raw[section_header.paragraphs * 4:]
 
 
-class SectionCompositeImage(object):
+class SectionCompositeImage:
     '''
     A composite image consists of a 2D array
     of rows and columns. The entries in the array

@@ -174,7 +174,7 @@ def clone(style):
     return ans
 
 
-class Style(object):
+class Style:
 
     is_bidi = False
 
@@ -375,7 +375,7 @@ class TableStyle(Style):
         return self._css
 
 
-class Table(object):
+class Table:
 
     def __init__(self, namespace, tbl, styles, para_map, is_sub_table=False):
         self.namespace = namespace
@@ -670,7 +670,7 @@ class Table(object):
                 elem.set('class', self.styles.register(css, elem.tag))
 
 
-class Tables(object):
+class Tables:
 
     def __init__(self, namespace):
         self.tables = []

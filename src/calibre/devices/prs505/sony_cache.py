@@ -89,7 +89,7 @@ def uuid():
 # }}}
 
 
-class XMLCache(object):
+class XMLCache:
 
     def __init__(self, paths, ext_paths, prefixes, use_author_sort):
         from calibre.utils.xml_parse import safe_xml_fromstring

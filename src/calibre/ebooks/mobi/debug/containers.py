@@ -11,7 +11,7 @@ from calibre.ebooks.mobi.debug.headers import EXTHHeader
 from polyglot.builtins import filter, unicode_type
 
 
-class ContainerHeader(object):
+class ContainerHeader:
 
     def __init__(self, data):
         self.ident = data[:4]

@@ -32,7 +32,7 @@ ROOT = QModelIndex()
 ignore_me
 
 
-class BusyCursor(object):
+class BusyCursor:
 
     def __enter__(self):
         QApplication.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))

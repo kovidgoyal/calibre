@@ -50,7 +50,7 @@ def find_folders_under(root, db, add_root=True,  # {{{
 # }}}
 
 
-class FormatCollection(object):  # {{{
+class FormatCollection:  # {{{
 
     def __init__(self, parent_folder, formats):
         self.path_map = {}

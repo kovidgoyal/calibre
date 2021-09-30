@@ -10,7 +10,7 @@ from tinycss.parsing import remove_whitespace, split_on_comma, ParseError
 from polyglot.builtins import error_message
 
 
-class MediaQuery(object):
+class MediaQuery:
 
     __slots__ = 'media_type', 'expressions', 'negated'
 

@@ -28,7 +28,7 @@ from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 from polyglot.builtins import iteritems
 
 
-class J2H (object):
+class J2H :
 
     kanwa = None
 

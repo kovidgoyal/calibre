@@ -119,7 +119,7 @@ def make_config_dir():
         os.makedirs(plugin_dir, mode=CONFIG_DIR_MODE)
 
 
-class Option(object):
+class Option:
 
     def __init__(self, name, switches=[], help='', type=None, choices=None,
                  check=None, group=None, default=None, action=None, metavar=None):
@@ -153,13 +153,13 @@ class Option(object):
         return repr(self)
 
 
-class OptionValues(object):
+class OptionValues:
 
     def copy(self):
         return deepcopy(self)
 
 
-class OptionSet(object):
+class OptionSet:
 
     OVERRIDE_PAT = re.compile(r'#{3,100} Override Options #{15}(.*?)#{3,100} End Override #{3,100}',
                               re.DOTALL|re.IGNORECASE)
@@ -323,7 +323,7 @@ class OptionSet(object):
         return json_dumps(data, ignore_unserializable=ignore_unserializable)
 
 
-class ConfigInterface(object):
+class ConfigInterface:
 
     def __init__(self, description):
         self.option_set       = OptionSet(description=description)
@@ -429,7 +429,7 @@ class StringConfig(ConfigInterface):
         self.set_src(self.option_set.serialize(opts))
 
 
-class ConfigProxy(object):
+class ConfigProxy:
     '''
     A Proxy to minimize file reads for widely used config settings
     '''
@@ -656,7 +656,7 @@ def reset_tweaks_to_default():
     tweaks.update(default_tweaks)
 
 
-class Tweak(object):
+class Tweak:
 
     def __init__(self, name, value):
         self.name, self.value = name, value

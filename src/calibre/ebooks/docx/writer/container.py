@@ -115,7 +115,7 @@ def update_doc_props(root, mi, namespace):
         setm('language', lang_as_iso639_1(l) or l)
 
 
-class DocumentRelationships(object):
+class DocumentRelationships:
 
     def __init__(self, namespace):
         self.rmap = {}
@@ -153,7 +153,7 @@ class DocumentRelationships(object):
         return xml2str(relationships)
 
 
-class DOCX(object):
+class DOCX:
 
     def __init__(self, opts, log):
         self.namespace = DOCXNamespace()

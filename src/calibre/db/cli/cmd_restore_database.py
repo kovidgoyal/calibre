@@ -46,7 +46,7 @@ what is found in the OPF files.
     return parser
 
 
-class Progress(object):
+class Progress:
 
     def __init__(self):
         self.total = 1

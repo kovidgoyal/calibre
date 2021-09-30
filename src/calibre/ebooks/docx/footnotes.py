@@ -9,7 +9,7 @@ from collections import OrderedDict
 from polyglot.builtins import iteritems, unicode_type
 
 
-class Note(object):
+class Note:
 
     def __init__(self, namespace, parent, rels):
         self.type = namespace.get(parent, 'w:type', 'normal')
@@ -22,7 +22,7 @@ class Note(object):
             yield p
 
 
-class Footnotes(object):
+class Footnotes:
 
     def __init__(self, namespace):
         self.namespace = namespace

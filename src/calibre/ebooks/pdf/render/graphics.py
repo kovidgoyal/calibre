@@ -251,7 +251,7 @@ class TexturePattern(TilingPattern):
             self.write(clone.getvalue())
 
 
-class GraphicsState(object):
+class GraphicsState:
 
     FIELDS = ('fill', 'stroke', 'opacity', 'transform', 'brush_origin',
                   'clip_updated', 'do_fill', 'do_stroke')
@@ -285,7 +285,7 @@ class GraphicsState(object):
         return ans
 
 
-class Graphics(object):
+class Graphics:
 
     def __init__(self, page_width_px, page_height_px):
         self.base_state = GraphicsState()

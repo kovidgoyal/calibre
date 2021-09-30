@@ -25,7 +25,7 @@
 from polyglot.builtins import range
 
 
-class H2a (object):
+class H2a :
 
     H2a_table = {
         "\u3041":"a", "\u3042":"a",

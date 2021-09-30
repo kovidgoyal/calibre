@@ -35,7 +35,7 @@ def fcis(text_length):
     return fcis
 
 
-class MobiWriter(object):
+class MobiWriter:
 
     def __init__(self, opts, resources, kf8, write_page_breaks_after_item=True):
         self.opts = opts

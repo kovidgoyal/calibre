@@ -530,7 +530,7 @@ def dummy(book_id_val_map, *args):
     return set()
 
 
-class Writer(object):
+class Writer:
 
     def __init__(self, field):
         self.adapter = get_adapter(field.name, field.metadata)

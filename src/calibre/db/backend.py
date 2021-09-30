@@ -70,7 +70,7 @@ CUSTOM_DATA_TYPES = frozenset(('rating', 'text', 'comments', 'datetime',
 WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
 
 
-class DynamicFilter(object):  # {{{
+class DynamicFilter:  # {{{
 
     'No longer used, present for legacy compatibility'
 
@@ -410,7 +410,7 @@ def rmtree_with_retry(path, sleep_time=1):
         shutil.rmtree(path)
 
 
-class DB(object):
+class DB:
 
     PATH_LIMIT = 40 if iswindows else 100
     WINDOWS_LIBRARY_PATH_LIMIT = 75

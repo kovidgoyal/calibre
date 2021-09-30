@@ -10,7 +10,7 @@ from calibre.ebooks.lrf import LRFParseError
 from polyglot.builtins import unicode_type
 
 
-class Tag(object):
+class Tag:
 
     tags = {
                 0x00 : (6, "*ObjectStart"),

@@ -71,7 +71,7 @@ def get_first_resource_index(first_image_index, num_of_text_records, first_text_
     return first_resource_index
 
 
-class Mobi8Reader(object):
+class Mobi8Reader:
 
     def __init__(self, mobi6_reader, log, for_tweak=False):
         self.for_tweak = for_tweak

@@ -56,7 +56,7 @@ CALIBRE_SNB_BM_TAG = "<$$calibre_snb_bm_tag$$>"
 CALIBRE_SNB_PRE_TAG = "<$$calibre_snb_pre_tag$$>"
 
 
-class SNBMLizer(object):
+class SNBMLizer:
 
     curSubItem = ""
 #    curText = [ ]

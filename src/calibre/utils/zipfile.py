@@ -301,7 +301,7 @@ def _EndRecData(fpin):
     return
 
 
-class ZipInfo (object):
+class ZipInfo :
 
     """Class with attributes describing each file in the ZIP archive."""
 

@@ -12,7 +12,7 @@ from calibre import prints
 from calibre.utils.logging import default_log as log
 
 
-class NumberToText(object):  # {{{
+class NumberToText:  # {{{
     '''
     Converts numbers to text
     4.56    => four point fifty-six

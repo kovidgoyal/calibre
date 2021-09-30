@@ -38,7 +38,7 @@ def XLINK(tag):
     return '{%s}%s'%(NAMESPACES['xlink'], tag)
 
 
-class Context(object):
+class Context:
 
     def __init__(self, root):
         try:

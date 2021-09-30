@@ -178,7 +178,7 @@ def prepare_font_rule(cssdict):
     cssdict['weight'] = int(cssdict['font-weight'])
 
 
-class StatsCollector(object):
+class StatsCollector:
 
     first_letter_pat = capitalize_pat = None
 

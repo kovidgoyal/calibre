@@ -25,7 +25,7 @@ def sort_key_for_action(ac):
         return primary_sort_key('')
 
 
-class FakeAction(object):
+class FakeAction:
 
     def __init__(self, name, gui_name, icon, tooltip=None,
             dont_add_to=frozenset(), dont_remove_from=frozenset()):

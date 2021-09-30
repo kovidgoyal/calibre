@@ -584,7 +584,7 @@ def create_text_record(text):
     return data, overlap
 
 
-class CNCX(object):  # {{{
+class CNCX:  # {{{
 
     '''
     Create the CNCX records. These are records containing all the strings from

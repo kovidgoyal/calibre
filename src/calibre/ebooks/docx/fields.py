@@ -11,7 +11,7 @@ from calibre.ebooks.docx.index import process_index, polish_index_markup
 from polyglot.builtins import iteritems, native_string_type
 
 
-class Field(object):
+class Field:
 
     def __init__(self, start):
         self.start = start
@@ -98,7 +98,7 @@ parse_noteref = parser('noteref',
                    'f:footnote h:hyperlink p:position')
 
 
-class Fields(object):
+class Fields:
 
     def __init__(self, namespace):
         self.namespace = namespace

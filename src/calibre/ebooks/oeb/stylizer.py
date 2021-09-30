@@ -103,7 +103,7 @@ def test_media_ok():
     assert not media_ok('screen and (device-width:10px)')
 
 
-class StylizerRules(object):
+class StylizerRules:
 
     def __init__(self, opts, profile, stylesheets):
         self.opts, self.profile, self.stylesheets = opts, profile, stylesheets
@@ -189,7 +189,7 @@ class StylizerRules(object):
         return True
 
 
-class Stylizer(object):
+class Stylizer:
     STYLESHEETS = WeakKeyDictionary()
 
     def __init__(self, tree, path, oeb, opts, profile=None,
@@ -407,7 +407,7 @@ class Stylizer(object):
         return '\n'.join(rules)
 
 
-class Style(object):
+class Style:
     MS_PAT = re.compile(r'^\s*(mso-|panose-|text-underline|tab-interval)')
 
     def __init__(self, element, stylizer):

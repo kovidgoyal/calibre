@@ -102,7 +102,7 @@ class CacheError(Exception):
     pass
 
 
-class ThumbnailCache(object):
+class ThumbnailCache:
 
     ' This is a persistent disk cache to speed up loading and resizing of covers '
 

@@ -140,7 +140,7 @@ def warn(x):
     print(x)
 
 
-class ReBinary(object):
+class ReBinary:
     NSRMAP = {'': None, XML_NS: 'xml'}
 
     def __init__(self, root, item, oeb, opts, map=HTML_MAP):
@@ -304,7 +304,7 @@ def preserve(function):
     return wrapper
 
 
-class LitWriter(object):
+class LitWriter:
 
     def __init__(self, opts):
         self.opts = opts

@@ -39,7 +39,7 @@ class SafeFormatter(Formatter):
             return ''
 
 
-class Base(object):
+class Base:
 
     def remove_images(self, item, limit=1):
         path = XPath('//h:img[@src]')

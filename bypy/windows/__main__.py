@@ -98,7 +98,7 @@ def run_compiler(env, *cmd):
     run(*cmd, cwd=env.obj_dir)
 
 
-class Env(object):
+class Env:
 
     def __init__(self, build_dir):
         self.python_base = os.path.join(PREFIX, 'private', 'python')

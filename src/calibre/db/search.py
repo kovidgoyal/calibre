@@ -87,7 +87,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
 # }}}
 
 
-class DateSearch(object):  # {{{
+class DateSearch:  # {{{
 
     def __init__(self):
         self.operators = OrderedDict((
@@ -212,7 +212,7 @@ class DateSearch(object):  # {{{
 # }}}
 
 
-class NumericSearch(object):  # {{{
+class NumericSearch:  # {{{
 
     def __init__(self):
         self.operators = OrderedDict((
@@ -305,7 +305,7 @@ class NumericSearch(object):  # {{{
 # }}}
 
 
-class BooleanSearch(object):  # {{{
+class BooleanSearch:  # {{{
 
     def __init__(self):
         self.local_no        = icu_lower(_('no'))
@@ -347,7 +347,7 @@ class BooleanSearch(object):  # {{{
 # }}}
 
 
-class KeyPairSearch(object):  # {{{
+class KeyPairSearch:  # {{{
 
     def __call__(self, query, field_iter, candidates, use_primary_find):
         matches = set()
@@ -388,7 +388,7 @@ class KeyPairSearch(object):  # {{{
 # }}}
 
 
-class SavedSearchQueries(object):  # {{{
+class SavedSearchQueries:  # {{{
     queries = {}
     opt_name = ''
 
@@ -794,7 +794,7 @@ class Parser(SearchQueryParser):  # {{{
 # }}}
 
 
-class LRUCache(object):  # {{{
+class LRUCache:  # {{{
 
     'A simple Least-Recently-Used cache'
 
@@ -851,7 +851,7 @@ class LRUCache(object):  # {{{
 # }}}
 
 
-class Search(object):
+class Search:
 
     MAX_CACHE_UPDATE = 50
 

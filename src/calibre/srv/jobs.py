@@ -82,7 +82,7 @@ class Job(Thread):
         return ans
 
 
-class JobsManager(object):
+class JobsManager:
 
     def __init__(self, opts, log):
         mj = opts.max_jobs

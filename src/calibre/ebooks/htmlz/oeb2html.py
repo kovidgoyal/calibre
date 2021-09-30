@@ -26,7 +26,7 @@ from polyglot.urllib import urldefrag
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 
 
-class OEB2HTML(object):
+class OEB2HTML:
     '''
     Base class. All subclasses should implement dump_text to actually transform
     content. Also, callers should use oeb2html to get the transformed html.

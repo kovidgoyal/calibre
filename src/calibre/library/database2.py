@@ -57,7 +57,7 @@ SPOOL_SIZE = 30*1024*1024
 ProxyMetadata = namedtuple('ProxyMetadata', 'book_size ondevice_col db_approx_formats')
 
 
-class DBPrefsWrapper(object):
+class DBPrefsWrapper:
 
     def __init__(self, db):
         self.db = db
@@ -1731,7 +1731,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     CATEGORY_SORTS = CATEGORY_SORTS
     MATCH_TYPE = ('any', 'all')
 
-    class TCat_Tag(object):
+    class TCat_Tag:
 
         def __init__(self, name, sort):
             self.n = name

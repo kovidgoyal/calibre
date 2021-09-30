@@ -92,7 +92,7 @@ class Heading(QWidget):  # {{{
 # }}}
 
 
-class Cell(object):  # {{{
+class Cell:  # {{{
 
     __slots__ = ('rect', 'text', 'right_align', 'color_role', 'override_color', 'swatch', 'is_overriden')
 
@@ -362,7 +362,7 @@ class Box(QWidget):
         m.exec_(ev.globalPos())
 
 
-class Property(object):
+class Property:
 
     __slots__ = 'name', 'value', 'important', 'color', 'specificity', 'is_overriden'
 

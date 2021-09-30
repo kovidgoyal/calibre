@@ -18,7 +18,7 @@ from polyglot import reprlib
 # Utils {{{
 
 
-class ET(object):
+class ET:
 
     def __init__(self, func_name, args, kwargs={}, old=None, legacy=None):
         self.func_name = func_name

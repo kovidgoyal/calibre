@@ -11,7 +11,7 @@ import threading, re, json
 from calibre import browser
 
 
-class xISBN(object):
+class xISBN:
 
     '''
     This class is used to find the ISBN numbers of "related" editions of a

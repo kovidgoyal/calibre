@@ -257,7 +257,7 @@ def extractall(path_or_stream, path=None):
             f.close()
 
 
-class LocalZipFile(object):
+class LocalZipFile:
 
     def __init__(self, stream):
         self.file_info = OrderedDict()

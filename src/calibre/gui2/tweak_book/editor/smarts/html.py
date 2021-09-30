@@ -34,7 +34,7 @@ PARAGRAPH_SEPARATOR = '\u2029'
 DEFAULT_LINK_TEMPLATE = '<a href="_TARGET_">_TEXT_</a>'
 
 
-class Tag(object):
+class Tag:
 
     def __init__(self, start_block, tag_start, end_block, tag_end, self_closing=False):
         self.start_block, self.end_block = start_block, end_block

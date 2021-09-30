@@ -68,7 +68,7 @@ def hexs(string, sep=' '):
     return sep.join('%02x' % b for b in string)
 
 
-class PackedData(object):
+class PackedData:
 
     '''
     Simplify unpacking of packed binary data structures

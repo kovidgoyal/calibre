@@ -72,7 +72,7 @@ def corrected_case_for_name(container, name):
     return '/'.join(ans)
 
 
-class PositionFinder(object):
+class PositionFinder:
 
     def __init__(self, raw):
         pat = br'\n' if isinstance(raw, bytes) else r'\n'
@@ -87,7 +87,7 @@ class PositionFinder(object):
         return (lnum + 1, offset)
 
 
-class CommentFinder(object):
+class CommentFinder:
 
     def __init__(self, raw, pat=r'(?s)/\*.*?\*/'):
         self.starts, self.ends = [], []

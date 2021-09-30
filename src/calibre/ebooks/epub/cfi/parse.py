@@ -9,7 +9,7 @@ import regex
 from polyglot.builtins import map, zip
 
 
-class Parser(object):
+class Parser:
 
     ''' See epubcfi.ebnf for the specification that this parser tries to
     follow. I have implemented it manually, since I dont want to depend on

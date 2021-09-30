@@ -15,7 +15,7 @@ from polyglot.builtins import range, map
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 
-class Font(object):
+class Font:
 
     def __init__(self, spec):
         self.id = spec.get('id')
@@ -24,7 +24,7 @@ class Font(object):
         self.family = spec.get('family')
 
 
-class Element(object):
+class Element:
 
     def __init__(self):
         self.starts_block = None
@@ -119,7 +119,7 @@ class FontSizeStats(dict):
             self[sz] = chars/total
 
 
-class Interval(object):
+class Interval:
 
     def __init__(self, left, right):
         self.left, self.right = left, right
@@ -145,7 +145,7 @@ class Interval(object):
         return hash('(%f,%f)'%self.left, self.right)
 
 
-class Column(object):
+class Column:
 
     # A column contains an element is the element bulges out to
     # the left or the right by at most HFUZZ*col width.
@@ -252,7 +252,7 @@ class ImageBox(Box):
         return ans
 
 
-class Region(object):
+class Region:
 
     def __init__(self, opts, log):
         self.opts, self.log = opts, log
@@ -409,7 +409,7 @@ class Region(object):
                 self.boxes[-1].append(elem)
 
 
-class Page(object):
+class Page:
 
     # Fraction of a character width that two strings have to be apart,
     # for them to be considered part of the same text fragment
@@ -619,7 +619,7 @@ class Page(object):
             region.linearize()
 
 
-class PDFDocument(object):
+class PDFDocument:
 
     def __init__(self, xml, opts, log):
         self.opts, self.log = opts, log

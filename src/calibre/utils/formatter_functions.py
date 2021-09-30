@@ -28,7 +28,7 @@ from calibre.utils.localization import calibre_langcode_to_name, canonicalize_la
 from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
-class FormatterFunctions(object):
+class FormatterFunctions:
 
     error_function_body = ('def evaluate(self, formatter, kwargs, mi, locals):\n'
                        '\treturn "' +
@@ -121,7 +121,7 @@ def formatter_functions():
     return _ff
 
 
-class FormatterFunction(object):
+class FormatterFunction:
 
     doc = _('No documentation provided')
     name = 'no name provided'

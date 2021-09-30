@@ -22,7 +22,7 @@ MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()
 
 
-class BanList(object):
+class BanList:
 
     def __init__(self, ban_time_in_minutes=0, max_failures_before_ban=5):
         self.interval = max(0, ban_time_in_minutes) * 60
@@ -120,7 +120,7 @@ def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
     return True
 
 
-class DigestAuth(object):  # {{{
+class DigestAuth:  # {{{
 
     valid_algorithms = {'MD5', 'MD5-SESS'}
     valid_qops = {'auth', 'auth-int'}
@@ -213,7 +213,7 @@ class DigestAuth(object):  # {{{
 # }}}
 
 
-class AuthController(object):
+class AuthController:
 
     '''
     Implement Basic/Digest authentication for the Content server. Android browsers

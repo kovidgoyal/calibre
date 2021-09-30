@@ -9,7 +9,7 @@ from calibre.ebooks.oeb.base import OEB_DOCS, XPath, barename
 from calibre.utils.unsmarten import unsmarten_text
 
 
-class UnsmartenPunctuation(object):
+class UnsmartenPunctuation:
 
     def __init__(self):
         self.html_tags = XPath('descendant::h:*')

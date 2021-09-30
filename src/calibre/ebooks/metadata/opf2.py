@@ -30,7 +30,7 @@ from polyglot.urllib import unquote, urlparse
 pretty_print_opf = False
 
 
-class PrettyPrint(object):
+class PrettyPrint:
 
     def __enter__(self):
         global pretty_print_opf
@@ -44,7 +44,7 @@ class PrettyPrint(object):
 pretty_print = PrettyPrint()
 
 
-class Resource(object):  # {{{
+class Resource:  # {{{
 
     '''
     Represents a resource (usually a file on the filesystem or a URL pointing
@@ -127,7 +127,7 @@ class Resource(object):  # {{{
 # }}}
 
 
-class ResourceCollection(object):  # {{{
+class ResourceCollection:  # {{{
 
     def __init__(self):
         self._resources = []
@@ -408,7 +408,7 @@ class Guide(ResourceCollection):  # {{{
 # }}}
 
 
-class MetadataField(object):
+class MetadataField:
 
     def __init__(self, name, is_dc=True, formatter=None, none_is=None,
             renderer=lambda x: unicode_type(x)):
@@ -523,7 +523,7 @@ def dump_dict(cats):
             skipkeys=True)
 
 
-class OPF(object):  # {{{
+class OPF:  # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
     NAMESPACES       = {

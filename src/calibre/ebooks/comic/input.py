@@ -223,7 +223,7 @@ def render_pages(tasks, dest, opts, notification=lambda x, y: x):
     return pages, failures
 
 
-class Progress(object):
+class Progress:
 
     def __init__(self, total, update):
         self.total  = total

@@ -535,7 +535,7 @@ def make_anchors_unique(container, log):
     return name_anchor_map
 
 
-class AnchorLocation(object):
+class AnchorLocation:
 
     __slots__ = ('pagenum', 'left', 'top', 'zoom')
 
@@ -591,7 +591,7 @@ def fix_links(pdf_doc, anchor_locations, name_anchor_map, mark_links, log):
 
 
 # Outline creation {{{
-class PDFOutlineRoot(object):
+class PDFOutlineRoot:
 
     def __init__(self, pdf_doc):
         self.pdf_doc = pdf_doc

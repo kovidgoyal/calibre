@@ -12,7 +12,7 @@ from calibre.constants import iswindows
 from polyglot.builtins import iteritems
 
 
-class DeviceDefaults(object):
+class DeviceDefaults:
 
     def __init__(self):
         self.rules = (

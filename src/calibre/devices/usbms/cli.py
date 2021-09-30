@@ -12,7 +12,7 @@ from calibre.devices.errors import PathError
 from calibre.utils.filenames import case_preserving_open_file
 
 
-class File(object):
+class File:
 
     def __init__(self, path):
         stats = os.stat(path)
@@ -33,7 +33,7 @@ def check_transfer(infile, dest):
     return infile.read() == dest.read()
 
 
-class CLI(object):
+class CLI:
 
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)

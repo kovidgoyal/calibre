@@ -32,7 +32,7 @@ class CNCX(CNCX_):  # {{{
 # }}}
 
 
-class TAGX(object):  # {{{
+class TAGX:  # {{{
 
     BITMASKS = {11:0b1}
     BITMASKS.update({x:(1 << i) for i, x in enumerate([1, 2, 3, 4, 5, 21, 22, 23])})
@@ -90,7 +90,7 @@ class TAGX(object):  # {{{
 
 # Index Entries {{{
 
-class IndexEntry(object):
+class IndexEntry:
 
     TAG_VALUES = {
             'offset': 1,
@@ -243,7 +243,7 @@ class SecondaryIndexEntry(IndexEntry):
 # }}}
 
 
-class TBS(object):  # {{{
+class TBS:  # {{{
 
     '''
     Take the list of index nodes starting/ending on a record and calculate the
@@ -428,7 +428,7 @@ class TBS(object):  # {{{
 # }}}
 
 
-class Indexer(object):  # {{{
+class Indexer:  # {{{
 
     def __init__(self, serializer, number_of_text_records,
             size_of_last_text_record, masthead_offset, is_periodical,

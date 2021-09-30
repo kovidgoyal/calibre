@@ -326,7 +326,7 @@ def _builtin_field_metadata():
 # }}}
 
 
-class FieldMetadata(object):
+class FieldMetadata:
     '''
     key: the key to the dictionary is:
     - for standard fields, the metadata field name.

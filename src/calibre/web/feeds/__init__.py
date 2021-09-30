@@ -15,7 +15,7 @@ from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from polyglot.builtins import unicode_type, string_or_bytes, map
 
 
-class Article(object):
+class Article:
 
     def __init__(self, id, title, url, author, summary, published, content):
         from lxml import html
@@ -107,7 +107,7 @@ Has content : %s
         return self.content == getattr(other_article, 'content', False)
 
 
-class Feed(object):
+class Feed:
 
     def __init__(self, get_article_url=lambda item: item.get('link', None),
             log=default_log):

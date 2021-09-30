@@ -78,7 +78,7 @@ def get_content_length(response):
         return -1
 
 
-class ProgressTracker(object):
+class ProgressTracker:
 
     def __init__(self, fobj, url, sz, progress_report):
         self.fobj = fobj

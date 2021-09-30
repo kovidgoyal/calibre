@@ -56,7 +56,7 @@ class USBDevice(_USBDevice):
     __unicode__ = __repr__
 
 
-class LibUSBScanner(object):
+class LibUSBScanner:
 
     def __call__(self):
         if not hasattr(self, 'libusb'):
@@ -93,7 +93,7 @@ class LibUSBScanner(object):
             print('after', num, 'repeats')
 
 
-class LinuxScanner(object):
+class LinuxScanner:
 
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')
 
@@ -178,7 +178,7 @@ if isnetbsd:
     netbsd_scanner = None
 
 
-class DeviceScanner(object):
+class DeviceScanner:
 
     def __init__(self, *args):
         if iswindows:

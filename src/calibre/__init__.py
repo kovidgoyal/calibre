@@ -358,7 +358,7 @@ def fit_image(width, height, pwidth, pheight):
     return scaled, int(width), int(height)
 
 
-class CurrentDir(object):
+class CurrentDir:
 
     def __init__(self, path):
         self.path = path

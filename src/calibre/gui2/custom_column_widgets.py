@@ -59,7 +59,7 @@ def get_tooltip(col_metadata, add_index=False):
                   label, key, ':' if description else '', description).strip()
 
 
-class Base(object):
+class Base:
 
     def __init__(self, db, col_id, parent=None):
         self.db, self.col_id = db, col_id

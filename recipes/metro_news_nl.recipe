@@ -162,7 +162,7 @@ class MerryExtract():
         return killingSoup
 
 
-class MerryProcess(object):
+class MerryProcess:
     myKiller = MerryExtract()
     myPrepare = MerryPreProcess()
 

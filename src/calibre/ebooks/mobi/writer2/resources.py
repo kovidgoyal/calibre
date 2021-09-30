@@ -38,7 +38,7 @@ def process_jpegs_for_amazon(data: bytes) -> bytes:
     return data
 
 
-class Resources(object):
+class Resources:
 
     def __init__(self, oeb, opts, is_periodical, add_fonts=False,
             process_images=True):

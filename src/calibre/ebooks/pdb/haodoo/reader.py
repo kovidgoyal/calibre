@@ -58,7 +58,7 @@ def fix_punct(line):
     return line
 
 
-class LegacyHeaderRecord(object):
+class LegacyHeaderRecord:
 
     def __init__(self, raw):
         fields = raw.lstrip().replace(b'\x1b\x1b\x1b', b'\x1b').split(b'\x1b')
@@ -69,7 +69,7 @@ class LegacyHeaderRecord(object):
             fields[2:]))
 
 
-class UnicodeHeaderRecord(object):
+class UnicodeHeaderRecord:
 
     def __init__(self, raw):
         fields = raw.lstrip().replace(b'\x1b\x00\x1b\x00\x1b\x00',

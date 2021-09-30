@@ -23,7 +23,7 @@ from polyglot.io import PolyglotStringIO
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
 
 
-class FileFormatter(object):
+class FileFormatter:
 
     def __init__(self, file):
         self.is_dir      = file.is_dir

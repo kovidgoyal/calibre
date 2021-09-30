@@ -53,7 +53,7 @@ def default_errcheck(result, func, args):
 null = object()
 
 
-class a(object):
+class a:
 
     def __init__(self, name, typ, default=null, in_arg=True):
         self.typ = typ
@@ -211,7 +211,7 @@ def filetime_to_datettime(ft):
 # }}}
 
 
-class Key(object):
+class Key:
 
     def __init__(self, create_at=None, open_at=None, root=HKEY_CURRENT_USER, open_mode=KEY_READ):
         root = getattr(root, 'hkey', root)

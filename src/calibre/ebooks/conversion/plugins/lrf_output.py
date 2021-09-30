@@ -13,7 +13,7 @@ from calibre.customize.conversion import OptionRecommendation
 from polyglot.builtins import unicode_type
 
 
-class LRFOptions(object):
+class LRFOptions:
 
     def __init__(self, output, opts, oeb):
         def f2s(f):

@@ -27,7 +27,7 @@ from calibre.ebooks.unihandecode.pykakasi.h2a import H2a
 from calibre.ebooks.unihandecode.pykakasi.k2a import K2a
 
 
-class kakasi(object):
+class kakasi:
 
     j2h = None
     h2a = None

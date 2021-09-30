@@ -133,7 +133,7 @@ class HeaderView(QHeaderView):  # {{{
 # }}}
 
 
-class PreserveViewState(object):  # {{{
+class PreserveViewState:  # {{{
 
     '''
     Save the set of selected books at enter time. If at exit time there are no

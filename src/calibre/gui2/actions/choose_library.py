@@ -28,7 +28,7 @@ def db_class():
     return LibraryDatabase
 
 
-class LibraryUsageStats(object):  # {{{
+class LibraryUsageStats:  # {{{
 
     def __init__(self):
         self.stats = {}

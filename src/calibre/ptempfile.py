@@ -157,7 +157,7 @@ def _make_dir(suffix, prefix, base):
     return tempfile.mkdtemp(suffix, prefix, base)
 
 
-class PersistentTemporaryFile(object):
+class PersistentTemporaryFile:
 
     """
     A file-like object that is a temporary file that is available even after being closed on
@@ -208,7 +208,7 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     return tdir
 
 
-class TemporaryDirectory(object):
+class TemporaryDirectory:
 
     '''
     A temporary directory to be used in a with statement.
@@ -232,7 +232,7 @@ class TemporaryDirectory(object):
             remove_dir(self.tdir)
 
 
-class TemporaryFile(object):
+class TemporaryFile:
 
     def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
         if prefix is None:

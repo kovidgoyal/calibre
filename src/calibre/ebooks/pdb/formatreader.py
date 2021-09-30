@@ -10,7 +10,7 @@ __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-class FormatReader(object):
+class FormatReader:
 
     def __init__(self, header, stream, log, options):
         raise NotImplementedError()

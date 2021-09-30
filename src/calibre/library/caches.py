@@ -1117,7 +1117,7 @@ class ResultCache(SearchQueryParser):  # {{{
             only_ids.sort(key=keyg)
 
 
-class SortKey(object):
+class SortKey:
 
     def __init__(self, orders, values):
         self.orders, self.values = orders, values
@@ -1148,7 +1148,7 @@ class SortKey(object):
         return self.compare_to_other(other) >= 0
 
 
-class SortKeyGenerator(object):
+class SortKeyGenerator:
 
     def __init__(self, fields, field_metadata, data, db_prefs):
         from calibre.utils.icu import sort_key

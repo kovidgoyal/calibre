@@ -283,7 +283,7 @@ class ImageView(QDialog):
             (self.zoom_out if d < 0 else self.zoom_in)()
 
 
-class ImagePopup(object):
+class ImagePopup:
 
     def __init__(self, parent):
         self.current_img = QPixmap()

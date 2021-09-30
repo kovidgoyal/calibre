@@ -25,7 +25,7 @@ from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 from polyglot.builtins import unicode_type, iteritems
 
 
-class TagBrowserMixin(object):  # {{{
+class TagBrowserMixin:  # {{{
 
     def __init__(self, *args, **kwargs):
         pass

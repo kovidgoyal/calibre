@@ -69,7 +69,7 @@ class ReadFileWithProgressReporting:  # {{{
 # }}}
 
 
-class Base(object):  # {{{
+class Base:  # {{{
 
     def __init__(self):
         self.d = os.path.dirname

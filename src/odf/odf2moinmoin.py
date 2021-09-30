@@ -145,7 +145,7 @@ class ListProperties:
         self.ordered = value
 
 
-class ODF2MoinMoin(object):
+class ODF2MoinMoin:
 
     def __init__(self, filepath):
         self.footnotes = []

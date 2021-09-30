@@ -6,7 +6,7 @@ __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
 
-class SearchResult(object):
+class SearchResult:
 
     DRM_LOCKED = 1
     DRM_UNLOCKED = 2

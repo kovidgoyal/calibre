@@ -47,7 +47,7 @@ SPACE_TAGS = [
 ]
 
 
-class TXTMLizer(object):
+class TXTMLizer:
 
     def __init__(self, log):
         self.log = log

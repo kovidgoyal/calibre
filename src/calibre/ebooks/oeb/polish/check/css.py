@@ -173,7 +173,7 @@ class Worker(QWebEnginePage):
         self.work_done.emit(self, result)
 
 
-class Pool(object):
+class Pool:
 
     def __init__(self):
         self.workers = []

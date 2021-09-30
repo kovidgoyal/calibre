@@ -146,7 +146,7 @@ def flush(func):
     return ff
 
 
-class Freeze(object):
+class Freeze:
 
     FID = '@executable_path/../Frameworks'
 

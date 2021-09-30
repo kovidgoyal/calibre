@@ -23,7 +23,7 @@ from polyglot.builtins import unicode_type
 from polyglot.functools import lru_cache
 
 
-class HistoryMixin(object):
+class HistoryMixin:
 
     max_history_items = None
     min_history_entry_length = 3

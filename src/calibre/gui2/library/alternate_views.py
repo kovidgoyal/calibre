@@ -288,7 +288,7 @@ def sync(func):
     return ans
 
 
-class AlternateViews(object):
+class AlternateViews:
 
     def __init__(self, main_view):
         self.views = {None:main_view}

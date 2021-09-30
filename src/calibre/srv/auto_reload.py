@@ -35,7 +35,7 @@ class NoAutoReload(EnvironmentError):
 # Filesystem watcher {{{
 
 
-class WatcherBase(object):
+class WatcherBase:
 
     EXTENSIONS_TO_WATCH = frozenset('py pyj svg'.split())
     BOUNCE_INTERVAL = 2  # seconds
@@ -237,7 +237,7 @@ def join_process(p, timeout=5):
     return p.poll()
 
 
-class Worker(object):
+class Worker:
 
     def __init__(self, cmd, log, server, timeout=5):
         self.cmd = cmd

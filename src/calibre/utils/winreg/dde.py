@@ -97,7 +97,7 @@ def default_errcheck(result, func, args):
 null = object()
 
 
-class a(object):
+class a:
 
     def __init__(self, name, typ, default=null, in_arg=True):
         self.typ=typ

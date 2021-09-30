@@ -369,7 +369,7 @@ class Translations(POT):  # {{{
 
     def auto_fix_iso639_files(self, files):
 
-        class Fix(object):
+        class Fix:
 
             def __init__(self):
                 self.seen = set()
@@ -391,7 +391,7 @@ class Translations(POT):  # {{{
                     self.seen.add(msgstr)
                 return match.group()
 
-        class Fix2(object):
+        class Fix2:
 
             def __init__(self, fix1):
                 self.bad = fix1.bad

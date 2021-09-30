@@ -29,7 +29,7 @@ DWORD     = "<I"  #: Unsigned integer little endian encoded in 4 bytes
 QWORD     = "<Q"  #: Unsigned long long little endian encoded in 8 bytes
 
 
-class field(object):
+class field:
     """ A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>}, that implements access
     to protocol packets in a human readable way.
     """
@@ -81,7 +81,7 @@ class LRFException(Exception):
     pass
 
 
-class fixed_stringfield(object):
+class fixed_stringfield:
     """ A field storing a variable length string. """
 
     def __init__(self, length=8, start=0):
@@ -111,7 +111,7 @@ class fixed_stringfield(object):
                 " starting at byte " + unicode_type(self._start)
 
 
-class xml_attr_field(object):
+class xml_attr_field:
 
     def __init__(self, tag_name, attr, parent='BookInfo'):
         self.tag_name = tag_name
@@ -152,7 +152,7 @@ class xml_attr_field(object):
         return self.tag_name+'.'+self.attr
 
 
-class xml_field(object):
+class xml_field:
     """
     Descriptor that gets and sets XML based meta information from an LRF file.
     Works for simple XML fields of the form <tagname>data</tagname>
@@ -299,7 +299,7 @@ def get_metadata(stream):
     return mi
 
 
-class LRFMetaFile(object):
+class LRFMetaFile:
     """ Has properties to read and write all Meta information in a LRF file. """
     #: The first 6 bytes of all valid LRF files
     LRF_HEADER = 'LRF'.encode('utf-16le')

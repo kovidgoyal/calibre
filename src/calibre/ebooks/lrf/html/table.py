@@ -69,7 +69,7 @@ def tokens(tb):
                     yield k
 
 
-class Cell(object):
+class Cell:
 
     def __init__(self, conv, tag, css):
         self.conv = conv
@@ -210,7 +210,7 @@ class Cell(object):
         return sum([self.text_block_size(i, width)[1] for i in self.text_blocks])
 
 
-class Row(object):
+class Row:
 
     def __init__(self, conv, row, css, colpad):
         self.cells = []
@@ -277,7 +277,7 @@ class Row(object):
             yield c
 
 
-class Table(object):
+class Table:
 
     def __init__(self, conv, table, css, rowpad=10, colpad=10):
         self.rows = []

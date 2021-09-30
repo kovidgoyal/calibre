@@ -29,7 +29,7 @@ class Buf(BytesIO):
         BytesIO.write(self, x)
 
 
-class Serializer(object):
+class Serializer:
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
 
     def __init__(self, oeb, images, is_periodical, write_page_breaks_after_item=True):

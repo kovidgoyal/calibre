@@ -13,7 +13,7 @@ from calibre.utils.imghdr import identify
 from polyglot.builtins import as_unicode
 
 
-class PDFMetadata(object):  # {{{
+class PDFMetadata:  # {{{
 
     def __init__(self, mi=None):
         from calibre import force_unicode
@@ -91,7 +91,7 @@ def get_page_layout(opts, for_comic=False):
 # }}}
 
 
-class Image(object):  # {{{
+class Image:  # {{{
 
     def __init__(self, path_or_bytes):
         if not isinstance(path_or_bytes, bytes):

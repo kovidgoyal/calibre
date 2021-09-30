@@ -57,7 +57,7 @@ def syntax_text_char_format(*args):
     return ans
 
 
-class StoreLocale(object):
+class StoreLocale:
 
     __slots__ = ('enabled',)
 

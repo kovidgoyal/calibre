@@ -308,7 +308,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 # }}}
 
 
-class SearchRestrictionMixin(object):
+class SearchRestrictionMixin:
 
     no_restriction = '<' + _('None') + '>'
 

@@ -20,7 +20,7 @@ def align_block(raw, multiple=4, pad=b'\0'):
     return raw + pad*(multiple - extra)
 
 
-class UnknownTable(object):
+class UnknownTable:
 
     def __init__(self, raw):
         self.raw = raw
@@ -32,7 +32,7 @@ class UnknownTable(object):
         return len(self.raw)
 
 
-class DateTimeProperty(object):
+class DateTimeProperty:
 
     def __init__(self, name):
         self.name = name
@@ -46,7 +46,7 @@ class DateTimeProperty(object):
         setattr(obj, self.name, int(td.total_seconds()))
 
 
-class FixedProperty(object):
+class FixedProperty:
 
     def __init__(self, name):
         self.name = name

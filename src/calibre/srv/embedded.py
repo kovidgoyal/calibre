@@ -49,7 +49,7 @@ custom_list_template.path = os.path.join(config_dir, 'server-custom-list-templat
 search_the_net_urls.path = os.path.join(config_dir, 'server-search-the-net.json')
 
 
-class Server(object):
+class Server:
 
     loop = current_thread = exception = None
     state_callback = start_failure_callback = None

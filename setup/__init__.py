@@ -165,7 +165,7 @@ def edit_file(path):
     ]).wait() == 0
 
 
-class Command(object):
+class Command:
 
     SRC = SRC
     RESOURCES = os.path.join(os.path.dirname(SRC), 'resources')

@@ -101,7 +101,7 @@ an opf file). You can get id numbers from the search command.
     return parser
 
 
-class DBProxy(object):
+class DBProxy:
 
     # Proxy to allow do_save_book_to_disk() to work with remote database
 

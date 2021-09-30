@@ -27,7 +27,7 @@ class AbortInitialize(Exception):
     pass
 
 
-class ConfigWidgetInterface(object):
+class ConfigWidgetInterface:
 
     '''
     This class defines the interface that all widgets displayed in the
@@ -93,7 +93,7 @@ class ConfigWidgetInterface(object):
         pass
 
 
-class Setting(object):
+class Setting:
 
     CHOICES_SEARCH_FLAGS = Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchCaseSensitive
 

@@ -120,7 +120,7 @@ class Book(Book_):
         return super(Book,self).__str__() + "\n" + ans
 
 
-class ImageWrapper(object):
+class ImageWrapper:
 
     def __init__(self, image_path):
         self.image_path = image_path

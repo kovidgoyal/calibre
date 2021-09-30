@@ -15,7 +15,7 @@ import struct, io
 from calibre.ebooks.pdb.formatreader import FormatReader
 
 
-class HeaderRecord(object):
+class HeaderRecord:
     '''
     The first record in the file is always the header record. It holds
     information related to the location of text, images, and so on

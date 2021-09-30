@@ -605,7 +605,7 @@ else:
 # }}}
 
 
-class AdaptMenuBarForDialog(object):
+class AdaptMenuBarForDialog:
 
     def __init__(self, menu_bar):
         self.menu_bar = menu_bar

@@ -124,7 +124,7 @@ def href_to_name(href, root, base=None):
     return unicodedata.normalize('NFC', abspath_to_name(fullpath, root))
 
 
-class ContainerBase(object):  # {{{
+class ContainerBase:  # {{{
     '''
     A base class that implements just the parsing methods. Useful to create
     virtual containers for testing.

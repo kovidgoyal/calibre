@@ -320,7 +320,7 @@ def windows_nlinks(path):
     return winutil.nlinks(path)
 
 
-class WindowsAtomicFolderMove(object):
+class WindowsAtomicFolderMove:
 
     '''
     Move all the files inside a specified folder in an atomic fashion,

@@ -42,7 +42,7 @@ def find_previous_calibre_inline_toc(oeb):
                 return item
 
 
-class TOCAdder(object):
+class TOCAdder:
 
     def __init__(self, oeb, opts, replace_previous_inline_toc=True, ignore_existing_toc=False):
         self.oeb, self.opts, self.log = oeb, opts, oeb.log

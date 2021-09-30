@@ -15,7 +15,7 @@ from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.ebooks.oeb.polish.utils import guess_type
 
 
-class URLMap(object):
+class URLMap:
 
     def __init__(self):
         self.cache = {}

@@ -21,7 +21,7 @@ from polyglot.builtins import iteritems, unicode_type, filter
 _patterns = None
 
 
-class Patterns(object):
+class Patterns:
 
     __slots__ = ('sanitize_invisible_pat', 'split_pat', 'digit_pat', 'fr_elision_pat')
 
@@ -47,7 +47,7 @@ def patterns():
     return _patterns
 
 
-class CharCounter(object):
+class CharCounter:
 
     def __init__(self):
         self.counter = Counter()
@@ -55,7 +55,7 @@ class CharCounter(object):
         self.update = self.counter.update
 
 
-class Location(object):
+class Location:
 
     __slots__ = ('file_name', 'sourceline', 'original_word', 'location_node', 'node_item', 'elided_prefix')
 

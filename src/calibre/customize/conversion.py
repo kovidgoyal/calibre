@@ -10,7 +10,7 @@ from calibre.customize import Plugin
 from polyglot.builtins import unicode_type
 
 
-class ConversionOption(object):
+class ConversionOption:
 
     '''
     Class representing conversion options
@@ -50,7 +50,7 @@ class ConversionOption(object):
                 choices=self.choices)
 
 
-class OptionRecommendation(object):
+class OptionRecommendation:
     LOW  = 1
     MED  = 2
     HIGH = 3
@@ -86,7 +86,7 @@ class OptionRecommendation(object):
                 self.recommended_value) + ' is not a string or a number')
 
 
-class DummyReporter(object):
+class DummyReporter:
 
     def __init__(self):
         self.cancel_requested = False

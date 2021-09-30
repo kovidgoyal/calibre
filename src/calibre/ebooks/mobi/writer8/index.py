@@ -92,7 +92,7 @@ class IndexHeader(Header):  # {{{
 # }}}
 
 
-class Index(object):  # {{{
+class Index:  # {{{
 
     control_byte_count = 1
     cncx = CNCX()
