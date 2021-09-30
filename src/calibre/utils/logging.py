@@ -31,7 +31,11 @@ class Stream(object):
         self._prints(text, end='')
 
     def flush(self):
-        self.stream.flush()
+        try:
+            self.stream.flush()
+        except BrokenPipeError:
+            # Don't make any fuss if we were logging to a pipe and it got closed
+            pass
 
     def prints(self, level, *args, **kwargs):
         self._prints(*args, **kwargs)
@@ -60,9 +64,6 @@ class ANSIStream(Stream):
         from calibre.utils.terminal import ColoredStream
         with ColoredStream(self.stream, self.color[level]):
             self._prints(*args, **kwargs)
-
-    def flush(self):
-        self.stream.flush()
 
 
 class FileStream(Stream):
@@ -93,9 +94,6 @@ class HTMLStream(Stream):
         self._prints(self.color[level], end='')
         self._prints(*args, **kwargs)
         self._prints(self.normal, end='')
-
-    def flush(self):
-        self.stream.flush()
 
 
 class UnicodeHTMLStream(HTMLStream):
