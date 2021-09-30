@@ -17,8 +17,6 @@ from polyglot.builtins import unicode_type
 
 
 config_dir = os.path.join(config_dir, 'conversion')
-if not os.path.exists(config_dir):
-    os.makedirs(config_dir)
 
 
 def name_to_path(name):
@@ -28,6 +26,9 @@ def name_to_path(name):
 def save_defaults(name, recs):
     path = name_to_path(name)
     raw = recs.serialize()
+
+    os.makedirs(config_dir, exist_ok=True)
+
     with lopen(path, 'wb'):
         pass
     with ExclusiveFile(path) as f:
@@ -36,6 +37,9 @@ def save_defaults(name, recs):
 
 def load_defaults(name):
     path = name_to_path(name)
+
+    os.makedirs(config_dir, exist_ok=True)
+
     if not os.path.exists(path):
         open(path, 'wb').close()
     with ExclusiveFile(path) as f:
