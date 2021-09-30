@@ -11,10 +11,8 @@ import sys, os
 
 def check_version_info():
     vi = sys.version_info
-    if vi.major > 3 or (vi.major == 3 and vi[1:3] >= (7, 0)):
-        return
-    raise SystemExit(
-        'calibre requires python >= 3.7.0. Current python version: ' + '.'.join(map(str, vi[:3])))
+    if vi < (3, 7):
+        exit('calibre requires Python >= 3.7.0. Current Python version: ' + '.'.join(map(str, vi[:3])))
 
 
 check_version_info()
