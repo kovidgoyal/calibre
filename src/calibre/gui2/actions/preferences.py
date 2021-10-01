@@ -32,11 +32,10 @@ class PreferencesAction(InterfaceAction):
                 icon='wizard.png', triggered=self.gui.run_wizard)
         cm('plugin updater', _('Get plugins to enhance calibre'),
                 icon='plugins/plugin_updater.png', triggered=self.get_plugins)
+        pm.addSeparator()
         if not DEBUG:
-            pm.addSeparator()
             cm('restart', _('Restart in debug mode'), icon='debug.png',
                     triggered=self.debug_restart, shortcut='Ctrl+Shift+R')
-        pm.addSeparator()
         cm('restart_without_plugins', _('Restart ignoring third party plugins'), icon='debug.png',
             triggered=self.no_plugins_restart, shortcut='Ctrl+Alt+Shift+R')
 
