@@ -329,6 +329,23 @@ class TagsView(QTreeView):  # {{{
         self.collapsed.connect(self.collapse_node_and_children)
 
     def keyPressEvent(self, event):
+
+        def on_last_visible_item(dex, check_children):
+            model = self._model
+            if model.get_node(dex) == model.root_item:
+                # Got to root. There can't be any more children to show
+                return True
+            if check_children and self.isExpanded(dex):
+                # We are on a node with expanded children so there is a node to go to.
+                # We don't check children if we are moving up the parent hierarchy
+                return False
+            parent = model.parent(dex)
+            if dex.row() < model.rowCount(parent) - 1:
+                # Node has more nodes after it
+                return False
+            # Last node. Check the parent for further to see if there are more nodes
+            return on_last_visible_item(parent, False)
+
         # I don't see how current_index can ever be not valid, but ...
         if self.currentIndex().isValid():
             key = event.key()
@@ -339,13 +356,12 @@ class TagsView(QTreeView):  # {{{
                 # Check if we are moving the focus and we are at the beginning or the
                 # end of the list. The goal is to prevent moving focus away from the
                 # tag browser.
-                on_node = self.model().get_node(self.currentIndex())
                 if key == Qt.Key.Key_Tab:
-                    if on_node != self._model.root_item.children[-1]:
+                    if not on_last_visible_item(self.currentIndex(), True):
                         QTreeView.keyPressEvent(self, event)
                     return
                 if key == Qt.Key.Key_Backtab:
-                    if on_node != self._model.root_item.children[0]:
+                    if self.model().get_node(self.currentIndex()) != self._model.root_item.children[0]:
                         QTreeView.keyPressEvent(self, event)
                     return
             # If this is an edit request, mark the node to request whether to use VLs
