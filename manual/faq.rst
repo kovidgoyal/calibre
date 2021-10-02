@@ -589,7 +589,7 @@ With all this flexibility, it is possible to have calibre manage your author nam
 Why doesn't calibre let me store books in my own folder structure?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The whole point of calibre's library management features is that they provide a search and sort based interface for locating books that is *much* more efficient than any possible folder scheme you could come up with for your collection. Indeed, once you become comfortable using calibre's interface to find, sort and browse your collection, you wont ever feel the need to hunt through the files on your disk to find a book again. By managing books in its own folder structure of Author -> Title -> Book files, calibre is able to achieve a high level of reliability and standardization. To illustrate why a search/tagging based interface is superior to folders, consider the following. Suppose your book collection is nicely sorted into folders with the following scheme::
+The whole point of calibre's library management features is that they provide a search and sort based interface for locating books that is *much* more efficient than any possible folder scheme you could come up with for your collection. Indeed, once you become comfortable using calibre's interface to find, sort and browse your collection, you won't ever feel the need to hunt through the files on your disk to find a book again. By managing books in its own folder structure of Author -> Title -> Book files, calibre is able to achieve a high level of reliability and standardization. To illustrate why a search/tagging based interface is superior to folders, consider the following. Suppose your book collection is nicely sorted into folders with the following scheme::
 
     Genre -> Author -> Series -> ReadStatus
 
@@ -671,7 +671,7 @@ then import it on another computer. First let's see how to export the data:
     Now on the new computer, start calibre for the first time. It will run the
     :guilabel:`Welcome wizard` asking you for the location of the calibre library. Point it
     to the previously copied folder. If the computer you are transferring to
-    already has a calibre installation, then the :guilabel:`Welcome wizard` wont run. In
+    already has a calibre installation, then the :guilabel:`Welcome wizard` won't run. In
     that case, right-click the calibre icon in the toolbar and point it to the
     newly copied folder. You will now have two calibre libraries on your
     computer and you can switch between them by clicking the calibre icon on
@@ -756,7 +756,7 @@ Otherwise, you can request a particular news site by posting in the `calibre Rec
 Why the name calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Take your pick:
-  * Convertor And LIBRary for E-books
+  * Converter And LIBRary for E-books
   * A high *calibre* product
   * A tribute to the SONY Librie which was the first e-ink based e-book reader
   * My wife chose it ;-)
@@ -793,7 +793,7 @@ There can be several causes for this:
       has trouble with library locations if the path contains non-English characters, or only numbers, etc.)
     * Try running it as Administrator (Right click on the icon and select "Run as Administrator")
 
-If it still wont launch, start a command prompt (press the Windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
+If it still won't launch, start a command prompt (press the Windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
     calibre-debug -g
 

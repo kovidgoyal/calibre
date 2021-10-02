@@ -152,7 +152,7 @@ REM Location of Calibre Temporary files  (optional)
 REM
 REM Calibre creates a lot of temporary files while running
 REM In theory these are removed when Calibre finishes, but
-REM in practise files can be left behind (particularily if
+REM in practise files can be left behind (particularly if
 REM any errors occur).  Using this option allows some
 REM explicit clean-up of these files.
 REM If not set Calibre uses the normal system TEMP location
@@ -193,7 +193,7 @@ REM Start up the calibre program.
 REM
 REM The use of 'belownormal' priority helps keep the system
 REM responsive while Calibre is running.  Within Calibre itself
-REM the backgound processes should be set to run with 'low' priority.
+REM the background processes should be set to run with 'low' priority.
 
 REM Using the START command starts up Calibre in a separate process.
 REM If used without /WAIT option it launches Calibre and contines batch file.

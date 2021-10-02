@@ -1737,7 +1737,7 @@ class StoreOzonRUStore(StoreBase):
 
 class StorePragmaticBookshelfStore(StoreBase):
     name = 'Pragmatic Bookshelf'
-    description = 'The Pragmatic Bookshelf\'s collection of programming and tech books avaliable as e-books.'
+    description = 'The Pragmatic Bookshelf\'s collection of programming and tech books available as e-books.'
     actual_plugin = 'calibre.gui2.store.stores.pragmatic_bookshelf_plugin:PragmaticBookshelfStore'
 
     drm_free_only = True

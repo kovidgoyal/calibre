@@ -304,7 +304,7 @@ class ImportRule:
 
 
 def _remove_at_charset(tokens):
-    """Remove any valid @charset at the beggining of a token stream.
+    """Remove any valid @charset at the beginning of a token stream.
 
     :param tokens:
         An iterable of tokens

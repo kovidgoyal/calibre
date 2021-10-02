@@ -54,7 +54,7 @@ function and copy the Python code from below.
 
 Every :guilabel:`Search & replace` custom function must have a unique name and consist of a
 Python function named replace, that accepts all the arguments shown above.
-For the moment, we wont worry about all the different arguments to
+For the moment, we won't worry about all the different arguments to
 ``replace()`` function. Just focus on the ``match`` argument. It represents a
 match when running a search and replace. Its full documentation in available
 `here <https://docs.python.org/library/re.html#match-objects>`_.
