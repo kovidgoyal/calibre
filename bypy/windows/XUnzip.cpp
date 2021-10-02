@@ -1348,7 +1348,7 @@ const uInt border[] = { // Order of the bit length code lengths
 //    end-of-block.  Note however that the static length tree defines
 //    288 codes just to fill out the Huffman codes.  Codes 286 and 287
 //    cannot be used though, since there is no length base or extra bits
-//    defined for them.  Similarily, there are up to 30 distance codes.
+//    defined for them.  Similarly, there are up to 30 distance o
 //    However, static trees define 32 codes (all 5 bits) to fill out the
 //    Huffman codes, but the last two had better not show up in the data.
 // 7. Unzip can check dynamic Huffman blocks for complete code sets.
@@ -2911,7 +2911,7 @@ int unzGetLocalExtrafield (unzFile file, voidp buf, unsigned len);
 // ===========================================================================
 //   Read a byte from a gz_stream; update next_in and avail_in. Return EOF
 // for end of file.
-// IN assertion: the stream s has been sucessfully opened for reading.
+// IN assertion: the stream s has been successfully opened for reading.
 
 int unzlocal_getByte(LUFILE *fin,int *pi)
 { unsigned char c;
@@ -3005,8 +3005,8 @@ int strcmpcasenosensitive_internal (const char* fileName1,const char *fileName2)
 
 //
 // Compare two filename (fileName1,fileName2).
-// If iCaseSenisivity = 1, comparision is case sensitivity (like strcmp)
-// If iCaseSenisivity = 2, comparision is not case sensitivity (like strcmpi or strcasecmp)
+// If iCaseSenisivity = 1, comparison is case sensitivity (like strcmp)
+// If iCaseSenisivity = 2, comparison is not case sensitivity (like strcmpi or strcasecmp)
 //
 int unzStringFileNameCompare (const char*fileName1,const char*fileName2,int iCaseSensitivity)
 { if (iCaseSensitivity==1) return strcmp(fileName1,fileName2);
@@ -3075,7 +3075,7 @@ unzFile unzOpenInternal(LUFILE *fin)
   uLong number_disk;          // number of the current dist, used for spanning ZIP, unsupported, always 0
   if (unzlocal_getShort(fin,&number_disk)!=UNZ_OK) err=UNZ_ERRNO;
   // number of the disk with the start of the central directory
-  uLong number_disk_with_CD;  // number the the disk with central dir, used for spaning ZIP, unsupported, always 0
+  uLong number_disk_with_CD;  // number the the disk with central dir, used for spanning ZIP, unsupported, always 0
   if (unzlocal_getShort(fin,&number_disk_with_CD)!=UNZ_OK) err=UNZ_ERRNO;
   // total number of entries in the central dir on this disk
   if (unzlocal_getShort(fin,&us.gi.number_entry)!=UNZ_OK) err=UNZ_ERRNO;
@@ -3604,7 +3604,7 @@ int unzOpenCurrentFile (unzFile file)
 //  Read bytes from the current file.
 //  buf contain buffer where data must be copied
 //  len the size of buf.
-//  return the number of byte copied if somes bytes are copied
+//  return the number of byte copied if some bytes are copied
 //  return 0 if the end of file was reached
 //  return <0 with error code if there is an error
 //    (UNZ_ERRNO for IO error, or zLib error for uncompress error)
