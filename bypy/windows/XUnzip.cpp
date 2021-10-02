@@ -1348,7 +1348,7 @@ const uInt border[] = { // Order of the bit length code lengths
 //    end-of-block.  Note however that the static length tree defines
 //    288 codes just to fill out the Huffman codes.  Codes 286 and 287
 //    cannot be used though, since there is no length base or extra bits
-//    defined for them.  Similarly, there are up to 30 distance o
+//    defined for them.  Similarly, there are up to 30 distance codes.
 //    However, static trees define 32 codes (all 5 bits) to fill out the
 //    Huffman codes, but the last two had better not show up in the data.
 // 7. Unzip can check dynamic Huffman blocks for complete code sets.
