@@ -61,7 +61,7 @@ def save_container(container, path):
             except EnvironmentError as err:
                 if err.errno not in (errno.EPERM, errno.EACCES):
                     # ignore chown failure as user could be editing file belonging
-                    # to a different user, in which case we really cant do anything
+                    # to a different user, in which case we really can't do anything
                     # about it short of making the file update non-atomic
                     raise
 

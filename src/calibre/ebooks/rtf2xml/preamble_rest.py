@@ -137,7 +137,7 @@ class Preamble:
             nothing (changes the original file)
         Logic:
             Read one line in at a time. Determine what action to take based on
-            the state. The state can either be defaut, the revision table, or
+            the state. The state can either be default, the revision table, or
             the list table.
         """
         self.__initiate_values()

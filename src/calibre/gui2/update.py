@@ -53,7 +53,7 @@ def get_newest_version():
         # certificate verification failed, since the version check contains no
         # critical information, ignore and proceed
         # We have to do this as if the calibre CA certificate ever
-        # needs to be revoked, then we wont be able to do version checks
+        # needs to be revoked, then we won't be able to do version checks
         version = get_https_resource_securely(URL, headers=headers, cacerts=None)
     try:
         version = version.decode('utf-8').strip()

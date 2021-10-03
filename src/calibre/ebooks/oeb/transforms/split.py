@@ -124,7 +124,7 @@ class Split:
         for i, elem in enumerate(item.data.iter('*')):
             try:
                 elem.set('pb_order', unicode_type(i))
-            except TypeError:  # Cant set attributes on comment nodes etc.
+            except TypeError:  # Can't set attributes on comment nodes etc.
                 continue
 
         page_breaks = list(page_breaks)
@@ -168,7 +168,7 @@ class Split:
         try:
             href = self.current_item.abshref(href)
         except ValueError:
-            # Unparseable URL
+            # Unparsable URL
             return url
         try:
             href = urlnormalize(href)

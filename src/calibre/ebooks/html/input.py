@@ -168,7 +168,7 @@ class HTMLFile:
             try:
                 link = self.resolve(url)
             except ValueError:
-                # Unparseable URL, ignore
+                # Unparsable URL, ignore
                 continue
             if link not in self.links:
                 self.links.append(link)

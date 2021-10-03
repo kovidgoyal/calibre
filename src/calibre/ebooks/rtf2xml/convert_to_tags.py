@@ -107,7 +107,7 @@ class ConvertToTags:
         """
         Process lines for open tags that have attributes.
         The important info is between [17:-1]. Take this info and split it
-        with the delimeter '<'. The first token in this group is the element
+        with the delimiter '<'. The first token in this group is the element
         name. The rest are attributes, separated fromt their values by '>'. So
         read each token one at a time, and split them by '>'.
         """
@@ -256,7 +256,7 @@ class ConvertToTags:
             an open function for open tags
             an open with attribute function for tags with attributes
             an empty with attribute function for tags that are empty but have
-            attribtes.
+            attributes.
             a closed function for closed tags.
             an empty tag function.
             """

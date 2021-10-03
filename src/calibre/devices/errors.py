@@ -148,7 +148,7 @@ class ControlError(ProtocolError):
 
 class WrongDestinationError(PathError):
     ''' The user chose the wrong destination to send books to, for example by
-    trying to send books to a non existant storage card.'''
+    trying to send books to a non existent storage card.'''
     pass
 
 

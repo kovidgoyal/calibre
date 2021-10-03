@@ -66,7 +66,7 @@ def _bytelist2longBigEndian(blist):
 
 
 def _rotateLeft(x, n):
-    "Rotate x (32 bit) left n bits circularly."
+    "Rotate x (32 bit) left n bits circular."
 
     return (x << n) | (x >> (32-n))
 

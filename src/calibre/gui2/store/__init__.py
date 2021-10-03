@@ -115,14 +115,14 @@ class StorePlugin:  # {{{
         disabled by default.
 
         If a store doesn't provide search on it's own use something like a site specific
-        google search to get search results for this funtion.
+        google search to get search results for this function.
 
         :param query: The string query search with.
         :param max_results: The maximum number of results to return.
         :param timeout: The maximum amount of time in seconds to spend downloading data for search results.
 
         :return: :class:`calibre.gui2.store.search_result.SearchResult` objects
-        item_data is plugin specific and is used in :meth:`open` to open to a specifc place in the store.
+        item_data is plugin specific and is used in :meth:`open` to open to a specific place in the store.
         '''
         raise NotImplementedError()
 

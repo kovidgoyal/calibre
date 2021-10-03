@@ -164,7 +164,7 @@ static void free_cert(PyObject *capsule) {
     if (Cert) X509_free(Cert);
 }
 
-/* Presently this just uses a random number, but a more appealling solution
+/* Presently this just uses a random number, but a more appealing solution
  * is to switch to using a hash of certain key elements. Apparently Verisign do
  * something similar and it seems like a damned good idea. The suggested
  * fields to hash are

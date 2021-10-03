@@ -102,8 +102,8 @@ class TextureChooser(QDialog):
         return i
 
     def update_remove_state(self):
-        removeable = bool(self.selected_fname and not self.selected_fname.startswith(':'))
-        self.remove_button.setEnabled(removeable)
+        removable = bool(self.selected_fname and not self.selected_fname.startswith(':'))
+        self.remove_button.setEnabled(removable)
 
     @property
     def texture(self):

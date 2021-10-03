@@ -31,7 +31,7 @@ class Configure:
         if self.__show_config_file and self.__configuration_file:
             sys.stderr.write('configuration file is "%s"\n' % self.__configuration_file)
         if self.__show_config_file and not self.__configuration_file:
-            sys.stderr.write('No configuraiton file found; using default values\n')
+            sys.stderr.write('No configuration file found; using default values\n')
         if self.__configuration_file:
             read_obj = open_for_read(self.__configuration_file)
             line_to_read = 1
@@ -111,7 +111,7 @@ class Configure:
             return_dict['configure-directory'] = None
         else:
             if not os.path.isdir(configuration_dir):
-                sys.stderr.write('The dirctory "%s" does not appear to be a directory.\n'
+                sys.stderr.write('The directory "%s" does not appear to be a directory.\n'
                         % configuration_dir)
                 return 1
             else:

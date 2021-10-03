@@ -279,7 +279,7 @@ class BIBTEX(CatalogPlugin):
         bibfile_enctag = ['strict', 'replace', 'ignore', 'backslashreplace']
         bib_entry = ['mixed', 'misc', 'book']
 
-        # Needed beacause CLI return str vs int by widget
+        # Needed because CLI return str vs int by widget
         try:
             bibfile_enc = bibfile_enc[opts.bibfile_enc]
             bibfile_enctag = bibfile_enctag[opts.bibfile_enctag]
@@ -342,7 +342,7 @@ class BIBTEX(CatalogPlugin):
         # Initialize BibTeX class
         bibtexc = BibTeX()
 
-        # Entries writing after Bibtex formating (or not)
+        # Entries writing after Bibtex formatting (or not)
         if bibfile_enc != 'ascii' :
             bibtexc.ascii_bibtex = False
         else :

@@ -195,7 +195,7 @@ class SNBFile:
     def Output(self, outputFile):
 
         # Sort the files in file buffer,
-        # requried by the SNB file format
+        # required by the SNB file format
         self.files.sort(key=lambda x: x.fileName)
 
         outputFile = open(outputFile, 'wb')

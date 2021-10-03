@@ -88,7 +88,7 @@ class Links:
                 try:
                     purl = urlparse(url)
                 except Exception:
-                    self.pdf.debug('Ignoring unparseable URL: %r' % url)
+                    self.pdf.debug('Ignoring unparsable URL: %r' % url)
                     continue
                 if purl.scheme and purl.scheme != 'file':
                     action = Dictionary({

@@ -216,7 +216,7 @@ class Dictionaries:
                             try:
                                 ans.obj.add(word)
                             except Exception:
-                                # not critical since all it means is that the word wont show up in suggestions
+                                # not critical since all it means is that the word won't show up in suggestions
                                 prints('Failed to add the word %r to the dictionary for %s' % (word, locale), file=sys.stderr)
             self.dictionaries[locale] = ans
         return ans

@@ -275,7 +275,7 @@ class RTFMLizer:
                 text += '{%s\n' % style_tag
                 tag_stack.append(style_tag)
 
-        # Proccess tags that contain text.
+        # Process tags that contain text.
         if hasattr(elem, 'text') and elem.text:
             text += txt2rtf(elem.text)
 

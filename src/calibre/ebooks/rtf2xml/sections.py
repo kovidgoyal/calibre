@@ -52,8 +52,8 @@ class Sections:
     between the section tags.
     Start a new section outside the field-block strings. Use the second number in
     the list; use the second item in the description list.
-    CHANGE (2004-04-26) No longer write sections that occurr in field-blocks.
-    Instead, ingore all section information in a field-block.
+    CHANGE (2004-04-26) No longer write sections that occur in field-blocks.
+    Instead, ignore all section information in a field-block.
     """
 
     def __init__(self,
@@ -151,7 +151,7 @@ class Sections:
             nothing
         Logic:
             I need to add the right data to the section values dictionary so I
-            can retrive it later. The attribute (or key) is the name; the
+            can retrieve it later. The attribute (or key) is the name; the
             value is the last part of the text string.
             ex: cw<tb<columns___<nu<2
         """
@@ -207,7 +207,7 @@ class Sections:
             nothing
         Logic:
             I have found a section definition. Check if the line is the end of
-            the defnition (a paragraph defintion), or if it contains info that
+            the defnition (a paragraph definition), or if it contains info that
             should be added to the values dictionary. If neither of these
             cases are true, output the line to a file.
         """
@@ -247,9 +247,9 @@ class Sections:
             nothing
         Logic:
             Text or control words indicating text have been found
-            before \\pard. This shoud indicate older RTF. Reset the state
-            Write the section defintion. Insert a paragraph definition.
-            Insert {} to mark the end of a paragraph defintion
+            before \\pard. This should indicate older RTF. Reset the state
+            Write the section definition. Insert a paragraph definition.
+            Insert {} to mark the end of a paragraph definition
         """
         if not self.__in_field:
             self.__state = 'body'
@@ -427,7 +427,7 @@ class Sections:
             Change the state.
         """
         # change this 2004-04-26
-        # Don't do anyting
+        # Don't do anything
         """
         self.__sec_in_field_string += line
         self.__print_field_sec_attributes()

@@ -572,7 +572,7 @@ def educateQuotes(text):
     # start-of-line and end-ol-line regex operators will match anything
     # meaningful
 
-    # Special case for Quotes at end of line with a preceeding space (may change just to end of line)
+    # Special case for Quotes at end of line with a preceding space (may change just to end of line)
     # text = re.sub(r"""(?<=\s)"$""", r"""&#8221;""", text)
     # text = re.sub(r"""(?<=\s)'$""", r"""&#8217;""", text)
 

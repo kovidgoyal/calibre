@@ -351,7 +351,7 @@ class Book(Delegator):
         the Book class in some way or another in order to be rendered as
         an LRS or LRF file.
 
-        The following settings are available on the contructor of Book:
+        The following settings are available on the constructor of Book:
 
         author="book author" or author=("book author", "sort as")
         Author of the book.

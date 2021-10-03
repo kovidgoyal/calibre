@@ -108,7 +108,7 @@ class Restore(Thread):
                 tdir = TemporaryDirectory('_rlib', dir=basedir)
                 tdir.__enter__()
             except EnvironmentError:
-                # Incase we dont have permissions to create directories in the
+                # In case we dont have permissions to create directories in the
                 # parent folder of the src library
                 tdir = TemporaryDirectory('_rlib')
 

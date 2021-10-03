@@ -217,7 +217,7 @@ class ListTable:
             nothing
         Logic:
             Check for the end of the group.
-            Otherwise, if the token is hexidecimal, create an attribute.
+            Otherwise, if the token is hexadecimal, create an attribute.
             Do so by finding the base-10 value of the number. Then divide
             this by 2 and round it. Remove the ".0". Sandwwhich the result to
             give you something like level1-show-level.
@@ -249,9 +249,9 @@ class ListTable:
             nothing
         Logic:
             Check for the end of the group.
-            Otherwise, if the text is hexidecimal, call on the method
+            Otherwise, if the text is hexadecimal, call on the method
             __parse_level_text_length.
-            Otheriwse, if the text is regular text, create an attribute.
+            Otherwise, if the text is regular text, create an attribute.
             This attribute indicates the puncuation after a certain level.
             An example is "level1-marker = '.'"
             Otherwise, check for a level-template-id.
@@ -283,7 +283,7 @@ class ListTable:
     def __parse_level_text_length(self, line):
         """
         Requires:
-            line --line with hexidecimal number
+            line --line with hexadecimal number
         Returns:
             nothing
         Logic:
@@ -373,7 +373,7 @@ class ListTable:
             a list-in-table tag. Get the dictionary of this list
             (the first item). Print out the key => value pair.
             Remove the first item (the dictionary) form this list. Now iterate
-            through what is left in the list. Each list will conatin one item,
+            through what is left in the list. Each list will contain one item,
             a dictionary. Get this dictionary and print out key => value pair.
         """
         not_allow = ['list-id',]
@@ -440,7 +440,7 @@ class ListTable:
         Returns:
             A string and the dictionary of list-table values and attributes.
         Logic:
-            Call on the __parse_lines metod, which splits the text string into
+            Call on the __parse_lines method, which splits the text string into
             lines (which will be tokens) and processes them.
         """
         self.__parse_lines(line)

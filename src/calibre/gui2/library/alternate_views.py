@@ -976,7 +976,7 @@ class GridView(QListView):
                 newdb.new_api.add_cover_cache(x)
             try:
                 # Use a timeout so that if, for some reason, the render thread
-                # gets stuck, we dont deadlock, future covers wont get
+                # gets stuck, we dont deadlock, future covers won't get
                 # rendered, but this is better than a deadlock
                 join_with_timeout(self.delegate.render_queue)
             except RuntimeError:

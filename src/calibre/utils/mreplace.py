@@ -1,4 +1,4 @@
-# multiple replace from dictionnary : http://code.activestate.com/recipes/81330/
+# multiple replace from dictionary : http://code.activestate.com/recipes/81330/
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, sengian <sengian1 @ gmail.com>'

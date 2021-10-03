@@ -588,7 +588,7 @@ class ProcessTokens:
         }
     """
         # unknown
-        # These must get passed on because they occure after \\*
+        # These must get passed on because they occurred after \\*
         'do'                :   ('un', 'unknown___', self.default_func),
         'company'           :	('un', 'company___', self.default_func),
         'shpinst'           :   ('un', 'unknown___', self.default_func),
@@ -755,7 +755,7 @@ class ProcessTokens:
         return first, second
 
     def convert_to_hex(self,number):
-        """Convert a string to uppercase hexidecimal"""
+        """Convert a string to uppercase hexadecimal"""
         num = int(number)
         try:
             hex_num = "%X" % num

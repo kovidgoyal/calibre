@@ -229,10 +229,10 @@ class Extract(ODF2XHTML):
                     # only one draw:image allowed in the draw:frame
                     if len(img) == 1 and img[0].getAttribute('href') == mi.cover:
                         # ok, this is the right frame with the right image
-                        # check if there are more childs
+                        # check if there are more children
                         if len(frm.childNodes) != 1:
                             break
-                        # check if the parent paragraph more childs
+                        # check if the parent paragraph more children
                         para = frm.parentNode
                         if para.tagName != 'text:p' or len(para.childNodes) != 1:
                             break

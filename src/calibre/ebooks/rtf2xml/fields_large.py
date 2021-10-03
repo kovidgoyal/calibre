@@ -53,7 +53,7 @@ Examples
         <field type = "insert-time">
             10:34 PM
         </field>
-    The simple field in the above example conatins no paragraph or sections breaks.
+    The simple field in the above example contains no paragraph or sections breaks.
     This line of RTF:
         {{\field{\*\fldinst SYMBOL 97 \\f "Symbol" \\s 12}{\fldrslt\f3\fs24}}}
     Becomes:
@@ -141,7 +141,7 @@ Examples
         }
         self.__field_count = []  # keep track of the brackets
         self.__field_instruction = []  # field instruction strings
-        self.__symbol = 0   # wheter or not the field is really UTF-8
+        self.__symbol = 0   # whether or not the field is really UTF-8
         # (these fields cannot be nested.)
         self.__field_instruction_string = ''  # string that collects field instruction
         self.__par_in_field = []  # paragraphs in field?
@@ -150,7 +150,7 @@ Examples
 
     def __before_body_func(self, line):
         """
-        Requried:
+        Required:
             line --line ro parse
         Returns:
             nothing (changes an instant and writes a line)
@@ -183,7 +183,7 @@ Examples
         Returns:
             nothing
         Logic:
-            Set the values for parseing the field. Four lists have to have
+            Set the values for parsing the field. Four lists have to have
             items appended to them.
         """
         self.__state = 'field'
@@ -201,7 +201,7 @@ Examples
         Returns:
             nothing.
         Logic:
-            Check for the end of the field; a paragaph break; a section break;
+            Check for the end of the field; a paragraph break; a section break;
             the beginning of another field; or the beginning of the field
             instruction.
         """
@@ -289,7 +289,7 @@ Examples
             Nothing
         Logic:
             Pop the last values in the instructions list, the fields list, the
-            paragaph list, and the section list.
+            paragraph list, and the section list.
             If the field is a symbol, do not write the tags <field></field>,
             since this field is really just UTF-8.
             If the field contains paragraph or section breaks, it is a

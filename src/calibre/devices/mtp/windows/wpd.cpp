@@ -136,7 +136,7 @@ wpd_enumerate_devices(PyObject *self, PyObject *args) {
     hr = portable_device_manager->GetDevices(NULL, &num_of_devices);
     Py_END_ALLOW_THREADS;
     if (FAILED(hr)) return hresult_set_exc("Failed to get number of devices on the system", hr);
-    num_of_devices += 15; // Incase new devices were connected between this call and the next
+    num_of_devices += 15; // In case new devices were connected between this call and the next
     pnp_device_ids = (PWSTR*)calloc(num_of_devices, sizeof(PWSTR));
     if (pnp_device_ids == NULL) return PyErr_NoMemory();
 

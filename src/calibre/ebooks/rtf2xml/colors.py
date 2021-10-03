@@ -126,7 +126,7 @@ class Colors:
         Logic:
             Check if the end of the color table has been reached. If so,
             change the state to after the color table.
-            Othewise, get a function by passing the self.__token_info to the
+            Otherwise, get a function by passing the self.__token_info to the
             state dictionary.
             """
         # mi<mk<clrtbl-beg
@@ -234,7 +234,7 @@ class Colors:
             beginning of the color table.
             If the state is in the color table, create the color dictionary
             and print out the tags.
-            If the state if afer the color table, look for lines with color
+            If the state if after the color table, look for lines with color
             info, and substitute the number with the hex number.
         """
         self.__initiate_values()

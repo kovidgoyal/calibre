@@ -74,7 +74,7 @@ class PdbHeaderBuilder:
 
     def build_header(self, section_lengths, out_stream):
         '''
-        section_lengths = Lenght of each section in file.
+        section_lengths = Length of each section in file.
         '''
 
         now = int(time.time())

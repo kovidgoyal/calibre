@@ -272,7 +272,7 @@ class scoped_com_initializer {  // {{{
 	public:
 		scoped_com_initializer() : m_succeded(false) { if (SUCCEEDED(CoInitialize(NULL))) m_succeded = true; }
 		~scoped_com_initializer() { CoUninitialize(); }
-		bool succeded() { return m_succeded; }
+		bool succeeded() { return m_succeded; }
 	private:
 		bool m_succeded;
 		scoped_com_initializer( const scoped_com_initializer & ) ;
@@ -637,7 +637,7 @@ winutil_move_to_trash(PyObject *self, PyObject *args) {
 	if (!PyArg_ParseTuple(args, "O&", py_to_wchar, &path)) return NULL;
 
 	scoped_com_initializer com;
-	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
 
 	CComPtr<IFileOperation> pfo;
 	if (FAILED(CoCreateInstance(CLSID_FileOperation, nullptr, CLSCTX_ALL, IID_PPV_ARGS(&pfo)))) {
@@ -687,7 +687,7 @@ resolve_lnk(PyObject *self, PyObject *args) {
 		return NULL;
 	}
 	scoped_com_initializer com;
-	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
 	CComPtr<IShellLink> shell_link;
 	if (FAILED(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell_link)))) {
 		PyErr_SetString(PyExc_OSError, "Failed to create IShellLink instance");
@@ -723,7 +723,7 @@ winutil_manage_shortcut(PyObject *self, PyObject *args) {
 	}
 
 	scoped_com_initializer com;
-	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
 
 	CComPtr<IShellLink> shell_link;
 	if (FAILED(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&shell_link)))) {
@@ -1094,7 +1094,7 @@ get_icon_for_file(PyObject *self, PyObject *args) {
 	wchar_raii path;
 	if (!PyArg_ParseTuple(args, "O&", py_to_wchar_no_none, &path)) return NULL;
 	scoped_com_initializer com;
-	if (!com.succeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
+	if (!com.succeeded()) { PyErr_SetString(PyExc_OSError, "Failed to initialize COM"); return NULL; }
 	SHFILEINFO fi = {0};
 	DWORD_PTR res;
 	Py_BEGIN_ALLOW_THREADS

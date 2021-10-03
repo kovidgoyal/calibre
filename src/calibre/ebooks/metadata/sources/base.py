@@ -480,7 +480,7 @@ class Source(Plugin):
         The URL is the URL for the book identified by identifiers at this
         source. identifier_type, identifier_value specify the identifier
         corresponding to the URL.
-        This URL must be browseable to by a human using a browser. It is meant
+        This URL must be browsable to by a human using a browser. It is meant
         to provide a clickable link for the user to easily visit the books page
         at this source.
         If no URL is found, return None. This method must be quick, and

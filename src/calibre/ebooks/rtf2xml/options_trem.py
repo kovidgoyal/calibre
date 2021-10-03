@@ -10,7 +10,7 @@ class ParseOptions:
            options_dict -- a dictionary with the key equal to the opition, and
            a list describing that option. (See below)
         Returns:
-            A tupple. The first item in the tupple is a dictionary containing
+            A tuple. The first item in the tuple is a dictionary containing
             the arguments for each options. The second is a list of the
             arguments.
             If invalid options are passed to the module, 0,0 is returned.
@@ -193,7 +193,7 @@ class ParseOptions:
             list of options
         Logic:
             Iterate through the self.__system string, looking for the last
-            option. The options are everything in the sysem string before the
+            option. The options are everything in the system string before the
             last option.
             Check to see that the options contain no arguments.
         """

@@ -169,7 +169,7 @@ class ThreadPool:
     def __init__(self, num_workers, q_size=0):
         """Set up the thread pool and start num_workers worker threads.
 
-        num_workers is the number of worker threads to start initialy.
+        num_workers is the number of worker threads to start initially.
         If q_size > 0 the size of the work request queue is limited and
         the thread pool blocks when the queue is full and it tries to put
         more work requests in it (see putRequest method).
@@ -216,7 +216,7 @@ class ThreadPool:
             try:
                 # get back next results
                 request, result = self.resultsQueue.get(block=block)
-                # has an exception occured?
+                # has an exception occurred?
                 if request.exception and request.exc_callback:
                     request.exc_callback(request, result)
                 # hand results to callback, if any
@@ -293,7 +293,7 @@ if __name__ == '__main__':
 
     # this will be called when an exception occurs within a thread
     def handle_exception(request, exc_info):
-        print("Exception occured in request #%s: %s" %
+        print("Exception occurred in request #%s: %s" %
           (request.requestID, exc_info[1]))
 
     # assemble the arguments for each job to a list...

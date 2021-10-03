@@ -414,7 +414,7 @@ class Token {
 		}
 
 		void set_text(const PyObject* src) {
-			if (PyUnicode_READY(src) != 0) throw python_error("Failed to set token value from unicode object as readying the unicode obect failed");
+			if (PyUnicode_READY(src) != 0) throw python_error("Failed to set token value from unicode object as readying the unicode object failed");
 			int kind = PyUnicode_KIND(src); void *data = PyUnicode_DATA(src);
             text.resize(PyUnicode_GET_LENGTH(src));
 			for (Py_ssize_t i = 0; i < PyUnicode_GET_LENGTH(src); i++) text[i] = PyUnicode_READ(kind, data, i);

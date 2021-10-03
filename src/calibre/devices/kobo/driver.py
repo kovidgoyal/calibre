@@ -309,7 +309,7 @@ class KOBO(USBMS):
                                 # print 'update_metadata_item returned true'
                                 changed = True
                         else:
-                            debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
+                            debug_print("    Strange:  The file: ", prefix, lpath, " does not exist!")
                     if lpath in playlist_map and \
                         playlist_map[lpath] not in bl[idx].device_collections:
                         bl[idx].device_collections = playlist_map.get(lpath,[])
@@ -321,7 +321,7 @@ class KOBO(USBMS):
                             if os.path.exists(self.normalize_path(os.path.join(prefix, lpath))):
                                 book = self.book_from_path(prefix, lpath, title, authors, mime, date, ContentType, ImageID)
                             else:
-                                debug_print("    Strange:  The file: ", prefix, lpath, " does mot exist!")
+                                debug_print("    Strange:  The file: ", prefix, lpath, " does not exist!")
                                 title = "FILE MISSING: " + title
                                 book = self.book_class(prefix, lpath, title, authors, mime, date, ContentType, ImageID, size=1048576)
 
@@ -350,10 +350,10 @@ class KOBO(USBMS):
             if self.dbversion >= 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, IsDownloaded from content where '
-                    'BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(
+                    'BookID is Null %(previews)s %(recommendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(
                         expiry=' and ContentType = 6)' if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')',
                     previews=' and Accessibility <> 6' if not self.show_previews else '',
-                    recomendations=' and IsDownloaded in (\'true\', 1)' if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] is False else '')
+                    recommendations=' and IsDownloaded in (\'true\', 1)' if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] is False else '')
             elif self.dbversion >= 16 and self.dbversion < 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
                     'ImageID, ReadStatus, ___ExpirationStatus, FavouritesIndex, Accessibility, "1" as IsDownloaded from content where '
@@ -600,7 +600,7 @@ class KOBO(USBMS):
                 prints('in add_books_to_metadata. Prefix is None!', path,
                         self._main_prefix)
                 continue
-            # print "Add book to metatdata: "
+            # print "Add book to metadata: "
             # print "prefix: " + prefix
             lpath = path.partition(prefix)[2]
             if lpath.startswith('/') or lpath.startswith('\\'):
@@ -926,10 +926,10 @@ class KOBO(USBMS):
                                 pass
             else:  # No collections
                 # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
-                debug_print("No Collections - reseting ReadStatus")
+                debug_print("No Collections - resetting ReadStatus")
                 self.reset_readstatus(connection, oncard)
                 if self.dbversion >= 14:
-                    debug_print("No Collections - reseting FavouritesIndex")
+                    debug_print("No Collections - resetting FavouritesIndex")
                     self.reset_favouritesindex(connection, oncard)
 
 #        debug_print('Finished update_device_database_collections', collections_attributes)
@@ -1067,11 +1067,11 @@ class KOBO(USBMS):
                                 fsync(f)
 
                 else:
-                    debug_print("ImageID could not be retreived from the database")
+                    debug_print("ImageID could not be retrieved from the database")
 
     def prepare_addable_books(self, paths):
         '''
-        The Kobo supports an encrypted epub refered to as a kepub
+        The Kobo supports an encrypted epub referred to as a kepub
         Unfortunately Kobo decided to put the files on the device
         with no file extension.  I just hope that decision causes
         them as much grief as it does me :-)
@@ -1369,7 +1369,7 @@ class KOBOTOUCH(KOBO):
     # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
     max_supported_fwversion         = (4, 28, 16705)
-    # The following document firwmare versions where new function or devices were added.
+    # The following document firmware versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
     min_fwversion_images_on_sdcard  = (2, 4, 1)
@@ -1667,7 +1667,7 @@ class KOBOTOUCH(KOBO):
                 if favouritesindex == 1:
                     playlist_map[lpath].append('Shortlist')
 
-                # The follwing is in flux:
+                # The following is in flux:
                 # - FW2.0.0, DBVersion 53,55 accessibility == 1
                 # - FW2.1.2 beta, DBVersion == 56, accessibility == -1:
                 # So, the following should be OK
@@ -1857,7 +1857,7 @@ class KOBOTOUCH(KOBO):
                     "from ShelfContent "        \
                     "where ContentId = ? "      \
                     "and _IsDeleted = 'false' " \
-                    "and ShelfName is not null"         # This should never be nulll, but it is protection against an error cause by a sync to the Kobo server
+                    "and ShelfName is not null"         # This should never be null, but it is protection against an error cause by a sync to the Kobo server
             values = (ContentID, )
             cursor.execute(query, values)
             for i, row in enumerate(cursor):
@@ -1905,32 +1905,32 @@ class KOBOTOUCH(KOBO):
                 where_clause = (" WHERE BookID IS NULL "
                         " AND ((Accessibility = -1 AND IsDownloaded in ('true', 1 )) "              # Sideloaded books
                         "      OR (Accessibility IN (%(downloaded_accessibility)s) %(expiry)s) "    # Purchased books
-                        "      %(previews)s %(recomendations)s ) "                                  # Previews or Recommendations
+                        "      %(previews)s %(recommendations)s ) "                                  # Previews or Recommendations
                     ) % \
                     dict(
                          expiry="" if self.show_archived_books else "and IsDownloaded in ('true', 1)",
                          previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else "",
-                         recomendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else "",
+                         recommendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else "",
                          downloaded_accessibility="1,2,8,9" if self.supports_overdrive() else "1,2"
                          )
             elif self.supports_series():
                 where_clause = (" WHERE BookID IS NULL "
-                    " AND ((Accessibility = -1 AND IsDownloaded IN ('true', 1)) or (Accessibility IN (1,2)) %(previews)s %(recomendations)s )"
+                    " AND ((Accessibility = -1 AND IsDownloaded IN ('true', 1)) or (Accessibility IN (1,2)) %(previews)s %(recommendations)s )"
                     " AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus is Null) %(expiry)s)"
                     ) % \
                     dict(
                          expiry=" AND ContentType = 6" if self.show_archived_books else "",
                          previews=" or (Accessibility IN (6) AND ___UserID <> '')" if self.show_previews else "",
-                         recomendations=" or (Accessibility in (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else ""
+                         recommendations=" or (Accessibility in (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else ""
                          )
             elif self.dbversion >= 33:
-                where_clause = (' WHERE BookID IS NULL %(previews)s %(recomendations)s AND NOT'
+                where_clause = (' WHERE BookID IS NULL %(previews)s %(recommendations)s AND NOT'
                     ' ((___ExpirationStatus=3 or ___ExpirationStatus IS NULL) %(expiry)s)'
                     ) % \
                     dict(
                          expiry=' AND ContentType = 6' if self.show_archived_books else '',
                          previews=' AND Accessibility <> 6' if not self.show_previews else '',
-                         recomendations=' AND IsDownloaded IN (\'true\', 1)' if not self.show_recommendations else ''
+                         recommendations=' AND IsDownloaded IN (\'true\', 1)' if not self.show_recommendations else ''
                          )
             elif self.dbversion >= 16:
                 where_clause = (' WHERE BookID IS NULL '
@@ -2527,7 +2527,7 @@ class KOBOTOUCH(KOBO):
 
                 elif bookshelf_attribute:  # No collections but have set the shelf option
                     # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
-                    debug_print("No Collections - reseting ReadStatus")
+                    debug_print("No Collections - resetting ReadStatus")
                     if self.dbversion < 53:
                         self.reset_readstatus(connection, oncard)
                     if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
@@ -2675,7 +2675,7 @@ class KOBOTOUCH(KOBO):
         ):
         '''
         This will generate the new cover image from the cover in the library. It is a wrapper
-        for save_cover_data_to to allow it to be overriden in a subclass. For this reason,
+        for save_cover_data_to to allow it to be overridden in a subclass. For this reason,
         options are passed in that are not used by this implementation.
 
         :param cover_data:    original cover data
@@ -3525,12 +3525,12 @@ class KOBOTOUCH(KOBO):
 
     @property
     def create_bookshelves(self):
-        # Only for backwards compatabilty
+        # Only for backwards compatibility
         return self.manage_collections
 
     @property
     def delete_empty_shelves(self):
-        # Only for backwards compatabilty
+        # Only for backwards compatibility
         return self.delete_empty_collections
 
     @property
@@ -3756,7 +3756,7 @@ class KOBOTOUCH(KOBO):
             settings.show_recommendations = settings.extra_customization[OPT_SHOW_RECOMMENDATIONS]
 
             # If the configuration hasn't been change for a long time, the last few option will be out
-            # of sync. The last two options aare always the support newer firmware and the debugging
+            # of sync. The last two options are always the support newer firmware and the debugging
             # title. Set seties and Modify CSS were the last two new options. The debugging title is
             # a string, so looking for that.
             start_subclass_extra_options = OPT_MODIFY_CSS

@@ -404,7 +404,7 @@ class LibraryDatabase:
             END;
         END;
         CREATE TRIGGER fkc_update_books_series_link_b
-        BEFORE UPDATE OF serie ON books_series_link
+        BEFORE UPDATE OF series ON books_series_link
         BEGIN
             SELECT CASE
                 WHEN (SELECT id from series WHERE id=NEW.series) IS NULL

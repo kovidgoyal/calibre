@@ -148,7 +148,7 @@ class Matches(QAbstractItemModel):
         query = query.replace('~', '')
         query = query.replace('>', '')
         query = query.replace('<', '')
-        # Store the query at this point for comparision later
+        # Store the query at this point for comparison later
         mod_query = query
         # Remove filter identifiers
         # Remove the prefix.

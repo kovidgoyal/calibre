@@ -104,7 +104,7 @@ class Exporter:
             if size + self.f.tell() < self.part_size:
                 return
         except AttributeError:
-            raise RuntimeError('This exporter has already been commited, cannot add to it')
+            raise RuntimeError('This exporter has already been committed, cannot add to it')
         self.commit_part()
         self.new_part()
 

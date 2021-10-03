@@ -60,7 +60,7 @@ class Reader(FormatReader):
 
         self.log.debug('Foud ztxt version: %i.%i' % (vmajor, vminor))
 
-        # Initalize the decompressor
+        # Initialize the decompressor
         self.uncompressor = zlib.decompressobj()
         self.uncompressor.decompress(self.section_data(1))
 

@@ -401,7 +401,7 @@ class Editor(QMainWindow):
             if name == 'insert-tag':
                 w = bar.widgetForAction(ac)
                 if hasattr(w, 'setPopupMode'):
-                    # For some unknown reason this button is occassionally a
+                    # For some unknown reason this button is occasionally a
                     # QPushButton instead of a QToolButton
                     w.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
                 w.setMenu(self.insert_tag_menu)
@@ -413,7 +413,7 @@ class Editor(QMainWindow):
                 ac.setMenu(m)
                 ch = bar.widgetForAction(ac)
                 if hasattr(ch, 'setPopupMode'):
-                    # For some unknown reason this button is occassionally a
+                    # For some unknown reason this button is occasionally a
                     # QPushButton instead of a QToolButton
                     ch.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
                 for name in tuple('h%d' % d for d in range(1, 7)) + ('p',):

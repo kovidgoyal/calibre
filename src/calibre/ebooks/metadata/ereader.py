@@ -79,7 +79,7 @@ def set_metadata(stream, mi):
     if hr.compression not in (2, 10):
         return
 
-    # Create a metadata record for the file if one does not alreay exist
+    # Create a metadata record for the file if one does not already exist
     if not hr.has_metadata:
         sections += [b'', b'MeTaInFo\x00']
         last_data = len(sections) - 1

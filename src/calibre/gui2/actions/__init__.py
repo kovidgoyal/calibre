@@ -274,7 +274,7 @@ class InterfaceAction(QObject):
                 persist_shortcut=persist_shortcut)
             # In Qt 5 keyboard shortcuts dont work unless the
             # action is explicitly added to the main window and on OSX and
-            # Unity since the menu might be exported, the shortcuts wont work
+            # Unity since the menu might be exported, the shortcuts won't work
             self.gui.addAction(ac)
         if triggered is not None:
             ac.triggered.connect(triggered)

@@ -1054,7 +1054,7 @@ OptionRecommendation(name='search_replace',
             from calibre.utils.fonts.scanner import font_scanner  # noqa
         import css_parser, logging
         css_parser.log.setLevel(logging.WARN)
-        get_types_map()  # Ensure the mimetypes module is intialized
+        get_types_map()  # Ensure the mimetypes module is initialized
 
         if self.opts.debug_pipeline is not None:
             self.opts.verbose = max(self.opts.verbose, 4)

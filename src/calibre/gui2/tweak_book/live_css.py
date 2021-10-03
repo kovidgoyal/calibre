@@ -176,7 +176,7 @@ class Declaration(QWidget):
             ])
             self.lines_for_copy.append(text + vtext)
             if prop.is_overriden:
-                self.lines_for_copy[-1] += ' [overriden]'
+                self.lines_for_copy[-1] += ' [overridden]'
             ypos += max(br1.height(), br2.height()) + line_spacing
         self.lines_for_copy.append('--------------------------\n')
 

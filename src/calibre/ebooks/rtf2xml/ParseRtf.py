@@ -44,7 +44,7 @@ def Handle_Main():
             # determine the run level. The default is 1.
             run_level = 3,
             # The name of a debug directory, if you are running at
-            # run level 3 or higer.
+            # run level 3 or higher.
             debug = 'debug_dir',
             # Convert RTF caps to real caps.
             # Default is 1.
@@ -124,7 +124,7 @@ class ParseRtf:
             'output' --a file to output the parsed file. (Default is standard
             output.)
             'temp_dir' --directory for temporary output (If not provided, the
-            script tries to output to directory where is script is exectued.)
+            script tries to output to directory where is script is executed.)
             'deb_dir' --debug directory. If a debug_dir is provided, the script
             will copy each run through as a file to examine in the debug_dir
             'check_brackets' -- make sure the brackets match up after each run

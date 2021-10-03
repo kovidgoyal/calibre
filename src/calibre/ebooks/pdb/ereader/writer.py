@@ -154,7 +154,7 @@ class Writer(FormatWriter):
                     if len(data) + len(header) < 65505:
                         images.append((header, data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s becuase '
+                    self.log.error('Error: Could not include file %s because '
                         '%s.' % (item.href, e))
 
         return images

@@ -990,7 +990,7 @@ class BooksView(QTableView):  # {{{
 
         self.restore_state()
         self.set_ondevice_column_visibility()
-        # incase there were marked books
+        # in case there were marked books
         self.model().set_row_decoration(set())
         self.row_header.headerDataChanged(Qt.Orientation.Vertical, 0, self.row_header.count()-1)
         self.row_header.geometriesChanged.emit()
