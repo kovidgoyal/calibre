@@ -333,7 +333,7 @@ def collapse_partition(collapse_nodes, items, category_node, idx, tag, opts, top
         if not name.startswith('##TAG_VIEW##'):
             # Formatter succeeded
             node_id = category_as_json(
-                items, items[category_node['id']].category, name, 0,
+                items, items[category_node['id']]['category'], name, 0,
                 parent=category_node['id'], is_editable=False, is_gst=is_gst,
                 is_hierarchical=category_is_hierarchical, is_searchable=False)
             node_parent = {'id':node_id, 'children':[]}
