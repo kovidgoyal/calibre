@@ -78,7 +78,7 @@ def create_installer(env):
     cmd.extend([
         '-sice:ICE60',  # No language in dlls warning
         '-sice:ICE61',  # Allow upgrading with same version number
-        '-sice:ICE40',  # Re-install mode overriden
+        '-sice:ICE40',  # Re-install mode overridden
         '-sice:ICE69',  # Shortcut components are part of a different feature than the files they point to
     ])
     cmd.append('-sval')  # Disable all checks since they fail when running under ssh

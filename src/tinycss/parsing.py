@@ -152,7 +152,7 @@ class ParseError(ValueError):
 
     .. attribute:: reason
 
-        What happend (a string).
+        What happened (a string).
 
     """
     def __init__(self, subject, reason):

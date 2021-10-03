@@ -1027,7 +1027,7 @@ complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
 
 pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
-pics = list(sorted(pics))  # for reproducability
+pics = list(sorted(pics))  # for reproducibility
 
 
 def opts_and_exts(name, op, exts, cover_opts=('--cover',), opf_opts=(),

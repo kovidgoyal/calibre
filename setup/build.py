@@ -428,7 +428,7 @@ class Build(Command):
                     os.remove(x)
 
     def check_call(self, *args, **kwargs):
-        """print cmdline if an error occured
+        """print cmdline if an error occurred
 
         If something is missing (qmake e.g.) you get a non-informative error
          self.check_call(qmc + [ext.name+'.pro'])

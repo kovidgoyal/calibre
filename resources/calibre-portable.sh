@@ -346,7 +346,7 @@ elif [[ -z "${BIN_DIR}" ]]; then
 else
     CALIBRE="calibre"
     echo "PROGRAM FILES:      No portable copy found."
-    echo "To intall a portable copy, run './calibre-portable.sh --upgrade-install'"
+    echo "To install a portable copy, run './calibre-portable.sh --upgrade-install'"
     echo -e "\033[0;31m*** Using System search path instead***\033[0m"
 fi
 echo "--------------------------------------------------"

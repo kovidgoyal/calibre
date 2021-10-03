@@ -59,7 +59,7 @@ Although digital content can be used to make information as well as creative
 works easily available to everyone and empower humanity, this is not in the
 interests of some publishers who want to steer people away from this
 possibility of freedom simply to maintain their relevance in world developing
-so fast that they cant keep up.
+so fast that they can't keep up.
 
 
 Why does calibre not support DRM?
