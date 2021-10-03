@@ -472,7 +472,7 @@ class ToolbarSettings(QWidget):
         self.sl = l = QGridLayout()
         gl.addLayout(l, 1, 0, 1, -1)
 
-        self.gb1 = gb1 = QGroupBox(_('A&available actions'), self)
+        self.gb1 = gb1 = QGroupBox(_('A&vailable actions'), self)
         self.gb2 = gb2 = QGroupBox(_('&Current actions'), self)
         gb1.setFlat(True), gb2.setFlat(True)
         gb1.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)

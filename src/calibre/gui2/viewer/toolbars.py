@@ -418,7 +418,7 @@ class ConfigureToolBar(Dialog):
 
         self.h = h = QHBoxLayout()
         l.addLayout(h)
-        self.lg = lg = QGroupBox(_('A&available actions'), self)
+        self.lg = lg = QGroupBox(_('A&vailable actions'), self)
         lg.v = v = QVBoxLayout(lg)
         v.addWidget(self.available_actions)
         h.addWidget(lg)
