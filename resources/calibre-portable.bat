@@ -2,7 +2,7 @@
 REM			Calibre-Portable.bat
 REM			¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 REM
-REM Batch File to start a calibre configuration on Windows
+REM Batch file to start a calibre configuration on Windows
 REM giving explicit control of the location of:
 REM  - calibre program files
 REM  - calibre library files
