@@ -129,7 +129,7 @@ class NumberToText:  # {{{
             right = NumberToText(decimal_strings[1]).text
             self.text = '%s point %s' % (left.capitalize(), right)
 
-        # Test for hypenated
+        # Test for hyphenated
         elif re.search('-', self.number):
             if self.verbose:
                 self.log("Hyphenated: %s" % self.number)

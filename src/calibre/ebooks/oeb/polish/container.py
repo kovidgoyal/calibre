@@ -520,7 +520,7 @@ class Container(ContainerBase):  # {{{
         return unicodedata.normalize('NFC', abspath_to_name(fullpath, root or self.root))
 
     def name_to_abspath(self, name):
-        ' Convert a canonical name to an absolute OS dependant path '
+        ' Convert a canonical name to an absolute OS dependent path '
         return name_to_abspath(name, self.root)
 
     def exists(self, name):

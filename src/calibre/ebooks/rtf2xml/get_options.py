@@ -108,7 +108,7 @@ class GetOptions:
             pass
             """
             sys.stderr.write(
-                'You must provide an ouput file with the \'o\' option\n')
+                'You must provide an output file with the \'o\' option\n')
             return_options['valid'] = 0
             """
         if 'level' in the_keys:
@@ -226,7 +226,7 @@ class GetOptions:
         if not smart_output and not return_options['out-file']:
             """
             sys.stderr.write(
-                'Please provide and file to outut with the -o option.\n'
+                'Please provide and file to output with the -o option.\n'
                 'Or set \'<smart-output value = "true"/>\'.\n'
                 'in the configuration file.\n'
                 )

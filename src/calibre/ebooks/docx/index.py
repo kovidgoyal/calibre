@@ -19,7 +19,7 @@ def get_applicable_xe_fields(index, xe_fields, XPath, expand):
 
     lr = index.get('letter-range', None)
     if lr is not None:
-        sl, el = lr.parition('-')[0::2]
+        sl, el = lr.partition('-')[0::2]
         sl, el = sl.strip(), el.strip()
         if sl and el:
             def inrange(text):

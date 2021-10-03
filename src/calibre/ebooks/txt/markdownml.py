@@ -59,7 +59,7 @@ class MarkdownMLizer(OEB2HTML):
         # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
         text = re.sub('(?msu)^[ ]', '    ', text)
 
-        # Remove tabs that aren't at the beinning of a line
+        # Remove tabs that aren't at the beginning of a line
         new_text = []
         for l in text.splitlines():
             start = re.match('\t+', l)

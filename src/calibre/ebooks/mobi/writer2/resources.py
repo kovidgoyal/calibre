@@ -25,7 +25,7 @@ PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\
 def process_jpegs_for_amazon(data: bytes) -> bytes:
     img = Image.open(BytesIO(data))
     if img.format == 'JPEG':
-        # Amazon's MOBI renderer cant render JPEG images without JFIF metadata
+        # Amazon's MOBI renderer can't render JPEG images without JFIF metadata
         # and images with EXIF data dont get displayed on the cover screen
         changed = not img.info
         if hasattr(img, '_getexif') and img._getexif():

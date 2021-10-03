@@ -30,7 +30,7 @@ use to you unless you use it as part of the other modules.)
 Method
 -----------
 Look for the beginning of a bookmark, index, or toc entry. When such a token
-is found, store the opeing bracket count in a variable. Collect all the text
+is found, store the opening bracket count in a variable. Collect all the text
 until the closing bracket entry is found. Send the string to the module
 field_strings to process it. Write the processed string to the output
 file.
@@ -170,7 +170,7 @@ file.
             A string for a toc instruction field.
         Logic:
             This method is meant for *both* index and toc entries.
-            I want to eleminate paragraph endings, and I want to divide the
+            I want to eliminate paragraph endings, and I want to divide the
             entry into a main entry and (if it exists) a sub entry.
             Split the string by newlines. Read on token at a time. If the
             token is a special colon, end the main entry element and start the
@@ -238,7 +238,7 @@ file.
 
     def __index_bookmark_func(self, my_string):
         """
-        Requries:
+        Requires:
             my_string -- string in all the index
         Returns:
             bookmark_string -- the text string of the book mark
@@ -373,7 +373,7 @@ file.
             my_string --string to parse
             type --type of string
         Returns:
-            A string formated for a field instruction.
+            A string formatted for a field instruction.
         Logic:
             The type is the name (either bookmark-end or bookmark-start). The
             id is the complete text string.

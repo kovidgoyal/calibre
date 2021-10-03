@@ -112,7 +112,7 @@ class Info:
         Returns:
             nothing
         Logic:
-            Check for the beginning of the informatin table. When found, set
+            Check for the beginning of the information table. When found, set
             the state to the information table. Always write the line.
         """
         if self.__token_info == 'mi<mk<doc-in-beg':
@@ -127,7 +127,7 @@ class Info:
             nothing.
         Logic:
             Check for the end of information. If not found, check if the
-            token has a special value in the info table dictionay. If it
+            token has a special value in the info table dictionary. If it
             does, execute that function.
             Otherwise, output the line to the file.
         """
@@ -148,7 +148,7 @@ class Info:
         Returns:
             nothing
         Logic:
-            This function marks the beginning of informatin fields that have
+            This function marks the beginning of information fields that have
             text that must be collected.  Set the type of information field
             with the tag option. Set the state to collecting text
         """
@@ -212,7 +212,7 @@ class Info:
             because it exists in abbreviated form.  (num-of-wor)
             I want to check this information in a dictionary to convert it
             to a longer, readable form. If the key does not exist in the
-            dictionary, print out an error message. Otherise add the value
+            dictionary, print out an error message. Otherwise add the value
             to the text string.
             (num-of-wor => number-of-words)
         """
@@ -265,7 +265,7 @@ class Info:
             If the state is in the information table, use other methods to
             parse the information
             style table, look for lines with style info, and substitute the
-            number with the name of the style.  If the state if afer the
+            number with the name of the style.  If the state if after the
             information table, simply write the line to the output file.
         """
         self.__initiate_values()

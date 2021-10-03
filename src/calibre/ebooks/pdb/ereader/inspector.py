@@ -36,7 +36,7 @@ def pdb_header_info(header):
     print('PDB Header Info:')
     print('')
     print('Identity:        %s' % header.ident)
-    print('Total Sectons:   %s' % header.num_sections)
+    print('Total Sections:   %s' % header.num_sections)
     print('Title:           %s' % header.title)
     print('')
 

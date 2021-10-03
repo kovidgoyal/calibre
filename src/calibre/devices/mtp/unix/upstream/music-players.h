@@ -296,7 +296,7 @@
      DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST |
      DEVICE_FLAG_PLAYLIST_SPL_V1 },
   // YP-F3 is NOT MTP - USB mass storage
-  // From a rouge .INF file
+  // From a rogue .INF file
   // this device ID seems to have been recycled for:
   // the Samsung SGH-A707 Cingular cellphone
   // the Samsung L760-V cellphone
@@ -613,7 +613,7 @@
 
   /*
    * SanDisk
-   * several devices (c150 for sure) are definately dual-mode and must
+   * several devices (c150 for sure) are definitely dual-mode and must
    * have the USB mass storage driver that hooks them unloaded first.
    * They all have problematic dual-mode making the device unload effect
    * uncertain on these devices.
@@ -1071,7 +1071,7 @@
       DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
   // From: Willy Gardiol (web) <willy@gardiol.org>
   // Spurious errors for getting all objects, lead me to believe
-  // this flag atleast is needed
+  // this flag at least is needed
   { "Nokia", 0x0421, "5800 XpressMusic v2", 0x0155,
       DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST_ALL },
   // Yet another version... I think
@@ -2711,7 +2711,7 @@
 #if 1
   /* after some review I commented it back in. There was apparently
    * only one or two devices misbehaving (having this ID in mass storage mode),
-   * but more seem to use it regulary as MTP devices. Marcus 20150401 */
+   * but more seem to use it regularly as MTP devices. Marcus 20150401 */
   /*
    * This had to be commented out - the same VID+PID is used also for
    * other modes than MTP, so we need to let mtp-probe do its job on this
@@ -2796,7 +2796,7 @@
 #if 1
   /* after some review I commented it back in. There was apparently
    * only one or two devices misbehaving (having this ID in mass storage mode),
-   * but more seem to use it regulary as MTP devices. Marcus 20150401 */
+   * but more seem to use it regularly as MTP devices. Marcus 20150401 */
   /*
    * This had to be commented out - the same VID+PID is used also for
    * other modes than MTP, so we need to let mtp-probe do its job on this
@@ -3136,7 +3136,7 @@
       DEVICE_FLAGS_ANDROID_BUGS },
 
   /* In update 4 the order of devices was changed for
-     better OS X / Windows suport and another device-id
+     better OS X / Windows support and another device-id
      got assigned for the MTP */
   { "Jolla", 0x2931, "Sailfish (ID2)", 0x0a05,
       DEVICE_FLAGS_ANDROID_BUGS },

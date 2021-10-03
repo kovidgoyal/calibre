@@ -160,7 +160,7 @@ public:
   /*!
     Returns QImage of specified slide.
     This function will be called only whenever necessary, e.g. the 100th slide
-    will not be retrived when only the first few slides are visible.
+    will not be retrieved when only the first few slides are visible.
   */
   virtual QImage slide(int index) const;
 

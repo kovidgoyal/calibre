@@ -346,7 +346,7 @@ def main():
             dev.rm(args[0])
         elif command == "touch":
             parser = OptionParser(usage="usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+  # noqa
-            "Unfortunately, I cant figure out how to update file times on the device, so if path already exists, touch does nothing")
+            "Unfortunately, I can't figure out how to update file times on the device, so if path already exists, touch does nothing")
             options, args = parser.parse_args(args)
             if len(args) != 1:
                 parser.print_help()

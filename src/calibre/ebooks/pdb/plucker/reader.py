@@ -118,7 +118,7 @@ class HeaderRecord:
 
     def __init__(self, raw):
         self.uid, = struct.unpack('>H', raw[0:2])
-        # This is labled version in the spec.
+        # This is labeled version in the spec.
         # 2 is ZLIB compressed,
         # 1 is DOC compressed
         self.compression, = struct.unpack('>H', raw[2:4])
@@ -182,7 +182,7 @@ class SectionMetadata:
 
     This does not store metadata such as title, or author.
     That metadata would be best retrieved with the PDB (plucker)
-    metdata reader.
+    metadata reader.
 
     This stores document specific information such as the
     text encoding.
@@ -358,7 +358,7 @@ class Reader(FormatReader):
     def extract_content(self, output_dir):
         # Each text record is independent (unless the continuation
         # value is set in the previous record). Put each converted
-        # text recored into a separate file. We will reference the
+        # text recorded into a separate file. We will reference the
         # home.html file as the first file and let the HTML input
         # plugin assemble the order based on hyperlinks.
         with CurrentDir(output_dir):
@@ -452,7 +452,7 @@ class Reader(FormatReader):
         odi = self.options.debug_pipeline
         self.options.debug_pipeline = None
         # Determine the home.html record uid. This should be set in the
-        # reserved values in the metadata recored. home.html is the first
+        # reserved values in the metadata recorded. home.html is the first
         # text record (should have hyper link references to other records)
         # in the document.
         try:

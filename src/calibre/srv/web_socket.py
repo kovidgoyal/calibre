@@ -398,7 +398,7 @@ class WebSocketConnection(HTTPConnection):
                     try:
                         close_code = unpack_from(b'!H', data)[0]
                     except struct_error:
-                        data = pack(b'!H', PROTOCOL_ERROR) + b'close frame data must be atleast two bytes'
+                        data = pack(b'!H', PROTOCOL_ERROR) + b'close frame data must be at least two bytes'
                     else:
                         try:
                             utf8_decode(data[2:])

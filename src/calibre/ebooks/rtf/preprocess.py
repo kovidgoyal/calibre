@@ -11,7 +11,7 @@ RTF tokenizer and token parser. v.1.0 (1/17/2010)
 Author: Gerendi Sandor Attila
 
 At this point this will tokenize a RTF file then rebuild it from the tokens.
-In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compilant.
+In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compliant.
 """
 
 
@@ -235,7 +235,7 @@ class RtfTokenParser():
                             i = i + 1
                             j = j + 1
                             continue
-                        raise Exception('Error: incorect utf replacement.')
+                        raise Exception('Error: incorrect utf replacement.')
 
                     # calibre rtf2xml does not support utfreplace
                     replace = []

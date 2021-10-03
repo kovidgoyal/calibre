@@ -163,7 +163,7 @@ def get_metadata(stream):
 
 def _parse_authors(root, ctx):
     authors = []
-    # pick up authors but only from 1 secrion <title-info>; otherwise it is not consistent!
+    # pick up authors but only from 1 section <title-info>; otherwise it is not consistent!
     # Those are fallbacks: <src-title-info>, <document-info>
     author = None
     for author_sec in ['title-info', 'src-title-info', 'document-info']:
@@ -248,7 +248,7 @@ def _parse_cover_data(root, imgid, mi, ctx):
 
 
 def _parse_tags(root, mi, ctx):
-    # pick up genre but only from 1 secrion <title-info>; otherwise it is not consistent!
+    # pick up genre but only from 1 section <title-info>; otherwise it is not consistent!
     # Those are fallbacks: <src-title-info>
     for genre_sec in ['title-info', 'src-title-info']:
         # -- i18n Translations-- ?

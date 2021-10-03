@@ -45,7 +45,7 @@ class LITInput(InputFormatPlugin):
                     from calibre.ebooks.chardet import xml_to_unicode
                     from calibre.utils.xml_parse import safe_xml_fromstring
                     import copy
-                    self.log('LIT file with all text in singe <pre> tag detected')
+                    self.log('LIT file with all text in single <pre> tag detected')
                     html = separate_paragraphs_single_line(pre.text)
                     html = convert_basic(html).replace('<html>',
                             '<html xmlns="%s">'%XHTML_NS)

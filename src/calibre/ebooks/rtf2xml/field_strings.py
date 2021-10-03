@@ -255,11 +255,11 @@ class FieldStrings:
 
     def __equation_func(self, field_name, name, line):
         """
-        Requried:
+        Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
-        Retuns:
+        Returns:
             The name of the field
         Logic:
         """
@@ -272,7 +272,7 @@ class FieldStrings:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
-        Retuns:
+        Returns:
             The name of the field
         Logic:
         """
@@ -378,11 +378,11 @@ class FieldStrings:
 
     def __simple_info_func(self, field_name, name, line):
         """
-        Requried:
+        Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
-        Retuns:
+        Returns:
             The name of the field
         Logic:
             These fields can only have the following switches:
@@ -406,11 +406,11 @@ class FieldStrings:
 
     def __hyperlink_func(self, field_name, name, line):
         """
-        Requried:
+        Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
-        Retuns:
+        Returns:
             The name of the field
         """
         self.__link_switch = re.compile(r'\\l\s{1,}"{0,1}(.*?)"{0,1}\s')
@@ -442,11 +442,11 @@ class FieldStrings:
 
     def __include_text_func(self, field_name, name, line):
         """
-        Requried:
+        Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
-        Retuns:
+        Returns:
             The name of the field
         Logic:
         """
@@ -484,11 +484,11 @@ class FieldStrings:
 
     def __include_pict_func(self, field_name, name, line):
         """
-        Requried:
+        Required:
             field_name -- the first word in the string
             name --the changed name according to the dictionary
             line -- the string to be parse
-        Retuns:
+        Returns:
             The name of the field
         Logic:
         """
@@ -526,7 +526,7 @@ class FieldStrings:
             A page reference field looks like this:
                 PAGEREF _Toc440880424 \\h
             I want to extract the second line of info, which is used as an
-            achor in the resulting XML file.
+            anchor in the resulting XML file.
         """
         the_string = name
         match_group = re.search(self.__format_text_exp, line)
@@ -776,7 +776,7 @@ class FieldStrings:
             name -- the changed name according to the dictionary.
             line -- the string to parse.
         Returns:
-            A string containing font size, font style, and a hexidecimal value.
+            A string containing font size, font style, and a hexadecimal value.
         Logic:
             The SYMBOL field is one of Microsoft's many quirky ways of
             entering text. The string that results from this method looks like
@@ -785,7 +785,7 @@ class FieldStrings:
             The first word merely tells us that we have encountered a SYMBOL
             field.
             The next value is the Microsoft decimal value. Change this to
-            hexidecimal.
+            hexadecimal.
             The pattern '\\f "some font' tells us the font.
             The pattern '\\s some size'  tells us the font size.
             Extract all of this information. Store this information in a

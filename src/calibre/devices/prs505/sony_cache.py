@@ -27,7 +27,7 @@ Periodical identifier sample from a PRS-650:
 <?xml version="1.0" encoding="UTF-8"?>
 <cacheExt xmlns="http://www.sony.com/xmlns/product/prs/device/1">
     <text conformsTo="http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0" periodicalName="The Atlantic"
-    description="Current affairs and politics focussed on the US" publicationDate="Tue, 19 Oct 2010 00:00:00 GMT"
+    description="Current affairs and politics focused on the US" publicationDate="Tue, 19 Oct 2010 00:00:00 GMT"
     path="database/media/books/calibre/Atlantic [Mon, 18 Oct 2010], The - calibre_1701.epub">
         <thumbnail width="167" height="217">main_thumbnail.jpg</thumbnail>
     </text>

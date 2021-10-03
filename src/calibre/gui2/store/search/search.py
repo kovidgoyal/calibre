@@ -200,7 +200,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         self.searching = True
         self.search.setText(self.STOP_TEXT)
         # Give the query to the results model so it can do
-        # futher filtering.
+        # further filtering.
         self.results_view.model().set_query(query)
 
         # Plugins are in random order that does not change.

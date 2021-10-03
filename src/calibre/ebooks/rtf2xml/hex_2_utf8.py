@@ -23,7 +23,7 @@ from . import open_for_read, open_for_write
 
 class Hex2Utf8:
     """
-    Convert Microsoft hexidecimal numbers to utf-8
+    Convert Microsoft hexadecimal numbers to utf-8
     """
 
     def __init__(self,
@@ -54,7 +54,7 @@ class Hex2Utf8:
             directory from which the script is run.)
             'symbol'--whether to load the symbol character map
             'winddings'--whether to load the wingdings character map
-            'caps'--whether to load the caps characer map
+            'caps'--whether to load the caps character map
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
@@ -110,7 +110,7 @@ class Hex2Utf8:
             directory from which the script is run.)
             'symbol'--whether to load the symbol character map
             'winddings'--whether to load the wingdings character map
-            'caps'--whether to load the caps characer map
+            'caps'--whether to load the caps character map
             'convert_to_caps'--wether to convert caps to utf-8
         Returns:
             nothing
@@ -145,7 +145,7 @@ class Hex2Utf8:
         Set values, including those for the dictionaries.
         The file that contains the maps is broken down into many different
         sets. For example, for the Symbol font, there is the standard part for
-        hexidecimal numbers, and the part for Microsoft characters. Read
+        hexadecimal numbers, and the part for Microsoft characters. Read
         each part in, and then combine them.
         """
         # the default encoding system, the lower map for characters 0 through
@@ -262,7 +262,7 @@ class Hex2Utf8:
                     hex_num)
                 if self.__run_level > 4:
                     # msg = 'no dictionary entry for %s\n'
-                    # msg += 'the hexidecimal num is "%s"\n' % (hex_num)
+                    # msg += 'the hexadecimal num is "%s"\n' % (hex_num)
                     # msg += 'dictionary is %s\n' % self.__current_dict_name
                     msg = 'Character "&#x%s;" does not appear to be valid (or is a control character)\n' % token
                     raise self.__bug_handler(msg)
@@ -537,7 +537,7 @@ class Hex2Utf8:
         new_char_entity = '&#x%s' % hex_num
         converted = self.__caps_uni_dict.get(new_char_entity)
         if not converted:
-            # bullets and other entities dont' have capital equivelents
+            # bullets and other entities don't have capital equivalents
             return char_entity
         else:
             return converted

@@ -54,7 +54,7 @@ class ThreadedJob(BaseJob):
         Note that it is not called if the user kills the job. Check job.failed
         to see if the job succeeded or not. And use job.log to get the job log.
 
-        :param killable: If False the GUI wont let the user kill this job
+        :param killable: If False the GUI won't let the user kill this job
 
         :param log: Must be a subclass of GUILog or None. If None a default
         GUILog is created.

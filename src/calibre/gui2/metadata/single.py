@@ -269,7 +269,7 @@ class MetadataSingleDialogBase(QDialog):
         self.fetch_metadata_button = b = RightClickButton(self)
         # The following rigmarole is needed so that Qt gives the button the
         # same height as the other buttons in the dialog. There is no way to
-        # center the text in a QToolButton with an icon, so we cant just set an
+        # center the text in a QToolButton with an icon, so we can't just set an
         # icon
         b.setIcon(QIcon(I('download-metadata.png')))
         b.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)

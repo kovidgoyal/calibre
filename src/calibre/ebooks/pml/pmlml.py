@@ -198,7 +198,7 @@ class PMLMLizer:
         text = text.replace('\xa0', ' ')
 
         # Turn all characters that cannot be represented by themself into their
-        # PML code equivelent
+        # PML code equivalent
         text = re.sub('[^\x00-\x7f]', lambda x: unipmlcode(x.group()), text)
 
         # Remove excess spaces at beginning and end of lines
@@ -346,7 +346,7 @@ class PMLMLizer:
         except:
             pass
 
-        # Proccess text within this tag.
+        # Process text within this tag.
         if hasattr(elem, 'text') and elem.text:
             text.append(self.prepare_string_for_pml(elem.text))
 

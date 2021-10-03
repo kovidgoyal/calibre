@@ -163,7 +163,7 @@ class PreambleDiv:
 
     def __make_default_font_table(self):
         """
-        If not font table is fount, need to write one out.
+        If not font table is found, need to write one out.
         """
         self.__font_table_final = 'mi<tg<open______<font-table\n'
         self.__font_table_final += 'mi<mk<fonttb-beg\n'

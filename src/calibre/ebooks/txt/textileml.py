@@ -79,7 +79,7 @@ class TextileMLizer(OEB2HTML):
                 text = re.sub(r'(\s|[*_\'"])\[('+t+'[a-zA-Z0-9 \'",.*_]+'+t+r')\](\s|[*_\'"?!,.])', r'\1\2\3', text)
             return text
 
-        # Now tidyup links and ids - remove ones that don't have a correponding opposite
+        # Now tidyup links and ids - remove ones that don't have a corresponding opposite
         if self.opts.keep_links:
             for i in self.our_links:
                 if i[0] == '#':

@@ -170,7 +170,7 @@ class TXTInput(InputFormatPlugin):
                     if txt_formatting is not None and txt_formatting.text:
                         txt_formatting = txt_formatting.text.strip()
                         if txt_formatting in ('plain', 'textile', 'markdown') and options.formatting_type == 'auto':
-                            log.info(f'Using metadata from TXTZ archive to set text formating type to: {txt_formatting}')
+                            log.info(f'Using metadata from TXTZ archive to set text formatting type to: {txt_formatting}')
                             options.formatting_type = txt_formatting
                             if txt_formatting != 'plain':
                                 options.paragraph_type = 'off'

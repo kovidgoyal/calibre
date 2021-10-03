@@ -194,7 +194,7 @@ class Serializer:
         try:
             path, frag = urldefrag(urlnormalize(href))
         except ValueError:
-            # Unparseable URL
+            # Unparsable URL
             return False
         if path and base:
             path = base.abshref(path)

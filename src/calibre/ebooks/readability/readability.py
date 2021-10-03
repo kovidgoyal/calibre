@@ -71,7 +71,7 @@ def text_length(i):
     return len(clean(i.text_content() or ""))
 
 
-class Unparseable(ValueError):
+class Unparsable(ValueError):
     pass
 
 
@@ -156,7 +156,7 @@ class Document:
                     return cleaned_article
         except Exception as e:
             self.log.exception('error getting summary: ')
-            reraise(Unparseable, Unparseable(unicode_type(e)), sys.exc_info()[2])
+            reraise(Unparsable, Unparsable(unicode_type(e)), sys.exc_info()[2])
 
     def get_article(self, candidates, best_candidate):
         # Now that we have the top candidate, look through its siblings for content that might also be related.

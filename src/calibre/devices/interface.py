@@ -677,7 +677,7 @@ class DevicePlugin(Plugin):
     def synchronize_with_db(self, db, book_id, book_metadata, first_call):
         '''
         Called during book matching when a book on the device is matched with
-        a book in calibre's db. The method is responsible for syncronizing
+        a book in calibre's db. The method is responsible for synchronizing
         data from the device to calibre's db (if needed).
 
         The method must return a two-value tuple. The first value is a set of

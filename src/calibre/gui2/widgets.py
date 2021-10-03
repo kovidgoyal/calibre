@@ -83,7 +83,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         connect_lambda(self.re.lineEdit().textChanged, self, lambda self, x: self.changed_signal.emit())
 
     def initialize(self, defaults=False):
-        # Get all items in the combobox. If we are reseting
+        # Get all items in the combobox. If we are resetting
         # to defaults we don't want to lose what the user
         # has added.
         val_hist = [unicode_type(self.re.lineEdit().text())] + [unicode_type(self.re.itemText(i)) for i in range(self.re.count())]
@@ -789,7 +789,7 @@ class EncodingComboBox(QComboBox):  # {{{
     A combobox that holds text encodings support
     by Python. This is only populated with the most
     common and standard encodings. There is no good
-    way to programatically list all supported encodings
+    way to programmatically list all supported encodings
     using encodings.aliases.aliases.keys(). It
     will not work.
     '''

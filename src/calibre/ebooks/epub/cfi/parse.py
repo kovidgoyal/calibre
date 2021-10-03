@@ -14,7 +14,7 @@ class Parser:
     ''' See epubcfi.ebnf for the specification that this parser tries to
     follow. I have implemented it manually, since I dont want to depend on
     grako, and the grammar is pretty simple. This parser is thread-safe, i.e.
-    it can be used from multiple threads simulataneously. '''
+    it can be used from multiple threads simultaneously. '''
 
     def __init__(self):
         # All allowed unicode characters + escaped special characters

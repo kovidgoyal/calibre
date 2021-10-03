@@ -53,7 +53,7 @@ class BubokPublishingStore(BasicStoreConfig, StorePlugin):
 
                 title = ''.join(data.xpath('.//div[@class="titulo"]/text()'))
 
-                author = ''.join(data.xpath('.//div[@class="autor"]/text()'))
+                author = ''.join(data.xpath('.//div[@class="author"]/text()'))
 
                 price = ''.join(data.xpath('.//div[@class="precio"]/text()'))
 

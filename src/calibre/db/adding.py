@@ -263,7 +263,7 @@ def add_catalog(cache, path, title, dbapi=None):
                 new_book_added = True
             else:
                 cache._set_metadata(db_id, mi)
-        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Cant keep write lock since post-import hooks might run
+        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
 
     return db_id, new_book_added
 
@@ -295,7 +295,7 @@ def add_news(cache, path, arg, dbapi=None):
             mi.timestamp = utcnow()
 
         db_id = cache._create_book_entry(mi, apply_import_tags=False)
-    cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Cant keep write lock since post-import hooks might run
+    cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Can't keep write lock since post-import hooks might run
 
     if not hasattr(path, 'read'):
         stream.close()

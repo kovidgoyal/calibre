@@ -121,7 +121,7 @@ class PMLInput(InputFormatPlugin):
             if hasattr(stream, 'name'):
                 images = self.get_images(stream, os.path.abspath(os.path.dirname(stream.name)))
 
-        # We want pages to be orded alphabetically.
+        # We want pages to be ordered alphabetically.
         pages.sort()
 
         manifest_items = []

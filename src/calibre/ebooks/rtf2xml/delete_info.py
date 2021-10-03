@@ -19,7 +19,7 @@ from . import open_for_read, open_for_write
 
 
 class DeleteInfo:
-    """Delete unecessary destination groups"""
+    """Delete unnecessary destination groups"""
 
     def __init__(self,
             in_file ,
@@ -110,7 +110,7 @@ class DeleteInfo:
         If you find that you are in a delete group, and the previous
         token in not an open bracket (self.__ob = 0), that means
         that the delete group is nested inside another acceptable
-        detination group. In this case, you have already written
+        destination group. In this case, you have already written
         the open bracket, so you will need to write the closed one
         as well.
         """

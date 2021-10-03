@@ -27,7 +27,7 @@ def pretty_xml_tree(elem, level=0, indent='  '):
     textual content.  Also assumes that there is no text immediately after
     closing tags. These are true for opf/ncx and container.xml files. If either
     of the assumptions are violated, there should be no data loss, but pretty
-    printing wont produce optimal results.'''
+    printing won't produce optimal results.'''
     if (not elem.text and len(elem) > 0) or (elem.text and isspace(elem.text)):
         elem.text = '\n' + (indent * (level+1))
     for i, child in enumerate(elem):

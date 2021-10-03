@@ -307,7 +307,7 @@ class Worker(Thread):  # Get details {{{
                 text() = "Buscar productos similares por categoría" or
                 text() = "Ricerca articoli simili per categoria" or
                 text() = "Rechercher des articles similaires par rubrique" or
-                text() = "Procure por itens similares por categoria" or
+                text() = "Procure por items similares por categoria" or
                 text() = "関連商品を探す"
             ]/../descendant::ul/li
         '''

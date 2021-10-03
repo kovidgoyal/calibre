@@ -280,7 +280,7 @@ class APNXBuilder:
 
     def get_pages_pagebreak_tag(self, mobi_file_path):
         '''
-        Determine pages based on the presense of
+        Determine pages based on the presence of
         <mbp:pagebreak>.
         '''
         pages = []
