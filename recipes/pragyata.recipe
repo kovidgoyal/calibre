@@ -8,8 +8,11 @@ def classes(classes):
     return dict(
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 class Pragyata(BasicNewsRecipe):
     title          = 'Pragyata'
+    __author__     = 'Vishvas Vasuki'
+    language       = 'en_IN'
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup   = True
