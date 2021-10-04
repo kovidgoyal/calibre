@@ -15,6 +15,7 @@ from math import modf
 
 from calibre import prints
 from calibre.constants import DEBUG
+from calibre.ebooks.metadata.book.base import field_metadata
 from calibre.utils.formatter_functions import formatter_functions
 from calibre.utils.icu import strcmp
 from polyglot.builtins import unicode_type, error_message
@@ -890,6 +891,7 @@ class _Interpreter:
     def do_node_raw_field(self, prog):
         try:
             name = self.expr(prog.expression)
+            name = field_metadata.search_term_to_field_key(name)
             res = getattr(self.parent_book, name, None)
             if res is None and prog.default is not None:
                 res = self.expr(prog.default)
