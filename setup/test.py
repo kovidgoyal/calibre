@@ -181,14 +181,15 @@ class Test(Command):
                           help='Run the test suite with the sanitizer preloaded')
 
     def run(self, opts):
-        if opts.under_sanitize:
+        if opts.under_sanitize and 'CALIBRE_EXECED_UNDER_SANITIZE' not in os.environ:
             if 'libasan' not in os.environ.get('LD_PRELOAD', ''):
                 os.environ['LD_PRELOAD'] = os.path.abspath(subprocess.check_output('gcc -print-file-name=libasan.so'.split()).decode('utf-8').strip())
-                os.environ['ASAN_OPTIONS'] = 'detect_leaks=0'
-                os.environ['PYCRYPTODOME_DISABLE_DEEPBIND'] = '1'  # https://github.com/Legrandin/pycryptodome/issues/558
-                self.info(f'Re-execing with LD_PRELOAD={os.environ["LD_PRELOAD"]}')
-                sys.stdout.flush()
-                os.execl('setup.py', *sys.argv)
+            os.environ['CALIBRE_EXECED_UNDER_SANITIZE'] = '1'
+            os.environ['ASAN_OPTIONS'] = 'detect_leaks=0'
+            os.environ['PYCRYPTODOME_DISABLE_DEEPBIND'] = '1'  # https://github.com/Legrandin/pycryptodome/issues/558
+            self.info(f'Re-execing with LD_PRELOAD={os.environ["LD_PRELOAD"]}')
+            sys.stdout.flush()
+            os.execl('setup.py', *sys.argv)
         from calibre.utils.run_tests import (
             filter_tests_by_name, remove_tests_by_name, run_cli
         )
