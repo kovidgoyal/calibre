@@ -1,6 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class DawnRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = 'kwetal'
@@ -21,9 +27,8 @@ class DawnRecipe(BasicNewsRecipe):
     remove_javascript = True
     encoding = 'utf-8'
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'push-half--sides  push--top'}),
-        dict(name='article', attrs={'class': 'story  story--single  push-half'})]
-
+        classes('template__header template__main')
+    ]
     # Feeds from
     # http://www.dawn.com/wps/wcm/connect/dawn-content-library/dawn/services/rss
     feeds = []

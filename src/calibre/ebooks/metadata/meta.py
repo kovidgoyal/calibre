@@ -232,6 +232,8 @@ def opf_metadata(opfpath):
 
 def forked_read_metadata(path, tdir):
     from calibre.ebooks.metadata.opf2 import metadata_to_opf
+    from calibre.ebooks.metadata.worker import run_import_plugins
+    path = run_import_plugins((path,), os.getpid(), tdir)[0]
     with lopen(path, 'rb') as f:
         fmt = os.path.splitext(path)[1][1:].lower()
         f.seek(0, 2)

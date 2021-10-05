@@ -23,40 +23,31 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = [
-        dict(attrs={'class': ['headline', 'hero topimage']}),
-        dict(itemprop='articlebody'),
+        dict(attrs={'data-word-count': True}),
     ]
     remove_tags = [
         dict(attrs={'class': ['related-content']}),
     ]
     remove_attributes = ['style']
 
-    INDEX = 'http://www.entrepreneur.com'
+    INDEX = 'https://www.entrepreneur.com'
 
     def parse_index(self):
-        root = self.index_to_soup(
-            self.INDEX + '/magazine/index.html', as_tree=True)
-        for href in root.xpath('//h2[@class="sectiontitle nb"]/a/@href'):
-            return self.parse_ent_index(self.INDEX + href)
+        soup = self.index_to_soup(self.INDEX + '/latest')
+        articles = []
+        for h3 in soup.findAll('h3'):
+            a = h3.parent
+            if a.name == 'a' and a.get('href'):
+                url = self.INDEX + a['href']
+                title = self.tag_to_string(h3)
+                desc = ''
+                if a.next_sibling and a.next_sibling.name == 'p':
+                    desc = self.tag_to_string(a.next_sibling)
+                articles.append({'title': title, 'url': url, 'description': desc})
+                self.log(title, url)
+        return [('Articles', articles)]
 
-    def parse_ent_index(self, url):
-        root = self.index_to_soup(url, as_tree=True)
-        img = root.xpath('//a[@class="hero"]/img[@class="lazy"]')[0]
-        self.cover_url = img.get('data-original')
-        self.timefmt = ' [%s]' % img.get('alt').rpartition('-')[-1].strip()
-        body = root.xpath('//div[@id="latest"]')[0]
-        ans = []
-        for x in body.xpath('descendant::h3'):
-            title = self.tag_to_string(x)
-            try:
-                a = x.xpath('./a')[0]
-            except IndexError:
-                continue
-            url = self.INDEX + a.get('href')
-            d = x.getnext()
-            desc = self.tag_to_string(d) if d is not None else ''
-            self.log('\t', title, 'at:', url)
-            self.log('\t\t', desc)
-            ans.append({'title': title, 'url': url, 'description': desc})
-
-        return [('Articles', ans)]
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src': True}):
+            img['src'] = img['data-src']
+        return soup

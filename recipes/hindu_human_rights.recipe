@@ -8,12 +8,15 @@ def classes(classes):
     return dict(
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
-class IndicToday(BasicNewsRecipe):
-    title          = 'Indic Today'
-    oldest_article = 7
+
+class HinduHumanRights(BasicNewsRecipe):
+    title          = 'Hindu Human Rights'
+    __author__     = 'Vishvas Vasuki'
+    language       = 'en_IN'
+    oldest_article = 30
     max_articles_per_feed = 100
     auto_cleanup   = True
 
     feeds          = [
-        ('Indic Today Main feed', 'https://www.indica.today/feed/'),
+        ('HHR main', 'https://www.hindusforhumanrights.org/en/home-6?format=rss'),
     ]

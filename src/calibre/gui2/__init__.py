@@ -265,7 +265,7 @@ def _config():  # {{{
             'highlighted instead of showing only the matches. You can use the '
             'N or F3 keys to go to the next match.'))
     c.add_opt('save_to_disk_template_history', default=[],
-        help='Previously used Save to Disk templates')
+        help='Previously used Save to disk templates')
     c.add_opt('send_to_device_template_history', default=[],
         help='Previously used Send to Device templates')
     c.add_opt('main_search_history', default=[],

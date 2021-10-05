@@ -601,7 +601,7 @@ In calibre, you would instead use tags to mark genre and read status and then ju
 
 To those of you that claim that you need access to the filesystem, so that you can have access to your books over the network, calibre has an excellent Content server that gives you access to your calibre library over the net.
 
-If you are worried that someday calibre will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful :guilabel:`Save to Disk` feature in calibre that lets you export all your files into a folder structure of arbitrary complexity based on their metadata.
+If you are worried that someday calibre will cease to be developed, leaving all your books marooned in its folder structure, explore the powerful :guilabel:`Save to disk` feature in calibre that lets you export all your files into a folder structure of arbitrary complexity based on their metadata.
 
 Finally, the reason there are numbers at the end of every title folder, is for *robustness*. That number is the id number of the book record in the calibre database. The presence of the number allows you to have multiple records with the same title and author names. It is also part of what allows calibre to magically regenerate the database with all metadata if the database file gets corrupted. Given that calibre's mission is to get you to stop storing metadata in filenames and stop using the filesystem to find things, the increased robustness afforded by the id numbers is well worth the uglier folder names.
 
@@ -791,7 +791,7 @@ There can be several causes for this:
       :file:`C:\\Program Files\\Calibre` and :file:`C:\\Program Files\\Calibre2`. Now re-install and you should be fine.
     * If you get an error in the :guilabel:`Welcome wizard` on an initial run of calibre, try choosing a folder like :file:`C:\\library` as the calibre library (calibre sometimes
       has trouble with library locations if the path contains non-English characters, or only numbers, etc.)
-    * Try running it as Administrator (Right click on the icon and select "Run as Administrator")
+    * Try running it as administrator (Right click on the icon and select :guilabel:`Run as administrator`)
 
 If it still won't launch, start a command prompt (press the Windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
@@ -881,7 +881,7 @@ folder.
 Some users have reported that running the following command in an Administrator
 Command Prompt fixed their permissions.  To get an Administrator Command Prompt
 search for cmd.exe in the start menu, then right click on the command prompt
-entry and select Run as Administrator. At the command prompt type the following
+entry and select :guilabel:`Run as administrator`. At the command prompt type the following
 command and press Enter::
 
     icacls "%appdata%\..\Local\Temp" /reset /T
@@ -926,7 +926,7 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
     * Try downloading the installer with an alternate browser. For example if you are using Microsoft Edge, try using Firefox or Chrome instead.
     * If you get an error about a missing DLL on Windows, then most likely, the
       permissions on your temporary folder are incorrect. Go to the folder
-      :file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows explorer and then
+      :file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows Explorer and then
       right click on the :file:`Temp` folder and select :guilabel:`Properties` and go to
       the :guilabel:`Security` tab. Make sure that your user account has full control
       for this folder.

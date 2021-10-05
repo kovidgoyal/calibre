@@ -9,8 +9,8 @@ def classes(classes):
         attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-class Prekshaa(BasicNewsRecipe):
-    title          = 'prekshaa'
+class IndiaFacts(BasicNewsRecipe):
+    title          = 'IndiaFacts'
     __author__     = 'Vishvas Vasuki'
     language       = 'en_IN'
     oldest_article = 7
@@ -18,5 +18,5 @@ class Prekshaa(BasicNewsRecipe):
     auto_cleanup   = True
 
     feeds          = [
-        ('prekshaa', 'https://www.prekshaa.in/feed'),
+        ('India Facts main feed', 'https://www.indiafacts.org.in/feed/'),
     ]

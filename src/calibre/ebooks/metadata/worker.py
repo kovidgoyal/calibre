@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import os, shutil, errno
+import os
+import shutil
 
 from calibre.customize.ui import run_plugins_on_import
 from calibre.ebooks.metadata.meta import metadata_from_formats
@@ -65,15 +62,11 @@ def run_import_plugins(paths, group_id, tdir):
             # reading metadata from filename is not broken
             name = os.path.splitext(os.path.basename(path))[0]
             ext = os.path.splitext(nfp)[1]
-            path = os.path.join(tdir, '%s' % group_id, name + ext)
+            path = os.path.join(tdir, str(group_id), name + ext)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
             try:
-                os.mkdir(os.path.dirname(path))
-            except EnvironmentError as err:
-                if err.errno != errno.EEXIST:
-                    raise
-            try:
-                os.rename(nfp, path)
-            except EnvironmentError:
+                os.replace(nfp, path)
+            except OSError:
                 shutil.copyfile(nfp, path)
         final_paths.append(path)
     return final_paths
