@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+# vim:fileencoding=utf-8
+from calibre.web.feeds.news import BasicNewsRecipe
+
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(
+        attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
+class HinduPost(BasicNewsRecipe):
+    title          = 'Hindu Post'
+    __author__     = 'Vishvas Vasuki'
+    language       = 'en_IN'
+    oldest_article = 3
+    max_articles_per_feed = 100
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Main', 'https://hindupost.in/feed/'),
+    ]
