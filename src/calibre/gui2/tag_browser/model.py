@@ -317,6 +317,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     user_categories_edited = pyqtSignal(object, object)
     user_category_added = pyqtSignal()
     show_error_after_event_loop_tick_signal = pyqtSignal(object, object, object)
+    convert_requested = pyqtSignal(object, object)
 
     def __init__(self, parent, prefs=gprefs):
         QAbstractItemModel.__init__(self, parent)
@@ -977,7 +978,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             if node.type == TagTreeItem.TAG:
                 fm = self.db.metadata_for_field(node.tag.category)
                 if node.tag.category in \
-                    ('tags', 'series', 'authors', 'rating', 'publisher', 'languages') or \
+                    ('tags', 'series', 'authors', 'rating', 'publisher', 'languages', 'formats') or \
                     (fm['is_custom'] and (
                             fm['datatype'] in ['text', 'rating', 'series',
                                                'enumeration'] or (
@@ -1038,9 +1039,15 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.refresh_required.emit()
         self.user_category_added.emit()
 
+    def handle_drop_on_format(self, fmt, book_ids):
+        self.convert_requested.emit(book_ids, fmt)
+
     def handle_drop(self, on_node, ids):
         # print 'Dropped ids:', ids, on_node.tag
         key = on_node.tag.category
+        if key == 'formats':
+            self.handle_drop_on_format(on_node.tag.name, ids)
+            return
         if (key == 'authors' and len(ids) >= 5):
             if not confirm('<p>'+_('Changing the authors for several books can '
                            'take a while. Are you sure?') +
@@ -1393,12 +1400,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                     ans |= Qt.ItemFlag.ItemIsDragEnabled
                 fm = self.db.metadata_for_field(category)
                 if category in \
-                    ('tags', 'series', 'authors', 'rating', 'publisher', 'languages') or \
+                    ('tags', 'series', 'authors', 'rating', 'publisher', 'languages', 'formats') or \
                     (fm['is_custom'] and
                         fm['datatype'] in ['text', 'rating', 'series', 'enumeration']):
                     ans |= Qt.ItemFlag.ItemIsDropEnabled
             else:
-                ans |= Qt.ItemFlag.ItemIsDropEnabled
+                if node.type != TagTreeItem.CATEGORY or node.category_key != 'formats':
+                    ans |= Qt.ItemFlag.ItemIsDropEnabled
         return ans
 
     def supportedDropActions(self):

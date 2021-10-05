@@ -216,8 +216,13 @@ class TagsView(QTreeView):  # {{{
         self._model.user_categories_edited.connect(self.user_categories_edited,
                 type=Qt.ConnectionType.QueuedConnection)
         self._model.drag_drop_finished.connect(self.drag_drop_finished)
+        self._model.convert_requested.connect(self.convert_requested)
         self.set_look_and_feel(first=True)
         QApplication.instance().palette_changed.connect(self.set_style_sheet, type=Qt.ConnectionType.QueuedConnection)
+
+    def convert_requested(self, book_ids, to_fmt):
+        from calibre.gui2.ui import get_gui
+        get_gui().iactions['Convert Books'].convert_ebooks_to_format(book_ids, to_fmt)
 
     def set_style_sheet(self):
         stylish_tb = '''
