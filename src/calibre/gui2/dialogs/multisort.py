@@ -4,8 +4,8 @@
 
 
 from qt.core import (
-    QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QSize, Qt,
-    QVBoxLayout
+    QAbstractItemView, QDialogButtonBox, QInputDialog, QLabel, QListWidget,
+    QListWidgetItem, QMenu, QSize, Qt, QVBoxLayout
 )
 
 from calibre import prepare_string_for_xml
@@ -37,23 +37,21 @@ class ChooseMultiSort(Dialog):
 
     def setup_ui(self):
         self.vl = vl = QVBoxLayout(self)
-        self.hl = hl = QHBoxLayout()
         self.la = la = QLabel(_(
             'Pick multiple columns to sort by. Drag and drop to re-arrange. Higher columns are more important.'
             ' Ascending or descending order can be toggled by clicking the column name at the bottom'
             ' of this dialog, after having selected it.'))
         la.setWordWrap(True)
         vl.addWidget(la)
-        vl.addLayout(hl)
-        self.order_label = la = QLabel('')
+        self.order_label = la = QLabel('\xa0')
         la.setTextFormat(Qt.TextFormat.RichText)
         la.setWordWrap(True)
         la.linkActivated.connect(self.link_activated)
-        vl.addWidget(la)
-        vl.addWidget(self.bb)
 
         self.column_list = cl = QListWidget(self)
-        hl.addWidget(cl)
+        vl.addWidget(cl)
+        vl.addWidget(la)
+        vl.addWidget(self.bb)
         for name in self.all_names:
             i = QListWidgetItem(cl)
             i.setText(name)
@@ -69,6 +67,18 @@ class ChooseMultiSort(Dialog):
         cl.itemChanged.connect(self.update_order_label)
         cl.model().rowsMoved.connect(self.update_order_label)
 
+        self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip(_('Save this sort order for easy re-use'))
+        b.clicked.connect(self.save)
+        b.setAutoDefault(False)
+
+        self.load_button = b = self.bb.addButton(_('&Load'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip(_('Load previously saved settings'))
+        b.setAutoDefault(False)
+        self.load_menu = QMenu(b)
+        b.setMenu(self.load_menu)
+        self.load_menu.aboutToShow.connect(self.populate_load_menu)
+
     def item_double_clicked(self, item):
         cs = item.checkState()
         item.setCheckState(Qt.CheckState.Checked if cs == Qt.CheckState.Unchecked else Qt.CheckState.Unchecked)
@@ -79,8 +89,7 @@ class ChooseMultiSort(Dialog):
     @property
     def current_sort_spec(self):
         ans = []
-        cl = self.column_list
-        for item in (cl.item(r) for r in range(cl.count())):
+        for item in self.iteritems():
             if item.checkState() == Qt.CheckState.Checked:
                 k = item.data(Qt.ItemDataRole.UserRole)
                 ans.append((k, self.sort_order_map[k]))
@@ -105,11 +114,66 @@ class ChooseMultiSort(Dialog):
         self.sort_order_map[key] ^= True
         self.update_order_label()
 
+    def no_column_selected_error(self):
+        return error_dialog(self, _('No sort selected'), _(
+            'You must select at least one column on which to sort'), show=True)
+
     def accept(self):
         if not self.current_sort_spec:
-            return error_dialog(self, _('No sort selected'), _(
-                'You must select at least one column on which to sort'), show=True)
+            return self.no_column_selected_error()
         super().accept()
+
+    @property
+    def saved_specs(self):
+        return self.db.pref('saved_multisort_specs', {}).copy()
+
+    @saved_specs.setter
+    def saved_specs(self, val):
+        self.db.set_pref('saved_multisort_specs', val.copy())
+
+    def save(self):
+        spec = self.current_sort_spec
+        if not spec:
+            return self.no_column_selected_error()
+        name, ok = QInputDialog.getText(self, _('Choose name'),
+                _('Choose a name for these settings'))
+        if ok:
+            q = self.saved_specs
+            q[name] = spec
+            self.saved_specs = q
+
+    def populate_load_menu(self):
+        m = self.load_menu
+        m.clear()
+        specs = self.saved_specs
+        if not specs:
+            m.addAction(_('No saved sorts available'))
+            return
+        for name in sorted(specs, key=primary_sort_key):
+            ac = m.addAction(name, self.load_spec)
+            ac.setObjectName(name)
+
+    def load_spec(self):
+        name = self.sender().objectName()
+        spec = self.saved_specs[name]
+        self.apply_spec(spec)
+
+    def iteritems(self):
+        cl = self.column_list
+        return (cl.item(i) for i in range(cl.count()))
+
+    def apply_spec(self, spec):
+        cl = self.column_list
+        for item in self.iteritems():
+            item.setCheckState(Qt.CheckState.Unchecked)
+        imap = {item.data(Qt.ItemDataRole.UserRole): item for item in self.iteritems()}
+        for key, ascending in reversed(spec):
+            item = imap.get(key)
+            if item is not None:
+                item = cl.takeItem(cl.row(item))
+                cl.insertItem(0, item)
+                self.sort_order_map[key] = ascending
+                item.setCheckState(Qt.CheckState.Checked)
 
 
 if __name__ == '__main__':
