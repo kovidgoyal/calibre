@@ -7,10 +7,10 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from contextlib import suppress
 from functools import partial
-from qt.core import QAction, QIcon, QToolButton, pyqtSignal
+from qt.core import QAction, QDialog, QIcon, QToolButton, pyqtSignal
 
 from calibre.gui2.actions import InterfaceAction
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import primary_sort_key
 from polyglot.builtins import iteritems
 
 SORT_HIDDEN_PREF = 'sort-action-hidden-fields'
@@ -98,8 +98,9 @@ class SortByAction(InterfaceAction):
         name_map = {v:k for k, v in iteritems(fm.ui_sortable_field_keys())}
         hidden = frozenset(db.new_api.pref(SORT_HIDDEN_PREF, default=()) or ())
         hidden_items_menu = menu.addMenu(_('Select sortable columns'))
+        menu.addAction(_('Sort on multiple columns'), self.choose_multisort)
         menu.addSeparator()
-        all_names = sorted(name_map, key=sort_key)
+        all_names = sorted(name_map, key=primary_sort_key)
         for name in all_names:
             key = name_map[name]
             ac = hidden_items_menu.addAction(name)
@@ -123,6 +124,12 @@ class SortByAction(InterfaceAction):
                 sac.setIcon(self.sorted_icon)
             sac.sort_requested.connect(self.sort_requested)
             menu.addAction(sac)
+
+    def choose_multisort(self):
+        from calibre.gui2.dialogs.multisort import ChooseMultiSort
+        d = ChooseMultiSort(self.gui.current_db, parent=self.gui, is_device_connected=self.gui.device_connected)
+        if d.exec_() == QDialog.DialogCode.Accepted:
+            self.gui.library_view.multisort(d.current_sort_spec)
 
     def sort_requested(self, key, ascending):
         if ascending is None:
