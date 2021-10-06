@@ -180,7 +180,7 @@ snippet in the future. Then specify the *trigger*. A trigger is simply the text
 that you have to type in the editor before pressing |ct| in order to expand the
 snippet.
 
-Then specify the snippet template. You should start with one of the example
+Then specify the snippet template. You should start with one of the examples
 above and modify it to suit your needs. Finally, specify which file types you
 want the snippet to be active for. This way you can have multiple snippets with
 the same trigger text that work differently in different file types.
