@@ -67,6 +67,11 @@ class ChooseMultiSort(Dialog):
         cl.itemChanged.connect(self.update_order_label)
         cl.model().rowsMoved.connect(self.update_order_label)
 
+        self.clear_button = b = self.bb.addButton(_('&Clear'), QDialogButtonBox.ButtonRole.ActionRole)
+        b.setToolTip(_('Clear all selected columns'))
+        b.setAutoDefault(False)
+        b.clicked.connect(self.clear)
+
         self.save_button = b = self.bb.addButton(_('&Save'), QDialogButtonBox.ButtonRole.ActionRole)
         b.setToolTip(_('Save this sort order for easy re-use'))
         b.clicked.connect(self.save)
@@ -78,6 +83,11 @@ class ChooseMultiSort(Dialog):
         self.load_menu = QMenu(b)
         b.setMenu(self.load_menu)
         self.load_menu.aboutToShow.connect(self.populate_load_menu)
+
+    def clear(self):
+        for item in self.iteritems():
+            item.setCheckState(Qt.CheckState.Unchecked)
+        self.column_list.sortItems()
 
     def item_double_clicked(self, item):
         cs = item.checkState()
@@ -163,9 +173,8 @@ class ChooseMultiSort(Dialog):
         return (cl.item(i) for i in range(cl.count()))
 
     def apply_spec(self, spec):
+        self.clear()
         cl = self.column_list
-        for item in self.iteritems():
-            item.setCheckState(Qt.CheckState.Unchecked)
         imap = {item.data(Qt.ItemDataRole.UserRole): item for item in self.iteritems()}
         for key, ascending in reversed(spec):
             item = imap.get(key)
