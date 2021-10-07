@@ -1351,7 +1351,8 @@ class KOBOTOUCH(KOBO):
     description = _(
         'Communicate with the Kobo Touch, Glo, Mini, Aura HD,'
         ' Aura H2O, Glo HD, Touch 2, Aura ONE, Aura Edition 2,'
-        ' Aura H2O Edition 2, Clara HD, Forma and Libra H2O eReaders.'
+        ' Aura H2O Edition 2, Clara HD, Forma, Libra H2O, Elipsa,'
+        ' Sage and Libra 2 eReaders.'
         ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
@@ -1386,7 +1387,9 @@ class KOBOTOUCH(KOBO):
     min_fwversion_dropbox           = (4, 18, 13737)  # The Forma only at this point.
     min_fwversion_serieslist        = (4, 20, 14601)  # Series list needs the SeriesID to be set.
     min_nia_fwversion               = (4, 22, 15202)
-    min_elipsa_fwversion            = (4, 28, 16705)
+    min_elipsa_fwversion            = (4, 28, 17820)
+    min_libra2_fwversion            = (4, 29, 18820)  # Firmware version to be confirmed
+    min_sage_fwversion              = (4, 29, 18820)  # Firmware version to be confirmed
 
     has_kepubs = True
 
@@ -1418,8 +1421,10 @@ class KOBOTOUCH(KOBO):
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
     LIBRA_H2O_PRODUCT_ID = [0x4232]
+    LIBRA2_PRODUCT_ID   = [0x4234]
     MINI_PRODUCT_ID     = [0x4183]
     NIA_PRODUCT_ID      = [0x4230]
+    SAGE_PRODUCT_ID     = [0x4231]
     TOUCH_PRODUCT_ID    = [0x4163]
     TOUCH2_PRODUCT_ID   = [0x4224]
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID + \
@@ -1427,7 +1432,8 @@ class KOBOTOUCH(KOBO):
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
                           MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
                           AURA_ONE_PRODUCT_ID + CLARA_HD_PRODUCT_ID + FORMA_PRODUCT_ID + LIBRA_H2O_PRODUCT_ID + \
-                          NIA_PRODUCT_ID + ELIPSA_PRODUCT_ID
+                          NIA_PRODUCT_ID + ELIPSA_PRODUCT_ID + \
+                          SAGE_PRODUCT_ID + LIBRA2_PRODUCT_ID
 
     BCD = [0x0110, 0x0326, 0x401, 0x409]
 
@@ -3404,11 +3410,17 @@ class KOBOTOUCH(KOBO):
     def isLibraH2O(self):
         return self.detected_device.idProduct in self.LIBRA_H2O_PRODUCT_ID
 
+    def isLibra2(self):
+        return self.detected_device.idProduct in self.LIBRA2_PRODUCT_ID
+
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
 
     def isNia(self):
         return self.detected_device.idProduct in self.NIA_PRODUCT_ID
+
+    def isSage(self):
+        return self.detected_device.idProduct in self.SAGE_PRODUCT_ID
 
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
@@ -3441,10 +3453,14 @@ class KOBOTOUCH(KOBO):
             _cover_file_endings = self.GLO_HD_COVER_FILE_ENDINGS
         elif self.isLibraH2O():
             _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
+        elif self.isLibra2():
+            _cover_file_endings = self.LIBRA_H2O_COVER_FILE_ENDINGS
         elif self.isMini():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isNia():
             _cover_file_endings = self.GLO_COVER_FILE_ENDINGS
+        elif self.isSage():
+            _cover_file_endings = self.FORMA_COVER_FILE_ENDINGS
         elif self.isTouch():
             _cover_file_endings = self.LEGACY_COVER_FILE_ENDINGS
         elif self.isTouch2():
@@ -3483,10 +3499,14 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Glo HD'
         elif self.isLibraH2O():
             device_name = 'Kobo Libra H2O'
+        elif self.isLibra2():
+            device_name = 'Kobo Libra 2'
         elif self.isMini():
             device_name = 'Kobo Mini'
         elif self.isNia():
             device_name = 'Kobo Nia'
+        elif self.isSage():
+            device_name = 'Kobo Sage'
         elif self.isTouch():
             device_name = 'Kobo Touch'
         elif self.isTouch2():
