@@ -229,7 +229,12 @@ class AutoAdder(QObject):
         added_ids = set()
 
         for fname, tdir in data:
-            paths = [os.path.join(self.worker.path, fname)]
+            path_to_remove = os.path.join(self.worker.path, fname)
+            paths = [path_to_remove]
+            fpath = os.path.join(tdir, 'file_changed_by_plugins')
+            if os.path.exists(fpath):
+                with open(fpath) as f:
+                    paths[0] = f.read()
             sz = os.path.join(tdir, 'size.txt')
             try:
                 with open(sz, 'rb') as f:
@@ -277,7 +282,7 @@ class AutoAdder(QObject):
                 duplicates.append(dups)
 
             try:
-                os.remove(paths[0])
+                os.remove(path_to_remove)
                 self.worker.staging.remove(fname)
             except:
                 import traceback
