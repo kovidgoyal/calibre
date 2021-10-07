@@ -1385,7 +1385,7 @@ class TemplateFormatter(string.Formatter):
 
     @property
     def gpm_interpreter(self):
-        if len(self._interpreters) <= self.recursion_level:
+        while len(self._interpreters) <= self.recursion_level:
             self._interpreters.append(_Interpreter())
         return self._interpreters[self.recursion_level]
 
