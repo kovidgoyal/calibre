@@ -23,6 +23,44 @@
 # - title by author
 # }}}
 
+{{{ 5.29.0 2021-10-08
+
+:: new features
+
+- [1945890] Allow drag and drop of books onto formats in the Tag browser to convert them to that format
+
+- [1945891] Allow creating sorts based on multiple columns (Add the Sort action to the toolbar via Preferences->Toolbars & menus)
+
+- Edit book: When changing a paragraph to a heading if the cursor is adjacent to a paragraph tag but not inside any tags other than body, use the adjacent tag
+
+:: bug fixes
+
+- [1945889] Auto adding: Run relevant plugins before reading metadata from the book. Matches behavior of manual adding
+
+- [1945882] Content server: Fix category collapse by partition not working
+
+- Prevent Tab from causing focus to leave the Tag browser
+
+- Edit book: See what changed: Fix non-BMP unicode characters causing highlighting of changed words to be slightly misplaced
+
+- PDF Output: Fix a regression that broke conversion of comics that contain 1-bit images
+
+- Edit book: Fix pressing Ctrl+Tab inserting a tab at the start of a line instead of switching tabs
+
+- [1945098] Fix a regression in the previous release that caused identifiers set by some plugins to not be saved in the database
+
+- [1946342] Template language: Fix nesting composite columns sometimes failing
+
+:: improved recipes
+- Entrepreneur Magazine
+- Dawn
+- New York Review of Books
+
+:: new recipes
+- Various Indian news sources by Vishvas Vasuki
+
+}}}
+
 {{{ 5.28.0 2021-09-24
 
 :: new features
