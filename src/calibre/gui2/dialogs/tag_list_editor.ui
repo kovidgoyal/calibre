@@ -76,7 +76,11 @@
      <property name="toolTip">
       <string>&lt;p&gt;Show items only if they appear in the
           current Virtual library. Edits already done may be hidden but will
-          not be forgotten.&lt;/p&gt;</string>
+          not be forgotten.
+          &lt;/p&gt;&lt;p&gt;
+          Note that this box affects only what is displayed. Changes
+          will affect all books in your library even if this box
+          is checked.&lt;/p&gt;</string>
      </property>
      <property name="text">
       <string>Only show items in the current &amp;Virtual library</string>
