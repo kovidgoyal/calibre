@@ -968,7 +968,6 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.db.new_api.set_pref('user_categories', user_cats)
         self.refresh_required.emit()
         self.user_category_added.emit()
-
         return True
 
     def do_drop_from_library(self, md, action, row, column, parent):
@@ -1315,9 +1314,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             an_item.tag.name = new_name
             an_item.tag.state = TAG_SEARCH_STATES['clear']
             self.use_position_based_index_on_next_recount = True
-            if not restrict_to_books:
-                self.rename_item_in_all_user_categories(original_name,
-                                                        lookup_key, new_name)
+            self.add_renamed_item_to_user_categories(lookup_key, original_name, new_name)
 
         children = item.all_children()
         restrict_to_book_ids=self.get_book_ids_to_use() if item.use_vl else None
@@ -1341,6 +1338,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     new_name = to_what + child_item.tag.original_name[len(search_name):]
                     do_one_item(key, child_item, child_item.tag.original_name,
                                 new_name, restrict_to_book_ids)
+        self.clean_items_from_user_categories()
         self.refresh_required.emit()
 
     def rename_item_in_all_user_categories(self, item_name, item_category, new_name):
@@ -1385,6 +1383,53 @@ class TagsModel(QAbstractItemModel):  # {{{
         user_cats[category] = new_contents
         if user_categories is None:
             self.db.new_api.set_pref('user_categories', user_cats)
+
+    def add_renamed_item_to_user_categories(self, lookup_key, original_name, new_name):
+        '''
+        Add new_name to any user category that contains original name if new_name
+        isn't already there. The original name isn't deleted. This is the first
+        step when renaming user categories that might be in virtual libraries
+        because when finished both names may still exist. You should call
+        clean_items_from_user_categories() when done to remove any keys that no
+        longer exist from all user categories. The caller must arrange to
+        redisplay the tree as appropriate.
+        '''
+        user_cats = self.db.new_api.pref('user_categories', {})
+        for cat in user_cats.keys():
+            found_original = False
+            found_new = False
+            for name,key,_ in user_cats[cat]:
+                if key == lookup_key:
+                    if name == original_name:
+                        found_original = True
+                    if name == new_name:
+                        found_new = True
+            if found_original and not found_new:
+                user_cats[cat].append([new_name, lookup_key, 0])
+        self.db.new_api.set_pref('user_categories', user_cats)
+
+    def clean_items_from_user_categories(self):
+        '''
+        Remove any items that no longer exist from user categories. This can
+        happen when renaming items in virtual libraries, where sometimes the
+        old name still exists on some book not in the VL and sometimes it
+        doesn't. The caller must arrange to redisplay the tree as appropriate.
+        '''
+        user_cats = self.db.new_api.pref('user_categories', {})
+        cache = self.db.new_api
+        all_cats = {}
+        for cat in user_cats.keys():
+            new_cat = []
+            for val, key, _ in user_cats[cat]:
+                datatype = cache.field_metadata.get(key, {}).get('datatype', '*****')
+                if datatype != 'composite':
+                    id_ = cache.get_item_id(key, val)
+                    v = cache.books_for_field(key, id_)
+                    if v:
+                        new_cat.append([val, key, 0])
+            if new_cat:
+                all_cats[cat] = new_cat
+        self.db.new_api.set_pref('user_categories', all_cats)
 
     def headerData(self, *args):
         return None
