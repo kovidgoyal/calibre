@@ -699,13 +699,17 @@ class TagsView(QTreeView):  # {{{
             if self.hidden_categories and not added_show_hidden_categories:
                 added_show_hidden_categories = True
                 m = self.context_menu.addMenu(_('Show category'))
+                m.setIcon(QIcon(I('plus.png')))
                 for col in sorted(self.hidden_categories,
                         key=lambda x: sort_key(self.db.field_metadata[x]['name'])):
-                    m.addAction(self.db.field_metadata[col]['name'],
+                    ac = m.addAction(self.db.field_metadata[col]['name'],
                         partial(self.context_menu_handler, action='show', category=col))
+                    ic = self.model().category_custom_icons.get(col)
+                    if ic:
+                        ac.setIcon(QIcon(ic))
                 m.addSeparator()
                 m.addAction(_('All categories'),
-                        partial(self.context_menu_handler, action='defaults'))
+                        partial(self.context_menu_handler, action='defaults')).setIcon(QIcon(I('plusplus.png')))
 
         search_submenu = None
         if index.isValid():
@@ -763,10 +767,10 @@ class TagsView(QTreeView):  # {{{
                         if key == 'authors':
                             self.context_menu.addAction(_('Edit sort for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
-                                            action='edit_author_sort', index=tag.id))
+                                            action='edit_author_sort', index=tag.id)).setIcon(QIcon(I('auto_author_sort.png')))
                             self.context_menu.addAction(_('Edit link for %s')%display_name(tag),
                                     partial(self.context_menu_handler,
-                                            action='edit_author_link', index=tag.id))
+                                            action='edit_author_link', index=tag.id)).setIcon(QIcon(I('insert-link.png')))
 
                         # is_editable is also overloaded to mean 'can be added
                         # to a User category'
@@ -839,6 +843,7 @@ class TagsView(QTreeView):  # {{{
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addSeparator()
                         search_submenu = self.context_menu.addMenu(_('Search'))
+                        search_submenu.setIcon(QIcon(I('search.png')))
                         search_submenu.addAction(self.search_icon,
                                 _('Search for %s')%display_name(tag),
                                 partial(self.context_menu_handler, action='search',
@@ -889,6 +894,7 @@ class TagsView(QTreeView):  # {{{
                         tag_item.temporary and not key.startswith('@'):
                     self.context_menu.addSeparator()
                     search_submenu = self.context_menu.addMenu(_('Search'))
+                    search_submenu.setIcon(QIcon(I('search.png')))
                     search_submenu.addAction(self.search_icon,
                             _('Search for %s')%display_name(tag_item.tag),
                             partial(self.context_menu_handler, action='search',
@@ -904,6 +910,7 @@ class TagsView(QTreeView):  # {{{
                 if item.tag.is_searchable:
                     if search_submenu is None:
                         search_submenu = self.context_menu.addMenu(_('Search'))
+                        search_submenu.setIcon(QIcon(I('search.png')))
                         self.context_menu.addSeparator()
                     else:
                         search_submenu.addSeparator()
@@ -925,15 +932,18 @@ class TagsView(QTreeView):  # {{{
                 if key in ['tags', 'publisher', 'series'] or (
                         fm['is_custom'] and fm['datatype'] != 'composite'):
                     if tag_item.type == TagTreeItem.CATEGORY and tag_item.temporary:
-                        self.context_menu.addAction(_('Manage %s')%category,
+                        ac = self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
                                     category=tag_item.name,
                                     key=key, is_first_letter=True))
                     else:
-                        self.context_menu.addAction(_('Manage %s')%category,
+                        ac = self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='open_editor',
                                     category=tag.original_name if tag else None,
                                     key=key))
+                    ic = self.model().category_custom_icons.get(key)
+                    if ic:
+                        ac.setIcon(QIcon(ic))
                     if fm['datatype'] == 'enumeration':
                         self.context_menu.addAction(_('Edit permissible values for %s')%category,
                             partial(self.context_menu_handler, action='edit_enum',
@@ -941,16 +951,19 @@ class TagsView(QTreeView):  # {{{
                 elif key == 'authors':
                     if tag_item.type == TagTreeItem.CATEGORY:
                         if tag_item.temporary:
-                            self.context_menu.addAction(_('Manage %s')%category,
+                            ac = self.context_menu.addAction(_('Manage %s')%category,
                                 partial(self.context_menu_handler, action='edit_authors',
                                         index=tag_item.name, is_first_letter=True))
                         else:
-                            self.context_menu.addAction(_('Manage %s')%category,
+                            ac = self.context_menu.addAction(_('Manage %s')%category,
                                 partial(self.context_menu_handler, action='edit_authors'))
                     else:
-                        self.context_menu.addAction(_('Manage %s')%category,
+                        ac = self.context_menu.addAction(_('Manage %s')%category,
                             partial(self.context_menu_handler, action='edit_authors',
                                     index=tag.id))
+                    ic = self.model().category_custom_icons.get(key)
+                    if ic:
+                        ac.setIcon(QIcon(ic))
                 elif key == 'search':
                     self.context_menu.addAction(_('Manage Saved searches'),
                         partial(self.context_menu_handler, action='manage_searches',
@@ -960,15 +973,15 @@ class TagsView(QTreeView):  # {{{
                 self.context_menu.addSeparator()
                 self.context_menu.addAction(_('Hide category %s') % category,
                     partial(self.context_menu_handler, action='hide',
-                            category=key))
+                            category=key)).setIcon(QIcon(I('minus.png')))
                 add_show_hidden_categories()
 
                 if tag is None:
                     self.context_menu.addSeparator()
                     self.context_menu.addAction(_('Change category icon'),
-                            partial(self.context_menu_handler, action='set_icon', key=key))
+                            partial(self.context_menu_handler, action='set_icon', key=key)).setIcon(QIcon(I('icon_choose.png')))
                     self.context_menu.addAction(_('Restore default icon'),
-                            partial(self.context_menu_handler, action='clear_icon', key=key))
+                            partial(self.context_menu_handler, action='clear_icon', key=key)).setIcon(QIcon(I('edit-clear.png')))
 
                 # Always show the User categories editor
                 self.context_menu.addSeparator()
@@ -989,6 +1002,7 @@ class TagsView(QTreeView):  # {{{
             add_show_hidden_categories()
 
         m = self.context_menu.addMenu(_('Change sub-categorization scheme'))
+        m.setIcon(QIcon(I('config.png')))
         da = m.addAction(_('Disable'),
             partial(self.context_menu_handler, action='categorization', category='disable'))
         fla = m.addAction(_('By first letter'),
