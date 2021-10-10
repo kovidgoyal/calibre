@@ -842,7 +842,7 @@ class TagsView(QTreeView):  # {{{
                     if tag.is_searchable:
                         # Add the search for value items. All leaf nodes are searchable
                         self.context_menu.addSeparator()
-                        search_submenu = self.context_menu.addMenu(_('Search for...'))
+                        search_submenu = self.context_menu.addMenu(_('Search for'))
                         search_submenu.setIcon(QIcon(I('search.png')))
                         search_submenu.addAction(self.search_icon,
                                 '%s'%display_name(tag),
@@ -893,7 +893,7 @@ class TagsView(QTreeView):  # {{{
                 if self._model.collapse_model == 'first letter' and \
                         tag_item.temporary and not key.startswith('@'):
                     self.context_menu.addSeparator()
-                    search_submenu = self.context_menu.addMenu(_('Search for...'))
+                    search_submenu = self.context_menu.addMenu(_('Search for'))
                     search_submenu.setIcon(QIcon(I('search.png')))
                     search_submenu.addAction(self.search_icon,
                             '%s'%display_name(tag_item.tag),
@@ -909,7 +909,7 @@ class TagsView(QTreeView):  # {{{
                 # as search and news
                 if item.tag.is_searchable:
                     if search_submenu is None:
-                        search_submenu = self.context_menu.addMenu(_('Search for...'))
+                        search_submenu = self.context_menu.addMenu(_('Search for'))
                         search_submenu.setIcon(QIcon(I('search.png')))
                         self.context_menu.addSeparator()
                     else:
