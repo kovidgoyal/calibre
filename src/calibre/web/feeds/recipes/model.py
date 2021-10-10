@@ -1,27 +1,25 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+# License: GPLv3 Copyright: 2009, Kovid Goyal <kovid at kovidgoyal.net>
 
-
-__license__   = 'GPL v3'
-__copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
-import copy, zipfile
+import copy
+import zipfile
 from functools import total_ordering
+from qt.core import (
+    QAbstractItemModel, QApplication, QFont, QIcon, QModelIndex, QPalette, QPixmap,
+    Qt, pyqtSignal
+)
 
-from qt.core import QAbstractItemModel, Qt, QColor, QFont, QIcon, \
-        QModelIndex, pyqtSignal, QPixmap
-
-from calibre.utils.search_query_parser import SearchQueryParser
-from calibre.utils.localization import get_language
-from calibre.web.feeds.recipes.collection import \
-        get_builtin_recipe_collection, get_custom_recipe_collection, \
-        SchedulerConfig, download_builtin_recipe, update_custom_recipe, \
-        update_custom_recipes, add_custom_recipe, add_custom_recipes, \
-        remove_custom_recipe, get_custom_recipe, get_builtin_recipe
 from calibre import force_unicode
 from calibre.utils.icu import primary_sort_key
-from calibre.utils.search_query_parser import ParseException
+from calibre.utils.localization import get_language
+from calibre.utils.search_query_parser import ParseException, SearchQueryParser
+from calibre.web.feeds.recipes.collection import (
+    SchedulerConfig, add_custom_recipe, add_custom_recipes, download_builtin_recipe,
+    get_builtin_recipe, get_builtin_recipe_collection, get_custom_recipe,
+    get_custom_recipe_collection, remove_custom_recipe, update_custom_recipe,
+    update_custom_recipes
+)
 from polyglot.builtins import iteritems, unicode_type
 
 
@@ -85,7 +83,7 @@ class NewsCategory(NewsTreeItem):
         elif role == Qt.ItemDataRole.FontRole:
             return self.bold_font
         elif role == Qt.ItemDataRole.ForegroundRole and self.category == _('Scheduled'):
-            return (QColor(0, 255, 0))
+            return QApplication.instance().palette().color(QPalette.ColorRole.Link)
         elif role == Qt.ItemDataRole.UserRole:
             return '::category::{}'.format(self.sortq[0])
         return None
