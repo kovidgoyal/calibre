@@ -41,7 +41,6 @@ class ElDiplo2020(BasicNewsRecipe):
     masthead_url = 'https://www.eldiplo.org/wp-content/themes/_polenta_/assets/diplo.png'
     INDEX = 'https://www.eldiplo.org/'
 
-
     extra_css            = """
         body{font-family: "GT Super", serif}
         .autor{font-family: Inter, serif}
@@ -66,7 +65,7 @@ class ElDiplo2020(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
         mylink = soup.find('span', text='Sumario')
         if mylink is None:
-           return None
+            return None
         indexurl = "https://www.eldiplo.org" + mylink.parent['href']
         self.log(indexurl)
         parts = indexurl.split('www.eldiplo.org/', 1)
