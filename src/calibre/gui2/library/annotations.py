@@ -536,11 +536,11 @@ class Restrictions(QWidget):
 
     def update_book_restrictions_text(self):
         if not self.restrict_to_book_ids:
-            t = _('Show results from only selected books')
+            t = _('&Show results from only selected books')
         else:
             t = ngettext(
-                'Show results from only the selected book',
-                'Show results from only the {} selected books',
+                '&Show results from only the selected book',
+                '&Show results from only the {} selected books',
                 len(self.restrict_to_book_ids)).format(len(self.restrict_to_book_ids))
         self.restrict_to_books_cb.setText(t)
 
@@ -934,7 +934,7 @@ class AnnotationsBrowser(Dialog):
             return Dialog.keyPressEvent(self, ev)
 
     def setup_ui(self):
-        self.use_stemmer = us = QCheckBox(_('Match on related English words'))
+        self.use_stemmer = us = QCheckBox(_('&Match on related English words'))
         us.setChecked(gprefs['browse_annots_use_stemmer'])
         us.setToolTip('<p>' + _(
             'With this option searching for words will also match on any related English words. For'
