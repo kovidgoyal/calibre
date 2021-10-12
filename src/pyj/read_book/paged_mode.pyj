@@ -329,6 +329,12 @@ def layout(is_single_page, on_resize):
                     is_full_screen_layout = True
                 if has_svg and svgs.length == 1 and svgs[0].getBoundingClientRect().left < wi:
                     is_full_screen_layout = True
+        if is_full_screen_layout and only_img and cols_per_screen > 1:
+            cols_per_screen = 1
+            col_size = screen_inline
+            col_and_gap = col_size + gap
+            number_of_cols = 1
+            document.body.style.columnWidth = f'100vw'
 
     # Some browser engine, WebKit at least, adjust column sizes to please
     # themselves, unless the container size is an exact multiple, so we check
