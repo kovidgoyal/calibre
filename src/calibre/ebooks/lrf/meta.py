@@ -20,6 +20,7 @@ import xml.dom.minidom as dom
 from functools import wraps
 
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.cleantext import clean_xml_chars
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
 from polyglot.builtins import unicode_type, string_or_bytes
 
@@ -400,7 +401,7 @@ class LRFMetaFile:
                                         yielded unexpected results")
 
                 src = xml_to_unicode(src, strip_encoding_pats=True, resolve_entities=True, assume_utf8=True)[0]
-                return dom.parseString(src)
+                return dom.parseString(clean_xml_chars(src))
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
 
