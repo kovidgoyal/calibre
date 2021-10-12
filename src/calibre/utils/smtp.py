@@ -76,41 +76,32 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
     assert text or attachment_data
 
-    from email.mime.multipart import MIMEMultipart
+    from email.message import EmailMessage
     from email.utils import formatdate
-    from email import encoders
     import uuid
 
-    outer = MIMEMultipart()
-    outer['Subject'] = subject
-    outer['To'] = to
+    outer = EmailMessage()
     outer['From'] = from_
+    outer['To'] = to
+    outer['Subject'] = subject
     outer['Date'] = formatdate(localtime=True)
     outer['Message-Id'] = "<{}@{}>".format(uuid.uuid4(), get_msgid_domain(from_))
     outer.preamble = 'You will not see this in a MIME-aware mail reader.\n'
 
     if text is not None:
-        from email.mime.text import MIMEText
         if isbytestring(text):
-            msg = MIMEText(text)
-        else:
-            msg = MIMEText(text, 'plain', 'utf-8')
-        outer.attach(msg)
+            text = text.decode('utf-8', 'replace')
+        outer.set_content(text)
 
     if attachment_data is not None:
-        from email.mime.base import MIMEBase
-        from email.header import Header
         assert attachment_data and attachment_name
         try:
             maintype, subtype = attachment_type.split('/', 1)
-        except AttributeError:
+        except Exception:
             maintype, subtype = 'application', 'octet-stream'
-        msg = MIMEBase(maintype, subtype, name=Header(attachment_name, 'utf-8').encode())
-        msg.set_payload(attachment_data)
-        encoders.encode_base64(msg)
-        msg.add_header('Content-Disposition', 'attachment',
-                       filename=Header(attachment_name, 'utf-8').encode())
-        outer.attach(msg)
+        if isinstance(attachment_data, str):
+            attachment_data = attachment_data.encode('utf-8')
+        outer.add_attachment(attachment_data, maintype=maintype, subtype=subtype, filename=attachment_name)
 
     return outer
 

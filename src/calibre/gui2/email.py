@@ -18,7 +18,6 @@ from qt.core import (
 
 from calibre.utils.smtp import (compose_mail, sendmail, extract_email_address,
         config as email_config)
-from calibre.utils.filenames import ascii_filename
 from calibre.customize.ui import available_input_formats, available_output_formats
 from calibre.ebooks.metadata import authors_to_string
 from calibre.constants import preferred_encoding
@@ -168,7 +167,7 @@ def email_news(mi, remove, get_fmts, done, job_manager):
         subjects = [_('News:')+' '+mi.title]
         texts    = [_(
             'Attached is the %s periodical downloaded by calibre.') % (mi.title,)]
-        attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
+        attachment_names = [mi.title+os.path.splitext(attachment)[1]]
         attachments = [attachment]
         jobnames = [mi.title]
         do_remove = []
@@ -408,7 +407,7 @@ class EmailMixin:  # {{{
                 if mi.comments and gprefs['add_comments_to_email']:
                     from calibre.utils.html2text import html2text
                     texts[-1] += '\n\n' + _('About this book:') + '\n\n' + textwrap.fill(html2text(mi.comments))
-                prefix = ascii_filename(t+' - '+a)
+                prefix = f'{t} - {a}'
                 if not isinstance(prefix, unicode_type):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 attachment_names.append(prefix + os.path.splitext(f)[1])
