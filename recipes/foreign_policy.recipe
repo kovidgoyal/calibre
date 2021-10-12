@@ -26,20 +26,19 @@ class ForeignPolicy(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        classes('dek-heading meta-data figure-image post-content-main'),
+        classes('dek-heading meta-data figure-image post-content-main bio-no-photo'),
         dict(attrs={'class': lambda x: x and set(x.split()).intersection(
             {'wide_header_bg', 'wide_header_text'})}),
     ]
     remove_tags = [
         dict(name=['meta', 'link']),
-        dict(attrs={'class': ['fp-lightbox--overlay']}),
-        dict(attrs={'class': lambda x: x and 'share-links' in x}),
+        classes('share-links content-ungated -excerpt related-articles fp-lightbox--overlay more-text'),
     ]
     remove_tags_after = [classes('post-content-main')]
 
     def parse_index(self):
         soup = self.index_to_soup('https://foreignpolicy.com/the-magazine')
-        img = soup.find('img', src=True, attrs={'alt': lambda x: x and 'foreign-policy-cover' in x})
+        img = soup.find('img', src=True, attrs={'alt': lambda x: x and '-cover' in x})
         self.cover_url = img['src']
         current_section = None
         amap = OrderedDict()
