@@ -286,7 +286,7 @@ def add_format_entries(menu, data, book_info, copy_menu, search_menu):
             menu.ow = m
         if fmt.upper() in SUPPORTED:
             menu.addSeparator()
-            menu.addAction(_('Edit %s') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
+            menu.addAction(_('Edit %s format') % fmt.upper(), partial(book_info.edit_fmt, book_id, fmt))
     path = data['path']
     if path:
         if data.get('fname'):

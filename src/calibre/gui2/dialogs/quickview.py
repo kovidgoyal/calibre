@@ -345,7 +345,7 @@ class Quickview(QDialog, Ui_Quickview):
         a.setEnabled(book_displayed)
         m.addAction(self.search_icon, _('Search for item in the library'),
                         partial(self.do_search, follow_library_view=False))
-        a = m.addAction(self.edit_metadata_icon, _('Edit book metadata'),
+        a = m.addAction(self.edit_metadata_icon, _('Edit metadata'),
                         partial(self.edit_metadata, book_id, follow_library_view=False))
         a.setEnabled(book_displayed)
         a = m.addAction(self.quickview_icon, _('Quickview this cell'),
