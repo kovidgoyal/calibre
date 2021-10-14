@@ -24,7 +24,7 @@
 #  - Calibre                    Location of Linux program files
 #  - CalibreConfig              Location of configuration files
 #  - CalibreLibrary             Location of books and metadata
-#  - CalibreSource              Location of calibre source files (pptional)
+#  - CalibreSource              Location of calibre source files (optional)
 #
 # This script file is designed so that if you create the recommended
 # folder structure then it can be used 'as is' without modification.
