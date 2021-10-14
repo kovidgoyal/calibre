@@ -580,7 +580,7 @@ class TagBrowserBar(QWidget):  # {{{
         b.setIcon(QIcon(I('search.png')))
         b.setCheckable(True)
         b.setChecked(gprefs.get('tag browser search box visible', False))
-        b.setToolTip(_('Search for items in the Tag browser'))
+        b.setToolTip(_('Find item in the Tag browser'))
         b.setAutoRaise(True)
         b.toggled.connect(self.update_searchbar_state)
         self.update_searchbar_state()
