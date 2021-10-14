@@ -2,14 +2,14 @@
 #                       Calibre-Portable.sh
 #                       ¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 #
-# Shell script File to start a Calibre configuration on Linux
+# Shell script file to start a calibre configuration on Linux
 # giving explicit control of the location of:
-#  - Calibre Program Files
-#  - Calibre Library Files
-#  - Calibre Config Files
-#  - Calibre Metadata database
-#  - Calibre Source files
-#  - Calibre Temp Files
+#  - calibre program files
+#  - calibre library files
+#  - calibre config files
+#  - calibre metadata database
+#  - calibre source files
+#  - calibre temp files
 # By setting the paths correctly it can be used to run:
 #  - A "portable calibre" off a USB stick.
 #  - A network installation with local metadata database
@@ -21,16 +21,16 @@
 # this script file). This structure can also be used when
 # running of a local hard disk if you want to get the level
 # of control this script file provides.
-#  - Calibre                    Location of linux program files
-#  - CalibreConfig              Location of Configuration files
-#  - CalibreLibrary             Location of Books and metadata
-#  - CalibreSource              Location of Calibre Source files (Optional)
+#  - Calibre                    Location of Linux program files
+#  - CalibreConfig              Location of configuration files
+#  - CalibreLibrary             Location of books and metadata
+#  - CalibreSource              Location of calibre source files (pptional)
 #
 # This script file is designed so that if you create the recommended
 # folder structure then it can be used 'as is' without modification.
 # To use your own structure, simply set the variables in the generated configuration file.
 #
-# More information on the Environment Variables used by Calibre can
+# More information on the environment variables used by calibre can
 # be found at:
 #       https://manual.calibre-ebook.com/customize.html#environment-variables
 #
@@ -43,7 +43,7 @@
 # CHANGE HISTORY
 # ¬¬¬¬¬¬¬¬¬¬¬¬¬¬
 # 22 Jan 2012  itimpi ----- First version based on the calibre-portable.bat file for Windows
-#                           It should have identical functionality but for a linux environment.
+#                           It should have identical functionality but for a Linux environment.
 #                           It might work on MacOS but that has not been validated.
 #
 # 02 Feb 2015  eschwartz -- Fix path issues, allow setting each location in one variable, allow
@@ -188,10 +188,10 @@ else
 		# SRC_DIR="$\(pwd)/CalibreSource/src"
 
 		################################################################
-		# -- Specify location of calibre linux binaries (optional).
+		# -- Specify location of calibre Linux binaries (optional).
 		#
-		# -- To avoid needing Calibre to be set in the search path, ensure
-		# -- that if Calibre Program Files exists, we manually specify the
+		# -- To avoid needing calibre to be set in the search path, ensure
+		# -- that if calibre program files exists, we manually specify the
 		# -- location of the binary.
 		# -- The following test falls back to using the search path, or you
 		# -- can specifically use the search path by leaving the BIN_DIR blank.
@@ -219,7 +219,7 @@ else
 		# CALIBRE_TEMP_DIR="/tmp/CALIBRE_TEMP_\$(tr -dc 'A-Za-z0-9'</dev/urandom |fold -w 7 | head -n1)"
 
 		################################################################
-		# -- Set the Interface language (optional).
+		# -- Set the interface language (optional).
 		#
 		# -- Defaults to whatever is stored in Preferences
 		################################################################
@@ -332,7 +332,7 @@ fi
 echo "--------------------------------------------------"
 
 # --------------------------------------------------------------
-# Specify location of calibre linux binaries (optional).
+# Specify location of calibre Linux binaries (optional).
 # --------------------------------------------------------------
 
 : ${BIN_DIR:="$(pwd)/calibre"}
@@ -342,12 +342,12 @@ if [[ -d "${BIN_DIR}" ]]; then
     echo "PROGRAM FILES:      ${BIN_DIR}"
 elif [[ -z "${BIN_DIR}" ]]; then
     CALIBRE="calibre"
-    echo "PROGRAM FILES:      Using System search path"
+    echo "PROGRAM FILES:      Using system search path"
 else
     CALIBRE="calibre"
     echo "PROGRAM FILES:      No portable copy found."
     echo "To install a portable copy, run './calibre-portable.sh --upgrade-install'"
-    echo -e "\033[0;31m*** Using System search path instead***\033[0m"
+    echo -e "\033[0;31m*** Using system search path instead***\033[0m"
 fi
 echo "--------------------------------------------------"
 
@@ -368,7 +368,7 @@ if [[ ! -z "${CALIBRE_TEMP_DIR}" ]]; then
 fi
 
 # --------------------------------------------------------------
-# Set the Interface language (optional).
+# Set the interface language (optional).
 # --------------------------------------------------------------
 
 if [[ "${CALIBRE_OVERRIDE_LANG}" != "" ]]; then
@@ -383,7 +383,7 @@ fi
 if [[ "${CALIBRE_NOCONFIRM_START}" != "1" ]]; then
     echo
     echo "Press CTRL-C if you do not want to continue"
-    echo "Press ENTER to continue and start Calibre"
+    echo "Press ENTER to continue and start calibre"
     read DUMMY
 fi
 
@@ -391,5 +391,5 @@ fi
 # Start up the calibre program.
 # --------------------------------------------------------
 
-echo "Starting up Calibre from portable directory \"$(pwd)\""
+echo "Starting up calibre from portable directory \"$(pwd)\""
 $CALIBRE --with-library "${CALIBRE_LIBRARY_DIRECTORY}"
