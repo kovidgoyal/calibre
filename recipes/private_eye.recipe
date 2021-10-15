@@ -1,258 +1,49 @@
-#!/usr/bin/env python
-# vim:fileencoding=utf-8
-# License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
-'''
-private-eye.co.uk
-'''
-
 import re
-from datetime import datetime, timedelta
-
-from calibre.ebooks.BeautifulSoup import Comment, Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
-def get_classes(tag):
-    ans = tag.get('class') or ()
-    if hasattr(ans, 'split'):
-        ans = ans.split()
-    return list(ans)
-
-
-class PrivateEyeRecipe(BasicNewsRecipe):
-    title = 'Private Eye Online'
-    title_with_date = 'Private Eye Online'
-    title_author = 'Private Eye'
-    __author__ = 'Sophist at sodalis.co.uk'
-    version = 2.10
-    issue_no = ''
-    description = '''Private Eye is a fortnightly British satirical news and current affairs magazine,\
- edited by Ian Hislop, offering a unique blend of humour, social and political observations and\
- investigative journalism. This e-book is a download of the online-edition. The full edition is\
- available only on subscription.'''
+class AdvancedUserRecipe1359406781(BasicNewsRecipe):
+    title = u'Private Eye'
     publication_type = 'magazine'
-    language = 'en'
-    encoding = 'utf-8'
-    DOMAIN = 'http://www.private-eye.co.uk/'
-    INDEX = DOMAIN + 'current-issue'
+    description = u'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
     oldest_article = 13
     max_articles_per_feed = 100
+    remove_empty_feeds = True
     remove_javascript = True
-    ignore_duplicate_articles = {'url'}
+    no_stylesheets = True
+    ignore_duplicate_articles = {'title'}
+    language = 'en_GB'
+    encoding = 'utf-8'
+    __author__ = u'Martyn Pritchard'
+    __copyright__ = '2020, Martyn Pritchard <MPritchard2k9@gmail.com>'
 
-    conn_options = {
-        'authors': title_author,
-        'author_sort': title_author,
-        'smarten_punctuation': True,
-        'series': title,
-        'publisher': title_author, }
-    remove_tags_before = [
-        {
-            'id': 'story',
-            'class': 'article', },
-        {
-            'id': 'page'}, ]
-    remove_tags_after = [
-        {
-            'class': 'section', }, ]
-    remove_tags = [
-        dict(name='div', attrs={'class': 'sub-nav-bar'}),
-        dict(name='img', attrs={'class': 'about-covers'}),
-        dict(name='div', attrs={'id': 'follow-us',
-                                'class': 'text'}),
-        dict(name='span', attrs={'class': 'section'}), ]
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup('https://www.private-eye.co.uk')
+        for citem in soup.findAll('img'):
+            if citem['src'].endswith('big.jpg'):
+                return citem['src']
+        return cover_url
+
+    remove_tags_before = {'class': "article"}
+    remove_tags_after = {'class': "article"}
+    remove_tags = [dict(name='div', attrs={'id': 'sections-sidebar'})]
+    remove_tags = {'class': "sub-nav-bar"}
+    remove_tags = [dict(name='a', attrs={'class': 'twitter-share-button'})]
+    remove_tags = [dict(name='div', attrs={'id': 'nav-box-sections-mobile'})]
+
     preprocess_regexps = [
         (
-            re.compile(r'\.\./grfx', re.DOTALL | re.IGNORECASE),
-            lambda match: 'http://www.private-eye.co.uk/grfx'), ]
+            re.compile(
+                r'<a href="https://www.subscription.*?</a>',
+                re.DOTALL | re.IGNORECASE
+            ), lambda match: ''
+        ),
+        (
+            re.compile(
+                r'<a class="twitter-share-button.*?</a>', re.DOTALL | re.IGNORECASE
+            ), lambda match: ''
+        ),
+    ]
 
-    def fix_url(self, url):
-        if (
-            url.startswith('//') or url.startswith('http://') or
-            url.startswith('https://')):
-            return url
-        if url.startswith('/'):
-            url = self.DOMAIN + url[1:]
-        elif url.startswith('../'):
-            url = self.DOMAIN + url[3:]
-        else:
-            url = self.DOMAIN + url
-        return url
-
-    urls = []
-    edition_date = ""
-
-    def add_article(self, title, url, description="", date=None):
-        if date is None:
-            date = self.edition_date
-        if url and url not in self.urls:
-            self.urls.append(url)
-            self.log.info(
-                "Page added: %s: %s: %s (%s)" % (date, title, description, url))
-            self.current_articles.append({
-                'title': title,
-                'url': url,
-                'description': description,
-                'date': date, })
-
-    def page_index_append(self, section):
-        if self.current_articles:
-            self.page_index.append((section, self.current_articles))
-            self.current_articles = []
-
-    # Process the Index page to get the content for the ebook
-    def parse_index(self):
-        self.log.info('Private Eye: v%s,Parse Index: %s' % (self.version,self.INDEX))
-        self.page_index = []
-
-        soup = self.index_to_soup(self.INDEX)
-        for comment in soup.findAll(text=lambda text: isinstance(text, Comment)):
-            comment.extract()
-        # Get masthead URL
-        masthead = soup.find('img', id='site-logo')
-        if masthead:
-            self.masthead_url = self.fix_url(masthead['src'])
-            self.log.debug('Masthead found: %s' % self.masthead_url)
-        else:
-            self.log.warning('Masthead not found.')
-
-        soup = soup.find('div', id='content')
-
-        # Get cover image
-        for img in soup.findAll('img', {'class': 'current-issue'}):
-            if img['src'].endswith('_big.jpg'):
-                self.cover_url = img['src']
-                filename = img['src'].split('/')[-1]
-                self.issue_no = filename.replace('_big.jpg', '')
-                self.log.debug('Cover image found. Issue: %s' % self.issue_no)
-                break
-        else:
-            self.log.warning('Cover image NOT found')
-
-        # Get publication cover date as 12 days before next publication date
-        for tag in soup.findAll('span', {'class': 'only-smallest'}):
-            tag_contents = tag.contents
-            if tag_contents[0].string.lower().split()[:2] == ["next", "issue"]:
-                try:
-                    day, month, year = tag_contents[2].split()
-                    day = ''.join(c for c in day if c.isdigit())
-                    date = datetime.strptime(
-                        " ".join((day, month, year)), "%d %B %Y")
-                    date = date - timedelta(11)
-                    self.edition_date = datetime.strftime(
-                        date, "%d %B %Y").lstrip("0")
-                    self.log.debug("Publication date: %s" % self.edition_date)
-                    self.title_with_date = self.title + datetime.strftime(
-                        date, " %Y-%m-%d")
-                    break
-                except:
-                    self.log.warning(
-                        "Invalid publication date: %s" % tag.contents[2])
-        else:
-            self.log.warning("Publication date not found")
-
-        # Online articles
-        online = soup.find('div', {'id': 'block-left'})
-
-        headline = online.find('span', {'class': 'headline'})
-        if headline:
-            current_section = headline.string
-            self.log.debug('Headline found: %s' % current_section)
-        else:
-            current_section = 'Online Edition'
-            self.log.warning('Headline not found: Default used')
-
-        self.current_articles = []
-        title, url, descriptions = "", "", []
-        for piece in online.contents:
-            if isinstance(piece, Tag):
-                tag_class = piece.name, ' '.join(get_classes(piece))
-                if tag_class == ('span', 'header'):
-                    self.page_index_append(current_section)
-                    current_section = piece.string
-                elif tag_class == ('a', 'header'):
-                    self.add_article(title, url, r"\r\n".join(descriptions))
-                    title = self.tag_to_string(piece).rstrip(u' »').strip()
-                    url = self.fix_url(piece.get('href', ''))
-                    descriptions = []
-                else:
-                    self.add_article(title, url, r"\r\n".join(descriptions))
-                    title, url, descriptions = "", "", []
-            else:
-                desc = piece.strip(" \r\n")
-                if desc:
-                    descriptions.append(desc)
-        self.add_article(title, url, r"\r\n".join(descriptions))
-        self.add_article("Number Crunching", self.DOMAIN + "number-crunching", "")
-        self.page_index_append(current_section)
-
-        # Process More From This Issue (crossword etc.)
-        current_section = ""
-        self.current_articles = []
-        title, url, descriptions = "", "", []
-        # Remove gaps
-        for gap in soup.findAll(attrs={'class': True}):
-            classes = get_classes(gap)
-            for c in classes:
-                if c.startswith('gap-'):
-                    gap.extract()
-                    break
-        # Find more items
-        more = soup.find('span', {'class': 'section'})
-        current_section = more.string
-        more = more.findNextSibling()
-        while more.name == 'div' and get_classes(more) == ['box-contents']:
-            title_tag = more.find('a', {'class': 'header-home'})
-            if title_tag:
-                title = title_tag.string
-                if not url:
-                    url = self.fix_url(title_tag.get('href', ''))
-            desc_tag = more.find('a', {'class': 'header'})
-            if desc_tag:
-                descriptions.append(self.tag_to_string(desc_tag))
-                if not url:
-                    url = self.fix_url(desc_tag.get('href', ''))
-            self.add_article(title, url, r"\r\n".join(descriptions))
-            title, url, descriptions = "", "", []
-            more = more.findNextSibling()
-        self.page_index_append(current_section)
-
-        # Add the PE About Us page.
-        self.add_article(
-            "About Private Eye",
-            self.DOMAIN + "about",
-            """Private Eye is the UK's number one best-selling news and current affairs magazine, edited by Ian Hislop.
-
-It offers a unique blend of humour, social and political observations and investigative journalism.\
- Published fortnightly, the magazine is read by over 700,000 readers and costs just £1.80 an issue.""",
-            date="")
-        self.page_index_append("About Private Eye")
-
-        self.log.info('Private Eye: Parse Index complete')
-
-        return self.page_index
-
-    def preprocess_html(self, soup):
-        for figure in soup.findAll(
-            'a',
-            attrs={'href':
-                   lambda x: x and
-                    (x.endswith('.jpg') or
-                     x.endswith('.png') or x.endswith('.gif'))
-                  }):
-            # makes sure that the link points to the absolute web address
-            figure['href'] = self.fix_url(figure['href'])
-        return soup
-
-    def postprocess_book(self, oeb, opts, log):
-        m = oeb.metadata
-        m.clear('title')
-        m.add('title', self.title_with_date)
-        m.clear('authors')
-        m.add('authors', self.title_author)
-        m.clear('author_sort')
-        m.add('author_sort', self.title_author)
-        m.clear('series')
-        m.add('series', self.title)
-        m.clear('series_index')
-        m.add('series_index', self.issue_no)
+    feeds = [(u'http://bodybuilder3d.eu5.org/PrivateEyeStat.xml')]
