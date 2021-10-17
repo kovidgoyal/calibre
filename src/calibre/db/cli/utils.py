@@ -3,8 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from polyglot.builtins import map
-
 import unicodedata
 
 eaw = unicodedata.east_asian_width

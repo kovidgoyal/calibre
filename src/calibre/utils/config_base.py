@@ -12,7 +12,7 @@ from copy import deepcopy
 
 from calibre.utils.lock import ExclusiveFile
 from calibre.constants import config_dir, CONFIG_DIR_MODE, preferred_encoding, filesystem_encoding, iswindows
-from polyglot.builtins import unicode_type, iteritems, map
+from polyglot.builtins import unicode_type, iteritems
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 

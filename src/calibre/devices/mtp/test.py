@@ -12,7 +12,6 @@ from calibre.constants import iswindows, islinux
 from calibre.utils.icu import lower
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
-from polyglot.builtins import range
 
 
 class ProgressCallback:

@@ -18,7 +18,7 @@ from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, unicode_type, range, filter
+from polyglot.builtins import iteritems, unicode_type
 
 tag_maps = JSONConfig('tag-map-rules')
 

@@ -33,9 +33,7 @@ from calibre.utils.config import JSONConfig, dynamic, prefs, tweaks
 from calibre.utils.date import internal_iso_format_string, qt_to_dt
 from calibre.utils.icu import capitalize, sort_key
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import (
-    error_message, filter, iteritems, itervalues, native_string_type, unicode_type
-)
+from polyglot.builtins import error_message, iteritems, itervalues, native_string_type, unicode_type
 
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber '

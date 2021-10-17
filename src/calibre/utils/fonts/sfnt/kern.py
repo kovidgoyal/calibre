@@ -11,7 +11,6 @@ from struct import unpack_from, calcsize, pack, error as struct_error
 from calibre.utils.fonts.sfnt import (UnknownTable, FixedProperty,
         max_power_of_two)
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import range
 
 
 class KernTable(UnknownTable):

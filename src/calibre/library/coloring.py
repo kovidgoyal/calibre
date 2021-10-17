@@ -8,7 +8,6 @@ import re
 from textwrap import dedent
 
 from polyglot.binary import as_hex_unicode, from_hex_bytes
-from polyglot.builtins import map
 
 color_row_key = '*row'
 

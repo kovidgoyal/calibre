@@ -11,7 +11,7 @@ import re, os, traceback, fnmatch
 from calibre import isbytestring
 from calibre.constants import filesystem_encoding
 from calibre.ebooks import BOOK_EXTENSIONS
-from polyglot.builtins import iteritems, filter
+from polyglot.builtins import iteritems
 
 EBOOK_EXTENSIONS = frozenset(BOOK_EXTENSIONS)
 NORMALS = frozenset(['metadata.opf', 'cover.jpg'])

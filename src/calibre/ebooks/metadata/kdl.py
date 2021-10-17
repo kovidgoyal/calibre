@@ -14,7 +14,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.chardet import xml_to_unicode
-from polyglot.builtins import codepoint_to_chr, unicode_type, range
+from polyglot.builtins import codepoint_to_chr, unicode_type
 from polyglot.urllib import parse_qs, quote_plus
 
 URL = \

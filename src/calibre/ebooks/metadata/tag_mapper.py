@@ -5,7 +5,7 @@
 
 from collections import deque
 
-from polyglot.builtins import filter, unicode_type
+from polyglot.builtins import unicode_type
 
 
 def compile_pat(pat):

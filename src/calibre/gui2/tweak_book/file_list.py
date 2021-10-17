@@ -40,7 +40,7 @@ from calibre.utils.fonts.utils import get_font_names
 from calibre.utils.icu import numeric_sort_key
 from calibre_extensions.progress_indicator import set_no_activate_on_click
 from polyglot.binary import as_hex_unicode
-from polyglot.builtins import filter, iteritems, map, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 FILE_COPY_MIME = 'application/calibre-edit-book-files'

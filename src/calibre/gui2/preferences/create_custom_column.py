@@ -19,7 +19,7 @@ from qt.core import (
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_line_editor import TemplateLineEditor
 from calibre.utils.date import parse_date, UNDEFINED_DATE
-from polyglot.builtins import iteritems, unicode_type, range, map
+from polyglot.builtins import iteritems, unicode_type
 
 
 class CreateCustomColumn(QDialog):

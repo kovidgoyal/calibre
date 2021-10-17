@@ -4,7 +4,7 @@
 
 
 from collections import OrderedDict
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import unicode_type
 
 from calibre.db.adding import compile_glob, filter_filename, compile_rule
 from calibre.gui2 import elided_text, Application, error_dialog

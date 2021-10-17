@@ -44,7 +44,7 @@ from calibre.utils.podofo import (
     dedup_type3_fonts, get_podofo, remove_unused_fonts, set_metadata_implementation
 )
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import filter, iteritems, map, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import urlparse
 
 OK, KILL_SIGNAL = range(0, 2)

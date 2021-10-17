@@ -21,7 +21,7 @@ from calibre.utils.icu import sort_key, lower
 from calibre.gui2 import error_dialog, info_dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.gui2.search_box import SearchBox2
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 ROOT = QModelIndex()
 

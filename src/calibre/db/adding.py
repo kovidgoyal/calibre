@@ -16,7 +16,7 @@ from calibre import prints
 from calibre.constants import filesystem_encoding, ismacos, iswindows
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.filenames import make_long_path_useable
-from polyglot.builtins import itervalues, map as it_map, unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 
 def splitext(path):
@@ -71,7 +71,7 @@ def metadata_extensions():
     # but not actually added)
     global _metadata_extensions
     if _metadata_extensions is None:
-        _metadata_extensions =  frozenset(it_map(unicode_type, BOOK_EXTENSIONS)) | {'opf'}
+        _metadata_extensions =  frozenset(map(unicode_type, BOOK_EXTENSIONS)) | {'opf'}
     return _metadata_extensions
 
 

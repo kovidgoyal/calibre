@@ -4,7 +4,7 @@
 
 
 from qt.core import QDialog
-from polyglot.builtins import iteritems, map, range
+from polyglot.builtins import iteritems
 
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction

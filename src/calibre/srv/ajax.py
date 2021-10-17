@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, string_or_bytes, map
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
 from itertools import cycle
 
 from calibre import force_unicode

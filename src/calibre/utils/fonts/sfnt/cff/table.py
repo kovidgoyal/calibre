@@ -14,7 +14,7 @@ from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
 from calibre.utils.fonts.sfnt.cff.dict_data import TopDict, PrivateDict
 from calibre.utils.fonts.sfnt.cff.constants import (cff_standard_strings,
         STANDARD_CHARSETS)
-from polyglot.builtins import iteritems, itervalues, range
+from polyglot.builtins import iteritems, itervalues
 
 # Useful links
 # http://www.adobe.com/content/dam/Adobe/en/devnet/font/pdfs/5176.CFF.pdf

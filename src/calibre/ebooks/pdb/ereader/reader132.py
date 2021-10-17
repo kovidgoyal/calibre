@@ -19,7 +19,7 @@ from calibre.ebooks import DRMError
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 class HeaderRecord:

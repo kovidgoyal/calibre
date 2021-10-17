@@ -17,7 +17,7 @@ from calibre.constants import (
 )
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import as_bytes, as_unicode, exec_path, unicode_type, zip
+from polyglot.builtins import as_bytes, as_unicode, exec_path, unicode_type
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 special_title = '__webengine_messages_pending__'

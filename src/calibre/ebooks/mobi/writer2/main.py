@@ -18,7 +18,7 @@ from calibre.ebooks.mobi.writer2 import (PALMDOC, UNCOMPRESSED)
 from calibre.ebooks.mobi.utils import (encint, encode_trailing_data,
         align_block, detect_periodical, RECORD_SIZE, create_text_record)
 from calibre.ebooks.mobi.writer2.indexer import Indexer
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type
 
 # Disabled as I dont care about uncrossable breaks
 WRITE_UNCROSSABLE_BREAKS = False

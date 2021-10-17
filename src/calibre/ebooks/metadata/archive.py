@@ -11,7 +11,7 @@ from contextlib import closing
 
 from calibre.customize import FileTypePlugin
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import filter, unicode_type
+from polyglot.builtins import unicode_type
 
 
 def is_comic(list_of_names):

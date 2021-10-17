@@ -8,7 +8,7 @@ from calibre.ebooks.lrf.fonts import get_font
 from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Text, CR, Span, \
                                              CharButton, Plot, Paragraph, \
                                              LrsTextTag
-from polyglot.builtins import string_or_bytes, range, native_string_type
+from polyglot.builtins import string_or_bytes, native_string_type
 
 
 def ceil(num):

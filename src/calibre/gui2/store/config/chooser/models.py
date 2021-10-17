@@ -16,7 +16,7 @@ from calibre.db.search import CONTAINS_MATCH, EQUALS_MATCH, REGEXP_MATCH, _match
 from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class Delegate(QStyledItemDelegate):

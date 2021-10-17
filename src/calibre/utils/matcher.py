@@ -16,7 +16,7 @@ from itertools import islice
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, range, zip, raw_input, filter, getcwd
+from polyglot.builtins import iteritems, itervalues, unicode_type, raw_input, getcwd
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'

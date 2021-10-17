@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, weakref, shutil, textwrap
 from collections import OrderedDict
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, map, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 from qt.core import (QDialog, QGridLayout, QIcon, QCheckBox, QLabel, QFrame,
                       QApplication, QDialogButtonBox, Qt, QSize, QSpacerItem,

@@ -12,7 +12,7 @@ from qt.core import (
 from calibre.customize.ui import enable_plugin
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 
 class ConfigWidget(ConfigWidgetBase):

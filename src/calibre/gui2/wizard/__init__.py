@@ -26,7 +26,7 @@ from calibre.gui2.wizard.send_email import smtp_prefs
 from calibre.gui2.wizard.stanza_ui import Ui_WizardPage as StanzaUI
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 # Devices {{{
 

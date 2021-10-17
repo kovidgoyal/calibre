@@ -7,7 +7,7 @@ import re
 from collections import deque
 
 from calibre.utils.icu import capitalize, lower, upper
-from polyglot.builtins import filter, unicode_type
+from polyglot.builtins import unicode_type
 
 
 def cap_author_token(token):

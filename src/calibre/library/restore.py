@@ -17,7 +17,7 @@ from calibre.library.prefs import DBPrefs
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
 from calibre import isbytestring
-from polyglot.builtins import iteritems, filter
+from polyglot.builtins import iteritems
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',

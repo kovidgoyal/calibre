@@ -18,7 +18,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.viewer.config import vprefs
 from calibre.gui2.viewer.web_view import get_data, get_manifest
 from calibre.gui2.viewer.widgets import ResultsDelegate, SearchBox
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.functools import lru_cache
 from polyglot.queue import Queue
 

@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 
 from calibre.ebooks.conversion.preprocess import DocAnalysis
 from calibre.utils.cleantext import clean_ascii_chars
-from polyglot.builtins import iteritems, unicode_type, map, range
+from polyglot.builtins import iteritems, unicode_type
 
 HTML_TEMPLATE = '<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s </title></head><body>\n%s\n</body></html>'
 

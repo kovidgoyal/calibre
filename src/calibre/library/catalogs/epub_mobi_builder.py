@@ -43,7 +43,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.localization import get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
-from polyglot.builtins import iteritems, map, unicode_type, zip
+from polyglot.builtins import iteritems, unicode_type
 
 NBSP = '\u00a0'
 

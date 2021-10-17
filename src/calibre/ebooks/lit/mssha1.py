@@ -9,7 +9,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import struct, copy
-from polyglot.builtins import range, long_type
+from polyglot.builtins import long_type
 
 # ======================================================================
 # Bit-Manipulation helpers

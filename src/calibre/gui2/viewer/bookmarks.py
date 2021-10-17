@@ -17,7 +17,7 @@ from calibre.gui2.viewer.shortcuts import get_shortcut_for
 from calibre.gui2.viewer.web_view import vprefs
 from calibre.utils.date import EPOCH, utcnow
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class BookmarksList(QListWidget):

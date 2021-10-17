@@ -9,8 +9,7 @@ import numbers
 from operator import attrgetter, methodcaller
 from functools import partial
 from collections import namedtuple
-from polyglot.builtins import (
-        iteritems, itervalues, map, unicode_type, range)
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from itertools import product
 from copy import copy, deepcopy
 

@@ -50,7 +50,7 @@ from calibre.utils.date import (
 )
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.icu import sort_key, strcmp
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 def show_locked_file_error(parent, err):

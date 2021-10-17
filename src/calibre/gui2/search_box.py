@@ -20,7 +20,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import native_string_type, unicode_type, string_or_bytes, map, range
+from polyglot.builtins import native_string_type, unicode_type, string_or_bytes
 
 
 class AsYouType(unicode_type):

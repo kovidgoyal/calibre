@@ -9,7 +9,7 @@ import os, errno
 from io import BytesIO
 from threading import Lock
 from contextlib import suppress
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import unicode_type
 from functools import partial
 
 from calibre import fit_image, sanitize_file_name

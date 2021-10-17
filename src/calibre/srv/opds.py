@@ -28,7 +28,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.xml_parse import safe_xml_fromstring
 from polyglot.binary import as_hex_unicode, from_hex_unicode
-from polyglot.builtins import as_bytes, filter, iteritems, unicode_type
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 from polyglot.urllib import unquote_plus, urlencode
 
 

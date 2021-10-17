@@ -9,7 +9,6 @@ import sys
 from threading import Thread
 
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import range
 from polyglot.queue import Queue, Full
 
 

@@ -6,7 +6,7 @@ Provides platform independent temporary files that persist even after
 being closed.
 """
 import tempfile, os, atexit
-from polyglot.builtins import map, getenv
+from polyglot.builtins import getenv
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
         iswindows, get_windows_temp_path, ismacos)

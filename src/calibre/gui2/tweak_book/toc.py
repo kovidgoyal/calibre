@@ -17,7 +17,7 @@ from calibre.gui2 import error_dialog, make_view_use_window_background
 from calibre.gui2.toc.main import ItemEdit, TOCView
 from calibre.gui2.tweak_book import TOP, actions, current_container, tprefs
 from calibre_extensions.progress_indicator import set_no_activate_on_click
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class TOCEditor(QDialog):

@@ -9,7 +9,7 @@ from qt.core import (QDialog, QLineEdit, Qt)
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.mdns import get_all_ips
-from polyglot.builtins import itervalues, unicode_type, map
+from polyglot.builtins import itervalues, unicode_type
 
 
 def ipaddr_sort_key(ipaddr):

@@ -8,7 +8,7 @@ from functools import partial
 from calibre import prints
 from calibre.constants import preferred_encoding, iswindows
 from calibre.utils.config import OptionParser
-from polyglot.builtins import iteritems, raw_input, filter, unicode_type
+from polyglot.builtins import iteritems, raw_input, unicode_type
 
 
 def create_subcommand_parser(name, usage):

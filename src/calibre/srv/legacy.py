@@ -18,7 +18,7 @@ from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import dt_as_local, is_date_undefined, timestampfromdt
-from polyglot.builtins import iteritems, string_or_bytes, filter, as_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes, as_bytes, unicode_type
 from polyglot.urllib import urlencode
 
 # /mobile {{{

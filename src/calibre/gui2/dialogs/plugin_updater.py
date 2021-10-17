@@ -29,7 +29,7 @@ from calibre.gui2 import error_dialog, gprefs, info_dialog, open_url, question_d
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 from calibre.utils.https import get_https_resource_securely
-from polyglot.builtins import filter, itervalues, map, unicode_type
+from polyglot.builtins import itervalues, unicode_type
 
 SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER

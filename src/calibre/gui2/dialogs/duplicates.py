@@ -15,7 +15,7 @@ from qt.core import (
 from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 class DuplicatesQuestion(QDialog):

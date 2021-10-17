@@ -20,7 +20,6 @@ from calibre.gui2 import choose_dir, error_dialog, question_dialog
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.exim import all_known_libraries, export, Importer, import_data
 from calibre.utils.icu import numeric_sort_key
-from polyglot.builtins import range
 
 
 def disk_usage(path_to_dir, abort=None):

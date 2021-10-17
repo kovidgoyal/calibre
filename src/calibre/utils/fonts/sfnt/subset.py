@@ -14,7 +14,7 @@ from functools import partial
 from calibre.utils.icu import safe_chr, ord_string
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
-from polyglot.builtins import unicode_type, range, iteritems, itervalues, map
+from polyglot.builtins import unicode_type, iteritems, itervalues
 
 # TrueType outlines {{{
 

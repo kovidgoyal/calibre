@@ -31,7 +31,6 @@ from calibre.gui2.threaded_jobs import ThreadedJobServer, ThreadedJob
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
-from polyglot.builtins import range
 from polyglot.queue import Empty, Queue
 
 

@@ -11,7 +11,7 @@ from textwrap import TextWrapper
 from calibre.db.cli.utils import str_width
 from calibre.ebooks.metadata import authors_to_string
 from calibre.utils.date import isoformat
-from polyglot.builtins import as_bytes, iteritems, map, unicode_type
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

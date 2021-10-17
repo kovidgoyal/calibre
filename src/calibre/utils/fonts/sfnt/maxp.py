@@ -10,7 +10,6 @@ from struct import unpack_from, pack
 
 from calibre.utils.fonts.sfnt import UnknownTable, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import zip
 
 
 class MaxpTable(UnknownTable):

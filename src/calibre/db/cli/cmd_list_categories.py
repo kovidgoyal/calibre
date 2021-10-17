@@ -8,7 +8,7 @@ import sys
 from textwrap import TextWrapper
 
 from calibre import prints
-from polyglot.builtins import as_bytes, map, unicode_type
+from polyglot.builtins import as_bytes, unicode_type
 
 readonly = True
 version = 0  # change this if you change signature of implementation()

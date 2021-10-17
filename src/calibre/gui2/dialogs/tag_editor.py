@@ -10,7 +10,7 @@ from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, primary_contains
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 class TagEditor(QDialog, Ui_TagEditor):

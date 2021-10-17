@@ -14,7 +14,7 @@ from contextlib import suppress
 
 from calibre import relpath, guess_type, prints, force_unicode
 from calibre.utils.config_base import tweaks
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, map, zip, getcwd, iteritems, as_unicode
+from polyglot.builtins import codepoint_to_chr, unicode_type, getcwd, iteritems, as_unicode
 from polyglot.urllib import quote, unquote, urlparse
 
 

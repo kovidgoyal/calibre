@@ -11,7 +11,7 @@ from operator import attrgetter
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 from calibre.utils.serialize import msgpack_dumps, json_dumps, MSGPACK_MIME
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, zip, filter
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from polyglot import http_client
 from polyglot.urllib import quote as urlquote
 

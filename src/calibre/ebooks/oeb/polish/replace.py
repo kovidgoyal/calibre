@@ -7,7 +7,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import codecs, shutil, os, posixpath
-from polyglot.builtins import iteritems, itervalues, map
+from polyglot.builtins import iteritems, itervalues
 from functools import partial
 from collections import Counter, defaultdict
 

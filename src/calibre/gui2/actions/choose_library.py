@@ -20,7 +20,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.gui2.actions import InterfaceAction
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def db_class():

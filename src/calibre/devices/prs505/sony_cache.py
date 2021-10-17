@@ -17,7 +17,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.metadata import authors_to_string, title_sort, \
                                     authors_to_sort_string
 from polyglot.binary import from_base64_bytes
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import unicode_type
 
 '''
 cacheExt.xml

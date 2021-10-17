@@ -47,9 +47,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import UNDEFINED_DATE, now as nowf, utcnow
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import canonicalize_lang
-from polyglot.builtins import (
-    cmp, iteritems, itervalues, string_or_bytes, unicode_type, zip
-)
+from polyglot.builtins import cmp, iteritems, itervalues, string_or_bytes, unicode_type
 
 
 def api(f):

@@ -13,7 +13,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
-from polyglot.builtins import iteritems, range, map
+from polyglot.builtins import iteritems
 
 
 class Updater(QThread):  # {{{

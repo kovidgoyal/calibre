@@ -19,7 +19,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
-from polyglot.builtins import iteritems, unicode_type, range
+from polyglot.builtins import iteritems, unicode_type
 
 
 class FormatsConfig(QWidget):  # {{{

@@ -16,7 +16,7 @@ from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.shared_file import share_open
-from polyglot.builtins import iteritems, map, range
+from polyglot.builtins import iteritems
 from polyglot import reprlib
 from polyglot.http_cookie import SimpleCookie
 from polyglot.builtins import unicode_type, as_unicode

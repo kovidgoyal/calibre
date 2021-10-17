@@ -17,7 +17,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 from calibre.utils.localization import get_lang
-from polyglot.builtins import as_unicode, getcwd, unicode_type, zip
+from polyglot.builtins import as_unicode, getcwd, unicode_type
 
 
 def sanitize_file_name(x):

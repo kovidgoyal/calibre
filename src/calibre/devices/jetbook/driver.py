@@ -15,7 +15,7 @@ import re
 from calibre.constants import filesystem_encoding
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
-from polyglot.builtins import unicode_type, map
+from polyglot.builtins import unicode_type
 
 
 class JETBOOK(USBMS):

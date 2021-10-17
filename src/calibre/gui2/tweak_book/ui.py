@@ -52,7 +52,7 @@ from calibre.utils.localization import (
     localize_user_manual_link, localize_website_link
 )
 from calibre.utils.unicode_names import character_name_from_code
-from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 def open_donate():

@@ -14,7 +14,7 @@ from qt.core import (
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 from calibre.gui2.throbber import ThrobbingButton
-from polyglot.builtins import itervalues, unicode_type, map, range
+from polyglot.builtins import itervalues, unicode_type
 
 
 class RevealBar(QWidget):  # {{{

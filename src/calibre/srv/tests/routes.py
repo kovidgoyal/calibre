@@ -7,7 +7,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from calibre.srv.tests.base import BaseTest
-from polyglot.builtins import itervalues, filter
+from polyglot.builtins import itervalues
 from tempfile import TemporaryDirectory
 
 

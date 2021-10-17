@@ -20,7 +20,7 @@ from calibre.ebooks.epub import rules
 from calibre.ebooks.oeb.base import (OEB_STYLES, XPNSMAP as NAMESPACES,
         urldefrag, rewrite_links, XHTML, urlnormalize)
 from calibre.ebooks.oeb.polish.split import do_split
-from polyglot.builtins import iteritems, range, map, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from polyglot.urllib import unquote
 from css_selectors import Select, SelectorError
 

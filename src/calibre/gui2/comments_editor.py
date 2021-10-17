@@ -31,7 +31,7 @@ from calibre.gui2.widgets2 import to_plain_text
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
-from polyglot.builtins import filter, iteritems, itervalues, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 # Cleanup Qt markup {{{
 

@@ -46,7 +46,7 @@ from calibre.utils.localization import (
     calibre_langcode_to_name, canonicalize_lang, get_lang, get_language
 )
 from calibre_extensions.progress_indicator import set_no_activate_on_click
-from polyglot.builtins import filter, iteritems, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 LANG = 0
 COUNTRY = 1

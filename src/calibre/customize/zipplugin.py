@@ -22,7 +22,7 @@ from calibre import as_unicode
 from calibre.customize import (
     InvalidPlugin, Plugin, PluginNotFound, numeric_version, platform
 )
-from polyglot.builtins import itervalues, map, reload, string_or_bytes, unicode_type
+from polyglot.builtins import itervalues, reload, string_or_bytes, unicode_type
 
 # PEP 302 based plugin loading mechanism, works around the bug in zipimport in
 # python 2.x that prevents importing from zip files in locations whose paths

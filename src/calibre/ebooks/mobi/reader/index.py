@@ -11,7 +11,7 @@ from collections import OrderedDict, namedtuple
 
 from calibre.ebooks.mobi.utils import (decint, count_set_bits,
         decode_string)
-from polyglot.builtins import iteritems, range, zip
+from polyglot.builtins import iteritems
 
 TagX = namedtuple('TagX', 'tag num_of_values bitmask eof')
 PTagX = namedtuple('PTagX', 'tag value_count value_bytes num_of_values')

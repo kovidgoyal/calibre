@@ -26,10 +26,9 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox, to_plai
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher, DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import iteritems, unicode_type, zip, getcwd, filter as ignore_me
+from polyglot.builtins import iteritems, unicode_type, getcwd
 
 ROOT = QModelIndex()
-ignore_me
 
 
 class BusyCursor:

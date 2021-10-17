@@ -12,7 +12,7 @@ from copy import deepcopy, copy
 from lxml import etree
 
 from calibre import guess_type
-from polyglot.builtins import as_bytes, map, unicode_type
+from polyglot.builtins import as_bytes, unicode_type
 
 
 class Canvas(etree.XSLTExtension):

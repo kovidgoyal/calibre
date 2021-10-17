@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os, re, time, random, warnings
-from polyglot.builtins import codepoint_to_chr, unicode_type, range, hasenv, native_string_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, hasenv, native_string_type
 from math import floor
 from functools import partial
 

@@ -13,7 +13,6 @@ from threading import Lock
 from calibre import prints, as_unicode
 from calibre.constants import (iswindows, ismacos, islinux, isfreebsd,
         isnetbsd)
-from polyglot.builtins import range
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 

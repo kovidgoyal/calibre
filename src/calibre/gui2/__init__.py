@@ -38,9 +38,7 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.localization import get_lang
 from polyglot import queue
-from polyglot.builtins import (
-    iteritems, itervalues, range, string_or_bytes, unicode_type, map
-)
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, unicode_type
 
 try:
     NO_URL_FORMATTING = QUrl.UrlFormattingOption.None_

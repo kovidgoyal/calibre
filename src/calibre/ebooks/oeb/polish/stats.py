@@ -15,7 +15,7 @@ import regex
 from calibre.ebooks.oeb.base import XHTML, css_text
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, iterdeclaration
 from calibre.utils.icu import ord_string, safe_chr
-from polyglot.builtins import iteritems, itervalues, range, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from tinycss.fonts3 import parse_font_family
 
 

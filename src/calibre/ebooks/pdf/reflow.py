@@ -11,7 +11,6 @@ from itertools import count
 
 from lxml import etree
 
-from polyglot.builtins import range, map
 from calibre.utils.xml_parse import safe_xml_fromstring
 
 

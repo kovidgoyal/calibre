@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 SPOOL_SIZE = 30*1024*1024
 
 import numbers
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 
 def _get_next_series_num_for_list(series_indices, unwrap=True):

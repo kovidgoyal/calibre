@@ -30,7 +30,7 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import iteritems, map, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 def restrict_column_width(self, col, old_size, new_size):

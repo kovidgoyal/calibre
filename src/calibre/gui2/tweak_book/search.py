@@ -37,9 +37,7 @@ from calibre.gui2.tweak_book.function_replace import (
 from calibre.gui2.tweak_book.widgets import BusyCursor
 from calibre.gui2.widgets2 import FlowLayout, HistoryComboBox
 from calibre.utils.icu import primary_contains
-from polyglot.builtins import (
-    error_message, filter, iteritems, map, range, unicode_type
-)
+from polyglot.builtins import error_message, iteritems, unicode_type
 
 # The search panel {{{
 

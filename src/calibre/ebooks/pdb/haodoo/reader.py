@@ -17,7 +17,6 @@ from calibre import prepare_string_for_xml
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.txt.processor import opf_writer, HTML_TEMPLATE
-from polyglot.builtins import range, map
 
 BPDB_IDENT = 'BOOKMTIT'
 UPDB_IDENT = 'BOOKMTIU'

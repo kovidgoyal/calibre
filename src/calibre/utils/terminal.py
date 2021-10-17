@@ -9,7 +9,7 @@ import os, sys, re
 
 from calibre.prints import is_binary
 from calibre.constants import iswindows
-from polyglot.builtins import iteritems, range, zip
+from polyglot.builtins import iteritems
 
 if iswindows:
     import ctypes.wintypes

@@ -26,7 +26,7 @@ from calibre.utils.config_base import (
 )
 from calibre.utils.icu import lower
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 ROOT = QModelIndex()
 

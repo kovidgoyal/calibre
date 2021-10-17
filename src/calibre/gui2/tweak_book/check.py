@@ -17,7 +17,7 @@ from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
 from calibre.gui2 import NO_URL_FORMATTING, safe_open_url
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import BusyCursor
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def icon_for_level(level):

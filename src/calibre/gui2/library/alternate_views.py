@@ -31,7 +31,7 @@ from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.gui2.pin_columns import PinContainer
 from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs, tweaks
-from polyglot.builtins import itervalues, range, unicode_type
+from polyglot.builtins import itervalues, unicode_type
 from polyglot.queue import LifoQueue
 
 CM_TO_INCH = 0.393701

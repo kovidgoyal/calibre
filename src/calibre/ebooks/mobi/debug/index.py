@@ -14,7 +14,7 @@ from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import (CNCX, parse_indx_header,
         parse_tagx_section, parse_index_record, INDEX_HEADER_FIELDS)
 from calibre.ebooks.mobi.reader.ncx import (tag_fieldname_map, default_entry)
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 File = namedtuple('File',
     'file_number name divtbl_count start_position length')

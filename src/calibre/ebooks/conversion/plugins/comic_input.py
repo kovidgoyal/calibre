@@ -13,7 +13,7 @@ import shutil, textwrap, codecs, os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
-from polyglot.builtins import getcwd, map
+from polyglot.builtins import getcwd
 
 
 class ComicInput(InputFormatPlugin):

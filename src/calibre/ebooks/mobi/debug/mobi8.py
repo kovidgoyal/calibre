@@ -17,7 +17,7 @@ from calibre.ebooks.mobi.utils import read_font_record, decode_tbs, RECORD_SIZE
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, zip, print_to_binary_file
+from polyglot.builtins import iteritems, itervalues, unicode_type, print_to_binary_file
 
 
 class FDST:

@@ -7,7 +7,7 @@ import json
 import re
 from collections import defaultdict, namedtuple
 from functools import wraps
-from polyglot.builtins import iteritems, map, filter
+from polyglot.builtins import iteritems
 
 from lxml import etree
 

@@ -9,7 +9,7 @@ import os
 import posixpath
 from collections import namedtuple
 from functools import partial
-from polyglot.builtins import iteritems, itervalues, map, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 from lxml import etree
 

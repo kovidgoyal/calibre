@@ -13,7 +13,7 @@ from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.editor.text import get_highlighter as calibre_highlighter, SyntaxHighlighter
 from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_format
 from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 
 class QtHighlighter(QTextDocument):

@@ -22,7 +22,7 @@ from calibre import (isbytestring, as_unicode, get_types_map)
 from calibre.ebooks.oeb.parse_utils import barename, XHTML_NS, namespace, XHTML, parse_html, NotHTML
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, range, itervalues, filter, codepoint_to_chr
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes, itervalues, codepoint_to_chr
 from polyglot.urllib import unquote as urlunquote, urldefrag, urljoin, urlparse, urlunparse
 from calibre.utils.icu import numeric_sort_key
 

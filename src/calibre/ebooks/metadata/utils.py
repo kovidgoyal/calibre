@@ -11,7 +11,6 @@ from calibre.spell import parse_lang_code
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import filter, map
 
 OPFVersion = namedtuple('OPFVersion', 'major minor patch')
 

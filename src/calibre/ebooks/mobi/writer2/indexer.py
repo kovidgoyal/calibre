@@ -13,7 +13,7 @@ from collections import OrderedDict, defaultdict
 
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
-from polyglot.builtins import filter, iteritems, itervalues, map, range
+from polyglot.builtins import iteritems, itervalues
 
 
 class CNCX(CNCX_):  # {{{

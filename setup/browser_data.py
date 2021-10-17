@@ -9,7 +9,6 @@ import sys
 from datetime import datetime
 from urllib.request import urlopen
 
-from polyglot.builtins import filter
 from setup import download_securely
 
 

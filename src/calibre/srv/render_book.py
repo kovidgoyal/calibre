@@ -47,7 +47,7 @@ from polyglot.binary import (
     as_base64_unicode as encode_component, from_base64_bytes,
     from_base64_unicode as decode_component
 )
-from polyglot.builtins import as_bytes, iteritems, map, unicode_type
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 from polyglot.urllib import quote, urlparse
 
 RENDER_VERSION = 1

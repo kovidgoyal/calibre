@@ -41,9 +41,7 @@ from calibre.utils.date import (
 from calibre.utils.icu import sort_key
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.utils.search_query_parser import ParseException, SearchQueryParser
-from polyglot.builtins import (
-    iteritems, itervalues, map, range, string_or_bytes, unicode_type
-)
+from polyglot.builtins import iteritems, itervalues, string_or_bytes, unicode_type
 
 Counts = namedtuple('Counts', 'library_total total current')
 

@@ -37,7 +37,7 @@ from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, getcwd
+from polyglot.builtins import iteritems, itervalues, unicode_type, getcwd
 from polyglot.queue import Queue, Empty
 # }}}
 

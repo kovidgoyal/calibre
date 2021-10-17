@@ -19,7 +19,7 @@ from calibre.ebooks.mobi.utils import (decode_hex_number, decint,
 from calibre.utils.imghdr import what
 from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.debug.headers import TextRecord
-from polyglot.builtins import unicode_type, range, iteritems, as_bytes, print_to_binary_file
+from polyglot.builtins import unicode_type, iteritems, as_bytes, print_to_binary_file
 
 
 class TagX:  # {{{

@@ -14,7 +14,7 @@ from calibre.gui2.preferences.email_ui import Ui_Form
 from calibre.utils.config import ConfigProxy
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.smtp import config as smtp_prefs
-from polyglot.builtins import unicode_type, map, as_unicode
+from polyglot.builtins import unicode_type, as_unicode
 
 
 class EmailAccounts(QAbstractTableModel):  # {{{

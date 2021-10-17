@@ -33,7 +33,7 @@ from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs
 from calibre.utils.filenames import make_long_path_useable
 from calibre.utils.ipc.pool import Failure, Pool
-from polyglot.builtins import iteritems, map, string_or_bytes, unicode_type
+from polyglot.builtins import iteritems, string_or_bytes, unicode_type
 from polyglot.queue import Empty
 
 

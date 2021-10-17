@@ -15,7 +15,6 @@ from collections import OrderedDict
 from calibre.utils.fonts.utils import read_bmp_prefix
 from calibre.utils.fonts.sfnt import UnknownTable, max_power_of_two
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
-from polyglot.builtins import range
 
 
 def split_range(start_code, end_code, cmap):  # {{{

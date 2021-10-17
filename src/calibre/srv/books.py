@@ -21,7 +21,7 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_db, get_library_data
 from calibre.utils.filenames import rmtree
 from calibre.utils.serialize import json_dumps
-from polyglot.builtins import as_unicode, itervalues, map
+from polyglot.builtins import as_unicode, itervalues
 
 cache_lock = RLock()
 queued_jobs = {}

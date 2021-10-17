@@ -10,7 +10,7 @@ import threading
 from functools import wraps
 
 from calibre_extensions.freetype import FreeType as _FreeType
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class ThreadingViolation(Exception):

@@ -11,7 +11,7 @@ import sys
 
 from calibre.utils.config_base import tweaks
 from calibre_extensions import icu as _icu
-from polyglot.builtins import cmp, filter, unicode_type
+from polyglot.builtins import cmp, unicode_type
 
 _locale = _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
 cmp

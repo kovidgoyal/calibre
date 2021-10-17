@@ -14,7 +14,7 @@ from calibre.ebooks.rb import HEADER
 from calibre.ebooks.rb import RocketBookError
 from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
-from polyglot.builtins import range, as_unicode
+from polyglot.builtins import as_unicode
 from polyglot.urllib import unquote
 
 

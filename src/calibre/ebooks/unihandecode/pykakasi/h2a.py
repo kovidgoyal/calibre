@@ -22,9 +22,6 @@
 # */
 
 
-from polyglot.builtins import range
-
-
 class H2a :
 
     H2a_table = {

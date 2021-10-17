@@ -14,7 +14,7 @@ from calibre.srv.web_socket import (
     PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA, CONTROL_CODES)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import unicode_type
 from polyglot.binary import as_base64_unicode
 
 HANDSHAKE_STR = '''\

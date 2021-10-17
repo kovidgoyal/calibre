@@ -28,7 +28,7 @@ from calibre.gui2.tweak_book.editor.text import (
 from calibre.gui2.tweak_book.editor.themes import get_theme, theme_color
 from calibre.utils.icu import utf16_length
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import as_bytes, iteritems, map, range, unicode_type, zip
+from polyglot.builtins import as_bytes, iteritems, unicode_type
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 

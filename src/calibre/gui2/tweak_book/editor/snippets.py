@@ -25,9 +25,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, PlainTextEdit
 from calibre.utils.config import JSONConfig
 from calibre.utils.icu import string_length as strlen
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import (
-    codepoint_to_chr, iteritems, itervalues, range, unicode_type
-)
+from polyglot.builtins import codepoint_to_chr, iteritems, itervalues, unicode_type
 
 string_length = lambda x: strlen(unicode_type(x))  # Needed on narrow python builds, as subclasses of unicode dont work
 KEY = Qt.Key.Key_J

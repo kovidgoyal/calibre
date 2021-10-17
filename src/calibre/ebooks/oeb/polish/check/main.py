@@ -5,7 +5,7 @@
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from polyglot.builtins import iteritems, map
+from polyglot.builtins import iteritems
 
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.utils import guess_type

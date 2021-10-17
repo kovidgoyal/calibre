@@ -10,7 +10,7 @@ import functools, re, json
 from math import ceil
 
 from calibre import entity_to_unicode, as_unicode
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 XMLDECL_RE    = re.compile(r'^\s*<[?]xml.*?[?]>')
 SVG_NS       = 'http://www.w3.org/2000/svg'

@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 from struct import unpack_from
 
 from calibre.ebooks.mobi.debug.headers import EXTHHeader
-from polyglot.builtins import filter, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class ContainerHeader:

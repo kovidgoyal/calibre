@@ -17,7 +17,7 @@ import calibre.ebooks.lit.mssha1 as mssha1
 from calibre.ebooks.oeb.base import urlnormalize, xpath
 from calibre.ebooks.oeb.reader import OEBReader
 from calibre.ebooks import DRMError
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, itervalues
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, itervalues
 from polyglot.urllib import unquote as urlunquote, urldefrag
 from calibre_extensions import lzx, msdes
 

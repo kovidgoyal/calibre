@@ -12,7 +12,6 @@ from qt.core import (Qt, QTreeView, QSize, QMenu)
 from calibre.customize.ui import store_plugins
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.config.chooser.models import Matches, Delegate
-from polyglot.builtins import range
 
 
 class ResultsView(QTreeView):

@@ -10,7 +10,7 @@ import re
 from itertools import groupby
 from operator import itemgetter
 from collections import Counter, OrderedDict
-from polyglot.builtins import iteritems, map, zip, unicode_type, codepoint_to_chr
+from polyglot.builtins import iteritems, unicode_type, codepoint_to_chr
 
 from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,

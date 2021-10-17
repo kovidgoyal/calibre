@@ -15,7 +15,7 @@ from calibre import CurrentDir
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.formatreader import FormatReader
-from polyglot.builtins import as_unicode, range, unicode_type
+from polyglot.builtins import as_unicode, unicode_type
 
 
 class HeaderRecord:

@@ -6,7 +6,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import unittest, numbers
-from polyglot.builtins import map
 
 from calibre.ebooks.epub.cfi.parse import parser, cfi_sort_key, decode_cfi
 from polyglot.builtins import iteritems, unicode_type

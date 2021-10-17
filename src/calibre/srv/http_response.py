@@ -29,7 +29,7 @@ from calibre.utils.monotonic import monotonic
 from calibre.utils.speedups import ReadOnlyFileBuffer
 from polyglot import http_client, reprlib
 from polyglot.builtins import (
-    error_message, iteritems, itervalues, map, reraise, string_or_bytes,
+    error_message, iteritems, itervalues, reraise, string_or_bytes,
     unicode_type
 )
 

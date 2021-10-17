@@ -27,7 +27,7 @@ from calibre.gui2.metadata.basic_widgets import PubdateEdit, RatingEdit
 from calibre.gui2.widgets2 import RightClickButton
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import UNDEFINED_DATE
-from polyglot.builtins import iteritems, itervalues, map, range, unicode_type, zip
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 Widgets = namedtuple('Widgets', 'new old label button')
 

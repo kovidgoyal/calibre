@@ -16,7 +16,7 @@ from calibre.constants import (
     filesystem_encoding, iswindows, preferred_encoding, ismacos
 )
 from calibre.utils.localization import get_udc
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 
 def ascii_text(orig):

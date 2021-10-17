@@ -25,7 +25,7 @@ from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.config import tweaks
 from calibre.utils.date import as_local_time, format_date, is_date_undefined
 from calibre.utils.icu import sort_key
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import unicode_type
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 

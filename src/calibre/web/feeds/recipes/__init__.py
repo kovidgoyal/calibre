@@ -10,7 +10,7 @@ from calibre.web.feeds.news import (BasicNewsRecipe, CustomIndexRecipe,
     AutomaticNewsRecipe, CalibrePeriodical)
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.utils.config import JSONConfig
-from polyglot.builtins import itervalues, unicode_type, codepoint_to_chr, range
+from polyglot.builtins import itervalues, unicode_type, codepoint_to_chr
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe,
         CalibrePeriodical)

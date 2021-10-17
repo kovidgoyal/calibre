@@ -25,7 +25,7 @@ from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndica
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
     image_extensions, dnd_has_extension, dnd_get_local_image_and_pixmap, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
-from polyglot.builtins import native_string_type, unicode_type, range
+from polyglot.builtins import native_string_type, unicode_type
 
 history = XMLConfig('history')
 

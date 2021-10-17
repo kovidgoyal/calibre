@@ -12,7 +12,7 @@ import time
 from calibre.constants import __appname__, __version__
 from calibre import strftime, prepare_string_for_xml as xml
 from calibre.utils.date import parse_date
-from polyglot.builtins import unicode_type, filter
+from polyglot.builtins import unicode_type
 
 SONY_METADATA = '''\
 <?xml version="1.0" encoding="utf-8"?>

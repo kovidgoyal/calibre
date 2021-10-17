@@ -15,7 +15,7 @@ from calibre.ebooks.mobi.utils import rescale_image
 from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
-from polyglot.builtins import codepoint_to_chr, range, unicode_type
+from polyglot.builtins import codepoint_to_chr, unicode_type
 
 
 '''

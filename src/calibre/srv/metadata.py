@@ -21,7 +21,7 @@ from calibre.utils.icu import collation_order
 from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html, markdown
 from calibre.library.field_metadata import category_icon_map
-from polyglot.builtins import iteritems, itervalues, range, filter, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from polyglot.urllib import quote
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())

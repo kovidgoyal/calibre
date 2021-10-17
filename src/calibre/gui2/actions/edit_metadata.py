@@ -30,7 +30,7 @@ from calibre.library.comments import merge_comments
 from calibre.utils.config import tweaks
 from calibre.utils.date import is_date_undefined
 from calibre.utils.icu import sort_key
-from polyglot.builtins import iteritems, map, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class EditMetadataAction(InterfaceAction):

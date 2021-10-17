@@ -20,7 +20,7 @@ from calibre.utils.zipfile import ZipFile
 from calibre import (extract, walk, isbytestring, filesystem_encoding,
         get_types_map)
 from calibre.constants import __version__
-from polyglot.builtins import unicode_type, string_or_bytes, map
+from polyglot.builtins import unicode_type, string_or_bytes
 
 DEBUG_README=b'''
 This debug folder contains snapshots of the e-book as it passes through the

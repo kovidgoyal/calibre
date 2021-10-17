@@ -14,7 +14,7 @@ from calibre.gui2.tweak_book import current_container
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import WaitStack
 from calibre.ebooks.oeb.polish.download import get_external_resources, download_external_resources, replace_resources
-from polyglot.builtins import iteritems, range
+from polyglot.builtins import iteritems
 
 
 class ChooseResources(QWidget):

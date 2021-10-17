@@ -69,9 +69,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.imghdr import identify
 from calibre.utils.tdir_in_cache import tdir_in_cache
-from polyglot.builtins import (
-    as_bytes, iteritems, itervalues, map, string_or_bytes, unicode_type
-)
+from polyglot.builtins import as_bytes, iteritems, itervalues, string_or_bytes, unicode_type
 from polyglot.urllib import urlparse
 
 _diff_dialogs = []

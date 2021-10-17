@@ -8,8 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import weakref, operator, numbers
 from functools import partial
-from polyglot.builtins import (iteritems, itervalues, map,
-        unicode_type, range)
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs

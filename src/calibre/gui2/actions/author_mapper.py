@@ -6,7 +6,7 @@
 from qt.core import QDialog
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
-from polyglot.builtins import iteritems, map, range
+from polyglot.builtins import iteritems
 
 
 class AuthorMapAction(InterfaceAction):

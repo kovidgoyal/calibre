@@ -12,7 +12,7 @@ from qt.core import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
         QDialogButtonBox, QVBoxLayout, QSize, pyqtSignal, QIcon, QLabel)
 
 from calibre.gui2 import file_icon_provider
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def browser_item(f, parent):

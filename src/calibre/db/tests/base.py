@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import unittest, os, shutil, tempfile, atexit, gc, time
 from functools import partial
 from io import BytesIO
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import unicode_type
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 

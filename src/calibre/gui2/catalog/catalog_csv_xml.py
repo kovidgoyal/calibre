@@ -11,7 +11,7 @@ from qt.core import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidg
 from calibre.constants import ismacos
 from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def get_saved_field_data(name, all_fields):

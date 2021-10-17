@@ -49,7 +49,7 @@ from calibre.db.lazy import FormatMetadata, FormatsList
 from calibre.db.categories import Tag, CATEGORY_SORTS
 from calibre.utils.localization import (canonicalize_lang,
         calibre_langcode_to_name)
-from polyglot.builtins import iteritems, unicode_type, string_or_bytes, map
+from polyglot.builtins import iteritems, unicode_type, string_or_bytes
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 SPOOL_SIZE = 30*1024*1024

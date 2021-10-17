@@ -16,7 +16,7 @@ from qt.core import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
 
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog, info_dialog, empty_index
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def add_fonts(parent):

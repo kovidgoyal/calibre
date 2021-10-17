@@ -16,7 +16,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.compression.palmdoc import decompress_doc
 from calibre.utils.imghdr import identify
 from calibre.utils.img import save_cover_data_to, Canvas, image_from_data
-from polyglot.builtins import codepoint_to_chr, range
+from polyglot.builtins import codepoint_to_chr
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1

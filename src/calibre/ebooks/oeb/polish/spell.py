@@ -16,7 +16,7 @@ from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_nav_toc
 from calibre.utils.icu import ord_string
-from polyglot.builtins import iteritems, unicode_type, filter
+from polyglot.builtins import iteritems, unicode_type
 
 _patterns = None
 

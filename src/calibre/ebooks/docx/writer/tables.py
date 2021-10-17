@@ -9,7 +9,7 @@ from collections import namedtuple
 
 from calibre.ebooks.docx.writer.utils import convert_color
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, border_edges
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 class Dummy:

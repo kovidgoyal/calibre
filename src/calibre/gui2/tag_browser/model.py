@@ -28,7 +28,7 @@ from calibre.utils.icu import (
     strcmp
 )
 from calibre.utils.serialize import json_dumps, json_loads
-from polyglot.builtins import iteritems, itervalues, map, range, unicode_type
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}

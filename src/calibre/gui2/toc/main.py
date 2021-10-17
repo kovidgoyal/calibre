@@ -33,7 +33,7 @@ from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.logging import GUILog
-from polyglot.builtins import map, range, unicode_type
+from polyglot.builtins import unicode_type
 
 ICON_SIZE = 24
 

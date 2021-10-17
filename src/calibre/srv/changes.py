@@ -3,9 +3,6 @@
 # License: GPLv3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 
 
-from polyglot.builtins import map
-
-
 class ChangeEvent:
 
     def __init__(self):

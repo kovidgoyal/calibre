@@ -7,7 +7,6 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 Microsoft LIT OPF tag and attribute tables, copied from ConvertLIT.
 """
 
-from polyglot.builtins import range
 
 TAGS = [
     None,

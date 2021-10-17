@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from functools import partial
 from datetime import datetime
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip
+from polyglot.builtins import iteritems, itervalues, unicode_type
 
 from calibre.constants import preferred_encoding
 from calibre.ebooks.metadata import author_to_author_sort, title_sort

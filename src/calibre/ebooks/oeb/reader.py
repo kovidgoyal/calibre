@@ -27,7 +27,7 @@ from calibre.utils.localization import get_lang
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 from calibre import guess_type, xml_replace_entities
-from polyglot.builtins import unicode_type, zip
+from polyglot.builtins import unicode_type
 from polyglot.urllib import unquote, urldefrag, urlparse
 
 __all__ = ['OEBReader']

@@ -27,7 +27,7 @@ from calibre.devices.errors import DeviceError
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.usbms.deviceconfig import DeviceConfig
 from calibre.utils.filenames import ascii_filename as sanitize
-from polyglot.builtins import iteritems, map, string_or_bytes
+from polyglot.builtins import iteritems, string_or_bytes
 
 if ismacos:
     osx_sanitize_name_pat = re.compile(r'[.-]')

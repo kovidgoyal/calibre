@@ -19,7 +19,7 @@ from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style, pretty_xml_tree, serialize
 from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
-from polyglot.builtins import iteritems, itervalues, unicode_type, filter
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from polyglot.functools import lru_cache
 
 

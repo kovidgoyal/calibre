@@ -14,7 +14,7 @@ from qt.core import (
 from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def texture_dir():

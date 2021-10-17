@@ -12,7 +12,6 @@ from qt.core import (
 )
 
 from calibre.gui2 import config
-from polyglot.builtins import range
 
 
 class Pointer(QWidget):

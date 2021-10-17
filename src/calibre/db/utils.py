@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, errno, sys, re
 from locale import localeconv
 from collections import OrderedDict, namedtuple
-from polyglot.builtins import iteritems, itervalues, map, unicode_type, string_or_bytes, filter
+from polyglot.builtins import iteritems, itervalues, unicode_type, string_or_bytes
 from threading import Lock
 
 from calibre import as_unicode, prints

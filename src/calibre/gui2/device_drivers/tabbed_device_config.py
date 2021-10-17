@@ -15,7 +15,7 @@ from qt.core import (
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 def wrap_msg(msg):

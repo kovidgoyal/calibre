@@ -10,7 +10,7 @@ import struct
 from io import BytesIO
 from collections import defaultdict
 
-from polyglot.builtins import iteritems, itervalues, unicode_type, range, as_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, as_bytes
 
 
 class UnsupportedFont(ValueError):

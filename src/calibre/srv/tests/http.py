@@ -13,7 +13,7 @@ from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.utils import eintr_retry_call
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import iteritems, range, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 from polyglot import http_client
 
 is_ci = os.environ.get('CI', '').lower() == 'true'

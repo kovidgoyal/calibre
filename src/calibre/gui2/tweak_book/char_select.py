@@ -22,7 +22,7 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.icu import safe_chr as codepoint_to_chr
 from calibre.utils.unicode_names import character_name_from_code, points_for_word
 from calibre_extensions.progress_indicator import set_no_activate_on_click
-from polyglot.builtins import map, range, unicode_type
+from polyglot.builtins import unicode_type
 
 ROOT = QModelIndex()
 

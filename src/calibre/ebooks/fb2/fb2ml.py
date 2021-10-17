@@ -20,7 +20,7 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
-from polyglot.builtins import unicode_type, string_or_bytes, range, filter
+from polyglot.builtins import unicode_type, string_or_bytes
 from polyglot.binary import as_base64_unicode
 from polyglot.urllib import urlparse
 

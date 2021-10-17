@@ -12,7 +12,7 @@ from operator import itemgetter
 
 from calibre.library.field_metadata import fm_as_dict
 from calibre.db.tests.base import BaseTest
-from polyglot.builtins import iteritems, range, unicode_type, zip
+from polyglot.builtins import iteritems, unicode_type
 from polyglot import reprlib
 
 # Utils {{{

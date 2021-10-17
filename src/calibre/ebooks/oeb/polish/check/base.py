@@ -10,7 +10,6 @@ from functools import partial
 from contextlib import closing
 
 from calibre import detect_ncpus as cpu_count
-from polyglot.builtins import range
 
 DEBUG, INFO, WARN, ERROR, CRITICAL = range(5)
 

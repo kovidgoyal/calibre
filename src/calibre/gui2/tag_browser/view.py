@@ -26,7 +26,7 @@ from calibre.gui2 import (config, gprefs, choose_files, pixmap_to_data,
                           rating_font, empty_index, question_dialog)
 from calibre.utils.icu import sort_key
 from calibre.utils.serialize import json_loads
-from polyglot.builtins import unicode_type, range, zip
+from polyglot.builtins import unicode_type
 
 
 class TagDelegate(QStyledItemDelegate):  # {{{

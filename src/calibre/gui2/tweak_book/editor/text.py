@@ -40,7 +40,7 @@ from calibre.utils.icu import (
 )
 from calibre.utils.img import image_to_data
 from calibre.utils.titlecase import titlecase
-from polyglot.builtins import as_unicode, map, range, unicode_type
+from polyglot.builtins import as_unicode, unicode_type
 
 
 def get_highlighter(syntax):

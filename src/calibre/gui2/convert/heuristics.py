@@ -12,7 +12,7 @@ from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.utils.localization import localize_user_manual_link
 from calibre.ebooks.conversion.config import OPTIONS
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 class HeuristicsWidget(Widget, Ui_Form):

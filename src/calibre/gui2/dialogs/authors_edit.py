@@ -15,7 +15,7 @@ from calibre.utils.config_base import tweaks
 from calibre.gui2 import gprefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.ebooks.metadata import string_to_authors
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 class ItemDelegate(QStyledItemDelegate):

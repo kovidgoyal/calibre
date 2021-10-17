@@ -18,7 +18,7 @@ from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.utils.logging import default_log
 from calibre import prints, fsync
 from calibre.constants import DEBUG
-from polyglot.builtins import range, as_unicode, as_bytes, unicode_type, map
+from polyglot.builtins import as_unicode, as_bytes, unicode_type
 
 
 class APNXBuilder:

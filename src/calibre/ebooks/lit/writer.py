@@ -29,7 +29,7 @@ from calibre.ebooks.lit.lzx import Compressor
 import calibre
 from calibre_extensions import msdes
 import calibre.ebooks.lit.mssha1 as mssha1
-from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, range, zip, native_string_type
+from polyglot.builtins import codepoint_to_chr, unicode_type, string_or_bytes, native_string_type
 from polyglot.urllib import urldefrag, unquote
 
 __all__ = ['LitWriter']

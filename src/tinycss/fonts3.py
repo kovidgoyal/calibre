@@ -7,7 +7,6 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
 import re
-from polyglot.builtins import map
 from tinycss.css21 import CSS21Parser, ParseError
 from .tokenizer import tokenize_grouped
 

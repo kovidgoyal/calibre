@@ -12,7 +12,7 @@ from uuid import uuid4
 from contextlib import suppress
 
 
-from polyglot.builtins import filter, string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes, unicode_type
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)

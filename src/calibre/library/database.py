@@ -15,7 +15,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre.utils.serialize import pickle_loads, pickle_dumps
 from calibre import isbytestring
-from polyglot.builtins import unicode_type, filter, map
+from polyglot.builtins import unicode_type
 
 
 class Concatenate:

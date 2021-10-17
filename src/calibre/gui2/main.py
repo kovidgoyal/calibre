@@ -27,7 +27,7 @@ from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import dynamic, prefs
 from calibre.utils.lock import SingleInstance
 from calibre.utils.monotonic import monotonic
-from polyglot.builtins import as_bytes, environ_item, range, unicode_type
+from polyglot.builtins import as_bytes, environ_item, unicode_type
 
 after_quit_actions = {'debug_on_restart': False, 'restart_after_quit': False, 'no_plugins_on_restart': False}
 if iswindows:

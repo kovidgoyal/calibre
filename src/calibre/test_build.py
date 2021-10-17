@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time, shutil
 
 from calibre.constants import iswindows, islinux, ismacos, plugins_loc
-from polyglot.builtins import iteritems, map, unicode_type, getenv
+from polyglot.builtins import iteritems, unicode_type, getenv
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')

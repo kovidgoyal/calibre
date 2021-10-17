@@ -15,7 +15,7 @@ from calibre.constants import (config_dir, iswindows, ismacos, DEBUG,
         isworker, filesystem_encoding)
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
-from polyglot.builtins import itervalues, unicode_type, filter
+from polyglot.builtins import itervalues, unicode_type
 
 
 class NoFonts(ValueError):

@@ -9,7 +9,7 @@ import re, random, unicodedata, numbers
 from collections import namedtuple
 from contextlib import contextmanager
 from math import ceil, sqrt, cos, sin, atan2
-from polyglot.builtins import iteritems, itervalues, map, zip, string_or_bytes
+from polyglot.builtins import iteritems, itervalues, string_or_bytes
 from itertools import chain
 
 from qt.core import (

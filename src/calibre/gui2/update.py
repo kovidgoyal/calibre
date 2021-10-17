@@ -19,7 +19,7 @@ from calibre.gui2 import config, dynamic, open_url
 from calibre.gui2.dialogs.plugin_updater import get_plugin_updates_available
 from calibre.utils.serialize import msgpack_dumps, msgpack_loads
 from polyglot.binary import as_hex_unicode, from_hex_bytes
-from polyglot.builtins import map, unicode_type
+from polyglot.builtins import unicode_type
 
 URL = 'https://code.calibre-ebook.com/latest'
 # URL = 'http://localhost:8000/latest'

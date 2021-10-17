@@ -21,7 +21,7 @@ from calibre.devices.usbms.cli import CLI
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
-from polyglot.builtins import itervalues, unicode_type, string_or_bytes, zip
+from polyglot.builtins import itervalues, unicode_type, string_or_bytes
 
 
 def debug_print(*args, **kw):

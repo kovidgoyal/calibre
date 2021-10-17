@@ -23,7 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.utils import read_font_record
 from calibre.ebooks.oeb.parse_utils import parse_html
 from calibre.ebooks.oeb.base import XPath, XHTML, xml2text
-from polyglot.builtins import range, zip, unicode_type, getcwd, as_unicode
+from polyglot.builtins import unicode_type, getcwd, as_unicode
 from polyglot.urllib import urldefrag
 
 Part = namedtuple('Part',

@@ -10,7 +10,6 @@ from struct import pack
 from collections import OrderedDict
 
 from calibre.utils.fonts.sfnt.cff.constants import cff_standard_strings
-from polyglot.builtins import range
 
 
 class Index(list):

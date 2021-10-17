@@ -12,7 +12,7 @@ from collections import defaultdict
 
 from calibre.utils.date import parse_date, UNDEFINED_DATE, utc_tz
 from calibre.ebooks.metadata import author_to_author_sort
-from polyglot.builtins import iteritems, itervalues, range
+from polyglot.builtins import iteritems, itervalues
 from calibre_extensions.speedup import parse_date as _c_speedup
 
 

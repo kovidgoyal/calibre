@@ -12,7 +12,7 @@ from css_parser.css import PropertyValue
 from css_parser import profile as cssprofiles, CSSParser
 from tinycss.fonts3 import parse_font, serialize_font_family
 from calibre.ebooks.oeb.base import css_text
-from polyglot.builtins import iteritems, string_or_bytes, unicode_type, zip
+from polyglot.builtins import iteritems, string_or_bytes, unicode_type
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',

@@ -13,7 +13,7 @@ from ctypes import (
 )
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
 from pprint import pprint, pformat
-from polyglot.builtins import iteritems, itervalues, map, filter
+from polyglot.builtins import iteritems, itervalues
 
 from calibre import prints, as_unicode
 

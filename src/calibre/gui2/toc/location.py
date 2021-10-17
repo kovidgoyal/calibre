@@ -15,7 +15,7 @@ from calibre.gui2.palette import dark_color, dark_link_color, dark_text_color
 from calibre.gui2.webengine import secure_webengine
 from calibre.utils.logging import default_log
 from calibre.utils.short_uuid import uuid4
-from polyglot.builtins import range, unicode_type
+from polyglot.builtins import unicode_type
 
 
 class Page(QWebEnginePage):  # {{{

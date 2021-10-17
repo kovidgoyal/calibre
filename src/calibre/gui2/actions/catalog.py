@@ -15,7 +15,6 @@ from calibre.gui2.tools import generate_catalog
 from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
 from calibre import sanitize_file_name
-from polyglot.builtins import range, map
 
 
 class GenerateCatalogAction(InterfaceAction):

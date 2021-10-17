@@ -7,7 +7,7 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import hashlib, numbers
-from polyglot.builtins import map, iteritems
+from polyglot.builtins import iteritems
 
 from qt.core import QBuffer, QByteArray, QImage, Qt, QColor, qRgba, QPainter
 

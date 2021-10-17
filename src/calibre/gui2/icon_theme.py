@@ -33,7 +33,7 @@ from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jpeg
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
-from polyglot.builtins import iteritems, map, range, reraise, filter, as_bytes, unicode_type
+from polyglot.builtins import iteritems, reraise, as_bytes, unicode_type
 from polyglot import http_client
 from polyglot.queue import Queue, Empty
 

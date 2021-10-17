@@ -6,7 +6,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import copy, os, re
-from polyglot.builtins import map, string_or_bytes, range
+from polyglot.builtins import string_or_bytes
 
 from calibre.ebooks.oeb.base import barename, XPNSMAP, XPath, OPF, XHTML, OEB_DOCS
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup

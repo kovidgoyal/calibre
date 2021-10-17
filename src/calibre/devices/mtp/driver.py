@@ -16,7 +16,7 @@ from calibre.devices.mtp.base import debug
 from calibre.devices.mtp.defaults import DeviceDefaults
 from calibre.ptempfile import SpooledTemporaryFile, PersistentTemporaryDirectory
 from calibre.utils.filenames import shorten_components_to
-from polyglot.builtins import iteritems, itervalues, unicode_type, zip, as_bytes
+from polyglot.builtins import iteritems, itervalues, unicode_type, as_bytes
 
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE

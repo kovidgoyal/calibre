@@ -5,7 +5,6 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-from polyglot.builtins import range
 
 
 def r(*a):

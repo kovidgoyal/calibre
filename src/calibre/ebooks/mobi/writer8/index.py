@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 
-from polyglot.builtins import map
-
 __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -10,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 from struct import pack
 from io import BytesIO
-from polyglot.builtins import unicode_type, zip, range
+from polyglot.builtins import unicode_type
 
 from calibre.ebooks.mobi.utils import CNCX, encint, align_block
 from calibre.ebooks.mobi.writer8.header import Header

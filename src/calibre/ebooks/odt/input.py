@@ -20,7 +20,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import unicode_type, string_or_bytes, filter, getcwd, as_bytes
+from polyglot.builtins import unicode_type, string_or_bytes, getcwd, as_bytes
 
 
 class Extract(ODF2XHTML):

@@ -24,7 +24,7 @@ from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 from calibre.utils.xml_parse import safe_xml_fromstring
-from polyglot.builtins import iteritems, unicode_type, getcwd, map
+from polyglot.builtins import iteritems, unicode_type, getcwd
 from polyglot.urllib import unquote, urlparse
 
 pretty_print_opf = False

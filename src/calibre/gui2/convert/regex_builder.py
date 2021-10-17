@@ -18,7 +18,7 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.ptempfile import TemporaryFile
 from calibre.utils.icu import utf16_length
 from calibre.utils.ipc.simple_worker import WorkerError, fork_job
-from polyglot.builtins import native_string_type, range, unicode_type
+from polyglot.builtins import native_string_type, unicode_type
 
 
 class RegexBuilder(QDialog, Ui_RegexBuilder):

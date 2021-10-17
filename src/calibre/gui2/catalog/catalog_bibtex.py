@@ -11,7 +11,7 @@ from qt.core import QWidget, QListWidgetItem
 
 from calibre.gui2 import gprefs
 from calibre.gui2.catalog.catalog_bibtex_ui import Ui_Form
-from polyglot.builtins import unicode_type, range
+from polyglot.builtins import unicode_type
 
 
 class PluginWidget(QWidget, Ui_Form):

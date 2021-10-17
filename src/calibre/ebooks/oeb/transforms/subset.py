@@ -10,7 +10,7 @@ from collections import defaultdict
 
 from calibre.ebooks.oeb.base import urlnormalize, css_text
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
-from polyglot.builtins import iteritems, itervalues, unicode_type, range
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from tinycss.fonts3 import parse_font_family
 
 
