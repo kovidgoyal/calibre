@@ -97,7 +97,7 @@ class ImageDelegate(QStyledItemDelegate):
         f = self.parent().font()
         sz = f.pixelSize()
         if sz < 5:
-            sz = f.pointSize() * self.parent().logicalDpiY() / 72.0
+            sz = int(f.pointSize() * self.parent().logicalDpiY() / 72.0)
         self.title_height = max(25, sz + 10)
         self.item_size = self.cover_size + QSize(2 * self.MARGIN, (2 * self.MARGIN) + self.title_height)
         self.calculate_spacing()
