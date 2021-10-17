@@ -29,7 +29,7 @@ current calibre release.
 
 ## Bugs
 
-Bug reports and feature requests should be made in the calibre bug tracker at [launchpad](https://bugs.launchpad.net/calibre).
+Bug reports and feature requests should be made in the calibre bug tracker at [Launchpad](https://bugs.launchpad.net/calibre).
 GitHub is only used for code hosting and pull requests.
 
 ## Support calibre
