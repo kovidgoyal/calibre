@@ -409,7 +409,7 @@ class CreateCustomColumn(QDialog):
             'yyyy-mm-dd. For Yes/No columns enter "Yes" or "No". For Text with '
             'a fixed set of values enter one of the permitted values. For '
             'Rating columns enter a number between 0 and 5.') + '</p>')
-        self.default_value_label = add_row(_('Default value:'), dv)
+        self.default_value_label = add_row(_('&Default value:'), dv)
 
         self.resize(self.sizeHint())
     # }}}
