@@ -12,7 +12,7 @@ from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
 from calibre.startup import get_debug_executable
-from polyglot.builtins import exec_path, raw_input, unicode_type, getcwd
+from polyglot.builtins import exec_path, unicode_type, getcwd
 
 
 def run_calibre_debug(*args, **kw):
@@ -156,7 +156,7 @@ def debug_device_driver():
     from calibre.devices import debug
     debug(ioreg_to_tmp=True, buf=sys.stdout)
     if iswindows:  # no2to3
-        raw_input('Press Enter to continue...')  # no2to3
+        input('Press Enter to continue...')  # no2to3
 
 
 def add_simple_plugin(path_to_plugin):

@@ -8,7 +8,7 @@ from functools import partial
 from calibre import prints
 from calibre.constants import preferred_encoding, iswindows
 from calibre.utils.config import OptionParser
-from polyglot.builtins import iteritems, raw_input, unicode_type
+from polyglot.builtins import iteritems, unicode_type
 
 
 def create_subcommand_parser(name, usage):
@@ -102,7 +102,7 @@ def manage_users_cli(path=None, args=()):
 
     def get_input(prompt):
         prints(prompt, end=' ')
-        ans = raw_input()
+        ans = input()
         if isinstance(ans, bytes):
             ans = ans.decode(enc)
         if iswindows:

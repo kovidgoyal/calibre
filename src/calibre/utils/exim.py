@@ -11,7 +11,7 @@ from calibre.constants import config_dir, iswindows, filesystem_encoding
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
-from polyglot.builtins import iteritems, raw_input, error_message, unicode_type
+from polyglot.builtins import iteritems, error_message, unicode_type
 from polyglot.binary import as_hex_unicode
 
 
@@ -389,7 +389,7 @@ def cli_report(*args, **kw):
 
 
 def input_unicode(prompt):
-    ans = raw_input(prompt)
+    ans = input(prompt)
     if isinstance(ans, bytes):
         ans = ans.decode(sys.stdin.encoding)
     return ans

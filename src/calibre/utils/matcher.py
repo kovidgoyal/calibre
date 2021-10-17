@@ -16,7 +16,7 @@ from itertools import islice
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
-from polyglot.builtins import iteritems, itervalues, unicode_type, raw_input, getcwd
+from polyglot.builtins import iteritems, itervalues, unicode_type, getcwd
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
@@ -328,7 +328,7 @@ def get_char(string, pos):
 
 
 def input_unicode(prompt):
-    ans = raw_input(prompt)
+    ans = input(prompt)
     if isinstance(ans, bytes):
         ans = ans.decode(sys.stdin.encoding)
     return ans
