@@ -14,7 +14,7 @@ from qt.core import QEventLoop
 from calibre import force_unicode
 from calibre.constants import DEBUG, filesystem_encoding, preferred_encoding
 from calibre.utils.config import dynamic
-from polyglot.builtins import getenv, reraise, string_or_bytes, unicode_type
+from polyglot.builtins import reraise, string_or_bytes, unicode_type
 
 
 def dialog_name(name, title):
@@ -27,20 +27,20 @@ def get_winid(widget=None):
 
 
 def detect_desktop_environment():
-    de = getenv('XDG_CURRENT_DESKTOP')
+    de = os.getenv('XDG_CURRENT_DESKTOP')
     if de:
         return de.upper().split(':', 1)[0]
-    if getenv('KDE_FULL_SESSION') == 'true':
+    if os.getenv('KDE_FULL_SESSION') == 'true':
         return 'KDE'
-    if getenv('GNOME_DESKTOP_SESSION_ID'):
+    if os.getenv('GNOME_DESKTOP_SESSION_ID'):
         return 'GNOME'
-    ds = getenv('DESKTOP_SESSION')
+    ds = os.getenv('DESKTOP_SESSION')
     if ds and ds.upper() in {'GNOME', 'XFCE'}:
         return ds.upper()
 
 
 def is_executable_present(name):
-    PATH = getenv('PATH') or ''
+    PATH = os.getenv('PATH') or ''
     for path in PATH.split(os.pathsep):
         if os.access(os.path.join(path, name), os.X_OK):
             return True

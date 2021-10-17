@@ -13,7 +13,6 @@ import shutil, textwrap, codecs, os
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
-from polyglot.builtins import getcwd
 
 
 class ComicInput(InputFormatPlugin):
@@ -198,7 +197,7 @@ class ComicInput(InputFormatPlugin):
 
         mi  = MetaInformation(os.path.basename(stream.name).rpartition('.')[0],
             [_('Unknown')])
-        opf = OPFCreator(getcwd(), mi)
+        opf = OPFCreator(os.getcwd(), mi)
         entries = []
 
         def href(x):

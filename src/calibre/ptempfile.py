@@ -6,7 +6,6 @@ Provides platform independent temporary files that persist even after
 being closed.
 """
 import tempfile, os, atexit
-from polyglot.builtins import getenv
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
         iswindows, get_windows_temp_path, ismacos)
@@ -102,7 +101,7 @@ def base_dir():
         else:
             base = os.environ.get('CALIBRE_TEMP_DIR', None)
             if base is not None and iswindows:
-                base = getenv('CALIBRE_TEMP_DIR')
+                base = os.getenv('CALIBRE_TEMP_DIR')
             prefix = app_prefix('tmp_')
             if base is None:
                 if iswindows:

@@ -21,7 +21,6 @@ from calibre.utils.xml_parse import safe_xml_fromstring
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.localunzip import LocalZipFile
 from calibre.utils.zipfile import BadZipfile, ZipFile, safe_replace
-from polyglot.builtins import getcwd
 
 
 class EPubException(Exception):
@@ -144,7 +143,7 @@ class OCFZipReader(OCFReader):
             if name:
                 self.root = os.path.abspath(os.path.dirname(name))
             else:
-                self.root = getcwd()
+                self.root = os.getcwd()
         super(OCFZipReader, self).__init__()
 
     def open(self, name):
@@ -245,7 +244,7 @@ def serialize_cover_data(new_cdata, cpath):
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     stream.seek(0)
-    reader = get_zip_reader(stream, root=getcwd())
+    reader = get_zip_reader(stream, root=os.getcwd())
     new_cdata = None
     try:
         new_cdata = mi.cover_data[1]

@@ -11,7 +11,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre import isbytestring
 from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation, string_to_authors
-from polyglot.builtins import getcwd, unicode_type
+from polyglot.builtins import unicode_type
 
 # The priorities for loading metadata from different file types
 # Higher values should be used to update metadata from lower values
@@ -209,7 +209,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', getcwd())
+        opfpath = getattr(f, 'name', os.getcwd())
     else:
         f = open(opfpath, 'rb')
     try:

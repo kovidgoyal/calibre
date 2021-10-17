@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 import os, ctypes, sys, unittest, time, shutil
 
 from calibre.constants import iswindows, islinux, ismacos, plugins_loc
-from polyglot.builtins import iteritems, unicode_type, getenv
+from polyglot.builtins import iteritems, unicode_type
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 is_sanitized = 'libasan' in os.environ.get('LD_PRELOAD', '')
@@ -178,11 +178,11 @@ class BuildTest(unittest.TestCase):
         for k, v in iteritems(d):
             au(v, k)
         os.environ['XXXTEST'] = 'YYY'
-        self.assertEqual(getenv('XXXTEST'), 'YYY')
+        self.assertEqual(os.getenv('XXXTEST'), 'YYY')
         del os.environ['XXXTEST']
-        self.assertIsNone(getenv('XXXTEST'))
+        self.assertIsNone(os.getenv('XXXTEST'))
         for k in os.environ:
-            v = getenv(k)
+            v = os.getenv(k)
             if v is not None:
                 au(v, 'getenv-' + k)
         t = time.localtime()

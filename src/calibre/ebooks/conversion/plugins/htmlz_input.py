@@ -9,7 +9,6 @@ import os
 
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
-from polyglot.builtins import getcwd
 
 
 class HTMLZInput(InputFormatPlugin):
@@ -86,7 +85,7 @@ class HTMLZInput(InputFormatPlugin):
         for opt in html_input.options:
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
-        base = getcwd()
+        base = os.getcwd()
         htmlfile = os.path.join(base, u'index.html')
         c = 0
         while os.path.exists(htmlfile):
@@ -117,12 +116,12 @@ class HTMLZInput(InputFormatPlugin):
                 opf = x
                 break
         if opf:
-            opf = OPF(opf, basedir=getcwd())
+            opf = OPF(opf, basedir=os.getcwd())
             cover_path = opf.raster_cover or opf.cover
         # Set the cover.
         if cover_path:
             cdata = None
-            with open(os.path.join(getcwd(), cover_path), 'rb') as cf:
+            with open(os.path.join(os.getcwd(), cover_path), 'rb') as cf:
                 cdata = cf.read()
             cover_name = os.path.basename(cover_path)
             id, href = oeb.manifest.generate('cover', cover_name)

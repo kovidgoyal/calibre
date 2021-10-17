@@ -17,7 +17,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 from calibre.utils.localization import get_lang
-from polyglot.builtins import as_unicode, getcwd, unicode_type
+from polyglot.builtins import as_unicode, unicode_type
 
 
 def sanitize_file_name(x):
@@ -70,7 +70,7 @@ class HTMLInput(InputFormatPlugin):
     def convert(self, stream, opts, file_ext, log,
                 accelerators):
         self._is_case_sensitive = None
-        basedir = getcwd()
+        basedir = os.getcwd()
         self.opts = opts
 
         fname = None
@@ -228,7 +228,7 @@ class HTMLInput(InputFormatPlugin):
                 continue
             toc.add(title, item.href)
 
-        oeb.container = DirContainer(getcwd(), oeb.log, ignore_opf=True)
+        oeb.container = DirContainer(os.getcwd(), oeb.log, ignore_opf=True)
         return oeb
 
     def link_to_local_path(self, link_, base=None):
@@ -240,7 +240,7 @@ class HTMLInput(InputFormatPlugin):
                 self.log.warn('Failed to decode link %r. Ignoring'%link_)
                 return None, None
         try:
-            l = Link(link_, base if base else getcwd())
+            l = Link(link_, base if base else os.getcwd())
         except:
             self.log.exception('Failed to process link: %r'%link_)
             return None, None

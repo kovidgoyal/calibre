@@ -18,7 +18,7 @@ from calibre import sanitize_file_name
 from calibre.constants import filesystem_encoding
 from calibre.ebooks.chardet import detect
 from calibre.ptempfile import SpooledTemporaryFile
-from polyglot.builtins import getcwd, string_or_bytes, unicode_type, as_bytes
+from polyglot.builtins import string_or_bytes, unicode_type, as_bytes
 
 try:
     import zlib  # We may need its compression method
@@ -1093,7 +1093,7 @@ class ZipFile:
             member = self.getinfo(member)
 
         if path is None:
-            path = getcwd()
+            path = os.getcwd()
 
         return self._extract_member(member, path, pwd)
 

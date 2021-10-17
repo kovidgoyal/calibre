@@ -37,7 +37,7 @@ from calibre.library.comments import comments_to_html
 from calibre import force_unicode
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
-from polyglot.builtins import iteritems, itervalues, unicode_type, getcwd
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from polyglot.queue import Queue, Empty
 # }}}
 
@@ -408,7 +408,7 @@ class IdentifyWorker(Thread):  # {{{
                         'single_identify', (self.title, self.authors,
                             self.identifiers), no_output=True, abort=self.abort)
                 self.results, covers, caches, log_dump = res['result']
-                self.results = [OPF(BytesIO(r), basedir=getcwd(),
+                self.results = [OPF(BytesIO(r), basedir=os.getcwd(),
                     populate_spine=False).to_book_metadata() for r in self.results]
                 for r, cov in zip(self.results, covers):
                     r.has_cached_cover_url = cov

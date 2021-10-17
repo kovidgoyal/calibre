@@ -6,11 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 from calibre import replace_entities
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.ebooks.mobi.reader.index import read_index
-from polyglot.builtins import iteritems, getcwd
+from polyglot.builtins import iteritems
 
 tag_fieldname_map = {
         1:  ['pos',0],
@@ -81,7 +83,7 @@ def read_ncx(sections, index, codec):
 
 
 def build_toc(index_entries):
-    ans = TOC(base_path=getcwd())
+    ans = TOC(base_path=os.getcwd())
     levels = {x['hlvl'] for x in index_entries}
     num_map = {-1: ans}
     level_map = {l:[x for x in index_entries if x['hlvl'] == l] for l in

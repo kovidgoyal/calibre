@@ -16,7 +16,7 @@ from itertools import islice
 from calibre import detect_ncpus as cpu_count, as_unicode
 from calibre.constants import filesystem_encoding
 from calibre.utils.icu import primary_sort_key, primary_find, primary_collator
-from polyglot.builtins import iteritems, itervalues, unicode_type, getcwd
+from polyglot.builtins import iteritems, itervalues, unicode_type
 from polyglot.queue import Queue
 
 DEFAULT_LEVEL1 = '/'
@@ -339,8 +339,8 @@ def main(basedir=None, query=None):
     from calibre.utils.terminal import ColoredStream
     if basedir is None:
         try:
-            basedir = input_unicode('Enter directory to scan [%s]: ' % getcwd()
-                                ).strip() or getcwd()
+            basedir = input_unicode('Enter directory to scan [%s]: ' % os.getcwd()
+                                ).strip() or os.getcwd()
         except (EOFError, KeyboardInterrupt):
             return
     m = FilesystemMatcher(basedir)

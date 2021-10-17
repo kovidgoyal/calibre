@@ -12,7 +12,7 @@ from calibre.utils.config import OptionParser
 from calibre.constants import iswindows
 from calibre import prints
 from calibre.startup import get_debug_executable
-from polyglot.builtins import exec_path, unicode_type, getcwd
+from polyglot.builtins import exec_path, unicode_type
 
 
 def run_calibre_debug(*args, **kw):
@@ -164,7 +164,7 @@ def add_simple_plugin(path_to_plugin):
     tdir = tempfile.mkdtemp()
     open(os.path.join(tdir, 'custom_plugin.py'),
             'wb').write(open(path_to_plugin, 'rb').read())
-    odir = getcwd()
+    odir = os.getcwd()
     os.chdir(tdir)
     zf = zipfile.ZipFile('plugin.zip', 'w')
     zf.write('custom_plugin.py')

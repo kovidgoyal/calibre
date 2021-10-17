@@ -26,7 +26,7 @@ from calibre.gui2.widgets2 import Dialog as BaseDialog, HistoryComboBox, to_plai
 from calibre.utils.icu import primary_sort_key, sort_key, primary_contains, numeric_sort_key
 from calibre.utils.matcher import get_char, Matcher, DEFAULT_LEVEL1, DEFAULT_LEVEL2, DEFAULT_LEVEL3
 from calibre.gui2.complete2 import EditWithComplete
-from polyglot.builtins import iteritems, unicode_type, getcwd
+from polyglot.builtins import iteritems, unicode_type
 
 ROOT = QModelIndex()
 
@@ -478,7 +478,7 @@ class QuickOpen(Dialog):
     @classmethod
     def test(cls):
         from calibre.utils.matcher import get_items_from_dir
-        items = get_items_from_dir(getcwd(), lambda x:not x.endswith('.pyc'))
+        items = get_items_from_dir(os.getcwd(), lambda x:not x.endswith('.pyc'))
         d = cls(items)
         d.exec_()
         print(d.selected_result)

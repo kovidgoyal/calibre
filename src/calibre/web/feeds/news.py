@@ -38,7 +38,7 @@ from calibre.web.fetch.simple import (
     AbortArticle, RecursiveFetcher, option_parser as web2disk_option_parser
 )
 from calibre.web.fetch.utils import prepare_masthead_image
-from polyglot.builtins import getcwd, string_or_bytes, unicode_type
+from polyglot.builtins import string_or_bytes, unicode_type
 
 
 def classes(classes):
@@ -902,7 +902,7 @@ class BasicNewsRecipe(Recipe):
             self.title = unicode_type(self.title, 'utf-8', 'replace')
 
         self.debug = options.verbose > 1
-        self.output_dir = os.path.abspath(getcwd())
+        self.output_dir = os.path.abspath(os.getcwd())
         self.verbose = options.verbose
         self.test = options.test
         if self.test and not isinstance(self.test, tuple):
@@ -1495,7 +1495,7 @@ class BasicNewsRecipe(Recipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), getcwd())
+            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwd())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
