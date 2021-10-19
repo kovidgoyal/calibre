@@ -53,6 +53,16 @@ from calibre.utils.icu import sort_key, strcmp
 from polyglot.builtins import iteritems, range, unicode_type
 
 
+def show_locked_file_error(parent, err):
+    import traceback
+    fname = getattr(err, 'filename', None)
+    p = 'Locked file: %s\n\n'%fname if fname else ''
+    error_dialog(parent, _('Permission denied'),
+            _('Could not change the on disk location of this'
+                ' book. Is it open in another program?'),
+            det_msg=p+traceback.format_exc(), show=True)
+
+
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
@@ -374,7 +384,11 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
             if d == QMessageBox.StandardButton.Cancel:
                 return
             if d == QMessageBox.StandardButton.Yes:
-                self.commit(self.db, self.id_)
+                try:
+                    self.commit(self.db, self.id_)
+                except PermissionError as err:
+                    show_locked_file_error(self, err)
+                    return
                 self.db.commit()
                 self.original_val = self.current_val
             else:

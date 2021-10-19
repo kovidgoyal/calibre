@@ -6,31 +6,35 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, errno
+import errno
+import os
 from datetime import datetime
 from functools import partial
-
-from qt.core import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QApplication,
-        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, QCoreApplication,
-        QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem, QInputDialog,
-        QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)
+from qt.core import (
+    QApplication, QCoreApplication, QDialog, QDialogButtonBox, QFont, QFrame,
+    QGridLayout, QGroupBox, QHBoxLayout, QIcon, QInputDialog, QKeySequence, QMenu,
+    QPushButton, QScrollArea, QShortcut, QSize, QSizePolicy, QSpacerItem, QSplitter,
+    Qt, QTabWidget, QToolButton, QVBoxLayout, QWidget, pyqtSignal
+)
 
 from calibre.constants import ismacos
-from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
-from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
-    AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, IdentifiersEdit,
-    RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit,
-    BuddyLabel, DateEdit, PubdateEdit, LanguagesEdit, RightClickButton)
-from calibre.gui2.metadata.single_download import FullFetch
-from calibre.gui2.custom_column_widgets import populate_metadata_page, Comments
-from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.utils.localization import canonicalize_lang
-from calibre.utils.date import local_tz
+from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
+from calibre.gui2.custom_column_widgets import Comments, populate_metadata_page
+from calibre.gui2.dialogs.confirm_delete import confirm
+from calibre.gui2.metadata.basic_widgets import (
+    AuthorsEdit, AuthorSortEdit, BuddyLabel, CommentsEdit, Cover, DateEdit,
+    FormatsManager, IdentifiersEdit, LanguagesEdit, PubdateEdit, PublisherEdit,
+    RatingEdit, RightClickButton, SeriesEdit, SeriesIndexEdit, TagsEdit, TitleEdit,
+    TitleSortEdit, show_locked_file_error
+)
+from calibre.gui2.metadata.single_download import FullFetch
 from calibre.library.comments import merge_comments as merge_two_comments
-from polyglot.builtins import iteritems, unicode_type, filter
+from calibre.utils.config import tweaks
+from calibre.utils.date import local_tz
+from calibre.utils.localization import canonicalize_lang
+from polyglot.builtins import filter, iteritems, unicode_type
 
 BASE_TITLE = _('Edit metadata')
 fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
@@ -616,13 +620,7 @@ class MetadataSingleDialogBase(QDialog):
                 self.books_to_refresh |= getattr(widget, 'books_to_refresh', set())
             except (IOError, OSError) as err:
                 if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
-                    import traceback
-                    fname = getattr(err, 'filename', None)
-                    p = 'Locked file: %s\n\n'%fname if fname else ''
-                    error_dialog(self, _('Permission denied'),
-                            _('Could not change the on disk location of this'
-                                ' book. Is it open in another program?'),
-                            det_msg=p+traceback.format_exc(), show=True)
+                    show_locked_file_error(self, err)
                     return False
                 raise
         for widget in getattr(self, 'custom_metadata_widgets', []):
