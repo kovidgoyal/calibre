@@ -20,7 +20,6 @@ from calibre.gui2.viewer.shortcuts import index_to_key_sequence
 from calibre.gui2.viewer.web_view import set_book_path, vprefs
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.icu import primary_sort_key
-from polyglot.builtins import iteritems
 
 
 class Action:
@@ -69,6 +68,7 @@ def all_actions():
             'toggle_highlights': Action('highlight_only_on.png', _('Browse highlights in book'), 'toggle_highlights'),
             'select_all': Action('edit-select-all.png', _('Select all text in the current file')),
             'edit_book': Action('edit_book.png', _('Edit this book'), 'edit_book'),
+            'reload_book': Action('reload.png', _('Reload this book'), 'reload_book'),
         }
         all_actions.ans = Actions(amap)
     return all_actions.ans
@@ -201,6 +201,7 @@ class ActionsToolBar(ToolBar):
         self.preferences_action = shortcut_action('preferences')
         self.metadata_action = shortcut_action('metadata')
         self.edit_book_action = shortcut_action('edit_book')
+        self.reload_book_action = shortcut_action('reload_book')
         self.update_mode_action()
         self.color_scheme_action = a = QAction(aa.color_scheme.icon, aa.color_scheme.text, self)
         self.color_scheme_menu = m = QMenu(self)
@@ -253,18 +254,24 @@ class ActionsToolBar(ToolBar):
             ac.setChecked(visibility_map[k])
 
     def set_tooltips(self, rmap):
-        for sc, a in iteritems(self.shortcut_actions):
-            if a.isCheckable():
-                continue
+        aliases = {'show_chrome_force': 'show_chrome'}
+
+        def as_text(idx):
+            return index_to_key_sequence(idx).toString(QKeySequence.SequenceFormat.NativeText)
+
+        def set_it(a, sc):
             x = rmap.get(sc)
             if x is not None:
-
-                def as_text(idx):
-                    return index_to_key_sequence(idx).toString(QKeySequence.SequenceFormat.NativeText)
-
                 keys = sorted(filter(None, map(as_text, x)))
                 if keys:
                     a.setToolTip('{} [{}]'.format(a.text(), ', '.join(keys)))
+
+        for sc, a in self.shortcut_actions.items():
+            sc = aliases.get(sc, sc)
+            set_it(a, sc)
+
+        for a, sc in ((self.forward_action, 'forward'), (self.back_action, 'back'), (self.search_action, 'start_search')):
+            set_it(a, sc)
 
     def populate_open_menu(self):
         m = self.open_menu

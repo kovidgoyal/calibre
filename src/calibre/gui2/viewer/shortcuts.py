@@ -6,6 +6,16 @@
 from qt.core import QKeySequence, QMainWindow, Qt
 
 
+key_name_to_qt_name = {
+    'ArrowRight': 'Right',
+    'ArrowLeft': 'Left',
+    'ArrowUp': 'Up',
+    'ArrowDown': 'Down',
+    'PageUp': 'PgUp',
+    'PageDown': 'PgDown',
+}
+
+
 def get_main_window_for(widget):
     p = widget
     while p is not None:
@@ -19,7 +29,8 @@ def index_to_key_sequence(idx):
     for i, x in enumerate(('ALT', 'CTRL', 'META', 'SHIFT')):
         if idx[i] == 'y':
             mods.append(x.capitalize())
-    mods.append(idx[4:])
+    key = idx[4:]
+    mods.append(key_name_to_qt_name.get(key, key))
     return QKeySequence('+'.join(mods))
 
 
