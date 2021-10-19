@@ -10,6 +10,7 @@ from qt.core import (
     QSize, QStackedWidget, QStyledItemDelegate, Qt, QTimer, QTreeWidget,
     QTreeWidgetItem, QVBoxLayout, QWidget, pyqtSignal
 )
+from time import monotonic
 
 from calibre.ebooks.oeb.polish.toc import commit_toc, get_toc
 from calibre.gui2 import error_dialog, make_view_use_window_background
@@ -26,6 +27,7 @@ class TOCEditor(QDialog):
 
     def __init__(self, title=None, parent=None):
         QDialog.__init__(self, parent)
+        self.last_reject_at = self.last_accept_at = -1000
 
         t = title or current_container().mi.title
         self.book_title = t
@@ -64,6 +66,9 @@ class TOCEditor(QDialog):
         self.stacks.setCurrentIndex(1)
 
     def accept(self):
+        if monotonic() - self.last_accept_at < 1:
+            return
+        self.last_accept_at = monotonic()
         if self.stacks.currentIndex() == 1:
             self.toc_view.update_item(*self.item_edit.result)
             tprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
@@ -87,6 +92,9 @@ class TOCEditor(QDialog):
     def reject(self):
         if not self.bb.isEnabled():
             return
+        if monotonic() - self.last_reject_at < 1:
+            return
+        self.last_reject_at = monotonic()
         if self.stacks.currentIndex() == 1:
             tprefs['toc_edit_splitter_state'] = bytearray(self.item_edit.splitter.saveState())
             self.stacks.setCurrentIndex(0)
