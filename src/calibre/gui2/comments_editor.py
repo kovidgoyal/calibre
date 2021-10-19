@@ -260,6 +260,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
 
         def r(name, icon, text, checkable=False, shortcut=None):
             ac = QAction(QIcon(I(icon + '.png')), text, self)
+            ac.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut)
             if checkable:
                 ac.setCheckable(checkable)
             setattr(self, 'action_'+name, ac)
