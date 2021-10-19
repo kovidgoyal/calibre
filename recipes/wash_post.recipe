@@ -32,6 +32,7 @@ class TheWashingtonPost(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name=['h1', 'figure']),
+        dict(attrs={'data-qa': 'lede-art'}),
         classes('byline article-body'),
     ]
     remove_tags = [
