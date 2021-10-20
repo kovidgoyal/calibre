@@ -443,11 +443,11 @@ class RenderManager:
         del self.workers
         try:
             rmtree(self.tdir)
-        except EnvironmentError:
+        except OSError:
             time.sleep(0.1)
             try:
                 rmtree(self.tdir)
-            except EnvironmentError:
+            except OSError:
                 pass
         del self.tdir
 
@@ -764,8 +764,7 @@ def get_stored_annotations(container, bookmark_data):
         return
     if raw.startswith(EPUB_FILE_TYPE_MAGIC):
         raw = raw[len(EPUB_FILE_TYPE_MAGIC):].replace(b'\n', b'')
-        for annot in json_loads(from_base64_bytes(raw)):
-            yield annot
+        yield from json_loads(from_base64_bytes(raw))
         return
 
     from calibre.ebooks.oeb.iterator.bookmarks import parse_bookmarks

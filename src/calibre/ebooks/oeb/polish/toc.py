@@ -65,8 +65,7 @@ class TOC:
         self.parent = None
 
     def __iter__(self):
-        for c in self.children:
-            yield c
+        yield from self.children
 
     def __len__(self):
         return len(self.children)
@@ -78,8 +77,7 @@ class TOC:
                 yield child
             else:
                 yield level, child
-            for gc in child.iterdescendants(level=gc_level):
-                yield gc
+            yield from child.iterdescendants(level=gc_level)
 
     def remove_duplicates(self, only_text=True):
         seen = set()

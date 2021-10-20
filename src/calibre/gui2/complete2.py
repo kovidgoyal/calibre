@@ -458,7 +458,7 @@ class EditWithComplete(EnComboBox):
         self.lineEdit().set_add_separator(what)
 
     def show_initial_value(self, what):
-        what = str(what) if what else u''
+        what = str(what) if what else ''
         self.setText(what)
         self.lineEdit().selectAll()
 
@@ -532,7 +532,7 @@ if __name__ == '__main__':
     le = EditWithComplete(d)
     d.layout().addWidget(le)
     items = ['one', 'otwo', 'othree', 'ooone', 'ootwo', 'other', 'odd', 'over', 'orc', 'oven', 'owe',
-        'oothree', 'a1', 'a2',u'Edgas', u'Èdgar', u'Édgaq', u'Edgar', u'Édgar']
+        'oothree', 'a1', 'a2','Edgas', 'Èdgar', 'Édgaq', 'Edgar', 'Édgar']
     le.update_items_cache(items)
     le.show_initial_value('')
     d.exec_()

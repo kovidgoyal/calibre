@@ -383,7 +383,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             elif op == 'remove':
                 if not confirm('<p>' +
                     _('Are you sure you want to remove the plugin: %s?')%
-                    '<b>{0}</b>'.format(plugin.name),
+                    '<b>{}</b>'.format(plugin.name),
                     'confirm_plugin_removal_msg', parent=self):
                     return
 

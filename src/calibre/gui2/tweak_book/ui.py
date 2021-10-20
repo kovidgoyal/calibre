@@ -203,7 +203,7 @@ class Central(QStackedWidget):  # {{{
         self.search_panel.pre_fill(text)
 
     def eventFilter(self, obj, event):
-        base = super(Central, self)
+        base = super()
         if obj is not self.editor_tabs.tabBar() or event.type() != QEvent.Type.MouseButtonPress or event.button() not in (
                 Qt.MouseButton.RightButton, Qt.MouseButton.MidButton):
             return base.eventFilter(obj, event)
@@ -870,7 +870,7 @@ class Main(MainWindow):
 
     def resizeEvent(self, ev):
         self.blocking_job.resize(ev.size())
-        return super(Main, self).resizeEvent(ev)
+        return super().resizeEvent(ev)
 
     def update_window_title(self):
         cc = current_container()

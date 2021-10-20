@@ -70,14 +70,14 @@ def expire_old_jobs():
 def safe_delete_file(path):
     try:
         os.remove(path)
-    except EnvironmentError:
+    except OSError:
         pass
 
 
 def safe_delete_tree(path):
     try:
         shutil.rmtree(path, ignore_errors=True)
-    except EnvironmentError:
+    except OSError:
         pass
 
 

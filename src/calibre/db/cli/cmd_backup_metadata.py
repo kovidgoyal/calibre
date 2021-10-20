@@ -54,7 +54,7 @@ class BackupProgress:
         else:
             self.count += 1
             prints(
-                u'%.1f%% %s - %s' % ((self.count * 100) / float(self.total), book_id,
+                '%.1f%% %s - %s' % ((self.count * 100) / float(self.total), book_id,
                                      getattr(mi, 'title', 'Unknown'))
             )
 

@@ -47,7 +47,7 @@ class SimpleGlyph:
 class CompositeGlyph(SimpleGlyph):
 
     def __init__(self, num_of_countours, raw):
-        super(CompositeGlyph, self).__init__(num_of_countours, raw)
+        super().__init__(num_of_countours, raw)
         self.is_composite = True
 
         flags = MORE_COMPONENTS

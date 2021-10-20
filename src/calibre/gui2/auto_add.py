@@ -106,7 +106,7 @@ class Worker(Thread):
         def safe_mtime(x):
             try:
                 return os.path.getmtime(os.path.join(self.path, x))
-            except EnvironmentError:
+            except OSError:
                 return time.time()
 
         for fname in sorted(files, key=safe_mtime):

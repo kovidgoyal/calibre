@@ -48,10 +48,10 @@ class CheckLibrary:
 
         self.is_case_sensitive = db.is_case_sensitive
 
-        self.all_authors = frozenset([x[1] for x in db.all_authors()])
-        self.all_ids = frozenset([id_ for id_ in db.all_ids()])
+        self.all_authors = frozenset(x[1] for x in db.all_authors())
+        self.all_ids = frozenset(id_ for id_ in db.all_ids())
         self.all_dbpaths = frozenset(self.dbpath(id_) for id_ in self.all_ids)
-        self.all_lc_dbpaths = frozenset([f.lower() for f in self.all_dbpaths])
+        self.all_lc_dbpaths = frozenset(f.lower() for f in self.all_dbpaths)
 
         self.db_id_regexp = re.compile(r'^.* \((\d+)\)$')
 
@@ -91,7 +91,7 @@ class CheckLibrary:
 
     def scan_library(self, name_ignores, extension_ignores):
         self.ignore_names = frozenset(name_ignores)
-        self.ignore_ext = frozenset(['.'+ e for e in extension_ignores])
+        self.ignore_ext = frozenset('.'+ e for e in extension_ignores)
 
         lib = self.src_library_path
         for auth_dir in os.listdir(lib):
@@ -158,8 +158,8 @@ class CheckLibrary:
             path = self.dbpath(id_)
             if not os.path.exists(os.path.join(lib, path)):
                 title_dir = os.path.basename(path)
-                book_formats = frozenset([x for x in
-                            self.db.format_files(id_, index_is_id=True)])
+                book_formats = frozenset(x for x in
+                            self.db.format_files(id_, index_is_id=True))
                 for fmt in book_formats:
                     self.missing_formats.append((title_dir,
                             os.path.join(path, fmt[0]+'.'+fmt[1].lower()), id_))
@@ -180,13 +180,13 @@ class CheckLibrary:
 
     def process_book(self, lib, book_info):
         (db_path, title_dir, book_id) = book_info
-        filenames = frozenset([f for f in os.listdir(os.path.join(lib, db_path))
+        filenames = frozenset(f for f in os.listdir(os.path.join(lib, db_path))
                                if os.path.splitext(f)[1] not in self.ignore_ext or
-                               f == 'cover.jpg'])
+                               f == 'cover.jpg')
         book_id = int(book_id)
         formats = frozenset(filter(self.is_ebook_file, filenames))
-        book_formats = frozenset([x[0]+'.'+x[1].lower() for x in
-                            self.db.format_files(book_id, index_is_id=True)])
+        book_formats = frozenset(x[0]+'.'+x[1].lower() for x in
+                            self.db.format_files(book_id, index_is_id=True))
 
         if self.is_case_sensitive:
             unknowns = frozenset(filenames-formats-NORMALS)
@@ -219,10 +219,10 @@ class CheckLibrary:
                         fn[ff] = f
                 return fn
 
-            filenames_lc = frozenset([f.lower() for f in filenames])
-            formats_lc = frozenset([f.lower() for f in formats])
+            filenames_lc = frozenset(f.lower() for f in filenames)
+            formats_lc = frozenset(f.lower() for f in formats)
             unknowns = frozenset(filenames_lc-formats_lc-NORMALS)
-            book_formats_lc = frozenset([f.lower() for f in book_formats])
+            book_formats_lc = frozenset(f.lower() for f in book_formats)
             missing = book_formats_lc - formats_lc
 
             # Check: any books that aren't formats or normally there?

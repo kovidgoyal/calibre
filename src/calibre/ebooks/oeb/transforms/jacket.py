@@ -188,7 +188,7 @@ class Series(str):
             combined = _('{1} of <em>{0}</em>').format(
                 escape(series), escape(fmt_sidx(series_index, use_roman=False)))
         else:
-            combined = roman = escape(series or u'')
+            combined = roman = escape(series or '')
         s = str.__new__(self, combined)
         s.roman = roman
         s.name = escape(series or '')

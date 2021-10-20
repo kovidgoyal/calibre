@@ -1207,7 +1207,7 @@ class BooksView(QTableView):  # {{{
     def selectionCommand(self, index, event):
         if event and event.type() == QEvent.Type.KeyPress and event.key() in (Qt.Key.Key_Home, Qt.Key.Key_End) and event.modifiers() & Qt.Modifier.CTRL:
             return QItemSelectionModel.SelectionFlag.ClearAndSelect | QItemSelectionModel.SelectionFlag.Rows
-        return super(BooksView, self).selectionCommand(index, event)
+        return super().selectionCommand(index, event)
 
     def keyPressEvent(self, ev):
         if handle_enter_press(self, ev):
@@ -1309,8 +1309,8 @@ class BooksView(QTableView):  # {{{
         ci = self.currentIndex()
         if not ci.isValid():
             return None
-        selected_rows = frozenset([i.row() for i in self.selectedIndexes() if
-            i.isValid()])
+        selected_rows = frozenset(i.row() for i in self.selectedIndexes() if
+            i.isValid())
         column = ci.column()
 
         for i in range(ci.row()+1, self.row_count()):

@@ -169,7 +169,7 @@ def build_index(rd, books, num, search, sort, order, start, total, url_base, fie
                     href=ctx.url_for('/legacy/get', what=fmt, book_id=book.id, library_id=library_id, filename=book_filename(rd, book.id, book, fmt))
                 ),
                 class_='button')
-            s.tail = u''
+            s.tail = ''
             data.append(s)
 
         div = E.div(class_='data-container')

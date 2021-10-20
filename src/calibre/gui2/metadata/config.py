@@ -43,7 +43,7 @@ class FieldsModel(FM):  # {{{
 
     def restore_defaults(self):
         self.beginResetModel()
-        self.overrides = dict([(f, self.state(f, True)) for f in self.fields])
+        self.overrides = {f: self.state(f, True) for f in self.fields}
         self.endResetModel()
 
     def commit(self):
@@ -112,7 +112,7 @@ class ConfigWidget(QWidget):
             items.sort(key=lambda k_v: sort_key(k_v[1]))
             for key, label in items:
                 widget.addItem(label, (key))
-            idx = widget.findData((val))
+            idx = widget.findData(val)
             widget.setCurrentIndex(idx)
         widget.opt = opt
         widget.setToolTip(textwrap.fill(opt.desc))

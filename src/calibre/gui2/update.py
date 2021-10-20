@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -138,11 +136,11 @@ class UpdateNotification(QDialog):
         ver = calibre_version
         if ver.endswith('.0'):
             ver = ver[:-2]
-        self.label = QLabel(('<p>'+ _(
+        self.label = QLabel('<p>'+ _(
             'New version <b>{ver}</b> of {app} is available for download. '
             'See the <a href="{url}">new features</a>.').format(
                 url=localize_website_link('https://calibre-ebook.com/whats-new'),
-                app=__appname__, ver=ver)))
+                app=__appname__, ver=ver))
         self.label.setOpenExternalLinks(True)
         self.label.setWordWrap(True)
         self.setWindowTitle(_('Update available!'))

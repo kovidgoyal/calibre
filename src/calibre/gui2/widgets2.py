@@ -539,7 +539,7 @@ class HTMLDisplay(QTextBrowser):
             try:
                 with lopen(path, 'rb') as f:
                     data = f.read()
-            except EnvironmentError:
+            except OSError:
                 if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
                     return QByteArray(bytearray.fromhex(
                         '89504e470d0a1a0a0000000d49484452'

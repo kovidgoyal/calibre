@@ -23,7 +23,7 @@ HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
 ALL_ENTITIES = HTML_ENTITTIES | XML_ENTITIES
 
-replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted((HTML_ENTITTIES - XML_ENTITIES))))
+replace_pat = re.compile('&(%s);' % '|'.join(re.escape(x) for x in sorted(HTML_ENTITTIES - XML_ENTITIES)))
 mismatch_pat = re.compile(r'tag mismatch:.+?line (\d+).+?line \d+')
 
 

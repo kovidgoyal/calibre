@@ -43,7 +43,7 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'page-break-after': 'auto', 'page-break-before': 'auto',
             'page-break-inside': 'auto', 'pause-after': 0, 'pause-before': 0,
             'pitch': 'medium', 'pitch-range': '50', 'play-during': 'auto',
-            'position': 'static', 'quotes': u"'“' '”' '‘' '’'", 'richness':
+            'position': 'static', 'quotes': "'“' '”' '‘' '’'", 'richness':
             '50', 'right': 'auto', 'speak': 'normal', 'speak-header': 'once',
             'speak-numeral': 'continuous', 'speak-punctuation': 'none',
             'speech-rate': 'medium', 'stress': '50', 'table-layout': 'auto',

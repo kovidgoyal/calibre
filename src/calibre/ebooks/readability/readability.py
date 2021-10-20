@@ -339,13 +339,11 @@ class Document:
 
     def tags(self, node, *tag_names):
         for tag_name in tag_names:
-            for e in node.findall('.//%s' % tag_name):
-                yield e
+            yield from node.findall('.//%s' % tag_name)
 
     def reverse_tags(self, node, *tag_names):
         for tag_name in tag_names:
-            for e in reversed(node.findall('.//%s' % tag_name)):
-                yield e
+            yield from reversed(node.findall('.//%s' % tag_name))
 
     def sanitize(self, node, candidates):
         MIN_LEN = self.options.get('min_text_length', self.TEXT_LENGTH_THRESHOLD)

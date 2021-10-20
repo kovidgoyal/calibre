@@ -130,7 +130,7 @@ def get_ranges(headervalue, content_length):  # {{{
         return None
 
     for brange in byteranges.split(","):
-        start, stop = [x.strip() for x in brange.split("-", 1)]
+        start, stop = (x.strip() for x in brange.split("-", 1))
         if start:
             if not stop:
                 stop = content_length - 1
@@ -402,7 +402,7 @@ class HTTPConnection(HTTPRequest):
                 # Something bad happened, was the file modified on disk by
                 # another process?
                 self.use_sendfile = self.ready = False
-                raise IOError('sendfile() failed to write any bytes to the socket')
+                raise OSError('sendfile() failed to write any bytes to the socket')
         else:
             data = buf.read(min(limit, self.send_bufsize))
             sent = self.send(data)

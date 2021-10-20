@@ -384,7 +384,7 @@ class SavedSearchBox(QComboBox):  # {{{
             self.search_box.clear()
             self.setEditText(qname)
             return
-        self.search_box.set_search_string(u'search:"%s"' % qname, emit_changed=False)
+        self.search_box.set_search_string('search:"%s"' % qname, emit_changed=False)
         self.setEditText(qname)
         self.setToolTip(db.saved_search_lookup(qname))
 

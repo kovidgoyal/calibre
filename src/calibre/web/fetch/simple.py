@@ -115,7 +115,7 @@ def save_soup(soup, target):
 class response(bytes):
 
     def __new__(cls, *args):
-        obj = super(response, cls).__new__(cls, *args)
+        obj = super().__new__(cls, *args)
         obj.newurl = None
         return obj
 

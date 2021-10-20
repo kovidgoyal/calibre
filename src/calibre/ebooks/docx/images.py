@@ -359,8 +359,6 @@ class Images:
             os.mkdir(dest)
         self.dest_dir, self.docx = dest, docx
         if elem.tag.endswith('}drawing'):
-            for tag in self.drawing_to_html(elem, page):
-                yield tag
+            yield from self.drawing_to_html(elem, page)
         else:
-            for tag in self.pict_to_html(elem, page):
-                yield tag
+            yield from self.pict_to_html(elem, page)

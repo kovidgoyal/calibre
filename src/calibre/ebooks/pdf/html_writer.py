@@ -294,7 +294,7 @@ class RenderManager(QObject):
     def signal_received(self, read_fd):
         try:
             os.read(read_fd, 1024)
-        except EnvironmentError:
+        except OSError:
             return
         QApplication.instance().exit(KILL_SIGNAL)
 

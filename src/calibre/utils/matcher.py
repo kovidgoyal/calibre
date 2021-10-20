@@ -264,8 +264,7 @@ class CScorer:
 
     def __call__(self, query):
         scores, positions = self.m.calculate_scores(query)
-        for score, pos in zip(scores, positions):
-            yield score, pos
+        yield from zip(scores, positions)
 
 
 def test(return_tests=False):

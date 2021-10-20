@@ -105,7 +105,7 @@ class PluginWidget(QWidget,Ui_Form):
                                'name':_('Read book'),
                                'field':_('Tags'),
                                'pattern':'+',
-                               'prefix':u'\u2713'},
+                               'prefix':'\u2713'},
                               {'ordinal':1,
                                'enabled':True,
                                'name':_('Wishlist item'),
@@ -241,7 +241,7 @@ class PluginWidget(QWidget,Ui_Form):
     def fetch_eligible_custom_fields(self):
         self.all_custom_fields = self.db.custom_field_keys()
         custom_fields = {}
-        custom_fields[_('Tags')] = {'field':'tag', 'datatype':u'text'}
+        custom_fields[_('Tags')] = {'field':'tag', 'datatype':'text'}
         for custom_field in self.all_custom_fields:
             field_md = self.db.metadata_for_field(custom_field)
             if field_md['datatype'] in ['bool','composite','datetime','enumeration','text']:
@@ -1191,7 +1191,7 @@ class ExclusionRules(GenericRulesTable):
                 'PATTERN':  {'ordinal': 3, 'name': _('Value')},}
 
     def __init__(self, parent, parent_gb_hl, object_name, rules):
-        super(ExclusionRules, self).__init__(parent, parent_gb_hl, object_name, rules)
+        super().__init__(parent, parent_gb_hl, object_name, rules)
         self.setObjectName("exclusion_rules_table")
         self._init_table_widget()
         self._initialize()
@@ -1284,7 +1284,7 @@ class PrefixRules(GenericRulesTable):
                 'PATTERN':{'ordinal': 4, 'name': _('Value')},}
 
     def __init__(self, parent, parent_gb_hl, object_name, rules):
-        super(PrefixRules, self).__init__(parent, parent_gb_hl, object_name, rules)
+        super().__init__(parent, parent_gb_hl, object_name, rules)
         self.setObjectName("prefix_rules_table")
         self._init_table_widget()
         self._initialize()

@@ -1,5 +1,3 @@
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -372,7 +370,7 @@ def main(args=sys.argv):
     parser, plumber = create_option_parser(args, log)
     opts, leftover_args = parser.parse_args(args)
     if len(leftover_args) > 3:
-        log.error('Extra arguments not understood:', u', '.join(leftover_args[3:]))
+        log.error('Extra arguments not understood:', ', '.join(leftover_args[3:]))
         return 1
     for x in ('read_metadata_from_opf', 'cover'):
         if getattr(opts, x, None) is not None:

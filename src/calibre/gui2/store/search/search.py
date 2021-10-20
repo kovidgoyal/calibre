@@ -185,9 +185,9 @@ class SearchDialog(QDialog, Ui_Dialog):
         # Don't start a search if there is nothing to search for.
         query = []
         if self.search_title.text():
-            query.append(u'title2:"~%s"' % str(self.search_title.text()).replace('"', ' '))
+            query.append('title2:"~%s"' % str(self.search_title.text()).replace('"', ' '))
         if self.search_author.text():
-            query.append(u'author2:"%s"' % str(self.search_author.text()).replace('"', ' '))
+            query.append('author2:"%s"' % str(self.search_author.text()).replace('"', ' '))
         if self.search_edit.text():
             query.append(str(self.search_edit.text()))
         query = " ".join(query)

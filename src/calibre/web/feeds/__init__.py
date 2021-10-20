@@ -172,8 +172,8 @@ class Feed:
             if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
                 self.articles.append(article)
             else:
-                t = strftime(u'%a, %d %b, %Y %H:%M', article.localtime.timetuple())
-                self.logger.debug(u'Skipping article %s (%s) from feed %s as it is too old.'%
+                t = strftime('%a, %d %b, %Y %H:%M', article.localtime.timetuple())
+                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%
                         (title, t, self.title))
             d = item.get('date', '')
             article.formatted_date = d

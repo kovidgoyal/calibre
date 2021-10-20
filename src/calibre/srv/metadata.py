@@ -476,8 +476,7 @@ def process_category_node(
 def iternode_descendants(node):
     for child in node['children']:
         yield child
-        for x in iternode_descendants(child):
-            yield x
+        yield from iternode_descendants(child)
 
 
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map):

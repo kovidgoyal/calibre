@@ -262,7 +262,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 
 
 def choose_files(window, name, title,
-                 filters=(), all_files=True, select_only_single_file=False, default_dir=u'~'):
+                 filters=(), all_files=True, select_only_single_file=False, default_dir='~'):
     name, initial_folder = get_initial_folder(name, title, default_dir)
     file_types = list(filters)
     if all_files:

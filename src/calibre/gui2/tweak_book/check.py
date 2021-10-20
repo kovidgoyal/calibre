@@ -48,7 +48,7 @@ def prefix_for_level(level):
 class Delegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
-        super(Delegate, self).initStyleOption(option, index)
+        super().initStyleOption(option, index)
         if index.row() == self.parent().currentRow():
             option.font.setBold(True)
             option.backgroundBrush = self.parent().palette().brush(QPalette.ColorRole.AlternateBase)
@@ -244,7 +244,7 @@ class Check(QSplitter):
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.current_item_activated()
-        return super(Check, self).keyPressEvent(ev)
+        return super().keyPressEvent(ev)
 
     def clear(self):
         self.items.clear()

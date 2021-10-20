@@ -70,12 +70,10 @@ def iterrules(container, sheet_name, rules=None, media_rule_ok=media_allowed, ru
                     else:
                         csheet = container.parsed(name)
                         if isinstance(csheet, CSSStyleSheet):
-                            for cr in riter(name, rules=csheet):
-                                yield cr
+                            yield from riter(name, rules=csheet)
         elif rule.type == CSSRule.MEDIA_RULE:
             if media_rule_ok(rule.media):
-                for cr in riter(sheet_name, rules=rule.cssRules):
-                    yield cr
+                yield from riter(sheet_name, rules=rule.cssRules)
 
         elif rule_type is None or rule.type == rule_type:
             num = next(rule_index_counter)

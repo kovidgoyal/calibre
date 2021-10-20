@@ -1,5 +1,3 @@
-
-
 """ elements.py -- replacements and helpers for ElementTree """
 
 from polyglot.builtins import string_or_bytes

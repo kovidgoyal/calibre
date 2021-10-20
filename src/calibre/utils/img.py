@@ -570,7 +570,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
                 outw.join(60.0), inw.join(60.0)
             try:
                 sz = os.path.getsize(outfile)
-            except EnvironmentError:
+            except OSError:
                 sz = 0
             if sz < 1:
                 return '%s returned a zero size image' % cmd[0]
@@ -579,12 +579,12 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     finally:
         try:
             os.remove(outfile)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
         try:
             os.remove(outfile + '.bak')  # optipng creates these files
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.ENOENT:
                 raise
 

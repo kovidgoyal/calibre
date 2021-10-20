@@ -1,5 +1,3 @@
-
-
 __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
@@ -141,7 +139,7 @@ def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
             last_error, last_traceback = e, traceback.format_exc()
     if last_error is not None:
         print(last_traceback)
-        raise IOError('Failed to send mail: '+repr(last_error))
+        raise OSError('Failed to send mail: '+repr(last_error))
 
 
 def get_smtp_class(use_ssl=False, debuglevel=0):

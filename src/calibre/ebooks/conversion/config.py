@@ -70,7 +70,7 @@ class GuiRecommendations(dict):
 
     def __new__(cls, *args):
         dict.__new__(cls)
-        obj = super(GuiRecommendations, cls).__new__(cls, *args)
+        obj = super().__new__(cls, *args)
         obj.disabled_options = set()
         return obj
 

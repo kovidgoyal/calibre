@@ -212,7 +212,7 @@ class Stream(BytesIO):
         self.write(EOL)
 
     def write(self, raw):
-        super(Stream, self).write(raw if isinstance(raw, bytes) else
+        super().write(raw if isinstance(raw, bytes) else
                                   raw.encode('ascii'))
 
     def write_raw(self, raw):

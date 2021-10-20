@@ -48,7 +48,7 @@ def split_lines(chunk, length=80):
 def save_annots_to_epub(path, serialized_annots):
     try:
         zf = open(path, 'r+b')
-    except IOError:
+    except OSError:
         return
     with zf:
         serialized_annots = EPUB_FILE_TYPE_MAGIC + b'\n'.join(split_lines(as_base64_bytes(serialized_annots)))

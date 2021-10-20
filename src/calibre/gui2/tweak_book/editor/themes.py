@@ -590,11 +590,11 @@ class ThemeEditor(Dialog):
         from calibre.gui2.tweak_book.editor.text import TextEdit
         self.preview = p = TextEdit(self, expected_geometry=(73, 50))
         p.load_text(HELP_TEXT.format(
-                *['<b>%s</b>' % x for x in (
+                *('<b>%s</b>' % x for x in (
                     'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
                     'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter',
                     'Error', 'SpellError', 'Comment'
-                )]
+                ))
             ))
         p.setMaximumWidth(p.size_hint.width() + 5)
         s.setMinimumWidth(600)

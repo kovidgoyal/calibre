@@ -176,9 +176,9 @@ class Rule:  # {{{
                             "format_date(today(), 'yyyy-MM-dd')), '1', '', ''), '')")
                      %(col, val, col))
         if action == 'is set':
-            return (("test(field('%s'), '1', '')"%(col)))
+            return ("test(field('%s'), '1', '')"%(col))
         if action == 'is not set':
-            return (("test(field('%s'), '', '1')"%(col)))
+            return ("test(field('%s'), '', '1')"%(col))
         lt, eq, gt = {
                 'eq': ('', '1', ''),
                 'lt': ('1', '', ''),

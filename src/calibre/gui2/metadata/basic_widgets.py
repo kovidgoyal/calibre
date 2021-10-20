@@ -659,7 +659,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
     data_changed = pyqtSignal()
 
     def __init__(self, parent, series_edit):
-        super(SeriesIndexEdit, self).__init__(parent)
+        super().__init__(parent)
         self.valueChanged.connect(self.data_changed)
         self.dialog = parent
         self.db = self.original_series_name = None
@@ -1195,7 +1195,7 @@ class Cover(ImageView):  # {{{
             try:
                 with open(_file, "rb") as f:
                     cover = f.read()
-            except IOError as e:
+            except OSError as e:
                 d = error_dialog(
                         self, _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
@@ -1356,7 +1356,7 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
     data_changed = pyqtSignal()
 
     def __init__(self, parent):
-        super(RatingEdit, self).__init__(parent)
+        super().__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.currentTextChanged.connect(self.data_changed)
@@ -1850,7 +1850,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
     data_changed = pyqtSignal()
 
     def __init__(self, parent, create_clear_button=True):
-        super(DateEdit, self).__init__(parent)
+        super().__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
         self.dateTimeChanged.connect(self.data_changed)
@@ -1902,7 +1902,7 @@ class DateEdit(make_undoable(DateTimeEdit), ToMetadataMixin):
         elif ev.key() == Qt.Key.Key_Tab and is_date_undefined(self.current_val):
             ev.ignore()
         else:
-            return super(DateEdit, self).keyPressEvent(ev)
+            return super().keyPressEvent(ev)
 
 
 class PubdateEdit(DateEdit):

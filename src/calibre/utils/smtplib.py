@@ -329,7 +329,7 @@ class SMTP:
                 try:
                     port = int(port)
                 except ValueError:
-                    raise socket.error("nonnumeric port")
+                    raise OSError("nonnumeric port")
         if not port:
             port = self.default_port
         if self.debuglevel > 0:
@@ -349,7 +349,7 @@ class SMTP:
         if hasattr(self, 'sock') and self.sock:
             try:
                 self.sock.sendall(str)
-            except socket.error:
+            except OSError:
                 self.close()
                 raise SMTPServerDisconnected('Server not connected')
         else:
@@ -382,7 +382,7 @@ class SMTP:
         while True:
             try:
                 line = self.file.readline(_MAXLINE + 1)
-            except socket.error as e:
+            except OSError as e:
                 self.close()
                 raise SMTPServerDisconnected("Connection unexpectedly closed: " + str(e))
             if line == '':
@@ -868,7 +868,7 @@ class LMTP(SMTP):
         try:
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self.sock.connect(host)
-        except socket.error:
+        except OSError:
             if self.debuglevel > 0:
                 self.debug('connect fail:', host)
             if self.sock:

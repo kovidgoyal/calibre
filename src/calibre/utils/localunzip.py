@@ -223,7 +223,7 @@ def _extractall(f, path=None, file_info=None):
             dest = os.path.join(path, *parts)
             try:
                 df = open(dest, 'wb')
-            except EnvironmentError:
+            except OSError:
                 if is_reserved_filename(os.path.basename(dest)):
                     raise ValueError('This ZIP file contains a file with a reserved filename'
                             ' that cannot be processed on Windows: {}'.format(os.path.basename(dest)))

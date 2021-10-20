@@ -199,7 +199,7 @@ class CustomColumns:
             else:
                 is_category = False
             is_m = v['multiple_seps']
-            tn = 'custom_column_{0}'.format(v['num'])
+            tn = 'custom_column_{}'.format(v['num'])
             self.field_metadata.add_custom_field(label=v['label'],
                     table=tn, column='value', datatype=v['datatype'],
                     colnum=v['num'], name=v['name'], display=v['display'],

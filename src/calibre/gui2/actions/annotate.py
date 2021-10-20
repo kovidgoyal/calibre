@@ -155,7 +155,7 @@ class FetchAnnotationsAction(InterfaceAction):
             entries = []
             for id_, tb in iteritems(errors):
                 title = id_
-                if isinstance(id_, type(1)):
+                if isinstance(id_, int):
                     title = db.title(id_, index_is_id=True)
                 entries.extend([title, tb, ''])
             error_dialog(self.gui, _('Some errors'),

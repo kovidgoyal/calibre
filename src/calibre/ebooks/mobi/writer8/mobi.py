@@ -199,12 +199,12 @@ class MOBIHeader(Header):  # {{{
     def __init__(self, file_version=8):
         self.DEFINITION = self.DEFINITION.format(file_version=file_version,
                 record_size=RECORD_SIZE)
-        super(MOBIHeader, self).__init__()
+        super().__init__()
 
     def format_value(self, name, val):
         if name == 'compression':
             val = PALMDOC if val else UNCOMPRESSED
-        return super(MOBIHeader, self).format_value(name, val)
+        return super().format_value(name, val)
 
 # }}}
 

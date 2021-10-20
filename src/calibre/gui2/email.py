@@ -308,7 +308,7 @@ class EmailMixin:  # {{{
         pass
 
     def send_multiple_by_mail(self, recipients, delete_from_library):
-        ids = set(self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows())
+        ids = {self.library_view.model().id(r) for r in self.library_view.selectionModel().selectedRows()}
         if not ids:
             return
         db = self.current_db

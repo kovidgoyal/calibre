@@ -141,7 +141,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             else:
                 coltype = self.column_desc[dt]
         coltype_info = (coltype if oldkey is None else
-                          ' ' + _('(lookup name was {0}) {1}'.format(oldkey, coltype)))
+                          ' ' + _('(lookup name was {}) {}'.format(oldkey, coltype)))
 
         item = QTableWidgetItem(coltype_info)
         item.setFlags(flags)
@@ -251,7 +251,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         def col_pos(x):
             return config_cols.index(x) if x in config_cols else sys.maxsize
         positions = {}
-        for i, col in enumerate((sorted(model.column_map, key=col_pos))):
+        for i, col in enumerate(sorted(model.column_map, key=col_pos)):
             positions[col] = i
         state = {'hidden_columns': hidden_cols, 'column_positions':positions}
         self.gui.library_view.apply_state(state)

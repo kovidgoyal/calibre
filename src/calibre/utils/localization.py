@@ -522,7 +522,7 @@ def user_manual_stats():
         import json
         try:
             stats = json.loads(P('user-manual-translation-stats.json', allow_user_override=False, data=True))
-        except EnvironmentError:
+        except OSError:
             stats = {}
         user_manual_stats.stats = stats
     return stats
@@ -549,7 +549,7 @@ def website_languages():
     if stats is None:
         try:
             stats = frozenset(P('localization/website-languages.txt', allow_user_override=False, data=True).decode('utf-8').split())
-        except EnvironmentError:
+        except OSError:
             stats = frozenset()
         website_languages.stats = stats
     return stats

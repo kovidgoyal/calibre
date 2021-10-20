@@ -79,8 +79,7 @@ class Sfnt:
 
     def __iter__(self):
         '''Iterate over the table tags in order.'''
-        for x in sorted(self.tables):
-            yield x
+        yield from sorted(self.tables)
         # Although the optimal order is not alphabetical, the OTF spec says
         # they should be alphabetical, so we stick with that. See
         # http://partners.adobe.com/public/developer/opentype/index_recs.html

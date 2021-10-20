@@ -617,7 +617,7 @@ class RuleEditor(QDialog):  # {{{
     def remove_image(self, name):
         try:
             os.remove(os.path.join(self.icon_folder, name))
-        except EnvironmentError:
+        except OSError:
             pass
         else:
             self.populate_icon_filenames()

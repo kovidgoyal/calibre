@@ -1139,7 +1139,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             from calibre.gui2.ui import get_gui
             try:
                 return self._set_data(index, value)
-            except (IOError, OSError) as err:
+            except OSError as err:
                 import traceback
                 if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                     fname = getattr(err, 'filename', None)

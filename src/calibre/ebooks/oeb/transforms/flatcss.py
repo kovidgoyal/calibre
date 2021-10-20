@@ -242,7 +242,7 @@ class CSSFlattener:
 
         for i, font in enumerate(faces):
             ext = 'otf' if font['is_otf'] else 'ttf'
-            fid, href = self.oeb.manifest.generate(id=u'font',
+            fid, href = self.oeb.manifest.generate(id='font',
                 href='fonts/%s.%s'%(ascii_filename(font['full_name']).replace(' ', '-'), ext))
             item = self.oeb.manifest.add(fid, href,
                     guess_type('dummy.'+ext)[0],
@@ -529,7 +529,7 @@ class CSSFlattener:
 
             if cssdict:
                 items = sorted(iteritems(cssdict))
-                css = ';\n'.join(u'%s: %s' % (key, val) for key, val in items)
+                css = ';\n'.join('%s: %s' % (key, val) for key, val in items)
                 classes = node.get('class', '').strip() or 'calibre'
                 classes_list = classes.split()
                 # lower() because otherwise if the document uses the same class

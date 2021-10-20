@@ -804,8 +804,7 @@ class Metadata:
         return item
 
     def iterkeys(self):
-        for key in self.items:
-            yield key
+        yield from self.items
     __iter__ = iterkeys
 
     def clear(self, key):
@@ -1216,8 +1215,7 @@ class Manifest:
         return id, str(href)
 
     def __iter__(self):
-        for item in self.items:
-            yield item
+        yield from self.items
 
     def __len__(self):
         return len(self.items)
@@ -1327,8 +1325,7 @@ class Spine:
         return -1
 
     def __iter__(self):
-        for item in self.items:
-            yield item
+        yield from self.items
 
     def __getitem__(self, index):
         return self.items[index]
@@ -1441,16 +1438,14 @@ class Guide:
             self.remove(r)
 
     def iterkeys(self):
-        for type in self.refs:
-            yield type
+        yield from self.refs
     __iter__ = iterkeys
 
     def values(self):
         return sorted(itervalues(self.refs), key=lambda ref: ref.ORDER.get(ref.type, 10000))
 
     def items(self):
-        for type, ref in self.refs.items():
-            yield type, ref
+        yield from self.refs.items()
 
     def __getitem__(self, key):
         return self.refs[key]
@@ -1539,8 +1534,7 @@ class TOC:
         """Iterate over this node and all descendants in depth-first order."""
         yield self
         for child in self.nodes:
-            for node in child.iter():
-                yield node
+            yield from child.iter()
 
     def count(self):
         return len(list(self.iter())) - 1
@@ -1568,17 +1562,14 @@ class TOC:
             for child in self.nodes:
                 yield child
             for child in self.nodes:
-                for node in child.iterdescendants(breadth_first=True):
-                    yield node
+                yield from child.iterdescendants(breadth_first=True)
         else:
             for child in self.nodes:
-                for node in child.iter():
-                    yield node
+                yield from child.iter()
 
     def __iter__(self):
         """Iterate over all immediate child nodes."""
-        for node in self.nodes:
-            yield node
+        yield from self.nodes
 
     def __getitem__(self, index):
         return self.nodes[index]
@@ -1716,8 +1707,7 @@ class PageList:
         return len(self.pages)
 
     def __iter__(self):
-        for page in self.pages:
-            yield page
+        yield from self.pages
 
     def __getitem__(self, index):
         return self.pages[index]

@@ -118,7 +118,7 @@ def _get_cache_dir():
     confcache = os.path.join(config_dir, 'caches')
     try:
         os.makedirs(confcache)
-    except EnvironmentError as err:
+    except OSError as err:
         if err.errno != errno.EEXIST:
             raise
     if isportable:
@@ -129,7 +129,7 @@ def _get_cache_dir():
         try:
             os.makedirs(ans)
             return ans
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno == errno.EEXIST:
                 return ans
 
@@ -151,7 +151,7 @@ def _get_cache_dir():
                 candidate = confcache
     try:
         os.makedirs(candidate)
-    except EnvironmentError as err:
+    except OSError as err:
         if err.errno != errno.EEXIST:
             candidate = confcache
     return candidate

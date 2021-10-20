@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -114,8 +112,8 @@ class DaysOfWeek(Base):
 
     @property
     def schedule(self):
-        days_of_week = tuple([i for i, d in enumerate(self.days) if
-            d.isChecked()])
+        days_of_week = tuple(i for i, d in enumerate(self.days) if
+            d.isChecked())
         t = self.time.time()
         hour, minute = t.hour(), t.minute()
         return 'days_of_week', (days_of_week, int(hour), int(minute))

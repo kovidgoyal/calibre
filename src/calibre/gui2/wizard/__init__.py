@@ -358,7 +358,7 @@ class Android(Device):
     @classmethod
     def commit(cls):
         from calibre.customize.ui import device_plugins
-        super(Android, cls).commit()
+        super().commit()
         for plugin in device_plugins(include_disabled=True):
             if hasattr(plugin, 'configure_for_generic_epub_app'):
                 plugin.configure_for_generic_epub_app()

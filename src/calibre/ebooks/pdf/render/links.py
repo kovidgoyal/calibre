@@ -27,7 +27,7 @@ class Destination(Array):
                 q -= 1
         if q != pnum:
             current_log().warn('Could not find page {} for link destination, using page {} instead'.format(pnum, q))
-        super(Destination, self).__init__([
+        super().__init__([
             pref, Name('XYZ'), pos['left'], pos['top'], None
         ])
 

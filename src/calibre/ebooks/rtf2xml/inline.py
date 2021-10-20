@@ -1,4 +1,3 @@
-
 import sys, os
 
 from calibre.ebooks.rtf2xml import copy

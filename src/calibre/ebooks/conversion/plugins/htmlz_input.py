@@ -26,7 +26,7 @@ class HTMLZInput(InputFormatPlugin):
         from calibre.utils.zipfile import ZipFile
 
         self.log = log
-        html = u''
+        html = ''
         top_levels = []
 
         # Extract content from zip archive.
@@ -35,21 +35,21 @@ class HTMLZInput(InputFormatPlugin):
 
         # Find the HTML file in the archive. It needs to be
         # top level.
-        index = u''
+        index = ''
         multiple_html = False
         # Get a list of all top level files in the archive.
-        for x in os.listdir(u'.'):
+        for x in os.listdir('.'):
             if os.path.isfile(x):
                 top_levels.append(x)
         # Try to find an index. file.
         for x in top_levels:
-            if x.lower() in (u'index.html', u'index.xhtml', u'index.htm'):
+            if x.lower() in ('index.html', 'index.xhtml', 'index.htm'):
                 index = x
                 break
         # Look for multiple HTML files in the archive. We look at the
         # top level files only as only they matter in HTMLZ.
         for x in top_levels:
-            if os.path.splitext(x)[1].lower() in (u'.html', u'.xhtml', u'.htm'):
+            if os.path.splitext(x)[1].lower() in ('.html', '.xhtml', '.htm'):
                 # Set index to the first HTML file found if it's not
                 # called index.
                 if not index:
@@ -86,11 +86,11 @@ class HTMLZInput(InputFormatPlugin):
             setattr(options, opt.option.name, opt.recommended_value)
         options.input_encoding = 'utf-8'
         base = os.getcwd()
-        htmlfile = os.path.join(base, u'index.html')
+        htmlfile = os.path.join(base, 'index.html')
         c = 0
         while os.path.exists(htmlfile):
             c += 1
-            htmlfile = u'index%d.html'%c
+            htmlfile = 'index%d.html'%c
         with open(htmlfile, 'wb') as f:
             f.write(html.encode('utf-8'))
         odi = options.debug_pipeline
@@ -112,7 +112,7 @@ class HTMLZInput(InputFormatPlugin):
         cover_path = None
         opf = None
         for x in top_levels:
-            if os.path.splitext(x)[1].lower() == u'.opf':
+            if os.path.splitext(x)[1].lower() == '.opf':
                 opf = x
                 break
         if opf:

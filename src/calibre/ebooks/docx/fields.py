@@ -54,7 +54,7 @@ null = object()
 
 def parser(name, field_map, default_field_name=None):
 
-    field_map = dict((x.split(':') for x in field_map.split()))
+    field_map = dict(x.split(':') for x in field_map.split())
 
     def parse(raw, log=None):
         ans = {}

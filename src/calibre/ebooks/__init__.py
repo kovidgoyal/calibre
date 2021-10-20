@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -81,7 +79,7 @@ def extract_calibre_cover(raw, base, log):
     if matches is None:
         body = soup.find('body')
         if body is not None:
-            text = u''.join(map(str, body.findAll(text=True)))
+            text = ''.join(map(str, body.findAll(text=True)))
             if text.strip():
                 # Body has text, abort
                 return

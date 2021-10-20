@@ -432,7 +432,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         for i, key in enumerate(self.categories):
             is_gst = False
             if key.startswith('@') and key[1:] in gst:
-                tt = _(u'The grouped search term name is "{0}"').format(key)
+                tt = _('The grouped search term name is "{0}"').format(key)
                 is_gst = True
             elif key == 'news':
                 tt = ''
@@ -443,7 +443,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     cust_desc = fm['display'].get('description', '')
                     if cust_desc:
                         cust_desc = '\n' + _('Description:') + ' ' + cust_desc
-                tt = _(u'The lookup/search name is "{0}"{1}').format(key, cust_desc)
+                tt = _('The lookup/search name is "{0}"{1}').format(key, cust_desc)
 
             if self.category_custom_icons.get(key, None) is None:
                 self.category_custom_icons[key] = QIcon(I(
@@ -609,7 +609,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                                 if first_chr == last_chr:
                                     cl_list[cur_idx] = first_chr
                                 else:
-                                    cl_list[cur_idx] = '{0} - {1}'.format(first_chr, last_chr)
+                                    cl_list[cur_idx] = '{} - {}'.format(first_chr, last_chr)
                                 cur_idx += 1
             top_level_component = 'z' + data[key][0].original_name
 
@@ -706,9 +706,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                             child_map = category_child_map
                             top_level_component = comp
                         else:
-                            child_map = dict([((t.tag.name, t.tag.category), t)
+                            child_map = {(t.tag.name, t.tag.category): t
                                         for t in node_parent.children
-                                            if t.type != TagTreeItem.CATEGORY])
+                                            if t.type != TagTreeItem.CATEGORY}
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
                             t = node_parent.tag
@@ -993,8 +993,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                     fm_src = self.db.metadata_for_field(md.column_name)
                     if md.column_name in ['authors', 'publisher', 'series'] or \
                             (fm_src['is_custom'] and (
-                             (fm_src['datatype'] in ['series', 'text', 'enumeration'] and
-                              not fm_src['is_multiple']))or
+                             fm_src['datatype'] in ['series', 'text', 'enumeration'] and
+                              not fm_src['is_multiple'])or
                              (fm_src['datatype'] == 'composite' and
                               fm_src['display'].get('make_category', False))):
                         mime = 'application/calibre+from_library'

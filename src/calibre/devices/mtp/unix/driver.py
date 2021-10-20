@@ -75,7 +75,7 @@ class MTP_DEVICE(MTPDeviceBase):
                     traceback.print_stack()
                 return False
         if debug is not None and ans:
-            debug('Device {0} claims to be an MTP device in the IOKit registry'.format(d))
+            debug('Device {} claims to be an MTP device in the IOKit registry'.format(d))
         return bool(ans)
 
     def set_debug_level(self, lvl):

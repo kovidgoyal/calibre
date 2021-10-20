@@ -1327,7 +1327,7 @@ class Cache:
 
         try:
             return self.backend.read_backup(path)
-        except EnvironmentError:
+        except OSError:
             return None
 
     @write_api

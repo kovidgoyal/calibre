@@ -82,7 +82,7 @@ def book_to_json(ctx, rd, db, book_id,
             if mtime is not None:
                 v['mtime'] = isoformat(mtime, as_utc=True)
         data['format_metadata'] = mi.format_metadata
-        fmts = set(x.lower() for x in mi.format_metadata)
+        fmts = {x.lower() for x in mi.format_metadata}
         pf = prefs['output_format'].lower()
         other_fmts = list(fmts)
         try:
@@ -402,7 +402,7 @@ def category(ctx, rd, encoded_name, library_id):
                     '.' in x.original_name]
 
             if subcategory is None:
-                children = set(x[0] for x in category_names)
+                children = {x[0] for x in category_names}
                 category_name = [meta['name']]
                 items = [x for x in categories[toplevel] if '.' not in x.original_name]
             else:
@@ -410,16 +410,16 @@ def category(ctx, rd, encoded_name, library_id):
                 category_name = [meta['name']] + subcategory_parts
 
                 lsp = len(subcategory_parts)
-                children = set('.'.join(x) for x in category_names if len(x) ==
-                        lsp+1 and x[:lsp] == subcategory_parts)
+                children = {'.'.join(x) for x in category_names if len(x) ==
+                        lsp+1 and x[:lsp] == subcategory_parts}
                 items = [x for x in categories[toplevel] if x.original_name in
                         children]
                 item_names = {x:x.original_name.rpartition('.')[-1] for x in
                         items}
                 # Only mark the subcategories that have children themselves as
                 # subcategories
-                children = set('.'.join(x[:lsp+1]) for x in category_names if len(x) >
-                        lsp+1 and x[:lsp] == subcategory_parts)
+                children = {'.'.join(x[:lsp+1]) for x in category_names if len(x) >
+                        lsp+1 and x[:lsp] == subcategory_parts}
             subcategories = [{'name':x.rpartition('.')[-1],
                 'url':toplevel+'.'+x,
                 'icon':category_icon(toplevel, meta)} for x in children]

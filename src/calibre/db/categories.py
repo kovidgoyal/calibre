@@ -44,7 +44,7 @@ class Tag:
 
     @property
     def string_representation(self):
-        return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
+        return '%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
 
     def __str__(self):
         return self.string_representation

@@ -1,5 +1,3 @@
-
-
 '''
 Created on 15 May 2010
 
@@ -63,7 +61,7 @@ class FOLDER_DEVICE(USBMS):
 
     def __init__(self, path):
         if not os.path.isdir(path):
-            raise IOError('Path is not a folder')
+            raise OSError('Path is not a folder')
         path = USBMS.normalize_path(path)
         if path.endswith(os.sep):
             self._main_prefix = path

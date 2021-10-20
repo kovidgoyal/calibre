@@ -54,7 +54,7 @@ def get_tooltip(col_metadata, add_index=False):
     key = col_metadata['label'] + ('_index' if add_index else '')
     label = col_metadata['name'] + (_(' index') if add_index else '')
     description = col_metadata.get('display', {}).get('description', '')
-    return '{0} (#{1}){2} {3}'.format(
+    return '{} (#{}){} {}'.format(
                   label, key, ':' if description else '', description).strip()
 
 

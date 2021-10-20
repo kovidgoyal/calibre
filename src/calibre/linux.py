@@ -94,7 +94,7 @@ class PreserveMIMEDefaults:  # {{{
                             f.seek(0)
                             f.truncate()
                             f.write(val)
-                except EnvironmentError as e:
+                except OSError as e:
                     if e.errno != errno.EACCES:
                         raise
 # }}}
@@ -343,7 +343,7 @@ class ZshCompleter:  # {{{
             recipe = recipe.replace(':', '\\:').replace('"', '\\"')
             w('\n    "%s.recipe"'%(recipe))
         w('\n  ); _describe -t recipes "ebook-convert builtin recipes" extras')
-        w('\n  _files -g "%s"'%' '.join(('*.%s'%x for x in iexts)))
+        w('\n  _files -g "%s"'%' '.join('*.%s'%x for x in iexts))
         w('\n}\n')
 
         # Arg 2
@@ -352,7 +352,7 @@ class ZshCompleter:  # {{{
         for x in output_fmts:
             w('\n    ".{0}:Convert to a .{0} file with the same name as the input file"'.format(x))
         w('\n  ); _describe -t output "ebook-convert output" extras')
-        w('\n  _files -g "%s"'%' '.join(('*.%s'%x for x in oexts)))
+        w('\n  _files -g "%s"'%' '.join('*.%s'%x for x in oexts))
         w('\n  _path_files -/')
         w('\n}\n')
 
@@ -439,7 +439,7 @@ class ZshCompleter:  # {{{
             opt_lines.append(ostrings + help_txt + ' \\')
         opt_lines = ('\n' + (' ' * 8)).join(opt_lines)
 
-        polyglot_write(f)(('''
+        polyglot_write(f)('''
 _ebook_edit() {
     local curcontext="$curcontext" state line ebookfile expl
     typeset -A opt_args
@@ -466,7 +466,7 @@ _ebook_edit() {
 
     return 1
 }
-''' % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n'))
+''' % (opt_lines, '|'.join(tweakable_fmts)) + '\n\n')
 
     def do_calibredb(self, f):
         from calibre.db.cli.main import COMMANDS, option_parser_for
@@ -508,7 +508,7 @@ _ebook_edit() {
             subcommands.append(';;')
 
         w('\n_calibredb() {')
-        w((
+        w(
             r'''
     local state line state_descr context
     typeset -A opt_args
@@ -531,7 +531,7 @@ _ebook_edit() {
     esac
 
     return ret
-    '''%'\n    '.join(subcommands)))
+    '''%'\n    '.join(subcommands))
         w('\n}\n\n')
 
     def write(self):
@@ -835,7 +835,7 @@ class PostInstall:
                 print('You need python-lxml >= 2.0.5 for calibre')
                 sys.exit(1)
             raise
-        except EnvironmentError as e:
+        except OSError as e:
             if e.errno == errno.EACCES:
                 self.warning('Failed to setup completion, permission denied')
             if self.opts.fatal_errors:

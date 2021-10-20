@@ -1,5 +1,3 @@
-
-
 # Copyright (c) 2007 Mike Higgins (Falstaff)
 # Modifications from the original:
 #    Copyright (C) 2007 Kovid Goyal <kovid@kovidgoyal.net>
@@ -305,8 +303,7 @@ class LrsContainer:
             if predicate(child):
                 yield child
             if hasattr(child, 'get_all'):
-                for grandchild in child.get_all(predicate):
-                    yield grandchild
+                yield from child.get_all(predicate)
 
 
 class LrsObject:

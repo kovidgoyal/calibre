@@ -90,7 +90,7 @@ def txt2rtf(text):
             buf.write(x)
         else:
             # python2 and ur'\u' does not work
-            c = '\\u{0:d}?'.format(val)
+            c = '\\u{:d}?'.format(val)
             buf.write(c)
     return buf.getvalue()
 

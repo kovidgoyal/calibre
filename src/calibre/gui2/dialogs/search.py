@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -378,7 +376,7 @@ class SearchDialog(QDialog):
         if template and value:
             cb = self.template_test_type_box
             op =  str(cb.itemData(cb.currentIndex()))
-            l = '{0}#@#:{1}:{2}'.format(template, op, value)
+            l = '{}#@#:{}:{}'.format(template, op, value)
             return 'template:"' + l + '"'
         return ''
 

@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -835,7 +833,7 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
     CONSTANTS = ["False", "True", "None", "NotImplemented", "Ellipsis"]
 
     def __init__(self, parent=None):
-        super(PythonHighlighter, self).__init__(parent)
+        super().__init__(parent)
 
         self.initializeFormats()
 

@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -1453,7 +1451,7 @@ class DeviceMixin:  # {{{
                     self.location_manager.free[2] : 'cardb'}
                 on_card = space.get(sorted(space.keys(), reverse=True)[0], None)
                 try:
-                    total_size = sum([os.stat(f).st_size for f in files])
+                    total_size = sum(os.stat(f).st_size for f in files)
                 except:
                     try:
                         import traceback

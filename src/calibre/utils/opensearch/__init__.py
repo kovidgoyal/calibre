@@ -1,5 +1,3 @@
-
-
 '''
 Based on the OpenSearch Python module by Ed Summers <ehs@pobox.com> from
 https://github.com/edsu/opensearch .

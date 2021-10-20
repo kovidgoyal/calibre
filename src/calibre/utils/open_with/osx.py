@@ -215,7 +215,7 @@ PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 def find_applications_in(base):
     try:
         entries = os.listdir(base)
-    except EnvironmentError:
+    except OSError:
         return
     for name in entries:
         path = os.path.join(base, name)
@@ -223,15 +223,13 @@ def find_applications_in(base):
             if name.lower().endswith('.app'):
                 yield path
             else:
-                for app in find_applications_in(path):
-                    yield app
+                yield from find_applications_in(path)
 
 
 def find_applications():
     for base in application_locations:
         base = os.path.expanduser(base)
-        for app in find_applications_in(base):
-            yield app
+        yield from find_applications_in(base)
 
 
 def get_extensions_from_utis(utis, plist):
@@ -325,7 +323,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
             return
         try:
             names = os.listdir(iconset)
-        except EnvironmentError:
+        except OSError:
             return
         if not names:
             return

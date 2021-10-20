@@ -18,8 +18,7 @@ class Note:
         self.namespace = namespace
 
     def __iter__(self):
-        for p in self.namespace.descendants(self.parent, 'w:p', 'w:tbl'):
-            yield p
+        yield from self.namespace.descendants(self.parent, 'w:p', 'w:tbl')
 
 
 class Footnotes:

@@ -311,7 +311,7 @@ class Convert:
                 seraw = self.docx.read(sename)
             except KeyError:
                 self.log.warn('Settings %s do not exist' % sename)
-            except EnvironmentError as e:
+            except OSError as e:
                 if e.errno != errno.ENOENT:
                     raise
                 self.log.warn('Settings %s file missing' % sename)

@@ -71,7 +71,7 @@ class BuildTest(unittest.TestCase):
 
     def test_chardet(self):
         from cchardet import detect
-        raw = 'mūsi Füße'.encode('utf-8')
+        raw = 'mūsi Füße'.encode()
         data = detect(raw)
         self.assertEqual(data['encoding'].lower(), 'utf-8')
         self.assertGreater(data['confidence'], 0.5)

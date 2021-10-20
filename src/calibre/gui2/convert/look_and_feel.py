@@ -85,7 +85,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         if g is self.opt_filter_css:
             if not val:
                 val = ''
-            items = frozenset([x.strip().lower() for x in val.split(',')])
+            items = frozenset(x.strip().lower() for x in val.split(','))
             for key, vals in iteritems(self.FILTER_CSS):
                 w = getattr(self, 'filter_css_%s'%key)
                 if not vals - items:

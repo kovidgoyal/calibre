@@ -52,8 +52,7 @@ class xISBN:
 
     def isbns_in_data(self, data):
         for rec in data:
-            for i in rec.get('isbn', []):
-                yield i
+            yield from rec.get('isbn', [])
 
     def get_data(self, isbn):
         isbn = self.purify(isbn)

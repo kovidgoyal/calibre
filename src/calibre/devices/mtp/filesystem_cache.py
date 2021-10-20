@@ -108,10 +108,8 @@ class FileOrFolder:
         return tuple(parts)
 
     def __iter__(self):
-        for e in self.folders:
-            yield e
-        for e in self.files:
-            yield e
+        yield from self.folders
+        yield from self.files
 
     def add_child(self, entry):
         ans = FileOrFolder(entry, self.fs_cache())

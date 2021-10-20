@@ -905,7 +905,7 @@ class ResultCache(SearchQueryParser):  # {{{
         self.search_restriction_name = s
 
     def search_restriction_applied(self):
-        return bool(self.search_restriction) or bool((self.base_restriction))
+        return bool(self.search_restriction) or bool(self.base_restriction)
 
     def get_search_restriction_book_count(self):
         return self.search_restriction_book_count

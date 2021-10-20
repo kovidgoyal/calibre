@@ -166,8 +166,7 @@ class IgnoredFolders(QDialog):
         for i in range(node.childCount()):
             child = node.child(i)
             yield child
-            for gc in self.iterchildren(child):
-                yield gc
+            yield from self.iterchildren(child)
 
     def create_item(self, f, parent):
         name = f.name

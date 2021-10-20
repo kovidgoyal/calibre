@@ -19,7 +19,7 @@ class UnsupportedFont(ValueError):
 
 def get_printable_characters(text):
     import unicodedata
-    return u''.join(x for x in unicodedata.normalize('NFC', text)
+    return ''.join(x for x in unicodedata.normalize('NFC', text)
             if unicodedata.category(x)[0] not in {'C', 'Z', 'M'})
 
 
@@ -418,8 +418,7 @@ def get_glyph_ids(raw, text, raw_is_table=False):
     if bmp_table is None:
         raise UnsupportedFont('Not a supported font, has no format 4 cmap table')
 
-    for glyph_id in get_bmp_glyph_ids(table, bmp_table, map(ord, text)):
-        yield glyph_id
+    yield from get_bmp_glyph_ids(table, bmp_table, map(ord, text))
 
 
 def supports_text(raw, text, has_only_printable_chars=False):
@@ -454,7 +453,7 @@ def test_glyph_ids():
     data = P('fonts/liberation/LiberationSerif-Regular.ttf', data=True)
     ft = FreeType()
     font = ft.load_font(data)
-    text = u'诶йab'
+    text = '诶йab'
     ft_glyphs = tuple(font.glyph_ids(text))
     glyphs = tuple(get_glyph_ids(data, text))
     if ft_glyphs != glyphs:

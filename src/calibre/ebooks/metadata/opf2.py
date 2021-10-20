@@ -133,8 +133,7 @@ class ResourceCollection:  # {{{
         self._resources = []
 
     def __iter__(self):
-        for r in self._resources:
-            yield r
+        yield from self._resources
 
     def __len__(self):
         return len(self._resources)
@@ -203,7 +202,7 @@ class ManifestItem(Resource):  # {{{
         self.mime_type = val
 
     def __unicode__representation__(self):
-        return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
+        return '<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
 
     __str__ = __unicode__representation__
 
@@ -1121,8 +1120,7 @@ class OPF:  # {{{
         self.set_text(matches[0], str(val))
 
     def identifier_iter(self):
-        for item in self.identifier_path(self.metadata):
-            yield item
+        yield from self.identifier_path(self.metadata)
 
     @property
     def raw_unique_identifier(self):
@@ -1785,8 +1783,8 @@ def suite():
         def testReading(self, opf=None):
             if opf is None:
                 opf = self.opf
-            self.assertEqual(opf.title, u'A Cool & \xa9 \xdf Title')
-            self.assertEqual(opf.authors, u'Monkey Kitchen,Next'.split(','))
+            self.assertEqual(opf.title, 'A Cool & \xa9 \xdf Title')
+            self.assertEqual(opf.authors, 'Monkey Kitchen,Next'.split(','))
             self.assertEqual(opf.author_sort, 'Monkey')
             self.assertEqual(opf.title_sort, 'Wow')
             self.assertEqual(opf.tags, ['One', 'Two'])
@@ -1832,12 +1830,12 @@ def test():
 def test_user_metadata():
     mi = Metadata('Test title', ['test author1', 'test author2'])
     um = {
-        '#myseries': {'#value#': u'test series\xe4', 'datatype':'text',
-            'is_multiple': None, 'name': u'My Series'},
+        '#myseries': {'#value#': 'test series\xe4', 'datatype':'text',
+            'is_multiple': None, 'name': 'My Series'},
         '#myseries_index': {'#value#': 2.45, 'datatype': 'float',
             'is_multiple': None},
         '#mytags': {'#value#':['t1','t2','t3'], 'datatype':'text',
-            'is_multiple': '|', 'name': u'My Tags'}
+            'is_multiple': '|', 'name': 'My Tags'}
         }
     mi.set_all_user_metadata(um)
     raw = metadata_to_opf(mi)

@@ -31,7 +31,7 @@ class LRFInput(InputFormatPlugin):
         d.parse()
         xml = d.to_xml(write_files=True)
         if options.verbose > 2:
-            open(u'lrs.xml', 'wb').write(xml.encode('utf-8'))
+            open('lrs.xml', 'wb').write(xml.encode('utf-8'))
         doc = safe_xml_fromstring(xml)
 
         char_button_map = {}

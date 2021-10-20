@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -321,8 +319,7 @@ class TextBlock:
                 break
 
     def __iter__(self):
-        for line in self.lines:
-            yield line
+        yield from self.lines
 
     def __str__(self):
         s = ''

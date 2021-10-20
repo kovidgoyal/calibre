@@ -50,7 +50,7 @@ class SpineItem(str):
         ppath = path.partition('#')[0]
         if not os.path.exists(path) and os.path.exists(ppath):
             path = ppath
-        obj = super(SpineItem, cls).__new__(cls, path)
+        obj = super().__new__(cls, path)
         with lopen(path, 'rb') as f:
             raw = f.read()
         if from_epub:

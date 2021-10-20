@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -52,7 +51,7 @@ def initialize_calibre():
     from calibre.ptempfile import base_dir
     try:
         base_dir()
-    except EnvironmentError:
+    except OSError:
         pass  # Ignore this error during startup, so we can show a better error message to the user later.
 
     #

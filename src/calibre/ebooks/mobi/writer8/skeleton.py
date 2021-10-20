@@ -148,7 +148,7 @@ class Skeleton:
         return ans
 
     def __len__(self):
-        return len(self.skeleton) + sum([len(x.raw) for x in self.chunks])
+        return len(self.skeleton) + sum(len(x.raw) for x in self.chunks)
 
     @property
     def raw_text(self):

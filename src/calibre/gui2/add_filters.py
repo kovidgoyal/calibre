@@ -71,7 +71,7 @@ class RuleEdit(RuleEditBase):
         self.query.setText(str(rule.get('query', '')).strip())
 
     def validate(self):
-        ans = super(RuleEdit, self).validate()
+        ans = super().validate()
         if ans:
             rule = self.rule
             if 'glob' in rule['match_type']:

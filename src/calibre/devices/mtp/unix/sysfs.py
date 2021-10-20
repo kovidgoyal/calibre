@@ -31,7 +31,7 @@ class MTPDetect:
             try:
                 with lopen(x, 'rb') as f:
                     return f.read()
-            except EnvironmentError:
+            except OSError:
                 pass
 
         ipath = os.path.join(self.base, '{0}-*/{0}-*/interface'.format(dev.busnum))
@@ -44,7 +44,7 @@ class MTPDetect:
             try:
                 if raw and int(raw) == dev.devnum:
                     if debug is not None:
-                        debug('Unknown device {0} claims to be an MTP device'
+                        debug('Unknown device {} claims to be an MTP device'
                               .format(dev))
                     return True
             except (ValueError, TypeError):

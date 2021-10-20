@@ -100,7 +100,7 @@ def getimagesize(url):
             p.feed(s)
             if p.image:
                 return 'width="%i" height="%i"' % p.image.size
-    except (IOError, ValueError):
+    except (OSError, ValueError):
         return None
 
 

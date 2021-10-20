@@ -173,7 +173,7 @@ def create_metadata(stream, options):
         publisher = encode(options.publisher)
         md.append(r'{\manager %s}'%(publisher,))
     if options.tags:
-        tags = u', '.join(options.tags)
+        tags = ', '.join(options.tags)
         tags = encode(tags)
         md.append(r'{\category %s}'%(tags,))
     if len(md) > 1:

@@ -1,5 +1,3 @@
-
-
 """ Collection of python utility-methodes commonly used by other
     bibliograph packages.
     From http://pypi.python.org/pypi/bibliograph.core/

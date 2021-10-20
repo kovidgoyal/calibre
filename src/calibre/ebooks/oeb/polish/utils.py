@@ -59,7 +59,7 @@ def corrected_case_for_name(container, name):
         else:
             try:
                 candidates = {q for q in os.listdir(os.path.dirname(container.name_to_abspath(base)))}
-            except EnvironmentError:
+            except OSError:
                 return None  # one of the non-terminal components of name is a file instead of a directory
             for q in candidates:
                 if q.lower() == x.lower():

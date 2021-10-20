@@ -301,7 +301,7 @@ def main():
                     outfile = os.path.join(outfile, path[path.rfind("/")+1:])
                 try:
                     outfile = lopen(outfile, "wb")
-                except IOError as e:
+                except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
                     return 1
@@ -311,7 +311,7 @@ def main():
             elif args[1].startswith("dev:"):
                 try:
                     infile = lopen(args[0], "rb")
-                except IOError as e:
+                except OSError as e:
                     print(e, file=sys.stderr)
                     parser.print_help()
                     return 1

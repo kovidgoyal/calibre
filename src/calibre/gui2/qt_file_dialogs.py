@@ -20,7 +20,7 @@ def select_initial_dir(q):
         if os.path.exists(c):
             return c
         q = c
-    return os.path.expanduser(u'~')
+    return os.path.expanduser('~')
 
 
 class Dummy:
@@ -42,7 +42,7 @@ class FileDialog(QObject):
         modal=True,
         name='',
         mode=QFileDialog.FileMode.ExistingFiles,
-        default_dir=u'~',
+        default_dir='~',
         no_save_dir=False,
         combine_file_and_saved_dir=False
     ):
@@ -74,12 +74,12 @@ class FileDialog(QObject):
         if combine_file_and_saved_dir:
             bn = os.path.basename(default_dir)
             prev = dynamic.get(self.dialog_name,
-                    os.path.expanduser(u'~'))
+                    os.path.expanduser('~'))
             if os.path.exists(prev):
                 if os.path.isfile(prev):
                     prev = os.path.dirname(prev)
             else:
-                prev = os.path.expanduser(u'~')
+                prev = os.path.expanduser('~')
             initial_dir = os.path.join(prev, bn)
         elif no_save_dir:
             initial_dir = os.path.expanduser(default_dir)
@@ -159,7 +159,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
 
 
 def choose_files(window, name, title,
-                filters=[], all_files=True, select_only_single_file=False, default_dir=u'~'):
+                filters=[], all_files=True, select_only_single_file=False, default_dir='~'):
     '''
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory

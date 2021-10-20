@@ -94,13 +94,13 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     for line in txt.split('\n'):
         if line.strip():
             blank_count = 0
-            lines.append(u'<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
+            lines.append('<p>%s</p>' % prepare_string_for_xml(line.replace('\n', ' ')))
         else:
             blank_count += 1
             if blank_count == 2:
-                lines.append(u'<p>&nbsp;</p>')
+                lines.append('<p>&nbsp;</p>')
 
-    return HTML_TEMPLATE % (title, u'\n'.join(lines))
+    return HTML_TEMPLATE % (title, '\n'.join(lines))
 
 
 DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
@@ -191,7 +191,7 @@ def separate_paragraphs_single_line(txt):
 
 
 def separate_paragraphs_print_formatted(txt):
-    txt = re.sub(u'(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
+    txt = re.sub('(?miu)^(?P<indent>\t+|[ ]{2,})(?=.)', lambda mo: '\n%s' % mo.group('indent'), txt)
     return txt
 
 

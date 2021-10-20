@@ -255,7 +255,7 @@ class OptionSet:
             if opt.help:
                 opt.help = t(opt.help)
                 if opt.name == 'use_primary_find_in_search':
-                    opt.help = opt.help.format(u'ñ')
+                    opt.help = opt.help.format('ñ')
 
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         from calibre.utils.config import OptionParser
@@ -295,7 +295,7 @@ class OptionSet:
     def parse_string(self, src):
         options = {}
         if src:
-            is_old_style = (isinstance(src, bytes) and src.startswith(b'#')) or (isinstance(src, str) and src.startswith(u'#'))
+            is_old_style = (isinstance(src, bytes) and src.startswith(b'#')) or (isinstance(src, str) and src.startswith('#'))
             if is_old_style:
                 options = parse_old_style(src)
             else:
@@ -477,7 +477,7 @@ def create_global_prefs(conf_obj=None):
     c.add_opt('database_path',
               default=os.path.expanduser('~/library1.db'),
               help=_('Path to the database in which books are stored'))
-    c.add_opt('filename_pattern', default=u'(?P<title>.+) - (?P<author>[^_]+)',
+    c.add_opt('filename_pattern', default='(?P<title>.+) - (?P<author>[^_]+)',
               help=_('Pattern to guess metadata from filenames'))
     c.add_opt('isbndb_com_key', default='',
               help=_('Access key for isbndb.com'))
@@ -532,10 +532,10 @@ def create_global_prefs(conf_obj=None):
                 'separated by commas. Only takes effect if you set the option '
                 'to limit search columns above.'))
     c.add_opt('use_primary_find_in_search', default=True,
-            help=_(u'Characters typed in the search box will match their '
+            help=_('Characters typed in the search box will match their '
                    'accented versions, based on the language you have chosen '
                    'for the calibre interface. For example, in '
-                   u'English, searching for n will match both {} and n, but if '
+                   'English, searching for n will match both {} and n, but if '
                    'your language is Spanish it will only match n. Note that '
                    'this is much slower than a simple search on very large '
                    'libraries. Also, this option will have no effect if you turn '

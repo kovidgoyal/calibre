@@ -88,7 +88,7 @@ class DeleteService(Thread):
                     basename = '%d - %s' % (c, os.path.basename(path))
                 try:
                     shutil.move(path, dest)
-                except EnvironmentError:
+                except OSError:
                     if os.path.isdir(path):
                         # shutil.move may have partially copied the directory,
                         # so the subsequent call to move() will fail as the

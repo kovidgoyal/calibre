@@ -68,7 +68,7 @@ class TXTMLizer:
         from calibre.ebooks.oeb.base import XHTML
         from calibre.ebooks.oeb.stylizer import Stylizer
         from calibre.utils.xml_parse import safe_xml_fromstring
-        output = [u'']
+        output = ['']
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
@@ -118,7 +118,7 @@ class TXTMLizer:
     def cleanup_text(self, text):
         self.log.debug('\tClean up text...')
         # Replace bad characters.
-        text = text.replace(u'\xa0', ' ')
+        text = text.replace('\xa0', ' ')
 
         # Replace tabs, vertical tags and form feeds with single space.
         text = text.replace('\t+', ' ')
@@ -135,7 +135,7 @@ class TXTMLizer:
         text = re.sub('\n[ ]+\n', '\n\n', text)
         if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
-            text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: u'%s\n\n' % mo.group('t'), text)
+            text = re.sub(r'(?msu)^(?P<t>[^\t\n]+?)$', lambda mo: '%s\n\n' % mo.group('t'), text)
             text = re.sub(r'(?msu)(?P<b>[^\n])\n+(?P<t>[^\t\n]+?)(?=\n)', lambda mo: '%s\n\n\n\n\n\n%s' % (mo.group('b'), mo.group('t')), text)
         else:
             text = re.sub('\n{7,}', '\n\n\n\n\n\n', text)

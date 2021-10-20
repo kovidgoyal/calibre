@@ -33,8 +33,7 @@ class LazyEncodingPats:
         if pats is None:
             pats = tuple(compile_pats(binary))
             setattr(self, attr, pats)
-        for pat in pats:
-            yield pat
+        yield from pats
 
 
 lazy_encoding_pats = LazyEncodingPats()
@@ -51,7 +50,7 @@ def strip_encoding_declarations(raw, limit=50*1024, preserve_newlines=False):
         else:
             sub = lambda m: '\n' * m.group().count('\n')
     else:
-        sub = b'' if is_binary else u''
+        sub = b'' if is_binary else ''
     for pat in lazy_encoding_pats(is_binary):
         prefix = pat.sub(sub, prefix)
     raw = prefix + suffix

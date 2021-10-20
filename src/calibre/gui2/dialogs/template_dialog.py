@@ -50,7 +50,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
                 'separator', 'break', 'continue', 'return', 'in', 'inlist']
 
     def __init__(self, parent=None, builtin_functions=None):
-        super(TemplateHighlighter, self).__init__(parent)
+        super().__init__(parent)
 
         self.initializeFormats()
 
@@ -141,7 +141,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
 
         if not text:
             pass
-        elif text[0] == u"#":
+        elif text[0] == "#":
             self.setFormat(0, textLength, self.Formats["comment"])
             return
 
@@ -506,7 +506,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
                     (_('Template file'), ['txt'])
                     ], select_only_single_file=True)
         if filename:
-            with open(filename[0], 'r') as f:
+            with open(filename[0]) as f:
                 self.textbox.setPlainText(f.read())
 
     def save_template(self):

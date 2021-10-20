@@ -90,7 +90,7 @@ class PDFCovers(QDialog):
     def cleanup(self):
         try:
             shutil.rmtree(self.tdir)
-        except EnvironmentError:
+        except OSError:
             pass
 
     def render(self):

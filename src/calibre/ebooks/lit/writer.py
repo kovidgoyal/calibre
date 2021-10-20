@@ -1,4 +1,3 @@
-
 '''
 Basic support for writing LIT files.
 '''
@@ -48,9 +47,9 @@ ALL_MS_COVER_TYPES = [
 
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
-    tags = dict((tags[i], i) for i in range(len(tags)))
-    dattrs = dict((v, k) for k, v in dattrs.items())
-    tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
+    tags = {tags[i]: i for i in range(len(tags))}
+    dattrs = {v: k for k, v in dattrs.items()}
+    tattrs = [{v: k for k, v in (map or {}).items()} for map in tattrs]
     for map in tattrs:
         if map:
             map.update(dattrs)
@@ -165,7 +164,7 @@ class ReBinary:
                     value = codepoint_to_chr(value)
                 except OverflowError:
                     self.logger.warn('Unicode overflow for integer:', value)
-                    value = u'?'
+                    value = '?'
             self.buf.write(value.encode('utf-8'))
 
     def is_block(self, style):
@@ -495,7 +494,7 @@ class LitWriter:
 
     def _build_manifest(self):
         states = ['linear', 'nonlinear', 'css', 'images']
-        manifest = dict((state, []) for state in states)
+        manifest = {state: [] for state in states}
         for item in self._oeb.manifest.values():
             if item.spine_position is not None:
                 key = 'linear' if item.linear else 'nonlinear'
@@ -577,7 +576,7 @@ class LitWriter:
         self._add_file('/meta', meta)
 
     def _build_drm_storage(self):
-        drmsource = u'Free as in freedom\0'.encode('utf-16-le')
+        drmsource = 'Free as in freedom\0'.encode('utf-16-le')
         self._add_file('/DRMStorage/DRMSource', drmsource)
         tempkey = self._calculate_deskey([self._meta, drmsource])
         msdes.deskey(tempkey, msdes.EN0)

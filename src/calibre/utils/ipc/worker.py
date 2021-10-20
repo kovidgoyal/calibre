@@ -223,11 +223,11 @@ def main():
 
     try:
         sys.stdout.flush()
-    except EnvironmentError:
+    except OSError:
         pass  # Happens sometimes on OS X for GUI processes (EPIPE)
     try:
         sys.stderr.flush()
-    except EnvironmentError:
+    except OSError:
         pass  # Happens sometimes on OS X for GUI processes (EPIPE)
     return 0
 

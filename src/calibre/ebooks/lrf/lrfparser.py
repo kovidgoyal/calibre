@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
@@ -76,8 +74,7 @@ class LRFDocument(LRFMetaFile):
                     self.ruby_tags[attr] = getattr(obj, attr)
 
     def __iter__(self):
-        for pt in self.page_trees:
-            yield pt
+        yield from self.page_trees
 
     def write_files(self):
         for obj in chain(itervalues(self.image_map), itervalues(self.font_map)):

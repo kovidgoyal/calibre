@@ -52,7 +52,7 @@ class RemotePdb(pdb.Pdb):
         try:
             self.sock.shutdown(socket.SHUT_RDWR)
             self.sock.close()
-        except socket.error:
+        except OSError:
             pass
         return pdb.Pdb.do_continue(self, None)
 
@@ -100,13 +100,13 @@ def cli(port=4444):
         try:
             sock.connect(('127.0.0.1', port))
             break
-        except socket.error:
+        except OSError:
             pass
         time.sleep(0.1)
     else:
         try:
             sock.connect(('127.0.0.1', port))
-        except socket.error as err:
+        except OSError as err:
             print('Failed to connect to remote debugger:', err, file=sys.stderr)
             raise SystemExit(1)
     print('Connected to remote process', flush=True)
@@ -118,7 +118,7 @@ def cli(port=4444):
         histfile = os.path.join(cache_dir(), 'rpdb.history')
         try:
             readline.read_history_file(histfile)
-        except IOError:
+        except OSError:
             pass
         atexit.register(readline.write_history_file, histfile)
         p = pdb.Pdb()

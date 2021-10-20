@@ -59,8 +59,8 @@ def build_template_regexp(template):
         template = template.rpartition('/')[2]
         return re.compile(re.sub('{([^}]*)}', f, template) + r'([_\d]*$)')
     except:
-        prints(u'Failed to parse template: %r'%template)
-        template = u'{title} - {authors}'
+        prints('Failed to parse template: %r'%template)
+        template = '{title} - {authors}'
         return re.compile(re.sub('{([^}]*)}', f, template) + r'([_\d]*$)')
 
 
@@ -90,7 +90,7 @@ def create_upload_path(mdata, fname, template, sanitize,
         except:
             today = time.localtime()
             date = (today[0], today[1], today[2])
-        template = u"{title}_%d-%d-%d" % date
+        template = "{title}_%d-%d-%d" % date
 
     fname = sanitize(fname)
     ext = path_type.splitext(fname)[1]

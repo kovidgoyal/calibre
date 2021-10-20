@@ -1,5 +1,3 @@
-
-
 def save_to_file(text, filename):
     with open(filename, 'wb') as f:
         f.write(b'<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')

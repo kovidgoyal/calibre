@@ -507,8 +507,7 @@ def iterchildren(parent_devinst):
 def iterdescendants(parent_devinst):
     for child in iterchildren(parent_devinst):
         yield child
-        for gc in iterdescendants(child):
-            yield gc
+        yield from iterdescendants(child)
 
 
 def iterancestors(devinst):

@@ -347,7 +347,7 @@ class Results(QWidget):
             self.current_result = 0
             prefixes = [QStaticText('<b>%s</b>' % os.path.basename(x)) for x in results]
             [(p.setTextFormat(Qt.TextFormat.RichText), p.setTextOption(self.text_option)) for p in prefixes]
-            self.maxwidth = max([x.size().width() for x in prefixes])
+            self.maxwidth = max(x.size().width() for x in prefixes)
             self.results = tuple((prefix, self.make_text(text, positions), text)
                 for prefix, (text, positions) in zip(prefixes, iteritems(results)))
         else:
@@ -1165,7 +1165,7 @@ class AddCover(Dialog):
         if name is not None:
             data = self.container.raw_data(name, decode=False)
             self.cover_view.set_pixmap(data)
-            self.info_label.setText('{0}x{1}px | {2}'.format(
+            self.info_label.setText('{}x{}px | {}'.format(
                 self.cover_view.pixmap.width(), self.cover_view.pixmap.height(), human_readable(len(data))))
 
     def import_image(self):

@@ -567,7 +567,7 @@ class Mobi8Reader:
             elif elem is start:
                 reached = True
 
-        depths = sorted(set(x[-1] for x in links))
+        depths = sorted({x[-1] for x in links})
         depth_map = {x:i for i, x in enumerate(depths)}
         for text, href, frag, depth in links:
             depth = depth_map[depth]

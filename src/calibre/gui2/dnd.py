@@ -346,7 +346,7 @@ def _get_firefox_pair(md, exts, url, fname):
 
 
 def get_firefox_rurl(md, exts):
-    formats = frozenset([str(x) for x in md.formats()])
+    formats = frozenset(str(x) for x in md.formats())
     url = fname = None
     if 'application/x-moz-file-promise-url' in formats and \
             'application/x-moz-file-promise-dest-filename' in formats:

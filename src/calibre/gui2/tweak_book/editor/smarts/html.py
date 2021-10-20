@@ -502,7 +502,7 @@ class Smarts(NullSmarts):
         pos = min(c.position(), c.anchor())
         m = re.match(r'[a-zA-Z0-9:-]+', name)
         cname = name if m is None else m.group()
-        c.insertText('<{0}>{1}</{2}>'.format(name, text, cname))
+        c.insertText('<{}>{}</{}>'.format(name, text, cname))
         c.setPosition(pos + 2 + len(name))
         editor.setTextCursor(c)
 

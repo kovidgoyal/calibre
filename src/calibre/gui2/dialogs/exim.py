@@ -36,7 +36,7 @@ def disk_usage(path_to_dir, abort=None):
                 if stat.S_ISDIR(r.st_mode):
                     stack.append(cpath)
                 ans += r.st_size
-        except EnvironmentError:
+        except OSError:
             pass
     return ans
 

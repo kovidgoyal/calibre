@@ -124,7 +124,7 @@ class FB2MLizer:
                 lc = self.oeb_book.metadata.language[0].value
             metadata['lang'] = lc or 'en'
         else:
-            metadata['lang'] = u'en'
+            metadata['lang'] = 'en'
         metadata['id'] = None
         metadata['cover'] = self.get_cover()
         metadata['genre'] = self.opts.fb2_genre
@@ -483,7 +483,7 @@ class FB2MLizer:
                 tags += p_tag
                 fb2_out.append('<image l:href="#%s"/>' % self.image_hrefs[ihref])
             else:
-                self.log.warn(u'Ignoring image not in manifest: %s' % ihref)
+                self.log.warn('Ignoring image not in manifest: %s' % ihref)
         if tag in ('br', 'hr') or ems >= 1:
             if ems < 1:
                 multiplier = 1

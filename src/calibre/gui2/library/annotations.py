@@ -827,7 +827,7 @@ class DetailsPanel(QWidget):
         series_text = ''
         if series:
             use_roman_numbers = config['use_roman_numerals_for_series_number']
-            series_text = '{0} of {1}'.format(fmt_sidx(sidx, use_roman=use_roman_numbers), series)
+            series_text = '{} of {}'.format(fmt_sidx(sidx, use_roman=use_roman_numbers), series)
         annot = r['annotation']
         atype = annotation_title(annot['type'], singular=True)
         book_format = r['format']

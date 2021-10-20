@@ -208,7 +208,7 @@ def print_basic_debug_info(out=None):
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
         from calibre.customize import PluginInstallationType
-        names = ('{0} {1}'.format(p.name, p.version) for p in initialized_plugins()
+        names = ('{} {}'.format(p.name, p.version) for p in initialized_plugins()
                  if getattr(p, 'installation_type', None) is not PluginInstallationType.BUILTIN)
         out('Successfully initialized third party plugins:', ' && '.join(names))
 

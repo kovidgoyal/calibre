@@ -153,7 +153,7 @@ class Worker:
         env = self.env
         try:
             origwd = cwd or os.path.abspath(os.getcwd())
-        except EnvironmentError:
+        except OSError:
             # cwd no longer exists
             origwd = cwd or os.path.expanduser('~')
         env[native_string_type('ORIGWD')] = environ_item(as_hex_unicode(msgpack_dumps(origwd)))

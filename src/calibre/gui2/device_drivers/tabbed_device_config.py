@@ -153,7 +153,7 @@ class TabbedDeviceConfig(QTabWidget):
     def __getattr__(self, attr_name):
         "If the object doesn't have an attribute, then check each tab."
         try:
-            return super(TabbedDeviceConfig, self).__getattr__(attr_name)
+            return super().__getattr__(attr_name)
         except AttributeError as ae:
             for i in range(0, self.count()):
                 atab = self.widget(i)
@@ -235,7 +235,7 @@ class DeviceConfigTab(QWidget):  # {{{
 
     def __getattr__(self, attr_name):
         try:
-            return super(DeviceConfigTab, self).__getattr__(attr_name)
+            return super().__getattr__(attr_name)
         except AttributeError as ae:
             for awidget in self.device_widgets:
                 try:
@@ -248,7 +248,7 @@ class DeviceConfigTab(QWidget):  # {{{
 class ExtraCustomization(DeviceConfigTab):  # {{{
 
     def __init__(self, extra_customization_message, extra_customization_choices, device_settings):
-        super(ExtraCustomization, self).__init__()
+        super().__init__()
 
         debug_print("ExtraCustomization.__init__ - extra_customization_message=", extra_customization_message)
         debug_print("ExtraCustomization.__init__ - extra_customization_choices=", extra_customization_choices)

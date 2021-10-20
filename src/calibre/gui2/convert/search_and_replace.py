@@ -280,7 +280,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                 rest[name] = val
 
         if rest:
-            super(SearchAndReplaceWidget, self).apply_recommendations(rest)
+            super().apply_recommendations(rest)
 
         self.set_value(self.opt_search_replace, None)
         if new_val is None and legacy:

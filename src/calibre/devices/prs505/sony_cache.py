@@ -758,7 +758,7 @@ class XMLCache:
         return m
 
     def book_by_lpath(self, lpath, root):
-        matches = root.xpath(u'//*[local-name()="text" and @path="%s"]'%lpath)
+        matches = root.xpath('//*[local-name()="text" and @path="%s"]'%lpath)
         if matches:
             return matches[0]
 

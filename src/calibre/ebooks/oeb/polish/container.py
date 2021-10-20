@@ -425,7 +425,7 @@ class Container(ContainerBase):  # {{{
             parent_dir = os.path.dirname(parent_dir)
             try:
                 os.rmdir(parent_dir)
-            except EnvironmentError:
+            except OSError:
                 break
 
         for x in ('mime_map', 'encoding_map'):
@@ -703,8 +703,7 @@ class Container(ContainerBase):  # {{{
             predicate = predicate.__contains__
         for mt, names in iteritems(self.manifest_type_map):
             if predicate(mt):
-                for name in names:
-                    yield name
+                yield from names
 
     def apply_unique_properties(self, name, *properties):
         ''' Ensure that the specified properties are set on only the manifest item
@@ -1157,7 +1156,7 @@ class EpubContainer(Container):
 
     def __init__(self, pathtoepub, log, clone_data=None, tdir=None):
         if clone_data is not None:
-            super(EpubContainer, self).__init__(None, None, log, clone_data=clone_data)
+            super().__init__(None, None, log, clone_data=clone_data)
             for x in ('pathtoepub', 'obfuscated_fonts', 'is_dir'):
                 setattr(self, x, clone_data[x])
             return
@@ -1191,7 +1190,7 @@ class EpubContainer(Container):
                     extractall(stream, path=tdir)
         try:
             os.remove(join(tdir, 'mimetype'))
-        except EnvironmentError:
+        except OSError:
             pass
         # Ensure all filenames are in NFC normalized form
         # has no effect on HFS+ filesystems as they always store filenames
@@ -1220,7 +1219,7 @@ class EpubContainer(Container):
             raise InvalidEpub('OPF file does not exist at location pointed to'
                     ' by META-INF/container.xml')
 
-        super(EpubContainer, self).__init__(tdir, opf_path, log)
+        super().__init__(tdir, opf_path, log)
 
         self.obfuscated_fonts = {}
         if 'META-INF/encryption.xml' in self.name_path_map:
@@ -1228,7 +1227,7 @@ class EpubContainer(Container):
         self.parsed_cache['META-INF/container.xml'] = container
 
     def clone_data(self, dest_dir):
-        ans = super(EpubContainer, self).clone_data(dest_dir)
+        ans = super().clone_data(dest_dir)
         ans['pathtoepub'] = self.pathtoepub
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         ans['is_dir'] = self.is_dir
@@ -1236,7 +1235,7 @@ class EpubContainer(Container):
 
     def rename(self, old_name, new_name):
         is_opf = old_name == self.opf_name
-        super(EpubContainer, self).rename(old_name, new_name)
+        super().rename(old_name, new_name)
         if is_opf:
             for elem in self.parsed('META-INF/container.xml').xpath((
                 r'child::ocf:rootfiles/ocf:rootfile'
@@ -1257,18 +1256,18 @@ class EpubContainer(Container):
 
     @property
     def names_that_need_not_be_manifested(self):
-        return super(EpubContainer, self).names_that_need_not_be_manifested | {'META-INF/' + x for x in self.META_INF}
+        return super().names_that_need_not_be_manifested | {'META-INF/' + x for x in self.META_INF}
 
     def ok_to_be_unmanifested(self, name):
         return name in self.names_that_need_not_be_manifested or name.startswith('META-INF/')
 
     @property
     def names_that_must_not_be_removed(self):
-        return super(EpubContainer, self).names_that_must_not_be_removed | {'META-INF/container.xml'}
+        return super().names_that_must_not_be_removed | {'META-INF/container.xml'}
 
     @property
     def names_that_must_not_be_changed(self):
-        return super(EpubContainer, self).names_that_must_not_be_changed | {'META-INF/' + x for x in self.META_INF}
+        return super().names_that_must_not_be_changed | {'META-INF/' + x for x in self.META_INF}
 
     def remove_item(self, name, remove_from_guide=True):
         # Handle removal of obfuscated fonts
@@ -1288,7 +1287,7 @@ class EpubContainer(Container):
                 if name == self.href_to_name(cr.get('URI')):
                     self.remove_from_xml(em.getparent())
                     self.dirty('META-INF/encryption.xml')
-        super(EpubContainer, self).remove_item(name, remove_from_guide=remove_from_guide)
+        super().remove_item(name, remove_from_guide=remove_from_guide)
 
     def process_encryption(self):
         fonts = {}
@@ -1356,7 +1355,7 @@ class EpubContainer(Container):
     def commit(self, outpath=None, keep_parsed=False):
         if self.opf_version_parsed.major == 3:
             self.update_modified_timestamp()
-        super(EpubContainer, self).commit(keep_parsed=keep_parsed)
+        super().commit(keep_parsed=keep_parsed)
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
             raise InvalidEpub('No META-INF/container.xml in EPUB, this typically happens if the temporary files calibre'
@@ -1384,7 +1383,7 @@ class EpubContainer(Container):
                         os.remove(os.path.join(dirpath, fname))
                         try:
                             os.rmdir(dirpath)
-                        except EnvironmentError as err:
+                        except OSError as err:
                             if err.errno != errno.ENOTEMPTY:
                                 raise
             # Now copy over everything from root to source dir
@@ -1393,7 +1392,7 @@ class EpubContainer(Container):
                 base = self.pathtoepub if is_root else os.path.join(self.pathtoepub, os.path.relpath(dirpath, self.root))
                 try:
                     os.mkdir(base)
-                except EnvironmentError as err:
+                except OSError as err:
                     if err.errno != errno.EEXIST:
                         raise
                 for fname in filenames:
@@ -1480,7 +1479,7 @@ class AZW3Container(Container):
 
     def __init__(self, pathtoazw3, log, clone_data=None, tdir=None):
         if clone_data is not None:
-            super(AZW3Container, self).__init__(None, None, log, clone_data=clone_data)
+            super().__init__(None, None, log, clone_data=clone_data)
             for x in ('pathtoazw3', 'obfuscated_fonts'):
                 setattr(self, x, clone_data[x])
             return
@@ -1523,17 +1522,17 @@ class AZW3Container(Container):
         except WorkerError as e:
             log(e.orig_tb)
             raise InvalidMobi('Failed to explode MOBI')
-        super(AZW3Container, self).__init__(tdir, opf_path, log)
+        super().__init__(tdir, opf_path, log)
         self.obfuscated_fonts = {x.replace(os.sep, '/') for x in obfuscated_fonts}
 
     def clone_data(self, dest_dir):
-        ans = super(AZW3Container, self).clone_data(dest_dir)
+        ans = super().clone_data(dest_dir)
         ans['pathtoazw3'] = self.pathtoazw3
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
         return ans
 
     def commit(self, outpath=None, keep_parsed=False):
-        super(AZW3Container, self).commit(keep_parsed=keep_parsed)
+        super().commit(keep_parsed=keep_parsed)
         if outpath is None:
             outpath = self.pathtoazw3
         opf_to_azw3(self.name_path_map[self.opf_name], outpath, self)

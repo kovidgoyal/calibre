@@ -1,4 +1,3 @@
-
 '''
 HTML-TOC-adding transform.
 '''

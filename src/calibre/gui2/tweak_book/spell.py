@@ -577,9 +577,9 @@ class ManageDictionaries(Dialog):  # {{{
         saf = self.fb
         font = item.data(0, Qt.ItemDataRole.FontRole)
         preferred = bool(font and font.italic())
-        saf.setText((_(
+        saf.setText(_(
             'This is already the preferred dictionary') if preferred else
-            _('Use this as the preferred dictionary')))
+            _('Use this as the preferred dictionary'))
         saf.setEnabled(not preferred)
         self.remove_dictionary_button.setEnabled(not item.data(0, Qt.ItemDataRole.UserRole).builtin)
 

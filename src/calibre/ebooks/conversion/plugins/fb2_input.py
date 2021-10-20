@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
@@ -146,7 +144,7 @@ class FB2Input(InputFormatPlugin):
                     break
 
         opf = OPFCreator(os.getcwd(), mi)
-        entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir(u'.')]
+        entries = [(f2, guess_type(f2)[0]) for f2 in os.listdir('.')]
         opf.create_manifest(entries)
         opf.create_spine(['index.xhtml'])
         if cpath:

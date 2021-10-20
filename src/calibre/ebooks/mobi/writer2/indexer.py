@@ -144,8 +144,7 @@ class IndexEntry:
 
     @property
     def tag_nums(self):
-        for i in range(1, 5):
-            yield i
+        yield from range(1, 5)
         for attr in ('class_offset', 'parent_index', 'first_child_index',
                 'last_child_index'):
             if getattr(self, attr) is not None:

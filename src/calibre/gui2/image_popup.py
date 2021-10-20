@@ -221,7 +221,7 @@ class ImageView(QDialog):
     def adjust_scrollbars(self, factor):
         for sb in (self.scrollarea.horizontalScrollBar(),
                 self.scrollarea.verticalScrollBar()):
-            sb.setValue(int(factor*sb.value()) + int(((factor - 1) * sb.pageStep()/2)))
+            sb.setValue(int(factor*sb.value()) + int((factor - 1) * sb.pageStep()/2))
 
     def rotate_image(self):
         pm = self.label.pixmap()

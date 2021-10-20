@@ -296,7 +296,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 return subprocess.Popen(cmd,
                                     stdout=subprocess.PIPE).communicate()[0]
-            except IOError:  # Probably an interrupted system call
+            except OSError:  # Probably an interrupted system call
                 if i == 2:
                     raise
             time.sleep(2)
@@ -310,7 +310,7 @@ class Device(DeviceConfig, DevicePlugin):
             try:
                 return subprocess.Popen('mount',
                                     stdout=subprocess.PIPE).communicate()[0]
-            except IOError:  # Probably an interrupted system call
+            except OSError:  # Probably an interrupted system call
                 if i == 2:
                     raise
             time.sleep(2)
@@ -440,8 +440,7 @@ class Device(DeviceConfig, DevicePlugin):
                 isfile = os.path.isfile(p)
                 yield p, isfile
                 if not isfile:
-                    for y, q in walk(p):
-                        yield y, q
+                    yield from walk(p)
 
         def raw2num(raw):
             raw = raw.lower()

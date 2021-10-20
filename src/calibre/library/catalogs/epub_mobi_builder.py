@@ -849,7 +849,7 @@ class CatalogBuilder:
         if self.DEBUG and self.opts.verbose:
             self.opts.log.info("\nfetch_books_by_author(): %d unique authors" % len(unique_authors))
             for author in unique_authors:
-                self.opts.log.info((u" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
+                self.opts.log.info((" %-50s %-25s %2d" % (author[0][0:45], author[1][0:20],
                     author[2])).encode('utf-8'))
             self.opts.log.info("\nfetch_books_by_author(): %d individual authors" % len(individual_authors))
             for author in sorted(individual_authors):
@@ -881,7 +881,7 @@ class CatalogBuilder:
                 self.opts.log.info("fetch_books_by_title(): %d books" % len(self.books_by_title))
                 self.opts.log.info(" %-40s %-40s" % ('title', 'title_sort'))
                 for title in self.books_by_title:
-                    self.opts.log.info((u" %-40s %-40s" % (title['title'][0:40],
+                    self.opts.log.info((" %-40s %-40s" % (title['title'][0:40],
                                                             title['title_sort'][0:40])).encode('utf-8'))
         else:
             error_msg = _("No books to catalog.\nCheck 'Excluded books' rules in the E-book options.\n")
@@ -1070,7 +1070,7 @@ class CatalogBuilder:
 
         if self.DEBUG:
             if self.prefix_rules:
-                self.opts.log.info(" Added prefixes (bools_are_tristate: {0}):".format(self.db.new_api.pref('bools_are_tristate')))
+                self.opts.log.info(" Added prefixes (bools_are_tristate: {}):".format(self.db.new_api.pref('bools_are_tristate')))
             else:
                 self.opts.log.info(" No added prefixes")
 
@@ -3279,9 +3279,9 @@ class CatalogBuilder:
         for (i, books) in enumerate(books_by_letter):
             sec_id = "%sTitles-ID" % (title_letters[i].upper())
             if len(title_letters[i]) > 1:
-                fmt_string = _(u"Titles beginning with %s")
+                fmt_string = _("Titles beginning with %s")
             else:
-                fmt_string = _(u"Titles beginning with '%s'")
+                fmt_string = _("Titles beginning with '%s'")
             sec_text = fmt_string % (title_letters[i] if len(title_letters[i]) > 1 else title_letters[i])
             if title_letters[i] == self.SYMBOLS:
                 content_src = "content/%s.html#%s_titles" % (output, self.SYMBOLS)
@@ -3356,9 +3356,9 @@ class CatalogBuilder:
         for authors_by_letter in master_author_list:
             sec_id = "%sauthors-ID" % (authors_by_letter[1])
             if authors_by_letter[1] == self.SYMBOLS:
-                fmt_string = _(u"Authors beginning with %s")
+                fmt_string = _("Authors beginning with %s")
             else:
-                fmt_string = _(u"Authors beginning with '%s'")
+                fmt_string = _("Authors beginning with '%s'")
             sec_text = fmt_string % authors_by_letter[1]
             if authors_by_letter[1] == self.SYMBOLS:
                 content_src = "%s#%s_authors" % (HTML_file, authors_by_letter[1])

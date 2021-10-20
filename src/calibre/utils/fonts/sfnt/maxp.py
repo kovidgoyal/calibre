@@ -17,7 +17,7 @@ class MaxpTable(UnknownTable):
     version = FixedProperty('_version')
 
     def __init__(self, *args, **kwargs):
-        super(MaxpTable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self._fmt = b'>lH'
         self._version, self.num_glyphs = unpack_from(self._fmt, self.raw)

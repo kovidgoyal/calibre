@@ -230,7 +230,7 @@ class EmbedFonts:
             name = f['full_name']
             ext = 'otf' if f['is_otf'] else 'ttf'
             name = ascii_filename(name).replace(' ', '-').replace('(', '').replace(')', '')
-            fid, href = self.oeb.manifest.generate(id=u'font', href=u'fonts/%s.%s'%(name, ext))
+            fid, href = self.oeb.manifest.generate(id='font', href='fonts/%s.%s'%(name, ext))
             item = self.oeb.manifest.add(fid, href, guess_type('dummy.'+ext)[0], data=data)
             item.unload_data_from_memory()
             page_sheet = self.get_page_sheet()

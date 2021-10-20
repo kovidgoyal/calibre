@@ -263,7 +263,7 @@ def do_add(
                                 try:
                                     with lopen(mi.cover, 'rb') as f:
                                         cover_data = f.read()
-                                except EnvironmentError:
+                                except OSError:
                                     pass
 
                 book_title, ids, mids, dups = dbctx.run(
@@ -462,8 +462,8 @@ def main(opts, args, dbctx):
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]
     lcodes = [x for x in lcodes if x]
     identifiers = (x.partition(':')[::2] for x in opts.identifier)
-    identifiers = dict((k.strip(), v.strip()) for k, v in identifiers
-                       if k.strip() and v.strip())
+    identifiers = {k.strip(): v.strip() for k, v in identifiers
+                       if k.strip() and v.strip()}
     if opts.empty:
         do_add_empty(
             dbctx, opts.title, aut, opts.isbn, tags, opts.series, opts.series_index,

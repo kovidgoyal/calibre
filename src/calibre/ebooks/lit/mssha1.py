@@ -1,4 +1,3 @@
-
 """
 Modified version of SHA-1 used in Microsoft LIT files.
 

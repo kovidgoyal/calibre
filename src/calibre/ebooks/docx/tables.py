@@ -615,11 +615,9 @@ class Table:
                         tc.getparent().remove(tc)
 
     def __iter__(self):
-        for p in self.paragraphs:
-            yield p
+        yield from self.paragraphs
         for t in itervalues(self.sub_tables):
-            for p in t:
-                yield p
+            yield from t
 
     def apply_markup(self, rmap, page, parent=None):
         table = TABLE('\n\t\t')

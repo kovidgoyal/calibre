@@ -75,7 +75,7 @@ def get_data(name):
     try:
         with share_open(path, 'rb') as f:
             return f.read(), guess_type(name)
-    except EnvironmentError as err:
+    except OSError as err:
         prints('Failed to read from book file: {} with error: {}'.format(name, as_unicode(err)))
     return None, None
 
@@ -122,7 +122,7 @@ def handle_mathjax_request(rq, name):
         try:
             with lopen(path, 'rb') as f:
                 raw = f.read()
-        except EnvironmentError as err:
+        except OSError as err:
             prints("Failed to get mathjax file: {} with error: {}".format(name, err), file=sys.stderr)
             rq.fail(QWebEngineUrlRequestJob.Error.RequestFailed)
             return
@@ -366,7 +366,7 @@ class WebPage(QWebEnginePage):
         prints('%s: %s:%s: %s' % (prefix, source_id, linenumber, msg), file=sys.stderr)
         try:
             sys.stderr.flush()
-        except EnvironmentError:
+        except OSError:
             pass
 
     def acceptNavigationRequest(self, url, req_type, is_main_frame):

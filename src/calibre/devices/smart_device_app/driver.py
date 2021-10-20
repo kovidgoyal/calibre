@@ -164,7 +164,7 @@ class ConnectionListener(Thread):
 
                     except socket.timeout:
                         pass
-                    except socket.error:
+                    except OSError:
                         x = sys.exc_info()[1]
                         self.driver._debug('unexpected socket exception', x.args[0])
                         self._close_socket(device_socket)
@@ -623,9 +623,9 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     amt_sent = sock.send(s[sent_len:])
                 sock.settimeout(None)
                 if amt_sent <= 0:
-                    raise IOError('Bad write on socket')
+                    raise OSError('Bad write on socket')
                 sent_len += amt_sent
-            except socket.error as e:
+            except OSError as e:
                 self._debug('socket error', e, e.errno)
                 if e.args[0] != EAGAIN and e.args[0] != EINTR:
                     self._close_device_socket()
@@ -661,7 +661,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('timeout communicating with device')
             self._close_device_socket()
             raise TimeoutError('Device did not respond in reasonable time')
-        except socket.error:
+        except OSError:
             self._debug('device went away')
             self._close_device_socket()
             raise ControlError(desc='Device closed the network connection')
@@ -689,7 +689,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             self._debug('timeout communicating with device')
             self._close_device_socket()
             raise TimeoutError('Device did not respond in reasonable time')
-        except socket.error:
+        except OSError:
             self._debug('device went away')
             self._close_device_socket()
             raise ControlError(desc='Device closed the network connection')
@@ -936,7 +936,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                 sock.bind((ip_addr, port))
             else:
                 sock.bind(('', port))
-        except socket.error:
+        except OSError:
             self._debug('socket error on port', port)
             port = 0
         except:
@@ -1213,7 +1213,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             return True
         except socket.timeout:
             self._close_device_socket()
-        except socket.error:
+        except OSError:
             x = sys.exc_info()[1]
             self._debug('unexpected socket exception', x.args[0])
             self._close_device_socket()

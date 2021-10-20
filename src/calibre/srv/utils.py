@@ -70,8 +70,7 @@ class MultiDict(dict):  # {{{
         f = dict.values
         for v in f(self):
             if duplicates:
-                for x in v:
-                    yield x
+                yield from v
             else:
                 yield v[-1]
     itervalues = values
@@ -235,7 +234,7 @@ def eintr_retry_call(func, *args, **kwargs):
     while True:
         try:
             return func(*args, **kwargs)
-        except EnvironmentError as e:
+        except OSError as e:
             if getattr(e, 'errno', None) in socket_errors_eintr:
                 continue
             raise
@@ -287,7 +286,7 @@ class RotatingStream:
             self.stream = open(os.open(self.filename, os.O_WRONLY|os.O_APPEND|os.O_CREAT|os.O_CLOEXEC), 'w')
         try:
             self.stream.tell()
-        except EnvironmentError:
+        except OSError:
             # Happens if filename is /dev/stdout for example
             self.max_size = None
 
@@ -306,7 +305,7 @@ class RotatingStream:
                 winutil.move_file(src, dest)
             else:
                 os.rename(src, dest)
-        except EnvironmentError as e:
+        except OSError as e:
             if e.errno != errno.ENOENT:  # the source of the rename does not exist
                 raise
 
@@ -327,13 +326,13 @@ class RotatingStream:
         failed = {}
         try:
             os.remove(self.filename)
-        except EnvironmentError as e:
+        except OSError as e:
             failed[self.filename] = e
         import glob
         for f in glob.glob(self.filename + '.*'):
             try:
                 os.remove(f)
-            except EnvironmentError as e:
+            except OSError as e:
                 failed[f] = e
         self.set_output()
         return failed

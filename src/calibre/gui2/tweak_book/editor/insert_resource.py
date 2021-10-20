@@ -67,7 +67,7 @@ class ChooseName(Dialog):  # {{{
         n = str(self.name_edit.text()).replace('\\', '/')
         name, ext = n.rpartition('.')[0::2]
         self.filename = name + '.' + ext.lower()
-        super(ChooseName, self).accept()
+        super().accept()
 # }}}
 
 # Images {{{
@@ -78,7 +78,7 @@ class ImageDelegate(QStyledItemDelegate):
     MARGIN = 4
 
     def __init__(self, parent):
-        super(ImageDelegate, self).__init__(parent)
+        super().__init__(parent)
         self.current_basic_size = tprefs.get('image-thumbnail-preview-size', [120, 160])
         self.set_dimensions()
 
@@ -343,7 +343,7 @@ class InsertImage(Dialog):
 
     def accept(self):
         self.chosen_image = str(self.view.currentIndex().data() or '')
-        super(InsertImage, self).accept()
+        super().accept()
 
     def filter_changed(self, *args):
         f = str(self.filter.text())
@@ -478,7 +478,7 @@ class NewBook(Dialog):  # {{{
             tprefs.set('previous_new_book_authors', str(self.authors.text()))
             tprefs.set('previous_new_book_lang', (self.languages.lang_codes or [get_lang()])[0])
             self.languages.update_recently_used()
-        super(NewBook, self).accept()
+        super().accept()
 
     @property
     def mi(self):

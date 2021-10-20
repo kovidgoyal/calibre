@@ -45,7 +45,7 @@ class StreamAsPath:
         if self.temppath is not None:
             try:
                 os.remove(self.temppath)
-            except EnvironmentError:
+            except OSError:
                 pass
         self.temppath = None
 
@@ -59,8 +59,7 @@ def extract(path_or_stream, location):
 def names(path_or_stream):
     from unrardll import names
     with StreamAsPath(path_or_stream) as path:
-        for name in names(path, only_useful=True):
-            yield name
+        yield from names(path, only_useful=True)
 
 
 def comment(path_or_stream):

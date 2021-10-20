@@ -238,7 +238,7 @@ class Polish(QDialog):  # {{{
                                 show=True)
         gprefs['polishing_settings'] = saved_prefs
         self.queue_files()
-        return super(Polish, self).accept()
+        return super().accept()
 
     def queue_files(self):
         self.tdir = PersistentTemporaryDirectory('_queue_polish')
@@ -390,7 +390,7 @@ class Report(QDialog):  # {{{
         if self.reports:
             self.show_next()
             return
-        super(Report, self).accept()
+        super().accept()
 
     def reject(self):
         if self.ign.isChecked():
@@ -398,7 +398,7 @@ class Report(QDialog):  # {{{
         if self.reports:
             self.show_next()
             return
-        super(Report, self).reject()
+        super().reject()
 # }}}
 
 

@@ -425,8 +425,7 @@ def classes_in_rule_list(css_rules):
 def iter_declarations(sheet_or_rule):
     if hasattr(sheet_or_rule, 'cssRules'):
         for rule in sheet_or_rule.cssRules:
-            for x in iter_declarations(rule):
-                yield x
+            yield from iter_declarations(rule)
     elif hasattr(sheet_or_rule, 'style'):
         yield sheet_or_rule.style
     elif isinstance(sheet_or_rule, CSSStyleDeclaration):

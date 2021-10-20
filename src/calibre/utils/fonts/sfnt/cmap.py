@@ -170,7 +170,7 @@ class BMPTable:
 class CmapTable(UnknownTable):
 
     def __init__(self, *args, **kwargs):
-        super(CmapTable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.version, self.num_tables = unpack_from(b'>HH', self.raw)
 

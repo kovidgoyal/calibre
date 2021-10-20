@@ -561,10 +561,10 @@ class Blocks(Style):
 
 
 def all_styles():
-    return set(
+    return {
         x.NAME for x in itervalues(globals()) if
         isinstance(x, type) and issubclass(x, Style) and x is not Style
-    )
+    }
 
 
 def load_styles(prefs, respect_disabled=True):

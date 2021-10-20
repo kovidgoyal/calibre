@@ -72,10 +72,10 @@ def copy_all(text_browser):
 
 
 def create_search_internet_menu(callback, author=None):
-    m = QMenu((
+    m = QMenu(
         _('Search the internet for the author {}').format(author)
         if author is not None else
-        _('Search the internet for this book'))
+        _('Search the internet for this book')
     )
     m.menuAction().setIcon(QIcon(I('search.png')))
     items = all_book_searches() if author is None else all_author_searches()
@@ -394,7 +394,7 @@ def create_copy_links(menu, data=None):
             field = 'authors'
         if field and field in ('tags', 'series', 'publisher', 'authors') or is_category(field):
             name = data['name' if data['type'] == 'author' else 'value']
-            eq = f'{field}:"={name}"'.encode('utf-8').hex()
+            eq = f'{field}:"={name}"'.encode().hex()
             link(_('Link to show books matching {} in calibre').format(name),
                  f'calibre://search/{library_id}?eq={eq}')
 

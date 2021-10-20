@@ -338,7 +338,7 @@ class NCXIndex(Index):
             largest = max(x['index'] for x in toc_table)
         except ValueError:
             largest = 0
-        fmt = '%0{0}X'.format(max(2, len('%X' % largest)))
+        fmt = '%0{}X'.format(max(2, len('%X' % largest)))
 
         def to_entry(x):
             ans = {}

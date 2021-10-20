@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -1383,8 +1381,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def get_feeds(self):
         feeds = self.conn.get('SELECT title, script FROM feeds')
-        for title, script in feeds:
-            yield title, script
+        yield from feeds
 
     def get_feed(self, id):
         return self.conn.get('SELECT script FROM feeds WHERE id=%d'%id,

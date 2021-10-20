@@ -135,7 +135,7 @@ class Index:
 class SKELIndex(Index):
 
     def __init__(self, skelidx, records, codec):
-        super(SKELIndex, self).__init__(skelidx, records, codec)
+        super().__init__(skelidx, records, codec)
         self.records = []
 
         if self.table is not None:
@@ -156,7 +156,7 @@ class SKELIndex(Index):
 class SECTIndex(Index):
 
     def __init__(self, sectidx, records, codec):
-        super(SECTIndex, self).__init__(sectidx, records, codec)
+        super().__init__(sectidx, records, codec)
         self.records = []
 
         if self.table is not None:
@@ -181,7 +181,7 @@ class SECTIndex(Index):
 class GuideIndex(Index):
 
     def __init__(self, guideidx, records, codec):
-        super(GuideIndex, self).__init__(guideidx, records, codec)
+        super().__init__(guideidx, records, codec)
         self.records = []
 
         if self.table is not None:
@@ -203,7 +203,7 @@ class GuideIndex(Index):
 class NCXIndex(Index):
 
     def __init__(self, ncxidx, records, codec):
-        super(NCXIndex, self).__init__(ncxidx, records, codec)
+        super().__init__(ncxidx, records, codec)
         self.records = []
 
         if self.table is not None:

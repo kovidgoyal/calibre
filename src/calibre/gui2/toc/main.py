@@ -127,7 +127,7 @@ class XPathDialog(QDialog):  # {{{
     def accept(self):
         if self.check():
             self.prefs.set('xpath_toc_remove_duplicates', self.remove_duplicates_cb.isChecked())
-            super(XPathDialog, self).accept()
+            super().accept()
 
     @property
     def xpaths(self):
@@ -423,8 +423,7 @@ class TreeWidget(QTreeWidget):  # {{{
         for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
-            for gc in self.iter_items(parent=child):
-                yield gc
+            yield from self.iter_items(parent=child)
 
     def update_status_tip(self, item):
         c = item.data(0, Qt.ItemDataRole.UserRole)
@@ -475,12 +474,12 @@ class TreeWidget(QTreeWidget):  # {{{
         self.in_drop_event = True
         self.push_history()
         try:
-            super(TreeWidget, self).dropEvent(event)
+            super().dropEvent(event)
         finally:
             self.in_drop_event = False
 
     def selectedIndexes(self):
-        ans = super(TreeWidget, self).selectedIndexes()
+        ans = super().selectedIndexes()
         if self.in_drop_event:
             # For order to be be preserved when moving by drag and drop, we
             # have to ensure that selectedIndexes returns an ordered list of
@@ -658,7 +657,7 @@ class TreeWidget(QTreeWidget):  # {{{
             self.del_items()
             ev.accept()
         else:
-            return super(TreeWidget, self).keyPressEvent(ev)
+            return super().keyPressEvent(ev)
 
     def show_context_menu(self, point):
         item = self.currentItem()
@@ -776,7 +775,7 @@ class TOCView(QWidget):  # {{{
         if e.type() == QEvent.Type.StatusTip:
             txt = str(e.tip()) or self.default_msg
             self.hl.setText(txt)
-        return super(TOCView, self).event(e)
+        return super().event(e)
 
     def item_title(self, item):
         return str(item.data(0, Qt.ItemDataRole.DisplayRole) or '')
@@ -792,8 +791,7 @@ class TOCView(QWidget):  # {{{
             p.removeChild(item)
 
     def iter_items(self, parent=None):
-        for item in self.tocw.iter_items(parent=parent):
-            yield item
+        yield from self.tocw.iter_items(parent=parent)
 
     def flatten_toc(self):
         self.tocw.push_history()
@@ -1075,10 +1073,10 @@ class TOCEditor(QDialog):  # {{{
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
                   ' more information.')%self.book_title, det_msg=tb, show=True)
-            super(TOCEditor, self).reject()
+            super().reject()
             return
         self.write_result(0)
-        super(TOCEditor, self).accept()
+        super().accept()
 
     def reject(self):
         if not self.bb.isEnabled():
@@ -1093,7 +1091,7 @@ class TOCEditor(QDialog):  # {{{
             self.working = False
             self.prefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             self.write_result(1)
-            super(TOCEditor, self).reject()
+            super().reject()
 
     def write_result(self, res):
         if self.write_result_to:

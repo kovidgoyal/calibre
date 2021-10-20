@@ -1,4 +1,3 @@
-
 '''
 SVG rasterization transform.
 '''

@@ -66,7 +66,7 @@ class Job(Thread):
         if lp:
             try:
                 os.remove(lp)
-            except EnvironmentError:
+            except OSError:
                 pass
 
     def read_log(self):
@@ -75,7 +75,7 @@ class Job(Thread):
             try:
                 with lopen(self.log_path, 'rb') as f:
                     ans = f.read()
-            except EnvironmentError:
+            except OSError:
                 pass
         if isinstance(ans, bytes):
             ans = force_unicode(ans, 'utf-8')

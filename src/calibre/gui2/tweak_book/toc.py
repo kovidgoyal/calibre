@@ -75,7 +75,7 @@ class TOCEditor(QDialog):
         elif self.stacks.currentIndex() == 0:
             self.write_toc()
             tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
-            super(TOCEditor, self).accept()
+            super().accept()
 
     def really_accept(self, tb):
         tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
@@ -83,10 +83,10 @@ class TOCEditor(QDialog):
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
                   ' more information.')%self.book_title, det_msg=tb, show=True)
-            super(TOCEditor, self).reject()
+            super().reject()
             return
 
-        super(TOCEditor, self).accept()
+        super().accept()
 
     def reject(self):
         if not self.bb.isEnabled():
@@ -99,7 +99,7 @@ class TOCEditor(QDialog):
             self.stacks.setCurrentIndex(0)
         else:
             tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
-            super(TOCEditor, self).reject()
+            super().reject()
 
     def read_toc(self):
         self.toc_view(current_container())
@@ -192,8 +192,7 @@ class TOCViewer(QWidget):
         for i in range(parent.childCount()):
             child = parent.child(i)
             yield child
-            for gc in self.iter_items(parent=child):
-                yield gc
+            yield from self.iter_items(parent=child)
 
     def emit_navigate(self, *args):
         item = self.view.currentItem()
@@ -229,7 +228,7 @@ class TOCViewer(QWidget):
     def showEvent(self, ev):
         if self.toc_name is None or not ev.spontaneous():
             self.build()
-        return super(TOCViewer, self).showEvent(ev)
+        return super().showEvent(ev)
 
     def update_if_visible(self):
         if self.isVisible():

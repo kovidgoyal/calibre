@@ -114,7 +114,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         fmt = '%d'
         if leading_zeros:
             largest = num + number - 1
-            fmt = '%0{0}d'.format(len(str(largest)))
+            fmt = '%0{}d'.format(len(str(largest)))
         ans['prefix'] = prefix + fmt
         ans['start'] = num
         if allow_spine_order:
@@ -818,7 +818,7 @@ class FileList(QTreeWidget, OpenWithHandler):
         with self:
             text = self.categories['text']
             pre_drop_order = {text.child(i).data(0, NAME_ROLE):i for i in range(text.childCount())}
-            super(FileList, self).dropEvent(event)
+            super().dropEvent(event)
             current_order = {text.child(i).data(0, NAME_ROLE):i for i in range(text.childCount())}
             if current_order != pre_drop_order:
                 order = []

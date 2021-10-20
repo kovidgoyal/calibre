@@ -315,8 +315,7 @@ class ResourceCollection:
         self._resources = []
 
     def __iter__(self):
-        for r in self._resources:
-            yield r
+        yield from self._resources
 
     def __len__(self):
         return len(self._resources)

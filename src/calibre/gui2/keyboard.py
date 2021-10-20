@@ -185,8 +185,7 @@ class Node:
         return self.children[row]
 
     def __iter__(self):
-        for child in self.children:
-            yield child
+        yield from self.children
 
 
 class ConfigModel(SearchQueryParser, QAbstractItemModel):
@@ -214,8 +213,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
     @property
     def all_shortcuts(self):
         for group in self.data:
-            for sc in group:
-                yield sc
+            yield from group
 
     def rowCount(self, parent=ROOT):
         ip = parent.internalPointer()

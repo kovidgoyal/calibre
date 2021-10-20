@@ -328,8 +328,7 @@ class CompositeField(OneToOneField):
             for v in vals:
                 if v:
                     val_map[v].add(book_id)
-        for val, book_ids in iteritems(val_map):
-            yield val, book_ids
+        yield from iteritems(val_map)
 
     def iter_counts(self, candidates, get_metadata=None):
         val_map = defaultdict(set)
@@ -343,8 +342,7 @@ class CompositeField(OneToOneField):
             else:
                 length = 0
             val_map[length].add(book_id)
-        for val, book_ids in iteritems(val_map):
-            yield val, book_ids
+        yield from iteritems(val_map)
 
     def get_composite_categories(self, tag_class, book_rating_map, book_ids,
                                  is_multiple, get_metadata):
@@ -437,8 +435,7 @@ class OnDeviceField(OneToOneField):
         val_map = defaultdict(set)
         for book_id in candidates:
             val_map[self.for_book(book_id, default_value=default_value)].add(book_id)
-        for val, book_ids in iteritems(val_map):
-            yield val, book_ids
+        yield from iteritems(val_map)
 
 
 class LazySortMap:
@@ -562,8 +559,7 @@ class ManyToManyField(Field):
         cbm = self.table.book_col_map
         for book_id in candidates:
             val_map[len(cbm.get(book_id, ()))].add(book_id)
-        for count, book_ids in iteritems(val_map):
-            yield count, book_ids
+        yield from iteritems(val_map)
 
     @property
     def book_value_map(self):

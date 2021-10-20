@@ -174,8 +174,7 @@ class View:
             yield TableRow(book_id, self)
 
     def iterallids(self):
-        for book_id in sorted(self._map):
-            yield book_id
+        yield from sorted(self._map)
 
     def tablerow_for_id(self, book_id):
         return TableRow(book_id, self)
@@ -280,7 +279,7 @@ class View:
     def _build_restriction_string(self, restriction):
         if self.base_restriction:
             if restriction:
-                return u'(%s) and (%s)' % (self.base_restriction, restriction)
+                return '(%s) and (%s)' % (self.base_restriction, restriction)
             else:
                 return self.base_restriction
         else:
@@ -296,7 +295,7 @@ class View:
         else:
             q = query
             if search_restriction:
-                q = u'(%s) and (%s)' % (search_restriction, query)
+                q = '(%s) and (%s)' % (search_restriction, query)
         if not q:
             if set_restriction_count:
                 self.search_restriction_book_count = len(self._map)
@@ -373,7 +372,7 @@ class View:
         old_marked_ids = set(self.marked_ids)
         if not hasattr(id_dict, 'items'):
             # Simple list. Make it a dict of string 'true'
-            self.marked_ids = dict.fromkeys(id_dict, u'true')
+            self.marked_ids = dict.fromkeys(id_dict, 'true')
         else:
             # Ensure that all the items in the dict are text
             self.marked_ids = {k: str(v) for k, v in iteritems(id_dict)}

@@ -77,7 +77,7 @@ class Text(Element):
         text.tail = ''
         self.text_as_string = etree.tostring(text, method='text',
                 encoding='unicode')
-        self.raw = text.text if text.text else u''
+        self.raw = text.text if text.text else ''
         for x in text.iterchildren():
             self.raw += etree.tostring(x, method='xml', encoding='unicode')
         self.average_character_width = self.width/len(self.text_as_string)
@@ -179,8 +179,7 @@ class Column:
         self.width, self.height = self.right-self.left, self.bottom-self.top
 
     def __iter__(self):
-        for x in self.elements:
-            yield x
+        yield from self.elements
 
     def __len__(self):
         return len(self.elements)
@@ -319,19 +318,18 @@ class Region:
                 col = most_suitable_column(elem)
                 if self.opts.verbose > 3:
                     idx = self.columns.index(col)
-                    self.log.debug(u'Absorbing singleton %s into column'%elem.to_html(),
+                    self.log.debug('Absorbing singleton %s into column'%elem.to_html(),
                             idx)
                 col.add(elem)
 
     def collect_stats(self):
         for column in self.columns:
             column.collect_stats()
-        self.average_line_separation = sum([x.average_line_separation for x in
-            self.columns])/float(len(self.columns))
+        self.average_line_separation = sum(x.average_line_separation for x in
+            self.columns)/float(len(self.columns))
 
     def __iter__(self):
-        for x in self.columns:
-            yield x
+        yield from self.columns
 
     def absorb_regions(self, regions, at):
         for region in regions:
@@ -562,8 +560,8 @@ class Page:
                         absorb_into = prev_region
                         if self.regions[next_region].line_count >= \
                                 self.regions[prev_region].line_count:
-                            avg_column_count = sum([len(r.columns) for r in
-                                regions])/float(len(regions))
+                            avg_column_count = sum(len(r.columns) for r in
+                                regions)/float(len(regions))
                             if self.regions[next_region].line_count > \
                                     self.regions[prev_region].line_count \
                                or abs(avg_column_count -
@@ -694,6 +692,6 @@ class PDFDocument:
         for elem in self.elements:
             html.extend(elem.to_html())
         html += ['</body>', '</html>']
-        raw = (u'\n'.join(html)).replace('</strong><strong>', '')
+        raw = ('\n'.join(html)).replace('</strong><strong>', '')
         with open('index.html', 'wb') as f:
             f.write(raw.encode('utf-8'))

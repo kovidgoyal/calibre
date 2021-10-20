@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -328,7 +326,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 prints('found user category case overlap', catmap[uc])
                 cat = catmap[uc][0]
                 suffix = 1
-                while icu_lower((cat + str(suffix))) in catmap:
+                while icu_lower(cat + str(suffix)) in catmap:
                     suffix += 1
                 prints('Renaming user category %s to %s'%(cat, cat+str(suffix)))
                 user_cats[cat + str(suffix)] = user_cats[cat]
@@ -469,7 +467,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         DROP VIEW IF EXISTS meta2;
         CREATE TEMP VIEW meta2 AS
         SELECT
-        {0}
+        {}
         FROM books;
         '''.format(', \n'.join(lines))
         self.conn.executescript(script)
@@ -756,7 +754,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if os.access(path, os.R_OK):
             try:
                 f = lopen(path, 'rb')
-            except (IOError, OSError):
+            except OSError:
                 time.sleep(0.2)
                 f = lopen(path, 'rb')
             with f:
@@ -1164,7 +1162,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if os.path.exists(path):
             try:
                 os.remove(path)
-            except (IOError, OSError):
+            except OSError:
                 time.sleep(0.2)
                 os.remove(path)
         self.conn.execute('UPDATE books SET has_cover=0 WHERE id=?', (id,))
@@ -1199,7 +1197,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 data = data.read()
             try:
                 save_cover_data_to(data, path)
-            except (IOError, OSError):
+            except OSError:
                 time.sleep(0.2)
                 save_cover_data_to(data, path)
         now = nowf()
@@ -1458,7 +1456,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             if os.access(path, os.R_OK):
                 try:
                     f = lopen(path, 'rb')
-                except (IOError, OSError):
+                except OSError:
                     time.sleep(0.2)
                 f = lopen(path, 'rb')
                 with f:
@@ -1724,7 +1722,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         ans = self.conn.get(
                 'SELECT book FROM books_{tn}_link WHERE {col}=?'.format(
                     tn=field['table'], col=field['link_column']), (id_,))
-        return set(x[0] for x in ans)
+        return {x[0] for x in ans}
 
 # data structures for get_categories
 
@@ -1829,7 +1827,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             elif cat['datatype'] == 'rating':
                 for l in list:
                     (id, val) = (l[0], l[1])
-                    tids[category][val] = (id, '{0:05.2f}'.format(val))
+                    tids[category][val] = (id, '{:05.2f}'.format(val))
             elif cat['datatype'] == 'text' and cat['is_multiple'] and \
                             cat['display'].get('is_names', False):
                 for l in list:
@@ -1932,11 +1930,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         tn = cat['table']
         cn = cat['column']
         if ids is None:
-            query = '''SELECT id, {0}, count, avg_rating, sort
-                       FROM tag_browser_{1}'''.format(cn, tn)
+            query = '''SELECT id, {}, count, avg_rating, sort
+                       FROM tag_browser_{}'''.format(cn, tn)
         else:
-            query = '''SELECT id, {0}, count, avg_rating, sort
-                       FROM tag_browser_filtered_{1}'''.format(cn, tn)
+            query = '''SELECT id, {}, count, avg_rating, sort
+                       FROM tag_browser_filtered_{}'''.format(cn, tn)
         # results will be sorted later
         data = self.conn.get(query)
         for r in data:
@@ -2714,7 +2712,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         table = self.field_metadata[field]['table']
         link = self.field_metadata[field]['link_column']
         bks = self.conn.get(
-            'SELECT book from books_{0}_link WHERE {1}=?'.format(table, link),
+            'SELECT book from books_{}_link WHERE {}=?'.format(table, link),
             (id,))
         books = []
         for (book_id,) in bks:

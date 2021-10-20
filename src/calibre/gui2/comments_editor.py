@@ -752,7 +752,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 x.tag not in ('script', 'style')]
 
         if len(elems) > 1:
-            ans = '<div>%s</div>'%(u''.join(elems))
+            ans = '<div>%s</div>'%(''.join(elems))
         else:
             ans = ''.join(elems)
             if not ans.startswith('<'):
@@ -776,7 +776,7 @@ class EditorWidget(QTextEdit, LineEditECM):  # {{{
                 try:
                     with lopen(path, 'rb') as f:
                         data = f.read()
-                except EnvironmentError:
+                except OSError:
                     if path.rpartition('.')[-1].lower() in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
                         return QByteArray(bytearray.fromhex(
                                     '89504e470d0a1a0a0000000d49484452'

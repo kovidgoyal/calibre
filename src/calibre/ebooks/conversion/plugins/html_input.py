@@ -284,7 +284,7 @@ class HTMLInput(InputFormatPlugin):
                 # Check for the common case, images
                 try:
                     img = what(link)
-                except EnvironmentError:
+                except OSError:
                     pass
                 else:
                     if img:

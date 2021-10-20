@@ -204,7 +204,7 @@ class MetadataWidget(Widget, Ui_Form):
             try:
                 with open(_file, "rb") as f:
                     cover = f.read()
-            except IOError as e:
+            except OSError as e:
                 d = error_dialog(self.parent(), _('Error reading file'),
                         _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
@@ -244,7 +244,7 @@ class MetadataWidget(Widget, Ui_Form):
                 db.set_field('authors', {self.book_id:authors})
             if self.cover_changed and self.cover_data is not None:
                 self.db.set_cover(self.book_id, self.cover_data)
-        except EnvironmentError as err:
+        except OSError as err:
             if getattr(err, 'errno', None) == errno.EACCES:  # Permission denied
                 import traceback
                 fname = getattr(err, 'filename', None) or 'file'

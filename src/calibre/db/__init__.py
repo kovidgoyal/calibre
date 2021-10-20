@@ -77,10 +77,10 @@ def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, conve
         prefix = backend.library_path
     fdata = backend.custom_column_num_map
 
-    FIELDS = set(['title', 'sort', 'authors', 'author_sort', 'publisher',
+    FIELDS = {'title', 'sort', 'authors', 'author_sort', 'publisher',
         'rating', 'timestamp', 'size', 'tags', 'comments', 'series',
         'series_index', 'uuid', 'pubdate', 'last_modified', 'identifiers',
-        'languages']).union(set(fdata))
+        'languages'}.union(set(fdata))
     for x, data in iteritems(fdata):
         if data['datatype'] == 'series':
             FIELDS.add('%d_index'%x)

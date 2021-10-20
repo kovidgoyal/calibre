@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -916,7 +914,7 @@ class Application(QApplication):
         self.setAttribute(Qt.ApplicationAttribute.AA_SynthesizeTouchForUnhandledMouseEvents, False)
         try:
             base_dir()
-        except EnvironmentError as err:
+        except OSError as err:
             if not headless:
                 show_temp_dir_error(err)
             raise SystemExit('Failed to create temporary folder')

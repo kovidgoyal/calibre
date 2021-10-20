@@ -29,7 +29,7 @@ def comparable_price(text):
         # remove all separators accept fraction,
         # leave only 2 digits in fraction
         m = re.sub(r'\.(?!\d*$)', r'', m)
-        text = '{0:0>8.0f}'.format(float(m) * 100.)
+        text = '{:0>8.0f}'.format(float(m) * 100.)
     return text
 
 

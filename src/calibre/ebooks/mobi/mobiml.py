@@ -1,5 +1,3 @@
-
-
 '''
 Transform XHTML/OPS-ish content into Mobipocket HTML 3.2.
 '''
@@ -134,7 +132,7 @@ class MobiMLizer:
         self.log = self.oeb.logger
         self.opts = context
         self.profile = profile = context.dest
-        self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
+        self.fnums = fnums = {v: k for k, v in profile.fnums.items()}
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
         self.mobimlize_spine()
 

@@ -33,7 +33,7 @@ class Other(Thread):
         try:
             with FastFailEF('testsp'):
                 self.locked = True
-        except EnvironmentError:
+        except OSError:
             self.locked = False
 
 
@@ -72,7 +72,7 @@ class IPCLockTest(unittest.TestCase):
             try:
                 shutil.rmtree(self.tdir)
                 break
-            except EnvironmentError:
+            except OSError:
                 time.sleep(0.1)
 
     def test_exclusive_file_same_process(self):
@@ -154,7 +154,7 @@ class IPCLockTest(unittest.TestCase):
         self.assertFalse(is_tdir_locked(tdirs[0]))
         clean_tdirs_in('t')
         self.assertFalse(os.path.exists(tdirs[0]))
-        self.assertEqual(os.listdir('t'), [u'tdir-lock'])
+        self.assertEqual(os.listdir('t'), ['tdir-lock'])
 
 
 def other1():

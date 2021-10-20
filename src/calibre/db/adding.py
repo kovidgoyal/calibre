@@ -93,7 +93,7 @@ def listdir(root, sort_by_mtime=False):
         def safe_mtime(x):
             try:
                 return os.path.getmtime(x)
-            except EnvironmentError:
+            except OSError:
                 return time.time()
         items = sorted(items, key=safe_mtime)
 
@@ -230,8 +230,7 @@ def cdb_find_in_dir(dirpath, single_book_per_directory, compiled_rules):
 def cdb_recursive_find(root, single_book_per_directory=True, compiled_rules=()):
     root = os.path.abspath(root)
     for dirpath in os.walk(root):
-        for formats in cdb_find_in_dir(dirpath[0], single_book_per_directory, compiled_rules):
-            yield formats
+        yield from cdb_find_in_dir(dirpath[0], single_book_per_directory, compiled_rules)
 
 
 def add_catalog(cache, path, title, dbapi=None):

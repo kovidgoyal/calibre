@@ -273,7 +273,7 @@ def normalize_case(container, val):
     def safe_listdir(x):
         try:
             return os.listdir(x)
-        except EnvironmentError:
+        except OSError:
             return ()
 
     parts = val.split('/')

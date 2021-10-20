@@ -145,8 +145,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             traceback.print_exc()
             self.builtin_source_dict = {}
 
-        self.funcs = dict((k,v) for k,v in formatter_functions().get_functions().items()
-                                if v.is_python)
+        self.funcs = {k:v for k,v in formatter_functions().get_functions().items()
+                                if v.is_python}
 
         self.builtins = formatter_functions().get_builtins_and_aliases()
 

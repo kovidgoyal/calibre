@@ -259,7 +259,7 @@ class DOCX:
         else:
             try:
                 shutil.rmtree(self.tdir)
-            except EnvironmentError:
+            except OSError:
                 pass
 
 

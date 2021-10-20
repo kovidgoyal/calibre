@@ -12,8 +12,8 @@ from io import BytesIO
 from calibre.utils.zipfile import safe_replace
 from polyglot.builtins import as_unicode
 
-BM_FIELD_SEP = u'*|!|?|*'
-BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
+BM_FIELD_SEP = '*|!|?|*'
+BM_LEGACY_ESC = 'esc-text-%&*#%(){}ads19-end-esc'
 
 
 def parse_bookmarks(raw):
@@ -35,7 +35,7 @@ def parse_bookmarks(raw):
             except Exception:
                 continue
             # Unescape from serialization
-            pos = pos.replace(BM_LEGACY_ESC, u'^')
+            pos = pos.replace(BM_LEGACY_ESC, '^')
             # Check for pos being a scroll fraction
             try:
                 pos = float(pos)
@@ -57,16 +57,16 @@ class BookmarksMixin:
         dat = []
         for bm in bookmarks:
             if bm['type'] == 'legacy':
-                rec = u'%s^%d#%s'%(bm['title'], bm['spine'], bm['pos'])
+                rec = '%s^%d#%s'%(bm['title'], bm['spine'], bm['pos'])
             else:
                 pos = bm['pos']
                 if isinstance(pos, numbers.Number):
                     pos = str(pos)
                 else:
-                    pos = pos.replace(u'^', BM_LEGACY_ESC)
+                    pos = pos.replace('^', BM_LEGACY_ESC)
                 rec = BM_FIELD_SEP.join([bm['title'], str(bm['spine']), pos])
             dat.append(rec)
-        return (u'\n'.join(dat) +u'\n')
+        return ('\n'.join(dat) +'\n')
 
     def read_bookmarks(self):
         self.bookmarks = []
@@ -93,7 +93,7 @@ class BookmarksMixin:
                     safe_replace(zf, 'META-INF/calibre_bookmarks.txt',
                             BytesIO(dat.encode('utf-8')),
                             add_missing=True)
-            except IOError:
+            except OSError:
                 return
 
     def add_bookmark(self, bm, no_copy_to_file=False):

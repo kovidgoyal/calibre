@@ -124,7 +124,7 @@ def kdialog_supports_desktopfile():
     if ans is None:
         try:
             raw = subprocess.check_output(['kdialog', '--help'])
-        except EnvironmentError:
+        except OSError:
             raw = b'--desktopfile'
         ans = kdialog_supports_desktopfile.ans = b'--desktopfile' in raw
     return ans

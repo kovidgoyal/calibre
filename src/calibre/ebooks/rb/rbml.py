@@ -225,7 +225,7 @@ class RBMLizer:
         return text
 
     def close_tags(self, tags):
-        text = [u'']
+        text = ['']
         for i in range(0, len(tags)):
             tag = tags.pop()
             text.append('</%s>' % tag)

@@ -176,7 +176,7 @@ def update_interface_data(ctx, rd, translations_hash):
 
 def get_field_list(db):
     fieldlist = list(db.pref('book_display_fields', ()))
-    names = frozenset([x[0] for x in fieldlist])
+    names = frozenset(x[0] for x in fieldlist)
     available = frozenset(db.field_metadata.displayable_field_keys())
     for field in available:
         if field not in names:
@@ -209,9 +209,9 @@ def get_library_init_data(ctx, rd, db, num, sorts, orders, vl):
         ans['book_display_fields'] = get_field_list(db)
         mdata = ans['metadata'] = {}
         try:
-            extra_books = set(
+            extra_books = {
                 int(x) for x in rd.query.get('extra_books', '').split(',')
-            )
+            }
         except Exception:
             extra_books = ()
         for coll in (ans['search_result']['book_ids'], extra_books):

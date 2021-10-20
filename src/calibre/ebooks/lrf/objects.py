@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import struct, array, zlib, io, collections, re
@@ -85,8 +83,7 @@ class LRFObject:
             raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
 
     def __iter__(self):
-        for i in range(0):
-            yield i
+        yield from range(0)
 
     def __str__(self):
         return self.__class__.__name__
@@ -129,8 +126,7 @@ class LRFContentObject(LRFObject):
             raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
 
     def __iter__(self):
-        for i in self._contents:
-            yield i
+        yield from self._contents
 
 
 class LRFStream(LRFObject):
@@ -265,8 +261,7 @@ class Color:
 class EmptyPageElement:
 
     def __iter__(self):
-        for i in range(0):
-            yield i
+        yield from range(0)
 
     def __str__(self):
         return str(self)
@@ -418,8 +413,7 @@ class Page(LRFStream):
         self.content = Page.Content(self.stream, self._document.objects)
 
     def __iter__(self):
-        for i in self.content:
-            yield i
+        yield from self.content
 
     def __str__(self):
         s = '\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
@@ -996,8 +990,7 @@ class Canvas(LRFStream):
         return s
 
     def __iter__(self):
-        for i in self._contents:
-            yield i
+        yield from self._contents
 
 
 class Header(Canvas):
@@ -1223,8 +1216,7 @@ class TOCObject(LRFStream):
             c -= 1
 
     def __iter__(self):
-        for i in self._contents:
-            yield i
+        yield from self._contents
 
     def __str__(self):
         s = '<TOC>\n'

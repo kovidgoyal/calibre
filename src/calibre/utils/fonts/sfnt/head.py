@@ -22,7 +22,7 @@ class HeadTable(UnknownTable):
     font_revision = FixedProperty('_font_revision')
 
     def __init__(self, *args, **kwargs):
-        super(HeadTable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         field_types = (
                 '_version_number' , 'l',

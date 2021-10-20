@@ -62,7 +62,7 @@ def run_funcs(self, db, ndb, funcs):
             if meth[0] in {'!', '@', '#', '+', '$', '-', '%'}:
                 if meth[0] != '+':
                     fmt = {'!':dict, '@':lambda x:frozenset(x or ()), '#':lambda x:set((x or '').split(',')),
-                           '$':lambda x:set(tuple(y) for y in x), '-':lambda x:None,
+                           '$':lambda x:{tuple(y) for y in x}, '-':lambda x:None,
                            '%':lambda x: set((x or '').split(','))}[meth[0]]
                 else:
                     fmt = args[-1]
@@ -516,7 +516,7 @@ class LegacyTest(BaseTest):
             T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
             T((name, object()))
             T = partial(ET, 'delete_all_custom_book_data', old=old, legacy=legacy)
-            T((name))
+            T(name)
             T = partial(ET, 'get_all_custom_book_data', old=old, legacy=legacy)
             T((name, object()))
 

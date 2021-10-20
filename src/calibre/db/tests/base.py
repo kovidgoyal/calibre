@@ -32,7 +32,7 @@ class BaseTest(unittest.TestCase):
         gc.collect(), gc.collect()
         try:
             shutil.rmtree(self.library_path)
-        except EnvironmentError:
+        except OSError:
             # Try again in case something transient has a file lock on windows
             gc.collect(), gc.collect()
             time.sleep(2)

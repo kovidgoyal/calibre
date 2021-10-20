@@ -1,5 +1,3 @@
-
-
 import re
 
 from lxml.html import tostring

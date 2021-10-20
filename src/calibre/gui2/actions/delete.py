@@ -158,7 +158,7 @@ class DeleteAction(InterfaceAction):
         for x in ids:
             fmts_ = db.formats(x, index_is_id=True, verify_formats=False)
             if fmts_:
-                for x in frozenset([x.lower() for x in fmts_.split(',')]):
+                for x in frozenset(x.lower() for x in fmts_.split(',')):
                     c[x] += 1
         d = SelectFormats(c, msg, parent=self.gui, exclude=exclude,
                 single=single)
@@ -381,7 +381,7 @@ class DeleteAction(InterfaceAction):
         if len(to_delete_ids) < 5:
             try:
                 view.model().delete_books_by_id(to_delete_ids)
-            except IOError as err:
+            except OSError as err:
                 if err.errno == errno.EACCES:
                     import traceback
                     fname = os.path.basename(getattr(err, 'filename', 'file') or 'file')

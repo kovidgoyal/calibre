@@ -156,7 +156,7 @@ class DoPrint(Thread):
                     self.log = f.read().decode('utf-8', 'replace')
             try:
                 os.remove(f.name)
-            except EnvironmentError:
+            except OSError:
                 pass
         except Exception:
             import traceback
@@ -215,7 +215,7 @@ class Printing(QProgressDialog):
             try:
                 if self.thread.worker.poll() is None:
                     self.thread.worker.kill()
-            except EnvironmentError:
+            except OSError:
                 import traceback
                 traceback.print_exc()
         self.timer.stop()

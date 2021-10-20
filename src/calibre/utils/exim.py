@@ -142,7 +142,7 @@ class Exporter:
                 try:
                     with lopen(fpath, 'rb') as f:
                         self.add_file(f, key)
-                except EnvironmentError:
+                except OSError:
                     if not iswindows:
                         raise
                     time.sleep(1)
@@ -290,7 +290,7 @@ class Importer:
             try:
                 with lopen(path, 'wb') as dest:
                     shutil.copyfileobj(f, dest)
-            except EnvironmentError:
+            except OSError:
                 os.makedirs(os.path.dirname(path))
                 with lopen(path, 'wb') as dest:
                     shutil.copyfileobj(f, dest)
@@ -299,7 +299,7 @@ class Importer:
         try:
             with lopen(gpath, 'rb') as f:
                 raw = f.read()
-        except EnvironmentError:
+        except OSError:
             raw = b''
         try:
             lpath = library_usage_stats.most_common(1)[0][0]
@@ -332,7 +332,7 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
             progress1(dest, i, total)
         try:
             os.makedirs(dest)
-        except EnvironmentError as err:
+        except OSError as err:
             if err.errno != errno.EEXIST:
                 raise
         if not os.path.isdir(dest):
@@ -355,14 +355,14 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
             if os.path.exists(config_location):
                 try:
                     shutil.rmtree(config_location)
-                except EnvironmentError:
+                except OSError:
                     if not iswindows:
                         raise
                     time.sleep(1)
                     shutil.rmtree(config_location)
     try:
         os.rename(base_dir, config_location)
-    except EnvironmentError:
+    except OSError:
         time.sleep(2)
         os.rename(base_dir, config_location)
     from calibre.gui2 import gprefs
@@ -384,7 +384,7 @@ def test_import(export_dir='/t/ex', import_dir='/t/imp'):
 def cli_report(*args, **kw):
     try:
         prints(*args, **kw)
-    except EnvironmentError:
+    except OSError:
         pass
 
 

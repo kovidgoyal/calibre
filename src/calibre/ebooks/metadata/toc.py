@@ -114,8 +114,7 @@ class TOC(list):
         'Depth first iteration over the tree rooted at self'
         yield self
         for obj in self:
-            for i in obj.flat():
-                yield i
+            yield from obj.flat()
 
     @property
     def abspath(self):

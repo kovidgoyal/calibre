@@ -1,4 +1,3 @@
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -769,8 +768,7 @@ initialize_plugins()
 
 
 def initialized_plugins():
-    for plugin in _initialized_plugins:
-        yield plugin
+    yield from _initialized_plugins
 
 # }}}
 
@@ -786,7 +784,7 @@ def build_plugin(path):
     if '__init__.py' not in names:
         prints(path, ' is not a valid plugin')
         raise SystemExit(1)
-    t = PersistentTemporaryFile(u'.zip')
+    t = PersistentTemporaryFile('.zip')
     with ZipFile(t, 'w', ZIP_STORED) as zf:
         zf.add_dir(path, simple_filter=lambda x:x in {'.git', '.bzr', '.svn', '.hg'})
     t.close()
@@ -852,7 +850,7 @@ def main(args=sys.argv):
         for plugin in initialized_plugins():
             type_len, name_len = max(type_len, len(plugin.type)), max(name_len, len(plugin.name))
         fmt = '%-{}s%-{}s%-15s%-15s%s'.format(type_len+1, name_len+1)
-        print(fmt%tuple(('Type|Name|Version|Disabled|Site Customization'.split('|'))))
+        print(fmt%tuple('Type|Name|Version|Disabled|Site Customization'.split('|')))
         print()
         for plugin in initialized_plugins():
             print(fmt%(

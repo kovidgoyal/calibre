@@ -1,4 +1,3 @@
-
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -13,7 +12,7 @@ if not hasenv('CALIBRE_SHOW_DEPRECATION_WARNINGS'):
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
     os.getcwd()
-except EnvironmentError:
+except OSError:
     os.chdir(os.path.expanduser('~'))
 
 from calibre.constants import (iswindows, ismacos, islinux, isfrozen,
@@ -372,7 +371,7 @@ class CurrentDir:
     def __exit__(self, *args):
         try:
             os.chdir(self.cwd)
-        except EnvironmentError:
+        except OSError:
             # The previous CWD no longer exists
             pass
 

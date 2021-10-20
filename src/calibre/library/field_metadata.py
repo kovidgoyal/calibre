@@ -1,5 +1,3 @@
-
-
 '''
 Created on 25 May 2010
 
@@ -422,8 +420,7 @@ class FieldMetadata:
         del self._tb_cats[key]
 
     def __iter__(self):
-        for key in self._tb_cats:
-            yield key
+        yield from self._tb_cats
 
     def __contains__(self, key):
         return key in self._tb_cats or key == 'title_sort'
@@ -484,8 +481,7 @@ class FieldMetadata:
         return [k for k in self._tb_cats.keys() if self._tb_cats[k]['kind']=='field']
 
     def iterkeys(self):
-        for key in self._tb_cats:
-            yield key
+        yield from self._tb_cats
 
     def itervalues(self):
         return itervalues(self._tb_cats)
@@ -499,8 +495,7 @@ class FieldMetadata:
     iter_items = iteritems
 
     def custom_iteritems(self):
-        for key, meta in iteritems(self._tb_custom_fields):
-            yield (key, meta)
+        yield from iteritems(self._tb_custom_fields)
 
     def items(self):
         return list(self.iter_items())

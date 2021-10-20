@@ -1,5 +1,3 @@
-
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import math, sys, re, numbers
@@ -47,15 +45,13 @@ def tokens(tb):
                 if hasattr(x.contents[0], 'text'):
                     yield x.contents[0].text, cattrs(attrs, {})
                 elif hasattr(x.contents[0], 'attrs'):
-                    for z in process_element(x.contents[0], x.contents[0].attrs):
-                        yield z
+                    yield from process_element(x.contents[0], x.contents[0].attrs)
         elif isinstance(x, Plot):
             yield x, None
         elif isinstance(x, Span):
             attrs = cattrs(attrs, x.attrs)
             for y in x.contents:
-                for z in process_element(y, attrs):
-                    yield z
+                yield from process_element(y, attrs)
 
     for i in tb.contents:
         if isinstance(i, CR):
@@ -65,8 +61,7 @@ def tokens(tb):
                 attrs = {}
                 if hasattr(j, 'attrs'):
                     attrs = j.attrs
-                for k in process_element(j, attrs):
-                    yield k
+                yield from process_element(j, attrs)
 
 
 class Cell:
@@ -129,7 +124,7 @@ class Cell:
         return ceil((float(self.conv.profile.dpi)/72)*(pts/10))
 
     def minimum_width(self):
-        return max([self.minimum_tb_width(tb) for tb in self.text_blocks])
+        return max(self.minimum_tb_width(tb) for tb in self.text_blocks)
 
     def minimum_tb_width(self, tb):
         ts = tb.textStyle.attrs
@@ -204,10 +199,10 @@ class Cell:
         return self.text_block_size(tb, sys.maxsize, debug=debug)[0]
 
     def preferred_width(self, debug=False):
-        return ceil(max([self.text_block_preferred_width(i, debug=debug) for i in self.text_blocks]))
+        return ceil(max(self.text_block_preferred_width(i, debug=debug) for i in self.text_blocks))
 
     def height(self, width):
-        return sum([self.text_block_size(i, width)[1] for i in self.text_blocks])
+        return sum(self.text_block_size(i, width)[1] for i in self.text_blocks)
 
 
 class Row:
@@ -273,8 +268,7 @@ class Row:
         return -1 if cell.colspan > 1 else cell.pwidth
 
     def cell_iterator(self):
-        for c in self.cells:
-            yield c
+        yield from self.cells
 
 
 class Table:
@@ -303,13 +297,13 @@ class Table:
     def height(self, maxwidth):
         ''' Return row heights + self.rowpad'''
         widths = self.get_widths(maxwidth)
-        return sum([row.height(widths) + self.rowpad for row in self.rows]) - self.rowpad
+        return sum(row.height(widths) + self.rowpad for row in self.rows) - self.rowpad
 
     def minimum_width(self, col):
-        return max([row.minimum_width(col) for row in self.rows])
+        return max(row.minimum_width(col) for row in self.rows)
 
     def width_percent(self, col):
-        return max([row.width_percent(col) for row in self.rows])
+        return max(row.width_percent(col) for row in self.rows)
 
     def get_widths(self, maxwidth):
         '''

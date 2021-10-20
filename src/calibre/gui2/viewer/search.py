@@ -359,12 +359,12 @@ class SearchInput(QWidget):  # {{{
         qt.addItem(_('Contains'), 'normal')
         qt.addItem(_('Whole words'), 'word')
         qt.addItem(_('Regex'), 'regex')
-        qt.setToolTip(('<p>' + _(
+        qt.setToolTip('<p>' + _(
             'Choose the type of search: <ul>'
             '<li><b>Contains</b> will search for the entered text anywhere.'
             '<li><b>Whole words</b> will search for whole words that equal the entered text.'
             '<li><b>Regex</b> will interpret the text as a regular expression.'
-        )))
+        ))
         qt.setCurrentIndex(qt.findData(vprefs.get('viewer-{}-mode'.format(self.panel_name), 'normal') or 'normal'))
         qt.currentIndexChanged.connect(self.save_search_type)
         h.addWidget(qt)

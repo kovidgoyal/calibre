@@ -471,7 +471,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
         )
         db.executemany('DELETE FROM %s WHERE book=?'%table.link_table,
                             ((k,) for k in updated))
-        db.executemany('INSERT INTO {0}(book,{1}) VALUES(?, ?)'.format(
+        db.executemany('INSERT INTO {}(book,{}) VALUES(?, ?)'.format(
             table.link_table, m['link_column']), vals)
         if is_authors:
             aus_map = {book_id:field.author_sort_for_book(book_id) for book_id

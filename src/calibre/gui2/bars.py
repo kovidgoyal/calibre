@@ -644,8 +644,7 @@ class BarsManager(QObject):
 
     @property
     def bars(self):
-        for x in self.main_bars + self.child_bars:
-            yield x
+        yield from self.main_bars + self.child_bars
 
     @property
     def showing_donate(self):

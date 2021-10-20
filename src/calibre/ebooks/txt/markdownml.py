@@ -138,7 +138,7 @@ class MarkdownMLizer(OEB2HTML):
         if 'margin-top' in style.cssdict() and style['margin-top'] != 'auto':
             ems = int(round(float(style.marginTop) / style.fontSize) - 1)
             if ems >= 1:
-                text.append(u'\n\n' * ems)
+                text.append('\n\n' * ems)
 
         bq = '> ' * self.blockquotes
         # Block level elements
@@ -270,7 +270,7 @@ class MarkdownMLizer(OEB2HTML):
         if 'margin-bottom' in style.cssdict() and style['margin-bottom'] != 'auto':
             ems = int(round((float(style.marginBottom) / style.fontSize) - 1))
             if ems >= 1:
-                text.append(u'\n\n' * ems)
+                text.append('\n\n' * ems)
 
         # Add the text that is outside of the tag.
         if hasattr(elem, 'tail') and elem.tail:

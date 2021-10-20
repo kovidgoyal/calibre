@@ -35,7 +35,7 @@ def read_cover(mi):
     if mi.cover:
         try:
             mi.cover_data = serialize_cover(mi.cover)
-        except EnvironmentError:
+        except OSError:
             pass
     return mi
 

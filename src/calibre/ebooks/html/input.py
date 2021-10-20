@@ -121,10 +121,10 @@ class HTMLFile:
                     self.is_binary = not bool(pat.search(header))
                 if not self.is_binary:
                     src += f.read()
-        except IOError as err:
+        except OSError as err:
             msg = 'Could not read from file: %s with error: %s'%(self.path, as_unicode(err))
             if level == 0:
-                raise IOError(msg)
+                raise OSError(msg)
             raise IgnoreFile(msg, err.errno)
 
         if not src:

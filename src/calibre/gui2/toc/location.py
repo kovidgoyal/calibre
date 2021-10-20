@@ -80,7 +80,7 @@ class Page(QWebEnginePage):  # {{{
         if ok and self.current_frag:
             self.runJavaScript('''
                 document.location = '#non-existent-anchor';
-                document.location = '#' + {0};
+                document.location = '#' + {};
             '''.format(json.dumps(self.current_frag)))
             self.current_frag = None
             self.runJavaScript('window.pageYOffset/document.body.scrollHeight', QWebEngineScript.ScriptWorldId.ApplicationWorld, self.frag_shown.emit)
@@ -206,7 +206,7 @@ class ItemEdit(QWidget):
             # Prevent pressing enter in the search box from triggering the dialog's accept() method
             ev.accept()
             return
-        return super(ItemEdit, self).keyPressEvent(ev)
+        return super().keyPressEvent(ev)
 
     def find(self, forwards=True):
         text = str(self.search_text.text()).strip()

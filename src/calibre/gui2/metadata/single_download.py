@@ -241,7 +241,7 @@ class ResultsView(QTableView):  # {{{
         self.resizeColumnsToContents()
 
     def resizeEvent(self, ev):
-        ret = super(ResultsView, self).resizeEvent(ev)
+        ret = super().resizeEvent(ev)
         self.resize_delegate()
         return ret
 
