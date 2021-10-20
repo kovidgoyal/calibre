@@ -93,6 +93,12 @@ class ConditionEditor(QWidget):  # {{{
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
             ),
+            'multiple_no_isset' : (
+                (_('has'), 'has'),
+                (_('does not have'), 'does not have'),
+                (_('has pattern'), 'has pattern'),
+                (_('does not have pattern'), 'does not have pattern'),
+            ),
             'single'   : (
                 (_('is'), 'is'),
                 (_('is not'), 'is not'),
@@ -102,6 +108,14 @@ class ConditionEditor(QWidget):  # {{{
                 (_('does not match pattern'), 'does not match pattern'),
                 (_('is set'), 'is set'),
                 (_('is not set'), 'is not set'),
+            ),
+            'single_no_isset'   : (
+                (_('is'), 'is'),
+                (_('is not'), 'is not'),
+                (_('contains'), 'contains'),
+                (_('does not contain'), 'does not contain'),
+                (_('matches pattern'), 'matches pattern'),
+                (_('does not match pattern'), 'does not match pattern'),
             ),
     }
 
@@ -229,6 +243,10 @@ class ConditionEditor(QWidget):  # {{{
                     k = 'ondevice'
                 elif col == 'identifiers':
                     k = 'identifiers'
+                elif col == 'authors':
+                    k = 'multiple_no_isset'
+                elif col == 'title':
+                    k = 'single_no_isset'
                 else:
                     k = 'multiple' if m['is_multiple'] else 'single'
                 actions = self.action_map[k]
